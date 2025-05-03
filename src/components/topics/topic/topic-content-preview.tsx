@@ -6,27 +6,31 @@ import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {getEditorSettings} from "@/components/editor/settings";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+
+const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
 export const TopicContentPreview = ({
-    topic,
-    onMaximize
-}: {
+                                        topic,
+                                        onMaximize
+                                    }: {
     onMaximize: () => void
     topic: TopicView
 }) => {
     const router = useRouter()
 
-    if(topic.text == null || topic.text.length == 0){
+    if (topic.text == null || topic.text.trim().length == 0) {
         return <div className={"my-4"}>
             <Button
-            size={"large"}
-            onClick={() => {router.push(topicUrl(topic.id, undefined, "editing"))}}
-            fullWidth={true}
-            color={"secondary"}
-        >
-            No hay nada escrito sobre este tema. Escribí una primera versión.
+                size={"large"}
+                onClick={() => {
+                    router.push(topicUrl(topic.id, undefined, "editing"))
+                }}
+                fullWidth={true}
+                color={"secondary"}
+            >
+                No hay nada escrito sobre este tema. Escribí una primera versión.
             </Button>
         </div>
     }
@@ -49,8 +53,10 @@ export const TopicContentPreview = ({
                     initialTextFormat: topic.format,
                     editorClassName: "article-content not-article-content"
                 })}
-                setEditor={() => {}}
-                setEditorState={() => {}}
+                setEditor={() => {
+                }}
+                setEditorState={() => {
+                }}
             />
         </div>
     </div>

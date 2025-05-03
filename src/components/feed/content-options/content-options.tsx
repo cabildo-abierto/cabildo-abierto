@@ -6,7 +6,6 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import {BlueskyLogo} from "../../icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
-import {useSWRConfig} from "swr";
 import {useState} from "react";
 import {useSession} from "@/hooks/api";
 import {ViewsIcon} from "@/components/icons/views-icon";
@@ -67,7 +66,6 @@ export const ContentOptions = ({
     setShowBluesky?: (v: boolean) => void
 }) => {
     const {user} = useSession()
-    const {mutate} = useSWRConfig()
     const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion)
 
     async function onClickDelete() {
@@ -97,7 +95,7 @@ export const ContentOptions = ({
                     await removeFromEnDiscusion(record.uri)
                     setAddedToEnDiscusion(false)
                 }
-                mutate("/api/feed/EnDiscusion")
+                // TO DO mutate("/api/feed/EnDiscusion")
                 return {}
             }}
             startIcon={<Newspaper/>}

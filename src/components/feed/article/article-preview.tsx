@@ -29,7 +29,7 @@ export const ArticlePreview = (
                 {title}
             </div>
 
-            <div className={"border-t pt-1 text-sm text-[var(--text-light)] article-preview-content"}>
+            <div className={"border-t pt-1 text-sm text-[var(--text-light)] article-preview-content line-clamp-2"}>
                 <ReadOnlyEditor text={summary} format={"plain-text"}/>
             </div>
         </div>

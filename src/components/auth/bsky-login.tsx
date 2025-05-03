@@ -5,7 +5,6 @@ import {useRouter} from "next/navigation"
 import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {mutate} from "swr";
 import {useSession} from "@/hooks/api";
 import { Button } from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
@@ -76,7 +75,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
             if(error){
                 setError(error)
             } else {
-                mutate("/api/user", {})
+                // TO DO mutate("/api/user", {})
             }
         }
 

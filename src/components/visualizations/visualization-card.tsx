@@ -4,7 +4,6 @@ import Link from "next/link";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {VegaPlotPreview} from "./vega-plot-preview";
 import TableChartIcon from '@mui/icons-material/TableChart';
-import {useSWRConfig} from "swr";
 import {contentUrl, urlFromRecord} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 
@@ -20,13 +19,12 @@ function getTitleFromSpec(spec: string){
 type VisualizationProps = any // TO DO
 
 export const VisualizationCard = ({visualization, width}: {visualization: VisualizationProps, width: number}) => {
-    const {mutate} = useSWRConfig()
     const url = urlFromRecord(visualization.uri)
 
     const title = getTitleFromSpec(visualization.visualization.spec)
 
     async function onDelete(){
-        mutate("/api/visualizations")
+        // TO DO mutate("/api/visualizations")
     }
 
     return <div

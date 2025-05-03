@@ -11,7 +11,6 @@ import {ProfileDescription} from "@/components/profile/profile-description";
 import {FullscreenImageViewer} from "../images/fullscreen-image-viewer";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {Profile} from "@/lib/types";
-import {FollowCount} from "@/components/profile/follow/followx";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 
 
@@ -57,7 +56,8 @@ export function ProfileHeader({
 
     return <div className="flex flex-col border-b">
         <div className={"flex flex-col"}>
-            {profile.bsky.banner ? <div>
+            {profile.bsky.banner ?
+                <div>
                     <FullscreenImageViewer
                         images={[profile.bsky.banner]}
                         viewing={viewingBanner}
@@ -84,7 +84,7 @@ export function ProfileHeader({
                     images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}
                     setViewing={setViewingProfilePic}
-                    className={"rounded-full border"}
+                    className={"rounded-full border max-w-[500px] max-h-[500px]"}
                 />
                 <Image
                     src={profile.bsky.avatar}

@@ -6,6 +6,7 @@ import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
+import {updateSearchParam} from "@/components/topics/topic/topic-page";
 
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 
@@ -51,10 +52,9 @@ export const TopicsListView = () => {
     const searchParams = useSearchParams()
     const categories = searchParams.getAll("c")
     const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares")
-    const router = useRouter()
 
     function setCategories(newCats: string[]) {
-        router.push("/temas?view=lista&c=" + newCats.join("&c="))
+        updateSearchParam("c", newCats)
     }
 
     return <div>

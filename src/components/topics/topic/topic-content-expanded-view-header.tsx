@@ -1,4 +1,4 @@
-import React, {ReactNode} from "react";
+import React, {Dispatch, ReactNode, SetStateAction} from "react";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import {useSearchParams} from "next/navigation";
 import Link from "next/link";
@@ -25,7 +25,7 @@ export const TopicContentExpandedViewHeader = ({
     topic: TopicView
     wikiEditorState: WikiEditorState
     setWikiEditorState: (s: WikiEditorState) => void
-    setPinnedReplies: (v: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
     setShowingSaveEditPopup: (v: boolean) => void
     saveEnabled: boolean
 }) => {
@@ -124,7 +124,7 @@ export const TopicContentExpandedViewHeader = ({
                 </Button>
                 <Button
                     onClick={() => {
-                        setShowingSaveEditPopup(true)
+                        setShowingSaveEditPopup(true);
                     }}
                     variant={"text"}
                     sx={{borderRadius: 0}}

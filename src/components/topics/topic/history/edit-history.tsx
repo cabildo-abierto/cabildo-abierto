@@ -27,7 +27,8 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import { IconButton } from "../../../../../modules/ui-utils/src/icon-button";
 import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit-buttons";
-import {defaultPropValue, isDefaultProp} from "@/components/topics/topic/topic-props-editor";
+import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
+import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistory, index: number}) => {
@@ -87,7 +88,7 @@ const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistory
 
 
 export const TopicProperties = ({topicVersion, topic}: {topicVersion: VersionInHistory, topic: TopicView}) => {
-    const props = topicVersion.props != null ? topicVersion.props.filter(p => defaultPropValue(p, topic) != p.value) : []
+    const props = topicVersion.props != null ? topicVersion.props.filter(p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)) : []
 
     const modal = <div className={"border rounded bg-[var(--background-dark)] text-[var(--text-light)] p-2 text-sm"}>
         {props.length > 0 && props.map((p, index) => {
@@ -162,7 +163,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                     <div className="text-xs space-x-2 flex items-center">
                         <TopicProperties topicVersion={topicVersion} topic={topic}/>
                         <div className={"text-[var(--text-light)]"}>
-                            <DateSince date={new Date(topicVersion.createdAt)}/>
+                            hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
                         <ContentOptionsButton
                             record={{...topicVersion}}

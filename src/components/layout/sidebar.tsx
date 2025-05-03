@@ -25,7 +25,7 @@ import SenadoIcon from '../../../public/senado-icono.svg';
 import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
-import {urlCongreso, userUrl} from "@/utils/uri";
+import {urlCongreso, profileUrl} from "@/utils/uri";
 import {FloatingWriteButton} from "../writing/floating-write-button";
 import {useSession} from "@/hooks/api";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
@@ -120,7 +120,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                     <div className={"mb-4"}>
                         {user.user &&
                             <div className={"w-full flex justify-center"}>
-                                <Link href={userUrl(user.user.handle)}>
+                                <Link href={profileUrl(user.user.handle)}>
                                     <ProfilePic user={user.user} className={"w-12 h-12 rounded-full border " + dimOnHoverClassName} descriptionOnHover={false}/>
                                 </Link>
                             </div>
@@ -209,8 +209,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         iconInactive={<PersonOutlinedIcon/>}
                         onClick={onClose}
                         text="Perfil"
-                        href={userUrl(user.user.handle)}
-                        selected={pathname == userUrl(user.user.handle)}
+                        href={profileUrl(user.user.handle)}
+                        selected={pathname == profileUrl(user.user.handle)}
                         showText={showText}
                     />}
                     {user.user && user.user.editorStatus == "Administrator" &&

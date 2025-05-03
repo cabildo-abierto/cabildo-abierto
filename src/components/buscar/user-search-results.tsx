@@ -2,7 +2,7 @@ import {useSearch} from "./search-context"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React, {useEffect, useState} from "react"
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
-import {userUrl} from "@/utils/uri";
+import {profileUrl} from "@/utils/uri";
 import Image from "next/image";
 import {emptyChar} from "@/utils/utils";
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
@@ -22,7 +22,7 @@ type UserSearchResultProps = {
 export const UserSearchResult = ({user}: UserSearchResultProps) => {
 
     return <Link
-        href={userUrl(user.handle)}
+        href={profileUrl(user.handle)}
         className={"flex justify-between hover:bg-[var(--background-dark)] border-b p-3 " + (user.description ? "h-28" : "")}
     >
         <div className={"flex justify-center w-16"}>
@@ -51,7 +51,7 @@ export const SmallUserSearchResult: React.FC<{
     const {setSearchState} = useSearch()
 
     return <Link
-        href={userUrl(result.handle)}
+        href={profileUrl(result.handle)}
         onClick={() => {
             setSearchState({value: "", searching: false})
         }}

@@ -8,8 +8,8 @@ import {CreateTopic} from "./create-topic";
 import {WritePost} from "./write-post";
 import {$Typed} from "@atproto/api";
 import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {WritePanelReply} from "@/components/writing/write-panel/write-panel-reply";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {emptyChar} from "@/utils/utils";
 
 
 export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
@@ -49,9 +49,9 @@ export const WritePanel = ({
                 sx={{
                     textTransform: "none",
                     paddingY: 0,
-                    backgroundColor: isSelected ? "var(--background-dark)" : "transparent",
+                    backgroundColor: isSelected ? "var(--background-dark2)" : "transparent",
                     ":hover": {
-                        backgroundColor: "var(--background-dark)"
+                        backgroundColor: "var(--background-dark2)"
                     }
                 }}
             >
@@ -74,17 +74,13 @@ export const WritePanel = ({
         <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
             <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
-                    {isReply && <WritePanelReply
-                        replyTo={replyTo}
-                        selection={selection}
-                    />}
-                    {!isReply && <SelectionComponent
+                    {!isReply ? <SelectionComponent
                         onSelection={onSelection}
                         selected={selected}
                         optionsNodes={optionsNodes}
                         options={["Post", "Artículo", "Tema"]}
                         className={"flex space-x-2"}
-                    />}
+                    /> : <div>{emptyChar}</div>}
                     <CloseButton size="small" onClose={onClose}/>
                 </div>
                 {selected == "Post" && <WritePost

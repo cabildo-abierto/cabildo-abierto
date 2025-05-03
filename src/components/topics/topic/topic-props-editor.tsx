@@ -1,20 +1,31 @@
-import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {
+    isStringListProp,
+    isStringProp,
+    TopicProp,
+    TopicView
+} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useEffect, useState} from "react";
 import {Box, IconButton, TextField} from "@mui/material";
 import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../../../modules/ui-utils/src/button";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
+import {propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
+import {useCategories} from "@/hooks/api";
 
 
-export const TopicPropEditor = ({p, setProp, deleteProp}: {p: TopicProp, setProp: (p: TopicProp) => void, deleteProp: () => void}) => {
+export const TopicPropEditor = ({p, setProp, deleteProp}: {
+    p: TopicProp,
+    setProp: (p: TopicProp) => void,
+    deleteProp: () => void
+}) => {
     const isDefault = isDefaultProp(p)
     const [hovered, setHovered] = useState(false)
+    const {data: categories} = useCategories()
 
     return <div className={"flex space-x-8 w-full items-center"}>
-
         <Button
             variant="text"
             onMouseEnter={() => setHovered(true)}
@@ -39,7 +50,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {p: TopicProp, setProp
                     alignItems: "center",
                 }}
             >
-                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
                   {p.name}
                 </span>
                 <span className={"text-[var(--text-light)]"}>
@@ -47,40 +58,55 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {p: TopicProp, setProp
                 </span>
             </Box>
         </Button>
-        {p.dataType == "string[]" && <ListEditor
-            items={JSON.parse(p.value)}
-            setItems={(values: string[]) => {setProp({...p, value: JSON.stringify(values)})}}
+        {isStringListProp(p.value) && <ListEditor
+            items={p.value.value}
+            setItems={(values: string[]) => {
+                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
+            }}
+            options={p.name == "Categorías" ? categories?.map(c => c.category) : []}
         />}
-        {p.dataType == "string" && <TextField
-            value={p.value}
+        {isStringProp(p.value) && <TextField
+            value={p.value.value}
             size={"small"}
-            onChange={(e) => {setProp({...p, value: e.target.value})}}
+            onChange={(e) => {
+                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: e.target.value}})
+            }}
         />}
     </div>
 }
 
 
 export function addDefaults(props: TopicProp[], topic: TopicView) {
+    if(!props) props = []
     const newProps = [...props]
-    if(!props.some(p => p.name == "Título")){
-        newProps.push({name: "Título", value: topic.id, dataType: "string"})
+    if (!props.some(p => p.name == "Título")) {
+        newProps.push({
+            name: "Título",
+            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: topic.id}
+        })
     }
-    if(!props.some(p => p.name == "Categorías")){
-        newProps.push({name: "Categorías", value: "[]", dataType: "string[]"})
+    if (!props.some(p => p.name == "Categorías")) {
+        newProps.push({
+            name: "Categorías",
+            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: []}
+        })
     }
-    if(!props.some(p => p.name == "Sinónimos")){
-        newProps.push({name: "Sinónimos", value: "[]", dataType: "string[]"})
+    if (!props.some(p => p.name == "Sinónimos")) {
+        newProps.push({
+            name: "Sinónimos",
+            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: []}
+        })
     }
     return newProps
 }
 
 
 export function propsEqual(props1: TopicProp[], props2: TopicProp[]) {
-    if(props1.length != props2.length){
+    if (props1.length != props2.length) {
         return false
     }
-    for(let i = 0; i < props1.length; i++){
-        if(props1[i].name != props2[i].name || props1[i].value != props2[i].value || props1[i].dataType != props2[i].dataType){
+    for (let i = 0; i < props1.length; i++) {
+        if (props1[i].name != props2[i].name || !propsEqualValue(props1[i].value, props2[i].value)) {
             return false
         }
     }
@@ -88,31 +114,44 @@ export function propsEqual(props1: TopicProp[], props2: TopicProp[]) {
 }
 
 
-export function defaultPropValue(p: TopicProp, topic: TopicView) {
-    if(p.name == "Título"){
-        return topic.id
-    } else if(p.dataType == "string"){
-        return ""
-    } else if(p.dataType == "string[]") {
-        return "[]"
+export function defaultPropValue(name: string, type: PropValueType, topic: TopicView): PropValue {
+    if (name == "Título") {
+        return {
+            $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
+            value: topic.id
+        }
+    } else if (type == "ar.cabildoabierto.wiki.topicVersion#stringProp") {
+        return {
+            $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
+            value: ""
+        }
+    } else if (type == "ar.cabildoabierto.wiki.topicVersion#stringListProp") {
+        return {
+            $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
+            value: []
+        }
     } else {
-        throw Error("Tipo de datos desconocido: " + p.dataType)
+        throw Error("Tipo de datos desconocido: " + type)
     }
 }
 
 
-export function isDefaultProp(p: TopicProp){
+export function isDefaultProp(p: TopicProp) {
     return ["Título", "Sinónimos", "Categorías"].includes(p.name)
 }
 
 
-function NewPropModal({open, onClose, onAddProp}: {open: boolean, onClose: () => void, onAddProp: (name: string, dataType: "string" | "string[]") => void}) {
+function NewPropModal({open, onClose, onAddProp}: {
+    open: boolean,
+    onClose: () => void,
+    onAddProp: (name: string, type: PropValueType) => void
+}) {
     const [name, setName] = useState("")
-    const [dataType, setDataType] = useState<"string" | "string[]">("string")
+    const [dataType, setDataType] = useState<PropValueType>("ar.cabildoabierto.wiki.topicVersion#stringProp")
 
     function cleanAndClose() {
         setName("")
-        setDataType("string")
+        setDataType("ar.cabildoabierto.wiki.topicVersion#stringProp")
         onClose()
     }
 
@@ -130,14 +169,17 @@ function NewPropModal({open, onClose, onAddProp}: {open: boolean, onClose: () =>
                 <InputLabel>Tipo de datos</InputLabel>
                 <Select
                     value={dataType}
-                    onChange={(e) => setDataType(e.target.value as "string" | "string[]")}
+                    onChange={(e) => setDataType(e.target.value as PropValueType)}
                     label="Tipo de datos"
                 >
-                    <MenuItem value={"string"}>Texto</MenuItem>
-                    <MenuItem value={"string[]"}>Lista de textos</MenuItem>
+                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringProp"}>Texto</MenuItem>
+                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringListProp"}>Lista de textos</MenuItem>
                 </Select>
             </FormControl>
-            <Button size={"small"} onClick={() => {cleanAndClose(); onAddProp(name, dataType)}} disabled={name.length == 0}>
+            <Button size={"small"} onClick={() => {
+                cleanAndClose();
+                onAddProp(name, dataType)
+            }} disabled={name.length == 0}>
                 Aceptar
             </Button>
         </div>
@@ -145,18 +187,25 @@ function NewPropModal({open, onClose, onAddProp}: {open: boolean, onClose: () =>
 }
 
 
-export const TopicPropsEditor = ({props, setProps, topic, onClose}: {props: TopicProp[], setProps: (props: TopicProp[]) => void, topic: TopicView, onClose: () => void}) => {
+export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
+    props: TopicProp[],
+    setProps: (props: TopicProp[]) => void,
+    topic: TopicView,
+    onClose: () => void
+}) => {
     const [creatingProp, setCreatingProp] = useState(false)
 
     useEffect(() => {
         const newProps = addDefaults(props, topic)
-        if(!propsEqual(newProps, props)){
+        console.log("Current props", props)
+        console.log("Added defaults", newProps)
+        if (!propsEqual(newProps, props)) {
             setProps(newProps)
         }
     }, [props])
 
     function setProp(p: TopicProp) {
-        if(props.some(p2 => p2.name == p.name)){
+        if (props.some(p2 => p2.name == p.name)) {
             const newProps = [...props]
             const index = newProps.findIndex(p2 => p2.name == p.name)
             newProps[index] = p
@@ -166,8 +215,14 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {props: Topi
         }
     }
 
-    function addProp(name: string, dataType: string) {
-        setProps([...props, {name, value: defaultPropValue({name, dataType, value: ""}, topic), dataType}])
+    function addProp(name: string, type: PropValueType) {
+        setProps([
+            ...props,
+            {
+                name,
+                value: defaultPropValue(name, type, topic),
+            }
+        ])
     }
 
     function resetProps() {
@@ -181,23 +236,36 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {props: Topi
         <div className={"space-y-6"}>
             {props.map((p, index) => {
                 return <div key={index}>
-                    <TopicPropEditor p={p} setProp={setProp} deleteProp={() => {setProps(props.filter(p2 => p2.name != p.name))}}/>
+                    <TopicPropEditor p={p} setProp={setProp} deleteProp={() => {
+                        setProps(props.filter(p2 => p2.name != p.name))
+                    }}/>
                 </div>
             })}
         </div>
         <div className={"flex justify-between"}>
-            <Button style={{width: 120}} onClick={() => {setCreatingProp(true)}} size={"small"} variant={"contained"}>
+            <Button style={{width: 120}} onClick={() => {
+                setCreatingProp(true)
+            }} size={"small"} variant={"contained"}>
                 Nueva propiedad
             </Button>
             <div className={"text-[var(--text-light)] space-x-2"}>
                 <IconButton size={"small"} onClick={resetProps} color={"inherit"}>
                     <DeleteOutlineIcon color={"inherit"}/>
                 </IconButton>
-                <IconButton size={"small"} onClick={() => {resetProps(); onClose()}} color={"inherit"}>
+                <IconButton size={"small"} onClick={() => {
+                    resetProps();
+                    onClose()
+                }} color={"inherit"}>
                     <CloseIcon color={"inherit"}/>
                 </IconButton>
             </div>
         </div>
-        <NewPropModal open={creatingProp} onClose={() => {setCreatingProp(false)}} onAddProp={addProp}/>
+        <NewPropModal
+            open={creatingProp}
+            onClose={() => {
+                setCreatingProp(false)
+            }}
+            onAddProp={addProp}
+        />
     </div>
 }

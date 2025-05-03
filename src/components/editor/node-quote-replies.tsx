@@ -1,5 +1,5 @@
 import {ShowQuoteReplyButton} from "./show-quote-reply";
-import {useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";
 
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
@@ -12,7 +12,7 @@ export const NodeQuoteReplies = ({
 }: {
     replies: PostView[]
     pinnedReplies: string[]
-    setPinnedReplies: (v: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
     editor: LexicalEditor
     leftCoordinates: number
     parentContent: ReplyToContent

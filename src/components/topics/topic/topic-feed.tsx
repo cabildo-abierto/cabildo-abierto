@@ -6,7 +6,6 @@ import {Button} from "@mui/material";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
-import {useSWRConfig} from "swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 
 
@@ -17,7 +16,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
     const minimized = !s || s == "minimized"
     const [selected, setSelected] = useState<string>(minimized ? "Menciones" : "Respuestas al contenido")
     const [mentionsSelected, setMentionsSelected] = useState<string>("Publicaciones")
-    const {mutate} = useSWRConfig()
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] h-10 ">
@@ -39,7 +37,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
     }
 
     async function onDeleteFeedElem() {
-        mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+        // mutate("/api/topic-feed/"+encodeURIComponent(topicId))
     }
 
     function optionsNodesMentions(o: string, isSelected: boolean){

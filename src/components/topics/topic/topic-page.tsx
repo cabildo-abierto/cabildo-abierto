@@ -13,6 +13,20 @@ import {TopicCategories} from "./topic-categories";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 
 
+export function updateSearchParam(key: string, value: string | string[] | null) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete(key)
+
+    if(Array.isArray(value)){
+        value.forEach(x => url.searchParams.append(key, x));
+    } else {
+        url.searchParams.set(key, value)
+    }
+
+    window.history.pushState({}, '', url.toString());
+}
+
+
 export const TopicPage = ({topicId}: {
     topicId: string
 }) => {
@@ -20,10 +34,8 @@ export const TopicPage = ({topicId}: {
     const searchParams = useSearchParams()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const [shouldGoTo, setShouldGoTo] = useState(null)
-    const router = useRouter()
-    const [pinnedReplies, setPinnedReplies] = useState([])
-
-    const wikiEditorState = (searchParams.get("s") ? searchParams.get("s") : "minimized") as WikiEditorState
+    const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
+    const wikiEditorState = ((searchParams.get("s") ? searchParams.get("s") : "minimized") as WikiEditorState)
 
     useEffect(() => {
         if(wikiEditorState != "minimized" && layoutConfig.openRightPanel){
@@ -79,26 +91,27 @@ export const TopicPage = ({topicId}: {
         return <TopicNotFoundPage id={topicId}/>
     }
 
-    function setWikiEditorState(s: WikiEditorState) {
-        const didParam = searchParams.get("did")
-        const didParamStr = didParam ? ("&did=" + didParam) : ""
-        const rkeyParam = searchParams.get("rkey")
-        const rkeyParamStr = rkeyParam ? ("&rkey=" + rkeyParam) : ""
+    function setWikiEditorStateAndRouterPush(s: WikiEditorState) {
+        updateSearchParam("s", s)
 
         if(s == "minimized"){
-            router.push("/tema?i="+topic.id)
-        } else {
-            router.push("/tema?i="+topic.id+"&s="+s+didParamStr+rkeyParamStr)
+            updateSearchParam("did", null)
+            updateSearchParam("rkey", null)
         }
     }
 
     const onClickQuote = (cid: string) => {
-        setPinnedReplies([...pinnedReplies, cid])
+        //if(!pinnedReplies.includes(cid)){
+        //    setPinnedReplies([cid])
+        //}
+        setPinnedReplies([cid])
         if(wikiEditorState != "minimized"){
-            const elem = document.getElementById(cid)
-            smoothScrollTo(elem)
+            const elem = document.getElementById("selection:"+cid)
+            if(elem){
+                smoothScrollTo(elem)
+            }
         } else {
-            setWikiEditorState("normal")
+            setWikiEditorStateAndRouterPush("normal")
             setLayoutConfig({...layoutConfig, openRightPanel: false, maxWidthCenter: "800px"})
             setShouldGoTo(cid)
         }
@@ -121,7 +134,7 @@ export const TopicPage = ({topicId}: {
         <TopicContent
             topic={topic}
             wikiEditorState={wikiEditorState}
-            setWikiEditorState={setWikiEditorState}
+            setWikiEditorState={setWikiEditorStateAndRouterPush}
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
         />

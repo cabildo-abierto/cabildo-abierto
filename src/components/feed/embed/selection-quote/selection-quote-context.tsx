@@ -1,7 +1,7 @@
 import {contentUrl} from "@/utils/uri";
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import Link from "next/link";
-import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 
 
 type SelectionQuoteContextProps = {

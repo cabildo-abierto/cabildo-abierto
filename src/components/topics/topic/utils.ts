@@ -1,13 +1,37 @@
+import {BothContributionsProps, EditorStatus} from "@/lib/types";
+
 import {
-    BothContributionsProps, EditorStatus
-} from "@/lib/types";
+    isStringListProp, isStringProp, StringListProp, StringProp,
+    TopicHistory,
+    TopicProp,
+    TopicVersionStatus
+} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {areArraysEqual, gett} from "@/utils/arrays";
+import {$Typed} from "@atproto/api";
 
-import {TopicHistory, TopicProp, TopicVersionStatus} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {gett} from "@/utils/arrays";
+
+export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" | "ar.cabildoabierto.wiki.topicVersion#stringProp"
+
+export type PropValue = $Typed<StringListProp> | $Typed<StringProp> | {$type: string}
+
+export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> {
+    return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp"
+}
+
+export function propsEqualValue(a: PropValue, b: PropValue) {
+    if(a.$type != b.$type) return false
+    if(isStringListProp(a) && isStringListProp(b)){
+        return areArraysEqual(a.value, b.value)
+    } else if(isStringProp(a) && isStringProp(b)){
+        return a.value == b.value
+    }
+}
 
 
-export function getTopicCategories(props?: TopicProp[]): string[]{
-    return getTopicProp("Categorías", props) as string[] ?? []
+export function getTopicCategories(props?: TopicProp[]): string[] {
+    const c = getTopicProp("Categorías", props)
+    return c && isStringListProp(c.value) ? c.value.value : []
 }
 
 
@@ -29,39 +53,40 @@ export function getRejectCount(status: TopicVersionStatus){
 }
 
 
-export function getTopicProp(prop: string, props?: TopicProp[]){
+export function getTopicProp(prop: string, props?: TopicProp[]): TopicProp | null {
     const d = getPropsDict(props)
     if(d.has(prop)){
-        const p = gett(d, prop)
-
-        if(p.dataType == "string" || !p.dataType){
-            return p.value
-        } else if(p.dataType == "string[]") {
-            return JSON.parse(p.value) as string[]
-        } else {
-            throw Error(`Tipo de propiedad de tema desconocido (${p.dataType})) en propiedad ${p.value}.`)
-        }
+        return gett(d, prop)
     } else {
         return null
     }
 }
 
 
-export function getTopicTitle(topic: {id: string, props?: TopicProp[]}) {
-    return getTopicProp("Título", topic.props) ?? topic.id
+export function getTopicTitle(topic: {id: string, props?: TopicProp[]}): string {
+    const t = getTopicProp("Título", topic.props)
+    return t && isStringProp(t.value) && t.value.value != null ? t.value.value : topic.id
 }
 
 
 export function getTopicSynonyms(topic: {id: string, props?: TopicProp[]}): string[] {
-    const s = getTopicProp("Sinónimos", topic.props) as string[] | null
-    const t = getTopicProp("Título", topic.props) as string | null
+    const s = getTopicProp("Sinónimos", topic.props)
+    const t = getTopicProp("Título", topic.props)
 
-    return [topic.id, ...(s ?? []), ...(t ? [t] : [])]
+    let synonyms = [topic.id]
+    if(s && isStringListProp(s.value)){
+        synonyms = [...synonyms, ...s.value.value]
+    }
+    if(t && isStringProp(t.value)) {
+        synonyms.push(t.value.value)
+    }
+    return synonyms
 }
 
 
 export function getTopicProtection(props: TopicProp[]): string {
-    return getTopicProp("Protección", props) as string ?? "Principiante"
+    const p = getTopicProp("Protección", props)
+    return p && isStringProp(p.value) ? p.value.value : "Principiante"
 }
 
 

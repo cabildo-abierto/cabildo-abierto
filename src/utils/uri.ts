@@ -65,8 +65,8 @@ export function editVisualizationUrl(uri: string) {
     return "/nueva-visualizacion?did=" + did + "&rkey=" + rkey + collectionParam
 }
 
-export function userUrl(id: string) {
-    return "/perfil/" + id
+export function profileUrl(handleOrDid: string) {
+    return "/perfil/" + handleOrDid
 }
 
 export function contentUrl(uri: string) {

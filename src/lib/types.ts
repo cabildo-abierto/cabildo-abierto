@@ -79,13 +79,6 @@ export type TopicsGraph = {
 }
 
 
-export type ReasonProps = {
-    createdAt: Date
-    collection: Collection
-    by: ProfileViewBasic
-}
-
-
 export type BothContributionsProps = {
     monetized: [string, number][]
     all: [string, number][]

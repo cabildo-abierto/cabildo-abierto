@@ -49,13 +49,13 @@ export const ModalOnHover = ({children, modal}: ModalOnHoverProps) => {
                 anchorEl={anchorEl}
                 placement="bottom-start"
                 transition
-                sx={{ zIndex: 1400 }}
+                sx={{zIndex: 1400}}
             >
-                {({ TransitionProps }) => (
+                {({TransitionProps}) => (
                     <Fade {...TransitionProps} timeout={350}>
                         <div className={"mt-2"}
-                            onMouseEnter={handleModalEnter}
-                            onMouseLeave={handleModalLeave}
+                             onMouseEnter={handleModalEnter}
+                             onMouseLeave={handleModalLeave}
                         >
                             {modal}
                         </div>

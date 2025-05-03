@@ -4,6 +4,10 @@ import {ProfileDescription} from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {useProfile} from "@/hooks/api";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
+import Link from "next/link";
+import {profileUrl} from "@/utils/uri";
+import {useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
 
 
 type UserSummaryProps = {
@@ -12,32 +16,41 @@ type UserSummaryProps = {
 
 
 export const UserSummary = ({user}: UserSummaryProps) => {
-    const {data: profile, isLoading} = useProfile(user.handle)
-    const className: string = 'w-12 h-12 rounded-full'
+    const {data: profile, isLoading} = useProfile(user.handle);
+    const [show, setShow] = useState(false);
 
-    if(isLoading) return null
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setShow(true);
+        }, 700);
+        return () => clearTimeout(timeout)
+    }, [])
+
+    if (isLoading || !show) return null;
+
+    const className: string = 'w-12 h-12 rounded-full';
 
     return (
         <div className="bg-[var(--background)] border p-4 w-90 rounded-xl flex flex-col space-y-2">
-            <div className={"flex justify-between items-center"}>
+            <div className="flex justify-between items-center">
                 <ProfilePic user={user} descriptionOnHover={false} className={className}/>
                 <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
             </div>
 
-            <div className={"flex flex-col"}>
-                <span className="font-semibold text-base">
+            <div className="flex flex-col">
+                <Link className="font-semibold text-base" href={profileUrl(profile.bsky.handle)}>
                     {profile.bsky.displayName}
-                </span>
-                <span className="text-[var(--text-light)]">
+                </Link>
+                <Link className="text-[var(--text-light)]" href={profileUrl(profile.bsky.handle)}>
                     @{profile.bsky.handle}
-                </span>
+                </Link>
             </div>
 
-            <FollowCounters profile={profile} />
+            <FollowCounters profile={profile}/>
 
-            <ProfileDescription description={profile.bsky.description} className={"text-sm"}/>
+            <ProfileDescription description={profile.bsky.description} className="text-sm"/>
         </div>
-    )
+    );
 };
 
 
@@ -47,19 +60,24 @@ type ProfilePicProps = {
     user: { avatar?: string, handle: string }
 }
 
-export const ProfilePic = ({user, className, descriptionOnHover=true}: ProfilePicProps) => {
+export const ProfilePic = ({user, className, descriptionOnHover = true}: ProfilePicProps) => {
+    const router = useRouter()
 
     const pic = (
-        <Image
-            src={user.avatar ? user.avatar : "https://ui-avatars.com/api/?name=${encodeURIComponent(user.handle)}`"}
-            width={100}
-            height={100}
-            alt={"Foto de perfil de " + user.handle}
-            className={className}
-        />
+        <div onClick={() => {
+            router.push(profileUrl(user.handle))
+        }} className={"cursor-pointer"}>
+            <Image
+                src={user.avatar ? user.avatar : "https://ui-avatars.com/api/?name=${encodeURIComponent(user.handle)}`"}
+                width={100}
+                height={100}
+                alt={"Foto de perfil de " + user.handle}
+                className={className}
+            />
+        </div>
     )
 
-    if(!descriptionOnHover){
+    if (!descriptionOnHover) {
         return pic
     }
 

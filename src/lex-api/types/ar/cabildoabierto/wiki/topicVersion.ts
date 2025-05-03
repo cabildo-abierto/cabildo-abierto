@@ -43,6 +43,7 @@ export interface TopicView {
   uri: string
   cid: string
   currentVersion?: string
+  record?: { [_ in string]: unknown }
   text: string
   format?: string
   props?: TopicProp[]
@@ -156,8 +157,7 @@ export function validateCategoryVotes<V>(v: V) {
 export interface TopicProp {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicProp'
   name: string
-  value: string
-  dataType?: string
+  value: $Typed<StringProp> | $Typed<StringListProp> | { $type: string }
 }
 
 const hashTopicProp = 'topicProp'
@@ -168,6 +168,36 @@ export function isTopicProp<V>(v: V) {
 
 export function validateTopicProp<V>(v: V) {
   return validate<TopicProp & V>(v, id, hashTopicProp)
+}
+
+export interface StringProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#stringProp'
+  value: string
+}
+
+const hashStringProp = 'stringProp'
+
+export function isStringProp<V>(v: V) {
+  return is$typed(v, id, hashStringProp)
+}
+
+export function validateStringProp<V>(v: V) {
+  return validate<StringProp & V>(v, id, hashStringProp)
+}
+
+export interface StringListProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#stringListProp'
+  value: string[]
+}
+
+const hashStringListProp = 'stringListProp'
+
+export function isStringListProp<V>(v: V) {
+  return is$typed(v, id, hashStringListProp)
+}
+
+export function validateStringListProp<V>(v: V) {
+  return validate<StringListProp & V>(v, id, hashStringListProp)
 }
 
 export interface TopicViewBasic {

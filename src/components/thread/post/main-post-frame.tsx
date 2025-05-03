@@ -5,15 +5,13 @@ import {getUsername} from '@/utils/utils'
 import Link from 'next/link'
 import {ReactNode, useState} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
-import {backendUrl, userUrl} from "@/utils/uri";
+import {backendUrl, profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
-import {BlueskyLogo} from "@/components/icons/bluesky-logo";
-import {IconButton} from "@mui/material";
-import {ShowBlueskyButton} from "@/components/feed/frame/show-bluesky-button";
 import {$Typed} from "@atproto/api";
-import {useSWRConfig} from "swr";
+import {ProfilePic} from "@/components/profile/profile-pic";
+import {DateSince} from "../../../../modules/ui-utils/src/date";
 
 
 type MainPostFrameProps = { children: ReactNode, postView: $Typed<PostView> }
@@ -24,15 +22,13 @@ export const MainPostFrame = ({
                               }: MainPostFrameProps) => {
 
     const author = postView.author
-    const authorUrl = userUrl(author.handle)
-    const {mutate} = useSWRConfig()
+    const authorUrl = profileUrl(author.handle)
 
     const enDiscusion = hasEnDiscusionLabel(postView)
 
     async function onChange() {
-        console.log("mutando respuestas")
-        mutate(backendUrl + "/profile-feed/" + author.handle + "/publicaciones")
-        mutate(backendUrl + "/profile-feed/" + author.handle + "/respuestas")
+        // TO DO mutate(backendUrl + "/profile-feed/" + author.handle + "/publicaciones")
+        // TO DO mutate(backendUrl + "/profile-feed/" + author.handle + "/respuestas")
     }
 
     return (
@@ -40,15 +36,7 @@ export const MainPostFrame = ({
             <div className={"px-2 border-b"}>
                 <div className="flex justify-between items-center px-2">
                     <div className="flex space-x-2">
-                        <Link href={authorUrl}>
-                            <Image
-                                src={author.avatar}
-                                alt={"Perfil de " + author.handle}
-                                width={100}
-                                height={100}
-                                className="rounded-full w-11 h-auto"
-                            />
-                        </Link>
+                        <ProfilePic user={author} className={"w-11 h-11 rounded-full"}/>
                         <div className="flex flex-col">
                             <Link href={authorUrl} className="hover:underline font-bold mr-1">  {getUsername(author)}
                             </Link>
@@ -67,7 +55,7 @@ export const MainPostFrame = ({
 
                     <div className="py-2">
                         <div className="text-sm text-[var(--text-light)]">
-                            {formatIsoDate(postView.indexedAt)}
+                            Hace <DateSince date={postView.indexedAt} />
                         </div>
                     </div>
                 </div>

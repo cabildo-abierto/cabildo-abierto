@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import {getUsername} from "../../../utils/utils"
-import {userUrl} from "../../../utils/uri";
+import {profileUrl} from "../../../utils/uri";
 import {useSession} from "../../../hooks/api";
 
 export const Username = ({user}: {user: {displayName?: string, handle: string}}) => {
@@ -10,7 +10,7 @@ export const Username = ({user}: {user: {displayName?: string, handle: string}})
     if(session.isLoading) return <></>
     if(!user) return <span>No user</span>
 
-    return <Link className="hover:underline" href={userUrl(user.handle)}>
+    return <Link className="hover:underline" href={profileUrl(user.handle)}>
         {session.user.handle == user.handle ? "vos" : getUsername(user)}
     </Link>
 }

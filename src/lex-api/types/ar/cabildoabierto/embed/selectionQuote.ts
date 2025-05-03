@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -38,7 +38,7 @@ export interface View {
   quotedText: string
   quotedTextFormat?: string
   quotedContent: string
-  quotedContentAuthor: AppBskyActorDefs.ProfileViewBasic
+  quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
   quotedContentTitle?: string
 }
 

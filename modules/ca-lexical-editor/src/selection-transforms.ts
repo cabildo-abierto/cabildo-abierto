@@ -33,6 +33,7 @@ export function lexicalSelectionToMarkdownSelection(s: string, selection: Lexica
         return cmpLexicalPointers(selection.start, startAttempt)
     }
 
+    // el primer índice en markdown tal que su índice en lexical es mayor o igual a selection.start
     const i = bsb.ge(arr, null, cmp)
     if (i < 0) return null
 
@@ -42,6 +43,8 @@ export function lexicalSelectionToMarkdownSelection(s: string, selection: Lexica
     }
 
     const arr2 = range(i, markdown.length)
+
+    // el primer índice tal que
     const jIndex = bsb.ge(arr2, null, cmpEnd)
     if (jIndex < 0) return null
     const j = arr2[jIndex]
@@ -94,17 +97,17 @@ export function getLexicalPointerFromMarkdownIndex(s: any, index: number, leaves
      se obtiene un LexicalState tal que al transformarlo a markdown es igual a markdown.slice(0, index+1)
      ***/
 
-    const objLength = index+1
+    const objLength = index + 1
     leaves = leaves.filter(l => l.node.text != null)
 
-    function cmp(a: number, _: number){
+    function cmp(a: number, _: number) {
         const {node, pointer} = leaves[a]
         const markdownUpToCurrentLeave = getMarkdownUpTo(s, {node: pointer, offset: node.text.length}, leaves)
         return markdownUpToCurrentLeave.length >= objLength ? 0 : -1
     }
 
     const i = bsb.ge(range(leaves.length), null, cmp)
-    if(i < 0) {
+    if (i < 0) {
         return null
     }
 

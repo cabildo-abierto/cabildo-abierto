@@ -1,13 +1,13 @@
-import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {isStringListProp, isStringProp, TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 export const TopicProperty = ({p}: {p: TopicProp}) => {
-    if(p.dataType == "string"){
+    if(isStringProp(p.value)){
         return <div>
-            <span className={"font-semibold"}>{p.name}:</span> {p.value}
+            <span className={"font-semibold"}>{p.name}:</span> {p.value.value}
         </div>
-    } else if(p.dataType == "string[]"){
-        const values: string[] = JSON.parse(p.value)
+    } else if(isStringListProp(p.value)){
+        const values: string[] = p.value.value
         return <div>
             <span className={"font-semibold"}>{p.name}:</span> {values.join(", ")}
         </div>

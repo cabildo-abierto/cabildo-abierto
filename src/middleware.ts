@@ -44,37 +44,6 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(articleUrl)
     }
 
-    const cookieHeader = request.headers.get('cookie');
-
-    let status = "server down"
-    try {
-        // esto no termina de funcionar
-        const res = await fetch(backendUrl + "/session", {
-            headers: {
-                cookie: cookieHeader || ''
-            },
-            next: { revalidate: 0 }
-        })
-        const session = await res.json()
-        if(session && session.data){
-            status = "authenticated"
-        } else {
-            status = "not authenticated"
-        }
-    } catch (e) {
-
-    }
-
-    if(status == "server down"){
-        if(!request.nextUrl.pathname.includes("/mantenimiento")){
-            url.pathname = "/mantenimiento"
-            return NextResponse.redirect(url)
-        }
-    } else if(url.pathname == "/"){
-        url.pathname = "/inicio"
-        return NextResponse.redirect(url)
-    }
-
     return NextResponse.next()
 }
 

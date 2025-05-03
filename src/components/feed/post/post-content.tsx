@@ -1,8 +1,8 @@
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {FeedViewContent, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isSelectionQuote} from "@/utils/type-utils";
 import {PostRecord} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 type PostContentProps = {
@@ -29,7 +29,7 @@ export const PostContent = ({
             <BskyRichTextContent post={postView.record as PostRecord}/>
         </div>
         {embed && <PostEmbed
-            embed={postView.embed}
+            embed={embed}
             mainPostRef={{uri: postView.uri, cid: postView.cid}}
             hideSelectionQuote={hideQuote}
             onClickSelectionQuote={onClickQuote}
