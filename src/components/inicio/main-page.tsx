@@ -1,14 +1,15 @@
 "use client"
 
-import { MainFeedHeader } from "./main-feed-header"
+import {MainFeedHeader} from "./main-feed-header"
 import Feed from "../feed/feed/feed"
 import {useFeed} from "@/hooks/api";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useSearchParams} from "next/navigation";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {updateSearchParam} from "@/components/topics/topic/topic-page";
 
 
-export function optionToSearchParam(v: string){
+export function optionToSearchParam(v: string) {
     if (v == "Siguiendo") return "siguiendo"
     if (v == "En discusión") return "discusion"
     if (v == "Descubrir") return "descubrir"
@@ -16,7 +17,7 @@ export function optionToSearchParam(v: string){
 }
 
 
-export function searchParamToOption(v: string){
+export function searchParamToOption(v: string) {
     if (v == "siguiendo") return "Siguiendo"
     if (v == "discusion") return "En discusión"
     if (v == "descubrir") return "Descubrir"
@@ -24,12 +25,12 @@ export function searchParamToOption(v: string){
 }
 
 
-const SelectedFeed = ({selected}: {selected: string}) => {
+const SelectedFeed = ({selected}: { selected: string }) => {
     const feed = useFeed(optionToSearchParam(selected))
 
-    if(feed.isLoading){
+    if (feed.isLoading) {
         return <div className={"py-8"}><LoadingSpinner/></div>
-    } else if(feed.error || !feed){
+    } else if (feed.error || !feed) {
         return <ErrorPage>{feed.error.name}</ErrorPage>
     }
 
@@ -41,10 +42,9 @@ export const MainPage = () => {
     const params = useSearchParams()
     const paramsFeed = params.get("f")
     const selected = paramsFeed ? searchParamToOption(paramsFeed) : "Siguiendo"
-    const router = useRouter()
 
-    function onSelection(v: string){
-        router.push("/inicio?f=" + optionToSearchParam(v))
+    function onSelection(v: string) {
+        updateSearchParam("f", optionToSearchParam(v))
     }
 
     return <div className="w-full min-[500px]:mt-10 mt-20">

@@ -265,21 +265,83 @@ export const schemaDict = {
     id: 'ar.cabildoabierto.data.visualization',
     defs: {
       main: {
-        type: 'record',
-        key: 'tid',
-        record: {
-          type: 'object',
-          required: ['createdAt'],
-          properties: {
-            spec: {
-              type: 'string',
-            },
-            createdAt: {
-              type: 'string',
-              format: 'datetime',
-              description:
-                'Client-declared timestamp when this post was originally created.',
-            },
+        type: 'object',
+        required: ['createdAt', 'spec'],
+        properties: {
+          spec: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.data.visualization#datasetVisualization',
+              'lex:ar.cabildoabierto.data.visualization#hemicycleVisualization',
+              'lex:ar.cabildoabierto.data.visualization#topicListVisualization',
+            ],
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+            description:
+              'Client-declared timestamp when this post was originally created.',
+          },
+        },
+      },
+      datasetVisualization: {
+        type: 'object',
+        properties: {
+          dataset: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          spec: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.data.visualization#barplot',
+              'lex:ar.cabildoabierto.data.visualization#scatterplot',
+              'lex:ar.cabildoabierto.data.visualization#histogram',
+            ],
+          },
+          title: {
+            type: 'string',
+          },
+        },
+      },
+      hemicycleVisualization: {
+        type: 'object',
+        properties: {},
+      },
+      topicListVisualization: {
+        type: 'object',
+        properties: {},
+      },
+      barplot: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          ylabel: {
+            type: 'string',
+          },
+        },
+      },
+      scatterplot: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          ylabel: {
+            type: 'string',
+          },
+        },
+      },
+      histogram: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          normalized: {
+            type: 'boolean',
           },
         },
       },
@@ -331,7 +393,7 @@ export const schemaDict = {
           },
           quotedContentAuthor: {
             type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           quotedContentTitle: {
             type: 'string',
@@ -465,7 +527,7 @@ export const schemaDict = {
           },
           author: {
             type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           record: {
             type: 'unknown',
@@ -540,7 +602,7 @@ export const schemaDict = {
           },
           author: {
             type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           summary: {
             type: 'string',
@@ -614,13 +676,13 @@ export const schemaDict = {
           },
           author: {
             type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           text: {
             type: 'string',
             description: 'The full article text',
           },
-          textFormat: {
+          format: {
             type: 'string',
             maxLength: 50,
           },
@@ -787,6 +849,9 @@ export const schemaDict = {
             type: 'string',
             format: 'at-uri',
           },
+          record: {
+            type: 'unknown',
+          },
           text: {
             type: 'string',
           },
@@ -932,12 +997,32 @@ export const schemaDict = {
             maxLength: 50,
           },
           value: {
-            type: 'string',
-            maxLength: 50,
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.wiki.topicVersion#stringProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#stringListProp',
+            ],
           },
-          dataType: {
+        },
+      },
+      stringProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
             type: 'string',
-            maxLength: 50,
+          },
+        },
+      },
+      stringListProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
           },
         },
       },
@@ -991,6 +1076,17 @@ export const schemaDict = {
             value: {
               type: 'string',
               description: "Valid values are 'accept' and 'reject'.",
+            },
+            message: {
+              type: 'string',
+              maxGraphemes: 600,
+              maxLength: 6000,
+            },
+            labels: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
             },
           },
         },

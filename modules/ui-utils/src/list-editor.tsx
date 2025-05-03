@@ -1,4 +1,4 @@
-import { useState } from "react"
+import {useState} from "react"
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,11 +10,11 @@ import {areArraysEqual} from "@/utils/arrays";
 import {Button} from "./button";
 
 const NewItem = ({
-     addItem,
-     availableOptions,
-     currentItems,
-     newItemText
-}: {
+                     addItem,
+                     availableOptions,
+                     currentItems,
+                     newItemText
+                 }: {
     addItem: (c: string) => void
     availableOptions?: string[]
     currentItems: string[]
@@ -24,11 +24,11 @@ const NewItem = ({
     const [writingItem, setWritingItem] = useState(false)
 
     let options: string[] = undefined
-    if(availableOptions){
+    if (availableOptions) {
         options = availableOptions.filter((c) => (!currentItems.includes(c)))
     }
 
-    if(writingItem){
+    if (writingItem) {
         return <div className={"space-x-2 flex items-center"}>
             <div className={"flex flex-col items-start"}>
                 <SearchableDropdown
@@ -36,7 +36,11 @@ const NewItem = ({
                     size={"small"}
                     selected={value}
                     onChange={setValue}
-                    onSelect={(v: string) => {addItem(v); setValue(""); setWritingItem(false)}}
+                    onSelect={(v: string) => {
+                        addItem(v);
+                        setValue("");
+                        setWritingItem(false)
+                    }}
                 />
             </div>
             <IconButton size={"small"} onClick={() => {
@@ -55,14 +59,14 @@ const NewItem = ({
         </div>
     }
 
-    if(currentItems.length > 0){
+    if (currentItems.length > 0) {
         return <IconButton size="small" onClick={() => {
             setWritingItem(true)
         }}>
             <AddIcon fontSize={"small"}/>
         </IconButton>
     } else {
-        if(newItemText != null){
+        if (newItemText != null) {
             return <Button
                 variant={"text"}
                 startIcon={<AddIcon/>}
@@ -88,27 +92,29 @@ const NewItem = ({
 
 
 export const ListEditorItem = ({item, removeItem}: {
-    item: string, removeItem: () => void}) => {
+    item: string, removeItem?: () => void
+}) => {
     const [hovering, setHovering] = useState(false)
-    return <button className={"px-2 py-1 border rounded-lg bg-[var(--accent)] flex space-x-1 items-center"}
-                   onMouseEnter={() => setHovering(true)}
-                   onMouseLeave={() => setHovering(false)}
-                   onClick={removeItem}
+    return <button
+        className={"px-2 py-1 border rounded-lg bg-[var(--accent)] flex space-x-1 items-center " + (removeItem ? "" : "cursor-default")}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        onClick={removeItem}
     >
         <div>
             {item}
         </div>
-        {hovering ? <CloseIcon fontSize={"small"}/> : null}
+        {hovering && removeItem != null ? <CloseIcon fontSize={"small"}/> : null}
     </button>
 }
 
 
 export const ListEditor = ({
-    newItemText,
-    options=[],
-    items,
-    setItems
-}: {
+                               newItemText,
+                               options = [],
+                               items,
+                               setItems
+                           }: {
     newItemText?: string
     options?: string[]
     items: string[]
@@ -117,7 +123,7 @@ export const ListEditor = ({
 
     function removeItem(i: number) {
         return () => {
-            if(setItems) setItems([...items.slice(0, i), ...items.slice(i + 1)])
+            if (setItems) setItems([...items.slice(0, i), ...items.slice(i + 1)])
         }
     }
 
@@ -126,7 +132,7 @@ export const ListEditor = ({
             return <div key={i} className={"h-10"}>
                 <ListEditorItem
                     item={c}
-                    removeItem={removeItem(i)}
+                    removeItem={setItems ? removeItem(i) : undefined}
                 />
             </div>
         })}
@@ -148,12 +154,12 @@ export const ListEditor = ({
 
 
 export const ListEditorWithSave = ({
-   initialValue = [],
-   options,
-   onSave,
-   onClose,
-   newItemText
-}: {
+                                       initialValue = [],
+                                       options,
+                                       onSave,
+                                       onClose,
+                                       newItemText
+                                   }: {
     initialValue?: string[]
     options?: string[]
     onSave: (values: string[]) => Promise<{ error?: string }>
@@ -172,13 +178,18 @@ export const ListEditorWithSave = ({
         <div className={"flex justify-end mt-2 space-x-2 text-[var(--text-light)]"}>
             <Button
                 variant={"text"}
-                onClick={() => {setItems(initialValue); onClose()}}
+                onClick={() => {
+                    setItems(initialValue);
+                    onClose()
+                }}
                 color={"inherit"}
             >
                 Cancelar
             </Button>
             <StateButton
-                handleClick={async () => {return await onSave(items)}}
+                handleClick={async () => {
+                    return await onSave(items)
+                }}
                 disabled={areArraysEqual(items, initialValue)}
                 text1={"Guardar"}
                 disableElevation={true}

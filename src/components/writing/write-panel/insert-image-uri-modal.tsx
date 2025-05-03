@@ -9,8 +9,18 @@ export function InsertImageUriDialogBody ({
     onClick: (payload: InsertImagePayload) => void;
 }) {
     const [src, setSrc] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const isDisabled = src === '';
+
+    function onClickAccept(){
+        setError(null)
+        if(src.startsWith("https://")){
+            onClick({altText: "", src})
+        } else {
+            setError("Ingresá un dominio seguro (https://).")
+        }
+    }
 
     return <>
         <TextField
@@ -28,8 +38,12 @@ export function InsertImageUriDialogBody ({
             variant="contained"
             disableElevation={true}
             disabled={isDisabled}
-            onClick={() => onClick({altText: "", src})}>
+            onClick={onClickAccept}
+        >
             Aceptar
         </Button>
+        <div className={"text-sm text-red-500 text-center"}>
+            {error}
+        </div>
     </>
 }

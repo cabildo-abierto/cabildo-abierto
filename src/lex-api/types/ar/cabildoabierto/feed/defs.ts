@@ -10,7 +10,7 @@ import {
   type OmitKey,
 } from '../../../../util'
 import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs'
-import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images'
 import type * as AppBskyEmbedVideo from '../../../app/bsky/embed/video'
 import type * as AppBskyEmbedExternal from '../../../app/bsky/embed/external'
@@ -81,7 +81,7 @@ export interface PostView {
   $type?: 'ar.cabildoabierto.feed.defs#postView'
   uri: string
   cid: string
-  author: AppBskyActorDefs.ProfileViewBasic
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
   record: { [_ in string]: unknown }
   embed?:
     | $Typed<AppBskyEmbedImages.View>
@@ -119,7 +119,7 @@ export interface ArticleView {
   $type?: 'ar.cabildoabierto.feed.defs#articleView'
   uri: string
   cid: string
-  author: AppBskyActorDefs.ProfileViewBasic
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
   /** A summary of the article to be shown in the feed. */
   summary?: string
   summaryFormat?: string
@@ -152,10 +152,10 @@ export interface FullArticleView {
   $type?: 'ar.cabildoabierto.feed.defs#fullArticleView'
   uri: string
   cid: string
-  author: AppBskyActorDefs.ProfileViewBasic
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
   /** The full article text */
   text?: string
-  textFormat?: string
+  format?: string
   record: { [_ in string]: unknown }
   uniqueViewsCount?: number
   bskyRepostCount?: number

@@ -1,12 +1,13 @@
 import {Post} from "@/components/feed/post/post";
 import {Article} from "@/components/article/article";
 import {isFullArticleView, isPostView, PostView, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {Dispatch, SetStateAction} from "react";
 
 
 type ThreadContentProps = {
     thread: ThreadViewContent
     pinnedReplies: string[]
-    setPinnedReplies: (s: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
     quoteReplies: PostView[]
 }
 

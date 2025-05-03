@@ -21,6 +21,8 @@ export interface Record {
   createdAt: string
   /** Valid values are 'accept' and 'reject'. */
   value?: string
+  message?: string
+  labels?: string[]
   [k: string]: unknown
 }
 

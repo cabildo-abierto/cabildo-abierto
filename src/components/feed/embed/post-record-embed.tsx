@@ -4,7 +4,7 @@ import {BskyRichTextContent} from "../post/bsky-rich-text-content";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useRouter} from "next/navigation";
-import {contentUrl, getBlueskyUrl, userUrl} from "@/utils/uri";
+import {contentUrl, getBlueskyUrl, profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import Link from "next/link";
@@ -35,7 +35,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedReco
         >
             <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
                 <Link
-                    href={userUrl(author.handle)}
+                    href={profileUrl(author.handle)}
                     onClick={(e) => {
                         e.stopPropagation()
                     }}

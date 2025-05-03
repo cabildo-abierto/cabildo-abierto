@@ -1,7 +1,6 @@
 import {useCategories} from "@/hooks/api";
 import {emptyChar} from "@/utils/utils";
 import {useState} from "react";
-import AddIcon from "@mui/icons-material/Add";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 
 
@@ -36,9 +35,9 @@ export const CategorySelector = ({categories, setCategories}: {
             </button>
         })}
         {maxCount < allCategories.length && <div className={"text-[var(--text-light)] text-[14px]"}>
-            <button onClick={() => {setMaxCount(maxCount + 10)}} className={"rounded-full hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] px-1"}>
-            <AddIcon fontSize={"inherit"}/>
-        </button>
+            <button onClick={() => {setMaxCount(maxCount + 10)}} className={"rounded-full hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] px-2"}>
+                Ver más
+            </button>
         </div>}
 
     </div>

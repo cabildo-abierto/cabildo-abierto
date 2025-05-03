@@ -35,9 +35,6 @@ import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import {FormatItalic, FormatUnderlined, InsertLink} from "@mui/icons-material";
 import {ToolbarButton} from "../ToolbarPlugin/toolbar-button";
-import {$createCustomMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
-import {getPointTypeFromIndex, getStandardSelection} from "../CommentPlugin/standard-selection";
-import {$wrapSelectionInMarkNode} from "@lexical/mark";
 
 function TextFormatFloatingToolbar({
   editor,

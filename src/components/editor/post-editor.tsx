@@ -15,36 +15,9 @@ const settings: SettingsProps = getEditorSettings({
     placeholder: "¿Qué está pasando?",
     placeholderClassName: "text-[var(--text-light)] absolute top-0",
     editorClassName: "link relative",
-    isReadOnly: false
-})
-
-/*const settings: SettingsProps = {
-    allowImages: true,
-    allowPlots: true,
-    allowTables: true,
-    markdownShortcuts: false,
-    isRichText: false,
-    measureTypingPerf: false,
-    useContextMenu: false,
-    tableOfContents: false,
-    showTreeView: false,
-    showToolbar: false,
-    allowComments: false,
-    isDraggableBlock: false,
-    useSuperscript: false,
-    useStrikethrough: false,
-    useSubscript: false,
-    placeholder: "¿Qué está pasando?",
-    initialText: "",
-    initialTextFormat: "plain-text",
-    isAutofocus: true,
-    editorClassName: "link",
     isReadOnly: false,
-    placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none",
-    imageClassName: "",
-    preventLeave: true,
-    queryMentions
-}*/
+    isRichText: false
+})
 
 
 type PostEditorProps = {

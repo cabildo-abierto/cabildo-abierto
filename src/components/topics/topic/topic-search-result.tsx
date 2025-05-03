@@ -1,7 +1,5 @@
 "use client"
 
-import { fetcher } from "@/hooks/fetcher"
-import { preload } from "swr"
 import { DateSince } from "../../../../modules/ui-utils/src/date"
 import {getTopicCategories, getTopicTitle} from "./utils";
 import {TopicCategories} from "./topic-categories";
@@ -9,13 +7,14 @@ import {useRouter} from "next/navigation";
 import {People} from "@mui/icons-material";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 const DateLastEdit = ({date}: {date: Date}) => {
   const className = "text-[var(--text-light)]"
 
   return <div className={className}>
-    Última edición <DateSince date={date}/>
+    Última edición hace <DateSince date={date}/>
   </div>
 }
 
@@ -24,7 +23,7 @@ export const TopicSearchResult = ({ topic }: {topic: TopicViewBasic}) => {
     const router = useRouter()
 
     function onMouseEnter(){
-        preload("/api/topic/"+topic.id, fetcher)
+        // TO DO preload("/api/topic/"+topic.id, fetcher)
     }
   
     return (

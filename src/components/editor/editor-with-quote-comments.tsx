@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {ReplyToContent, WritePanel} from "@/components/writing/write-panel/write-panel";
-import {useEffect, useRef, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {$getRoot, $nodesOfType, EditorState, LexicalEditor} from "lexical";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
 import {$createSidenoteNode, SidenoteNode} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
@@ -23,7 +23,7 @@ type EditorWithQuoteCommentsProps = {
     editor: LexicalEditor
     setEditorState: (state: EditorState) => void
     pinnedReplies: string[]
-    setPinnedReplies: (v: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
     quoteReplies: PostView[]
 }
 

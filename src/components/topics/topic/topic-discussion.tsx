@@ -2,7 +2,6 @@ import {ReplyButton} from "../../thread/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent, WritePanel} from "../../writing/write-panel/write-panel";
-import {useSWRConfig} from "swr";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 
 
@@ -16,7 +15,6 @@ export const TopicDiscussion = ({
     wikiEditorState: WikiEditorState
 }) => {
     const [writingReply, setWritingReply] = useState(false)
-    const {mutate} = useSWRConfig()
 
     return <div className="w-full flex flex-col items-center">
         {replyToContent != null && <div className={"w-full"}>
@@ -36,8 +34,8 @@ export const TopicDiscussion = ({
             onClose={() => {setWritingReply(false)}}
             replyTo={replyToContent}
             onSubmit={async () => {
-                await mutate("/api/topic/"+encodeURIComponent(topicId))
-                await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+                // TO DO await mutate("/api/topic/"+encodeURIComponent(topicId))
+                // TO DO await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
             }}
         />}
     </div>

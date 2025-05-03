@@ -95,5 +95,6 @@ export const CA_TRANSFORMERS = [
     IMAGE,
     LINK,
     TABLE,
-    HR
+    HR,
+    PARAGRAPH
 ]

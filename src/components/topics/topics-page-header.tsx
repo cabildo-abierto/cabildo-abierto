@@ -62,7 +62,7 @@ export const TopicsPageHeader = () => {
                 disableElevation={true}
                 startIcon={<AddIcon/>}
                 size={"small"}
-                sx={{textTransform: "none", height: "32px"}}
+                sx={{textTransform: "none", height: "32px", borderRadius: 20, padding: "0 10px"}}
                 onClick={() => {
                     setNewTopicOpen(true)
                 }}

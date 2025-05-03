@@ -25,9 +25,10 @@ import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import {AddCommentButton} from './add-comment-button';
-import {lexicalSelectionToMarkdownSelection} from "../../selection-transforms";
+import {lexicalSelectionToMarkdownSelection, markdownSelectionToLexicalSelection} from "../../selection-transforms";
 import {getStandardSelection} from "./standard-selection";
 import {PrettyJSON} from "../../../../ui-utils/src/pretty-json";
+import {editorStateToMarkdown} from "../../markdown-transforms";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
     'INSERT_INLINE_COMMAND',
@@ -107,6 +108,7 @@ export default function CommentPlugin({onAddComment}: CommentPluginProps) {
                             JSON.stringify(state.toJSON()),
                             lexicalSelection
                         )
+                        const lexicalSelectionBack = markdownSelectionToLexicalSelection(JSON.stringify(state.toJSON()), markdownSelection)
                         onAddComment(markdownSelection)
                     }}
                 />,

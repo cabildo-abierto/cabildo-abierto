@@ -29,22 +29,15 @@ export function getPointTypeFromIndex(node: LexicalNode, index: number[], offset
 
 
 function getNodeIndex(node: LexicalNode): number[]{
-
-    let parent
     try {
-        parent = node.getParent()
+        const parent = node.getParent()
         if(!parent) return []
+        const parentIndex = getNodeIndex(parent)
+        const index = node.getIndexWithinParent()
+        return [...parentIndex, index]
     } catch {
         return [] // root
     }
-
-    if(parent.getType() == "sidenote"){
-        return getNodeIndex(parent)
-    }
-
-    const parentIndex = getNodeIndex(parent)
-    const index = node.getIndexWithinParent()
-    return [...parentIndex, index]
 }
 
 

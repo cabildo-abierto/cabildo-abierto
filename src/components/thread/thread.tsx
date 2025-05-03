@@ -2,7 +2,6 @@ import {ReplyButton} from "./reply-button"
 import {useEffect, useState} from "react";
 import {WritePanel} from "../writing/write-panel/write-panel";
 import {getCollectionFromUri, threadApiUrl} from "@/utils/uri";
-import {useSWRConfig} from "swr";
 import {ThreadContent} from "@/components/thread/thread-content";
 import {
     isFullArticleView,
@@ -36,7 +35,6 @@ export const Thread = ({thread}: { thread: ThreadViewContent }) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const [quoteReplies, setQuoteReplies] = useState<PostView[]>([])
-    const {mutate} = useSWRConfig()
 
     const replies = thread.replies
     const content = isKnownContent(thread.content) ? thread.content : null
@@ -76,7 +74,7 @@ export const Thread = ({thread}: { thread: ThreadViewContent }) => {
                 setOpenReplyPanel(false)
             }}
             onSubmit={async () => {
-                mutate(threadApiUrl(content.uri))
+                // TO DO mutate(threadApiUrl(content.uri))
             }}
         />}
     </div>

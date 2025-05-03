@@ -327,7 +327,7 @@ const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps
         <LexicalComposer initialConfig={initialConfig}>
             <SharedHistoryContext>
                 <TableContext>
-                    <div className="editor-shell">
+                    <div className="relative">
                         <Editor
                             settings={settings}
                             setEditor={setEditor}

@@ -12,7 +12,15 @@ type ModalOnClickControlledProps = {
     handleClickAway: () => void
 }
 
-export const ModalOnClickControlled = ({children, handleClick, handleClickAway, modal, open, setOpen, anchorEl}: ModalOnClickControlledProps) => {
+export const ModalOnClickControlled = ({
+                                           children,
+                                           handleClick,
+                                           handleClickAway,
+                                           modal,
+                                           open,
+                                           setOpen,
+                                           anchorEl
+                                       }: ModalOnClickControlledProps) => {
 
     return (
         <>
@@ -21,13 +29,21 @@ export const ModalOnClickControlled = ({children, handleClick, handleClickAway, 
                     <div onClick={handleClick}>
                         {children}
                     </div>
-                    <Popper open={open} anchorEl={anchorEl} placement="bottom-start" transition>
+                    <Popper
+                        open={open}
+                        anchorEl={anchorEl}
+                        placement="bottom-start"
+                        transition
+                        style={{zIndex: 1300}}
+                    >
                         {({TransitionProps}) => (
-                                <Fade {...TransitionProps} timeout={350}>
-                                    <div className="mt-2 bg-[var(--background-dark)]">
-                                        {modal(() => {setOpen(false)})}
-                                    </div>
-                                </Fade>
+                            <Fade {...TransitionProps} timeout={350}>
+                                <div className="mt-2 bg-[var(--background-dark)]">
+                                    {modal(() => {
+                                        setOpen(false)
+                                    })}
+                                </div>
+                            </Fade>
                         )}
                     </Popper>
                 </div>

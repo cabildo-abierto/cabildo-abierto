@@ -6,10 +6,9 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
-import {urlFromRecord, userUrl} from "@/utils/uri";
+import {urlFromRecord, profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";
-import {useSWRConfig} from "swr";
 import {ReasonRepost} from '@/lex-api/types/app/bsky/feed/defs'
 import {ArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
@@ -78,7 +77,7 @@ export const PostPreviewFrame = ({
     }
 
     return <div
-        id={postView.uri}
+        id={"discussion:"+postView.uri}
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={onClick}
     >
@@ -87,7 +86,7 @@ export const PostPreviewFrame = ({
             <div className="w-[79px] flex flex-col items-center pl-2 ">
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <Link
-                    href={userUrl(author.handle)}
+                    href={profileUrl(author.handle)}
                     onClick={(e) => {e.stopPropagation()}}
                     className="w-11 h-11 flex items-center justify-center"
                 >

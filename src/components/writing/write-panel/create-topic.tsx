@@ -106,6 +106,7 @@ export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => v
                 handleClick={onSubmit}
                 disabled={!user.user || !validEntityName(topicName)}
                 textClassName="font-bold px-4"
+                sx={{borderRadius: 20}}
                 text1="Crear tema"
             />
         </div>

@@ -41,13 +41,13 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                         {title}
                     </div>
 
-                    <div
+                    {topic.popularity && <div
                         className="text-[var(--text-light)] text-xs sm:text-sm"
                     >
                         <div title="La cantidad de usuarios que participaron en la discusión.">
-                            {topic.popularity} {topic.popularity[0] == 1 ? "persona" : "personas."}
+                            {topic.popularity[0]} {topic.popularity[0] == 1 ? "persona" : "personas."}
                         </div>
-                    </div>
+                    </div>}
                 </div>
             })}
             <Link href={"/temas"} className={"hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-5 py-1"}>

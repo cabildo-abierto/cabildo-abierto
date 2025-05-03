@@ -5,7 +5,7 @@ import {ContentTopRowAuthor} from '@/components/feed/frame/content-top-row-autho
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {userUrl} from "@/utils/uri";
+import {profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 
 import {emptyChar} from "@/utils/utils";
@@ -36,9 +36,9 @@ export const SidenoteReplyPreviewFrame = ({
     const record = post
 
     return <div
-        className={"w-64 rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
+        className={"w-64 z-[1000] rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
         onClick={() => {
-            const element = document.getElementById(post.uri)
+            const element = document.getElementById("discussion:"+post.uri)
             smoothScrollTo(element)
             element.classList.add('hover-effect'); // Add hover effect
             setTimeout(() => {
@@ -49,7 +49,7 @@ export const SidenoteReplyPreviewFrame = ({
         <div className={"flex"}>
             <div className="w-10 flex flex-col items-center h-full ml-2">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
-                <Link href={userUrl(record.author.handle)} className="w-8 h-11 flex items-center justify-center">
+                <Link href={profileUrl(record.author.handle)} className="w-8 h-11 flex items-center justify-center">
                     <Image
                         src={record.author.avatar}
                         alt={"Perfil de " + record.author.handle}
@@ -67,7 +67,7 @@ export const SidenoteReplyPreviewFrame = ({
                         <ContentTopRowAuthor author={record.author}/>
                     </span>
                     <span className="text-[var(--text-light)]">
-                        •
+                        ·
                     </span>
                     <span
                         className="text-[var(--text-light)] flex-shrink-0"

@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useSWRConfig } from "swr"
 import {Button} from "@mui/material";
 import {validEntityName} from "./utils";
 import {topicUrl} from "@/utils/uri";
@@ -27,12 +26,11 @@ export default function NoEntityPage({id}: {id: string}){
     const url = topicUrl(id)
     const router = useRouter()
     const {user} = useSession()
-    const {mutate} = useSWRConfig()
 
     const handleCreateEntity = async () => {
         if(user) {
             await createTopic(name)
-            mutate("/api/topics")
+            // mutate("/api/topics")
             router.push(url)
         }
     }

@@ -1,5 +1,4 @@
-import {useEffect, useState} from "react";
-import {useSWRConfig} from "swr";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {EditorState, LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
 import {SaveEditPopup} from "./save-edit-popup";
@@ -14,14 +13,16 @@ import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/m
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {FeedViewContent, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {post} from "@/utils/fetch";
 import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {TopicPropsView} from "@/components/topics/topic/props/topic-props-view";
+import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
-
+import {isView as isSelectionQuoteEmbed} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 type CreateTopicVersionProps = {
     id: string
@@ -38,6 +39,7 @@ async function createTopicVersion(body: CreateTopicVersionProps) {
 }
 
 
+
 export const TopicContentExpandedViewWithVersion = ({
     topic,
     pinnedReplies,
@@ -47,7 +49,7 @@ export const TopicContentExpandedViewWithVersion = ({
 }: {
     topic: TopicView
     pinnedReplies: string[]
-    setPinnedReplies: (v: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
     wikiEditorState: WikiEditorState
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
@@ -56,27 +58,23 @@ export const TopicContentExpandedViewWithVersion = ({
     const [topicProps, setTopicProps] = useState<TopicProp[]>(topic.props ?? [])
     const feed = useTopicFeed(topic.id)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
-    const {mutate} = useSWRConfig()
     const [quoteReplies, setQuoteReplies] = useState<PostView[] | null>(null)
 
     useEffect(() => {
         // TO DO
-        /*if(feed.data){
-            const q = feed.feed.replies.filter((r) => {
-                return isQuotePost(r.collection) && (r as FastPostProps).content.post.quote != undefined
-            }) as FastPostProps[]
+        if(feed.data){
+            const q: PostView[] = feed.data.replies.map(c => c.content)
+                .filter(c => isPostView(c)).filter(c => isSelectionQuoteEmbed(c.embed))
             if(!quoteReplies || q.length != quoteReplies.length){
                 setQuoteReplies(q)
             }
-        }*/
+        }
     }, [feed, quoteReplies])
-
-    const editorId = topic.uri +"-"+(quoteReplies ? quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-") : "")
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
         if(!editor) return {error: "Ocurrió un error con el editor."}
 
-        const s = JSON.stringify(editor.getEditorState())
+        const s = JSON.stringify(editor.getEditorState().toJSON())
         const markdown = editorStateToMarkdown(s)
 
         const {error} = await createTopicVersion(
@@ -92,8 +90,8 @@ export const TopicContentExpandedViewWithVersion = ({
 
         if(error) return {error}
 
-        await mutate("/api/topic/"+topic.id)
-        await mutate("/api/topic-history/"+topic.id)
+        // TO DO await mutate("/api/topic/"+topic.id)
+        // TO DO await mutate("/api/topic-history/"+topic.id)
         setShowingSaveEditPopup(false)
         setWikiEditorState("normal")
         return {}
@@ -103,8 +101,8 @@ export const TopicContentExpandedViewWithVersion = ({
 
     async function onSubmitReply(){
         const topicId = topic.id
-        await mutate("/api/topic/"+encodeURIComponent(topicId))
-        await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+        // TO DO await mutate("/api/topic/"+encodeURIComponent(topicId))
+        // TO DO await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
     }
 
     return <div className={"w-full"}>
@@ -128,9 +126,7 @@ export const TopicContentExpandedViewWithVersion = ({
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
             <div id="editor" className={"pb-2 min-h-[300px] mt-4 px-2"}>
                 {["editing", "editing-props", "normal", "props"].includes(wikiEditorState) && <div
-                    id={editorId}
                     className={" "+(wikiEditorState.startsWith("editing") ? "mb-32" : "mb-8")}
-                    key={topic.uri + wikiEditorState + editorId}
                 >
                     {wikiEditorState.startsWith("editing") && <MyLexicalEditor
                         settings={getEditorSettings({
@@ -148,6 +144,9 @@ export const TopicContentExpandedViewWithVersion = ({
                         setEditor={setEditor}
                         setEditorState={setEditorState}
                     />}
+                    {!wikiEditorState.startsWith("editing") && (!topic.text || topic.text.trim().length == 0) && <div className={"text-[var(--text-light)]"}>
+                        ¡Este tema no tiene contenido! Editalo para crear una primera versión.
+                    </div>}
                     {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
                         settings={getEditorSettings({
                             isReadOnly: true,
@@ -167,6 +166,7 @@ export const TopicContentExpandedViewWithVersion = ({
                         setEditorState={setEditorState}
                     />}
                 </div>}
+
                 {wikiEditorState == "changes" &&
                     <ShowTopicChanges
                         topic={topic}
@@ -180,7 +180,8 @@ export const TopicContentExpandedViewWithVersion = ({
             </div>
         }
 
-        {showingSaveEditPopup && <SaveEditPopup
+        {editorState && <SaveEditPopup
+            open={showingSaveEditPopup}
             editorState={editorState}
             currentVersion={topic.currentVersion}
             onSave={saveEdit}
@@ -198,7 +199,7 @@ export const TopicContentExpandedView = ({
     setWikiEditorState,
 }: {
     pinnedReplies: string[]
-    setPinnedReplies: (v: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
     wikiEditorState: WikiEditorState
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {

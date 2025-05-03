@@ -2,8 +2,9 @@
 import {ProfileHeader} from "./profile-header";
 import {SelectedFeed} from "./selected-feed";
 import {useProfile} from "@/hooks/api";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useSearchParams} from "next/navigation";
 import {LoadingProfile} from "@/components/profile/loading-profile";
+import {updateSearchParam} from "@/components/topics/topic/topic-page";
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones"
 
@@ -35,13 +36,12 @@ export const ProfilePage = ({
 }) => {
     const params = useSearchParams()
     const {data: profile} = useProfile(handle)
-    const router = useRouter()
 
     const s = params.get("s")
     let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" ? s : "publicaciones"
 
     function setSelected(v: string){
-        router.push("/perfil/"+handle+"?s=" + profileDisplayToOption(v))
+        updateSearchParam("s", profileDisplayToOption(v))
     }
 
     return <div>

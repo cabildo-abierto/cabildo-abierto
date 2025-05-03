@@ -1,8 +1,6 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
-import {useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {useSWRConfig} from "swr";
-import {threadApiUrl} from "@/utils/uri";
 import {ArticleHeader} from "@/components/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
@@ -14,11 +12,10 @@ type ArticleCompProps = {
     article: $Typed<FullArticleView>,
     quoteReplies: PostView[]
     pinnedReplies: string[]
-    setPinnedReplies: (v: string[]) => void
+    setPinnedReplies: Dispatch<SetStateAction<string[]>>
 }
 
 export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
-    const {mutate} = useSWRConfig()
     const [editor, setEditor] = useState<LexicalEditor>(null)
 
     const enDiscusion = false // TO DO
@@ -47,7 +44,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
     }
 
     const text = article.text
-    const format = article.textFormat
+    const format = article.format
 
     return <div className="w-full">
         <div className={"p-3 border-b"}>

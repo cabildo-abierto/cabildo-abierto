@@ -715,7 +715,7 @@ td {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  z-index: 0;
+  z-index: 999;
   height: 70vh;
 }
 

@@ -1,6 +1,6 @@
 import {SelectionQuoteContext} from "@/components/feed/embed/selection-quote/selection-quote-context";
 import {SelectionQuoteText} from "@/components/feed/embed/selection-quote/selection-quote-text";
-import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {useRouter} from "next/navigation";
 import {contentUrl} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
@@ -23,11 +23,11 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false, quotedC
     const router = useRouter()
 
     function handleClick(e) {
-        e.stopPropagation()
         e.preventDefault()
+        e.stopPropagation()
         if (onClick) {
             setTimeout(() => {
-                onClick(mainPostRef?.uri)
+                onClick(mainPostRef?.cid)
             }, 0);
         } else {
             if(mainPostRef){

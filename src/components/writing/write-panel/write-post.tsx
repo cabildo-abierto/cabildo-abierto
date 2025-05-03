@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-import {useSWRConfig} from "swr";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {ExtraChars} from "./extra-chars";
 import {
@@ -8,13 +7,12 @@ import {
     isDataset,
     isPost,
     isTopicVersion,
-    isVisualization,
-    threadApiUrl
+    isVisualization
 } from "@/utils/uri";
 import {RectTracker} from "../../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../../profile/profile-pic";
 import {VisualizationNodeComp} from "../../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
-import {FastPostImagesEditor} from "./fast-post-images-editor";
+import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
@@ -28,7 +26,8 @@ import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {post} from "@/utils/fetch";
-import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote";
+import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -108,7 +107,6 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [rect, setRect] = useState<DOMRect>()
-    const {mutate} = useSWRConfig()
     const [enDiscusion, setEnDiscusion] = useState(false)
 
     const charLimit = 300
@@ -124,8 +122,8 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
 
         if (reply) {
             await onSubmit()
-            await mutate(threadApiUrl(reply.parent.uri))
-            await mutate(threadApiUrl(reply.root.uri))
+            // TO DO await mutate(threadApiUrl(reply.parent.uri))
+            // TO DO await mutate(threadApiUrl(reply.root.uri))
             // TO DO
             //if(replyTo.content.topicVersion){
             //    const id = replyTo.content.topicVersion.topic.id
@@ -144,8 +142,9 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
     return <RectTracker setRect={setRect}>
         <div className={"min-h-64 flex flex-col justify-between"}>
             <div className="px-2 w-full mb-2">
-                <div className="flex space-x-2 w-full mt-2">
-                    <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
+                <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>
+                <div className="flex justify-between space-x-2 w-full mt-2">
+                    <ProfilePic user={user} className={"w-8 h-8 rounded-full"} descriptionOnHover={false}/>
                     <div className="sm:text-lg w-full" key={editorKey}>
                         <PostEditor
                             setText={setText}
@@ -159,7 +158,7 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
                     showEngagement={false}
                     width={rect.width - 20}
                 />}
-                {images && <FastPostImagesEditor images={images} setImages={setImages}/>}
+                {images && <PostImagesEditor images={images} setImages={setImages}/>}
             </div>
             <div className="flex justify-between p-1 border-t items-center">
                 <div className={"flex space-x-2 items-center"}>
