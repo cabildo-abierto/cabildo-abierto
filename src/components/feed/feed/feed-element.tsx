@@ -1,6 +1,8 @@
 import {ArticlePreview} from "../article/article-preview";
 import {PostPreview} from "../post/post-preview";
 import {FeedViewContent, isArticleView, isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {TopicViewBasicOnFeed} from "@/components/feed/topic/topic-view-basic-on-feed";
 
 
 export const FeedElement = ({
@@ -35,6 +37,8 @@ export const FeedElement = ({
             showingChildren={showingChildren}
             onDeleteFeedElem={onDeleteFeedElem}
         />
+    } else if (isTopicViewBasic(elem.content)) {
+        return <TopicViewBasicOnFeed topic={elem.content}/>
     } else {
         return <div className={"py-4"}>
             Error: No pudimos mostrar un elemento de la colección {elem.content.$type}

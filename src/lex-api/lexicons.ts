@@ -5578,6 +5578,7 @@ export const schemaDict = {
             refs: [
               'lex:ar.cabildoabierto.feed.defs#postView',
               'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
               'lex:app.bsky.feed.defs#notFoundPost',
               'lex:app.bsky.feed.defs#blockedPost',
             ],
@@ -5587,6 +5588,7 @@ export const schemaDict = {
             refs: [
               'lex:ar.cabildoabierto.feed.defs#postView',
               'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
               'lex:app.bsky.feed.defs#notFoundPost',
               'lex:app.bsky.feed.defs#blockedPost',
             ],

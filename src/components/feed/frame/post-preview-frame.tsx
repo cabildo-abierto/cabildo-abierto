@@ -15,6 +15,7 @@ import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/ar
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {isSelfLabels} from "@/lex-api/types/com/atproto/label/defs";
 import {$Typed} from "@atproto/api";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView) => {

@@ -17,6 +17,7 @@ import type * as AppBskyEmbedRecord from '../embed/record'
 import type * as AppBskyEmbedRecordWithMedia from '../embed/recordWithMedia'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
 import type * as ArCabildoabiertoFeedDefs from '../../../ar/cabildoabierto/feed/defs'
+import type * as ArCabildoabiertoWikiTopicVersion from '../../../ar/cabildoabierto/wiki/topicVersion'
 import type * as AppBskyRichtextFacet from '../richtext/facet'
 import type * as AppBskyGraphDefs from '../graph/defs'
 
@@ -118,12 +119,14 @@ export interface ReplyRef {
   root:
     | $Typed<ArCabildoabiertoFeedDefs.PostView>
     | $Typed<ArCabildoabiertoFeedDefs.ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
     | $Typed<NotFoundPost>
     | $Typed<BlockedPost>
     | { $type: string }
   parent:
     | $Typed<ArCabildoabiertoFeedDefs.PostView>
     | $Typed<ArCabildoabiertoFeedDefs.ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
     | $Typed<NotFoundPost>
     | $Typed<BlockedPost>
     | { $type: string }
