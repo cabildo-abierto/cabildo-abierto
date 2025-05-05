@@ -7,16 +7,19 @@ import {useRouter} from "next/navigation";
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
-    const user = useSession()
+    const session = useSession()
     const router = useRouter()
 
+
     useEffect(() => {
-        if (!user.isLoading && !user.user) {
+        if(session.error){
+            router.push("/mantenimiento")
+        } else if (!session.isLoading && !session.user) {
             router.push("/login")
         }
-    }, [user.isLoading, user.user, router])
+    }, [session, router])
 
-    if(user.user) {
+    if(session.user) {
         return children
     }
 

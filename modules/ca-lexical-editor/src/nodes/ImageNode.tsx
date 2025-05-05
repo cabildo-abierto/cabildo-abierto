@@ -25,7 +25,7 @@ import {ReactNode, Suspense} from 'react';
 
 const ImageComponent = React.lazy(() => import('./ImageComponent'));
 
-export interface ImagePayload {
+export interface ImagePayloadForImageNode {
     altText: string;
     caption?: LexicalEditor;
     height?: number;
@@ -242,7 +242,7 @@ export function $createImageNode({
                                      showCaption,
                                      caption,
                                      key,
-                                 }: ImagePayload): ImageNode {
+                                 }: ImagePayloadForImageNode): ImageNode {
     return $applyNodeReplacement(
         new ImageNode(
             src,

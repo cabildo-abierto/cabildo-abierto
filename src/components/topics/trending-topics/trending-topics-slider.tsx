@@ -14,7 +14,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
 
     return (
         <div
-            className="flex flex-col overflow-y-scroll max-h-[250px] no-scrollbar"
+            className="flex flex-col overflow-y-scroll max-h-[300px] no-scrollbar"
         >
             {trendingArticles.map((topic, index) => {
 

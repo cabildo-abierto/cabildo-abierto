@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {ExtraChars} from "./extra-chars";
 import {
@@ -17,17 +17,27 @@ import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
-import {FastPostReplyProps} from "@/lib/types";
+import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/hooks/api";
 import {PostEditor} from "@/components/editor/post-editor";
 import {Star, StarBorder} from "@mui/icons-material";
 import {ToolbarButton} from "../../../../modules/ca-lexical-editor/src/plugins/ToolbarPlugin/toolbar-button";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isPostView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {post} from "@/utils/fetch";
-import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote";
+import {get, post} from "@/utils/fetch";
 import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";
+import {Main as ExternalEmbed, View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external"
+import {View as RecordEmbedView} from "@/lex-api/types/app/bsky/embed/record"
+import {View as RecordWithMediaEmbedView} from "@/lex-api/types/app/bsky/embed/recordWithMedia"
+import {ExternalEmbedInEditor} from "@/components/writing/write-panel/external-embed-in-editor";
+import {
+    postViewToRecordEmbedView,
+    WritePanelQuotedPost
+} from "@/components/writing/write-panel/write-panel-quoted-post";
+import {$Typed} from "@atproto/api";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -60,14 +70,17 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 }
 
 
-export type ImagePayload = {src: string, $type: "url"} | {image: string, $type: "str"}
+export type ImagePayload = { src: string, $type: "url" } | { $type: "file", base64: string, src: string }
+export type ImagePayloadForPostCreation = { src: string, $type: "url" } | { $type: "file", base64: string }
 
 export type CreatePostProps = {
     text: string
     reply?: FastPostReplyProps
     selection?: [number, number]
-    images?: ImagePayload[]
+    images?: ImagePayloadForPostCreation[]
     enDiscusion?: boolean
+    externalEmbedView?: $Typed<ExternalEmbedView>
+    quotedPost?: ATProtoStrongRef
 }
 
 
@@ -93,11 +106,12 @@ function getPlaceholder(replyToCollection?: string) {
 }
 
 
-export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
+export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
     replyTo: ReplyToContent,
     selection?: [number, number]
     onClose: () => void
     onSubmit: () => Promise<void>
+    quotedPost?: PostView
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
@@ -108,6 +122,50 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [rect, setRect] = useState<DOMRect>()
     const [enDiscusion, setEnDiscusion] = useState(false)
+    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<ExternalEmbedView> | null>(null)
+    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!externalEmbedUrl) {
+            setExternalEmbedView(null)
+            return
+        }
+
+        const handler = setTimeout(() => {
+            async function onNewExternalEmbed(url: string) {
+                const {data, error} = await get<{
+                    title: string | null,
+                    description: string | null,
+                    thumb: string | null
+                }>("/metadata?url=" + encodeURIComponent(url))
+
+                if (error) {
+                    setExternalEmbedView(null)
+                    return
+                }
+
+                const {title, description, thumb} = data
+                const embed: $Typed<ExternalEmbedView> = {
+                    $type: "app.bsky.embed.external#view",
+                    external: {
+                        $type: 'app.bsky.embed.external#viewExternal',
+                        uri: url,
+                        title,
+                        description,
+                        thumb
+                    }
+                }
+                setExternalEmbedView(embed)
+            }
+
+            if((!images || images.length == 0) && !visualization){
+                onNewExternalEmbed(externalEmbedUrl)
+            }
+        }, 200)
+
+        return () => clearTimeout(handler) // Clean up on dependency change
+    }, [externalEmbedUrl])
+
 
     const charLimit = 300
 
@@ -118,7 +176,15 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
 
     async function handleSubmit() {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-        const {error} = await createPost({text, reply, selection, images, enDiscusion})
+        const {error} = await createPost({
+            text,
+            reply,
+            selection,
+            images,
+            enDiscusion,
+            externalEmbedView,
+            quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
+        })
 
         if (reply) {
             await onSubmit()
@@ -139,35 +205,49 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
         return {error}
     }
 
+    const hasEmbed = replyTo || quotedPost || visualization || (images && images.length > 0) || (externalEmbedView != null)
+    const canAddImage = !hasEmbed ||
+        images.length > 0 && images.length != 4 ||
+        !visualization && !externalEmbedView && (!images || images.length == 0)
+
     return <RectTracker setRect={setRect}>
-        <div className={"min-h-64 flex flex-col justify-between"}>
-            <div className="px-2 w-full mb-2">
-                <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>
-                <div className="flex justify-between space-x-2 w-full mt-2">
-                    <ProfilePic user={user} className={"w-8 h-8 rounded-full"} descriptionOnHover={false}/>
-                    <div className="sm:text-lg w-full" key={editorKey}>
+        <div className={"flex flex-col justify-between"}>
+            <div className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
+                <div className="flex justify-between space-x-2 w-full my-2">
+                    <ProfilePic user={user} className="w-8 h-8 rounded-full" descriptionOnHover={false} />
+                    <div className="sm:text-lg flex-1" key={editorKey}>
                         <PostEditor
                             setText={setText}
                             placeholder={getPlaceholder(replyToCollection)}
+                            setExternalEmbed={setExternalEmbedUrl}
                         />
-                        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
+                        {charLimit && <ExtraChars charLimit={charLimit} count={text.length} />}
                     </div>
                 </div>
+                {replyTo && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
                 {visualization && <VisualizationNodeComp
                     visualization={visualization}
                     showEngagement={false}
                     width={rect.width - 20}
                 />}
-                {images && <PostImagesEditor images={images} setImages={setImages}/>}
+                {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
+                {externalEmbedView && <ExternalEmbedInEditor
+                    embed={externalEmbedView}
+                    onRemove={() => {
+                        setExternalEmbedUrl(null)
+                        setExternalEmbedView(null)
+                    }}
+                />}
+                {quotedPost && <WritePanelQuotedPost quotedPost={quotedPost}/>}
             </div>
             <div className="flex justify-between p-1 border-t items-center">
                 <div className={"flex space-x-2 items-center"}>
                     <AddImageButton
-                        disabled={images && images.length == 4 || visualization != null}
+                        disabled={!canAddImage}
                         setModalOpen={setImageModalOpen}
                     />
                     <AddVisualizationButton
-                        disabled={images && images.length > 0}
+                        disabled={hasEmbed}
                         setModalOpen={setVisualizationModalOpen}
                     />
                 </div>
@@ -203,9 +283,8 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
                 onClose={() => {
                     setImageModalOpen(false)
                 }}
-                onSubmit={(i: { src: string }) => {
-                    const image: ImagePayload = {$type: "url", ...i}
-                    setImages([...images, image])
+                onSubmit={(i: ImagePayload) => {
+                    setImages([...images, i])
                     setImageModalOpen(false)
                 }}
             />

@@ -25,7 +25,6 @@ export const fetchBackend = async ({
 export type PostOutput<Output> = Promise<{error?: string, data?: Output}>
 
 export async function post<Body, Output>(route: string, body?: Body): Promise<PostOutput<Output>> {
-    console.log("post to", route)
     const res = await fetchBackend({
         route,
         method: "POST",

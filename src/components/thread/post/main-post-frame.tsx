@@ -26,11 +26,6 @@ export const MainPostFrame = ({
 
     const enDiscusion = hasEnDiscusionLabel(postView)
 
-    async function onChange() {
-        // TO DO mutate(backendUrl + "/profile-feed/" + author.handle + "/publicaciones")
-        // TO DO mutate(backendUrl + "/profile-feed/" + author.handle + "/respuestas")
-    }
-
     return (
         <div className="w-full bg-[var(--background)]">
             <div className={"px-2 border-b"}>

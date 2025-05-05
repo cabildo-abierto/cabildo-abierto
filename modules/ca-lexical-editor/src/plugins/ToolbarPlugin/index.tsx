@@ -64,6 +64,7 @@ import {
 import {InsertImageModal} from "@/components/writing/write-panel/insert-image-modal";
 import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
 import {ToolbarButton} from "./toolbar-button";
+import {InsertImageNodeModal} from "./insert-image-node-modal";
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -471,7 +472,7 @@ export default function ToolbarPlugin({
               >
                 <ImageOutlined fontSize={"small"} color={"inherit"}/>
               </ToolbarButton>
-              <InsertImageModal
+              <InsertImageNodeModal
                   open={imageModalOpen}
                   onClose={() => {
                     setImageModalOpen(false)

@@ -52,6 +52,7 @@
     "child_process": "^1.0.2",
     "date-fns": "^3.6.0",
     "fflate": "^0.8.2",
+    "hls.js": "^1.6.2",
     "iron-session": "^8.0.4",
     "jsdom": "^26.1.0",
     "jszip": "^3.10.1",

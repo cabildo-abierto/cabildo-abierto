@@ -14,10 +14,11 @@ import {PostEmbed} from "@/components/feed/embed/post-embed";
 
 type PostRecordEmbedRecordProps = {
     record: RecordEmbedView["record"]
-    mainPostRef: ATProtoStrongRef
+    mainPostRef?: ATProtoStrongRef
+    navigateOnClick?: boolean
 }
 
-export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedRecordProps) => {
+export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true}: PostRecordEmbedRecordProps) => {
     const router = useRouter()
 
     if (isViewRecord(record)) {
@@ -26,11 +27,13 @@ export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedReco
         const createdAt = new Date(record.indexedAt)
 
         return <div
-            className={"rounded-lg border p-3 mt-2 hover:bg-[var(--background-dark2)]"}
+            className={"rounded-lg border p-3 hover:bg-[var(--background-dark2)]"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                router.push(url)
+                if(navigateOnClick) {
+                    router.push(url)
+                }
             }}
         >
             <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
@@ -38,6 +41,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedReco
                     href={profileUrl(author.handle)}
                     onClick={(e) => {
                         e.stopPropagation()
+                        if(!navigateOnClick) e.preventDefault()
                     }}
                     className="flex items-center justify-center"
                 >
@@ -92,14 +96,16 @@ export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedReco
 
 type PostRecordEmbedProps = {
     embed: RecordEmbedView
-    mainPostRef: ATProtoStrongRef
+    mainPostRef?: ATProtoStrongRef
+    navigateOnClick?: boolean
 }
 
-export const PostRecordEmbed = ({embed, mainPostRef}: PostRecordEmbedProps) => {
+export const PostRecordEmbed = ({embed, mainPostRef, navigateOnClick}: PostRecordEmbedProps) => {
     const record = embed.record
     return <PostRecordEmbedRecord
         record={record}
         mainPostRef={mainPostRef}
+        navigateOnClick={navigateOnClick}
     />
 }
 

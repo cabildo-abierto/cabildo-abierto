@@ -27,9 +27,9 @@ import {
 } from 'lexical';
 import {useEffect} from 'react';
 
-import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
+import {$isImageNode, ImageNode, $createImageNode, ImagePayloadForImageNode} from '../../nodes/ImageNode';
 import { CAN_USE_DOM } from '../../shared/canUseDOM';
-export type InsertImagePayload = Readonly<ImagePayload>;
+export type InsertImagePayload = Readonly<ImagePayloadForImageNode>;
 
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;

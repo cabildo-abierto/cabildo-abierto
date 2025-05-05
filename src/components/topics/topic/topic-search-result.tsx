@@ -27,10 +27,10 @@ export const TopicSearchResult = ({ topic }: {topic: TopicViewBasic}) => {
     }
   
     return (
-        <div className="relative flex flex-col w-full border-b">
+        <div className="relative flex flex-col w-full items-center">
             <div
                 onClick={() => {router.push(topicUrl(topic.id))}}
-                className={"min-[500px]:p-6 p-3 w-full flex justify-between hover:bg-[var(--background-dark)] bg-[var(--background)] cursor-pointer"}
+                className={"border-b min-[500px]:p-3 p-3 w-full flex justify-between hover:bg-[var(--background-dark)] bg-[var(--background)] cursor-pointer"}
                 onMouseEnter={onMouseEnter}
             >
                 <div className={"max-w-[70%] flex flex-col space-y-2"}>

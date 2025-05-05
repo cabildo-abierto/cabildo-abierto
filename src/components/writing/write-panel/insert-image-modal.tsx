@@ -4,14 +4,15 @@ import Button from "@mui/material/Button";
 import {LinkIcon} from "../../icons/link-icon";
 import {UploadImageButton} from "./upload-image-button";
 import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
+import {ImagePayload} from "@/components/writing/write-panel/write-post";
 
-
-
-export const InsertImageModal = ({open, onClose, onSubmit}: {
+export type InsertImageModalProps = {
     open: boolean
     onClose: () => void;
-    onSubmit: (i: { src?: string, formData?: FormData }) => void;
-}) => {
+    onSubmit: (i: ImagePayload) => void;
+}
+
+export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
 
@@ -43,7 +44,7 @@ export const InsertImageModal = ({open, onClose, onSubmit}: {
                         Pegá el URL de una imágen.
                     </div>
                     <InsertImageUriDialogBody
-                        onClick={(i: {src: string}) => {onSubmit(i); setMode(null)}}
+                        onClick={(i: ImagePayload) => {onSubmit(i); setMode(null)}}
                     />
                 </div>
             }

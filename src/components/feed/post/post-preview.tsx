@@ -47,7 +47,6 @@ export type FastPostPreviewProps = {
 
 function getParentAndRoot(f: FeedViewContent): {parent?: ReplyRefContent, root?: ReplyRefContent} {
     if(!f || !f.reply) {
-        console.log("No feed view content or not reply", f)
         return {}
     }
     const root = f.reply.root

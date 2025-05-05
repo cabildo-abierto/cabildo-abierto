@@ -45,7 +45,7 @@ export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => v
     if(selected == "none"){
         return <div className={"flex justify-center items-center min-h-64"}>
             <div className={"flex space-x-8 h-full"}>
-                <Link href={"/temas"}>
+                <Link href={"/temas?view=lista"}>
                     <Button
                         sx={{width: "128px"}}
                     >
