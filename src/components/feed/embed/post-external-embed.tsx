@@ -36,7 +36,7 @@ export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
                 <Image
                     src={embed.external.thumb}
                     alt={""}
-                    className="w-full max-h-[296px] object-cover rounded-t-lg"
+                    className="w-full max-h-[240px] object-cover rounded-t-lg"
                     width={400}
                     height={300}
                 />

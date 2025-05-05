@@ -123,7 +123,7 @@ function LazyImage({
                         }}
                         className={"cursor-pointer w-full object-contain max-h-[500px] rounded-lg"}
                         src={src}
-                        alt={altText}
+                        alt={altText ?? ""}
                         width={300}
                         height={300}
                     />

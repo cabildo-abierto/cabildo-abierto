@@ -7,6 +7,8 @@ import {getEditorSettings} from "@/components/editor/settings";
 import {LexicalEditor} from "lexical";
 import {FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {$Typed} from "@atproto/api";
+import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 type ArticleCompProps = {
     article: $Typed<FullArticleView>,
@@ -18,7 +20,7 @@ type ArticleCompProps = {
 export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
     const [editor, setEditor] = useState<LexicalEditor>(null)
 
-    const enDiscusion = false // TO DO
+    const enDiscusion = hasEnDiscusionLabel(article)
 
     useEffect(() => {
         const hash = window.location.hash
@@ -47,6 +49,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
     const format = article.format
 
     return <div className="w-full">
+        <PrettyJSON data={text}/>
         <div className={"p-3 border-b"}>
             <ArticleHeader article={article}/>
             <div className={"mt-8 mb-16"} id={editorId}>

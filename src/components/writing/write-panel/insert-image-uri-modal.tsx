@@ -1,12 +1,12 @@
 import {useState} from "react";
 import {TextField} from "@mui/material";
 import Button from "@mui/material/Button";
-import {InsertImagePayload} from "../../../../modules/ca-lexical-editor/src/plugins/ImagesPlugin";
+import {ImagePayload} from "@/components/writing/write-panel/write-post";
 
 export function InsertImageUriDialogBody ({
     onClick,
 }: {
-    onClick: (payload: InsertImagePayload) => void;
+    onClick: (i: ImagePayload) => void;
 }) {
     const [src, setSrc] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export function InsertImageUriDialogBody ({
     function onClickAccept(){
         setError(null)
         if(src.startsWith("https://")){
-            onClick({altText: "", src})
+            onClick({src, $type: "url"})
         } else {
             setError("Ingresá un dominio seguro (https://).")
         }

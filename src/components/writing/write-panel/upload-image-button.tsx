@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {styled} from "@mui/material";
-import {InsertImagePayload} from "../../../../modules/ca-lexical-editor/src/plugins/ImagesPlugin";
+import {ImagePayload} from "@/components/writing/write-panel/write-post";
 
 
 
@@ -18,17 +18,17 @@ const VisuallyHiddenInput = styled('input')({
 })
 
 
-export const UploadImageButton = ({onSubmit}: {onSubmit: (i: {src?: string, formData?: FormData}) => void}) => {
+export const UploadImageButton = ({onSubmit}: {onSubmit: (i: ImagePayload) => void}) => {
     const loadImage = async (e: any) => {
         if (e.target.files !== null) {
             const file = e.target.files[0]
             if (file) {
-                const imageUrl = URL.createObjectURL(file)
-                const formData = new FormData()
-                formData.set("image", file)
+                const arrayBuffer = await file.arrayBuffer();
+
                 onSubmit({
-                    src: imageUrl,
-                    formData
+                    $type: "file",
+                    src: URL.createObjectURL(file),
+                    base64: Buffer.from(arrayBuffer).toString("base64")
                 })
             }
         }

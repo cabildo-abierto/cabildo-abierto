@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
 import TopicNotFoundPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
-import {useTopic} from "@/hooks/api";
+import {useTopic, useTopicFeed} from "@/hooks/api";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
@@ -11,6 +11,7 @@ import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/
 import {useLayoutConfig} from "../../layout/layout-config-context";
 import {TopicCategories} from "./topic-categories";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
+import {useQueryClient} from "@tanstack/react-query";
 
 
 export function updateSearchParam(key: string, value: string | string[] | null) {
@@ -30,6 +31,7 @@ export function updateSearchParam(key: string, value: string | string[] | null) 
 export const TopicPage = ({topicId}: {
     topicId: string
 }) => {
+    const {data} = useTopicFeed(topicId) // prefetch
     const {data: topic, isLoading} = useTopic(topicId)
     const searchParams = useSearchParams()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()

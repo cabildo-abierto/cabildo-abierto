@@ -31,6 +31,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--background-dark4', '#303748');
 
             root.style.setProperty('--accent', '#2e364c');
+            root.style.setProperty('--accent-dark', '#444d66');
         } else {
             root.style.setProperty('--text', '#1a1a1a');
             root.style.setProperty('--text-light', '#444444');
@@ -38,6 +39,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--icon-color-filter', 'none');
 
             root.style.setProperty('--accent', '#e0e0e0');
+            root.style.setProperty('--accent-dark', '#a9a9a9');
 
             root.style.setProperty('--background', '#ffffff');
             root.style.setProperty('--background-light', '#f8f8f8');

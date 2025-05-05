@@ -1,6 +1,8 @@
 
 import CloseIcon from '@mui/icons-material/Close';
-import { FontSizeType } from './icon-utils';
-export const CloseButtonIcon = ({fontSize="medium"}: {fontSize?: FontSizeType}) => {
-    return <CloseIcon fontSize={fontSize}/>
+import {SvgIconProps} from "@mui/material";
+
+
+export const CloseButtonIcon = ({fontSize="medium", ...props}: SvgIconProps) => {
+    return <CloseIcon fontSize={fontSize} {...props}/>
 }

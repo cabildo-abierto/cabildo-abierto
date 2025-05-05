@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react"
-import { stopPropagation } from "@/utils/utils"
+import React, {ReactNode} from "react"
+import {stopPropagation} from "@/utils/utils"
 
 type ReactionButtonProps = {
     onClick: () => void
@@ -9,6 +9,7 @@ type ReactionButtonProps = {
     active?: boolean
     disabled?: boolean
     title?: string
+    stopPropagation?: boolean
 }
 
 export const ReactionButton = ({
@@ -16,14 +17,21 @@ export const ReactionButton = ({
                                    count,
                                    iconActive,
                                    iconInactive,
-                                   active=true,
-                                   disabled=false,
-                                   title
-}: ReactionButtonProps) => {
+                                   active = true,
+                                   disabled = false,
+                                   title,
+                                   stopPropagation = true
+                               }: ReactionButtonProps) => {
     return <div className={"text-[var(--text-light)]"}>
         <button
             className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1"}
-            onClick={(e) => {e.stopPropagation(); e.preventDefault(); onClick()}}
+            onClick={(e) => {
+                if (stopPropagation) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+                onClick()
+            }}
             disabled={disabled}
             title={title}
         >

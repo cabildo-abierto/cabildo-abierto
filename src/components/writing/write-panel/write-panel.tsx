@@ -21,6 +21,7 @@ type WritePanelProps = {
     onClose: () => void
     selection?: [number, number]
     onSubmit?: () => Promise<void>
+    quotedPost?: PostView
 }
 
 
@@ -29,7 +30,9 @@ export const WritePanel = ({
                                open,
                                onClose,
                                selection,
-                               onSubmit = async () => {}
+                               onSubmit = async () => {
+                               },
+                               quotedPost
                            }: WritePanelProps) => {
     const [selected, setSelected] = useState("Post")
     const router = useRouter()
@@ -74,7 +77,7 @@ export const WritePanel = ({
         <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
             <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
-                    {!isReply ? <SelectionComponent
+                    {!isReply && !quotedPost ? <SelectionComponent
                         onSelection={onSelection}
                         selected={selected}
                         optionsNodes={optionsNodes}
@@ -88,6 +91,7 @@ export const WritePanel = ({
                     replyTo={replyTo}
                     selection={selection}
                     onSubmit={onSubmit}
+                    quotedPost={quotedPost}
                 />}
                 {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>

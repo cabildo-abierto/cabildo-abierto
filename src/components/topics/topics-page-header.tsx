@@ -12,6 +12,7 @@ import { PiListBullets } from "react-icons/pi";
 import { PiListBulletsBold } from "react-icons/pi";
 import SearchBar from "@/components/buscar/search-bar";
 import {useRouter, useSearchParams} from "next/navigation";
+import {useSearch} from "@/components/buscar/search-context";
 
 
 
@@ -21,6 +22,7 @@ export const TopicsPageHeader = () => {
     const router = useRouter()
     const c = searchParams.get("c")
     const view = searchParams.get("view")
+    const {setSearchState} = useSearch()
 
     function optionsNodes(o: string, isSelected: boolean){
         let icon: ReactNode
@@ -39,7 +41,8 @@ export const TopicsPageHeader = () => {
     return <div className="flex justify-between px-2 items-center space-x-1">
         <SelectionComponent
             onSelection={(s: string) => {
-                router.push("/temas?view=" + s + (c ? "&c=" + c : ""))
+                router.push("/temas?view=" + s + (c ? "&c=" + c : ""));
+                setSearchState({value: "", searching: false})
             }}
             options={["mapa", "lista"]}
             selected={view ? view : "mapa"}

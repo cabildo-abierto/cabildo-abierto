@@ -2,7 +2,6 @@ import {ContentOptionsButton} from "@/components/feed/content-options/content-op
 import {ActiveLikeIcon} from "../../icons/active-like-icon"
 import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
 import {InactiveLikeIcon} from "../../icons/inactive-like-icon"
-import {RepostIcon} from "../../icons/reposts-icon"
 import {FixedCounter, ReactionCounter} from "./reaction-counter"
 import {ViewsIcon} from "../../icons/views-icon";
 import {contentUrl, getCollectionFromUri} from "@/utils/uri";
@@ -15,6 +14,7 @@ import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query"
 import { threadQueryKey } from "@/hooks/api"
 import {ATProtoStrongRef} from "@/lib/types";
+import {RepostCounter} from "@/components/feed/frame/repost-counter";
 
 
 type EngagementIconsProps = {
@@ -40,7 +40,7 @@ export const EngagementIcons = ({
                                     className = "space-x-16",
                                     enDiscusion
                                 }: EngagementIconsProps) => {
-    const [showBluesky, setShowBluesky] = useState(false)
+    const [showBsky, setShowBsky] = useState(false)
     const router = useRouter()
     const [writingReply, setWritingReply] = useState<boolean>(false)
     const queryClient = useQueryClient()
@@ -74,17 +74,6 @@ export const EngagementIcons = ({
         return {}
     }
 
-    const onAddRepost = async () => {
-        return await post("/repost", {uri: content.uri, cid: content.cid})
-    }
-
-    const onRemoveRepost = async () => {
-        if(content.viewer && content.viewer.repost){
-            await post("/remove-repost", {uri: content.viewer.repost, repostedUri: content.uri})
-            return {}
-        }
-    }
-
     function onClickRepliesButton(){
         if(isArticleView(content)){
             router.push(contentUrl(content.uri))
@@ -102,14 +91,10 @@ export const EngagementIcons = ({
                     title="Cantidad de respuestas."
                 />
             </div>}
-            {content.repostCount != undefined && <ReactionCounter
-                iconActive={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
-                iconInactive={<RepostIcon fontSize={"small"}/>}
-                onAdd={onAddRepost}
-                onRemove={onRemoveRepost}
-                title="Cantidad de republicaciones."
+            {content.repostCount != undefined && <RepostCounter
+                content={content}
+                showBsky={showBsky}
                 reactionUri={content.viewer ? content.viewer.repost : undefined}
-                count={showBluesky ? content.bskyRepostCount : content.repostCount}
             />}
             {content.likeCount != undefined && <ReactionCounter
                 iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
@@ -118,7 +103,7 @@ export const EngagementIcons = ({
                 onRemove={onRemoveLike}
                 title="Cantidad de me gustas."
                 reactionUri={content.viewer ? content.viewer.like : undefined}
-                count={showBluesky ? content.bskyLikeCount : content.likeCount}
+                count={showBsky ? content.bskyLikeCount : content.likeCount}
             />}
             {content.uniqueViewsCount != undefined && <FixedCounter
                 icon={<ViewsIcon/>}
@@ -136,8 +121,8 @@ export const EngagementIcons = ({
         <ContentOptionsButton
             record={content}
             enDiscusion={enDiscusion}
-            showBluesky={showBluesky}
-            setShowBluesky={setShowBluesky}
+            showBluesky={showBsky}
+            setShowBluesky={setShowBsky}
         />
         <WritePanel
             open={writingReply}

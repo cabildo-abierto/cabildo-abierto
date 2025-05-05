@@ -44,6 +44,11 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(articleUrl)
     }
 
+    if(url.pathname == "/" || url.pathname == ""){
+        const url = new URL("/inicio", request.url)
+        return NextResponse.redirect(url)
+    }
+
     return NextResponse.next()
 }
 

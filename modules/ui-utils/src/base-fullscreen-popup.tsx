@@ -26,6 +26,7 @@ export const BaseFullscreenPopup = ({
             disableEnforceFocus={true}
             disableScrollLock={true}
             className={"flex justify-center items-center"}
+            onClick={(e) => {e.stopPropagation();}}
         >
             <Box className={"min-w-[300px] shadow-lg bg-[var(--background-dark)] rounded-lg border " + className}>
                 {closeButton && (
