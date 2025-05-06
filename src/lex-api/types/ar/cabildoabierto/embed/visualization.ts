@@ -12,17 +12,15 @@ import {
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'ar.cabildoabierto.data.visualization'
+const id = 'ar.cabildoabierto.embed.visualization'
 
 export interface Main {
-  $type?: 'ar.cabildoabierto.data.visualization'
+  $type?: 'ar.cabildoabierto.embed.visualization'
   spec:
     | $Typed<DatasetVisualization>
     | $Typed<HemicycleVisualization>
     | $Typed<TopicListVisualization>
     | { $type: string }
-  /** Client-declared timestamp when this post was originally created. */
-  createdAt: string
 }
 
 const hashMain = 'main'
@@ -36,12 +34,13 @@ export function validateMain<V>(v: V) {
 }
 
 export interface DatasetVisualization {
-  $type?: 'ar.cabildoabierto.data.visualization#datasetVisualization'
+  $type?: 'ar.cabildoabierto.embed.visualization#datasetVisualization'
   dataset?: string
   spec?:
     | $Typed<Barplot>
     | $Typed<Scatterplot>
     | $Typed<Histogram>
+    | $Typed<Lines>
     | { $type: string }
   title?: string
 }
@@ -57,7 +56,7 @@ export function validateDatasetVisualization<V>(v: V) {
 }
 
 export interface HemicycleVisualization {
-  $type?: 'ar.cabildoabierto.data.visualization#hemicycleVisualization'
+  $type?: 'ar.cabildoabierto.embed.visualization#hemicycleVisualization'
 }
 
 const hashHemicycleVisualization = 'hemicycleVisualization'
@@ -71,7 +70,7 @@ export function validateHemicycleVisualization<V>(v: V) {
 }
 
 export interface TopicListVisualization {
-  $type?: 'ar.cabildoabierto.data.visualization#topicListVisualization'
+  $type?: 'ar.cabildoabierto.embed.visualization#topicListVisualization'
 }
 
 const hashTopicListVisualization = 'topicListVisualization'
@@ -85,7 +84,7 @@ export function validateTopicListVisualization<V>(v: V) {
 }
 
 export interface Barplot {
-  $type?: 'ar.cabildoabierto.data.visualization#barplot'
+  $type?: 'ar.cabildoabierto.embed.visualization#barplot'
   xlabel?: string
   ylabel?: string
 }
@@ -101,7 +100,7 @@ export function validateBarplot<V>(v: V) {
 }
 
 export interface Scatterplot {
-  $type?: 'ar.cabildoabierto.data.visualization#scatterplot'
+  $type?: 'ar.cabildoabierto.embed.visualization#scatterplot'
   xlabel?: string
   ylabel?: string
 }
@@ -117,7 +116,7 @@ export function validateScatterplot<V>(v: V) {
 }
 
 export interface Histogram {
-  $type?: 'ar.cabildoabierto.data.visualization#histogram'
+  $type?: 'ar.cabildoabierto.embed.visualization#histogram'
   xlabel?: string
   normalized?: boolean
 }
@@ -130,4 +129,21 @@ export function isHistogram<V>(v: V) {
 
 export function validateHistogram<V>(v: V) {
   return validate<Histogram & V>(v, id, hashHistogram)
+}
+
+export interface Lines {
+  $type?: 'ar.cabildoabierto.embed.visualization#lines'
+  xlabel?: string
+  ylabel?: string
+  normalized?: boolean
+}
+
+const hashLines = 'lines'
+
+export function isLines<V>(v: V) {
+  return is$typed(v, id, hashLines)
+}
+
+export function validateLines<V>(v: V) {
+  return validate<Lines & V>(v, id, hashLines)
 }

@@ -38,6 +38,7 @@ import {
   VisualizationPayload
 } from '../../nodes/VisualizationNode';
 import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 export type InsertVisualizationPayload = Readonly<VisualizationPayload>;
 
@@ -46,8 +47,6 @@ const getDOMSelection = (targetWindow: Window | null): Selection | null =>
 
 export const INSERT_PLOT_COMMAND: LexicalCommand<InsertVisualizationPayload> =
   createCommand('INSERT_PLOT_COMMAND');
-
-type VisualizationProps = any // TO DO
 
 export function InsertVisualizationDialog({
                                     activeEditor,
@@ -58,11 +57,12 @@ export function InsertVisualizationDialog({
   open: boolean;
   onClose: () => void;
 }) {
-    const [visualization, setVisualization] = useState<VisualizationProps | null>(null)
+    const [visualization, setVisualization] = useState<Visualization | null>(null)
 
     useEffect(() => {
         if(visualization){
-            activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization.visualization.spec, uri: visualization.uri});
+            // TO DO
+            // activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization.spec, uri: visualization.uri});
             onClose();
         }
     }, [visualization])
@@ -71,7 +71,7 @@ export function InsertVisualizationDialog({
         <InsertVisualizationModal
             open={open}
             onClose={onClose}
-            setVisualization={setVisualization}
+            onSubmit={(v: Visualization) => {setVisualization(v)}}
         />
     )
 }

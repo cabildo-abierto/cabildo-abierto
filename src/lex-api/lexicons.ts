@@ -263,93 +263,6 @@ export const schemaDict = {
       },
     },
   },
-  ArCabildoabiertoDataVisualization: {
-    lexicon: 1,
-    id: 'ar.cabildoabierto.data.visualization',
-    defs: {
-      main: {
-        type: 'object',
-        required: ['createdAt', 'spec'],
-        properties: {
-          spec: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.data.visualization#datasetVisualization',
-              'lex:ar.cabildoabierto.data.visualization#hemicycleVisualization',
-              'lex:ar.cabildoabierto.data.visualization#topicListVisualization',
-            ],
-          },
-          createdAt: {
-            type: 'string',
-            format: 'datetime',
-            description:
-              'Client-declared timestamp when this post was originally created.',
-          },
-        },
-      },
-      datasetVisualization: {
-        type: 'object',
-        properties: {
-          dataset: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          spec: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.data.visualization#barplot',
-              'lex:ar.cabildoabierto.data.visualization#scatterplot',
-              'lex:ar.cabildoabierto.data.visualization#histogram',
-            ],
-          },
-          title: {
-            type: 'string',
-          },
-        },
-      },
-      hemicycleVisualization: {
-        type: 'object',
-        properties: {},
-      },
-      topicListVisualization: {
-        type: 'object',
-        properties: {},
-      },
-      barplot: {
-        type: 'object',
-        properties: {
-          xlabel: {
-            type: 'string',
-          },
-          ylabel: {
-            type: 'string',
-          },
-        },
-      },
-      scatterplot: {
-        type: 'object',
-        properties: {
-          xlabel: {
-            type: 'string',
-          },
-          ylabel: {
-            type: 'string',
-          },
-        },
-      },
-      histogram: {
-        type: 'object',
-        properties: {
-          xlabel: {
-            type: 'string',
-          },
-          normalized: {
-            type: 'boolean',
-          },
-        },
-      },
-    },
-  },
   ArCabildoabiertoEmbedSelectionQuote: {
     lexicon: 1,
     id: 'ar.cabildoabierto.embed.selectionQuote',
@@ -400,6 +313,102 @@ export const schemaDict = {
           },
           quotedContentTitle: {
             type: 'string',
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoEmbedVisualization: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.embed.visualization',
+    defs: {
+      main: {
+        type: 'object',
+        required: ['spec'],
+        properties: {
+          spec: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization#datasetVisualization',
+              'lex:ar.cabildoabierto.embed.visualization#hemicycleVisualization',
+              'lex:ar.cabildoabierto.embed.visualization#topicListVisualization',
+            ],
+          },
+        },
+      },
+      datasetVisualization: {
+        type: 'object',
+        properties: {
+          dataset: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          spec: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization#barplot',
+              'lex:ar.cabildoabierto.embed.visualization#scatterplot',
+              'lex:ar.cabildoabierto.embed.visualization#histogram',
+              'lex:ar.cabildoabierto.embed.visualization#lines',
+            ],
+          },
+          title: {
+            type: 'string',
+          },
+        },
+      },
+      hemicycleVisualization: {
+        type: 'object',
+        properties: {},
+      },
+      topicListVisualization: {
+        type: 'object',
+        properties: {},
+      },
+      barplot: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          ylabel: {
+            type: 'string',
+          },
+        },
+      },
+      scatterplot: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          ylabel: {
+            type: 'string',
+          },
+        },
+      },
+      histogram: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          normalized: {
+            type: 'boolean',
+          },
+        },
+      },
+      lines: {
+        type: 'object',
+        properties: {
+          xlabel: {
+            type: 'string',
+          },
+          ylabel: {
+            type: 'string',
+          },
+          normalized: {
+            type: 'boolean',
           },
         },
       },
@@ -7017,6 +7026,7 @@ export const schemaDict = {
                 'lex:app.bsky.embed.record',
                 'lex:app.bsky.embed.recordWithMedia',
                 'lex:ar.cabildoabierto.embed.selectionQuote',
+                'lex:ar.cabildoabierto.embed.visualization',
               ],
             },
             langs: {
@@ -11454,8 +11464,8 @@ export const ids = {
   ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoDataDataBlock: 'ar.cabildoabierto.data.dataBlock',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
-  ArCabildoabiertoDataVisualization: 'ar.cabildoabierto.data.visualization',
   ArCabildoabiertoEmbedSelectionQuote: 'ar.cabildoabierto.embed.selectionQuote',
+  ArCabildoabiertoEmbedVisualization: 'ar.cabildoabierto.embed.visualization',
   ArCabildoabiertoFeedArticle: 'ar.cabildoabierto.feed.article',
   ArCabildoabiertoFeedDefs: 'ar.cabildoabierto.feed.defs',
   ArCabildoabiertoFeedGetFeed: 'ar.cabildoabierto.feed.getFeed',
