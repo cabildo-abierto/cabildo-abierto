@@ -14,9 +14,9 @@ export const AddVisualizationButton = ({
         }}
         disabled={disabled}
         type="button"
-        title="Insertar visualización"
+        title="Nueva visualización"
         className="toolbar-item spaced text-[var(--text-light)]"
-        aria-label="Insertar visualización">
+        aria-label="Nueva visualización">
         <VisualizationsIcon fontSize={"small"} color={"inherit"}/>
     </button>
 }

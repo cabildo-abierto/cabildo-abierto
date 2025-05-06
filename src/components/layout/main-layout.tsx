@@ -17,7 +17,6 @@ const MainLayout = ({
                         openSidebar = true,
                         defaultSidebarState = true,
                     }: { children: ReactNode } & LayoutConfigProps) => {
-
     return (
         <LoadingPage>
             <PageLeaveProvider>
