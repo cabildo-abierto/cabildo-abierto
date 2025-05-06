@@ -6,10 +6,11 @@ import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
 import {useSession} from "@/hooks/api";
+import {post} from "@/utils/fetch";
 
 
-async function setSeenTutorial(v: boolean) {
-
+async function setSeenTutorial() {
+    await post("/seen-tutorial")
 }
 
 
@@ -37,6 +38,7 @@ const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) =
 export const RunTutorial = ({children}: {children: ReactNode}) => {
     const [run, setRun] = useState(false)
     const [showingWelcomeMessage, setShowingWelcomeMessage] = useState(true)
+    const [startedRun, setStartedRun] = useState(false)
     const [steps] = useState<Step[]>([
         {
             target: '#siguiendo',
@@ -46,7 +48,7 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
         },
         {
             target: '#discusion',
-            content: 'Un feed con lo más popular en Cabildo Abierto, sin personalización automática.',
+            content: 'Un feed con lo más popular en Cabildo Abierto.',
             placement: 'bottom',
         },
         {
@@ -55,33 +57,37 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
             placement: 'bottom',
         },
         {
+            target: 'body', // or you can use a hidden/invisible div
+            content: 'Ninguno de los feeds está personalizado con IA.',
+            placement: 'center',
+            disableBeacon: true,
+            spotlightClicks: false,
+        },
+        {
             target: '#temas',
             content: 'Una wiki sobre los temas en discusión, con los consensos de la plataforma.',
-            placement: 'bottom',
-        },
-        {
-            target: '#congreso',
-            content: 'Una sección con todo lo que está pasando en el congreso.',
-            placement: 'bottom',
-        },
-        {
-            target: '#datos',
-            content: 'Explorá datos públicos y visualizaciones generadas por los usuarios.',
             placement: 'bottom',
         },
         {
             target: '#write-button',
             content: 'Escribí publicaciones rápidas y artículos o editá temas de discusión.',
             placement: 'bottom',
-        },
+        }
     ])
 
     useEffect(() => {
         if(!showingWelcomeMessage){
-            setRun(true);
+            setRun(true)
+            setStartedRun(true)
         }
 
     }, [showingWelcomeMessage])
+
+    useEffect(() => {
+        if (startedRun && !run) {
+            setSeenTutorial()
+        }
+    }, [run, startedRun]);
 
     const handleJoyrideCallback = async (data: CallBackProps) => {
         const { status } = data;
@@ -89,9 +95,9 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
 
         smoothScrollTo(0)
 
+        console.log("Status", status)
         if (finishedStatuses.includes(status)) {
-            setRun(false);
-            await setSeenTutorial(true)
+            setRun(false)
         }
     };
 

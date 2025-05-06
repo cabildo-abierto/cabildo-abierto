@@ -18,6 +18,7 @@ const id = 'ar.cabildoabierto.data.dataset'
 export interface Record {
   $type: 'ar.cabildoabierto.data.dataset'
   name: string
+  description?: string
   /** Client-declared timestamp when this post was originally created. */
   createdAt: string
   columns: Column[]

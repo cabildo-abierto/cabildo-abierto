@@ -1,28 +1,30 @@
 "use client"
 import {Box, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
-import {useRouter} from "next/navigation"
 import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useSession} from "@/hooks/api";
 import { Button } from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 
 
-export const assignInviteCode = async (c: string) => {
-    return {error: "Sin implementar."}
-}
-
-
 export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     const [error, setError] = useState(undefined)
-    const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const {user} = useSession() // TO DO: Tal vez haga falta alguna revalidación
-    const [usingInviteCode, setUsingInviteCode] = useState(false)
+    const {refetch} = useSession(inviteCode)
     const [handleStart, setHandleStart] = useState("")
     const [domain, setDomain] = useState(".bsky.social")
+
+    useEffect(() => {
+        const channel = new BroadcastChannel("auth_channel")
+        channel.onmessage = (event) => {
+            if (event.data === "auth-success") {
+                console.log("Auth success: triggering session refetch")
+                refetch()
+            }
+        }
+        return () => channel.close()
+    }, [])
 
     async function handleSubmit(e){
         e.preventDefault();
@@ -34,7 +36,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         if (!isValidHandle(handle)) {
             if(handle.includes("@")){
                 setError("Nombre de usuario inválido. Escribilo sin @.")
-            } else if(!handle.includes(".bsky.social")){
+            } else {
                 setError('Nombre de usuario inválido.')
             }
             return
@@ -47,54 +49,31 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ handle }),
+            body: JSON.stringify({ handle, code: inviteCode }),
             redirect: "follow", // ensure browser follows the redirect
         })
 
         if(!res.ok){
-            console.log("Response:", res)
             setError("Ocurrió un error al iniciar sesión.")
             setIsLoading(false)
             return
         }
 
-        const url = (await res.json() as {url: string}).url
+        const body = await res.json() as {error?: string, data?: {url: string}}
+
+        if(body.error){
+            setError(body.error)
+            setIsLoading(false)
+            return
+        }
+
+        const url = body.data.url
         
         const width = 600;
         const height = 700;
         const left = (window.screen.width - width) / 2;
         const top = (window.screen.height - height) / 2;
-        //window.open(url, 'bluesky-login', `width=${width},height=${height},left=${left},top=${top}`);
-        router.push(url)
-    }
-
-    useEffect(() => {
-        async function activateInviteCode(){
-            setUsingInviteCode(true)
-            const {error} = await assignInviteCode(inviteCode)
-            if(error){
-                setError(error)
-            } else {
-                // TO DO mutate("/api/user", {})
-            }
-        }
-
-        if(user && user.did){
-            if(inviteCode && !user.hasAccess && !user.usedInviteCode){
-                activateInviteCode()
-            }
-
-            router.push("/inicio")
-        }
-    }, [user, inviteCode, router])
-
-    if(usingInviteCode){
-        return <div className={"flex flex-col items-center space-y-2"}>
-            <div>
-                Cargando código de invitación.
-            </div>
-            <LoadingSpinner/>
-        </div>
+        window.open(url, 'bluesky-login', `width=${width},height=${height},left=${left},top=${top}`);
     }
 
     return <div className={"max-w-96 w-full"}>

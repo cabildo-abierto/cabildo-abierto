@@ -1,8 +1,15 @@
 "use client"
 import { useEffect } from 'react';
+import {Session} from "@/lib/types";
+import {useAPI} from "@/hooks/api";
 
 const Page = () => {
+    const { data: session, refetch } = useAPI<Session>("/api/session", ["session"])
+
     useEffect(() => {
+        const channel = new BroadcastChannel("auth_channel")
+        channel.postMessage("auth-success")
+        channel.close()
         window.close();
     }, []);
 

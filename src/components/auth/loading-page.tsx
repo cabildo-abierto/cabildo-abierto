@@ -10,7 +10,6 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
     const session = useSession()
     const router = useRouter()
 
-
     useEffect(() => {
         if(session.error){
             router.push("/mantenimiento")
