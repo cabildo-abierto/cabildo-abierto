@@ -1,39 +1,28 @@
-import { Suspense } from 'react';
-import { Login } from '../../components/auth/login';
+"use client"
+import { Login } from '@/components/auth/login';
 import {Metadata} from "next";
-import {mainMetadata, twitterMetadata} from "../../utils/metadata";
-
-
-
-export async function generateMetadata(
-    { searchParams }: {searchParams: Promise<{c: string}>}
-): Promise<Metadata> {
-    const { c } = await searchParams
-
-    if(c){
-        return {
-            ...mainMetadata,
-            title: "¡Sumate a Cabildo Abierto!",
-            openGraph: {
-                ...mainMetadata.openGraph,
-                title: "¡Sumate a Cabildo Abierto!"
-            },
-            twitter: {
-                ...twitterMetadata,
-                title: "¡Sumate a Cabildo Abierto!"
-            }
-        }
-    } else {
-        return mainMetadata
-    }
-}
+import {mainMetadata, twitterMetadata} from "@/utils/metadata";
+import {useSession} from "@/hooks/api";
+import {useRouter} from "next/navigation";
+import {LoadingScreen} from "../../../modules/ui-utils/src/loading-screen";
+import {useEffect} from "react";
 
 
 export default function Page() {
+    const session = useSession()
+    const router = useRouter()
+
+    useEffect(() => {
+        if(session.user){
+            router.push("/inicio")
+        }
+    }, [session])
+
+    console.log("session", session)
+
+    if(session.isLoading || session.data) return <LoadingScreen/>
 
     return <div className={"flex items-center justify-center"}>
-        <Suspense>
-            <Login/>
-        </Suspense>
+        <Login/>
     </div>
 }

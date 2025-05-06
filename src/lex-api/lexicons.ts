@@ -10,6 +10,26 @@ import {
 import { type $Typed, is$typed, maybe$typed } from './util'
 
 export const schemaDict = {
+  ArCabildoabiertoActorCaProfile: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.actor.caProfile',
+    defs: {
+      main: {
+        type: 'record',
+        description: 'A declaration of a Cabildo Abierto account profile.',
+        key: 'literal:self',
+        record: {
+          type: 'object',
+          properties: {
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+            },
+          },
+        },
+      },
+    },
+  },
   ArCabildoabiertoActorDefs: {
     lexicon: 1,
     id: 'ar.cabildoabierto.actor.defs',
@@ -57,26 +77,6 @@ export const schemaDict = {
           caProfile: {
             type: 'string',
             format: 'at-uri',
-          },
-        },
-      },
-    },
-  },
-  ArCabildoabiertoActorCaProfile: {
-    lexicon: 1,
-    id: 'ar.cabildoabierto.actor.caProfile',
-    defs: {
-      main: {
-        type: 'record',
-        description: 'A declaration of a Cabildo Abierto account profile.',
-        key: 'literal:self',
-        record: {
-          type: 'object',
-          properties: {
-            createdAt: {
-              type: 'string',
-              format: 'datetime',
-            },
           },
         },
       },
@@ -131,6 +131,9 @@ export const schemaDict = {
               type: 'string',
               minLength: 1,
               maxLength: 120,
+            },
+            description: {
+              type: 'string',
             },
             createdAt: {
               type: 'string',
@@ -11447,8 +11450,8 @@ export function validate(
 }
 
 export const ids = {
-  ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoActorCaProfile: 'ar.cabildoabierto.actor.caProfile',
+  ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoDataDataBlock: 'ar.cabildoabierto.data.dataBlock',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
   ArCabildoabiertoDataVisualization: 'ar.cabildoabierto.data.visualization',

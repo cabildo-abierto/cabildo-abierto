@@ -2,37 +2,15 @@
 import Link from "next/link"
 import { BlueskyLogin } from "./bsky-login"
 import {Logo} from "../../../modules/ui-utils/src/logo"
-import {useRouter, useSearchParams} from "next/navigation";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {useSearchParams} from "next/navigation";
 import { LuPartyPopper } from "react-icons/lu";
-import {useCodes} from "@/hooks/api";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
 
 
 export const Login = () => {
     const params = useSearchParams()
-    const {data: codes} = useCodes()
-    const router = useRouter()
-
     const inviteCode = params.get("c")
-
-    if(inviteCode && !codes){
-        return <div className={"mt-8"}><LoadingSpinner/></div>
-    }
-
-    if(inviteCode){
-        if(!codes.includes(inviteCode)){
-            return <div className={"space-y-4 text-center flex flex-col justify-center h-full"}>
-                <div className={"text-[var(--text-light)] text-lg"}>
-                    Tu código de invitación expiró o es inválido.
-                </div>
-                <div>
-                    <Link href="/login" className={"link3"}>Volver</Link>
-                </div>
-            </div>
-        }
-    }
 
     return <div className="flex flex-col items-center max-w-96 py-10">
         <div className={"flex justify-start w-full px-2 text-[var(--text-light)]"}>

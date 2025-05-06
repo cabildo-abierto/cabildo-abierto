@@ -53,17 +53,14 @@ function getParentAndRoot(f: FeedViewContent): {parent?: ReplyRefContent, root?:
     const parent = f.reply.parent
 
     if(!isReplyRefContent(parent)) {
-        console.log("Parent is not reply ref content", parent)
         return {}
     }
     if(!isReplyRefContent(root)) {
-        console.log("Root is not reply ref content", root)
         return {}
     }
 
     if(isKnownContent(root)){
         if(!isKnownContent(parent)){
-            console.log("Parent is not known content and root is", parent)
             return {}
         }
         if(parent.uri != root.uri){
@@ -75,7 +72,6 @@ function getParentAndRoot(f: FeedViewContent): {parent?: ReplyRefContent, root?:
         if(isTopicViewBasic(parent)){
             return {parent} // en este caso tienen que ser parent == root
         }
-        console.log("Root is not known content and parent is not topic view basic")
         return {parent, root}
     }
 }

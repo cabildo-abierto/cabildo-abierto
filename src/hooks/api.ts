@@ -21,24 +21,27 @@ function uriToKey(uri: string) {
 }
 
 
-export function useAPI<T>(route: string, key: readonly unknown[]){
+export function useAPI<T>(
+    route: string,
+    key: readonly unknown[],
+    options?: {
+        enabled?: boolean
+    }
+) {
     return useQuery<T>({
         queryKey: key,
         queryFn: async () => {
-            const {data, error} = await get<T>(route)
-            if(data){
-                return data
-            } else if(error) {
-                throw Error(error)
-            } else {
-                return data
-            }
-        }
+            const { data, error } = await get<T>(route)
+            if (data) return data
+            if (error) return null
+            return data
+        },
+        ...options,
     })
 }
 
-export const useSession = () => {
-    const res = useAPI<Session>("/session", ["session"])
+export const useSession = (inviteCode?: string) => {
+    const res = useAPI<Session>("/session" + (inviteCode ? "/" + inviteCode : ""), ["session"])
     return {...res, user: res.data}
 }
 

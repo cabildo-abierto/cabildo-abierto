@@ -50,6 +50,6 @@ export async function get<Output>(route: string): Promise<PostOutput<Output>> {
     if(res.ok){
         return await res.json()
     } else {
-        throw Error("Error en la conexión.")
+        return {error: "Error en la conexión"}
     }
 }
