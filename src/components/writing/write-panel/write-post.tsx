@@ -276,7 +276,7 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
                 onClose={() => {
                     setVisualizationModalOpen(false)
                 }}
-                setVisualization={setVisualization}
+                onSubmit={setVisualization}
             />
             <InsertImageModal
                 open={imageModalOpen}

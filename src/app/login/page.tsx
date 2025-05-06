@@ -18,8 +18,6 @@ export default function Page() {
         }
     }, [session])
 
-    console.log("session", session)
-
     if(session.isLoading || session.data) return <LoadingScreen/>
 
     return <div className={"flex items-center justify-center"}>
