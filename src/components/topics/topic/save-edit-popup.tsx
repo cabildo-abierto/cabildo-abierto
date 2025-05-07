@@ -70,8 +70,6 @@ export const SaveEditPopup = ({
         setDiff(d)
     }, [editorState])
 
-    const validMsg = !editMsg.startsWith("nuevo nombre:")
-
     const infoAuthorship = <span className="link">
         Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link
         href={topicUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
@@ -93,7 +91,7 @@ export const SaveEditPopup = ({
 
     return (
         <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
-            <div className="py-4 px-12 z-10 text-center max-w-lg w-full">
+            <div className="py-4 lg:px-12 px-2 text-center">
 
                 <h2 className="pb-4 text-lg">
                     Confirmar cambios
@@ -111,11 +109,8 @@ export const SaveEditPopup = ({
                     </div>
                 }
 
-                <div className="flex flex-col items-center mb-8">
+                <div className="flex flex-col items-center mb-8 w-full min-w-[300px]">
                     <EditMessageInput value={editMsg} setValue={setEditMsg}/>
-                    {!validMsg &&
-                        <div className="mt-1 text-[var(--text-light)] text-sm">No puede empezar con &quot;nuevo
-                            nombre:&quot;</div>}
                 </div>
 
                 {!hasEditPermission(user, getTopicProtection(topic.props)) &&
@@ -141,6 +136,7 @@ export const SaveEditPopup = ({
                         onClick={async () => {
                             onClose()
                         }}
+                        sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}
                     >
                         Cancelar
                     </Button>
@@ -150,7 +146,7 @@ export const SaveEditPopup = ({
                         }
                         }
                         text1="Confirmar"
-                        disabled={!validMsg || diff === "too big"}
+                        disabled={diff === "too big"}
                         disableElevation={true}
                     />
                 </div>

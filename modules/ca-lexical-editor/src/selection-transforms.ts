@@ -126,7 +126,7 @@ export function getLexicalPointerFromMarkdownIndex(s: any, index: number, leaves
         }
     } else {
         return {
-            node: [],
+            node: [0, 0],
             offset: 0
         }
     }

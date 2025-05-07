@@ -119,6 +119,7 @@ export interface ArticleView {
   $type?: 'ar.cabildoabierto.feed.defs#articleView'
   uri: string
   cid: string
+  title: string
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
   /** A summary of the article to be shown in the feed. */
   summary?: string
@@ -153,6 +154,7 @@ export interface FullArticleView {
   uri: string
   cid: string
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
+  title: string
   /** The full article text */
   text?: string
   format?: string
@@ -168,6 +170,7 @@ export interface FullArticleView {
   indexedAt: string
   viewer?: AppBskyFeedDefs.ViewerState
   labels?: ComAtprotoLabelDefs.Label[]
+  topicsMentioned?: TopicMention[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
 }
 
@@ -179,4 +182,21 @@ export function isFullArticleView<V>(v: V) {
 
 export function validateFullArticleView<V>(v: V) {
   return validate<FullArticleView & V>(v, id, hashFullArticleView)
+}
+
+export interface TopicMention {
+  $type?: 'ar.cabildoabierto.feed.defs#topicMention'
+  title: string
+  id: string
+  count: number
+}
+
+const hashTopicMention = 'topicMention'
+
+export function isTopicMention<V>(v: V) {
+  return is$typed(v, id, hashTopicMention)
+}
+
+export function validateTopicMention<V>(v: V) {
+  return validate<TopicMention & V>(v, id, hashTopicMention)
 }

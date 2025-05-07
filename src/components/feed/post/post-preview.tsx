@@ -43,6 +43,7 @@ export type FastPostPreviewProps = {
     showReplyMessage?: boolean
     repostedBy?: { handle: string, displayName?: string }
     onDeleteFeedElem: () => Promise<void>
+    inThreadFeed?: boolean
 }
 
 function getParentAndRoot(f: FeedViewContent): {parent?: ReplyRefContent, root?: ReplyRefContent} {
@@ -84,7 +85,8 @@ export const PostPreview = ({
                                 showingParent = false,
                                 showReplyMessage = false,
                                 onClickQuote,
-                                onDeleteFeedElem
+                                onDeleteFeedElem,
+                                inThreadFeed=false
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
 
@@ -96,10 +98,10 @@ export const PostPreview = ({
 
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
 
-    const showThreadButton = root != null && isPostView(parent) && ("uri" in root && (parent.record as PostRecord).reply.parent.uri != root.uri)
+    const showThreadButton = !inThreadFeed && root != null && isPostView(parent) && ("uri" in root && (parent.record as PostRecord).reply.parent.uri != root.uri)
 
     return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px]"}>
-        {root && <FeedElement
+        {!inThreadFeed && root && <FeedElement
             elem={{content: feedViewContent.reply.root}}
             showingChildren={true}
             onDeleteFeedElem={onDeleteFeedElem}
@@ -109,7 +111,7 @@ export const PostPreview = ({
             <ShowThreadButton uri={feedViewContent.reply.root.uri}/>
         }
 
-        {parent &&
+        {!inThreadFeed && parent &&
             <FeedElement
                 elem={{content: feedViewContent.reply.parent}}
                 showingChildren={true}

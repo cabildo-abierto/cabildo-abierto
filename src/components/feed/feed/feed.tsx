@@ -12,6 +12,7 @@ export type FeedProps = {
     noResultsText?: ReactNode
     onClickQuote?: (cid: string) => void
     onDeleteFeedElem?: () => Promise<void>
+    isThreadFeed?: boolean
 }
 
 
@@ -22,6 +23,7 @@ const Feed = ({
     noResultsText="No se encontró ninguna publicación.",
     onClickQuote,
     onDeleteFeedElem=async () => {},
+    isThreadFeed=false
 }: FeedProps) => {
 
     function generator(index: number): {c: ReactNode, key: string} | null {
@@ -36,6 +38,7 @@ const Feed = ({
                     elem={feed[index]}
                     onClickQuote={onClickQuote}
                     onDeleteFeedElem={onDeleteFeedElem}
+                    inThreadFeed={isThreadFeed}
                 />
             </ViewMonitor>
         )

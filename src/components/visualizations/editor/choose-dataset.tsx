@@ -3,12 +3,13 @@ import {useEffect, useState} from "react";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import AddIcon from "@mui/icons-material/Add";
 import {TextField} from "@mui/material";
-import {DatasetPreviewSmall} from "../../datasets/dataset-preview";
+import {DatasetPreviewOnEditor} from "../../datasets/dataset-preview-on-editor";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NewDatasetPanel} from "../../datasets/new-dataset-panel";
 import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+
 
 export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
     datasets?: DatasetViewBasic[],
@@ -43,7 +44,7 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                                 startIcon={<AddIcon/>}
                                 variant={"text"}
                                 size={"small"}
-                                sx={{height: "32px"}}
+                                sx={{height: "32px", paddingX: "12px", borderRadius: "20px", ":hover": {backgroundColor: "var(--background-dark3)"}}}
                                 onClick={() => {setNewDatasetPanelOpen(true)}}
                             >
                                 Dataset
@@ -59,10 +60,10 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                         onChange={(e) => {setSearchValue(e.target.value)}}
                     />
                 </div>
-                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar max-h-[calc(100vh-200px)]"}>
+                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar max-h-[calc(100vh-300px)]"}>
                     {filteredDatasets ? filteredDatasets.map((d, i) => {
                         return <div key={i} className={""}>
-                            <DatasetPreviewSmall
+                            <DatasetPreviewOnEditor
                                 dataset={d}
                                 selected={config.datasetUri == d.uri}
                                 onClick={() => {

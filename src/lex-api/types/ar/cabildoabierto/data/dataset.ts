@@ -22,6 +22,7 @@ export interface Record {
   /** Client-declared timestamp when this post was originally created. */
   createdAt: string
   columns: Column[]
+  data?: DataBlock[]
   [k: string]: unknown
 }
 
@@ -38,7 +39,6 @@ export function validateRecord<V>(v: V) {
 export interface Column {
   $type?: 'ar.cabildoabierto.data.dataset#column'
   name: string
-  datatype?: string
 }
 
 const hashColumn = 'column'
@@ -49,6 +49,22 @@ export function isColumn<V>(v: V) {
 
 export function validateColumn<V>(v: V) {
   return validate<Column & V>(v, id, hashColumn)
+}
+
+export interface DataBlock {
+  $type?: 'ar.cabildoabierto.data.dataset#dataBlock'
+  blob: BlobRef
+  format?: string
+}
+
+const hashDataBlock = 'dataBlock'
+
+export function isDataBlock<V>(v: V) {
+  return is$typed(v, id, hashDataBlock)
+}
+
+export function validateDataBlock<V>(v: V) {
+  return validate<DataBlock & V>(v, id, hashDataBlock)
 }
 
 export interface DatasetViewBasic {

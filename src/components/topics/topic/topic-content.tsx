@@ -1,5 +1,4 @@
-import {Dispatch, SetStateAction, useEffect} from "react";
-import { smoothScrollTo } from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+import {Dispatch, SetStateAction} from "react";
 import { TopicContentPreview } from "./topic-content-preview";
 import {
     TopicContentExpandedView,
@@ -24,23 +23,6 @@ export const TopicContent = ({
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
     const params = useSearchParams()
-
-    useEffect(() => {
-        const hash = window.location.hash
-        if (hash) {
-            const cid = hash.split("#")[1]
-            const scrollToElement = () => {
-                const element = document.getElementById(cid)
-                if (element) {
-                    smoothScrollTo(element)
-                    setPinnedReplies([...pinnedReplies, cid])
-                } else {
-                    setTimeout(scrollToElement, 100)
-                }
-            }
-            scrollToElement()
-        }
-    }, [])
 
     if(wikiEditorState == "minimized") {
         return <div className={"px-2 w-full"}>

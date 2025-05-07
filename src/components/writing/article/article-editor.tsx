@@ -34,7 +34,6 @@ const articleEditorSettings: SettingsProps = getEditorSettings({
     isReadOnly: false,
     editorClassName: "article-content relative px-2 pt-4",
     placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px] px-2 pt-[32px]",
-    preventLeave: false
 })
 
 

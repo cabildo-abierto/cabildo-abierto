@@ -1,4 +1,3 @@
-"use client"
 import { useEffect, useRef, useState } from "react";
 import { useDataset } from "@/hooks/api";
 import { localizeDataset } from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
@@ -6,19 +5,20 @@ import { localizeDataset } from "../../../modules/ca-lexical-editor/src/nodes/vi
 import {useLayoutConfig} from "../layout/layout-config-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {pxToNumber} from "@/utils/strings";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
-type VisualizationProps = any // TO DO
 
 export const VegaPlot = ({
      visualization,
      width="600px"
  }: {
-    visualization: VisualizationProps;
+    visualization: Visualization;
     width?: number | string;
     previewOnly?: boolean;
 }) => {
-    const [isVegaLoading, setIsVegaLoading] = useState(true);
-    const { data: dataset } = useDataset(visualization.visualization.dataset.uri);
+    return null
+    /*const [isVegaLoading, setIsVegaLoading] = useState(true);
+    const { data: dataset } = useDataset(visualization.dataset.rui);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const {layoutConfig} = useLayoutConfig()
 
@@ -52,7 +52,7 @@ export const VegaPlot = ({
             }
         };
 
-        /*embed(
+        embed(
             containerRef.current,
             json,
             {
@@ -60,7 +60,7 @@ export const VegaPlot = ({
             }
         )
             .then(() => setIsVegaLoading(false))
-            .catch((err) => console.error("Vega Embed Error:", err));*/
+            .catch((err) => console.error("Vega Embed Error:", err));
     }, [visualization, dataset, width, layoutConfig]);
 
 
@@ -78,5 +78,5 @@ export const VegaPlot = ({
                 onClick={(e) => e.stopPropagation()}
             />
         </div>
-    );
+    );*/
 };

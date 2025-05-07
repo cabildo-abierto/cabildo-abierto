@@ -5,7 +5,6 @@ import {useThread} from "@/hooks/api";
 import {ErrorPage} from "../../../../../../modules/ui-utils/src/error-page";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
-import {PrettyJSON} from "../../../../../../modules/ui-utils/src/pretty-json";
 
 
 const ContentPage = ({params}: {

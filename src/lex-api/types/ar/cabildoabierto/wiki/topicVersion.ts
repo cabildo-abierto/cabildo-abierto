@@ -19,7 +19,7 @@ const id = 'ar.cabildoabierto.wiki.topicVersion'
 export interface Record {
   $type: 'ar.cabildoabierto.wiki.topicVersion'
   id: string
-  text: BlobRef
+  text?: BlobRef
   format?: string
   props?: TopicProp[]
   message?: string

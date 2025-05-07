@@ -6,9 +6,11 @@ import {useRouter} from "next/navigation";
 import JSZip from "jszip";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {UploadFile} from "@mui/icons-material";
-import {DatasetTableView} from "./dataset-table-view";
+import {DatasetForTableView, DatasetTableView} from "./dataset-table-view";
 import Papa from 'papaparse';
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {post} from "@/utils/fetch";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -50,24 +52,33 @@ export const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename:
 }
 
 
-async function createDataset(title: string, columns: string[], description: string, formData: FormData, format: string){
-    return {error: "Sin implementar."}
+type CreateDatasetProps = {
+    name: string
+    description: string
+    columns: string[]
+    data: string
+    format?: string
+}
+
+
+async function createDataset(dataset: CreateDatasetProps){
+    return await post("/dataset", dataset)
 }
 
 
 export const NewDatasetPanel = ({open, onClose}: {
     open: boolean, onClose: () => void
 }) => {
-    const [data, setData] = useState(null)
+    const [data, setData] = useState<File | null>(null)
     const [columns, setColumns] = useState<string[] | null>()
     const [rows, setRows] = useState<any[] | null>()
-    const [title, setTitle] = useState<string>("")
+    const [name, setName] = useState<string>("")
     const [description, setDescription] = useState<string>("")
     const router = useRouter()
 
     function onSubmit(f: File, filename: string){
         setData(f)
-        setTitle(filename.split(".")[0])
+        setName(filename.split(".")[0])
     }
 
     useEffect(() => {
@@ -94,36 +105,32 @@ export const NewDatasetPanel = ({open, onClose}: {
     }, [data])
 
     async function onUpload(){
-        const zip = new JSZip();
-        const fileData = await data.arrayBuffer(); // Read the file as an ArrayBuffer
+        const {error} = await createDataset({
+            name: name,
+            columns,
+            description,
+            data: JSON.stringify(rows),
+            format: "json"
+        })
+        if(error) return {error}
 
-        zip.file(data.name, fileData);
-
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-
-        const zipData = new File([zipBlob], data.name)
-
-        const formData = new FormData()
-        formData.set("data", zipData)
-        const {error} = await createDataset(title, columns, description, formData, "zip")
-
-        if(!error){
-            router.push("/datos")
-            onClose()
-        }
-
-
-        return {error}
+        onClose()
+        return {}
     }
 
     function onClickClose(){
         setColumns(null)
         setRows(null)
         setData(null)
-        setTitle("")
+        setName("")
         onClose()
     }
 
+    const dataset: DatasetForTableView | null = columns && rows && {
+        $type: "ar.cabildoabierto.data.dataset#datasetView",
+        columns: columns.map(c => ({name: c, $type: "ar.cabildoabierto.data.dataset#column"})),
+        data: JSON.stringify(rows)
+    }
 
     let center
     if(!columns){
@@ -148,13 +155,13 @@ export const NewDatasetPanel = ({open, onClose}: {
                     <TextField
                         size={"small"}
                         variant="outlined"
-                        label={"Título"}
-                        value={title}
+                        label={"Nombre"}
+                        value={name}
                         fullWidth={true}
                         inputProps={{
                             autoComplete: 'off'
                         }}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(e) => setName(e.target.value)}
                     />
                 </div>
                 <div className="max-w-128 w-full">
@@ -171,14 +178,14 @@ export const NewDatasetPanel = ({open, onClose}: {
                         onChange={(e) => setDescription(e.target.value)}
                     />
                 </div>
-                <div>
-                    <DatasetTableView data={rows} maxHeight={"300px"}/>
-                </div>
+                {dataset && <div className={""}>
+                    <DatasetTableView dataset={dataset} maxHeight={300}/>
+                </div>}
                 <div className={"flex justify-end space-x-2 mt-4 pb-8"}>
                     <StateButton
                         startIcon={<UploadFile/>}
                         handleClick={onUpload}
-                        disabled={columns == null || title.length == 0}
+                        disabled={name.length == 0}
                         text1={"Publicar"}
                     />
                 </div>

@@ -112,11 +112,11 @@ export function isPost(c: string) {
 }
 
 export function isArticle(c: string){
-    return c == "ar.cabildoabierto.feed.article"
+    return c == "ar.cabildoabierto.feed.article" || c == "ar.com.cabildoabierto.article"
 }
 
 export function isTopicVersion(c: string){
-    return c == "ar.com.cabildoabierto.topic"
+    return c == "ar.com.cabildoabierto.topic" || c == "ar.cabildoabierto.wiki.topicVersion"
 }
 
 export function isDataset(c: string){

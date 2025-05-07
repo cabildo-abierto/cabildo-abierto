@@ -47,13 +47,5 @@ export const BottomBarMobile = () => {
             selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
             className={buttonClassName}
         />
-        <SidebarButton
-            icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
-            iconInactive={<VisualizationsIcon/>}
-            text="Explorar datos"
-            href="/datos"
-            selected={pathname.startsWith("/datos")}
-            className={buttonClassName}
-        />
     </div>
 }

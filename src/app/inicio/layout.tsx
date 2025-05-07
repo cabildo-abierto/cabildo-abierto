@@ -1,5 +1,4 @@
 import MainLayout from "../../components/layout/main-layout";
-import AccountChecker from "../../components/auth/account-checker";
 
 import { Metadata } from "next";
 import {ReactNode} from "react";
@@ -11,8 +10,6 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: ReactNode}) {
     return <MainLayout>
-        <AccountChecker requireAccount={true}>
-            {children}
-        </AccountChecker>
+        {children}
     </MainLayout>
 }

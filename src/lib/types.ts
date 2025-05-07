@@ -1,6 +1,5 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
@@ -50,22 +49,6 @@ export type FastPostReplyProps = {
 }
 
 
-export type Collection =
-    PostCollection |
-    "ar.com.cabildoabierto.article" |
-    "ar.com.cabildoabierto.topic" |
-    "ar.com.cabildoabierto.vote" |
-    "ar.com.cabildoabierto.visualization" |
-    "ar.com.cabildoabierto.dataset" |
-    "ar.com.cabildoabierto.dataBlock" |
-    "app.bsky.feed.repost" |
-    "app.bsky.feed.like"
-
-export type PostCollection =
-    "ar.com.cabildoabierto.quotePost" |
-    "app.bsky.feed.post"
-
-
 export type TopicVersionAuthorsProps = {
     text: string
     format: string
@@ -86,42 +69,6 @@ export type BothContributionsProps = {
 
 
 export type ContributionsProps = [string, number][]
-
-
-export type SubscriptionProps = {
-    id: string
-    userId?: string
-    createdAt: Date
-    boughtByUserId: string
-    usedAt: Date | null
-    endsAt: Date | null
-    price: number
-}
-
-
-export type MessageProps = {
-    createdAt: Date,
-    id: string,
-    text: string,
-    fromUserId: string,
-    toUserId: string,
-    seen: boolean
-}
-
-
-export type UserStats = {
-    posts: number
-    entityEdits: number
-    editedEntities: number
-    reactionsInPosts: number
-    reactionsInEntities: number
-    income: number
-    pendingConfirmationIncome: number
-    pendingPayIncome: number
-    entityAddedChars: number
-    viewsInPosts: number
-    viewsInEntities: number
-}
 
 
 export type MatchesType = {

@@ -8,7 +8,6 @@ import { toPercentage } from "../show-contributors"
 import { ChangesCounter } from "../changes-counter"
 import { BaseFullscreenPopup } from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
 import { Authorship } from "@/components/feed/frame/content-top-row-author";
-import { NeedAccountPopup } from "../../../auth/need-account-popup";
 import {ProfilePic} from "../../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
@@ -209,11 +208,6 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
     onRemove: () => Promise<{ error?: string }>
 }) => {
     const {user} = useSession()
-
-    if (!user) {
-        return <NeedAccountPopup open={true} onClose={onClose}
-                                 text="Necesitás una cuenta para remover la autoría de una edición."/>
-    }
 
     async function handleClick() {
         const {error} = await onRemove()

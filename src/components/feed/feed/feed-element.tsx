@@ -11,7 +11,8 @@ export const FeedElement = ({
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false,
-    onDeleteFeedElem
+    onDeleteFeedElem,
+    inThreadFeed=false,
 }: {
     elem: FeedViewContent
     onClickQuote?: (cid: string) => void
@@ -19,6 +20,7 @@ export const FeedElement = ({
     showingParent?: boolean
     showReplyMessage?: boolean
     onDeleteFeedElem: () => Promise<void>
+    inThreadFeed?: boolean
 }) => {
 
     if (isArticleView(elem.content)) {
@@ -36,6 +38,7 @@ export const FeedElement = ({
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
             onDeleteFeedElem={onDeleteFeedElem}
+            inThreadFeed={inThreadFeed}
         />
     } else if (isTopicViewBasic(elem.content)) {
         return <TopicViewBasicOnFeed topic={elem.content}/>

@@ -148,6 +148,17 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         />
 
                         <SidebarButton
+                            icon={<TopicsIcon fontSize="medium"/>}
+                            iconInactive={<CollectionsBookmarkOutlinedIcon/>}
+                            onClick={onClose}
+                            text="Temas"
+                            href="/temas"
+                            id={"temas"}
+                            showText={showText}
+                            selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
+                        />
+
+                        <SidebarButton
                             showText={showText}
                             icon={<SearchIcon sx={{strokeWidth: 1, stroke: "var(--text)"}}/>}
                             iconInactive={<SearchIcon/>}
@@ -164,16 +175,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             text="Notificaciones"
                             href="/notificaciones"
                             selected={pathname.startsWith("/notificaciones")}
-                        />
-                        <SidebarButton
-                            icon={<TopicsIcon fontSize="medium"/>}
-                            iconInactive={<CollectionsBookmarkOutlinedIcon/>}
-                            onClick={onClose}
-                            text="Temas"
-                            href="/temas"
-                            id={"temas"}
-                            showText={showText}
-                            selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
                         />
                         {user.user &&
                             <SidebarButton

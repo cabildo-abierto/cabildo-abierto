@@ -1,22 +1,25 @@
-import { Metadata } from "next";
-import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
+"use client"
+import {CustomLink as Link} from '../../../../modules/ui-utils/src/custom-link';
 
 import {Button} from "../../../../modules/ui-utils/src/button";
+import {PageCardMessage} from "@/components/aportar/page-card-message";
 
-export const metadata: Metadata = {
-    title: 'Pago exitoso'
-}
+
 
 export default function Page(){
-    const center = <div className="text-center">
-        <h3 className="py-16">¡Gracias por tu compra!</h3>
-        <div className="text-lg">
-            Tu pago se registró correctamente.
-        </div>
-        <div className="text-[var(--text-light)] text-sm py-16">Ante cualquier duda o inconveniente con tu pago podés escribirnos por la <Link href="/soporte" className="link2">pestaña de soporte</Link> o por mail a <Link href="mailto:soporte@cabildoabierto.com.ar" className="link3">soporte@cabildoabierto.com.ar</Link>
-        </div>
-        <Link href="/inicio"><Button>Ir al inicio</Button></Link>
-    </div>
-
-    return center
+    return <PageCardMessage
+        title={"¡Muchísimas gracias por tu aporte!"}
+        content={<div className={"space-y-4"}>
+            <div className="text-lg">
+                El pago se registró correctamente.
+            </div>
+            <div>
+                <Link href="/inicio">
+                    <Button>
+                        Ir al inicio
+                    </Button>
+                </Link>
+            </div>
+        </div>}
+    />
 }

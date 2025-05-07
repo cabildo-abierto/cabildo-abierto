@@ -8,7 +8,7 @@ import {NoResults} from "@/components/buscar/no-results";
 import {TopicsSortOrder} from "./topics-list-view";
 
 
-export const CategoryArticles = ({sortedBy, categories}: {
+export const CategoryTopics = ({sortedBy, categories}: {
     sortedBy: TopicsSortOrder
     categories: string[]
     onSearchPage?: boolean

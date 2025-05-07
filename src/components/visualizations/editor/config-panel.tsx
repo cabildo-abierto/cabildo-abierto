@@ -179,6 +179,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         }}
                         size={"small"}
                         variant={"text"}
+                        sx={{borderRadius: "20px", paddingX: "12px", ":hover": {backgroundColor: "var(--background-dark3)"}, backgroundColor: "var(--background-dark)"}}
                     >
                         Filtro
                     </Button>

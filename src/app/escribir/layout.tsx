@@ -1,11 +1,8 @@
 import MainLayout from "../../components/layout/main-layout";
-import AccountChecker from "../../components/auth/account-checker";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout openRightPanel={false} maxWidthCenter={"682px"} defaultSidebarState={false}>
-      <AccountChecker>
-      {children}
-      </AccountChecker>
+    return <MainLayout openRightPanel={false} maxWidthCenter={"682px"} defaultSidebarState={false}>
+        {children}
     </MainLayout>
 }

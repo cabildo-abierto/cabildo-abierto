@@ -1,11 +1,13 @@
-import ActiveSubscription from "./active-subscription"
+import {ThreadHeader} from "@/components/thread/thread-header";
 
 
 export default function Aportar() {
-
-    const center = <div className="mt-8">
-        <ActiveSubscription/>
+    return <div>
+        <div className={""}>
+            <ThreadHeader title={"Aportar"}/>
+        </div>
+        <div className={"text-lg text-center mt-32 text-[var(--text-light)]"}>
+            Página en construcción
+        </div>
     </div>
-
-    return center
 }

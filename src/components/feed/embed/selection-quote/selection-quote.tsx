@@ -2,7 +2,7 @@ import {SelectionQuoteContext} from "@/components/feed/embed/selection-quote/sel
 import {SelectionQuoteText} from "@/components/feed/embed/selection-quote/selection-quote-text";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {useRouter} from "next/navigation";
-import {contentUrl} from "@/utils/uri";
+import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
 
 type SelectionQuoteProps = {
@@ -31,14 +31,16 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false, quotedC
             }, 0);
         } else {
             if(mainPostRef){
-                router.push(contentUrl(quotedContent) + "#" + mainPostRef.uri)
+                router.push(contentUrl(quotedContent) + "#" + mainPostRef.cid)
             }
         }
     }
 
     const clickable = onClick != undefined || mainPostRef != null
 
-    return <div className={"article-content no-margin-first pr-2"}>
+    const collection = getCollectionFromUri(quotedContent)
+
+    return <div className={"article-content no-margin-first pr-2 " + (isArticle(collection) ? "" : "not-article-content")}>
         <blockquote
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
