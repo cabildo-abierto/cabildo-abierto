@@ -24,7 +24,7 @@ export const PostContent = ({
 
     const embed = postView.embed
 
-    return <div className={"flex flex-col"}>
+    return <div className={"flex flex-col space-y-2"}>
         <div className={isMainPost ? "text-lg" : undefined}>
             <BskyRichTextContent post={postView.record as PostRecord}/>
         </div>

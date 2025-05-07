@@ -82,40 +82,6 @@ export const schemaDict = {
       },
     },
   },
-  ArCabildoabiertoDataDataBlock: {
-    lexicon: 1,
-    id: 'ar.cabildoabierto.data.dataBlock',
-    defs: {
-      main: {
-        type: 'record',
-        key: 'tid',
-        record: {
-          type: 'object',
-          required: ['dataset', 'createdAt', 'data', 'format'],
-          properties: {
-            dataset: {
-              type: 'string',
-              format: 'at-uri',
-            },
-            data: {
-              type: 'blob',
-            },
-            format: {
-              type: 'string',
-              minLength: 1,
-              maxLength: 50,
-            },
-            createdAt: {
-              type: 'string',
-              format: 'datetime',
-              description:
-                'Client-declared timestamp when this post was originally created.',
-            },
-          },
-        },
-      },
-    },
-  },
   ArCabildoabiertoDataDataset: {
     lexicon: 1,
     id: 'ar.cabildoabierto.data.dataset',
@@ -149,6 +115,13 @@ export const schemaDict = {
               },
               minLength: 1,
             },
+            data: {
+              type: 'array',
+              items: {
+                type: 'ref',
+                ref: 'lex:ar.cabildoabierto.data.dataset#dataBlock',
+              },
+            },
           },
         },
       },
@@ -161,7 +134,16 @@ export const schemaDict = {
             minLength: 1,
             maxLength: 120,
           },
-          datatype: {
+        },
+      },
+      dataBlock: {
+        type: 'object',
+        required: ['blob'],
+        properties: {
+          blob: {
+            type: 'blob',
+          },
+          format: {
             type: 'string',
           },
         },
@@ -214,8 +196,8 @@ export const schemaDict = {
           'cid',
           'author',
           'createdAt',
-          'data',
           'columns',
+          'data',
         ],
         properties: {
           name: {
@@ -257,7 +239,6 @@ export const schemaDict = {
           },
           dataFormat: {
             type: 'string',
-            maxLength: 50,
           },
         },
       },
@@ -602,7 +583,7 @@ export const schemaDict = {
       },
       articleView: {
         type: 'object',
-        required: ['uri', 'cid', 'author', 'record', 'indexedAt'],
+        required: ['uri', 'cid', 'author', 'record', 'indexedAt', 'title'],
         properties: {
           uri: {
             type: 'string',
@@ -611,6 +592,9 @@ export const schemaDict = {
           cid: {
             type: 'string',
             format: 'cid',
+          },
+          title: {
+            type: 'string',
           },
           author: {
             type: 'ref',
@@ -676,7 +660,7 @@ export const schemaDict = {
       },
       fullArticleView: {
         type: 'object',
-        required: ['uri', 'cid', 'author', 'record', 'indexedAt'],
+        required: ['uri', 'cid', 'author', 'record', 'indexedAt', 'title'],
         properties: {
           uri: {
             type: 'string',
@@ -689,6 +673,9 @@ export const schemaDict = {
           author: {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          title: {
+            type: 'string',
           },
           text: {
             type: 'string',
@@ -740,9 +727,31 @@ export const schemaDict = {
               ref: 'lex:com.atproto.label.defs#label',
             },
           },
+          topicsMentioned: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.feed.defs#topicMention',
+            },
+          },
           threadgate: {
             type: 'ref',
             ref: 'lex:app.bsky.feed.defs#threadgateView',
+          },
+        },
+      },
+      topicMention: {
+        type: 'object',
+        required: ['title', 'count', 'id'],
+        properties: {
+          title: {
+            type: 'string',
+          },
+          id: {
+            type: 'string',
+          },
+          count: {
+            type: 'integer',
           },
         },
       },
@@ -798,7 +807,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['text', 'id', 'createdAt'],
+          required: ['id', 'createdAt'],
           properties: {
             id: {
               type: 'string',
@@ -11462,7 +11471,6 @@ export function validate(
 export const ids = {
   ArCabildoabiertoActorCaProfile: 'ar.cabildoabierto.actor.caProfile',
   ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
-  ArCabildoabiertoDataDataBlock: 'ar.cabildoabierto.data.dataBlock',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
   ArCabildoabiertoEmbedSelectionQuote: 'ar.cabildoabierto.embed.selectionQuote',
   ArCabildoabiertoEmbedVisualization: 'ar.cabildoabierto.embed.visualization',

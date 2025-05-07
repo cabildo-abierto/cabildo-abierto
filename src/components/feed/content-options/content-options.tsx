@@ -1,7 +1,6 @@
 import {ATProtoStrongRef} from "@/lib/types";
-import Link from "next/link";
 import {ShareContentButton} from "./share-content-button";
-import {editVisualizationUrl, getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost} from "@/utils/uri";
+import {getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost} from "@/utils/uri";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import {BlueskyLogo} from "../../icons/bluesky-logo";
@@ -21,13 +20,6 @@ const collection2displayText = {
     "ar.cabildoabierto.wiki.topicVersion": "versión",
     "ar.com.cabildoabierto.dataset": "conjunto de datos",
     "ar.cabildoabierto.feed.article": "artículo"
-}
-
-
-export const openJsonInNewTab = (json: any) => {
-    const blob = new Blob([JSON.stringify(json)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
 }
 
 
@@ -109,34 +101,6 @@ export const ContentOptions = ({
                 window.open(getBlueskyUrl(record.uri), "_blank")
             }}
         />}
-        {collection == "ar.com.cabildoabierto.dataset" && <Link
-            href={editVisualizationUrl(record.uri)}
-            onClick={(e) => {
-                e.stopPropagation()
-            }}
-        >
-            <OptionsDropdownButton
-                text1={"Usar en visualización"}
-            />
-        </Link>}
-        {/* TO DO collection == "ar.com.cabildoabierto.visualization" &&
-            <OptionsDropdownButton
-                handleClick={async () => {
-                    openJsonInNewTab(JSON.parse((record as VisualizationProps).visualization.spec));
-                    return {}
-                }}
-                text1={"Ver especificación"}
-            />
-        */}
-        {collection == "ar.com.cabildoabierto.visualization" &&
-            <Link href={editVisualizationUrl(record.uri)} onClick={(e) => {
-                e.stopPropagation()
-            }}>
-                <OptionsDropdownButton
-                    text1={"Editar"}
-                />
-            </Link>
-        }
         {setShowBluesky &&
             <OptionsDropdownButton
                 text1={"Reacciones en Bluesky"}

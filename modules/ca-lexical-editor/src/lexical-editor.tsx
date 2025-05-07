@@ -54,7 +54,6 @@ import {
     $getRoot,
     LexicalEditor as OriginalLexicalEditor
 } from 'lexical';
-import TableCellResizer from './plugins/TableCellResizer';
 import {TableContext} from './plugins/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import {v4 as uuidv4} from 'uuid';
@@ -208,7 +207,6 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                     hasCellMerge={true}
                     hasCellBackgroundColor={false}
                 />}
-                <TableCellResizer/>
 
                 {allowImages && <ImagesPlugin captionsEnabled={false}/>}
 

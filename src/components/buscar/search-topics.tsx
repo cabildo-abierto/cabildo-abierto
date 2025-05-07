@@ -41,7 +41,7 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
         search();
     }, [debouncedValue]);
 
-    if (searchState.value.length === 0) {
+    if (searchState.value.length === 0 && searchState.searching) {
         return (
             <div className="mt-8 text-[var(--text-light)] text-center">
                 Buscá un tema

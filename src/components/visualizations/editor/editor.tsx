@@ -7,6 +7,9 @@ import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {get} from "@/utils/fetch";
+import {splitUri} from "@/utils/uri";
+import {$Typed} from "@atproto/api";
 
 
 const ErrorPanel = ({msg}: {msg?: string}) => {
@@ -27,19 +30,20 @@ const ErrorPanel = ({msg}: {msg?: string}) => {
 
 
 async function getDataset(uri: string){
-    return {error: "Sin implementar"}
+    const {did, collection, rkey} = splitUri(uri)
+    return get<DatasetView>(`/dataset/${did}/${collection}/${rkey}`)
 }
 
 
 export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initialConfig?: PlotConfigProps}) => {
     const { data: datasets } = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : { filters: [], kind: "Tipo de gráfico" })
-    const [dataset, setDataset] = useState<DatasetView | DatasetViewBasic | null>(null)
+    const [dataset, setDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
     const sidebarWidth = 80
     const [rightSideWidth, setRightSideWidth] = useState(400)
     const [leftSideWidth, setLeftSideWidth] = useState(320)
-    const [centerMaxWidth, setCenterMaxWidth] = useState(window.innerWidth - sidebarWidth - leftSideWidth - rightSideWidth)
+    const [centerMaxWidth, setCenterMaxWidth] = useState(window.innerWidth - sidebarWidth - leftSideWidth - rightSideWidth - 200)
 
     const leftRef = useRef<HTMLDivElement>(null)
     const rightRef = useRef<HTMLDivElement>(null)
@@ -108,9 +112,9 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         async function getSelectedDataset() {
             for(let i = 0; i < datasets.length; i++){
                 if(datasets[i].uri == config.datasetUri){
-                    setDataset(datasets[i]);
-                    const {error} = await getDataset(config.datasetUri);
-                    // TO DO setDataset(dataset)
+                    setDataset({$type: "ar.cabildoabierto.data.dataset#datasetViewBasic", ...datasets[i]});
+                    const {data, error} = await getDataset(config.datasetUri)
+                    setDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
                 }
             }
         }
@@ -168,7 +172,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         />
     </div>
 
-    return <div className={"flex justify-between w-[calc(100vw-100px)]"}>
+    return <div className={"flex justify-between w-[calc(100vw-100px)] h-[calc(100vh-100px)]"}>
 
         <div>
             {left}

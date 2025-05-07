@@ -1,5 +1,5 @@
 import {CategorySelector} from "./category-selector";
-import {CategoryArticles} from "./category-articles";
+import {CategoryTopics} from "./category-topics";
 import {useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
@@ -65,8 +65,8 @@ export const TopicsListView = () => {
             <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy}/>
         </div>
         <div className={"flex justify-center"}>
-            <div className={"w-full"}>
-                <CategoryArticles sortedBy={sortedBy} categories={categories}/>
+            <div className={"max-w-[600px] w-full"}>
+                <CategoryTopics sortedBy={sortedBy} categories={categories}/>
             </div>
         </div>
     </div>

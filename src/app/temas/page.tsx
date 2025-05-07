@@ -20,7 +20,7 @@ const Temas = () => {
         {/*(searchState.value.length == 0 && view == "listas") && <TopicsListsView />*/}
         {(searchState.value.length == 0 && view == "lista") && <TopicsListView/>}
         {searchState.searching && <div className={"flex justify-center mt-8"}>
-            <div className={"max-w-[600px]"}>
+            <div className={"w-full max-w-[600px]"}>
                 <SearchTopics/>
             </div>
         </div>}

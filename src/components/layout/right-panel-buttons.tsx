@@ -5,7 +5,6 @@ import {DonateIcon} from "@/components/icons/donate-icon";
 import SettingsIcon from "@/components/icons/settings-icon";
 import React, {ReactNode} from "react";
 import {useSession} from "@/hooks/api";
-import {MessageProps} from "@/lib/types";
 import {SupportIcon} from "@/components/icons/support-icon";
 
 
@@ -23,28 +22,12 @@ export const RightPanelButton = ({children, icon, href}: {children: ReactNode, i
 }
 
 
-// TO DO
-function unseenSupportMessagesCount(user: {did: string, messagesReceived: MessageProps[], messagesSent: MessageProps[]}){
-    let count = 0
-    function cmp(a, b) { return a.createdAt - b.createdAt}
-    const chat = [...user.messagesReceived, ...user.messagesSent].sort(cmp)
-    for(let i = user.messagesReceived.length-1; i >= 0; i--){
-        if(chat[i].fromUserId == user.did) break
-        if(!chat[i].seen) count ++
-        else break
-    }
-    return count
-}
-
-
 export const SupportButton = () => {
-    //const {user} = useSession()
-    const newSupportCount = 0 //user ? unseenSupportMessagesCount(user) : 0
 
     return (
         <RightPanelButton
             href={"/soporte"}
-            icon={<SupportIcon color="inherit" newCount={newSupportCount}/>}
+            icon={<SupportIcon color="inherit"/>}
         >
             Soporte
         </RightPanelButton>

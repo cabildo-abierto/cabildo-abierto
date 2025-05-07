@@ -87,9 +87,11 @@ export const EditorWithQuoteComments = ({
             const children = root.getChildren()
 
             blockToUri.forEach((uris, node) => {
-                $wrapNodeInElement(children[node], () => {
-                    return $createSidenoteNode(uris)
-                })
+                if(children[node] != null){
+                    $wrapNodeInElement(children[node], () => {
+                        return $createSidenoteNode(uris)
+                    })
+                }
             })
         })
     }, [blockToUri, editor])

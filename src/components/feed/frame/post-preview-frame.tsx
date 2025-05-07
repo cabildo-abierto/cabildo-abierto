@@ -73,7 +73,6 @@ export const PostPreviewFrame = ({
                 revalidate: false
             }
         )*/
-        console.log("clicked post preview frame")
         router.push(url);
     }
 

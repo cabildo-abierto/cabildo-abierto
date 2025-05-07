@@ -33,6 +33,7 @@
   --background-dark4: '#303748';
 
   --accent: '#2e364c';
+  --accent-dark: '#2e364c';
 }
 
 
@@ -77,6 +78,11 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.8;
   font-weight: 450;
   font-size: 16px;
+}
+
+.article-content img {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 @media (max-width: 500px) {

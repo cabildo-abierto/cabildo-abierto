@@ -41,15 +41,9 @@ const AccountSettings = () => {
             </div>
         </div>
         <div className="mt-6 space-y-4 link">
-            {/*<Link href="/recuperar/nueva" className="block text-blue-600 hover:underline">
-                Cambiar contraseña
-            </Link>*/}
             <Link href={`/perfil/${user.did}`} className="block hover:underline">
                 Ver perfil
             </Link>
-            {/*<Link href="/panel" className="block text-blue-600 hover:underline">
-                Ver mis estadísticas
-            </Link>*/}
         </div>
         <div className={"mt-4 flex justify-end"}>
             <CloseSessionButton/>

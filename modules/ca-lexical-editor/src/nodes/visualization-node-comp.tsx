@@ -1,7 +1,6 @@
 import {DatasetTitle} from "@/components/datasets/dataset-title";
 import {UserHandle} from "@/components/feed/frame/content-top-row-author";
 import {VegaPlot} from "@/components/visualizations/vega-plot";
-import {VegaPlotPreview} from "@/components/visualizations/vega-plot-preview";
 
 
 
@@ -69,12 +68,10 @@ export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
 export const VisualizationNodeComp = ({
     visualization,
     showEngagement=true,
-    interactive=true,
     width
 }: {
     visualization: any
     showEngagement?: boolean
-    interactive?: boolean
     width?: number | string
 }) => {
 
@@ -83,13 +80,10 @@ export const VisualizationNodeComp = ({
             className={"flex flex-col items-center not-article-content w-full"}
             onClick={(e) => {e.stopPropagation()}}
         >
-            {interactive ? <VegaPlot
+            <VegaPlot
                 visualization={visualization}
                 width={width}
-            /> : <VegaPlotPreview
-                visualization={visualization}
-                width={width}
-            />}
+            />
         </div>
 
         <div

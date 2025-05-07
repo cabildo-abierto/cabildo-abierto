@@ -15,6 +15,7 @@ export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
             },
             boxShadow: 'none',
             borderColor: 'var(--accent)',
+            borderRadius: "4px"
         }}
         fullWidth={true}
         {...props}

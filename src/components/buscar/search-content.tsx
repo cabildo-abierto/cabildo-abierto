@@ -54,7 +54,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         <div className="flex border-b max-w-screen overflow-x-scroll no-scrollbar">
             <SelectionComponent
                 onSelection={setSelected}
-                options={["Publicaciones", "Usuarios", "Temas", "Datos"]}
+                options={["Publicaciones", "Usuarios", "Temas"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 className="flex justify-between w-full"
@@ -70,6 +70,5 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         }
 
         {selected == "Usuarios" && <UserSearchResults showSearchButton={false}/>}
-
     </div>
 }

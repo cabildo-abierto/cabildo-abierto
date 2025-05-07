@@ -3,11 +3,11 @@ import Feed from "../feed/feed/feed";
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {get} from "@/utils/fetch";
 
 
-export const searchContents = async (q: string) => {
-    // TO DO
-    return {contents: []}
+async function searchContents(q: string) {
+    return await get<FeedViewContent[]>(`/search-contents/${q}`)
 }
 
 
@@ -31,8 +31,10 @@ export const ContentsSearchResults = () => {
                 return;
             }
             setResults("loading")
-            const contents = await searchContents(debouncedValue);
-            setResults(contents.contents);
+            const {data} = await searchContents(debouncedValue)
+            if(data){
+                setResults(data)
+            }
         }
 
         search();
@@ -40,7 +42,7 @@ export const ContentsSearchResults = () => {
 
     if(searchState.value.length == 0){
         return <div className={"mt-8 text-[var(--text-light)] text-center"}>
-            Buscá un post, respuesta o artículo
+            Buscá posts, respuestas o artículos
         </div>
     }
 

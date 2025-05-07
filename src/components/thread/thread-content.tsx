@@ -23,11 +23,5 @@ export const ThreadContent = ({thread, pinnedReplies, setPinnedReplies, quoteRep
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
         />}
-        {/* TO DO: thread.post.collection == "ar.com.cabildoabierto.visualization" && <VisualizationOnThread
-            visualization={thread.post as VisualizationProps}
-        />*/}
-        {/* TO DO: thread.post.collection == "ar.com.cabildoabierto.dataset" && <DatasetOnThread
-            dataset={thread.post as DatasetView}
-        />*/}
     </>
 }

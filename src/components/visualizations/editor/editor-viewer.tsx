@@ -4,29 +4,35 @@ import {useState} from "react";
 import {Button} from "@mui/material";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
-import {DatasetTableView} from "../../datasets/dataset-table-view";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {emptyChar} from "@/utils/utils";
-import {DatasetView, DatasetViewBasic, isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {
+    DatasetView,
+    DatasetViewBasic,
+    isDatasetView,
+    isDatasetViewBasic
+} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {DatasetFullView} from "@/components/datasets/dataset-full-view";
+import {$Typed} from "@atproto/api";
 
 
-function readyToPlot(config: PlotConfigProps){
-    if(config.kind == null || config.kind == "Tipo de gráfico") return false
-    if(config.datasetUri == null) return false
-    if(config.kind == "Histograma"){
-        if(!config["Columna"] || config["Columna"].length == 0) return false
-    } else if(config.kind == "Gráfico de barras" || config.kind == "Gráfico de línea"){
-        if(!config["Eje x"] || config["Eje x"].length == 0) return false
-        if(!config["Eje y"] || config["Eje y"].length == 0) return false
+function readyToPlot(config: PlotConfigProps) {
+    if (config.kind == null || config.kind == "Tipo de gráfico") return false
+    if (config.datasetUri == null) return false
+    if (config.kind == "Histograma") {
+        if (!config["Columna"] || config["Columna"].length == 0) return false
+    } else if (config.kind == "Gráfico de barras" || config.kind == "Gráfico de línea") {
+        if (!config["Eje x"] || config["Eje x"].length == 0) return false
+        if (!config["Eje y"] || config["Eje y"].length == 0) return false
     }
     return true
 }
 
 
-function readyToSave(config: PlotConfigProps){
-    if(!readyToPlot(config)) return false
-    if(!config["Título"] || config["Título"].length == 0) return false
+function readyToSave(config: PlotConfigProps) {
+    if (!readyToPlot(config)) return false
+    if (!config["Título"] || config["Título"].length == 0) return false
     return true
 }
 
@@ -73,29 +79,22 @@ const dataURLToFile = (dataURL: string) => {
 }
 
 
-
-const createVisualization = async (spec: any, formData: FormData) => {
-    // TO DO
-    return {error: "Sin implementar."}
-}
-
-
-
 export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}: {
     config: PlotConfigProps
     selected: string
     setSelected: (s: string) => void
-    dataset?: DatasetView | DatasetViewBasic
+    dataset?: $Typed<DatasetView> | $Typed<DatasetViewBasic>
     maxWidth: number
 }) => {
     const router = useRouter()
     const [currentView, setCurrentView] = useState(null)
     const saveDisabled = !readyToSave(config)
 
-    function optionsNodes(o: string, isSelected: boolean){
+    function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)] w-32">
             <Button
-                onClick={() => {}}
+                onClick={() => {
+                }}
                 variant="text"
                 color="inherit"
                 fullWidth={true}
@@ -105,7 +104,8 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     paddingY: 0
                 }}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                <div
+                    className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -115,17 +115,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
     async function onSave() {
         //let spec = getSpecForConfig(config, dataset)
 
-        const canvas = await currentView.toCanvas(10)
-        const dataURL = canvas.toDataURL("image/png");
-
-        const file = dataURLToFile(dataURL)
-        const formData = new FormData()
-        formData.set("data", file)
-        //const {error} = await createVisualization(spec, formData)
-        const error = "Sin implementar."
-
-        if (!error) router.push("/datos")
-        return {error}
+        return {error: "Sin implementar."}
     }
 
     return <div className={"h-screen"}>
@@ -146,32 +136,34 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
             {selected == "Visualización" && isDatasetView(dataset) && <div>
                 {
                     readyToPlot(config) ?
-                    <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
-                        <VisualizationOnEditor
-                            dataset={dataset} config={config} setCurrentView={setCurrentView}
-                        />
-                    </div> :
+                        <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
+                            <VisualizationOnEditor
+                                dataset={dataset} config={config} setCurrentView={setCurrentView}
+                            />
+                        </div> :
+                        <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
+                            {nextStep(config)}
+                        </div>
+                }
+            </div>}
+            {selected == "Visualization" && isDatasetViewBasic(dataset) && <div className={"py-8"}>
+                <LoadingSpinner/>
+            </div>}
+            {selected == "Datos" && <div className={"h-full pb-10 w-full"}>
+                {dataset && isDatasetView(dataset) &&
+                    <div className={"w-full h-full"} style={{maxWidth: maxWidth}}>
+                        <DatasetFullView dataset={dataset}/>
+                    </div>
+                }
+                {!dataset &&
                     <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
                         {nextStep(config)}
                     </div>
                 }
-            </div>}
-            {selected == "Datos" && <div className={"h-full w-full"}>
-                {dataset && isDatasetView(dataset) ? <div className={"w-full"}>
-                    <div className={"font-bold text-2xl mt-4"}>
-                        {dataset.name}
-                    </div>
-                    <div className={"w-full"}>
-                        <DatasetTableView
-                            data={[]} // TO DO
-                            maxHeight={"500px"}
-                            maxWidth={maxWidth.toString() + "px"}
-                        />
-                    </div>
-                </div> : (dataset ? <LoadingSpinner/> :
-                    <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
-                        {nextStep(config)}
-                    </div>)}
+                {dataset && isDatasetViewBasic(dataset) &&
+                    <div className={"py-8"}>
+                        <LoadingSpinner/>
+                    </div>}
             </div>
             }
             {selected == "Visualización" ?

@@ -1,21 +1,31 @@
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+
+
+export type DatasetForTableView = Omit<DatasetView, "name" | "uri" | "cid" | "author" | "createdAt">
 
 
 type DatasetTableViewProps = {
-    data: any[], maxHeight?: string, maxWidth?: string
+    dataset: DatasetForTableView, maxHeight?: number, maxWidth?: number
 }
 
 
-export const DatasetTableView = ({data, maxHeight="600px", maxWidth="600px"}: DatasetTableViewProps) => {
-    const rows = [] // TO DO
+export const DatasetTableView = ({dataset, maxHeight = 600, maxWidth = 600}: DatasetTableViewProps) => {
+    const rows = JSON.parse(dataset.data)
+    const columns = dataset.columns
+
     return <div className={"w-full"}>
-        <div className={"border-t mb-4 custom-scrollbar overflow-x-scroll overflow-y-scroll text-sm"}
-             style={{maxHeight, maxWidth}}>
+        <div
+            className={"border-t mb-4 custom-scrollbar overflow-x-scroll overflow-y-scroll text-sm"}
+            style={{maxHeight, maxWidth}}
+        >
+
             <table className="table-auto w-full border-collapse border max-[1080px]:text-xs">
                 <thead className="bg-[var(--background-dark2)]">
                 <tr>
-                    {rows && Object.keys(rows[0]).map((header, colIndex) => (
+                    {columns.map((header, colIndex) => (
                         <th key={colIndex} className="border px-4 py-2 text-left">
-                            {header}
+                            {header.name}
                         </th>
                     ))}
                 </tr>

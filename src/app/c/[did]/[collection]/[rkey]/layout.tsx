@@ -1,5 +1,4 @@
 import MainLayout from "../../../../../components/layout/main-layout";
-import AccountChecker from "../../../../../components/auth/account-checker";
 
 import {isArticle, isDataset, shortCollectionToCollection} from "@/utils/uri";
 
@@ -27,8 +26,6 @@ export default async function RootLayout({children, params}: Readonly<{
         defaultSidebarState={!article}
         rightMinWidth={isDistractionFree ? "300px" : undefined}
     >
-        <AccountChecker requireAccount={true}>
-            {children}
-        </AccountChecker>
+        {children}
     </MainLayout>
 }

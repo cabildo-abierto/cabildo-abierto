@@ -39,6 +39,7 @@ export const ThreadReplies = ({replies, pinnedReplies, setPinnedReplies}: Thread
                     onClickQuote={onClickQuote}
                     onDeleteFeedElem={async () => {
                     }}
+                    inThreadFeed={true}
                 />
             </div>
 

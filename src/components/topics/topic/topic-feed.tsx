@@ -83,6 +83,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
                         onDeleteFeedElem={onDeleteFeedElem}
+                        isThreadFeed={true}
                     />
                 }
 
@@ -93,6 +94,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                             onClickQuote={onClickQuote}
                             noResultsText={"Este tema todavía no recibió respuestas."}
                             onDeleteFeedElem={onDeleteFeedElem}
+                            isThreadFeed={true}
                         />
                     </div>
                 }

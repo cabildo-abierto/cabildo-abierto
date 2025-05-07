@@ -26,7 +26,7 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         initialTextFormat: "plain-text",
         placeholder: "",
 
-        preventLeave: true,
+        preventLeave: false, // TO DO: Arreglar y pasar a true
         isReadOnly: true,
         imageClassName: "",
         placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px]",

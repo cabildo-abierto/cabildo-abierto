@@ -1,6 +1,5 @@
 import Image from "next/image";
-import {isViewImage, ViewImage} from "@/lex-api/types/app/bsky/embed/images";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {ViewImage} from "@/lex-api/types/app/bsky/embed/images";
 
 
 type EmbedImageProps = {

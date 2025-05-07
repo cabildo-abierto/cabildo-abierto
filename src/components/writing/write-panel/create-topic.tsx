@@ -10,14 +10,20 @@ import {validEntityName} from "@/components/topics/topic/utils";
 import {useSession} from "@/hooks/api";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {post} from "@/utils/fetch";
+import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 
 
 export const createTopic = async (id: string) => {
-    return await post<{id: string}, {}>(`/topic-version`, {id})
+    return await post<CreateTopicVersionProps, {}>(`/topic-version`, {id})
 }
 
+type CreateTopicProps = {
+    onClose: () => void
+    initialSelected?: string
+    backButton?: boolean
+}
 
-export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => void, initialSelected?: string}) => {
+export const CreateTopic = ({onClose, initialSelected="none", backButton=true}: CreateTopicProps) => {
     const user = useSession();
     const [topicName, setTopicName] = useState("");
     const [errorOnCreate, setErrorOnCreate] = useState(null)
@@ -80,7 +86,7 @@ export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => v
 
         <div className="flex justify-center">
             <div className="text-[var(--text-light)] text-xs sm:text-sm text-center max-w-64">
-                Antes de crear un nuevo tema mirá que no exista un tema similar.
+                Antes de crear un nuevo tema revisá que no exista un tema similar.
             </div>
         </div>
 
@@ -95,13 +101,14 @@ export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => v
         />
 
         <div className="py-4 space-x-2 text-[var(--text-light)]">
-            <Button
+            {backButton && <Button
                 onClick={() => {setSelected("none")}}
                 variant={"text"}
                 color={"inherit"}
+                sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}
             >
                 Volver
-            </Button>
+            </Button>}
             <StateButton
                 handleClick={onSubmit}
                 disabled={!user.user || !validEntityName(topicName)}

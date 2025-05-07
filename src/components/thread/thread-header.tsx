@@ -1,3 +1,4 @@
+"use client"
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {collectionToDisplay} from "@/utils/uri";
 
