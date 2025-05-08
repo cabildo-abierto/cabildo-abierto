@@ -1,12 +1,9 @@
 "use client"
 
 import {MainFeedHeader} from "./main-feed-header"
-import Feed from "../feed/feed/feed"
-import {useFeed} from "@/hooks/api";
 import {useSearchParams} from "next/navigation";
-import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {updateSearchParam} from "@/components/topics/topic/topic-page";
+import {Feed, getFeed} from "@/components/feed/feed/feed";
 
 
 export function optionToSearchParam(v: string) {
@@ -22,19 +19,6 @@ export function searchParamToOption(v: string) {
     if (v == "discusion") return "En discusión"
     if (v == "descubrir") return "Descubrir"
     return "Siguiendo"
-}
-
-
-const SelectedFeed = ({selected}: { selected: string }) => {
-    const feed = useFeed(optionToSearchParam(selected))
-
-    if (feed.isLoading) {
-        return <div className={"py-8"}><LoadingSpinner/></div>
-    } else if (feed.error || !feed) {
-        return <ErrorPage>{feed.error.name}</ErrorPage>
-    }
-
-    return <Feed feed={feed.data}/>
 }
 
 
@@ -54,15 +38,24 @@ export const MainPage = () => {
                 onSelection={onSelection}
             />
         </div>
-
-        {selected == "Siguiendo" && <SelectedFeed selected={selected}/>}
-        {selected == "En discusión" && <SelectedFeed selected={selected}/>}
-        {selected == "Descubrir" && <div className={"py-8 text-center text-[var(--text-light)]"}>
-            Próximamente acá vas a poder encontrar contenidos de usuarios que no seguís.
-        </div>}
-
-        {/*selected == "Descubrir" && <Feed
-            feed={discoverFeed}
-        />*/}
+        {selected == "Siguiendo" &&
+        <Feed
+            getFeed={getFeed({type: "siguiendo"})}
+            noResultsText={"No se encontraron contenidos. Seguí a más usuarios."}
+            endText={"Fin del feed."}
+        />}
+        {selected == "En discusión" &&
+        <Feed
+            getFeed={getFeed({type: "discusion"})}
+            noResultsText={"No hay contenidos en discusión."}
+            endText={"Fin del feed."}
+        />}
+        {selected == "Descubrir" &&
+        <Feed
+            getFeed={getFeed({type: "descubrir"})}
+            noResultsText={"Próximamente acá vas a encontrar contenidos de usuarios que no seguís."}
+            endText={"Fin del feed."}
+        />
+        }
     </div>
 }

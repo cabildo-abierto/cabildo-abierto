@@ -1,16 +1,18 @@
 import {useSearch} from "./search-context";
-import Feed from "../feed/feed/feed";
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {get} from "@/utils/fetch";
+import {Feed, GetFeedOutput} from "@/components/feed/feed/feed";
+import { FeedElement } from "../feed/feed/feed-element";
 
 
 async function searchContents(q: string) {
-    return await get<FeedViewContent[]>(`/search-contents/${q}`)
+    return await get<GetFeedOutput<FeedViewContent>>(`/search-contents/${q}`)
 }
 
 
+// TO DO: Que cargue más resultados a medida que scrolleás
 export const ContentsSearchResults = () => {
     const { searchState } = useSearch();
     const [results, setResults] = useState<FeedViewContent[] | "loading">([]);
@@ -33,7 +35,7 @@ export const ContentsSearchResults = () => {
             setResults("loading")
             const {data} = await searchContents(debouncedValue)
             if(data){
-                setResults(data)
+                setResults(data.feed)
             }
         }
 
@@ -47,8 +49,24 @@ export const ContentsSearchResults = () => {
     }
 
     if(results == "loading"){
-        return <div className={"pt-8"}><LoadingSpinner/></div>
+        return <div className={"pt-8"}>
+            <LoadingSpinner/>
+        </div>
     }
 
-    return <Feed feed={results}/>
+    const nodes = results.map((r, i) => {
+        return <div key={i}>
+            <FeedElement
+                elem={r}
+                inThreadFeed={true}
+                onDeleteFeedElem={async () => {}}
+            />
+        </div>
+    })
+
+    return <Feed
+        initialContents={nodes}
+        noResultsText={"No se encontraron resultados."}
+        getFeed={null}
+    />
 }

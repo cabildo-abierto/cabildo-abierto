@@ -94,7 +94,6 @@ export const UserSearchResults = ({maxCount, showSearchButton = true}: {
     useEffect(() => {
         const debounceTimeout = setTimeout(async () => {
             setResults(null)
-            console.log("search state value", searchState.value)
             if (searchState.value.length === 0) {
                 setResultsState("not searching")
                 return

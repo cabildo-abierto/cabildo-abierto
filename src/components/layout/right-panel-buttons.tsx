@@ -41,7 +41,7 @@ export const RightPanelButtons = () => {
     return <div className={"mt-4 px-3 w-full flex flex-col space-y-1"}>
         <SupportButton/>
         <RightPanelButton
-            href={topicUrl("Cabildo Abierto")}
+            href={topicUrl("Cabildo Abierto", undefined, "normal")}
             icon={<InfoIcon color={"inherit"} fontSize={"small"}/>}
         >
             Acerca de Cabildo Abierto

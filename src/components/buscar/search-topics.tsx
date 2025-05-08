@@ -1,12 +1,11 @@
 "use client"
 import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
 import { useSearch } from "./search-context"
-import { LazyLoadFeed } from "../feed/feed/lazy-load-feed"
-import React, {ReactNode, useEffect, useState} from "react"
-import {NoResults} from "./no-results";
+import React, {useEffect, useState} from "react"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {get} from "@/utils/fetch";
+import { Feed } from "../feed/feed/feed"
 
 
 async function searchTopics(q: string) {
@@ -14,7 +13,7 @@ async function searchTopics(q: string) {
 }
 
 
-export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
+export const SearchTopics = () => {
     const { searchState } = useSearch();
     const [results, setResults] = useState<TopicViewBasic[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
@@ -53,28 +52,12 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }
 
-    function generator(index: number): {c: ReactNode, key: string} {
-        if(results == "loading"){return {c: null, key: index.toString()}}
-        const topic = results[index]
-        return {
-            c: topic ? <TopicSearchResult topic={topic} /> : null,
-            key: topic?.id || index.toString(),
-        }
-    }
+    const contents = results.map((r, i) => {
+        return <div key={i}><TopicSearchResult topic={r}/></div>
+    })
 
-    return (
-        <div className="flex flex-col items-center w-full">
-            {results.length > 0 ? (
-                <LazyLoadFeed
-                    maxSize={Math.min(
-                        results.length,
-                        maxCount !== undefined ? maxCount : results.length
-                    )}
-                    generator={generator}
-                />
-            ) : (
-                <NoResults text="No se encontró ningún tema." />
-            )}
-        </div>
-    );
+    return <Feed
+        initialContents={contents}
+        noResultsText={"No se encontró ningún tema."}
+    />
 };

@@ -9,8 +9,6 @@ export const logout = async () => {
     const {error} = await post("/logout")
     if(error){
         console.error("Error on logout", error)
-    } else {
-        console.log("logout ok")
     }
 }
 

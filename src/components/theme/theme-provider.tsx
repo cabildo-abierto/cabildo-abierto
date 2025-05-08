@@ -19,6 +19,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
         root.style.setProperty('--primary-2xdark', '#112e5a')
         if (currentTheme === 'dark') {
             root.style.setProperty('--text', '#fbfbfc');
+            root.style.setProperty('--button-text', '#fbfbfc');
             root.style.setProperty('--text-light', '#b0b0b0');
             root.style.setProperty('--text-lighter', '#888888');
             root.style.setProperty('--icon-color-filter', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)');
@@ -34,6 +35,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--accent-dark', '#444d66');
         } else {
             root.style.setProperty('--text', '#1a1a1a');
+            root.style.setProperty('--button-text', '#fbfbfc');
             root.style.setProperty('--text-light', '#444444');
             root.style.setProperty('--text-lighter', '#999999');
             root.style.setProperty('--icon-color-filter', 'none');

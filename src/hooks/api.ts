@@ -69,11 +69,6 @@ export const useTrendingTopics = () => {
 export type FeedKind = "discusion" | "siguiendo" | "descubrir"
 
 
-export const useFeed = (feed: FeedKind) => {
-    return useAPI<FeedViewContent[]>("/feed/" + feed, ["feed", feed])
-}
-
-
 export function useProfile(handle: string) {
     return useAPI<Profile>("/profile/" + handle, ["profile", handle])
 }
@@ -82,12 +77,6 @@ export function useProfile(handle: string) {
 export function useFollowx(handle: string, kind: FollowKind) {
     const route = kind == "seguidores" ? "followers" : "follows"
     return useAPI<ProfileViewBasic[]>(`/${route}/` + handle, [kind, handle])
-}
-
-
-
-export function useProfileFeed(handle: string, kind: ProfileFeedOption) {
-    return useAPI<FeedViewContent[]>("/profile-feed/" + handle + "/" + kind, ["profile-feed", handle, kind])
 }
 
 
