@@ -1,10 +1,11 @@
 "use client"
 import {ProfileHeader} from "./profile-header";
-import {SelectedFeed} from "./selected-feed";
 import {useProfile} from "@/hooks/api";
 import {useSearchParams} from "next/navigation";
 import {LoadingProfile} from "@/components/profile/loading-profile";
 import {updateSearchParam} from "@/components/topics/topic/topic-page";
+import {getFeed, Feed} from "@/components/feed/feed/feed";
+import {getUsername} from "@/utils/utils";
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones"
 
@@ -21,11 +22,6 @@ export function profileOptionToDisplay(s: string){
     if(s == "respuestas") return "Respuestas"
     if(s == "ediciones") return "Ediciones"
     return "Publicaciones"
-}
-
-
-function isDid(handleOrDid: string){
-    return handleOrDid.startsWith("did")
 }
 
 
@@ -51,15 +47,26 @@ export const ProfilePage = ({
             setSelected={setSelected}
         />}
         {!profile && <LoadingProfile/>}
-        {!isDid(handle) && <SelectedFeed
-            handle={handle}
-            profile={profile}
-            selected={selected}
-        />}
-        {isDid(handle) && profile && <SelectedFeed
-            handle={profile.bsky.handle}
-            profile={profile}
-            selected={selected}
-        />}
+
+        <div className={profile ? "" : "hidden"}>
+            {selected == "publicaciones" &&
+            <Feed
+                getFeed={getFeed({handleOrDid: handle, type: selected})}
+                noResultsText={profile && getUsername(profile.bsky) + " todavía no publicó nada."}
+                endText={"Fin del feed."}
+            />}
+            {selected == "respuestas" &&
+            <Feed
+                getFeed={getFeed({handleOrDid: handle, type: selected})}
+                noResultsText={profile && getUsername(profile.bsky) + " todavía no publicó nada."}
+                endText={"Fin del feed."}
+            />}
+            {selected == "ediciones" &&
+            <Feed
+                getFeed={getFeed({handleOrDid: handle, type: selected})}
+                noResultsText={profile && getUsername(profile.bsky) + " todavía no hizo ninguna edición en la wiki."}
+                endText={"Fin del feed."}
+            />}
+        </div>
     </div>
 }

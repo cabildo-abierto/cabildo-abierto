@@ -152,6 +152,7 @@ export const TopicContentExpandedViewWithVersion = ({
                             <div className={"text-[var(--text-light)]"}>
                                 ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                             </div>}
+
                         {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
                             settings={getEditorSettings({
                                 isReadOnly: true,

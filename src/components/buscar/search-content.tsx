@@ -21,8 +21,8 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
     const {searchState, setSearchState} = useSearch()
 
     useEffect(() => {
-        if(query && query.length > 0){
-            if(searchState.value != query){
+        if (query && query.length > 0) {
+            if (searchState.value != query) {
                 setSearchState({searching: true, value: query})
             }
         } else {
@@ -30,20 +30,23 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         }
     }, [query])
 
-    function optionsNodes(o: string, isSelected: boolean){
+    function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)]">
             <Button
-                onClick={() => {}}
+                onClick={() => {
+                }}
                 variant="text"
                 color="inherit"
                 fullWidth={true}
                 disableElevation={true}
-                sx={{textTransform: "none",
-                    paddingY: 0
-
+                sx={{
+                    textTransform: "none",
+                    paddingY: 0,
+                    borderRadius: 0
                 }}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] px-2 " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                <div
+                    className={"pb-1 pt-2 border-b-[4px] px-2 " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
                     {o}
                 </div>
             </Button>

@@ -12,7 +12,6 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
 
     useEffect(() => {
         if (!user.isLoading && !user.user) {
-            console.log("redirigiendo a /login")
             router.push("/login")
         }
     }, [user.isLoading, user.user, router])

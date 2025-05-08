@@ -24,7 +24,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
             }
         }
         return () => channel.close()
-    }, [])
+    }, [refetch])
 
     async function handleSubmit(e){
         e.preventDefault();

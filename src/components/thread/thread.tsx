@@ -62,7 +62,6 @@ export const Thread = ({thread}: { thread: ThreadViewContent }) => {
         </div>
 
         <ThreadReplies
-            pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
             replies={replies.filter(r => isThreadViewContent(r))}
         />

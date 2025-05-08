@@ -1,11 +1,11 @@
 "use client"
-import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
-import { useTopics } from "@/hooks/api"
+import {TopicSearchResult} from "@/components/topics/topic/topic-search-result"
+import {useTopics} from "@/hooks/api"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
-import { LazyLoadFeed } from "../feed/feed/lazy-load-feed"
 import React from "react"
-import {NoResults} from "@/components/buscar/no-results";
 import {TopicsSortOrder} from "./topics-list-view";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import {Feed} from "../feed/feed/feed"
 
 
 export const CategoryTopics = ({sortedBy, categories}: {
@@ -13,30 +13,21 @@ export const CategoryTopics = ({sortedBy, categories}: {
     categories: string[]
     onSearchPage?: boolean
 }) => {
-    const {data: topics, isLoading, isError} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
+    const {data: topics, error, isLoading} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
 
     if (isLoading) return <LoadingSpinner/>
-    if (isError || !topics) {
-        return <></>
-    }
+    if (!topics) return <ErrorPage>{error.message}</ErrorPage>
 
-    function generator(index: number){
-        const topic = topics[index];
-        return {
-            c: topic ? <TopicSearchResult topic={topic} /> : null,
-            key: topic.id
-        }
-    }
+    const nodes = topics.map((topic, i) => {
+        return <div key={i}>
+            <TopicSearchResult topic={topic}/>
+        </div>
+    })
 
-    return <div className="flex flex-col items-center w-full" key={sortedBy+categories.join("-")}>
-        {topics.length > 0 ? (
-            <LazyLoadFeed
-                maxSize={topics.length}
-                initialCount={50}
-                generator={generator}
-            />
-        ) : (
-            <NoResults text="No se encontró ningún tema."/>
-        )}
+    return <div className="flex flex-col items-center w-full" key={sortedBy + categories.join("-")}>
+        <Feed
+            initialContents={nodes}
+            noResultsText={"No se encontró ningún tema."}
+        />
     </div>
 }

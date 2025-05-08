@@ -1,5 +1,4 @@
 import {useTopicFeed} from "@/hooks/api";
-import Feed from "../../feed/feed/feed";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {Button} from "@mui/material";
@@ -7,6 +6,8 @@ import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import {Feed} from "@/components/feed/feed/feed";
+import {FeedViewContentFeed} from "@/components/feed/feed/feed-view-content-feed";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
@@ -56,6 +57,8 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         </div>
     }
 
+
+
     return <div className={"mb-96"}>
         <div className={"flex border-b w-full max-w-screen overflow-scroll no-scrollbar " + (minimized ? "" : "justify-center")}>
             <SelectionComponent
@@ -66,6 +69,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 className={"flex w-full"}
             />
         </div>
+        {/*BUG: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         {selected == "Menciones" && <div className={"flex py-2 px-2 justify-center"}>
             <SelectionComponent
                 onSelection={setMentionsSelected}
@@ -78,8 +82,8 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         <div className={"flex justify-center"}>
             <div className={"max-w-[600px]"}>
                 {selected == "Menciones" && mentionsSelected == "Publicaciones" &&
-                    <Feed
-                        feed={feed.data ? feed.data.mentions : undefined}
+                    <FeedViewContentFeed
+                        initialContents={feed.data ? feed.data.mentions : undefined}
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
                         onDeleteFeedElem={onDeleteFeedElem}
@@ -89,8 +93,8 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
 
                 {selected == "Respuestas al contenido" &&
                     <div className={"pt-10"}>
-                        <Feed
-                            feed={feed.data ? feed.data.replies : undefined}
+                        <FeedViewContentFeed
+                            initialContents={feed.data ? feed.data.replies : undefined}
                             onClickQuote={onClickQuote}
                             noResultsText={"Este tema todavía no recibió respuestas."}
                             onDeleteFeedElem={onDeleteFeedElem}

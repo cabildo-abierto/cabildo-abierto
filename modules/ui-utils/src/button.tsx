@@ -8,10 +8,11 @@ export const Button = ({children, sx, variant="contained", disableElevation=true
     return <MUIButton {...props}
           sx={{
               textTransform: 'none',
-              color: "var(--text)",
+              color: "var(--button-text)",
               borderRadius: "20px"
           , ...sx}}
           variant={variant}
+          disableElevation={disableElevation}
     >
         {children}
     </MUIButton>
