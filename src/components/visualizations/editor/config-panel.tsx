@@ -81,11 +81,10 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
     }
 
     return <ResizableDiv initialWidth={400} minWidth={240} maxWidth={500} side={"left"}>
-        <div className={"border rounded-lg p-2 mt-16 w-full"}>
-            <div className={"font-bold text-2xl"}>
+        <div className={"rounded-lg p-2 mt-16 w-full bg-[var(--background-dark)]"}>
+            <div className={"font-bold text-2xl pt-1 px-2"}>
                 Configuración
             </div>
-            <hr className={"my-2"}/>
             <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto max-h-[calc(100vh-200px)]"}>
                 <Select
                     options={["Histograma", "Gráfico de línea", "Gráfico de barras"]}
@@ -172,7 +171,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                 })}
                 <div>
                     <Button
-                        color={"inherit"}
+                        color={"background-dark"}
                         startIcon={<AddIcon/>}
                         onClick={() => {
                             updateConfig("filters", [...(config.filters ? config.filters : []), {}])

@@ -17,11 +17,10 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
             className="flex flex-col overflow-y-scroll max-h-[300px] no-scrollbar"
         >
             {trendingArticles.map((topic, index) => {
-
                 const title = getTopicTitle(topic)
                 return <div
                     onClick={() => {router.push(topicUrl(topic.id))}} draggable={false}
-                    className="cursor-pointer flex flex-col py-4 w-full px-5 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark)]"
+                    className="cursor-pointer flex flex-col py-4 w-full px-5 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark2)]"
                     key={topic.id}
                     onMouseLeave={() => {
                         setHovering(undefined)
@@ -50,7 +49,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                     </div>}
                 </div>
             })}
-            <Link href={"/temas"} className={"hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-5 py-1"}>
+            <Link href={"/temas"} className={"hover:bg-[var(--background-dark2)] rounded-b-lg text-sm text-[var(--text-light)] px-5 py-1"}>
                 Ver más
             </Link>
         </div>

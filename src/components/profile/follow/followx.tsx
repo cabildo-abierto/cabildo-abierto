@@ -11,7 +11,7 @@ export const FollowCount = ({count, kind, url}: FollowCountProps) => {
     const text = kind == "siguiendo" ? kind : (count == 1 ? "seguidor" : "seguidores")
     return <div className="sm:text-base text-sm flex space-x-1">
         <span className="font-bold">
-            {rounder(count)}
+            {count != undefined ? rounder(count) : "?"}
         </span>
         {url && <Link className={"text-[var(--text-light)] hover:underline"} href={url}>
             {text}

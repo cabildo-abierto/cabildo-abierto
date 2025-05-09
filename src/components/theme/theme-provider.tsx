@@ -24,12 +24,11 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--text-lighter', '#888888');
             root.style.setProperty('--icon-color-filter', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)');
 
-            root.style.setProperty('--background', '#181b23');
-            root.style.setProperty('--background-light', '#1a1e27');
-            root.style.setProperty('--background-dark', '#1e2230');
-            root.style.setProperty('--background-dark2', '#242936');
-            root.style.setProperty('--background-dark3', '#2a303f');
-            root.style.setProperty('--background-dark4', '#303748');
+            root.style.setProperty('--background', 'rgb(25, 25, 35)');
+            root.style.setProperty('--background-dark', 'rgb(30, 30, 40)');
+            root.style.setProperty('--background-dark2', 'rgb(35, 35, 45)');
+            root.style.setProperty('--background-dark3', 'rgb(40, 40, 50)');
+            root.style.setProperty('--background-dark4', 'rgb(45, 45, 55)');
 
             root.style.setProperty('--accent', '#2e364c');
             root.style.setProperty('--accent-dark', '#444d66');
@@ -43,12 +42,11 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--accent', '#e0e0e0');
             root.style.setProperty('--accent-dark', '#a9a9a9');
 
-            root.style.setProperty('--background', '#ffffff');
-            root.style.setProperty('--background-light', '#f8f8f8');
-            root.style.setProperty('--background-dark', '#f0f0f0');
-            root.style.setProperty('--background-dark2', '#e8e8e8');
-            root.style.setProperty('--background-dark3', '#e0e0e0');
-            root.style.setProperty('--background-dark4', '#d8d8d8');
+            root.style.setProperty('--background', 'rgb(255, 255, 240)');
+            root.style.setProperty('--background-dark', 'rgb(240, 240, 225)');
+            root.style.setProperty('--background-dark2', 'rgb(225, 225, 210)');
+            root.style.setProperty('--background-dark3', 'rgb(210, 210, 195)');
+            root.style.setProperty('--background-dark4', 'rgb(195, 195, 180)');
         }
         
         root.style.setProperty('color-scheme', currentTheme);

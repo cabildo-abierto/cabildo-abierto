@@ -18,7 +18,7 @@ import {getEditorSettings} from "@/components/editor/settings";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
-const articleEditorSettings: SettingsProps = getEditorSettings({
+const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
     charLimit: 1200000,
     allowImages: true,
     allowVisualizations: true,
@@ -28,12 +28,12 @@ const articleEditorSettings: SettingsProps = getEditorSettings({
     tableOfContents: true,
     showToolbar: true,
 
-    isDraggableBlock: true,
+    isDraggableBlock: !smallScreen,
 
     placeholder: "Escribí tu artículo...",
     isReadOnly: false,
-    editorClassName: "article-content relative px-2 pt-4",
-    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px] px-2 pt-[32px]",
+    editorClassName: "article-content relative pt-4",
+    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px] pt-[32px]",
 })
 
 
@@ -42,8 +42,9 @@ const ArticleEditor = () => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [title, setTitle] = useState("")
     const {user} = useSession()
+    const smallScreen = window.innerWidth < 700
 
-    const settings = articleEditorSettings
+    const settings = articleEditorSettings(smallScreen)
 
     const valid = validArticle(editorState, settings.charLimit, title)
 
@@ -92,7 +93,7 @@ const ArticleEditor = () => {
                 </span>
             </div>
         </div>
-        <div className={"mt-8 px-1"}>
+        <div className={"mt-8 px-4"}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}

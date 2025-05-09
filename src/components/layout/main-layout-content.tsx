@@ -46,7 +46,7 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
 
 
     const left = (
-        <div className={"fixed top-0 z-[1010] left-0 right-auto border-r"}>
+        <div className={"fixed top-0 z-[1010] left-0 right-auto bg-[var(--background-dark)]"}>
             <SidebarContent onClose={() => {}}/>
         </div>
     )

@@ -35,6 +35,7 @@ export const PublishArticleButton = ({editor, title, disabled}: {
         text1={"Publicar"}
         textClassName="whitespace-nowrap px-2 font-semibold"
         disabled={disabled}
+        color={"background"}
         size="medium"
         variant={"text"}
         sx={{borderRadius: 20}}

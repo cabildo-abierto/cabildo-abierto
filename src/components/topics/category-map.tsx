@@ -25,7 +25,7 @@ export const CategoryMap = ({c}: {c: string}) => {
         </ErrorPage>
     }
 
-    return <div className={"mt-12 ml-6"}>
+    return <div className={"mt-12 ml-6 space-y-8 mb-8"}>
         <div className={"flex space-x-2 items-center text-[var(--text-light)] justify-center"}>
             <BackButton defaultURL={"/temas?view=mapa"}/>
             <div className={"text-lg font-bold"}>

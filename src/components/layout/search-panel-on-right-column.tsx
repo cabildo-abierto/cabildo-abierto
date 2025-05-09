@@ -1,5 +1,5 @@
 "use client"
-import SearchBar from "@/components/buscar/search-bar";
+import {MainSearchBar} from "@/components/buscar/search-bar";
 import {UserSearchResults} from "@/components/buscar/user-search-results";
 import React from "react";
 import {useRouter} from "next/navigation";
@@ -21,16 +21,17 @@ export const SearchPanelOnRightColumn = () => {
     };
 
     return (
-            <div className={"w-full"}>
-                <form onSubmit={handleSubmit} className={"w-full"}>
-                    <SearchBar/>
-                </form>
-                {searchState.searching && searchState.value.length > 0 && (
-                    <div
-                        className={"rounded bg-[var(--background)] border-l border-r border-t w-full max-w-[300px] mt-2"}>
-                        {showSearchButton && (
-                            <form onSubmit={handleSubmit}>
-                            <div className={"border-b"}>
+        <div className={"w-full"}>
+            <form onSubmit={handleSubmit} className={"w-full"}>
+                <MainSearchBar/>
+            </form>
+            {searchState.searching && searchState.value.length > 0 && (
+                <div
+                    className={"w-full max-w-[300px] mt-2"}
+                >
+                    {showSearchButton && (
+                        <form onSubmit={handleSubmit}>
+                            <div className={""}>
                                 <Button
                                     onClick={handleSubmit}
                                     variant={"text"}
@@ -38,11 +39,14 @@ export const SearchPanelOnRightColumn = () => {
                                     type="submit"
                                     sx={{
                                         textTransform: "none",
-                                        backgroundColor: "var(--background-dark)",
+                                        backgroundColor: "var(--background-dark2)",
                                         ":hover": {
-                                            backgroundColor: "var(--background-dark2)",
+                                            backgroundColor: "var(--background-dark3)",
                                         },
                                         width: "100%",
+                                        borderRadius: "0px",
+                                        borderTopLeftRadius: "8px",
+                                        borderTopRightRadius: "8px",
                                     }}
                                 >
                                     <div className={"space-x-1 w-full"}>
@@ -51,11 +55,11 @@ export const SearchPanelOnRightColumn = () => {
                                     </div>
                                 </Button>
                             </div>
-                            </form>
-                        )}
-                        <UserSearchResults maxCount={6}/>
-                    </div>
-                )}
-            </div>
+                        </form>
+                    )}
+                    <UserSearchResults maxCount={6}/>
+                </div>
+            )}
+        </div>
     );
 };

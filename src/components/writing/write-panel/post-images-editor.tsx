@@ -27,8 +27,7 @@ export const PostImagesEditor = ({images, setImages}: PostImagesEditorProps) => 
                                 onClose={() => {
                                     setImages([...images.slice(0, index), ...images.slice(index + 1)])
                                 }}
-                                backgroundColor={"var(--background-dark3)"}
-                                hoverColor={"var(--background-dark)"}
+                                color={"background-dark"}
                                 size={"small"}
                             />
                         </div>

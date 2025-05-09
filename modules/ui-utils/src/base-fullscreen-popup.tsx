@@ -1,13 +1,15 @@
 import { ReactNode } from "react";
 import { Box, Modal } from "@mui/material";
 import { CloseButton } from "./close-button";
+import {Color} from "./button";
 
 export const BaseFullscreenPopup = ({
     children,
     closeButton = false,
     onClose,
     open,
-    className,
+    className="",
+    color="background-dark",
     allowClose = false
 }: {
     open: boolean
@@ -16,6 +18,7 @@ export const BaseFullscreenPopup = ({
     onClose?: () => void;
     className?: string;
     allowClose?: boolean
+    color?: Color
 }) => {
     return (
         <Modal
@@ -28,10 +31,14 @@ export const BaseFullscreenPopup = ({
             className={"flex justify-center items-center"}
             onClick={(e) => {e.stopPropagation();}}
         >
-            <Box className={"min-w-[300px] shadow-lg bg-[var(--background-dark)] rounded-lg border " + className}>
+            <Box className={"min-w-[300px] shadow-lg rounded-lg border " + className} sx={{backgroundColor: `var(--${color})`}}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
-                        <CloseButton onClose={onClose} size={"small"} />
+                        <CloseButton
+                            onClose={onClose}
+                            size={"small"}
+                            color={color}
+                        />
                     </div>
                 )}
                 {children}

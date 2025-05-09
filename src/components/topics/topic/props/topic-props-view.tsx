@@ -26,7 +26,7 @@ export const TopicPropView = ({p}: {p: TopicProp}) => {
 export const TopicPropsView = ({topic}: {topic: TopicView}) => {
     const props = addDefaults(topic.props, topic)
 
-    return <div className={"border rounded p-4 space-y-6 m-4"}>
+    return <div className={"border bg-[var(--background-dark)] rounded p-4 space-y-6 mx-2 my-4"}>
         <div className={"font-semibold flex items-center space-x-2"}>
             <div>Propiedades</div>
         </div>

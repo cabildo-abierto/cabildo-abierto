@@ -45,8 +45,6 @@ import {
 import {Dispatch, useCallback, useEffect, useState} from 'react';
 import * as React from 'react';
 import {IS_APPLE} from '../../shared/environment';
-
-import useModal from '../../hooks/useModal';
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {InsertTableModal} from '../TablePlugin';
@@ -61,15 +59,21 @@ import {
     InsertLink,
     TableChartOutlined
 } from "@mui/icons-material";
-import {InsertImageModal} from "@/components/writing/write-panel/insert-image-modal";
 import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
 import {ToolbarButton} from "./toolbar-button";
 import {InsertImageNodeModal} from "./insert-image-node-modal";
+import UndoIcon from '@mui/icons-material/Undo';
+import RedoIcon from '@mui/icons-material/Redo';
+import {ModalOnClick} from "../../../../ui-utils/src/modal-on-click";
+import { Button } from '../../../../ui-utils/src/button';
+import SubjectIcon from '@mui/icons-material/Subject';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const blockTypeToBlockName = {
     bullet: 'Lista',
-    check: 'Check List',
-    code: 'Code Block',
     h1: 'Encabezado 1',
     h2: 'Encabezado 2',
     h3: 'Encabezado 3',
@@ -79,7 +83,21 @@ const blockTypeToBlockName = {
     number: 'Enumerado',
     paragraph: 'Normal',
     quote: 'Cita',
+    check: "Checks"
 };
+
+const blockTypeToIcon = {
+    h1: <div className={"font-semibold text-[16px]"}>H1</div>,
+    h2: <div className={"font-semibold text-[16px]"}>H2</div>,
+    h3: <div className={"font-semibold text-[16px]"}>H3</div>,
+    h4: <div className={"font-semibold text-[16px]"}>H4</div>,
+    h5: <div className={"font-semibold text-[16px]"}>H5</div>,
+    h6: <div className={"font-semibold text-[16px]"}>H6</div>,
+    paragraph: <SubjectIcon/>,
+    bullet: <FormatListBulletedIcon/>,
+    number: <FormatListNumberedIcon/>,
+    quote: <FormatQuoteIcon/>,
+}
 
 const rootTypeToRootName = {
     root: 'Root',
@@ -147,69 +165,52 @@ function BlockFormatDropDown({
         }
     };
 
-    return (
-        <DropDown
-            disabled={disabled}
-            buttonClassName="toolbar-item block-controls text-[var(--text-light)] space-x-2"
-            buttonIconClassName={'icon block-type text-red border-red bg-red ' + blockType}
-            buttonLabel={blockTypeToBlockName[blockType]}
-            buttonAriaLabel="Formatting options for text style">
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'paragraph')}
-                onClick={formatParagraph}>
-                <i className="icon paragraph"/>
-                <span className="text text-[var(--text-light)] ">Normal</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'h1')}
-                onClick={() => formatHeading('h1')}>
-                <i className="icon h1"/>
-                <span className="text text-[var(--text-light)] ">Encabezado 1</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'h2')}
-                onClick={() => formatHeading('h2')}>
-                <i className="icon h2"/>
-                <span className="text text-[var(--text-light)] ">Encabezado 2</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'h3')}
-                onClick={() => formatHeading('h3')}>
-                <i className="icon h3"/>
-                <span className="text text-[var(--text-light)] ">Encabezado 3</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'h4')}
-                onClick={() => formatHeading('h4')}>
-                <i className="icon h4"/>
-                <span className="text text-[var(--text-light)] ">Encabezado 4</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'h5')}
-                onClick={() => formatHeading('h5')}>
-                <i className="icon h5"/>
-                <span className="text text-[var(--text-light)] ">Encabezado 5</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item  text-[var(--text-light)] ' + dropDownActiveClass(blockType === 'bullet')}
-                onClick={formatBulletList}>
-                <i className="icon bullet-list"/>
-                <span className="text">Lista</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item  text-[var(--text-light)] ' + dropDownActiveClass(blockType === 'number')}
-                onClick={formatNumberedList}>
-                <i className="icon numbered-list text-[var(--text-light)] "/>
-                <span className="text">Enumerado</span>
-            </DropDownItem>
-            <DropDownItem
-                className={'item ' + dropDownActiveClass(blockType === 'quote')}
-                onClick={formatQuote}>
-                <i className="icon quote  "/>
-                <span className="text text-[var(--text-light)]">Cita</span>
-            </DropDownItem>
-        </DropDown>
-    );
+    const blockTypeToAction = {
+        h1: () => formatHeading("h1"),
+        h2: () => formatHeading("h2"),
+        h3: () => formatHeading("h3"),
+        h4: () => formatHeading("h4"),
+        h5: () => formatHeading("h5"),
+        h6: () => formatHeading("h6"),
+        paragraph: formatParagraph,
+        bullet: formatBulletList,
+        number: formatNumberedList,
+        quote: formatQuote,
+    }
+
+    const modal = (onClose: () => void) => <div className={"rounded-[8px] border flex flex-col w-48 space-y-1 p-1"}>
+        {Object.keys(blockTypeToIcon).map((key) => {
+            return <div key={key}>
+                <Button
+                    color={"background-dark"}
+                    variant={"text"}
+                    sx={{borderRadius: "8px", paddingX: "8px", flexDirection: "row", justifyContent: "left"}}
+                    fullWidth
+                    size={"small"}
+                    onClick={() => {blockTypeToAction[key](); onClose()}}
+                >
+                    <div className={"flex items-center space-x-1 justify-start w-full"}>
+                        <div className={"text-[var(--text-light)] flex items-center h-7"}>{blockTypeToIcon[key]}</div>
+                        <div className={"whitespace-nowrap text-[15px] text-center w-full px-1"}>{blockTypeToBlockName[key]}</div>
+                    </div>
+                </Button>
+            </div>
+        })}
+    </div>
+
+    return <ModalOnClick modal={modal}>
+        <Button
+            color={"background-dark"}
+            variant={"text"}
+            sx={{borderRadius: "8px"}}
+        >
+            <div className={"flex items-center space-x-1 justify-start"}>
+                <div className={"text-[var(--text-light)] flex items-center h-7"}>{blockTypeToIcon[blockType]}</div>
+                <div className={"whitespace-nowrap text-[var(--text-light)] w-full px-1"}>{blockTypeToBlockName[blockType]}</div>
+                <KeyboardArrowDownIcon fontSize={"small"}/>
+            </div>
+        </Button>
+    </ModalOnClick>
 }
 
 export default function ToolbarPlugin({
@@ -366,9 +367,9 @@ export default function ToolbarPlugin({
 
     return (
         <div className={"toolbar-container"}>
-            <div className={"flex justify-center px-4 w-full"}>
+            <div className={"flex w-full"}>
                 <div
-                    className="toolbar w-full mx-5 rounded-lg px-2 py-1 border flex bg-[var(--background-dark)] space-x-2">
+                    className="toolbar items-center rounded-lg px-2 py-1 border flex bg-[var(--background-dark)] space-x-2">
                     <ToolbarButton
                         disabled={!canUndo || !isEditable}
                         onClick={() => {
@@ -378,7 +379,7 @@ export default function ToolbarPlugin({
                         aria-label="Undo"
                         active={false}
                     >
-                        <i className="format undo"/>
+                        <UndoIcon fontSize={"small"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         disabled={!canRedo || !isEditable}
@@ -389,7 +390,7 @@ export default function ToolbarPlugin({
                         aria-label="Redo"
                         active={false}
                     >
-                        <i className="format redo"/>
+                        <RedoIcon fontSize={"small"}/>
                     </ToolbarButton>
                     {blockType in blockTypeToBlockName && activeEditor === editor && (
                         <>
