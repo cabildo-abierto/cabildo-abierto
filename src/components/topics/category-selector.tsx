@@ -28,7 +28,7 @@ export const CategorySelector = ({categories, setCategories}: {
         {allCategories.slice(0, maxCount).map(({category: c}, index) => {
             return <button
                 key={index}
-                className={"rounded-lg min-[500px]:text-sm text-xs px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark4)] bg-[var(--background-dark2)]")}
+                className={"rounded-lg min-[500px]:text-sm text-xs px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)]")}
                 onClick={() => {onClick(c)}}
             >
                 {c}

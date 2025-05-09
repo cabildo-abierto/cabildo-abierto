@@ -24,6 +24,7 @@ export const BottomBarMobile = () => {
             href="/inicio"
             selected={pathname.startsWith("/inicio")}
             className={buttonClassName}
+            color={"background"}
         />
         <SidebarButton
             icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
@@ -32,12 +33,14 @@ export const BottomBarMobile = () => {
             selected={pathname.startsWith("/buscar")}
             href="/buscar"
             className={buttonClassName}
+            color={"background"}
         />
         <SidebarButton
             icon={<NotificationsIcon count={0}/>}
             iconInactive={<NotificationsOutlinedIcon/>}
             text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
             className={buttonClassName}
+            color={"background"}
         />
         <SidebarButton
             icon={<TopicsIcon fontSize="medium"/>}
@@ -46,6 +49,7 @@ export const BottomBarMobile = () => {
             href="/temas"
             selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
             className={buttonClassName}
+            color={"background"}
         />
     </div>
 }

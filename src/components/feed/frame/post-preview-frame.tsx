@@ -1,9 +1,9 @@
-import { DateSince } from '../../../../modules/ui-utils/src/date'
+import {DateSince} from '../../../../modules/ui-utils/src/date'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { ContentTopRowAuthor } from '@/components/feed/frame/content-top-row-author'
-import { ReactNode } from 'react'
-import { EngagementIcons } from '@/components/feed/frame/engagement-icons'
+import {useRouter} from 'next/navigation'
+import {ContentTopRowAuthor} from '@/components/feed/frame/content-top-row-author'
+import {ReactNode} from 'react'
+import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
 import {urlFromRecord, profileUrl} from "@/utils/uri";
@@ -23,7 +23,7 @@ export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArtic
 }
 
 
-export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
+export const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
     return <div className={"w-[2px] bg-[var(--accent)] " + className}>{emptyChar}</div>
 }
 
@@ -38,14 +38,14 @@ type FastPostPreviewFrameProps = {
 }
 
 export const PostPreviewFrame = ({
-    children,
-    postView,
-    borderBelow=true,
-    showingParent=false,
-    showingChildren=false,
-    reason,
-    onDelete
-}: FastPostPreviewFrameProps) => {
+                                     children,
+                                     postView,
+                                     borderBelow = true,
+                                     showingParent = false,
+                                     showingChildren = false,
+                                     reason,
+                                     onDelete
+                                 }: FastPostPreviewFrameProps) => {
     const router = useRouter()
     const url = urlFromRecord(postView.uri)
 
@@ -77,7 +77,7 @@ export const PostPreviewFrame = ({
     }
 
     return <div
-        id={"discussion:"+postView.uri}
+        id={"discussion:" + postView.uri}
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={onClick}
     >
@@ -87,7 +87,9 @@ export const PostPreviewFrame = ({
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <Link
                     href={profileUrl(author.handle)}
-                    onClick={(e) => {e.stopPropagation()}}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                    }}
                     className="w-11 h-11 flex items-center justify-center"
                 >
                     <ProfilePic
@@ -101,11 +103,11 @@ export const PostPreviewFrame = ({
             <div className="py-2 flex max-w-[519px] w-full flex-col pr-2">
                 <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
                     <span className="truncate">
-                        <ContentTopRowAuthor author={author} />
+                        <ContentTopRowAuthor author={author}/>
                     </span>
                     <span className="text-[var(--text-light)]">·</span>
                     <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
-                        <DateSince date={createdAt} />
+                        <DateSince date={createdAt}/>
                     </span>
                 </div>
 

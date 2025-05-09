@@ -98,7 +98,7 @@ export const TopicProperties = ({topicVersion, topic}: {topicVersion: VersionInH
 
     return <ModalOnHover modal={modal}>
         <div className={"text-[var(--text-light)]"}>
-            <IconButton size={"small"} color={"inherit"}>
+            <IconButton size={"small"} color={"background-dark"}>
                 <ListAltIcon color={"inherit"}/>
             </IconButton>
         </div>

@@ -25,7 +25,7 @@ export const FollowButtonButton = ({profile, onUnfollow, onFollow}: FollowButton
     return <div className="flex items-center mr-2">
         {following ? <StateButton
                 handleClick={onUnfollow}
-                color="inherit"
+                color="background-dark"
                 size="small"
                 variant="contained"
                 startIcon={<CheckIcon fontSize={"small"}/>}

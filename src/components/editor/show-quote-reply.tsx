@@ -187,7 +187,7 @@ export const ShowQuoteReplyButton = ({
         >
             <div className={"" + (open ? "text-[var(--text-light)]" : "")}>
                 <IconButton
-                    color={"inherit"}
+                    color={"background"}
                     size={"small"}
                     onMouseLeave={onMouseLeave}
                     onMouseEnter={onMouseEnter}

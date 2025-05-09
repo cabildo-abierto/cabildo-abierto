@@ -12,6 +12,10 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
     const networkRef = useRef<HTMLDivElement>(null)
     const {currentTheme} = useTheme()
 
+    const background = currentTheme == "dark" ? "rgb(30, 30, 40)" : "rgb(255, 255, 240)"
+    const border = currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a"
+    const textColor = currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a"
+
     useEffect(() => {
         if (!networkRef.current) return;
 
@@ -21,8 +25,8 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
             label: nodeLabels ? nodeLabels.get(id) : id,
             shape: "box",
             font: {
-                color: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
-                size: 16,
+                color: textColor,
+                size: 24,
                 vadjust: 0,
             },
             shapeProperties: {
@@ -37,32 +41,39 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
             borderWidth: 1,
             borderWidthSelected: 1,
             color: {
-                background: currentTheme == "dark" ? "#181b23" : "#ffffff",
-                border: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
+                background: background,
+                border: border,
                 highlight: {
-                    background: currentTheme == "dark" ? "#181b23" : "#ffffff",
-                    border: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
+                    background: background,
+                    border: border,
                 },
                 hover: {
-                    background: currentTheme == "dark" ? "#181b23" : "#ffffff",
-                    border: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
+                    background: background,
+                    border: border,
                 },
             },
         }));
 
-        const edges = edgesList.map(({ x, y }) => ({ from: y, to: x }));
+        const edges = edgesList.map(({x, y}) => ({from: y, to: x}));
 
         const options = {
             physics: {
                 enabled: true,
                 solver: "repulsion",
+                repulsion: {
+                    centralGravity: 0.1,
+                    springLength: 90,
+                    springConstant: 0.01, // Lower = softer springs
+                    nodeDistance: 90,    // Minimum distance between nodes
+                    damping: 0.15         // Reduces bounciness
+                }
             },
             layout: {
                 randomSeed: 12345
             }
         };
 
-        const network = new Network(networkRef.current, { nodes, edges }, options);
+        const network = new Network(networkRef.current, {nodes, edges}, options);
 
 
         network.on("click", (params) => {
@@ -75,8 +86,19 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
         return () => network.destroy();
     }, [edgesList]);
 
-    return <div
-        ref={networkRef}
-        style={{ height: "600px", width: "100%" }}
-    />
+    const dotColor = currentTheme == "light" ? "#d7d7d7" : "rgb(45, 45, 55)";
+    const spacing = "20px";
+    const dotSize = "1px";
+
+    return (
+        <div
+            ref={networkRef}
+            style={{
+                height: "600px",
+                width: "100%",
+                backgroundImage: `radial-gradient(${dotColor} ${dotSize}, transparent ${dotSize})`,
+                backgroundSize: `${spacing} ${spacing}`,
+            }}
+        />
+    );
 }

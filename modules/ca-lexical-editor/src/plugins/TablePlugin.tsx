@@ -127,10 +127,18 @@ export function InsertTableModal({
                     />
                 </div>
                 <div className={"flex space-x-4"}>
-                    <Button disabled={isDisabled} onClick={onClose} variant={"text"} sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}>
+                    <Button
+                        disabled={isDisabled}
+                        onClick={onClose}
+                        variant={"text"}
+                        color={"background-dark"}
+                    >
                         Cancelar
                     </Button>
-                    <Button disabled={isDisabled} onClick={onClick}>
+                    <Button
+                        disabled={isDisabled}
+                        onClick={onClick}
+                    >
                         Insertar
                     </Button>
                 </div>

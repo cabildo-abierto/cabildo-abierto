@@ -2,13 +2,13 @@ import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import AddIcon from "@mui/icons-material/Add";
-import {TextField} from "@mui/material";
 import {DatasetPreviewOnEditor} from "../../datasets/dataset-preview-on-editor";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NewDatasetPanel} from "../../datasets/new-dataset-panel";
 import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import SearchBar from "@/components/buscar/search-bar";
 
 
 export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
@@ -33,9 +33,9 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
 
     return <div className={"mt-16"}>
         <ResizableDiv initialWidth={320} minWidth={240} maxWidth={400} side={"right"}>
-            <div className={"border rounded-lg p-2 flex flex-col"}>
+            <div className={"rounded-lg p-2 flex flex-col bg-[var(--background-dark)]"}>
                 <div>
-                    <div className={"flex justify-between"}>
+                    <div className={"flex justify-between pt-1 pb-4"}>
                         <div className={"font-bold text-2xl"}>
                             Datos
                         </div>
@@ -43,6 +43,7 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                             <Button
                                 startIcon={<AddIcon/>}
                                 variant={"text"}
+                                color={"background-dark"}
                                 size={"small"}
                                 sx={{height: "32px", paddingX: "12px", borderRadius: "20px", ":hover": {backgroundColor: "var(--background-dark3)"}}}
                                 onClick={() => {setNewDatasetPanelOpen(true)}}
@@ -51,13 +52,11 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                             </Button>
                         </div>
                     </div>
-                    <hr className={"my-2"}/>
-                    <TextField
-                        value={searchValue}
-                        size={"small"}
+                    <SearchBar
+                        searchValue={searchValue}
+                        setSearchValue={setSearchValue}
                         fullWidth={true}
-                        placeholder={"buscar"}
-                        onChange={(e) => {setSearchValue(e.target.value)}}
+                        color={"background-dark2"}
                     />
                 </div>
                 <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar max-h-[calc(100vh-300px)]"}>

@@ -24,7 +24,7 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
                             setSortedBy(s)
                             onClose()
                         }}
-                        color={"inherit"}
+                        color={"background-dark"}
                         fullWidth={true}
                         size={"small"}
                         text1={<span className={s == sortedBy ? "font-bold" : ""}>{s}</span>}
@@ -38,7 +38,7 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
         <div className={"text-[var(--text-light)]"}>
             <IconButton
                 size={"small"}
-                color={"inherit"}
+                color={"background"}
             >
                 <SwapVertIcon fontSize={"small"}/>
             </IconButton>

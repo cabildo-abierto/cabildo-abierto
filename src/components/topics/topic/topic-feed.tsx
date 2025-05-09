@@ -1,13 +1,13 @@
 import {useTopicFeed} from "@/hooks/api";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
-import {Button} from "@mui/material";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {Feed} from "@/components/feed/feed/feed";
 import {FeedViewContentFeed} from "@/components/feed/feed/feed-view-content-feed";
+import { Button } from "../../../../modules/ui-utils/src/button";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
@@ -22,7 +22,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         return <div className="text-[var(--text)] h-10 ">
             <Button
                 variant="text"
-                color="inherit"
+                color="background"
                 fullWidth={true}
                 disableElevation={true}
                 sx={{textTransform: "none",
@@ -43,11 +43,13 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
 
     function optionsNodesMentions(o: string, isSelected: boolean){
         return <div className="text-[var(--text)]">
-            <button
-                className={"text-sm px-2 rounded-lg hover:bg-[var(--primary-light)] " + (isSelected ? "bg-[var(--primary)]" : "bg-[var(--background-dark)]")}
+            <Button
+                size={"small"}
+                sx={{height: "20px"}}
+                color={isSelected ? "primary" : "background-dark"}
             >
                 {o}
-            </button>
+            </Button>
         </div>
     }
 

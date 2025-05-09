@@ -47,7 +47,8 @@ export const UserSearchResult = ({user}: UserSearchResultProps) => {
 
 export const SmallUserSearchResult: React.FC<{
     result: { displayName?: string, handle: string, avatar?: string, description?: string }
-}> = ({result}) => {
+    className?: string
+}> = ({result, className=""}) => {
     const {setSearchState} = useSearch()
 
     return <Link
@@ -55,7 +56,7 @@ export const SmallUserSearchResult: React.FC<{
         onClick={() => {
             setSearchState({value: "", searching: false})
         }}
-        className="flex flex-col hover:bg-[var(--background-dark)] border-b p-2"
+        className={"flex flex-col hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] p-2 " + className}
     >
         <div className={"flex space-x-4 items-center"}>
             {result.avatar ? <Image
@@ -129,7 +130,7 @@ export const UserSearchResults = ({maxCount, showSearchButton = true}: {
     }
 
     if ((resultsState == "searching" && !results) || !results) {
-        return <div className={showSearchButton ? "border-b flex items-center h-full w-full" : "mt-8"}>
+        return <div className={showSearchButton ? "flex items-center bg-[var(--background-dark)] rounded-b-lg h-full w-full" : "mt-8"}>
             <LoadingSpinner/>
         </div>
     }
@@ -149,7 +150,11 @@ export const UserSearchResults = ({maxCount, showSearchButton = true}: {
         <div className="flex flex-col justify-center w-full">
             {showSearchButton && results.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="">
-                    {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult user={user}/>}
+                    {showSearchButton ? <SmallUserSearchResult
+                        result={user}
+                        className={index == rightIndex-1 ? " rounded-b-lg " : ""}
+                    /> :
+                        <UserSearchResult user={user}/>}
                 </div>
             ))}
 

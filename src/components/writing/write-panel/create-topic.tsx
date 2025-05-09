@@ -104,7 +104,7 @@ export const CreateTopic = ({onClose, initialSelected="none", backButton=true}: 
             {backButton && <Button
                 onClick={() => {setSelected("none")}}
                 variant={"text"}
-                color={"inherit"}
+                color={"background-dark"}
                 sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}
             >
                 Volver

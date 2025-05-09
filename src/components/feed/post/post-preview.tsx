@@ -10,21 +10,20 @@ import {FeedViewContent, isPostView, PostView} from '@/lex-api/types/ar/cabildoa
 import {isKnownContent, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 const ShowThreadButton = ({uri}: { uri: string }) => {
     const url = contentUrl(uri)
     return (
-        <Link href={url} className="hover:bg-[var(--background-dark)] transition duration-200 flex items-center">
-            <div className={"w-[79px] pl-2 flex flex-col items-center"}>
+        <Link href={url} className="hover:bg-[var(--background-dark)] transition duration-200 flex h-full items-center">
+            <div className={"w-[79px] pl-2 flex flex-col items-center justify-stretch"}>
                 <ReplyVerticalLine className="h-2"/>
                 <div className="text-xl text-[var(--accent)] leading-none py-1">
                     <div>⋮</div>
                 </div>
                 <ReplyVerticalLine className="h-2"/>
             </div>
-            <div className={"text-sm flex items-center h-full text-[var(--primary)]"}>
+            <div className={"w-full max-w-[519px] text-center text-sm text-[var(--primary)] sm:ml-0 ml-1"}>
                 Ver thread completo
             </div>
         </Link>
@@ -46,31 +45,31 @@ export type FastPostPreviewProps = {
     inThreadFeed?: boolean
 }
 
-function getParentAndRoot(f: FeedViewContent): {parent?: ReplyRefContent, root?: ReplyRefContent} {
-    if(!f || !f.reply) {
+function getParentAndRoot(f: FeedViewContent): { parent?: ReplyRefContent, root?: ReplyRefContent } {
+    if (!f || !f.reply) {
         return {}
     }
     const root = f.reply.root
     const parent = f.reply.parent
 
-    if(!isReplyRefContent(parent)) {
+    if (!isReplyRefContent(parent)) {
         return {}
     }
-    if(!isReplyRefContent(root)) {
+    if (!isReplyRefContent(root)) {
         return {}
     }
 
-    if(isKnownContent(root)){
-        if(!isKnownContent(parent)){
+    if (isKnownContent(root)) {
+        if (!isKnownContent(parent)) {
             return {}
         }
-        if(parent.uri != root.uri){
+        if (parent.uri != root.uri) {
             return {parent, root}
         } else {
             return {parent}
         }
     } else {
-        if(isTopicViewBasic(parent)){
+        if (isTopicViewBasic(parent)) {
             return {parent} // en este caso tienen que ser parent == root
         }
         return {parent, root}
@@ -86,7 +85,7 @@ export const PostPreview = ({
                                 showReplyMessage = false,
                                 onClickQuote,
                                 onDeleteFeedElem,
-                                inThreadFeed=false
+                                inThreadFeed = false
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
 

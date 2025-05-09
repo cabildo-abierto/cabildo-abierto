@@ -13,7 +13,7 @@ const Page = () => {
         <div className={"flex items-center p-2 border-b space-x-2"}>
             <div className={"w-10 text-[var(--text-light)] min-[500px]:hidden"}>
                 <IconButton
-                    color={"inherit"}
+                    color={"transparent"}
                     onClick={() => {
                         setLayoutConfig({
                             ...layoutConfig,
