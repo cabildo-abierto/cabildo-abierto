@@ -5,6 +5,34 @@ import {useRouter} from "next/navigation";
 import {TopicCategories} from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {range} from "@/utils/arrays";
+import {emptyChar} from "@/utils/utils";
+
+
+export const LoadingTrendingArticlesSlider = ({count=10}: {count?: number}) => {
+    return <div className={"flex flex-col overflow-y-scroll max-h-[300px] no-scrollbar"}>
+        {range(10).map(i => {
+            return <div key={i} className={"cursor-pointer space-y-1 flex flex-col py-4 w-full px-5 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark2)]"}>
+                <div className={"flex space-x-2"}>
+                    <div className={"rounded bg-[var(--background-dark3)] h-3 w-16"}>
+                        {emptyChar}
+                    </div>
+                    <div className={"rounded bg-[var(--background-dark3)] h-3 w-16"}>
+                        {emptyChar}
+                    </div>
+                </div>
+
+                <div className={"rounded bg-[var(--background-dark3)] h-4 w-32"}>
+                    {emptyChar}
+                </div>
+
+                <div className={"rounded bg-[var(--background-dark3)] h-4 w-24"}>
+                    {emptyChar}
+                </div>
+            </div>
+        })}
+    </div>
+}
 
 
 export const TrendingArticlesSlider = ({trendingArticles}: {

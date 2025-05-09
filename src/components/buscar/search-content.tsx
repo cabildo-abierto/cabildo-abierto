@@ -2,10 +2,10 @@
 import React, {useEffect, useState} from "react"
 import {UserSearchResults} from "./user-search-results";
 import SelectionComponent from "./search-selection-component";
-import {Button} from "@mui/material";
 import {ContentsSearchResults} from "./contents-search-results";
 import {SearchTopics} from "./search-topics";
 import {useSearch} from "./search-context";
+import { Button } from "../../../modules/ui-utils/src/button";
 
 
 type RouteContentProps = {
@@ -36,7 +36,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
                 onClick={() => {
                 }}
                 variant="text"
-                color="inherit"
+                color="transparent"
                 fullWidth={true}
                 disableElevation={true}
                 sx={{
@@ -65,13 +65,15 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         </div>
 
         {selected == "Temas" &&
-            <SearchTopics/>
+        <SearchTopics/>
         }
 
         {selected == "Publicaciones" &&
-            <ContentsSearchResults/>
+        <ContentsSearchResults/>
         }
 
-        {selected == "Usuarios" && <UserSearchResults showSearchButton={false}/>}
+        {selected == "Usuarios" &&
+        <UserSearchResults showSearchButton={false}/>
+        }
     </div>
 }

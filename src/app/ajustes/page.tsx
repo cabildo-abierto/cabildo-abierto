@@ -126,7 +126,8 @@ const Ajustes = () => {
                 disableElevation={true}
                 sx={{
                     textTransform: "none",
-                    paddingY: 0
+                    paddingY: 0,
+                    borderRadius: 0
                 }}
             >
                 <div

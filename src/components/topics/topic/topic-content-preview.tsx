@@ -35,7 +35,7 @@ export const TopicContentPreview = ({
         </div>
     }
 
-    return <div className={"rounded-lg border mb-2 px-2 pt-1 pb-4 w-full h-full"}>
+    return <div className={"rounded-lg bg-[var(--background-dark)] mb-2 px-2 pt-1 pb-4 w-full h-full"}>
         <div className={"flex justify-end items-center pb-1"}>
             <IconButton
                 onClick={onMaximize}
@@ -45,7 +45,7 @@ export const TopicContentPreview = ({
             </IconButton>
         </div>
         <div
-            className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar bg-[var(--background)]"}
+            className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar"}
         >
             <MyLexicalEditor
                 settings={getEditorSettings({
