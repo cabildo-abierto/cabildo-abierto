@@ -5,7 +5,6 @@ import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {Feed} from "@/components/feed/feed/feed";
 import {FeedViewContentFeed} from "@/components/feed/feed/feed-view-content-feed";
 import { Button } from "../../../../modules/ui-utils/src/button";
 

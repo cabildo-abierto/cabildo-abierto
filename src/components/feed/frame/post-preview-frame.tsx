@@ -19,7 +19,7 @@ import {$Typed} from "@atproto/api";
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {
     const post = postView.record as ArticleRecord | PostRecord
-    return isSelfLabels(post.labels) && post.labels.values.some((x) => x.val == "en discusion")
+    return isSelfLabels(post.labels) && post.labels.values.some((x) => x.val == "en discusión")
 }
 
 

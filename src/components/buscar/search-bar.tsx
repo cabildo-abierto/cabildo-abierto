@@ -54,7 +54,7 @@ const SearchBar = ({
         slotProps={{
             input: {
                 startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
-                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color="background" size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
+                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color="background-dark" size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}
         autoComplete={"off"}

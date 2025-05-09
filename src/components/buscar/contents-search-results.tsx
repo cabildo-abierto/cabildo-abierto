@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {get} from "@/utils/fetch";
-import {Feed, GetFeedOutput} from "@/components/feed/feed/feed";
+import {Feed, GetFeedOutput, LoadingFeedViewContent} from "@/components/feed/feed/feed";
 import { FeedElement } from "../feed/feed/feed-element";
 
 
@@ -68,5 +68,6 @@ export const ContentsSearchResults = () => {
         initialContents={nodes}
         noResultsText={"No se encontraron resultados."}
         getFeed={null}
+        loadingFeedContent={<LoadingFeedViewContent/>}
     />
 }

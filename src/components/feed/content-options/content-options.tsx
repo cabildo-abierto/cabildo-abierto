@@ -1,6 +1,6 @@
 import {ATProtoStrongRef} from "@/lib/types";
 import {ShareContentButton} from "./share-content-button";
-import {getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost} from "@/utils/uri";
+import {getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost, splitUri} from "@/utils/uri";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import {BlueskyLogo} from "../../icons/bluesky-logo";
@@ -29,12 +29,14 @@ export function canBeEnDiscusion(c: string) {
 
 
 const addToEnDiscusion = async (uri: string) => {
-    await post("/set-en-discusion", {uri})
+    const {collection, rkey} = splitUri(uri)
+    return await post(`/set-en-discusion/${collection}/${rkey}`)
 }
 
 
 const removeFromEnDiscusion = async (uri: string) => {
-    await post("/unset-en-discusion", {uri})
+    const {collection, rkey} = splitUri(uri)
+    return await post(`/unset-en-discusion/${collection}/${rkey}`)
 }
 
 
@@ -81,11 +83,19 @@ export const ContentOptions = ({
         {user.did == authorDid && canBeEnDiscusion(collection) && <OptionsDropdownButton
             handleClick={async () => {
                 if (!addedToEnDiscusion) {
-                    await addToEnDiscusion(record.uri)
-                    setAddedToEnDiscusion(true)
+                    const {error} = await addToEnDiscusion(record.uri)
+                    if(!error){
+                        setAddedToEnDiscusion(true)
+                    } else {
+                        return {error}
+                    }
                 } else {
-                    await removeFromEnDiscusion(record.uri)
-                    setAddedToEnDiscusion(false)
+                    const {error} = await removeFromEnDiscusion(record.uri)
+                    if(!error){
+                        setAddedToEnDiscusion(false)
+                    } else {
+                        return {error}
+                    }
                 }
                 // TO DO mutate("/api/feed/EnDiscusion")
                 return {}
