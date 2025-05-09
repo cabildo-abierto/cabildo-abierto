@@ -1,6 +1,8 @@
-import {Button, IconButton} from "@mui/material"
+
 import { ReactNode } from "react"
 import { CustomLink } from "../../../modules/ui-utils/src/custom-link"
+import { Button, Color } from "../../../modules/ui-utils/src/button"
+import { IconButton } from "../../../modules/ui-utils/src/icon-button"
 
 type SidebarButtonProps = {
     text: string
@@ -13,6 +15,7 @@ type SidebarButtonProps = {
     showText?: boolean
     className?: string
     id?: string
+    color?: Color
 }
 
 export const SidebarButton = ({
@@ -25,14 +28,15 @@ export const SidebarButton = ({
     disabled=false,
     selected=false,
     className="mt-1 h-10",
-    id
+    id,
+    color="background-dark"
 }: SidebarButtonProps) => {
 
     return <>
         <CustomLink href={href} className={className} id={id}>
             {showText ? <Button
                 variant="text"
-                color="inherit"
+                color={color}
                 size="large"
                 sx={{
                     textTransform: 'none',
@@ -47,13 +51,13 @@ export const SidebarButton = ({
                     {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
                 </div>
             </Button> :
-            <Button
-                color={"inherit"}
-                variant={"text"}
+            <IconButton
+                color={color}
                 size={"large"}
+                sx={{borderRadius: "16px", padding: "10px"}}
             >
                 {selected || !iconInactive ? icon : iconInactive}
-            </Button>
+            </IconButton>
             }
         </CustomLink>
     </>

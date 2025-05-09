@@ -13,7 +13,7 @@ export const CategoriesMap = () => {
         return <div className={"mt-16"}>
             <LoadingSpinner/>
         </div>
-    } else if(error) {
+    } else if(error || !graph) {
         return <ErrorPage>
             {error.message}
         </ErrorPage>
@@ -23,7 +23,7 @@ export const CategoriesMap = () => {
         router.push("/temas?c="+nodeId+"&view=mapa")
     }
 
-    return <div className={""}>
+    return <div className={"space-y-8 mb-8"}>
         <div className={"mt-12 w-full flex justify-center ml-6 max-[500px]:text-xl font-bold text-lg text-[var(--text-light)]"}>
             Categorías
         </div>

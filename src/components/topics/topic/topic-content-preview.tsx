@@ -28,7 +28,7 @@ export const TopicContentPreview = ({
                     router.push(topicUrl(topic.id, undefined, "editing"))
                 }}
                 fullWidth={true}
-                color={"secondary"}
+                color={"background-dark"}
             >
                 No hay nada escrito sobre este tema. Escribí una primera versión.
             </Button>

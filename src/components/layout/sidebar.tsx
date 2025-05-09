@@ -49,8 +49,6 @@ const SidebarUsernameNoUser = () => {
 
 
 const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: () => void }) => {
-
-
     return <>
         <FloatingWriteButton onClick={onClick}/>
         <div className={"my-2 h-12"}>
@@ -61,8 +59,7 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
                     sx={{
                         borderRadius: "20px",
                         width: "160px",
-                        marginLeft: "10px",
-                        color: "var(--text)"
+                        marginLeft: "10px"
                     }}
                     color={"primary"}
                     onClick={() => {
@@ -72,17 +69,17 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
                 >
                     Escribir
                 </Button> :
-                <Button
+                <IconButton
                     color={"primary"}
                     onClick={() => {
                         onClick()
                     }}
-                    variant={"text"}
-                    size={"large"}
+                    sx={{borderRadius: "16px"}}
+                    size={"medium"}
                     id={"write-button"}
                 >
-                    <WriteButtonIcon/>
-                </Button>
+                    <WriteButtonIcon color={"inherit"}/>
+                </IconButton>
             }
         </div>
     </>
@@ -118,7 +115,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     return (
         <>
             <div
-                className={"pt-4 px-2 bg-[var(--background)] overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
+                className={"pt-4 px-2 overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
             >
                 <div className={"h-full flex flex-col justify-between"}>
                     <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
@@ -212,7 +209,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                     <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
                         <IconButton
                             size={"small"}
-                            color={"inherit"}
+                            color={"background-dark"}
                             onClick={() => {
                                 setShowText(!showText)
                             }}

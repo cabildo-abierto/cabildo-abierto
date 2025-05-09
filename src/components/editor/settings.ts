@@ -16,6 +16,7 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         useSubscript: false,
         useContextMenu: false,
         isDraggableBlock: false,
+        shouldPreserveNewLines: false,
 
         isAutofocus: true,
 

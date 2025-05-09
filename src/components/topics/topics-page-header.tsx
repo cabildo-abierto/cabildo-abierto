@@ -1,6 +1,5 @@
 "use client"
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import React, {ReactNode, useState} from "react";
 import {CreateTopicModal} from "@/components/topics/topic/create-topic-modal";
@@ -10,9 +9,10 @@ import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { HiSquares2X2 } from "react-icons/hi2";
 import { PiListBullets } from "react-icons/pi";
 import { PiListBulletsBold } from "react-icons/pi";
-import SearchBar from "@/components/buscar/search-bar";
+import {MainSearchBar} from "@/components/buscar/search-bar";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useSearch} from "@/components/buscar/search-context";
+import { Button } from "../../../modules/ui-utils/src/button";
 
 
 
@@ -51,7 +51,7 @@ export const TopicsPageHeader = () => {
         />
 
         <div className={"flex w-64 py-1"}>
-            <SearchBar
+            <MainSearchBar
                 autoFocus={false}
                 paddingY={"5px"}
             />
@@ -60,7 +60,7 @@ export const TopicsPageHeader = () => {
 
         <div className={"py-1"}>
             <Button
-                color="primary"
+                color="background"
                 variant="text"
                 disableElevation={true}
                 startIcon={<AddIcon/>}

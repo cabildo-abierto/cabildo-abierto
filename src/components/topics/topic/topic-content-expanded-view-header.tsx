@@ -47,7 +47,7 @@ export const TopicContentExpandedViewHeader = ({
             return <div className="text-[var(--text)] h-10 ">
                 <Button
                     variant="text"
-                    color="inherit"
+                    color="background"
                     fullWidth={true}
                     disableElevation={true}
                     sx={{
@@ -94,7 +94,7 @@ export const TopicContentExpandedViewHeader = ({
             <div className="text-[var(--text)] h-10 ">
                 <Button
                     variant="text"
-                    color="inherit"
+                    color="background"
                     fullWidth={true}
                     disableElevation={true}
                     sx={{
@@ -119,6 +119,7 @@ export const TopicContentExpandedViewHeader = ({
                     }}
                     variant={"text"}
                     sx={{borderRadius: 0}}
+                    color={"background"}
                 >
                     <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar edición</div>
                 </Button>
@@ -129,6 +130,7 @@ export const TopicContentExpandedViewHeader = ({
                     variant={"text"}
                     sx={{borderRadius: 0}}
                     disabled={!saveEnabled}
+                    color={"background"}
                 >
                     <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>
                         Guardar cambios
@@ -161,7 +163,7 @@ export const TopicContentExpandedViewHeader = ({
                     setPinnedReplies([])
                     setWikiEditorState("minimized")
                 }}
-                color={"inherit"}
+                color={"background"}
             >
                 <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
             </IconButton></div>}

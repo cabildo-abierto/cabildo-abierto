@@ -262,11 +262,12 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
                         {enDiscusion ? <Star fontSize={"small"}/> : <StarBorder fontSize={"small"}/>}
                     </ToolbarButton>
                     <StateButton
+                        color={"primary"}
                         text1={isReply ? "Responder" : "Publicar"}
                         handleClick={handleSubmit}
                         disabled={!valid}
                         textClassName="font-semibold"
-                        size="small"
+                        size="medium"
                         sx={{borderRadius: 20}}
                     />
                 </div>

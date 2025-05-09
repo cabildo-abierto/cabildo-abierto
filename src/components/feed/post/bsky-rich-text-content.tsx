@@ -7,12 +7,14 @@ import {PostRecord} from "@/lib/types";
 type BskyRichTextContentProps = {
     className?: string
     post: PostRecord
+    fontSize?: string
 }
 
 
 export const BskyRichTextContent = ({
                                         post,
-                                        className = "text-[16px] no-margin-top article-content not-article-content"
+                                        fontSize = "16px",
+                                        className = "no-margin-top article-content not-article-content"
                                     }: BskyRichTextContentProps) => {
     const text: string = post.text
     const facets = post.facets
@@ -39,5 +41,11 @@ export const BskyRichTextContent = ({
         }
     })
 
-    return <ReadOnlyEditor text={markdown} format={"markdown"} editorClassName={className}/>
+    return <div style={{fontSize: fontSize}} className={className}>
+        <ReadOnlyEditor
+            text={markdown}
+            format={"markdown"}
+            shouldPreserveNewLines={true}
+        />
+    </div>
 }

@@ -1,17 +1,17 @@
 import {initializeEmpty} from "./lexical-editor";
 import { InitialEditorStateType } from '@lexical/react/LexicalComposer';
 import {LexicalEditor} from "lexical";
-import {editorStateToMarkdown, htmlToEditorStateStr, markdownToEditorStateStr} from "./markdown-transforms";
+import {htmlToEditorStateStr, markdownToEditorStateStr} from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
 
 
-export function getInitialData(text: string, format: string): InitialEditorStateType {
+export function getInitialData(text: string, format: string, shouldPreserveNewLines: boolean = false): InitialEditorStateType {
     if(!text || text.length == 0){
         return initializeEmpty("")
     }
 
     if(format == "markdown"){
-        const state = markdownToEditorStateStr(text)
+        const state = markdownToEditorStateStr(text, shouldPreserveNewLines)
         return getInitialData(state, "lexical")
     } else if(format == "markdown-compressed") {
         return getInitialData(decompress(text), "markdown")

@@ -27,6 +27,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
 
     return <div className={"flex space-x-8 w-full items-center"}>
         <Button
+            color={"transparent"}
             variant="text"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -229,7 +230,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
         setProps(addDefaults(topic.props, topic))
     }
 
-    return <div className={"border rounded p-4 space-y-6 m-4"}>
+    return <div className={"border rounded p-4 space-y-6 my-4 mx-2 bg-[var(--background-dark)]"}>
         <div className={"font-semibold flex items-center space-x-2"}>
             <div>Propiedades</div>
         </div>

@@ -14,7 +14,7 @@ export const FullscreenImageViewer = ({
                                           did,
                                           setViewing,
                                           className = ""
-}: {
+                                      }: {
     images: (ViewImage | string)[]
     viewing: number | null
     did?: string
@@ -80,10 +80,12 @@ export const FullscreenImageViewer = ({
                         }}/>
 
                         {viewing < images.length - 1 ? (
-                            <IconButton onClick={(e) => {
-                                e.stopPropagation();
-                                setViewing(viewing + 1);
-                            }}>
+                            <IconButton
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewing(viewing + 1);
+                                }}
+                            >
                                 <ArrowForwardIosIcon/>
                             </IconButton>
                         ) : <div>{emptyChar}</div>}
