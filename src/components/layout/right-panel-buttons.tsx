@@ -6,11 +6,12 @@ import SettingsIcon from "@/components/icons/settings-icon";
 import React, {ReactNode} from "react";
 import {useSession} from "@/hooks/api";
 import {SupportIcon} from "@/components/icons/support-icon";
+import { Button } from "../../../modules/ui-utils/src/button";
 
 
 export const RightPanelButton = ({children, icon, href}: {children: ReactNode, icon: ReactNode, href: string}) => {
     return (
-        <Link href={href} className={"text-sm text-[var(--text-light)] flex items-center space-x-2 hover:text-[var(--text)] transition duration-200 p-1 rounded-lg"}>
+        <Link href={href} className={"text-sm text-[var(--text-light)] hover:font-bold flex items-center space-x-2 hover:text-[var(--text)] transition duration-200 p-1 rounded-lg"}>
             <div className={"w-6"}>
                 {icon}
             </div>

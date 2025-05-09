@@ -4,9 +4,6 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
-import StateButton from "./state-button";
-
-import {areArraysEqual} from "@/utils/arrays";
 import {Button} from "./button";
 
 const NewItem = ({
@@ -70,7 +67,7 @@ const NewItem = ({
             return <Button
                 variant={"text"}
                 startIcon={<AddIcon/>}
-                color={"inherit"}
+                color={"background"}
                 onClick={() => {
                     setWritingItem(true)
                 }}
@@ -149,51 +146,5 @@ export const ListEditor = ({
         {!setItems && items.length == 0 && <div>
             ---
         </div>}
-    </div>
-}
-
-
-export const ListEditorWithSave = ({
-                                       initialValue = [],
-                                       options,
-                                       onSave,
-                                       onClose,
-                                       newItemText
-                                   }: {
-    initialValue?: string[]
-    options?: string[]
-    onSave: (values: string[]) => Promise<{ error?: string }>
-    onClose: () => void
-    newItemText: string
-}) => {
-    const [items, setItems] = useState<string[]>(initialValue ? initialValue : [])
-
-    return <div className={"px-2"}>
-        <ListEditor
-            options={options}
-            newItemText={newItemText}
-            items={items}
-            setItems={setItems}
-        />
-        <div className={"flex justify-end mt-2 space-x-2 text-[var(--text-light)]"}>
-            <Button
-                variant={"text"}
-                onClick={() => {
-                    setItems(initialValue);
-                    onClose()
-                }}
-                color={"inherit"}
-            >
-                Cancelar
-            </Button>
-            <StateButton
-                handleClick={async () => {
-                    return await onSave(items)
-                }}
-                disabled={areArraysEqual(items, initialValue)}
-                text1={"Guardar"}
-                disableElevation={true}
-            />
-        </div>
     </div>
 }

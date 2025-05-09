@@ -4,22 +4,15 @@ import StateButton, { StateButtonProps} from "../../../../modules/ui-utils/src/s
 
 export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
     return <StateButton
-        color={"secondary"}
-        variant={"contained"}
+        color={"background-dark"}
+        variant={"text"}
         sx={{
-            color: "text-[var(--text)]",
-            backgroundColor: "var(--background-dark)",
-            '&:hover': {
-                backgroundColor: 'var(--background-dark3)',
-                boxShadow: 'none',
-            },
-            boxShadow: 'none',
-            borderColor: 'var(--accent)',
+            paddingX: "8px",
             borderRadius: "4px"
         }}
         fullWidth={true}
-        {...props}
         stopPropagation={true}
         textClassName={"whitespace-nowrap w-full px-1"}
+        {...props}
     />
 }

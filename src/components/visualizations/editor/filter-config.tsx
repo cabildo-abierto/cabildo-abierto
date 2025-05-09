@@ -55,6 +55,7 @@ export const FilterConfig = ({filter, updateFilter, dataset, onRemove}: {
         <IconButton
             size={"small"}
             onClick={onRemove}
+            color={"background-dark"}
         >
             <RemoveIcon fontSize={"small"}/>
         </IconButton>

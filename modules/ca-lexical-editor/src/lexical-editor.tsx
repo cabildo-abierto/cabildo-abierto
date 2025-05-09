@@ -77,6 +77,7 @@ export type SettingsProps = {
     allowTables: boolean
     allowVisualizations: boolean
     markdownShortcuts: boolean
+    shouldPreserveNewLines: boolean
 
     useSuperscript: boolean
     useStrikethrough: boolean
@@ -304,10 +305,10 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 
 
 const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
-    let {isReadOnly, initialText, initialTextFormat, imageClassName} = settings
+    let {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines} = settings
 
     const nodes = getEditorNodes(settings)
-    const initialData = getInitialData(initialText, initialTextFormat)
+    const initialData = getInitialData(initialText, initialTextFormat, shouldPreserveNewLines)
 
 
     const initialConfig: InitialConfigType = {

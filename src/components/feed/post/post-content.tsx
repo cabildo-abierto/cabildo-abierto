@@ -15,19 +15,21 @@ type PostContentProps = {
 
 
 export const PostContent = ({
-                                    postView,
-                                    isMainPost = false,
-                                    hideQuote = false,
-                                    showQuoteContext = false,
-                                    onClickQuote
-                                }: PostContentProps) => {
+    postView,
+    isMainPost = false,
+    hideQuote = false,
+    showQuoteContext = false,
+    onClickQuote
+}: PostContentProps) => {
 
     const embed = postView.embed
 
     return <div className={"flex flex-col space-y-2"}>
-        <div className={isMainPost ? "text-lg" : undefined}>
-            <BskyRichTextContent post={postView.record as PostRecord}/>
-        </div>
+        <BskyRichTextContent
+            post={postView.record as PostRecord}
+            fontSize={isMainPost ? "18px" : "16px"}
+            className={"no-margin-top article-content not-article-content"}
+        />
         {embed && <PostEmbed
             embed={embed}
             mainPostRef={{uri: postView.uri, cid: postView.cid}}

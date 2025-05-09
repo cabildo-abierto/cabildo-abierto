@@ -47,12 +47,12 @@ export function editorStateToMarkdown(s: string) {
 }
 
 
-export function markdownToEditorState(markdown: string): any {
-    return JSON.parse(markdownToEditorStateStr(markdown))
+export function markdownToEditorState(markdown: string, shouldPreserveNewLines: boolean = false): any {
+    return JSON.parse(markdownToEditorStateStr(markdown, shouldPreserveNewLines))
 }
 
 
-export function markdownToEditorStateStr(markdown: string): string {
+export function markdownToEditorStateStr(markdown: string, shouldPreserveNewLines: boolean = false): string {
     const nodes = getEditorNodes({allowImages: true})
 
     const editor = createHeadlessEditor({
@@ -62,7 +62,12 @@ export function markdownToEditorStateStr(markdown: string): string {
     })
 
     editor.update(() => {
-        $convertFromMarkdownString(markdown, CA_TRANSFORMERS, undefined, false, true)
+        $convertFromMarkdownString(
+            markdown,
+            CA_TRANSFORMERS,
+            undefined,
+            shouldPreserveNewLines,
+            true)
     })
 
     const editorState = editor.read(() => {

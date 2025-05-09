@@ -20,7 +20,7 @@ export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medi
     }
 
     return (
-        <IconButton size={size} color={"inherit"} onClick={handleClick}>
+        <IconButton size={size} color={"background"} onClick={handleClick}>
             <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
         </IconButton>
     )

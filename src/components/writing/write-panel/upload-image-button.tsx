@@ -1,7 +1,7 @@
-import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {styled} from "@mui/material";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
+import { Button } from "../../../../modules/ui-utils/src/button";
 
 
 

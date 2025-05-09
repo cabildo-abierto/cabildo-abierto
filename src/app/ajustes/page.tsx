@@ -5,10 +5,10 @@ import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "@mui/material";
 import {useTheme} from "@/components/theme/theme-context";
 import {useAccount, useSession} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import { Button } from "../../../modules/ui-utils/src/button";
 
 
 const AccountSettings = () => {
@@ -121,7 +121,7 @@ const Ajustes = () => {
                 onClick={() => {
                 }}
                 variant="text"
-                color="inherit"
+                color="transparent"
                 fullWidth={true}
                 disableElevation={true}
                 sx={{

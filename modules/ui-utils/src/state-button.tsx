@@ -11,7 +11,7 @@ export type StateButtonProps = ButtonProps & {
     startIcon?: ReactNode
     textClassName?: string
     stopPropagation?: boolean
-};
+}
 
 export type StateButtonClickHandler = () => Promise<{ error?: string; stopResubmit?: boolean }>;
 

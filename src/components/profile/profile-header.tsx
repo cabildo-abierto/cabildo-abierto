@@ -5,7 +5,6 @@ import Image from 'next/image'
 import {ArticleIcon} from "../icons/article-icon"
 import {emptyChar, getUsername} from "@/utils/utils";
 import {useState} from "react";
-import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
 import {ProfileDescription} from "@/components/profile/profile-description";
 import {FullscreenImageViewer} from "../images/fullscreen-image-viewer";
@@ -37,7 +36,7 @@ export function ProfileHeader({
                 onClick={() => {
                 }}
                 variant="text"
-                color="inherit"
+                color={"background"}
                 fullWidth={true}
                 disableElevation={true}
                 sx={{
@@ -112,9 +111,9 @@ export function ProfileHeader({
             <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
         </div>
 
-        <div className="ml-2 mb-2">
+        {profile.bsky.description && profile.bsky.description.length > 0 && <div className="ml-2 mb-2">
             <ProfileDescription description={profile.bsky.description}/>
-        </div>
+        </div>}
 
         <div className="flex flex-col items-start px-2 space-y-2 mb-1">
 
@@ -132,11 +131,14 @@ export function ProfileHeader({
                             className="text-[var(--text-light)] text-xs"
                         />
                     </div> :
-                    <Link target={"_blank"} href={"https://bsky.app/profile/" + profile.bsky.handle}
-                          className="text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center">
-                        <span>
-                            Usuario de Bluesky
-                        </span>
+                    <Link
+                        target={"_blank"}
+                        rel="noopener noreferrer"
+                        onClick={() => {window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')}}
+                        href={"https://bsky.app/profile/" + profile.bsky.handle}
+                        className="text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center"
+                    >
+                        Usuario de Bluesky
                     </Link>}
             </div>
         </div>
