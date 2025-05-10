@@ -54,7 +54,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         })
 
         if(!res.ok){
-            setError("Ocurrió un error al iniciar sesión.")
+            setError("Error de conexión.")
             setIsLoading(false)
             return
         }

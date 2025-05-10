@@ -15,11 +15,12 @@ import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/ar
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {isSelfLabels} from "@/lex-api/types/com/atproto/label/defs";
 import {$Typed} from "@atproto/api";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {
-    const post = postView.record as ArticleRecord | PostRecord
-    return isSelfLabels(post.labels) && post.labels.values.some((x) => x.val == "en discusión")
+    const labels = postView.labels
+    return labels.some((x) => x.val == "ca:en discusión")
 }
 
 

@@ -259,7 +259,7 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
                         title={"Agregar este post al feed En discusión."}
                         aria-label={""}
                     >
-                        {enDiscusion ? <Star fontSize={"small"}/> : <StarBorder fontSize={"small"}/>}
+                        {enDiscusion ? <StarBorder fontSize={"small"}/> : <Star fontSize={"small"}/>}
                     </ToolbarButton>
                     <StateButton
                         color={"primary"}

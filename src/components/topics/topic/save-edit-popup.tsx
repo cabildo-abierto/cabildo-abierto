@@ -131,7 +131,7 @@ export const SaveEditPopup = ({
                 }
                 <div className="flex justify-center items-center space-x-4 mt-4">
                     <Button
-                        color="primary"
+                        color="transparent"
                         variant="text"
                         onClick={async () => {
                             onClose()

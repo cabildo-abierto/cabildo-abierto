@@ -6,7 +6,6 @@ import {
 } from "@/lib/types"
 import {splitUri, threadApiUrl} from "@/utils/uri";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {ProfileFeedOption} from "@/components/profile/profile-page";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
@@ -98,8 +97,13 @@ export function useTopic(id: string) {
 }
 
 
+export function categoriesSearchParam(categories: string[]) {
+    return categories.map(cat => `c=${encodeURIComponent(cat)}`).join("&");
+}
+
+
 export function useTopics(categories: string[], sortedBy: "popular" | "recent") {
-    const query = categories.map(cat => `c=${encodeURIComponent(cat)}`).join("&");
+    const query = categoriesSearchParam(categories)
     const url = `/topics/${sortedBy}${query ? `?${query}` : ""}`;
     return useAPI<TopicViewBasic[]>(url, ["topic", sortedBy, ...categories]);
 }

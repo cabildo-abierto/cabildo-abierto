@@ -57,15 +57,15 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
             placement: 'bottom',
         },
         {
-            target: 'body', // or you can use a hidden/invisible div
-            content: 'Ninguno de los feeds está personalizado con IA.',
+            target: 'body',
+            content: 'Ninguno de los feeds usa IA. Dicen por ahí que lo viejo funciona...',
             placement: 'center',
             disableBeacon: true,
             spotlightClicks: false,
         },
         {
             target: '#temas',
-            content: 'Una wiki sobre los temas en discusión, con los consensos de la plataforma.',
+            content: 'Una wiki sobre los temas en discusión, con los consensos de la plataforma, visualizaciones y más.',
             placement: 'bottom',
         },
         {
@@ -140,8 +140,8 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
                     },
                     buttonNext: {
                         backgroundColor: 'var(--primary)',
-                        color: 'var(--text)',
-                        fontSize: '14px',
+                        color: 'var(--button-text)',
+                        fontSize: '14px'
                     },
                     buttonBack: {
                         color: 'var(--text-light)',
