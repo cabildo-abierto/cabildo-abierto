@@ -4,6 +4,8 @@ import {MainFeedHeader} from "./main-feed-header"
 import {useSearchParams} from "next/navigation";
 import {updateSearchParam} from "@/components/topics/topic/topic-page";
 import {Feed, getFeed} from "@/components/feed/feed/feed";
+import React from "react";
+import Link from "next/link";
 
 
 export function optionToSearchParam(v: string) {

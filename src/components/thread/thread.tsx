@@ -14,7 +14,6 @@ import {isKnownContent} from "@/utils/type-utils";
 import {ThreadReplies} from "@/components/thread/thread-replies";
 import {ThreadHeader} from "@/components/thread/thread-header";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 export function hasSelectionQuote(p: PostView) {

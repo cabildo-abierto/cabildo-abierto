@@ -31,7 +31,7 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false, quotedC
             }, 0);
         } else {
             if(mainPostRef){
-                router.push(contentUrl(quotedContent) + "#" + mainPostRef.cid)
+                router.push(contentUrl(quotedContent) + "#" + mainPostRef.cid) // TO DO, no anda con temas
             }
         }
     }

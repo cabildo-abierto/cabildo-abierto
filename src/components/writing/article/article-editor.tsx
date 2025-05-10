@@ -1,7 +1,7 @@
 "use client"
 
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor"
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import { EditorState, LexicalEditor } from "lexical"
 import { TitleInput } from "./title-input"
 import dynamic from "next/dynamic"
@@ -15,6 +15,12 @@ import {getAllText} from "@/components/topics/topic/diff";
 import {useSession} from "@/hooks/api";
 import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
 import {getEditorSettings} from "@/components/editor/settings";
+import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {TopicsMentioned} from "@/components/article/topics-mentioned";
+import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {post} from "@/utils/fetch";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {emptyChar} from "@/utils/utils";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -37,10 +43,63 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
 })
 
 
-const ArticleEditor = () => {
+export const useTopicsMentioned = () => {
+    const [topicsMentioned, setTopicsMentioned] = useState<TopicMention[]>([])
+    const [lastMentionsFetch, setLastMentionsFetch] = useState(new Date(0))
+    const [lastTextChange, setLastTextChange] = useState(new Date(0))
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [title, setTitle] = useState("")
+
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (
+                lastTextChange.getTime() - lastMentionsFetch.getTime() > 10000 ||
+                (Date.now() - lastTextChange.getTime() > 3000 && lastTextChange.getTime() > lastMentionsFetch.getTime())
+            ) {
+                setLastMentionsFetch(new Date());
+
+                const fetchTopicsMentioned = async () => {
+                    try {
+                        const editorStateStr = JSON.stringify(editor.getEditorState().toJSON());
+                        const mdText = editorStateToMarkdown(editorStateStr);
+                        let data: TopicMention[] = []
+                        if(mdText.length + title.length > 0) {
+                            data = (await post<{ title: string; text: string }, TopicMention[]>(
+                                `/get-topics-mentioned`,
+                                {title, text: mdText}
+                            )).data
+                        }
+                        if (data) {
+                            setTopicsMentioned(data);
+                        }
+                    } catch (error) {
+                        console.error("Error running async function:", error);
+                    }
+                };
+
+                fetchTopicsMentioned();
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [lastTextChange, lastMentionsFetch, editor, title]);
+
+    return {
+        topicsMentioned,
+        setLastTextChange,
+        editor,
+        setEditor,
+        title,
+        setTitle
+    }
+}
+
+
+const ArticleEditor = () => {
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const [modalOpen, setModalOpen] = useState(false)
+    const {topicsMentioned, setLastTextChange, setEditor, title, setTitle} = useTopicsMentioned()
     const {user} = useSession()
     const smallScreen = window.innerWidth < 700
 
@@ -52,24 +111,21 @@ const ArticleEditor = () => {
 
     const createdAt = new Date()
 
-    /*async function onReloadMarkdown(){
-        let jsonState = JSON.stringify(editorState.toJSON())
-        const markdown = editorStateToMarkdown(jsonState)
-        jsonState = markdownToEditorState(markdown)
-        const state = editor.parseEditorState(jsonState)
-        editor.update(() => {
-            editor.setEditorState(state)
-        })
-    }*/
+    useEffect(() => {
+        setLastTextChange(new Date())
+    }, [editorState, setLastTextChange])
 
     return <div className={"mb-32"}>
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
                 <BackButton defaultURL={"/"}/>
                 <PublishArticleButton
-                    editorState={editorState}
                     title={title}
                     disabled={disabled}
+                    modalOpen={modalOpen}
+                    setModalOpen={setModalOpen}
+                    editorState={editorState}
+                    mentions={topicsMentioned}
                 />
 			</div>
 		</div>

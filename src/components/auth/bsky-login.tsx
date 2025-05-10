@@ -19,7 +19,6 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         const channel = new BroadcastChannel("auth_channel")
         channel.onmessage = (event) => {
             if (event.data === "auth-success") {
-                console.log("Auth success: triggering session refetch")
                 refetch()
             }
         }

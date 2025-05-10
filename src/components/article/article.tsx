@@ -1,6 +1,5 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
-import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {ArticleHeader} from "@/components/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
