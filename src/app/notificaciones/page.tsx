@@ -32,7 +32,7 @@ const Page = () => {
             </div>
         </div>
         <div className={"text-center mt-8 text-[var(--text-light)]"}>
-            Ninguna notificación por ahora.
+            No es que no tengas notificaciones, es que todavía no las implementamos.
         </div>
     </div>
 }

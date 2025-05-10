@@ -1,23 +1,22 @@
 "use client"
 
 import {useRouter} from "next/navigation"
-import {Button} from "@mui/material";
 import {validEntityName} from "./utils";
 import {topicUrl} from "@/utils/uri";
 import {useSession} from "@/hooks/api";
 import {createTopic} from "@/components/writing/write-panel/create-topic";
+import { Button } from "../../../../modules/ui-utils/src/button";
 
-const CreateEntityButton: React.FC<any> = ({onClick}) => {
+const CreateEntityButton = ({onClick, id}: {onClick: () =>  void, id: string}) => {
     return <Button
         variant={"contained"}
         onClick={onClick}
         sx={{
-            textTransform: "none",
-            color: "var(--text)"
+            textTransform: "none"
         }}
 
     >
-        Crear tema
+        Crear tema &#34;{id}&#34;
     </Button>
 }
 
@@ -36,15 +35,15 @@ export default function NoEntityPage({id}: { id: string }) {
     }
 
     return <>
-        <div className="flex justify-center py-8">
-            <h1>No se encontró el tema</h1>
+        <div className="flex justify-center mt-32">
+            <h2>No se encontró el tema</h2>
         </div>
         <div className="flex justify-center py-8 text-lg">
             {'"' + name + '"'}
         </div>
         {validEntityName(name) ?
             <div className="flex justify-center py-16">
-                <CreateEntityButton onClick={handleCreateEntity}/>
+                <CreateEntityButton onClick={handleCreateEntity} id={id}/>
             </div> :
             <div className="py-16 flex justify-center text-center">Tampoco se puede crear el tema porque su nombre no es
                 válido.</div>}

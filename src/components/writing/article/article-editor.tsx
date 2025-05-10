@@ -66,11 +66,8 @@ const ArticleEditor = () => {
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
                 <BackButton defaultURL={"/"}/>
-                {/*<Button onClick={onReloadMarkdown} size={"small"} variant={"text"}>
-                    Chequear markdown
-                </Button>*/}
                 <PublishArticleButton
-                    editor={editor}
+                    editorState={editorState}
                     title={title}
                     disabled={disabled}
                 />

@@ -11,6 +11,7 @@ import {FullscreenImageViewer} from "../images/fullscreen-image-viewer";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {Profile} from "@/lib/types";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
+import {useSession} from "@/hooks/api";
 
 
 type ProfileHeaderProps = {
@@ -27,6 +28,7 @@ export function ProfileHeader({
                               }: ProfileHeaderProps) {
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
+    const {user} = useSession()
 
     const inCA = profile && profile.ca && profile.ca.inCA
 

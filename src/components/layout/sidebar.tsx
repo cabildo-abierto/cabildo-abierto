@@ -78,7 +78,7 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
                     size={"medium"}
                     id={"write-button"}
                 >
-                    <WriteButtonIcon color={"inherit"}/>
+                    <WriteButtonIcon/>
                 </IconButton>
             }
         </div>
@@ -123,10 +123,11 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         <div className={"mb-4"}>
                             {user.user &&
                                 <div className={"w-full flex justify-center"}>
-                                    <Link href={profileUrl(user.user.handle)}>
+                                    <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                         <ProfilePic user={user.user}
                                                     className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}
-                                                    descriptionOnHover={false}/>
+                                                    descriptionOnHover={false}
+                                        />
                                     </Link>
                                 </div>
                             }

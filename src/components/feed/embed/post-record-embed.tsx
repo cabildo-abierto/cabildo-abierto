@@ -84,7 +84,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
             </span>
             <button
                 className={"text-[var(--primary)] hover:underline ml-1"}
-                onClick={() => {window.open(getBlueskyUrl(mainPostRef.uri), "_blank")}}>
+                onClick={(e) => {e.stopPropagation(); window.open(getBlueskyUrl(mainPostRef.uri), "_blank")}}>
                 miralo en Bluesky
             </button>
             <span>

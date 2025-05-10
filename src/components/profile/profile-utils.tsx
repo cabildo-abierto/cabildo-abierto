@@ -73,7 +73,6 @@ export function FollowButton({handle, profile}: { handle: string, profile: {did:
             const prevProfile: Profile = queryClient.getQueryData(["profile", handle])
             queryClient.invalidateQueries({ queryKey: ["profile", handle] })
 
-            console.log("followUri", followUri)
             queryClient.setQueryData(["profile", handle], {
                 ...prevProfile,
                 bsky: {

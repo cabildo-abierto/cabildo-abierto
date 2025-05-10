@@ -6,7 +6,6 @@ import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {getEditorSettings} from "@/components/editor/settings";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -40,6 +39,7 @@ export const TopicContentPreview = ({
             <IconButton
                 onClick={onMaximize}
                 size={"small"}
+                color={"background-dark"}
             >
                 <FullscreenIcon fontSize={"small"}/>
             </IconButton>
