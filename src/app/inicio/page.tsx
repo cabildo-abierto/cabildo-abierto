@@ -4,6 +4,8 @@ import {MainPage} from "@/components/inicio/main-page";
 
 const Page = () => {
 
-    return <MainPage/>
+    return <>
+        <MainPage/>
+    </>
 }
 export default Page

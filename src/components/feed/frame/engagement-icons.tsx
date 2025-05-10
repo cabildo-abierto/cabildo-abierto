@@ -41,7 +41,6 @@ export const EngagementIcons = ({
                                     enDiscusion
                                 }: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
-    const router = useRouter()
     const [writingReply, setWritingReply] = useState<boolean>(false)
     const queryClient = useQueryClient()
 
@@ -76,7 +75,7 @@ export const EngagementIcons = ({
 
     function onClickRepliesButton(){
         if(isArticleView(content)){
-            router.push(contentUrl(content.uri))
+            // router.push(contentUrl(content.uri))
         } else {
             setWritingReply(true)
         }
@@ -111,11 +110,6 @@ export const EngagementIcons = ({
                 title={"Cantidad de impresiones."}
             />
             }
-            {/* TO DO content.visualizationsUsingCount != undefined && <FixedCounter
-                count={content.visualizationsUsingCount}
-                icon={<AutoGraphIcon/>}
-                title="Cantidad de visualizaciones que lo usaron."
-            />*/}
         </>}
 
         <ContentOptionsButton

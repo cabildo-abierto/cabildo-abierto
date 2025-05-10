@@ -9,6 +9,10 @@ export function unique<T>(list: T[]): T[]{
     return Array.from(new Set(list))
 }
 
+export function areSetsEqual<T>(a: Set<T>, b: Set<T>) {
+    return areArraysEqual(Array.from(a), Array.from(b))
+}
+
 export function areArraysEqual(a: any[], b: any[]) {
     if (a.length != b.length) return false
     for (let i = 0; i < a.length; i++) {

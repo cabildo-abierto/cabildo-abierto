@@ -24,7 +24,7 @@ export const ModalOnClickControlled = ({
 
     return (
         <>
-            <ClickAwayListener onClickAway={(e) => { e.stopPropagation(); e.preventDefault(); handleClickAway()}}>
+            <ClickAwayListener onClickAway={(e) => { handleClickAway()}}>
                 <div>
                     <div onClick={handleClick}>
                         {children}

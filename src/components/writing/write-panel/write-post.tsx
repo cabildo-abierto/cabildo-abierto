@@ -19,25 +19,104 @@ import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/hooks/api";
-import {PostEditor} from "@/components/editor/post-editor";
-import {Star, StarBorder} from "@mui/icons-material";
-import {ToolbarButton} from "../../../../modules/ca-lexical-editor/src/plugins/ToolbarPlugin/toolbar-button";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {isPostView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {get, post} from "@/utils/fetch";
 import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";
-import {Main as ExternalEmbed, View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external"
-import {View as RecordEmbedView} from "@/lex-api/types/app/bsky/embed/record"
-import {View as RecordWithMediaEmbedView} from "@/lex-api/types/app/bsky/embed/recordWithMedia"
+import {View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external"
 import {ExternalEmbedInEditor} from "@/components/writing/write-panel/external-embed-in-editor";
 import {
-    postViewToRecordEmbedView,
     WritePanelQuotedPost
 } from "@/components/writing/write-panel/write-panel-quoted-post";
 import {$Typed} from "@atproto/api";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {AddToEnDiscusionButton} from "@/components/writing/article/publish-article-button";
+import {useTopicsMentioned} from "@/components/writing/article/article-editor";
+import {EditorState} from "lexical";
+import {getPlainText} from "@/components/topics/topic/diff";
+import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
+import {getEditorSettings} from "@/components/editor/settings";
+import dynamic from "next/dynamic";
+import {$dfs} from "@lexical/utils";
+import {$isLinkNode} from "@lexical/link";
+import {areSetsEqual} from "@/utils/arrays";
+import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
+const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
+    ssr: false,
+    loading: () => <></>,
+})
 
+
+function useExternalEmbed(editorState: EditorState, disabled: boolean) {
+    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<ExternalEmbedView> | null>(null)
+    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(null)
+    const [links, setLinks] = useState<string[]>([])
+
+    useEffect(() => {
+        if (!externalEmbedUrl) {
+            setExternalEmbedView(null)
+            return
+        }
+
+        const handler = setTimeout(() => {
+            async function onNewExternalEmbed(url: string) {
+                const {data, error} = await get<{
+                    title: string | null,
+                    description: string | null,
+                    thumb: string | null
+                }>("/metadata?url=" + encodeURIComponent(url))
+
+                if (error) {
+                    setExternalEmbedView(null)
+                    return
+                }
+
+                const {title, description, thumb} = data
+                const embed: $Typed<ExternalEmbedView> = {
+                    $type: "app.bsky.embed.external#view",
+                    external: {
+                        $type: 'app.bsky.embed.external#viewExternal',
+                        uri: url,
+                        title,
+                        description,
+                        thumb
+                    }
+                }
+                setExternalEmbedView(embed)
+            }
+
+            if (!disabled) {
+                onNewExternalEmbed(externalEmbedUrl)
+            }
+        }, 200)
+
+        return () => clearTimeout(handler) // Clean up on dependency change
+    }, [externalEmbedUrl])
+
+
+    useEffect(() => {
+        if(editorState){
+            const newLinks = getLinksFromEditor(editorState)
+            for(let i = 0; i < newLinks.length; i++){
+                const l = newLinks[i]
+                if(!links.includes(l)){
+                    setExternalEmbedUrl(l)
+                    break
+                }
+            }
+            if(!areSetsEqual(new Set(newLinks), new Set(links))){
+                setLinks(newLinks)
+            }
+        }
+    }, [editorState, links, setExternalEmbedUrl])
+
+    const onRemove = () => {
+        setExternalEmbedUrl(null)
+        setExternalEmbedView(null)
+    }
+
+    return {externalEmbedView, setExternalEmbedView, externalEmbedUrl, setExternalEmbedUrl, onRemove}
+}
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -106,6 +185,29 @@ function getPlaceholder(replyToCollection?: string) {
 }
 
 
+function getLinksFromEditor(editorState: EditorState) {
+    const links: string[] = []
+    editorState.read(() => {
+        const nodes = $dfs()
+        nodes.forEach(n => {
+            if($isLinkNode(n.node)){
+                links.push(n.node.getURL())
+            }
+        })
+    })
+    return links
+}
+
+
+const settings: SettingsProps = getEditorSettings({
+    placeholder: "¿Qué está pasando?",
+    placeholderClassName: "text-[var(--text-light)] absolute top-0",
+    editorClassName: "link relative",
+    isReadOnly: false,
+    isRichText: false
+})
+
+
 export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
     replyTo: ReplyToContent,
     selection?: [number, number]
@@ -121,51 +223,18 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [rect, setRect] = useState<DOMRect>()
-    const [enDiscusion, setEnDiscusion] = useState(false)
-    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<ExternalEmbedView> | null>(null)
-    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(null)
+    const [enDiscusion, setEnDiscusion] = useState(true)
+    const [editorState, setEditorState] = useState<EditorState | null>(null)
+    const {externalEmbedView, onRemove} = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null)
+    const {topicsMentioned, setLastTextChange, setEditor} = useTopicsMentioned()
 
     useEffect(() => {
-        if (!externalEmbedUrl) {
-            setExternalEmbedView(null)
-            return
+        if(editorState){
+            let text = getPlainText(editorState.toJSON().root)
+            if(text.endsWith("\n")) text = text.slice(0, text.length-1)
+            setText(text)
         }
-
-        const handler = setTimeout(() => {
-            async function onNewExternalEmbed(url: string) {
-                const {data, error} = await get<{
-                    title: string | null,
-                    description: string | null,
-                    thumb: string | null
-                }>("/metadata?url=" + encodeURIComponent(url))
-
-                if (error) {
-                    setExternalEmbedView(null)
-                    return
-                }
-
-                const {title, description, thumb} = data
-                const embed: $Typed<ExternalEmbedView> = {
-                    $type: "app.bsky.embed.external#view",
-                    external: {
-                        $type: 'app.bsky.embed.external#viewExternal',
-                        uri: url,
-                        title,
-                        description,
-                        thumb
-                    }
-                }
-                setExternalEmbedView(embed)
-            }
-
-            if((!images || images.length == 0) && !visualization){
-                onNewExternalEmbed(externalEmbedUrl)
-            }
-        }, 200)
-
-        return () => clearTimeout(handler) // Clean up on dependency change
-    }, [externalEmbedUrl])
-
+    }, [editorState])
 
     const charLimit = 300
 
@@ -173,6 +242,10 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
 
     const isReply = replyTo != undefined
     const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
+
+    useEffect(() => {
+        setLastTextChange(new Date())
+    }, [editorState, setLastTextChange])
 
     async function handleSubmit() {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
@@ -205,23 +278,24 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
         return {error}
     }
 
-    const hasEmbed = replyTo || quotedPost || visualization || (images && images.length > 0) || (externalEmbedView != null)
+    const hasEmbed: boolean = quotedPost != null || selection != null || visualization != null || (images && images.length > 0) || (externalEmbedView != null)
     const canAddImage = !hasEmbed ||
         images.length > 0 && images.length != 4 ||
         !visualization && !externalEmbedView && (!images || images.length == 0)
 
     return <RectTracker setRect={setRect}>
         <div className={"flex flex-col justify-between"}>
-            <div className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
+            <div
+                className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
                 <div className="flex justify-between space-x-2 w-full my-2">
-                    <ProfilePic user={user} className="w-8 h-8 rounded-full" descriptionOnHover={false} />
+                    <ProfilePic user={user} className="w-8 h-8 rounded-full" descriptionOnHover={false}/>
                     <div className="sm:text-lg flex-1" key={editorKey}>
-                        <PostEditor
-                            setText={setText}
-                            placeholder={getPlaceholder(replyToCollection)}
-                            setExternalEmbed={setExternalEmbedUrl}
+                        <MyLexicalEditor
+                            setEditor={setEditor}
+                            setEditorState={setEditorState}
+                            settings={{...settings, placeholder: getPlaceholder(replyToCollection)}}
                         />
-                        {charLimit && <ExtraChars charLimit={charLimit} count={text.length} />}
+                        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
                     </div>
                 </div>
                 {replyTo && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
@@ -233,10 +307,7 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
                 {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
                 {externalEmbedView && <ExternalEmbedInEditor
                     embed={externalEmbedView}
-                    onRemove={() => {
-                        setExternalEmbedUrl(null)
-                        setExternalEmbedView(null)
-                    }}
+                    onRemove={onRemove}
                 />}
                 {quotedPost && <WritePanelQuotedPost quotedPost={quotedPost}/>}
             </div>
@@ -252,15 +323,8 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
                     />
                 </div>
                 <div className={"flex space-x-2 text-[var(--text-light)] items-center px-1"}>
-                    <ToolbarButton
-                        onClick={() => {
-                            setEnDiscusion(!enDiscusion)
-                        }}
-                        title={"Agregar este post al feed En discusión."}
-                        aria-label={""}
-                    >
-                        {enDiscusion ? <StarBorder fontSize={"small"}/> : <Star fontSize={"small"}/>}
-                    </ToolbarButton>
+                    <TopicsMentionedSmall mentions={topicsMentioned}/>
+                    <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                     <StateButton
                         color={"primary"}
                         text1={isReply ? "Responder" : "Publicar"}

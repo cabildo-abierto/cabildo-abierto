@@ -9,10 +9,10 @@ export const IconButton = ({
                                sx,
                                color = "background",
                                hoverColor,
-    textColor,
+                               textColor,
                                ...props
                            }: IconButtonProps) => {
-    if(!textColor) textColor = color == "primary" ? "button-text" : "text"
+    if (!textColor) textColor = color == "primary" ? "button-text" : "text"
     return <MUIIconButton
         {...props}
         sx={{

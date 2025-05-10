@@ -2,7 +2,12 @@ import {Button as MUIButton, ButtonProps as MUIButtonProps} from "@mui/material"
 import React from "react";
 
 
-export type Color = "text-light" | "text" | "button-text" | "accent" | "accent-dark" | "transparent" | "primary" | "background" | "background-dark" | "background-dark2" | "background-dark3" | "primary-dark"
+export type Color = "text-lighter" |
+    "text-light" |
+    "text" | "button-text" | "accent" | "accent-dark" |
+    "transparent" | "primary" | "background" |
+    "background-dark" | "background-dark2" |
+    "background-dark3" | "primary-dark"
 
 
 export type ButtonProps = Omit<MUIButtonProps, "color"> & {color?: Color}

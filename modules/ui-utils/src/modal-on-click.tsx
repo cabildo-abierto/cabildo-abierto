@@ -15,7 +15,6 @@ export const ModalOnClick = ({children, modal}: ModalOnClickProps) => {
     const handleClick = (e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         e.preventDefault();
-        console.log("clicked!")
         setAnchorEl(e.currentTarget);
         setOpen(true);
     };
