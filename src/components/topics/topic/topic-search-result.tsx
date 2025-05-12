@@ -2,12 +2,11 @@
 
 import {DateSince} from "../../../../modules/ui-utils/src/date"
 import {getTopicCategories, getTopicTitle} from "./utils";
-import {TopicCategories} from "./topic-categories";
+import TopicCategories from "./topic-categories";
 import {useRouter} from "next/navigation";
 import {People} from "@mui/icons-material";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 const DateLastEdit = ({date}: { date: Date }) => {
@@ -19,7 +18,7 @@ const DateLastEdit = ({date}: { date: Date }) => {
 }
 
 
-export const TopicSearchResult = ({topic}: { topic: TopicViewBasic }) => {
+const TopicSearchResult = ({topic}: { topic: TopicViewBasic }) => {
     const router = useRouter()
 
     function onMouseEnter() {
@@ -57,3 +56,6 @@ export const TopicSearchResult = ({topic}: { topic: TopicViewBasic }) => {
         </div>
     );
 }
+
+
+export default TopicSearchResult;

@@ -5,7 +5,7 @@ function categoryUrl(c: string) {
     return "/temas?view=lista&c=" + c
 }
 
-export const TopicCategories = ({
+const TopicCategories = ({
                                     categories,
                                     maxCount,
                                     containerClassName = "text-xs",
@@ -24,3 +24,6 @@ export const TopicCategories = ({
         })}
     </div>
 }
+
+
+export default TopicCategories

@@ -1,15 +1,16 @@
 import {PostPreviewFrame, ReplyVerticalLine} from '../frame/post-preview-frame'
 import {PostContent} from "./post-content";
-import {FeedElement} from "../feed/feed-element";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
 import {useSession} from "@/hooks/api";
 import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
 import {FeedViewContent, isPostView, PostView} from '@/lex-api/types/ar/cabildoabierto/feed/defs';
-import {isKnownContent, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
+import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import dynamic from "next/dynamic";
+const FeedElement = dynamic(() => import('@/components/feed/feed/feed-element'));
 
 
 const ShowThreadButton = ({uri}: { uri: string }) => {
@@ -59,8 +60,8 @@ function getParentAndRoot(f: FeedViewContent): { parent?: ReplyRefContent, root?
         return {}
     }
 
-    if (isKnownContent(root)) {
-        if (!isKnownContent(parent)) {
+    if (postOrArticle(root)) {
+        if (!postOrArticle(parent)) {
             return {}
         }
         if (parent.uri != root.uri) {
@@ -106,7 +107,7 @@ export const PostPreview = ({
             onDeleteFeedElem={onDeleteFeedElem}
         />}
 
-        {showThreadButton && isKnownContent(feedViewContent.reply.root) &&
+        {showThreadButton && postOrArticle(feedViewContent.reply.root) &&
             <ShowThreadButton uri={feedViewContent.reply.root.uri}/>
         }
 
@@ -114,7 +115,7 @@ export const PostPreview = ({
             <FeedElement
                 elem={{content: feedViewContent.reply.parent}}
                 showingChildren={true}
-                showingParent={root != null && isKnownContent(root)}
+                showingParent={root != null && postOrArticle(root)}
                 onDeleteFeedElem={onDeleteFeedElem}
                 showReplyMessage={grandparentAuthor != null}
             />
@@ -124,7 +125,7 @@ export const PostPreview = ({
             reason={feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined}
             postView={{$type: "ar.cabildoabierto.feed.defs#postView", ...postView}}
             showingChildren={showingChildren}
-            showingParent={(parent != null && isKnownContent(parent)) || showingParent}
+            showingParent={(parent != null && postOrArticle(parent)) || showingParent}
             borderBelow={!showingChildren}
             onDelete={onDelete}
         >

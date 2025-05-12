@@ -53,3 +53,17 @@ export async function get<Output>(route: string): Promise<PostOutput<Output>> {
         return {error: "Error en la conexión"}
     }
 }
+
+
+export function updateSearchParam(key: string, value: string | string[] | null) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete(key)
+
+    if (Array.isArray(value)) {
+        value.forEach(x => url.searchParams.append(key, x));
+    } else if(typeof value == "string") {
+        url.searchParams.set(key, value)
+    }
+
+    window.history.pushState({}, '', url.toString());
+}

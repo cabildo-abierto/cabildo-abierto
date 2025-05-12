@@ -6,16 +6,15 @@ import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
-import {urlFromRecord, profileUrl} from "@/utils/uri";
+import {urlFromRecord, profileUrl, topicUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";
 import {ReasonRepost} from '@/lex-api/types/app/bsky/feed/defs'
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
-import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {isSelfLabels} from "@/lex-api/types/com/atproto/label/defs";
+import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {$Typed} from "@atproto/api";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {postOrArticle} from "@/utils/type-utils";
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {

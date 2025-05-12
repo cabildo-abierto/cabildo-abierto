@@ -1,4 +1,4 @@
-import {BlueskyLogo} from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/icons/bluesky-logo";
 
 type Props = {
     showBluesky: boolean

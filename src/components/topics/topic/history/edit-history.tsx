@@ -7,7 +7,6 @@ import { AcceptButtonPanel } from "../../../../../modules/ui-utils/src/accept-bu
 import { toPercentage } from "../show-contributors"
 import { ChangesCounter } from "../changes-counter"
 import { BaseFullscreenPopup } from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
-import { Authorship } from "@/components/feed/frame/content-top-row-author";
 import {ProfilePic} from "../../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
@@ -28,6 +27,7 @@ import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit-buttons";
 import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
 import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
+import {Authorship} from "@/components/feed/frame/authorship";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistory, index: number}) => {

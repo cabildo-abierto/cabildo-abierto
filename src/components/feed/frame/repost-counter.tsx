@@ -7,8 +7,9 @@ import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
-import {WritePanel} from "@/components/writing/write-panel/write-panel";
 import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import dynamic from "next/dynamic";
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 
 export const RepostCounter = ({content, showBsky, reactionUri}: {

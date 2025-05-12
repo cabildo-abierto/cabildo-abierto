@@ -1,8 +1,9 @@
 import Image from 'next/image'
 import {CloseButton} from '../../../../modules/ui-utils/src/close-button'
 import {useState} from "react";
-import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
 import {ImagePayload} from './write-post';
+import dynamic from "next/dynamic";
+const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 
 type PostImagesEditorProps = {
     images: ImagePayload[],

@@ -8,16 +8,13 @@
 
 import './index.css';
 
-import {$isCodeHighlightNode} from '@lexical/code';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
 import {
-    $createRangeSelection,
-    $getRoot,
     $getSelection,
     $isParagraphNode,
     $isRangeSelection,
-    $isTextNode, $nodesOfType,
+    $isTextNode,
     COMMAND_PRIORITY_LOW,
     FORMAT_TEXT_COMMAND,
     LexicalEditor,
@@ -55,7 +52,7 @@ function TextFormatFloatingToolbar({
 }) {
     const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
-    const {isComment, useSuperscript, useSubscript, useStrikethrough, useCodeblock} = settings
+    const {isComment} = settings
 
     const insertLink = useCallback(() => {
         if (!isLink) {
@@ -286,7 +283,6 @@ function useFloatingTextFormatToolbar(
             }
 
             if (
-                !$isCodeHighlightNode(selection.anchor.getNode()) &&
                 selection.getTextContent() !== ''
             ) {
                 setIsText($isTextNode(node) || $isParagraphNode(node));

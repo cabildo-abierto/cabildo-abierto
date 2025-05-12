@@ -1,12 +1,13 @@
 "use client"
 import React, {useEffect, useState} from "react"
-import {UserSearchResults} from "./user-search-results";
 import SelectionComponent from "./search-selection-component";
 import {ContentsSearchResults} from "./contents-search-results";
 import {SearchTopics} from "./search-topics";
 import {useSearch} from "./search-context";
 import { Button } from "../../../modules/ui-utils/src/button";
 
+import dynamic from "next/dynamic";
+const UserSearchResults = dynamic(() => import('@/components/buscar/user-search-results'));
 
 type RouteContentProps = {
     paramsSelected?: string

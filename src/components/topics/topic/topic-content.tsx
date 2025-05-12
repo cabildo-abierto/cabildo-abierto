@@ -9,7 +9,7 @@ import {useSearchParams} from "next/navigation";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
-export const TopicContent = ({
+const TopicContent = ({
     topic,
     pinnedReplies,
     setPinnedReplies,
@@ -50,3 +50,6 @@ export const TopicContent = ({
         }
     }
 }
+
+
+export default TopicContent

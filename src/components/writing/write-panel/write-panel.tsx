@@ -25,7 +25,7 @@ type WritePanelProps = {
 }
 
 
-export const WritePanel = ({
+const WritePanel = ({
                                replyTo,
                                open,
                                onClose,
@@ -99,3 +99,5 @@ export const WritePanel = ({
     )
 };
 
+
+export default WritePanel;
