@@ -1,18 +1,20 @@
-import SelectionComponent from "@/components/buscar/search-selection-component";
-import {PermissionLevel} from "@/components/topics/topic/permission-level"
-import {Button} from "../../../modules/ui-utils/src/button";
+import {useState} from "react";
 import Image from 'next/image'
+import Link from "next/link";
+
+import {Profile} from "@/lib/types";
+import {PermissionLevel} from "@/components/topics/topic/permission-level"
+
+import SelectionComponent from "@/components/buscar/search-selection-component";
+import {Button} from "../../../modules/ui-utils/src/button";
 import {ArticleIcon} from "../icons/article-icon"
 import {emptyChar, getUsername} from "@/utils/utils";
-import {useState} from "react";
-import Link from "next/link";
-import {ProfileDescription} from "@/components/profile/profile-description";
-import {FullscreenImageViewer} from "../images/fullscreen-image-viewer";
+import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/profile-utils";
-import {Profile} from "@/lib/types";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
-import {useSession} from "@/hooks/api";
+import dynamic from "next/dynamic";
 
+const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 
 type ProfileHeaderProps = {
     profile: Profile
@@ -21,14 +23,13 @@ type ProfileHeaderProps = {
     setSelected: any
 }
 
-export function ProfileHeader({
+function ProfileHeader({
                                   profile,
                                   selected,
                                   setSelected
                               }: ProfileHeaderProps) {
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
-    const {user} = useSession()
 
     const inCA = profile && profile.ca && profile.ca.inCA
 
@@ -157,3 +158,6 @@ export function ProfileHeader({
         </div>
     </div>
 }
+
+
+export default ProfileHeader

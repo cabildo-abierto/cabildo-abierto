@@ -30,8 +30,6 @@ import {
     WritePanelQuotedPost
 } from "@/components/writing/write-panel/write-panel-quoted-post";
 import {$Typed} from "@atproto/api";
-import {AddToEnDiscusionButton} from "@/components/writing/article/publish-article-button";
-import {useTopicsMentioned} from "@/components/writing/article/article-editor";
 import {EditorState} from "lexical";
 import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
@@ -41,6 +39,8 @@ import {$dfs} from "@lexical/utils";
 import {$isLinkNode} from "@lexical/link";
 import {areSetsEqual} from "@/utils/arrays";
 import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
+import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
+import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
     loading: () => <></>,

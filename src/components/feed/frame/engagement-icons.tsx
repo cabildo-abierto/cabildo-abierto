@@ -4,18 +4,18 @@ import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
 import {InactiveLikeIcon} from "../../icons/inactive-like-icon"
 import {FixedCounter, ReactionCounter} from "./reaction-counter"
 import {ViewsIcon} from "../../icons/views-icon";
-import {contentUrl, getCollectionFromUri} from "@/utils/uri";
+import {getCollectionFromUri} from "@/utils/uri";
 import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
 import React, {useState} from "react";
-import { useRouter } from "next/navigation"
-import {WritePanel} from "@/components/writing/write-panel/write-panel";
 import {$Typed} from "@atproto/api";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query"
 import { threadQueryKey } from "@/hooks/api"
 import {ATProtoStrongRef} from "@/lib/types";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
+import dynamic from "next/dynamic";
 
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 type EngagementIconsProps = {
     content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>

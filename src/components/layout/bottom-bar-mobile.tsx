@@ -1,14 +1,13 @@
 import {SidebarButton} from "./sidebar-button";
-import {CabildoIcon} from "../icons/home-icon";
+import CabildoIcon from "../icons/home-icon";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import React from "react";
 import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
-import {NotificationsIcon} from "../icons/notifications-icon";
+import NotificationsIcon from "../icons/notifications-icon";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import CollectionsBookmarkOutlinedIcon from "@mui/icons-material/CollectionsBookmarkOutlined";
-import VisualizationsIcon from "@mui/icons-material/AutoGraph";
 
 
 export const BottomBarMobile = () => {

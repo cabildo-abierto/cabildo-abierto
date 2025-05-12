@@ -223,7 +223,7 @@ export const TopicContentExpandedView = ({
         </div>
     } else if (!topic || error) {
         return <ErrorPage>
-            {error.message}
+            {error?.message}
         </ErrorPage>
     }
 

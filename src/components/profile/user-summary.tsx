@@ -4,7 +4,7 @@ import {FollowButton} from "@/components/profile/profile-utils";
 import Link from "next/link";
 import {profileUrl} from "@/utils/uri";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
-import {ProfileDescription} from "@/components/profile/profile-description";
+import ProfileDescription from "@/components/profile/profile-description";
 import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
 import {ProfilePic} from "@/components/profile/profile-pic";
 
@@ -13,7 +13,7 @@ type UserSummaryProps = {
 }
 
 
-export const UserSummary = ({handle}: UserSummaryProps) => {
+const UserSummary = ({handle}: UserSummaryProps) => {
     const {data: profile, isLoading} = useProfile(handle);
     const [show, setShow] = useState(false);
 
@@ -52,7 +52,7 @@ export const UserSummary = ({handle}: UserSummaryProps) => {
 };
 
 
-export const UserSummaryOnHover = ({children, handle}: {children: ReactNode, handle: string}) => {
+const UserSummaryOnHover = ({children, handle}: {children: ReactNode, handle: string}) => {
     const modal = <UserSummary handle={handle}/>
 
     return <ModalOnHover
@@ -61,3 +61,6 @@ export const UserSummaryOnHover = ({children, handle}: {children: ReactNode, han
         {children}
     </ModalOnHover>
 }
+
+
+export default UserSummaryOnHover

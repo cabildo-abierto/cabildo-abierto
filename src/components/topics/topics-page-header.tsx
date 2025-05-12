@@ -1,20 +1,16 @@
-"use client"
-import SelectionComponent from "@/components/buscar/search-selection-component";
-import AddIcon from "@mui/icons-material/Add";
-import React, {ReactNode, useState} from "react";
-import {CreateTopicModal} from "@/components/topics/topic/create-topic-modal";
-import { PiGraph } from "react-icons/pi";
-import { PiGraphBold } from "react-icons/pi";
-import { HiOutlineSquares2X2 } from "react-icons/hi2";
-import { HiSquares2X2 } from "react-icons/hi2";
-import { PiListBullets } from "react-icons/pi";
-import { PiListBulletsBold } from "react-icons/pi";
-import {MainSearchBar} from "@/components/buscar/search-bar";
 import {useRouter, useSearchParams} from "next/navigation";
+import {ReactNode, useState} from "react";
 import {useSearch} from "@/components/buscar/search-context";
-import { Button } from "../../../modules/ui-utils/src/button";
+import {Button} from "../../../modules/ui-utils/src/button";
 
+import SelectionComponent from "@/components/buscar/search-selection-component";
+import {Graph, ListBullets} from "@phosphor-icons/react"
 
+import dynamic from "next/dynamic";
+import MainSearchBar from "@/components/buscar/main-search-bar";
+import AddIcon from "@mui/icons-material/Add";
+
+const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
 
 export const TopicsPageHeader = () => {
     const [newTopicOpen, setNewTopicOpen] = useState(false)
@@ -24,16 +20,16 @@ export const TopicsPageHeader = () => {
     const view = searchParams.get("view")
     const {setSearchState} = useSearch()
 
-    function optionsNodes(o: string, isSelected: boolean){
+    function optionsNodes(o: string, isSelected: boolean) {
         let icon: ReactNode
-        if(o == "mapa"){
-            icon = isSelected ? <PiGraphBold fontSize={"22px"}/> : <PiGraph fontSize={"22px"}/>
-        } else if(o == "lista"){
-            icon = isSelected ? <PiListBulletsBold fontSize={"22px"}/> : <PiListBullets fontSize={"22px"}/>
-        } else if(o == "listas"){
-            icon = isSelected ? <HiSquares2X2 fontSize={"22px"}/> : <HiOutlineSquares2X2 fontSize={"22px"}/>
+        icon = null
+        if (o == "mapa") {
+            icon = isSelected ? <Graph fontSize={"22px"} weight={"bold"}/> : <Graph fontSize={"22px"}/>
+        } else if (o == "lista") {
+            icon = isSelected ? <ListBullets fontSize={"22px"} weight={"bold"}/> : <ListBullets fontSize={"22px"}/>
         }
-        return <button className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}>
+        return <button
+            className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}>
             {icon}
         </button>
     }
@@ -57,7 +53,6 @@ export const TopicsPageHeader = () => {
             />
         </div>
 
-
         <div className={"py-1"}>
             <Button
                 color="background"
@@ -74,6 +69,7 @@ export const TopicsPageHeader = () => {
                 <span className={"block min-[600px]:hidden"}>Tema</span>
             </Button>
         </div>
-        <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>
+
+        {newTopicOpen && <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>}
     </div>
 }

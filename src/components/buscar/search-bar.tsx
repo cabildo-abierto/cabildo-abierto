@@ -4,25 +4,6 @@ import React from "react";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import {useSearch} from "@/components/buscar/search-context";
-
-type MainSearchBarProps = {
-    autoFocus?: boolean
-    paddingY?: string
-    fullWidth?: boolean
-}
-
-export const MainSearchBar = ({autoFocus=false, paddingY, fullWidth=true}: MainSearchBarProps) => {
-    const {searchState, setSearchState} = useSearch()
-
-    return <SearchBar
-        searchValue={searchState.value}
-        setSearchValue={(v: string) => {setSearchState({value: v, searching: true});}}
-        autoFocus={autoFocus}
-        paddingY={paddingY}
-        fullWidth={fullWidth}
-    />
-}
 
 
 const SearchBar = ({

@@ -1,10 +1,10 @@
 import {useSearch} from "./search-context";
 import {useEffect, useState} from "react";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {get} from "@/utils/fetch";
-import {Feed, GetFeedOutput, LoadingFeedViewContent} from "@/components/feed/feed/feed";
-import { FeedElement } from "../feed/feed/feed-element";
+import {GetFeedOutput} from "@/lib/types";
+import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 
 
 async function searchContents(q: string) {
@@ -17,6 +17,7 @@ export const ContentsSearchResults = () => {
     const { searchState } = useSearch();
     const [results, setResults] = useState<FeedViewContent[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
+    const [resultsValue, setResultsValue] = useState<string | undefined>()
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -29,13 +30,16 @@ export const ContentsSearchResults = () => {
     useEffect(() => {
         async function search() {
             if (debouncedValue.length === 0) {
+                setResultsValue("")
                 setResults([]);
                 return;
             }
             setResults("loading")
+            setResultsValue(undefined)
             const {data} = await searchContents(debouncedValue)
             if(data){
                 setResults(data.feed)
+                setResultsValue(debouncedValue)
             }
         }
 
@@ -54,20 +58,11 @@ export const ContentsSearchResults = () => {
         </div>
     }
 
-    const nodes = results.map((r, i) => {
-        return <div key={i}>
-            <FeedElement
-                elem={r}
-                inThreadFeed={true}
-                onDeleteFeedElem={async () => {}}
-            />
-        </div>
-    })
-
-    return <Feed
-        initialContents={nodes}
+    return <FeedViewContentFeed
+        queryKey={["search-contents", resultsValue]}
+        initialContents={results}
+        isThreadFeed={true}
         noResultsText={"No se encontraron resultados."}
-        getFeed={null}
-        loadingFeedContent={<LoadingFeedViewContent/>}
+        endText={""}
     />
 }

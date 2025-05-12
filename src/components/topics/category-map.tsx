@@ -1,11 +1,12 @@
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
-import Graph from "./graph";
 import {useRouter} from "next/navigation";
 import {useCategoryGraph} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {topicUrl} from "@/utils/uri";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import dynamic from "next/dynamic";
 
+const Graph = dynamic(() => import("./graph"));
 
 export const CategoryMap = ({c}: {c: string}) => {
     const router = useRouter()

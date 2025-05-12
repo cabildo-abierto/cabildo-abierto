@@ -3,7 +3,8 @@ import Link from "next/link"
 import {getUsername} from "@/utils/utils"
 import {profileUrl} from "@/utils/uri";
 import {useSession} from "@/hooks/api";
-import {UserSummaryOnHover} from "@/components/profile/user-summary";
+import dynamic from "next/dynamic";
+const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"));
 
 export const Username = ({user}: { user: { displayName?: string, handle: string } }) => {
     const session = useSession()

@@ -1,51 +1,10 @@
 import {CategorySelector} from "./category-selector";
 import {CategoryTopics} from "./category-topics";
 import {useState} from "react";
-import {useRouter, useSearchParams} from "next/navigation";
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
-import SwapVertIcon from '@mui/icons-material/SwapVert';
-import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
-import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
-import {updateSearchParam} from "@/components/topics/topic/topic-page";
+import {useSearchParams} from "next/navigation";
+import {updateSearchParam} from "@/utils/fetch";
+import TopicsSortSelector, {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
 
-export type TopicsSortOrder = "Populares" | "Ediciones recientes"
-
-
-export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
-    sortedBy: TopicsSortOrder
-    setSortedBy: (s: TopicsSortOrder) => void
-}) => {
-    const modal = (onClose: () => void) => (
-        <div className={"p-1 space-y-1 border rounded"}>
-            {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
-                return <div key={index}>
-                    <OptionsDropdownButton
-                        onClick={() => {
-                            setSortedBy(s)
-                            onClose()
-                        }}
-                        color={"background-dark"}
-                        fullWidth={true}
-                        size={"small"}
-                        text1={<span className={s == sortedBy ? "font-bold" : ""}>{s}</span>}
-                    />
-                </div>
-            })}
-        </div>
-    )
-
-    return <ModalOnClick modal={modal}>
-        <div className={"text-[var(--text-light)]"}>
-            <IconButton
-                size={"small"}
-                color={"background"}
-            >
-                <SwapVertIcon fontSize={"small"}/>
-            </IconButton>
-        </div>
-    </ModalOnClick>
-
-}
 
 
 export const TopicsListView = () => {

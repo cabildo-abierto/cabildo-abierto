@@ -1,9 +1,9 @@
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
-import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {localeDate} from "../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getNumWords} from "../../../modules/ca-lexical-editor/src/get-num-words";
 import {FullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {Authorship} from "@/components/feed/frame/authorship";
 
 
 export const ArticleHeader = ({article}: {article: FullArticleView}) => {

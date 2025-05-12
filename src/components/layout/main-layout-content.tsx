@@ -1,49 +1,14 @@
 "use client"
-import {ReactNode, useEffect} from "react";
-import {SidebarContent} from "./sidebar";
+import {ReactNode} from "react";
 import {useLayoutConfig} from "./layout-config-context";
-import {RightPanel} from "./right-panel";
-import {pxToNumber} from "@/utils/strings";
 import {BottomBarMobile} from "./bottom-bar-mobile";
 import {emptyChar} from "@/utils/utils";
 import {createPortal} from "react-dom";
+import {SidebarContent} from "@/components/layout/sidebar";
+import {RightPanel} from "@/components/layout/right-panel";
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
-
-    useEffect(() => {
-        const handleResize = () => {
-            const reqWidth = 224 +
-                pxToNumber(layoutConfig.rightMinWidth) +
-                pxToNumber(layoutConfig.maxWidthCenter);
-
-            const reqWidthRightSide = 80 + pxToNumber(layoutConfig.rightMinWidth) +
-                pxToNumber(layoutConfig.maxWidthCenter);
-
-            if ((window.innerWidth >= reqWidth) != layoutConfig.spaceForLeftSide) {
-                setLayoutConfig((prev) => ({
-                    ...prev,
-                    spaceForLeftSide: window.innerWidth >= reqWidth,
-                }))
-            }
-
-            if((window.innerWidth >= reqWidthRightSide) != layoutConfig.spaceForRightSide){
-                setLayoutConfig((prev) => ({
-                    ...prev,
-                    spaceForRightSide: window.innerWidth >= reqWidthRightSide,
-                }))
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-
-        handleResize();
-
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [layoutConfig]);
-
 
     const left = (
         <div className={"fixed top-0 z-[1010] left-0 right-auto bg-[var(--background-dark)]"}>

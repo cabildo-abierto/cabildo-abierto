@@ -1,4 +1,5 @@
-import {IconButton as MUIIconButton, IconButtonProps as MUIIconButtonProps} from "@mui/material"
+import MUIIconButton from "@mui/material/IconButton";
+import type { IconButtonProps as MUIIconButtonProps } from "@mui/material/IconButton";
 import {darker, Color} from "./button";
 
 type IconButtonProps = Omit<MUIIconButtonProps, "color"> & { color?: Color, hoverColor?: Color, textColor?: Color }

@@ -4,7 +4,7 @@ import {ArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isMain} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
-export function isKnownContent(content: any): content is $Typed<ArticleView> | $Typed<PostView> | $Typed<FullArticleView> {
+export function postOrArticle(content: any): content is $Typed<ArticleView> | $Typed<PostView> | $Typed<FullArticleView> {
     return content?.$type === 'ar.cabildoabierto.feed.defs#postView' ||
         content?.$type === 'ar.cabildoabierto.feed.defs#articleView' ||
         content?.$type === 'ar.cabildoabierto.feed.defs#fullArticleView'

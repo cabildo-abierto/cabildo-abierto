@@ -1,26 +1,21 @@
 "use client"
-
-import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor"
 import {useEffect, useState} from "react"
-import { EditorState, LexicalEditor } from "lexical"
-import { TitleInput } from "./title-input"
+import {EditorState} from "lexical"
 import dynamic from "next/dynamic"
-import {validArticle} from "./valid-article";
-import {BackButton} from "../../../../modules/ui-utils/src/back-button";
+
+import {TitleInput} from "./title-input"
 import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
-import {Authorship} from "@/components/feed/frame/content-top-row-author";
+import {BackButton} from "../../../../modules/ui-utils/src/back-button";
+import {validArticle} from "./valid-article";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {useSession} from "@/hooks/api";
-import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
 import {getEditorSettings} from "@/components/editor/settings";
-import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {TopicsMentioned} from "@/components/article/topics-mentioned";
-import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {post} from "@/utils/fetch";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
-import {emptyChar} from "@/utils/utils";
+import {Authorship} from "@/components/feed/frame/authorship";
+import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
+import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
+
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -41,59 +36,6 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
     editorClassName: "article-content relative pt-4",
     placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px] pt-[32px]",
 })
-
-
-export const useTopicsMentioned = () => {
-    const [topicsMentioned, setTopicsMentioned] = useState<TopicMention[]>([])
-    const [lastMentionsFetch, setLastMentionsFetch] = useState(new Date(0))
-    const [lastTextChange, setLastTextChange] = useState(new Date(0))
-    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [title, setTitle] = useState("")
-
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (
-                lastTextChange.getTime() - lastMentionsFetch.getTime() > 10000 ||
-                (Date.now() - lastTextChange.getTime() > 3000 && lastTextChange.getTime() > lastMentionsFetch.getTime())
-            ) {
-                setLastMentionsFetch(new Date());
-
-                const fetchTopicsMentioned = async () => {
-                    try {
-                        const editorStateStr = JSON.stringify(editor.getEditorState().toJSON());
-                        const mdText = editorStateToMarkdown(editorStateStr);
-                        let data: TopicMention[] = []
-                        if(mdText.length + title.length > 0) {
-                            data = (await post<{ title: string; text: string }, TopicMention[]>(
-                                `/get-topics-mentioned`,
-                                {title, text: mdText}
-                            )).data
-                        }
-                        if (data) {
-                            setTopicsMentioned(data);
-                        }
-                    } catch (error) {
-                        console.error("Error running async function:", error);
-                    }
-                };
-
-                fetchTopicsMentioned();
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [lastTextChange, lastMentionsFetch, editor, title]);
-
-    return {
-        topicsMentioned,
-        setLastTextChange,
-        editor,
-        setEditor,
-        title,
-        setTitle
-    }
-}
 
 
 const ArticleEditor = () => {
@@ -129,7 +71,7 @@ const ArticleEditor = () => {
                 />
 			</div>
 		</div>
-        <FooterHorizontalRule/>
+        <GradientHRule/>
         <div className="mt-8 rounded-lg px-5">
             <TitleInput onChange={setTitle} title={title}/>
             <div className="gap-x-4 flex flex-wrap items-baseline">

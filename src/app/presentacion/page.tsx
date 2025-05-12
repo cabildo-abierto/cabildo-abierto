@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
-import { BlueskyLogo } from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/icons/bluesky-logo";
 import Footer from "../../../modules/ui-utils/src/footer";
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import { Button } from "../../../modules/ui-utils/src/button";

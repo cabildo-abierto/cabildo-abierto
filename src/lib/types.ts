@@ -1,5 +1,7 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
+import {PostOutput} from "@/utils/fetch";
+
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
@@ -90,4 +92,14 @@ export type FilterProps = {
     value: any
     op: string
     column: string
+}
+
+
+
+export type GetFeedProps<T> = (cursor?: string) => PostOutput<GetFeedOutput<T>>
+
+
+export type GetFeedOutput<T> = {
+    feed: T[]
+    cursor: string | undefined
 }

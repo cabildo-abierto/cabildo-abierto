@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
-import {ReplyToContent, WritePanel} from "@/components/writing/write-panel/write-panel";
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {$getRoot, $nodesOfType, EditorState, LexicalEditor} from "lexical";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
@@ -11,9 +11,9 @@ import {NodeQuoteReplies} from "./node-quote-replies";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 const MyLexicalEditor = dynamic( () => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 type EditorWithQuoteCommentsProps = {
     settings: SettingsProps

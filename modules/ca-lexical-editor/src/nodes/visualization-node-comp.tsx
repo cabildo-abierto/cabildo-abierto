@@ -1,5 +1,4 @@
 import {DatasetTitle} from "@/components/datasets/dataset-title";
-import {UserHandle} from "@/components/feed/frame/content-top-row-author";
 import {VegaPlot} from "@/components/visualizations/vega-plot";
 
 
@@ -94,7 +93,6 @@ export const VisualizationNodeComp = ({
                     className={""}
                     dataset={visualization.visualization.dataset}
                 />
-                <UserHandle content={visualization}/>
             </div>
             {/* TO DO showEngagement && (
                 <EngagementIcons

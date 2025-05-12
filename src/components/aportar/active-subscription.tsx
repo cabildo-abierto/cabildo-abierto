@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { IntegerInputPlusMinus } from '@/components/aportar/integer-input-plus-minus';
 import { UniqueDonationCheckout } from '@/components/aportar/unique-donation-checkout';
 import { ArrowRightIcon } from '@/components/icons/arrow-right-icon';
-import { DonateIcon } from '@/components/icons/donate-icon';
+import DonateIcon from '@/components/icons/donate-icon';
 import { ExpandLessIcon } from '@/components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '@/components/icons/expand-more-icon';
 import {useSession} from "@/hooks/api";

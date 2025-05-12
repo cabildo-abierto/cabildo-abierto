@@ -3,7 +3,7 @@ import {ShareContentButton} from "./share-content-button";
 import {getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost, splitUri} from "@/utils/uri";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {OptionsDropdownButton} from "./options-dropdown-button";
-import {BlueskyLogo} from "../../icons/bluesky-logo";
+import BlueskyLogo from "../../icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useState} from "react";
 import {useSession} from "@/hooks/api";

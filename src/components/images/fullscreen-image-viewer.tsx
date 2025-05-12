@@ -4,11 +4,11 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {emptyChar} from "@/utils/utils";
-import {Image, ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
+import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
 import {ATProtoImage} from "@/components/images/atproto-image";
 
 
-export const FullscreenImageViewer = ({
+const FullscreenImageViewer = ({
                                           images,
                                           viewing,
                                           did,
@@ -97,3 +97,6 @@ export const FullscreenImageViewer = ({
         </div>
     );
 };
+
+
+export default FullscreenImageViewer

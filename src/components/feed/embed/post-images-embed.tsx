@@ -1,10 +1,10 @@
 "use client"
 import {ReactNode, useState} from "react";
-import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
 import {ATProtoImage} from "@/components/images/atproto-image";
 import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
 import {View as EmbedImagesView} from "@/lex-api/types/app/bsky/embed/images"
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import dynamic from "next/dynamic";
+const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 
 
 type PostImageEmbedProps = {

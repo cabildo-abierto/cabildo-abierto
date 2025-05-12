@@ -1,4 +1,3 @@
-"use client"
 import React, {ReactNode, useEffect, useRef, useState} from "react";
 
 
@@ -7,7 +6,7 @@ const addView = async (uri: string) => {
 }
 
 
-export const ViewMonitor = ({children, uri}: { children: ReactNode, uri: string }) => {
+const ViewMonitor = ({children, uri}: { children: ReactNode, uri: string }) => {
     const viewRecordedRef = useRef(false)
     const contentRef = useRef(null)
 
@@ -46,3 +45,6 @@ export const ViewMonitor = ({children, uri}: { children: ReactNode, uri: string 
         {children}
     </div>
 }
+
+
+export default ViewMonitor;

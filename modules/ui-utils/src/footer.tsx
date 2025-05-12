@@ -4,13 +4,8 @@ import { SiBluesky } from "react-icons/si";
 import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
+import GradientHRule from "./gradient-hrule";
 
-
-export const FooterHorizontalRule = () => {
-    return <div className="relative">
-        <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent"/>
-    </div>
-}
 
 
 const FooterLeftSide = () => {
@@ -68,7 +63,7 @@ export const FooterRightSide = ({showCA}: {showCA: boolean}) => {
 
 export default function Footer({showCA = true}: { showCA?: boolean }) {
     return <footer className="w-full">
-        <FooterHorizontalRule/>
+        <GradientHRule/>
 
         <div className="my-8 flex justify-between px-12 space-x-4 w-full py-4">
             <FooterLeftSide/>

@@ -5,9 +5,9 @@ import {validEntityName} from "./utils";
 import {topicUrl} from "@/utils/uri";
 import {useSession} from "@/hooks/api";
 import {createTopic} from "@/components/writing/write-panel/create-topic";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../../../modules/ui-utils/src/button";
 
-const CreateEntityButton = ({onClick, id}: {onClick: () =>  void, id: string}) => {
+const CreateEntityButton = ({onClick, id}: { onClick: () => void, id: string }) => {
     return <Button
         variant={"contained"}
         onClick={onClick}
