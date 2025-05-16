@@ -3,7 +3,6 @@ import {useRouter} from "next/navigation";
 import {useState} from "react";
 import {Button} from "@mui/material";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {VisualizationOnEditor} from "../visualization-on-editor";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {emptyChar} from "@/utils/utils";
@@ -15,20 +14,13 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
 import {$Typed} from "@atproto/api";
-import {Plot} from "@/components/visualizations/plot";
-import {configToVisualization} from "./config-to-visualization"
+import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {isMain as isVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+
 
 
 function readyToPlot(config: PlotConfigProps) {
-    if (config.kind == null || config.kind == "Tipo de gráfico") return false
-    if (config.datasetUri == null) return false
-    if (config.kind == "Histograma") {
-        if (!config["Columna"] || config["Columna"].length == 0) return false
-    } else if (config.kind == "Gráfico de barras" || config.kind == "Gráfico de línea") {
-        if (!config["Eje x"] || config["Eje x"].length == 0) return false
-        if (!config["Eje y"] || config["Eje y"].length == 0) return false
-    }
-    return true
+    return isVisualization(config)
 }
 
 
@@ -40,19 +32,13 @@ function readyToSave(config: PlotConfigProps) {
 
 
 function nextStep(config: PlotConfigProps) {
-    if (config.datasetUri == null) {
+    const datasetAvailable = config.dataSource && isDatasetVisualization(config.dataSource) && config.dataSource.dataset
+
+    if (!datasetAvailable) {
         return "Elegí un conjunto de datos."
-    } else if (config.kind == null || config.kind == "Tipo de gráfico") {
-        return "Elegí un tipo de gráfico."
     } else {
-        if (config.kind == "Histograma") {
-            if (!config["Columna"] || config["Columna"].length == 0) return "Elegí una columna."
-        } else if (config.kind == "Gráfico de barras" || config.kind == "Gráfico de línea") {
-            if (!config["Eje x"] || config["Eje x"].length == 0) return "Elegí un eje x."
-            if (!config["Eje y"] || config["Eje y"].length == 0) return "Elegí un eje y."
-        }
+        return "Configurá la visualización"
     }
-    return ""
 }
 
 
@@ -120,6 +106,8 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
         return {error: "Sin implementar."}
     }
 
+    const datasetAvailable = config.dataSource && isDatasetVisualization(config.dataSource) && config.dataSource.dataset
+
     return <div className={"h-screen"}>
         <div className={"flex flex-col items-center justify-between h-full"}>
             <div className={"h-32"}>
@@ -135,7 +123,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     />
                 </div>
             </div>
-            {selected == "Visualización" && isDatasetView(dataset) && isVisualization(config) && <div>
+            {/*selected == "Visualización" && isDatasetView(dataset) && isVisualization(config) && <div>
                 {
                     readyToPlot(config) ?
                         <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
@@ -147,7 +135,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                             {nextStep(config)}
                         </div>
                 }
-            </div>}
+            </div>*/}
             {selected == "Visualization" && isDatasetViewBasic(dataset) && <div className={"py-8"}>
                 <LoadingSpinner/>
             </div>}
@@ -173,7 +161,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     <div className={"text-sm text-[var(--text-light)] text-center mb-1"}>
                         {nextStepToPublish(config)}
                     </div>
-                    {config.datasetUri && <StateButton
+                    {datasetAvailable && <StateButton
                         textClassName={"font-bold"}
                         handleClick={onSave}
                         text1={"Publicar"}

@@ -13,12 +13,14 @@ import {$Typed} from "@atproto/api";
 import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 
 
-const ErrorPanel = ({msg}: {msg?: string}) => {
+const ErrorPanel = ({msg}: { msg?: string }) => {
     const [openMsgPopup, setOpenMsgPopup] = useState(msg != null)
 
     return <AcceptButtonPanel
         open={openMsgPopup}
-        onClose={() => {setOpenMsgPopup(false)}}
+        onClose={() => {
+            setOpenMsgPopup(false)
+        }}
     >
         <div className={"flex flex-col items-center pb-6 px-6 max-w-[400px]"}>
             <h2 className={"mb-4"}>Ocurrió un error</h2>
@@ -30,16 +32,16 @@ const ErrorPanel = ({msg}: {msg?: string}) => {
 }
 
 
-async function getDataset(uri: string){
+async function getDataset(uri: string) {
     const {did, collection, rkey} = splitUri(uri)
     return get<DatasetView>(`/dataset/${did}/${collection}/${rkey}`)
 }
 
 
-export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initialConfig?: PlotConfigProps}) => {
-    const { data: datasets } = useDatasets()
+export const VisualizationEditor = ({initialConfig, msg}: { msg?: string, initialConfig?: PlotConfigProps }) => {
+    const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
-    const [dataset, setDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
+    const [chosenDataset, setChosenDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
     const sidebarWidth = 80
     const [rightSideWidth, setRightSideWidth] = useState(400)
@@ -78,7 +80,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         if (leftRef.current) {
             const resizeObserver = new ResizeObserver((entries) => {
                 for (let entry of entries) {
-                    const { width } = entry.contentRect;
+                    const {width} = entry.contentRect;
                     setLeftSideWidth(width);
                 }
             });
@@ -96,7 +98,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         if (rightRef.current) {
             const resizeObserver = new ResizeObserver((entries) => {
                 for (let entry of entries) {
-                    const { width } = entry.contentRect;
+                    const {width} = entry.contentRect;
                     setRightSideWidth(width);
                 }
             });
@@ -111,23 +113,21 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
 
     useEffect(() => {
         async function getSelectedDataset(datasetUri: string) {
-            for(let i = 0; i < datasets.length; i++){
-                if(datasets[i].uri == config.dataSource.dataset){
-                    setDataset({$type: "ar.cabildoabierto.data.dataset#datasetViewBasic", ...datasets[i]});
-                    const {data, error} = await getDataset(datasetUri)
-                    setDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
-                }
-            }
+            const index = datasets.findIndex((d) => d.uri == datasetUri)
+
+            setChosenDataset({...datasets[index], $type: "ar.cabildoabierto.data.dataset#datasetViewBasic"})
+            const {data, error} = await getDataset(datasetUri)
+            setChosenDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
         }
 
-        if (isDatasetVisualization(config.dataSource) && config.dataSource.dataset && datasets) {
-            if(!dataset || config.dataSource.dataset != dataset.uri){
-                getSelectedDataset(config.dataSource.dataset)
-            }
+        if (isDatasetVisualization(config.dataSource) && config.dataSource.dataset && datasets &&
+            (!chosenDataset || config.dataSource.dataset != chosenDataset.uri)
+        ) {
+            getSelectedDataset(config.dataSource.dataset)
         }
     }, [config.dataSource, datasets])
 
-    if(!wideEnough){
+    if (!wideEnough) {
         return <div className={"h-screen flex justify-center text-center items-center text-[var(--text-light)]"}>
             Abrí el editor en una pantalla más grande
         </div>
@@ -137,15 +137,15 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         config={config}
         selected={selected}
         setSelected={setSelected}
-        maxWidth={centerMaxWidth-8*4-3*4-8*4-4*4-20}
-        dataset={dataset}
+        maxWidth={centerMaxWidth - 8 * 4 - 3 * 4 - 8 * 4 - 4 * 4 - 20}
+        dataset={chosenDataset}
     />
 
     const left = <div ref={leftRef} className={"pr-8 pl-3"}>
         <ChooseDatasetPanel
             datasets={datasets}
             config={config}
-            updateConfig={updateConfig}
+            setConfig={setConfig}
         />
     </div>
 
@@ -153,7 +153,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         <ConfigPanel
             config={config}
             setConfig={setConfig}
-            dataset={dataset}
+            dataset={chosenDataset}
         />
     </div>
 

@@ -1,7 +1,5 @@
 import {DatasetTitle} from "@/components/datasets/dataset-title";
-import {UserHandle} from "@/components/feed/frame/content-top-row-author";
 import {Plot} from "@/components/visualizations/plot";
-
 
 
 export function localizeDataset(spec: any){
@@ -13,6 +11,7 @@ export function localizeDataset(spec: any){
     }
     return spec
 }
+
 
 export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
     /*const {visualization, isLoading, error} = useVisualization(uri)
@@ -81,6 +80,7 @@ export const VisualizationNodeComp = ({
             onClick={(e) => {e.stopPropagation()}}
         >
             <Plot
+                dataset={null}
                 visualization={visualization}
                 width={width}
             />
@@ -94,7 +94,6 @@ export const VisualizationNodeComp = ({
                     className={""}
                     dataset={visualization.visualization.dataset}
                 />
-                <UserHandle content={visualization}/>
             </div>
             {/* TO DO showEngagement && (
                 <EngagementIcons
