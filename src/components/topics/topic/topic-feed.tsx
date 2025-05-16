@@ -1,13 +1,12 @@
-import {useTopicFeed} from "@/hooks/api";
+import {useTopicFeed} from "@/queries/api";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {Feed} from "@/components/feed/feed/feed";
-import {FeedViewContentFeed} from "@/components/feed/feed/feed-view-content-feed";
 import { Button } from "../../../../modules/ui-utils/src/button";
+import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
@@ -35,10 +34,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 </div>
             </Button>
         </div>
-    }
-
-    async function onDeleteFeedElem() {
-        // mutate("/api/topic-feed/"+encodeURIComponent(topicId))
     }
 
     function optionsNodesMentions(o: string, isSelected: boolean){
@@ -85,10 +80,11 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
             <div className={"max-w-[600px]"}>
                 {selected == "Menciones" && mentionsSelected == "Publicaciones" &&
                     <FeedViewContentFeed
+                        queryKey={["topic-feed", topicId, "mentions"]}
                         initialContents={feed.data ? feed.data.mentions : undefined}
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
-                        onDeleteFeedElem={onDeleteFeedElem}
+                        endText={""}
                         isThreadFeed={true}
                     />
                 }
@@ -96,10 +92,11 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 {selected == "Respuestas al contenido" &&
                     <div className={"pt-10"}>
                         <FeedViewContentFeed
+                            queryKey={["topic-feed", topicId, "replies"]}
                             initialContents={feed.data ? feed.data.replies : undefined}
                             onClickQuote={onClickQuote}
                             noResultsText={"Este tema todavía no recibió respuestas."}
-                            onDeleteFeedElem={onDeleteFeedElem}
+                            endText={""}
                             isThreadFeed={true}
                         />
                     </div>

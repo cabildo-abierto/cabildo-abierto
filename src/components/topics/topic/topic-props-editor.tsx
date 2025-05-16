@@ -13,7 +13,7 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
 import {propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
-import {useCategories} from "@/hooks/api";
+import {useCategories} from "@/queries/api";
 
 
 export const TopicPropEditor = ({p, setProp, deleteProp}: {

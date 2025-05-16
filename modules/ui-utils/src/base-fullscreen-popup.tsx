@@ -10,7 +10,8 @@ export const BaseFullscreenPopup = ({
     open,
     className="",
     color="background-dark",
-    allowClose = false
+    allowClose = false,
+    hidden=false
 }: {
     open: boolean
     children: ReactNode;
@@ -19,7 +20,9 @@ export const BaseFullscreenPopup = ({
     className?: string;
     allowClose?: boolean
     color?: Color
+    hidden?: boolean
 }) => {
+    if(hidden) return <div className={"hidden"}>{children}</div>
     return (
         <Modal
             open={open}

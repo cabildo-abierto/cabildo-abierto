@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ShareIcon from '@mui/icons-material/Share';
-import {contentUrl} from "@/utils/uri";
+import {contentUrl, getRkeyFromUri} from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
 
 export const ShareContentButton = ({uri}: {uri: string}) => {
@@ -26,5 +26,6 @@ export const ShareContentButton = ({uri}: {uri: string}) => {
         handleClick={async () => {await onShare(); return {}}}
         startIcon={<ShareIcon/>}
         text1={<div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Link copiado"}</div>}
+        disabled={getRkeyFromUri(uri) == "optimistic"}
     />
 };

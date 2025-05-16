@@ -4,25 +4,6 @@ import React from "react";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import {useSearch} from "@/components/buscar/search-context";
-
-type MainSearchBarProps = {
-    autoFocus?: boolean
-    paddingY?: string
-    fullWidth?: boolean
-}
-
-export const MainSearchBar = ({autoFocus=false, paddingY, fullWidth=true}: MainSearchBarProps) => {
-    const {searchState, setSearchState} = useSearch()
-
-    return <SearchBar
-        searchValue={searchState.value}
-        setSearchValue={(v: string) => {setSearchState({value: v, searching: true});}}
-        autoFocus={autoFocus}
-        paddingY={paddingY}
-        fullWidth={fullWidth}
-    />
-}
 
 
 const SearchBar = ({
@@ -54,7 +35,7 @@ const SearchBar = ({
         slotProps={{
             input: {
                 startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
-                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color="background" size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
+                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color="background-dark" size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}
         autoComplete={"off"}

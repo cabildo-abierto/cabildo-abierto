@@ -5,19 +5,59 @@ import ClearIcon from "@mui/icons-material/Clear";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import {RejectVersionModal} from "./reject-version-modal";
 import {post} from "@/utils/fetch";
-import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
+import {getDidFromUri, getRkeyFromUri, splitUri} from "@/utils/uri";
+import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
+import {contentQueriesFilter, updateTopicHistories} from "@/queries/updates";
+import {produce} from "immer";
 
 
 // TO DO: Si votó reject advertir que lo va a eliminar
-async function acceptEdit(id: string, ref: ATProtoStrongRef){
-    return await post<{}, {}>(`/vote-edit/accept/${id}/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`)
+async function acceptEdit(ref: ATProtoStrongRef){
+    return await post<{}, {uri: string}>(`/vote-edit/accept/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`)
 }
 
 
-async function cancelVote(id: string, uri: string){
-    return await post<{}, {}>(`/cancel-edit-vote/${id}/${getRkeyFromUri(uri)}`)
+async function cancelVote(voteUri: string){
+    const {collection, rkey} = splitUri(voteUri)
+    return await post<{}, {}>(`/cancel-edit-vote/${collection}/${rkey}`)
 }
 
+
+function optimisticAcceptVote(qc: QueryClient, uri: string) {
+    updateTopicHistories(qc, uri, e => {
+        return produce(e, draft => {
+            draft.viewer.accept = "optimistic-accept-uri"
+            draft.status.voteCounts[0].accepts ++
+        })
+    })
+}
+
+
+function setCreatedAcceptVote(qc: QueryClient, uri: string, voteUri: string) {
+    updateTopicHistories(qc, uri, e => {
+        return produce(e, draft => {
+            draft.viewer.accept = voteUri
+        })
+    })
+}
+
+function optimisticCancelAcceptVote(qc: QueryClient, uri: string) {
+    updateTopicHistories(qc, uri, e => {
+        return produce(e, draft => {
+            draft.viewer.accept = undefined
+            draft.status.voteCounts[0].accepts--
+        })
+    })
+}
+
+function optimisticCancelRejectVote(qc: QueryClient, uri: string) {
+    updateTopicHistories(qc, uri, e => {
+        return produce(e, draft => {
+            draft.viewer.reject = undefined
+            draft.status.voteCounts[0].rejects--
+        })
+    })
+}
 
 export const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
     topicId: string
@@ -28,38 +68,58 @@ export const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, a
     rejectCount: number
 }) => {
     const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
-    const [loading, setLoading] = useState(false)
+    const qc = useQueryClient()
+
+    const acceptEditMutation = useMutation({
+        mutationFn: acceptEdit,
+        onMutate: (likedContent) => {
+            qc.cancelQueries(contentQueriesFilter(versionRef.uri))
+            optimisticAcceptVote(qc, versionRef.uri)
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.data.uri) {
+                setCreatedAcceptVote(qc, versionRef.uri, data.data.uri)
+            }
+        },
+        onSettled: async () => {
+            qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
+        },
+    })
+
+    const cancelAcceptEditMutation = useMutation({
+        mutationFn: cancelVote,
+        onMutate: (likedContent) => {
+            qc.cancelQueries(contentQueriesFilter(versionRef.uri))
+            optimisticCancelAcceptVote(qc, versionRef.uri)
+        },
+        onSettled: async () => {
+            qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
+        },
+    })
+
+    const cancelRejectEditMutation = useMutation({
+        mutationFn: cancelVote,
+        onMutate: (likedContent) => {
+            qc.cancelQueries(contentQueriesFilter(versionRef.uri))
+            optimisticCancelRejectVote(qc, versionRef.uri)
+        },
+        onSettled: async () => {
+            qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
+        },
+    })
 
     async function onAcceptEdit(){
-        setLoading(true)
-        console.log("accepting edit")
-        const {error} = await acceptEdit(topicId, versionRef)
-        if(error) return {error}
-        // mutate("/api/topic/"+topicId)
-        // mutate("/api/topic-history/"+topicId)
-        setLoading(false)
+        acceptEditMutation.mutate(versionRef)
         return {}
     }
 
     async function onCancelAcceptEdit(){
-        setLoading(true)
-        const {error} = await cancelVote(topicId, acceptUri)
-        setLoading(false)
-        if(error) return {error}
-        // mutate("/api/topic/"+topicId)
-        // mutate("/api/topic-history/"+topicId)
-        setLoading(false)
+        cancelAcceptEditMutation.mutate(acceptUri)
         return {}
     }
 
     async function onCancelRejectEdit(){
-        setLoading(true)
-        const {error} = await cancelVote(topicId, rejectUri)
-        setLoading(false)
-        if(error) return {error}
-        // mutate("/api/topic/"+topicId)
-        // mutate("/api/topic-history/"+topicId)
-        return {}
+        cancelRejectEditMutation.mutate(rejectUri)
     }
 
     return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
@@ -70,7 +130,7 @@ export const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, a
             iconInactive={<CheckIcon fontSize={"inherit"}/>}
             count={acceptCount}
             title={"Aceptar versión."}
-            disabled={loading}
+            disabled={acceptUri == "optimistic-accept-uri"}
         />
         <ReactionButton
             onClick={rejectUri ? onCancelRejectEdit : () => {setOpenRejectModal(true)}}
@@ -79,7 +139,7 @@ export const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, a
             iconInactive={<ClearIcon fontSize={"inherit"} color={"inherit"}/>}
             count={rejectCount}
             title={"Rechazar versión."}
-            disabled={loading}
+            disabled={rejectUri == "optimistic-reject-uri"}
         />
         <RejectVersionModal
             onClose={() => {setOpenRejectModal(false)}}

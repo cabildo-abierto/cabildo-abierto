@@ -1,6 +1,6 @@
 import { Button } from "../../../modules/ui-utils/src/button";
 import {ProfilePic} from "../profile/profile-pic";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 
 
 export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void, text?: string }) => {

@@ -1,7 +1,6 @@
 import {ReplyButton} from "./reply-button"
 import {useEffect, useState} from "react";
-import {WritePanel} from "../writing/write-panel/write-panel";
-import {getCollectionFromUri, threadApiUrl} from "@/utils/uri";
+import {getCollectionFromUri} from "@/utils/uri";
 import {ThreadContent} from "@/components/thread/thread-content";
 import {
     isFullArticleView,
@@ -10,12 +9,14 @@ import {
     PostView,
     ThreadViewContent
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isKnownContent} from "@/utils/type-utils";
+import {postOrArticle} from "@/utils/type-utils";
 import {ThreadReplies} from "@/components/thread/thread-replies";
 import {ThreadHeader} from "@/components/thread/thread-header";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import dynamic from "next/dynamic";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 export function hasSelectionQuote(p: PostView) {
     return isSelectionQuoteView(p.embed)
@@ -30,20 +31,19 @@ function getThreadQuoteReplies(t: ThreadViewContent) {
 }
 
 
-/* Página de un post, artículo, visualización o dataset */
-export const Thread = ({thread}: { thread: ThreadViewContent }) => {
+const Thread = ({thread}: { thread: ThreadViewContent }) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const [quoteReplies, setQuoteReplies] = useState<PostView[]>([])
 
     const replies = thread.replies
-    const content = isKnownContent(thread.content) ? thread.content : null
+    const content = postOrArticle(thread.content) ? thread.content : null
 
     useEffect(() => {
         if (isFullArticleView(content) && replies) {
             setQuoteReplies(getThreadQuoteReplies(thread))
         }
-    }, [thread])
+    }, [thread, replies])
 
     return <div className={"flex flex-col items-center"}>
         <ThreadHeader c={getCollectionFromUri(content.uri)}/>
@@ -61,20 +61,24 @@ export const Thread = ({thread}: { thread: ThreadViewContent }) => {
             }}/>
         </div>
 
-        <ThreadReplies
+        {replies && <ThreadReplies
+            threadUri={content.uri}
             setPinnedReplies={setPinnedReplies}
-            replies={replies.filter(r => isThreadViewContent(r))}
-        />
+            replies={replies}
+        />}
+        {!replies && <div className={"py-4"}>
+            <LoadingSpinner/>
+        </div>}
 
-        {isKnownContent(thread.content) && <WritePanel
+        {postOrArticle(thread.content) && <WritePanel
             replyTo={thread.content}
             open={openReplyPanel}
             onClose={() => {
                 setOpenReplyPanel(false)
             }}
-            onSubmit={async () => {
-                // TO DO mutate(threadApiUrl(content.uri))
-            }}
         />}
     </div>
 }
+
+
+export default Thread

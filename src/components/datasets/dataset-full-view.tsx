@@ -1,10 +1,10 @@
-import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {DatasetTableView} from "./dataset-table-view";
 import {DatasetDescription} from "./dataset-description";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {pxToNumber} from "@/utils/strings";
+import {Authorship} from "@/components/feed/frame/authorship";
 
 
 export const DatasetFullView = ({dataset}: { dataset: DatasetView }) => {

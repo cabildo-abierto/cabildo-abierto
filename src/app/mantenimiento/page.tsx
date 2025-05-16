@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import {Logo} from "../../../modules/ui-utils/src/logo";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {useRouter} from "next/navigation";
 
 const Page = () => {

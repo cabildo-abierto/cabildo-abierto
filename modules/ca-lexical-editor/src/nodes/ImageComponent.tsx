@@ -48,14 +48,11 @@ import {
 } from 'lexical';
 import * as React from 'react';
 import {Suspense, useCallback, useEffect, useRef, useState} from 'react';
-
-import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import brokenImage from '../images/image-broken.svg';
-import LinkPlugin from '../plugins/LinkPlugin';
-import ContentEditable from '../ui/ContentEditable';
 import {$isImageNode} from './ImageNode';
-import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
 import NextImage from "next/image"
+import dynamic from "next/dynamic";
+const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 
 const imageCache = new Set();
 

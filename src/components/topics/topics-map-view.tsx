@@ -15,5 +15,4 @@ export const TopicsMapView = () => {
     } else {
         return <CategoriesMap/>
     }
-
 }

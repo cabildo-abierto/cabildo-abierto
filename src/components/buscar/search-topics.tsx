@@ -1,11 +1,11 @@
-"use client"
-import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import { useSearch } from "./search-context"
 import React, {useEffect, useState} from "react"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {get} from "@/utils/fetch";
-import { Feed } from "../feed/feed/feed"
+import dynamic from "next/dynamic";
+const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
+const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), { ssr: false });
 
 
 async function searchTopics(q: string) {
@@ -16,6 +16,7 @@ async function searchTopics(q: string) {
 export const SearchTopics = () => {
     const { searchState } = useSearch();
     const [results, setResults] = useState<TopicViewBasic[] | "loading">([]);
+    const [resultsQuery, setResultsQuery] = useState<string | undefined>();
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
     useEffect(() => {
@@ -30,11 +31,13 @@ export const SearchTopics = () => {
         async function search() {
             if (debouncedValue.length === 0) {
                 setResults([]);
+                setResultsQuery("")
                 return;
             }
             setResults("loading")
             const {error, data: topics} = await searchTopics(debouncedValue);
             setResults(topics);
+            setResultsQuery(debouncedValue);
         }
 
         search();
@@ -52,12 +55,11 @@ export const SearchTopics = () => {
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }
 
-    const contents = results.map((r, i) => {
-        return <div key={i}><TopicSearchResult topic={r}/></div>
-    })
-
-    return <Feed
-        initialContents={contents}
+    return <StaticFeed
+        queryKey={["search-topics", resultsQuery]}
+        initialContents={results}
+        FeedElement={({content: r}: {content: TopicViewBasic}) => <TopicSearchResult topic={r}/>}
         noResultsText={"No se encontró ningún tema."}
+        endText={""}
     />
 };

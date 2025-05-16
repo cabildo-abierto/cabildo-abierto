@@ -1,6 +1,5 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
-import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {ArticleHeader} from "@/components/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
@@ -24,10 +23,6 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
 
     const editorId = article.uri + "-" + quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
 
-    async function onSubmitReply() {
-
-    }
-
     const text = article.text
     const format = article.format
 
@@ -49,7 +44,6 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                         pinnedReplies={pinnedReplies}
                         setPinnedReplies={setPinnedReplies}
                         replyTo={article}
-                        onSubmitReply={onSubmitReply}
                         editor={editor}
                         setEditor={setEditor}
                         setEditorState={() => {

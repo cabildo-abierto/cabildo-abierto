@@ -1,9 +1,10 @@
-import Graph from "./graph";
 import {useRouter} from "next/navigation";
-import {useCategoriesGraph} from "@/hooks/api";
+import {useCategoriesGraph} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import dynamic from "next/dynamic";
 
+const Graph = dynamic(() => import("./graph"));
 
 export const CategoriesMap = () => {
     const {data: graph, isLoading, error} = useCategoriesGraph()

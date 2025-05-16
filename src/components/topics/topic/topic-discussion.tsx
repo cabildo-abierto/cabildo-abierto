@@ -1,12 +1,14 @@
 import {ReplyButton} from "../../thread/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
-import {ReplyToContent, WritePanel} from "../../writing/write-panel/write-panel";
+import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
+import dynamic from "next/dynamic";
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 
 
-export const TopicDiscussion = ({
+const TopicDiscussion = ({
     replyToContent, topicId, onClickQuote, wikiEditorState
 }: {
     topicId: string
@@ -33,10 +35,9 @@ export const TopicDiscussion = ({
             open={writingReply}
             onClose={() => {setWritingReply(false)}}
             replyTo={replyToContent}
-            onSubmit={async () => {
-                // TO DO await mutate("/api/topic/"+encodeURIComponent(topicId))
-                // TO DO await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
-            }}
         />}
     </div>
 }
+
+
+export default TopicDiscussion

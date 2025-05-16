@@ -3,7 +3,7 @@ import {Box, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
 import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import { Button } from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 
@@ -19,7 +19,6 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         const channel = new BroadcastChannel("auth_channel")
         channel.onmessage = (event) => {
             if (event.data === "auth-success") {
-                console.log("Auth success: triggering session refetch")
                 refetch()
             }
         }
@@ -54,7 +53,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         })
 
         if(!res.ok){
-            setError("Ocurrió un error al iniciar sesión.")
+            setError("Error de conexión.")
             setIsLoading(false)
             return
         }

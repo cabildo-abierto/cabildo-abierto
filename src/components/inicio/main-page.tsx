@@ -2,8 +2,10 @@
 
 import {MainFeedHeader} from "./main-feed-header"
 import {useSearchParams} from "next/navigation";
-import {updateSearchParam} from "@/components/topics/topic/topic-page";
-import {Feed, getFeed} from "@/components/feed/feed/feed";
+import React from "react";
+import {getFeed} from "@/components/feed/feed/get-feed";
+import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
+import {updateSearchParam} from "@/utils/fetch";
 
 
 export function optionToSearchParam(v: string) {
@@ -39,23 +41,26 @@ export const MainPage = () => {
             />
         </div>
         {selected == "Siguiendo" &&
-        <Feed
-            getFeed={getFeed({type: "siguiendo"})}
-            noResultsText={"No se encontraron contenidos. Seguí a más usuarios."}
-            endText={"Fin del feed."}
-        />}
+            <FeedViewContentFeed
+                getFeed={getFeed({type: "siguiendo"})}
+                noResultsText={"No se encontraron contenidos. Seguí a más usuarios."}
+                endText={"Fin del feed."}
+                queryKey={["main-feed", optionToSearchParam(selected)]}
+            />}
         {selected == "En discusión" &&
-        <Feed
-            getFeed={getFeed({type: "discusion"})}
-            noResultsText={"No hay contenidos en discusión."}
-            endText={"Fin del feed."}
-        />}
+            <FeedViewContentFeed
+                getFeed={getFeed({type: "discusion"})}
+                noResultsText={"No hay contenidos en discusión."}
+                endText={"Fin del feed."}
+                queryKey={["main-feed", optionToSearchParam(selected)]}
+            />}
         {selected == "Descubrir" &&
-        <Feed
-            getFeed={getFeed({type: "descubrir"})}
-            noResultsText={"Próximamente acá vas a encontrar contenidos de usuarios que no seguís."}
-            endText={"Fin del feed."}
-        />
+            <FeedViewContentFeed
+                getFeed={getFeed({type: "descubrir"})}
+                noResultsText={"Próximamente acá vas a encontrar contenidos de usuarios que no seguís."}
+                endText={"Fin del feed."}
+                queryKey={["main-feed", optionToSearchParam(selected)]}
+            />
         }
     </div>
 }

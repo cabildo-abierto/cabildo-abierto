@@ -1,38 +1,8 @@
-import {getUsername} from "@/utils/utils"
 import Link from "next/link"
 import {profileUrl} from "@/utils/uri";
-import {UserSummaryOnHover} from "@/components/profile/user-summary";
+import dynamic from "next/dynamic";
 
-
-export const Authorship = ({content, className = "hover:underline font-medium", onlyAuthor = false, text = "Por"}: {
-    className?: string,
-    text?: string,
-    content: { author: { displayName?: string, handle: string } },
-    onlyAuthor?: boolean
-}) => {
-    return <span className="space-x-1">
-        {!onlyAuthor && <span>
-            {text}
-        </span>}
-        <Link href={profileUrl(content.author?.handle)} className={className}>
-            {getUsername(content.author)}
-        </Link>
-    </span>
-}
-
-
-export const UserHandle = ({
-                               content,
-                               className = "hover:underline font-medium"
-                           }: {
-    className?: string,
-    text?: string,
-    content: { author: { displayName?: string, handle: string } }
-}) => {
-    return <Link href={profileUrl(content.author?.handle)} className={className}>
-        {getUsername({handle: content.author.handle})}
-    </Link>
-}
+const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"));
 
 
 export const ContentTopRowAuthor = ({author}: { author: { handle: string, displayName?: string } }) => {

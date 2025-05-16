@@ -3,8 +3,8 @@ import {Followx} from "@/components/profile/follow/followx";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {optionToSearchParam} from "@/components/inicio/main-page";
-import {Button} from "@mui/material";
 import Link from "next/link";
+import { Button } from "../../../../modules/ui-utils/src/button";
 
 export type FollowKind = "seguidores" | "siguiendo"
 
@@ -28,7 +28,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
             <Button
                 onClick={() => {}}
                 variant="text"
-                color="inherit"
+                color="transparent"
                 fullWidth={true}
                 disableElevation={true}
                 sx={{
@@ -48,7 +48,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
         <div className={"flex flex-col items-start border-b w-full"}>
             <div className={"flex space-x-2 py-2 items-center"}>
                 <BackButton/>
-                <Link href={"/perfil/" + id} className={"font-semibold text-lg"}>
+                <Link href={"/src/app/(main)/perfil/" + id} className={"font-semibold text-lg"}>
                     @{id}
                 </Link>
             </div>

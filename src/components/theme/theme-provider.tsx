@@ -26,9 +26,9 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
 
             root.style.setProperty('--background', 'rgb(25, 25, 35)');
             root.style.setProperty('--background-dark', 'rgb(30, 30, 40)');
-            root.style.setProperty('--background-dark2', 'rgb(35, 35, 45)');
-            root.style.setProperty('--background-dark3', 'rgb(40, 40, 50)');
-            root.style.setProperty('--background-dark4', 'rgb(45, 45, 55)');
+            root.style.setProperty('--background-dark2', 'rgb(50, 50, 60)');
+            root.style.setProperty('--background-dark3', 'rgb(65, 65, 75)');
+            root.style.setProperty('--background-dark4', 'rgb(80, 80, 90)');
 
             root.style.setProperty('--accent', '#2e364c');
             root.style.setProperty('--accent-dark', '#444d66');
