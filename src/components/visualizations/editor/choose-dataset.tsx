@@ -9,12 +9,14 @@ import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import SearchBar from "@/components/buscar/search-bar";
+import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {produce} from "immer";
 
 
-export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
+export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
     datasets?: DatasetViewBasic[],
     config: PlotConfigProps,
-    updateConfig: (k: string, v: any) => void
+    setConfig: (config: PlotConfigProps) => void
 }) => {
     const [searchValue, setSearchValue] = useState<string>("")
     const [filteredDatasets, setFilteredDatasets] = useState<DatasetViewBasic[]>(datasets)
@@ -64,9 +66,14 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                         return <div key={i} className={""}>
                             <DatasetPreviewOnEditor
                                 dataset={d}
-                                selected={config.datasetUri == d.uri}
+                                selected={config.dataSource && isDatasetVisualization(config.dataSource) && config.dataSource.dataset == d.uri}
                                 onClick={() => {
-                                    updateConfig("datasetUri", d.uri)
+                                    setConfig(produce(config, draft => {
+                                        draft.dataSource = {
+                                            $type: "ar.cabildoabierto.embed.visualization#datasetVisualization",
+                                            dataset: d.uri
+                                        }
+                                    }))
                                 }}
                             />
                         </div>

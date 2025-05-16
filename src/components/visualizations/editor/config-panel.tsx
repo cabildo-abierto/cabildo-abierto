@@ -8,7 +8,6 @@ import {FilterConfig} from "./filter-config";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
-import {kindToLexicon, lexiconToKind} from "@/components/visualizations/editor/config-to-visualization";
 
 
 const twoAxis: PropReq[] = [
@@ -68,6 +67,31 @@ const configReq = new Map<string, PropReq[]>([
 ])
 
 
+export function kindToLexicon(kind: string): string {
+    const dict = {
+        "Histograma": "histogram",
+        "Gráfico de línea": "lines",
+        "Gráfico de barras": "barplot",
+        "Gráfico de puntos": "scatterplot",
+        "Hemiciclo": "#hemicycleVisualization"
+    }
+
+    return dict[kind];
+}
+
+
+export function lexiconToKind(lexicon: string): string {
+    const dict = {
+        "histogram": "Histograma",
+        "lines": "Gráfico de línea",
+        "barplot": "Gráfico de barras",
+        "scatterplot": "Gráfico de puntos",
+        "#hemicycleVisualization": "Hemiciclo"
+    }
+    return dict[lexicon];
+}
+
+
 
 export const ConfigPanel = ({config, setConfig, dataset}: {
     config: PlotConfigProps
@@ -90,7 +114,7 @@ export const ConfigPanel = ({config, setConfig, dataset}: {
             <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto max-h-[calc(100vh-200px)]"}>
                 <Select
                     options={["Histograma", "Gráfico de línea", "Gráfico de barras"]}
-                    value={lexiconToKind(config.spec.$type)}
+                    value={config.spec && config.spec.$type ? lexiconToKind(config.spec.$type) : undefined}
                     onChange={(v) => {
                         setConfig({
                             ...config,
