@@ -1,4 +1,3 @@
-"use client"
 import {useDatasets} from "@/queries/api";
 import {useEffect, useRef, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
@@ -11,6 +10,7 @@ import {get} from "@/utils/fetch";
 import {splitUri} from "@/utils/uri";
 import {$Typed} from "@atproto/api";
 import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -38,7 +38,7 @@ async function getDataset(uri: string) {
 }
 
 
-export const VisualizationEditor = ({initialConfig, msg}: { msg?: string, initialConfig?: PlotConfigProps }) => {
+export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: string, initialConfig?: PlotConfigProps, onClose: () => void; }) => {
     const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
     const [chosenDataset, setChosenDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
@@ -157,7 +157,11 @@ export const VisualizationEditor = ({initialConfig, msg}: { msg?: string, initia
         />
     </div>
 
-    return <div className={"flex justify-between w-[calc(100vw-100px)] h-[calc(100vh-100px)]"}>
+    return <div className={"flex justify-between w-[calc(100vw-100px)] h-[calc(100vh-100px)] relative"}>
+
+        <div className="absolute top-1 right-1">
+            <CloseButton size="small" onClose={onClose} color={"background"}/>
+        </div>
 
         <div>
             {left}
