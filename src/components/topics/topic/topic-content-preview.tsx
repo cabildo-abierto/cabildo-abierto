@@ -6,7 +6,6 @@ import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {getEditorSettings} from "@/components/editor/settings";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -35,17 +34,18 @@ export const TopicContentPreview = ({
         </div>
     }
 
-    return <div className={"rounded-lg border mb-2 px-2 pt-1 pb-4 w-full h-full"}>
+    return <div className={"rounded-lg bg-[var(--background-dark)] mb-2 px-2 pt-1 pb-4 w-full h-full"}>
         <div className={"flex justify-end items-center pb-1"}>
             <IconButton
                 onClick={onMaximize}
                 size={"small"}
+                color={"background-dark"}
             >
                 <FullscreenIcon fontSize={"small"}/>
             </IconButton>
         </div>
         <div
-            className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar bg-[var(--background)]"}
+            className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar"}
         >
             <MyLexicalEditor
                 settings={getEditorSettings({

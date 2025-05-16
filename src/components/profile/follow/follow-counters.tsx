@@ -1,7 +1,7 @@
 import {Profile} from "@/lib/types";
 import {useState} from "react";
 import {FollowCount} from "@/components/profile/follow/followx";
-import {BlueskyLogo} from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/icons/bluesky-logo";
 
 export const FollowCounters = ({profile}: { profile: Profile }) => {
     const followersCountCA = profile.ca ? profile.ca.followersCount : undefined

@@ -2,7 +2,7 @@
 import NotificationsIconMui from '@mui/icons-material/Notifications';
 import { useState } from 'react';
 
-export const NotificationsIcon = ({ count }: { count?: number }) => {
+const NotificationsIcon = ({ count }: { count?: number }) => {
     const [clicked, setClicked] = useState(false)
 
     const className = "font-bold absolute top-0 right-0 transform \
@@ -17,3 +17,6 @@ export const NotificationsIcon = ({ count }: { count?: number }) => {
         }
     </div>
 }
+
+
+export default NotificationsIcon

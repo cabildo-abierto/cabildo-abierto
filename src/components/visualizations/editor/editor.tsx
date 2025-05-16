@@ -1,5 +1,5 @@
 "use client"
-import {useDatasets} from "@/hooks/api";
+import {useDatasets} from "@/queries/api";
 import {useEffect, useRef, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
 import {ConfigPanel} from "./config-panel";

@@ -1,11 +1,13 @@
-import {useFollowx} from "@/hooks/api";
-import {UserSearchResult} from "@/components/buscar/user-search-results";
+import {useFollowx} from "@/queries/api";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import Link from "next/link";
 import {rounder} from "@/utils/strings";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import dynamic from "next/dynamic";
 
-type FollowCountProps = {count: number, kind: FollowKind, url?: string}
+const UserSearchResult = dynamic(() => import("@/components/buscar/user-search-result"), {ssr: false});
+
+type FollowCountProps = { count: number, kind: FollowKind, url?: string }
 
 export const FollowCount = ({count, kind, url}: FollowCountProps) => {
     const text = kind == "siguiendo" ? kind : (count == 1 ? "seguidor" : "seguidores")
@@ -23,10 +25,10 @@ export const FollowCount = ({count, kind, url}: FollowCountProps) => {
 }
 
 
-export const Followx = ({handle, kind}: {handle: string, kind: FollowKind}) => {
+export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) => {
     const {data, isLoading} = useFollowx(handle, kind)
 
-    if(isLoading) return <div className={"py-4"}>
+    if (isLoading) return <div className={"py-4"}>
         <LoadingSpinner/>
     </div>
 

@@ -1,31 +1,37 @@
-import React, {useEffect, useState} from "react";
-import {SidebarButton} from "./sidebar-button";
+import React, {useState} from "react";
+import {usePathname} from "next/navigation";
+
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
-import PersonIcon from '@mui/icons-material/Person';
-import {CabildoIcon} from "../icons/home-icon";
-import {SupportIcon} from "../icons/support-icon";
 import {ProfilePic} from "../profile/profile-pic";
+
+import {profileUrl} from "@/utils/uri";
+import {useSession} from "@/queries/api";
+
+import {useLayoutConfig} from "./layout-config-context";
+import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
+import {SidebarButton} from "./sidebar-button";
+import {Button} from "../../../modules/ui-utils/src/button";
+import {IconButton} from "../../../modules/ui-utils/src/icon-button";
+
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import SearchIcon from "@mui/icons-material/Search";
+import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from "../icons/settings-icon";
 import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
-import {NotificationsIcon} from "../icons/notifications-icon";
-import {usePathname} from "next/navigation";
-import SearchIcon from "@mui/icons-material/Search";
-import {WritePanel} from "../writing/write-panel/write-panel";
-import {useLayoutConfig} from "./layout-config-context";
 import {WriteButtonIcon} from "../icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import {profileUrl} from "@/utils/uri";
-import {FloatingWriteButton} from "../writing/floating-write-button";
-import {useSession} from "@/hooks/api";
-import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
-import {Button} from "../../../modules/ui-utils/src/button";
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
+import CabildoIcon from "../icons/home-icon";
+import SupportIcon from "../icons/support-icon";
+import NotificationsIcon from "../icons/notifications-icon";
+
+import dynamic from "next/dynamic";
+const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
+const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
 
 
 const HelpDeskButton = ({user, onClose, showText, setShowText}: {
@@ -78,7 +84,7 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
                     size={"medium"}
                     id={"write-button"}
                 >
-                    <WriteButtonIcon color={"inherit"}/>
+                    <WriteButtonIcon/>
                 </IconButton>
             }
         </div>
@@ -91,15 +97,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
-
-    useEffect(() => {
-        if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
-            setLayoutConfig((prev) => ({
-                ...prev,
-                openSidebar: layoutConfig.spaceForLeftSide
-            }))
-        }
-    }, [layoutConfig.defaultSidebarState, layoutConfig.spaceForLeftSide])
 
     const showText = layoutConfig.openSidebar
 
@@ -123,10 +120,11 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         <div className={"mb-4"}>
                             {user.user &&
                                 <div className={"w-full flex justify-center"}>
-                                    <Link href={profileUrl(user.user.handle)}>
+                                    <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                         <ProfilePic user={user.user}
                                                     className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}
-                                                    descriptionOnHover={false}/>
+                                                    descriptionOnHover={false}
+                                        />
                                     </Link>
                                 </div>
                             }

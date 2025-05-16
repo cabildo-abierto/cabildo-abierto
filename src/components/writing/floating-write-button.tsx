@@ -3,7 +3,7 @@ import {createPortal} from "react-dom";
 import {usePathname} from "next/navigation";
 
 
-export const FloatingWriteButton = ({onClick}: {onClick: () => void}) => {
+const FloatingWriteButton = ({onClick}: {onClick: () => void}) => {
     const pathname = usePathname()
 
     if(pathname.startsWith("/inicio") || pathname.startsWith("/perfil")){
@@ -21,3 +21,6 @@ export const FloatingWriteButton = ({onClick}: {onClick: () => void}) => {
     }
     return null
 }
+
+
+export default FloatingWriteButton

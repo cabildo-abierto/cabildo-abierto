@@ -5,13 +5,12 @@ import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVers
 import {TopicViewBasicOnFeed} from "@/components/feed/topic/topic-view-basic-on-feed";
 
 
-export const FeedElement = ({
+const FeedElement = ({
     elem,
     onClickQuote,
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false,
-    onDeleteFeedElem,
     inThreadFeed=false,
 }: {
     elem: FeedViewContent
@@ -19,7 +18,6 @@ export const FeedElement = ({
     showingChildren?: boolean
     showingParent?: boolean
     showReplyMessage?: boolean
-    onDeleteFeedElem: () => Promise<void>
     inThreadFeed?: boolean
 }) => {
 
@@ -37,14 +35,21 @@ export const FeedElement = ({
             showingParent={showingParent}
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
-            onDeleteFeedElem={onDeleteFeedElem}
             inThreadFeed={inThreadFeed}
         />
     } else if (isTopicViewBasic(elem.content)) {
-        return <TopicViewBasicOnFeed topic={elem.content}/>
+        return <TopicViewBasicOnFeed
+            topic={elem.content}
+            showingChildren={showingChildren}
+        />
+    } else if(elem.content.$type == "deleted") {
+        return null
     } else {
         return <div className={"py-4"}>
             Error: No pudimos mostrar un elemento de la colección {elem.content.$type}
         </div>
     }
 }
+
+
+export default FeedElement

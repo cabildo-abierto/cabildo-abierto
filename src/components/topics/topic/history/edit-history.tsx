@@ -7,19 +7,18 @@ import { AcceptButtonPanel } from "../../../../../modules/ui-utils/src/accept-bu
 import { toPercentage } from "../show-contributors"
 import { ChangesCounter } from "../changes-counter"
 import { BaseFullscreenPopup } from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
-import { Authorship } from "@/components/feed/frame/content-top-row-author";
 import {ProfilePic} from "../../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {getAcceptCount, getRejectCount, getTopicMonetizedChars} from "../utils";
 import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
-import {useTopicHistory} from "@/hooks/api";
+import {useTopicHistory} from "@/queries/api";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -28,6 +27,7 @@ import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit-buttons";
 import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
 import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
+import {Authorship} from "@/components/feed/frame/authorship";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistory, index: number}) => {
@@ -45,22 +45,20 @@ const AssignAuthorshipButtons = ({topic, version}: {
             iconActive={<AttachMoneyIcon fontSize={"inherit"}/>}
             iconInactive={<AttachMoneyIcon fontSize={"inherit"}/>}
             onAdd={async () => {
-                return {error: "Sin implementar"}
             }}
             onRemove={async () => {
-                return {error: "Sin implementar"}
             }}
+            active={false}
             count={0}
         />
         <ReactionCounter
             iconActive={<MoneyOffIcon fontSize={"inherit"}/>}
             iconInactive={<MoneyOffIcon fontSize={"inherit"}/>}
             onAdd={async () => {
-                return {error: "Sin implementar"}
             }}
             onRemove={async () => {
-                return {error: "Sin implementar"}
             }}
+            active={false}
             count={0}
         />
     </div>
@@ -98,7 +96,12 @@ export const TopicProperties = ({topicVersion, topic}: {topicVersion: VersionInH
 
     return <ModalOnHover modal={modal}>
         <div className={"text-[var(--text-light)]"}>
-            <IconButton size={"small"} color={"background-dark"}>
+            <IconButton
+                size={"small"}
+                textColor={"text-light"}
+                color={"transparent"}
+                hoverColor={"background-dark2"}
+            >
                 <ListAltIcon color={"inherit"}/>
             </IconButton>
         </div>
@@ -285,7 +288,7 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
     const history = <div className="hidden min-[800px]:block">
         {topicHistory.versions.map((_, index) => {
         const versionIndex = topicHistory.versions.length-1-index
-        return <div key={index} className="w-full">
+        return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
             <HistoryElement
                 topic={topic}
                 topicHistory={topicHistory}

@@ -6,20 +6,24 @@ import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
-import {urlFromRecord, profileUrl} from "@/utils/uri";
+import {urlFromRecord, profileUrl, getCollectionFromUri, isPost} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";
 import {ReasonRepost} from '@/lex-api/types/app/bsky/feed/defs'
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
-import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {isSelfLabels} from "@/lex-api/types/com/atproto/label/defs";
+import {
+    ArticleView,
+    FullArticleView,
+    PostView,
+    ThreadViewContent
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {$Typed} from "@atproto/api";
+import {useQueryClient} from "@tanstack/react-query";
+import {threadQueryKey} from "@/queries/api";
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {
-    const post = postView.record as ArticleRecord | PostRecord
-    return isSelfLabels(post.labels) && post.labels.values.some((x) => x.val == "en discusion")
+    const labels = postView.labels
+    return labels && labels.some((x) => x.val == "ca:en discusión")
 }
 
 
@@ -34,7 +38,6 @@ type FastPostPreviewFrameProps = {
     showingParent?: boolean
     showingChildren?: boolean
     reason?: ReasonRepost
-    onDelete?: () => Promise<void>
 }
 
 export const PostPreviewFrame = ({
@@ -43,36 +46,30 @@ export const PostPreviewFrame = ({
                                      borderBelow = true,
                                      showingParent = false,
                                      showingChildren = false,
-                                     reason,
-                                     onDelete
+                                     reason
                                  }: FastPostPreviewFrameProps) => {
     const router = useRouter()
     const url = urlFromRecord(postView.uri)
+    const qc = useQueryClient()
 
     const enDiscusion = hasEnDiscusionLabel(postView)
     const author = postView.author
     const createdAt = new Date(postView.indexedAt)
 
     async function onClick() {
+        if(isPost(getCollectionFromUri(postView.uri))){
+            qc.setQueryData(threadQueryKey(postView.uri), old => {
+                if(old) return old
+                const t: ThreadViewContent = {
+                    $type: "ar.cabildoabierto.feed.defs#threadViewContent",
+                    content: postView,
+                    replies: null
+                }
+                return t
+            })
+            qc.invalidateQueries({queryKey: threadQueryKey(postView.uri)})
+        }
 
-        /*
-        TO DO
-        const threadData: ThreadProps = {
-            post: post,
-            replies: null
-        };
-
-        mutate(
-            threadApiUrl(post.uri),
-            undefined,
-            {
-                optimisticData: (currentData) => {
-                    return currentData ? currentData : {thread: threadData, error: null}
-                },
-                populateCache: false,
-                revalidate: false
-            }
-        )*/
         router.push(url);
     }
 

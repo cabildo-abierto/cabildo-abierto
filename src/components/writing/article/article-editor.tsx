@@ -1,20 +1,22 @@
 "use client"
-
-import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor"
-import { useState } from "react"
-import { EditorState, LexicalEditor } from "lexical"
-import { TitleInput } from "./title-input"
+import {useEffect, useState} from "react"
+import {EditorState} from "lexical"
 import dynamic from "next/dynamic"
-import {validArticle} from "./valid-article";
-import {BackButton} from "../../../../modules/ui-utils/src/back-button";
+
+import {TitleInput} from "./title-input"
 import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
-import {Authorship} from "@/components/feed/frame/content-top-row-author";
+import {BackButton} from "../../../../modules/ui-utils/src/back-button";
+import {validArticle} from "./valid-article";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
-import {useSession} from "@/hooks/api";
-import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
+import {useSession} from "@/queries/api";
 import {getEditorSettings} from "@/components/editor/settings";
+import {Authorship} from "@/components/feed/frame/authorship";
+import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
+import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
+import {TopicsMentioned} from "@/components/article/topics-mentioned";
+
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -38,9 +40,9 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
 
 
 const ArticleEditor = () => {
-    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const [title, setTitle] = useState("")
+    const [modalOpen, setModalOpen] = useState(false)
+    const {topicsMentioned, setLastTextChange, setEditor, title, setTitle} = useTopicsMentioned()
     const {user} = useSession()
     const smallScreen = window.innerWidth < 700
 
@@ -52,32 +54,29 @@ const ArticleEditor = () => {
 
     const createdAt = new Date()
 
-    /*async function onReloadMarkdown(){
-        let jsonState = JSON.stringify(editorState.toJSON())
-        const markdown = editorStateToMarkdown(jsonState)
-        jsonState = markdownToEditorState(markdown)
-        const state = editor.parseEditorState(jsonState)
-        editor.update(() => {
-            editor.setEditorState(state)
-        })
-    }*/
+    useEffect(() => {
+        setLastTextChange(new Date())
+    }, [editorState, setLastTextChange])
 
     return <div className={"mb-32"}>
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
                 <BackButton defaultURL={"/"}/>
-                {/*<Button onClick={onReloadMarkdown} size={"small"} variant={"text"}>
-                    Chequear markdown
-                </Button>*/}
                 <PublishArticleButton
-                    editor={editor}
                     title={title}
                     disabled={disabled}
+                    modalOpen={modalOpen}
+                    setModalOpen={setModalOpen}
+                    editorState={editorState}
+                    mentions={topicsMentioned}
                 />
 			</div>
 		</div>
-        <FooterHorizontalRule/>
+        <GradientHRule/>
         <div className="mt-8 rounded-lg px-5">
+            <div className={"mb-2"}>
+            <TopicsMentioned mentions={topicsMentioned}/>
+            </div>
             <TitleInput onChange={setTitle} title={title}/>
             <div className="gap-x-4 flex flex-wrap items-baseline">
                 <span className={"max-[500px]:text-base text-lg text-[var(--text-light)]"}>

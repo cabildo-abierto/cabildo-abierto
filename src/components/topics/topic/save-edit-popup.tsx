@@ -11,7 +11,7 @@ import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-
 import {TextField} from "@mui/material";
 import {topicUrl} from "@/utils/uri";
 import {getTopicProtection, hasEditPermission} from "./utils";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {Button} from "@/../modules/ui-utils/src/button"
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
@@ -131,7 +131,7 @@ export const SaveEditPopup = ({
                 }
                 <div className="flex justify-center items-center space-x-4 mt-4">
                     <Button
-                        color="primary"
+                        color="transparent"
                         variant="text"
                         onClick={async () => {
                             onClose()

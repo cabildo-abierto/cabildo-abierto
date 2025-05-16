@@ -4,8 +4,9 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {useCodes} from "@/hooks/api";
+import {categoriesSearchParam, useCodes} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import {post} from "@/utils/fetch";
 
 
 export const collectionsList = [
@@ -32,8 +33,8 @@ const deleteUser = async (handle: string) => {
     return {error: "Sin implementar."}
 }
 
-const syncUser = async (handle: string, collections: string[], x: number) => {
-    return {error: "Sin implementar."}
+const syncUser = async (handle: string, collections: string[]) => {
+    return await post(`/sync-user/${handle}?`+categoriesSearchParam(collections))
 }
 
 const createCodes = async (count: number) => {
@@ -109,7 +110,7 @@ export const AdminAcceso = () => {
                     fullWidth={true}
                     text1={"Sincronizar"}
                     handleClick={async () => {
-                        await syncUser(handle, collections, 1)
+                        await syncUser(handle, collections)
                         return {}
                     }}
                 />

@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic"
 import {ShowContributors} from "./show-contributors";
-import {useTopicVersionAuthors} from "@/hooks/api";
+import {useTopicVersionAuthors} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";

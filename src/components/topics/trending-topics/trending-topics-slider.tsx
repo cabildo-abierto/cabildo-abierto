@@ -2,12 +2,12 @@ import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "@/components/topics/topic/utils";
 import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
 import {useRouter} from "next/navigation";
-import {TopicCategories} from "@/components/topics/topic/topic-categories";
+import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
-export const TrendingArticlesSlider = ({trendingArticles}: {
+const TrendingTopicsSlider = ({trendingArticles}: {
     trendingArticles: TopicViewBasic[]}) => {
     const [hovering, setHovering] = useState<number>(undefined)
     const router = useRouter()
@@ -55,3 +55,5 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
         </div>
     );
 }
+
+export default TrendingTopicsSlider;

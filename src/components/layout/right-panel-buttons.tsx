@@ -1,12 +1,11 @@
+import {ReactNode} from "react";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {topicUrl} from "@/utils/uri";
 import InfoIcon from "@mui/icons-material/Info";
-import {DonateIcon} from "@/components/icons/donate-icon";
+import DonateIcon from "@/components/icons/donate-icon";
 import SettingsIcon from "@/components/icons/settings-icon";
-import React, {ReactNode} from "react";
-import {useSession} from "@/hooks/api";
-import {SupportIcon} from "@/components/icons/support-icon";
-import { Button } from "../../../modules/ui-utils/src/button";
+import {useSession} from "@/queries/api";
+import SupportIcon from "@/components/icons/support-icon";
 
 
 export const RightPanelButton = ({children, icon, href}: {children: ReactNode, icon: ReactNode, href: string}) => {

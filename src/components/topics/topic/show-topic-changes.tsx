@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from '../../../../modules/ca-lexical-editor/src/nodes/DiffNode';
 import { MatchesType } from '@/lib/types';
-import {useTopicVersionChanges} from "@/hooks/api";
+import {useTopicVersionChanges} from "@/queries/api";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";

@@ -4,18 +4,20 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
-import {Button} from "./button";
+import {Button, Color} from "./button";
 
 const NewItem = ({
                      addItem,
                      availableOptions,
                      currentItems,
-                     newItemText
+                     newItemText,
+    color
                  }: {
     addItem: (c: string) => void
     availableOptions?: string[]
     currentItems: string[]
     newItemText?: string
+    color?: Color
 }) => {
     const [value, setValue] = useState("")
     const [writingItem, setWritingItem] = useState(false)
@@ -40,14 +42,14 @@ const NewItem = ({
                     }}
                 />
             </div>
-            <IconButton size={"small"} onClick={() => {
+            <IconButton size={"small"} color={color} onClick={() => {
                 addItem(value)
                 setValue("")
                 setWritingItem(false)
             }}>
                 <CheckIcon fontSize="small"/>
             </IconButton>
-            <IconButton size="small" onClick={() => {
+            <IconButton size="small" color={color} onClick={() => {
                 setValue("");
                 setWritingItem(false)
             }}>
@@ -57,7 +59,7 @@ const NewItem = ({
     }
 
     if (currentItems.length > 0) {
-        return <IconButton size="small" onClick={() => {
+        return <IconButton size="small" color={color} onClick={() => {
             setWritingItem(true)
         }}>
             <AddIcon fontSize={"small"}/>
@@ -110,12 +112,14 @@ export const ListEditor = ({
                                newItemText,
                                options = [],
                                items,
-                               setItems
+                               setItems,
+    color="background-dark"
                            }: {
     newItemText?: string
     options?: string[]
     items: string[]
     setItems?: (v: string[]) => void
+    color?: Color
 }) => {
 
     function removeItem(i: number) {
@@ -141,6 +145,7 @@ export const ListEditor = ({
                 availableOptions={options}
                 currentItems={items}
                 newItemText={newItemText}
+                color={color}
             />
         </div>}
         {!setItems && items.length == 0 && <div>

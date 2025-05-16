@@ -7,7 +7,7 @@ import {ErrorMsg} from "@/utils/utils";
 import TickButton from "../../../../modules/ui-utils/src/tick-button";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {validEntityName} from "@/components/topics/topic/utils";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {post} from "@/utils/fetch";
 import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
@@ -51,7 +51,7 @@ export const CreateTopic = ({onClose, initialSelected="none", backButton=true}: 
     if(selected == "none"){
         return <div className={"flex justify-center items-center min-h-64"}>
             <div className={"flex space-x-8 h-full"}>
-                <Link href={"/temas?view=lista"}>
+                <Link href={"/temas?view=lista"} onClick={onClose}>
                     <Button
                         sx={{width: "128px"}}
                     >

@@ -7,6 +7,9 @@ import {TextField} from "@mui/material";
 import {ATProtoStrongRef} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
+import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
+import {contentQueriesFilter, updateTopicHistories} from "@/queries/updates";
+import {produce} from "immer";
 
 
 export function validExplanation(text: string) {
@@ -14,9 +17,9 @@ export function validExplanation(text: string) {
 }
 
 
-async function rejectEdit(id: string, ref: ATProtoStrongRef, message: string, labels: string[]){
-    return await post<{message: string, labels: string[]}, {}>(
-        `/vote-edit/reject/${id}/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`,
+async function rejectEdit({ref, message, labels}: {ref: ATProtoStrongRef, message: string, labels: string[]}){
+    return await post<{message: string, labels: string[]}, {uri: string}>(
+        `/vote-edit/reject/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`,
         {
             message,
             labels
@@ -41,6 +44,25 @@ const RejectLabelTick = ({label, info, labels, title, setLabels}: {label: string
 }
 
 
+function optimisticRejectVote(qc: QueryClient, uri: string) {
+    updateTopicHistories(qc, uri, e => {
+        return produce(e, draft => {
+            draft.viewer.reject = "optimistic-reject-uri"
+            draft.status.voteCounts[0].rejects ++
+        })
+    })
+}
+
+
+function setCreatedRejectVote(qc: QueryClient, uri: string, voteUri: string) {
+    updateTopicHistories(qc, uri, e => {
+        return produce(e, draft => {
+            draft.viewer.reject = voteUri
+        })
+    })
+}
+
+
 export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
     open: boolean
     onClose: () => void
@@ -49,13 +71,27 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
 }) => {
     const [message, setMessage] = useState("")
     const [labels, setLabels] = useState([])
+    const qc = useQueryClient()
+
+    const rejectEditMutation = useMutation({
+        mutationFn: rejectEdit,
+        onMutate: (likedContent) => {
+            qc.cancelQueries(contentQueriesFilter(versionRef.uri))
+            optimisticRejectVote(qc, versionRef.uri)
+            onClose()
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.data.uri) {
+                setCreatedRejectVote(qc, versionRef.uri, data.data.uri)
+            }
+        },
+        onSettled: async () => {
+            qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
+        },
+    })
 
     const onReject = async () => {
-        const {error} = await rejectEdit(topicId, versionRef, message, labels)
-        if(error) return {error}
-        // mutate("/api/topic/"+topicId)
-        // mutate("/api/topic-history/"+topicId)
-        onClose()
+        rejectEditMutation.mutate({ref: versionRef, message, labels})
         return {}
     }
 
