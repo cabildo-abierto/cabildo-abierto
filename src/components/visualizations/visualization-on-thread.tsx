@@ -1,7 +1,7 @@
 import {ProfilePic} from "../profile/profile-pic";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {DatasetTitle} from "../datasets/dataset-title";
-import {VegaPlot} from "./vega-plot";
+import {Plot} from "./plot";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
@@ -74,7 +74,7 @@ export const VisualizationOnThread = ({visualization}: {visualization: any}) => 
             <DatasetTitle dataset={visualization.visualization.dataset} className={"max-[500px]:text-xs text-[var(--text-light)]"}/>
         </div>
         <div className={"flex justify-center mt-4 w-full px-2"}>
-            <VegaPlot
+            <Plot
                 visualization={visualization}
                 width={canvasWidth-20}
             />

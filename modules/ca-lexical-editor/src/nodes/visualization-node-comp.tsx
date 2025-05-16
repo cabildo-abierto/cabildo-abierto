@@ -1,6 +1,6 @@
 import {DatasetTitle} from "@/components/datasets/dataset-title";
 import {UserHandle} from "@/components/feed/frame/content-top-row-author";
-import {VegaPlot} from "@/components/visualizations/vega-plot";
+import {Plot} from "@/components/visualizations/plot";
 
 
 
@@ -80,7 +80,7 @@ export const VisualizationNodeComp = ({
             className={"flex flex-col items-center not-article-content w-full"}
             onClick={(e) => {e.stopPropagation()}}
         >
-            <VegaPlot
+            <Plot
                 visualization={visualization}
                 width={width}
             />

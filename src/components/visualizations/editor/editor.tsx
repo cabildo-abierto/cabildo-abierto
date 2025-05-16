@@ -10,6 +10,7 @@ import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/d
 import {get} from "@/utils/fetch";
 import {splitUri} from "@/utils/uri";
 import {$Typed} from "@atproto/api";
+import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 
 
 const ErrorPanel = ({msg}: {msg?: string}) => {
@@ -37,7 +38,7 @@ async function getDataset(uri: string){
 
 export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initialConfig?: PlotConfigProps}) => {
     const { data: datasets } = useDatasets()
-    const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : { filters: [], kind: "Tipo de gráfico" })
+    const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
     const [dataset, setDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
     const sidebarWidth = 80
@@ -109,38 +110,22 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
     }, []);
 
     useEffect(() => {
-        async function getSelectedDataset() {
+        async function getSelectedDataset(datasetUri: string) {
             for(let i = 0; i < datasets.length; i++){
-                if(datasets[i].uri == config.datasetUri){
+                if(datasets[i].uri == config.dataSource.dataset){
                     setDataset({$type: "ar.cabildoabierto.data.dataset#datasetViewBasic", ...datasets[i]});
-                    const {data, error} = await getDataset(config.datasetUri)
+                    const {data, error} = await getDataset(datasetUri)
                     setDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
                 }
             }
         }
 
-        if (config.datasetUri && datasets) {
-            if(!dataset || config.datasetUri != dataset.uri){
-                if(dataset && config.datasetUri != dataset.uri){
-                    setConfig({
-                        datasetUri: config.datasetUri,
-                        kind: config.kind
-                    })
-                }
-                getSelectedDataset()
+        if (isDatasetVisualization(config.dataSource) && config.dataSource.dataset && datasets) {
+            if(!dataset || config.dataSource.dataset != dataset.uri){
+                getSelectedDataset(config.dataSource.dataset)
             }
         }
-    }, [config.datasetUri, datasets]);
-
-    const updateConfig = (key, value) => {
-        setConfig((prevState) => ({
-            ...prevState,
-            [key]: value,
-        }));
-        if (selected != "Visualización" && key != "datasetUri") {
-            setSelected("Visualización");
-        }
-    }
+    }, [config.dataSource, datasets])
 
     if(!wideEnough){
         return <div className={"h-screen flex justify-center text-center items-center text-[var(--text-light)]"}>
@@ -167,7 +152,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
     const right = <div ref={rightRef} className={"pl-8 pr-4"}>
         <ConfigPanel
             config={config}
-            updateConfig={updateConfig}
+            setConfig={setConfig}
             dataset={dataset}
         />
     </div>
