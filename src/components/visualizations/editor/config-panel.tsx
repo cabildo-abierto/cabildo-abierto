@@ -73,10 +73,10 @@ export function kindToLexicon(kind: string): string {
         "Gráfico de línea": "lines",
         "Gráfico de barras": "barplot",
         "Gráfico de puntos": "scatterplot",
-        "Hemiciclo": "#hemicycleVisualization"
+        "Hemiciclo": "hemicycleVisualization"
     }
 
-    return dict[kind];
+    return "ar.cabildoabierto.embed.visualization#" + dict[kind];
 }
 
 
@@ -86,9 +86,10 @@ export function lexiconToKind(lexicon: string): string {
         "lines": "Gráfico de línea",
         "barplot": "Gráfico de barras",
         "scatterplot": "Gráfico de puntos",
-        "#hemicycleVisualization": "Hemiciclo"
+        "hemicycleVisualization": "Hemiciclo"
     }
-    return dict[lexicon];
+    if(!lexicon.includes("#")) return ""
+    return dict[lexicon.split("#")[1]];
 }
 
 
@@ -111,10 +112,10 @@ export const ConfigPanel = ({config, setConfig, dataset}: {
             <div className={"font-bold text-2xl pt-1 px-2"}>
                 Configuración
             </div>
-            <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto max-h-[calc(100vh-200px)]"}>
+            <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto h-[calc(100vh-270px)]"}>
                 <Select
-                    options={["Histograma", "Gráfico de línea", "Gráfico de barras"]}
-                    value={config.spec && config.spec.$type ? lexiconToKind(config.spec.$type) : undefined}
+                    options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión"]}
+                    value={config.spec && config.spec.$type ? lexiconToKind(config.spec.$type) : ""}
                     onChange={(v) => {
                         setConfig({
                             ...config,
@@ -128,7 +129,7 @@ export const ConfigPanel = ({config, setConfig, dataset}: {
                     fontSize={"14px"}
                     labelShrinkFontSize={"14px"}
                 />
-                <PlotSpecificConfig config={config}/>
+                <PlotSpecificConfig config={config} setConfig={setConfig} dataset={dataset}/>
                 {/*config.filters && config.filters.map((f, i) => {
                     return <div key={i}>
                         <FilterConfig
