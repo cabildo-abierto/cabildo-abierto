@@ -1,8 +1,9 @@
-import React from 'react';
-import { Select as MUISelect, MenuItem, FormControl, InputLabel } from '@mui/material';
+import React, {useState} from 'react';
+import {Select as MUISelect, MenuItem, FormControl, InputLabel} from '@mui/material';
 
 export const Select = ({
-       options, value, onChange, label, fontSize, labelShrinkFontSize }: {
+                           options, value, onChange, label, fontSize, labelShrinkFontSize
+                       }: {
     options: string[]
     onChange: (v: string) => void
     value: string
@@ -18,7 +19,7 @@ export const Select = ({
                 id={selectId}
                 sx={{
                     fontSize: fontSize,
-                    "&.MuiInputLabel-shrink": { fontSize: labelShrinkFontSize }
+                    "&.MuiInputLabel-shrink": {fontSize: labelShrinkFontSize}
                 }}
             >{label}
             </InputLabel>}

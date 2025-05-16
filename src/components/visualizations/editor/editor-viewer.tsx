@@ -15,12 +15,15 @@ import {
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
 import {$Typed} from "@atproto/api";
 import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {isMain as isVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {isMain as isVisualization, validateMain as validateVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {Plot} from "@/components/visualizations/plot";
 
 
 
 function readyToPlot(config: PlotConfigProps) {
-    return isVisualization(config)
+    const res = validateVisualization(config)
+    return res.success
 }
 
 
@@ -108,6 +111,9 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
 
     const datasetAvailable = config.dataSource && isDatasetVisualization(config.dataSource) && config.dataSource.dataset
 
+    const validatedVisualization = validateVisualization(config)
+    const visualization = validatedVisualization.success ? validatedVisualization.value : null
+
     return <div className={"h-screen"}>
         <div className={"flex flex-col items-center justify-between h-full"}>
             <div className={"h-32"}>
@@ -123,19 +129,19 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     />
                 </div>
             </div>
-            {/*selected == "Visualización" && isDatasetView(dataset) && isVisualization(config) && <div>
+            {selected == "Visualización" && isDatasetView(dataset) && visualization && <div>
                 {
                     readyToPlot(config) ?
                         <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
                             <Plot
-                                dataset={dataset} visualization={config}
+                                dataset={dataset} visualization={visualization}
                             />
                         </div> :
                         <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
                             {nextStep(config)}
                         </div>
                 }
-            </div>*/}
+            </div>}
             {selected == "Visualization" && isDatasetViewBasic(dataset) && <div className={"py-8"}>
                 <LoadingSpinner/>
             </div>}

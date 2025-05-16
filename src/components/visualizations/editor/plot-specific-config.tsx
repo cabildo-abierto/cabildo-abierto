@@ -1,71 +1,79 @@
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
-import {TextField} from "@mui/material";
-import {Select} from "../../../../modules/ui-utils/src/select";
 import {PlotConfigProps} from "@/lib/types";
+import {
+    Lines,
+    Barplot,
+    Scatterplot,
+    isHistogram, isHemicycleVisualization
+} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {$Typed} from "@atproto/api";
+import {produce} from "immer";
 
+type PlotSpecificConfigProps = {
+    dataset?: DatasetView | DatasetViewBasic
+    config: PlotConfigProps
+    setConfig: (config: PlotConfigProps) => void
+}
 
-export const PlotSpecificConfig = ({config}: {config: PlotConfigProps}) => {
-    return null
+export function isTwoAxisPlot(content: any): content is $Typed<Lines> | $Typed<Scatterplot> | $Typed<Barplot> {
+    return content?.$type === 'ar.cabildoabierto.embed.visualization#lines' ||
+        content?.$type === 'ar.cabildoabierto.embed.visualization#barplot' ||
+        content?.$type === 'ar.cabildoabierto.embed.visualization#scatterplot';
+}
 
-    /*
-    return config.kind != "Tipo de gráfico" && config.datasetUri != null && dataset != null && <>
-            {configReq.get(config.kind).map((req, i) => {
-                if (req.type == "column") {
-                    return <div key={i}>
-                        <SearchableDropdown
-                            options={dataset.columns.map(c => c.name)}
-                            label={req.label}
-                            size={"small"}
-                            selected={config[req.label]}
-                            onChange={(v: string) => {
-                                updateConfig(req.label, v)
-                            }}
-                        />
-                    </div>
-                } else if (req.type == "string") {
-                    return <div key={i}>
-                        <TextField
-                            label={req.label}
-                            size="small"
-                            value={config[req.label] ? config[req.label] : ""}
-                            InputProps={{
-                                autoComplete: "off",
-                                sx: { fontSize: "14px" }, // Adjust text input font size
-                            }}
-                            InputLabelProps={{
-                                sx: { fontSize: "14px" }, // Adjust label font size
-                            }}
-                            fullWidth
-                            onChange={(e) => updateConfig(req.label, e.target.value)}
-                        />
-                    </div>
-                } else if (req.type == "select") {
-                    return <div key={i}>
-                        <Select
-                            label={req.label}
-                            value={config[req.label] ? config[req.label] : req.defaultValue}
-                            options={req.options}
-                            onChange={(v) => {
-                                updateConfig(req.label, v)
-                            }}
-                        />
-                    </div>
-                } else if (req.type == "maybe-column") {
-                    return <div key={i}>
-                        <SearchableDropdown
-                            options={["Fijo", ...dataset.columns.map(c => c.name)]}
-                            label={req.label}
-                            size={"small"}
-                            selected={config[req.label]}
-                            onChange={(v: string) => {
-                                updateConfig(req.label, v)
-                            }}
-                        />
-                    </div>
-                } else {
-                    throw Error("Not implemented.")
-                }
-            })}
-    </>
-    */
+export const PlotSpecificConfig = ({config, setConfig, dataset}: PlotSpecificConfigProps) => {
+    if(!config.spec || !config.spec.$type) return null
+
+    if(isTwoAxisPlot(config.spec)){
+        return <div className={"flex flex-col space-y-4"}>
+            <SearchableDropdown
+                options={dataset ? dataset.columns.map(c => c.name) : []}
+                label={"Eje x"}
+                size={"small"}
+                selected={config.spec.xlabel ?? ""}
+                onChange={(v: string) => {
+                    setConfig(produce(config, draft => {
+                        if(isTwoAxisPlot(draft.spec)){
+                            draft.spec.xlabel = v
+                        }
+                    }))
+                }}
+            />
+            <SearchableDropdown
+                options={dataset ? dataset.columns.map(c => c.name) : []}
+                label={"Eje y"}
+                size={"small"}
+                selected={config.spec.ylabel ??  ""}
+                onChange={(v: string) => {
+                    setConfig(produce(config, draft => {
+                        if(isTwoAxisPlot(draft.spec)){
+                            draft.spec.ylabel = v
+                        }
+                    }))
+                }}
+            />
+        </div>
+    }
+    if(isHistogram(config.spec)) {
+        return <div>
+            <SearchableDropdown
+                options={dataset ? dataset.columns.map(c => c.name) : []}
+                label={"Eje x"}
+                size={"small"}
+                selected={config.spec.xlabel ?? ""}
+                onChange={(v: string) => {
+                    setConfig(produce(config, draft => {
+                        if(isHistogram(draft.spec)){
+                            draft.spec.xlabel = v
+                        }
+                    }))
+                }}
+            />
+        </div>
+    } else if(isHemicycleVisualization(config.spec)){
+        return <div>
+            Sin implementar
+        </div>
+    }
 }
