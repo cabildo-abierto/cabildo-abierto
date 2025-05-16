@@ -16,10 +16,16 @@ const id = 'ar.cabildoabierto.embed.visualization'
 
 export interface Main {
   $type?: 'ar.cabildoabierto.embed.visualization'
-  spec:
+  dataSource?:
     | $Typed<DatasetVisualization>
-    | $Typed<HemicycleVisualization>
     | $Typed<TopicListVisualization>
+    | { $type: string }
+  spec:
+    | $Typed<HemicycleVisualization>
+    | $Typed<Barplot>
+    | $Typed<Scatterplot>
+    | $Typed<Histogram>
+    | $Typed<Lines>
     | { $type: string }
 }
 
@@ -36,12 +42,6 @@ export function validateMain<V>(v: V) {
 export interface DatasetVisualization {
   $type?: 'ar.cabildoabierto.embed.visualization#datasetVisualization'
   dataset?: string
-  spec?:
-    | $Typed<Barplot>
-    | $Typed<Scatterplot>
-    | $Typed<Histogram>
-    | $Typed<Lines>
-    | { $type: string }
   title?: string
 }
 

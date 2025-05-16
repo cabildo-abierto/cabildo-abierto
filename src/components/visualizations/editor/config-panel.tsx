@@ -7,6 +7,8 @@ import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
+import {kindToLexicon, lexiconToKind} from "@/components/visualizations/editor/config-to-visualization";
 
 
 const twoAxis: PropReq[] = [
@@ -52,7 +54,7 @@ const color: PropReq = {
     type: "maybe-column",
 }
 
-const configReq = new Map<String, PropReq[]>([
+const configReq = new Map<string, PropReq[]>([
     ["Gráfico de barras", [...twoAxis, orientation, orderBars, title, ...twoAxisLabels]],
     ["Gráfico de línea", [...twoAxis, color, title, ...twoAxisLabels]],
     ["Histograma", [
@@ -67,18 +69,18 @@ const configReq = new Map<String, PropReq[]>([
 
 
 
-export const ConfigPanel = ({config, updateConfig, dataset}: {
+export const ConfigPanel = ({config, setConfig, dataset}: {
     config: PlotConfigProps
-    updateConfig: (k: string, v: any) => void
+    setConfig: (config: PlotConfigProps) => void
     dataset?: DatasetView | DatasetViewBasic
 }) => {
 
-    function updateFilter(i: number, value: FilterProps) {
+    /*function updateFilter(i: number, value: FilterProps) {
         if(!config.filters){
             updateConfig("filters", [value])
         }
         updateConfig("filters", [...config.filters.slice(0, i), value, ...config.filters.slice(i + 1)])
-    }
+    }*/
 
     return <ResizableDiv initialWidth={400} minWidth={240} maxWidth={500} side={"left"}>
         <div className={"rounded-lg p-2 mt-16 w-full bg-[var(--background-dark)]"}>
@@ -88,74 +90,22 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
             <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto max-h-[calc(100vh-200px)]"}>
                 <Select
                     options={["Histograma", "Gráfico de línea", "Gráfico de barras"]}
-                    value={config.kind}
+                    value={lexiconToKind(config.spec.$type)}
                     onChange={(v) => {
-                        updateConfig("kind", v)
+                        setConfig({
+                            ...config,
+                            spec: {
+                                ...config.spec,
+                                $type: kindToLexicon(v)
+                            }
+                        })
                     }}
                     label="Tipo de gráfico"
                     fontSize={"14px"}
                     labelShrinkFontSize={"14px"}
                 />
-                {config.kind != "Tipo de gráfico" && config.datasetUri != null && dataset != null && <>
-                    {configReq.get(config.kind).map((req, i) => {
-                        if (req.type == "column") {
-                            return <div key={i}>
-                                <SearchableDropdown
-                                    options={dataset.columns.map(c => c.name)}
-                                    label={req.label}
-                                    size={"small"}
-                                    selected={config[req.label]}
-                                    onChange={(v: string) => {
-                                        updateConfig(req.label, v)
-                                    }}
-                                />
-                            </div>
-                        } else if (req.type == "string") {
-                            return <div key={i}>
-                                <TextField
-                                    label={req.label}
-                                    size="small"
-                                    value={config[req.label] ? config[req.label] : ""}
-                                    InputProps={{
-                                        autoComplete: "off",
-                                        sx: { fontSize: "14px" }, // Adjust text input font size
-                                    }}
-                                    InputLabelProps={{
-                                        sx: { fontSize: "14px" }, // Adjust label font size
-                                    }}
-                                    fullWidth
-                                    onChange={(e) => updateConfig(req.label, e.target.value)}
-                                />
-                            </div>
-                        } else if (req.type == "select") {
-                            return <div key={i}>
-                                <Select
-                                    label={req.label}
-                                    value={config[req.label] ? config[req.label] : req.defaultValue}
-                                    options={req.options}
-                                    onChange={(v) => {
-                                        updateConfig(req.label, v)
-                                    }}
-                                />
-                            </div>
-                        } else if (req.type == "maybe-column") {
-                            return <div key={i}>
-                                <SearchableDropdown
-                                    options={["Fijo", ...dataset.columns.map(c => c.name)]}
-                                    label={req.label}
-                                    size={"small"}
-                                    selected={config[req.label]}
-                                    onChange={(v: string) => {
-                                        updateConfig(req.label, v)
-                                    }}
-                                />
-                            </div>
-                        } else {
-                            throw Error("Not implemented.")
-                        }
-                    })}
-                </>}
-                {config.filters && config.filters.map((f, i) => {
+                <PlotSpecificConfig config={config}/>
+                {/*config.filters && config.filters.map((f, i) => {
                     return <div key={i}>
                         <FilterConfig
                             filter={f}
@@ -168,8 +118,8 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                             }}
                         />
                     </div>
-                })}
-                <div>
+                })*/}
+                {/*<div>
                     <Button
                         color={"background-dark"}
                         startIcon={<AddIcon/>}
@@ -182,7 +132,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                     >
                         Filtro
                     </Button>
-                </div>
+                </div>*/}
                 <div className={"flex justify-end"}>
                 {/* TO DO <IconButton size={"small"}
                     onClick={() => {openJsonInNewTab(getSpecForConfig(config, {dataset}))}}

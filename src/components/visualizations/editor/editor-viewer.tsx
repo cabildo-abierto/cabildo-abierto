@@ -15,6 +15,8 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
 import {$Typed} from "@atproto/api";
+import {Plot} from "@/components/visualizations/plot";
+import {configToVisualization} from "./config-to-visualization"
 
 
 function readyToPlot(config: PlotConfigProps) {
@@ -133,12 +135,12 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     />
                 </div>
             </div>
-            {selected == "Visualización" && isDatasetView(dataset) && <div>
+            {selected == "Visualización" && isDatasetView(dataset) && isVisualization(config) && <div>
                 {
                     readyToPlot(config) ?
                         <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
-                            <VisualizationOnEditor
-                                dataset={dataset} config={config} setCurrentView={setCurrentView}
+                            <Plot
+                                dataset={dataset} visualization={config}
                             />
                         </div> :
                         <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>

@@ -1,5 +1,11 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
+import {
+    Barplot,
+    HemicycleVisualization, Histogram, Lines,
+    Main as Visualization, Scatterplot
+} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import type {$Typed} from "@/lex-api/util";
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
@@ -77,13 +83,15 @@ export type MatchesType = {
     perfectMatches: {x: number, y: number}[]
 }
 
+type DeepPartial<T> = {
+    [P in keyof T]?:
+        T[P] extends object ?
+            T[P] extends Function ? T[P] : DeepPartial<T[P]>
+        : T[P];
+};
 
-export type PlotConfigProps = {
-    datasetUri?: string
-    filters?: FilterProps[]
-    kind?: string
-    [key: string]: any
-}
+
+export type PlotConfigProps = DeepPartial<Visualization>
 
 
 export type FilterProps = {
