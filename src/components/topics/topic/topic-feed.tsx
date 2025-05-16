@@ -1,4 +1,4 @@
-import {useTopicFeed} from "@/hooks/api";
+import {useTopicFeed} from "@/queries/api";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
@@ -34,10 +34,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 </div>
             </Button>
         </div>
-    }
-
-    async function onDeleteFeedElem() {
-        // mutate("/api/topic-feed/"+encodeURIComponent(topicId))
     }
 
     function optionsNodesMentions(o: string, isSelected: boolean){
@@ -89,7 +85,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
                         endText={""}
-                        onDeleteFeedElem={onDeleteFeedElem}
                         isThreadFeed={true}
                     />
                 }
@@ -102,7 +97,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                             onClickQuote={onClickQuote}
                             noResultsText={"Este tema todavía no recibió respuestas."}
                             endText={""}
-                            onDeleteFeedElem={onDeleteFeedElem}
                             isThreadFeed={true}
                         />
                     </div>

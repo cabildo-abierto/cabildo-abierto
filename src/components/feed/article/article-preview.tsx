@@ -6,7 +6,7 @@ import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/ar
 import {$Typed} from "@atproto/api";
 import {Color, darker} from "@/../modules/ui-utils/src/button"
 import {Box} from "@mui/material";
-import {TopicsMentioned} from "@/components/article/topics-mentioned";
+
 
 export type ArticlePreviewProps = {
     feedViewContent: FeedViewContent

@@ -3,7 +3,7 @@ import {PostContent} from "./post-content";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
 import {FeedViewContent, isPostView, PostView} from '@/lex-api/types/ar/cabildoabierto/feed/defs';
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
@@ -42,7 +42,6 @@ export type FastPostPreviewProps = {
     onClickQuote?: (cid: string) => void
     showReplyMessage?: boolean
     repostedBy?: { handle: string, displayName?: string }
-    onDeleteFeedElem: () => Promise<void>
     inThreadFeed?: boolean
 }
 
@@ -85,14 +84,9 @@ export const PostPreview = ({
                                 showingParent = false,
                                 showReplyMessage = false,
                                 onClickQuote,
-                                onDeleteFeedElem,
                                 inThreadFeed = false
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
-
-    const onDelete = async () => {
-        await onDeleteFeedElem()
-    }
 
     const {parent, root} = getParentAndRoot(feedViewContent)
 
@@ -104,7 +98,6 @@ export const PostPreview = ({
         {!inThreadFeed && root && <FeedElement
             elem={{content: feedViewContent.reply.root}}
             showingChildren={true}
-            onDeleteFeedElem={onDeleteFeedElem}
         />}
 
         {showThreadButton && postOrArticle(feedViewContent.reply.root) &&
@@ -116,7 +109,6 @@ export const PostPreview = ({
                 elem={{content: feedViewContent.reply.parent}}
                 showingChildren={true}
                 showingParent={root != null && postOrArticle(root)}
-                onDeleteFeedElem={onDeleteFeedElem}
                 showReplyMessage={grandparentAuthor != null}
             />
         }
@@ -127,7 +119,6 @@ export const PostPreview = ({
             showingChildren={showingChildren}
             showingParent={(parent != null && postOrArticle(parent)) || showingParent}
             borderBelow={!showingChildren}
-            onDelete={onDelete}
         >
             {parent && showReplyMessage && grandparentAuthor && <IsReplyMessage
                 author={grandparentAuthor}

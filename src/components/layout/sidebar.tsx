@@ -5,7 +5,7 @@ import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
 
 import {profileUrl} from "@/utils/uri";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";

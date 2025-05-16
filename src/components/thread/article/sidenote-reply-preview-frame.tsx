@@ -22,7 +22,6 @@ type SidenoteReplyPreviewFrameProps = {
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
-    onDelete?: () => Promise<void>
 }
 
 export const SidenoteReplyPreviewFrame = ({
@@ -30,8 +29,7 @@ export const SidenoteReplyPreviewFrame = ({
                                               post,
                                               borderBelow = true,
                                               showingParent = false,
-                                              showingChildren = false,
-                                              onDelete
+                                              showingChildren = false
                                           }: SidenoteReplyPreviewFrameProps) => {
     const record = post
 

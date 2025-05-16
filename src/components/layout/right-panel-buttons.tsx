@@ -4,7 +4,7 @@ import {topicUrl} from "@/utils/uri";
 import InfoIcon from "@mui/icons-material/Info";
 import DonateIcon from "@/components/icons/donate-icon";
 import SettingsIcon from "@/components/icons/settings-icon";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import SupportIcon from "@/components/icons/support-icon";
 
 

@@ -70,7 +70,6 @@ function getLayoutConfig(pathname: string, params: URLSearchParams): LayoutConfi
         config = s && s != "minimized" ? maximizedTopicConfig : feedConfig
     } else if(pathname.startsWith("/c")){
         const collection = pathname.split("/")[3]
-        console.log("collection", collection)
         config = isArticle(shortCollectionToCollection(collection)) ? articleConfig : feedConfig
     } else if(pathname.startsWith("/escribir/articulo")){
         config = articleConfig
@@ -110,7 +109,6 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     useEffect(() => {
         const config = getLayoutConfig(pathname, params)
         if(!shallowEqual(layoutConfig, config)){
-            console.log("config changed:", config)
             setLayoutConfig(config)
         }
     }, [params, pathname])
@@ -129,7 +127,6 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
             const {spaceForLeftSide, spaceForRightSide} = getSpaceAvailable(layoutConfig)
 
             if (spaceForLeftSide != layoutConfig.spaceForLeftSide) {
-                console.log("setting space for left side")
                 setLayoutConfig((prev) => ({
                     ...prev,
                     spaceForLeftSide: spaceForLeftSide,
@@ -137,7 +134,6 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
             }
 
             if(spaceForRightSide != layoutConfig.spaceForRightSide){
-                console.log("setting space for right side")
                 setLayoutConfig((prev) => ({
                     ...prev,
                     spaceForRightSide: spaceForRightSide,

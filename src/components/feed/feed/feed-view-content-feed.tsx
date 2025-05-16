@@ -13,7 +13,6 @@ type FeedViewContentFeedProps =
     & {
     initialContents?: FeedViewContent[]
     isThreadFeed?: boolean
-    onDeleteFeedElem?: () => Promise<void>
     onClickQuote?: (cid: string) => void
     queryKey: string[]
     getFeed?: GetFeedProps<FeedViewContent>
@@ -22,7 +21,6 @@ type FeedViewContentFeedProps =
 const FeedViewContentFeed = ({
                                  initialContents,
                                  isThreadFeed,
-                                 onDeleteFeedElem,
                                  onClickQuote,
                                  queryKey,
                                  getFeed,
@@ -36,7 +34,6 @@ const FeedViewContentFeed = ({
             FeedElement={({content}) => <FeedElement
                 elem={content}
                 inThreadFeed={isThreadFeed}
-                onDeleteFeedElem={onDeleteFeedElem}
                 onClickQuote={onClickQuote}
             />}
             {...props}
@@ -47,7 +44,6 @@ const FeedViewContentFeed = ({
             FeedElement={({content}) => <FeedElement
                 elem={content}
                 inThreadFeed={isThreadFeed}
-                onDeleteFeedElem={onDeleteFeedElem}
                 onClickQuote={onClickQuote}
             />}
             LoadingFeedContent={<LoadingFeedViewContent/>}

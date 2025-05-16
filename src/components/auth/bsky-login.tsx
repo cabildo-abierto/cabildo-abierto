@@ -3,7 +3,7 @@ import {Box, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
 import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import { Button } from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 

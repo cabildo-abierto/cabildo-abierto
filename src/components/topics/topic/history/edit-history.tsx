@@ -12,13 +12,13 @@ import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {getAcceptCount, getRejectCount, getTopicMonetizedChars} from "../utils";
 import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
-import {useTopicHistory} from "@/hooks/api";
+import {useTopicHistory} from "@/queries/api";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -45,22 +45,20 @@ const AssignAuthorshipButtons = ({topic, version}: {
             iconActive={<AttachMoneyIcon fontSize={"inherit"}/>}
             iconInactive={<AttachMoneyIcon fontSize={"inherit"}/>}
             onAdd={async () => {
-                return {error: "Sin implementar"}
             }}
             onRemove={async () => {
-                return {error: "Sin implementar"}
             }}
+            active={false}
             count={0}
         />
         <ReactionCounter
             iconActive={<MoneyOffIcon fontSize={"inherit"}/>}
             iconInactive={<MoneyOffIcon fontSize={"inherit"}/>}
             onAdd={async () => {
-                return {error: "Sin implementar"}
             }}
             onRemove={async () => {
-                return {error: "Sin implementar"}
             }}
+            active={false}
             count={0}
         />
     </div>
@@ -290,7 +288,7 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
     const history = <div className="hidden min-[800px]:block">
         {topicHistory.versions.map((_, index) => {
         const versionIndex = topicHistory.versions.length-1-index
-        return <div key={index} className="w-full">
+        return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
             <HistoryElement
                 topic={topic}
                 topicHistory={topicHistory}

@@ -1,4 +1,8 @@
-import {isPostView, isThreadViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    isPostView,
+    isThreadViewContent,
+    ThreadViewContent
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {PostPreview} from "@/components/feed/post/post-preview";
 import {Dispatch, SetStateAction} from "react";
@@ -8,7 +12,7 @@ import StaticFeed from "@/components/feed/feed/static-feed";
 
 type ThreadRepliesProps = {
     threadUri: string
-    replies: ThreadViewContent[]
+    replies: ThreadViewContent["replies"]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
 }
 
@@ -24,7 +28,7 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                 noResultsText={"Sé el primero en responder."}
                 endText={""}
                 FeedElement={({content: r}) => {
-                    if (!isPostView(r.content)) return null
+                    if (!isThreadViewContent(r) || !isPostView(r.content)) return null
 
                     function onClickQuote() {
                         if (isThreadViewContent(r) && isPostView(r.content)) {
@@ -37,8 +41,6 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                         postView={r.content}
                         parentIsMainPost={true}
                         onClickQuote={onClickQuote}
-                        onDeleteFeedElem={async () => {
-                        }}
                         inThreadFeed={true}
                     />
                 }}

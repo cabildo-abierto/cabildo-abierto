@@ -1,5 +1,5 @@
 "use client"
-import {useProfile} from "@/hooks/api";
+import {useProfile} from "@/queries/api";
 import {useSearchParams} from "next/navigation";
 import {LoadingProfile} from "@/components/profile/loading-profile";
 import {getUsername} from "@/utils/utils";

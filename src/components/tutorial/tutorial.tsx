@@ -5,7 +5,7 @@ import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {post} from "@/utils/fetch";
 
 

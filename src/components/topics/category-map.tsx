@@ -1,6 +1,6 @@
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {useRouter} from "next/navigation";
-import {useCategoryGraph} from "@/hooks/api";
+import {useCategoryGraph} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {topicUrl} from "@/utils/uri";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";

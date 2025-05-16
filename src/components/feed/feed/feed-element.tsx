@@ -11,7 +11,6 @@ const FeedElement = ({
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false,
-    onDeleteFeedElem=async () => {},
     inThreadFeed=false,
 }: {
     elem: FeedViewContent
@@ -19,7 +18,6 @@ const FeedElement = ({
     showingChildren?: boolean
     showingParent?: boolean
     showReplyMessage?: boolean
-    onDeleteFeedElem?: () => Promise<void>
     inThreadFeed?: boolean
 }) => {
 
@@ -37,7 +35,6 @@ const FeedElement = ({
             showingParent={showingParent}
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
-            onDeleteFeedElem={onDeleteFeedElem}
             inThreadFeed={inThreadFeed}
         />
     } else if (isTopicViewBasic(elem.content)) {
@@ -45,6 +42,8 @@ const FeedElement = ({
             topic={elem.content}
             showingChildren={showingChildren}
         />
+    } else if(elem.content.$type == "deleted") {
+        return null
     } else {
         return <div className={"py-4"}>
             Error: No pudimos mostrar un elemento de la colección {elem.content.$type}

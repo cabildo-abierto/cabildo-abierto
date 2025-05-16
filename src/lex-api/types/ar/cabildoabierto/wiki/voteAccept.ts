@@ -13,16 +13,12 @@ import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongR
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'ar.cabildoabierto.wiki.vote'
+const id = 'ar.cabildoabierto.wiki.voteAccept'
 
 export interface Record {
-  $type: 'ar.cabildoabierto.wiki.vote'
+  $type: 'ar.cabildoabierto.wiki.voteAccept'
   subject: ComAtprotoRepoStrongRef.Main
   createdAt: string
-  /** Valid values are 'accept' and 'reject'. */
-  value?: string
-  message?: string
-  labels?: string[]
   [k: string]: unknown
 }
 

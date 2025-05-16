@@ -2,9 +2,10 @@
 import React, {ReactNode, useEffect, useState} from "react";
 import {range} from "@/utils/arrays";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {GetFeedOutput, GetFeedProps} from "@/lib/types";
-import {useInfiniteQuery} from "@tanstack/react-query";
-import {isFeed} from "@/lex-api/types/app/bsky/feed/describeFeedGenerator";
+import {GetFeedProps} from "@/lib/types";
+import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
+import stringify from 'json-stable-stringify';
+import objectHash from 'object-hash';
 
 
 const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) => {
@@ -34,6 +35,28 @@ export type FeedProps<T> = {
 }
 
 
+export type InfiniteFeed<T> = {
+    pages: FeedPage<T>[]
+}
+
+
+export function serializeFeedPages<T>(feedPages: FeedPage<T>[]){
+    return feedPages.reduce((prev, page) => [...prev, ...page.data], [] as T[])
+}
+
+
+export interface FeedPage<T> {
+    data: T[];
+    nextCursor?: string;
+}
+
+
+function getObjectKey(obj: any): string {
+    const stableStr = stringify(obj);
+    return objectHash(stableStr);
+}
+
+
 function Feed<T>({
                      getFeed,
                      queryKey,
@@ -43,11 +66,7 @@ function Feed<T>({
                      LoadingFeedContent,
                      FeedElement
                  }: FeedProps<T>) {
-
-    interface Page {
-        data: T[];
-        nextCursor?: string;
-    }
+    const qc = useQueryClient()
 
     const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isError} = useInfiniteQuery({
         queryKey,
@@ -57,18 +76,41 @@ function Feed<T>({
                 throw new Error("Failed to fetch feed");
             }
 
-            const newPage: Page = {
+            const newPage: FeedPage<T> = {
                 data: data.feed,
                 nextCursor: data.cursor
             }
             return newPage
         },
         getNextPageParam: (lastPage) => {
-            return lastPage.nextCursor
+            return lastPage.data.length > 0 ? lastPage.nextCursor : undefined
         },
         initialPageParam: "start",
         staleTime: 1000 * 60 * 5
     })
+
+    useEffect(() => {
+        const prefetchFeed = async () => {
+            const { data, error } = await getFeed(undefined) // start fresh
+            if (error) {
+                return // or handle error gracefully
+            }
+
+            const initialPage: FeedPage<T> = {
+                data: data.feed,
+                nextCursor: data.cursor,
+            }
+
+            qc.setQueryData(queryKey, {
+                pages: [initialPage],
+                pageParams: ['start'],
+            })
+
+            qc.invalidateQueries({ queryKey })
+        }
+
+        prefetchFeed()
+    }, [getFeed])
 
     useEffect(() => {
         const handleScroll = async () => {
@@ -98,7 +140,7 @@ function Feed<T>({
         <div className="w-full flex flex-col items-center">
             {feed && feed.pages.map(page => {
                 return page.data.map((c, i) => {
-                    return <div className={"w-full"} key={[page.nextCursor, i, ...queryKey].join(":")}>
+                    return <div className={"w-full"} key={[getObjectKey(c), page.nextCursor, i, ...queryKey].join(":")}>
                         <FeedElement content={c}/>
                     </div>
                 })

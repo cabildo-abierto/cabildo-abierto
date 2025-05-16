@@ -1,6 +1,6 @@
 "use client"
 import LoadingSpinner from "../../../../../../../modules/ui-utils/src/loading-spinner";
-import {useThread} from "@/hooks/api";
+import {useThread} from "@/queries/api";
 import {ErrorPage} from "../../../../../../../modules/ui-utils/src/error-page";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
