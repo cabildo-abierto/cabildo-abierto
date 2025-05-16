@@ -82,7 +82,8 @@ export const EditorWithQuoteComments = ({
     useEffect(() => {
         if(!editor) return
         editor.update(() => {
-
+            if(!blockToUri) return
+            
             const sidenotes = $dfs().map(n => n.node).filter($isSidenoteNode)
             for (let i = 0; i < sidenotes.length; i++) {
                 const s = sidenotes[i]

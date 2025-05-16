@@ -80,7 +80,7 @@ export const TopicContentExpandedViewWithVersion = ({
         if (feed.data) {
             const q: PostView[] = feed.data.replies.map(c => c.content)
                 .filter(c => isPostView(c)).filter(c => isSelectionQuoteEmbed(c.embed))
-            if (!areSetsEqual(new Set(q.map(x => x.uri)), new Set(quoteReplies.map(x => x.uri)))) {
+            if (!quoteReplies || !areSetsEqual(new Set(q.map(x => x.uri)), new Set(quoteReplies.map(x => x.uri)))) {
                 setQuoteReplies(q)
             }
         }
