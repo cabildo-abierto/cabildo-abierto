@@ -1,4 +1,4 @@
-import {useTopics} from "@/hooks/api"
+import {useTopics} from "@/queries/api"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React from "react"
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";

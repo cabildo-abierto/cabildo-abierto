@@ -35,10 +35,6 @@ const TopicDiscussion = ({
             open={writingReply}
             onClose={() => {setWritingReply(false)}}
             replyTo={replyToContent}
-            onSubmit={async () => {
-                // TO DO await mutate("/api/topic/"+encodeURIComponent(topicId))
-                // TO DO await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
-            }}
         />}
     </div>
 }

@@ -34,6 +34,8 @@ export const NodeQuoteReplies = ({
             }
         };
 
+        if(replies.length == 0) return
+
         let observer: ResizeObserver | undefined;
         const targetElement = document.getElementById(replies[0].uri);
 

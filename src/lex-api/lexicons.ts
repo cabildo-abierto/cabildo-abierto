@@ -831,7 +831,7 @@ export const schemaDict = {
             },
             message: {
               type: 'string',
-              minLength: 1,
+              minLength: 0,
               maxLength: 120,
             },
             createdAt: {
@@ -1075,9 +1075,9 @@ export const schemaDict = {
       },
     },
   },
-  ArCabildoabiertoWikiVote: {
+  ArCabildoabiertoWikiVoteAccept: {
     lexicon: 1,
-    id: 'ar.cabildoabierto.wiki.vote',
+    id: 'ar.cabildoabierto.wiki.voteAccept',
     defs: {
       main: {
         type: 'record',
@@ -1094,9 +1094,29 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
-            value: {
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoWikiVoteReject: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.wiki.voteReject',
+    defs: {
+      main: {
+        type: 'record',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['subject', 'createdAt'],
+          properties: {
+            subject: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
+            },
+            createdAt: {
               type: 'string',
-              description: "Valid values are 'accept' and 'reject'.",
+              format: 'datetime',
             },
             message: {
               type: 'string',
@@ -11478,7 +11498,8 @@ export const ids = {
   ArCabildoabiertoFeedDefs: 'ar.cabildoabierto.feed.defs',
   ArCabildoabiertoFeedGetFeed: 'ar.cabildoabierto.feed.getFeed',
   ArCabildoabiertoWikiTopicVersion: 'ar.cabildoabierto.wiki.topicVersion',
-  ArCabildoabiertoWikiVote: 'ar.cabildoabierto.wiki.vote',
+  ArCabildoabiertoWikiVoteAccept: 'ar.cabildoabierto.wiki.voteAccept',
+  ArCabildoabiertoWikiVoteReject: 'ar.cabildoabierto.wiki.voteReject',
   ComAtprotoAdminDefs: 'com.atproto.admin.defs',
   ComAtprotoAdminDeleteAccount: 'com.atproto.admin.deleteAccount',
   ComAtprotoAdminDisableAccountInvites:

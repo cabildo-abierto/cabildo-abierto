@@ -1,19 +1,14 @@
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button"
-import {ActiveLikeIcon} from "../../icons/active-like-icon"
 import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
-import {InactiveLikeIcon} from "../../icons/inactive-like-icon"
-import {FixedCounter, ReactionCounter} from "./reaction-counter"
+import {FixedCounter} from "./reaction-counter"
 import {ViewsIcon} from "../../icons/views-icon";
 import {getCollectionFromUri} from "@/utils/uri";
 import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
-import React, {useState} from "react";
+import React, {MouseEventHandler, useState} from "react";
 import {$Typed} from "@atproto/api";
-import {post} from "@/utils/fetch";
-import {useMutation, useQueryClient} from "@tanstack/react-query"
-import { threadQueryKey } from "@/hooks/api"
-import {ATProtoStrongRef} from "@/lib/types";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
 import dynamic from "next/dynamic";
+import {LikeCounter} from "@/components/feed/frame/like-counter";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
@@ -25,15 +20,6 @@ type EngagementIconsProps = {
 }
 
 
-async function addLike(ref: ATProtoStrongRef) {
-    await post("/like", ref)
-}
-
-
-async function removeLike({uri, likedUri} : {uri: string, likedUri: string}) {
-    await post("/remove-like", {uri, likedUri})
-}
-
 
 export const EngagementIcons = ({
                                     content,
@@ -42,39 +28,11 @@ export const EngagementIcons = ({
                                 }: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
     const [writingReply, setWritingReply] = useState<boolean>(false)
-    const queryClient = useQueryClient()
 
-    const addLikeMutation = useMutation({
-        mutationFn: addLike,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: threadQueryKey(content.uri) })
-        },
-    })
-    const removeLikeMutation = useMutation({
-        mutationFn: removeLike,
-        onSuccess: () => {
-            console.log("success")
-            queryClient.invalidateQueries({ queryKey: threadQueryKey(content.uri) })
-        },
-        onError: () => {
-            console.log("error!")
-        }
-    })
-
-    const onLike = async () => {
-        addLikeMutation.mutate({uri: content.uri, cid: content.cid})
-        return {uri: ""}
-    }
-
-    const onRemoveLike = async () => {
-        if(content.viewer && content.viewer.like){
-            removeLikeMutation.mutate({uri: content.viewer.like, likedUri: content.uri})
-        }
-        return {}
-    }
-
-    function onClickRepliesButton(){
-        if(isArticleView(content)){
+    const onClickRepliesButton: MouseEventHandler<HTMLDivElement> = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (isArticleView(content)) {
             // router.push(contentUrl(content.uri))
         } else {
             setWritingReply(true)
@@ -95,15 +53,7 @@ export const EngagementIcons = ({
                 showBsky={showBsky}
                 reactionUri={content.viewer ? content.viewer.repost : undefined}
             />}
-            {content.likeCount != undefined && <ReactionCounter
-                iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
-                iconInactive={<InactiveLikeIcon fontSize={"small"}/>}
-                onAdd={onLike}
-                onRemove={onRemoveLike}
-                title="Cantidad de me gustas."
-                reactionUri={content.viewer ? content.viewer.like : undefined}
-                count={showBsky ? content.bskyLikeCount : content.likeCount}
-            />}
+            {content.likeCount != undefined && <LikeCounter content={content} showBsky={showBsky}/>}
             {content.uniqueViewsCount != undefined && <FixedCounter
                 icon={<ViewsIcon/>}
                 count={content.uniqueViewsCount + 1} // always count the author
@@ -120,7 +70,9 @@ export const EngagementIcons = ({
         />
         <WritePanel
             open={writingReply}
-            onClose={() => {setWritingReply(false)}}
+            onClose={() => {
+                setWritingReply(false)
+            }}
             replyTo={content}
         />
     </div>

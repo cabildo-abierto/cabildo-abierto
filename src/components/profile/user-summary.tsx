@@ -1,4 +1,4 @@
-import {useProfile} from "@/hooks/api";
+import {useProfile} from "@/queries/api";
 import {ReactNode, useEffect, useState} from "react";
 import {FollowButton} from "@/components/profile/profile-utils";
 import Link from "next/link";

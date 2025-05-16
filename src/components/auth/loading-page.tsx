@@ -2,7 +2,7 @@
 
 import React, {ReactNode, useEffect} from 'react';
 import { LoadingScreen } from '../../../modules/ui-utils/src/loading-screen';
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {useRouter} from "next/navigation";
 
 

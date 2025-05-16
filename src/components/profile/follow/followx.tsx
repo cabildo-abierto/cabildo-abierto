@@ -1,4 +1,4 @@
-import {useFollowx} from "@/hooks/api";
+import {useFollowx} from "@/queries/api";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import Link from "next/link";
 import {rounder} from "@/utils/strings";

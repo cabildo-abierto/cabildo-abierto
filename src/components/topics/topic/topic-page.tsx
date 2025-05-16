@@ -3,7 +3,7 @@ import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
 
 
-import {useTopic, useTopicFeed} from "@/hooks/api";
+import {useTopic, useTopicFeed} from "@/queries/api";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";

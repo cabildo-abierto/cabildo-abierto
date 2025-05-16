@@ -2,22 +2,25 @@ import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
-import {$getRoot, $nodesOfType, EditorState, LexicalEditor} from "lexical";
+import {$getRoot, EditorState, LexicalEditor} from "lexical";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
-import {$createSidenoteNode, SidenoteNode} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
-import {$wrapNodeInElement} from "@lexical/utils";
+import {
+    $createSidenoteNode,
+    $isSidenoteNode
+} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
+import {$dfs, $wrapNodeInElement} from "@lexical/utils";
 import {createPortal} from "react-dom";
 import {NodeQuoteReplies} from "./node-quote-replies";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 const MyLexicalEditor = dynamic( () => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 type EditorWithQuoteCommentsProps = {
     settings: SettingsProps
-    onSubmitReply: () => Promise<void>
     replyTo: ReplyToContent
     setEditor: (editor: LexicalEditor) => void
     editor: LexicalEditor
@@ -29,7 +32,7 @@ type EditorWithQuoteCommentsProps = {
 
 
 export const EditorWithQuoteComments = ({
-    settings, onSubmitReply, replyTo, editor, setEditor, setEditorState, quoteReplies, pinnedReplies, setPinnedReplies}: EditorWithQuoteCommentsProps) => {
+    settings, replyTo, editor, setEditor, setEditorState, quoteReplies, pinnedReplies, setPinnedReplies}: EditorWithQuoteCommentsProps) => {
     const [commentingQuote, setCommentingQuote] = useState<[number, number] | null>(null)
     const {layoutConfig} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
@@ -54,7 +57,6 @@ export const EditorWithQuoteComments = ({
             setBlockToUri(new Map<number, string[]>())
             return
         }
-
         const m = new Map<number, string[]>()
         for (let i = 0; i < quoteReplies.length; i++) {
             const s = JSON.stringify(editor.getEditorState().toJSON())
@@ -80,7 +82,17 @@ export const EditorWithQuoteComments = ({
     useEffect(() => {
         if(!editor) return
         editor.update(() => {
-            if ($nodesOfType(SidenoteNode).length > 0 || !blockToUri) return
+
+            const sidenotes = $dfs().map(n => n.node).filter($isSidenoteNode)
+            for (let i = 0; i < sidenotes.length; i++) {
+                const s = sidenotes[i]
+                const children = s.getChildren()
+                let node = s.insertAfter(children[0])
+                for(let j = 1; j < children.length; j++){
+                    node = node.insertAfter(children[j])
+                }
+                s.remove()
+            }
 
             // cada bloque que tenga uris es wrapeado en un SidenoteNode
             const root = $getRoot()
@@ -112,7 +124,6 @@ export const EditorWithQuoteComments = ({
             open={commentingQuote != null}
             onClose={() => {setCommentingQuote(null)}}
             selection={commentingQuote}
-            onSubmit={onSubmitReply}
             replyTo={replyTo}
         />
 

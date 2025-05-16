@@ -14,6 +14,7 @@ import {ThreadReplies} from "@/components/thread/thread-replies";
 import {ThreadHeader} from "@/components/thread/thread-header";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import dynamic from "next/dynamic";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
@@ -42,7 +43,7 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
         if (isFullArticleView(content) && replies) {
             setQuoteReplies(getThreadQuoteReplies(thread))
         }
-    }, [thread])
+    }, [thread, replies])
 
     return <div className={"flex flex-col items-center"}>
         <ThreadHeader c={getCollectionFromUri(content.uri)}/>
@@ -60,20 +61,20 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
             }}/>
         </div>
 
-        <ThreadReplies
+        {replies && <ThreadReplies
             threadUri={content.uri}
             setPinnedReplies={setPinnedReplies}
-            replies={replies.filter(r => isThreadViewContent(r))}
-        />
+            replies={replies}
+        />}
+        {!replies && <div className={"py-4"}>
+            <LoadingSpinner/>
+        </div>}
 
         {postOrArticle(thread.content) && <WritePanel
             replyTo={thread.content}
             open={openReplyPanel}
             onClose={() => {
                 setOpenReplyPanel(false)
-            }}
-            onSubmit={async () => {
-                // TO DO mutate(threadApiUrl(content.uri))
             }}
         />}
     </div>

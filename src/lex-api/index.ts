@@ -18,7 +18,8 @@ import * as ArCabildoabiertoFeedArticle from './types/ar/cabildoabierto/feed/art
 import * as ArCabildoabiertoFeedDefs from './types/ar/cabildoabierto/feed/defs'
 import * as ArCabildoabiertoFeedGetFeed from './types/ar/cabildoabierto/feed/getFeed'
 import * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion'
-import * as ArCabildoabiertoWikiVote from './types/ar/cabildoabierto/wiki/vote'
+import * as ArCabildoabiertoWikiVoteAccept from './types/ar/cabildoabierto/wiki/voteAccept'
+import * as ArCabildoabiertoWikiVoteReject from './types/ar/cabildoabierto/wiki/voteReject'
 import * as ComAtprotoAdminDefs from './types/com/atproto/admin/defs'
 import * as ComAtprotoAdminDeleteAccount from './types/com/atproto/admin/deleteAccount'
 import * as ComAtprotoAdminDisableAccountInvites from './types/com/atproto/admin/disableAccountInvites'
@@ -206,7 +207,8 @@ export * as ArCabildoabiertoFeedArticle from './types/ar/cabildoabierto/feed/art
 export * as ArCabildoabiertoFeedDefs from './types/ar/cabildoabierto/feed/defs'
 export * as ArCabildoabiertoFeedGetFeed from './types/ar/cabildoabierto/feed/getFeed'
 export * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion'
-export * as ArCabildoabiertoWikiVote from './types/ar/cabildoabierto/wiki/vote'
+export * as ArCabildoabiertoWikiVoteAccept from './types/ar/cabildoabierto/wiki/voteAccept'
+export * as ArCabildoabiertoWikiVoteReject from './types/ar/cabildoabierto/wiki/voteReject'
 export * as ComAtprotoAdminDefs from './types/com/atproto/admin/defs'
 export * as ComAtprotoAdminDeleteAccount from './types/com/atproto/admin/deleteAccount'
 export * as ComAtprotoAdminDisableAccountInvites from './types/com/atproto/admin/disableAccountInvites'
@@ -714,12 +716,14 @@ export class ArticleRecord {
 export class ArCabildoabiertoWikiNS {
   _client: XrpcClient
   topicVersion: TopicVersionRecord
-  vote: VoteRecord
+  voteAccept: VoteAcceptRecord
+  voteReject: VoteRejectRecord
 
   constructor(client: XrpcClient) {
     this._client = client
     this.topicVersion = new TopicVersionRecord(client)
-    this.vote = new VoteRecord(client)
+    this.voteAccept = new VoteAcceptRecord(client)
+    this.voteReject = new VoteRejectRecord(client)
   }
 }
 
@@ -788,7 +792,7 @@ export class TopicVersionRecord {
   }
 }
 
-export class VoteRecord {
+export class VoteAcceptRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -799,10 +803,10 @@ export class VoteRecord {
     params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
     cursor?: string
-    records: { uri: string; value: ArCabildoabiertoWikiVote.Record }[]
+    records: { uri: string; value: ArCabildoabiertoWikiVoteAccept.Record }[]
   }> {
     const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'ar.cabildoabierto.wiki.vote',
+      collection: 'ar.cabildoabierto.wiki.voteAccept',
       ...params,
     })
     return res.data
@@ -813,10 +817,10 @@ export class VoteRecord {
   ): Promise<{
     uri: string
     cid: string
-    value: ArCabildoabiertoWikiVote.Record
+    value: ArCabildoabiertoWikiVoteAccept.Record
   }> {
     const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'ar.cabildoabierto.wiki.vote',
+      collection: 'ar.cabildoabierto.wiki.voteAccept',
       ...params,
     })
     return res.data
@@ -827,10 +831,10 @@ export class VoteRecord {
       ComAtprotoRepoCreateRecord.InputSchema,
       'collection' | 'record'
     >,
-    record: Un$Typed<ArCabildoabiertoWikiVote.Record>,
+    record: Un$Typed<ArCabildoabiertoWikiVoteAccept.Record>,
     headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.vote'
+    const collection = 'ar.cabildoabierto.wiki.voteAccept'
     const res = await this._client.call(
       'com.atproto.repo.createRecord',
       undefined,
@@ -847,7 +851,72 @@ export class VoteRecord {
     await this._client.call(
       'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: 'ar.cabildoabierto.wiki.vote', ...params },
+      { collection: 'ar.cabildoabierto.wiki.voteAccept', ...params },
+      { headers },
+    )
+  }
+}
+
+export class VoteRejectRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: ArCabildoabiertoWikiVoteReject.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'ar.cabildoabierto.wiki.voteReject',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: ArCabildoabiertoWikiVoteReject.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'ar.cabildoabierto.wiki.voteReject',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoWikiVoteReject.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.wiki.voteReject'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'ar.cabildoabierto.wiki.voteReject', ...params },
       { headers },
     )
   }

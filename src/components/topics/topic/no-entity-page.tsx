@@ -3,7 +3,7 @@
 import {useRouter} from "next/navigation"
 import {validEntityName} from "./utils";
 import {topicUrl} from "@/utils/uri";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {createTopic} from "@/components/writing/write-panel/create-topic";
 import {Button} from "../../../../modules/ui-utils/src/button";
 

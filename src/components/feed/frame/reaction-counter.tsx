@@ -8,9 +8,9 @@ type ReactionCounterProps = {
     iconActive?: ReactNode
     iconInactive?: ReactNode
     title?: string
-    onAdd: () => Promise<{error?: string, uri?: string}>
-    onRemove: () => Promise<{error?: string}>
-    reactionUri?: string
+    onAdd: () => Promise<void>
+    onRemove: () => Promise<void>
+    active: boolean
     count: number
 }
 
@@ -22,12 +22,12 @@ export const ReactionCounter = ({
     onAdd,
     onRemove,
     title,
-    reactionUri,
+    active,
     count
 }: ReactionCounterProps) => {
 
     const onClick = async () => {
-        if(!reactionUri){
+        if(!active){
             await onAdd()
         } else {
             await onRemove()
@@ -36,7 +36,7 @@ export const ReactionCounter = ({
     
     return <ReactionButton
         onClick={onClick}
-        active={reactionUri != null}
+        active={active}
         iconActive={iconActive}
         iconInactive={iconInactive}
         disabled={disabled}

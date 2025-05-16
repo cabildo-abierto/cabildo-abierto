@@ -1,10 +1,13 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
 import {PostOutput} from "@/utils/fetch";
+import {$Typed} from "@atproto/api";
+import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
+export type ThreadContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
 
 export type Profile = {
     bsky: ProfileViewDetailed

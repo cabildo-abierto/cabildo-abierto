@@ -55,8 +55,6 @@ export const SearchTopics = () => {
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }
 
-    console.log("returning static feed with results", results.length)
-
     return <StaticFeed
         queryKey={["search-topics", resultsQuery]}
         initialContents={results}

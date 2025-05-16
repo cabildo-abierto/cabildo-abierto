@@ -1,5 +1,5 @@
 import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
-import {useTrendingTopics} from "@/hooks/api";
+import {useTrendingTopics} from "@/queries/api";
 import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
 

@@ -10,11 +10,12 @@ import {validArticle} from "./valid-article";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {getEditorSettings} from "@/components/editor/settings";
 import {Authorship} from "@/components/feed/frame/authorship";
 import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
+import {TopicsMentioned} from "@/components/article/topics-mentioned";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
@@ -73,6 +74,9 @@ const ArticleEditor = () => {
 		</div>
         <GradientHRule/>
         <div className="mt-8 rounded-lg px-5">
+            <div className={"mb-2"}>
+            <TopicsMentioned mentions={topicsMentioned}/>
+            </div>
             <TitleInput onChange={setTitle} title={title}/>
             <div className="gap-x-4 flex flex-wrap items-baseline">
                 <span className={"max-[500px]:text-base text-lg text-[var(--text-light)]"}>

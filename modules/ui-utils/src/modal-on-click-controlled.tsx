@@ -24,7 +24,9 @@ export const ModalOnClickControlled = ({
 
     return (
         <>
-            <ClickAwayListener onClickAway={(e) => { handleClickAway()}}>
+            <ClickAwayListener onClickAway={(e) => {
+                handleClickAway()
+            }}>
                 <div>
                     <div onClick={handleClick}>
                         {children}
@@ -37,7 +39,9 @@ export const ModalOnClickControlled = ({
                         style={{zIndex: 1300}}
                     >
                         {({TransitionProps}) => (
-                            <Fade {...TransitionProps} timeout={350}>
+                            <Fade {...TransitionProps}
+                                  timeout={{enter: 350, exit: 0}} // Only fade on open
+                            >
                                 <div className="mt-2 bg-[var(--background-dark)]">
                                     {modal(() => {
                                         setOpen(false)

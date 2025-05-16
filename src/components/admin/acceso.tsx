@@ -4,7 +4,7 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {categoriesSearchParam, useCodes} from "@/hooks/api";
+import {categoriesSearchParam, useCodes} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {post} from "@/utils/fetch";
 

@@ -7,7 +7,7 @@ import {
     isDataset,
     isPost,
     isTopicVersion,
-    isVisualization
+    isVisualization,
 } from "@/utils/uri";
 import {RectTracker} from "../../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../../profile/profile-pic";
@@ -18,11 +18,14 @@ import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
-import {useSession} from "@/hooks/api";
+import {useSession} from "@/queries/api";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {isPostView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    isPostView,
+    PostView
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {get, post} from "@/utils/fetch";
+import {get} from "@/utils/fetch";
 import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";
 import {View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external"
 import {ExternalEmbedInEditor} from "@/components/writing/write-panel/external-embed-in-editor";
@@ -46,6 +49,36 @@ const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-edi
     loading: () => <></>,
 })
 
+
+
+function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
+    if (isPostView(replyTo)) {
+        const parent = {
+            uri: replyTo.uri,
+            cid: replyTo.cid
+        }
+        if ((replyTo.record as PostRecord).reply) {
+            return {
+                parent,
+                root: (replyTo.record as PostRecord).reply.root
+            }
+        } else {
+            return {
+                parent,
+                root: {...parent}
+            }
+        }
+    } else {
+        const parent = {
+            uri: replyTo.uri,
+            cid: replyTo.cid
+        }
+        return {
+            parent,
+            root: parent
+        }
+    }
+}
 
 function useExternalEmbed(editorState: EditorState, disabled: boolean) {
     const [externalEmbedView, setExternalEmbedView] = useState<$Typed<ExternalEmbedView> | null>(null)
@@ -119,36 +152,6 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
 }
 
 
-function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
-    if (isPostView(replyTo)) {
-        const parent = {
-            uri: replyTo.uri,
-            cid: replyTo.cid
-        }
-        if ((replyTo.record as PostRecord).reply) {
-            return {
-                parent,
-                root: (replyTo.record as PostRecord).reply.root
-            }
-        } else {
-            return {
-                parent,
-                root: {...parent}
-            }
-        }
-    } else {
-        const parent = {
-            uri: replyTo.uri,
-            cid: replyTo.cid
-        }
-        return {
-            parent,
-            root: parent
-        }
-    }
-}
-
-
 export type ImagePayload = { src: string, $type: "url" } | { $type: "file", base64: string, src: string }
 export type ImagePayloadForPostCreation = { src: string, $type: "url" } | { $type: "file", base64: string }
 
@@ -160,11 +163,6 @@ export type CreatePostProps = {
     enDiscusion?: boolean
     externalEmbedView?: $Typed<ExternalEmbedView>
     quotedPost?: ATProtoStrongRef
-}
-
-
-async function createPost(body: CreatePostProps) {
-    return post("/post", body)
 }
 
 
@@ -208,12 +206,13 @@ const settings: SettingsProps = getEditorSettings({
 })
 
 
-export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
+export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
     selection?: [number, number]
     onClose: () => void
-    onSubmit: () => Promise<void>
+    setHidden: (v: boolean) => void
     quotedPost?: PostView
+    handleSubmit: (post: CreatePostProps) => Promise<void>
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
@@ -227,6 +226,23 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
     const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {externalEmbedView, onRemove} = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null)
     const {topicsMentioned, setLastTextChange, setEditor} = useTopicsMentioned()
+
+    async function handleClickSubmit() {
+        const reply = replyTo ? replyFromParentElement(replyTo) : undefined
+        const post: CreatePostProps = {
+            text,
+            reply,
+            selection,
+            images,
+            enDiscusion,
+            externalEmbedView,
+            quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
+        }
+
+        await handleSubmit(post)
+        setEditorKey(editorKey + 1);
+        return {}
+    }
 
     useEffect(() => {
         if(editorState){
@@ -247,36 +263,6 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
 
-    async function handleSubmit() {
-        const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-        const {error} = await createPost({
-            text,
-            reply,
-            selection,
-            images,
-            enDiscusion,
-            externalEmbedView,
-            quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
-        })
-
-        if (reply) {
-            await onSubmit()
-            // TO DO await mutate(threadApiUrl(reply.parent.uri))
-            // TO DO await mutate(threadApiUrl(reply.root.uri))
-            // TO DO
-            //if(replyTo.content.topicVersion){
-            //    const id = replyTo.content.topicVersion.topic.id
-            //    await mutate("/api/topic/"+encodeURIComponent(id))
-            //    await mutate("/api/topic-feed/"+encodeURIComponent(id))
-            //}
-        }
-
-        if (!error) {
-            setEditorKey(editorKey + 1);
-            onClose()
-        }
-        return {error}
-    }
 
     const hasEmbed: boolean = quotedPost != null || selection != null || visualization != null || (images && images.length > 0) || (externalEmbedView != null)
     const canAddImage = !hasEmbed ||
@@ -328,7 +314,7 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit, quotedPost}: {
                     <StateButton
                         color={"primary"}
                         text1={isReply ? "Responder" : "Publicar"}
-                        handleClick={handleSubmit}
+                        handleClick={handleClickSubmit}
                         disabled={!valid}
                         textClassName="font-semibold"
                         size="medium"

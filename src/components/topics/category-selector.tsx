@@ -1,4 +1,4 @@
-import {useCategories} from "@/hooks/api";
+import {useCategories} from "@/queries/api";
 import {emptyChar} from "@/utils/utils";
 import {useState} from "react";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
