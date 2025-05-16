@@ -18,14 +18,7 @@ export const InsertVisualizationModal = ({open, onClose, onSubmit}: {
         closeButton={false}
         color={"background"}
     >
-        <div className="flex justify-end items-center p-1">
-            {/*<h3 className={"flex-1 text-center"}>
-                ¿Qué visualización querés armar?
-            </h3>*/}
-            <CloseButton size="small" onClose={onClose} color={"background"}/>
-        </div>
-
-        <VisualizationEditor/>
+        <VisualizationEditor onClose={onClose}/>
 
     </BaseFullscreenPopup>
 }
