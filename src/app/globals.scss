@@ -36,6 +36,10 @@
   --accent-dark: '#2e364c';
 }
 
+.italic {
+  font-style: normal; /* Override default italic */
+  font-variation-settings: "slnt" -10; /* Adjust to your preference */
+}
 
 .scroll-always-on {
   overflow-y: scroll;

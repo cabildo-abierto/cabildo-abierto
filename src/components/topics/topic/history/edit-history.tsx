@@ -168,7 +168,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
                         <ContentOptionsButton
-                            record={{...topicVersion}}
+                            record={{...topicVersion, $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory"}}
                         />
                     </div>
                 </div>

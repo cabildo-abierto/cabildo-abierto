@@ -1,5 +1,6 @@
 import {DatasetTitle} from "@/components/datasets/dataset-title";
 import {Plot} from "@/components/visualizations/plot";
+import {Main as Visualization, View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 
 export function localizeDataset(spec: any){
@@ -69,7 +70,7 @@ export const VisualizationNodeComp = ({
     showEngagement=true,
     width
 }: {
-    visualization: any
+    visualization: Visualization
     showEngagement?: boolean
     width?: number | string
 }) => {
@@ -80,27 +81,19 @@ export const VisualizationNodeComp = ({
             onClick={(e) => {e.stopPropagation()}}
         >
             <Plot
-                dataset={null}
-                visualization={visualization}
-                width={width}
+                visualization={visualization as unknown as VisualizationView}
             />
         </div>
 
-        <div
+        {/*<div
             className={"flex mt-2 w-full not-article-content lg:text-sm text-xs lg:flex-row flex-col items-center justify-center"}
         >
             <div className={"exclude-links text-[var(--text-light)] flex flex-col items-center"}>
                 <DatasetTitle
                     className={""}
-                    dataset={visualization.visualization.dataset}
+                    dataset={visualization.dataset}
                 />
             </div>
-            {/* TO DO showEngagement && (
-                <EngagementIcons
-                    content={visualization}
-                    className={"space-x-2"}
-                />
-            )*/}
-        </div>
+        </div>*/}
     </div>
 }

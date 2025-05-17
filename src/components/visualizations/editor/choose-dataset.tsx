@@ -9,8 +9,8 @@ import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import SearchBar from "@/components/buscar/search-bar";
-import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {produce} from "immer";
+import {isDatasetDataSource} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 
 
 export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
@@ -23,7 +23,6 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
     const [newDatasetPanelOpen, setNewDatasetPanelOpen] = useState(false)
 
     useEffect(() => {
-
         const v = cleanText(searchValue)
         const f = datasets ? datasets.filter((d) => {
             if(v.length == 0) return true
@@ -61,16 +60,16 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
                         color={"background-dark2"}
                     />
                 </div>
-                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar max-h-[calc(100vh-300px)]"}>
+                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar max-h-[calc(100vh-250px)]"}>
                     {filteredDatasets ? filteredDatasets.map((d, i) => {
                         return <div key={i} className={""}>
                             <DatasetPreviewOnEditor
                                 dataset={d}
-                                selected={config.dataSource && isDatasetVisualization(config.dataSource) && config.dataSource.dataset == d.uri}
+                                selected={config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset == d.uri}
                                 onClick={() => {
                                     setConfig(produce(config, draft => {
                                         draft.dataSource = {
-                                            $type: "ar.cabildoabierto.embed.visualization#datasetVisualization",
+                                            $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
                                             dataset: d.uri
                                         }
                                     }))

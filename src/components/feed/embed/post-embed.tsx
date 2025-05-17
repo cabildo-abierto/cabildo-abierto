@@ -10,9 +10,10 @@ import {isView as isExternalEmbedView} from "@/lex-api/types/app/bsky/embed/exte
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";
 import {PostView} from "@/lex-api/types/app/bsky/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {isView as isVisualizationEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {SelectionQuoteEmbed} from "@/components/feed/embed/selection-quote/selection-quote-embed";
 import {ATProtoStrongRef} from "@/lib/types";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {Plot} from "@/components/visualizations/plot";
 
 type PostEmbedProps = {
     embed: PostView["embed"]
@@ -47,6 +48,9 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
             mainPostRef={mainPostRef}
             onClick={onClickSelectionQuote}
             showContext={showContext}
+        />}
+        {isVisualizationEmbedView(embed) && <Plot
+            visualization={embed}
         />}
         {/* TO DO: <PlotInPost
             post={post}

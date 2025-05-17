@@ -26,9 +26,6 @@ import {
   LexicalEditor,
 } from 'lexical';
 import {useEffect, useState} from 'react';
-
-
-import {styled} from '@mui/material'
 import { CAN_USE_DOM } from '../../shared/canUseDOM';
 
 import {
@@ -38,7 +35,7 @@ import {
   VisualizationPayload
 } from '../../nodes/VisualizationNode';
 import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 export type InsertVisualizationPayload = Readonly<VisualizationPayload>;
 
@@ -57,7 +54,7 @@ export function InsertVisualizationDialog({
   open: boolean;
   onClose: () => void;
 }) {
-    const [visualization, setVisualization] = useState<Visualization | null>(null)
+    const [visualization, setVisualization] = useState<VisualizationView | null>(null)
 
     useEffect(() => {
         if(visualization){
@@ -71,7 +68,7 @@ export function InsertVisualizationDialog({
         <InsertVisualizationModal
             open={open}
             onClose={onClose}
-            onSubmit={(v: Visualization) => {setVisualization(v)}}
+            onSave={(v: VisualizationView) => {setVisualization(v)}}
         />
     )
 }
