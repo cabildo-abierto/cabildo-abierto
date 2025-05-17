@@ -1,18 +1,10 @@
+"use client"
 import { TopicPage } from "@/components/topics/topic/topic-page"
+import {useSearchParams} from "next/navigation";
 
-type Params = Promise<{i: string, v?: number}>
 
-export async function generateMetadata({searchParams}: {searchParams: Params}){
-    const {i} = await searchParams
-    return {
-        title: i,
-        description: "Artículo sobre " + i + " en Cabildo Abierto."
-    }
-}
-
-const Page = async ({searchParams}: {
-    searchParams: Params}) => {
-    const {i} = await searchParams
+const Page = () => {
+    const i = useSearchParams().get("i")
 
     return <TopicPage
         topicId={i}

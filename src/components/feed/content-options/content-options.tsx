@@ -1,6 +1,6 @@
-import {ATProtoStrongRef} from "@/lib/types";
 import {ShareContentButton} from "./share-content-button";
 import {
+    contentUrl,
     getBlueskyUrl,
     getCollectionFromUri,
     getDidFromUri,
@@ -17,7 +17,14 @@ import {useSession} from "@/queries/api";
 import {ViewsIcon} from "@/components/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
-
+import {$Typed} from "@atproto/api";
+import {ArticleView, FullArticleView, isPostView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {
+    isDatasetDataSource,
+    isView as isVisualizationView
+} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import DatasetIcon from "@mui/icons-material/Dataset";
 
 
 export function canBeEnDiscusion(c: string) {
@@ -46,7 +53,7 @@ export const ContentOptions = ({
                                    setShowBluesky,
                                }: {
     onClose: () => void
-    record: ATProtoStrongRef
+    record: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<VersionInHistory>
     enDiscusion: boolean
     showBluesky?: boolean,
     setShowBluesky?: (v: boolean) => void
@@ -90,6 +97,12 @@ export const ContentOptions = ({
                 e.stopPropagation();
                 window.open(getBlueskyUrl(record.uri), "_blank")
             }}
+            disabled={getRkeyFromUri(record.uri) == "optimistic"}
+        />}
+        {isPostView(record) && isVisualizationView(record.embed) && isDatasetDataSource(record.embed.dataSource) && <OptionsDropdownButton
+            text1={"Ver los datos usados"}
+            startIcon={<DatasetIcon/>}
+            href={contentUrl(record.embed.dataSource.dataset)}
             disabled={getRkeyFromUri(record.uri) == "optimistic"}
         />}
         {setShowBluesky &&

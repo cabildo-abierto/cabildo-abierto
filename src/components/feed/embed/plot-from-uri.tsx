@@ -1,4 +1,3 @@
-"use client"
 import {VisualizationNodeComp} from "../../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 

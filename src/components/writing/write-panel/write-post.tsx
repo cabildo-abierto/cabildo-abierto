@@ -9,9 +9,9 @@ import {
     isTopicVersion,
     isVisualization,
 } from "@/utils/uri";
+import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {RectTracker} from "../../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../../profile/profile-pic";
-import {VisualizationNodeComp} from "../../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
@@ -44,11 +44,12 @@ import {areSetsEqual} from "@/utils/arrays";
 import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
+import {Plot} from "@/components/visualizations/plot";
+
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
     loading: () => <></>,
 })
-
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -128,16 +129,16 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
 
 
     useEffect(() => {
-        if(editorState){
+        if (editorState) {
             const newLinks = getLinksFromEditor(editorState)
-            for(let i = 0; i < newLinks.length; i++){
+            for (let i = 0; i < newLinks.length; i++) {
                 const l = newLinks[i]
-                if(!links.includes(l)){
+                if (!links.includes(l)) {
                     setExternalEmbedUrl(l)
                     break
                 }
             }
-            if(!areSetsEqual(new Set(newLinks), new Set(links))){
+            if (!areSetsEqual(new Set(newLinks), new Set(links))) {
                 setLinks(newLinks)
             }
         }
@@ -163,6 +164,7 @@ export type CreatePostProps = {
     enDiscusion?: boolean
     externalEmbedView?: $Typed<ExternalEmbedView>
     quotedPost?: ATProtoStrongRef
+    visualization?: Visualization
 }
 
 
@@ -188,7 +190,7 @@ function getLinksFromEditor(editorState: EditorState) {
     editorState.read(() => {
         const nodes = $dfs()
         nodes.forEach(n => {
-            if($isLinkNode(n.node)){
+            if ($isLinkNode(n.node)) {
                 links.push(n.node.getURL())
             }
         })
@@ -206,6 +208,15 @@ const settings: SettingsProps = getEditorSettings({
 })
 
 
+function visualizationViewToMain(v: VisualizationView): Visualization {
+    const {dataset, ...props} = v
+    return {
+        ...props,
+        $type: "ar.cabildoabierto.embed.visualization"
+    }
+}
+
+
 export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
     selection?: [number, number]
@@ -218,13 +229,16 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     const [editorKey, setEditorKey] = useState(0)
     const [images, setImages] = useState<ImagePayload[]>([])
     const [text, setText] = useState("")
-    const [visualization, setVisualization] = useState(null)
+    const [visualization, setVisualization] = useState<VisualizationView>(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [rect, setRect] = useState<DOMRect>()
     const [enDiscusion, setEnDiscusion] = useState(true)
     const [editorState, setEditorState] = useState<EditorState | null>(null)
-    const {externalEmbedView, onRemove} = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null)
+    const {
+        externalEmbedView,
+        onRemove
+    } = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null)
     const {topicsMentioned, setLastTextChange, setEditor} = useTopicsMentioned()
 
     async function handleClickSubmit() {
@@ -236,6 +250,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
             images,
             enDiscusion,
             externalEmbedView,
+            visualization: visualizationViewToMain(visualization),
             quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
         }
 
@@ -245,9 +260,9 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     }
 
     useEffect(() => {
-        if(editorState){
+        if (editorState) {
             let text = getPlainText(editorState.toJSON().root)
-            if(text.endsWith("\n")) text = text.slice(0, text.length-1)
+            if (text.endsWith("\n")) text = text.slice(0, text.length - 1)
             setText(text)
         }
     }, [editorState])
@@ -285,11 +300,11 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                     </div>
                 </div>
                 {replyTo && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
-                {visualization && <VisualizationNodeComp
-                    visualization={visualization}
-                    showEngagement={false}
-                    width={rect.width - 20}
-                />}
+                {visualization && <div className={"flex justify-center"}>
+                    <Plot
+                        visualization={visualization}
+                    />
+                </div>}
                 {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
                 {externalEmbedView && <ExternalEmbedInEditor
                     embed={externalEmbedView}
@@ -327,7 +342,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                 onClose={() => {
                     setVisualizationModalOpen(false)
                 }}
-                onSubmit={setVisualization}
+                onSave={setVisualization}
             />
             <InsertImageModal
                 open={imageModalOpen}

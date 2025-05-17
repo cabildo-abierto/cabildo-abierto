@@ -9,8 +9,9 @@ import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/d
 import {get} from "@/utils/fetch";
 import {splitUri} from "@/utils/uri";
 import {$Typed} from "@atproto/api";
-import {isDatasetVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {isDatasetDataSource} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -38,7 +39,14 @@ async function getDataset(uri: string) {
 }
 
 
-export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: string, initialConfig?: PlotConfigProps, onClose: () => void; }) => {
+type VisualizationEditorProps = {
+    onSave: (v: VisualizationView) => void
+    msg?: string
+    initialConfig?: PlotConfigProps
+    onClose: () => void
+}
+
+export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: VisualizationEditorProps) => {
     const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
     const [chosenDataset, setChosenDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
@@ -53,9 +61,7 @@ export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: strin
     const editorMinWidth = 1080
     const [wideEnough, setWideEnough] = useState(window.innerWidth >= editorMinWidth)
 
-
     useEffect(() => {
-
         const handleResize = () => {
             setCenterMaxWidth(
                 window.innerWidth - sidebarWidth - leftSideWidth - rightSideWidth
@@ -83,7 +89,7 @@ export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: strin
                     const {width} = entry.contentRect;
                     setLeftSideWidth(width);
                 }
-            });
+            })
 
             resizeObserver.observe(leftRef.current);
 
@@ -116,11 +122,11 @@ export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: strin
             const index = datasets.findIndex((d) => d.uri == datasetUri)
 
             setChosenDataset({...datasets[index], $type: "ar.cabildoabierto.data.dataset#datasetViewBasic"})
-            const {data, error} = await getDataset(datasetUri)
+            const {data} = await getDataset(datasetUri)
             setChosenDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
         }
 
-        if (isDatasetVisualization(config.dataSource) && config.dataSource.dataset && datasets &&
+        if (isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets &&
             (!chosenDataset || config.dataSource.dataset != chosenDataset.uri)
         ) {
             getSelectedDataset(config.dataSource.dataset)
@@ -139,6 +145,7 @@ export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: strin
         setSelected={setSelected}
         maxWidth={centerMaxWidth - 8 * 4 - 3 * 4 - 8 * 4 - 4 * 4 - 20}
         dataset={chosenDataset}
+        onSave={onSave}
     />
 
     const left = <div ref={leftRef} className={"pr-8 pl-3"}>
@@ -152,12 +159,12 @@ export const VisualizationEditor = ({initialConfig, msg, onClose}: { msg?: strin
     const right = <div ref={rightRef} className={"pl-8 pr-4"}>
         <ConfigPanel
             config={config}
-            setConfig={setConfig}
+            setConfig={(c: PlotConfigProps) => {setConfig(c); setSelected("Visualización")}}
             dataset={chosenDataset}
         />
     </div>
 
-    return <div className={"flex justify-between w-[calc(100vw-100px)] h-[calc(100vh-100px)] relative"}>
+    return <div className={"flex justify-between w-[calc(100vw-100px)] h-[calc(100vh-50px)] relative"}>
 
         <div className="absolute top-1 right-1">
             <CloseButton size="small" onClose={onClose} color={"background"}/>

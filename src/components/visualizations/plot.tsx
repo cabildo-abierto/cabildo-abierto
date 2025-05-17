@@ -1,17 +1,263 @@
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {DatasetView} from  "@/lex-api/types/ar/cabildoabierto/data/dataset"
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+    Barplot as BarplotSpec,
+    isBarplot, isDatasetDataSource,
+    Lines,
+    View as VisualizationView,
+    Scatterplot
+} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
+import {Bar} from '@visx/shape';
+import {scaleBand, scaleLinear} from '@visx/scale';
+import {Group} from '@visx/group';
+import {AxisBottom, AxisLeft} from '@visx/axis';
+import {isTwoAxisPlot} from "@/components/visualizations/editor/plot-specific-config";
+import {$Typed} from "@atproto/api";
+import {useTooltip, useTooltipInPortal, defaultStyles} from '@visx/tooltip';
+import {localPoint} from '@visx/event';
+import useMeasure from "react-use-measure";
+import { Button } from "../../../modules/ui-utils/src/button";
+import InfoIcon from "@mui/icons-material/Info";
+import {contentUrl} from "@/utils/uri";
+import Link from "next/link"
+
+
+function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
+    return dataset.columns.some(c => c.name === column)
+}
+
+
+function groupSameX(data: any[], xAxis: string, yAxis: string) {
+    const grouped = new Map<string, number[]>();
+
+    data.forEach((d: any) => {
+        const xVal = d[xAxis]
+        const yRaw = d[yAxis]
+        const yVal = typeof yRaw === 'number' ? yRaw : parseFloat(yRaw)
+
+        if (xVal != null && !isNaN(yVal)) {
+            if (!grouped.has(xVal)) {
+                grouped.set(xVal, [])
+            }
+            grouped.get(xVal)!.push(yVal)
+        }
+    });
+
+    return Array.from(grouped.entries()).map(([x, ys]) => ({
+        x,
+        y: ys.reduce((sum, val) => sum + val, 0) / ys.length,
+    }))
+}
+
+
+export const Barplot = ({spec, visualization}: {
+    spec: BarplotSpec,
+    visualization: VisualizationView
+}) => {
+    const {
+        tooltipData,
+        tooltipLeft,
+        tooltipTop,
+        tooltipOpen,
+        showTooltip,
+        hideTooltip,
+    } = useTooltip<{ x: string; y: number }>();
+
+    const {containerRef, TooltipInPortal} = useTooltipInPortal({scroll: true});
+    const [ref, bounds] = useMeasure();
+
+    const totalWidth = bounds.width || 400;
+    const totalHeight = bounds.height || 300;
+
+    // Assume fixed space for title and caption
+    const titleHeight = visualization.title ? 30 : 0;
+    const captionHeight = visualization.caption ? 50 : 0;
+    const reservedHeight = titleHeight + captionHeight;
+
+    const svgWidth = totalWidth;
+    const svgHeight = totalHeight - reservedHeight;
+
+    const margin = {top: 20, right: 20, bottom: 50, left: 60};
+    const innerWidth = svgWidth - margin.left - margin.right;
+    const innerHeight = svgHeight - margin.top - margin.bottom;
+
+    const data = groupSameX(JSON.parse(visualization.dataset.data), spec.xAxis, spec.yAxis);
+
+    const xScale = scaleBand<string>({
+        domain: data.map((d) => d.x),
+        range: [0, innerWidth],
+        padding: 0.2,
+    });
+
+    const yMax = Math.max(...data.map((d) => d.y), 0);
+    const yScale = scaleLinear<number>({
+        domain: [0, yMax],
+        range: [innerHeight, 0],
+        nice: true,
+    });
+
+    return (
+        <div className="relative w-full h-full" ref={ref}>
+            {visualization.title && (
+                <div className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center">
+                    {visualization.title}
+                </div>
+            )}
+            {tooltipOpen && tooltipData && (
+                <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={{...defaultStyles, zIndex: 2000}}>
+                    <div><strong>{spec.yLabel ?? spec.yAxis}: {Number(tooltipData.y.toFixed(2))}</strong></div>
+                    <div>{spec.xLabel ?? spec.xAxis}: {Number(parseFloat(tooltipData.x).toFixed(2))}</div>
+                </TooltipInPortal>
+            )}
+            <svg ref={containerRef} width={svgWidth} height={svgHeight}>
+                <Group left={margin.left} top={margin.top}>
+                    {data.map((d, i) => {
+                        const barWidth = xScale.bandwidth();
+                        const barHeight = innerHeight - yScale(d.y);
+                        const barX = xScale(d.x);
+                        const barY = yScale(d.y);
+                        if (barX == null || isNaN(barY) || isNaN(barHeight)) return null;
+
+                        return (
+                            <Bar
+                                key={`bar-${i}`}
+                                x={barX}
+                                y={barY}
+                                width={barWidth}
+                                height={barHeight}
+                                fill="var(--primary)"
+                                onMouseLeave={() => hideTooltip()}
+                                onMouseMove={(event) => {
+                                    const eventSvgCoords = localPoint(event);
+                                    const left = barX + barWidth / 2;
+                                    showTooltip({
+                                        tooltipData: {x: d.x, y: d.y},
+                                        tooltipTop: eventSvgCoords?.y,
+                                        tooltipLeft: left,
+                                    });
+                                }}
+                            />
+                        );
+                    })}
+                    <AxisLeft
+                        scale={yScale}
+                        stroke="var(--text-light)"
+                        tickStroke="var(--text-light)"
+                        tickLabelProps={() => ({
+                            fill: 'var(--text)',
+                            fontSize: 12,
+                            textAnchor: 'end',
+                            dx: '-0.25em',
+                            dy: '0.25em',
+                        })}
+                    />
+                    <AxisBottom
+                        top={innerHeight}
+                        scale={xScale}
+                        stroke="var(--text-light)"
+                        tickStroke="var(--text-light)"
+                        tickLabelProps={() => ({
+                            fill: 'var(--text)',
+                            fontSize: 12,
+                            textAnchor: 'middle',
+                        })}
+                    />
+                    <text
+                        x={-innerHeight / 2}
+                        y={-margin.left + 15}
+                        transform="rotate(-90)"
+                        textAnchor="middle"
+                        fontSize={14}
+                        fill="var(--text)"
+                    >
+                        {spec.yLabel ?? spec.yAxis}
+                    </text>
+                    <text
+                        x={innerWidth / 2}
+                        y={innerHeight + 40}
+                        textAnchor="middle"
+                        fontSize={14}
+                        fill="var(--text)"
+                    >
+                        {spec.xLabel ?? spec.xAxis}
+                    </text>
+                </Group>
+            </svg>
+            {visualization.caption && (
+                <div className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1">
+                    {visualization.caption}
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+
+type TwoAxisPlotSpec = $Typed<BarplotSpec> | $Typed<Lines> | $Typed<Scatterplot>
+
+
+type TwoAxisPlotProps = {
+    spec: TwoAxisPlotSpec
+    visualization: VisualizationView
+}
+
+
+export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
+    const {xAxis, yAxis} = spec;
+
+    if (!xAxis || xAxis.length == 0) {
+        return <div className={"text-[var(--text-light)]"}>
+            Elegí un eje x.
+        </div>
+    }
+    if (!yAxis || yAxis.length == 0) {
+        return <div className={"text-[var(--text-light)]"}>
+            Elegí un eje y.
+        </div>
+    }
+
+    if (!validColumn(xAxis, visualization.dataset) || !validColumn(yAxis, visualization.dataset)) {
+        return <div className={"text-[var(--text-light)]"}>
+            No se encontraron las columnas especificadas en el dataset.
+        </div>
+    }
+
+    if (isBarplot(spec)) {
+        return <Barplot spec={spec} visualization={visualization}/>
+    }
+}
+
+
+export const ResponsivePlot = ({
+                                   visualization,
+                               }: {
+    visualization: VisualizationView
+}) => {
+    if (isDatasetDataSource(visualization.dataSource)) {
+        if (isTwoAxisPlot(visualization.spec)) {
+            return <TwoAxisPlot
+                spec={visualization.spec}
+                visualization={visualization}
+            />
+        }
+    }
+
+    return <div className={"text-[var(--text-light)]"}>
+        Esta configuración por ahora no está soportada
+    </div>
+};
 
 
 export const Plot = ({
-     dataset,
-     visualization,
-     width="600px"
- }: {
-    dataset: DatasetView;
-    visualization: Visualization;
-    width?: number | string;
+                         visualization,
+                         height = 400,
+                         width
+                     }: {
+    visualization: VisualizationView
+    height?: number | string
+    width?: number | string
 }) => {
-    return <PrettyJSON data={visualization}/>
+    return <div style={{height, width}} className={"relative"}>
+        <ResponsivePlot visualization={visualization}/>
+    </div>
 };

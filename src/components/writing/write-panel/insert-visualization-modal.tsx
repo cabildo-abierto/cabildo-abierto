@@ -1,24 +1,22 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {useState} from "react";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {VisualizationEditor} from "@/components/visualizations/editor/editor";
+import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {VisualizationEditor} from "@/components/visualizations/editor/visualization-editor";
 
 
-export const InsertVisualizationModal = ({open, onClose, onSubmit}: {
+export const InsertVisualizationModal = ({open, onClose, onSave}: {
     open: boolean
     onClose: () => void;
-    onSubmit: (v: Visualization) => void
+    onSave: (v: VisualizationView) => void
 }) => {
-    const [visualization, setVisualization] = useState<Visualization>();
-
     return <BaseFullscreenPopup
         open={open}
         onClose={onClose}
         closeButton={false}
         color={"background"}
     >
-        <VisualizationEditor onClose={onClose}/>
-
+        <VisualizationEditor
+            onClose={onClose}
+            onSave={(v: VisualizationView) => {onSave(v); onClose()}}
+        />
     </BaseFullscreenPopup>
 }

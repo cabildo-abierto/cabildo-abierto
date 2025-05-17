@@ -1,5 +1,5 @@
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+    enabled: process.env.ANALYZE === 'true',
 })
 
 nextConfig = {
@@ -10,12 +10,12 @@ nextConfig = {
         }
     },
     images: {
-      remotePatterns: [
-        {
-          protocol: "https",
-          hostname: "**",
-        },
-      ],
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "**",
+            },
+        ],
     },
     allowedDevOrigins: ['127.0.0.1', '*.127.0.0.1'],
     experimental: {

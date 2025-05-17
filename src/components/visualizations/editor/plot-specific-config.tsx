@@ -4,7 +4,7 @@ import {
     Lines,
     Barplot,
     Scatterplot,
-    isHistogram, isHemicycleVisualization
+    isHistogram, isHemicycle
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {$Typed} from "@atproto/api";
@@ -31,11 +31,11 @@ export const PlotSpecificConfig = ({config, setConfig, dataset}: PlotSpecificCon
                 options={dataset ? dataset.columns.map(c => c.name) : []}
                 label={"Eje x"}
                 size={"small"}
-                selected={config.spec.xlabel ?? ""}
+                selected={config.spec.xAxis ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if(isTwoAxisPlot(draft.spec)){
-                            draft.spec.xlabel = v
+                            draft.spec.xAxis = v
                         }
                     }))
                 }}
@@ -44,11 +44,11 @@ export const PlotSpecificConfig = ({config, setConfig, dataset}: PlotSpecificCon
                 options={dataset ? dataset.columns.map(c => c.name) : []}
                 label={"Eje y"}
                 size={"small"}
-                selected={config.spec.ylabel ??  ""}
+                selected={config.spec.yAxis ??  ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if(isTwoAxisPlot(draft.spec)){
-                            draft.spec.ylabel = v
+                            draft.spec.yAxis = v
                         }
                     }))
                 }}
@@ -61,17 +61,17 @@ export const PlotSpecificConfig = ({config, setConfig, dataset}: PlotSpecificCon
                 options={dataset ? dataset.columns.map(c => c.name) : []}
                 label={"Eje x"}
                 size={"small"}
-                selected={config.spec.xlabel ?? ""}
+                selected={config.spec.xAxis ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if(isHistogram(draft.spec)){
-                            draft.spec.xlabel = v
+                            draft.spec.xAxis = v
                         }
                     }))
                 }}
             />
         </div>
-    } else if(isHemicycleVisualization(config.spec)){
+    } else if(isHemicycle(config.spec)){
         return <div>
             Sin implementar
         </div>

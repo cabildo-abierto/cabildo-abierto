@@ -1,8 +1,10 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconButton } from '@mui/material';
-import {ATProtoStrongRef} from '@/lib/types';
 import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 import {ContentOptions} from "@/components/feed/content-options/content-options";
+import {$Typed} from "@atproto/api";
+import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 export const ContentOptionsButton = ({
@@ -11,7 +13,7 @@ export const ContentOptionsButton = ({
     showBluesky,
     setShowBluesky,
 }: {
-    record?: ATProtoStrongRef
+    record?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<VersionInHistory>
     enDiscusion?: boolean
     showBluesky?: boolean
     setShowBluesky?: (v: boolean) => void
