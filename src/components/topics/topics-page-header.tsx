@@ -1,6 +1,5 @@
 import {useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
-import {useSearch} from "@/components/buscar/search-context";
 import {Button} from "../../../modules/ui-utils/src/button";
 
 import SelectionComponent from "@/components/buscar/search-selection-component";
@@ -9,6 +8,7 @@ import {Graph, ListBullets} from "@phosphor-icons/react"
 import dynamic from "next/dynamic";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 import AddIcon from "@mui/icons-material/Add";
+import {useSearch} from "@/components/buscar/search-context";
 
 const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
 

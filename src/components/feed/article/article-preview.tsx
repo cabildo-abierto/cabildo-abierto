@@ -28,7 +28,7 @@ export const ArticlePreviewContent = ({color = "background", title, summary, men
         sx={{
             backgroundColor: `var(--${color})`,
             "&:hover": clickable ? {
-                backgroundColor: `var(--${darker(darker(color))})`
+                backgroundColor: `var(--${darker(color)})`
             } : undefined
         }}
     >
@@ -55,6 +55,6 @@ export const ArticlePreview = (
     const title = article.title
 
     return <PostPreviewFrame postView={articleView} borderBelow={!showingChildren} showingChildren={showingChildren}>
-        <ArticlePreviewContent title={title} summary={summary}/>
+        <ArticlePreviewContent title={title} summary={summary} color={"transparent"}/>
     </PostPreviewFrame>
 }

@@ -1,3 +1,4 @@
+import {SearchProvider} from "@/components/buscar/search-context";
 
 export function generateMetadata({params}){
     const {i} = params
@@ -9,5 +10,5 @@ export function generateMetadata({params}){
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <>{children}</>
+  return <SearchProvider>{children}</SearchProvider>
 }

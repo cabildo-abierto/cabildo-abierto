@@ -40,6 +40,14 @@
     vertical-align: super;
 }
 
+.PlaygroundEditorTheme__textItalic {
+    font-style: italic;
+}
+
+.PlaygroundEditorTheme__textBold {
+    font-weight: bold;
+}
+
 .PlaygroundEditorTheme__textCode {
     background-color: rgb(240, 242, 245);
     padding: 1px 0.25rem;

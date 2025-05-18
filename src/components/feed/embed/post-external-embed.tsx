@@ -1,7 +1,6 @@
 import Image from "next/image";
 import PublicIcon from '@mui/icons-material/Public';
 import {View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 const Domain = ({url}: { url: string }) => {
     try {
@@ -30,21 +29,21 @@ export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
             e.stopPropagation();
             window.open(embed.external.uri, '_blank')
         }}
-        className={"border rounded-lg cursor-pointer mt-1 hover:bg-[var(--background-dark2)]"}>
+        className={"border rounded-lg cursor-pointer mt-1 hover:bg-[var(--background-dark2)]"}
+    >
         {embed.external.thumb && embed.external.thumb.length > 0 ?
-            <div>
-                <Image
-                    src={embed.external.thumb}
-                    alt={""}
-                    className="w-full max-h-[240px] object-cover rounded-t-lg"
-                    width={400}
-                    height={300}
-                />
-            </div> :
-            <div className="font-semibold px-2 text-[15px] pt-2 break-all">
-                {embed.external.uri}
-            </div>
-        }
+        <div>
+            <Image
+                src={embed.external.thumb}
+                alt={""}
+                className="w-full max-h-[240px] object-cover rounded-t-lg"
+                width={400}
+                height={300}
+            />
+        </div> :
+        <div className="font-semibold px-2 text-[15px] pt-2 break-all">
+            {embed.external.uri}
+        </div>}
         <div className={embed.external.thumb ? "border-t p-2" : "p-2"}>
             <div className={"text-[15px] font-semibold mb-1"}>{embed.external.title}</div>
             <div className={"text-[14px]"}>{embed.external.description}</div>

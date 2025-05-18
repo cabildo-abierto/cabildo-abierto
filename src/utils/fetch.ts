@@ -32,10 +32,8 @@ export async function post<Body, Output>(route: string, body?: Body): Promise<Po
         body
     })
     if(res.ok){
-        //console.log("post to", route, "res ok")
         return await res.json()
     } else {
-        //console.log("res not ok")
         return {error: "Error en la conexión."}
     }
 }

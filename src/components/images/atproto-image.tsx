@@ -1,5 +1,7 @@
 import Image from "next/image";
 import {ViewImage} from "@/lex-api/types/app/bsky/embed/images";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import useMeasure from "react-use-measure";
 
 
 type EmbedImageProps = {
@@ -8,13 +10,17 @@ type EmbedImageProps = {
     did?: string
     onClick?: (e: any) => void
     maxHeight?: number
+    maxWidth?: number
     cover?: boolean
 }
 
 
 export const ATProtoImage = ({
-                               img, className = "rounded-lg border", onClick, did, maxHeight=500, cover=false
+                               img, className = "rounded-lg border", onClick, did, maxHeight=500, maxWidth, cover=false
                            }: EmbedImageProps) => {
+    const [ref, bounds] = useMeasure()
+    if(!maxWidth) maxWidth = bounds.width ? bounds.width : undefined
+    if(!maxHeight) maxHeight = bounds.height ? bounds.height : undefined
     let width: number
     let height: number
     let src: string
@@ -22,8 +28,8 @@ export const ATProtoImage = ({
     if(typeof img === "string") {
         src = img
         alt = ""
-        width = 1000
-        height = 1000
+        width = maxWidth ?? 1000
+        height = maxHeight ?? maxWidth ?? 1000
     } else if(img.thumb) {
         src = img.thumb
         alt = img.alt
@@ -33,14 +39,34 @@ export const ATProtoImage = ({
 
             if(cover){
 
-            } else if(height > maxHeight){
-                width = width * maxHeight / height
-                height = maxHeight
+            } else if(maxHeight && !maxWidth){
+                if(height > maxHeight){
+                    width = width * maxHeight / height
+                    height = maxHeight
+                }
+            } else if(maxWidth && !maxHeight){
+                if(width > maxWidth) {
+                    height = height * maxWidth / width
+                    width = maxWidth
+                }
+            } else if(maxWidth && maxHeight){
+                const widthWithMaxHeight = width * maxHeight / height
+                if(widthWithMaxHeight > maxWidth){
+                    if(width > maxWidth) {
+                        height = height * maxWidth / width
+                        width = maxWidth
+                    }
+                } else {
+                    if(height > maxHeight){
+                        width = width * maxHeight / height
+                        height = maxHeight
+                    }
+                }
             }
         } else {
-            width = 300
-            height = 300
-            className = className + " w-full h-full"
+            width = maxWidth && maxWidth > 0 ? maxWidth : 1000
+            height = maxHeight ?? (maxWidth ?? (bounds.height ?? 300))
+            className += " object-cover"
         }
     } else {
         return <div className={"py-4 border rounded w-full"}>
@@ -54,6 +80,7 @@ export const ATProtoImage = ({
             alt={alt}
             width={width}
             height={height}
+            style={{maxHeight, maxWidth}}
             className={className + (onClick ? " cursor-pointer" : "")}
             onClick={(e) => {
                 e.stopPropagation()
