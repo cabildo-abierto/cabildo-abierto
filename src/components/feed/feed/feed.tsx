@@ -60,7 +60,7 @@ function getObjectKey(obj: any): string {
 function Feed<T>({
                      getFeed,
                      queryKey,
-                     loadWhenRemaining = 4000,
+                     loadWhenRemaining = 2000,
                      noResultsText,
                      endText,
                      LoadingFeedContent,
@@ -89,28 +89,14 @@ function Feed<T>({
         staleTime: 1000 * 60 * 5
     })
 
-    useEffect(() => {
+    /*useEffect(() => {
         const prefetchFeed = async () => {
-            const { data, error } = await getFeed(undefined) // start fresh
-            if (error) {
-                return // or handle error gracefully
-            }
-
-            const initialPage: FeedPage<T> = {
-                data: data.feed,
-                nextCursor: data.cursor,
-            }
-
-            qc.setQueryData(queryKey, {
-                pages: [initialPage],
-                pageParams: ['start'],
-            })
-
-            qc.invalidateQueries({ queryKey })
+            qc.removeQueries({ queryKey })
+            await fetchNextPage()
         }
 
         prefetchFeed()
-    }, [getFeed])
+    }, [getFeed])*/
 
     useEffect(() => {
         const handleScroll = async () => {

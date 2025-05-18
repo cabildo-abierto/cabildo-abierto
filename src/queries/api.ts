@@ -23,9 +23,7 @@ function uriToKey(uri: string) {
 export function useAPI<T>(
     route: string,
     key: readonly unknown[],
-    options?: {
-        enabled?: boolean
-    }
+    staleTime: number = Infinity
 ) {
     return useQuery<T>({
         queryKey: key,
@@ -35,7 +33,7 @@ export function useAPI<T>(
             if (error) return null
             return data
         },
-        ...options,
+        staleTime,
     })
 }
 

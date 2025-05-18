@@ -30,6 +30,7 @@ import SupportIcon from "../icons/support-icon";
 import NotificationsIcon from "../icons/notifications-icon";
 
 import dynamic from "next/dynamic";
+
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
 

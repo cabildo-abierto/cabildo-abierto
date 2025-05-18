@@ -50,7 +50,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
                         className={"rounded-full w-4 h-4"}
                     />
                 </Link>
-                <span className="truncate">
+                <span className="truncate text-sm">
                     <ContentTopRowAuthor author={author}/>
                 </span>
                 <span className="text-[var(--text-light)]">·</span>

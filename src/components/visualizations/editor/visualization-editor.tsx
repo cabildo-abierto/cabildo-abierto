@@ -134,8 +134,13 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
     }, [config.dataSource, datasets])
 
     if (!wideEnough) {
-        return <div className={"h-screen flex justify-center text-center items-center text-[var(--text-light)]"}>
-            Abrí el editor en una pantalla más grande
+        return <div>
+            <div className="absolute top-1 right-1">
+                <CloseButton size="small" onClose={onClose} color={"background"}/>
+            </div>
+            <div className={"h-screen flex w-screen justify-center text-center items-center text-[var(--text-light)]"}>
+                Abrí el editor en una pantalla más grande
+            </div>
         </div>
     }
 
@@ -159,7 +164,10 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
     const right = <div ref={rightRef} className={"pl-8 pr-4"}>
         <ConfigPanel
             config={config}
-            setConfig={(c: PlotConfigProps) => {setConfig(c); setSelected("Visualización")}}
+            setConfig={(c: PlotConfigProps) => {
+                setConfig(c);
+                setSelected("Visualización")
+            }}
             dataset={chosenDataset}
         />
     </div>

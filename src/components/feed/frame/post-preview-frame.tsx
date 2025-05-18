@@ -80,24 +80,24 @@ export const PostPreviewFrame = ({
     >
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full items-stretch"}>
-            <div className="w-[79px] flex flex-col items-center pl-2 ">
+            <div className="max-w-[13%] w-full flex flex-col items-center px-2">
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <Link
                     href={profileUrl(author.handle)}
                     onClick={(e) => {
                         e.stopPropagation()
                     }}
-                    className="w-11 h-11 flex items-center justify-center"
+                    className="max-w-11 w-full flex items-center justify-center"
                 >
                     <ProfilePic
                         user={author}
-                        className={"rounded-full w-11 h-11"}
+                        className={"rounded-full w-full"}
                     />
                 </Link>
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
-            <div className="py-2 flex max-w-[519px] w-full flex-col pr-2">
+            <div className="py-2 flex w-full max-w-[86%] flex-col pr-2">
                 <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
                     <span className="truncate">
                         <ContentTopRowAuthor author={author}/>

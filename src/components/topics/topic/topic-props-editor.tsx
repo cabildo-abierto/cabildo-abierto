@@ -198,8 +198,6 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
 
     useEffect(() => {
         const newProps = addDefaults(props, topic)
-        console.log("Current props", props)
-        console.log("Added defaults", newProps)
         if (!propsEqual(newProps, props)) {
             setProps(newProps)
         }

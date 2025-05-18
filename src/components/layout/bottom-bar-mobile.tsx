@@ -15,13 +15,22 @@ export const BottomBarMobile = () => {
 
     const buttonClassName = ""
 
-    return <div className={"border-t flex justify-between bg-[var(--background)]"}>
+    return <div className={"border-t flex justify-between bg-[var(--background)] px-2"}>
         <SidebarButton
             icon={<CabildoIcon/>}
             iconInactive={<HomeOutlinedIcon/>}
             text="Inicio"
             href="/inicio"
             selected={pathname.startsWith("/inicio")}
+            className={buttonClassName}
+            color={"background"}
+        />
+        <SidebarButton
+            icon={<TopicsIcon fontSize="medium"/>}
+            iconInactive={<CollectionsBookmarkOutlinedIcon/>}
+            text="Temas"
+            href="/temas"
+            selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
             className={buttonClassName}
             color={"background"}
         />
@@ -38,15 +47,6 @@ export const BottomBarMobile = () => {
             icon={<NotificationsIcon count={0}/>}
             iconInactive={<NotificationsOutlinedIcon/>}
             text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
-            className={buttonClassName}
-            color={"background"}
-        />
-        <SidebarButton
-            icon={<TopicsIcon fontSize="medium"/>}
-            iconInactive={<CollectionsBookmarkOutlinedIcon/>}
-            text="Temas"
-            href="/temas"
-            selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
             className={buttonClassName}
             color={"background"}
         />

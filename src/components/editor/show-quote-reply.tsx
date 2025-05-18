@@ -50,7 +50,6 @@ export const ShowQuoteReplyButton = ({
                 for (let i = 0; i < marks.length; i++) {
                     const ids = marks[i].getIDs();
                     if (ids.includes(id)) {
-                        console.log("mark already exists", i, id);
                         return;
                     }
                 }
@@ -73,8 +72,8 @@ export const ShowQuoteReplyButton = ({
                 try {
                     $wrapSelectionInMarkNode(rangeSelection, false, id, $createCustomMarkNode);
                 } catch (err) {
-                    console.log("Ocurrió un error con los comentarios sobre el texto.");
-                    console.log(err);
+                    console.error("Ocurrió un error con los comentarios sobre el texto.");
+                    console.error(err);
                 }
             }, { discrete: true });
         }

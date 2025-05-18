@@ -95,7 +95,6 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
 
         smoothScrollTo(0)
 
-        console.log("Status", status)
         if (finishedStatuses.includes(status)) {
             setRun(false)
         }

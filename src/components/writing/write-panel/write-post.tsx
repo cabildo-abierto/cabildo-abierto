@@ -45,6 +45,7 @@ import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {Plot} from "@/components/visualizations/plot";
+import {PostDataForView} from "@/components/writing/write-panel/write-panel-panel";
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -223,7 +224,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     onClose: () => void
     setHidden: (v: boolean) => void
     quotedPost?: PostView
-    handleSubmit: (post: CreatePostProps) => Promise<void>
+    handleSubmit: (post: CreatePostProps, dataForView?: PostDataForView) => Promise<void>
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
@@ -250,11 +251,15 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
             images,
             enDiscusion,
             externalEmbedView,
-            visualization: visualizationViewToMain(visualization),
+            visualization: visualization ? visualizationViewToMain(visualization) : undefined,
             quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
         }
 
-        await handleSubmit(post)
+        const dataForView: PostDataForView = {
+            visualization
+        }
+
+        await handleSubmit(post, dataForView)
         setEditorKey(editorKey + 1);
         return {}
     }
