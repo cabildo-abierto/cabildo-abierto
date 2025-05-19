@@ -18,7 +18,7 @@ const VisuallyHiddenInput = styled('input')({
 })
 
 
-export const UploadImageButton = ({onSubmit}: {onSubmit: (i: ImagePayload) => void}) => {
+export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: string, onSubmit: (i: ImagePayload) => void}) => {
     const loadImage = async (e: any) => {
         if (e.target.files !== null) {
             const file = e.target.files[0]
@@ -44,7 +44,7 @@ export const UploadImageButton = ({onSubmit}: {onSubmit: (i: ImagePayload) => vo
         startIcon={<CloudUploadIcon />}
         fullWidth={true}
     >
-        Subir archivo
+        {text}
         <VisuallyHiddenInput
             type="file"
             onChange={loadImage}
