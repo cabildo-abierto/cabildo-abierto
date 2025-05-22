@@ -138,8 +138,8 @@ export function useDatasets() {
 
 
 export function useDataset(uri: string) {
-    const {did, rkey} = splitUri(uri)
-    return useAPI<DatasetView>("/dataset", ["dataset", did, rkey])
+    const {did, collection, rkey} = splitUri(uri)
+    return useAPI<DatasetView>(`/dataset/${did}/${collection}/${rkey}`, ["dataset", did, collection, rkey])
 }
 
 

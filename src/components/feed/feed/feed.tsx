@@ -1,6 +1,6 @@
 "use client"
 import React, {ReactNode, useEffect, useState} from "react";
-import {range} from "@/utils/arrays";
+import {getObjectKey, range} from "@/utils/arrays";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {GetFeedProps} from "@/lib/types";
 import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
@@ -51,12 +51,6 @@ export interface FeedPage<T> {
 }
 
 
-function getObjectKey(obj: any): string {
-    const stableStr = stringify(obj);
-    return objectHash(stableStr);
-}
-
-
 function Feed<T>({
                      getFeed,
                      queryKey,
@@ -66,7 +60,6 @@ function Feed<T>({
                      LoadingFeedContent,
                      FeedElement
                  }: FeedProps<T>) {
-    const qc = useQueryClient()
 
     const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isError} = useInfiniteQuery({
         queryKey,
@@ -88,15 +81,6 @@ function Feed<T>({
         initialPageParam: "start",
         staleTime: 1000 * 60 * 5
     })
-
-    /*useEffect(() => {
-        const prefetchFeed = async () => {
-            qc.removeQueries({ queryKey })
-            await fetchNextPage()
-        }
-
-        prefetchFeed()
-    }, [getFeed])*/
 
     useEffect(() => {
         const handleScroll = async () => {

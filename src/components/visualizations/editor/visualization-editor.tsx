@@ -5,13 +5,8 @@ import {ConfigPanel} from "./config-panel";
 import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {get} from "@/utils/fetch";
-import {splitUri} from "@/utils/uri";
-import {$Typed} from "@atproto/api";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {isDatasetDataSource} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -33,14 +28,8 @@ const ErrorPanel = ({msg}: { msg?: string }) => {
 }
 
 
-async function getDataset(uri: string) {
-    const {did, collection, rkey} = splitUri(uri)
-    return get<DatasetView>(`/dataset/${did}/${collection}/${rkey}`)
-}
-
-
 type VisualizationEditorProps = {
-    onSave: (v: VisualizationView) => void
+    onSave: (v: Visualization) => void
     msg?: string
     initialConfig?: PlotConfigProps
     onClose: () => void
@@ -49,7 +38,6 @@ type VisualizationEditorProps = {
 export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: VisualizationEditorProps) => {
     const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
-    const [chosenDataset, setChosenDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
     const sidebarWidth = 80
     const [rightSideWidth, setRightSideWidth] = useState(400)
@@ -99,7 +87,6 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
         }
     }, []);
 
-
     useEffect(() => {
         if (rightRef.current) {
             const resizeObserver = new ResizeObserver((entries) => {
@@ -117,22 +104,6 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
         }
     }, []);
 
-    useEffect(() => {
-        async function getSelectedDataset(datasetUri: string) {
-            const index = datasets.findIndex((d) => d.uri == datasetUri)
-
-            setChosenDataset({...datasets[index], $type: "ar.cabildoabierto.data.dataset#datasetViewBasic"})
-            const {data} = await getDataset(datasetUri)
-            setChosenDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
-        }
-
-        if (isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets &&
-            (!chosenDataset || config.dataSource.dataset != chosenDataset.uri)
-        ) {
-            getSelectedDataset(config.dataSource.dataset)
-        }
-    }, [config.dataSource, datasets])
-
     if (!wideEnough) {
         return <div>
             <div className="absolute top-1 right-1">
@@ -149,7 +120,6 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
         selected={selected}
         setSelected={setSelected}
         maxWidth={centerMaxWidth - 8 * 4 - 3 * 4 - 8 * 4 - 4 * 4 - 20}
-        dataset={chosenDataset}
         onSave={onSave}
     />
 
@@ -168,7 +138,6 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
                 setConfig(c);
                 setSelected("Visualización")
             }}
-            dataset={chosenDataset}
         />
     </div>
 

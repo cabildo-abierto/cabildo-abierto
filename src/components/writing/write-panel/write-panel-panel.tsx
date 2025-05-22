@@ -10,14 +10,9 @@ import {$Typed} from "@atproto/api";
 import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {emptyChar} from "@/utils/utils";
-import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 
 export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
-
-export type PostDataForView = {
-    visualization?: VisualizationView
-}
 
 type WritePanelProps = {
     replyTo?: ReplyToContent
@@ -25,7 +20,7 @@ type WritePanelProps = {
     onClose: () => void
     selection?: [number, number]
     quotedPost?: PostView
-    handleSubmit: (post: CreatePostProps, dataForView?: PostDataForView) => Promise<void>
+    handleSubmit: (post: CreatePostProps) => Promise<void>
 }
 
 

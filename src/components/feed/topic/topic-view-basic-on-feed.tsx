@@ -3,7 +3,6 @@ import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import ReplyIcon from "@mui/icons-material/Reply";
-import {PostPreviewFrame} from "@/components/feed/frame/post-preview-frame";
 
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicViewBasic, showingChildren: boolean }) => {

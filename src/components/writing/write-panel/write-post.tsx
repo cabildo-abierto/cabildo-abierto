@@ -10,7 +10,6 @@ import {
     isVisualization,
 } from "@/utils/uri";
 import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {RectTracker} from "../../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
@@ -44,8 +43,7 @@ import {areSetsEqual} from "@/utils/arrays";
 import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
-import {Plot} from "@/components/visualizations/plot";
-import {PostDataForView} from "@/components/writing/write-panel/write-panel-panel";
+import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -209,7 +207,7 @@ const settings: SettingsProps = getEditorSettings({
 })
 
 
-function visualizationViewToMain(v: VisualizationView): Visualization {
+export function visualizationViewToMain(v: VisualizationView): Visualization {
     const {dataset, ...props} = v
     return {
         ...props,
@@ -224,16 +222,15 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     onClose: () => void
     setHidden: (v: boolean) => void
     quotedPost?: PostView
-    handleSubmit: (post: CreatePostProps, dataForView?: PostDataForView) => Promise<void>
+    handleSubmit: (post: CreatePostProps) => Promise<void>
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
     const [images, setImages] = useState<ImagePayload[]>([])
     const [text, setText] = useState("")
-    const [visualization, setVisualization] = useState<VisualizationView>(null)
+    const [visualization, setVisualization] = useState<Visualization>(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
-    const [rect, setRect] = useState<DOMRect>()
     const [enDiscusion, setEnDiscusion] = useState(true)
     const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {
@@ -251,15 +248,11 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
             images,
             enDiscusion,
             externalEmbedView,
-            visualization: visualization ? visualizationViewToMain(visualization) : undefined,
+            visualization,
             quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
         }
 
-        const dataForView: PostDataForView = {
-            visualization
-        }
-
-        await handleSubmit(post, dataForView)
+        await handleSubmit(post)
         setEditorKey(editorKey + 1);
         return {}
     }
@@ -289,76 +282,74 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         images.length > 0 && images.length != 4 ||
         !visualization && !externalEmbedView && (!images || images.length == 0)
 
-    return <RectTracker setRect={setRect}>
-        <div className={"flex flex-col justify-between"}>
-            <div
-                className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
-                <div className="flex justify-between space-x-2 w-full my-2">
-                    <ProfilePic user={user} className="w-8 h-8 rounded-full" descriptionOnHover={false}/>
-                    <div className="sm:text-lg flex-1" key={editorKey}>
-                        <MyLexicalEditor
-                            setEditor={setEditor}
-                            setEditorState={setEditorState}
-                            settings={{...settings, placeholder: getPlaceholder(replyToCollection)}}
-                        />
-                        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
-                    </div>
-                </div>
-                {replyTo && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
-                {visualization && <div className={"flex justify-center"}>
-                    <Plot
-                        visualization={visualization}
+    return <div className={"flex flex-col justify-between"}>
+        <div
+            className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
+            <div className="flex justify-between space-x-2 w-full my-2">
+                <ProfilePic user={user} className="w-8 h-8 rounded-full" descriptionOnHover={false}/>
+                <div className="sm:text-lg flex-1" key={editorKey}>
+                    <MyLexicalEditor
+                        setEditor={setEditor}
+                        setEditorState={setEditorState}
+                        settings={{...settings, placeholder: getPlaceholder(replyToCollection)}}
                     />
-                </div>}
-                {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
-                {externalEmbedView && <ExternalEmbedInEditor
-                    embed={externalEmbedView}
-                    onRemove={onRemove}
-                />}
-                {quotedPost && <WritePanelQuotedPost quotedPost={quotedPost}/>}
-            </div>
-            <div className="flex justify-between p-1 border-t items-center">
-                <div className={"flex space-x-2 items-center"}>
-                    <AddImageButton
-                        disabled={!canAddImage}
-                        setModalOpen={setImageModalOpen}
-                    />
-                    <AddVisualizationButton
-                        disabled={hasEmbed}
-                        setModalOpen={setVisualizationModalOpen}
-                    />
-                </div>
-                <div className={"flex space-x-2 text-[var(--text-light)] items-center px-1"}>
-                    <TopicsMentionedSmall mentions={topicsMentioned}/>
-                    <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
-                    <StateButton
-                        color={"primary"}
-                        text1={isReply ? "Responder" : "Publicar"}
-                        handleClick={handleClickSubmit}
-                        disabled={!valid}
-                        textClassName="font-semibold"
-                        size="medium"
-                        sx={{borderRadius: 20}}
-                    />
+                    {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
                 </div>
             </div>
-            <InsertVisualizationModal
-                open={visualizationModalOpen}
-                onClose={() => {
-                    setVisualizationModalOpen(false)
-                }}
-                onSave={setVisualization}
-            />
-            <InsertImageModal
-                open={imageModalOpen}
-                onClose={() => {
-                    setImageModalOpen(false)
-                }}
-                onSubmit={(i: ImagePayload) => {
-                    setImages([...images, i])
-                    setImageModalOpen(false)
-                }}
-            />
+            {replyTo && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
+            {visualization && <div className={"flex justify-center"}>
+                <PlotFromVisualizationMain
+                    visualization={visualization}
+                />
+            </div>}
+            {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
+            {externalEmbedView && <ExternalEmbedInEditor
+                embed={externalEmbedView}
+                onRemove={onRemove}
+            />}
+            {quotedPost && <WritePanelQuotedPost quotedPost={quotedPost}/>}
         </div>
-    </RectTracker>
+        <div className="flex justify-between p-1 border-t items-center">
+            <div className={"flex space-x-2 items-center"}>
+                <AddImageButton
+                    disabled={!canAddImage}
+                    setModalOpen={setImageModalOpen}
+                />
+                <AddVisualizationButton
+                    disabled={hasEmbed}
+                    setModalOpen={setVisualizationModalOpen}
+                />
+            </div>
+            <div className={"flex space-x-2 text-[var(--text-light)] items-center px-1"}>
+                <TopicsMentionedSmall mentions={topicsMentioned}/>
+                <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
+                <StateButton
+                    color={"primary"}
+                    text1={isReply ? "Responder" : "Publicar"}
+                    handleClick={handleClickSubmit}
+                    disabled={!valid}
+                    textClassName="font-semibold"
+                    size="medium"
+                    sx={{borderRadius: 20}}
+                />
+            </div>
+        </div>
+        <InsertVisualizationModal
+            open={visualizationModalOpen}
+            onClose={() => {
+                setVisualizationModalOpen(false)
+            }}
+            onSave={setVisualization}
+        />
+        <InsertImageModal
+            open={imageModalOpen}
+            onClose={() => {
+                setImageModalOpen(false)
+            }}
+            onSubmit={(i: ImagePayload) => {
+                setImages([...images, i])
+                setImageModalOpen(false)
+            }}
+        />
+    </div>
 }

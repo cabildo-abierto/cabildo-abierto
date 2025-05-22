@@ -17,9 +17,8 @@ export const ToolbarButton = ({active=false, children, ...props}: ToolbarButtonP
         sx={{borderRadius: "8px", width: "36px", height: "36px"}}
         {...props}
     >
-        <div className={active ? "" : "text-[var(--text-light)]"}>
+        <div className={active ? "" : (props.disabled ? "text-[var(--text-lighter)]" : "text-[var(--text-light)]")}>
             {children}
         </div>
-
     </IconButton>
 }
