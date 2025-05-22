@@ -6,7 +6,7 @@ import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
 import {categoriesSearchParam, useCodes} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
-import {post} from "@/utils/fetch";
+import {get, post} from "@/utils/fetch";
 
 
 export const collectionsList = [
@@ -42,7 +42,7 @@ const createCodes = async (count: number) => {
 }
 
 const getUsers = async () => {
-    return {users: []}
+    return await get<ProfileViewBasic[]>("/users")
 }
 
 export const AdminAcceso = () => {
@@ -165,19 +165,20 @@ export const AdminAcceso = () => {
                 text1={"Leer usuarios"}
                 handleClick={async () => {
                     setUsers([])
-                    const {users} = await getUsers()
+                    const {data: users} = await getUsers()
+                    console.log("got users", users)
                     setUsers(users)
                     return {}
                 }}
             />
 
             {users && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-1">
                     {users.map((u, index) => (
-                        <React.Fragment key={index}>
-                            <div>{u.did}</div>
-                            <div>{u.handle ? u.handle : "sin handle"}</div>
-                        </React.Fragment>
+                        <div key={index} className={"border rounded p-2"}>
+                            <div>@{u.handle ? u.handle : "sin handle"}</div>
+                            <div>{u.displayName ? u.displayName : "sin display name"}</div>
+                        </div>
                     ))}
                 </div>
             )}

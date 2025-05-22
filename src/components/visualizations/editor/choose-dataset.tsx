@@ -60,7 +60,7 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
                         color={"background-dark2"}
                     />
                 </div>
-                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar max-h-[calc(100vh-250px)]"}>
+                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-250px)]"}>
                     {filteredDatasets ? filteredDatasets.map((d, i) => {
                         return <div key={i} className={""}>
                             <DatasetPreviewOnEditor
@@ -76,7 +76,8 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
                                 }}
                             />
                         </div>
-                    }) : <div className={"mt-8"}><LoadingSpinner/></div>}
+                    }) :
+                    <div className={"mt-8"}><LoadingSpinner/></div>}
                 </div>
             </div>
         </ResizableDiv>

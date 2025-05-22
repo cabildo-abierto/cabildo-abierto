@@ -1,3 +1,6 @@
+import stringify from "json-stable-stringify";
+import objectHash from "object-hash";
+
 export function union<T>(s: Set<T>, t: Set<T>): Set<T> {
     const m = new Set<T>(s)
     t.forEach(x => {m.add(x)})
@@ -128,4 +131,10 @@ export function deepEqual(a: any, b: any): boolean {
     }
 
     return true;
+}
+
+
+export function getObjectKey(obj: any): string {
+    const stableStr = stringify(obj);
+    return objectHash(stableStr);
 }

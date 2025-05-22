@@ -3,7 +3,8 @@ import {
     isBarplot, isDatasetDataSource,
     Lines,
     View as VisualizationView,
-    Scatterplot
+    Main as Visualization,
+    Scatterplot, DatasetDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {Bar} from '@visx/shape';
@@ -15,10 +16,14 @@ import {$Typed} from "@atproto/api";
 import {useTooltip, useTooltipInPortal, defaultStyles} from '@visx/tooltip';
 import {localPoint} from '@visx/event';
 import useMeasure from "react-use-measure";
-import { Button } from "../../../modules/ui-utils/src/button";
-import InfoIcon from "@mui/icons-material/Info";
-import {contentUrl} from "@/utils/uri";
-import Link from "next/link"
+import {useDataset} from "@/queries/api";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {produce} from "immer";
+import {Button} from "../../../modules/ui-utils/src/button";
+import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
+import {useState} from "react";
+import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
 
 
 function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
@@ -183,14 +188,13 @@ export const Barplot = ({spec, visualization}: {
                 </Group>
             </svg>
             {visualization.caption && (
-                <div className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1">
+                <div className="italic text-center text-[var(--text-light)] mt-1 px-2 break-words w-full max-w-full">
                     {visualization.caption}
                 </div>
             )}
         </div>
     );
 };
-
 
 
 type TwoAxisPlotSpec = $Typed<BarplotSpec> | $Typed<Lines> | $Typed<Scatterplot>
@@ -251,13 +255,89 @@ export const ResponsivePlot = ({
 export const Plot = ({
                          visualization,
                          height = 400,
-                         width
+                         width,
+                         onEdit
                      }: {
     visualization: VisualizationView
     height?: number | string
     width?: number | string
+    onEdit?: (v: Visualization) => void
 }) => {
+    const [editing, setEditing] = useState(false)
+
     return <div style={{height, width}} className={"relative"}>
+        {onEdit != null && <div
+            className={"absolute top-2 right-2 z-10"}
+        >
+            <Button
+                size={"small"}
+                startIcon={<WriteButtonIcon/>}
+                color={"background-dark2"}
+                onClick={() => {
+                    setEditing(true)
+                }}
+            >
+                Editar
+            </Button>
+        </div>}
         <ResponsivePlot visualization={visualization}/>
+        <InsertVisualizationModal
+            open={editing}
+            onClose={() => {
+                setEditing(false)
+            }}
+            onSave={onEdit}
+            initialConfig={visualizationViewToMain(visualization)}
+        />
     </div>
 };
+
+
+function getDatasetVisualizationView(visualization: Visualization, dataset: DatasetView): VisualizationView {
+    if (isDatasetDataSource(visualization.dataSource)) {
+        return {
+            ...visualization,
+            $type: "ar.cabildoabierto.embed.visualization#view",
+            dataset
+        }
+    }
+}
+
+
+const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit}: {
+    visualization: Visualization
+    dataSource: DatasetDataSource
+    width?: number | string
+    height?: number | string
+    onEdit?: (v: Visualization) => void
+}) => {
+    const {data: dataset, isLoading} = useDataset(dataSource.dataset)
+
+    if (isLoading || !dataset) {
+        return <div className={"py-4"}><LoadingSpinner/></div>
+    }
+
+    const view = getDatasetVisualizationView(visualization, dataset)
+
+    return <Plot visualization={view} width={width} height={height} onEdit={onEdit}/>
+}
+
+
+export const PlotFromVisualizationMain = ({visualization, height, width, onEdit}: {
+    visualization: Visualization
+    height?: number | string
+    width?: number | string
+    onEdit?: (v: Visualization) => void
+}) => {
+    if (isDatasetDataSource(visualization.dataSource)) {
+        return <DatasetPlotFromMain
+            visualization={visualization}
+            dataSource={visualization.dataSource}
+            height={height}
+            width={width}
+            onEdit={onEdit}
+        />
+    } else {
+        return null
+    }
+}

@@ -10,7 +10,7 @@ import {
     ThreadViewContent
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isTopicView, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import WritePanelPanel, {PostDataForView} from "@/components/writing/write-panel/write-panel-panel";
+import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {getUri, splitUri} from "@/utils/uri";
 import {contentQueriesFilter} from "@/queries/updates";
@@ -20,7 +20,6 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {post} from "@/utils/fetch";
-import {waitFor} from "@testing-library/dom";
 import {View as EmbedImagesView, ViewImage} from "@/lex-api/types/app/bsky/embed/images"
 
 
@@ -82,7 +81,7 @@ function imagePayloadToEmbedImageView(images: ImagePayloadForPostCreation[]): $T
 }
 
 
-function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToContent, dataForView?: PostDataForView): PostView["embed"] | undefined | "error" {
+function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToContent): PostView["embed"] | undefined | "error" {
     if(post.selection){
         if(!isFullArticleView(replyTo) && !isTopicView(replyTo)) return undefined
         if(post.images || post.externalEmbedView) return "error" // TO DO
@@ -98,11 +97,7 @@ function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToConte
         if(post.images) return "error" // TO DO
         return post.externalEmbedView
     } else if(post.visualization){
-        const v = dataForView?.visualization
-        return v ? {
-            ...v,
-            $type: "ar.cabildoabierto.embed.visualization#view"
-        } : undefined
+        return "error"
     } else if(post.images){
         return imagePayloadToEmbedImageView(post.images)
     } else if(post.quotedPost){
@@ -111,7 +106,7 @@ function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToConte
 }
 
 
-function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Profile, replyTo: ReplyToContent, dataForView?: PostDataForView) {
+function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Profile, replyTo: ReplyToContent) {
     const basicAuthor: ProfileViewBasic = {
         $type: "ar.cabildoabierto.actor.defs#profileViewBasic",
         did: author.bsky.did,
@@ -121,7 +116,7 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         caProfile: author.ca.inCA ? "optimistic" : undefined
     }
 
-    const embed: PostView["embed"] | undefined | "error" = getEmbedViewFromCreatePost(post, replyTo, dataForView)
+    const embed: PostView["embed"] | undefined | "error" = getEmbedViewFromCreatePost(post, replyTo)
 
     if(embed == "error") return
 
@@ -182,12 +177,12 @@ const WritePanel = ({
     const {user} = useSession()
     const {data: author} = useProfile(user.handle)
 
-    async function createPost({body, dataForView}: {body: CreatePostProps, dataForView?: PostDataForView}) {
+    async function createPost({body}: {body: CreatePostProps}) {
         return await post<CreatePostProps, { uri: string }>("/post", body)
     }
 
-    async function handleSubmit(body: CreatePostProps, dataForView?: PostDataForView) {
-        createPostMutation.mutate({body, dataForView})
+    async function handleSubmit(body: CreatePostProps) {
+        createPostMutation.mutate({body})
     }
 
     const createPostMutation = useMutation({
@@ -196,10 +191,10 @@ const WritePanel = ({
             const optimisticUri = getUri("", "app.bsky.feed.post", "")
             if(replyTo) qc.cancelQueries(contentQueriesFilter(replyTo.uri))
             qc.cancelQueries(contentQueriesFilter(optimisticUri))
-            optimisticCreatePost(qc, post.body, author, replyTo, post.dataForView)
+            optimisticCreatePost(qc, post.body, author, replyTo)
             onClose()
         },
-        onSuccess: async ({error, data}) => {
+        onSuccess: async ({data}) => {
             if(replyTo) {
                 qc.invalidateQueries(contentQueriesFilter(replyTo.uri))
             }

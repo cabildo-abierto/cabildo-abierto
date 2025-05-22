@@ -1,10 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$wrapNodeInElement, mergeRegister} from '@lexical/utils';
 import {
@@ -35,7 +28,7 @@ import {
   VisualizationPayload
 } from '../../nodes/VisualizationNode';
 import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
-import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 
 export type InsertVisualizationPayload = Readonly<VisualizationPayload>;
 
@@ -54,21 +47,16 @@ export function InsertVisualizationDialog({
   open: boolean;
   onClose: () => void;
 }) {
-    const [visualization, setVisualization] = useState<VisualizationView | null>(null)
-
-    useEffect(() => {
-        if(visualization){
-            // TO DO
-            // activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization.spec, uri: visualization.uri});
-            onClose();
-        }
-    }, [visualization])
+    function onSave(visualization: Visualization) {
+        activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization});
+        onClose();
+    }
 
     return (
         <InsertVisualizationModal
             open={open}
             onClose={onClose}
-            onSave={(v: VisualizationView) => {setVisualization(v)}}
+            onSave={onSave}
         />
     )
 }

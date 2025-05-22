@@ -16,7 +16,7 @@ export const DatasetFullView = ({dataset}: { dataset: DatasetView }) => {
         <h2>{dataset.name}</h2>
         <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
             <div><Authorship content={dataset} text={"Publicado por"}/></div>
-            <div><DateSince date={dataset.createdAt}/></div>
+            <div>hace <DateSince date={dataset.createdAt}/></div>
         </div>
         <div className={"mt-4 text-[var(--text-light)]"}>
             <div className={"font-semibold text-[var(--text)]"}>
