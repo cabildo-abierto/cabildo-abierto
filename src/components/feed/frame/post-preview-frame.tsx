@@ -73,6 +73,7 @@ export const PostPreviewFrame = ({
         router.push(url);
     }
 
+
     return <div
         id={"discussion:" + postView.uri}
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}

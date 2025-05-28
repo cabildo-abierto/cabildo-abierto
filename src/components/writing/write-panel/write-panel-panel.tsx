@@ -10,6 +10,7 @@ import {$Typed} from "@atproto/api";
 import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {emptyChar} from "@/utils/utils";
+import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 
 
 export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
@@ -18,7 +19,7 @@ type WritePanelProps = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
-    selection?: [number, number]
+    selection?: MarkdownSelection
     quotedPost?: PostView
     handleSubmit: (post: CreatePostProps) => Promise<void>
 }
@@ -74,7 +75,7 @@ const WritePanelPanel = ({
     }
 
     return (
-        <BaseFullscreenPopup hidden={hidden} open={open} className="w-full max-w-[512px]">
+        <BaseFullscreenPopup hidden={hidden} open={open} className="w-full max-w-[512px]" disableScrollLock={false}>
             <div className="w-full rounded pt-1 max-h-[80vh] overflow-y-auto">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {!isReply && !quotedPost ? <SelectionComponent

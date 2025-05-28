@@ -32,6 +32,18 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
         setFilteredDatasets(f)
     }, [searchValue, datasets])
 
+    useEffect(() => {
+        if(config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset){
+            if(!datasets.some(d => isDatasetDataSource(config.dataSource) && d.uri == config.dataSource.dataset)){
+                setConfig(produce(config, draft => {
+                    if(isDatasetDataSource(draft.dataSource)) {
+                        draft.dataSource.dataset = undefined
+                    }
+                }))
+            }
+        }
+    }, [datasets, config, setConfig])
+
     return <div className={"mt-16"}>
         <ResizableDiv initialWidth={320} minWidth={240} maxWidth={400} side={"right"}>
             <div className={"rounded-lg p-2 flex flex-col bg-[var(--background-dark)]"}>

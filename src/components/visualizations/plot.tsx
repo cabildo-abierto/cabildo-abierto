@@ -18,12 +18,12 @@ import {localPoint} from '@visx/event';
 import useMeasure from "react-use-measure";
 import {useDataset} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {produce} from "immer";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
@@ -338,6 +338,8 @@ export const PlotFromVisualizationMain = ({visualization, height, width, onEdit}
             onEdit={onEdit}
         />
     } else {
-        return null
+        return <div>
+            <PrettyJSON data={visualization}/>
+        </div>
     }
 }

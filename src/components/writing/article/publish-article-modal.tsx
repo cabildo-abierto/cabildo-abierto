@@ -34,7 +34,7 @@ const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}:
             <div className={"space-y-2"}>
                 <div className={"w-full flex flex-col"}>
                     <div className={"text-sm text-[var(--text-light)] px-1"}>
-                        Así se va a ver en el muro:
+                        La previsualización en el muro se va a ver así:
                     </div>
                     <ArticlePreviewContent
                         color="background-dark2"

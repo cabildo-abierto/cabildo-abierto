@@ -1,9 +1,7 @@
 import Image from "next/image";
 import {profileUrl} from "@/utils/uri";
 import {useRouter} from "next/navigation";
-import dynamic from "next/dynamic";
-
-const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"));
+import UserSummaryOnHover from "@/components/profile/user-summary";
 
 type ProfilePicProps = {
     descriptionOnHover?: boolean

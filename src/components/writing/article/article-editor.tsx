@@ -2,7 +2,6 @@
 import {useEffect, useState} from "react"
 import {EditorState} from "lexical"
 import dynamic from "next/dynamic"
-
 import {TitleInput} from "./title-input"
 import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
@@ -16,8 +15,12 @@ import {Authorship} from "@/components/feed/frame/authorship";
 import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
+import {
+    editorStateToMarkdown, markdownToEditorState,
+} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
+
 
 
 const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
@@ -42,7 +45,7 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
 const ArticleEditor = () => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [modalOpen, setModalOpen] = useState(false)
-    const {topicsMentioned, setLastTextChange, setEditor, title, setTitle} = useTopicsMentioned()
+    const {topicsMentioned, setLastTextChange, editor, setEditor, title, setTitle} = useTopicsMentioned()
     const {user} = useSession()
     const smallScreen = window.innerWidth < 700
 
@@ -58,6 +61,22 @@ const ArticleEditor = () => {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
 
+    function onRefresh(){
+        const res = editor.read(() => {
+            const editorStateStr = JSON.stringify(editor.getEditorState().toJSON())
+            return editorStateToMarkdown(editorStateStr)
+        })
+        if(!res) return
+        const {markdown, embeds} = res
+
+        const state = markdownToEditorState(markdown, true, true, embeds)
+        const newEditorState = editor.parseEditorState(state)
+
+        editor.update(() => {
+            editor.setEditorState(newEditorState)
+        }, {discrete: true})
+    }
+
     return <div className={"mb-32"}>
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
@@ -72,6 +91,9 @@ const ArticleEditor = () => {
                 />
 			</div>
 		</div>
+        <button onClick={onRefresh}>
+            Refresh
+        </button>
         <GradientHRule/>
         <div className="mt-8 rounded-lg px-5">
             <div className={"mb-2"}>

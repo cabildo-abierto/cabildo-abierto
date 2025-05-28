@@ -101,6 +101,21 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 3px solid var(--primary-2xdark);
   padding-bottom: 3px;
   color: var(--text);
+
+}
+
+.PlaygroundEditorTheme__mark img {
+  background: var(--primary-xdark);
+  border-bottom: 3px solid var(--primary-2xdark);
+  padding: 3px;
+  color: var(--text);
+}
+
+.PlaygroundEditorTheme__mark .visualization {
+  background: var(--primary-xdark);
+  border-bottom: 3px solid var(--primary-2xdark);
+  padding: 3px;
+  color: var(--text);
 }
 
 .PlaygroundEditorTheme__markOverlap {

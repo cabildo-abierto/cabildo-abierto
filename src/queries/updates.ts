@@ -3,8 +3,9 @@ import {FeedViewContent, isThreadViewContent, ThreadViewContent} from "@/lex-api
 import {postOrArticle} from "@/utils/type-utils";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
-import {isArticle, isPost, isTopicVersion, splitUri} from "@/utils/uri";
+import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
 import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 export const contentQueriesFilter = (uri: string) => ({
@@ -13,7 +14,7 @@ export const contentQueriesFilter = (uri: string) => ({
 
 
 export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
-    const {did, collection, rkey} = splitUri(uri)
+    const {collection} = splitUri(uri)
 
     if (isPost(collection) || isArticle(collection)) {
         return queryKey[0] == "main-feed"
@@ -24,6 +25,8 @@ export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
     } else if (isTopicVersion(collection)) {
         return queryKey[0] == "topic"
             || queryKey[0] == "topic-history"
+    } else if (isDataset(collection)){
+        return queryKey[0] == "dataset" || queryKey[0] == "datasets"
     }
 }
 
@@ -104,4 +107,19 @@ export async function updateTopicHistories(qc: QueryClient, uri: string, updater
                 })
             })
         })
+}
+
+
+export async function updateDatasets(qc: QueryClient, uri: string, updater: (e: DatasetViewBasic) => DatasetViewBasic | null) {
+    qc.setQueryData(["datasets"], old => {
+        return produce(old as DatasetViewBasic[], draft => {
+            const index = draft.findIndex(d => d.uri == uri)
+            const newVersion = updater(draft[index])
+            if(!newVersion){
+                draft.splice(index, 1)
+            } else {
+                draft[index] = newVersion
+            }
+        })
+    })
 }

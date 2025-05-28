@@ -1,6 +1,7 @@
 import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {ATProtoStrongRef} from "@/lib/types";
 import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote";
+import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 
 
 type SelectionQuoteEmbedProps = {
@@ -18,5 +19,6 @@ export const SelectionQuoteEmbed = ({embed, mainPostRef, onClick, showContext = 
         onClick={onClick}
         mainPostRef={mainPostRef}
         showContext={showContext}
+        selection={new MarkdownSelection(embed.start, embed.end)}
     />
 }

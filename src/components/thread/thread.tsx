@@ -43,7 +43,7 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
         if (isFullArticleView(content) && replies) {
             setQuoteReplies(getThreadQuoteReplies(thread))
         }
-    }, [thread, replies])
+    }, [thread, replies, content])
 
     return <div className={"flex flex-col items-center"}>
         <ThreadHeader c={getCollectionFromUri(content.uri)}/>
