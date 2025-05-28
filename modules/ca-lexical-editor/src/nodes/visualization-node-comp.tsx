@@ -25,7 +25,7 @@ export const VisualizationNodeComp = ({
         })
     }
 
-    return <div className={"relative my-4"}>
+    return <div className={"relative my-4 visualization"}>
         <PlotFromVisualizationMain
             visualization={visualization}
             onEdit={editable ? onEdit : undefined}

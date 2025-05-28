@@ -166,7 +166,6 @@ export const AdminAcceso = () => {
                 handleClick={async () => {
                     setUsers([])
                     const {data: users} = await getUsers()
-                    console.log("got users", users)
                     setUsers(users)
                     return {}
                 }}

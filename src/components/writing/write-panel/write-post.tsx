@@ -44,6 +44,7 @@ import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
+import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -218,7 +219,7 @@ export function visualizationViewToMain(v: VisualizationView): Visualization {
 
 export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
-    selection?: [number, number]
+    selection?: MarkdownSelection
     onClose: () => void
     setHidden: (v: boolean) => void
     quotedPost?: PostView
@@ -244,7 +245,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         const post: CreatePostProps = {
             text,
             reply,
-            selection,
+            selection: selection ? selection.toArray() : undefined,
             images,
             enDiscusion,
             externalEmbedView,

@@ -1,11 +1,18 @@
 import {
     BOLD_ITALIC_STAR,
     BOLD_ITALIC_UNDERSCORE,
-    BOLD_STAR, BOLD_UNDERSCORE, CHECK_LIST,
+    BOLD_STAR,
+    BOLD_UNDERSCORE,
+    CHECK_LIST,
     ElementTransformer,
-    HEADING, INLINE_CODE, ITALIC_STAR, ITALIC_UNDERSCORE,
+    HEADING,
+    INLINE_CODE,
+    ITALIC_STAR,
+    ITALIC_UNDERSCORE,
     ORDERED_LIST,
-    QUOTE, STRIKETHROUGH, TextMatchTransformer,
+    QUOTE,
+    STRIKETHROUGH,
+    TextMatchTransformer,
     UNORDERED_LIST
 } from "@lexical/markdown";
 import {$createTextNode, $isParagraphNode, ParagraphNode} from "lexical";
@@ -14,24 +21,8 @@ import {HR} from "./plugins/MarkdownTransformers/hr-transformer";
 import {TABLE} from "./plugins/MarkdownTransformers/table-transformer";
 import {$createCustomLinkNode, CustomLinkNode} from "./nodes/CustomLinkNode";
 import {$isLinkNode} from "@lexical/link";
-
-
-export const PARAGRAPH: ElementTransformer = {
-    dependencies: [ParagraphNode],
-    export: (node, exportChildren) => {
-        if (!$isParagraphNode(node)) {
-            return null;
-        }
-
-        const content = exportChildren(node)
-        return `\n${content}\n`
-    },
-    regExp: /(?!)/,
-    replace: (parentNode, children, _match, isImport) => {
-        return
-    },
-    type: 'element',
-};
+import {$createVisualizationNode, $isVisualizationNode, VisualizationNode} from "./nodes/VisualizationNode";
+import {getObjectKey} from "@/utils/arrays";
 
 
 export const LINK: TextMatchTransformer = {
@@ -44,11 +35,9 @@ export const LINK: TextMatchTransformer = {
 
         const textContent = exportChildren(node);
 
-        const linkContent = title
+        return title
             ? `[${textContent}](${node.getURL()} "${title}")`
             : `[${textContent}](${node.getURL()})`;
-
-        return linkContent;
     },
     importRegExp:
         /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))/,
@@ -75,6 +64,43 @@ export const LINK: TextMatchTransformer = {
     },
     trigger: ')',
     type: 'text-match',
+};
+
+
+export const VISUALIZATION: ElementTransformer = {
+    dependencies: [VisualizationNode],
+    export: (node) => {
+        if (!$isVisualizationNode(node)) {
+            return null;
+        }
+
+        return `<--vis:${getObjectKey(node.__spec)}-->`
+    },
+    regExp: /<--vis:([a-zA-Z0-9_-]+)-->$/,
+    replace: (parentNode, _1, match) => {
+        const hash = match[1];
+        const node = $createVisualizationNode({hash});
+        parentNode.append(node);
+    },
+    type: 'element',
+};
+
+
+export const PARAGRAPH: ElementTransformer = {
+    dependencies: [ParagraphNode],
+    export: (node, exportChildren) => {
+        if (!$isParagraphNode(node)) {
+            return null;
+        }
+
+        const content = exportChildren(node)
+        return `\n${content}\n`
+    },
+    regExp: /(?!)/,
+    replace: (parentNode, children, _match, isImport) => {
+        return
+    },
+    type: 'element',
 };
 
 

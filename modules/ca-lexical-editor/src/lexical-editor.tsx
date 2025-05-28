@@ -62,6 +62,7 @@ import PlotPlugin from "./plugins/PlotPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -78,6 +79,7 @@ export type SettingsProps = {
     allowVisualizations: boolean
     markdownShortcuts: boolean
     shouldPreserveNewLines: boolean
+    embeds?: ArticleEmbed[]
 
     useSuperscript: boolean
     useStrikethrough: boolean
@@ -132,6 +134,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             setEditor(editor);
         }
     }, [editor, setEditor]);
+
 
     const {
         isRichText,
@@ -305,11 +308,10 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 
 
 const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
-    let {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines} = settings
+    let {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines, embeds} = settings
 
     const nodes = getEditorNodes(settings)
-    const initialData = getInitialData(initialText, initialTextFormat, shouldPreserveNewLines)
-
+    const initialData = getInitialData(initialText, initialTextFormat, shouldPreserveNewLines, embeds)
 
     const initialConfig: InitialConfigType = {
         namespace: 'Playground',

@@ -34,6 +34,7 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         editorClassName: "relative min-h-[300px]",
         tableOfContents: false,
         allowComments: false,
+        embeds: [],
 
         onAddComment: () => {},
 

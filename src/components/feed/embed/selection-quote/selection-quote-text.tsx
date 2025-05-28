@@ -1,41 +1,37 @@
-"use client"
 import {useEffect, useState} from "react";
-import {decompress} from "@/utils/compression";
 import {
-    anyEditorStateToMarkdown, editorStateToMarkdown,
-    markdownToEditorStateStr
+    anyEditorStateToMarkdown, markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {markdownSelectionToLexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection-transforms";
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
-import {getSelectionFromJSONState} from "../../../../../modules/ca-lexical-editor/src/editor-state-utils";
+import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 
 type QuoteTextProps = {
     quotedText: EmbedSelectionQuote["quotedText"]
     quotedTextFormat: EmbedSelectionQuote["quotedTextFormat"]
-    selection: [number, number]
+    quotedTextEmbeds: ArticleEmbed[]
+    selection: MarkdownSelection
 }
 
-export const SelectionQuoteText = ({quotedText, quotedTextFormat, selection}: QuoteTextProps) => {
+export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbeds, selection}: QuoteTextProps) => {
     const [initialData, setInitialData] = useState<string>(null)
 
     useEffect(() => {
-        // tengo contenido y seleccion en markdown
-        // transformo a markdown
-        // transformo a editor state
-        // convierto seleccion a lexical selection
-        // recorto segun esa seleccion
-        // seteo esa initial data
-        const markdown = anyEditorStateToMarkdown(quotedText, quotedTextFormat)
+        try {
+            if(quotedTextFormat != "markdown") return
 
-        const state = markdownToEditorStateStr(markdown)
-        const lexicalQuote = markdownSelectionToLexicalSelection(state, selection)
-        const newInitialData = getSelectionFromJSONState(JSON.parse(state), lexicalQuote)
-
-        if(newInitialData != initialData){
-            setInitialData(newInitialData)
+            const state = markdownToEditorState(quotedText, true, true, quotedTextEmbeds)
+            const lexicalSelection = selection.toLexicalSelection(JSON.stringify(state))
+            const newInitialData = lexicalSelection.getSelectedSubtree(state)
+            const newInitialDataStr = JSON.stringify(newInitialData)
+            if(newInitialDataStr != initialData){
+                setInitialData(newInitialDataStr)
+            }
+        } catch (err) {
+            console.error("Error: ", err)
         }
-    }, [quotedText, quotedTextFormat, selection, initialData])
+    }, [quotedText, quotedTextFormat, selection, initialData, quotedTextEmbeds])
 
     if(!initialData){
         return null

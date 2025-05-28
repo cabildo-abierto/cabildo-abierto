@@ -21,6 +21,7 @@ import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {post} from "@/utils/fetch";
 import {View as EmbedImagesView, ViewImage} from "@/lex-api/types/app/bsky/embed/images"
+import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 
 
 function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewContent) {
@@ -161,7 +162,7 @@ type WritePanelProps = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
-    selection?: [number, number]
+    selection?: MarkdownSelection
     quotedPost?: PostView
 }
 

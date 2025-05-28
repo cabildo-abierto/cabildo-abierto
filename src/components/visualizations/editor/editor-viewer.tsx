@@ -10,7 +10,7 @@ import {
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {Button} from "../../../../modules/ui-utils/src/button";
-import {useDataset} from "@/queries/api";
+import {useDataset, useDatasets} from "@/queries/api";
 
 
 function readyToPlot(config: PlotConfigProps): config is Visualization {
@@ -73,6 +73,20 @@ const EditorViewerViewVisualization = ({
 
 const EditorViewerViewDataForDataset = ({maxWidth, datasetUri}: {maxWidth?: number | string, datasetUri: string}) => {
     const {data: dataset, isLoading} = useDataset(datasetUri)
+    const {data: datasets} = useDatasets()
+
+    if(!dataset && !datasets){
+        return <div className={"py-8 h-full flex items-center"}>
+            <LoadingSpinner/>
+        </div>
+    } else if(!dataset && datasets){
+        return <div className={"w-full h-full"} style={{maxWidth: maxWidth}}>
+            <DatasetFullView dataset={{
+                $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
+                ...datasets.find(d => d.uri == datasetUri)}}
+            />
+        </div>
+    }
 
     if(isLoading || !dataset) {
         return <div className={"py-8 h-full flex items-center"}>
@@ -81,7 +95,11 @@ const EditorViewerViewDataForDataset = ({maxWidth, datasetUri}: {maxWidth?: numb
     }
 
     return <div className={"w-full h-full"} style={{maxWidth: maxWidth}}>
-        <DatasetFullView dataset={dataset}/>
+        <DatasetFullView dataset={{
+            $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
+            ...dataset
+        }}
+            />
     </div>
 }
 

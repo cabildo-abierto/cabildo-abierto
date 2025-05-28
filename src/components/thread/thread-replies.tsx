@@ -37,6 +37,7 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                             smoothScrollTo(elem)
                         }
                     }
+
                     return <PostPreview
                         postView={r.content}
                         parentIsMainPost={true}

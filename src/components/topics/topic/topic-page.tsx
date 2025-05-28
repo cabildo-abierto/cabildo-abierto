@@ -10,6 +10,7 @@ import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))

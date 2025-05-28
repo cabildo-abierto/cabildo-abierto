@@ -45,7 +45,6 @@ import {
 import {Dispatch, useCallback, useEffect, useState} from 'react';
 import * as React from 'react';
 import {IS_APPLE} from '../../shared/environment';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {InsertTableModal} from '../TablePlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';

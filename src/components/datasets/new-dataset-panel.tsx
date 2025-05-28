@@ -74,7 +74,6 @@ export const NewDatasetPanel = ({open, onClose}: {
     const [rows, setRows] = useState<any[] | null>()
     const [name, setName] = useState<string>("")
     const [description, setDescription] = useState<string>("")
-    const router = useRouter()
 
     function onSubmit(f: File, filename: string){
         setData(f)

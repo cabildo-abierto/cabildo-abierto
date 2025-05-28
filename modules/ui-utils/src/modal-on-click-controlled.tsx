@@ -43,9 +43,11 @@ export const ModalOnClickControlled = ({
                                   timeout={{enter: 350, exit: 0}} // Only fade on open
                             >
                                 <div className="mt-2 bg-[var(--background-dark)]">
-                                    {modal(() => {
-                                        setOpen(false)
-                                    })}
+                                    <div>
+                                        {modal(() => {
+                                            setOpen(false)
+                                        })}
+                                    </div>
                                 </div>
                             </Fade>
                         )}

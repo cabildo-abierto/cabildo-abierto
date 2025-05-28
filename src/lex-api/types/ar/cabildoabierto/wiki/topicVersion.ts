@@ -9,6 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as ArCabildoabiertoFeedArticle from '../feed/article'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
 
@@ -22,6 +23,7 @@ export interface Record {
   text?: BlobRef
   format?: string
   props?: TopicProp[]
+  embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
   message?: string
   createdAt: string
   [k: string]: unknown

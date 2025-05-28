@@ -4,6 +4,9 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {useRouter} from "next/navigation";
 import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
+import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {PrettyJSON} from "../../../../../modules/ui-utils/src/pretty-json";
 
 type SelectionQuoteProps = {
     onClick?: (cid: string) => void
@@ -11,14 +14,15 @@ type SelectionQuoteProps = {
     showContext?: boolean
     quotedContent: string
     quotedText: string
+    quotedContentEmbeds?: ArticleEmbed[]
     quotedContentAuthor: ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string
-    start: number
-    end: number
+    selection: MarkdownSelection
 }
 
-export const SelectionQuote = ({onClick, mainPostRef, showContext=false, quotedContentTitle, quotedContentAuthor, quotedContent, quotedText, quotedTextFormat, start, end}: SelectionQuoteProps) => {
+export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
+                                   quotedContentTitle, quotedContentEmbeds, quotedContentAuthor, quotedContent, quotedText, quotedTextFormat, selection}: SelectionQuoteProps) => {
 
     const router = useRouter()
 
@@ -53,7 +57,8 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false, quotedC
             <SelectionQuoteText
                 quotedText={quotedText}
                 quotedTextFormat={quotedTextFormat}
-                selection={[start, end]}
+                selection={selection}
+                quotedTextEmbeds={quotedContentEmbeds}
             />
         </blockquote>
     </div>

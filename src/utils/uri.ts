@@ -120,7 +120,7 @@ export function isTopicVersion(c: string){
 }
 
 export function isDataset(c: string){
-    return c == "ar.com.cabildoabierto.dataset"
+    return c == "ar.com.cabildoabierto.dataset" || c == "ar.cabildoabierto.data.dataset"
 }
 
 export function isVisualization(c: string){

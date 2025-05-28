@@ -14,6 +14,7 @@ export const InsertVisualizationModal = ({open, onClose, onSave, initialConfig}:
         onClose={onClose}
         closeButton={false}
         color={"background"}
+        disableScrollLock={false}
     >
         <VisualizationEditor
             onClose={onClose}

@@ -9,7 +9,9 @@ import {ShowTopicAuthors} from "./show-topic-authors";
 import {useTopicFeed, useTopicVersion} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useSearchParams} from "next/navigation";
-import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {
+    editorStateToMarkdown
+} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
@@ -27,6 +29,9 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/updates";
 import {areSetsEqual} from "@/utils/arrays";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -35,11 +40,21 @@ export type CreateTopicVersionProps = {
     props?: TopicProp[]
     message?: string,
     claimsAuthorship?: boolean
+    embeds?: ArticleEmbed[]
 }
 
 
 async function createTopicVersion(body: CreateTopicVersionProps) {
     return await post<CreateTopicVersionProps, {}>(`/topic-version`, body)
+}
+
+
+function emptyTopic(topic: TopicView) {
+    if(!topic.text || topic.text.trim().length == 0){
+        const embeds = (topic.record as TopicVersionRecord).embeds
+        return !embeds || embeds.length == 0
+    }
+    return false
 }
 
 
@@ -90,7 +105,7 @@ export const TopicContentExpandedViewWithVersion = ({
         if (!editor) return {error: "Ocurrió un error con el editor."}
 
         const s = JSON.stringify(editor.getEditorState().toJSON())
-        const markdown = editorStateToMarkdown(s)
+        const {markdown, embeds} = editorStateToMarkdown(s)
 
         await saveEditMutation.mutateAsync({
             id: topic.id,
@@ -98,7 +113,8 @@ export const TopicContentExpandedViewWithVersion = ({
             format: "markdown-compressed",
             claimsAuthorship,
             message: editMsg,
-            props: topicProps
+            props: topicProps,
+            embeds
         })
 
         setShowingSaveEditPopup(false)
@@ -140,6 +156,7 @@ export const TopicContentExpandedViewWithVersion = ({
                                 isReadOnly: false,
                                 initialText: topic.text,
                                 initialTextFormat: topic.format,
+                                embeds: (topic.record as TopicVersionRecord).embeds,
                                 allowComments: false,
                                 tableOfContents: true,
                                 showToolbar: true,
@@ -151,7 +168,7 @@ export const TopicContentExpandedViewWithVersion = ({
                             setEditor={setEditor}
                             setEditorState={setEditorState}
                         />}
-                        {!wikiEditorState.startsWith("editing") && (!topic.text || topic.text.trim().length == 0) &&
+                        {!wikiEditorState.startsWith("editing") && emptyTopic(topic) &&
                         <div className={"text-[var(--text-light)]"}>
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>}
@@ -161,6 +178,7 @@ export const TopicContentExpandedViewWithVersion = ({
                                 isReadOnly: true,
                                 initialText: topic.text,
                                 initialTextFormat: topic.format,
+                                embeds: (topic.record as TopicVersionRecord).embeds,
                                 allowComments: true,
                                 tableOfContents: true,
                                 editorClassName: "relative article-content not-article-content"
