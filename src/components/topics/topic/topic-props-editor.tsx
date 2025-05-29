@@ -1,4 +1,5 @@
 import {
+    isDateProp,
     isStringListProp,
     isStringProp,
     TopicProp,
@@ -14,7 +15,10 @@ import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscr
 import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
 import {propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
 import {useCategories} from "@/queries/api";
-
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import 'dayjs/locale/es';
 
 export const TopicPropEditor = ({p, setProp, deleteProp}: {
     p: TopicProp,
@@ -73,12 +77,38 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: e.target.value}})
             }}
         />}
+        {isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+            <DatePicker
+                label={"Fecha"}
+                value={dayjs(p.value.value).locale('es')}
+                onChange={(newValue) => {
+                    if (newValue?.isValid()) {
+                        setProp({
+                            ...p,
+                            value: {
+                                $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
+                                value: newValue.toISOString(),
+                            },
+                        });
+                    }
+                }}
+                format="DD/MM/YYYY"
+                slotProps={{
+                    textField: { size: 'small' },
+                    openPickerButton: {
+                        sx: {
+                            padding: '4px'
+                        },
+                    },
+                }}
+            />
+        </LocalizationProvider>}
     </div>
 }
 
 
 export function addDefaults(props: TopicProp[], topic: TopicView) {
-    if(!props) props = []
+    if (!props) props = []
     const newProps = [...props]
     if (!props.some(p => p.name == "Título")) {
         newProps.push({
@@ -130,6 +160,11 @@ export function defaultPropValue(name: string, type: PropValueType, topic: Topic
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
             value: []
+        }
+    } else if (type == "ar.cabildoabierto.wiki.topicVersion#dateProp") {
+        return {
+            $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
+            value: ""
         }
     } else {
         throw Error("Tipo de datos desconocido: " + type)
@@ -199,6 +234,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
     useEffect(() => {
         const newProps = addDefaults(props, topic)
         if (!propsEqual(newProps, props)) {
+            console.log("setting props", newProps)
             setProps(newProps)
         }
     }, [props])

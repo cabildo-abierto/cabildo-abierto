@@ -1,6 +1,8 @@
 import {BothContributionsProps, EditorStatus} from "@/lib/types";
 
 import {
+    DateProp,
+    isDateProp,
     isStringListProp, isStringProp, StringListProp, StringProp,
     TopicHistory,
     TopicProp,
@@ -10,13 +12,16 @@ import {areArraysEqual, gett} from "@/utils/arrays";
 import {$Typed} from "@atproto/api";
 
 
-export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" | "ar.cabildoabierto.wiki.topicVersion#stringProp"
+export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" |
+    "ar.cabildoabierto.wiki.topicVersion#stringProp" |
+    "ar.cabildoabierto.wiki.topicVersion#dateProp"
 
-export type PropValue = $Typed<StringListProp> | $Typed<StringProp> | {$type: string}
+export type PropValue = TopicProp["value"]
 
-export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> {
+export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> | $Typed<DateProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
-        p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp"
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp"
 }
 
 export function propsEqualValue(a: PropValue, b: PropValue) {
@@ -24,6 +29,8 @@ export function propsEqualValue(a: PropValue, b: PropValue) {
     if(isStringListProp(a) && isStringListProp(b)){
         return areArraysEqual(a.value, b.value)
     } else if(isStringProp(a) && isStringProp(b)){
+        return a.value == b.value
+    } else if(isDateProp(a) && isDateProp(b)){
         return a.value == b.value
     }
 }

@@ -31,7 +31,6 @@ import {contentQueriesFilter} from "@/queries/updates";
 import {areSetsEqual} from "@/utils/arrays";
 import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 export type CreateTopicVersionProps = {
     id: string

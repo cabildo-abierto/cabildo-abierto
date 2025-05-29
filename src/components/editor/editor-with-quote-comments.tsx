@@ -16,7 +16,8 @@ import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {$isVisualizationNode} from "../../../modules/ca-lexical-editor/src/nodes/VisualizationNode";
 import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNode";
-const MyLexicalEditor = dynamic( () => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
+
+const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
@@ -33,7 +34,15 @@ type EditorWithQuoteCommentsProps = {
 
 
 export const EditorWithQuoteComments = ({
-    settings, replyTo, editor, setEditor, setEditorState, quoteReplies, pinnedReplies, setPinnedReplies}: EditorWithQuoteCommentsProps) => {
+                                            settings,
+                                            replyTo,
+                                            editor,
+                                            setEditor,
+                                            setEditorState,
+                                            quoteReplies,
+                                            pinnedReplies,
+                                            setPinnedReplies
+                                        }: EditorWithQuoteCommentsProps) => {
     const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | null>(null)
     const {layoutConfig} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
@@ -62,12 +71,12 @@ export const EditorWithQuoteComments = ({
         for (let i = 0; i < quoteReplies.length; i++) {
             const s = JSON.stringify(editor.getEditorState().toJSON())
             const selection = quoteReplies[i].embed
-            if(isSelectionQuoteView(selection)){
+            if (isSelectionQuoteView(selection)) {
                 const markdownSelection = new MarkdownSelection(selection.start, selection.end)
                 const lexicalSelection = markdownSelection.toLexicalSelection(s)
                 const key = lexicalSelection.start.node[0]
                 const value = quoteReplies[i].uri
-                if(m.has(key)){
+                if (m.has(key)) {
                     m.set(key, [...m.get(key), value])
                 } else {
                     m.set(key, [value])
@@ -79,16 +88,16 @@ export const EditorWithQuoteComments = ({
     }, [editor, quoteReplies])
 
     useEffect(() => {
-        if(!editor) return
+        if (!editor) return
         editor.update(() => {
-            if(!blockToUri) return
+            if (!blockToUri) return
 
             const sidenotes = $dfs().map(n => n.node).filter($isSidenoteNode)
             for (let i = 0; i < sidenotes.length; i++) {
                 const s = sidenotes[i]
                 const children = s.getChildren()
                 let node = s.insertAfter(children[0])
-                for(let j = 1; j < children.length; j++){
+                for (let j = 1; j < children.length; j++) {
                     node = node.insertAfter(children[j])
                 }
                 s.remove()
@@ -99,7 +108,7 @@ export const EditorWithQuoteComments = ({
             const children = root.getChildren()
 
             blockToUri.forEach((uris, node) => {
-                if(children[node] != null){
+                if (children[node] != null) {
                     $wrapNodeInElement(children[node], () => {
                         return $createSidenoteNode(uris)
                     })
@@ -112,16 +121,18 @@ export const EditorWithQuoteComments = ({
     const [hasRefreshed, setHasRefreshed] = useState(false)
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            editor.update(() => {
-                const state = editor.getEditorState().toJSON();
-                const nodes = $dfs()
-                if(nodes.some(n => $isVisualizationNode(n.node) || $isImageNode(n.node))){
-                    const stateStr = JSON.stringify(state);
-                    const newState = editor.parseEditorState(stateStr);
-                    editor.setEditorState(newState);
-                }
-            });
-            setHasRefreshed(true);
+            if(editor) {
+                editor.update(() => {
+                    const state = editor.getEditorState().toJSON();
+                    const nodes = $dfs()
+                    if (nodes.some(n => $isVisualizationNode(n.node) || $isImageNode(n.node))) {
+                        const stateStr = JSON.stringify(state);
+                        const newState = editor.parseEditorState(stateStr);
+                        editor.setEditorState(newState);
+                    }
+                });
+                setHasRefreshed(true);
+            }
         }, 200);
 
         return () => clearTimeout(timeoutId);
@@ -133,7 +144,9 @@ export const EditorWithQuoteComments = ({
                 settings={{
                     ...settings,
                     allowComments: true,
-                    onAddComment: (quote: MarkdownSelection) => {setCommentingQuote(quote)},
+                    onAddComment: (quote: MarkdownSelection) => {
+                        setCommentingQuote(quote)
+                    },
                 }}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
@@ -141,7 +154,9 @@ export const EditorWithQuoteComments = ({
         </div>
         <WritePanel
             open={commentingQuote != null}
-            onClose={() => {setCommentingQuote(null)}}
+            onClose={() => {
+                setCommentingQuote(null)
+            }}
             selection={commentingQuote}
             replyTo={replyTo}
         />

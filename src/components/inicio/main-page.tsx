@@ -43,7 +43,7 @@ export const MainPage = () => {
         {selected == "Siguiendo" &&
             <FeedViewContentFeed
                 getFeed={getFeed({type: "siguiendo"})}
-                noResultsText={"No se encontraron contenidos. Seguí a más usuarios."}
+                noResultsText={"No se encontraron contenidos. Buscá usuarios para seguir."}
                 endText={"Fin del feed."}
                 queryKey={["main-feed", optionToSearchParam(selected)]}
             />}

@@ -159,7 +159,11 @@ export function validateCategoryVotes<V>(v: V) {
 export interface TopicProp {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicProp'
   name: string
-  value: $Typed<StringProp> | $Typed<StringListProp> | { $type: string }
+  value:
+    | $Typed<StringProp>
+    | $Typed<StringListProp>
+    | $Typed<DateProp>
+    | { $type: string }
 }
 
 const hashTopicProp = 'topicProp'
@@ -200,6 +204,21 @@ export function isStringListProp<V>(v: V) {
 
 export function validateStringListProp<V>(v: V) {
   return validate<StringListProp & V>(v, id, hashStringListProp)
+}
+
+export interface DateProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#dateProp'
+  value: string
+}
+
+const hashDateProp = 'dateProp'
+
+export function isDateProp<V>(v: V) {
+  return is$typed(v, id, hashDateProp)
+}
+
+export function validateDateProp<V>(v: V) {
+  return validate<DateProp & V>(v, id, hashDateProp)
 }
 
 export interface TopicViewBasic {

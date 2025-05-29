@@ -112,7 +112,8 @@ export async function updateTopicHistories(qc: QueryClient, uri: string, updater
 
 export async function updateDatasets(qc: QueryClient, uri: string, updater: (e: DatasetViewBasic) => DatasetViewBasic | null) {
     qc.setQueryData(["datasets"], old => {
-        return produce(old as DatasetViewBasic[], draft => {
+        return produce(old as DatasetViewBasic[] | undefined, draft => {
+            if(!draft) return
             const index = draft.findIndex(d => d.uri == uri)
             const newVersion = updater(draft[index])
             if(!newVersion){

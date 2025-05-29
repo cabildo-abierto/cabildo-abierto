@@ -1121,6 +1121,7 @@ export const schemaDict = {
             refs: [
               'lex:ar.cabildoabierto.wiki.topicVersion#stringProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#stringListProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#dateProp',
             ],
           },
         },
@@ -1143,6 +1144,16 @@ export const schemaDict = {
             items: {
               type: 'string',
             },
+          },
+        },
+      },
+      dateProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'string',
+            format: 'datetime',
           },
         },
       },
