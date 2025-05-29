@@ -1,13 +1,13 @@
 
 
-export const formatIsoDate = (isoDate) => {
-    const date = new Date(isoDate);
+export const formatIsoDate = (isoDate: string | Date, hoursAndMinutes: boolean = false) => {
+    const date = new Date(isoDate)
     const argentinaTime = new Intl.DateTimeFormat("es-AR", {
         year: "numeric",
         month: "long",
         day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        hour: hoursAndMinutes ? "2-digit" : undefined,
+        minute: hoursAndMinutes ? "2-digit" : undefined,
         hour12: false,
         timeZone: "America/Argentina/Buenos_Aires",
     }).format(date);
