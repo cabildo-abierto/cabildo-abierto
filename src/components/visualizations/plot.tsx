@@ -20,6 +20,8 @@ import { Button } from "../../../modules/ui-utils/src/button";
 import InfoIcon from "@mui/icons-material/Info";
 import {contentUrl} from "@/utils/uri";
 import Link from "next/link"
+import {Plotter} from "@/components/visualizations/editor/plotter";
+import {scaleTime} from "d3-scale";
 
 
 function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
@@ -207,7 +209,7 @@ export const CurvePlot = ({
         tooltipOpen,
         showTooltip,
         hideTooltip,
-    } = useTooltip<{ x: number; y: number }>();
+    } = useTooltip<{ x: number | Date | string; y: number | Date | string}>();
 
     const { containerRef, TooltipInPortal } = useTooltipInPortal({ scroll: true });
     const [ref, bounds] = useMeasure();
@@ -226,27 +228,11 @@ export const CurvePlot = ({
     const innerWidth = svgWidth - margin.left - margin.right;
     const innerHeight = svgHeight - margin.top - margin.bottom;
 
-    let data1 = groupSameX(JSON.parse(visualization.dataset.data), spec.xAxis, spec.yAxis)
-    console.log('data1', data1)
-    let data = data1.map((d: any) => ({
-        x: +d.x,
-        y: +d.y,
-    }))
-    console.log('data', data)
-    data = data.sort((a, b) => a.x - b.x)
+    const dataLoader = new Plotter(visualization.dataset.data, spec.xAxis, spec.yAxis, "CurvePlot")
+    const data = dataLoader.prepareForPlot()
 
-    const xScale = scalePoint<number>({
-        domain: data.map((d) => d.x),
-        range: [0, innerWidth],
-        padding: 0.4,
-    });
-
-    const yMax = Math.max(...data.map((d) => d.y), 0);
-    const yScale = scaleLinear<number>({
-        domain: [0, yMax],
-        range: [innerHeight, 0],
-        nice: true,
-    });
+    const xScale = dataLoader.getScale('x', innerWidth)
+    const yScale = dataLoader.getScale('y', innerHeight)
 
     return (
         <div className="relative w-full h-full" ref={ref}>
@@ -258,9 +244,9 @@ export const CurvePlot = ({
             {tooltipOpen && tooltipData && (
                 <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={{ ...defaultStyles, zIndex: 2000 }}>
                     <div>
-                        <strong>{spec.yLabel ?? spec.yAxis}: {Number(tooltipData.y.toFixed(2))}</strong>
+                        <strong>{spec.yLabel ?? spec.yAxis}: {tooltipData.y.toString()}</strong>
                     </div>
-                    <div>{spec.xLabel ?? spec.xAxis}: {tooltipData.x}</div>
+                    <div>{spec.xLabel ?? spec.xAxis}: {tooltipData.x.toString()}</div>
                 </TooltipInPortal>
             )}
             <svg ref={containerRef} width={svgWidth} height={svgHeight}>
