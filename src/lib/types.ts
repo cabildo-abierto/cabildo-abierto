@@ -4,24 +4,23 @@ import {
     Main as Visualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {PostOutput} from "@/utils/fetch";
-import {$Typed} from "@atproto/api";
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
-
-export type ThreadContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
 
 export type Profile = {
     bsky: ProfileViewDetailed
     ca: CAProfile | null
 }
 
+export type ValidationState = "org" | "persona" | null
 
 export type CAProfile = {
     inCA: boolean
     followersCount: number
     followsCount: number
     editorStatus: EditorStatus
+    validation: ValidationState
 }
 
 

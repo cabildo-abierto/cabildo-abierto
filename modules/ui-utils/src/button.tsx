@@ -9,7 +9,7 @@ export type Color = "text-lighter" |
     "text" | "button-text" | "accent" | "accent-dark" |
     "transparent" | "primary" | "background" |
     "background-dark" | "background-dark2" |
-    "background-dark3" | "primary-dark"
+    "background-dark3" | "primary-dark" | "red"
 
 
 export type ButtonProps = Omit<MUIButtonProps, "color"> & {color?: Color}

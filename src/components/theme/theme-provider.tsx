@@ -17,6 +17,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
         root.style.setProperty('--primary-dark', '#2460bf')
         root.style.setProperty('--primary-xdark', '#184182')
         root.style.setProperty('--primary-2xdark', '#112e5a')
+        root.style.setProperty('--red', '#ff6666')
         if (currentTheme === 'dark') {
             root.style.setProperty('--text', '#fbfbfc');
             root.style.setProperty('--button-text', '#fbfbfc');

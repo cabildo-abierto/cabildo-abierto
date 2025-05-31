@@ -1,13 +1,12 @@
-import {useEffect, useState} from "react";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import {useSession} from "@/queries/api";
 import {Profile} from "@/lib/types";
 import {post} from "@/utils/fetch";
-import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter} from "@/queries/updates";
+import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
+import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
 
 
 const follow = async ({did}: { did: string }) => {
@@ -21,42 +20,99 @@ const unfollow = async ({followUri}: { followUri: string }) => {
 
 
 function optimisticFollow(qc: QueryClient, handle: string) {
-    qc.setQueryData(["profile", handle], old => {
-        if(!old) return old
-        return produce(old as Profile, draft => {
-            draft.bsky.viewer.following = "optimistic-follow"
-            draft.bsky.followersCount ++
-            draft.bsky.followsCount ++
-            draft.ca.followersCount ++
-            draft.ca.followsCount ++
+    qc.getQueryCache().getAll()
+        .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+
+                const k = q.queryKey
+
+                if (k[0] == "profile") {
+                    if (!old) return old
+                    return produce(old as Profile, draft => {
+                        draft.bsky.viewer.following = "optimistic-follow"
+                        draft.bsky.followersCount++
+                        draft.bsky.followsCount++
+                        draft.ca.followersCount++
+                        draft.ca.followsCount++
+                    })
+                } else if (k[0] == "user-search") {
+                    if (!old) return old
+                    return produce(old as ProfileViewBasic[], draft => {
+                        const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            draft[index].viewer.following = "optimistic-follow"
+                        }
+                    })
+                }
+            })
         })
-    })
 }
 
 
 function optimisticUnfollow(qc: QueryClient, handle: string) {
-    qc.setQueryData(["profile", handle], old => {
-        if(!old) return old
-        return produce(old as Profile, draft => {
-            draft.bsky.viewer.following = undefined
-            draft.bsky.followersCount --
-            draft.bsky.followsCount --
-            draft.ca.followersCount --
-            draft.ca.followsCount --
+    qc.getQueryCache().getAll()
+        .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+
+                const k = q.queryKey
+
+                if (k[0] == "profile") {
+                    if (!old) return old
+                    return produce(old as Profile, draft => {
+                        draft.bsky.viewer.following = undefined
+                        draft.bsky.followersCount--
+                        draft.bsky.followsCount--
+                        draft.ca.followersCount--
+                        draft.ca.followsCount--
+                    })
+                } else if (k[0] == "user-search") {
+                    if (!old) return old
+                    return produce(old as ProfileViewBasic[], draft => {
+                        const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            draft[index].viewer.following = undefined
+                        }
+                    })
+                }
+            })
         })
-    })
 }
 
 
 function setFollow(qc: QueryClient, handle: string, followUri: string) {
-    qc.setQueryData(["profile", handle], old => {
-        if(!old) return old
-        return produce(old as Profile, draft => {
-            draft.bsky.viewer.following = followUri
+    qc.getQueryCache().getAll()
+        .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+
+                const k = q.queryKey
+
+                if (k[0] == "profile") {
+                    if (!old) return old
+                    return produce(old as Profile, draft => {
+                        draft.bsky.viewer.following = followUri
+                    })
+                } else if (k[0] == "user-search") {
+                    if (!old) return old
+                    return produce(old as ProfileViewBasic[], draft => {
+                        const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            draft[index].viewer.following = followUri
+                        }
+                    })
+                }
+            })
         })
-    })
 }
 
+const isQueryRelatedToFollow = (query: Query) => {
+    return query.queryKey[0] == "profile" || query.queryKey[0] == "user-search"
+}
 
 
 export function FollowButton({handle, profile}: {
@@ -69,9 +125,11 @@ export function FollowButton({handle, profile}: {
     const followMutation = useMutation({
         mutationFn: follow,
         onMutate: (followedDid) => {
-            qc.cancelQueries({predicate: (query) => {
-                return query.queryKey[0] == "profile" || query.queryKey[0] == ""
-            }})
+            qc.cancelQueries({
+                predicate: (query: Query) => {
+                    return isQueryRelatedToFollow(query)
+                }
+            })
             optimisticFollow(qc, handle)
         },
         onSuccess: (data, variables, context) => {
@@ -80,18 +138,30 @@ export function FollowButton({handle, profile}: {
             }
         },
         onSettled: async () => {
-            qc.invalidateQueries({queryKey: ["profile", handle]})
+            qc.invalidateQueries({
+                predicate: (query: Query) => {
+                    return isQueryRelatedToFollow(query)
+                }
+            })
         },
     })
 
     const unfollowMutation = useMutation({
         mutationFn: unfollow,
         onMutate: (followUri) => {
-            qc.cancelQueries({queryKey: ["profile", handle]})
+            qc.cancelQueries({
+                predicate: (query: Query) => {
+                    return isQueryRelatedToFollow(query)
+                }
+            })
             optimisticUnfollow(qc, handle)
         },
         onSettled: () => {
-            qc.invalidateQueries({queryKey: ["profile", handle]})
+            qc.invalidateQueries({
+                predicate: (query: Query) => {
+                    return isQueryRelatedToFollow(query)
+                }
+            })
         }
     })
 
@@ -113,24 +183,24 @@ export function FollowButton({handle, profile}: {
 
     return <div className="flex items-center mr-2">
         {profile.viewer.following ?
-        <StateButton
-            handleClick={onUnfollow}
-            color="background-dark"
-            size="small"
-            variant="contained"
-            startIcon={<CheckIcon fontSize={"small"}/>}
-            disableElevation={true}
-            text1="Siguiendo"
-            disabled={profile.viewer.following == "optimistic-follow"}
-        /> :
-        <StateButton
-            handleClick={onFollow}
-            color="primary"
-            size="small"
-            variant="contained"
-            startIcon={<AddIcon fontSize={"small"}/>}
-            disableElevation={true}
-            text1="Seguir"
-        />}
+            <StateButton
+                handleClick={onUnfollow}
+                color="background-dark"
+                size="small"
+                variant="contained"
+                startIcon={<CheckIcon fontSize={"small"}/>}
+                disableElevation={true}
+                text1="Siguiendo"
+                disabled={profile.viewer.following == "optimistic-follow"}
+            /> :
+            <StateButton
+                handleClick={onFollow}
+                color="primary"
+                size="small"
+                variant="contained"
+                startIcon={<AddIcon fontSize={"small"}/>}
+                disableElevation={true}
+                text1="Seguir"
+            />}
     </div>
 }
