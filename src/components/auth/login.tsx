@@ -14,11 +14,11 @@ export const Login = () => {
 
     return <div className="flex flex-col items-center max-w-96 py-10">
         <div className={"flex justify-start w-full px-2 text-[var(--text-light)]"}>
-            <BackButton defaultURL={"/presentacion"}/>
+            <BackButton defaultURL={"/presentacion"} preferReferrer={false}/>
         </div>
 
         <div className="mb-2">
-            <Logo className="m-2" width={80} height={80}/>
+            <Logo width={60} height={60}/>
         </div>
 
         <div className="flex justify-center">
