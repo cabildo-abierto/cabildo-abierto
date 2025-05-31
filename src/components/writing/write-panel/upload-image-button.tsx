@@ -2,6 +2,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {styled} from "@mui/material";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import { Button } from "../../../../modules/ui-utils/src/button";
+import {file2base64} from "@/utils/files";
 
 
 
@@ -23,12 +24,11 @@ export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: stri
         if (e.target.files !== null) {
             const file = e.target.files[0]
             if (file) {
-                const arrayBuffer = await file.arrayBuffer();
 
                 onSubmit({
                     $type: "file",
                     src: URL.createObjectURL(file),
-                    base64: Buffer.from(arrayBuffer).toString("base64")
+                    base64: (await file2base64(file)).base64
                 })
             }
         }

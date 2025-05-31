@@ -12,6 +12,8 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {ValidationRequestProps} from "@/app/(main)/ajustes/solicitar-validacion/page";
+import {ValidationRequestView} from "@/components/admin/admin-validation";
 
 
 function uriToKey(uri: string) {
@@ -45,6 +47,18 @@ export const useSession = (inviteCode?: string) => {
 export const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
     return {...res, account: res.data}
+}
+
+
+export const useCurrentValidationRequest = () => {
+    const res = useAPI<{type: "org" | "persona" | null}>("/validation-request", ["validation-request"])
+    return {...res, user: res.data}
+}
+
+
+export const usePendingValidationRequests = () => {
+    const res = useAPI<{requests: ValidationRequestView[], count: number}>("/pending-validation-requests", ["pending-validation-requests"])
+    return {...res, user: res.data}
 }
 
 

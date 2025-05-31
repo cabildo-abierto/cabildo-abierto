@@ -6,6 +6,7 @@ import {AdminCache} from "@/components/admin/cache";
 import {AdminSync} from "@/components/admin/sync";
 import {useSearchParams} from "next/navigation";
 import {AdminPDS} from "@/components/admin/admin-pds";
+import {AdminValidation} from "@/components/admin/admin-validation";
 
 
 export default function Page() {
@@ -19,8 +20,10 @@ export default function Page() {
         return <AdminAcceso/>
     } else if(s == "Sync"){
         return <AdminSync/>
-    } else if(s == "PDS"){
+    } else if(s == "PDS") {
         return <AdminPDS/>
+    } else if(s == "Validacion") {
+        return <AdminValidation/>
     } else {
         return <NotFoundPage/>
     }

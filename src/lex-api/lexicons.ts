@@ -1122,6 +1122,8 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.wiki.topicVersion#stringProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#stringListProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#dateProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#numberProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#booleanProp',
             ],
           },
         },
@@ -1132,6 +1134,15 @@ export const schemaDict = {
         properties: {
           value: {
             type: 'string',
+          },
+        },
+      },
+      booleanProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'boolean',
           },
         },
       },
@@ -1154,6 +1165,15 @@ export const schemaDict = {
           value: {
             type: 'string',
             format: 'datetime',
+          },
+        },
+      },
+      numberProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'string',
           },
         },
       },

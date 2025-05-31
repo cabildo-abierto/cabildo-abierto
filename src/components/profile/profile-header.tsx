@@ -14,6 +14,7 @@ import {FollowButton} from "@/components/profile/profile-utils";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/api";
+import ValidationIcon from "@/components/profile/validation-icon";
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
 
@@ -117,9 +118,12 @@ function ProfileHeader({
         </div>
         <div className="flex justify-between">
             <div className="ml-2 py-2">
-                <span className={"min-[500px]:text-2xl text-lg font-bold"}>
-                    {getUsername(profile.bsky)}
-                </span>
+                <div className={"flex space-x-2 items-center"}>
+                    <span className={"min-[500px]:text-2xl text-lg font-bold"}>
+                        {getUsername(profile.bsky)}
+                    </span>
+                    <ValidationIcon validation={profile.ca.validation} handle={profile.bsky.handle}/>
+                </div>
                 {profile.bsky.displayName && <div className="text-[var(--text-light)]">
                     @{profile.bsky.handle}
                 </div>}

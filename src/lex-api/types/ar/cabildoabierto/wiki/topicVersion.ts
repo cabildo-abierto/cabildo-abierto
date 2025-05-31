@@ -163,6 +163,8 @@ export interface TopicProp {
     | $Typed<StringProp>
     | $Typed<StringListProp>
     | $Typed<DateProp>
+    | $Typed<NumberProp>
+    | $Typed<BooleanProp>
     | { $type: string }
 }
 
@@ -189,6 +191,21 @@ export function isStringProp<V>(v: V) {
 
 export function validateStringProp<V>(v: V) {
   return validate<StringProp & V>(v, id, hashStringProp)
+}
+
+export interface BooleanProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#booleanProp'
+  value: boolean
+}
+
+const hashBooleanProp = 'booleanProp'
+
+export function isBooleanProp<V>(v: V) {
+  return is$typed(v, id, hashBooleanProp)
+}
+
+export function validateBooleanProp<V>(v: V) {
+  return validate<BooleanProp & V>(v, id, hashBooleanProp)
 }
 
 export interface StringListProp {
@@ -219,6 +236,21 @@ export function isDateProp<V>(v: V) {
 
 export function validateDateProp<V>(v: V) {
   return validate<DateProp & V>(v, id, hashDateProp)
+}
+
+export interface NumberProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#numberProp'
+  value: string
+}
+
+const hashNumberProp = 'numberProp'
+
+export function isNumberProp<V>(v: V) {
+  return is$typed(v, id, hashNumberProp)
+}
+
+export function validateNumberProp<V>(v: V) {
+  return validate<NumberProp & V>(v, id, hashNumberProp)
 }
 
 export interface TopicViewBasic {

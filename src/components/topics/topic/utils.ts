@@ -1,9 +1,10 @@
 import {BothContributionsProps, EditorStatus} from "@/lib/types";
 
 import {
+    BooleanProp,
     DateProp,
     isDateProp,
-    isStringListProp, isStringProp, StringListProp, StringProp,
+    isStringListProp, isStringProp, NumberProp, StringListProp, StringProp,
     TopicHistory,
     TopicProp,
     TopicVersionStatus
@@ -14,14 +15,18 @@ import {$Typed} from "@atproto/api";
 
 export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" |
     "ar.cabildoabierto.wiki.topicVersion#stringProp" |
-    "ar.cabildoabierto.wiki.topicVersion#dateProp"
+    "ar.cabildoabierto.wiki.topicVersion#dateProp" |
+    "ar.cabildoabierto.wiki.topicVersion#numberProp" |
+    "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 
 export type PropValue = TopicProp["value"]
 
-export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> | $Typed<DateProp> {
+export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> | $Typed<DateProp> | $Typed<NumberProp> | $Typed<BooleanProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
-        p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp"
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#numberProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 }
 
 export function propsEqualValue(a: PropValue, b: PropValue) {

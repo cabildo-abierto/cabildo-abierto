@@ -1,5 +1,5 @@
 import {
-    isDateProp,
+    isDateProp, isNumberProp,
     isStringListProp,
     isStringProp,
     TopicProp,
@@ -71,6 +71,13 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             options={p.name == "Categorías" ? categories?.map(c => c.category) : []}
         />}
         {isStringProp(p.value) && <TextField
+            value={p.value.value}
+            size={"small"}
+            onChange={(e) => {
+                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: e.target.value}})
+            }}
+        />}
+        {isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
             value={p.value.value}
             size={"small"}
             onChange={(e) => {
@@ -165,6 +172,16 @@ export function defaultPropValue(name: string, type: PropValueType, topic: Topic
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
             value: ""
+        }
+    } else if(type == "ar.cabildoabierto.wiki.topicVersion#numberProp") {
+        return {
+            $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
+            value: ""
+        }
+    } else if(type == "ar.cabildoabierto.wiki.topicVersion#booleanProp") {
+        return {
+            $type: "ar.cabildoabierto.wiki.topicVersion#booleanProp",
+            value: false
         }
     } else {
         throw Error("Tipo de datos desconocido: " + type)

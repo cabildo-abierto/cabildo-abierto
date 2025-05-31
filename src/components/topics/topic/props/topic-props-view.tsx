@@ -1,5 +1,5 @@
 import {
-    isDateProp,
+    isDateProp, isNumberProp,
     isStringListProp,
     isStringProp,
     TopicProp,
@@ -18,7 +18,7 @@ export const TopicPropView = ({p}: {p: TopicProp}) => {
         {isStringListProp(p.value) && <ListEditor
             items={p.value.value}
         />}
-        {isStringProp(p.value) && <div>
+        {(isStringProp(p.value) || isNumberProp(p.value)) && <div>
             {p.value.value}
         </div>}
         {isDateProp(p.value) && <div>
