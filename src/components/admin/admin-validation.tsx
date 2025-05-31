@@ -8,12 +8,11 @@ import {DateSince} from "../../../modules/ui-utils/src/date";
 import {useState} from "react";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import {MenuItem, Select, Switch, TextField} from "@mui/material";
+import {TextField} from "@mui/material";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {FilePayload} from "@/utils/files";
 import {DownloadIcon} from "@phosphor-icons/react";
 import Image from "next/image"
-import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {post} from "@/utils/fetch";
 
