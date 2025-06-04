@@ -9,22 +9,22 @@ import {
     $insertNodes,
     $isParagraphNode,
     $isTextNode,
-    LexicalNode
+    LexicalNode, SerializedEditorState
 } from "lexical";
 import {$generateNodesFromDOM} from "@lexical/html";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
 import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization, isMain as isVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {DeepPartial} from "@/lib/types";
 import {SerializedVisualizationNode} from "./nodes/VisualizationNode";
-import {LexicalPointer} from "./selection/lexical-selection";
+import {ElementOrTextNode, LexicalPointer} from "./selection/lexical-selection";
 import {prettyPrintJSON} from "@/utils/strings";
 import {$Typed} from "@atproto/api";
-import {SerializedImageNode} from "./nodes/ImageNode";
+import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 
 
-export function editorStateToMarkdownNoEmbeds(editorStateStr: string) {
+export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
+    state = ProcessedLexicalState.fromMaybeProcessed(state)
     const nodes = getEditorNodes({allowImages: true})
 
     const editor = createHeadlessEditor({
@@ -33,7 +33,7 @@ export function editorStateToMarkdownNoEmbeds(editorStateStr: string) {
         },
     })
 
-    const parsed = editor.parseEditorState(editorStateStr)
+    const parsed = editor.parseEditorState(state.state)
 
     editor.update(() => {
         editor.setEditorState(parsed)
@@ -74,33 +74,15 @@ export function normalizeMarkdown(markdown: string, ensureIdempotent: boolean = 
         markdown = markdown.replaceAll("\n\n\n", "\n\n")
     }
 
-    markdown = markdown.replace(/(?<!\n)\n(?!\n)/g, ' ');
+    markdown = markdown.replace(/\n[ \t]+(?=\n)/g, '\n');
+    markdown = markdown.replace(/(?<!\n)\n(?!\n|[\s>*#-])/g, ' ');
 
     if (ensureIdempotent) {
-        const s = markdownToEditorStateStrNoEmbeds(markdown)
-        markdown = editorStateToMarkdownNoEmbeds(s)
+        const s = markdownToEditorStateNoEmbeds(markdown)
+        markdown = editorStateToMarkdownNoEmbeds(new ProcessedLexicalState(s))
     }
 
     return markdown
-}
-
-
-export function markdownToEditorState(
-    markdown: string,
-    shouldPreserveNewLines: boolean = true,
-    shouldMergeAdjacentLines: boolean = true,
-    embeds: ArticleEmbed[] = []
-) {
-    return JSON.parse(markdownToEditorStateStr(markdown, shouldPreserveNewLines, shouldMergeAdjacentLines, embeds))
-}
-
-
-export function markdownToEditorStateNoEmbeds(
-    markdown: string,
-    shouldPreserveNewLines: boolean = true,
-    shouldMergeAdjacentLines: boolean = true
-): any {
-    return JSON.parse(markdownToEditorStateStrNoEmbeds(markdown, shouldPreserveNewLines, shouldMergeAdjacentLines))
 }
 
 
@@ -119,18 +101,18 @@ function $isEmptyParagraphNode(node: LexicalNode): boolean {
 }
 
 
-function joinEditorStates(a: any, b: any): any {
+function joinEditorStates(a: SerializedEditorState, b: SerializedEditorState): SerializedEditorState {
     for (let i = 0; i < b.root.children.length; i++) {
         a.root.children.push(b.root.children[i])
     }
     return a
 }
 
-function nodeForPrint(node: any) {
+function nodeForPrint(node: ElementOrTextNode) {
     return {
         type: node.type,
-        children: node.children ? node.children.map(nodeForPrint) : undefined,
-        text: node.text ? node.text : undefined,
+        children: "children" in node ? node.children.map(nodeForPrint) : undefined,
+        text: "text" in node ? node.text : undefined,
     }
 }
 
@@ -139,14 +121,14 @@ export function prettyPrintLexicalState(s: any) {
 }
 
 
-export function markdownToEditorStateStr(
+export function markdownToEditorState(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
     shouldMergeAdjacentLines: boolean = true,
     embeds: ArticleEmbed[] = []
-): string {
+): SerializedEditorState {
     if (embeds.length == 0) {
-        return markdownToEditorStateStrNoEmbeds(markdown, shouldPreserveNewLines, shouldMergeAdjacentLines)
+        return markdownToEditorStateNoEmbeds(markdown, shouldPreserveNewLines, shouldMergeAdjacentLines)
     }
 
     let res = null
@@ -178,15 +160,15 @@ export function markdownToEditorStateStr(
 
     res = joinEditorStates(res, markdownToEditorStateNoEmbeds(markdown.slice(lastIndex), shouldPreserveNewLines, shouldMergeAdjacentLines))
 
-    return JSON.stringify(res)
+    return res
 }
 
 
-export function markdownToEditorStateStrNoEmbeds(
+export function markdownToEditorStateNoEmbeds(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
     shouldMergeAdjacentLines: boolean = true
-): string {
+): SerializedEditorState {
 
     const nodes = getEditorNodes({allowImages: true})
 
@@ -228,7 +210,7 @@ export function markdownToEditorStateStrNoEmbeds(
     const editorState = editor.read(() => {
         return editor.getEditorState()
     })
-    return JSON.stringify(JSON.parse(JSON.stringify(editorState.toJSON())))
+    return editorState.toJSON()
 }
 
 
@@ -266,7 +248,7 @@ export function anyEditorStateToMarkdown(text: string, format: string, embeds?: 
     if (format == "markdown") {
         return {markdown: normalizeMarkdown(text, true), embeds}
     } else if (format == "lexical") {
-        return editorStateToMarkdown(text)
+        return editorStateToMarkdown(ProcessedLexicalState.fromMaybeProcessed(text))
     } else if (format == "lexical-compressed") {
         return anyEditorStateToMarkdown(decompress(text), "lexical", embeds)
     } else if (format == "markdown-compressed") {
@@ -283,35 +265,22 @@ export function anyEditorStateToMarkdown(text: string, format: string, embeds?: 
 }
 
 
-function getEmbedFromNodeWithNoIndex(node: any): DeepPartial<ArticleEmbed> {
-    return {
-        $type: "ar.cabildoabierto.feed.article#articleEmbed",
-        value: {
-            $type: "ar.cabildoabierto.embed.visualization",
-            ...(JSON.parse(node.spec) as Visualization)
-        }
-    }
-}
-
-
-export function editorStateToMarkdown(editorStateStr: string): { markdown: string; embeds: ArticleEmbed[] } | null {
+export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): { markdown: string; embeds: ArticleEmbed[] } | null {
     /***
      * Transformamos el editor state a markdown
      * y buscamos los VisualizationNodes para armar la lista de embeds
      * el índice de los embeds se obtiene transformando a markdown todos los nodos anteriores
      * ***/
-
-    const markdown = editorStateToMarkdownNoEmbeds(editorStateStr);
+    state = ProcessedLexicalState.fromMaybeProcessed(state)
+    const markdown = editorStateToMarkdownNoEmbeds(state);
     const embeds: ArticleEmbed[] = [];
 
-    const editorState = JSON.parse(editorStateStr)
-
-    for (let i = 0; i < editorState.root.children.length; i++) {
-        const node = editorState.root.children[i]
+    for (let i = 0; i < state.state.root.children.length; i++) {
+        const node = state.state.root.children[i]
         if (node.type == "visualization") {
             const vNode = node as SerializedVisualizationNode
             const lexicalPointer = new LexicalPointer([i])
-            const markdownUpTo = lexicalPointer.getMarkdownUpTo(editorState, undefined, true)
+            const markdownUpTo = lexicalPointer.getMarkdownUpTo(state, true)
             const index = markdownUpTo.length
             if (vNode.spec) {
                 embeds.push({

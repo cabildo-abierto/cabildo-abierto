@@ -1,7 +1,6 @@
-import {$createRangeSelection, $getRoot, LexicalEditor} from "lexical";
+import {LexicalEditor} from "lexical";
 import {useEffect, useRef, useState} from "react";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button"
-import {ActiveCommentIcon} from "@/components/icons/active-comment-icon";
 import {PostContent} from "@/components/feed/post/post-content";
 import {SidenoteReplyPreviewFrame} from "@/components/thread/article/sidenote-reply-preview-frame";
 import {
@@ -16,6 +15,7 @@ import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/
 import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
 import {$dfs} from "@lexical/utils";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {InactiveCommentIcon} from "@/components/icons/inactive-comment-icon";
 
 
 export const ShowQuoteReplyButton = ({
@@ -39,7 +39,7 @@ export const ShowQuoteReplyButton = ({
             if (!isSelectionQuoteView(embed)) return;
 
             editor.update(() => {
-                const quote = new MarkdownSelection(embed.start, embed.end)
+                const markdownSelection = new MarkdownSelection(embed.start, embed.end)
 
                 const id = "h" + reply.uri;
                 const nodes = $dfs();
@@ -52,12 +52,12 @@ export const ShowQuoteReplyButton = ({
                     }
                 }
 
-                const rangeSelection = quote.getLexicalRangeSelection(editor)
+                const rangeSelection = markdownSelection.getLexicalRangeSelection(editor)
 
                 if(rangeSelection){
                     $wrapSelectionInMarkNode(rangeSelection, false, id, $createCustomMarkNode)
                 }
-            });
+            })
         } else {
             editor.update(() => {
                     const id = "h" + reply.uri;
@@ -153,7 +153,7 @@ export const ShowQuoteReplyButton = ({
                     onMouseEnter={onMouseEnter}
                     onClick={onClick}
                 >
-                    <ActiveCommentIcon fontSize={"inherit"}/>
+                    <InactiveCommentIcon fontSize={"inherit"}/>
                 </IconButton>
             </div>
         </ModalOnClickControlled>

@@ -1,6 +1,7 @@
 "use client"
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import {formatIsoDate} from "@/utils/dates";
 
 
 export function localeDate(date: Date, includeCurrentYear: boolean=false, includeSeconds: boolean=false) {
@@ -52,7 +53,7 @@ export function DateSince({ date }: { date: string | Date}) {
         return `${years} a`
     };
 
-    return <span title={localeDate(new Date(date))}>
+    return <span title={formatIsoDate(new Date(date), true)}>
         {formatTime()}
     </span>;
 }

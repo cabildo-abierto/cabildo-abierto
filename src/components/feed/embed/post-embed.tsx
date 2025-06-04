@@ -52,9 +52,5 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
         {isVisualizationEmbedView(embed) && <Plot
             visualization={embed}
         />}
-        {/* TO DO: <PlotInPost
-            post={post}
-            interactive={isMainPost}
-        />*/}
     </>
 }

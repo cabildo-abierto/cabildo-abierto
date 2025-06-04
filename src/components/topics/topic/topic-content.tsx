@@ -38,6 +38,7 @@ const TopicContent = ({
                 setPinnedReplies={setPinnedReplies}
                 wikiEditorState={wikiEditorState}
                 setWikiEditorState={setWikiEditorState}
+                topicId={topic.id}
             />
         } else {
             return <TopicContentExpandedViewWithVersion

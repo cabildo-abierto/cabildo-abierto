@@ -33,6 +33,7 @@ export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
 
 function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, updater: (e: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
     return produce(feed, draft => {
+        if(!feed) return
         for (let i = 0; i < draft.pages.length; i++) {
             const page = draft.pages[i]
             for (let j = 0; j < page.data.length; j++) {
@@ -51,7 +52,8 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
 }
 
 export async function updateContentInQueries(qc: QueryClient, uri: string, updater: (e: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
-    qc.getQueryCache().getAll()
+    qc.getQueryCache()
+        .getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
         .forEach(q => {
             qc.setQueryData(q.queryKey, old => {
@@ -72,16 +74,14 @@ export async function updateContentInQueries(qc: QueryClient, uri: string, updat
                         return produce(t, draft => {
                             draft.replies = draft.replies.map(r => {
                                 if (isThreadViewContent(r) && postOrArticle(r.content) && r.content.uri == uri) {
-                                    return produce(r, draft => {
-                                        draft.content = updater(r.content)
-                                    })
+                                    return null
                                 }
                                 return r
                             }).filter(r => r != null)
                         })
                     }
                     return t
-                } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "topic-feed") {
+                } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "thread-feed") {
                     return updateFeedElement(old as InfiniteFeed<FeedViewContent>, uri, updater)
                 }
             })

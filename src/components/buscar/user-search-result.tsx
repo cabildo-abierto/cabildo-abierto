@@ -36,7 +36,7 @@ const UserSearchResult = ({user}: UserSearchResultProps) => {
         </div>
         <div className={"flex flex-col items-center justify-between min-w-24 space-y-4"}>
             <FollowButton handle={user.handle} profile={user}/>
-            {!user.caProfile ? <BlueskyLogo/> : <>{emptyChar}</>}
+            {!user.caProfile ? <BlueskyLogo className={"w-5 h-auto"}/> : <>{emptyChar}</>}
         </div>
     </Link>
 }

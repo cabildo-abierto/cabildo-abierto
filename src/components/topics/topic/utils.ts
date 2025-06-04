@@ -3,7 +3,9 @@ import {BothContributionsProps, EditorStatus} from "@/lib/types";
 import {
     BooleanProp,
     DateProp,
+    isBooleanProp,
     isDateProp,
+    isNumberProp,
     isStringListProp, isStringProp, NumberProp, StringListProp, StringProp,
     TopicHistory,
     TopicProp,
@@ -37,6 +39,12 @@ export function propsEqualValue(a: PropValue, b: PropValue) {
         return a.value == b.value
     } else if(isDateProp(a) && isDateProp(b)){
         return a.value == b.value
+    } else if(isBooleanProp(a) && isBooleanProp(b)){
+        return a.value == b.value
+    } else if(isNumberProp(a) && isNumberProp(b)){
+        return a.value == b.value
+    } else {
+        throw Error(`Tipo de propiedad desconocido: ${a.$type} ${b.$type}`)
     }
 }
 

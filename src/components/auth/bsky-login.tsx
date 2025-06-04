@@ -138,7 +138,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
                     borderRadius: 20
                 }}
             >
-                Iniciar sesión
+                <span className={"font-semibold text-[13px]"}>Iniciar sesión</span>
             </Button>
         </Box>
     </div>

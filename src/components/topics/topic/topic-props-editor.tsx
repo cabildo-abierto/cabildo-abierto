@@ -3,7 +3,7 @@ import {
     isStringListProp,
     isStringProp,
     TopicProp,
-    TopicView
+    TopicView, validateTopicProp
 } from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useEffect, useState} from "react";
 import {Box, IconButton, TextField} from "@mui/material";
@@ -13,7 +13,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
-import {propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
+import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
 import {useCategories} from "@/queries/api";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -74,14 +74,21 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             value={p.value.value}
             size={"small"}
             onChange={(e) => {
-                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: e.target.value}})
+                setProp({
+                    ...p,
+                    $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
+                    value: {
+                        $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
+                        value: e.target.value
+                    },
+                })
             }}
         />}
         {isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
-            value={p.value.value}
+            value={isNaN(p.value.value) ? 0 : p.value.value}
             size={"small"}
             onChange={(e) => {
-                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: e.target.value}})
+                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#numberProp", value: parseInt(e.target.value) ?? 0}})
             }}
         />}
         {isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
@@ -99,6 +106,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                         });
                     }
                 }}
+                minDate={dayjs("1000-01-01")}
                 format="DD/MM/YYYY"
                 slotProps={{
                     textField: { size: 'small' },
@@ -114,9 +122,24 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
 }
 
 
-export function addDefaults(props: TopicProp[], topic: TopicView) {
+export function addDefaults(props: TopicProp[], topic: TopicView): TopicProp[] {
     if (!props) props = []
-    const newProps = [...props]
+    const newProps: TopicProp[] = []
+    for(let i = 0; i < props.length; i++) {
+        const p = props[i]
+        const valid = validateTopicProp(p)
+        if(!valid.success){
+            if(isKnownProp(p.value)){
+                console.log("pushing", defaultPropValue(p.name, p.value.$type, topic))
+                newProps.push({
+                    ...p,
+                    value: defaultPropValue(p.name, p.value.$type, topic)
+                })
+            }
+        } else {
+            newProps.push(p)
+        }
+    }
     if (!props.some(p => p.name == "Título")) {
         newProps.push({
             name: "Título",
@@ -176,7 +199,7 @@ export function defaultPropValue(name: string, type: PropValueType, topic: Topic
     } else if(type == "ar.cabildoabierto.wiki.topicVersion#numberProp") {
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
-            value: ""
+            value: 0
         }
     } else if(type == "ar.cabildoabierto.wiki.topicVersion#booleanProp") {
         return {
@@ -240,6 +263,14 @@ function NewPropModal({open, onClose, onAddProp}: {
 }
 
 
+function validProps(props: TopicProp[]) {
+    return props.filter(p => {
+        const res = validateTopicProp(p)
+        return res.success
+    })
+}
+
+
 export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
     props: TopicProp[],
     setProps: (props: TopicProp[]) => void,
@@ -251,10 +282,12 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
     useEffect(() => {
         const newProps = addDefaults(props, topic)
         if (!propsEqual(newProps, props)) {
-            console.log("setting props", newProps)
             setProps(newProps)
+            console.log("setting props", newProps)
+        } else {
+            console.log("not adding defaults")
         }
-    }, [props])
+    }, [])
 
     function setProp(p: TopicProp) {
         if (props.some(p2 => p2.name == p.name)) {
@@ -281,15 +314,17 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
         setProps(addDefaults(topic.props, topic))
     }
 
+    const vProps = validProps(props)
+
     return <div className={"border rounded p-4 space-y-6 my-4 mx-2 bg-[var(--background-dark)]"}>
         <div className={"font-semibold flex items-center space-x-2"}>
             <div>Propiedades</div>
         </div>
         <div className={"space-y-6"}>
-            {props.map((p, index) => {
+            {vProps.map((p, index) => {
                 return <div key={index}>
                     <TopicPropEditor p={p} setProp={setProp} deleteProp={() => {
-                        setProps(props.filter(p2 => p2.name != p.name))
+                        setProps(vProps.filter(p2 => p2.name != p.name))
                     }}/>
                 </div>
             })}

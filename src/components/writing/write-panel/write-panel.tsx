@@ -22,6 +22,7 @@ import {produce} from "immer";
 import {post} from "@/utils/fetch";
 import {View as EmbedImagesView, ViewImage} from "@/lex-api/types/app/bsky/embed/images"
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
 
 function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewContent) {
@@ -85,7 +86,7 @@ function imagePayloadToEmbedImageView(images: ImagePayloadForPostCreation[]): $T
 function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToContent): PostView["embed"] | undefined | "error" {
     if(post.selection){
         if(!isFullArticleView(replyTo) && !isTopicView(replyTo)) return undefined
-        if(post.images || post.externalEmbedView) return "error" // TO DO
+        if(post.images && post.images.length > 0 || post.externalEmbedView) return "error" // TO DO
         return {
             $type: "ar.cabildoabierto.embed.selectionQuote#view",
             start: post.selection[0],
@@ -119,7 +120,9 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
 
     const embed: PostView["embed"] | undefined | "error" = getEmbedViewFromCreatePost(post, replyTo)
 
-    if(embed == "error") return
+    if(embed == "error") {
+        return
+    }
 
     const content: $Typed<PostView> = {
         $type: "ar.cabildoabierto.feed.defs#postView",
@@ -146,6 +149,7 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
     }
 
     if(post.reply){
+        console.log("adding post to feed query")
         const {did, collection, rkey} = splitUri(post.reply.parent.uri)
         addPostToFeedQuery(qc, ["thread-feed", did, collection, rkey], feedContent)
         addReplyPostToThreadQuery(qc, threadQueryKey(post.reply.parent.uri), feedContent)
@@ -162,7 +166,7 @@ type WritePanelProps = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
-    selection?: MarkdownSelection
+    selection?: MarkdownSelection | LexicalSelection
     quotedPost?: PostView
 }
 

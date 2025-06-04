@@ -9,15 +9,23 @@ import {
     $isTextNode,
     EditorState,
     LexicalNode,
-    PointType
+    PointType,
+    RootNode,
+    SerializedEditorState,
+    SerializedElementNode,
+    SerializedLexicalNode,
+    SerializedRootNode,
+    SerializedTextNode
 } from "lexical";
 import {MarkdownSelection} from "./markdown-selection";
 import {getAllText} from "@/components/topics/topic/diff";
+import {ProcessedLexicalState} from "./processed-lexical-state";
+import {produce} from "immer";
 
 
-export function getOrderedNodeListWithPointers(node: any) {
-    let list = [{node, pointer: [], isLeaf: node.children == null}]
-    if (node.children) {
+export function getOrderedNodeListWithPointers(node: ElementOrTextNode): {node: ElementOrTextNode, pointer: number[], isLeaf: boolean}[] {
+    let list = [{node, pointer: [], isLeaf: !("children" in node)}]
+    if ("children" in node) {
         for (let i = 0; i < node.children.length; i++) {
             const subtree = getOrderedNodeListWithPointers(node.children[i])
             list = [
@@ -34,67 +42,58 @@ export function getOrderedNodeListWithPointers(node: any) {
 }
 
 
-export function getLexicalStateLeaves(s: any) {
-    const nodes = getOrderedNodeListWithPointers(s.root)
-    return nodes.filter(n => n.isLeaf)
-}
+export type ElementOrTextNode = SerializedTextNode | SerializedElementNode | SerializedRootNode | SerializedLexicalNode
 
-export function getSelectedSubtreeFromNode(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined, includeEnd: boolean) {
+
+export function getSelectedSubtreeFromNode<T extends ElementOrTextNode>(inputNode: T, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined, includeEnd: boolean): T {
     /***
      Obtiene el subárbol con node como raiz entre el hijo start-ésimo y el hijo end-ésimo
      Incluyendo desde startOffset inclusive hasta endOffset no inclusive
      El hijo end-ésimo se incluye completo si endOffset es undefined y parcialmente si no
      ***/
 
-    if (!node.children) {
-        if (node.text) {
-            if (startOffset != undefined && endOffset != undefined) {
-                node.text = node.text.slice(startOffset, endOffset)
-            } else if (startOffset != undefined) {
-                node.text = node.text.slice(startOffset)
-            } else if (endOffset != undefined) {
-                node.text = node.text.slice(0, endOffset)
+    return produce(inputNode, node => {
+        if ('text' in node) {
+            if (node.text) {
+                if (startOffset != undefined && endOffset != undefined) {
+                    node.text = node.text.slice(startOffset, endOffset)
+                } else if (startOffset != undefined) {
+                    node.text = node.text.slice(startOffset)
+                } else if (endOffset != undefined) {
+                    node.text = node.text.slice(0, endOffset)
+                }
             }
         }
-        return node
-    }
-    if (!start && !end) return node
+        if (!start && !end) return
 
-    const newChildren = []
+        const newChildren = []
+        if("children" in node) {
+            for (let i = 0; i < node.children.length; i++) {
+                if (start && start.length > 0 && i < start[0]) continue
+                else if (end && end.length > 0 && (i > end[0] || i == end[0] && endOffset == undefined && !includeEnd) || end && end.length == 0) continue
 
+                const child = node.children[i]
+                if (!("children" in child) && !("text" in child)) {
+                    newChildren.push(child)
+                    continue
+                }
 
-    for (let i = 0; i < node.children.length; i++) {
-        if (start && start.length > 0 && i < start[0]) continue
-        else if (end && end.length > 0 && (i > end[0] || i == end[0] && endOffset == undefined && !includeEnd) || end && end.length == 0) continue
+                let c: ElementOrTextNode
+                if (start && i == start[0] && end && i == end[0]) {
+                    c = getSelectedSubtreeFromNode(child, start.slice(1), startOffset, end.slice(1), endOffset, includeEnd)
+                } else if (start && i == start[0]) {
+                    c = getSelectedSubtreeFromNode(child, start.slice(1), startOffset, undefined, undefined, includeEnd)
+                } else if (end && i == end[0]) {
+                    c = getSelectedSubtreeFromNode(child, undefined, undefined, end.slice(1), endOffset, includeEnd)
+                } else {
+                    c = node.children[i]
+                }
+                newChildren.push(c)
+            }
 
-        let c
-        if (start && i == start[0] && end && i == end[0]) {
-            c = getSelectedSubtreeFromNode(node.children[i], start.slice(1), startOffset, end.slice(1), endOffset, includeEnd)
-        } else if (start && i == start[0]) {
-            c = getSelectedSubtreeFromNode(node.children[i], start.slice(1), startOffset, undefined, undefined, includeEnd)
-        } else if (end && i == end[0]) {
-            c = getSelectedSubtreeFromNode(node.children[i], undefined, undefined, end.slice(1), endOffset, includeEnd)
-        } else {
-            c = node.children[i]
+            node.children = newChildren
         }
-        newChildren.push(c)
-    }
-
-    node.children = newChildren
-
-    return node
-}
-
-
-export function getNodeFromIndex(node: LexicalNode, index: number[]){
-    if(index.length == 0) return node
-
-    if($isElementNode(node)){
-        const child = node.getChildAtIndex(index[0])
-        return getNodeFromIndex(child, index.slice(1))
-    } else {
-        return null
-    }
+    })
 }
 
 
@@ -128,8 +127,8 @@ export class LexicalPointer {
         return LexicalPointer.compare(this, other) == 0
     }
 
-    next(s: any): LexicalPointer {
-        const nodes = getLexicalStateLeaves(s)
+    next(s: ProcessedLexicalState): LexicalPointer {
+        const nodes = s.leaves
 
         for (let i = 0; i < nodes.length; i++) {
             if (areArraysEqual(nodes[i].pointer, this.node)) {
@@ -142,8 +141,8 @@ export class LexicalPointer {
         }
     }
 
-    prev(s: any): LexicalPointer {
-        const nodes = getLexicalStateLeaves(s)
+    prev(s: ProcessedLexicalState): LexicalPointer {
+        const nodes = s.leaves
 
         for (let i = 0; i < nodes.length; i++) {
             if (areArraysEqual(nodes[i].pointer, this.node)) {
@@ -156,46 +155,39 @@ export class LexicalPointer {
         }
     }
 
-    static fromMarkdownIndex(s: any, index: number, leaves?: {
-        node: any,
-        pointer: number[]
-    }[]): LexicalPointer {
+    static fromMarkdownIndex(s: ProcessedLexicalState, index: number): LexicalPointer {
         /***
          El primer LexicalPointer a un nodo hoja tal que al convertir a markdown el subarbol hasta él se obtiene
          un markdown que incluye a markdown.slice(0, index+1)
          (Pasamos leaves como parámetro para no tener que recalcularlo)
          ***/
 
-        if (!leaves) {
-            leaves = getLexicalStateLeaves(s)
-        }
-
         // Idea: Buscamos el primer nodo tal que incluirlo completo es suficiente.
         // Luego si es de tipo texto calculamos el offset usando las longitudes
         const objectiveLength = index
 
         function cmp(a: number, _: number) {
-            const {pointer} = leaves[a]
-            const lexicalPointer = new LexicalPointer(pointer)
-            const markdownUpToCurrentLeave = lexicalPointer.getMarkdownUpTo(s, leaves)
-            return markdownUpToCurrentLeave.length >= objectiveLength ? 0 : -1
+            const {pointer} = s.leaves[a]
+            const leavePointer = new LexicalPointer(pointer)
+            const markdownUpToCurrentLeave = s.getMarkdownLengthUpTo(leavePointer)
+            return markdownUpToCurrentLeave >= objectiveLength ? 0 : -1
         }
 
-        const i = bsb.ge(range(leaves.length), null, cmp)
+        const i = bsb.ge(range(s.leaves.length), null, cmp)
 
-        if (i < 0 || i >= leaves.length) {
-            const node = leaves[leaves.length - 1]
-            if (node.node.type == "text") {
+        if (i < 0 || i >= s.leaves.length) {
+            const node = s.leaves[s.leaves.length - 1]
+            if ("text" in node.node) {
                 return new LexicalPointer(node.pointer, node.node.text.length)
             } else {
                 return new LexicalPointer(node.pointer)
             }
         }
 
-        const {node, pointer} = leaves[i]
+        const {node, pointer} = s.leaves[i]
 
-        if (node.text && node.text.length > 0) {
-            const markdownUpToNodeStart = new LexicalPointer(pointer, 1).getMarkdownUpTo(s, leaves).length - 1
+        if ("text" in node && node.text.length > 0) {
+            const markdownUpToNodeStart = s.getMarkdownLengthUpTo(new LexicalPointer(pointer, 1)) - 1
             if (objectiveLength >= markdownUpToNodeStart) {
                 const offset = objectiveLength - markdownUpToNodeStart
                 if (offset >= node.text.length) {
@@ -213,11 +205,7 @@ export class LexicalPointer {
     }
 
     getMarkdownUpTo(
-        s: any,
-        leaves?: {
-            node: any,
-            pointer: any[]
-        }[],
+        s: ProcessedLexicalState,
         excluding: boolean = false
     ) {
         /***
@@ -225,46 +213,44 @@ export class LexicalPointer {
 
          Si *excluding* es true y this.offset = undefined, se excluye el nodo
          ***/
-
-        if (!leaves) {
-            leaves = getLexicalStateLeaves(s)
-        }
-
         const lexicalSelection = new LexicalSelection(
-            new LexicalPointer(leaves[0].pointer),
+            new LexicalPointer(s.leaves[0].pointer),
             (this.offset == undefined && excluding) ? this.prev(s) : this
         )
 
-        const subtree = lexicalSelection.getSelectedSubtree(s, true)
-
-        return editorStateToMarkdownNoEmbeds(JSON.stringify(subtree))
+        const subtree = lexicalSelection.getSelectedSubtree(s.state, true)
+        return editorStateToMarkdownNoEmbeds(new ProcessedLexicalState(subtree))
     }
 
     toString(): string {
         return `${this.node} ${this.offset}`
     }
 
-    getNode(s: any): any {
-        let res = s.root
+    getNode(s: SerializedEditorState): ElementOrTextNode | null {
+        let res: ElementOrTextNode = s.root
         for(let i = 0; i < this.node.length; i++){
-            res = res.children[this.node[i]]
+            if("children" in res){
+                res = res.children[this.node[i]]
+            } else {
+                throw Error(`Invalid lexical pointer ${this.toString()}`)
+            }
         }
         return res
     }
 
-    equivalentAsStart(other: LexicalPointer, s: any): boolean {
+    equivalentAsStart(other: LexicalPointer, s: ProcessedLexicalState): boolean {
         if (this.equals(other)) return true
         if(areArraysEqual(this.node, other.node)){
             return this.offset == undefined && other.offset == 0 || this.offset == 0 && other.offset == undefined
         } else if(areArraysEqual(this.node, other.prev(s).node)){
-            const node = this.getNode(s)
-            if(node.type == "text"){
+            const node = this.getNode(s.state)
+            if("text" in node){
                 const lastOffset = node.text.length
                 return this.offset == lastOffset && (other.offset == 0 || other.offset == undefined)
             }
         } else if(areArraysEqual(other.node, this.prev(s).node)){
-            const node = other.getNode(s)
-            if(node.type == "text"){
+            const node = other.getNode(s.state)
+            if("text" in node){
                 const lastOffset = node.text.length
                 return other.offset == lastOffset && (this.offset == 0 || this.offset == undefined)
             }
@@ -272,23 +258,23 @@ export class LexicalPointer {
         return false
     }
 
-    equivalentAsEnd(other: LexicalPointer, s: any): boolean {
+    equivalentAsEnd(other: LexicalPointer, s: ProcessedLexicalState): boolean {
         if (this.equals(other)) return true
         if(areArraysEqual(this.node, other.node)){
-            const node = this.getNode(s)
-            if(node.type == "text"){
+            const node = this.getNode(s.state)
+            if("text" in node){
                 const lastOffset = node.text.length
                 if(this.offset == undefined && other.offset == lastOffset || this.offset == lastOffset && other.offset == undefined) return true
             }
         } else if(areArraysEqual(this.node, other.prev(s).node)){
-            const node = this.getNode(s)
-            if(node.type == "text"){
+            const node = this.getNode(s.state)
+            if("text" in node){
                 const lastOffset = node.text.length
                 return this.offset == lastOffset && (other.offset == 0 || other.offset == undefined)
             }
         } else if(areArraysEqual(other.node, this.prev(s).node)){
-            const node = other.getNode(s)
-            if(node.type == "text"){
+            const node = other.getNode(s.state)
+            if("text" in node){
                 const lastOffset = node.text.length
                 return other.offset == lastOffset && (this.offset == 0 || this.offset == undefined)
             }
@@ -296,8 +282,8 @@ export class LexicalPointer {
         return false
     }
 
-    getPointType(root: any, start: boolean = true, s: any) : PointType | null {
-        let pointedNode = root
+    getPointType(root: RootNode, start: boolean = true, s: ProcessedLexicalState) : PointType | null {
+        let pointedNode: LexicalNode = root
         for(let i = 0; i < this.node.length; i++){
             if(!pointedNode || !$isElementNode(pointedNode) && !$isRootNode(pointedNode)) return null
             const children = pointedNode.getChildren()
@@ -305,20 +291,17 @@ export class LexicalPointer {
         }
         if(!pointedNode) return null
 
-        const type = pointedNode.getType()
-
         if($isTextNode(pointedNode)){
-            console.log("pointedNode", pointedNode, "is text node")
-            const offset = this.offset ?? (start ? 0 : pointedNode.getTextContent().length)
-            return $createPoint(pointedNode.getKey(), offset, type)
+            const offset = this.offset ?? 0
+            return $createPoint(pointedNode.getKey(), offset, "text")
         } else if($isElementNode(pointedNode)){
             if(this.offset == undefined && !start) return null
             const offset = this.offset ?? 0
-            return $createPoint(pointedNode.getKey(), offset, type)
+            return $createPoint(pointedNode.getKey(), offset, "element")
         } else {
             const prev = this.prev(s)
-            const prevNode = prev.getNode(s)
-            if(prevNode.type == "text"){
+            const prevNode = prev.getNode(s.state)
+            if("text" in prevNode){
                 prev.offset = prevNode.text.length
             }
             return prev.getPointType(root, true, s)
@@ -383,71 +366,55 @@ export class LexicalSelection {
         this.end = end
     }
 
-    toMarkdownSelection(lexicalStateStr: string) {
+
+    toMarkdownSelection(state: string | SerializedEditorState | ProcessedLexicalState) {
         if (this.start.equals(this.end)) {
             return new MarkdownSelection(0, 0)
         }
 
-        const markdown = editorStateToMarkdownNoEmbeds(lexicalStateStr)
-        const parsedState = JSON.parse(lexicalStateStr)
-        const leaves = getLexicalStateLeaves(parsedState)
+        const processedState = ProcessedLexicalState.fromMaybeProcessed(state)
+        const markdown = editorStateToMarkdownNoEmbeds(processedState)
 
-        const arr = range(markdown.length)
+        const approxStart = processedState.getMarkdownLengthUpTo(this.start, true);
+        const approxEnd = processedState.getMarkdownLengthUpTo(this.end, true);
+
+        const delta = 1
+        const startWindow = Math.max(0, approxStart - delta);
+        const endWindow = Math.min(markdown.length, approxStart + delta);
+
+        const startArr = range(startWindow, endWindow)
 
         const start = this.start
         function cmp(a: number, _) {
-            const startAttempt = LexicalPointer.fromMarkdownIndex(parsedState, a, leaves)
+            const startAttempt = LexicalPointer.fromMarkdownIndex(processedState, a)
             return LexicalPointer.compare(start, startAttempt)
         }
 
         // el primer índice en markdown tal que su índice en lexical es mayor o igual a selection.start
-        const i = bsb.ge(arr, null, cmp)
+        const i = bsb.ge(startArr, null, cmp) + startWindow
         if (i < 0) return null
 
         const end = this.end
         function cmpEnd(a: number, _) {
-            const endAttempt = LexicalPointer.fromMarkdownIndex(parsedState, a, leaves)
+            const endAttempt = LexicalPointer.fromMarkdownIndex(processedState, a)
             return LexicalPointer.compare(end, endAttempt)
         }
 
-        const arr2 = range(i, markdown.length)
+        const endArr = range(Math.max(0, approxEnd - delta), Math.min(markdown.length, approxEnd + delta));
 
         // el primer índice tal que
-        const jIndex = bsb.ge(arr2, null, cmpEnd)
+        const jIndex = bsb.ge(endArr, null, cmpEnd)
         if (jIndex < 0) return null
-        const j = arr2[jIndex]
+        const j = endArr[jIndex]
 
         return new MarkdownSelection(i, j == undefined ? markdown.length : j)
     }
 
-    toMarkdownSelectionDirect(lexicalStateStr: string) {
-        /**
-         * Transforma la selección de lexical a una selección en markdown
-         */
-
-        const parsedState = JSON.parse(lexicalStateStr)
-
-        const leaves = getLexicalStateLeaves(parsedState)
-
-        const start = this.start
-        const markdownUpToStart = start.getMarkdownUpTo(parsedState, leaves)
-
-        const end = this.end
-        const markdownUpToEnd = end.getMarkdownUpTo(parsedState, leaves, true)
-
-        return new MarkdownSelection(markdownUpToStart.length, markdownUpToEnd.length)
-    }
-
-    equals(other: LexicalSelection): boolean {
-        return this.start.equals(other.start) && this.end.equals(other.end)
-    }
-
-    getSelectedSubtree(s: any, includeEnd: boolean = false): any {
-        const copy = JSON.parse(JSON.stringify(s))
+    getSelectedSubtree(s: SerializedEditorState, includeEnd: boolean = false): SerializedEditorState | null {
         try {
             return {
                 root: getSelectedSubtreeFromNode(
-                    copy.root,
+                    s.root,
                     this.start.node,
                     this.start.offset,
                     this.end.node,
@@ -458,7 +425,7 @@ export class LexicalSelection {
         } catch (err) {
             console.log("Error filtering outside selection:")
             console.log(this.start, this.end)
-            console.log(getAllText(copy.root))
+            console.log(getAllText(s.root))
             return null
         }
     }
@@ -467,11 +434,8 @@ export class LexicalSelection {
         return `(start: ${this.start.node} ${this.start.offset}) (end: ${this.end.node} ${this.end.offset})`;
     }
 
-    equivalentTo(other: LexicalSelection, stateStr: string): boolean {
-        const state = JSON.parse(stateStr)
+    equivalentTo(other: LexicalSelection, state: ProcessedLexicalState): boolean {
 
         return this.start.equivalentAsStart(other.start, state) && this.end.equivalentAsEnd(other.end, state)
     }
-
-
 }

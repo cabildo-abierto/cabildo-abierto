@@ -6,7 +6,7 @@ import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
-import {urlFromRecord, profileUrl, getCollectionFromUri, isPost} from "@/utils/uri";
+import {urlFromRecord, profileUrl, getCollectionFromUri, isPost, isArticle} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";
 import {ReasonRepost} from '@/lex-api/types/app/bsky/feed/defs'
@@ -56,6 +56,11 @@ export const PostPreviewFrame = ({
     const author = postView.author
     const createdAt = new Date(postView.indexedAt)
 
+    const collection = getCollectionFromUri(postView.uri)
+    if(isArticle(collection)){
+        console.log("created at", createdAt)
+    }
+
     async function onClick() {
         if(isPost(getCollectionFromUri(postView.uri))){
             qc.setQueryData(threadQueryKey(postView.uri), old => {
@@ -104,7 +109,7 @@ export const PostPreviewFrame = ({
                         <ContentTopRowAuthor author={author}/>
                     </span>
                     <span className="text-[var(--text-light)]">·</span>
-                    <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
+                    <span className="text-[var(--text-light)] flex-shrink-0" >
                         <DateSince date={createdAt}/>
                     </span>
                 </div>

@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {$getRoot, EditorState, LexicalEditor} from "lexical";
 import {
     $createSidenoteNode,
@@ -16,6 +16,7 @@ import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {$isVisualizationNode} from "../../../modules/ca-lexical-editor/src/nodes/VisualizationNode";
 import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNode";
+import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
 const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -43,7 +44,7 @@ export const EditorWithQuoteComments = ({
                                             pinnedReplies,
                                             setPinnedReplies
                                         }: EditorWithQuoteCommentsProps) => {
-    const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | null>(null)
+    const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | LexicalSelection | null>(null)
     const {layoutConfig} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
     const editorElement = useRef(null)
@@ -87,6 +88,8 @@ export const EditorWithQuoteComments = ({
         setBlockToUri(m)
     }, [editor, quoteReplies])
 
+    const state = editor ? editor.getEditorState() : undefined
+
     useEffect(() => {
         if (!editor) return
         editor.update(() => {
@@ -115,7 +118,7 @@ export const EditorWithQuoteComments = ({
                 }
             })
         })
-    }, [blockToUri, editor])
+    }, [blockToUri, editor, state])
 
     // Esto es necesario por algún motivo muy extraño relacionado con cómo insertamos los embeds en el editor.
     const [hasRefreshed, setHasRefreshed] = useState(false)
@@ -138,16 +141,18 @@ export const EditorWithQuoteComments = ({
         return () => clearTimeout(timeoutId);
     }, [editor, hasRefreshed])
 
+    const editorSettings = useMemo(() => ({
+        ...settings,
+        allowComments: true,
+        onAddComment: (quote: MarkdownSelection | LexicalSelection) => {
+            setCommentingQuote(quote)
+        },
+    }), [settings]);
+
     return <>
         <div ref={editorElement}>
             <MyLexicalEditor
-                settings={{
-                    ...settings,
-                    allowComments: true,
-                    onAddComment: (quote: MarkdownSelection) => {
-                        setCommentingQuote(quote)
-                    },
-                }}
+                settings={editorSettings}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
             />
@@ -173,6 +178,5 @@ export const EditorWithQuoteComments = ({
                 />, document.body)}
             </div>
         })}
-
     </>
 }

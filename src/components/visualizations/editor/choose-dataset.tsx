@@ -1,6 +1,5 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
-import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import AddIcon from "@mui/icons-material/Add";
 import {DatasetPreviewOnEditor} from "../../datasets/dataset-preview-on-editor";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
@@ -25,7 +24,7 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
     useEffect(() => {
         const v = cleanText(searchValue)
         const f = datasets ? datasets.filter((d) => {
-            if(v.length == 0) return true
+            if (v.length == 0) return true
             return cleanText(d.name).includes(v)
         }) : undefined
 
@@ -33,10 +32,10 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
     }, [searchValue, datasets])
 
     useEffect(() => {
-        if(config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset){
-            if(!datasets.some(d => isDatasetDataSource(config.dataSource) && d.uri == config.dataSource.dataset)){
+        if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
+            if (!datasets.some(d => isDatasetDataSource(config.dataSource) && d.uri == config.dataSource.dataset)) {
                 setConfig(produce(config, draft => {
-                    if(isDatasetDataSource(draft.dataSource)) {
+                    if (isDatasetDataSource(draft.dataSource)) {
                         draft.dataSource.dataset = undefined
                     }
                 }))
@@ -44,36 +43,35 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
         }
     }, [datasets, config, setConfig])
 
-    return <div className={"mt-16"}>
-        <ResizableDiv initialWidth={320} minWidth={240} maxWidth={400} side={"right"}>
-            <div className={"rounded-lg p-2 flex flex-col bg-[var(--background-dark)]"}>
-                <div>
-                    <div className={"flex justify-between pt-1 pb-4"}>
-                        <div className={"font-bold text-2xl"}>
-                            Datos
-                        </div>
-                        <div>
-                            <Button
-                                startIcon={<AddIcon/>}
-                                variant={"text"}
-                                color={"background-dark"}
-                                size={"small"}
-                                sx={{height: "32px", paddingX: "12px", borderRadius: "20px", ":hover": {backgroundColor: "var(--background-dark3)"}}}
-                                onClick={() => {setNewDatasetPanelOpen(true)}}
-                            >
-                                Dataset
-                            </Button>
-                        </div>
-                    </div>
-                    <SearchBar
-                        searchValue={searchValue}
-                        setSearchValue={setSearchValue}
-                        fullWidth={true}
-                        color={"background-dark2"}
-                    />
-                </div>
-                <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-250px)]"}>
-                    {filteredDatasets ? filteredDatasets.map((d, i) => {
+    return <div className={""}>
+        <div className={"rounded-lg p-2 flex flex-col bg-[var(--background-dark)] space-y-2"}>
+            <SearchBar
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+                fullWidth={true}
+                color={"background-dark2"}
+            />
+            <div className={"flex justify-end"}>
+                <Button
+                    startIcon={<AddIcon/>}
+                    variant={"text"}
+                    color={"background-dark2"}
+                    size={"small"}
+                    sx={{
+                        height: "32px",
+                        paddingX: "12px",
+                        borderRadius: "20px",
+                        ":hover": {backgroundColor: "var(--background-dark3)"}
+                    }}
+                    onClick={() => {
+                        setNewDatasetPanelOpen(true)
+                    }}
+                >
+                    Dataset
+                </Button>
+            </div>
+            <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-220px)]"}>
+                {filteredDatasets ? filteredDatasets.map((d, i) => {
                         return <div key={i} className={""}>
                             <DatasetPreviewOnEditor
                                 dataset={d}
@@ -90,9 +88,10 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig}: {
                         </div>
                     }) :
                     <div className={"mt-8"}><LoadingSpinner/></div>}
-                </div>
             </div>
-        </ResizableDiv>
-        <NewDatasetPanel open={newDatasetPanelOpen} onClose={() => {setNewDatasetPanelOpen(false)}}/>
+        </div>
+        <NewDatasetPanel open={newDatasetPanelOpen} onClose={() => {
+            setNewDatasetPanelOpen(false)
+        }}/>
     </div>
 }

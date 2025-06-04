@@ -1,15 +1,12 @@
 import {PlotConfigProps} from "@/lib/types";
-import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import {Select} from "../../../../modules/ui-utils/src/select";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {isTwoAxisPlot, PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
 import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {Button} from "../../../../modules/ui-utils/src/button";
-import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
-import {TextField} from "@mui/material";
 import {isHistogram} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import { TextField } from "../../../../modules/ui-utils/src/text-field";
 
 
 export function kindToLexicon(kind: string): string {
@@ -38,7 +35,7 @@ export function lexiconToKind(lexicon: string): string {
 }
 
 
-const ConfigPanelText = ({config, setConfig, dataset}: {dataset: DatasetView | DatasetViewBasic, config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void}) => {
+const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void }) => {
     return <>
         <TextField
             label={"Título"}
@@ -49,6 +46,7 @@ const ConfigPanelText = ({config, setConfig, dataset}: {dataset: DatasetView | D
                     draft.title = e.target.value
                 }))
             }}
+            fontSize={"0.875rem"}
         />
         <TextField
             label={"Epígrafe"}
@@ -60,6 +58,7 @@ const ConfigPanelText = ({config, setConfig, dataset}: {dataset: DatasetView | D
                     draft.caption = e.target.value
                 }))
             }}
+            fontSize={"0.875rem"}
         />
         {(isTwoAxisPlot(config.spec) || isHistogram(config.spec)) && <TextField
             label={"Etiqueta eje x"}
@@ -67,11 +66,12 @@ const ConfigPanelText = ({config, setConfig, dataset}: {dataset: DatasetView | D
             value={config.spec.xLabel ?? config.spec.xAxis}
             onChange={e => {
                 setConfig(produce(config, draft => {
-                    if(isTwoAxisPlot(draft.spec) || isHistogram(draft.spec)){
+                    if (isTwoAxisPlot(draft.spec) || isHistogram(draft.spec)) {
                         draft.spec.xLabel = e.target.value
                     }
                 }))
             }}
+            fontSize={"0.875rem"}
         />}
         {isTwoAxisPlot(config.spec) && <TextField
             label={"Etiqueta eje y"}
@@ -79,17 +79,21 @@ const ConfigPanelText = ({config, setConfig, dataset}: {dataset: DatasetView | D
             value={config.spec.yLabel ?? config.spec.yAxis}
             onChange={e => {
                 setConfig(produce(config, draft => {
-                    if(isTwoAxisPlot(draft.spec)){
+                    if (isTwoAxisPlot(draft.spec)) {
                         draft.spec.yLabel = e.target.value
                     }
                 }))
             }}
+            fontSize={"0.875rem"}
         />}
     </>
 }
 
 
-const ConfigPanelVisualization = ({config, setConfig, dataset}: {dataset: DatasetView | DatasetViewBasic, config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void}) => {
+const ConfigPanelVisualization = ({config, setConfig}: {
+    config: PlotConfigProps,
+    setConfig: (v: PlotConfigProps) => void
+}) => {
     return <>
         <Select
             options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión"]}
@@ -107,7 +111,6 @@ const ConfigPanelVisualization = ({config, setConfig, dataset}: {dataset: Datase
         <PlotSpecificConfig
             config={config}
             setConfig={setConfig}
-            dataset={dataset}
         />
         {/*config.filters && config.filters.map((f, i) => {
                     return <div key={i}>
@@ -148,10 +151,9 @@ const ConfigPanelVisualization = ({config, setConfig, dataset}: {dataset: Datase
 }
 
 
-export const ConfigPanel = ({config, setConfig, dataset}: {
+export const ConfigPanel = ({config, setConfig}: {
     config: PlotConfigProps
     setConfig: (config: PlotConfigProps) => void
-    dataset?: DatasetView | DatasetViewBasic
 }) => {
     const [selectedMenu, setSelectedMenu] = useState<string>("Visualización")
 
@@ -179,28 +181,22 @@ export const ConfigPanel = ({config, setConfig, dataset}: {
         </div>
     }
 
-    return <ResizableDiv initialWidth={400} minWidth={240} maxWidth={500} side={"left"}>
-        <div className={"rounded-lg p-2 mt-16 w-full bg-[var(--background-dark)]"}>
-            <div className={"font-bold text-2xl pt-1 px-2"}>
-                Configuración
-            </div>
-
-            <div className={"flex border-b w-full mt-2"}>
-                <SelectionComponent
-                    options={["Visualización", "Texto"]}
-                    optionsNodes={optionsNodes}
-                    selected={selectedMenu}
-                    onSelection={(v: string) => {
-                        setSelectedMenu(v)
-                    }}
-                    className={"flex justify-center"}
-                />
-            </div>
-
-            <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto h-[calc(100vh-270px)]"}>
-                {selectedMenu == "Visualización" && <ConfigPanelVisualization dataset={dataset} config={config} setConfig={setConfig}/>}
-                {selectedMenu == "Texto" && <ConfigPanelText dataset={dataset} config={config} setConfig={setConfig}/>}
-            </div>
+    return <div className={"rounded-lg w-full bg-[var(--background-dark)]"}>
+        <div className={"flex border-b w-full mt-2"}>
+            <SelectionComponent
+                options={["Visualización", "Texto"]}
+                optionsNodes={optionsNodes}
+                selected={selectedMenu}
+                onSelection={(v: string) => {
+                    setSelectedMenu(v)
+                }}
+                className={"flex justify-center"}
+            />
         </div>
-    </ResizableDiv>
+
+        <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto h-[calc(100vh-270px)]"}>
+            {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
+            {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
+        </div>
+    </div>
 }

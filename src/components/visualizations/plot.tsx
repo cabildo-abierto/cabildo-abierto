@@ -210,12 +210,12 @@ export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const {xAxis, yAxis} = spec;
 
     if (!xAxis || xAxis.length == 0) {
-        return <div className={"text-[var(--text-light)]"}>
+        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Elegí un eje x.
         </div>
     }
     if (!yAxis || yAxis.length == 0) {
-        return <div className={"text-[var(--text-light)]"}>
+        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Elegí un eje y.
         </div>
     }

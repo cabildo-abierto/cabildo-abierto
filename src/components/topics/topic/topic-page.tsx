@@ -1,6 +1,6 @@
 "use client"
 import {useEffect, useState} from "react"
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 
 
 import {useTopic, useTopicFeed} from "@/queries/api";
@@ -11,6 +11,7 @@ import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {topicUrl} from "@/utils/uri";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
@@ -39,6 +40,10 @@ function useShouldGoTo(wikiEditorState: WikiEditorState) {
     return {setShouldGoTo}
 }
 
+export function isWikiEditorState(s: string): s is WikiEditorState {
+    return ["changes", "authors", "normal", "editing", "editing-props", "props", "minimized", "history"].includes(s)
+}
+
 export const TopicPage = ({topicId}: {
     topicId: string
 }) => {
@@ -46,7 +51,8 @@ export const TopicPage = ({topicId}: {
     const {data: topic, isLoading} = useTopic(topicId)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
-    const wikiEditorState = ((searchParams.get("s") ? searchParams.get("s") : "minimized") as WikiEditorState)
+    const s = searchParams.get("s")
+    const wikiEditorState = (s && isWikiEditorState(s) ? s : "minimized")
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
     if (isLoading) {

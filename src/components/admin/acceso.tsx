@@ -53,7 +53,7 @@ export const AdminAcceso = () => {
     const [collections, setCollections] = useState<string[]>([])
 
     async function copyCode(c: string) {
-        const url = `https://www.cabildoabierto.com.ar/login?c=${c}`
+        const url = `https://www.cabildoabierto.ar/login?c=${c}`
 
         if (navigator.clipboard) {
             await navigator.clipboard.writeText(url)

@@ -20,6 +20,7 @@ import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/queries/api";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {
+    isFullArticleView,
     isPostView,
     PostView
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
@@ -45,6 +46,9 @@ import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-but
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -176,7 +180,7 @@ function getPlaceholder(replyToCollection?: string) {
     } else if (isArticle(replyToCollection)) {
         return "Respondé al artículo"
     } else if (isTopicVersion(replyToCollection)) {
-        return "Respondé al tema"
+        return "Respondé al contenido del tema"
     } else if (isVisualization(replyToCollection)) {
         return "Respondé a la visualización"
     } else if (isDataset(replyToCollection)) {
@@ -217,9 +221,15 @@ export function visualizationViewToMain(v: VisualizationView): Visualization {
 }
 
 
+const WritePostTextEditor = () => {
+
+}
+
+
+
 export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
-    selection?: MarkdownSelection
+    selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (v: boolean) => void
     quotedPost?: PostView
@@ -242,10 +252,17 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
 
     async function handleClickSubmit() {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
+
+        let selectionForPost: [number, number]
+        if(selection instanceof LexicalSelection && (isTopicView(replyTo) || isFullArticleView(replyTo)) && replyTo.format == "markdown") {
+            const state = markdownToEditorState(replyTo.text)
+            selectionForPost = selection.toMarkdownSelection(state).toArray()
+        }
+
         const post: CreatePostProps = {
             text,
             reply,
-            selection: selection ? selection.toArray() : undefined,
+            selection: selectionForPost,
             images,
             enDiscusion,
             externalEmbedView,
@@ -277,7 +294,6 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
 
-
     const hasEmbed: boolean = quotedPost != null || selection != null || visualization != null || (images && images.length > 0) || (externalEmbedView != null)
     const canAddImage = !hasEmbed ||
         images.length > 0 && images.length != 4 ||
@@ -297,7 +313,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                     {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
                 </div>
             </div>
-            {replyTo && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
+            {replyTo != undefined && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
             {visualization && <div className={"flex justify-center"}>
                 <PlotFromVisualizationMain
                     visualization={visualization}

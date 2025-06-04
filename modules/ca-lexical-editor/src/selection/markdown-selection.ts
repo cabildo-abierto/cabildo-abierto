@@ -1,7 +1,6 @@
-import {getLexicalStateLeaves, LexicalPointer, LexicalSelection} from "./lexical-selection";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {produce} from "immer";
-import {$createRangeSelection, $getRoot, LexicalEditor} from "lexical";
+import {LexicalPointer, LexicalSelection} from "./lexical-selection";
+import {$createRangeSelection, $getRoot, LexicalEditor, SerializedEditorState} from "lexical";
+import {ProcessedLexicalState} from "./processed-lexical-state";
 
 
 export class MarkdownSelection {
@@ -18,13 +17,12 @@ export class MarkdownSelection {
         this.end = end
     }
 
-    toLexicalSelection(editorStateStr: string): LexicalSelection | null {
-        const parsedState = JSON.parse(editorStateStr)
-        const leaves = getLexicalStateLeaves(parsedState)
+    toLexicalSelection(state: string | SerializedEditorState | ProcessedLexicalState): LexicalSelection | null {
+        const processedState = ProcessedLexicalState.fromMaybeProcessed(state)
         let start: LexicalPointer
         let end: LexicalPointer
         try {
-            start = LexicalPointer.fromMarkdownIndex(parsedState, this.start, leaves)
+            start = LexicalPointer.fromMarkdownIndex(processedState, this.start)
             if(start.offset == 0) start.offset = undefined
         } catch (err) {
             console.warn(`Error getting start pointer from markdown selection ${this.start} ${this.end}`)
@@ -32,7 +30,7 @@ export class MarkdownSelection {
             return null
         }
         try {
-            end = LexicalPointer.fromMarkdownIndex(parsedState, this.end, leaves)
+            end = LexicalPointer.fromMarkdownIndex(processedState, this.end)
             if(end.offset == 0) end.offset = undefined
         } catch (err) {
             console.warn(`Error getting end pointer from markdown selection ${this.start} ${this.end}`)
@@ -57,7 +55,7 @@ export class MarkdownSelection {
         return `[${this.start}, ${this.end})`
     }
 
-    shiftEmbeds(embeds: ArticleEmbed[]){
+    /*shiftEmbeds(embeds: ArticleEmbed[]){
         const res: ArticleEmbed[] = []
         for(let i = 0; i < embeds.length; i++){
             if(embeds[i].index >= this.start && embeds[i].index < this.end){
@@ -67,7 +65,7 @@ export class MarkdownSelection {
             }
         }
         return res
-    }
+    }*/
 
     isEmpty() {
         return this.end <= this.start;
@@ -78,13 +76,12 @@ export class MarkdownSelection {
         const state = editor.getEditorState().toJSON()
         const stateStr = JSON.stringify(state)
         const lexicalSelection = this.toLexicalSelection(stateStr)
+        const processedState = new ProcessedLexicalState(state)
 
-        const startNode = lexicalSelection.start.getPointType(root, true, state)
-        const endNode = lexicalSelection.end.getPointType(root, false, state)
+        const startNode = lexicalSelection.start.getPointType(root, true, processedState)
+        const endNode = lexicalSelection.end.getPointType(root, false, processedState)
 
         const rangeSelection = $createRangeSelection();
-        console.log(lexicalSelection)
-        console.log(startNode, endNode)
         if (!startNode || !endNode) {
             return null;
         }
@@ -93,6 +90,10 @@ export class MarkdownSelection {
         rangeSelection.focus = endNode;
 
         return rangeSelection
+    }
+
+    equals(selection: MarkdownSelection) {
+        return this.start == selection.start && this.end == selection.end
     }
 }
 
