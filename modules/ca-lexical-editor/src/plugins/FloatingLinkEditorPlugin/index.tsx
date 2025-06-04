@@ -40,6 +40,41 @@ import {CustomLink as Link} from '../../../../ui-utils/src/custom-link';
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import { get } from '@/utils/fetch';
+import LoadingSpinner from "../../../../ui-utils/src/loading-spinner";
+import { IconButton } from '../../../../ui-utils/src/icon-button';
+
+
+async function searchTopics(query: string) {
+    const {error, data} = await get<TopicViewBasic[]>(`/search-topics/${query}`)
+    if(error) return []
+    return data
+}
+
+
+const SearchResults = ({results, setValue}: {results: TopicViewBasic[] | "loading", setValue: (v: string) => void}) => {
+    if(results == "loading") {
+        return <div>
+            <LoadingSpinner/>
+        </div>
+    }
+
+    if (results.length == 0) return <></>
+    return <div className="mb-1 px-1 space-y-1">
+        {results.slice(0, 5).map((topic: TopicViewBasic) => {
+            return <button
+                key={topic.id}
+                className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
+                onClick={() => {
+                    setValue(topicUrl(topic.id))
+                }}
+            >
+                {getTopicTitle(topic)}
+            </button>
+        })}
+    </div>
+}
+
 
 function FloatingLinkEditor({
                                 editor,
@@ -63,7 +98,7 @@ function FloatingLinkEditor({
     );
     const [linkUrl, setLinkUrl] = useState('')
     const [editedLinkUrl, setEditedLinkUrl] = useState('')
-    const [results, setResults] = useState<TopicViewBasic[]>([])
+    const [results, setResults] = useState<TopicViewBasic[] | "loading">([])
     const [debouncedValue, setDebouncedValue] = useState(editedLinkUrl)
 
     useEffect(() => {
@@ -80,10 +115,9 @@ function FloatingLinkEditor({
                 setResults([]);
                 return;
             }
-            // TO DO
-            //const topics = await searchTopics(debouncedValue);
-            const topics = []
-            setResults(topics);
+            setResults("loading")
+            const topics = await searchTopics(debouncedValue);
+            setResults(topics)
         }
 
         search();
@@ -263,24 +297,7 @@ function FloatingLinkEditor({
         }
     }
 
-    const SearchResults = ({results, setValue}: any) => {
-        if (results.length == 0) return <></>
-        return <div className="mb-1 px-1 space-y-1">
-            {results.slice(0, 5).map((topic: TopicViewBasic) => {
-                return <button
-                    key={topic.id}
-                    className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
-                    onClick={() => {
-                        setValue(topicUrl(topic.id))
-                    }}
-                >
-                    {getTopicTitle(topic)}
-                </button>
-            })}
-        </div>
-    }
-
-    const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-[var(--background)]">
+    const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-[var(--background-dark)] space-y-1">
         <div className="flex items-center justify-between">
             <input
                 ref={inputRef}
@@ -295,27 +312,31 @@ function FloatingLinkEditor({
                 }}
             />
             <div className="flex space-x-1 mr-1">
-                <button
+                <IconButton
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={handleLinkSubmission}
+                    size={"small"}
+                    color={"background-dark"}
                 >
                     <CheckIcon fontSize="small"/>
-                </button>
-                <button
+                </IconButton>
+                <IconButton
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => {
                         setIsLinkEditMode(false);
                     }}
+                    color={"background-dark"}
+                    size={"small"}
                 >
                     <CloseIcon fontSize="small"/>
-                </button>
+                </IconButton>
             </div>
         </div>
         <SearchResults results={results} setValue={setEditedLinkUrl}/>
     </div>
 
     const linkViewComp = (
-        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background)]">
+        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
             <div className="flex items-center">
                 <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
                     <Link
@@ -328,23 +349,27 @@ function FloatingLinkEditor({
                     </Link>
                 </div>
                 <div className="flex space-x-1 mr-1">
-                    <button
+                    <IconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                             setEditedLinkUrl(linkUrl);
                             setIsLinkEditMode(true);
                         }}
+                        size={"small"}
+                        color={"background-dark"}
                     >
                         <EditIcon fontSize="small"/>
-                    </button>
-                    <button
+                    </IconButton>
+                    <IconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                             editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
                         }}
+                        size={"small"}
+                        color={"background-dark"}
                     >
                         <DeleteOutlineIcon fontSize="small"/>
-                    </button>
+                    </IconButton>
                 </div>
             </div>
         </div>
