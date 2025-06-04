@@ -6,7 +6,41 @@ import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {PrettyJSON} from "../../../../../modules/ui-utils/src/pretty-json";
+import {useEffect, useState } from "react";
+import {
+    anyEditorStateToMarkdown,
+    markdownToEditorState
+} from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
+import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+
+async function validSelectionForComment(text: string, format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
+    try {
+        const markdown = anyEditorStateToMarkdown(text, format)
+        const state = markdownToEditorState(markdown.markdown, true, true, markdown.embeds)
+        if(selection instanceof LexicalSelection){
+            selection = selection.toMarkdownSelection(state)
+        }
+        if(selection.isEmpty()) {
+            console.log("selection empty")
+            return null
+        }
+        const processedState = new ProcessedLexicalState(state)
+        const lexicalSelection = selection.toLexicalSelection(processedState)
+        const markdownSelectionBack = lexicalSelection.toMarkdownSelection(processedState)
+        const lexicalSelectionBack = markdownSelectionBack.toLexicalSelection(processedState)
+        if(lexicalSelection.equivalentTo(lexicalSelectionBack, processedState)){
+            return markdownSelectionBack
+        } else {
+            console.log("selection isn't idempotent")
+            return null
+        }
+    } catch (err) {
+        console.log("Error: ", err)
+        return null
+    }
+}
 
 type SelectionQuoteProps = {
     onClick?: (cid: string) => void
@@ -18,12 +52,12 @@ type SelectionQuoteProps = {
     quotedContentAuthor: ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string
-    selection: MarkdownSelection
+    selection: MarkdownSelection | LexicalSelection
 }
 
 export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
                                    quotedContentTitle, quotedContentEmbeds, quotedContentAuthor, quotedContent, quotedText, quotedTextFormat, selection}: SelectionQuoteProps) => {
-
+    const [normalizedSelection, setNormalizedSelection] = useState<"error" | MarkdownSelection | null>(null)
     const router = useRouter()
 
     function handleClick(e) {
@@ -40,6 +74,19 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
         }
     }
 
+    useEffect(() => {
+        setNormalizedSelection(null);
+        const timeout = setTimeout(async () => {
+            const n = await validSelectionForComment(quotedText, quotedTextFormat, selection);
+            console.log("selection", n)
+            setNormalizedSelection(n ?? "error");
+        }, 0);
+
+        return () => {
+            clearTimeout(timeout);
+        };
+    }, [quotedText, quotedTextFormat, selection]);
+
     const clickable = onClick != undefined || mainPostRef != null
 
     const collection = getCollectionFromUri(quotedContent)
@@ -54,12 +101,16 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
                 quotedContentAuthor={quotedContentAuthor}
                 quotedContentTitle={quotedContentTitle}
             />}
-            <SelectionQuoteText
+            {normalizedSelection && normalizedSelection != "error" && <SelectionQuoteText
                 quotedText={quotedText}
                 quotedTextFormat={quotedTextFormat}
-                selection={selection}
+                selection={normalizedSelection}
                 quotedTextEmbeds={quotedContentEmbeds}
-            />
+            />}
+            {normalizedSelection && normalizedSelection == "error" && <div className={"p-2"}>
+                ¡Uh! No pudimos procesar la selección.
+            </div>}
+            {!normalizedSelection && <LoadingSpinner/>}
         </blockquote>
     </div>
 }

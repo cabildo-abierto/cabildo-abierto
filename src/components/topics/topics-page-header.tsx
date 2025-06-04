@@ -50,6 +50,7 @@ export const TopicsPageHeader = () => {
             <MainSearchBar
                 autoFocus={false}
                 paddingY={"5px"}
+                placeholder={"buscar un tema"}
             />
         </div>
 

@@ -1173,7 +1173,7 @@ export const schemaDict = {
         required: ['value'],
         properties: {
           value: {
-            type: 'string',
+            type: 'integer',
           },
         },
       },

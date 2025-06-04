@@ -20,7 +20,6 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
 
         isAutofocus: true,
 
-        measureTypingPerf: false,
         showTreeView: false,
 
         initialText: "",

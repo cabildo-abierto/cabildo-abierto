@@ -5,7 +5,6 @@ import {
     BOLD_UNDERSCORE,
     CHECK_LIST,
     ElementTransformer,
-    HEADING,
     INLINE_CODE,
     ITALIC_STAR,
     ITALIC_UNDERSCORE,
@@ -15,7 +14,7 @@ import {
     TextMatchTransformer,
     UNORDERED_LIST
 } from "@lexical/markdown";
-import {$createTextNode, $isParagraphNode, ParagraphNode} from "lexical";
+import {$createTextNode, $isParagraphNode, ElementNode, ParagraphNode} from "lexical";
 import {IMAGE} from "./plugins/MarkdownTransformers/image-transformer";
 import {HR} from "./plugins/MarkdownTransformers/hr-transformer";
 import {TABLE} from "./plugins/MarkdownTransformers/table-transformer";
@@ -23,6 +22,7 @@ import {$createCustomLinkNode, CustomLinkNode} from "./nodes/CustomLinkNode";
 import {$isLinkNode} from "@lexical/link";
 import {$createVisualizationNode, $isVisualizationNode, VisualizationNode} from "./nodes/VisualizationNode";
 import {getObjectKey} from "@/utils/arrays";
+import {$createHeadingNode, $isHeadingNode, HeadingNode, HeadingTagType} from "@lexical/rich-text";
 
 
 export const LINK: TextMatchTransformer = {
@@ -104,20 +104,49 @@ export const PARAGRAPH: ElementTransformer = {
 };
 
 
+const createBlockNode = (
+    createNode: (match: Array<string>) => ElementNode,
+): ElementTransformer['replace'] => {
+    return (parentNode, children, match) => {
+        const node = createNode(match);
+        node.append(...children);
+        parentNode.replace(node);
+        node.select(0, 0);
+    };
+};
+
+
+export const HEADING: ElementTransformer = {
+    dependencies: [HeadingNode],
+    export: (node, exportChildren) => {
+        if (!$isHeadingNode(node)) {
+            return null;
+        }
+        const level = Number(node.getTag().slice(1));
+        return '#'.repeat(level) + ' ' + exportChildren(node) + "\n";
+    },
+    regExp: /^(#{1,6})\s/,
+    replace: createBlockNode((match) => {
+        const tag = ('h' + match[1].length) as HeadingTagType;
+        return $createHeadingNode(tag);
+    }),
+    type: 'element',
+};
+
+
 export const CA_TRANSFORMERS = [
     QUOTE,
-    HEADING,
     ORDERED_LIST,
     UNORDERED_LIST,
     CHECK_LIST,
     BOLD_ITALIC_STAR,
     BOLD_ITALIC_UNDERSCORE,
-    BOLD_STAR,
     BOLD_UNDERSCORE,
-    INLINE_CODE,
+    BOLD_STAR,
     ITALIC_STAR,
     ITALIC_UNDERSCORE,
     STRIKETHROUGH,
+    HEADING,
     IMAGE,
     LINK,
     TABLE,

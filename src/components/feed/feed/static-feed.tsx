@@ -21,7 +21,6 @@ function StaticFeed<T>({
                            FeedElement,
                            queryKey
                        }: StaticFeedProps<T>) {
-
     const getFeed = useCallback<GetFeedProps<T>>(async (cursor: string | undefined) => {
         if (!cursor) {
             return {

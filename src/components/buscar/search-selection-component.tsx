@@ -7,17 +7,18 @@ type SelectionComponentProps = {
     optionsNodes: (o: string, isSelected: boolean) => ReactNode
     className?: string
     unselectedOption?: string
+    optionContainerClassName?: string
 }
 
 const SelectionComponent = ({
-                                onSelection, options, selected, className = "search", optionsNodes
+                                onSelection, options, selected, className = "search", optionsNodes, optionContainerClassName="w-full"
                             }: SelectionComponentProps) => {
 
     return <div className={className}>
         {options.map((option, index) => {
             return <div key={index} onClick={() => {
                 onSelection(option)
-            }} className="w-full">
+            }} className={optionContainerClassName}>
                 {optionsNodes(option, option == selected)}
             </div>
         })}

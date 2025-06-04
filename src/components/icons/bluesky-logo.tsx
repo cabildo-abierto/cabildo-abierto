@@ -1,7 +1,13 @@
-import { SiBluesky } from "react-icons/si";
+import Image from 'next/image'
 
-const BlueskyLogo = ({fontSize}: {fontSize?: string}) => {
-    return <span className="text-[#0481f7]"><SiBluesky fontSize={fontSize}/></span>
+const BlueskyLogo = ({className}: {className?: string}) => {
+    return <Image
+        src={"/Bluesky_Logo.svg"}
+        alt={"Bluesky"}
+        width={300}
+        height={300}
+        className={className}
+    />
 }
 
 

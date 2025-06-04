@@ -93,7 +93,7 @@ export const ContentOptions = ({
         />}
         {inBluesky && <OptionsDropdownButton
             text1={"Abrir en Bluesky"}
-            startIcon={<BlueskyLogo/>}
+            startIcon={<BlueskyLogo className={"w-5 h-auto"}/>}
             onClick={(e) => {
                 e.stopPropagation();
                 window.open(getBlueskyUrl(record.uri), "_blank")

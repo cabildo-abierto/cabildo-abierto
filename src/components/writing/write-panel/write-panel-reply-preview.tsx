@@ -3,13 +3,14 @@ import {isFullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote"
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
-import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
 type Props = {
     replyTo: ReplyToContent,
-    selection?: MarkdownSelection
+    selection?: MarkdownSelection | LexicalSelection
 }
+
 
 export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
     if (selection) {

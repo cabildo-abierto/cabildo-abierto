@@ -11,12 +11,6 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const root = document.documentElement;
         root.style.setProperty('--primary', '#3080ff')
-        root.style.setProperty('--primary-light', '#4b8ef9')
-        root.style.setProperty('--primary-xlight', '#6da4fe')
-        root.style.setProperty('--primary-2xlight', '#8cb8ff')
-        root.style.setProperty('--primary-dark', '#2460bf')
-        root.style.setProperty('--primary-xdark', '#184182')
-        root.style.setProperty('--primary-2xdark', '#112e5a')
         root.style.setProperty('--red', '#ff6666')
         if (currentTheme === 'dark') {
             root.style.setProperty('--text', '#fbfbfc');
@@ -33,6 +27,13 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
 
             root.style.setProperty('--accent', '#2e364c');
             root.style.setProperty('--accent-dark', '#444d66');
+
+            root.style.setProperty('--primary-light', '#4b8ef9')
+            root.style.setProperty('--primary-xlight', '#6da4fe')
+            root.style.setProperty('--primary-2xlight', '#8cb8ff')
+            root.style.setProperty('--primary-dark', '#2460bf')
+            root.style.setProperty('--primary-xdark', '#184182')
+            root.style.setProperty('--primary-2xdark', '#112e5a')
         } else {
             root.style.setProperty('--text', '#1a1a1a');
             root.style.setProperty('--button-text', '#fbfbfc');
@@ -48,6 +49,13 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--background-dark2', 'rgb(225, 225, 210)');
             root.style.setProperty('--background-dark3', 'rgb(210, 210, 195)');
             root.style.setProperty('--background-dark4', 'rgb(195, 195, 180)');
+
+            root.style.setProperty('--primary-dark', '#4b8ef9')
+            root.style.setProperty('--primary-xdark', '#6da4fe')
+            root.style.setProperty('--primary-2xdark', '#8cb8ff')
+            root.style.setProperty('--primary-light', '#2460bf')
+            root.style.setProperty('--primary-xlight', '#184182')
+            root.style.setProperty('--primary-2xlight', '#112e5a')
         }
         
         root.style.setProperty('color-scheme', currentTheme);

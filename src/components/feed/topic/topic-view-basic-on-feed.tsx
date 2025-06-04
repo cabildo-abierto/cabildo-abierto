@@ -10,8 +10,10 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicVie
     if(showingChildren){
         return <Link href={topicUrl(topic.id)} className={"flex hover:bg-[var(--background-dark)]"}>
             <div className={"mt-1 flex justify-start mx-2 space-x-1 text-[var(--text-light)] px-4 py-2"}>
-                <div>
-                    <ReplyIcon fontSize={"inherit"}/> Respuesta al tema
+                <div className={"flex items-center space-x-1"}>
+                    <ReplyIcon fontSize={"inherit"}/>
+                    <div>
+                    Respuesta al tema</div>
                 </div>
                 <div className={"text-[var(--primary)] hover:underline"}>
                     {getTopicTitle(topic)}

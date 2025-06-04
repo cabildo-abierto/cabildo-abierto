@@ -4,27 +4,64 @@ import {
     markdownToEditorStateNoEmbeds,
     normalizeMarkdown
 } from "../markdown-transforms";
-import {prettyPrintJSON} from "@/utils/strings";
 import {
     LexicalPointer,
     LexicalSelection
 } from "../selection/lexical-selection";
 import {MarkdownSelection} from "../selection/markdown-selection";
-import {longText, titanicVisualization} from "./markdown-transforms.test";
 import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ProcessedLexicalState} from "../selection/processed-lexical-state";
+import {$Typed} from "@atproto/api";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {prettyPrintLexicalState} from "../utils/print";
 
 
-function nodeForPrint(node: any){
-    return {
-        type: node.type,
-        children: node.children ? node.children.map(nodeForPrint) : undefined,
-        text: node.text ? node.text : undefined,
+
+export const longText = `
+Marked - Markdown Parser
+
+Marked lets you convert Markdown into HTML.  Markdown is a simple text format whose goal is to be very easy to read and write, even when not converted to HTML.  This demo page will let you type anything you like and see how it gets converted.  Live.  No more waiting around.
+
+How To Use The Demo
+
+1. Type in stuff on the left.
+2. See the live updates on the right.
+
+That's it.  Pretty simple.  There's also a drop-down option above to switch between various views:
+
+- __Preview:__  A live display of the generated HTML as it would render in a browser.
+- __HTML Source:__  The generated HTML before your browser makes it pretty.
+- __Lexer Data:__  What marked uses internally, in case you like gory stuff like this.
+- __Quick Reference:__  A brief run-down of how to format things using markdown.
+
+Why Markdown?
+
+It's easy.  It's not overly bloated, unlike HTML.  Also, as the creator of markdown says,
+
+> The overriding design goal for Markdown's
+> formatting syntax is to make it as readable
+> as possible. The idea is that a
+> Markdown-formatted document should be
+> publishable as-is, as plain text, without
+> looking like it's been marked up with tags
+> or formatting instructions.
+
+Ready to start writing?  Either start changing stuff on the left or
+[clear everything](/demo/?text=) with a simple click.
+`
+
+
+const titanicVisualization: $Typed<Visualization> = {
+    $type: "ar.cabildoabierto.embed.visualization",
+    dataSource: {
+        $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
+        dataset: "at://did:plc:2356xofv4ntrbu42xeilxjnb/ar.cabildoabierto.data.dataset/3lok7wonohh2x"
+    },
+    spec: {
+        $type: "ar.cabildoabierto.embed.visualization#lines",
+        xAxis: "Survived",
+        yAxis: "Age"
     }
-}
-
-
-export function prettyPrintLexicalState(s: any){
-    prettyPrintJSON(nodeForPrint(s.root))
 }
 
 
@@ -33,7 +70,8 @@ test('getMarkdownUpToEsExcluyente', () => {
     const s = markdownToEditorStateNoEmbeds(markdown)
 
     const lexicalPointer = new LexicalPointer([0, 0], 1)
-    const markdownUpTo = lexicalPointer.getMarkdownUpTo(s)
+    const processedState = new ProcessedLexicalState(s)
+    const markdownUpTo = lexicalPointer.getMarkdownUpTo(processedState)
     expect(markdownUpTo).toStrictEqual("a")
 })
 
@@ -42,7 +80,8 @@ test('lexical selection to markdown with undefined', () => {
     const markdown = "abc\n\ndef"
     const s = markdownToEditorStateNoEmbeds(markdown)
     const lexicalPointer = new LexicalPointer([1, 0])
-    const markdownUpTo = lexicalPointer.getMarkdownUpTo(s, undefined, true)
+    const processedState = new ProcessedLexicalState(s)
+    const markdownUpTo = lexicalPointer.getMarkdownUpTo(processedState, true)
     expect(markdownUpTo).toStrictEqual("abc")
 })
 
@@ -51,7 +90,8 @@ test('markdown up to end offset 1', () => {
     const markdown = normalizeMarkdown(markdownWithImage)
     const s = markdownToEditorStateNoEmbeds(markdown)
     const lexicalPointer = new LexicalPointer([2, 0], 1)
-    const markdownUpTo = lexicalPointer.getMarkdownUpTo(s, undefined, true)
+    const processedState = new ProcessedLexicalState(s)
+    const markdownUpTo = lexicalPointer.getMarkdownUpTo(processedState, true)
     expect(markdownUpTo).toStrictEqual(markdown)
 })
 
@@ -59,22 +99,22 @@ test('markdown up to end offset 1', () => {
 function testSelectionTransform(markdown: string, markdownSelection: MarkdownSelection, expectedLexicalSelection?: LexicalSelection){
     markdown = normalizeMarkdown(markdown, true)
     const s = markdownToEditorStateNoEmbeds(markdown)
-    const editorStateStr = JSON.stringify(s)
+    const processedState = new ProcessedLexicalState(s)
 
-    //console.log("markdown slice of", markdownSelection, Array.from(markdown.slice(markdownSelection.start, markdownSelection.end)))
+    console.log("markdown slice of", markdownSelection, Array.from(markdown.slice(markdownSelection.start, markdownSelection.end)))
 
-    //prettyPrintLexicalState(s)
+    prettyPrintLexicalState(s)
 
     // Primero chequeamos idempotencia del markdown
-    const markdownBack = editorStateToMarkdownNoEmbeds(s)
+    const markdownBack = editorStateToMarkdownNoEmbeds(processedState)
     expect(markdownBack).toStrictEqual(markdown)
 
-    const lexicalSelection = markdownSelection.toLexicalSelection(editorStateStr)
-    //console.log("lexicalSelection", lexicalSelection)
-    const markdownSelectionBack = lexicalSelection.toMarkdownSelection(editorStateStr)
-    //console.log("markdownSelectionBack", markdownSelectionBack)
-    const lexicalSelectionBack = markdownSelectionBack.toLexicalSelection(editorStateStr)
-    //console.log("lexicalSelectionBack", lexicalSelectionBack)
+    const lexicalSelection = markdownSelection.toLexicalSelection(processedState)
+    console.log("lexicalSelection", lexicalSelection)
+    const markdownSelectionBack = lexicalSelection.toMarkdownSelection(processedState)
+    console.log("markdownSelectionBack", markdownSelectionBack)
+    const lexicalSelectionBack = markdownSelectionBack.toLexicalSelection(processedState)
+    console.log("lexicalSelectionBack", lexicalSelectionBack)
 
     if(!expectedLexicalSelection){
         expect(markdownSelectionBack).toStrictEqual(
@@ -90,7 +130,7 @@ function testSelectionTransform(markdown: string, markdownSelection: MarkdownSel
         expect(lexicalSelectionBack).toStrictEqual(
             expectedLexicalSelection
         )
-        const markdownSelectionBackBack = lexicalSelectionBack.toMarkdownSelection(editorStateStr)
+        const markdownSelectionBackBack = lexicalSelectionBack.toMarkdownSelection(processedState)
         expect(markdownSelectionBackBack).toStrictEqual(
             markdownSelectionBack
         )
@@ -135,8 +175,9 @@ test('get abc from abcnndef', () => {
 test('index 0 of abc', () => {
     const markdown = "abc"
     const s = markdownToEditorStateNoEmbeds(markdown)
+    const processedState = new ProcessedLexicalState(s)
     const expected = new LexicalPointer([0, 0], 0)
-    const pointer = LexicalPointer.fromMarkdownIndex(s, 0)
+    const pointer = LexicalPointer.fromMarkdownIndex(processedState, 0)
     expect(pointer).toStrictEqual(expected)
 })
 
@@ -144,8 +185,9 @@ test('index 0 of abc', () => {
 test('index 4 of abcnndef', () => {
     const markdown = "abc\n\ndef"
     const s = markdownToEditorStateNoEmbeds(markdown)
+    const processedState = new ProcessedLexicalState(s)
     const expected = new LexicalPointer([1, 0])
-    const pointer = LexicalPointer.fromMarkdownIndex(s, 4)
+    const pointer = LexicalPointer.fromMarkdownIndex(processedState, 4)
     expect(pointer).toStrictEqual(expected)
 })
 
@@ -307,7 +349,8 @@ test('selection after image', () => {
 test("subtree with undefined", () => {
     const markdown = normalizeMarkdown(markdownWithImage)
     const s = markdownToEditorStateNoEmbeds(markdown)
-    const markdownUpTo = new LexicalPointer([2, 0], undefined).getMarkdownUpTo(s, undefined, true)
+    const processedState = new ProcessedLexicalState(s)
+    const markdownUpTo = new LexicalPointer([2, 0], undefined).getMarkdownUpTo(processedState, true)
 
     const res = `a
 
@@ -346,7 +389,11 @@ test("selection including image in paragraph", () => {
 
 test("selection between images", () => {
     testSelectionTransform(markdownWithImageInParagraph,
-        new MarkdownSelection(97, 105)
+        new MarkdownSelection(98, 105),
+        new LexicalSelection(
+            new LexicalPointer([1, 0]),
+            new LexicalPointer([1, 0], 7)
+        )
     )
 })
 
@@ -367,7 +414,7 @@ test("selection with visualizations", () => {
     ]
     const editorState = markdownToEditorState(markdown, true, true, embeds)
 
-    prettyPrintLexicalState(editorState)
+    // prettyPrintLexicalState(editorState)
     const selection = new LexicalSelection(
         new LexicalPointer([0, 0], undefined),
         new LexicalPointer([3], undefined)
@@ -375,4 +422,23 @@ test("selection with visualizations", () => {
 
     const subtree = selection.getSelectedSubtree(editorState)
     expect(subtree.root.children.length).toStrictEqual(3)
+})
+
+
+test("selection of two paragraphs", () => {
+    const text: string = `A
+
+## __B__
+
+C
+
+D`
+
+    testSelectionTransform(text,
+        new MarkdownSelection(0, 14),
+        new LexicalSelection(
+            new LexicalPointer([1, 0]),
+            new LexicalPointer([3, 0])
+        )
+    )
 })

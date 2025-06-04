@@ -32,7 +32,7 @@ export const FollowCounters = ({profile}: { profile: Profile }) => {
                          url={"/perfil/" + profile.bsky.handle + "/seguidores"}/>
             <FollowCount count={followingCountAT} kind={"siguiendo"}
                          url={"/perfil/" + profile.bsky.handle + "/siguiendo"}/>
-            <BlueskyLogo fontSize={"16"}/>
+            <BlueskyLogo className={"h-4 w-auto"}/>
         </>}
     </div>
 }

@@ -14,6 +14,7 @@ export const useTopicsMentioned = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
+            if(!editor) return
             if (
                 lastTextChange.getTime() - lastMentionsFetch.getTime() > 10000 ||
                 (Date.now() - lastTextChange.getTime() > 3000 && lastTextChange.getTime() > lastMentionsFetch.getTime())

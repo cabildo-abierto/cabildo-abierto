@@ -11,6 +11,7 @@ import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildo
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
 
 export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
@@ -19,7 +20,7 @@ type WritePanelProps = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
-    selection?: MarkdownSelection
+    selection?: MarkdownSelection | LexicalSelection
     quotedPost?: PostView
     handleSubmit: (post: CreatePostProps) => Promise<void>
 }
@@ -85,7 +86,9 @@ const WritePanelPanel = ({
                         options={["Post", "Artículo", "Tema"]}
                         className={"flex space-x-2"}
                     /> : <div>{emptyChar}</div>}
-                    <CloseButton size="small" onClose={onClose}/>
+                    <CloseButton size="small" onClose={() => {
+                        onClose()
+                    }}/>
                 </div>
                 {selected == "Post" && <WritePost
                     onClose={onClose}

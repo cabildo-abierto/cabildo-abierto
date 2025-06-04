@@ -7,7 +7,20 @@ import {
 import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {$Typed} from "@atproto/api";
-import {prettyPrintLexicalState} from "./selection-transforms.test";
+import {prettyPrintJSON} from "@/utils/strings";
+
+function nodeForPrint(node: any){
+    return {
+        type: node.type,
+        children: node.children ? node.children.map(nodeForPrint) : undefined,
+        text: node.text ? node.text : undefined,
+    }
+}
+
+
+function prettyPrintLexicalState(s: any){
+    prettyPrintJSON(nodeForPrint(s.root))
+}
 
 export const longText = `
 Marked - Markdown Parser
@@ -21,10 +34,10 @@ How To Use The Demo
 
 That's it.  Pretty simple.  There's also a drop-down option above to switch between various views:
 
-- **Preview:**  A live display of the generated HTML as it would render in a browser.
-- **HTML Source:**  The generated HTML before your browser makes it pretty.
-- **Lexer Data:**  What marked uses internally, in case you like gory stuff like this.
-- **Quick Reference:**  A brief run-down of how to format things using markdown.
+- __Preview:__  A live display of the generated HTML as it would render in a browser.
+- __HTML Source:__  The generated HTML before your browser makes it pretty.
+- __Lexer Data:__  What marked uses internally, in case you like gory stuff like this.
+- __Quick Reference:__  A brief run-down of how to format things using markdown.
 
 Why Markdown?
 
@@ -46,7 +59,7 @@ Ready to start writing?  Either start changing stuff on the left or
 test('markdownTransformsIdempotentABC', () => {
     const markdown = "ABC"
     const s = markdownToEditorStateNoEmbeds(markdown)
-    const markdownBack = editorStateToMarkdownNoEmbeds(JSON.stringify(s))
+    const markdownBack = editorStateToMarkdownNoEmbeds(s)
     expect(markdownBack).toStrictEqual(markdown)
 })
 
@@ -54,7 +67,7 @@ test('markdownTransformsIdempotentABC', () => {
 test('markdownTransformsIdempotentSingleNewLines', () => {
     const markdown = normalizeMarkdown("a\nb")
     const s = markdownToEditorStateNoEmbeds(markdown, true)
-    const markdownBack = editorStateToMarkdownNoEmbeds(JSON.stringify(s))
+    const markdownBack = editorStateToMarkdownNoEmbeds(s)
     expect(markdownBack).toStrictEqual(markdown)
 })
 
@@ -62,7 +75,7 @@ test('markdownTransformsIdempotentSingleNewLines', () => {
 test('markdownTransformsIdempotentLongTextNoFootnotes', () => {
     const markdown = normalizeMarkdown(longText)
     const s = markdownToEditorStateNoEmbeds(markdown)
-    const markdownBack = editorStateToMarkdownNoEmbeds(JSON.stringify(s))
+    const markdownBack = editorStateToMarkdownNoEmbeds(s)
     expect(markdownBack).toStrictEqual(markdown)
 })
 
@@ -84,7 +97,7 @@ test('markdownTransformsIdempotentABCNNDEF', () => {
 })
 
 
-export const titanicVisualization: $Typed<Visualization> = {
+const titanicVisualization: $Typed<Visualization> = {
     $type: "ar.cabildoabierto.embed.visualization",
     dataSource: {
         $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
@@ -110,7 +123,7 @@ test('markdown transform with visualization', () => {
     const editorState = markdownToEditorState(markdown, true, true, embeds)
     prettyPrintLexicalState(editorState)
 
-    const {markdown: markdownBack, embeds: embedsBack} = editorStateToMarkdown(JSON.stringify(editorState))
+    const {markdown: markdownBack, embeds: embedsBack} = editorStateToMarkdown(editorState)
 
     expect(markdownBack).toStrictEqual(markdown)
     expect(embedsBack).toStrictEqual(embeds)

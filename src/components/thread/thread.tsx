@@ -66,6 +66,7 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
             setPinnedReplies={setPinnedReplies}
             replies={replies}
         />}
+
         {!replies && <div className={"py-4"}>
             <LoadingSpinner/>
         </div>}

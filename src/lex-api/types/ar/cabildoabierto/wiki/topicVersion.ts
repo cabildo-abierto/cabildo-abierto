@@ -240,7 +240,7 @@ export function validateDateProp<V>(v: V) {
 
 export interface NumberProp {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#numberProp'
-  value: string
+  value: number
 }
 
 const hashNumberProp = 'numberProp'

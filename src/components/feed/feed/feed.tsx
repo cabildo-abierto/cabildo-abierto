@@ -1,11 +1,9 @@
 "use client"
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect} from "react";
 import {getObjectKey, range} from "@/utils/arrays";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {GetFeedProps} from "@/lib/types";
 import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
-import stringify from 'json-stable-stringify';
-import objectHash from 'object-hash';
 
 
 const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) => {
@@ -60,8 +58,9 @@ function Feed<T>({
                      LoadingFeedContent,
                      FeedElement
                  }: FeedProps<T>) {
+    const qc = useQueryClient()
 
-    const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isError} = useInfiniteQuery({
+    const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isFetched, isError} = useInfiniteQuery({
         queryKey,
         queryFn: async ({pageParam}) => {
             const {data, error} = await getFeed(pageParam == "start" ? undefined : pageParam);
@@ -81,6 +80,13 @@ function Feed<T>({
         initialPageParam: "start",
         staleTime: 1000 * 60 * 5
     })
+
+    useEffect(() => {
+        if (isFetched) {
+            qc.removeQueries({ queryKey });
+            qc.refetchQueries({ queryKey });
+        }
+    }, [getFeed]);
 
     useEffect(() => {
         const handleScroll = async () => {
@@ -104,26 +110,24 @@ function Feed<T>({
         return () => window.removeEventListener('scroll', handleScroll)
     }, [getFeed, loadWhenRemaining, hasNextPage, isFetchingNextPage, isError, fetchNextPage])
 
-    const feedLength = feed?.pages.reduce((acc, page) => acc + page.data.length, 0) || 0
+    const feedList = feed?.pages.reduce((acc, page) => [...acc, ...page.data], []) || []
 
     return (
         <div className="w-full flex flex-col items-center">
-            {feed && feed.pages.map(page => {
-                return page.data.map((c, i) => {
-                    return <div className={"w-full"} key={[getObjectKey(c), page.nextCursor, i, ...queryKey].join(":")}>
-                        <FeedElement content={c}/>
-                    </div>
-                })
+            {feedList.map((c, i) => {
+                return <div className={"w-full"} key={getObjectKey(c)}>
+                    <FeedElement content={c}/>
+                </div>
             })}
             {(isFetchingNextPage || isFetching) &&
                 <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
             }
             {feed && <div className={"text-center py-16 text-[var(--text-light)]"}>
-                {!hasNextPage && feedLength > 0 && endText}
-                {!hasNextPage && feedLength == 0 && noResultsText}
+                {!hasNextPage && feedList.length > 0 && endText}
+                {!hasNextPage && feedList.length == 0 && noResultsText}
             </div>}
         </div>
-    );
+    )
 }
 
 

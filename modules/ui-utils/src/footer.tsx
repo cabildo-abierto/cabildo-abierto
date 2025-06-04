@@ -48,7 +48,7 @@ export const FooterRightSide = ({showCA}: {showCA: boolean}) => {
             </DimOnHoverLink>
         </div>}
 
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col space-y-1 text-sm md:text-base">
             <h4>Contacto</h4>
             <DimOnHoverLink href="mailto:soporte@cabildoabierto.com.ar">
                 soporte@cabildoabierto.com.ar
@@ -62,10 +62,10 @@ export const FooterRightSide = ({showCA}: {showCA: boolean}) => {
 
 
 export default function Footer({showCA = true}: { showCA?: boolean }) {
-    return <footer className="w-full">
+    return <footer className="w-screen">
         <GradientHRule/>
 
-        <div className="my-8 flex justify-between px-12 space-x-4 w-full py-4">
+        <div className="my-8 flex justify-between px-4 md:px-16 space-x-4 w-full py-4">
             <FooterLeftSide/>
             <FooterRightSide showCA={showCA}/>
         </div>

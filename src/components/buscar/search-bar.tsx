@@ -13,7 +13,8 @@ const SearchBar = ({
     searchValue,
     setSearchValue,
     setSearching=() => {},
-    color="background-dark"
+    color="background-dark",
+    placeholder="buscar"
 }: {
     autoFocus?: boolean
     paddingY?: string
@@ -22,6 +23,7 @@ const SearchBar = ({
     setSearchValue: (arg: string) => void
     setSearching?: (v: boolean) => void
     color?: string
+    placeholder?: string
 }) => {
     return <TextField
         size={"small"}
@@ -29,7 +31,7 @@ const SearchBar = ({
         fullWidth={fullWidth}
         value={searchValue}
         variant={"outlined"}
-        placeholder={"buscar"}
+        placeholder={placeholder}
         onFocus={() => {setSearching(true)}}
         onChange={(e) => {setSearchValue(e.target.value)}}
         slotProps={{
