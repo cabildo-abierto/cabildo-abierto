@@ -13,7 +13,8 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
         root.style.setProperty('--primary', '#3080ff')
         root.style.setProperty('--red', '#ff6666')
         if (currentTheme === 'dark') {
-            root.style.setProperty('--text', '#fbfbfc');
+            root.style.setProperty('--text', '#eeeeee');
+            root.style.setProperty('--bold-text', '#ffffff');
             root.style.setProperty('--button-text', '#fbfbfc');
             root.style.setProperty('--text-light', '#b0b0b0');
             root.style.setProperty('--text-lighter', '#888888');
@@ -36,6 +37,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--primary-2xdark', '#112e5a')
         } else {
             root.style.setProperty('--text', '#1a1a1a');
+            root.style.setProperty('--bold-text', '#000000');
             root.style.setProperty('--button-text', '#fbfbfc');
             root.style.setProperty('--text-light', '#444444');
             root.style.setProperty('--text-lighter', '#999999');
