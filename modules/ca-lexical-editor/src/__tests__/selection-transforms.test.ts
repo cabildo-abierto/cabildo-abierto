@@ -435,7 +435,7 @@ C
 D`
 
     testSelectionTransform(text,
-        new MarkdownSelection(0, 14),
+        new MarkdownSelection(3, 14),
         new LexicalSelection(
             new LexicalPointer([1, 0]),
             new LexicalPointer([3, 0])
