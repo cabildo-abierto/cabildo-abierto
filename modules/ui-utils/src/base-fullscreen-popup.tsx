@@ -35,7 +35,7 @@ export const BaseFullscreenPopup = ({
             disableScrollLock={disableScrollLock}
             className={"flex justify-center items-center"}
         >
-            <Box className={"min-w-[300px] shadow-lg rounded-lg border " + className} sx={{backgroundColor: `var(--${color})`}}>
+            <Box className={"w-screen sm:w-auto sm:min-w-[300px] shadow-lg sm:rounded-lg sm:border" + className} sx={{backgroundColor: `var(--${color})`}}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
                         <CloseButton
