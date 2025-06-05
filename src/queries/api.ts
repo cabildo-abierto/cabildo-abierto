@@ -14,6 +14,7 @@ import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabild
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {ValidationRequestProps} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ValidationRequestView} from "@/components/admin/admin-validation";
+import {DonationHistory} from "@/components/aportar/donation-history";
 
 
 function uriToKey(uri: string) {
@@ -164,4 +165,14 @@ export function useCategoriesGraph() {
 
 export function useCategoryGraph(c: string) {
     return useAPI<TopicsGraph>("/category-graph/" + c, ["category-graph", c])
+}
+
+
+export function useDonationHistory() {
+    return useAPI<DonationHistory>("/donation-history", ["donation-history"])
+}
+
+
+export function useMonthlyValue() {
+    return useAPI<number>("/monthly-value", ["monthly-value"])
 }

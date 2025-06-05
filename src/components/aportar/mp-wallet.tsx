@@ -24,8 +24,8 @@ export const MPWallet = ({preferenceId}: {preferenceId: string}) => {
 
         {!walletReady && <LoadingWallet/>}
 
-        <div className="text-sm text-[var(--text-light)] text-center w-72">
-            <p>Podés pagar con dinero en cuenta y tarjeta de débito o crédito.</p>
+        <div className="text-sm text-[var(--text-light)] text-center w-72 pb-4">
+            <p>Podés usar tu dinero en cuenta, tarjeta de débito o tarjeta de crédito.</p>
             <p>No necesitás una cuenta de Mercado Pago.</p>
         </div>
 

@@ -7,24 +7,24 @@ const Page = () => {
     const content = (
         <div className={""}>
             <ul className={"ml-6 mt-6"}>
-                <li>Escribirnos por mensaje privado de Bluesky a <Link
+                <li>escribirnos por mensaje privado de Bluesky a <Link
                     href={profileUrl("cabildoabierto.ar")}
                 >
                     @cabildoabierto
-                </Link>.</li>
+                </Link>,</li>
                 <li>
-                    Mencionar a <Link
+                    mencionar a <Link
                     href={profileUrl("cabildoabierto.ar")}
                 >
                     @cabildoabierto
-                </Link> en un post.
+                </Link> en un post,
                 </li>
                 <li>
-                    Escribirnos por mail a <Link
-                    href={"mailto:soporte@cabildoabierto.ar"}>soporte@cabildoabierto.ar</Link>.
+                    escribirnos por mail a <Link
+                    href={"mailto:soporte@cabildoabierto.ar"}>soporte@cabildoabierto.ar</Link>, o
                 </li>
                 <li>
-                    Comentar los <Link
+                    comentar los <Link
                     href={topicUrl("Cabildo Abierto")}
                 >
                     temas de Cabildo Abierto
