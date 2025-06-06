@@ -4,7 +4,7 @@ import {
     TopicsGraph,
     TopicVersionAuthorsProps,
 } from "@/lib/types"
-import {splitUri, threadApiUrl} from "@/utils/uri";
+import {splitUri, threadApiUrl, topicUrl} from "@/utils/uri";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
@@ -95,8 +95,8 @@ export function useFollowx(handle: string, kind: FollowKind) {
 export type TopicFeed = {mentions: FeedViewContent[], replies: FeedViewContent[], topics: string[]}
 
 
-export function useTopicFeed(id: string){
-    return useAPI<TopicFeed>("/topic-feed/" + encodeURIComponent(id), ["topic-feed", id])
+export function useTopicFeed(id?: string, did?: string, rkey?: string){
+    return useAPI<TopicFeed>(topicUrl(id, {did, rkey}, undefined, "topic-feed"), ["topic-feed", id, did, rkey].filter(x => x != undefined))
 }
 
 
@@ -105,8 +105,8 @@ export function useCodes(){
 }
 
 
-export function useTopic(id: string) {
-    return useAPI<TopicView>("/topic/"+id, ["topic", id])
+export function useTopic(id?: string, did?: string, rkey?: string) {
+    return useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
 }
 
 

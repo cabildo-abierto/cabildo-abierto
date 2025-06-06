@@ -13,13 +13,13 @@ const FundingProgress = ({p}: { p: number }) => {
         <div className={"space-y-2 w-full bg-[var(--background-dark)] rounded p-4 mx-2"}>
             <div className={"flex justify-between items-baseline"}>
                 <div className={"text-xs sm:text-sm text-[var(--text-light)]"}>
-                    Objetivo de financiamiento para el mes actual
+                    Objetivo de financiamiento
                 </div>
                 <InfoPanel
                     text={
                         value != undefined ? <div className="text-[var(--text-light)]">
                             <span>Si todos los usuarios aportaran ${value} por mes estaríamos 100% financiados. </span>
-                            <Link className="link2" href={topicUrl("Cabildo_Abierto: Financiamiento", undefined, "normal")}>Más información.</Link>
+                            <Link className="link2" href={topicUrl("Cabildo_Abierto: Financiamiento", undefined, "normal")}>Más información</Link>.
                         </div> : <div>cargando...</div>
                     }
                 />

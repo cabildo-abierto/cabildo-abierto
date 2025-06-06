@@ -195,6 +195,7 @@ export const NewDatasetPanel = ({open, onClose}: {
     return <BaseFullscreenPopup
         open={open}
         closeButton={false}
+        backgroundShadow={false}
     >
         {center}
     </BaseFullscreenPopup>

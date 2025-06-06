@@ -44,11 +44,14 @@ export function isWikiEditorState(s: string): s is WikiEditorState {
     return ["changes", "authors", "normal", "editing", "editing-props", "props", "minimized", "history"].includes(s)
 }
 
-export const TopicPage = ({topicId}: {
-    topicId: string
+export const TopicPage = ({topicId, did, rkey}: {
+    topicId?: string
+    did?: string
+    rkey?: string
 }) => {
-    const {data} = useTopicFeed(topicId) // prefetch
-    const {data: topic, isLoading} = useTopic(topicId)
+    const {data} = useTopicFeed(topicId, did, rkey) // prefetch
+    const {data: topic, isLoading} = useTopic(topicId, did, rkey)
+    console.log("using topic", topicId, did, rkey)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const s = searchParams.get("s")

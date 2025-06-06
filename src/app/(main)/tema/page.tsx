@@ -27,7 +27,15 @@ export default async function Page(
 ) {
     const p = await searchParams
     const i = p?.i
-    if(!i || typeof i != "string") return null // TO DO
+    if(!i || typeof i != "string") {
+        const did = p?.did
+        const rkey = p?.rkey
+        if(typeof did == "string" && typeof rkey == "string"){
+            return <TopicPage did={did} rkey={rkey}/>
+        } else {
+            return null
+        }
+    }
 
     return <TopicPage
         topicId={i}

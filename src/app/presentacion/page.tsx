@@ -20,7 +20,7 @@ const LogoAndSlogan = () => {
             <h1 className="lg:text-4xl text-4xl">Cabildo Abierto</h1>
             <div
                 className="text-base text-[var(--text-light)] text-center lg:text-[1.29rem] text-[1.05rem] my-0 py-0 mt-2">
-                Todo está abierto a discusión.
+                Sumate a discutir lo público.
             </div>
         </div>
     </div>
@@ -179,18 +179,13 @@ const PresentacionCalidadDeLaInformacion = () => {
 
 
 const PresentacionRemuneraciones = () => {
-    return <div className="md:max-w-[70%] flex flex-col-reverse items-center md:flex-row md:space-x-16 mb-32 sm:mt-32 mt-24 px-4 md:px-0">
-        <div className="md:w-1/2 mt-8 md:mt-0">
-            <Image
-                src="/presentacion/remuneraciones.svg"
-                alt="Remuneraciones a autores"
-                width={700}
-                height={500}
-                className="w-[400px] h-auto shadow-xl rounded-lg p-4"
-            />
+    return <div
+        className="lg:max-w-[80%] w-full flex items-center justify-center md:flex-row flex-col md:mt-16 mt-8 space-y-12 px-4 md:px-0 md:space-y-0 md:space-x-16"
+    >
+        <div className={"md:w-1/2 sm:text-left flex justify-center md:max-w-[400px]"}>
+            <h2 className={"max-w-[250px] text-2xl md:text-3xl"}>Reconocimiento a los autores.</h2>
         </div>
-        <div className="md:w-1/2 max-w-[400px] w-full flex flex-col items-center text-center px-2 md:px-0">
-            <h2>Reconocimiento a los autores.</h2>
+        <div className={"md:w-1/2 max-w-[400px] lg:text-xl text-lg"}>
             <p className="mt-8 text-lg">
                 Cabildo Abierto se financia con aportes voluntarios.
             </p>
@@ -200,11 +195,12 @@ const PresentacionRemuneraciones = () => {
             </p>
         </div>
     </div>
+
 }
 
 
 const PresentacionAbierto = () => {
-    return <div className="md:mt-12 mb-32 flex w-screen md:max-w-[90%] justify-center md:flex-row flex-col items-center md:space-x-12">
+    return <div className="md:mt-32 mb-32 mt-16 flex w-screen md:max-w-[90%] justify-center md:flex-row flex-col items-center md:space-x-12">
         <div className={"flex text-lg md:text-xl flex-col items-center text-center max-w-[400px] md:max-w-1/2 md:w-full w-screen px-8 md:px-0"}>
             <h2>
                 Abierto en serio.

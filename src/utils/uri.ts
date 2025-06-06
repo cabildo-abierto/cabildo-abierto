@@ -79,7 +79,7 @@ export function contentUrl(uri: string) {
     return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
 }
 
-export function topicUrl(title?: string, version?: {did: string, rkey: string}, s?: WikiEditorState) {
+export function topicUrl(title?: string, version?: {did: string, rkey: string}, s?: WikiEditorState, base: string = "tema") {
     const params: string[] = []
 
     if(title) {
@@ -97,7 +97,7 @@ export function topicUrl(title?: string, version?: {did: string, rkey: string}, 
         throw Error("Parámetros insuficientes.")
     }
 
-    return "/tema?" + params.join("&")
+    return `/${base}?` + params.join("&")
 }
 
 export function urlFromRecord(uri: string) {

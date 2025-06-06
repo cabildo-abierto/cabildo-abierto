@@ -242,7 +242,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     const [visualization, setVisualization] = useState<Visualization>(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
-    const [enDiscusion, setEnDiscusion] = useState(true)
+    const [enDiscusion, setEnDiscusion] = useState(false)
     const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {
         externalEmbedView,
