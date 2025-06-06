@@ -9,6 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as ArCabildoabiertoFeedArticle from '../feed/article'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 
 const is$typed = _is$typed,
@@ -38,6 +39,7 @@ export interface View {
   quotedText: string
   quotedTextFormat?: string
   quotedContent: string
+  quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
   quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
   quotedContentTitle?: string
 }

@@ -13,8 +13,10 @@ import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
-
+import {useSession} from "@/queries/api";
+import ValidationIcon from "@/components/profile/validation-icon";
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
+const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
 
 type ProfileHeaderProps = {
     profile: Profile
@@ -30,8 +32,11 @@ function ProfileHeader({
                               }: ProfileHeaderProps) {
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
-
+    const [editingProfile, setEditingProfile] = useState(false)
+    const {user} = useSession()
     const inCA = profile && profile.ca && profile.ca.inCA
+
+    const isOwner = profile.bsky.handle == user.handle
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)]">
@@ -81,7 +86,7 @@ function ProfileHeader({
                     {emptyChar}
                 </div>
             }
-            {profile.bsky.avatar ? <div>
+            {profile.bsky.avatar ? <div className={"flex justify-between"}>
                 <FullscreenImageViewer
                     images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}
@@ -98,15 +103,27 @@ function ProfileHeader({
                         setViewingProfilePic(0)
                     }}
                 />
+                {isOwner && <div className={"pt-2"}>
+                    <Button
+                        color={"background-dark2"}
+                        size={"small"}
+                        onClick={() => {setEditingProfile(true)}}
+                    >
+                        Editar perfil
+                    </Button>
+                </div>}
             </div> : <div className={"w-24 h-24 ml-6 mt-[-48px]"}>
                 {emptyChar}
             </div>}
         </div>
         <div className="flex justify-between">
             <div className="ml-2 py-2">
-                <span className={"min-[500px]:text-2xl text-lg font-bold"}>
-                    {getUsername(profile.bsky)}
-                </span>
+                <div className={"flex space-x-2 items-center"}>
+                    <span className={"min-[500px]:text-2xl text-lg font-bold"}>
+                        {getUsername(profile.bsky)}
+                    </span>
+                    <ValidationIcon validation={profile.ca.validation} handle={profile.bsky.handle}/>
+                </div>
                 {profile.bsky.displayName && <div className="text-[var(--text-light)]">
                     @{profile.bsky.handle}
                 </div>}
@@ -156,6 +173,10 @@ function ProfileHeader({
                 className="flex"
             />
         </div>
+        <EditProfileMobile
+            open={editingProfile}
+            onClose={() => {setEditingProfile(false)}}
+        />
     </div>
 }
 

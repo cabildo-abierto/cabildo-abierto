@@ -19,7 +19,7 @@ import {ListPlugin} from '@lexical/react/LexicalListPlugin';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {CAN_USE_DOM} from './shared/canUseDOM';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import {SharedHistoryContext, useSharedHistoryContext} from './context/SharedHistoryContext';
@@ -62,6 +62,7 @@ import PlotPlugin from "./plugins/PlotPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -78,6 +79,7 @@ export type SettingsProps = {
     allowVisualizations: boolean
     markdownShortcuts: boolean
     shouldPreserveNewLines: boolean
+    embeds?: ArticleEmbed[]
 
     useSuperscript: boolean
     useStrikethrough: boolean
@@ -100,7 +102,6 @@ export type SettingsProps = {
     initialTextFormat: string
     placeholder: string
 
-    measureTypingPerf: boolean
     showTreeView: boolean
 
     queryMentions: QueryMentionsProps
@@ -108,7 +109,7 @@ export type SettingsProps = {
 }
 
 
-type LexicalEditorProps = {
+export type LexicalEditorProps = {
     settings: SettingsProps,
     setEditor: any,
     setEditorState: any,
@@ -132,6 +133,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             setEditor(editor);
         }
     }, [editor, setEditor]);
+
 
     const {
         isRichText,
@@ -211,7 +213,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 {allowImages && <ImagesPlugin captionsEnabled={false}/>}
 
-                <PlotPlugin/>
+                {false && <PlotPlugin/>}
 
                 <OnChangePlugin
                     onChange={(editorState) => {
@@ -305,22 +307,22 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 
 
 const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
-    let {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines} = settings
+    const initialConfig: InitialConfigType = useMemo(() => {
+        const {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines, embeds} = settings
+        return {
+            namespace: 'Playground',
+            editorState: getInitialData(initialText, initialTextFormat, shouldPreserveNewLines, embeds),
+            nodes: getEditorNodes(settings),
+            onError: (error: Error) => { throw error },
+            theme: {
+                ...PlaygroundEditorTheme,
+                image: "editor-image " + imageClassName
+            },
+            editable: !isReadOnly,
+        };
+    }, [settings]);
 
-    const nodes = getEditorNodes(settings)
-    const initialData = getInitialData(initialText, initialTextFormat, shouldPreserveNewLines)
-
-
-    const initialConfig: InitialConfigType = {
-        namespace: 'Playground',
-        editorState: initialData,
-        nodes: nodes,
-        onError: (error: Error) => {
-            throw error;
-        },
-        theme: {...PlaygroundEditorTheme, image: "editor-image " + imageClassName},
-        editable: !isReadOnly,
-    };
+    if(!initialConfig) return null
 
     return (
         <LexicalComposer initialConfig={initialConfig}>

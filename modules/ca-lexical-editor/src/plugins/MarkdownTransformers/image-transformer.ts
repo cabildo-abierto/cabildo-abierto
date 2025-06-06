@@ -9,7 +9,7 @@ export const IMAGE: TextMatchTransformer = {
             return null;
         }
 
-        return `![${node.getAltText()}](${node.getSrc()})`;
+        return `\n\n![${node.getAltText()}](${node.getSrc()})\n\n`;
     },
     importRegExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))/,
     regExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))$/,

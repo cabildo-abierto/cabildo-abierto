@@ -20,7 +20,6 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
 
         isAutofocus: true,
 
-        measureTypingPerf: false,
         showTreeView: false,
 
         initialText: "",
@@ -34,6 +33,7 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         editorClassName: "relative min-h-[300px]",
         tableOfContents: false,
         allowComments: false,
+        embeds: [],
 
         onAddComment: () => {},
 

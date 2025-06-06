@@ -1,4 +1,5 @@
 import {
+    isDateProp, isNumberProp,
     isStringListProp,
     isStringProp,
     TopicProp,
@@ -6,6 +7,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ListEditor} from "../../../../../modules/ui-utils/src/list-editor";
 import {addDefaults} from "@/components/topics/topic/topic-props-editor";
+import {formatIsoDate} from "@/utils/dates";
 
 
 export const TopicPropView = ({p}: {p: TopicProp}) => {
@@ -16,8 +18,11 @@ export const TopicPropView = ({p}: {p: TopicProp}) => {
         {isStringListProp(p.value) && <ListEditor
             items={p.value.value}
         />}
-        {isStringProp(p.value) && <div>
+        {(isStringProp(p.value) || isNumberProp(p.value)) && <div>
             {p.value.value}
+        </div>}
+        {isDateProp(p.value) && <div>
+            {formatIsoDate(p.value.value, false)}
         </div>}
     </div>
 }

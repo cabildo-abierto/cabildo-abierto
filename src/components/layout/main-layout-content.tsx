@@ -28,9 +28,11 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
                 createPortal(
                     <div
                         className={
-                            "min-[500px]:hidden w-screen absolute inset-0 h-screen z-[1009] bg-black bg-opacity-50"
+                            "min-[500px]:hidden w-screen fixed inset-0 h-screen z-[1009] bg-black bg-opacity-50"
                         }
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
                             setLayoutConfig((prev) => ({ ...prev, openSidebar: false }));
                         }}
                     >

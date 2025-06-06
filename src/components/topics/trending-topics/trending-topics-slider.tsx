@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 const TrendingTopicsSlider = ({trendingArticles}: {
@@ -39,7 +40,6 @@ const TrendingTopicsSlider = ({trendingArticles}: {
                     <div className={"font-semibold w-full text-[15px] " + (hovering == index ? "" : "truncate")}>
                         {title}
                     </div>
-
                     {topic.popularity && <div
                         className="text-[var(--text-light)] text-xs sm:text-sm"
                     >

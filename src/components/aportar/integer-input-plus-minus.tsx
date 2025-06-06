@@ -1,19 +1,20 @@
 import { IconButton } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import {useMonthlyValue} from "@/queries/api";
 
-export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChange: (v: number) => void}) => {
+export const IntegerInputPlusMinus = ({value, onChange, delta}: {value: number, delta: number, onChange: (v: number) => void}) => {
 
     const handleIncrement = () => {
-        onChange(value + 500);
+        onChange(value + delta);
     };
 
     const handleDecrement = () => {
-        onChange(Math.max(value - 500, 0));
+        onChange(Math.max(value - delta, 0));
     };
 
     const handleChange = (e) => {
-        const value = e.target.value.slice(1);
+        const value = e.target.value
         // Only allow integers
         if (/^\d*$/.test(value)) {
             onChange(Number(value));
@@ -35,10 +36,10 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
             <input
                 id="integer-input"
                 type="text"
-                value={"$"+value}
+                value={value}
                 autoFocus={true}
                 onChange={handleChange}
-                className="px-4 py-1 border text-gray-900 rounded-md focus:outline-none w-32 text-center "
+                className="px-4 py-2 text-lg bg-[var(--background-dark2)] rounded-md focus:outline-none w-32 text-center "
             />
 
             <IconButton

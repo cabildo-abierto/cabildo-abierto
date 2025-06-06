@@ -33,12 +33,12 @@ export const useLayoutConfig = () => {
 };
 
 
-function getLayoutConfig(pathname: string, params: URLSearchParams): LayoutConfigProps {
+function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps): LayoutConfigProps {
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
         leftMinWidth: "80px",
         rightMinWidth: "300px",
-        openSidebar: true,
+        openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true
     }
@@ -46,7 +46,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams): LayoutConfi
         maxWidthCenter: "682px",
         leftMinWidth: "80px",
         rightMinWidth: "300px",
-        openSidebar: false,
+        openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
         openRightPanel: false
     }
@@ -54,7 +54,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams): LayoutConfi
         maxWidthCenter: "800px",
         leftMinWidth: "80px",
         rightMinWidth: "300px",
-        openSidebar: false,
+        openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
         openRightPanel: false
     }
@@ -107,7 +107,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     const [layoutConfig, setLayoutConfig] = useState(getLayoutConfig(pathname, params));
 
     useEffect(() => {
-        const config = getLayoutConfig(pathname, params)
+        const config = getLayoutConfig(pathname, params, layoutConfig)
         if(!shallowEqual(layoutConfig, config)){
             setLayoutConfig(config)
         }

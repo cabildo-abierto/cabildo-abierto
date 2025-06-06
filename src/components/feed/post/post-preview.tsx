@@ -16,15 +16,15 @@ const FeedElement = dynamic(() => import('@/components/feed/feed/feed-element'))
 const ShowThreadButton = ({uri}: { uri: string }) => {
     const url = contentUrl(uri)
     return (
-        <Link href={url} className="hover:bg-[var(--background-dark)] transition duration-200 flex h-full items-center">
-            <div className={"w-[79px] pl-2 flex flex-col items-center justify-stretch"}>
+        <Link href={url} className="relative hover:bg-[var(--background-dark)] transition duration-200 flex h-full items-center">
+            <div className={"w-full max-w-[13%] flex flex-col items-center justify-stretch"}>
                 <ReplyVerticalLine className="h-2"/>
                 <div className="text-xl text-[var(--accent)] leading-none py-1">
                     <div>⋮</div>
                 </div>
                 <ReplyVerticalLine className="h-2"/>
             </div>
-            <div className={"w-full max-w-[519px] text-center text-sm text-[var(--primary)] sm:ml-0 ml-1"}>
+            <div className={"absolute left-1/2 font-semibold -translate-x-1/2 text-center text-sm text-[var(--primary)]"}>
                 Ver thread completo
             </div>
         </Link>

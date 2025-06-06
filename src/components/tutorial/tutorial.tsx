@@ -42,23 +42,23 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
     const [steps] = useState<Step[]>([
         {
             target: '#siguiendo',
-            content: 'El feed con las personas que seguís. Igual a Bluesky o Twitter pero también hay artículos.',
+            content: 'El muro con las personas que seguís. Igual a Bluesky o Twitter pero también hay artículos.',
             placement: 'bottom',
             disableBeacon: true
         },
         {
             target: '#discusion',
-            content: 'Un feed con lo más popular en Cabildo Abierto.',
+            content: 'Un muro con lo más popular en Cabildo Abierto.',
             placement: 'bottom',
         },
         {
             target: '#descubrir',
-            content: 'Un feed para explorar contenidos de personas que no seguís.',
+            content: 'Un muro para explorar contenidos de personas que no seguís.',
             placement: 'bottom',
         },
         {
             target: 'body',
-            content: 'Ninguno de los feeds usa IA. Dicen por ahí que lo viejo funciona...',
+            content: 'Ninguno de los muros usa IA. Dicen por ahí que lo viejo funciona...',
             placement: 'center',
             disableBeacon: true,
             spotlightClicks: false,
@@ -76,8 +76,12 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
     ])
 
     useEffect(() => {
+        const isMobile = window.innerWidth <= 800
+
         if(!showingWelcomeMessage){
-            setRun(true)
+            if(!isMobile){
+                setRun(true)
+            }
             setStartedRun(true)
         }
 
@@ -95,7 +99,6 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
 
         smoothScrollTo(0)
 
-        console.log("Status", status)
         if (finishedStatuses.includes(status)) {
             setRun(false)
         }
@@ -169,7 +172,8 @@ export const Tutorial = ({children}: {children: ReactNode}) => {
     const params = useSearchParams()
     const {user} = useSession()
 
-    if(params.get("tutorial") || (user && !user.seenTutorial)){
+    const showAnyways = false
+    if(params.get("tutorial") || (user && (showAnyways || !user.seenTutorial))){
         return (
             <RunTutorial>
                 {children}

@@ -12,18 +12,18 @@ export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
     onClick: () => void
 }) => {
     return <div
-        className={"py-1 rounded px-2 cursor-pointer hover:bg-[var(--background-dark3)] " + (selected ? "bg-[var(--background-dark3)]" : "bg-[var(--background-dark2)]")}
+        className={"h-24 py-1 rounded px-2 cursor-pointer hover:bg-[var(--background-dark3)] " + (selected ? "bg-[var(--background-dark3)]" : "bg-[var(--background-dark2)]")}
         onClick={onClick}
     >
         <div className={"flex justify-between space-x-1"}>
-            <div className={"font-semibold text-[16px] break-all"}>
+            <div className={"font-semibold text-[16px] break-all truncate"}>
                 {dataset.name}
             </div>
         </div>
         <div className={"text-[var(--text-light)] text-sm"}>
             <span className={"font-semibold"}>{dataset.columns.length}</span> columnas
         </div>
-        <div className={"text-sm truncate text-[var(--text-light)]"}>
+        <div className={"text-sm text-[var(--text-light)] truncate"}>
             Publicado por <Authorship content={dataset} onlyAuthor={true}/>
         </div>
         <div className={"text-[var(--text-light)] text-sm"}>

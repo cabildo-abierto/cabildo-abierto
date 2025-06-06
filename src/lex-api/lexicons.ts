@@ -288,6 +288,13 @@ export const schemaDict = {
             type: 'string',
             format: 'at-uri',
           },
+          quotedContentEmbeds: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+            },
+          },
           quotedContentAuthor: {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
@@ -483,6 +490,13 @@ export const schemaDict = {
               minLength: 1,
               maxLength: 120,
             },
+            embeds: {
+              type: 'array',
+              items: {
+                type: 'ref',
+                ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+              },
+            },
             labels: {
               type: 'union',
               description:
@@ -493,6 +507,19 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
+          },
+        },
+      },
+      articleEmbed: {
+        type: 'object',
+        required: ['value', 'index'],
+        properties: {
+          value: {
+            type: 'union',
+            refs: ['lex:ar.cabildoabierto.embed.visualization'],
+          },
+          index: {
+            type: 'integer',
           },
         },
       },
@@ -894,6 +921,13 @@ export const schemaDict = {
                 ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
               },
             },
+            embeds: {
+              type: 'array',
+              items: {
+                type: 'ref',
+                ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+              },
+            },
             message: {
               type: 'string',
               minLength: 0,
@@ -1087,6 +1121,9 @@ export const schemaDict = {
             refs: [
               'lex:ar.cabildoabierto.wiki.topicVersion#stringProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#stringListProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#dateProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#numberProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#booleanProp',
             ],
           },
         },
@@ -1100,6 +1137,15 @@ export const schemaDict = {
           },
         },
       },
+      booleanProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'boolean',
+          },
+        },
+      },
       stringListProp: {
         type: 'object',
         required: ['value'],
@@ -1109,6 +1155,25 @@ export const schemaDict = {
             items: {
               type: 'string',
             },
+          },
+        },
+      },
+      dateProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'string',
+            format: 'datetime',
+          },
+        },
+      },
+      numberProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'integer',
           },
         },
       },

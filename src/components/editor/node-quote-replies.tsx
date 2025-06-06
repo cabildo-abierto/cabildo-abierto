@@ -95,7 +95,6 @@ export const NodeQuoteReplies = ({
                         editor={editor}
                         pinnedReplies={pinnedReplies}
                         setPinned={setPinned}
-                        parentContent={parentContent}
                     />
                 </div>
             })

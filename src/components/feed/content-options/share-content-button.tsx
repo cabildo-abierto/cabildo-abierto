@@ -8,7 +8,7 @@ export const ShareContentButton = ({uri}: {uri: string}) => {
 
     const onShare = async () => {
         try {
-            const url = "https://www.cabildoabierto.com.ar" + contentUrl(uri)
+            const url = "https://www.cabildoabierto.ar" + contentUrl(uri)
 
             navigator.clipboard.writeText(url).then(
                 () => {

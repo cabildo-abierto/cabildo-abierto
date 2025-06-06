@@ -3,12 +3,14 @@ import {isFullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote"
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
-import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
+import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
 type Props = {
     replyTo: ReplyToContent,
-    selection?: [number, number]
+    selection?: MarkdownSelection | LexicalSelection
 }
+
 
 export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
     if (selection) {
@@ -18,9 +20,9 @@ export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
                     quotedContent={replyTo.uri}
                     quotedText={replyTo.text}
                     quotedTextFormat={replyTo.format}
+                    quotedContentEmbeds={isFullArticleView(replyTo) ? (replyTo.record as ArticleRecord).embeds : []}
                     quotedContentAuthor={replyTo.author}
-                    start={selection[0]}
-                    end={selection[1]}
+                    selection={selection}
                 />
             </div>
         }

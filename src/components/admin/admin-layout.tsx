@@ -14,23 +14,12 @@ export const AdminLayout = ({children}: {children: ReactNode}) => {
     const {user} = useSession()
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-32 h-10">
-            <Button
+        return <button
                 onClick={() => {}}
-                variant="text"
-                color="background"
-                fullWidth={true}
-                disableElevation={true}
-                sx={{textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0
-                }}
+                className={"rounded-lg px-2 " + (isSelected ? "bg-[var(--primary)]" : "")}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
-                    {o}
-                </div>
-            </Button>
-        </div>
+                {o}
+            </button>
     }
 
     function onSelection(option: string){
@@ -41,14 +30,14 @@ export const AdminLayout = ({children}: {children: ReactNode}) => {
         return <NotFoundPage/>
     }
 
-    return <div>
-        <div className={"flex items-center"}>
+    return <div className={"w-full"}>
+        <div className={"w-full py-2"}>
             <SelectionComponent
                 onSelection={onSelection}
                 selected={params.get("s") ? params.get("s") : "Principal"}
-                options={["Principal", "Acceso", "Cache", "Sync"]}
+                options={["Principal", "Acceso", "Cache", "Sync", "PDS", "Validacion"]}
                 optionsNodes={optionsNodes}
-                className={"flex items-center"}
+                className={"flex"}
             />
         </div>
         {children}

@@ -1,7 +1,12 @@
 import {BothContributionsProps, EditorStatus} from "@/lib/types";
 
 import {
-    isStringListProp, isStringProp, StringListProp, StringProp,
+    BooleanProp,
+    DateProp,
+    isBooleanProp,
+    isDateProp,
+    isNumberProp,
+    isStringListProp, isStringProp, NumberProp, StringListProp, StringProp,
     TopicHistory,
     TopicProp,
     TopicVersionStatus
@@ -10,13 +15,20 @@ import {areArraysEqual, gett} from "@/utils/arrays";
 import {$Typed} from "@atproto/api";
 
 
-export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" | "ar.cabildoabierto.wiki.topicVersion#stringProp"
+export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" |
+    "ar.cabildoabierto.wiki.topicVersion#stringProp" |
+    "ar.cabildoabierto.wiki.topicVersion#dateProp" |
+    "ar.cabildoabierto.wiki.topicVersion#numberProp" |
+    "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 
-export type PropValue = $Typed<StringListProp> | $Typed<StringProp> | {$type: string}
+export type PropValue = TopicProp["value"]
 
-export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> {
+export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> | $Typed<DateProp> | $Typed<NumberProp> | $Typed<BooleanProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
-        p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp"
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#numberProp" ||
+        p.$type == "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 }
 
 export function propsEqualValue(a: PropValue, b: PropValue) {
@@ -25,6 +37,14 @@ export function propsEqualValue(a: PropValue, b: PropValue) {
         return areArraysEqual(a.value, b.value)
     } else if(isStringProp(a) && isStringProp(b)){
         return a.value == b.value
+    } else if(isDateProp(a) && isDateProp(b)){
+        return a.value == b.value
+    } else if(isBooleanProp(a) && isBooleanProp(b)){
+        return a.value == b.value
+    } else if(isNumberProp(a) && isNumberProp(b)){
+        return a.value == b.value
+    } else {
+        throw Error(`Tipo de propiedad desconocido: ${a.$type} ${b.$type}`)
     }
 }
 

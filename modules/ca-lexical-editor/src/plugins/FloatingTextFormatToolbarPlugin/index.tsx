@@ -38,6 +38,8 @@ function TextFormatFloatingToolbar({
                                        anchorElem,
                                        isLink,
                                        isBold,
+                                       isItalic,
+                                       isUnderline,
                                        setIsLinkEditMode,
                                        settings,
                                    }: {
@@ -200,13 +202,16 @@ function TextFormatFloatingToolbar({
                         onClick={() => {
                             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
                         }}
-                        aria-label="Format text as italics">
+                        aria-label="Format text as italics"
+                        active={isItalic}
+                    >
                         <FormatItalic fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={() => {
                             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
                         }}
+                        active={isUnderline}
                         aria-label="Format text to underlined"
                     >
                         <FormatUnderlined fontSize={"small"} color={"inherit"}/>
