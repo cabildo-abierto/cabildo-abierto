@@ -29,6 +29,11 @@ export function max<T>(arr: T[]): T | undefined {
     return arr.reduce((max, current) => (current > max ? current : max));
 }
 
+export function min<T>(arr: T[]): T | undefined {
+    if (arr.length === 0) return undefined;
+    return arr.reduce((max, current) => (current < max ? current : max));
+}
+
 export function makeMatrix(n: number, m: number, v: number){
     let M = new Array<Array<number>>(n)
     for(let i = 0; i < n; i++) M[i] = new Array<number>(m).fill(v)
