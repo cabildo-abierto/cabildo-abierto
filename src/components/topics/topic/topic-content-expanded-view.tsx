@@ -292,7 +292,7 @@ export const TopicContentExpandedView = ({
     const router = useRouter()
 
     useEffect(() => {
-        if(!isLoading || !topic || error){
+        if(!isLoading && (!topic || error)){
             router.push(topicUrl(topicId, undefined, wikiEditorState))
         }
     }, [isLoading, error, topic])

@@ -21,7 +21,7 @@ const ContentPage = ({params}: {
         <LoadingSpinner/>
     </div>
 
-    if (error || !thread) return <ErrorPage>{error?.name}</ErrorPage>
+    if (error || !thread) return <ErrorPage>No se encontró el contenido.</ErrorPage>
 
     return <Thread thread={thread}/>
 }

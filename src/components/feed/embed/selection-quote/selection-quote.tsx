@@ -69,7 +69,7 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
             }, 0);
         } else {
             if(mainPostRef){
-                router.push(contentUrl(quotedContent) + "#" + mainPostRef.cid) // TO DO, no anda con temas
+                router.push(contentUrl(quotedContent) + "&s=normal" + "#" + mainPostRef.cid)
             }
         }
     }
@@ -78,7 +78,6 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
         setNormalizedSelection(null);
         const timeout = setTimeout(async () => {
             const n = await validSelectionForComment(quotedText, quotedTextFormat, selection);
-            console.log("selection", n)
             setNormalizedSelection(n ?? "error");
         }, 0);
 

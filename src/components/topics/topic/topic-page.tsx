@@ -29,6 +29,8 @@ function useShouldGoTo(wikiEditorState: WikiEditorState) {
                     smoothScrollTo(elem);
                     setShouldGoTo(null);
                     observer.disconnect();
+                } else {
+                    console.log("didn't find element")
                 }
             });
 
@@ -51,7 +53,6 @@ export const TopicPage = ({topicId, did, rkey}: {
 }) => {
     const {data} = useTopicFeed(topicId, did, rkey) // prefetch
     const {data: topic, isLoading} = useTopic(topicId, did, rkey)
-    console.log("using topic", topicId, did, rkey)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const s = searchParams.get("s")
@@ -68,11 +69,10 @@ export const TopicPage = ({topicId, did, rkey}: {
 
     function setWikiEditorStateAndRouterPush(s: WikiEditorState) {
         updateSearchParam("s", s)
-
-        if (s == "minimized") {
-            updateSearchParam("did", null)
-            updateSearchParam("rkey", null)
-        }
+        updateSearchParam("i", topic.id)
+        updateSearchParam("did", did ?? null)
+        updateSearchParam("rkey", rkey ?? null)
+        console.log("setting editor state and pushing", s, topic.id, did, rkey)
     }
 
     const onClickQuote = (cid: string) => {

@@ -221,11 +221,6 @@ export function visualizationViewToMain(v: VisualizationView): Visualization {
 }
 
 
-const WritePostTextEditor = () => {
-
-}
-
-
 
 export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
