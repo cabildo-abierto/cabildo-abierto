@@ -94,6 +94,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
                             setHandleStart(e.target.value);
                             setError(undefined);
                         }}
+                        sx={{background: "var(--background-dark2)"}}
                     />
                     <TextField
                         margin="normal"
@@ -112,7 +113,8 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
                             setError(undefined);
                         }}
                         sx={{
-                            width: 160
+                            width: 160,
+                            background: "var(--background-dark2)"
                         }}
                     />
                 </div>

@@ -123,7 +123,6 @@ export const ShowQuoteReplyButton = ({
     const modal = () => (
         <SidenoteReplyPreviewFrame
             post={reply}
-            borderBelow={false}
             showingParent={false}
             showingChildren={false}
         >
@@ -144,6 +143,7 @@ export const ShowQuoteReplyButton = ({
                 setAnchorEl(e.currentTarget)
             }}
             handleClickAway={handleClickAway}
+            className={"mt-2"}
         >
             <div className={"" + (open ? "text-[var(--text-light)]" : "")}>
                 <IconButton

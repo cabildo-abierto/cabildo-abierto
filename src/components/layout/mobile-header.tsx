@@ -12,6 +12,7 @@ export const MobileHeader = () => {
     return <div className={"min-[500px]:hidden flex justify-between items-center w-full px-2"}>
         <div className={"w-10 text-[var(--text-light)]"}>
             <IconButton
+                id={"sidebar-toggle-button"}
                 color={"transparent"}
                 onClick={() => {
                     setLayoutConfig({

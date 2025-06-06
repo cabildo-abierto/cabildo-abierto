@@ -72,11 +72,32 @@ export function profileUrl(handleOrDid: string) {
 export function contentUrl(uri: string) {
     const {did, collection, rkey} = splitUri(uri)
 
+    if(isTopicVersion(collection)){
+        return topicUrl(undefined, {did, rkey}, undefined)
+    }
+
     return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
 }
 
-export function topicUrl(title: string, version?: {did: string, rkey: string}, s?: WikiEditorState) {
-    return "/tema?i=" + encodeURIComponent(title) + (version != undefined ? "&did=" + version.did + "&rkey=" + version.rkey : "") + (s ? "&s=" + s : "")
+export function topicUrl(title?: string, version?: {did: string, rkey: string}, s?: WikiEditorState) {
+    const params: string[] = []
+
+    if(title) {
+        params.push(`i=${encodeURIComponent(title)}`)
+    }
+    if(version) {
+        params.push(`did=${version.did}`)
+        params.push(`rkey=${version.rkey}`)
+    }
+    if(s) {
+        params.push(`s=${s}`)
+    }
+
+    if(params.length == 0){
+        throw Error("Parámetros insuficientes.")
+    }
+
+    return "/tema?" + params.join("&")
 }
 
 export function urlFromRecord(uri: string) {
