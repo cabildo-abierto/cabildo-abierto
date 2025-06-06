@@ -1,6 +1,6 @@
-import {Scale} from "@visx/visx";
 import {scaleTime} from "d3-scale";
 import {scaleLinear} from "@visx/scale";
+import {max, min} from "../../../utils/arrays"
 
 type DataRow = Record<string, any>;
 type DataPoint = {x: any, y: any};
@@ -85,9 +85,10 @@ export class Plotter {
             return { x, y };
         });
     }
+
     public getScale(axis: string, innerMeasure: number) {
         const domain = this.getDomain(axis)
-        const type = axis === 'x' ? this.xAxisType : this.yAxisType
+                const type = axis === 'x' ? this.xAxisType : this.yAxisType
         if (type === 'number') {
             return scaleLinear<number>({
                 domain: domain as number[],
@@ -119,7 +120,8 @@ export class Plotter {
     }
 
     public getDomain(axis: string): (Date | number | string)[] {
-        return this.dataPoints.map((d) => d[axis])
+        const axisPoints = this.dataPoints.map((d) => d[axis])
+        return [min(axisPoints), max(axisPoints)]
     }
 
     public getYDomain(): (Date | number | string)[] {
