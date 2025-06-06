@@ -10,6 +10,7 @@ type ModalOnClickControlledProps = {
     anchorEl: HTMLElement | null
     handleClick: (event: React.MouseEvent<HTMLDivElement>) => void;
     handleClickAway: () => void
+    className?: string
 }
 
 export const ModalOnClickControlled = ({
@@ -19,7 +20,8 @@ export const ModalOnClickControlled = ({
                                            modal,
                                            open,
                                            setOpen,
-                                           anchorEl
+                                           anchorEl,
+    className="mt-2 bg-[var(--background-dark)]"
                                        }: ModalOnClickControlledProps) => {
 
     return (
@@ -42,7 +44,7 @@ export const ModalOnClickControlled = ({
                             <Fade {...TransitionProps}
                                   timeout={{enter: 350, exit: 0}} // Only fade on open
                             >
-                                <div className="mt-2 bg-[var(--background-dark)]">
+                                <div className={className}>
                                     <div>
                                         {modal(() => {
                                             setOpen(false)

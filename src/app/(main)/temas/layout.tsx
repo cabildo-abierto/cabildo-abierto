@@ -1,11 +1,11 @@
 import {SearchProvider} from "@/components/buscar/search-context";
+import {mainMetadata} from "@/utils/metadata";
+import {produce} from "immer";
 
-export function generateMetadata({params}){
-    const {i} = params
-    return {
-        title: i,
-        description: "Artículo sobre " + i + " en Cabildo Abierto."
-    }
+export function generateMetadata(){
+    return produce(mainMetadata, draft => {
+        draft.title = "Temas - Cabildo Abierto"
+    })
 }
 
 

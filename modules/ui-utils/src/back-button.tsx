@@ -1,11 +1,13 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {useRouter} from "next/navigation";
+import { Color } from './button';
 
-export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medium"}: {
+export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medium", color="background"}: {
     preferReferrer?: boolean, size?: "small" | "medium" | "large"
     defaultURL?: string
     onClick?: () => void
+    color?: Color
 }) => {
     const router = useRouter()
 
@@ -22,7 +24,7 @@ export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medi
     }
 
     return (
-        <IconButton size={size} color={"background"} onClick={handleClick}>
+        <IconButton size={size} color={color} onClick={handleClick}>
             <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
         </IconButton>
     )

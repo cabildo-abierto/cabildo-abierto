@@ -19,7 +19,6 @@ const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
 type SidenoteReplyPreviewFrameProps = {
     children: ReactNode
     post: PostView
-    borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
 }
@@ -27,14 +26,13 @@ type SidenoteReplyPreviewFrameProps = {
 export const SidenoteReplyPreviewFrame = ({
                                               children,
                                               post,
-                                              borderBelow = true,
                                               showingParent = false,
                                               showingChildren = false
                                           }: SidenoteReplyPreviewFrameProps) => {
     const record = post
 
     return <div
-        className={"w-64 z-[1000] rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
+        className={"w-64 z-[1000] rounded border bg-[var(--background-dark2)] flex flex-col transition duration-300 ease-in-out cursor-pointer"}
         onClick={() => {
             const element = document.getElementById("discussion:"+post.uri)
             smoothScrollTo(element)
