@@ -38,7 +38,7 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
     placeholder: "Escribí tu artículo...",
     isReadOnly: false,
     editorClassName: "article-content relative pt-4",
-    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px] pt-[32px]",
+    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[15px] pt-[32px]",
 })
 
 
