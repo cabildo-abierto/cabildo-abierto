@@ -5,6 +5,7 @@ import {ContentOptions} from "@/components/feed/content-options/content-options"
 import {$Typed} from "@atproto/api";
 import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 export const ContentOptionsButton = ({
@@ -13,13 +14,14 @@ export const ContentOptionsButton = ({
     showBluesky,
     setShowBluesky,
 }: {
-    record?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<VersionInHistory>
+    record?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> |
+        $Typed<VersionInHistory> | $Typed<DatasetView> | $Typed<DatasetViewBasic>
     enDiscusion?: boolean
     showBluesky?: boolean
     setShowBluesky?: (v: boolean) => void
 }) => {
     const modal = (onClose: () => void) => (
-        <div className="text-base border rounded bg-[var(--background-dark)] p-1">
+        <div className="text-base border rounded bg-[var(--background-dark)] p-1 z-[3000]">
             <ContentOptions
                 record={record}
                 onClose={onClose}

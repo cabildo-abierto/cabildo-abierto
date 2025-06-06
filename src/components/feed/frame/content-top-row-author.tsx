@@ -16,12 +16,12 @@ export const ContentTopRowAuthor = ({author}: { author: { handle: string, displa
     >
         <UserSummaryOnHover handle={author.handle}>
             <div className={"truncate"}>
-        <span className="hover:underline font-bold mr-1">
-        {author.displayName ? author.displayName : author.handle}
-        </span>
+                <span className="hover:underline font-bold mr-1">
+                {author.displayName ? author.displayName : author.handle}
+                </span>
                 <span className="text-[var(--text-light)]">
-            @{author.handle}
-        </span>
+                    @{author.handle}
+                </span>
             </div>
         </UserSummaryOnHover>
     </Link>

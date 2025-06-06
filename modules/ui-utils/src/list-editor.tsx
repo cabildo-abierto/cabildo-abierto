@@ -11,7 +11,7 @@ const NewItem = ({
                      availableOptions,
                      currentItems,
                      newItemText,
-    color
+                     color
                  }: {
     addItem: (c: string) => void
     availableOptions?: string[]
@@ -42,11 +42,16 @@ const NewItem = ({
                     }}
                 />
             </div>
-            <IconButton size={"small"} color={color} onClick={() => {
-                addItem(value)
-                setValue("")
-                setWritingItem(false)
-            }}>
+            <IconButton
+                size={"small"}
+                color={color}
+                onClick={() => {
+                    addItem(value);
+                    setValue("");
+                    setWritingItem(false)
+                }}
+                disabled={value.length == 0}
+            >
                 <CheckIcon fontSize="small"/>
             </IconButton>
             <IconButton size="small" color={color} onClick={() => {
@@ -60,7 +65,8 @@ const NewItem = ({
 
     if (currentItems.length > 0) {
         return <IconButton size="small" color={color} onClick={() => {
-            setWritingItem(true)
+            setWritingItem(true);
+            setValue("")
         }}>
             <AddIcon fontSize={"small"}/>
         </IconButton>
@@ -113,7 +119,7 @@ export const ListEditor = ({
                                options = [],
                                items,
                                setItems,
-    color="background-dark"
+                               color = "background-dark"
                            }: {
     newItemText?: string
     options?: string[]

@@ -25,6 +25,7 @@ import {
     isView as isVisualizationView
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import DatasetIcon from "@mui/icons-material/Dataset";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 export function canBeEnDiscusion(c: string) {
@@ -53,7 +54,7 @@ export const ContentOptions = ({
                                    setShowBluesky,
                                }: {
     onClose: () => void
-    record: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<VersionInHistory>
+    record: $Typed<PostView> | $Typed<DatasetViewBasic> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<VersionInHistory> | $Typed<DatasetView>
     enDiscusion: boolean
     showBluesky?: boolean,
     setShowBluesky?: (v: boolean) => void
@@ -92,7 +93,7 @@ export const ContentOptions = ({
         />}
         {inBluesky && <OptionsDropdownButton
             text1={"Abrir en Bluesky"}
-            startIcon={<BlueskyLogo/>}
+            startIcon={<BlueskyLogo className={"w-5 h-auto"}/>}
             onClick={(e) => {
                 e.stopPropagation();
                 window.open(getBlueskyUrl(record.uri), "_blank")

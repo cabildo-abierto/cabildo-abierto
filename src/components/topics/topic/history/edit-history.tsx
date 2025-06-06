@@ -1,12 +1,12 @@
-import { DateSince } from "../../../../../modules/ui-utils/src/date"
-import { CustomLink as Link } from '../../../../../modules/ui-utils/src/custom-link';
+import {DateSince} from "../../../../../modules/ui-utils/src/date"
+import {CustomLink as Link} from '../../../../../modules/ui-utils/src/custom-link';
 import {useRouter, useSearchParams} from "next/navigation"
 import React, {useState} from "react"
 import StateButton from "../../../../../modules/ui-utils/src/state-button"
-import { AcceptButtonPanel } from "../../../../../modules/ui-utils/src/accept-button-panel"
-import { toPercentage } from "../show-contributors"
-import { ChangesCounter } from "../changes-counter"
-import { BaseFullscreenPopup } from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
+import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel"
+import {toPercentage} from "../show-contributors"
+import {ChangesCounter} from "../changes-counter"
+import {BaseFullscreenPopup} from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
 import {ProfilePic} from "../../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
@@ -22,7 +22,7 @@ import {useSession} from "@/queries/api";
 import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import { IconButton } from "../../../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
 import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit-buttons";
 import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
@@ -30,7 +30,7 @@ import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
 import {Authorship} from "@/components/feed/frame/authorship";
 
 
-const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistory, index: number}) => {
+const EditDetails = ({topicHistory, index}: { topicHistory: TopicHistory, index: number }) => {
     const v = topicHistory.versions[index]
 
     return <ChangesCounter charsAdded={v.addedChars ?? 0} charsDeleted={v.removedChars ?? 0}/>
@@ -84,8 +84,10 @@ const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistory
 }
 
 
-export const TopicProperties = ({topicVersion, topic}: {topicVersion: VersionInHistory, topic: TopicView}) => {
-    const props = topicVersion.props != null ? topicVersion.props.filter(p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)) : []
+export const TopicProperties = ({topicVersion, topic}: { topicVersion: VersionInHistory, topic: TopicView }) => {
+    const props = topicVersion.props != null ? topicVersion.props.filter(
+        p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)
+    ) : []
 
     const modal = <div className={"border rounded bg-[var(--background-dark)] text-[var(--text-light)] p-2 text-sm"}>
         {props.length > 0 && props.map((p, index) => {
@@ -137,12 +139,18 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
         {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
             topicHistory={topicHistory}
             version={index}
-            onRemove={async () => {return {}}}
-            onClose={() => {setShowingRemoveAuthorshipPanel(false)}}
+            onRemove={async () => {
+                return {}
+            }}
+            onClose={() => {
+                setShowingRemoveAuthorshipPanel(false)
+            }}
         />}
         <div
             className={className}
-            onClick={() => {router.push(topicUrl(topic.id, splitUri(topicHistory.versions[index].uri), "normal"))}}
+            onClick={() => {
+                router.push(topicUrl(topic.id, splitUri(topicHistory.versions[index].uri), "normal"))
+            }}
         >
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
@@ -271,13 +279,13 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
     const {data: topicHistory, isLoading} = useTopicHistory(topic.id)
     const searchParams = useSearchParams()
 
-    if(isLoading){
+    if (isLoading) {
         return <div className={"py-4"}>
             <LoadingSpinner/>
         </div>
     }
 
-    if(!topicHistory){
+    if (!topicHistory) {
         return <div className={"py-4"}>
             <ErrorPage>
                 Ocurrió un error al cargar el historial.
@@ -287,21 +295,22 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
 
     const history = <div className="hidden min-[800px]:block">
         {topicHistory.versions.map((_, index) => {
-        const versionIndex = topicHistory.versions.length-1-index
-        return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
-            <HistoryElement
-                topic={topic}
-                topicHistory={topicHistory}
-                index={versionIndex}
-                viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.versions[versionIndex].uri}
-            />
-        </div>
-    })}</div>
+            const versionIndex = topicHistory.versions.length - 1 - index
+            return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
+                <HistoryElement
+                    topic={topic}
+                    topicHistory={topicHistory}
+                    index={versionIndex}
+                    viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.versions[versionIndex].uri}
+                />
+            </div>
+        })}</div>
 
     return <>
         {history}
         <div className="text-sm text-center block min-[800px]:hidden text-[var(--text-light)]">
-            <p className={"py-2"}>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+            <p className={"py-2"}>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una
+                computadora).</p>
         </div>
     </>
 }

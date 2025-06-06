@@ -23,8 +23,8 @@ export const IconButton = ({
             backgroundColor: `var(--${color})`,
             ":hover": {
                 backgroundColor: hoverColor ?? `var(--${darker(color)})`
-            }
-            , ...sx
+            },
+            ...sx,
         }}
     >
         {children}

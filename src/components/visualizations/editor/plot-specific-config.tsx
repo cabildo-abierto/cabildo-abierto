@@ -4,14 +4,13 @@ import {
     Lines,
     Barplot,
     Scatterplot,
-    isHistogram, isHemicycle
+    isHistogram, isHemicycle, isDatasetDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {$Typed} from "@atproto/api";
 import {produce} from "immer";
+import {useDatasets} from "@/queries/api";
 
 type PlotSpecificConfigProps = {
-    dataset?: DatasetView | DatasetViewBasic
     config: PlotConfigProps
     setConfig: (config: PlotConfigProps) => void
 }
@@ -22,8 +21,12 @@ export function isTwoAxisPlot(content: any): content is $Typed<Lines> | $Typed<S
         content?.$type === 'ar.cabildoabierto.embed.visualization#scatterplot';
 }
 
-export const PlotSpecificConfig = ({config, setConfig, dataset}: PlotSpecificConfigProps) => {
+export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps) => {
+    const {data: datasets} = useDatasets()
     if(!config.spec || !config.spec.$type) return null
+
+    const dataSource = config.dataSource
+    const dataset = isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined
 
     if(isTwoAxisPlot(config.spec)){
         return <div className={"flex flex-col space-y-4"}>

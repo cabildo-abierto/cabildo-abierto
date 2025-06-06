@@ -1,4 +1,4 @@
-import {EditorState} from "lexical";
+import {EditorState, LexicalEditor} from "lexical";
 import {CustomLink as Link} from '../../../../modules/ui-utils/src/custom-link';
 import React, {useEffect, useState} from "react";
 import {getAllText} from "./diff";
@@ -43,10 +43,10 @@ function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVe
 
 
 export const SaveEditPopup = ({
-                                  editorState, currentVersion, onClose, onSave, topic, open
+                                  editor, currentVersion, onClose, onSave, topic, open
                               }: {
     open: boolean
-    editorState: EditorState,
+    editor: LexicalEditor
     currentVersion: {}
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{ error?: string }>,
@@ -59,16 +59,17 @@ export const SaveEditPopup = ({
     const [newVersionSize, setNewVersionSize] = useState(undefined)
 
     useEffect(() => {
-        const d = charsDiffFromStateAndCurrentVersion(editorState, currentVersion)
+        const state = editor.getEditorState()
+        const d = charsDiffFromStateAndCurrentVersion(state, currentVersion)
 
         if (!d) {
             setDiff("too big")
         }
 
-        const jsonState = JSON.stringify(editorState.toJSON())
+        const jsonState = JSON.stringify(state.toJSON())
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
         setDiff(d)
-    }, [editorState])
+    }, [currentVersion, editor])
 
     const infoAuthorship = <span className="link">
         Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link

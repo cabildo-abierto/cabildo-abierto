@@ -1,5 +1,5 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useState} from "react";
 import {ArticleHeader} from "@/components/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
@@ -8,6 +8,7 @@ import {FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/
 import {$Typed} from "@atproto/api";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
+import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
 
 type ArticleCompProps = {
     article: $Typed<FullArticleView>,
@@ -38,7 +39,8 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                             initialTextFormat: format,
                             allowComments: true,
                             tableOfContents: true,
-                            editorClassName: "article-content"
+                            editorClassName: "article-content",
+                            embeds: (article.record as ArticleRecord).embeds
                         })}
                         quoteReplies={quoteReplies}
                         pinnedReplies={pinnedReplies}

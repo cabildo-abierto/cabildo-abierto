@@ -9,6 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as ArCabildoabiertoFeedArticle from '../feed/article'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
 
@@ -22,6 +23,7 @@ export interface Record {
   text?: BlobRef
   format?: string
   props?: TopicProp[]
+  embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
   message?: string
   createdAt: string
   [k: string]: unknown
@@ -157,7 +159,13 @@ export function validateCategoryVotes<V>(v: V) {
 export interface TopicProp {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicProp'
   name: string
-  value: $Typed<StringProp> | $Typed<StringListProp> | { $type: string }
+  value:
+    | $Typed<StringProp>
+    | $Typed<StringListProp>
+    | $Typed<DateProp>
+    | $Typed<NumberProp>
+    | $Typed<BooleanProp>
+    | { $type: string }
 }
 
 const hashTopicProp = 'topicProp'
@@ -185,6 +193,21 @@ export function validateStringProp<V>(v: V) {
   return validate<StringProp & V>(v, id, hashStringProp)
 }
 
+export interface BooleanProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#booleanProp'
+  value: boolean
+}
+
+const hashBooleanProp = 'booleanProp'
+
+export function isBooleanProp<V>(v: V) {
+  return is$typed(v, id, hashBooleanProp)
+}
+
+export function validateBooleanProp<V>(v: V) {
+  return validate<BooleanProp & V>(v, id, hashBooleanProp)
+}
+
 export interface StringListProp {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#stringListProp'
   value: string[]
@@ -198,6 +221,36 @@ export function isStringListProp<V>(v: V) {
 
 export function validateStringListProp<V>(v: V) {
   return validate<StringListProp & V>(v, id, hashStringListProp)
+}
+
+export interface DateProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#dateProp'
+  value: string
+}
+
+const hashDateProp = 'dateProp'
+
+export function isDateProp<V>(v: V) {
+  return is$typed(v, id, hashDateProp)
+}
+
+export function validateDateProp<V>(v: V) {
+  return validate<DateProp & V>(v, id, hashDateProp)
+}
+
+export interface NumberProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#numberProp'
+  value: number
+}
+
+const hashNumberProp = 'numberProp'
+
+export function isNumberProp<V>(v: V) {
+  return is$typed(v, id, hashNumberProp)
+}
+
+export function validateNumberProp<V>(v: V) {
+  return validate<NumberProp & V>(v, id, hashNumberProp)
 }
 
 export interface TopicViewBasic {

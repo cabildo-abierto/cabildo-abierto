@@ -74,7 +74,6 @@ export const NewDatasetPanel = ({open, onClose}: {
     const [rows, setRows] = useState<any[] | null>()
     const [name, setName] = useState<string>("")
     const [description, setDescription] = useState<string>("")
-    const router = useRouter()
 
     function onSubmit(f: File, filename: string){
         setData(f)
@@ -179,7 +178,7 @@ export const NewDatasetPanel = ({open, onClose}: {
                     />
                 </div>
                 {dataset && <div className={""}>
-                    <DatasetTableView dataset={dataset} maxHeight={300}/>
+                    <DatasetTableView dataset={dataset} maxHeight={300} maxWidth={600}/>
                 </div>}
                 <div className={"flex justify-end space-x-2 mt-4 pb-8"}>
                     <StateButton

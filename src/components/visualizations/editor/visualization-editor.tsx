@@ -1,17 +1,16 @@
 import {useDatasets} from "@/queries/api";
 import {useEffect, useRef, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
-import {ConfigPanel} from "./config-panel";
-import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {get} from "@/utils/fetch";
-import {splitUri} from "@/utils/uri";
-import {$Typed} from "@atproto/api";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {isDatasetDataSource} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {
+    Main as Visualization,
+    validateMain as validateVisualization
+} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import VisualizationEditorSidebar from "@/components/visualizations/editor/visualization-editor-sidebar";
+import {Button} from "../../../../modules/ui-utils/src/button";
+import {emptyChar} from "@/utils/utils";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -33,14 +32,14 @@ const ErrorPanel = ({msg}: { msg?: string }) => {
 }
 
 
-async function getDataset(uri: string) {
-    const {did, collection, rkey} = splitUri(uri)
-    return get<DatasetView>(`/dataset/${did}/${collection}/${rkey}`)
+export function readyToPlot(config: PlotConfigProps): config is Visualization {
+    const res = validateVisualization(config)
+    return res.success
 }
 
 
 type VisualizationEditorProps = {
-    onSave: (v: VisualizationView) => void
+    onSave: (v: Visualization) => void
     msg?: string
     initialConfig?: PlotConfigProps
     onClose: () => void
@@ -49,24 +48,19 @@ type VisualizationEditorProps = {
 export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: VisualizationEditorProps) => {
     const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
-    const [chosenDataset, setChosenDataset] = useState<$Typed<DatasetView> | $Typed<DatasetViewBasic> | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
-    const sidebarWidth = 80
-    const [rightSideWidth, setRightSideWidth] = useState(400)
-    const [leftSideWidth, setLeftSideWidth] = useState(320)
-    const [centerMaxWidth, setCenterMaxWidth] = useState(window.innerWidth - sidebarWidth - leftSideWidth - rightSideWidth - 200)
-
-    const leftRef = useRef<HTMLDivElement>(null)
-    const rightRef = useRef<HTMLDivElement>(null)
     const editorMinWidth = 1080
     const [wideEnough, setWideEnough] = useState(window.innerWidth >= editorMinWidth)
+    const [width, setWidth] = useState(window.innerWidth-50)
+    const [height, setHeight] = useState(window.innerHeight-50)
+
+    const baseSidebarWidth = width / 4
 
     useEffect(() => {
         const handleResize = () => {
-            setCenterMaxWidth(
-                window.innerWidth - sidebarWidth - leftSideWidth - rightSideWidth
-            );
             setWideEnough(window.innerWidth >= editorMinWidth)
+            setWidth(window.innerWidth-50)
+            setHeight(window.innerHeight-50)
         };
 
         window.addEventListener('resize', handleResize);
@@ -76,110 +70,61 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
         };
     }, [])
 
-    useEffect(() => {
-        setCenterMaxWidth(
-            window.innerWidth - sidebarWidth - leftSideWidth - rightSideWidth
-        )
-    }, [leftSideWidth, rightSideWidth])
-
-    useEffect(() => {
-        if (leftRef.current) {
-            const resizeObserver = new ResizeObserver((entries) => {
-                for (let entry of entries) {
-                    const {width} = entry.contentRect;
-                    setLeftSideWidth(width);
-                }
-            })
-
-            resizeObserver.observe(leftRef.current);
-
-            return () => {
-                resizeObserver.disconnect();
-            };
-        }
-    }, []);
-
-
-    useEffect(() => {
-        if (rightRef.current) {
-            const resizeObserver = new ResizeObserver((entries) => {
-                for (let entry of entries) {
-                    const {width} = entry.contentRect;
-                    setRightSideWidth(width);
-                }
-            });
-
-            resizeObserver.observe(rightRef.current);
-
-            return () => {
-                resizeObserver.disconnect();
-            };
-        }
-    }, []);
-
-    useEffect(() => {
-        async function getSelectedDataset(datasetUri: string) {
-            const index = datasets.findIndex((d) => d.uri == datasetUri)
-
-            setChosenDataset({...datasets[index], $type: "ar.cabildoabierto.data.dataset#datasetViewBasic"})
-            const {data} = await getDataset(datasetUri)
-            setChosenDataset({$type: "ar.cabildoabierto.data.dataset#datasetView", ...data})
-        }
-
-        if (isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets &&
-            (!chosenDataset || config.dataSource.dataset != chosenDataset.uri)
-        ) {
-            getSelectedDataset(config.dataSource.dataset)
-        }
-    }, [config.dataSource, datasets])
-
     if (!wideEnough) {
-        return <div className={"h-screen flex justify-center text-center items-center text-[var(--text-light)]"}>
-            Abrí el editor en una pantalla más grande
+        return <div>
+            <div className="absolute top-1 right-1">
+                <CloseButton size="small" onClose={onClose} color={"background"}/>
+            </div>
+            <div className={"h-screen flex w-screen justify-center text-center items-center text-[var(--text-light)]"}>
+                Abrí el editor en una pantalla más grande
+            </div>
         </div>
     }
 
-    const center = <EditorViewer
-        config={config}
-        selected={selected}
-        setSelected={setSelected}
-        maxWidth={centerMaxWidth - 8 * 4 - 3 * 4 - 8 * 4 - 4 * 4 - 20}
-        dataset={chosenDataset}
-        onSave={onSave}
-    />
-
-    const left = <div ref={leftRef} className={"pr-8 pl-3"}>
-        <ChooseDatasetPanel
-            datasets={datasets}
-            config={config}
-            setConfig={setConfig}
-        />
-    </div>
-
-    const right = <div ref={rightRef} className={"pl-8 pr-4"}>
-        <ConfigPanel
-            config={config}
-            setConfig={(c: PlotConfigProps) => {setConfig(c); setSelected("Visualización")}}
-            dataset={chosenDataset}
-        />
-    </div>
-
-    return <div className={"flex justify-between w-[calc(100vw-100px)] h-[calc(100vh-50px)] relative"}>
-
-        <div className="absolute top-1 right-1">
+    return <div className={"flex relative"} style={{width, height}}>
+        <div className="absolute h-12 top-1 right-1 flex space-x-2 items-start">
             <CloseButton size="small" onClose={onClose} color={"background"}/>
         </div>
+        {selected == "Visualización" && <div className="absolute bottom-2 right-2 flex space-x-2 items-start">
+            {readyToPlot(config) ?
+                <div className={"flex justify-center w-full"}>
+                    <Button
+                        onClick={() => {
+                            onSave(config)
+                        }}
+                        size={"medium"}
+                        color={"transparent"}
+                    >
+                    <span className={"font-bold"}>
+                        Guardar
+                    </span>
+                    </Button>
+                </div> :
+                <div className={"h-12"}>{emptyChar}</div>
+            }
+        </div>}
 
-        <div>
-            {left}
+        <div style={{width: baseSidebarWidth}}>
+            <VisualizationEditorSidebar
+                datasets={datasets}
+                config={config}
+                setConfig={setConfig}
+                selected={selected}
+                setSelected={setSelected}
+                baseWidth={baseSidebarWidth}
+                maxWidth={width / 2}
+            />
         </div>
 
-        <div className={"flex-grow"}>
-            {center}
-        </div>
-
-        <div>
-            {right}
+        <div className={"flex-1"} style={{width: width * 3 / 4}}>
+            <div style={{height}} className={"flex flex-col grow"}>
+                <EditorViewer
+                    config={config}
+                    selected={selected}
+                    setSelected={setSelected}
+                    onSave={onSave}
+                />
+            </div>
         </div>
 
         <ErrorPanel msg={msg}/>

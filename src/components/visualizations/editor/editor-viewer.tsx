@@ -1,35 +1,16 @@
 import {PlotConfigProps} from "@/lib/types";
-import SelectionComponent from "@/components/buscar/search-selection-component";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {emptyChar} from "@/utils/utils";
-import {
-    DatasetView,
-    DatasetViewBasic,
-    isDatasetView,
-    isDatasetViewBasic
-} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
-import {$Typed} from "@atproto/api";
 import {
     isDatasetDataSource,
     validateMain as validateVisualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {Plot} from "@/components/visualizations/plot";
-import {Main as Visualization, View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import { Button } from "../../../../modules/ui-utils/src/button";
-
-
-function readyToPlot(config: PlotConfigProps) {
-    const res = validateVisualization(config)
-    return res.success
-}
-
-
-function readyToSave(config: PlotConfigProps) {
-    if (!readyToPlot(config)) return false
-    // TO DO: Si hace falta algo más (ej. título?) pedir
-    return true
-}
+import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {Button} from "../../../../modules/ui-utils/src/button";
+import {useDataset, useDatasets} from "@/queries/api";
+import {readyToPlot} from "@/components/visualizations/editor/visualization-editor";
 
 
 function nextStep(config: PlotConfigProps) {
@@ -43,132 +24,104 @@ function nextStep(config: PlotConfigProps) {
 }
 
 
-function makeVisualizationView(visualization: Visualization, dataset: $Typed<DatasetView>): VisualizationView {
-    return {
-        ...visualization,
-        $type: "ar.cabildoabierto.embed.visualization#view",
-        dataset
-    }
-}
-
 type EditorViewerViewVisualizationProps = {
-    dataset: $Typed<DatasetView> | $Typed<DatasetViewBasic>
     config: PlotConfigProps
-    maxWidth: number
-    onSave: (v: VisualizationView) => void
+    onSave: (v: Visualization) => void
 }
 
-export const EditorViewerViewVisualization = ({dataset, config, maxWidth, onSave}: EditorViewerViewVisualizationProps) => {
 
-    async function onClickDone() {
-        const res = validateVisualization(config)
-        if(res.success && isDatasetView(dataset)){
-            onSave(makeVisualizationView(res.value, dataset))
-        } else {
-            return {error: "Parece que falta configurar algo."}
-        }
-    }
+const EditorViewerViewVisualization = ({
+                                           config,
+                                           onSave
+                                       }: EditorViewerViewVisualizationProps) => {
 
-    if (isDatasetViewBasic(dataset)) {
-        return <div className={"py-8"}>
-            <LoadingSpinner/>
-        </div>
-    }
 
     const validatedVisualization = validateVisualization(config)
     const visualization = validatedVisualization.success ? validatedVisualization.value : null
 
-    const datasetAvailable = config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset
-
-    return <div className={"flex flex-col justify-between h-full"}>
-        {visualization && <>
-            {readyToPlot(config) ?
-                <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
-                    <Plot
-                        visualization={makeVisualizationView(visualization, dataset)}
-                    />
-                </div> :
-                nextStep(config)}
-            {readyToSave(config) ?
-                <div className={"h-12 pb-4 flex justify-center w-full"}>
-                    {datasetAvailable && <Button
-                        onClick={onClickDone}
-                        disabled={!isDatasetView(dataset)}
-                    >
-                        <span className={"font-bold"}>
-                            Listo
-                        </span>
-                    </Button>}
-                </div> :
-                <div className={"h-12"}>{emptyChar}</div>}
-        </>}
+    return <div className={"flex flex-col justify-center items-center h-full w-full"}>
+        {readyToPlot(config) ?
+            <div className={"overflow-x-auto overflow-y-auto"}>
+                <PlotFromVisualizationMain
+                    visualization={visualization}
+                />
+            </div> :
+            <div className={"w-full h-full flex justify-center items-center"}>
+                {nextStep(config)}
+            </div>}
     </div>
 }
 
 
-export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth, onSave}: {
-    config: PlotConfigProps
-    selected: string
-    setSelected: (s: string) => void
-    dataset?: $Typed<DatasetView> | $Typed<DatasetViewBasic>
-    maxWidth: number
-    onSave: (v: VisualizationView) => void
-}) => {
+const EditorViewerViewDataForDataset = ({datasetUri}: { datasetUri: string }) => {
+    const {data: dataset, isLoading} = useDataset(datasetUri)
+    const {data: datasets} = useDatasets()
 
-    function optionsNodes(o: string, isSelected: boolean) {
-        return <div className="text-[var(--text)] w-32">
-            <Button
-                variant={"text"}
-                color={"background"}
-                sx={{borderRadius: 0, paddingY: 0, borderBottomRightRadius: 8, borderBottomLeftRadius: 8}}
-                fullWidth={true}
-            >
-                <div
-                    className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
-                    {o}
-                </div>
-            </Button>
+    if (!dataset && !datasets) {
+        return <div className={"py-8 h-full flex"}>
+            <LoadingSpinner/>
+        </div>
+    } else if (!dataset && datasets) {
+        return <DatasetFullView
+            dataset={{
+                $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
+                ...datasets.find(d => d.uri == datasetUri)
+            }}
+        />
+    }
+
+    if (isLoading || !dataset) {
+        return <div className={"py-8 h-full flex items-center"}>
+            <LoadingSpinner/>
         </div>
     }
 
-    return <div className={"h-full"}>
-        <div className={"flex flex-col items-center justify-between h-full"}>
-            <div className={"h-32"}>
-                <div className={"border-b border-l border-r rounded-b-lg flex justify-center"}>
-                    <SelectionComponent
-                        onSelection={(v) => {
-                            setSelected(v)
-                        }}
-                        options={["Datos", "Visualización"]}
-                        selected={selected}
-                        optionsNodes={optionsNodes}
-                        className="flex justify-center"
-                    />
-                </div>
+    return <DatasetFullView
+        dataset={{
+            $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
+            ...dataset
+        }}
+    />
+}
+
+
+const EditorViewerViewData = ({config}: {
+    config: PlotConfigProps
+}) => {
+
+    if (config.dataSource && isDatasetDataSource(config.dataSource)) {
+        if (config.dataSource.dataset) {
+            return <EditorViewerViewDataForDataset
+                datasetUri={config.dataSource.dataset}
+            />
+        } else {
+            return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
+                {nextStep(config)}
             </div>
-            {selected == "Visualización" && <EditorViewerViewVisualization
-                dataset={dataset}
-                config={config}
-                maxWidth={maxWidth}
-                onSave={onSave}
-            />}
-            {selected == "Datos" && <div className={"h-full pb-10 w-full"}>
-                {dataset && isDatasetView(dataset) &&
-                    <div className={"w-full h-full"} style={{maxWidth: maxWidth}}>
-                        <DatasetFullView dataset={dataset}/>
-                    </div>
-                }
-                {!dataset &&
-                    <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
-                        {nextStep(config)}
-                    </div>
-                }
-                {dataset && isDatasetViewBasic(dataset) &&
-                    <div className={"py-8"}>
-                        <LoadingSpinner/>
-                    </div>}
-            </div>
-            }
+        }
+    } else {
+        return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
+            {nextStep(config)}
         </div>
+    }
+
+}
+
+
+export const EditorViewer = ({config, selected, setSelected, onSave}: {
+    config: PlotConfigProps
+    selected: string
+    setSelected: (s: string) => void
+    onSave: (v: Visualization) => void
+}) => {
+
+    return <div className={"h-full w-full pt-12 px-16"}>
+        {selected == "Visualización" && <EditorViewerViewVisualization
+            config={config}
+            onSave={onSave}
+        />}
+        {selected == "Datos" && <EditorViewerViewData
+            config={config}
+        />}
     </div>
 }

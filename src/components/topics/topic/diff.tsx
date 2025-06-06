@@ -39,9 +39,6 @@ export function charDiff(str1: string, str2: string){
     if(str1 == str2) return {total: 0, insertions: 0, deletions: 0}
 
     if(str1.length * str2.length > 10000000){
-        //console.log(str1)
-        //console.log(str2)
-        //console.log("Product size is", str1.length*str2.length)
         return {total: str1.length + str2.length, insertions: str2.length, deletions: str1.length}
     }
 

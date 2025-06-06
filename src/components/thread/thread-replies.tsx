@@ -19,7 +19,6 @@ type ThreadRepliesProps = {
 
 export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepliesProps) => {
     const {did, collection, rkey} = splitUri(threadUri)
-
     return (
         <div className={"w-full"}>
             <StaticFeed
@@ -37,6 +36,7 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                             smoothScrollTo(elem)
                         }
                     }
+
                     return <PostPreview
                         postView={r.content}
                         parentIsMainPost={true}

@@ -1,10 +1,9 @@
-
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {post} from "@/utils/fetch";
 import {getCollectionFromUri, getRkeyFromUri, splitUri} from "@/utils/uri";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter, updateContentInQueries, updateTopicHistories} from "@/queries/updates";
+import {contentQueriesFilter, updateContentInQueries, updateDatasets, updateTopicHistories} from "@/queries/updates";
 
 
 const collection2displayText = {
@@ -15,12 +14,14 @@ const collection2displayText = {
     "ar.com.cabildoabierto.topic": "versión",
     "ar.cabildoabierto.wiki.topicVersion": "versión",
     "ar.com.cabildoabierto.dataset": "conjunto de datos",
-    "ar.cabildoabierto.feed.article": "artículo"
+    "ar.cabildoabierto.feed.article": "artículo",
+    "ar.cabildoabierto.data.dataset": "conjunto de datos"
 }
 
 function optimisticDelete(qc: any, uri: string) {
     updateContentInQueries(qc, uri, c => null)
     updateTopicHistories(qc, uri, e => null)
+    updateDatasets(qc,  uri, e => null)
 }
 
 const deleteRecord = async ({uri}: { uri: string }) => {

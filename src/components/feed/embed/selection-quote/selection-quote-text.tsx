@@ -1,41 +1,42 @@
-"use client"
-import {useEffect, useState} from "react";
-import {decompress} from "@/utils/compression";
+import {useEffect, useMemo, useState} from "react";
 import {
-    anyEditorStateToMarkdown, editorStateToMarkdown,
-    markdownToEditorStateStr
+    markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {markdownSelectionToLexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection-transforms";
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
-import {getSelectionFromJSONState} from "../../../../../modules/ca-lexical-editor/src/editor-state-utils";
+import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {decompress} from "@/utils/compression";
 
 type QuoteTextProps = {
     quotedText: EmbedSelectionQuote["quotedText"]
     quotedTextFormat: EmbedSelectionQuote["quotedTextFormat"]
-    selection: [number, number]
+    quotedTextEmbeds: ArticleEmbed[]
+    selection: MarkdownSelection
 }
 
-export const SelectionQuoteText = ({quotedText, quotedTextFormat, selection}: QuoteTextProps) => {
-    const [initialData, setInitialData] = useState<string>(null)
+export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbeds, selection}: QuoteTextProps) => {
+    const strSelection = JSON.stringify(selection.toArray())
+    const strEmbeds = JSON.stringify(quotedTextEmbeds)
+    const initialData = useMemo(() => {
+        if (quotedTextFormat != "markdown" && quotedTextFormat != "markdown-compressed") return null;
 
-    useEffect(() => {
-        // tengo contenido y seleccion en markdown
-        // transformo a markdown
-        // transformo a editor state
-        // convierto seleccion a lexical selection
-        // recorto segun esa seleccion
-        // seteo esa initial data
-        const markdown = anyEditorStateToMarkdown(quotedText, quotedTextFormat)
-
-        const state = markdownToEditorStateStr(markdown)
-        const lexicalQuote = markdownSelectionToLexicalSelection(state, selection)
-        const newInitialData = getSelectionFromJSONState(JSON.parse(state), lexicalQuote)
-
-        if(newInitialData != initialData){
-            setInitialData(newInitialData)
+        try {
+            const markdown = quotedTextFormat == "markdown-compressed" ? decompress(quotedText) : quotedText
+            const state = markdownToEditorState(markdown, true, true, quotedTextEmbeds);
+            const lexicalSelection = selection.toLexicalSelection(JSON.stringify(state));
+            const newInitialData = lexicalSelection.getSelectedSubtree(state);
+            return JSON.stringify(newInitialData);
+        } catch (err) {
+            console.error("Error generating initialData:", err);
+            return null;
         }
-    }, [quotedText, quotedTextFormat, selection, initialData])
+    }, [
+        quotedText,
+        quotedTextFormat,
+        strSelection,
+        strEmbeds
+    ]);
 
     if(!initialData){
         return null

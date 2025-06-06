@@ -35,7 +35,7 @@ export const MainFeedHeader = ({
         <div className={"flex"}>
             <SelectionComponent
                 onSelection={onSelection}
-                options={["Siguiendo", "En discusión", "Descubrir"]}
+                options={["Siguiendo", "En discusión"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 className="flex"

@@ -11,7 +11,8 @@ export const BaseFullscreenPopup = ({
     className="",
     color="background-dark",
     allowClose = false,
-    hidden=false
+    hidden=false,
+    disableScrollLock=true
 }: {
     open: boolean
     children: ReactNode;
@@ -21,6 +22,7 @@ export const BaseFullscreenPopup = ({
     allowClose?: boolean
     color?: Color
     hidden?: boolean
+    disableScrollLock?: boolean
 }) => {
     if(hidden) return <div className={"hidden"}>{children}</div>
     return (
@@ -30,11 +32,10 @@ export const BaseFullscreenPopup = ({
                 if (allowClose && onClose) onClose();
             }}
             disableEnforceFocus={true}
-            disableScrollLock={true}
+            disableScrollLock={disableScrollLock}
             className={"flex justify-center items-center"}
-            onClick={(e) => {e.stopPropagation();}}
         >
-            <Box className={"min-w-[300px] shadow-lg rounded-lg border " + className} sx={{backgroundColor: `var(--${color})`}}>
+            <Box className={"w-screen sm:w-auto sm:min-w-[300px] shadow-lg sm:rounded-lg sm:border" + className} sx={{backgroundColor: `var(--${color})`}}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
                         <CloseButton

@@ -12,6 +12,9 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {ValidationRequestProps} from "@/app/(main)/ajustes/solicitar-validacion/page";
+import {ValidationRequestView} from "@/components/admin/admin-validation";
+import {DonationHistory} from "@/components/aportar/donation-history";
 
 
 function uriToKey(uri: string) {
@@ -23,9 +26,7 @@ function uriToKey(uri: string) {
 export function useAPI<T>(
     route: string,
     key: readonly unknown[],
-    options?: {
-        enabled?: boolean
-    }
+    staleTime: number = Infinity
 ) {
     return useQuery<T>({
         queryKey: key,
@@ -35,7 +36,7 @@ export function useAPI<T>(
             if (error) return null
             return data
         },
-        ...options,
+        staleTime,
     })
 }
 
@@ -47,6 +48,18 @@ export const useSession = (inviteCode?: string) => {
 export const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
     return {...res, account: res.data}
+}
+
+
+export const useCurrentValidationRequest = () => {
+    const res = useAPI<{type: "org" | "persona" | null}>("/validation-request", ["validation-request"])
+    return {...res, user: res.data}
+}
+
+
+export const usePendingValidationRequests = () => {
+    const res = useAPI<{requests: ValidationRequestView[], count: number}>("/pending-validation-requests", ["pending-validation-requests"])
+    return {...res, user: res.data}
 }
 
 
@@ -140,8 +153,8 @@ export function useDatasets() {
 
 
 export function useDataset(uri: string) {
-    const {did, rkey} = splitUri(uri)
-    return useAPI<DatasetView>("/dataset", ["dataset", did, rkey])
+    const {did, collection, rkey} = splitUri(uri)
+    return useAPI<DatasetView>(`/dataset/${did}/${collection}/${rkey}`, ["dataset", did, collection, rkey])
 }
 
 
@@ -152,4 +165,14 @@ export function useCategoriesGraph() {
 
 export function useCategoryGraph(c: string) {
     return useAPI<TopicsGraph>("/category-graph/" + c, ["category-graph", c])
+}
+
+
+export function useDonationHistory() {
+    return useAPI<DonationHistory>("/donation-history", ["donation-history"])
+}
+
+
+export function useMonthlyValue() {
+    return useAPI<number>("/monthly-value", ["monthly-value"])
 }

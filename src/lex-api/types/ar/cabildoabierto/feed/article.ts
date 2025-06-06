@@ -10,6 +10,7 @@ import {
   type OmitKey,
 } from '../../../../util'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -20,6 +21,7 @@ export interface Record {
   text: BlobRef
   format: string
   title: string
+  embeds?: ArticleEmbed[]
   labels?: $Typed<ComAtprotoLabelDefs.SelfLabels> | { $type: string }
   createdAt: string
   [k: string]: unknown
@@ -33,4 +35,20 @@ export function isRecord<V>(v: V) {
 
 export function validateRecord<V>(v: V) {
   return validate<Record & V>(v, id, hashRecord, true)
+}
+
+export interface ArticleEmbed {
+  $type?: 'ar.cabildoabierto.feed.article#articleEmbed'
+  value: $Typed<ArCabildoabiertoEmbedVisualization.Main> | { $type: string }
+  index: number
+}
+
+const hashArticleEmbed = 'articleEmbed'
+
+export function isArticleEmbed<V>(v: V) {
+  return is$typed(v, id, hashArticleEmbed)
+}
+
+export function validateArticleEmbed<V>(v: V) {
+  return validate<ArticleEmbed & V>(v, id, hashArticleEmbed)
 }

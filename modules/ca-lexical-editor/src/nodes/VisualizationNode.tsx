@@ -1,43 +1,32 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import type {
-  DOMConversionMap,
-  DOMExportOutput,
-  EditorConfig,
-  LexicalNode,
-  NodeKey,
-  SerializedLexicalNode,
-  Spread,
+    DOMConversionMap,
+    DOMExportOutput,
+    EditorConfig,
+    LexicalNode,
+    NodeKey,
+    SerializedLexicalNode,
+    Spread,
 } from 'lexical';
-
-
 import {$applyNodeReplacement, DecoratorNode} from 'lexical';
-import {VisualizationNodeCompFromSpec} from "./visualization-node-comp";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {VisualizationNodeComp} from "./visualization-node-comp";
 import {ReactNode} from "react";
 
 
 export interface VisualizationPayload {
-  spec: string
-  uri: string
+    spec?: Visualization
+    hash?: string
 }
 
 export type SerializedVisualizationNode = Spread<
-  {
-    spec: string
-    uri: string
-  },
-  SerializedLexicalNode
+    {
+        spec?: string
+    },
+    SerializedLexicalNode
 >;
 
 export class VisualizationNode extends DecoratorNode<ReactNode> {
-    __spec: string
-    __uri: string
+    __spec?: Visualization
 
     static getType(): string {
         return 'visualization';
@@ -46,22 +35,35 @@ export class VisualizationNode extends DecoratorNode<ReactNode> {
     static clone(node: VisualizationNode): VisualizationNode {
         return new VisualizationNode(
             node.__spec,
-            node.__uri,
             node.__key,
         );
     }
 
+    constructor(
+        spec?: Visualization,
+        key?: NodeKey
+    ) {
+        super(key);
+        this.__spec = spec
+    }
+
+    createDOM(config: EditorConfig): HTMLElement {
+        return document.createElement('div')
+    }
+
+    updateDOM(): false {
+        return false;
+    }
+
     static importJSON(serializedNode: SerializedVisualizationNode): VisualizationNode {
-        const {spec, uri} = serializedNode
-        const node = $createVisualizationNode({
-            spec,
-            uri
+        const {spec} = serializedNode
+        return $createVisualizationNode({
+            spec: spec ? JSON.parse(spec) : undefined
         })
-        return node
     }
 
     exportDOM(): DOMExportOutput {
-        const element = document.createElement('img');
+        const element = document.createElement('div');
         return {element};
     }
 
@@ -69,58 +71,38 @@ export class VisualizationNode extends DecoratorNode<ReactNode> {
         return null
     }
 
-    constructor(
-        spec: string,
-        uri: string,
-        key?: NodeKey
-    ) {
-        super(key);
-        this.__spec = spec
-        this.__uri = uri
-    }
-
     exportJSON(): SerializedVisualizationNode {
         return {
-            spec: this.__spec,
-            uri: this.__uri,
+            spec: JSON.stringify(this.__spec),
             type: 'visualization',
             version: 1,
         }
     }
 
-    createDOM(config: EditorConfig): HTMLElement {
-        const span = document.createElement('span')
-        const theme = config.theme
-        const className = theme.image
-        if (className !== undefined) {
-            span.className = className
-        }
-        return span
+    setVisualization(v: Visualization) {
+        const self = this.getWritable()
+        self.__spec = v
     }
 
-    updateDOM(): false {
-        return false;
-    }
+    decorate(): ReactNode {
+        const id = this.__key
 
-    decorate() {
-        if(this.__uri){
-            return <VisualizationNodeCompFromSpec uri={this.__uri}/>
+        if (this.__spec) {
+            return <VisualizationNodeComp visualization={this.__spec} nodeKey={id}/>
         } else {
             return <div className={"p-4 text-center text-[var(--text-light)] border rounded-lg"}>
-                No se encontró la visualización
+                Ocurrió un error al mostrar la visualización
             </div>
         }
     }
 }
 
 export function $createVisualizationNode({
-    spec,
-    uri
-}: VisualizationPayload): VisualizationNode {
+                                             spec
+                                         }: VisualizationPayload): VisualizationNode {
     return $applyNodeReplacement(
         new VisualizationNode(
-            spec,
-            uri
+            spec
         ),
     )
 }

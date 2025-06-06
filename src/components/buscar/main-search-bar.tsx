@@ -6,8 +6,9 @@ type MainSearchBarProps = {
     autoFocus?: boolean
     paddingY?: string
     fullWidth?: boolean
+    placeholder?: string
 }
-const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true}: MainSearchBarProps) => {
+const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true, placeholder = "buscar"}: MainSearchBarProps) => {
     const {searchState, setSearchState} = useSearch()
 
     return <SearchBar
@@ -18,6 +19,7 @@ const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true}: MainSear
         autoFocus={autoFocus}
         paddingY={paddingY}
         fullWidth={fullWidth}
+        placeholder={placeholder}
     />
 }
 

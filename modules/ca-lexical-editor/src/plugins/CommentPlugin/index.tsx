@@ -1,19 +1,11 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import {
     $getSelection,
     $isRangeSelection,
-    $isTextNode,
     COMMAND_PRIORITY_EDITOR,
     createCommand,
+    EditorState,
     LexicalCommand,
-    NodeKey
+    NodeKey, SerializedEditorState
 } from 'lexical';
 
 import './index.css';
@@ -25,21 +17,23 @@ import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import {AddCommentButton} from './add-comment-button';
-import {lexicalSelectionToMarkdownSelection, markdownSelectionToLexicalSelection} from "../../selection-transforms";
-import {getStandardSelection} from "./standard-selection";
-import {PrettyJSON} from "../../../../ui-utils/src/pretty-json";
-import {editorStateToMarkdown} from "../../markdown-transforms";
+import {LexicalSelection} from '../../selection/lexical-selection';
+import {MarkdownSelection} from "../../selection/markdown-selection";
+import {ProcessedLexicalState} from "../../selection/processed-lexical-state";
+import {SettingsProps} from "../../lexical-editor";
+import {anyEditorStateToMarkdown, markdownToEditorState} from "../../markdown-transforms";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
     'INSERT_INLINE_COMMAND',
 );
 
 
-export type OnAddCommentProps = (selection: [number, number]) => void
+export type OnAddCommentProps = (selection: MarkdownSelection | LexicalSelection) => void
 
 type CommentPluginProps = {
     onAddComment: OnAddCommentProps
 }
+
 
 
 export default function CommentPlugin({onAddComment}: CommentPluginProps) {
@@ -58,17 +52,15 @@ export default function CommentPlugin({onAddComment}: CommentPluginProps) {
                     if ($isRangeSelection(selection)) {
                         const anchorNode = selection.anchor.getNode()
 
-                        if ($isTextNode(anchorNode)) {
-                            if (!selection.isCollapsed()) {
-                                setActiveAnchorKey(anchorNode.getKey());
-                                hasAnchorKey = true;
-                            }
+                        if(!selection.isCollapsed()){
+                            setActiveAnchorKey(anchorNode.getKey());
+                            hasAnchorKey = true;
                         }
                     }
                     if (!hasAnchorKey) {
                         setActiveAnchorKey(null);
                     }
-                    if (!tags.has('collaboration') && $isRangeSelection(selection)) {
+                    if ($isRangeSelection(selection)) {
                         setShowCommentInput(false);
                     }
                 })
@@ -92,6 +84,7 @@ export default function CommentPlugin({onAddComment}: CommentPluginProps) {
         return <></>
     }
 
+
     return <div ref={editorElement}>
         {activeAnchorKey !== null &&
             activeAnchorKey !== undefined &&
@@ -103,13 +96,8 @@ export default function CommentPlugin({onAddComment}: CommentPluginProps) {
                     onAddComment={() => {
                         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined)
                         const state = editor.getEditorState()
-                        const lexicalSelection = getStandardSelection(state)
-                        const markdownSelection = lexicalSelectionToMarkdownSelection(
-                            JSON.stringify(state.toJSON()),
-                            lexicalSelection
-                        )
-                        const lexicalSelectionBack = markdownSelectionToLexicalSelection(JSON.stringify(state.toJSON()), markdownSelection)
-                        onAddComment(markdownSelection)
+                        const lexicalSelection = LexicalSelection.fromEditorState(state)
+                        onAddComment(lexicalSelection)
                     }}
                 />,
                 document.body,
