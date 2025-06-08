@@ -35,13 +35,12 @@ export const TopicContentExpandedViewHeader = ({
 
     let buttons: ReactNode
 
-
     if (!paramsVersion && !wikiEditorState.startsWith("editing")) {
         function optionsNodes(o: string, isSelected: boolean) {
             let name: string
-            if (o == "authors") name = "Ver autores"
-            else if (o == "changes") name = "Ver cambios"
-            else if (o == "history") name = "Ver historial"
+            if (o == "authors") name = "Autores"
+            else if (o == "changes") name = "Cambios"
+            else if (o == "history") name = "Historial"
             else if (o == "editing") name = "Editar"
             else if (o == "props") name = "Propiedades"
             return <div className="text-[var(--text)] h-10 ">
@@ -75,8 +74,6 @@ export const TopicContentExpandedViewHeader = ({
         const options = [
             "editing",
             "history",
-            "authors",
-            "changes",
             "props"
         ]
 

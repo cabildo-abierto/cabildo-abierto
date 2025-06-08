@@ -1,17 +1,14 @@
-import {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
-import {EditorState, LexicalEditor} from "lexical";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
-import {ShowTopicChanges} from "./show-topic-changes";
-import {ShowTopicAuthors} from "./show-topic-authors";
 import {useTopicFeed, useTopicVersion} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {
-    editorStateToMarkdown, markdownToEditorState,
-    normalizeMarkdown
+    editorStateToMarkdown, markdownToEditorState
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
@@ -71,10 +68,10 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
 
     async function refresh() {
         if(editor){
-            console.log("refreshing")
             const state = editor.getEditorState()
             const jsonState = state.toJSON()
             const markdown = editorStateToMarkdown(jsonState)
+            if(markdown.markdown.length == 0) return
 
             const refreshedState = markdownToEditorState(markdown.markdown, true, true, markdown.embeds)
             const parsedState = editor.parseEditorState(refreshedState)
@@ -120,7 +117,6 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>
                     }
-
                     {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
                         settings={getEditorSettings({
                             isReadOnly: true,
@@ -140,17 +136,6 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                         setEditorState={() => {}}
                     />}
                 </div>}
-
-                {wikiEditorState == "changes" &&
-                    <ShowTopicChanges
-                        topic={topic}
-                    />
-                }
-                {wikiEditorState == "authors" &&
-                    <ShowTopicAuthors
-                        topic={topic}
-                    />
-                }
             </div>
         }
     </>

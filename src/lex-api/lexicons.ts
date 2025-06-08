@@ -1056,6 +1056,14 @@ export const schemaDict = {
           removedChars: {
             type: 'integer',
           },
+          prevAccepted: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          contribution: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionContribution',
+          },
           props: {
             type: 'array',
             items: {
@@ -1200,6 +1208,18 @@ export const schemaDict = {
           lastEdit: {
             type: 'string',
             format: 'datetime',
+          },
+        },
+      },
+      topicVersionContribution: {
+        type: 'object',
+        required: ['monetized', 'all'],
+        properties: {
+          monetized: {
+            type: 'string',
+          },
+          all: {
+            type: 'string',
           },
         },
       },
