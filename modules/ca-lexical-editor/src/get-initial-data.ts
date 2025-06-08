@@ -10,6 +10,7 @@ import { ArticleEmbed } from "@/lex-api/types/ar/cabildoabierto/feed/article";
 
 
 export function getInitialData(text: string, format: string, shouldPreserveNewLines: boolean = false, embeds?: ArticleEmbed[]): InitialEditorStateType {
+    console.log("getting initial data from", format, text)
     if(format == "markdown"){
         text = normalizeMarkdown(text, true)
         const state = markdownToEditorState(text, shouldPreserveNewLines, true, embeds ?? [])

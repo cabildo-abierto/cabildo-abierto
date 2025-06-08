@@ -91,6 +91,8 @@ export interface VersionInHistory {
   status?: TopicVersionStatus
   addedChars?: number
   removedChars?: number
+  prevAccepted?: string
+  contribution?: TopicVersionContribution
   props?: TopicProp[]
 }
 
@@ -269,4 +271,24 @@ export function isTopicViewBasic<V>(v: V) {
 
 export function validateTopicViewBasic<V>(v: V) {
   return validate<TopicViewBasic & V>(v, id, hashTopicViewBasic)
+}
+
+export interface TopicVersionContribution {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicVersionContribution'
+  monetized: string
+  all: string
+}
+
+const hashTopicVersionContribution = 'topicVersionContribution'
+
+export function isTopicVersionContribution<V>(v: V) {
+  return is$typed(v, id, hashTopicVersionContribution)
+}
+
+export function validateTopicVersionContribution<V>(v: V) {
+  return validate<TopicVersionContribution & V>(
+    v,
+    id,
+    hashTopicVersionContribution,
+  )
 }

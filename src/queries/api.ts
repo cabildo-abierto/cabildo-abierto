@@ -1,8 +1,7 @@
 import {
     Account,
     Profile, Session,
-    TopicsGraph,
-    TopicVersionAuthorsProps,
+    TopicsGraph, TopicVersionChangesProps,
 } from "@/lib/types"
 import {splitUri, threadApiUrl, topicUrl} from "@/utils/uri";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
@@ -12,7 +11,6 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {ValidationRequestProps} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ValidationRequestView} from "@/components/admin/admin-validation";
 import {DonationHistory} from "@/components/aportar/donation-history";
 
@@ -137,13 +135,8 @@ export function useTopicVersion(did: string, rkey: string) {
 }
 
 
-export function useTopicVersionAuthors(did: string, rkey: string) {
-    return useAPI<TopicVersionAuthorsProps>("/topic-version-authors/"+did+"/"+rkey, ["topic-version-authors", did, rkey])
-}
-
-
-export function useTopicVersionChanges(did: string, rkey: string) {
-    return useAPI<TopicVersionAuthorsProps>("/topic-version-changes/"+did+"/"+rkey, ["topic-version-changes", did, rkey])
+export function useTopicVersionChanges(did: string, rkey: string, prevDid: string, prevRkey: string) {
+    return useAPI<TopicVersionChangesProps>("/topic-version-changes/"+did+"/"+rkey+"/"+prevDid+"/"+prevRkey, ["topic-version-changes", did, rkey, prevDid, prevRkey])
 }
 
 

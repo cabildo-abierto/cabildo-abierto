@@ -1,16 +1,15 @@
 import {DateSince} from "../../../../../modules/ui-utils/src/date"
 import {CustomLink as Link} from '../../../../../modules/ui-utils/src/custom-link';
 import {useRouter, useSearchParams} from "next/navigation"
-import React, {useState} from "react"
+import React, {useMemo, useState} from "react"
 import StateButton from "../../../../../modules/ui-utils/src/state-button"
 import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel"
-import {toPercentage} from "../show-contributors"
 import {ChangesCounter} from "../changes-counter"
 import {BaseFullscreenPopup} from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
 import {ProfilePic} from "../../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
-import {getAcceptCount, getRejectCount, getTopicMonetizedChars} from "../utils";
+import {getAcceptCount, getRejectCount} from "../utils";
 import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
 import {useTopicHistory} from "@/queries/api";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
@@ -28,12 +27,20 @@ import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit
 import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
 import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
 import {Authorship} from "@/components/feed/frame/authorship";
-
+import {TopicContributor} from "@/lib/types";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 const EditDetails = ({topicHistory, index}: { topicHistory: TopicHistory, index: number }) => {
     const v = topicHistory.versions[index]
 
-    return <ChangesCounter charsAdded={v.addedChars ?? 0} charsDeleted={v.removedChars ?? 0}/>
+    return <ChangesCounter
+        charsAdded={v.addedChars ?? 0}
+        charsDeleted={v.removedChars ?? 0}
+        uri={v.uri}
+        prevUri={v.prevAccepted}
+        history={topicHistory}
+    />
 }
 
 
@@ -68,18 +75,6 @@ const AssignAuthorshipButtons = ({topic, version}: {
 const EditMessage = ({msg}: { msg?: string }) => {
     return <span className="text-sm">
         {(msg != null && msg.length > 0) ? msg : ""}
-    </span>
-}
-
-
-const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistory, index: number }) => {
-
-    const charsAdded = topicHistory.versions[index].addedChars
-
-    let monetizedCharsAdded = getTopicMonetizedChars(topicHistory, topicHistory.versions.length - 1)
-
-    return <span title="Porcentaje sobre las contribuciones monetizadas">
-        {toPercentage(charsAdded, monetizedCharsAdded)}%
     </span>
 }
 
@@ -154,8 +149,8 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
         >
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
-                    <div className="flex items-baseline space-x-1">
-                        {isCurrent && <div title="Último contenido aceptado" className={"flex items-baseline"}>
+                    <div className="flex space-x-1">
+                        {isCurrent && <div title="Último contenido aceptado" className={"flex"}>
                             <StarIcon color="primary" fontSize={"inherit"}/>
                         </div>}
                         <EditDetails topicHistory={topicHistory} index={index}/>
@@ -171,6 +166,11 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                         </div>}
                     </div>
                     <div className="text-xs space-x-2 flex items-center">
+                        <div>
+                            <div className={"text-[var(--text-light)]"}>
+                                {topicVersion.contribution ? (parseFloat(topicVersion.contribution.all ?? "0") * 100).toFixed(1).toString() + "%" : null}
+                            </div>
+                        </div>
                         <TopicProperties topicVersion={topicVersion} topic={topic}/>
                         <div className={"text-[var(--text-light)]"}>
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
@@ -195,7 +195,10 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        {canHaveAuthorship && <AssignAuthorshipButtons topic={topic} version={index}/>}
+                        {canHaveAuthorship && <AssignAuthorshipButtons
+                            topic={topic}
+                            version={index}
+                        />}
                         <ConfirmEditButtons
                             topicId={topic.id}
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
@@ -275,9 +278,81 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
 };
 
 
+function getTopicContributors(history: TopicHistory): TopicContributor[] {
+    const authors = new Map<string, TopicContributor>()
+
+    history.versions.forEach(v => {
+        const profile = v.author
+        let contribution = v.contribution
+
+        if (contribution) {
+            console.log("contribution", contribution)
+            const cur = authors.get(profile.did)
+            const all = parseFloat((contribution.all ?? 0).toString())
+            const monetized = parseFloat((contribution.monetized ?? 0).toString())
+            console.log(all, monetized)
+            if(cur){
+                authors.set(profile.did, {
+                    profile,
+                    all: all + cur.all,
+                    monetized: monetized + cur.monetized
+                })
+            } else {
+                authors.set(profile.did, {
+                    profile,
+                    all: all,
+                    monetized: monetized
+                })
+            }
+        }
+    })
+
+    return Array.from(authors.values())
+}
+
+
+const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: TopicContributor[] }) => {
+    const [monetized, setMonetized] = useState(false)
+    const [open, setOpen] = useState(false)
+
+    return <div className={"border px-2 py-1 rounded-lg"}>
+        <div className={"flex justify-between items-baseline space-x-2"}>
+            <div className={"text-sm text-[var(--text-light)]"}>
+                Contribuciones
+            </div>
+            <div className={"text-base"}>
+                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {setOpen(!open)}} color="transparent" textColor={monetized ? "text" : "text-light"}>
+                    {!open ? <ArrowDropDownIcon fontSize={"inherit"} /> : <ArrowDropUpIcon fontSize={"inherit"}/>}
+                </IconButton>
+            </div>
+        </div>
+        {open && <div>
+            <div className="flex flex-wrap space-x-2 text-sm">
+                {topicVersionAuthors.map((c, index) => {
+                    return <div key={index}
+                                className={"flex space-x-1 items-center rounded-lg"}>
+                        <ProfilePic user={c.profile} className={"rounded-full w-4 h-4"}/>
+                        <span>({((monetized ? c.monetized : c.all) * 100).toFixed(1)}%)</span>
+                    </div>
+                })}
+            </div>
+            {topicVersionAuthors.length > 1 && <div className={"text-sm flex justify-end"}>
+                <IconButton size="small" onClick={() => {setMonetized(!monetized)}} color="transparent" textColor={monetized ? "text" : "text-light"}>
+                    <AttachMoneyIcon fontSize={"inherit"}/>
+                </IconButton>
+            </div>}
+        </div>}
+    </div>
+}
+
+
 export const EditHistory = ({topic}: { topic: TopicView }) => {
     const {data: topicHistory, isLoading} = useTopicHistory(topic.id)
     const searchParams = useSearchParams()
+
+    const contributors = useMemo(() => {
+        return topicHistory ? getTopicContributors(topicHistory) : undefined
+    }, [topicHistory])
 
     if (isLoading) {
         return <div className={"py-4"}>
@@ -293,21 +368,22 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
         </div>
     }
 
-    const history = <div className="hidden min-[800px]:block">
-        {topicHistory.versions.map((_, index) => {
-            const versionIndex = topicHistory.versions.length - 1 - index
-            return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
-                <HistoryElement
-                    topic={topic}
-                    topicHistory={topicHistory}
-                    index={versionIndex}
-                    viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.versions[versionIndex].uri}
-                />
-            </div>
-        })}</div>
-
     return <>
-        {history}
+        <div className={"flex justify-end py-1"}>
+            <TopicVersionAuthors topicVersionAuthors={contributors}/>
+        </div>
+        <div className="hidden min-[800px]:block border-t">
+            {topicHistory.versions.map((_, index) => {
+                const versionIndex = topicHistory.versions.length - 1 - index
+                return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
+                    <HistoryElement
+                        topic={topic}
+                        topicHistory={topicHistory}
+                        index={versionIndex}
+                        viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.versions[versionIndex].uri}
+                    />
+                </div>
+            })}</div>
         <div className="text-sm text-center block min-[800px]:hidden text-[var(--text-light)]">
             <p className={"py-2"}>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una
                 computadora).</p>
