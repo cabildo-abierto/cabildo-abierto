@@ -106,6 +106,6 @@ export const LikeCounter = ({content, showBsky}: {
         title="Cantidad de me gustas."
         active={content.viewer?.like != undefined}
         disabled={content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri) == "optimistic"}
-        count={showBsky ? content.bskyLikeCount : content.likeCount}
+        count={showBsky ? (content.bskyLikeCount ?? content.likeCount) : content.likeCount}
     />
 }

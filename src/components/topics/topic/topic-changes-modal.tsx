@@ -200,8 +200,6 @@ const VersionSelector = ({selected, setSelected, history, label}: {
     label: string, selected: number, setSelected: (v: number) => void, history: TopicHistory
 }) => {
 
-    const versionIdxToLabel = (i: number) => `Versión ${i+1} (@${history.versions[i].author.handle})`
-
     const selectId = label
     return <FormControl fullWidth variant="outlined" size="small">
         <InputLabel
@@ -215,7 +213,7 @@ const VersionSelector = ({selected, setSelected, history, label}: {
         </InputLabel>
         <MUISelect
             value={selected}
-            onChange={(e) => setSelected(e.target.value)}
+            onChange={(e) => setSelected(Number(e.target.value))}
             label={label}
             labelId={selectId}
             fullWidth

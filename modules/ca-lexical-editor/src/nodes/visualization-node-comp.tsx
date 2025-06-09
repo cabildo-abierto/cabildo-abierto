@@ -29,6 +29,12 @@ export const VisualizationNodeComp = ({
         <PlotFromVisualizationMain
             visualization={visualization}
             onEdit={editable ? onEdit : undefined}
+            onDelete={() => {
+                editor.update(() => {
+                    const n = $getNodeByKey(nodeKey)
+                    n.remove()
+                })
+            }}
         />
     </div>
 }

@@ -16,7 +16,7 @@ import {
     DRAGSTART_COMMAND,
     DROP_COMMAND,
     LexicalCommand,
-    LexicalEditor,
+    LexicalEditor, RootNode,
 } from 'lexical';
 import {useEffect, useState} from 'react';
 import {CAN_USE_DOM} from '../../shared/canUseDOM';
@@ -106,6 +106,7 @@ export default function PlotPlugin() {
             editor.registerCommand<InsertVisualizationPayload>(
                 INSERT_PLOT_COMMAND,
                 (payload) => {
+                    console.log("creating vis node with payload", payload)
                     const visualizationNode = $createVisualizationNode(payload)
                     $insertNodes([visualizationNode])
                     return true;
@@ -146,6 +147,15 @@ export default function PlotPlugin() {
                         const root = $getRoot();
                         root.append(clone);
                     }
+                }
+            }),
+            editor.registerNodeTransform(RootNode, (node) => {
+                const children = node.getChildren()
+                const last = children[children.length - 1]
+                if(!$isParagraphNode(last)) {
+                    const p = $createParagraphNode()
+                    last.insertAfter(p)
+                    console.log("adding paragraph")
                 }
             })
         )

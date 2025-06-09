@@ -124,8 +124,12 @@ function FloatingLinkEditor({
     }, [debouncedValue])
 
     const $updateLinkEditor = useCallback(async () => {
+        if(!isLink) return
+
+        console.log("updating link editor")
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
+            console.log("range selection")
             const node = getSelectedNode(selection);
             const linkParent = $findMatchingParent(node, $isLinkNode);
             if (linkParent) {
@@ -144,11 +148,12 @@ function FloatingLinkEditor({
         const activeElement = document.activeElement;
 
         if (editorElem === null) {
+            console.log("no editor elem")
             return;
         }
 
         const rootElement = editor.getRootElement();
-
+        console.log("got root")
         if (
             selection !== null &&
             nativeSelection !== null &&
@@ -156,14 +161,17 @@ function FloatingLinkEditor({
             rootElement.contains(nativeSelection.anchorNode) &&
             editor.isEditable()
         ) {
+            console.log("editable")
             const domRect: DOMRect | undefined =
                 nativeSelection.focusNode?.parentElement?.getBoundingClientRect();
+            console.log("domRect", domRect);
             if (domRect) {
                 domRect.y += 40;
                 setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
             }
             setLastSelection(selection);
         } else if (!activeElement || activeElement.className !== 'p-1 outline-none w-full') {
+            console.log("not active or")
             if (rootElement !== null) {
                 setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
             }
@@ -173,7 +181,7 @@ function FloatingLinkEditor({
         }
 
         return true;
-    }, [anchorElem, editor, setIsLinkEditMode, isLinkEditMode, linkUrl]);
+    }, [anchorElem, editor, setIsLinkEditMode, isLinkEditMode, linkUrl, isLink]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -301,7 +309,7 @@ function FloatingLinkEditor({
         <div className="flex items-center justify-between">
             <input
                 ref={inputRef}
-                className="p-1 outline-none w-full bg-[var(--background)]"
+                className="py-1 px-2 outline-none w-full bg-[var(--background)] rounded mr-2 ml-1"
                 placeholder="Ingresá un link o un tema a referenciar"
                 value={editedLinkUrl}
                 onChange={async (event) => {

@@ -51,9 +51,9 @@ const ArticleEditor = () => {
 
     const settings = articleEditorSettings(smallScreen)
 
-    const valid = validArticle(editorState, settings.charLimit, title)
+    //const valid = validArticle(editorState, settings.charLimit, title)
 
-    let disabled = valid.problem != undefined
+    let disabled = false // valid.problem != undefined
 
     const createdAt = new Date()
 
