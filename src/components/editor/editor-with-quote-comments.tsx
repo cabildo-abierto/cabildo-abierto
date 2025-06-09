@@ -17,12 +17,15 @@ import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selectio
 import {$isVisualizationNode} from "../../../modules/ca-lexical-editor/src/nodes/VisualizationNode";
 import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNode";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+import {useTrackReading} from "@/components/article/read-tracking/track-reading";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 type EditorWithQuoteCommentsProps = {
+    uri: string
     settings: SettingsProps
     replyTo: ReplyToContent
     setEditor: (editor: LexicalEditor) => void
@@ -34,7 +37,42 @@ type EditorWithQuoteCommentsProps = {
 }
 
 
+/*type HeatmapProps = {
+    readChunks: Map<number, number>; // Map<chunkIndex, durationMs>
+    totalChunks: number;
+};
+
+export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks }) => {
+    // Convert to array of durations
+    const durations = Array.from({ length: totalChunks }, (_, i) => readChunks.get(i) || 0);
+
+    // Normalize
+    const maxDuration = Math.max(...durations, 1); // avoid division by zero
+
+    return (
+        <div className="flex w-full h-8 overflow-hidden rounded border border-gray-300">
+            {durations.map((duration, i) => {
+                const intensity = duration / maxDuration;
+                const color = `rgb(255, ${Math.floor(255 - 200 * intensity)}, ${Math.floor(255 - 200 * intensity)})`;
+
+                return (
+                    <div
+                        key={i}
+                        title={`Chunk ${i}, ${duration.toFixed(0)}ms`}
+                        style={{
+                            flex: 1,
+                            backgroundColor: color,
+                        }}
+                    />
+                );
+            })}
+        </div>
+    );
+};*/
+
+
 export const EditorWithQuoteComments = ({
+                                            uri,
                                             settings,
                                             replyTo,
                                             editor,
@@ -47,7 +85,9 @@ export const EditorWithQuoteComments = ({
     const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | LexicalSelection | null>(null)
     const {layoutConfig} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
-    const editorElement = useRef(null)
+    const editorElement = useRef<HTMLDivElement>(null)
+    //const [readChunks, setReadChunks] = useState<Map<number, number>>(new Map())
+    useTrackReading(uri, editorElement)
 
     // blockToUri es un mapa de índices de hijos de la raíz (en Lexical) a uris de respuestas
     const [blockToUri, setBlockToUri] = useState<Map<number, string[]> | null>(null)
@@ -124,7 +164,7 @@ export const EditorWithQuoteComments = ({
     const [hasRefreshed, setHasRefreshed] = useState(false)
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            if(editor) {
+            if (editor) {
                 editor.update(() => {
                     const state = editor.getEditorState().toJSON();
                     const nodes = $dfs()
@@ -178,5 +218,11 @@ export const EditorWithQuoteComments = ({
                 />, document.body)}
             </div>
         })}
+
+        {/*<ReadHeatmap readChunks={readChunks} totalChunks={totalChunks}/>
+
+        <div>
+            Porcentaje leído: {Array.from(readChunks.values()).map(r => r > 20000 ? 1 : 0).reduce((acc, cur) => acc+cur, 0) / totalChunks}
+        </div>*/}
     </>
 }

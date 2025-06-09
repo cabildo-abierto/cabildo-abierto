@@ -54,12 +54,6 @@ export const EngagementIcons = ({
                 reactionUri={content.viewer ? content.viewer.repost : undefined}
             />}
             {content.likeCount != undefined && <LikeCounter content={content} showBsky={showBsky}/>}
-            {content.uniqueViewsCount != undefined && <FixedCounter
-                icon={<ViewsIcon/>}
-                count={content.uniqueViewsCount + 1} // always count the author
-                title={"Cantidad de impresiones."}
-            />
-            }
         </>}
 
         <ContentOptionsButton

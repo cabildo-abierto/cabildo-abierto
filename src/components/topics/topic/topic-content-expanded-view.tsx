@@ -118,6 +118,7 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                         </div>
                     }
                     {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
+                        uri={topic.uri}
                         settings={getEditorSettings({
                             isReadOnly: true,
                             initialText: topic.text,

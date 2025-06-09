@@ -5,9 +5,8 @@ import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {getEditorSettings} from "@/components/editor/settings";
 import dynamic from "next/dynamic";
 import {MatchesType} from "@/lib/types";
-import {nodesFromJSONStr} from "@/components/topics/topic/diff";
 import {SerializedDiffNode} from "../../../../modules/ca-lexical-editor/src/nodes/DiffNode";
-import {SerializedEditorState, SerializedLexicalNode} from "lexical";
+import {SerializedEditorState} from "lexical";
 import {produce} from "immer";
 import {decompress} from "@/utils/compression";
 import {
@@ -17,9 +16,6 @@ import {
 import React, {useMemo, useState} from "react";
 import {TopicHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {Authorship} from "@/components/feed/frame/authorship";
-import {Select} from "../../../../modules/ui-utils/src/select";
-import {filterOptions} from "@/components/visualizations/editor/filter-config";
 import {getObjectKey, range} from "@/utils/arrays";
 import {FormControl, InputLabel, MenuItem, Select as MUISelect} from "@mui/material";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
