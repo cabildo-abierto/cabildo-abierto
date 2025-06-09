@@ -312,6 +312,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
             {visualization && <div className={"flex justify-center"}>
                 <PlotFromVisualizationMain
                     visualization={visualization}
+                    onDelete={() => {setVisualization(null)}}
                 />
             </div>}
             {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}

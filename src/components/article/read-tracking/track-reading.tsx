@@ -27,7 +27,7 @@ export async function sendReadChunks(uri: string, chunks: Map<number, number>, t
 
 const CHUNK_HEIGHT = 100; // px
 const IDLE_TIMEOUT = 60000; // 60s
-const FLUSH_INTERVAL = 30000 // 30s
+const FLUSH_INTERVAL = 300000 // 30s
 
 type ReadEvent = {
     scrollY: number
@@ -67,7 +67,7 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
         if(readSegmentStart > articleEnd) return
 
         const firstChunk = Math.max(Math.floor((readSegmentStart - articleStart) / CHUNK_HEIGHT), 0)
-        const lastChunk = Math.floor((Math.min(readSegmentEnd, articleEnd) - articleStart) / CHUNK_HEIGHT)
+        const lastChunk = Math.ceil((Math.min(readSegmentEnd, articleEnd) - articleStart) / CHUNK_HEIGHT)
 
         for(let i = firstChunk; i < lastChunk; i++){
             readChunks.current.set(i, (readChunks.current.get(i) ?? 0) + s.duration)
@@ -162,7 +162,6 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
         return () => clearInterval(interval);
     }, []);
 
-    // Why doesn't this work?
     useEffect(() => {
         return () => {
             if (readChunks.current.size > 0) {

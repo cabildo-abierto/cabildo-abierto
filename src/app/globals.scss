@@ -38,8 +38,13 @@
 }
 
 .italic {
-  font-style: normal; /* Override default italic */
-  font-variation-settings: "slnt" -10; /* Adjust to your preference */
+  font-style: normal;
+  font-variation-settings: "slnt" -10;
+}
+
+custom-italic {
+  font-style: normal;
+  font-variation-settings: "slnt" -10;
 }
 
 bold-text {

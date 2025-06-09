@@ -15,7 +15,7 @@ export const Login = () => {
 
     return <div className="flex flex-col items-center">
 
-        <div className={"bg-[var(--background-dark)] sm:rounded-lg px-4 sm:h-auto sm:mt-10 flex flex-col items-center sm:w-auto w-screen h-screen"}>
+        <div className={"bg-[var(--background-dark)] sm:rounded-lg px-4 space-y-4 sm:h-auto sm:mt-10 flex flex-col items-center sm:w-auto w-screen h-screen"}>
             <div className={"flex justify-start w-full text-[var(--text-light)] mt-2"}>
                 <BackButton defaultURL={"/presentacion"} preferReferrer={false} color={"background-dark"}/>
             </div>
@@ -25,11 +25,11 @@ export const Login = () => {
                 <h1 className={"text-2xl"}>Iniciar sesión</h1>
             </div>
 
-            <div className="flex justify-center mt-16 sm:px-8">
+            <div className="flex justify-center sm:px-8">
                 <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
 
                     {inviteCode && <div
-                        className={"flex flex-col space-y-4 items-center bg-[var(--background-dark)] max-w-80 text-center rounded p-4"}>
+                        className={"flex flex-col space-y-4 items-center bg-[var(--background-dark2)] max-w-80 text-center rounded p-4"}>
                         <div className={"text-[var(--text-light)] text-lg"}>
                             <LuPartyPopper fontSize={"22px"}/>
                         </div>

@@ -1,4 +1,8 @@
 import {$getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode} from "lexical";
+import {
+    editorStateToMarkdown,
+    editorStateToMarkdownNoEmbeds
+} from "../../modules/ca-lexical-editor/src/markdown-transforms";
 
 export function nodesEqual(node1: any, node2: any){
     if(node1.type != node2.type){
@@ -52,19 +56,21 @@ export function $isWhitespace(node: ElementNode): boolean {
 export function emptyOutput(editorState: EditorState | undefined) {
     if (!editorState) return true
 
-    return editorState.read(() => {
-        const root = $getRoot();
-        const child = root.getFirstChild();
+    const t1 = Date.now()
+    const res = editorState.read(() => {
+        const root = $getRoot()
+        const children = root.getChildren()
 
-        if (
-            child == null ||
-            ($isElementNode(child) && child.isEmpty() && root.getChildrenSize() === 1)
-        ) {
-            return true;
+        for(let i = 0; i < children.length; i++) {
+            const child = children[i]
+            if(child.getTextContent().trim() !== ""){
+                return false
+            }
         }
 
-        return $isWhitespace(root);
+        return true
     })
+    return res
 }
 
 function findMentionsInNode(node: any): { id: string }[] {

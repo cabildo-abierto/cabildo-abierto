@@ -24,6 +24,8 @@ import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
 import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 
 
 function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
@@ -256,29 +258,42 @@ export const Plot = ({
                          visualization,
                          height = 400,
                          width,
-                         onEdit
+                         onEdit,
+                         onDelete
                      }: {
     visualization: VisualizationView
     height?: number | string
     width?: number | string
     onEdit?: (v: Visualization) => void
+    onDelete?: () => void
 }) => {
     const [editing, setEditing] = useState(false)
 
     return <div style={{height, width}} className={"relative"}>
-        {onEdit != null && <div
-            className={"absolute top-2 right-2 z-10"}
+        {(onEdit != null || onDelete != null) && <div
+            className={"absolute top-2 right-2 z-10 space-x-2"}
         >
-            <Button
+            {onEdit && <Button
                 size={"small"}
                 startIcon={<WriteButtonIcon/>}
                 color={"background-dark2"}
                 onClick={() => {
                     setEditing(true)
                 }}
+                sx={{height: "28px"}}
             >
                 Editar
-            </Button>
+            </Button>}
+            {onDelete && <IconButton
+                size={"small"}
+                color={"background-dark2"}
+                onClick={() => {
+                    onDelete()
+                }}
+                sx={{height: "28px"}}
+            >
+                <DeleteOutlineIcon fontSize={"inherit"}/>
+            </IconButton>}
         </div>}
         <ResponsivePlot visualization={visualization}/>
         <InsertVisualizationModal
@@ -304,12 +319,13 @@ function getDatasetVisualizationView(visualization: Visualization, dataset: Data
 }
 
 
-const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit}: {
+const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
     visualization: Visualization
     dataSource: DatasetDataSource
     width?: number | string
     height?: number | string
     onEdit?: (v: Visualization) => void
+    onDelete?: () => void
 }) => {
     const {data: dataset, isLoading} = useDataset(dataSource.dataset)
 
@@ -319,15 +335,16 @@ const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit}:
 
     const view = getDatasetVisualizationView(visualization, dataset)
 
-    return <Plot visualization={view} width={width} height={height} onEdit={onEdit}/>
+    return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
 }
 
 
-export const PlotFromVisualizationMain = ({visualization, height, width, onEdit}: {
+export const PlotFromVisualizationMain = ({visualization, height, width, onEdit, onDelete}: {
     visualization: Visualization
     height?: number | string
     width?: number | string
     onEdit?: (v: Visualization) => void
+    onDelete?: () => void
 }) => {
     if (isDatasetDataSource(visualization.dataSource)) {
         return <DatasetPlotFromMain
@@ -336,6 +353,7 @@ export const PlotFromVisualizationMain = ({visualization, height, width, onEdit}
             height={height}
             width={width}
             onEdit={onEdit}
+            onDelete={onDelete}
         />
     } else {
         return <div>

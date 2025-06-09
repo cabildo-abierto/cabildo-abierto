@@ -151,6 +151,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
         preventLeave,
         allowImages,
         allowTables,
+        allowVisualizations,
         markdownShortcuts,
         queryMentions,
         onAddComment
@@ -213,7 +214,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 {allowImages && <ImagesPlugin captionsEnabled={false}/>}
 
-                {false && <PlotPlugin/>}
+                {allowVisualizations && <PlotPlugin/>}
 
                 <OnChangePlugin
                     onChange={(editorState) => {

@@ -43,11 +43,9 @@ type EditorWithQuoteCommentsProps = {
 };
 
 export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks }) => {
-    // Convert to array of durations
     const durations = Array.from({ length: totalChunks }, (_, i) => readChunks.get(i) || 0);
 
-    // Normalize
-    const maxDuration = Math.max(...durations, 1); // avoid division by zero
+    const maxDuration = Math.max(...durations, 1);
 
     return (
         <div className="flex w-full h-8 overflow-hidden rounded border border-gray-300">
@@ -222,7 +220,7 @@ export const EditorWithQuoteComments = ({
         {/*<ReadHeatmap readChunks={readChunks} totalChunks={totalChunks}/>
 
         <div>
-            Porcentaje leído: {Array.from(readChunks.values()).map(r => r > 20000 ? 1 : 0).reduce((acc, cur) => acc+cur, 0) / totalChunks}
+            Porcentaje leído: %{(Array.from(readChunks.values()).map(r => r > 20000 ? 1 : 0).reduce((acc, cur) => acc+cur, 0) * 100 / totalChunks).toFixed(2)}
         </div>*/}
     </>
 }
