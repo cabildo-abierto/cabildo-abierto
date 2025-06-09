@@ -20,7 +20,6 @@ type ThreadRepliesProps = {
 
 export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepliesProps) => {
     const {did, collection, rkey} = splitUri(threadUri)
-    console.log("thread query key", ["thread-feed", did, collection, rkey])
     return (
         <div className={"w-full"}>
             <StaticFeed

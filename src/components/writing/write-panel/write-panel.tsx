@@ -168,7 +168,6 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         uri: getUri(author.bsky.did, "app.bsky.feed.post", "optimistic"),
         cid: "optimistic-post-cid",
         author: basicAuthor,
-        uniqueViewsCount: 0,
         likeCount: 0,
         repostCount: 0,
         bskyLikeCount: 0,

@@ -628,9 +628,6 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.embed.visualization#view',
             ],
           },
-          uniqueViewsCount: {
-            type: 'integer',
-          },
           bskyRepostCount: {
             type: 'integer',
           },
@@ -705,9 +702,6 @@ export const schemaDict = {
           record: {
             type: 'unknown',
           },
-          uniqueViewsCount: {
-            type: 'integer',
-          },
           bskyRepostCount: {
             type: 'integer',
           },
@@ -779,9 +773,6 @@ export const schemaDict = {
           },
           record: {
             type: 'unknown',
-          },
-          uniqueViewsCount: {
-            type: 'integer',
           },
           bskyRepostCount: {
             type: 'integer',

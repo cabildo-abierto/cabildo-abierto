@@ -93,7 +93,6 @@ export interface PostView {
     | $Typed<ArCabildoabiertoEmbedSelectionQuote.View>
     | $Typed<ArCabildoabiertoEmbedVisualization.View>
     | { $type: string }
-  uniqueViewsCount?: number
   bskyRepostCount?: number
   bskyLikeCount?: number
   bskyQuoteCount?: number
@@ -127,7 +126,6 @@ export interface ArticleView {
   summary?: string
   summaryFormat?: string
   record: { [_ in string]: unknown }
-  uniqueViewsCount?: number
   bskyRepostCount?: number
   bskyLikeCount?: number
   bskyQuoteCount?: number
@@ -161,7 +159,6 @@ export interface FullArticleView {
   text?: string
   format?: string
   record: { [_ in string]: unknown }
-  uniqueViewsCount?: number
   bskyRepostCount?: number
   bskyLikeCount?: number
   bskyQuoteCount?: number
