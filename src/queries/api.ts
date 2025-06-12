@@ -13,6 +13,7 @@ import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabild
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {ValidationRequestView} from "@/components/admin/admin-validation";
 import {DonationHistory} from "@/components/aportar/donation-history";
+import {StatsDashboard} from "@/components/admin/stats";
 
 
 function uriToKey(uri: string) {
@@ -168,4 +169,9 @@ export function useDonationHistory() {
 
 export function useMonthlyValue() {
     return useAPI<number>("/monthly-value", ["monthly-value"])
+}
+
+
+export function useStatsDashboard() {
+    return useAPI<StatsDashboard>("/stats-dashboard", ["stats-dashboard"])
 }

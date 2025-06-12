@@ -38,7 +38,7 @@ const TwoImages = ({url1, url2, alt1, alt2}: { url1: string, alt1: string, url2:
                 className="rounded-lg shadow-2xl w-full h-auto"
             />
         </div>
-        <div className="absolute z-2 left-1/4 w-3/4 top-[-40px]">
+        <div className="absolute z-2 left-1/4 w-3/4 top-[-80px]">
             <Image
                 src={url2}
                 width={300}
@@ -53,9 +53,9 @@ const TwoImages = ({url1, url2, alt1, alt2}: { url1: string, alt1: string, url2:
 
 const PresentacionWiki = () => {
     return <div
-        className="w-full flex flex-col md:flex-row items-center justify-center md:space-x-16 mt-32 md:mt-32 px-4 space-y-48 md:space-y-0"
+        className="w-full flex flex-col md:flex-row items-center justify-center md:space-x-16 pb-64 md:pb-24 pt-24 px-4 space-y-48 md:space-y-0"
     >
-        <div className="md:w-1/2 w-screen h-full text-center md:px-0 px-4 max-w-[400px] flex flex-col justify-center">
+        <div className="md:w-1/2 w-screen h-full text-center md:px-0 px-8 max-w-[400px] flex flex-col justify-center">
             <h2 className={"md:text-3xl text-xl"}>
                 Una wiki para la discusión pública argentina.
             </h2>
@@ -84,59 +84,98 @@ const PresentacionWiki = () => {
 
 
 const PresentacionFormato = () => {
-    return <div className={"flex max-w-[90%] items-center mt-16 md:space-x-16 md:flex-row flex-col space-y-16 px-4 md:px-0"}>
-        <div className={"md:w-1/2 flex space-x-2 max-w-[500px]"}>
-            <div className={"flex flex-col space-y-2 h-full justify-center w-3/5"}>
-                <Image
-                    src="/presentacion/light/rápida.png"
-                    width={2000}
-                    height={600}
-                    alt="Publicación rápida"
-                    className="rounded shadow-2xl w-full h-auto mt-10"
-                />
-                <Image
-                    src="/presentacion/light/editor.png"
-                    width={700}
-                    height={700}
-                    alt="Publicación"
-                    className="rounded-lg shadow-2xl w-full h-auto mt-10"
-                />
+    return <div className={"bg-[var(--background-ldark)] w-full flex justify-center items-center py-24"}>
+        <div
+            className={"flex max-w-[90%] items-center flex-col space-y-16 md:space-y-0 px-4 md:px-0 md:space-x-16 md:flex-row"}>
+            <div className={"md:w-1/2 flex space-x-2 max-w-[500px]"}>
+                <div className={"flex flex-col space-y-2 h-full justify-center w-3/5"}>
+                    <Image
+                        src="/presentacion/light/rápida.png"
+                        width={2000}
+                        height={600}
+                        alt="Publicación rápida"
+                        className="rounded shadow-2xl w-full h-auto"
+                    />
+                    <Image
+                        src="/presentacion/light/editor.png"
+                        width={700}
+                        height={700}
+                        alt="Publicación"
+                        className="rounded-lg shadow-2xl w-full h-auto mt-10"
+                    />
+                </div>
+                <div className={"flex flex-col space-y-2 justify-center w-2/5"}>
+                    <Image
+                        src="/presentacion/light/articulo.png"
+                        width={700}
+                        height={700}
+                        alt="Publicación"
+                        className="rounded-lg shadow-2xl w-full h-auto"
+                    />
+                    <Image
+                        src="/presentacion/light/comentarios-texto.png"
+                        width={700}
+                        height={700}
+                        alt="Publicación"
+                        className="rounded-lg shadow-2xl w-full h-auto mt-10"
+                    />
+                </div>
             </div>
-            <div className={"flex flex-col space-y-2 justify-center w-2/5"}>
-                <Image
-                    src="/presentacion/light/articulo.png"
-                    width={700}
-                    height={700}
-                    alt="Publicación"
-                    className="rounded-lg shadow-2xl w-full h-auto mt-10"
-                />
-                <Image
-                    src="/presentacion/light/comentarios-texto.png"
-                    width={700}
-                    height={700}
-                    alt="Publicación"
-                    className="rounded-lg shadow-2xl w-full h-auto mt-10"
-                />
+            <div className={"md:w-1/2 space-y-4 md:max-w-[400px]"}>
+                <h2 className={"xl:text-2xl lg:text-xl text-lg"}>
+                    La discusión con límite de caracteres que conocés, combinada con otros formatos para quienes quieran
+                    profundizar un poco más.
+                </h2>
+                <div className={"xl:text-xl lg:text-lg text-base"}>
+                    <ul>
+                        <li className="flex items-start gap-2">
+                            <AsteriskIcon className="mt-1"/>
+                            <div className={"w-full"}>
+                                Artículos sin límite de caracteres con comentarios sobre el texto.
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <AsteriskIcon className="mt-1"/>
+                            <div className={"w-full"}>
+                                Gráficos interactivos, completamente transparentes, con un editor que no requiere
+                                programar.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div className={"md:w-1/2 space-y-4 md:max-w-[400px]"}>
-            <h2 className={"xl:text-2xl lg:text-xl text-lg"}>
-                La discusión con límite de caracteres que conocés, combinada con otros formatos para quienes quieran
-                profundizar un poco más.
-            </h2>
-            <div className={"space-y-4 xl:text-xl lg:text-lg text-base"}>
-                <ul>
+    </div>
+}
+
+
+const PresentacionCalidadDeLaInformacion = () => {
+    return <div className={"bg-[var(--background-ldark)] w-full flex justify-center"}>
+        <div
+            className="lg:max-w-[80%] w-full flex items-center justify-center md:flex-row flex-col py-24 space-y-12 px-4 md:px-0 md:space-y-0 md:space-x-16"
+        >
+            <div className={"md:w-1/2 sm:text-left flex justify-center md:max-w-[400px]"}>
+                <h2 className={"max-w-[250px] text-2xl md:text-3xl"}>Informate, sin algoritmos ni bots.</h2>
+            </div>
+            <div className={"md:w-1/2 max-w-[400px] lg:text-xl text-lg"}>
+                <ul className="space-y-4 px-2">
                     <li className="flex items-start gap-2">
                         <AsteriskIcon className="mt-1"/>
-                        <div className={"w-full"}>
-                            Artículos sin límite de caracteres con comentarios sobre el texto.
-                        </div>
+                        <span className={"w-full"}>
+                        Te ofrecemos algoritmos transparentes y configurables, para que ninguna IA elija lo que llega a tu pantalla.
+                    </span>
                     </li>
                     <li className="flex items-start gap-2">
                         <AsteriskIcon className="mt-1"/>
-                        <div className={"w-full"}>
-                            Gráficos interactivos, completamente transparentes, con un editor que no requiere programar.
-                        </div>
+                        <span className={"w-full"}>
+                        Tampoco hay publicidad.
+                    </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                        <AsteriskIcon className="mt-1"/>
+                        <span className={"w-full"}>
+                        Además, validamos que los usuarios sean personas reales únicas.
+                    </span>
                     </li>
                 </ul>
             </div>
@@ -145,48 +184,15 @@ const PresentacionFormato = () => {
 }
 
 
-const PresentacionCalidadDeLaInformacion = () => {
-    return <div
-        className="lg:max-w-[80%] w-full flex items-center justify-center md:flex-row flex-col md:mt-48 mt-72 space-y-12 px-4 md:px-0 md:space-y-0 md:space-x-16"
-    >
-        <div className={"md:w-1/2 sm:text-left flex justify-center md:max-w-[400px]"}>
-            <h2 className={"max-w-[250px] text-2xl md:text-3xl"}>Informate, sin algoritmos ni bots.</h2>
-        </div>
-        <div className={"md:w-1/2 max-w-[400px] lg:text-xl text-lg"}>
-            <ul className="space-y-4 px-2">
-                <li className="flex items-start gap-2">
-                    <AsteriskIcon className="mt-1"/>
-                    <span className={"w-full"}>
-                        Te ofrecemos algoritmos transparentes y configurables, para que ninguna IA elija lo que llega a tu pantalla.
-                    </span>
-                </li>
-                <li className="flex items-start gap-2">
-                    <AsteriskIcon className="mt-1"/>
-                    <span className={"w-full"}>
-                        Tampoco hay publicidad.
-                    </span>
-                </li>
-                <li className="flex items-start gap-2">
-                    <AsteriskIcon className="mt-1"/>
-                    <span className={"w-full"}>
-                        Además, validamos que los usuarios sean personas reales únicas.
-                    </span>
-                </li>
-            </ul>
-        </div>
-    </div>
-}
-
-
 const PresentacionRemuneraciones = () => {
     return <div
-        className="lg:max-w-[80%] w-full flex items-center justify-center md:flex-row flex-col md:mt-16 mt-8 space-y-12 px-4 md:px-0 md:space-y-0 md:space-x-16"
+        className="lg:max-w-[80%] py-24 w-full flex items-center justify-center md:flex-row flex-col space-y-12 px-8 md:px-0 md:space-y-0 md:space-x-16"
     >
         <div className={"md:w-1/2 sm:text-left flex justify-center md:max-w-[400px]"}>
             <h2 className={"max-w-[250px] text-2xl md:text-3xl"}>Reconocimiento a los autores.</h2>
         </div>
         <div className={"md:w-1/2 max-w-[400px] lg:text-xl text-lg"}>
-            <p className="mt-8 text-lg">
+            <p className="text-lg">
                 Cabildo Abierto se financia con aportes voluntarios.
             </p>
             <p className="mt-6 text-lg">
@@ -200,52 +206,57 @@ const PresentacionRemuneraciones = () => {
 
 
 const PresentacionAbierto = () => {
-    return <div className="md:mt-32 mb-32 mt-16 flex w-screen md:max-w-[90%] justify-center md:flex-row flex-col items-center md:space-x-12">
-        <div className={"flex text-lg md:text-xl flex-col items-center text-center max-w-[400px] md:max-w-1/2 md:w-full w-screen px-8 md:px-0"}>
-            <h2>
-                Abierto en serio.
-            </h2>
-            <div className="md:text-lg mt-4 space-y-6">
-                <p>
-                    Cabildo Abierto se basa en <span>AT</span><span>Protocol</span>, un sistema de redes sociales
-                    descentralizadas que permite que nadie más que vos sea dueño de tus datos. Tu cuenta de
-                    Cabildo Abierto y la de Bluesky son la misma y tu perfil, seguidores y contenidos se comparten.
-                </p>
-                <p>
-                    Además, el código de Cabildo Abierto es público para que cualquiera lo pueda revisar.
-                </p>
+    return <div className={"flex justify-center bg-[var(--background-ldark)]"}>
+        <div
+            className="space-y-12 md:space-y-0 py-24 flex w-screen md:max-w-[90%] justify-center md:flex-row flex-col items-center md:space-x-12">
+            <div
+                className={"flex text-lg md:text-xl flex-col items-center text-center max-w-[400px] md:max-w-1/2 md:w-full w-screen px-8 md:px-0"}>
+                <h2 className={"md:text-3xl text-2xl"}>
+                    Abierto en serio.
+                </h2>
+                <div className="md:text-lg mt-4 space-y-6">
+                    <p>
+                        Cabildo Abierto se basa en <span>AT</span><span>Protocol</span>, un sistema de redes sociales
+                        descentralizadas que permite que nadie más que vos sea dueño de tus datos. Tu cuenta de
+                        Cabildo Abierto y la de Bluesky son la misma y tu perfil, seguidores y contenidos se comparten.
+                    </p>
+                    <p>
+                        Además, el código de Cabildo Abierto es público para que cualquiera lo pueda revisar.
+                    </p>
+                </div>
             </div>
-        </div>
-        <div className="flex justify-center items-center md:max-w-[400px] md:max-w-1/2 md:w-full w-screen px-4">
-            <div className={"shadow-2xl rounded-lg p-2"}>
-                <div className="relative">
-                    <Image
-                        src="/presentacion/connected.png"
-                        width={400}
-                        height={300}
-                        alt="Red"
-                        className="w-full max-w-screen"
-                    />
-                    <div className="absolute z-2 left-3/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
-                        <div className={"md:w-32 md:h-32 h-24 w-24"}>
-                            <Image
-                                src="/logo.png"
-                                width={400}
-                                height={400}
-                                alt="Logo de Cabildo Abierto"
-                                className="rounded-lg shadow-lg"
-                            />
+            <div className="flex justify-center items-center md:max-w-[400px] md:max-w-1/2 md:w-full w-screen px-4">
+                <div className={"shadow-2xl rounded-lg p-2"}>
+                    <div className="relative">
+                        <Image
+                            src="/presentacion/connected.png"
+                            width={400}
+                            height={300}
+                            alt="Red"
+                            className="w-full max-w-screen"
+                        />
+                        <div className="absolute z-2 left-3/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
+                            <div className={"md:w-32 md:h-32 h-24 w-24"}>
+                                <Image
+                                    src="/logo.png"
+                                    width={400}
+                                    height={400}
+                                    alt="Logo de Cabildo Abierto"
+                                    className="rounded-lg shadow-lg"
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div className="absolute z-2 left-1/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
-                        <Link href="https://bsky.social">
-                            <BlueskyLogo className={"w-24 h-auto md:w-32"}/>
-                        </Link>
-                    </div>
-                    <div className="absolute z-2 left-1/2 bottom-1/4 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
-                        <Link href="https://atproto.com">
-                            <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
-                        </Link>
+                        <div className="absolute z-2 left-1/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
+                            <Link href="https://bsky.social">
+                                <BlueskyLogo className={"w-24 h-auto md:w-32"}/>
+                            </Link>
+                        </div>
+                        <div
+                            className="absolute z-2 left-1/2 bottom-1/4 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
+                            <Link href="https://atproto.com">
+                                <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -259,7 +270,7 @@ const PresentacionInicio = () => {
     const params = useSearchParams()
     const inviteCode = params.get("c")
 
-    return <div className={"flex flex-col pt-24 pb-6 space-y-16 h-screen"}>
+    return <div className={"flex flex-col pt-16 md:pt-24 justify-between space-y-12"}>
         <LogoAndSlogan/>
 
         <div className="flex flex-col items-center">
@@ -278,12 +289,12 @@ const PresentacionInicio = () => {
             </Button>
         </div>
 
-        <div className={"md:text-xl text-center max-w-[420px] font-semibold"}>
+        <div className={"md:text-xl text-center max-w-[420px] font-semibold px-8"}>
             Cabildo Abierto es un foro argentino que combina una wiki y artículos sin límite de caracteres con una
             discusión al mejor estilo de Twitter o Bluesky.
         </div>
 
-        <div className={"text-base items-center space-x-4 flex justify-center"}>
+        <div className={"text-base items-center space-x-4 flex justify-center pb-16"}>
             <div>Más información</div>
             <ArrowDownIcon/>
         </div>
@@ -293,7 +304,7 @@ const PresentacionInicio = () => {
 
 export default function Page() {
     return <Suspense>
-        <div className="flex flex-col items-center px-2 h-full">
+        <div className="flex flex-col items-center h-full">
             <PresentacionInicio/>
             <PresentacionFormato/>
             <PresentacionWiki/>
