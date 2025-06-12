@@ -2,6 +2,7 @@ import { TopicPage } from "@/components/topics/topic/topic-page"
 import {Metadata} from "next";
 import {produce} from "immer";
 import {mainMetadata} from "@/utils/metadata";
+import {get} from "@/utils/fetch";
 
 type Props = {
     params: Promise<{ id: string }>
@@ -13,7 +14,13 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const p = await searchParams
     const i = p?.i
-    if(i){
+    const topicTitle = await get<{title: string}>(`/topic-title/${i}`)
+    console.log(topicTitle)
+    if(topicTitle.data){
+        return produce(mainMetadata, draft => {
+            draft.title = `${topicTitle.data.title} - Tema en Cabildo Abierto`
+        })
+    } else if(i){
         return produce(mainMetadata, draft => {
             draft.title = `${i} - Tema en Cabildo Abierto`
         })

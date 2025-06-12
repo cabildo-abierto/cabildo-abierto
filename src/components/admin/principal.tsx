@@ -5,7 +5,6 @@ import {AdminSection} from "@/components/admin/admin-section";
 import {useState} from "react";
 import {TextField} from "@mui/material";
 import {post} from "@/utils/fetch";
-import { Button } from "../../../modules/ui-utils/src/button";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 
 export const AdminPrincipal = () => {
