@@ -243,10 +243,9 @@ export const TopicContentExpandedViewWithVersion = ({
                 wikiEditorState={wikiEditorState}
             />
 
-            {editor && <SaveEditPopup
+            {showingSaveEditPopup && <SaveEditPopup
                 open={showingSaveEditPopup}
                 editor={editor}
-                currentVersion={topic.currentVersion}
                 onSave={saveEdit}
                 onClose={() => {
                     setShowingSaveEditPopup(false)
