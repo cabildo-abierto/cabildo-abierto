@@ -36,9 +36,7 @@ export const ChangesCounterWithText = ({charsAdded, charsDeleted}: {
 }) => {
     if(charsAdded == null || charsDeleted == null) return null
 
-    return <div>
-        Estás agregando <span
-        className="text-green-600">{charsAdded}</span> {charsAdded == 1 ? "caracter" : "caracteres"} y eliminando <span
-        className="text-red-600">{charsDeleted}</span> {charsDeleted == 1 ? "caracter" : "caracteres"}.
+    return <div className={"text-[var(--text-light)]"}>
+        <span>{charsAdded}</span> {charsAdded == 1 ? "caracter" : "caracteres"} agregados, <span>{charsDeleted}</span> {charsDeleted == 1 ? "caracter" : "caracteres"} borrados.
     </div>
 }

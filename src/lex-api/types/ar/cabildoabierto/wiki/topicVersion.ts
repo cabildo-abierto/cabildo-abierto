@@ -26,6 +26,7 @@ export interface Record {
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
   message?: string
   createdAt: string
+  claimsAuthorship?: boolean
   [k: string]: unknown
 }
 
@@ -94,6 +95,7 @@ export interface VersionInHistory {
   prevAccepted?: string
   contribution?: TopicVersionContribution
   props?: TopicProp[]
+  claimsAuthorship?: boolean
 }
 
 const hashVersionInHistory = 'versionInHistory'

@@ -7,7 +7,6 @@ import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-butt
 import {ChangesCounter} from "../changes-counter"
 import {BaseFullscreenPopup} from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
 import {ProfilePic} from "../../../profile/profile-pic";
-import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {getAcceptCount, getRejectCount} from "../utils";
 import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
@@ -16,20 +15,20 @@ import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner"
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import {useSession} from "@/queries/api";
 import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
 import {TopicProperty} from "@/components/topics/topic/history/topic-property";
-import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit-buttons";
+import {VoteEditButtons} from "@/components/topics/topic/history/vote-edit-buttons";
 import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
 import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {TopicContributor} from "@/lib/types";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 
 const EditDetails = ({topicHistory, index}: { topicHistory: TopicHistory, index: number }) => {
     const v = topicHistory.versions[index]
@@ -41,34 +40,6 @@ const EditDetails = ({topicHistory, index}: { topicHistory: TopicHistory, index:
         prevUri={v.prevAccepted}
         history={topicHistory}
     />
-}
-
-
-const AssignAuthorshipButtons = ({topic, version}: {
-    topic: TopicView, version: number
-}) => {
-    return <div className="flex space-x-2">
-        <ReactionCounter
-            iconActive={<AttachMoneyIcon fontSize={"inherit"}/>}
-            iconInactive={<AttachMoneyIcon fontSize={"inherit"}/>}
-            onAdd={async () => {
-            }}
-            onRemove={async () => {
-            }}
-            active={false}
-            count={0}
-        />
-        <ReactionCounter
-            iconActive={<MoneyOffIcon fontSize={"inherit"}/>}
-            iconInactive={<MoneyOffIcon fontSize={"inherit"}/>}
-            onAdd={async () => {
-            }}
-            onRemove={async () => {
-            }}
-            active={false}
-            count={0}
-        />
-    </div>
 }
 
 
@@ -120,13 +91,13 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
     const topicVersion = topicHistory.versions[index]
     const isCurrent = topic.currentVersion == topicVersion.uri
 
-    const canHaveAuthorship = true // TO DO
+    const claimsAuthorship = topicVersion.addedChars > 0 && topicVersion.claimsAuthorship
 
     let className = "w-full py-1 px-4 flex items-center border-b " + (viewing ? "bg-[var(--background-dark)]" : "")
 
     className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " ")
 
-    className = className + (canHaveAuthorship ? " cursor-pointer hover:bg-[var(--background-dark)]" : "")
+    className = className + " cursor-pointer hover:bg-[var(--background-dark)]"
 
     const obsolete = getCollectionFromUri(topicVersion.uri) == "ar.com.cabildoabierto.topic"
 
@@ -195,11 +166,10 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        {canHaveAuthorship && <AssignAuthorshipButtons
-                            topic={topic}
-                            version={index}
-                        />}
-                        <ConfirmEditButtons
+                        {claimsAuthorship && <span className={"text-[var(--text-light)] text-xl"} title={"El usuario es autor del contenido agregado."}>
+                            <HistoryEduIcon fontSize={"inherit"}/>
+                        </span>}
+                        <VoteEditButtons
                             topicId={topic.id}
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
                             acceptCount={getAcceptCount(topicVersion.status)}
@@ -385,8 +355,9 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
                 </div>
             })}</div>
         <div className="text-sm text-center block min-[800px]:hidden text-[var(--text-light)]">
-            <p className={"py-2"}>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una
-                computadora).</p>
+            <p className={"py-2"}>
+                Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).
+            </p>
         </div>
     </>
 }

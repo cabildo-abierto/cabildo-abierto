@@ -928,6 +928,9 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
+            claimsAuthorship: {
+              type: 'boolean',
+            },
           },
         },
       },
@@ -1061,6 +1064,9 @@ export const schemaDict = {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
             },
+          },
+          claimsAuthorship: {
+            type: 'boolean',
           },
         },
       },

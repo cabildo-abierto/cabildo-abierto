@@ -1,7 +1,6 @@
-import {EditorState, LexicalEditor} from "lexical";
+import {LexicalEditor} from "lexical";
 import {CustomLink as Link} from '../../../../modules/ui-utils/src/custom-link';
-import React, {useEffect, useState} from "react";
-import {getAllText} from "./diff";
+import React, {useEffect, useMemo, useState} from "react";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import {NotEnoughPermissionsWarning} from "./permissions-warning";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
@@ -15,6 +14,11 @@ import {useSession} from "@/queries/api";
 import {Button} from "@/../modules/ui-utils/src/button"
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {post} from "@/utils/fetch";
+import {editorStateToMarkdown, normalizeMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import {decompress} from "@/utils/compression";
 
 
 const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: string) => void }) => {
@@ -36,18 +40,43 @@ const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: stri
 }
 
 
-function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVersion: {}) {
-    // TO DO
-    return {charsAdded: 0}
+function normalizeTopicText(text: string, format: string) {
+    if(format == "markdown"){
+        return {
+            text: normalizeMarkdown(text), format
+        }
+    } else if(format == "markdown-compressed"){
+        return normalizeTopicText(decompress(text), "markdown")
+    } else {
+        return {text, format}
+    }
+}
+
+
+async function getNewVersionDiff(editor: LexicalEditor, topic: TopicView) {
+    const state = editor.getEditorState().toJSON()
+    const md = editorStateToMarkdown(state)
+
+    const {text: currentText, format: currentFormat} = normalizeTopicText(topic.text, topic.format)
+
+    type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArticleEmbed[]}
+    type O = {charsAdded: number, charsDeleted: number}
+
+    const params = {
+        ...md,
+        currentText,
+        currentFormat
+    }
+
+    return await post<I, O>("/diff", params)
 }
 
 
 export const SaveEditPopup = ({
-                                  editor, currentVersion, onClose, onSave, topic, open
+                                  editor, onClose, onSave, topic, open
                               }: {
     open: boolean
     editor: LexicalEditor
-    currentVersion: {}
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{ error?: string }>,
     topic: TopicView
@@ -55,30 +84,46 @@ export const SaveEditPopup = ({
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useSession()
     const [editMsg, setEditMsg] = useState("")
-    const [diff, setDiff] = useState(undefined)
-    const [newVersionSize, setNewVersionSize] = useState(undefined)
+    const [diff, setDiff] = useState<{isLoading: false, error?: string, diff?: {charsAdded: number, charsDeleted: number}} | {isLoading: true}>({isLoading: true})
 
     useEffect(() => {
-        const state = editor.getEditorState()
-        const d = charsDiffFromStateAndCurrentVersion(state, currentVersion)
-
-        if (!d) {
-            setDiff("too big")
+        async function fetchDiff(){
+            try {
+                const d = await getNewVersionDiff(editor, topic)
+                if(d.data) {
+                    setDiff({
+                        isLoading: false,
+                        diff: d.data
+                    })
+                } else if(d.error || !d){
+                    setDiff({
+                        isLoading: false,
+                        error: d ? d.error : "Ocurrió un error en la conexión con el servidor."
+                    })
+                }
+            } catch (err) {
+                setDiff({
+                    isLoading: false,
+                    error: "Ocurrió un error en la conexión con el servidor."
+                })
+            }
         }
 
-        const jsonState = JSON.stringify(state.toJSON())
-        setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
-        setDiff(d)
-    }, [currentVersion, editor])
+        if(diff.isLoading){
+            fetchDiff()
+        }
+    }, [diff, editor])
 
     const infoAuthorship = <span className="link">
         Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link
         href={topicUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
     </span>
 
-    if (newVersionSize == null) {
-        return null
-    }
+    const newVersionSize = useMemo(() => {
+        const state = editor.getEditorState().toJSON()
+        const md = editorStateToMarkdown(state)
+        return md.markdown.length
+    }, [editor])
 
     if (newVersionSize > 1200000) {
         return <AcceptButtonPanel
@@ -98,15 +143,19 @@ export const SaveEditPopup = ({
                     Confirmar cambios
                 </h2>
 
-                {diff !== "too big" && diff != undefined &&
+                {diff.isLoading == false && diff.diff &&
                     <div className="mb-8">
-                        <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>
+                        <ChangesCounterWithText charsAdded={diff.diff.charsAdded} charsDeleted={diff.diff.charsDeleted}/>
                     </div>
                 }
-                {diff === "too big" &&
-                    <div className="text-red-600 text-xs mb-8  sm:text-sm">
-                        Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el
-                        contenido y después agregar el contenido nuevo.
+                {diff.isLoading == false && diff.error &&
+                    <div className="mb-8 text-[var(--text-light)]">
+                        {diff.error}
+                    </div>
+                }
+                {diff.isLoading == true &&
+                    <div className={"h-16"}>
+                        <LoadingSpinner/>
                     </div>
                 }
 
@@ -120,7 +169,7 @@ export const SaveEditPopup = ({
                     </div>
                 }
 
-                {diff !== "too big" && diff != undefined && diff.charsAdded > 0 &&
+                {diff.isLoading == false && diff.diff && diff.diff.charsAdded > 0 &&
                     <div className="flex justify-center">
                         <TickButton
                             ticked={claimsAuthorship}
@@ -147,7 +196,7 @@ export const SaveEditPopup = ({
                         }
                         }
                         text1="Confirmar"
-                        disabled={diff === "too big"}
+                        disabled={(diff.isLoading == false && !diff.diff) || diff.isLoading == true}
                         disableElevation={true}
                     />
                 </div>
