@@ -6,21 +6,20 @@ import {
     View as VisualizationView
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {Barplot} from "@/components/visualizations/barplot";
-import {CurvePlot, CurvePlotContent} from "@/components/visualizations/curve-plot";
-import {defaultStyles, useTooltip, useTooltipInPortal} from "@visx/tooltip";
+import {CurvePlotContent} from "@/components/visualizations/curve-plot";
+import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
 import {Plotter, ValueType} from "@/components/visualizations/editor/plotter";
 import useMeasure from "react-use-measure";
-import {useEffect, useMemo, useRef} from "react";
+import {useCallback, useEffect, useMemo, useRef} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
 import {Zoom} from "@visx/zoom";
 import {Group} from "@visx/group";
 import {localPoint} from "@visx/event";
-import {LinePath} from "@visx/shape";
-import {curveMonotoneX} from "d3-shape";
 import {AxisBottom, AxisLeft} from "@visx/axis";
-import { zoomIdentity, ZoomTransform } from 'd3-zoom';
+import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {BarplotContent} from "@/components/visualizations/barplot"
+import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
+
 
 export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
     xLabel: string,
@@ -28,16 +27,18 @@ export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
     xValue: string,
     yValue: string
 }) {
-    return <>
-        <div>
-            <strong>
-                {yLabel}: {yValue}
-            </strong>
+    return (
+        <div className={"bg-[var(--background)] border-2 border-black p-1 text-sm"}>
+            <div className={"flex justify-between space-x-2"}>
+                <div className={"font-bold"}>{yLabel}</div>
+                <div>{yValue}</div>
+            </div>
+            <div className={"flex justify-between space-x-2"}>
+                <span className={"font-bold"}>{xLabel}</span>
+                <div>{xValue}</div>
+            </div>
         </div>
-        <div>
-            {xLabel}: {xValue}
-        </div>
-    </>
+    )
 }
 
 
@@ -55,41 +56,10 @@ function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
 }
 
 
-export const TwoAxisPlotOld = ({spec, visualization}: TwoAxisPlotProps) => {
-    const {xAxis, yAxis} = spec;
-
-    if (!xAxis || xAxis.length == 0) {
-        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
-            Elegí un eje x.
-        </div>
-    }
-    if (!yAxis || yAxis.length == 0) {
-        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
-            Elegí un eje y.
-        </div>
-    }
-
-    if (!validColumn(xAxis, visualization.dataset) || !validColumn(yAxis, visualization.dataset)) {
-        return <div className={"text-[var(--text-light)]"}>
-            No se encontraron las columnas especificadas en el dataset.
-        </div>
-    }
-
-    if (isBarplot(spec)) {
-        return <Barplot spec={spec} visualization={visualization}/>
-    }
-
-    if (isLines(spec)) {
-        return <CurvePlot spec={spec} visualization={visualization}/>
-    }
-}
-
-
 const toD3ZoomTransform = (matrix: TransformMatrix): ZoomTransform =>
     zoomIdentity
         .translate(matrix.translateX, matrix.translateY)
         .scale(matrix.scaleX); // assumes uniform scale
-
 
 
 export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
@@ -102,8 +72,14 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
         hideTooltip,
     } = useTooltip<{ x: ValueType; y: ValueType }>();
 
-    const {containerRef, TooltipInPortal} = useTooltipInPortal({scroll: true});
-    const [ref, bounds] = useMeasure();
+    const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({scroll: true});
+    const [measureRef, bounds] = useMeasure();
+
+    const containerRef = useCallback((node: HTMLDivElement | null) => {
+        tooltipContainerRef(node);
+        measureRef(node);
+    }, [tooltipContainerRef, measureRef]);
+
     const zoomContainerRef = useRef<SVGRectElement | null>(null);
     const handleWheelRef = useRef<(e: WheelEvent) => void>(null);
 
@@ -114,12 +90,12 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            if(handleWheelRef.current){
+            if (handleWheelRef.current) {
                 handleWheelRef.current?.(e);
             }
         };
 
-        node.addEventListener("wheel", handleWheel, { passive: false });
+        node.addEventListener("wheel", handleWheel, {passive: false});
 
         return () => {
             node.removeEventListener("wheel", handleWheel);
@@ -146,10 +122,7 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const xScale = plotter.getScale('x', innerWidth)
     const yScale = plotter.getScale('y', innerHeight)
 
-    console.log("xScale", xScale)
-    console.log(plotter.xAxis, plotter.yAxis)
-    console.log("yScale", yScale)
-    console.log("bandwidth in plotplot", xScale.bandwidth())
+    const allowZoom = plotter.isCurvePlot()
 
     const initialTransform: TransformMatrix = {
         scaleX: 1,
@@ -161,14 +134,22 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     };
 
     return (
-        <div className="relative w-full h-full" ref={ref}>
+        <div className="relative w-full h-full" ref={containerRef}>
             {visualization.title && (
                 <div className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center">
                     {visualization.title}
                 </div>
             )}
             {tooltipOpen && tooltipData && (
-                <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={{...defaultStyles, zIndex: 2000}}>
+                <TooltipInPortal
+                    top={tooltipTop}
+                    left={tooltipLeft}
+                    style={{
+                        position: "absolute",
+                        zIndex: 2000,
+                        pointerEvents: "none",
+                    }}
+                >
                     <TwoAxisTooltip
                         xLabel={spec.xLabel ?? spec.xAxis}
                         yLabel={spec.yLabel ?? spec.yAxis}
@@ -189,9 +170,19 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
             >
                 {zoom => {
                     handleWheelRef.current = zoom.handleWheel;
-                    const d3Transform = toD3ZoomTransform(zoom.transformMatrix);
-                    const transformedXScale = d3Transform.rescaleX(xScale)
-                    const transformedYScale = d3Transform.rescaleY(yScale)
+
+                    let axisLeftScale
+                    let axisBottomScale
+
+                    if (allowZoom) {
+                        const d3Transform = toD3ZoomTransform(zoom.transformMatrix);
+                        axisBottomScale = d3Transform.rescaleY(xScale)
+                        axisLeftScale = d3Transform.rescaleX(yScale)
+                    } else {
+                        axisBottomScale = xScale
+                        axisLeftScale = yScale
+                    }
+
                     return <svg width={svgWidth} height={svgHeight}>
                         <defs>
                             <clipPath id="zoom-clip">
@@ -204,7 +195,9 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                 width={innerWidth}
                                 height={innerHeight}
                                 fill="transparent"
-                                onWheel={(e) => {zoom.handleWheel(e)}}
+                                onWheel={(e) => {
+                                    zoom.handleWheel(e)
+                                }}
                                 onMouseDown={zoom.dragStart}
                                 onMouseMove={zoom.dragMove}
                                 onMouseUp={zoom.dragEnd}
@@ -220,40 +213,24 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                             />
                             <Group clipPath="url(#zoom-clip)">
                                 {isLines(spec) && <CurvePlotContent
-                                    xScale={transformedXScale}
-                                    yScale={transformedYScale}
+                                    transformMatrix={zoom.transformMatrix}
+                                    xScale={xScale as ScaleLinear<number, number> | ScaleTime<number, number>}
+                                    yScale={yScale as ScaleLinear<number, number>}
                                     data={data}
+                                    showTooltip={showTooltip}
+                                    hideTooltip={hideTooltip}
                                 />}
                                 {isBarplot(spec) && <BarplotContent
-                                    xScale={xScale}
-                                    yScale={yScale}
+                                    xScale={xScale as ScaleBand<string>}
+                                    yScale={yScale as ScaleLinear<number, number>}
                                     data={data}
                                     innerHeight={innerHeight}
                                     hideTooltip={hideTooltip}
                                     showTooltip={showTooltip}
                                 />}
                             </Group>
-                            {/*data.map((d, i) => (
-                        <circle
-                            key={`point-${i}`}
-                            cx={xScale(d.x)}
-                            cy={yScale(d.y)}
-                            r={4}
-                            fill="var(--primary)"
-                            onMouseMove={(event) => {
-                                const coords = localPoint(event);
-                                if (!coords) return;
-                                showTooltip({
-                                    tooltipData: d,
-                                    tooltipLeft: coords.x,
-                                    tooltipTop: coords.y,
-                                });
-                            }}
-                            onMouseLeave={hideTooltip}
-                        />
-                    ))*/}
                             <AxisLeft
-                                scale={transformedYScale}
+                                scale={axisLeftScale}
                                 stroke="var(--text-light)"
                                 tickStroke="var(--text-light)"
                                 tickLabelProps={() => ({
@@ -266,7 +243,7 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                             />
                             <AxisBottom
                                 top={innerHeight}
-                                scale={transformedXScale}
+                                scale={axisBottomScale}
                                 stroke="var(--text-light)"
                                 tickStroke="var(--text-light)"
                                 tickLabelProps={() => ({
@@ -300,7 +277,8 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
             </Zoom>
 
             {visualization.caption && (
-                <div className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1">
+                <div className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1 px-2 break-all"
+                     style={{maxWidth: svgWidth}}>
                     {visualization.caption}
                 </div>
             )}
