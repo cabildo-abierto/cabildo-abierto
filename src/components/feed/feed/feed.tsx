@@ -81,6 +81,7 @@ function Feed<T>({
         staleTime: 1000 * 60 * 5
     })
 
+
     useEffect(() => {
         if (isFetched) {
             qc.removeQueries({ queryKey });

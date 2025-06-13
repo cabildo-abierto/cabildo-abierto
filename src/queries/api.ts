@@ -1,10 +1,9 @@
 import {
     Account,
     Profile, Session,
-    TopicsGraph,
-    TopicVersionAuthorsProps,
+    TopicsGraph, TopicVersionChangesProps,
 } from "@/lib/types"
-import {splitUri, threadApiUrl} from "@/utils/uri";
+import {splitUri, threadApiUrl, topicUrl} from "@/utils/uri";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
@@ -12,9 +11,9 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {ValidationRequestProps} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ValidationRequestView} from "@/components/admin/admin-validation";
 import {DonationHistory} from "@/components/aportar/donation-history";
+import {StatsDashboard} from "@/components/admin/stats";
 
 
 function uriToKey(uri: string) {
@@ -95,8 +94,8 @@ export function useFollowx(handle: string, kind: FollowKind) {
 export type TopicFeed = {mentions: FeedViewContent[], replies: FeedViewContent[], topics: string[]}
 
 
-export function useTopicFeed(id: string){
-    return useAPI<TopicFeed>("/topic-feed/" + encodeURIComponent(id), ["topic-feed", id])
+export function useTopicFeed(id?: string, did?: string, rkey?: string){
+    return useAPI<TopicFeed>(topicUrl(id, {did, rkey}, undefined, "topic-feed"), ["topic-feed", id, did, rkey].filter(x => x != undefined))
 }
 
 
@@ -105,8 +104,8 @@ export function useCodes(){
 }
 
 
-export function useTopic(id: string) {
-    return useAPI<TopicView>("/topic/"+id, ["topic", id])
+export function useTopic(id?: string, did?: string, rkey?: string) {
+    return useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
 }
 
 
@@ -137,13 +136,8 @@ export function useTopicVersion(did: string, rkey: string) {
 }
 
 
-export function useTopicVersionAuthors(did: string, rkey: string) {
-    return useAPI<TopicVersionAuthorsProps>("/topic-version-authors/"+did+"/"+rkey, ["topic-version-authors", did, rkey])
-}
-
-
-export function useTopicVersionChanges(did: string, rkey: string) {
-    return useAPI<TopicVersionAuthorsProps>("/topic-version-changes/"+did+"/"+rkey, ["topic-version-changes", did, rkey])
+export function useTopicVersionChanges(did: string, rkey: string, prevDid: string, prevRkey: string) {
+    return useAPI<TopicVersionChangesProps>("/topic-version-changes/"+did+"/"+rkey+"/"+prevDid+"/"+prevRkey, ["topic-version-changes", did, rkey, prevDid, prevRkey])
 }
 
 
@@ -175,4 +169,9 @@ export function useDonationHistory() {
 
 export function useMonthlyValue() {
     return useAPI<number>("/monthly-value", ["monthly-value"])
+}
+
+
+export function useStatsDashboard() {
+    return useAPI<StatsDashboard>("/stats-dashboard", ["stats-dashboard"])
 }

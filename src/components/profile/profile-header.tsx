@@ -173,10 +173,10 @@ function ProfileHeader({
                 className="flex"
             />
         </div>
-        <EditProfileMobile
+        {editingProfile && <EditProfileMobile
             open={editingProfile}
             onClose={() => {setEditingProfile(false)}}
-        />
+        />}
     </div>
 }
 

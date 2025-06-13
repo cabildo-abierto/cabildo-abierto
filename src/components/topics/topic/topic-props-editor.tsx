@@ -130,7 +130,6 @@ export function addDefaults(props: TopicProp[], topic: TopicView): TopicProp[] {
         const valid = validateTopicProp(p)
         if(!valid.success){
             if(isKnownProp(p.value)){
-                console.log("pushing", defaultPropValue(p.name, p.value.$type, topic))
                 newProps.push({
                     ...p,
                     value: defaultPropValue(p.name, p.value.$type, topic)
@@ -283,9 +282,6 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
         const newProps = addDefaults(props, topic)
         if (!propsEqual(newProps, props)) {
             setProps(newProps)
-            console.log("setting props", newProps)
-        } else {
-            console.log("not adding defaults")
         }
     }, [])
 

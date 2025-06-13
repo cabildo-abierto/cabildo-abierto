@@ -38,7 +38,7 @@ export const DatasetFullView = ({dataset, maxWidth}: {
                     Tamaño
                 </div>
                 <div className={"text-[var(--text-light)] space-x-1 flex items-center"}>
-                    <div className={"font-semibold"}>{rows == undefined ? "?" : rows}</div>
+                    <div className={"font-semibold"}>{rows == undefined ? "..." : rows}</div>
                     <div>filas x</div>
                     <div className={"font-semibold"}>{dataset.columns.length}</div>
                     <div>columnas</div>

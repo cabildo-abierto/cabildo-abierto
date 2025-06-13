@@ -67,6 +67,10 @@ import type {
       super(key);
       this.__kind = kind || "";
     }
+
+    updateDOM(): false {
+      return false
+    }
   
     createDOM(_: EditorConfig): HTMLElement {
       const element = document.createElement('div');

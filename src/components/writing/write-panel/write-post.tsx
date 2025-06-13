@@ -221,11 +221,6 @@ export function visualizationViewToMain(v: VisualizationView): Visualization {
 }
 
 
-const WritePostTextEditor = () => {
-
-}
-
-
 
 export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
@@ -242,7 +237,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     const [visualization, setVisualization] = useState<Visualization>(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
-    const [enDiscusion, setEnDiscusion] = useState(true)
+    const [enDiscusion, setEnDiscusion] = useState(false)
     const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {
         externalEmbedView,
@@ -317,6 +312,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
             {visualization && <div className={"flex justify-center"}>
                 <PlotFromVisualizationMain
                     visualization={visualization}
+                    onDelete={() => {setVisualization(null)}}
                 />
             </div>}
             {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}

@@ -59,7 +59,7 @@ function optimisticCancelRejectVote(qc: QueryClient, uri: string) {
     })
 }
 
-export const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
+export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
     topicId: string
     versionRef: ATProtoStrongRef
     acceptUri?: string

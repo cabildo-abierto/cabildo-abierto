@@ -1,17 +1,14 @@
-import {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
-import {EditorState, LexicalEditor} from "lexical";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
-import {ShowTopicChanges} from "./show-topic-changes";
-import {ShowTopicAuthors} from "./show-topic-authors";
 import {useTopicFeed, useTopicVersion} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {
-    editorStateToMarkdown, markdownToEditorState,
-    normalizeMarkdown
+    editorStateToMarkdown, markdownToEditorState
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
@@ -29,10 +26,11 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/updates";
 import {areSetsEqual} from "@/utils/arrays";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
+import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -41,7 +39,8 @@ export type CreateTopicVersionProps = {
     props?: TopicProp[]
     message?: string,
     claimsAuthorship?: boolean
-    embeds?: ArticleEmbed[]
+    embeds?: ArticleEmbedView[]
+    embedContexts?: EmbedContext[]
 }
 
 
@@ -69,28 +68,35 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
     setEditor: (editor: LexicalEditor) => void
 }) => {
 
-    async function refresh() {
-        if(editor){
-            console.log("refreshing")
-            const state = editor.getEditorState()
-            const jsonState = state.toJSON()
-            const markdown = editorStateToMarkdown(jsonState)
-
-            const refreshedState = markdownToEditorState(markdown.markdown, true, true, markdown.embeds)
-            const parsedState = editor.parseEditorState(refreshedState)
-            editor.update(() => {
-                editor.setEditorState(parsedState)
-            })
-            //const markdownAfter = editorStateToMarkdown(refreshedState)
-            //console.log("length changed?", markdown.markdown.length, markdownAfter.markdown.length)
-        }
-    }
-
     useEffect(() => {
-        if (editor) {
-            refresh()
-        }
-    }, [editor])
+        if (!editor) return;
+
+        const timeoutId = setTimeout(() => {
+            async function refresh() {
+                const state = editor.getEditorState();
+                const jsonState = state.toJSON();
+                const markdown = editorStateToMarkdown(jsonState);
+                if (markdown.markdown.length === 0) return;
+
+                const refreshedState = markdownToEditorState(
+                    markdown.markdown,
+                    true,
+                    true,
+                    markdown.embeds,
+                    markdown.embedContexts
+                );
+                const parsedState = editor.parseEditorState(refreshedState);
+                editor.update(() => {
+                    editor.setEditorState(parsedState);
+                }, { discrete: true });
+            }
+
+            refresh();
+        }, 500);
+
+        return () => clearTimeout(timeoutId); // clean up on unmount or when editor changes
+    }, [editor]);
+
 
     return <>
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
@@ -103,7 +109,7 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                             isReadOnly: false,
                             initialText: topic.text,
                             initialTextFormat: topic.format,
-                            embeds: (topic.record as TopicVersionRecord | undefined)?.embeds ?? [],
+                            embeds: topic.embeds ?? [],
                             allowComments: false,
                             tableOfContents: true,
                             showToolbar: true,
@@ -120,13 +126,13 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>
                     }
-
                     {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
+                        uri={topic.uri}
                         settings={getEditorSettings({
                             isReadOnly: true,
                             initialText: topic.text,
                             initialTextFormat: topic.format,
-                            embeds: (topic.record as TopicVersionRecord | undefined)?.embeds ?? [],
+                            embeds: topic.embeds ?? [],
                             allowComments: true,
                             tableOfContents: true,
                             editorClassName: "relative article-content not-article-content"
@@ -140,21 +146,11 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                         setEditorState={() => {}}
                     />}
                 </div>}
-
-                {wikiEditorState == "changes" &&
-                    <ShowTopicChanges
-                        topic={topic}
-                    />
-                }
-                {wikiEditorState == "authors" &&
-                    <ShowTopicAuthors
-                        topic={topic}
-                    />
-                }
             </div>
         }
     </>
 }
+
 
 
 export const TopicContentExpandedViewWithVersion = ({
@@ -203,7 +199,7 @@ export const TopicContentExpandedViewWithVersion = ({
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
         if (!editor) return {error: "Ocurrió un error con el editor."}
 
-        const {markdown, embeds} = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
+        const {markdown, embeds, embedContexts} = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
 
         const {error} = await saveEditMutation.mutateAsync({
             id: topic.id,
@@ -212,7 +208,8 @@ export const TopicContentExpandedViewWithVersion = ({
             claimsAuthorship,
             message: editMsg,
             props: topicProps,
-            embeds
+            embeds,
+            embedContexts
         })
         if(error){
             return {error}
@@ -257,10 +254,9 @@ export const TopicContentExpandedViewWithVersion = ({
                 wikiEditorState={wikiEditorState}
             />
 
-            {editor && <SaveEditPopup
+            {showingSaveEditPopup && <SaveEditPopup
                 open={showingSaveEditPopup}
                 editor={editor}
-                currentVersion={topic.currentVersion}
                 onSave={saveEdit}
                 onClose={() => {
                     setShowingSaveEditPopup(false)
@@ -292,7 +288,7 @@ export const TopicContentExpandedView = ({
     const router = useRouter()
 
     useEffect(() => {
-        if(!isLoading || !topic || error){
+        if(!isLoading && (!topic || error)){
             router.push(topicUrl(topicId, undefined, wikiEditorState))
         }
     }, [isLoading, error, topic])

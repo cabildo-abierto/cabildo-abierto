@@ -9,7 +9,7 @@ import {
     LexicalSelection
 } from "../selection/lexical-selection";
 import {MarkdownSelection} from "../selection/markdown-selection";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {ProcessedLexicalState} from "../selection/processed-lexical-state";
 import {$Typed} from "@atproto/api";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
@@ -400,14 +400,14 @@ test("selection between images", () => {
 
 test("selection with visualizations", () => {
     const markdown = "abc\n\ndef\n\nghi"
-    const embeds: ArticleEmbed[] = [
+    const embeds: ArticleEmbedView[] = [
         {
-            $type: "ar.cabildoabierto.feed.article#articleEmbed",
+            $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,
             index: 3
         },
         {
-            $type: "ar.cabildoabierto.feed.article#articleEmbed",
+            $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,
             index: 8
         }

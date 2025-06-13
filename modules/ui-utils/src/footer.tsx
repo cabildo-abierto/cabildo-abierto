@@ -63,8 +63,6 @@ export const FooterRightSide = ({showCA}: {showCA: boolean}) => {
 
 export default function Footer({showCA = true}: { showCA?: boolean }) {
     return <footer className="w-full">
-        <GradientHRule/>
-
         <div className="my-8 flex justify-between px-4 md:px-16 space-x-4 w-full py-4">
             <FooterLeftSide/>
             <FooterRightSide showCA={showCA}/>

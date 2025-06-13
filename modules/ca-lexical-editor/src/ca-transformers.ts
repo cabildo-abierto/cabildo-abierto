@@ -5,7 +5,6 @@ import {
     BOLD_UNDERSCORE,
     CHECK_LIST,
     ElementTransformer,
-    INLINE_CODE,
     ITALIC_STAR,
     ITALIC_UNDERSCORE,
     ORDERED_LIST,
@@ -20,8 +19,6 @@ import {HR} from "./plugins/MarkdownTransformers/hr-transformer";
 import {TABLE} from "./plugins/MarkdownTransformers/table-transformer";
 import {$createCustomLinkNode, CustomLinkNode} from "./nodes/CustomLinkNode";
 import {$isLinkNode} from "@lexical/link";
-import {$createVisualizationNode, $isVisualizationNode, VisualizationNode} from "./nodes/VisualizationNode";
-import {getObjectKey} from "@/utils/arrays";
 import {$createHeadingNode, $isHeadingNode, HeadingNode, HeadingTagType} from "@lexical/rich-text";
 
 
@@ -64,25 +61,6 @@ export const LINK: TextMatchTransformer = {
     },
     trigger: ')',
     type: 'text-match',
-};
-
-
-export const VISUALIZATION: ElementTransformer = {
-    dependencies: [VisualizationNode],
-    export: (node) => {
-        if (!$isVisualizationNode(node)) {
-            return null;
-        }
-
-        return `<--vis:${getObjectKey(node.__spec)}-->`
-    },
-    regExp: /<--vis:([a-zA-Z0-9_-]+)-->$/,
-    replace: (parentNode, _1, match) => {
-        const hash = match[1];
-        const node = $createVisualizationNode({hash});
-        parentNode.append(node);
-    },
-    type: 'element',
 };
 
 

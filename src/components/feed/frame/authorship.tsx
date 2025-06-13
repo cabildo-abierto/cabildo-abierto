@@ -12,7 +12,7 @@ export const Authorship = ({content, className = "hover:underline font-medium", 
         {!onlyAuthor && <span>
             {text}
         </span>}
-        <Link href={profileUrl(content.author?.handle)} className={className}>
+        <Link href={profileUrl(content.author?.handle)} className={className} onClick={(e) => {e.stopPropagation()}}>
             {getUsername(content.author)}
         </Link>
     </span>

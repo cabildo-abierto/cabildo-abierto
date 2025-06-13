@@ -19,6 +19,7 @@ import type * as AppBskyEmbedRecordWithMedia from '../../../app/bsky/embed/recor
 import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as ArCabildoabiertoFeedArticle from './article'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -93,7 +94,6 @@ export interface PostView {
     | $Typed<ArCabildoabiertoEmbedSelectionQuote.View>
     | $Typed<ArCabildoabiertoEmbedVisualization.View>
     | { $type: string }
-  uniqueViewsCount?: number
   bskyRepostCount?: number
   bskyLikeCount?: number
   bskyQuoteCount?: number
@@ -127,7 +127,6 @@ export interface ArticleView {
   summary?: string
   summaryFormat?: string
   record: { [_ in string]: unknown }
-  uniqueViewsCount?: number
   bskyRepostCount?: number
   bskyLikeCount?: number
   bskyQuoteCount?: number
@@ -161,7 +160,6 @@ export interface FullArticleView {
   text?: string
   format?: string
   record: { [_ in string]: unknown }
-  uniqueViewsCount?: number
   bskyRepostCount?: number
   bskyLikeCount?: number
   bskyQuoteCount?: number
@@ -174,6 +172,7 @@ export interface FullArticleView {
   labels?: ComAtprotoLabelDefs.Label[]
   topicsMentioned?: TopicMention[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
+  embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
 }
 
 const hashFullArticleView = 'fullArticleView'

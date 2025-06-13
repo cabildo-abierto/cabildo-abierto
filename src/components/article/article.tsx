@@ -33,6 +33,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                 <ArticleHeader article={article}/>
                 <div className={"mt-8 mb-16"} id={editorId}>
                     <EditorWithQuoteComments
+                        uri={article.uri}
                         settings={getEditorSettings({
                             isReadOnly: true,
                             initialText: text,
@@ -40,7 +41,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                             allowComments: true,
                             tableOfContents: true,
                             editorClassName: "article-content",
-                            embeds: (article.record as ArticleRecord).embeds
+                            embeds: article.embeds
                         })}
                         quoteReplies={quoteReplies}
                         pinnedReplies={pinnedReplies}

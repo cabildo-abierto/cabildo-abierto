@@ -21,6 +21,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--icon-color-filter', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)');
 
             root.style.setProperty('--background', 'rgb(25, 25, 35)');
+            root.style.setProperty('--background-ldark', 'rgb(30, 30, 40)');
             root.style.setProperty('--background-dark', 'rgb(35, 35, 45)');
             root.style.setProperty('--background-dark2', 'rgb(45, 45, 55)');
             root.style.setProperty('--background-dark3', 'rgb(65, 65, 75)');
@@ -47,6 +48,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--accent-dark', '#a9a9a9');
 
             root.style.setProperty('--background', 'rgb(255, 255, 240)');
+            root.style.setProperty('--background-ldark', 'rgb(250, 250, 235)');
             root.style.setProperty('--background-dark', 'rgb(240, 240, 225)');
             root.style.setProperty('--background-dark2', 'rgb(225, 225, 210)');
             root.style.setProperty('--background-dark3', 'rgb(210, 210, 195)');
