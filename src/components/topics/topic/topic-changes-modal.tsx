@@ -26,15 +26,11 @@ const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-ed
 
 function getChanges(prevText: SerializedEditorState, newText: SerializedEditorState, diff: MatchesType): SerializedEditorState {
     const {common} = diff
-    console.log("common", common)
     const markdown1 = editorStateToMarkdown(prevText)
     const markdown2 = editorStateToMarkdown(newText)
 
     const nodes1 = markdown1.markdown.split("\n\n")
     const nodes2 = markdown2.markdown.split("\n\n")
-
-    console.log("nodes1", nodes1)
-    console.log("nodes2", nodes2)
 
     function newDiffNode(kind: string, md: string) {
         const nodeEditorState = markdownToEditorState(md)

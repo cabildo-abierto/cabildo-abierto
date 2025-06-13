@@ -15,13 +15,13 @@ export type InsertImageModalProps = {
 export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
-
     return <BaseFullscreenPopup
         open={open}
-        className={"w-96"}
-        onClose={() => {onClose(); setMode(null)}} closeButton={true}
+        onClose={() => {onClose(); setMode(null)}}
+        closeButton={true}
+        backgroundShadow={false}
     >
-        <div className={"flex flex-col items-center justify-center py-4 pb-8"}>
+        <div className={"flex flex-col items-center justify-center py-4 pb-8 w-96"}>
             {!mode &&
                 <div className={"w-48 space-y-4"}>
                     <Button

@@ -292,7 +292,7 @@ export const schemaDict = {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
             },
           },
           quotedContentAuthor: {
@@ -516,7 +516,27 @@ export const schemaDict = {
         properties: {
           value: {
             type: 'union',
-            refs: ['lex:ar.cabildoabierto.embed.visualization'],
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization',
+              'lex:app.bsky.embed.images',
+            ],
+          },
+          index: {
+            type: 'integer',
+          },
+        },
+      },
+      articleEmbedView: {
+        type: 'object',
+        required: ['value', 'index'],
+        properties: {
+          value: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization',
+              'lex:ar.cabildoabierto.embed.visualization#view',
+              'lex:app.bsky.embed.images#view',
+            ],
           },
           index: {
             type: 'integer',
@@ -821,6 +841,13 @@ export const schemaDict = {
             type: 'ref',
             ref: 'lex:app.bsky.feed.defs#threadgateView',
           },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
+            },
+          },
         },
       },
       topicMention: {
@@ -992,6 +1019,13 @@ export const schemaDict = {
           author: {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#articleEmbedView',
+            },
           },
         },
       },

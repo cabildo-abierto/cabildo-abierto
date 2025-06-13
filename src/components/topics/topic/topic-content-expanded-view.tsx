@@ -26,10 +26,11 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/updates";
 import {areSetsEqual} from "@/utils/arrays";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
+import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -38,7 +39,8 @@ export type CreateTopicVersionProps = {
     props?: TopicProp[]
     message?: string,
     claimsAuthorship?: boolean
-    embeds?: ArticleEmbed[]
+    embeds?: ArticleEmbedView[]
+    embedContexts?: EmbedContext[]
 }
 
 
@@ -66,28 +68,35 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
     setEditor: (editor: LexicalEditor) => void
 }) => {
 
-    async function refresh() {
-        if(editor){
-            const state = editor.getEditorState()
-            const jsonState = state.toJSON()
-            const markdown = editorStateToMarkdown(jsonState)
-            if(markdown.markdown.length == 0) return
-
-            const refreshedState = markdownToEditorState(markdown.markdown, true, true, markdown.embeds)
-            const parsedState = editor.parseEditorState(refreshedState)
-            editor.update(() => {
-                editor.setEditorState(parsedState)
-            })
-            //const markdownAfter = editorStateToMarkdown(refreshedState)
-            //console.log("length changed?", markdown.markdown.length, markdownAfter.markdown.length)
-        }
-    }
-
     useEffect(() => {
-        if (editor) {
-            refresh()
-        }
-    }, [editor])
+        if (!editor) return;
+
+        const timeoutId = setTimeout(() => {
+            async function refresh() {
+                const state = editor.getEditorState();
+                const jsonState = state.toJSON();
+                const markdown = editorStateToMarkdown(jsonState);
+                if (markdown.markdown.length === 0) return;
+
+                const refreshedState = markdownToEditorState(
+                    markdown.markdown,
+                    true,
+                    true,
+                    markdown.embeds,
+                    markdown.embedContexts
+                );
+                const parsedState = editor.parseEditorState(refreshedState);
+                editor.update(() => {
+                    editor.setEditorState(parsedState);
+                }, { discrete: true });
+            }
+
+            refresh();
+        }, 500);
+
+        return () => clearTimeout(timeoutId); // clean up on unmount or when editor changes
+    }, [editor]);
+
 
     return <>
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
@@ -100,7 +109,7 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                             isReadOnly: false,
                             initialText: topic.text,
                             initialTextFormat: topic.format,
-                            embeds: (topic.record as TopicVersionRecord | undefined)?.embeds ?? [],
+                            embeds: topic.embeds ?? [],
                             allowComments: false,
                             tableOfContents: true,
                             showToolbar: true,
@@ -123,7 +132,7 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                             isReadOnly: true,
                             initialText: topic.text,
                             initialTextFormat: topic.format,
-                            embeds: (topic.record as TopicVersionRecord | undefined)?.embeds ?? [],
+                            embeds: topic.embeds ?? [],
                             allowComments: true,
                             tableOfContents: true,
                             editorClassName: "relative article-content not-article-content"
@@ -141,6 +150,7 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
         }
     </>
 }
+
 
 
 export const TopicContentExpandedViewWithVersion = ({
@@ -189,7 +199,7 @@ export const TopicContentExpandedViewWithVersion = ({
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
         if (!editor) return {error: "Ocurrió un error con el editor."}
 
-        const {markdown, embeds} = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
+        const {markdown, embeds, embedContexts} = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
 
         const {error} = await saveEditMutation.mutateAsync({
             id: topic.id,
@@ -198,7 +208,8 @@ export const TopicContentExpandedViewWithVersion = ({
             claimsAuthorship,
             message: editMsg,
             props: topicProps,
-            embeds
+            embeds,
+            embedContexts
         })
         if(error){
             return {error}

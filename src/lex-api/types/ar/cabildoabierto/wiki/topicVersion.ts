@@ -12,6 +12,7 @@ import {
 import type * as ArCabildoabiertoFeedArticle from '../feed/article'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
+import {ArticleEmbedView} from "../feed/article";
 
 const is$typed = _is$typed,
   validate = _validate
@@ -53,6 +54,7 @@ export interface TopicView {
   lastEdit: string
   createdAt: string
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
+  embeds?: ArticleEmbedView[]
 }
 
 const hashTopicView = 'topicView'

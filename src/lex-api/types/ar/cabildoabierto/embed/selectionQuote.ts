@@ -39,7 +39,7 @@ export interface View {
   quotedText: string
   quotedTextFormat?: string
   quotedContent: string
-  quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
+  quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
   quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
   quotedContentTitle?: string
 }

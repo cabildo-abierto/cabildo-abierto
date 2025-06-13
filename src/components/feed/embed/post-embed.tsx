@@ -21,13 +21,15 @@ type PostEmbedProps = {
     hideSelectionQuote?: boolean
     onClickSelectionQuote?: (cid: string) => void
     showContext?: boolean
+    onArticle?: boolean
 }
 
 
-export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true}: PostEmbedProps) => {
+export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true, onArticle=false}: PostEmbedProps) => {
     return <>
         {isEmbedImagesView(embed) && <PostImagesEmbed
             embed={embed}
+            onArticle={onArticle}
         />}
         {isEmbedRecordWithMediaView(embed) && <PostRecordWithMediaEmbed
             embed={embed}

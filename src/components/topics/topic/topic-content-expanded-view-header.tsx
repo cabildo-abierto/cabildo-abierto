@@ -163,6 +163,7 @@ export const TopicContentExpandedViewHeader = ({
                 color={"background"}
             >
                 <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
-            </IconButton></div>}
+            </IconButton>
+        </div>}
     </div>
 }

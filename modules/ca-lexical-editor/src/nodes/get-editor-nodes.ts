@@ -1,7 +1,7 @@
 import {createBeautifulMentionNode} from "lexical-beautiful-mentions";
 import {CustomMentionComponent} from "../ui/custom-mention-component";
 import {ImageNode} from "./ImageNode";
-import {VisualizationNode} from "./VisualizationNode";
+import {EmbedNode} from "./EmbedNode";
 import {CustomMarkNode} from "./CustomMarkNode";
 import {SidenoteNode} from "./SidenoteNode";
 import {MarkNode} from "@lexical/mark";
@@ -38,7 +38,7 @@ export function getEditorNodes(settings: { allowImages: boolean }): readonly (Kl
         LayoutContainerNode,
         LayoutItemNode,
         ...(allowImages ? [ImageNode] : []),
-        VisualizationNode,
+        EmbedNode,
         CustomMarkNode,
         SidenoteNode,
         CustomLinkNode,

@@ -14,7 +14,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {$isVisualizationNode} from "../../../modules/ca-lexical-editor/src/nodes/VisualizationNode";
+import {$isEmbedNode} from "../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNode";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/article/read-tracking/track-reading";
@@ -129,7 +129,7 @@ export const EditorWithQuoteComments = ({
     const state = editor ? editor.getEditorState() : undefined
 
     useEffect(() => {
-        if (!editor) return
+        if (!editor || !state) return // !state está solo para asegurar que el useEffect se ejecute cuando state cambia
         editor.update(() => {
             if (!blockToUri) return
 
@@ -166,7 +166,7 @@ export const EditorWithQuoteComments = ({
                 editor.update(() => {
                     const state = editor.getEditorState().toJSON();
                     const nodes = $dfs()
-                    if (nodes.some(n => $isVisualizationNode(n.node) || $isImageNode(n.node))) {
+                    if (nodes.some(n => $isEmbedNode(n.node) || $isImageNode(n.node))) {
                         const stateStr = JSON.stringify(state);
                         const newState = editor.parseEditorState(stateStr);
                         editor.setEditorState(newState);

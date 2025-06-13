@@ -29,8 +29,6 @@ function useShouldGoTo(wikiEditorState: WikiEditorState) {
                     smoothScrollTo(elem);
                     setShouldGoTo(null);
                     observer.disconnect();
-                } else {
-                    console.log("didn't find element")
                 }
             });
 
@@ -72,7 +70,6 @@ export const TopicPage = ({topicId, did, rkey}: {
         updateSearchParam("i", topic.id)
         updateSearchParam("did", did ?? null)
         updateSearchParam("rkey", rkey ?? null)
-        console.log("setting editor state and pushing", s, topic.id, did, rkey)
     }
 
     const onClickQuote = (cid: string) => {

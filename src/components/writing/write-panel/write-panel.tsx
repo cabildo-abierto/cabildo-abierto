@@ -31,7 +31,6 @@ function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewC
         const data = old as InfiniteFeed<FeedViewContent>
 
         return produce(data, draft => {
-            console.log("adding", post, "to", queryKey)
             if(draft.pages.length == 0) {
                 draft.pages = [{
                     data: [post],
@@ -59,7 +58,6 @@ function addReplyPostToThreadQuery(qc: QueryClient, queryKey: string[], post: Fe
                 $type: "ar.cabildoabierto.feed.defs#threadViewContent",
                 content: post.content,
             }
-            console.log("setting new replies with", newPost)
             draft.replies = [newPost, ...draft.replies]
         })
     })
@@ -189,7 +187,6 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
 
     if(post.reply){
         const {did, collection, rkey} = splitUri(post.reply.parent.uri)
-        console.log("adding post to", ["thread-feed", did, collection, rkey])
         addPostToFeedQuery(qc, ["thread-feed", did, collection, rkey], feedContent)
         addReplyPostToThreadQuery(qc, threadQueryKey(post.reply.parent.uri), feedContent)
         if(isTopicView(replyTo)) {

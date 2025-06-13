@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {useEffect, useState } from "react";
 import {
     anyEditorStateToMarkdown,
@@ -23,7 +23,6 @@ async function validSelectionForComment(text: string, format: string, selection:
             selection = selection.toMarkdownSelection(state)
         }
         if(selection.isEmpty()) {
-            console.log("selection empty")
             return null
         }
         const processedState = new ProcessedLexicalState(state)
@@ -33,7 +32,6 @@ async function validSelectionForComment(text: string, format: string, selection:
         if(lexicalSelection.equivalentTo(lexicalSelectionBack, processedState)){
             return markdownSelectionBack
         } else {
-            console.log("selection isn't idempotent")
             return null
         }
     } catch (err) {
@@ -48,7 +46,7 @@ type SelectionQuoteProps = {
     showContext?: boolean
     quotedContent: string
     quotedText: string
-    quotedContentEmbeds?: ArticleEmbed[]
+    quotedContentEmbeds?: ArticleEmbedView[]
     quotedContentAuthor: ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string

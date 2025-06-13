@@ -10,14 +10,22 @@ import {useEffect, useState} from "react";
 import removeMarkdown from "remove-markdown";
 import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import dynamic from "next/dynamic";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
-const createArticle = async (text: string, format: string, title: string, enDiscusion: boolean, embeds: ArticleEmbed[]) => {
-    return post("/article", {
-        text, format, title, enDiscusion, embeds
-    })
+export type CreateArticleProps = {
+    title: string
+    format: string
+    text: string
+    enDiscusion: boolean
+    embeds?: ArticleEmbedView[]
+    embedContexts?: EmbedContext[]
+}
+
+const createArticle = async (props: CreateArticleProps) => {
+    return post("/article", props)
 }
 
 export function markdownToPlainText(md: string) {
@@ -45,9 +53,16 @@ export const PublishArticleButton = ({editorState, title, disabled, modalOpen, s
 
     const handleSubmit = (enDiscusion: boolean) => async () => {
         const editorStateStr = JSON.stringify(editorState.toJSON())
-        const {embeds, markdown} = editorStateToMarkdown(editorStateStr)
+        const {embeds, markdown, embedContexts} = editorStateToMarkdown(editorStateStr)
 
-        const {error} = await createArticle(markdown, "markdown", title, enDiscusion, embeds)
+        const {error} = await createArticle({
+            text: markdown,
+            format: "markdown",
+            title,
+            enDiscusion,
+            embeds,
+            embedContexts
+        })
         if (error) return {error}
 
         router.push("/inicio?f=siguiendo")

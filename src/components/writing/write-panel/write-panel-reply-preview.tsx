@@ -20,7 +20,7 @@ export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
                     quotedContent={replyTo.uri}
                     quotedText={replyTo.text}
                     quotedTextFormat={replyTo.format}
-                    quotedContentEmbeds={isFullArticleView(replyTo) ? (replyTo.record as ArticleRecord).embeds : []}
+                    quotedContentEmbeds={(isFullArticleView(replyTo) || isTopicView(replyTo)) ? replyTo.embeds : []}
                     quotedContentAuthor={replyTo.author}
                     selection={selection}
                 />

@@ -256,11 +256,9 @@ function getTopicContributors(history: TopicHistory): TopicContributor[] {
         let contribution = v.contribution
 
         if (contribution) {
-            console.log("contribution", contribution)
             const cur = authors.get(profile.did)
             const all = parseFloat((contribution.all ?? 0).toString())
             const monetized = parseFloat((contribution.monetized ?? 0).toString())
-            console.log(all, monetized)
             if(cur){
                 authors.set(profile.did, {
                     profile,
