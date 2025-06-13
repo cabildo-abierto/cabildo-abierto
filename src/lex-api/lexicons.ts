@@ -292,7 +292,7 @@ export const schemaDict = {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
             },
           },
           quotedContentAuthor: {
@@ -516,7 +516,27 @@ export const schemaDict = {
         properties: {
           value: {
             type: 'union',
-            refs: ['lex:ar.cabildoabierto.embed.visualization'],
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization',
+              'lex:app.bsky.embed.images',
+            ],
+          },
+          index: {
+            type: 'integer',
+          },
+        },
+      },
+      articleEmbedView: {
+        type: 'object',
+        required: ['value', 'index'],
+        properties: {
+          value: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization',
+              'lex:ar.cabildoabierto.embed.visualization#view',
+              'lex:app.bsky.embed.images#view',
+            ],
           },
           index: {
             type: 'integer',
@@ -628,9 +648,6 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.embed.visualization#view',
             ],
           },
-          uniqueViewsCount: {
-            type: 'integer',
-          },
           bskyRepostCount: {
             type: 'integer',
           },
@@ -705,9 +722,6 @@ export const schemaDict = {
           record: {
             type: 'unknown',
           },
-          uniqueViewsCount: {
-            type: 'integer',
-          },
           bskyRepostCount: {
             type: 'integer',
           },
@@ -780,9 +794,6 @@ export const schemaDict = {
           record: {
             type: 'unknown',
           },
-          uniqueViewsCount: {
-            type: 'integer',
-          },
           bskyRepostCount: {
             type: 'integer',
           },
@@ -829,6 +840,13 @@ export const schemaDict = {
           threadgate: {
             type: 'ref',
             ref: 'lex:app.bsky.feed.defs#threadgateView',
+          },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
+            },
           },
         },
       },
@@ -937,6 +955,9 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
+            claimsAuthorship: {
+              type: 'boolean',
+            },
           },
         },
       },
@@ -999,6 +1020,13 @@ export const schemaDict = {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#articleEmbedView',
+            },
+          },
         },
       },
       topicHistory: {
@@ -1056,12 +1084,23 @@ export const schemaDict = {
           removedChars: {
             type: 'integer',
           },
+          prevAccepted: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          contribution: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionContribution',
+          },
           props: {
             type: 'array',
             items: {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
             },
+          },
+          claimsAuthorship: {
+            type: 'boolean',
           },
         },
       },
@@ -1200,6 +1239,18 @@ export const schemaDict = {
           lastEdit: {
             type: 'string',
             format: 'datetime',
+          },
+        },
+      },
+      topicVersionContribution: {
+        type: 'object',
+        required: ['monetized', 'all'],
+        properties: {
+          monetized: {
+            type: 'string',
+          },
+          all: {
+            type: 'string',
           },
         },
       },

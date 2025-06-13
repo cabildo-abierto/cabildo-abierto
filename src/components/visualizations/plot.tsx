@@ -4,10 +4,10 @@ import {
     Lines,
     View as VisualizationView,
     Main as Visualization,
-    Scatterplot, DatasetDataSource
+    Scatterplot, DatasetDataSource, isLines
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
-import {Bar} from '@visx/shape';
+import {Bar, LinePath} from '@visx/shape';
 import {scaleBand, scaleLinear} from '@visx/scale';
 import {Group} from '@visx/group';
 import {AxisBottom, AxisLeft} from '@visx/axis';
@@ -16,14 +16,18 @@ import {$Typed} from "@atproto/api";
 import {useTooltip, useTooltipInPortal, defaultStyles} from '@visx/tooltip';
 import {localPoint} from '@visx/event';
 import useMeasure from "react-use-measure";
-import { Button } from "../../../modules/ui-utils/src/button";
-import { useState } from "react";
-import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
-import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
 import {useDataset} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {Button} from "../../../modules/ui-utils/src/button";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
+import {useState} from "react";
+import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import {IconButton} from "../../../modules/ui-utils/src/icon-button";
+import {curveMonotoneX} from "d3-shape";
+import {Plotter} from "@/components/visualizations/editor/plotter";
 
 
 function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
@@ -188,6 +192,155 @@ export const Barplot = ({spec, visualization}: {
                 </Group>
             </svg>
             {visualization.caption && (
+                <div className="italic text-center text-[var(--text-light)] mt-1 px-2 break-words w-full max-w-full">
+                    {visualization.caption}
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+export const CurvePlot = ({
+                              spec,
+                              visualization,
+                          }: {
+    spec: Lines;
+    visualization: VisualizationView;
+}) => {
+    const {
+        tooltipData,
+        tooltipLeft,
+        tooltipTop,
+        tooltipOpen,
+        showTooltip,
+        hideTooltip,
+    } = useTooltip<{ x: number | Date | string; y: number | Date | string}>();
+
+    const { containerRef, TooltipInPortal } = useTooltipInPortal({ scroll: true });
+    const [ref, bounds] = useMeasure();
+
+    const totalWidth = bounds.width || 400;
+    const totalHeight = bounds.height || 300;
+
+    const titleHeight = visualization.title ? 30 : 0;
+    const captionHeight = visualization.caption ? 50 : 0;
+    const reservedHeight = titleHeight + captionHeight;
+
+    const svgWidth = totalWidth;
+    const svgHeight = totalHeight - reservedHeight;
+
+    const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+    const innerWidth = svgWidth - margin.left - margin.right;
+    const innerHeight = svgHeight - margin.top - margin.bottom;
+
+    const dataLoader = new Plotter(visualization.dataset.data, spec.xAxis, spec.yAxis, "CurvePlot")
+    const data = dataLoader.prepareForPlot()
+
+    const xScale = dataLoader.getScale('x', innerWidth)
+    const yScale = dataLoader.getScale('y', innerHeight)
+
+    return (
+        <div className="relative w-full h-full" ref={ref}>
+            {visualization.title && (
+                <div className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center">
+                    {visualization.title}
+                </div>
+            )}
+            {tooltipOpen && tooltipData && (
+                <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={{ ...defaultStyles, zIndex: 2000 }}>
+                    <div>
+                        <strong>{spec.yLabel ?? spec.yAxis}: {tooltipData.y.toString()}</strong>
+                    </div>
+                    <div>{spec.xLabel ?? spec.xAxis}: {tooltipData.x.toString()}</div>
+                </TooltipInPortal>
+            )}
+            <svg ref={containerRef} width={svgWidth} height={svgHeight}>
+                <Group left={margin.left} top={margin.top}>
+                    <LinePath
+                        data={data}
+                        x={(d) => xScale(d.x) ?? 0}
+                        y={(d) => yScale(d.y)}
+                        stroke="var(--primary)"
+                        strokeWidth={2}
+                        curve={curveMonotoneX}
+                        onMouseMove={(event) => {
+                            const { x } = localPoint(event) || { x: 0 };
+                            const nearest = data.reduce((prev, curr) =>
+                                Math.abs(xScale(curr.x)! - x) < Math.abs(xScale(prev.x)! - x) ? curr : prev
+                            );
+                            showTooltip({
+                                tooltipData: nearest,
+                                tooltipLeft: xScale(nearest.x),
+                                tooltipTop: yScale(nearest.y),
+                            });
+                        }}
+                        onMouseLeave={() => hideTooltip()}
+                    />
+                    {data.map((d, i) => (
+                        <circle
+                            key={`point-${i}`}
+                            cx={xScale(d[spec.xAxis])}
+                            cy={yScale(d[spec.yAxis])}
+                            r={4}
+                            fill="var(--primary)"
+                            onMouseMove={(event) => {
+                                const coords = localPoint(event);
+                                if (!coords) return;
+                                showTooltip({
+                                    tooltipData: d,
+                                    tooltipLeft: coords.x,
+                                    tooltipTop: coords.y,
+                                });
+                            }}
+                            onMouseLeave={hideTooltip}
+                        />
+                    ))}
+                    <AxisLeft
+                        scale={yScale}
+                        stroke="var(--text-light)"
+                        tickStroke="var(--text-light)"
+                        tickLabelProps={() => ({
+                            fill: 'var(--text)',
+                            fontSize: 12,
+                            textAnchor: 'end',
+                            dx: '-0.25em',
+                            dy: '0.25em',
+                        })}
+                    />
+                    <AxisBottom
+                        top={innerHeight}
+                        scale={xScale}
+                        stroke="var(--text-light)"
+                        tickStroke="var(--text-light)"
+                        tickLabelProps={() => ({
+                            fill: 'var(--text)',
+                            fontSize: 12,
+                            textAnchor: 'middle',
+                        })}
+                    />
+                    <text
+                        x={-innerHeight / 2}
+                        y={-margin.left + 15}
+                        transform="rotate(-90)"
+                        textAnchor="middle"
+                        fontSize={14}
+                        fill="var(--text)"
+                    >
+                        {spec.yLabel ?? spec.yAxis}
+                    </text>
+                    <text
+                        x={innerWidth / 2}
+                        y={innerHeight + 40}
+                        textAnchor="middle"
+                        fontSize={14}
+                        fill="var(--text)"
+                    >
+                        {spec.xLabel ?? spec.xAxis}
+                    </text>
+                </Group>
+            </svg>
+            {visualization.caption && (
                 <div className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1">
                     {visualization.caption}
                 </div>
@@ -211,12 +364,12 @@ export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const {xAxis, yAxis} = spec;
 
     if (!xAxis || xAxis.length == 0) {
-        return <div className={"text-[var(--text-light)]"}>
+        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Elegí un eje x.
         </div>
     }
     if (!yAxis || yAxis.length == 0) {
-        return <div className={"text-[var(--text-light)]"}>
+        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Elegí un eje y.
         </div>
     }
@@ -229,6 +382,10 @@ export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
 
     if (isBarplot(spec)) {
         return <Barplot spec={spec} visualization={visualization}/>
+    }
+
+    if (isLines(spec)) {
+        return <CurvePlot spec={spec} visualization={visualization}/>
     }
 }
 
@@ -257,29 +414,42 @@ export const Plot = ({
                          visualization,
                          height = 400,
                          width,
-                         onEdit
+                         onEdit,
+                         onDelete
                      }: {
     visualization: VisualizationView
     height?: number | string
     width?: number | string
     onEdit?: (v: Visualization) => void
+    onDelete?: () => void
 }) => {
     const [editing, setEditing] = useState(false)
 
     return <div style={{height, width}} className={"relative"}>
-        {onEdit != null && <div
-            className={"absolute top-2 right-2 z-10"}
+        {(onEdit != null || onDelete != null) && <div
+            className={"absolute top-2 right-2 z-10 space-x-2"}
         >
-            <Button
+            {onEdit && <Button
                 size={"small"}
                 startIcon={<WriteButtonIcon/>}
                 color={"background-dark2"}
                 onClick={() => {
                     setEditing(true)
                 }}
+                sx={{height: "28px"}}
             >
                 Editar
-            </Button>
+            </Button>}
+            {onDelete && <IconButton
+                size={"small"}
+                color={"background-dark2"}
+                onClick={() => {
+                    onDelete()
+                }}
+                sx={{height: "28px"}}
+            >
+                <DeleteOutlineIcon fontSize={"inherit"}/>
+            </IconButton>}
         </div>}
         <ResponsivePlot visualization={visualization}/>
         <InsertVisualizationModal
@@ -305,12 +475,13 @@ function getDatasetVisualizationView(visualization: Visualization, dataset: Data
 }
 
 
-const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit}: {
+const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
     visualization: Visualization
     dataSource: DatasetDataSource
     width?: number | string
     height?: number | string
     onEdit?: (v: Visualization) => void
+    onDelete?: () => void
 }) => {
     const {data: dataset, isLoading} = useDataset(dataSource.dataset)
 
@@ -320,15 +491,16 @@ const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit}:
 
     const view = getDatasetVisualizationView(visualization, dataset)
 
-    return <Plot visualization={view} width={width} height={height} onEdit={onEdit}/>
+    return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
 }
 
 
-export const PlotFromVisualizationMain = ({visualization, height, width, onEdit}: {
+export const PlotFromVisualizationMain = ({visualization, height, width, onEdit, onDelete}: {
     visualization: Visualization
     height?: number | string
     width?: number | string
     onEdit?: (v: Visualization) => void
+    onDelete?: () => void
 }) => {
     if (isDatasetDataSource(visualization.dataSource)) {
         return <DatasetPlotFromMain
@@ -337,6 +509,7 @@ export const PlotFromVisualizationMain = ({visualization, height, width, onEdit}
             height={height}
             width={width}
             onEdit={onEdit}
+            onDelete={onDelete}
         />
     } else {
         return <div>

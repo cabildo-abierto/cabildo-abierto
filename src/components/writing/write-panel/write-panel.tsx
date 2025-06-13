@@ -14,7 +14,7 @@ import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel"
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {getUri, splitUri} from "@/utils/uri";
 import {contentQueriesFilter} from "@/queries/updates";
-import {threadQueryKey, useProfile, useSession} from "@/queries/api";
+import {threadQueryKey, TopicFeed, useProfile, useSession} from "@/queries/api";
 import {Profile} from "@/lib/types";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
@@ -54,10 +54,11 @@ function addReplyPostToThreadQuery(qc: QueryClient, queryKey: string[], post: Fe
 
         return produce(data, draft => {
             if(!draft.replies) draft.replies = []
-            draft.replies = [{
+            const newPost = {
                 $type: "ar.cabildoabierto.feed.defs#threadViewContent",
                 content: post.content,
-            }, ...draft.replies]
+            }
+            draft.replies = [newPost, ...draft.replies]
         })
     })
 }
@@ -108,6 +109,42 @@ function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToConte
 }
 
 
+function addPostToTopicFeedQueries(qc: QueryClient, did: string, rkey: string, id: string, post: FeedViewContent) {
+    qc.setQueryData(["topic-feed", id, "replies"], old => {
+        if(!old) return old
+        const data = old as InfiniteFeed<FeedViewContent>
+
+        return produce(data, draft => {
+            if(draft.pages.length == 0) {
+                draft.pages = [{
+                    data: [post],
+                    nextCursor: undefined
+                }]
+            } else {
+                draft.pages[0].data = [
+                    post,
+                    ...draft.pages[0].data
+                ]
+            }
+        })
+    });
+
+    [["topic-feed", id], ["topic-feed", did, rkey]].forEach(queryKey => {
+        qc.setQueryData(queryKey, old => {
+            if(!old) return old
+            const data = old as TopicFeed
+
+            return produce(data, draft => {
+                draft.replies = [
+                    post,
+                    ...draft.replies
+                ]
+            })
+        })
+    })
+}
+
+
 function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Profile, replyTo: ReplyToContent) {
     const basicAuthor: ProfileViewBasic = {
         $type: "ar.cabildoabierto.actor.defs#profileViewBasic",
@@ -129,7 +166,6 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         uri: getUri(author.bsky.did, "app.bsky.feed.post", "optimistic"),
         cid: "optimistic-post-cid",
         author: basicAuthor,
-        uniqueViewsCount: 0,
         likeCount: 0,
         repostCount: 0,
         bskyLikeCount: 0,
@@ -145,14 +181,18 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
     }
 
     const feedContent: FeedViewContent = {
-        content
+        content,
+        $type: "ar.cabildoabierto.feed.defs#feedViewContent"
     }
 
     if(post.reply){
-        console.log("adding post to feed query")
         const {did, collection, rkey} = splitUri(post.reply.parent.uri)
         addPostToFeedQuery(qc, ["thread-feed", did, collection, rkey], feedContent)
         addReplyPostToThreadQuery(qc, threadQueryKey(post.reply.parent.uri), feedContent)
+        if(isTopicView(replyTo)) {
+            const topicId = replyTo.id
+            addPostToTopicFeedQueries(qc, did, rkey, topicId, feedContent)
+        }
     }
     addPostToFeedQuery(qc, ["main-feed", "siguiendo"], feedContent)
     addPostToFeedQuery(qc, ["profile-feed", author.bsky.handle, "main"], feedContent)

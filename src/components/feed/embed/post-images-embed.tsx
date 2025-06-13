@@ -10,10 +10,11 @@ const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscre
 type PostImageEmbedProps = {
     embed: EmbedImagesView
     did?: string
+    onArticle?: boolean
 }
 
 
-export const PostImagesEmbed = ({embed, did}: PostImageEmbedProps) => {
+export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedProps) => {
     const [viewing, setViewing] = useState(null)
     let images: ViewImage[] = embed.images
 

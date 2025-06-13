@@ -49,7 +49,7 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {InsertTableModal} from '../TablePlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import VisualizationsIcon from '../../../../../src/components/icons/visualization-icon';
-import {InsertVisualizationDialog} from "../PlotPlugin";
+import {INSERT_EMBED_COMMAND, InsertEmbedPayload} from "../EmbedPlugin";
 import {
     FormatBold,
     FormatItalic,
@@ -60,7 +60,6 @@ import {
 } from "@mui/icons-material";
 import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
 import {ToolbarButton} from "./toolbar-button";
-import {InsertImageNodeModal} from "./insert-image-node-modal";
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import {ModalOnClick} from "../../../../ui-utils/src/modal-on-click";
@@ -70,6 +69,11 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import {InsertImageModal} from "@/components/writing/write-panel/insert-image-modal";
+import {ImagePayload} from "@/components/writing/write-panel/write-post";
+import {InsertVisualizationDialog} from "../EmbedPlugin/insert-visualization-dialog";
+import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
+import {ViewImage} from "@/lex-api/types/app/bsky/embed/images";
 
 const blockTypeToBlockName = {
     bullet: 'Lista',
@@ -103,13 +107,6 @@ const rootTypeToRootName = {
     table: 'Table',
 };
 
-function dropDownActiveClass(active: boolean) {
-    if (active) {
-        return 'active dropdown-item-active';
-    } else {
-        return '';
-    }
-}
 
 function BlockFormatDropDown({
                                  editor,
@@ -234,8 +231,25 @@ export default function ToolbarPlugin({
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
 
-    const onInsertImage = (payload: InsertImagePayload) => {
-        activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
+    const onInsertImage = (i: ImagePayload) => {
+        const image: ViewImage = {
+            $type: "app.bsky.embed.images#viewImage",
+            thumb: i.src,
+            alt: "",
+            fullsize: ""
+        }
+
+        const spec: EmbedSpec = {
+            $type: "app.bsky.embed.images#view",
+            images: [image]
+        }
+
+        const context: EmbedContext = i.$type == "file" ? {
+            base64files: [i.base64]
+        } : null
+
+        activeEditor.dispatchCommand(INSERT_EMBED_COMMAND, {spec, context})
+        setImageModalOpen(false)
     };
 
     const $updateToolbar = useCallback(() => {
@@ -468,15 +482,12 @@ export default function ToolbarPlugin({
                     >
                         <ImageOutlined fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
-                    <InsertImageNodeModal
+                    <InsertImageModal
                         open={imageModalOpen}
                         onClose={() => {
                             setImageModalOpen(false)
                         }}
-                        onSubmit={(i: InsertImagePayload) => {
-                            onInsertImage(i);
-                            setImageModalOpen(false)
-                        }}
+                        onSubmit={onInsertImage}
                     />
                     <ToolbarButton
                         onClick={() => {

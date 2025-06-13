@@ -104,9 +104,9 @@ export function InsertTableModal({
     };
 
     return (
-        <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
+        <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} backgroundShadow={false}>
             <div className={"flex flex-col space-y-8 p-4 items-center"}>
-                <div className={"flex space-x-4"}>
+                <div className={"flex space-x-4 pt-4"}>
                     <TextField
                         placeholder={'1 a 500'}
                         label="Filas"
@@ -114,7 +114,7 @@ export function InsertTableModal({
                         value={rows}
                         type="number"
                         size={"small"}
-                        sx={{width: 80}}
+                        sx={{width: 80, backgroundColor: "var(--background-dark2)"}}
                     />
                     <TextField
                         placeholder={'1 a 50'}
@@ -123,7 +123,7 @@ export function InsertTableModal({
                         value={columns}
                         type="number"
                         size={"small"}
-                        sx={{width: 80}}
+                        sx={{width: 80, backgroundColor: "var(--background-dark2)"}}
                     />
                 </div>
                 <div className={"flex space-x-4"}>

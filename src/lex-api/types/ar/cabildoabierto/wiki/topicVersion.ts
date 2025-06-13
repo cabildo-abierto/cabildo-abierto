@@ -12,6 +12,7 @@ import {
 import type * as ArCabildoabiertoFeedArticle from '../feed/article'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
+import {ArticleEmbedView} from "../feed/article";
 
 const is$typed = _is$typed,
   validate = _validate
@@ -26,6 +27,7 @@ export interface Record {
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
   message?: string
   createdAt: string
+  claimsAuthorship?: boolean
   [k: string]: unknown
 }
 
@@ -52,6 +54,7 @@ export interface TopicView {
   lastEdit: string
   createdAt: string
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
+  embeds?: ArticleEmbedView[]
 }
 
 const hashTopicView = 'topicView'
@@ -91,7 +94,10 @@ export interface VersionInHistory {
   status?: TopicVersionStatus
   addedChars?: number
   removedChars?: number
+  prevAccepted?: string
+  contribution?: TopicVersionContribution
   props?: TopicProp[]
+  claimsAuthorship?: boolean
 }
 
 const hashVersionInHistory = 'versionInHistory'
@@ -269,4 +275,24 @@ export function isTopicViewBasic<V>(v: V) {
 
 export function validateTopicViewBasic<V>(v: V) {
   return validate<TopicViewBasic & V>(v, id, hashTopicViewBasic)
+}
+
+export interface TopicVersionContribution {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicVersionContribution'
+  monetized: string
+  all: string
+}
+
+const hashTopicVersionContribution = 'topicVersionContribution'
+
+export function isTopicVersionContribution<V>(v: V) {
+  return is$typed(v, id, hashTopicVersionContribution)
+}
+
+export function validateTopicVersionContribution<V>(v: V) {
+  return validate<TopicVersionContribution & V>(
+    v,
+    id,
+    hashTopicVersionContribution,
+  )
 }

@@ -9,42 +9,54 @@ import type {
 } from 'lexical';
 import {$applyNodeReplacement, DecoratorNode} from 'lexical';
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {VisualizationNodeComp} from "./visualization-node-comp";
+import {EmbedNodeComp} from "./embed-node-comp";
 import {ReactNode} from "react";
+import {$Typed} from "@atproto/api";
+import {View as ImageEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 
+export type EmbedSpec = $Typed<Visualization> | $Typed<ImageEmbedView>
 
-export interface VisualizationPayload {
-    spec?: Visualization
-    hash?: string
+export type EmbedContext = {
+    base64files?: string[]
+} | null
+
+export interface EmbedPayload {
+    spec?: EmbedSpec
+    context?: EmbedContext
 }
 
-export type SerializedVisualizationNode = Spread<
+export type SerializedEmbedNode = Spread<
     {
         spec?: string
+        context?: string
     },
     SerializedLexicalNode
 >;
 
-export class VisualizationNode extends DecoratorNode<ReactNode> {
-    __spec?: Visualization
+export class EmbedNode extends DecoratorNode<ReactNode> {
+    __spec?: EmbedSpec
+    __context: EmbedContext | undefined
 
     static getType(): string {
-        return 'visualization';
+        return 'embed';
     }
 
-    static clone(node: VisualizationNode): VisualizationNode {
-        return new VisualizationNode(
+    static clone(node: EmbedNode): EmbedNode {
+        return new EmbedNode(
             node.__spec,
+            node.__context,
             node.__key,
         );
     }
 
     constructor(
-        spec?: Visualization,
+        spec?: EmbedSpec,
+        context?: EmbedContext,
         key?: NodeKey
     ) {
         super(key);
         this.__spec = spec
+        this.__context = context
     }
 
     createDOM(config: EditorConfig): HTMLElement {
@@ -55,9 +67,9 @@ export class VisualizationNode extends DecoratorNode<ReactNode> {
         return false;
     }
 
-    static importJSON(serializedNode: SerializedVisualizationNode): VisualizationNode {
+    static importJSON(serializedNode: SerializedEmbedNode): EmbedNode {
         const {spec} = serializedNode
-        return $createVisualizationNode({
+        return $createEmbedNode({
             spec: spec ? JSON.parse(spec) : undefined
         })
     }
@@ -71,15 +83,16 @@ export class VisualizationNode extends DecoratorNode<ReactNode> {
         return null
     }
 
-    exportJSON(): SerializedVisualizationNode {
+    exportJSON(): SerializedEmbedNode {
         return {
             spec: JSON.stringify(this.__spec),
-            type: 'visualization',
+            context: this.__context ? JSON.stringify(this.__context) : undefined,
+            type: 'embed',
             version: 1,
         }
     }
 
-    setVisualization(v: Visualization) {
+    setSpec(v: EmbedSpec) {
         const self = this.getWritable()
         self.__spec = v
     }
@@ -88,27 +101,32 @@ export class VisualizationNode extends DecoratorNode<ReactNode> {
         const id = this.__key
 
         if (this.__spec) {
-            return <VisualizationNodeComp visualization={this.__spec} nodeKey={id}/>
+            return <EmbedNodeComp
+                embed={this.__spec}
+                nodeKey={id}
+            />
         } else {
             return <div className={"p-4 text-center text-[var(--text-light)] border rounded-lg"}>
-                Ocurrió un error al mostrar la visualización
+                Ocurrió un error al mostrar el contenido
             </div>
         }
     }
 }
 
-export function $createVisualizationNode({
-                                             spec
-                                         }: VisualizationPayload): VisualizationNode {
+export function $createEmbedNode({
+                                     spec,
+                                     context
+                                 }: EmbedPayload): EmbedNode {
     return $applyNodeReplacement(
-        new VisualizationNode(
-            spec
+        new EmbedNode(
+            spec,
+            context
         ),
     )
 }
 
-export function $isVisualizationNode(
+export function $isEmbedNode(
     node: LexicalNode | null | undefined,
-): node is VisualizationNode {
-    return node instanceof VisualizationNode;
+): node is EmbedNode {
+    return node instanceof EmbedNode;
 }

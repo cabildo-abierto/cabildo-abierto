@@ -7,6 +7,8 @@ import {AdminSync} from "@/components/admin/sync";
 import {useSearchParams} from "next/navigation";
 import {AdminPDS} from "@/components/admin/admin-pds";
 import {AdminValidation} from "@/components/admin/admin-validation";
+import {AdminRemuneraciones} from "@/components/admin/admin-remuneraciones";
+import {AdminStats} from "@/components/admin/stats";
 
 
 export default function Page() {
@@ -24,6 +26,10 @@ export default function Page() {
         return <AdminPDS/>
     } else if(s == "Validacion") {
         return <AdminValidation/>
+    } else if(s == "Remuneraciones") {
+        return <AdminRemuneraciones/>
+    } else if(s == "Stats") {
+        return <AdminStats/>
     } else {
         return <NotFoundPage/>
     }

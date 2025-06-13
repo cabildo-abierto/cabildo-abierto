@@ -2,14 +2,30 @@ import {initializeEmpty} from "./lexical-editor";
 import { InitialEditorStateType } from '@lexical/react/LexicalComposer';
 import {LexicalEditor} from "lexical";
 import {
+    editorStateToMarkdown,
     htmlToEditorStateStr, markdownToEditorState,
     normalizeMarkdown
 } from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
-import { ArticleEmbed } from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+
+/*
+
+                const state = editor.getEditorState()
+                const jsonState = state.toJSON()
+                const markdown = editorStateToMarkdown(jsonState)
+                if(markdown.markdown.length == 0) return
+
+                const refreshedState = markdownToEditorState(markdown.markdown, true, true, markdown.embeds)
+                const parsedState = editor.parseEditorState(refreshedState)
+                editor.update(() => {
+                    editor.setEditorState(parsedState)
+                }, {discrete: true})
+ */
+
+export function getInitialData(text: string, format: string, shouldPreserveNewLines: boolean = false, embeds?: ArticleEmbedView[]): InitialEditorStateType {
 
 
-export function getInitialData(text: string, format: string, shouldPreserveNewLines: boolean = false, embeds?: ArticleEmbed[]): InitialEditorStateType {
     if(format == "markdown"){
         text = normalizeMarkdown(text, true)
         const state = markdownToEditorState(text, shouldPreserveNewLines, true, embeds ?? [])

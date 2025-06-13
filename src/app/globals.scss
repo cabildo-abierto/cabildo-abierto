@@ -27,6 +27,7 @@
   --text-light: '#b0b0b0';
   --text-lighter: '#888888';
   --background: '#181b23';
+  --background-light-dark: '#181b23';
   --background-light: '#1a1e27';
   --background-dark: '#1e2230';
   --background-dark2: '#242936';
@@ -38,8 +39,13 @@
 }
 
 .italic {
-  font-style: normal; /* Override default italic */
-  font-variation-settings: "slnt" -10; /* Adjust to your preference */
+  font-style: normal;
+  font-variation-settings: "slnt" -10;
+}
+
+custom-italic {
+  font-style: normal;
+  font-variation-settings: "slnt" -10;
 }
 
 bold-text {
@@ -529,7 +535,7 @@ ol {
   position: relative;
   border-left-width: 4px;
   border-left-style: solid;
-  border-color: green;
+  border-color: #71d571;
   padding-left: 4px;
 }
 
@@ -539,7 +545,7 @@ ol {
   left: -83px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: green;
+  background-color: #71d571;
   color: white;
   padding: 2px 4px;
   border-radius: 3px;
@@ -552,7 +558,7 @@ ol {
   position: relative;
   border-left-width: 4px;
   border-left-style: solid;
-  border-color: red;
+  border-color: #ff6666;
   padding-left: 4px;
 }
 
@@ -562,7 +568,7 @@ ol {
   left: -83px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: red;
+  background-color: #ff6666;
   color: white;
   padding: 2px 4px;
   border-radius: 3px;

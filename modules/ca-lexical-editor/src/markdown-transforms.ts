@@ -14,13 +14,13 @@ import {
 import {$generateNodesFromDOM} from "@lexical/html";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization, isMain as isVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {SerializedVisualizationNode} from "./nodes/VisualizationNode";
+import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
 import {ElementOrTextNode, LexicalPointer} from "./selection/lexical-selection";
 import {prettyPrintJSON} from "@/utils/strings";
-import {$Typed} from "@atproto/api";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
+import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
@@ -125,7 +125,8 @@ export function markdownToEditorState(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
     shouldMergeAdjacentLines: boolean = true,
-    embeds: ArticleEmbed[] = []
+    embeds: ArticleEmbedView[] = [],
+    embedContexts: EmbedContext[] = [],
 ): SerializedEditorState {
     if (embeds.length == 0) {
         return markdownToEditorStateNoEmbeds(markdown, shouldPreserveNewLines, shouldMergeAdjacentLines)
@@ -136,18 +137,14 @@ export function markdownToEditorState(
     let lastIndex = 0
     for (let i = 0; i < embeds.length; i++) {
         const v = embeds[i].value
-        if (!isVisualization(v)) continue
         const markdownSlice = markdown.slice(lastIndex, embeds[i].index)
 
         const s = markdownToEditorStateNoEmbeds(markdownSlice, shouldPreserveNewLines, shouldMergeAdjacentLines)
 
-        const spec: $Typed<Visualization> = {
-            ...v,
-            $type: "ar.cabildoabierto.embed.visualization"
-        }
-        const vNode: SerializedVisualizationNode = {
-            spec: JSON.stringify(spec),
-            type: 'visualization',
+        const vNode: SerializedEmbedNode = {
+            spec: JSON.stringify(v),
+            context: JSON.stringify(embedContexts[i]),
+            type: 'embed',
             version: 1
         }
 
@@ -241,9 +238,9 @@ export function htmlToEditorStateStr(text: string) {
 }
 
 
-export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArticleEmbed[]): {
+export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArticleEmbedView[]): {
     markdown: string,
-    embeds: ArticleEmbed[]
+    embeds: ArticleEmbedView[]
 } {
     if (format == "markdown") {
         return {markdown: normalizeMarkdown(text, true), embeds}
@@ -265,7 +262,7 @@ export function anyEditorStateToMarkdown(text: string, format: string, embeds?: 
 }
 
 
-export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): { markdown: string; embeds: ArticleEmbed[] } | null {
+export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): { markdown: string; embeds: ArticleEmbedView[], embedContexts: EmbedContext[] } | null {
     /***
      * Transformamos el editor state a markdown
      * y buscamos los VisualizationNodes para armar la lista de embeds
@@ -273,27 +270,46 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
      * ***/
     state = ProcessedLexicalState.fromMaybeProcessed(state)
     const markdown = editorStateToMarkdownNoEmbeds(state);
-    const embeds: ArticleEmbed[] = [];
+    const embeds: ArticleEmbedView[] = [];
+    const contexts: EmbedContext[] = []
 
     for (let i = 0; i < state.state.root.children.length; i++) {
         const node = state.state.root.children[i]
-        if (node.type == "visualization") {
-            const vNode = node as SerializedVisualizationNode
+        if (node.type == "embed") {
+            const vNode = node as SerializedEmbedNode
             const lexicalPointer = new LexicalPointer([i])
             const markdownUpTo = lexicalPointer.getMarkdownUpTo(state, true)
             const index = markdownUpTo.length
             if (vNode.spec) {
-                embeds.push({
-                    $type: "ar.cabildoabierto.feed.article#articleEmbed",
-                    value: {
-                        $type: "ar.cabildoabierto.embed.visualization",
-                        ...(JSON.parse(vNode.spec) as Visualization)
-                    },
-                    index
-                })
+                const spec = JSON.parse(vNode.spec)
+                if(spec.$type == "ar.cabildoabierto.embed.visualization"){
+                    embeds.push({
+                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                        value: {
+                            $type: "ar.cabildoabierto.embed.visualization",
+                            ...(spec as Visualization)
+                        },
+                        index
+                    })
+                } else if(spec.$type == "app.bsky.embed.images#view"){
+                    embeds.push({
+                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                        value: {
+                            $type: "app.bsky.embed.images#view",
+                            ...(spec as ImagesEmbedView)
+                        },
+                        index
+                    })
+                }
+                if(vNode.context){
+                    const context = JSON.parse(vNode.context) as EmbedContext
+                    contexts.push(context)
+                } else {
+                    contexts.push(null)
+                }
             }
         }
     }
 
-    return {markdown, embeds}
+    return {markdown, embeds, embedContexts: contexts}
 }

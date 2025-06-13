@@ -1,4 +1,5 @@
 import {
+    isFeedViewContent,
     isPostView,
     isThreadViewContent,
     ThreadViewContent
@@ -27,7 +28,9 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                 noResultsText={"Sé el primero en responder."}
                 endText={""}
                 FeedElement={({content: r}) => {
-                    if (!isThreadViewContent(r) || !isPostView(r.content)) return null
+                    if ((!isThreadViewContent(r) && !isFeedViewContent(r)) || !isPostView(r.content)) {
+                        return null
+                    }
 
                     function onClickQuote() {
                         if (isThreadViewContent(r) && isPostView(r.content)) {

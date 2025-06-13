@@ -58,11 +58,12 @@ import {TableContext} from './plugins/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import {v4 as uuidv4} from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
-import PlotPlugin from "./plugins/PlotPlugin";
+import EmbedPlugin from "./plugins/EmbedPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -79,7 +80,7 @@ export type SettingsProps = {
     allowVisualizations: boolean
     markdownShortcuts: boolean
     shouldPreserveNewLines: boolean
-    embeds?: ArticleEmbed[]
+    embeds?: ArticleEmbedView[]
 
     useSuperscript: boolean
     useStrikethrough: boolean
@@ -106,6 +107,8 @@ export type SettingsProps = {
 
     queryMentions: QueryMentionsProps
     onAddComment?: OnAddCommentProps
+
+    measureTypingPerf?: boolean
 }
 
 
@@ -151,9 +154,11 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
         preventLeave,
         allowImages,
         allowTables,
+        allowVisualizations,
         markdownShortcuts,
         queryMentions,
-        onAddComment
+        onAddComment,
+        measureTypingPerf
     } = settings;
 
     const onRef = (_floatingAnchorElem: HTMLDivElement) => {
@@ -206,6 +211,8 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                     menuItemComponent={CustomMenuItemMentions}
                 />
 
+                {measureTypingPerf && <TypingPerfPlugin/>}
+
                 {allowTables && <TablePlugin
                     hasCellMerge={true}
                     hasCellBackgroundColor={false}
@@ -213,7 +220,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 {allowImages && <ImagesPlugin captionsEnabled={false}/>}
 
-                {false && <PlotPlugin/>}
+                {allowVisualizations && <EmbedPlugin/>}
 
                 <OnChangePlugin
                     onChange={(editorState) => {
