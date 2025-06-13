@@ -1,11 +1,11 @@
-import {Scale} from "@visx/visx";
-import {scaleTime} from "d3-scale";
+import {scaleTime} from "@visx/scale";
 import {scaleLinear} from "@visx/scale";
+import {formatIsoDate} from "@/utils/dates";
 
 type DataRow = Record<string, any>;
 type DataPoint = {x: any, y: any};
 
-function guessType(data: DataRow[], axis: string): "number" | "string" | "date" | null {
+function guessType(data: DataRow[], axis: string): DataType {
     let numCount = 0;
     let dateCount = 0;
     let stringCount = 0;
@@ -35,14 +35,17 @@ function guessType(data: DataRow[], axis: string): "number" | "string" | "date" 
     return null;
 }
 
+export type DataType = "number" | "string" | "date" | null
+export type ValueType = string | number | Date | null
+
 export class Plotter {
     private xAxis: string;
     private yAxis: string;
     private plotType: string;
     private data: DataRow[] = [];
     private dataPoints: DataPoint[] = [];
-    private xAxisType: string;
-    private yAxisType: string;
+    private xAxisType: DataType;
+    private yAxisType: DataType;
 
     constructor(
         rawData: string,
@@ -59,7 +62,6 @@ export class Plotter {
     }
 
     public convertTypes(): void {
-        console.log("xAxisType: ", this.xAxisType,"   yAxisType: ", this.yAxisType)
         this.dataPoints = this.data.map(row => {
             let x: any = row[this.xAxis];
             let y: any = row[this.yAxis];
@@ -85,11 +87,12 @@ export class Plotter {
             return { x, y };
         });
     }
+
     public getScale(axis: string, innerMeasure: number) {
         const domain = this.getDomain(axis)
         const type = axis === 'x' ? this.xAxisType : this.yAxisType
         if (type === 'number') {
-            return scaleLinear<number>({
+            return scaleLinear({
                 domain: domain as number[],
                 range: axis === 'x' ? [0, innerMeasure] : [innerMeasure, 0],
                 nice: true,
@@ -97,33 +100,29 @@ export class Plotter {
         }
 
         if (type === 'date') {
-            return scaleTime<Date>(domain as Date[]);
+            return scaleTime({domain: domain as Date[], range: [0, innerMeasure], nice: true});
         }
 
-        //if (axis === "x") {
-        //    return scaleTime<number | Date | string>({
-        //        domain: this.getXDomain(),
-        //        range: [0, innerWidth],
-        //        padding: 0.4,
-        //    });
-        //}
-        //else {
-        //    const yMax = Math.max(...this.dataPoints.map((d) => d.y), 0);
-        //    return scaleLinear<number | Date | string>({
-        //        domain: this.getYDomain(),
-        //        range: [innerHeight, 0],
-        //        nice: true,
-        //        });
-        //}
-
+        if (!type) throw new Error(`Cannot create scale: unknown type for axis "${axis}"`);
     }
 
-    public getDomain(axis: string): (Date | number | string)[] {
-        return this.dataPoints.map((d) => d[axis])
-    }
+    public getDomain(axis: string): [number, number] | [Date, Date] {
+        const values = this.dataPoints.map((d) => d[axis]);
+        const type = axis === 'x' ? this.xAxisType : this.yAxisType;
 
-    public getYDomain(): (Date | number | string)[] {
-        return this.dataPoints.map((d) => d.y)
+        if (type === "number") {
+            const nums = values as number[];
+            return [Math.min(...nums), Math.max(...nums)];
+        }
+
+        if (type === "date") {
+            const dates = values as Date[];
+            const minDate = new Date(Math.min(...dates.map(d => d.getTime())))
+            const maxDate = new Date(Math.max(...dates.map(d => d.getTime())))
+            return [minDate, maxDate]
+        }
+
+        throw new Error("Scale only supported for number or date axes");
     }
 
     public sortByX(): void {
@@ -131,19 +130,16 @@ export class Plotter {
     }
 
     public groupSameX(): void {
-        const grouped = new Map<string, number[]>();
+        const grouped = new Map<string | number | Date, number[]>();
 
         this.dataPoints.forEach((d: any) => {
             if (d.x != null && !isNaN(d.y)) {
-                if (!grouped.has(d.x)) {
-                    grouped.set(d.x, []);
-                }
-                grouped.get(d.x)!.push(d.y);
+                grouped.set(d.x, [...(grouped.get(d.x) ?? []), d.y])
             }
         });
 
         this.dataPoints = Array.from(grouped.entries()).map(([x, ys]) => ({
-            x: isNaN(Number(x)) ? x : Number(x),
+            x: x,
             y: ys.reduce((sum, val) => sum + val, 0) / ys.length
         }));
     }
@@ -153,5 +149,23 @@ export class Plotter {
         this.groupSameX();
         this.sortByX();
         return this.dataPoints;
+    }
+
+    valueToString(v: ValueType, type: DataType): string{
+        if(type == "string"){
+            return v as string
+        } else if(type == "date"){
+            return formatIsoDate(v as Date)
+        } else if(type == "number"){
+            return (v as number).toFixed(2).toString()
+        }
+    }
+
+    xValueToString(x: ValueType): string {
+        return this.valueToString(x, this.xAxisType);
+    }
+
+    yValueToString(y: ValueType): string {
+        return this.valueToString(y, this.yAxisType);
     }
 }
