@@ -1,4 +1,4 @@
-import {scaleTime} from "@visx/scale";
+import {scaleBand, scaleTime} from "@visx/scale";
 import {scaleLinear} from "@visx/scale";
 import {formatIsoDate} from "@/utils/dates";
 
@@ -51,7 +51,7 @@ export class Plotter {
         rawData: string,
         xAxis: string,
         yAxis: string,
-        plotType: string = "CurvePlot"
+        plotType: string
     ) {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
@@ -88,9 +88,30 @@ export class Plotter {
         });
     }
 
+    isBarplot(): boolean {
+        return this.plotType === "ar.cabildoabierto.embed.visualization#barplot"
+    }
+
+    isCurvePlot(): boolean {
+        return this.plotType === "ar.cabildoabierto.embed.visualization#lines"
+    }
+
     public getScale(axis: string, innerMeasure: number) {
         const domain = this.getDomain(axis)
         const type = axis === 'x' ? this.xAxisType : this.yAxisType
+        console.log("is barplto", this.isBarplot(), axis, this.plotType)
+        console.log("tipo eje y:", this.yAxisType)
+        if (this.isBarplot() && axis === 'x') {
+            console.log("returning scale band")
+            const res = scaleBand<string>({
+                domain: domain as string[],
+                range: [0, innerMeasure],
+                padding: 0.2,
+            });
+            console.log(res.bandwidth())
+            return res
+        }
+
         if (type === 'number') {
             return scaleLinear({
                 domain: domain as number[],
@@ -103,12 +124,23 @@ export class Plotter {
             return scaleTime({domain: domain as Date[], range: [0, innerMeasure], nice: true});
         }
 
-        if (!type) throw new Error(`Cannot create scale: unknown type for axis "${axis}"`);
+
+         throw new Error(`Cannot create scale: unknown type for axis "${axis}"`);
     }
 
-    public getDomain(axis: string): [number, number] | [Date, Date] {
+    public getDomain(axis: string): [number, number] | [Date, Date] | string[]{
         const values = this.dataPoints.map((d) => d[axis]);
         const type = axis === 'x' ? this.xAxisType : this.yAxisType;
+
+        if (this.isBarplot() && type === "number") {
+            if (axis === 'y'){
+                const nums = values as number[];
+                return [0, Math.max(...nums)]
+            }
+            if (axis === 'x'){
+                return this.dataPoints.map((d) => d.x)
+            }
+        }
 
         if (type === "number") {
             const nums = values as number[];
@@ -122,7 +154,11 @@ export class Plotter {
             return [minDate, maxDate]
         }
 
-        throw new Error("Scale only supported for number or date axes");
+        if (type === "string") {
+            return this.dataPoints.map((d) => d.x)
+        }
+
+        throw new Error("Scale only supported for number, date or string axes");
     }
 
     public sortByX(): void {

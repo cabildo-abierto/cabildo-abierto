@@ -4,11 +4,15 @@ import {Plotter, ValueType} from "@/components/visualizations/editor/plotter";
 import useMeasure from "react-use-measure";
 import {scaleBand, scaleLinear} from "@visx/scale";
 import {Group} from "@visx/group";
-import {Bar} from "@visx/shape";
+import {Bar, LinePath} from "@visx/shape";
 import {localPoint} from "@visx/event";
 import {AxisBottom, AxisLeft} from "@visx/axis";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {TwoAxisTooltip} from "@/components/visualizations/two-axis-plot";
+import {useMemo} from "react";
+import {TransformMatrix} from "@visx/zoom/lib/types";
+import {curveMonotoneX} from "d3-shape";
+import {ScaleBand} from "d3-scale";
 
 function groupSameX(data: any[], xAxis: string, yAxis: string) {
     const grouped = new Map<string, number[]>();
@@ -44,7 +48,7 @@ export const Barplot = ({spec, visualization}: {
         tooltipOpen,
         showTooltip,
         hideTooltip,
-    } = useTooltip<{ x: string; y: number }>();
+    } = useTooltip<{ x: ValueType; y: ValueType }>();
 
     const {containerRef, TooltipInPortal} = useTooltipInPortal({scroll: true});
     const [ref, bounds] = useMeasure();
@@ -70,32 +74,8 @@ export const Barplot = ({spec, visualization}: {
     const xScale = plotter.getScale('x', innerWidth)
     const yScale = plotter.getScale('y', innerHeight)
 
-    const initialTransform: TransformMatrix = {
-        scaleX: 1,
-        scaleY: 1,
-        translateX: 0,
-        translateY: 0,
-        skewX: 0,
-        skewY: 0,
-    };
-
-    /* const data = groupSameX(JSON.parse(visualization.dataset.data), spec.xAxis, spec.yAxis);
-
-    const xScale = scaleBand<string>({
-        domain: data.map((d) => d.x),
-        range: [0, innerWidth],
-        padding: 0.2,
-    });
-
-    const yMax = Math.max(...data.map((d) => d.y), 0);
-    const yScale = scaleLinear<number>({
-        domain: [0, yMax],
-        range: [innerHeight, 0],
-        nice: true,
-    }); */
-
     return (
-        <div className="relative w-full h-full" ref={ref}>
+        /*<div className="relative w-full h-full" ref={ref}>
             {visualization.title && (
                 <div className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center">
                     {visualization.title}
@@ -111,24 +91,105 @@ export const Barplot = ({spec, visualization}: {
                     />
                 </TooltipInPortal>
             )}
-        </div>
-    )
-        /* <div className="relative w-full h-full" ref={ref}>
+
+            <svg ref={containerRef} width={svgWidth} height={svgHeight}>
+            <Group top={margin.top} left={margin.left}>
+                {data.map((d, i) => {
+                    const barWidth = (xScale as ScaleBand<string>).bandwidth();
+                    const barHeight = innerHeight - yScale(d.y);
+                    const barX = xScale(d.x);
+                    const barY = yScale(d.y);
+                    if (barX == null || isNaN(barY) || isNaN(barHeight)) return null;
+
+                    return (
+                        <Bar
+                            key={`bar-${i}`}
+                            x={barX}
+                            y={barY}
+                            width={barWidth}
+                            height={barHeight}
+                            fill="var(--primary)"
+                            onMouseLeave={() => hideTooltip()}
+                            onMouseMove={(event) => {
+                                const eventSvgCoords = localPoint(event);
+                                const left = barX + barWidth / 2;
+                                showTooltip({
+                                    tooltipData: {x: d.x, y: d.y},
+                                    tooltipTop: eventSvgCoords?.y,
+                                    tooltipLeft: left,
+                                });
+                            }}
+                        />
+                    );
+                })}
+                <AxisLeft
+                    scale={yScale}
+                    stroke="var(--text-light)"
+                    tickStroke="var(--text-light)"
+                    tickLabelProps={() => ({
+                        fill: 'var(--text)',
+                        fontSize: 12,
+                        textAnchor: 'end',
+                        dx: '-0.25em',
+                        dy: '0.25em',
+                    })}
+                />
+                <AxisBottom
+                    top={innerHeight}
+                    scale={xScale}
+                    stroke="var(--text-light)"
+                    tickStroke="var(--text-light)"
+                    tickLabelProps={() => ({
+                        fill: 'var(--text)',
+                        fontSize: 12,
+                        textAnchor: 'middle',
+                    })}
+                />
+                <text
+                    x={-innerHeight / 2}
+                    y={-margin.left + 15}
+                    transform="rotate(-90)"
+                    textAnchor="middle"
+                    fontSize={14}
+                    fill="var(--text)"
+                >
+                    {spec.yLabel ?? spec.yAxis}
+                </text>
+                <text
+                    x={innerWidth / 2}
+                    y={innerHeight + 40}
+                    textAnchor="middle"
+                    fontSize={14}
+                    fill="var(--text)"
+                >
+                    {spec.xLabel ?? spec.xAxis}
+                </text>
+            </Group>
+            </svg>
+        </div>*/
+
+        <div className="relative w-full h-full" ref={ref}>
             {visualization.title && (
                 <div className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center">
                     {visualization.title}
                 </div>
             )}
+
             {tooltipOpen && tooltipData && (
                 <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={{...defaultStyles, zIndex: 2000}}>
-                    <div><strong>{spec.yLabel ?? spec.yAxis}: {Number(tooltipData.y.toFixed(2))}</strong></div>
-                    <div>{spec.xLabel ?? spec.xAxis}: {Number(parseFloat(tooltipData.x).toFixed(2))}</div>
+                    <TwoAxisTooltip
+                        xLabel={spec.xLabel ?? spec.xAxis}
+                        yLabel={spec.yLabel ?? spec.yAxis}
+                        xValue={plotter.xValueToString(tooltipData.x)}
+                        yValue={plotter.yValueToString(tooltipData.y)}
+                    />
                 </TooltipInPortal>
             )}
+
             <svg ref={containerRef} width={svgWidth} height={svgHeight}>
                 <Group left={margin.left} top={margin.top}>
                     {data.map((d, i) => {
-                        const barWidth = xScale.bandwidth();
+                        const barWidth = (xScale as ScaleBand<string>).bandwidth();
                         const barHeight = innerHeight - yScale(d.y);
                         const barX = xScale(d.x);
                         const barY = yScale(d.y);
@@ -205,5 +266,44 @@ export const Barplot = ({spec, visualization}: {
                 </div>
             )}
         </div>
-    );*/
+    )
 };
+
+
+export const BarplotContent = ({data, xScale, yScale, innerHeight, hideTooltip, showTooltip}: {
+    data: DataPoint[], xScale: ScaleBand, yScale: ScaleLinear, innerHeight: number,
+    hideTooltip: () => void
+    showTooltip: () => void
+}) => {
+    return <>
+        {data.map((d, i) => {
+            console.log("plotting bar", xScale, yScale, data)
+            const barWidth = xScale.bandwidth();
+            const barHeight = innerHeight - yScale(d.y);
+            const barX = xScale(d.x);
+            const barY = yScale(d.y);
+            if (barX == null || isNaN(barY) || isNaN(barHeight)) return null;
+
+            return (
+                <Bar
+                    key={`bar-${i}`}
+                    x={barX}
+                    y={barY}
+                    width={barWidth}
+                    height={barHeight}
+                    fill="var(--primary)"
+                    onMouseLeave={() => hideTooltip()}
+                    onMouseMove={(event) => {
+                        const eventSvgCoords = localPoint(event);
+                        const left = barX + barWidth / 2;
+                        showTooltip({
+                            tooltipData: {x: d.x, y: d.y},
+                            tooltipTop: eventSvgCoords?.y,
+                            tooltipLeft: left,
+                        });
+                    }}
+                />
+            );
+        })}
+    </>
+}

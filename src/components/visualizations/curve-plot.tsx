@@ -240,3 +240,31 @@ export const CurvePlot = ({
         </div>
     );
 };
+
+
+export const CurvePlotContent = ({data, xScale, yScale}: {
+    data: DataPoint[],
+    xScale: ScaleLinear,
+    yScale: ScaleLinear
+}) => {
+    return <LinePath
+        data={data}
+        x={(d) => xScale(d.x) ?? 0}
+        y={(d) => yScale(d.y)}
+        stroke="var(--primary)"
+        strokeWidth={2}
+        curve={curveMonotoneX}
+        onMouseMove={(event) => {
+            const {x} = localPoint(event) || {x: 0};
+            const nearest = data.reduce((prev, curr) =>
+                Math.abs(xScale(curr.x)! - x) < Math.abs(xScale(prev.x)! - x) ? curr : prev
+            );
+            showTooltip({
+                tooltipData: nearest,
+                tooltipLeft: xScale(nearest.x),
+                tooltipTop: yScale(nearest.y),
+            });
+        }}
+        onMouseLeave={() => hideTooltip()}
+    />
+}
