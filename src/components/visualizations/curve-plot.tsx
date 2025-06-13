@@ -2,16 +2,22 @@ import {Lines, View as VisualizationView} from "@/lex-api/types/ar/cabildoabiert
 import {defaultStyles, useTooltip, useTooltipInPortal} from "@visx/tooltip";
 import {Plotter, ValueType} from "@/components/visualizations/editor/plotter";
 import useMeasure from "react-use-measure";
-import {useMemo} from "react";
+import {useEffect, useMemo, useRef} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
-import { Zoom } from '@visx/zoom';
+import {Zoom} from '@visx/zoom';
 import {Group} from "@visx/group";
 import {LinePath} from "@visx/shape";
 import {curveMonotoneX} from "d3-shape";
 import {localPoint} from "@visx/event";
 import {AxisBottom, AxisLeft} from "@visx/axis";
 import {TwoAxisTooltip} from "@/components/visualizations/two-axis-plot";
+import { scaleLinear } from '@visx/scale';
+import { zoomIdentity, ZoomTransform } from 'd3-zoom';
 
+const toD3ZoomTransform = (matrix: TransformMatrix): ZoomTransform =>
+    zoomIdentity
+        .translate(matrix.translateX, matrix.translateY)
+        .scale(matrix.scaleX); // assumes uniform scale
 
 export const CurvePlot = ({
                               spec,
@@ -31,6 +37,25 @@ export const CurvePlot = ({
 
     const {containerRef, TooltipInPortal} = useTooltipInPortal({scroll: true});
     const [ref, bounds] = useMeasure();
+    const zoomContainerRef = useRef<SVGRectElement | null>(null);
+    const handleWheelRef = useRef<(e: WheelEvent) => void>(null);
+
+    useEffect(() => {
+        const node = zoomContainerRef.current;
+        if (!node) return;
+
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleWheelRef.current?.(e);
+        };
+
+        node.addEventListener("wheel", handleWheel, { passive: false });
+
+        return () => {
+            node.removeEventListener("wheel", handleWheel);
+        };
+    }, []);
 
     const totalWidth = bounds.width || 400;
     const totalHeight = bounds.height || 300;
@@ -88,49 +113,60 @@ export const CurvePlot = ({
                 scaleYMax={10}
                 initialTransformMatrix={initialTransform}
             >
-                {zoom => (
-                    <svg ref={containerRef} width={svgWidth} height={svgHeight}>
-                    <Group top={margin.top} left={margin.left}>
-                        <rect
-                            width={svgWidth}
-                            height={svgHeight}
-                            fill="transparent"
-                            onWheel={zoom.handleWheel}
-                            onMouseDown={zoom.dragStart}
-                            onMouseMove={zoom.dragMove}
-                            onMouseUp={zoom.dragEnd}
-                            onMouseLeave={() => {
-                                zoom.dragEnd();
-                                hideTooltip();
-                            }}
-                            onDoubleClick={(e) => {
-                                const point = localPoint(e);
-                                if (!point) return;
-                                zoom.scale({ scaleX: 1.5, scaleY: 1.5, point });
-                            }}
-                        />
-                        <LinePath
-                            transform={zoom.toString()}
-                            data={data}
-                            x={(d) => xScale(d.x) ?? 0}
-                            y={(d) => yScale(d.y)}
-                            stroke="var(--primary)"
-                            strokeWidth={2}
-                            curve={curveMonotoneX}
-                            onMouseMove={(event) => {
-                                const {x} = localPoint(event) || {x: 0};
-                                const nearest = data.reduce((prev, curr) =>
-                                    Math.abs(xScale(curr.x)! - x) < Math.abs(xScale(prev.x)! - x) ? curr : prev
-                                );
-                                showTooltip({
-                                    tooltipData: nearest,
-                                    tooltipLeft: xScale(nearest.x),
-                                    tooltipTop: yScale(nearest.y),
-                                });
-                            }}
-                            onMouseLeave={() => hideTooltip()}
-                        />
-                        {/*data.map((d, i) => (
+                {zoom => {
+                    handleWheelRef.current = zoom.handleWheel;
+                    const d3Transform = toD3ZoomTransform(zoom.transformMatrix);
+                    const transformedXScale = d3Transform.rescaleX(xScale)
+                    const transformedYScale = d3Transform.rescaleY(yScale)
+                    return <svg width={svgWidth} height={svgHeight}>
+                        <defs>
+                            <clipPath id="zoom-clip">
+                                <rect width={innerWidth} height={innerHeight}/>
+                            </clipPath>
+                        </defs>
+                        <Group top={margin.top} left={margin.left}>
+                            <rect
+                                ref={zoomContainerRef}
+                                width={innerWidth}
+                                height={innerHeight}
+                                fill="transparent"
+                                onWheel={(e) => {zoom.handleWheel(e)}}
+                                onMouseDown={zoom.dragStart}
+                                onMouseMove={zoom.dragMove}
+                                onMouseUp={zoom.dragEnd}
+                                onMouseLeave={() => {
+                                    zoom.dragEnd();
+                                    hideTooltip();
+                                }}
+                                onDoubleClick={(e) => {
+                                    const point = localPoint(e);
+                                    if (!point) return;
+                                    zoom.scale({scaleX: 1.5, scaleY: 1.5, point});
+                                }}
+                            />
+                            <Group clipPath="url(#zoom-clip)">
+                                <LinePath
+                                    data={data}
+                                    x={(d) => transformedXScale(d.x) ?? 0}
+                                    y={(d) => transformedYScale(d.y)}
+                                    stroke="var(--primary)"
+                                    strokeWidth={2}
+                                    curve={curveMonotoneX}
+                                    onMouseMove={(event) => {
+                                        const {x} = localPoint(event) || {x: 0};
+                                        const nearest = data.reduce((prev, curr) =>
+                                            Math.abs(xScale(curr.x)! - x) < Math.abs(xScale(prev.x)! - x) ? curr : prev
+                                        );
+                                        showTooltip({
+                                            tooltipData: nearest,
+                                            tooltipLeft: xScale(nearest.x),
+                                            tooltipTop: yScale(nearest.y),
+                                        });
+                                    }}
+                                    onMouseLeave={() => hideTooltip()}
+                                />
+                            </Group>
+                            {/*data.map((d, i) => (
                         <circle
                             key={`point-${i}`}
                             cx={xScale(d.x)}
@@ -149,52 +185,51 @@ export const CurvePlot = ({
                             onMouseLeave={hideTooltip}
                         />
                     ))*/}
-                        <AxisLeft
-                            scale={yScale}
-                            stroke="var(--text-light)"
-                            tickStroke="var(--text-light)"
-                            tickLabelProps={() => ({
-                                fill: 'var(--text)',
-                                fontSize: 12,
-                                textAnchor: 'end',
-                                dx: '-0.25em',
-                                dy: '0.25em',
-                            })}
-                        />
-                        <AxisBottom
-                            top={innerHeight}
-                            scale={xScale}
-                            stroke="var(--text-light)"
-                            tickStroke="var(--text-light)"
-                            tickLabelProps={() => ({
-                                fill: 'var(--text)',
-                                fontSize: 12,
-                                textAnchor: 'middle',
-                            })}
-                        />
-                        <text
-                            x={-innerHeight / 2}
-                            y={-margin.left + 15}
-                            transform="rotate(-90)"
-                            textAnchor="middle"
-                            fontSize={14}
-                            fill="var(--text)"
-                        >
-                            {spec.yLabel ?? spec.yAxis}
-                        </text>
-                        <text
-                            x={innerWidth / 2}
-                            y={innerHeight + 40}
-                            textAnchor="middle"
-                            fontSize={14}
-                            fill="var(--text)"
-                        >
-                            {spec.xLabel ?? spec.xAxis}
-                        </text>
-                    </Group>
-
-
-                </svg>)}
+                            <AxisLeft
+                                scale={transformedYScale}
+                                stroke="var(--text-light)"
+                                tickStroke="var(--text-light)"
+                                tickLabelProps={() => ({
+                                    fill: 'var(--text)',
+                                    fontSize: 12,
+                                    textAnchor: 'end',
+                                    dx: '-0.25em',
+                                    dy: '0.25em',
+                                })}
+                            />
+                            <AxisBottom
+                                top={innerHeight}
+                                scale={transformedXScale}
+                                stroke="var(--text-light)"
+                                tickStroke="var(--text-light)"
+                                tickLabelProps={() => ({
+                                    fill: 'var(--text)',
+                                    fontSize: 12,
+                                    textAnchor: 'middle',
+                                })}
+                            />
+                            <text
+                                x={-innerHeight / 2}
+                                y={-margin.left + 15}
+                                transform="rotate(-90)"
+                                textAnchor="middle"
+                                fontSize={14}
+                                fill="var(--text)"
+                            >
+                                {spec.yLabel ?? spec.yAxis}
+                            </text>
+                            <text
+                                x={innerWidth / 2}
+                                y={innerHeight + 40}
+                                textAnchor="middle"
+                                fontSize={14}
+                                fill="var(--text)"
+                            >
+                                {spec.xLabel ?? spec.xAxis}
+                            </text>
+                        </Group>
+                    </svg>
+                }}
             </Zoom>
 
             {visualization.caption && (
