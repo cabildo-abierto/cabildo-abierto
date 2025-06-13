@@ -1,5 +1,5 @@
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$wrapNodeInElement, mergeRegister} from '@lexical/utils';
+import {mergeRegister} from '@lexical/utils';
 import {
     $createParagraphNode,
     $createRangeSelection, $getRoot,
@@ -18,53 +18,29 @@ import {
     LexicalCommand,
     LexicalEditor, RootNode,
 } from 'lexical';
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {CAN_USE_DOM} from '../../shared/canUseDOM';
 
 import {
-    $createVisualizationNode,
-    $isVisualizationNode,
-    VisualizationNode,
-    VisualizationPayload
-} from '../../nodes/VisualizationNode';
-import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+    $createEmbedNode,
+    $isEmbedNode,
+    EmbedNode,
+    EmbedPayload
+} from '../../nodes/EmbedNode';
 import {$isSidenoteNode} from "../../nodes/SidenoteNode";
 import {$isCustomMarkNode} from "../../nodes/CustomMarkNode";
 
-export type InsertVisualizationPayload = Readonly<VisualizationPayload>;
+export type InsertEmbedPayload = Readonly<EmbedPayload>;
 
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
     CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
-export const INSERT_PLOT_COMMAND: LexicalCommand<InsertVisualizationPayload> =
-    createCommand('INSERT_PLOT_COMMAND');
-
-export function InsertVisualizationDialog({
-                                              activeEditor,
-                                              onClose,
-                                              open
-                                          }: {
-    activeEditor: LexicalEditor;
-    open: boolean;
-    onClose: () => void;
-}) {
-    function onSave(visualization: Visualization) {
-        activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization});
-        onClose();
-    }
-
-    return (
-        <InsertVisualizationModal
-            open={open}
-            onClose={onClose}
-            onSave={onSave}
-        />
-    )
-}
+export const INSERT_EMBED_COMMAND: LexicalCommand<InsertEmbedPayload> =
+    createCommand('INSERT_EMBED_COMMAND');
 
 
-export default function PlotPlugin() {
+
+export default function EmbedPlugin() {
     const [editor] = useLexicalComposerContext();
 
     const TRANSPARENT_IMAGE =
@@ -98,16 +74,15 @@ export default function PlotPlugin() {
     }
 
     useEffect(() => {
-        if (!editor.hasNodes([VisualizationNode])) {
+        if (!editor.hasNodes([EmbedNode])) {
             throw new Error('PlotPlugin: VisualizationNode not registered on editor');
         }
 
         return mergeRegister(
-            editor.registerCommand<InsertVisualizationPayload>(
-                INSERT_PLOT_COMMAND,
+            editor.registerCommand<InsertEmbedPayload>(
+                INSERT_EMBED_COMMAND,
                 (payload) => {
-                    console.log("creating vis node with payload", payload)
-                    const visualizationNode = $createVisualizationNode(payload)
+                    const visualizationNode = $createEmbedNode(payload)
                     $insertNodes([visualizationNode])
                     return true;
                 },
@@ -134,11 +109,11 @@ export default function PlotPlugin() {
                 },
                 COMMAND_PRIORITY_HIGH,
             ),
-            editor.registerNodeTransform(VisualizationNode, (node) => {
+            editor.registerNodeTransform(EmbedNode, (node) => {
                 const parent = node.getParent();
                 if (parent && !$isRootOrShadowRoot(parent) && !$isSidenoteNode(parent) && !$isCustomMarkNode(parent)) {
                     const grandParent = parent.getParent();
-                    const clone = VisualizationNode.clone(node);
+                    const clone = EmbedNode.clone(node);
                     node.remove();
 
                     if (grandParent && $isRootOrShadowRoot(grandParent)) {
@@ -155,7 +130,6 @@ export default function PlotPlugin() {
                 if(!$isParagraphNode(last)) {
                     const p = $createParagraphNode()
                     last.insertAfter(p)
-                    console.log("adding paragraph")
                 }
             })
         )
@@ -193,22 +167,22 @@ function $onDrop(event: DragEvent, editor: LexicalEditor): boolean {
             rangeSelection.applyDOMRange(range);
         }
         $setSelection(rangeSelection);
-        editor.dispatchCommand(INSERT_PLOT_COMMAND, data);
+        editor.dispatchCommand(INSERT_EMBED_COMMAND, data);
     }
     return true;
 }
 
-function $getVisualizationNodeInSelection(): VisualizationNode | null {
+function $getVisualizationNodeInSelection(): EmbedNode | null {
     const selection = $getSelection();
     if (!$isNodeSelection(selection)) {
         return null;
     }
     const nodes = selection.getNodes();
     const node = nodes[0];
-    return $isVisualizationNode(node) ? node : null;
+    return $isEmbedNode(node) ? node : null;
 }
 
-function getDragImageData(event: DragEvent): null | InsertVisualizationPayload {
+function getDragImageData(event: DragEvent): null | InsertEmbedPayload {
     const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
     if (!dragData) {
         return null;

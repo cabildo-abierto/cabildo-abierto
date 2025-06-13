@@ -15,7 +15,6 @@ export async function generateMetadata(
     const p = await searchParams
     const i = p?.i
     const topicTitle = await get<{title: string}>(`/topic-title/${i}`)
-    console.log(topicTitle)
     if(topicTitle.data){
         return produce(mainMetadata, draft => {
             draft.title = `${topicTitle.data.title} - Tema en Cabildo Abierto`

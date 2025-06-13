@@ -11,6 +11,7 @@ import {
 } from '../../../../util'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
+import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -39,7 +40,10 @@ export function validateRecord<V>(v: V) {
 
 export interface ArticleEmbed {
   $type?: 'ar.cabildoabierto.feed.article#articleEmbed'
-  value: $Typed<ArCabildoabiertoEmbedVisualization.Main> | { $type: string }
+  value:
+    | $Typed<ArCabildoabiertoEmbedVisualization.Main>
+    | $Typed<AppBskyEmbedImages.Main>
+    | { $type: string }
   index: number
 }
 
@@ -51,4 +55,24 @@ export function isArticleEmbed<V>(v: V) {
 
 export function validateArticleEmbed<V>(v: V) {
   return validate<ArticleEmbed & V>(v, id, hashArticleEmbed)
+}
+
+export interface ArticleEmbedView {
+  $type?: 'ar.cabildoabierto.feed.article#articleEmbedView'
+  value:
+    | $Typed<ArCabildoabiertoEmbedVisualization.Main>
+    | $Typed<ArCabildoabiertoEmbedVisualization.View>
+    | $Typed<AppBskyEmbedImages.View>
+    | { $type: string }
+  index: number
+}
+
+const hashArticleEmbedView = 'articleEmbedView'
+
+export function isArticleEmbedView<V>(v: V) {
+  return is$typed(v, id, hashArticleEmbedView)
+}
+
+export function validateArticleEmbedView<V>(v: V) {
+  return validate<ArticleEmbedView & V>(v, id, hashArticleEmbedView)
 }

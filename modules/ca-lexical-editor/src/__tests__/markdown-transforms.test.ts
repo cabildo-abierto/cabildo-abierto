@@ -4,7 +4,7 @@ import {
     markdownToEditorStateNoEmbeds,
     normalizeMarkdown
 } from "../markdown-transforms";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {$Typed} from "@atproto/api";
 import {prettyPrintJSON} from "@/utils/strings";
@@ -113,9 +113,9 @@ const titanicVisualization: $Typed<Visualization> = {
 
 test('markdown transform with visualization', () => {
     const markdown = "abc\n\ndef"
-    const embeds: ArticleEmbed[] = [
+    const embeds: ArticleEmbedView[] = [
         {
-            $type: "ar.cabildoabierto.feed.article#articleEmbed",
+            $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,
             index: 3
         }

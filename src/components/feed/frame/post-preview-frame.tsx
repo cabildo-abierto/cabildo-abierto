@@ -56,11 +56,6 @@ export const PostPreviewFrame = ({
     const author = postView.author
     const createdAt = new Date(postView.indexedAt)
 
-    const collection = getCollectionFromUri(postView.uri)
-    if(isArticle(collection)){
-        console.log("created at", createdAt)
-    }
-
     async function onClick() {
         if(isPost(getCollectionFromUri(postView.uri))){
             qc.setQueryData(threadQueryKey(postView.uri), old => {

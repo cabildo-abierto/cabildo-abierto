@@ -16,7 +16,7 @@ import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {post} from "@/utils/fetch";
 import {editorStateToMarkdown, normalizeMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {decompress} from "@/utils/compression";
 
@@ -59,7 +59,7 @@ async function getNewVersionDiff(editor: LexicalEditor, topic: TopicView) {
 
     const {text: currentText, format: currentFormat} = normalizeTopicText(topic.text, topic.format)
 
-    type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArticleEmbed[]}
+    type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArticleEmbedView[]}
     type O = {charsAdded: number, charsDeleted: number}
 
     const params = {
@@ -193,8 +193,7 @@ export const SaveEditPopup = ({
                     <StateButton
                         handleClick={async () => {
                             return await onSave(claimsAuthorship, editMsg)
-                        }
-                        }
+                        }}
                         text1="Confirmar"
                         disabled={(diff.isLoading == false && !diff.diff) || diff.isLoading == true}
                         disableElevation={true}

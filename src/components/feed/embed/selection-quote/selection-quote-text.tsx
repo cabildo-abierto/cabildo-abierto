@@ -5,13 +5,13 @@ import {
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {ArticleEmbed} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {decompress} from "@/utils/compression";
 
 type QuoteTextProps = {
     quotedText: EmbedSelectionQuote["quotedText"]
     quotedTextFormat: EmbedSelectionQuote["quotedTextFormat"]
-    quotedTextEmbeds: ArticleEmbed[]
+    quotedTextEmbeds: ArticleEmbedView[]
     selection: MarkdownSelection
 }
 

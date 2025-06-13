@@ -62,6 +62,5 @@ export function updateSearchParam(key: string, value: string | string[] | null) 
     } else if(typeof value == "string") {
         url.searchParams.set(key, value)
     }
-    console.log("pushing", url.toString())
     window.history.pushState({}, '', url.toString());
 }

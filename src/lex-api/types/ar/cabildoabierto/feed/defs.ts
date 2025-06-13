@@ -19,6 +19,7 @@ import type * as AppBskyEmbedRecordWithMedia from '../../../app/bsky/embed/recor
 import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as ArCabildoabiertoFeedArticle from './article'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -171,6 +172,7 @@ export interface FullArticleView {
   labels?: ComAtprotoLabelDefs.Label[]
   topicsMentioned?: TopicMention[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
+  embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
 }
 
 const hashFullArticleView = 'fullArticleView'
