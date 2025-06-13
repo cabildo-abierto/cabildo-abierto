@@ -1,9 +1,12 @@
 import {scaleBand, scaleTime} from "@visx/scale";
 import {scaleLinear} from "@visx/scale";
 import {formatIsoDate} from "@/utils/dates";
+import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
+import {useTooltip} from "@visx/tooltip";
 
 type DataRow = Record<string, any>;
-type DataPoint = {x: any, y: any};
+export type DataPoint = {x: any, y: any};
+export type TooltipHookType = ReturnType<typeof useTooltip>;
 
 function guessType(data: DataRow[], axis: string): DataType {
     let numCount = 0;
@@ -99,29 +102,27 @@ export class Plotter {
     public getScale(axis: string, innerMeasure: number) {
         const domain = this.getDomain(axis)
         const type = axis === 'x' ? this.xAxisType : this.yAxisType
-        console.log("is barplto", this.isBarplot(), axis, this.plotType)
-        console.log("tipo eje y:", this.yAxisType)
         if (this.isBarplot() && axis === 'x') {
-            console.log("returning scale band")
-            const res = scaleBand<string>({
+            const res: ScaleBand<string> = scaleBand<string>({
                 domain: domain as string[],
                 range: [0, innerMeasure],
                 padding: 0.2,
             });
-            console.log(res.bandwidth())
             return res
         }
 
         if (type === 'number') {
-            return scaleLinear({
+            const res: ScaleLinear<number, number> = scaleLinear({
                 domain: domain as number[],
                 range: axis === 'x' ? [0, innerMeasure] : [innerMeasure, 0],
                 nice: true,
             });
+            return res
         }
 
         if (type === 'date') {
-            return scaleTime({domain: domain as Date[], range: [0, innerMeasure], nice: true});
+            const res: ScaleTime<number, number> = scaleTime({domain: domain as Date[], range: [0, innerMeasure], nice: true});
+            return res
         }
 
 
