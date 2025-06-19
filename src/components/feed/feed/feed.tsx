@@ -116,7 +116,7 @@ function Feed<T>({
     return (
         <div className="w-full flex flex-col items-center">
             {feedList.map((c, i) => {
-                return <div className={"w-full"} key={getObjectKey(c)}>
+                return <div className={"w-full"} key={i+":"+getObjectKey(c)}>
                     <FeedElement content={c}/>
                 </div>
             })}

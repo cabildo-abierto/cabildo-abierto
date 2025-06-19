@@ -16,7 +16,7 @@ import {topicUrl} from "@/utils/uri";
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
 const TopicCategories = dynamic(() => import("./topic-categories"))
-const TopicNotFoundPage = dynamic(() => import("./no-entity-page"))
+const TopicNotFoundPage = dynamic(() => import("././topic-not-found-page"))
 
 function useShouldGoTo(wikiEditorState: WikiEditorState) {
     const [shouldGoTo, setShouldGoTo] = useState(null)

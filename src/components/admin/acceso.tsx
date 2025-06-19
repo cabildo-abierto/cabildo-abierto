@@ -7,6 +7,7 @@ import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
 import {categoriesSearchParam, useCodes} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {get, post} from "@/utils/fetch";
+import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
 
 
 export const collectionsList = [
@@ -21,16 +22,13 @@ export const collectionsList = [
     "ar.com.cabildoabierto.dataset",
     "ar.com.cabildoabierto.dataBlock",
     "ar.com.cabildoabierto.visualization",
-    "ar.com.cabildoabierto.profile"
+    "ar.com.cabildoabierto.profile",
+    "ar.cabildoabierto.wiki.topicVersion",
+    "ar.cabildoabierto.feed.article"
 ]
 
-
-const grantAccess = async (handle: string) => {
-    return {error: "Sin implementar."}
-}
-
 const deleteUser = async (handle: string) => {
-    return {error: "Sin implementar."}
+    return post(`/user/delete/${handle}`)
 }
 
 const syncUser = async (handle: string, collections: string[]) => {
@@ -87,16 +85,7 @@ export const AdminAcceso = () => {
             </div>
 
             <div className={"flex items-center space-x-2 w-full"}>
-                <StateButton
-                    size={"small"}
-                    fullWidth={true}
-                    text1={"Dar acceso"}
-                    handleClick={async () => {
-                        await grantAccess(handle)
-                        return {}
-                    }}
-                />
-                <StateButton
+                <WarningButton
                     size={"small"}
                     fullWidth={true}
                     text1={"Eliminar"}
@@ -104,6 +93,7 @@ export const AdminAcceso = () => {
                         await deleteUser(handle)
                         return {}
                     }}
+                    warningText={"¿Estás seguro de que querés eliminar el usuario?"}
                 />
                 <StateButton
                     size={"small"}

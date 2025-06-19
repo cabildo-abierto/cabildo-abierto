@@ -27,7 +27,7 @@ const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) =
                     Desde el equipo que la desarrolla intentamos que sirva como una herramienta para discutir ideas, reducir sesgos y mejorar colectivamente la calidad de la información disponible.
                 </div>
                 <div>
-                    Estamos en período de prueba. Ante cualquier comentario no dudes en escribirnos a contacto@cabildoabierto.com.ar o comentar directamente en la plataforma.
+                    Estamos en período de prueba. Ante cualquier comentario no dudes en escribirnos a contacto@cabildoabierto.ar o comentar directamente en la plataforma.
                 </div>
             </div>
         </div>
