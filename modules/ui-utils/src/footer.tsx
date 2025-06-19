@@ -50,11 +50,11 @@ export const FooterRightSide = ({showCA}: {showCA: boolean}) => {
 
         <div className="flex flex-col space-y-1 text-sm md:text-base">
             <h4>Contacto</h4>
-            <DimOnHoverLink href="mailto:soporte@cabildoabierto.com.ar">
-                soporte@cabildoabierto.com.ar
+            <DimOnHoverLink href="mailto:soporte@cabildoabierto.ar">
+                soporte@cabildoabierto.ar
             </DimOnHoverLink>
-            <DimOnHoverLink href="mailto:soporte@cabildoabierto.com.ar">
-                contacto@cabildoabierto.com.ar
+            <DimOnHoverLink href="mailto:soporte@cabildoabierto.ar">
+                contacto@cabildoabierto.ar
             </DimOnHoverLink>
         </div>
     </div>

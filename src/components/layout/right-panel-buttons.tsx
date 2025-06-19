@@ -6,7 +6,7 @@ import DonateIcon from "@/components/icons/donate-icon";
 import SettingsIcon from "@/components/icons/settings-icon";
 import {useSession} from "@/queries/api";
 import SupportIcon from "@/components/icons/support-icon";
-
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 
 export const RightPanelButton = ({children, icon, href}: {children: ReactNode, icon: ReactNode, href: string}) => {
     return (
@@ -39,24 +39,30 @@ export const RightPanelButtons = () => {
     const {user} = useSession()
 
     return <div className={"mt-4 px-3 w-full flex flex-col space-y-1"}>
-        <SupportButton/>
-        <RightPanelButton
-            href={topicUrl("Cabildo Abierto", undefined, "normal")}
-            icon={<InfoIcon color={"inherit"} fontSize={"small"}/>}
-        >
-            Acerca de Cabildo Abierto
-        </RightPanelButton>
         <RightPanelButton
             href={"/aportar"}
             icon={<DonateIcon color={"inherit"} fontSize={"small"}/>}
         >
             Aportar
         </RightPanelButton>
-        {(user.platformAdmin) && <RightPanelButton
+        <RightPanelButton
+            href={topicUrl("Cabildo Abierto", undefined, "normal")}
+            icon={<InfoIcon color={"inherit"} fontSize={"small"}/>}
+        >
+            Acerca de Cabildo Abierto
+        </RightPanelButton>
+        {user.platformAdmin && <RightPanelButton
             href={"/admin"}
             icon={<SettingsIcon color={"inherit"} fontSize={"small"}/>}
         >
             Admin
         </RightPanelButton>}
+        <SupportButton/>
+        <RightPanelButton
+            href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}
+            icon={<RateReviewOutlinedIcon color={"inherit"} fontSize={"small"}/>}
+        >
+            Sugerencias
+        </RightPanelButton>
     </div>
 }

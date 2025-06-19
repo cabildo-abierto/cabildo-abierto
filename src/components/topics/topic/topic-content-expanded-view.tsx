@@ -51,7 +51,7 @@ async function createTopicVersion(body: CreateTopicVersionProps) {
 
 function emptyTopic(topic: TopicView) {
     if(!topic.text || topic.text.trim().length == 0){
-        const embeds = (topic.record as TopicVersionRecord).embeds
+        const embeds = topic.embeds
         return !embeds || embeds.length == 0
     }
     return false
@@ -148,6 +148,10 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                 </div>}
             </div>
         }
+
+        <div className={"font-mono whitespace-pre-wrap"}>
+            {topic.text}
+        </div>
     </>
 }
 
