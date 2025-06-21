@@ -5,7 +5,7 @@ import {getUsername} from "@/utils/utils";
 export const Authorship = ({content, className = "hover:underline font-medium", onlyAuthor = false, text = "Por"}: {
     className?: string,
     text?: string,
-    content: { author: { displayName?: string, handle: string } },
+    content: { author: { displayName?: string, handle: string, did: string } },
     onlyAuthor?: boolean
 }) => {
     return <span className="space-x-1">

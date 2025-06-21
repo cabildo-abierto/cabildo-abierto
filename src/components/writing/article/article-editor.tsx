@@ -61,6 +61,16 @@ const ArticleEditor = () => {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
 
+    /*function refresh() {
+        const state = editorState.toJSON()
+        const markdown = editorStateToMarkdown(state)
+        const stateBack = markdownToEditorState(markdown.markdown)
+        const parsedState = editor.parseEditorState(stateBack)
+        editor.update(() => {
+            editor.setEditorState(parsedState)
+        }, {discrete: true})
+    }*/
+
     return <div className={"mb-32"}>
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">

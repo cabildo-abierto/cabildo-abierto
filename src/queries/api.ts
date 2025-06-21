@@ -14,6 +14,7 @@ import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/d
 import {ValidationRequestView} from "@/components/admin/admin-validation";
 import {DonationHistory} from "@/components/aportar/donation-history";
 import {StatsDashboard} from "@/components/admin/stats";
+import {Notification as BskyNotification} from "@/lex-api/types/app/bsky/notification/listNotifications"
 
 
 function uriToKey(uri: string) {
@@ -174,4 +175,14 @@ export function useMonthlyValue() {
 
 export function useStatsDashboard() {
     return useAPI<StatsDashboard>("/stats-dashboard", ["stats-dashboard"])
+}
+
+
+export function useNotifications() {
+    return useAPI<BskyNotification[]>("/notifications", ["notifications"])
+}
+
+
+export function useUnreadNotificationsCount() {
+    return useAPI<number>("/notifications/unread-count", ["unread-notifications-count"])
 }

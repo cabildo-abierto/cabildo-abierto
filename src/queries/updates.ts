@@ -1,11 +1,17 @@
 import {QueryClient} from "@tanstack/react-query";
-import {FeedViewContent, isThreadViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    FeedViewContent,
+    isPostView,
+    isThreadViewContent,
+    ThreadViewContent
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {postOrArticle} from "@/utils/type-utils";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
 import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {TopicFeed} from "@/queries/api";
 
 
 export const contentQueriesFilter = (uri: string) => ({
@@ -123,4 +129,54 @@ export async function updateDatasets(qc: QueryClient, uri: string, updater: (e: 
             }
         })
     })
+}
+
+
+export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updater: (e: FeedViewContent) => FeedViewContent | null) {
+    qc.getQueryCache()
+        .getAll()
+        .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+
+                const k = q.queryKey
+
+                if(k[0] == "topic-feed"){
+                    console.log(k)
+                }
+
+                if (k[0] == "topic-feed" && k.length == 2 || (k.length == 3 && !["mentions", "replies"].includes(k[2] as string))) {
+                    const t = old as TopicFeed
+                    return produce(t, draft => {
+                        const idx = t.replies.findIndex(x => isPostView(x.content) && x.content.uri == uri)
+                        if(idx != -1) {
+                            const v = updater(t.replies[idx])
+                            if(v != null){
+                                draft.replies[idx] = v
+                            } else {
+                                draft.replies.splice(idx, 1)
+                            }
+                        }
+                    })
+                } else if (k[0] == "topic-feed" && k.length == 3 && ["mentions", "replies"].includes(k[2] as string)) {
+                    const replies = old as InfiniteFeed<FeedViewContent>
+                    return produce(replies, draft => {
+                        draft.pages.forEach((p, i) => {
+                            const idx = p.data.findIndex(x => isPostView(x.content) && x.content.uri == uri)
+                            const v = updater(p.data[idx])
+                            if (idx != -1) {
+                                if (v != null) {
+                                    p.data[idx] = v
+                                } else {
+                                    p.data.splice(idx, 1)
+                                }
+                            }
+                        })
+                    })
+                } else if(k[0] == "topic-feed" && k.length == 3){
+
+                }
+            })
+        })
 }

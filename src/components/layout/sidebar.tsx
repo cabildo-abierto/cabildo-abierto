@@ -5,7 +5,7 @@ import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
 
 import {profileUrl} from "@/utils/uri";
-import {useSession} from "@/queries/api";
+import {useSession, useUnreadNotificationsCount} from "@/queries/api";
 
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
@@ -98,6 +98,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {data: unreadNotificationsCount} = useUnreadNotificationsCount()
 
     const showText = layoutConfig.openSidebar
 
@@ -166,8 +167,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         <SidebarButton
                             showText={showText}
                             onClick={onClose}
-                            icon={<NotificationsIcon count={0}/>}
-                            iconInactive={<NotificationsOutlinedIcon/>}
+                            icon={<NotificationsIcon count={unreadNotificationsCount}/>}
+                            iconInactive={<NotificationsIcon count={unreadNotificationsCount} active={false}/>}
                             text="Notificaciones"
                             href="/notificaciones"
                             selected={pathname.startsWith("/notificaciones")}

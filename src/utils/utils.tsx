@@ -46,8 +46,8 @@ export function validSubscription(user: { subscriptionsUsed: { endsAt: string | 
 }
 
 
-export function getUsername(user: { displayName?: string, handle: string }) {
-    return user.displayName ? user.displayName : "@" + user.handle
+export function getUsername(user: { displayName?: string, handle: string, did: string }) {
+    return user.displayName ? user.displayName : (user.handle ? "@" + user.handle : user.did)
 }
 
 

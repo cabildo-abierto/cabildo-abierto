@@ -66,7 +66,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 className={"flex w-full"}
             />
         </div>
-        {/*BUG: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
+        {/*TO DO: BUG: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         {selected == "Menciones" && <div className={"flex py-2 px-2 justify-center"}>
             <SelectionComponent
                 onSelection={setMentionsSelected}

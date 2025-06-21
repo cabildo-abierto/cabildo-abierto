@@ -50,7 +50,7 @@ async function createTopicVersion(body: CreateTopicVersionProps) {
 
 
 function emptyTopic(topic: TopicView) {
-    if(!topic.text || topic.text.trim().length == 0){
+    if (!topic.text || topic.text.trim().length == 0) {
         const embeds = topic.embeds
         return !embeds || embeds.length == 0
     }
@@ -58,7 +58,15 @@ function emptyTopic(topic: TopicView) {
 }
 
 
-const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, pinnedReplies, setPinnedReplies, editor, setEditor}: {
+const TopicContentExpandedViewContent = ({
+                                             wikiEditorState,
+                                             topic,
+                                             quoteReplies,
+                                             pinnedReplies,
+                                             setPinnedReplies,
+                                             editor,
+                                             setEditor
+                                         }: {
     wikiEditorState: WikiEditorState
     topic: TopicView
     quoteReplies: PostView[]
@@ -88,7 +96,7 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                 const parsedState = editor.parseEditorState(refreshedState);
                 editor.update(() => {
                     editor.setEditorState(parsedState);
-                }, { discrete: true });
+                }, {discrete: true});
             }
 
             refresh();
@@ -119,7 +127,8 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                             placeholder: "Agregá información sobre el tema..."
                         })}
                         setEditor={setEditor}
-                        setEditorState={() => {}}
+                        setEditorState={() => {
+                        }}
                     />}
                     {!wikiEditorState.startsWith("editing") && emptyTopic(topic) &&
                         <div className={"text-[var(--text-light)]"}>
@@ -143,18 +152,14 @@ const TopicContentExpandedViewContent = ({wikiEditorState, topic, quoteReplies, 
                         replyTo={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
                         editor={editor}
                         setEditor={setEditor}
-                        setEditorState={() => {}}
+                        setEditorState={() => {
+                        }}
                     />}
                 </div>}
             </div>
         }
-
-        <div className={"font-mono whitespace-pre-wrap"}>
-            {topic.text}
-        </div>
     </>
 }
-
 
 
 export const TopicContentExpandedViewWithVersion = ({
@@ -203,7 +208,11 @@ export const TopicContentExpandedViewWithVersion = ({
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
         if (!editor) return {error: "Ocurrió un error con el editor."}
 
-        const {markdown, embeds, embedContexts} = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
+        const {
+            markdown,
+            embeds,
+            embedContexts
+        } = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
 
         const {error} = await saveEditMutation.mutateAsync({
             id: topic.id,
@@ -215,7 +224,7 @@ export const TopicContentExpandedViewWithVersion = ({
             embeds,
             embedContexts
         })
-        if(error){
+        if (error) {
             return {error}
         }
 
@@ -241,10 +250,14 @@ export const TopicContentExpandedViewWithVersion = ({
                 topic={topic}
             />}
 
-            {wikiEditorState == "editing-props" &&
-            <TopicPropsEditor props={topicProps} setProps={setTopicProps} topic={topic} onClose={() => {
-                setWikiEditorState("editing")
-            }}/>}
+            {wikiEditorState == "editing-props" && <TopicPropsEditor
+                props={topicProps}
+                setProps={setTopicProps}
+                topic={topic}
+                onClose={() => {
+                    setWikiEditorState("editing")
+                }}
+            />}
 
             {wikiEditorState == "props" && <TopicPropsView topic={topic}/>}
 
@@ -277,7 +290,7 @@ export const TopicContentExpandedView = ({
                                              setPinnedReplies,
                                              wikiEditorState,
                                              setWikiEditorState,
-    topicId
+                                             topicId
                                          }: {
     topicId: string
     pinnedReplies: string[]
@@ -292,7 +305,7 @@ export const TopicContentExpandedView = ({
     const router = useRouter()
 
     useEffect(() => {
-        if(!isLoading && (!topic || error)){
+        if (!isLoading && (!topic || error)) {
             router.push(topicUrl(topicId, undefined, wikiEditorState))
         }
     }, [isLoading, error, topic])

@@ -3,7 +3,14 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {post} from "@/utils/fetch";
 import {getCollectionFromUri, getRkeyFromUri, splitUri} from "@/utils/uri";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter, updateContentInQueries, updateDatasets, updateTopicHistories} from "@/queries/updates";
+import {
+    contentQueriesFilter,
+    updateContentInQueries,
+    updateDatasets,
+    updateTopicFeedQueries,
+    updateTopicHistories
+} from "@/queries/updates";
+import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 const collection2displayText = {
@@ -22,6 +29,7 @@ function optimisticDelete(qc: any, uri: string) {
     updateContentInQueries(qc, uri, c => null)
     updateTopicHistories(qc, uri, e => null)
     updateDatasets(qc,  uri, e => null)
+    updateTopicFeedQueries(qc, uri, e => null)
 }
 
 const deleteRecord = async ({uri}: { uri: string }) => {

@@ -90,8 +90,8 @@ export const AdminAcceso = () => {
                     fullWidth={true}
                     text1={"Eliminar"}
                     handleClick={async () => {
-                        await deleteUser(handle)
-                        return {}
+                        const {error} = await deleteUser(handle)
+                        return {error}
                     }}
                     warningText={"¿Estás seguro de que querés eliminar el usuario?"}
                 />
