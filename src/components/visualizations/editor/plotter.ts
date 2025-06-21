@@ -46,7 +46,7 @@ export class Plotter {
     private yAxis: string;
     private plotType: string;
     private data: DataRow[] = [];
-    private dataPoints: DataPoint[] = [];
+    public dataPoints: DataPoint[] = [];
     private xAxisType: DataType;
     private yAxisType: DataType;
 
@@ -99,7 +99,7 @@ export class Plotter {
         return this.plotType === "ar.cabildoabierto.embed.visualization#lines"
     }
 
-    public getScale(axis: string, innerMeasure: number) {
+    public getScale(axis: string, innerMeasure: number): {scale?: ScaleBand<string> | ScaleLinear<number, number> | ScaleTime<number, number>, error?: string, tickCount?: number} {
         const domain = this.getDomain(axis)
         const type = axis === 'x' ? this.xAxisType : this.yAxisType
         if (this.isBarplot() && axis === 'x') {
@@ -108,7 +108,11 @@ export class Plotter {
                 range: [0, innerMeasure],
                 padding: 0.2,
             });
-            return res
+
+            return {
+                scale: res,
+                tickCount: res.domain().length
+            }
         }
 
         if (type === 'number') {
@@ -117,16 +121,23 @@ export class Plotter {
                 range: axis === 'x' ? [0, innerMeasure] : [innerMeasure, 0],
                 nice: true,
             });
-            return res
+            return {
+                scale: res,
+                tickCount: res.ticks().length
+            }
         }
 
         if (type === 'date') {
             const res: ScaleTime<number, number> = scaleTime({domain: domain as Date[], range: [0, innerMeasure], nice: true});
-            return res
+            return {
+                scale: res,
+                tickCount: res.ticks().length
+            }
         }
 
-
-         throw new Error(`Cannot create scale: unknown type for axis "${axis}"`);
+        return {
+            error: `El tipo de gráfico no es compatible con el tipo de dato del eje "${axis}"`
+        }
     }
 
     public getDomain(axis: string): [number, number] | [Date, Date] | string[]{
@@ -181,11 +192,20 @@ export class Plotter {
         }));
     }
 
-    public prepareForPlot(): DataPoint[] {
+    public prepareForPlot(){
         this.convertTypes();
         this.groupSameX();
         this.sortByX();
+    }
+
+    public getDataPoints(): DataPoint[] {
         return this.dataPoints;
+    }
+
+    public maxValueWidth(axis: string): number {
+        const values = this.dataPoints.map((d) => d[axis]);
+        const valuesWidths = values.map((v) => this.valueToString(v, this.xAxisType).length);
+        return Math.max(...valuesWidths);
     }
 
     valueToString(v: ValueType, type: DataType): string{

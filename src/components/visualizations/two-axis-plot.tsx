@@ -19,6 +19,7 @@ import {AxisBottom, AxisLeft} from "@visx/axis";
 import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {BarplotContent} from "@/components/visualizations/barplot"
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
+import {fontSize} from "@mui/system";
 
 
 export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
@@ -112,15 +113,55 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const svgWidth = totalWidth;
     const svgHeight = totalHeight - reservedHeight;
 
-    const margin = {top: 20, right: 20, bottom: 50, left: 60};
-    const innerWidth = svgWidth - margin.left - margin.right;
-    const innerHeight = svgHeight - margin.top - margin.bottom;
+    const plotter = useMemo(() => {
+            const plotter = new Plotter(visualization.dataset.data, spec.xAxis, spec.yAxis, spec.$type)
+            plotter.prepareForPlot()
+            return plotter
+        },
+        [visualization.dataset.data, spec.xAxis, spec.yAxis, spec.$type]);
 
-    const plotter = useMemo(() => new Plotter(visualization.dataset.data, spec.xAxis, spec.yAxis, spec.$type), [visualization.dataset.data, spec.xAxis, spec.yAxis, spec.$type]);
-    const data = useMemo(() => plotter.prepareForPlot(), [plotter]);
+    const data = plotter.getDataPoints()
 
-    const xScale = plotter.getScale('x', innerWidth)
-    const yScale = plotter.getScale('y', innerHeight)
+    const marginTop = 20
+    const marginRight = 20
+
+    const characterPxWidth = 6
+
+    const maxYLabelLength = plotter.maxValueWidth('y') * characterPxWidth
+    const maxXLabelLength = plotter.maxValueWidth('x') * characterPxWidth
+    const yLabelSpacing = 10
+    const yTickLabelsWidth = 6
+    const marginLeft = maxYLabelLength + characterPxWidth + yLabelSpacing + yTickLabelsWidth
+    const innerWidth = svgWidth - marginLeft - marginRight;
+
+    const {scale: xScale, tickCount: xTickCount, error: xScaleError} = plotter.getScale('x', innerWidth)
+
+    const availableWidthPerTick = innerWidth / xTickCount;
+    const shouldRotateXTicks = maxXLabelLength > availableWidthPerTick;
+    const xTickLabelAngle = shouldRotateXTicks ? -65 : 0;
+    const xTickTextAnchor = shouldRotateXTicks ? 'end' : 'middle';
+    const xTickDx = shouldRotateXTicks ? '0.25em' : '0.0em';
+    const xTickDy = shouldRotateXTicks ? '-0.4em' : '0.0em';
+    const XLabelOffset = shouldRotateXTicks ? Math.cos(xTickLabelAngle / 360 * 2 * 3.14) * maxXLabelLength + 5 : characterPxWidth
+    const YLabelOffset = yLabelSpacing + 20
+    const marginBottom = XLabelOffset + characterPxWidth + 10
+    const innerHeight = svgHeight - marginTop - marginBottom;
+
+    const {scale: yScale, tickCount: yTickCount, error: yScaleError} = plotter.getScale('y', innerHeight)
+
+    if (xScaleError || yScaleError) {
+        return (
+            <div className="text-center text-[var(--text-light)] w-full h-full flex justify-center items-center">
+                {xScaleError ?? yScaleError}.
+            </div>
+        )
+    }
+    const margin = {
+        bottom: marginBottom,
+        top: marginTop,
+        left: marginLeft,
+        right: marginRight
+    }
 
     const allowZoom = plotter.isCurvePlot()
 
@@ -233,6 +274,12 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                 scale={axisLeftScale}
                                 stroke="var(--text-light)"
                                 tickStroke="var(--text-light)"
+                                label={spec.yLabel ?? spec.yAxis}
+                                labelOffset={YLabelOffset}
+                                labelProps={{
+                                    fontSize: 12,
+                                    fill: 'var(--text)'
+                                }}
                                 tickLabelProps={() => ({
                                     fill: 'var(--text)',
                                     fontSize: 12,
@@ -246,31 +293,21 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                 scale={axisBottomScale}
                                 stroke="var(--text-light)"
                                 tickStroke="var(--text-light)"
+                                label={spec.xLabel ?? spec.xAxis}
+                                labelOffset={XLabelOffset}
+                                labelProps={{
+                                    fontSize: 12,
+                                    fill: 'var(--text)'
+                                }}
                                 tickLabelProps={() => ({
                                     fill: 'var(--text)',
                                     fontSize: 12,
-                                    textAnchor: 'middle',
+                                    textAnchor: xTickTextAnchor,
+                                    angle: xTickLabelAngle,
+                                    dx: xTickDx,
+                                    dy: xTickDy,
                                 })}
                             />
-                            <text
-                                x={-innerHeight / 2}
-                                y={-margin.left + 15}
-                                transform="rotate(-90)"
-                                textAnchor="middle"
-                                fontSize={14}
-                                fill="var(--text)"
-                            >
-                                {spec.yLabel ?? spec.yAxis}
-                            </text>
-                            <text
-                                x={innerWidth / 2}
-                                y={innerHeight + 40}
-                                textAnchor="middle"
-                                fontSize={14}
-                                fill="var(--text)"
-                            >
-                                {spec.xLabel ?? spec.xAxis}
-                            </text>
                         </Group>
                     </svg>
                 }}
@@ -302,7 +339,7 @@ export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     }
 
     if (!validColumn(xAxis, visualization.dataset) || !validColumn(yAxis, visualization.dataset)) {
-        return <div className={"text-[var(--text-light)]"}>
+        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             No se encontraron las columnas especificadas en el dataset.
         </div>
     }
