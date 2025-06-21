@@ -6,6 +6,7 @@ import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/ar
 import {$Typed} from "@atproto/api";
 import {Color, darker} from "@/../modules/ui-utils/src/button"
 import {Box} from "@mui/material";
+import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
 
 
 export type ArticlePreviewProps = {
@@ -16,20 +17,21 @@ export type ArticlePreviewProps = {
 }
 
 
-export const ArticlePreviewContent = ({color = "background", title, summary, mentions, clickable = true}: {
-    color?: Color,
+export const ArticlePreviewContent = ({
+                                          color = "background", title, summary, mentions, clickable = true}: {
+    color?: Color
     clickable?: boolean,
     title: string,
     summary: string
     mentions?: TopicMention[]
 }) => {
     return <Box
-        className={"border rounded-lg p-2 my-2"}
+        className={"border rounded-lg p-2"}
         sx={{
             backgroundColor: `var(--${color})`,
-            "&:hover": clickable ? {
-                backgroundColor: `var(--${darker(color)})`
-            } : undefined
+            "&:hover": {
+                backgroundColor: clickable ? `var(--${darker(color)})` : undefined
+            }
         }}
     >
         <div className={"flex justify-between w-full"}>
@@ -53,8 +55,16 @@ export const ArticlePreview = (
     const article = articleView.record as ArticleRecord
     const summary = articleView.summary
     const title = article.title
+    const reason = feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
 
-    return <PostPreviewFrame postView={articleView} borderBelow={!showingChildren} showingChildren={showingChildren}>
-        <ArticlePreviewContent title={title} summary={summary} color={"transparent"}/>
+    return <PostPreviewFrame
+        postView={articleView}
+        borderBelow={!showingChildren}
+        showingChildren={showingChildren}
+        reason={reason}
+    >
+        <div className={"mt-2"}>
+            <ArticlePreviewContent title={title} summary={summary} color={"transparent"}/>
+        </div>
     </PostPreviewFrame>
 }

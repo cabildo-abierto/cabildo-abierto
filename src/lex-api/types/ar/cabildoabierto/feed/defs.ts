@@ -124,7 +124,7 @@ export interface ArticleView {
   title: string
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
   /** A summary of the article to be shown in the feed. */
-  summary?: string
+  summary: string
   summaryFormat?: string
   record: { [_ in string]: unknown }
   bskyRepostCount?: number
@@ -157,8 +157,11 @@ export interface FullArticleView {
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
   title: string
   /** The full article text */
-  text?: string
+  text: string
   format?: string
+  /** A summary of the article to be shown in the feed. */
+  summary: string
+  summaryFormat?: string
   record: { [_ in string]: unknown }
   bskyRepostCount?: number
   bskyLikeCount?: number

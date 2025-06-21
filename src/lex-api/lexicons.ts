@@ -244,6 +244,37 @@ export const schemaDict = {
       },
     },
   },
+  ArCabildoabiertoEmbedRecord: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.embed.record',
+    description:
+      'Una representación de un registro embebido (ej. en un post). Se usa para citar posts o artículos completos.',
+    defs: {
+      main: {
+        type: 'object',
+        required: ['record'],
+        properties: {
+          record: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+      view: {
+        type: 'object',
+        required: ['record'],
+        properties: {
+          record: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.feed.defs#postView',
+              'lex:ar.cabildoabierto.feed.defs#articleView',
+            ],
+          },
+        },
+      },
+    },
+  },
   ArCabildoabiertoEmbedSelectionQuote: {
     lexicon: 1,
     id: 'ar.cabildoabierto.embed.selectionQuote',
@@ -692,7 +723,15 @@ export const schemaDict = {
       },
       articleView: {
         type: 'object',
-        required: ['uri', 'cid', 'author', 'record', 'indexedAt', 'title'],
+        required: [
+          'uri',
+          'cid',
+          'author',
+          'record',
+          'indexedAt',
+          'title',
+          'summary',
+        ],
         properties: {
           uri: {
             type: 'string',
@@ -766,7 +805,16 @@ export const schemaDict = {
       },
       fullArticleView: {
         type: 'object',
-        required: ['uri', 'cid', 'author', 'record', 'indexedAt', 'title'],
+        required: [
+          'uri',
+          'cid',
+          'author',
+          'record',
+          'indexedAt',
+          'text',
+          'summary',
+          'title',
+        ],
         properties: {
           uri: {
             type: 'string',
@@ -788,6 +836,16 @@ export const schemaDict = {
             description: 'The full article text',
           },
           format: {
+            type: 'string',
+            maxLength: 50,
+          },
+          summary: {
+            type: 'string',
+            maxLength: 3000,
+            maxGraphemes: 300,
+            description: 'A summary of the article to be shown in the feed.',
+          },
+          summaryFormat: {
             type: 'string',
             maxLength: 50,
           },
@@ -1024,7 +1082,7 @@ export const schemaDict = {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#articleEmbedView',
+              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
             },
           },
         },
@@ -11673,6 +11731,7 @@ export const ids = {
   ArCabildoabiertoActorCaProfile: 'ar.cabildoabierto.actor.caProfile',
   ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
+  ArCabildoabiertoEmbedRecord: 'ar.cabildoabierto.embed.record',
   ArCabildoabiertoEmbedSelectionQuote: 'ar.cabildoabierto.embed.selectionQuote',
   ArCabildoabiertoEmbedVisualization: 'ar.cabildoabierto.embed.visualization',
   ArCabildoabiertoFeedArticle: 'ar.cabildoabierto.feed.article',

@@ -20,6 +20,7 @@ import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/queries/api";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {
+    ArticleView, FullArticleView,
     isFullArticleView,
     isPostView,
     PostView
@@ -227,7 +228,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (v: boolean) => void
-    quotedPost?: PostView
+    quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
     handleSubmit: (post: CreatePostProps) => Promise<void>
 }) => {
     const {user} = useSession()

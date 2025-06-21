@@ -1,7 +1,13 @@
 import {RepostIcon} from "@/components/icons/reposts-icon";
 import React from "react";
 import {$Typed} from "@atproto/api";
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    ArticleView,
+    FullArticleView,
+    isArticleView,
+    isFullArticleView,
+    PostView
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {post} from "@/utils/fetch";
 import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
@@ -107,7 +113,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
     const reposted = reactionUri != null
 
     const modal = (close: () => void) => {
-        return <div className="text-base border rounded bg-[var(--background-dark)] p-1 space-y-1">
+        return <div className="text-base border rounded bg-[var(--background-dark)] p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
             {!reposted && <OptionsDropdownButton
                 text1={"Republicar"}
                 startIcon={<RepostIcon fontSize={"small"}/>}
@@ -147,7 +153,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 title="Cantidad de republicaciones y citas."
             />
         </ModalOnClick>
-        {isPostView(content) && <WritePanel // TO DO: También podríamos permitir quote posts de artículos y temas
+        {(isPostView(content) || isFullArticleView(content) || isArticleView(content)) && <WritePanel // TO DO: También podríamos permitir quote posts de artículos y temas
             open={writingQuotePost}
             onClose={() => {setWritingQuotePost(false)}}
             quotedPost={content}

@@ -14,6 +14,9 @@ import {isView as isVisualizationEmbedView} from "@/lex-api/types/ar/cabildoabie
 import {SelectionQuoteEmbed} from "@/components/feed/embed/selection-quote/selection-quote-embed";
 import {ATProtoStrongRef} from "@/lib/types";
 import {Plot} from "@/components/visualizations/plot";
+import {isView as isCARecordEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/record"
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
 
 type PostEmbedProps = {
     embed: PostView["embed"]
@@ -39,6 +42,14 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
             embed={embed}
         />}
         {isRecordEmbedView(embed) && <PostRecordEmbed
+            embed={embed}
+            mainPostRef={mainPostRef}
+        />}
+        {isRecordEmbedView(embed) && <PostRecordEmbed
+            embed={embed}
+            mainPostRef={mainPostRef}
+        />}
+        {isCARecordEmbedView(embed) && <CAPostRecordEmbed
             embed={embed}
             mainPostRef={mainPostRef}
         />}

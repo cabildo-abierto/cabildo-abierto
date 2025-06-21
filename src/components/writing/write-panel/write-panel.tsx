@@ -207,7 +207,7 @@ type WritePanelProps = {
     open: boolean
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
-    quotedPost?: PostView
+    quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
 }
 
 
