@@ -22,6 +22,7 @@ const FeedElement = ({
 }) => {
 
     if (isArticleView(elem.content)) {
+        console.log("feed view content", elem)
         return <ArticlePreview
             articleView={elem.content}
             feedViewContent={elem}

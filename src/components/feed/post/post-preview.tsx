@@ -93,6 +93,7 @@ export const PostPreview = ({
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
 
     const showThreadButton = !inThreadFeed && root != null && isPostView(parent) && ("uri" in root && (parent.record as PostRecord).reply.parent.uri != root.uri)
+    const reason = feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
 
     return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px]"}>
         {!inThreadFeed && root && <FeedElement
@@ -114,7 +115,7 @@ export const PostPreview = ({
         }
 
         <PostPreviewFrame
-            reason={feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined}
+            reason={reason}
             postView={{$type: "ar.cabildoabierto.feed.defs#postView", ...postView}}
             showingChildren={showingChildren}
             showingParent={(parent != null && postOrArticle(parent)) || showingParent}
