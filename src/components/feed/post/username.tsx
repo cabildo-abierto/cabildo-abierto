@@ -6,7 +6,7 @@ import {useSession} from "@/queries/api";
 import dynamic from "next/dynamic";
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"));
 
-export const Username = ({user}: { user: { displayName?: string, handle: string } }) => {
+export const Username = ({user}: { user: { displayName?: string, handle: string, did: string } }) => {
     const session = useSession()
 
     if (session.isLoading) return <></>

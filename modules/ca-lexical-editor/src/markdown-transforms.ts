@@ -14,11 +14,10 @@ import {
 import {$generateNodesFromDOM} from "@lexical/html";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
-import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {Main as Visualization, isMain as isVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
 import {ElementOrTextNode, LexicalPointer} from "./selection/lexical-selection";
-import {prettyPrintJSON} from "@/utils/strings";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 
@@ -74,8 +73,11 @@ export function normalizeMarkdown(markdown: string, ensureIdempotent: boolean = 
         markdown = markdown.replaceAll("\n\n\n", "\n\n")
     }
 
-    markdown = markdown.replace(/\n[ \t]+(?=\n)/g, '\n');
-    markdown = markdown.replace(/(?<!\n)\n(?!\n|[\s>*#-])/g, ' ');
+    markdown = markdown.replace(/\n[ \t]+(?=\n)/g, '\n')
+    markdown = markdown.replace(
+        /(?<!\n)(?<![-*+]\s|\d+\.\s)\n(?!\n|[-*+]\s|\d+\.\s)/g,
+        ' '
+    )
 
     if (ensureIdempotent) {
         const s = markdownToEditorStateNoEmbeds(markdown)
@@ -114,10 +116,6 @@ function nodeForPrint(node: ElementOrTextNode) {
         children: "children" in node ? node.children.map(nodeForPrint) : undefined,
         text: "text" in node ? node.text : undefined,
     }
-}
-
-export function prettyPrintLexicalState(s: any) {
-    prettyPrintJSON(nodeForPrint(s.root))
 }
 
 

@@ -164,7 +164,7 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
         editorClassName: "relative article-content not-article-content min-h-[300px]",
     })
     return <div className={"pr-2 pl-20"}>
-        <div className={"bg-[var(--background-dark2)] rounded pt-2"} id={getObjectKey(contentWithChanges)}>
+        <div className={"rounded pt-2"} id={getObjectKey(contentWithChanges)}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={() => {
@@ -279,10 +279,7 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
         closeButton={true}
     >
         <div className={"flex flex-col items-center space-y-2"}>
-            <h3>Cambios</h3>
-            <div className={"text-sm text-[var(--text-light)]"}>
-                Seleccioná dos versiones para analizar qué cambió entre una y otra.
-            </div>
+            <h3>Cambios entre versiones</h3>
         </div>
         <div className={"flex justify-between space-x-8 px-4 pt-6"}>
             <VersionSelector
@@ -302,7 +299,7 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
             <p>Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo
                 una computadora).</p>
         </div>
-        {newVersionIdx != prevVersionIdx && <div className="p-4 max-w-[800px]">
+        {newVersionIdx != prevVersionIdx && <div className="p-4 max-w-[800px] max-h-[500px] overflow-y-scroll my-2">
             <TopicChanges
                 history={history}
                 prevVersionIdx={prevVersionIdx}

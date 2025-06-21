@@ -148,18 +148,25 @@ export function isVisualization(c: string){
     return c == "ar.com.cabildoabierto.visualization"
 }
 
+export type ArticleKind = "none" | "author" | "not-author"
 
-export function collectionToDisplay(c: string){
+export function collectionToDisplay(c: string, article: ArticleKind = "none"){
+    const masc = isArticle(c) || isDataset(c)
+    let artStr: string
+    if(article == "none") artStr = ""
+    else if(article == "author") artStr = "tu "
+    else if(article == "not-author") artStr = masc ? "un" : "una "
+
     if(isPost(c)){
-        return "Publicación"
+        return artStr + "Publicación"
     } else if (isArticle(c)){
-        return "Artículo"
+        return artStr + "Artículo"
     } else if (isTopicVersion(c)){
-        return "Tema"
+        return artStr + "Tema"
     } else if (isDataset(c)){
-        return "Dataset"
+        return artStr + "Conjunto de datos"
     } else if (isVisualization(c)){
-        return "Visualización"
+        return artStr + "Visualización"
     }
 }
 

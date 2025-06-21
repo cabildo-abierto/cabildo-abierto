@@ -32,12 +32,6 @@ export const DonationHistory = () => {
             <GradientHRule/>
         </div>
         <div>
-            {isLoading && <div className={"py-4"}>
-                <LoadingSpinner/>
-            </div>}
-            {!data && <div className={"text-sm text-[var(--text-light)] text-center"}>
-                Ocurrió un error al cargar los datos.
-            </div>}
             {data && <div>
                 {data.map((d, index) => {
                     return <div key={index}>
@@ -49,6 +43,12 @@ export const DonationHistory = () => {
                         </div>
                     </div>
                 })}
+            </div>}
+            {!data && !isLoading && <div className={"text-sm text-[var(--text-light)] text-center"}>
+                Ocurrió un error al cargar los datos.
+            </div>}
+            {isLoading && <div className={"text-sm text-[var(--text-light)] text-center"}>
+                Cargando aportes...
             </div>}
             {data && data.length == 0 && <div className={"text-sm text-[var(--text-light)] text-center"}>
                 Acá va a aparecer tu primer aporte.
