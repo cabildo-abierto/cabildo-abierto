@@ -17,12 +17,9 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from "../icons/settings-icon";
-import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import {WriteButtonIcon} from "../icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import CabildoIcon from "../icons/home-icon";
@@ -30,6 +27,7 @@ import SupportIcon from "../icons/support-icon";
 import NotificationsIcon from "../icons/notifications-icon";
 
 import dynamic from "next/dynamic";
+import TopicsIcon from "@/components/icons/topics-icon";
 
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
@@ -145,8 +143,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         />
 
                         <SidebarButton
-                            icon={<TopicsIcon fontSize="medium"/>}
-                            iconInactive={<CollectionsBookmarkOutlinedIcon/>}
+                            icon={<TopicsIcon/>}
+                            iconInactive={<TopicsIcon outlined={true}/>}
                             onClick={onClose}
                             text="Temas"
                             href="/temas"

@@ -24,7 +24,7 @@ export const TopicsListView = () => {
             <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy}/>
         </div>
         <div className={"flex justify-center"}>
-            <div className={"max-w-[600px] w-full"}>
+            <div className={"w-full"}>
                 <CategoryTopics sortedBy={sortedBy} categories={categories}/>
             </div>
         </div>

@@ -36,7 +36,7 @@ const syncUser = async (handle: string, collections: string[]) => {
 }
 
 const createCodes = async (count: number) => {
-
+    return await post(`/invite-code/create?c=${count}`)
 }
 
 const getUsers = async () => {
@@ -127,8 +127,8 @@ export const AdminAcceso = () => {
                     fullWidth={true}
                     text1={"Generar códigos"}
                     handleClick={async () => {
-                        await createCodes(codesAmount)
-                        return {}
+                        const {error} = await createCodes(codesAmount)
+                        return {error}
                     }}
                 />
             </div>

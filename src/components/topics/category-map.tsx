@@ -16,16 +16,6 @@ export const CategoryMap = ({c}: {c: string}) => {
         router.push(topicUrl(nodeId))
     }
 
-    if(isLoading){
-        return <div className={"mt-16"}>
-            <LoadingSpinner/>
-        </div>
-    } else if (error) {
-        return <ErrorPage>
-            {error.message}
-        </ErrorPage>
-    }
-
     return <div className={"mt-12 ml-6 space-y-8 mb-8"}>
         <div className={"flex space-x-2 items-center text-[var(--text-light)] justify-center"}>
             <BackButton defaultURL={"/temas?view=mapa"}/>
@@ -33,10 +23,15 @@ export const CategoryMap = ({c}: {c: string}) => {
                 {c}
             </div>
         </div>
-        <Graph
-            nodeIds={graph.nodeIds}
-            edgesList={graph.edges}
+        {graph && <Graph
             onClickNode={onClickNode}
-        />
+            graph={graph}
+        />}
+        {isLoading && <div className={"h-[600px] flex items-center justify-center"}>
+            <LoadingSpinner/>
+        </div>}
+        {(error || (!isLoading && !graph)) && <ErrorPage>
+            {error.message}
+        </ErrorPage>}
     </div>
 }

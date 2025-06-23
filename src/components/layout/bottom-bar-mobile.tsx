@@ -6,8 +6,8 @@ import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "../icons/notifications-icon";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import CollectionsBookmarkOutlinedIcon from "@mui/icons-material/CollectionsBookmarkOutlined";
+import TopicsIcon from "@/components/icons/topics-icon";
 
 
 export const BottomBarMobile = () => {
@@ -26,8 +26,8 @@ export const BottomBarMobile = () => {
             color={"background"}
         />
         <SidebarButton
-            icon={<TopicsIcon fontSize="medium"/>}
-            iconInactive={<CollectionsBookmarkOutlinedIcon/>}
+            icon={<TopicsIcon/>}
+            iconInactive={<TopicsIcon outlined={true}/>}
             text="Temas"
             href="/temas"
             selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}

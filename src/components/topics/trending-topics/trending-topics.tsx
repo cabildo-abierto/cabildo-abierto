@@ -4,6 +4,7 @@ import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
 
 import dynamic from "next/dynamic";
+import TopicsIcon from "@/components/icons/topics-icon";
 const TrendingTopicsSlider = dynamic(() => import('./trending-topics-slider'));
 
 
@@ -38,20 +39,19 @@ export const TrendingTopicsPanel = () => {
 
     return <div className="space-y-2 bg-[var(--background-dark)] rounded-lg w-[300px]">
         <div className="flex justify-between p-3 items-center w-full">
-            <Link
-                className={"text-xs font-bold"}
-                href={"/temas"}
-                id={"temas populares"}
+            <div
+                className={"text-xs font-bold flex items-center w-full space-x-1"}
             >
-                Temas populares
-            </Link>
+                <TopicsIcon fontSize={12}/>
+                <span>En agenda</span>
+            </div>
         </div>
         {topics ?
             <TrendingTopicsSlider trendingArticles={topics}/> :
             (isLoading ?
                 <LoadingTrendingTopicsSlider/> :
                 <div className={"text-center text-[var(--text-light)] text-sm pt-2 pb-6"} >
-                    Error al cargar los temas populares
+                    Error al cargar
                 </div>
             )
         }

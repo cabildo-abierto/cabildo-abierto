@@ -25,8 +25,8 @@ export const CategoryTopics = ({sortedBy, categories}: {
         <StaticFeed
             queryKey={["category-topics", ...categories.sort().join(":"), sortedBy]}
             initialContents={topics}
-            FeedElement={({content: t}: {content: TopicViewBasic}) =>
-                <TopicSearchResult topic={t}/>
+            FeedElement={({content: t, index}: {content: TopicViewBasic, index?: number}) =>
+                <TopicSearchResult topic={t} index={index}/>
             }
             noResultsText={"No se encontró ningún tema."}
             endText={""}

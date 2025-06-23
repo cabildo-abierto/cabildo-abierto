@@ -8,7 +8,7 @@ export type StaticFeedProps<T> = {
     endText: string
     initialContents: T[]
     LoadingFeedContent?: ReactNode
-    FeedElement: ({content}: { content: T }) => ReactNode
+    FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
     queryKey: string[]
 }
 

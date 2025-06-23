@@ -13,7 +13,7 @@ const toD3ZoomTransform = (matrix: TransformMatrix): ZoomTransform =>
         .scale(matrix.scaleX); // assumes uniform scale
 
 
-export function CurvePlotContent<X, Y>({data, xScale, yScale, showTooltip, hideTooltip, transformMatrix}: {
+export function CurvePlotContent({data, xScale, yScale, showTooltip, hideTooltip, transformMatrix}: {
     data: DataPoint[],
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>
     yScale: ScaleLinear<number, number>
