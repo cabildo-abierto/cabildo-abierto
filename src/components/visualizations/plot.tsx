@@ -16,7 +16,10 @@ import {visualizationViewToMain} from "@/components/writing/write-panel/write-po
 import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-import {TwoAxisPlot} from "@/components/visualizations/two-axis-plot";
+import dynamic from "next/dynamic";
+
+
+const TwoAxisPlot = dynamic(() => import("@/components/visualizations/two-axis-plot"))
 
 
 export const ResponsivePlot = ({

@@ -324,7 +324,7 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
 }
 
 
-export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
+const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const {xAxis, yAxis} = spec;
 
     if (!xAxis || xAxis.length == 0) {
@@ -346,3 +346,6 @@ export const TwoAxisPlot = ({spec, visualization}: TwoAxisPlotProps) => {
 
     return <TwoAxisPlotPlot spec={spec} visualization={visualization}/>
 }
+
+
+export default TwoAxisPlot
