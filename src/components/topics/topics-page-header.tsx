@@ -3,7 +3,7 @@ import {ReactNode, useState} from "react";
 import {Button} from "../../../modules/ui-utils/src/button";
 
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Graph, ListBullets} from "@phosphor-icons/react"
+import {GraphIcon, ListBulletsIcon} from "@phosphor-icons/react"
 
 import dynamic from "next/dynamic";
 import MainSearchBar from "@/components/buscar/main-search-bar";
@@ -24,9 +24,9 @@ export const TopicsPageHeader = () => {
         let icon: ReactNode
         icon = null
         if (o == "mapa") {
-            icon = isSelected ? <Graph fontSize={"22px"} weight={"bold"}/> : <Graph fontSize={"22px"}/>
+            icon = isSelected ? <GraphIcon fontSize={"22px"} weight={"bold"}/> : <GraphIcon fontSize={"22px"}/>
         } else if (o == "lista") {
-            icon = isSelected ? <ListBullets fontSize={"22px"} weight={"bold"}/> : <ListBullets fontSize={"22px"}/>
+            icon = isSelected ? <ListBulletsIcon fontSize={"22px"} weight={"bold"}/> : <ListBulletsIcon fontSize={"22px"}/>
         }
         return <button
             className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}>
@@ -40,8 +40,8 @@ export const TopicsPageHeader = () => {
                 router.push("/temas?view=" + s + (c ? "&c=" + c : ""));
                 setSearchState({value: "", searching: false})
             }}
-            options={["mapa", "lista"]}
-            selected={view ? view : "mapa"}
+            options={["lista", "mapa"]}
+            selected={view ? view : "lista"}
             optionsNodes={optionsNodes}
             className="flex space-x-2"
         />

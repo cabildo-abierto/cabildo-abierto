@@ -5,6 +5,7 @@ import {useSearchParams} from "next/navigation";
 import {useEffect} from "react";
 import {useSearch} from "@/components/buscar/search-context";
 import MainSearchBar from "@/components/buscar/main-search-bar";
+import {MobileHeader} from "@/components/layout/mobile-header";
 
 
 const Page = () => {
@@ -22,9 +23,7 @@ const Page = () => {
     }, [params]);
 
     return <div className={"flex flex-col items-center"}>
-        <div className={"min-[500px]:hidden w-full px-2"}>
-            <SmallBackButtonHeader title={"Buscar"}/>
-        </div>
+        <MobileHeader/>
         <div className={"p-2 w-full max-w-[560px]"}>
             <MainSearchBar autoFocus={true}/>
         </div>

@@ -28,7 +28,7 @@ export type FeedProps<T> = {
     endText: string
     getFeed: GetFeedProps<T>
     LoadingFeedContent?: ReactNode
-    FeedElement: ({content}: { content: T }) => ReactNode
+    FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
     queryKey: string[]
 }
 
@@ -117,7 +117,7 @@ function Feed<T>({
         <div className="w-full flex flex-col items-center">
             {feedList.map((c, i) => {
                 return <div className={"w-full"} key={i+":"+getObjectKey(c)}>
-                    <FeedElement content={c}/>
+                    <FeedElement content={c} index={i}/>
                 </div>
             })}
             {(isFetchingNextPage || isFetching) &&

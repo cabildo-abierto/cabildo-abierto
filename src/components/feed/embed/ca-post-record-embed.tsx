@@ -8,7 +8,10 @@ import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-autho
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useRouter} from "next/navigation";
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef, PostRecord} from "@/lib/types";
+import {isPostView as isCAPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
+import {BskyRichTextContent} from "@/components/feed/post/bsky-rich-text-content";
+import {PostEmbed} from "@/components/feed/embed/post-embed";
 
 
 
@@ -65,6 +68,51 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
                 />
             </div>
         </div>
-    }
+    } else if(isCAPostView(record)) {
+        const url = contentUrl(record.uri)
+        const author = record.author
+        const createdAt = new Date(record.indexedAt)
 
+        return <div
+            className={"rounded-lg border p-3 hover:bg-[var(--background-dark2)]"}
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if(navigateOnClick) {
+                    router.push(url)
+                }
+            }}
+        >
+            <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
+                <Link
+                    href={profileUrl(author.handle)}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        if(!navigateOnClick) e.preventDefault()
+                    }}
+                    className="flex items-center justify-center"
+                >
+                    <ProfilePic
+                        user={author}
+                        className={"rounded-full w-4 h-4"}
+                    />
+                </Link>
+                <span className="truncate text-sm">
+                    <ContentTopRowAuthor author={author}/>
+                </span>
+                <span className="text-[var(--text-light)]">·</span>
+                <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
+                    <DateSince date={createdAt}/>
+                </span>
+            </div>
+            <div>
+                <BskyRichTextContent post={record.record as PostRecord}/>
+            </div>
+            {record.embed && <PostEmbed embed={record.embed} mainPostRef={mainPostRef}/>}
+        </div>
+    } else {
+        return <div className={"p-3 border rounded-lg"}>
+            Ocurrió un error al mostrar el contenido
+        </div>
+    }
 }

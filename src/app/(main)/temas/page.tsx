@@ -16,10 +16,10 @@ const Temas = () => {
     return <div>
         <MobileHeader/>
         <TopicsPageHeader/>
-        {(searchState.value.length == 0 && (!view || view == "mapa")) && <TopicsMapView/>}
-        {(searchState.value.length == 0 && view == "lista") && <TopicsListView/>}
-        {searchState.searching && <div className={"flex justify-center mt-8"}>
-            <div className={"w-full max-w-[600px]"}>
+        {(searchState.value.length == 0 && view == "mapa") && <TopicsMapView/>}
+        {(searchState.value.length == 0 && (!view || view == "lista")) && <TopicsListView/>}
+        {searchState.searching && <div className={"flex mt-8"}>
+            <div className={"w-full"}>
                 <SearchTopics/>
             </div>
         </div>}

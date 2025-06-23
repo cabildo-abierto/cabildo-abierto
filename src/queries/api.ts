@@ -101,7 +101,7 @@ export function useTopicFeed(id?: string, did?: string, rkey?: string){
 
 
 export function useCodes(){
-    return useAPI<string[]>("/codes", ["codes"])
+    return useAPI<string[]>("/invite-code/all", ["codes"])
 }
 
 

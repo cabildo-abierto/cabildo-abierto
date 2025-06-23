@@ -58,9 +58,19 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         defaultSidebarState: false,
         openRightPanel: false
     }
+    const mobileConfig: LayoutConfigProps = {
+        maxWidthCenter: `${window.innerWidth}px`,
+        leftMinWidth: "0px",
+        rightMinWidth: "0px",
+        defaultSidebarState: false,
+        openSidebar: false,
+        openRightPanel: false
+    }
 
     let config: LayoutConfigProps
-    if(pathname.startsWith("/temas")){
+    if(window.innerWidth < 600){
+        return mobileConfig
+    } else if(pathname.startsWith("/temas")){
         config = {
             ...feedConfig,
             maxWidthCenter: "800px"
@@ -107,13 +117,6 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     const [layoutConfig, setLayoutConfig] = useState(getLayoutConfig(pathname, params));
 
     useEffect(() => {
-        const config = getLayoutConfig(pathname, params, layoutConfig)
-        if(!shallowEqual(layoutConfig, config)){
-            setLayoutConfig(config)
-        }
-    }, [params, pathname])
-
-    useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
             setLayoutConfig((prev) => ({
                 ...prev,
@@ -124,20 +127,9 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     useEffect(() => {
         const handleResize = () => {
-            const {spaceForLeftSide, spaceForRightSide} = getSpaceAvailable(layoutConfig)
-
-            if (spaceForLeftSide != layoutConfig.spaceForLeftSide) {
-                setLayoutConfig((prev) => ({
-                    ...prev,
-                    spaceForLeftSide: spaceForLeftSide,
-                }))
-            }
-
-            if(spaceForRightSide != layoutConfig.spaceForRightSide){
-                setLayoutConfig((prev) => ({
-                    ...prev,
-                    spaceForRightSide: spaceForRightSide,
-                }))
+            const config = getLayoutConfig(pathname, params, layoutConfig)
+            if(!shallowEqual(layoutConfig, config)){
+                setLayoutConfig(config)
             }
         };
 
@@ -148,7 +140,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [layoutConfig]);
+    }, [layoutConfig, params, pathname]);
 
     return (
         <LayoutConfigContext.Provider value={{ layoutConfig, setLayoutConfig }}>

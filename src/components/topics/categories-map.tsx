@@ -10,6 +10,10 @@ export const CategoriesMap = () => {
     const {data: graph, isLoading, error} = useCategoriesGraph()
     const router = useRouter()
 
+    function onClickNode(nodeId: string){
+        router.push("/temas?c="+nodeId+"&view=mapa")
+    }
+
     if(isLoading){
         return <div className={"mt-16"}>
             <LoadingSpinner/>
@@ -20,19 +24,19 @@ export const CategoriesMap = () => {
         </ErrorPage>
     }
 
-    function onClickNode(nodeId: string){
-        router.push("/temas?c="+nodeId+"&view=mapa")
-    }
-
     return <div className={"space-y-8 mb-8"}>
-        <div className={"mt-12 w-full flex justify-center ml-6 max-[500px]:text-xl font-bold text-lg text-[var(--text-light)]"}>
+        <div className={"mt-12 w-full flex justify-center max-[500px]:text-lg font-bold text-xl text-[var(--text-light)]"}>
             Categorías
         </div>
-        <Graph
-            nodeIds={graph.nodeIds}
-            edgesList={graph.edges}
+        {graph && <Graph
             onClickNode={onClickNode}
-            nodeLabels={graph.nodeLabels ? new Map(graph.nodeLabels.map(({id, label}) => ([id, label]))) : undefined}
-        />
+            graph={graph}
+        />}
+        {isLoading && <div className={"mt-16"}>
+            <LoadingSpinner/>
+        </div>}
+        {(error || (!isLoading && !graph)) && <ErrorPage>
+            {error.message}
+        </ErrorPage>}
     </div>
 }
