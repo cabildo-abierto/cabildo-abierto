@@ -44,6 +44,8 @@ const EditorViewerViewVisualization = ({
             <div className={"overflow-x-auto overflow-y-auto"}>
                 <PlotFromVisualizationMain
                     visualization={visualization}
+                    width={700}
+                    height={500}
                 />
             </div> :
             <div className={"w-full h-full flex justify-center items-center"}>

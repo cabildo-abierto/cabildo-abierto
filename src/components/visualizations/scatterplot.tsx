@@ -1,29 +1,23 @@
 import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter";
-import {TransformMatrix} from "@visx/zoom/lib/types";
-import {LinePath} from "@visx/shape";
-import {curveMonotoneX} from "d3-shape";
-import {localPoint} from "@visx/event";
-import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {ScaleLinear, ScaleTime} from "d3-scale";
+import {Circle} from "@visx/shape";
+import {localPoint} from "@visx/event";
+import {TransformMatrix} from "@visx/zoom/lib/types";
+import {Group} from "@visx/group";
 
 
-export function CurvePlotContent({data, xScale, yScale, showTooltip, hideTooltip}: {
-    data: DataPoint[],
+export function ScatterplotContent({data, xScale, yScale, hideTooltip, showTooltip}: {
+    data: DataPoint[]
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>
     yScale: ScaleLinear<number, number>
+    innerHeight: number
     showTooltip: TooltipHookType["showTooltip"]
     hideTooltip: TooltipHookType["hideTooltip"]
 }) {
 
-    return <LinePath
-        data={data}
-        x={(d) => xScale(d.x) ?? 0}
-        y={(d) => yScale(d.y)}
-        stroke="var(--primary)"
-        strokeWidth={2}
-        curve={curveMonotoneX}
+    return <Group
         onMouseMove={(event) => {
-            const {x} = localPoint(event) || {x: 0};
+            const { x } = localPoint(event) || { x: 0 };
             const nearest = data.reduce((prev, curr) =>
                 Math.abs(xScale(curr.x)! - x) < Math.abs(xScale(prev.x)! - x) ? curr : prev
             );
@@ -33,6 +27,16 @@ export function CurvePlotContent({data, xScale, yScale, showTooltip, hideTooltip
                 tooltipTop: yScale(nearest.y),
             });
         }}
-        onMouseLeave={() => hideTooltip()}
-    />
+        onMouseLeave={hideTooltip}
+    >
+        {data.map((d, i) => (
+            <Circle
+                key={`circle-${i}`}
+                cx={xScale(d.x)}
+                cy={yScale(d.y)}
+                r={3}
+                fill="var(--primary)"
+            />
+        ))}
+    </Group>
 }

@@ -1,37 +1,81 @@
-import {PlotConfigProps} from "@/lib/types";
+import {DeepPartial, PlotConfigProps} from "@/lib/types";
 import {Select} from "../../../../modules/ui-utils/src/select";
-import {isTwoAxisPlot, PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
+import {PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
 import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {useState} from "react";
+import {ReactNode, useState} from "react";
 import {Button} from "../../../../modules/ui-utils/src/button";
-import {isHistogram} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {isOneAxisPlot, isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {SliderWithInput} from "../../../../modules/ui-utils/src/slider-with-input";
+import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
+import VisualizationIcon from "@/components/icons/visualization-icon";
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import SquareFootIcon from '@mui/icons-material/SquareFoot';
 
-
-export function kindToLexicon(kind: string): string {
-    const dict = {
-        "Histograma": "histogram",
-        "Gráfico de línea": "lines",
-        "Gráfico de barras": "barplot",
-        "Gráfico de puntos": "scatterplot",
-        "Hemiciclo": "hemicycleVisualization"
+export function kindToLexicon(kind: string): Visualization["spec"] {
+    if(kind == "Histograma") {
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#oneAxisPlot",
+            plot: {
+                "$type": "ar.cabildoabierto.embed.visualization#histogram"
+            }
+        }
+    } else if(kind == "Gráfico de línea") {
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
+            plot: {
+                "$type": "ar.cabildoabierto.embed.visualization#lines"
+            }
+        }
+    } else if(kind == "Gráfico de barras") {
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
+            plot: {
+                "$type": "ar.cabildoabierto.embed.visualization#barplot"
+            }
+        }
+    } else if(kind == "Gráfico de dispersión") {
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
+            plot: {
+                "$type": "ar.cabildoabierto.embed.visualization#scatterplot"
+            }
+        }
+    } else if(kind == "Hemiciclo") {
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#hemicycle"
+        }
+    } else if(kind == "Tabla") {
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#table"
+        }
     }
-
-    return "ar.cabildoabierto.embed.visualization#" + dict[kind];
 }
 
 
-export function lexiconToKind(lexicon: string): string {
+function getLexiconHash(l?: string){
+    if (!l || !l.includes("#")) return ""
+    return l.split("#")[1]
+}
+
+
+export function lexiconToKind(lexicon: DeepPartial<Visualization["spec"]>): string {
     const dict = {
         "histogram": "Histograma",
         "lines": "Gráfico de línea",
         "barplot": "Gráfico de barras",
-        "scatterplot": "Gráfico de puntos",
+        "scatterplot": "Gráfico de dispersión",
         "hemicycleVisualization": "Hemiciclo"
     }
-    if (!lexicon.includes("#")) return ""
-    return dict[lexicon.split("#")[1]];
+    if(isOneAxisPlot(lexicon)) {
+        return "Histograma"
+    } else if(isTwoAxisPlot(lexicon)) {
+        return dict[getLexiconHash(lexicon.plot.$type)]
+    } else {
+        return dict[getLexiconHash(lexicon.$type)]
+    }
 }
 
 
@@ -60,13 +104,13 @@ const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConf
             }}
             fontSize={"0.875rem"}
         />
-        {(isTwoAxisPlot(config.spec) || isHistogram(config.spec)) && <TextField
+        {(isTwoAxisPlot(config.spec) || isOneAxisPlot(config.spec)) && <TextField
             label={"Etiqueta eje x"}
             size={"small"}
             value={config.spec.xLabel ?? config.spec.xAxis}
             onChange={e => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isHistogram(draft.spec)) {
+                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
                         draft.spec.xLabel = e.target.value
                     }
                 }))
@@ -97,11 +141,14 @@ const ConfigPanelVisualization = ({config, setConfig}: {
     return <>
         <Select
             options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión"]}
-            value={config.spec && config.spec.$type ? lexiconToKind(config.spec.$type) : ""}
+            value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
             onChange={(v) => {
                 setConfig(produce(config, draft => {
                     if (!draft.spec) draft.spec = {}
-                    draft.spec.$type = kindToLexicon(v)
+                    draft.spec = {
+                        ...draft.spec,
+                        ...kindToLexicon(v)
+                    }
                 }))
             }}
             label="Tipo de gráfico"
@@ -158,6 +205,14 @@ export const ConfigPanel = ({config, setConfig}: {
     const [selectedMenu, setSelectedMenu] = useState<string>("Visualización")
 
     function optionsNodes(o: string, isSelected: boolean) {
+        let icon: ReactNode
+        if(o == "Visualización"){
+            icon = <VisualizationIcon fontSize={"small"}/>
+        } else if(o == "Texto"){
+            icon = <TextFieldsIcon fontSize={"small"}/>
+        } else if(o == "Dimensiones"){
+            icon = <SquareFootIcon fontSize={"small"}/>
+        }
         return <div className="text-[var(--text)]">
             <Button
                 onClick={() => {
@@ -175,16 +230,16 @@ export const ConfigPanel = ({config, setConfig}: {
             >
                 <div
                     className={"pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
-                    {o}
+                    {icon}
                 </div>
             </Button>
         </div>
     }
 
-    return <div className={"rounded-lg w-full bg-[var(--background-dark)]"}>
+    return <div className={"w-full h-full"}>
         <div className={"flex border-b w-full mt-2"}>
             <SelectionComponent
-                options={["Visualización", "Texto"]}
+                options={["Visualización", "Texto", "Dimensiones"]}
                 optionsNodes={optionsNodes}
                 selected={selectedMenu}
                 onSelection={(v: string) => {
@@ -194,9 +249,10 @@ export const ConfigPanel = ({config, setConfig}: {
             />
         </div>
 
-        <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto h-[calc(100vh-270px)]"}>
+        <div className={"flex flex-col mt-2 space-y-4 px-2 mb-2 pt-2 overflow-y-auto h-full"}>
             {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
             {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
+            {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
         </div>
     </div>
 }

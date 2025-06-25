@@ -71,7 +71,7 @@ const VisualizationEditorSidebar = ({
             style={{width}}
             className={"z-[1400] absolute top-0 left-0 bg-[var(--background-dark)] h-full rounded-l-lg flex flex-col " + (isResizing ? "select-none" : "")}
         >
-            <div className="flex flex-col">
+            <div className="flex flex-col h-full">
                 <div className="p-2">
                     <SelectionComponent
                         onSelection={setSelected}

@@ -104,7 +104,7 @@ const titanicVisualization: $Typed<Visualization> = {
         dataset: "at://did:plc:2356xofv4ntrbu42xeilxjnb/ar.cabildoabierto.data.dataset/3lok7wonohh2x"
     },
     spec: {
-        $type: "ar.cabildoabierto.embed.visualization#lines",
+        $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
         xAxis: "Survived",
         yAxis: "Age"
     }

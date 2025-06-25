@@ -23,14 +23,14 @@ export interface Main {
     | { $type: string }
   spec:
     | $Typed<Hemicycle>
-    | $Typed<Barplot>
-    | $Typed<Scatterplot>
-    | $Typed<Histogram>
-    | $Typed<Lines>
+    | $Typed<TwoAxisPlot>
+    | $Typed<OneAxisPlot>
     | $Typed<Table>
     | { $type: string }
   title?: string
   caption?: string
+  /** Un número de punto flotante que determina la proporción del ancho sobre el alto. */
+  aspectRatio?: string
 }
 
 const hashMain = 'main'
@@ -100,48 +100,76 @@ export function validateTable<V>(v: V) {
   return validate<Table & V>(v, id, hashTable)
 }
 
-export interface Barplot {
-  $type?: 'ar.cabildoabierto.embed.visualization#barplot'
-  xAxis?: string
-  yAxis?: string
+export interface TwoAxisPlot {
+  $type?: 'ar.cabildoabierto.embed.visualization#twoAxisPlot'
+  xAxis: string
   xLabel?: string
+  yAxis: string
   yLabel?: string
+  dimensions?: PlotDimensions
+  plot:
+    | $Typed<Barplot>
+    | $Typed<Lines>
+    | $Typed<Scatterplot>
+    | { $type: string }
 }
 
-const hashBarplot = 'barplot'
+const hashTwoAxisPlot = 'twoAxisPlot'
 
-export function isBarplot<V>(v: V) {
-  return is$typed(v, id, hashBarplot)
+export function isTwoAxisPlot<V>(v: V) {
+  return is$typed(v, id, hashTwoAxisPlot)
 }
 
-export function validateBarplot<V>(v: V) {
-  return validate<Barplot & V>(v, id, hashBarplot)
+export function validateTwoAxisPlot<V>(v: V) {
+  return validate<TwoAxisPlot & V>(v, id, hashTwoAxisPlot)
 }
 
-export interface Scatterplot {
-  $type?: 'ar.cabildoabierto.embed.visualization#scatterplot'
-  xAxis?: string
-  yAxis?: string
+export interface OneAxisPlot {
+  $type?: 'ar.cabildoabierto.embed.visualization#oneAxisPlot'
+  xAxis: string
   xLabel?: string
-  yLabel?: string
+  dimensions?: PlotDimensions
+  plot: $Typed<Histogram> | { $type: string }
 }
 
-const hashScatterplot = 'scatterplot'
+const hashOneAxisPlot = 'oneAxisPlot'
 
-export function isScatterplot<V>(v: V) {
-  return is$typed(v, id, hashScatterplot)
+export function isOneAxisPlot<V>(v: V) {
+  return is$typed(v, id, hashOneAxisPlot)
 }
 
-export function validateScatterplot<V>(v: V) {
-  return validate<Scatterplot & V>(v, id, hashScatterplot)
+export function validateOneAxisPlot<V>(v: V) {
+  return validate<OneAxisPlot & V>(v, id, hashOneAxisPlot)
+}
+
+export interface PlotDimensions {
+  $type?: 'ar.cabildoabierto.embed.visualization#plotDimensions'
+  /** El ángulo de las etiquetas del eje x. 0 es horizontal y aumenta en sentido antihorario (0-360). */
+  xTickLabelsAngle?: number
+  xLabelFontSize?: number
+  xTickLabelsFontSize?: number
+  xTicksCount?: number
+  xLabelOffset?: number
+  yTicksCount?: number
+  yLabelOffset?: number
+  yLabelFontSize?: number
+  yTickLabelsFontSize?: number
+  marginBottom?: number
+  marginLeft?: number
+}
+
+const hashPlotDimensions = 'plotDimensions'
+
+export function isPlotDimensions<V>(v: V) {
+  return is$typed(v, id, hashPlotDimensions)
+}
+
+export function validatePlotDimensions<V>(v: V) {
+  return validate<PlotDimensions & V>(v, id, hashPlotDimensions)
 }
 
 export interface Histogram {
   $type?: 'ar.cabildoabierto.embed.visualization#histogram'
-  xAxis?: string
-  yAxis?: string
-  xLabel?: string
-  normalized?: boolean
 }
 
 const hashHistogram = 'histogram'
@@ -156,10 +184,6 @@ export function validateHistogram<V>(v: V) {
 
 export interface Lines {
   $type?: 'ar.cabildoabierto.embed.visualization#lines'
-  xAxis?: string
-  yAxis?: string
-  xLabel?: string
-  yLabel?: string
 }
 
 const hashLines = 'lines'
@@ -170,6 +194,34 @@ export function isLines<V>(v: V) {
 
 export function validateLines<V>(v: V) {
   return validate<Lines & V>(v, id, hashLines)
+}
+
+export interface Scatterplot {
+  $type?: 'ar.cabildoabierto.embed.visualization#scatterplot'
+}
+
+const hashScatterplot = 'scatterplot'
+
+export function isScatterplot<V>(v: V) {
+  return is$typed(v, id, hashScatterplot)
+}
+
+export function validateScatterplot<V>(v: V) {
+  return validate<Scatterplot & V>(v, id, hashScatterplot)
+}
+
+export interface Barplot {
+  $type?: 'ar.cabildoabierto.embed.visualization#barplot'
+}
+
+const hashBarplot = 'barplot'
+
+export function isBarplot<V>(v: V) {
+  return is$typed(v, id, hashBarplot)
+}
+
+export function validateBarplot<V>(v: V) {
+  return validate<Barplot & V>(v, id, hashBarplot)
 }
 
 export interface View {
@@ -188,6 +240,7 @@ export interface View {
     | { $type: string }
   title?: string
   caption?: string
+  aspectRatio?: string
   dataset: ArCabildoabiertoDataDataset.DatasetView
 }
 
