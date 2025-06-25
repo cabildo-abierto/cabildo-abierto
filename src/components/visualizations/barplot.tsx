@@ -13,13 +13,15 @@ export function BarplotContent<X, Y>({data, xScale, yScale, innerHeight, hideToo
     showTooltip: TooltipHookType["showTooltip"]
     hideTooltip: TooltipHookType["hideTooltip"]
 }) {
+
     return <>
         {data.map((d, i) => {
             const barWidth = xScale.bandwidth();
             const barHeight = innerHeight - yScale(d.y);
-            const barX = xScale(d.x);
-            const barY = yScale(d.y);
-            if (barX == null || isNaN(barY) || isNaN(barHeight)) return null;
+            const barX = xScale(d.x)
+            const barY = yScale(d.y)
+
+            if (barX == null || isNaN(barY) || isNaN(barX) || isNaN(barHeight)) return null;
 
             return (
                 <Bar

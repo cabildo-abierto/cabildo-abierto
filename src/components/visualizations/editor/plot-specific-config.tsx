@@ -1,24 +1,18 @@
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {PlotConfigProps} from "@/lib/types";
 import {
-    Lines,
-    Barplot,
-    Scatterplot,
-    isHistogram, isHemicycle, isDatasetDataSource
+    isHemicycle,
+    isDatasetDataSource,
+    isTwoAxisPlot,
+    isOneAxisPlot
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {$Typed} from "@atproto/api";
 import {produce} from "immer";
 import {useDatasets} from "@/queries/api";
+
 
 type PlotSpecificConfigProps = {
     config: PlotConfigProps
     setConfig: (config: PlotConfigProps) => void
-}
-
-export function isTwoAxisPlot(content: any): content is $Typed<Lines> | $Typed<Scatterplot> | $Typed<Barplot> {
-    return content?.$type === 'ar.cabildoabierto.embed.visualization#lines' ||
-        content?.$type === 'ar.cabildoabierto.embed.visualization#barplot' ||
-        content?.$type === 'ar.cabildoabierto.embed.visualization#scatterplot';
 }
 
 export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps) => {
@@ -58,7 +52,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
             />
         </div>
     }
-    if(isHistogram(config.spec)) {
+    if(isOneAxisPlot(config.spec)) {
         return <div>
             <SearchableDropdown
                 options={dataset ? dataset.columns.map(c => c.name) : []}
@@ -67,7 +61,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
                 selected={config.spec.xAxis ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if(isHistogram(draft.spec)){
+                        if(isOneAxisPlot(draft.spec)){
                             draft.spec.xAxis = v
                         }
                     }))

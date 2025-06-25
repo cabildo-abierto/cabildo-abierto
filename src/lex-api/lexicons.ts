@@ -356,10 +356,8 @@ export const schemaDict = {
             type: 'union',
             refs: [
               'lex:ar.cabildoabierto.embed.visualization#hemicycle',
-              'lex:ar.cabildoabierto.embed.visualization#barplot',
-              'lex:ar.cabildoabierto.embed.visualization#scatterplot',
-              'lex:ar.cabildoabierto.embed.visualization#histogram',
-              'lex:ar.cabildoabierto.embed.visualization#lines',
+              'lex:ar.cabildoabierto.embed.visualization#twoAxisPlot',
+              'lex:ar.cabildoabierto.embed.visualization#oneAxisPlot',
               'lex:ar.cabildoabierto.embed.visualization#table',
             ],
           },
@@ -368,6 +366,11 @@ export const schemaDict = {
           },
           caption: {
             type: 'string',
+          },
+          aspectRatio: {
+            type: 'string',
+            description:
+              'Un número de punto flotante que determina la proporción del ancho sobre el alto.',
           },
         },
       },
@@ -393,73 +396,111 @@ export const schemaDict = {
         type: 'object',
         properties: {},
       },
-      barplot: {
+      twoAxisPlot: {
         type: 'object',
+        required: ['xAxis', 'yAxis', 'plot'],
         properties: {
           xAxis: {
-            type: 'string',
-          },
-          yAxis: {
             type: 'string',
           },
           xLabel: {
             type: 'string',
           },
+          yAxis: {
+            type: 'string',
+          },
           yLabel: {
             type: 'string',
+          },
+          dimensions: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.visualization#plotDimensions',
+          },
+          plot: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization#barplot',
+              'lex:ar.cabildoabierto.embed.visualization#lines',
+              'lex:ar.cabildoabierto.embed.visualization#scatterplot',
+            ],
           },
         },
       },
-      scatterplot: {
+      oneAxisPlot: {
         type: 'object',
+        required: ['xAxis', 'plot'],
         properties: {
           xAxis: {
-            type: 'string',
-          },
-          yAxis: {
             type: 'string',
           },
           xLabel: {
             type: 'string',
           },
-          yLabel: {
-            type: 'string',
+          dimensions: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.visualization#plotDimensions',
+          },
+          plot: {
+            type: 'union',
+            refs: ['lex:ar.cabildoabierto.embed.visualization#histogram'],
+          },
+        },
+      },
+      plotDimensions: {
+        type: 'object',
+        properties: {
+          xTickLabelsAngle: {
+            type: 'integer',
+            description:
+              'El ángulo de las etiquetas del eje x. 0 es horizontal y aumenta en sentido antihorario (0-360).',
+          },
+          xLabelFontSize: {
+            type: 'integer',
+          },
+          xTickLabelsFontSize: {
+            type: 'integer',
+          },
+          xTicksCount: {
+            type: 'integer',
+          },
+          xLabelOffset: {
+            type: 'integer',
+          },
+          yTicksCount: {
+            type: 'integer',
+          },
+          yLabelOffset: {
+            type: 'integer',
+          },
+          yLabelFontSize: {
+            type: 'integer',
+          },
+          yTickLabelsFontSize: {
+            type: 'integer',
+          },
+          marginBottom: {
+            type: 'integer',
+          },
+          marginLeft: {
+            type: 'integer',
           },
         },
       },
       histogram: {
         type: 'object',
-        properties: {
-          xAxis: {
-            type: 'string',
-          },
-          yAxis: {
-            type: 'string',
-          },
-          xLabel: {
-            type: 'string',
-          },
-          normalized: {
-            type: 'boolean',
-          },
-        },
+        properties: {},
       },
       lines: {
         type: 'object',
-        properties: {
-          xAxis: {
-            type: 'string',
-          },
-          yAxis: {
-            type: 'string',
-          },
-          xLabel: {
-            type: 'string',
-          },
-          yLabel: {
-            type: 'string',
-          },
-        },
+        properties: {},
+      },
+      scatterplot: {
+        type: 'object',
+        properties: {},
+      },
+      barplot: {
+        type: 'object',
+        properties: {},
       },
       view: {
         type: 'object',
@@ -487,6 +528,9 @@ export const schemaDict = {
             type: 'string',
           },
           caption: {
+            type: 'string',
+          },
+          aspectRatio: {
             type: 'string',
           },
           dataset: {

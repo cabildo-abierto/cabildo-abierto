@@ -2,10 +2,9 @@ import {
     isDatasetDataSource,
     View as VisualizationView,
     Main as Visualization,
-    DatasetDataSource
+    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
-import {isTwoAxisPlot} from "@/components/visualizations/editor/plot-specific-config";
 import {useDataset} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {Button} from "../../../modules/ui-utils/src/button";
@@ -19,7 +18,7 @@ import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import dynamic from "next/dynamic";
 
 
-const TwoAxisPlot = dynamic(() => import("@/components/visualizations/two-axis-plot"))
+const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 
 
 export const ResponsivePlot = ({
@@ -28,8 +27,8 @@ export const ResponsivePlot = ({
     visualization: VisualizationView
 }) => {
     if (isDatasetDataSource(visualization.dataSource)) {
-        if (isTwoAxisPlot(visualization.spec)) {
-            return <TwoAxisPlot
+        if (isTwoAxisPlot(visualization.spec) || isOneAxisPlot(visualization.spec)) {
+            return <TwoAxisPlotComp
                 spec={visualization.spec}
                 visualization={visualization}
             />
@@ -57,7 +56,7 @@ export const Plot = ({
 }) => {
     const [editing, setEditing] = useState(false)
 
-    return <div style={{height, width}} className={"relative"}>
+    return <div style={{height, width}} className={"relative not-article-content"}>
         {(onEdit != null || onDelete != null) && <div
             className={"absolute top-2 right-2 z-10 space-x-2"}
         >

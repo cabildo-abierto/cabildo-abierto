@@ -47,11 +47,13 @@
     "@mui/x-date-pickers": "^8.4.0",
     "@next/bundle-analyzer": "15.2.1",
     "@phosphor-icons/react": "^2.1.10",
+    "@react-spring/web": "^10.0.1",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.45.2",
     "@tanstack/react-query": "^5.74.4",
     "@visx/tooltip": "^3.13.1-alpha.0",
     "@visx/visx": "^3.13.2-alpha.0",
+    "@visx/xychart": "^3.13.2-alpha.0",
     "binary-search-bounds": "^2.0.5",
     "child_process": "^1.0.2",
     "d3-bboxCollide": "^1.0.4",
@@ -112,6 +114,10 @@
   },
   "overrides": {
     "@types/react": "19.0.10",
-    "@types/react-dom": "19.0.4"
+    "@types/react-dom": "19.0.4",
+    "@visx/xychart": {
+      "react-spring": "^10.0.0",
+      "@react-spring/web": "^10.0.0"
+    }
   }
 }
