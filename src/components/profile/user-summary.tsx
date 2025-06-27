@@ -24,7 +24,7 @@ const UserSummary = ({handle}: UserSummaryProps) => {
         return () => clearTimeout(timeout)
     }, [])
 
-    if (isLoading || !show) return null;
+    if (isLoading || !show || !profile) return null;
 
     const className: string = 'w-12 h-12 rounded-full';
 

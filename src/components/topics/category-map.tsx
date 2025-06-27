@@ -6,7 +6,7 @@ import {topicUrl} from "@/utils/uri";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import dynamic from "next/dynamic";
 
-const Graph = dynamic(() => import("./graph"));
+const Graph = dynamic(() => import("./graph-view"));
 
 export const CategoryMap = ({c}: {c: string}) => {
     const router = useRouter()

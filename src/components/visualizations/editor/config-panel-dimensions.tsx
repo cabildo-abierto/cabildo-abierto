@@ -7,10 +7,11 @@ import {produce} from "immer";
 export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void }) => {
     return <>
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.xLabelOffset ?? 0}
+            value={config.spec.dimensions?.xLabelOffset ?? 0}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xLabelOffset = v
                     }
                 }))
@@ -19,10 +20,11 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             label={"Separación de la etiqueta del eje x"}
         />}
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.yLabelOffset ?? 0}
+            value={config.spec.dimensions?.yLabelOffset ?? 0}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.yLabelOffset = v
                     }
                 }))
@@ -31,10 +33,11 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             label={"Separación de la etiqueta del eje y"}
         />}
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.xTickLabelsAngle ?? 0}
+            value={config.spec.dimensions?.xTickLabelsAngle ?? 0}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xTickLabelsAngle = v
                     }
                 }))
@@ -43,10 +46,11 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             label={"Ángulo de las etiquetas del eje x"}
         />}
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.xLabelFontSize ?? 12}
+            value={config.spec.dimensions?.xLabelFontSize ?? 12}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xLabelFontSize = v
                     }
                 }))
@@ -56,10 +60,11 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             label={"Fuente del título del eje x"}
         />}
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.yLabelFontSize ?? 12}
+            value={config.spec.dimensions?.yLabelFontSize ?? 12}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.yLabelFontSize = v
                     }
                 }))
@@ -69,10 +74,39 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             label={"Fuente del título del eje y"}
         />}
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.marginBottom ?? 55}
+            value={config.spec.dimensions?.xTickLabelsFontSize ?? 10}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
+                        draft.spec.dimensions.xTickLabelsFontSize = v
+                    }
+                }))
+            }}
+            max={30}
+            min={4}
+            label={"Fuente de los ticks del eje x"}
+        />}
+        {isTwoAxisPlot(config.spec) && <SliderWithInput
+            value={config.spec.dimensions?.yTickLabelsFontSize ?? 10}
+            onChange={v => {
+                setConfig(produce(config, draft => {
+                    if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
+                        draft.spec.dimensions.yTickLabelsFontSize = v
+                    }
+                }))
+            }}
+            max={30}
+            min={4}
+            label={"Fuente de los ticks del eje y"}
+        />}
+        {isTwoAxisPlot(config.spec) && <SliderWithInput
+            value={config.spec.dimensions?.marginBottom ?? 55}
+            onChange={v => {
+                setConfig(produce(config, draft => {
+                    if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.marginBottom = v
                     }
                 }))
@@ -82,10 +116,11 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             label={"Margen del eje x"}
         />}
         {isTwoAxisPlot(config.spec) && <SliderWithInput
-            value={config.spec.dimensions.marginLeft ?? 55}
+            value={config.spec.dimensions?.marginLeft ?? 55}
             onChange={v => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.marginLeft = v
                     }
                 }))

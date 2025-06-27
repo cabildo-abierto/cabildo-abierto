@@ -50,9 +50,9 @@ const TopicSearchResult = ({topic, index}: { topic: TopicViewBasic, index?: numb
             </div>
 
             <div className={"flex flex-col justify-between items-end space-y-2 min-w-[30%]"}>
-                <div className={"text-xs text-[var(--text-light)]"}>
+                {index != undefined ? <div className={"text-xs text-[var(--text-light)]"}>
                     {index+1}
-                </div>
+                </div> : <div/>}
                 <div className={"flex space-x-2 items-center text-sm mt-1"}>
                     {topic.lastEdit && <DateLastEdit date={new Date(topic.lastEdit)}/>}
                 </div>

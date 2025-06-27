@@ -3,7 +3,6 @@ import {TransformMatrix} from "@visx/zoom/lib/types";
 import {LinePath} from "@visx/shape";
 import {curveMonotoneX} from "d3-shape";
 import {localPoint} from "@visx/event";
-import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {ScaleLinear, ScaleTime} from "d3-scale";
 
 
@@ -14,7 +13,6 @@ export function CurvePlotContent({data, xScale, yScale, showTooltip, hideTooltip
     showTooltip: TooltipHookType["showTooltip"]
     hideTooltip: TooltipHookType["hideTooltip"]
 }) {
-
     return <LinePath
         data={data}
         x={(d) => xScale(d.x) ?? 0}

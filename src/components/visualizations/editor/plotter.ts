@@ -164,7 +164,11 @@ export class Plotter {
         }
 
         if (type === 'date') {
-            const res: ScaleTime<number, number> = scaleTime({domain: domain as Date[], range: [0, innerMeasure], nice: true});
+            const res: ScaleTime<number, number> = scaleTime({
+                domain: domain as Date[],
+                range: [0, innerMeasure],
+                nice: true
+            });
             return {
                 scale: res,
                 tickCount: res.ticks().length,
@@ -203,8 +207,8 @@ export class Plotter {
 
         if (type === "date") {
             const dates = values as Date[];
-            const minDate = new Date(Math.min(...dates.map(d => d.getTime())))
-            const maxDate = new Date(Math.max(...dates.map(d => d.getTime())))
+            const minDate = new Date(Math.min(...dates.map(d => d.getTime()).filter(x => !isNaN(x))))
+            const maxDate = new Date(Math.max(...dates.map(d => d.getTime()).filter(x => !isNaN(x))))
             return [minDate, maxDate]
         }
 
@@ -255,7 +259,11 @@ export class Plotter {
         if (type === "number") {
             return parseFloat(v)
         } else if (type === "date") {
-            return new Date(v)
+            const date = new Date(v)
+            if(!(date instanceof Date) || date.toString() == "Invalid Date"){
+                return null
+            }
+            return date
         } else {
             return String(v)
         }
@@ -308,6 +316,7 @@ export class TwoAxisPlotter extends Plotter {
         this.dataPoints = this.data.map(row => {
             let x: ValueType = this.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
             let y: ValueType = this.rawValueToDetectedType(row[this.yAxis.column], this.yAxis.detectedType)
+
             return { x, y }
         })
     }

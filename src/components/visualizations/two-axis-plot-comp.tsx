@@ -173,7 +173,6 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const {scale: xScale, error: xScaleError} = plotter.getScale('x', plotInnerWidth)
     const {scale: yScale, error: yScaleError} = plotter.getScale('y', plotInnerHeight)
 
-
     if (xScaleError || yScaleError) {
         return (
             <div className="text-center text-[var(--text-light)] w-full h-full flex justify-center items-center">
@@ -349,7 +348,6 @@ const TwoAxisPlotComp = ({spec, visualization}: TwoAxisPlotProps) => {
         if (!spec.yAxis || spec.yAxis.length == 0) {
             return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
                 Elegí un eje y.
-                <PrettyJSON data={spec}/>
             </div>
         }
 

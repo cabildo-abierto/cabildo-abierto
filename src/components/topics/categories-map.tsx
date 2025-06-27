@@ -4,7 +4,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import dynamic from "next/dynamic";
 
-const Graph = dynamic(() => import("./graph"));
+const Graph = dynamic(() => import("./graph-view"));
 
 export const CategoriesMap = () => {
     const {data: graph, isLoading, error} = useCategoriesGraph()
