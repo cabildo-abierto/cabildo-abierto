@@ -8,6 +8,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {produce} from "immer";
 import {useDatasets} from "@/queries/api";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 
 
 type PlotSpecificConfigProps = {
@@ -18,6 +19,10 @@ type PlotSpecificConfigProps = {
 export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps) => {
     const {data: datasets} = useDatasets()
     if(!config.spec || !config.spec.$type) return null
+
+    if(!datasets) return <div>
+        <LoadingSpinner/>
+    </div>
 
     const dataSource = config.dataSource
     const dataset = isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined

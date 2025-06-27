@@ -45,10 +45,6 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
             embed={embed}
             mainPostRef={mainPostRef}
         />}
-        {isRecordEmbedView(embed) && <PostRecordEmbed
-            embed={embed}
-            mainPostRef={mainPostRef}
-        />}
         {isCARecordEmbedView(embed) && <CAPostRecordEmbed
             embed={embed}
             mainPostRef={mainPostRef}

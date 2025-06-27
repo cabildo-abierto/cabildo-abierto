@@ -236,7 +236,7 @@ export const ConfigPanel = ({config, setConfig}: {
         </div>
     }
 
-    return <div className={"w-full h-full"}>
+    return <>
         <div className={"flex border-b w-full mt-2"}>
             <SelectionComponent
                 options={["Visualización", "Texto", "Dimensiones"]}
@@ -249,10 +249,10 @@ export const ConfigPanel = ({config, setConfig}: {
             />
         </div>
 
-        <div className={"flex flex-col mt-2 space-y-4 px-2 mb-2 pt-2 overflow-y-auto h-full"}>
+        <div className={"flex flex-col mt-2 space-y-4 px-2 mb-2 pt-2 overflow-y-scroll h-full"}>
             {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
             {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
             {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
         </div>
-    </div>
+    </>
 }
