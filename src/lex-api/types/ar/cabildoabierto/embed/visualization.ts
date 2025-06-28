@@ -21,6 +21,7 @@ export interface Main {
     | $Typed<DatasetDataSource>
     | $Typed<TopicsDataSource>
     | { $type: string }
+  filters?: ($Typed<ColumnFilter> | { $type: string })[]
   spec:
     | $Typed<Hemicycle>
     | $Typed<TwoAxisPlot>
@@ -70,6 +71,23 @@ export function isTopicsDataSource<V>(v: V) {
 
 export function validateTopicsDataSource<V>(v: V) {
   return validate<TopicsDataSource & V>(v, id, hashTopicsDataSource)
+}
+
+export interface ColumnFilter {
+  $type?: 'ar.cabildoabierto.embed.visualization#columnFilter'
+  column: string
+  operator: string
+  operands?: string[]
+}
+
+const hashColumnFilter = 'columnFilter'
+
+export function isColumnFilter<V>(v: V) {
+  return is$typed(v, id, hashColumnFilter)
+}
+
+export function validateColumnFilter<V>(v: V) {
+  return validate<ColumnFilter & V>(v, id, hashColumnFilter)
 }
 
 export interface Hemicycle {
@@ -241,7 +259,10 @@ export interface View {
   title?: string
   caption?: string
   aspectRatio?: string
-  dataset: ArCabildoabiertoDataDataset.DatasetView
+  dataset:
+    | $Typed<ArCabildoabiertoDataDataset.DatasetView>
+    | $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView>
+    | { $type: string }
 }
 
 const hashView = 'view'

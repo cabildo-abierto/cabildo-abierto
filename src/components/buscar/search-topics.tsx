@@ -61,5 +61,6 @@ export const SearchTopics = () => {
         FeedElement={({content: r}: {content: TopicViewBasic}) => <TopicSearchResult topic={r}/>}
         noResultsText={"No se encontró ningún tema."}
         endText={""}
+        getFeedElementKey={(e: TopicViewBasic) => e.id}
     />
 };

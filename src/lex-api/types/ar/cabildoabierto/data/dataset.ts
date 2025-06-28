@@ -112,3 +112,20 @@ export function isDatasetView<V>(v: V) {
 export function validateDatasetView<V>(v: V) {
   return validate<DatasetView & V>(v, id, hashDatasetView)
 }
+
+export interface TopicsDatasetView {
+  $type?: 'ar.cabildoabierto.data.dataset#topicsDatasetView'
+  columns: Column[]
+  data: string
+  dataFormat?: string
+}
+
+const hashTopicsDatasetView = 'topicsDatasetView'
+
+export function isTopicsDatasetView<V>(v: V) {
+  return is$typed(v, id, hashTopicsDatasetView)
+}
+
+export function validateTopicsDatasetView<V>(v: V) {
+  return validate<TopicsDatasetView & V>(v, id, hashTopicsDatasetView)
+}

@@ -83,7 +83,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                         queryKey={["topic-feed", topicId, "mentions"]}
                         initialContents={feed.data ? feed.data.mentions : undefined}
                         onClickQuote={onClickQuote}
-                        noResultsText={"El tema todavía no fue mencionado."}
+                        noResultsText={"Todavía no fue mencionado."}
                         endText={""}
                         isThreadFeed={true}
                     />
@@ -95,7 +95,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                             queryKey={["topic-feed", topicId, "replies"]}
                             initialContents={feed.data ? feed.data.replies : undefined}
                             onClickQuote={onClickQuote}
-                            noResultsText={"Este tema todavía no recibió respuestas."}
+                            noResultsText={"Todavía no recibió respuestas."}
                             endText={""}
                             isThreadFeed={true}
                         />

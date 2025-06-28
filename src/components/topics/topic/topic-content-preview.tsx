@@ -6,6 +6,8 @@ import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {getEditorSettings} from "@/components/editor/settings";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -21,16 +23,19 @@ export const TopicContentPreview = ({
 
     if (topic.text == null || topic.text.trim().length == 0) {
         return <div className={"my-4"}>
-            <Button
-                size={"large"}
+            <button
+                className={"h-32 w-full rounded space-y-4 border hover:bg-[var(--background-dark)] text-[var(--text-light)]"}
                 onClick={() => {
                     router.push(topicUrl(topic.id, undefined, "editing"))
                 }}
-                fullWidth={true}
-                color={"background-dark"}
             >
-                No hay nada escrito sobre este tema. Escribí una primera versión.
-            </Button>
+                <div>
+                    No hay nada escrito sobre este tema. Escribí una primera versión.
+                </div>
+                <div className={"flex justify-center"}>
+                    <HistoryEduIcon fontSize={"large"}/>
+                </div>
+            </button>
         </div>
     }
 

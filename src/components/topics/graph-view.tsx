@@ -323,7 +323,7 @@ export default function GraphView({
                                         y2={target.y}
                                         stroke={border}
                                         strokeWidth={1}
-                                        strokeOpacity={1}
+                                        strokeOpacity={0}
                                     />
                                 )}
                                 nodeComponent={({node}) => {

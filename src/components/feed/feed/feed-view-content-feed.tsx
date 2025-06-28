@@ -1,15 +1,16 @@
 import Feed, {FeedProps} from "@/components/feed/feed/feed";
-import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {FeedViewContent, isArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import LoadingFeedViewContent from "@/components/feed/feed/loading-feed-view-content"
 import dynamic from "next/dynamic";
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {GetFeedProps} from "@/lib/types";
+import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 const FeedElement = dynamic(() => import('@/components/feed/feed/feed-element'));
 
 
 type FeedViewContentFeedProps =
-    Omit<FeedProps<FeedViewContent>, "initialContents" | "FeedElement" | "LoadingFeedContent" | "getFeed">
+    Omit<FeedProps<FeedViewContent>, "initialContents" | "FeedElement" | "LoadingFeedContent" | "getFeed" | "getFeedElementKey">
     & {
     initialContents?: FeedViewContent[]
     isThreadFeed?: boolean
@@ -27,6 +28,14 @@ const FeedViewContentFeed = ({
                                  ...props
                              }: FeedViewContentFeedProps) => {
 
+    const getFeedElementKey = (e: FeedViewContent) => {
+        if(isPostView(e.content) || isArticleView(e.content)){
+            return e.content.uri
+        } else {
+            return null
+        }
+    }
+
     if (initialContents) {
         return <StaticFeed
             queryKey={queryKey}
@@ -36,6 +45,7 @@ const FeedViewContentFeed = ({
                 inThreadFeed={isThreadFeed}
                 onClickQuote={onClickQuote}
             />}
+            getFeedElementKey={getFeedElementKey}
             {...props}
         />
     } else if (getFeed) {
@@ -47,6 +57,7 @@ const FeedViewContentFeed = ({
                 onClickQuote={onClickQuote}
             />}
             LoadingFeedContent={<LoadingFeedViewContent/>}
+            getFeedElementKey={getFeedElementKey}
             getFeed={getFeed}
             {...props}
         />

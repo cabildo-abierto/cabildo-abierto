@@ -1,4 +1,5 @@
 import {
+    isArticleView,
     isFeedViewContent,
     isPostView,
     isThreadViewContent,
@@ -9,6 +10,7 @@ import {PostPreview} from "@/components/feed/post/post-preview";
 import {Dispatch, SetStateAction} from "react";
 import {splitUri} from "@/utils/uri";
 import StaticFeed from "@/components/feed/feed/static-feed";
+import {isBlockedPost, isNotFoundPost} from "@/lex-api/types/app/bsky/feed/defs";
 
 
 type ThreadRepliesProps = {
@@ -46,6 +48,15 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                         onClickQuote={onClickQuote}
                         inThreadFeed={true}
                     />
+                }}
+                getFeedElementKey={e => {
+                    if(isThreadViewContent(e)) {
+                        if(isPostView(e.content) || isArticleView(e.content)) {
+                            return e.content.uri
+                        }
+                    } else if(isNotFoundPost(e) || isBlockedPost(e)) {
+                        return e.uri
+                    }
                 }}
             />
         </div>

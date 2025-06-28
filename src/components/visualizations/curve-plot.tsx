@@ -6,19 +6,21 @@ import {localPoint} from "@visx/event";
 import {ScaleLinear, ScaleTime} from "d3-scale";
 
 
-export function CurvePlotContent({data, xScale, yScale, showTooltip, hideTooltip}: {
+export function CurvePlotContent({data, xScale, yScale, showTooltip, hideTooltip, scaleFactorY, scaleFactorX}: {
     data: DataPoint[],
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>
     yScale: ScaleLinear<number, number>
     showTooltip: TooltipHookType["showTooltip"]
     hideTooltip: TooltipHookType["hideTooltip"]
+    scaleFactorX: number
+    scaleFactorY: number
 }) {
     return <LinePath
         data={data}
         x={(d) => xScale(d.x) ?? 0}
         y={(d) => yScale(d.y)}
         stroke="var(--primary)"
-        strokeWidth={2}
+        strokeWidth={2 * Math.min(scaleFactorX, scaleFactorY)}
         curve={curveMonotoneX}
         onMouseMove={(event) => {
             const {x} = localPoint(event) || {x: 0};

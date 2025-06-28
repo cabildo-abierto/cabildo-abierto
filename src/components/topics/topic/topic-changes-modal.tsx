@@ -16,7 +16,6 @@ import {
 import React, {useMemo, useState} from "react";
 import {TopicHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {getObjectKey, range} from "@/utils/arrays";
 import {FormControl, InputLabel, MenuItem, Select as MUISelect} from "@mui/material";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 
@@ -142,10 +141,6 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
         }
     }, [data])
 
-    /*return <div className={"whitespace-pre-wrap max-h-[500px] overflow-y-scroll"}>
-        {JSON.stringify(contentWithChanges, null, 2)}
-    </div>*/
-
     if(isLoading) {
         return <div className={"py-8"}>
             <LoadingSpinner/>
@@ -156,15 +151,15 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
         </div>
     }
 
-
     let settings = getEditorSettings({
         initialText: JSON.stringify(contentWithChanges),
         initialTextFormat: "lexical",
         tableOfContents: true,
         editorClassName: "relative article-content not-article-content min-h-[300px]",
     })
+
     return <div className={"pr-2 pl-20"}>
-        <div className={"rounded pt-2"} id={getObjectKey(contentWithChanges)}>
+        <div className={"rounded pt-2"} id={`${prevRkey}:${rkey}`}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={() => {

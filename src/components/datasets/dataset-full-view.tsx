@@ -1,9 +1,12 @@
 import {DatasetTableView} from "./dataset-table-view";
 import {DatasetDescription} from "./dataset-description";
-import {useLayoutConfig} from "../layout/layout-config-context";
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {DatasetView, DatasetViewBasic, isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {pxToNumber} from "@/utils/strings";
+import {
+    DatasetView,
+    DatasetViewBasic,
+    isDatasetView, isTopicsDatasetView,
+    TopicsDatasetView
+} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {$Typed} from "@atproto/api";
@@ -11,29 +14,34 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
 export const DatasetFullView = ({dataset, maxWidth}: {
-    dataset: $Typed<DatasetView> | $Typed<DatasetViewBasic>
+    dataset: $Typed<DatasetView> | $Typed<DatasetViewBasic> | $Typed<TopicsDatasetView>
     maxWidth?: number
 }) => {
 
-    const rows = isDatasetView(dataset) ? JSON.parse(dataset.data).length : undefined
+    const rows = isDatasetView(dataset) || isTopicsDatasetView(dataset) ? JSON.parse(dataset.data).length : undefined
+
+    const name = isTopicsDatasetView(dataset) ? "Datos" : dataset.name
 
     return <div className={"px-2 space-y-1 flex flex-col h-full pb-4"}>
         <div className={"flex flex-col space-y-1"}>
             <div className={"flex justify-between items-start space-x-2"}>
-                <h2>{dataset.name}</h2>
-                <ContentOptionsButton record={dataset}/>
+                <h2>{name}</h2>
+                {!isTopicsDatasetView(dataset) && <ContentOptionsButton record={dataset}/>}
             </div>
-            <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
-                <div><Authorship content={dataset} text={"Publicado por"}/></div>
-                <div>hace <DateSince date={dataset.createdAt}/></div>
-            </div>
+            {!isTopicsDatasetView(dataset) &&
+                <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
+                    <div><Authorship content={dataset} text={"Publicado por"}/></div>
+                    <div>hace <DateSince date={dataset.createdAt}/></div>
+                </div>}
             <div className={"mt-3 text-[var(--text-light)]"}>
-                <div className={"font-semibold text-[var(--text)]"}>
-                    Descripción
-                </div>
-                <DatasetDescription
-                    description={dataset.description}
-                />
+                {!isTopicsDatasetView(dataset) && <>
+                    <div className={"font-semibold text-[var(--text)]"}>
+                        Descripción
+                    </div>
+                    <DatasetDescription
+                        description={dataset.description}
+                    />
+                </>}
                 <div className={"font-semibold text-[var(--text)] mt-4"}>
                     Tamaño
                 </div>
@@ -48,7 +56,7 @@ export const DatasetFullView = ({dataset, maxWidth}: {
                 </div>
             </div>
         </div>
-        {isDatasetView(dataset) ? <DatasetTableView
+        {(isDatasetView(dataset) || isTopicsDatasetView(dataset)) ? <DatasetTableView
                 dataset={dataset}
                 maxWidth={maxWidth}
             /> :

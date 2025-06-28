@@ -30,6 +30,7 @@ export const CategoryTopics = ({sortedBy, categories}: {
             }
             noResultsText={"No se encontró ningún tema."}
             endText={""}
+            getFeedElementKey={(e: TopicViewBasic) => {return e.id}}
         />
     </div>
 }

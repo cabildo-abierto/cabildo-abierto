@@ -3,7 +3,12 @@ import {
     TwoAxisPlot,
     View as VisualizationView
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {
+    DatasetView,
+    DatasetViewBasic, isDatasetView,
+    isTopicsDatasetView,
+    TopicsDatasetView
+} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {CurvePlotContent} from "@/components/visualizations/curve-plot";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
 import {Plotter, ValueType} from "@/components/visualizations/editor/plotter";
@@ -18,26 +23,26 @@ import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {BarplotContent} from "@/components/visualizations/barplot"
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
 import {$Typed} from "@atproto/api";
-import {pxToNumber} from "@/utils/strings";
 import {ScatterplotContent} from "@/components/visualizations/scatterplot";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
-const PlotCaption = ({caption}: { caption?: string }) => {
+const PlotCaption = ({caption, fontSize=14}: { caption?: string, fontSize?: number }) => {
     if (!caption) return null;
 
     return <div
         className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1 px-2 break-all"
+        style={{fontSize}}
     >
         {caption}
     </div>
 }
 
-const PlotTitle = ({title}: { title?: string }) => {
+const PlotTitle = ({title, fontSize=18}: { title?: string, fontSize: number }) => {
     if (!title) return null;
     return <div
         className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center"
+        style={{fontSize: fontSize}}
     >
         {title}
     </div>
@@ -68,10 +73,12 @@ export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
 type TwoAxisPlotProps = {
     spec: $Typed<TwoAxisPlot> | $Typed<OneAxisPlot>
     visualization: VisualizationView
+    maxWidth?: number
+    maxHeight?: number
 }
 
 
-function validColumn(column: string, dataset: DatasetView | DatasetViewBasic) {
+function validColumn(column: string, dataset: DatasetView | DatasetViewBasic | TopicsDatasetView) {
     return dataset.columns.some(c => c.name === column)
 }
 
@@ -92,7 +99,22 @@ const initialTransform: TransformMatrix = {
 }
 
 
-export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
+function getScaleFactor(width: number, height: number, aspectRatio: number, title: boolean, caption: boolean) {
+    const referenceMaxWidth = 700 - (title ? 30 : 0) - (caption ? 50 : 0)
+    const referenceMaxHeight = 500 - (title ? 30 : 0) - (caption ? 50 : 0)
+
+    let referenceWidth = referenceMaxWidth
+    let referenceHeight = referenceWidth / aspectRatio
+    if(referenceHeight > referenceMaxHeight) {
+        referenceHeight = referenceMaxHeight
+        referenceWidth = referenceHeight * aspectRatio
+    }
+
+    return {scaleFactorX: width / referenceWidth, scaleFactorY: height / referenceHeight}
+}
+
+
+export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoAxisPlotProps) => {
     const {
         tooltipData,
         tooltipLeft,
@@ -133,17 +155,25 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     }, [])
 
     const plotter = useMemo(() => {
-        const plotter = Plotter.create(visualization.dataset.data, spec)
-        plotter.prepareForPlot()
-        return plotter
-    }, [visualization.dataset.data, spec])
+        if(isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
+            const plotter = Plotter.create(visualization.dataset.data, spec)
+            plotter.prepareForPlot()
+            return plotter
+        } else {
+            return null
+        }
+    }, [visualization.dataset, spec])
+
+    if(!plotter) return <div>
+        Configurá el conjunto de datos.
+    </div>
 
     const data = plotter.getDataPoints()
 
     const aspectRatio = parseFloat(visualization.aspectRatio ?? "1.33")
 
-    const totalWidth = bounds.width
-    const totalHeight = bounds.height
+    const totalWidth = maxWidth ?? bounds.width
+    const totalHeight = maxHeight ?? Math.max(bounds.height, 400)
 
     if(!bounds.width || !bounds.height) return <div className={"w-full h-full"} ref={containerRef}><LoadingSpinner/></div>
 
@@ -160,11 +190,13 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
         svgWidth = availableHeight * aspectRatio
     }
 
+    const {scaleFactorX, scaleFactorY} = getScaleFactor(svgWidth, svgHeight, aspectRatio, Boolean(visualization.title), Boolean(visualization.caption))
+
     const margin = {
-        top: 0,
+        top: 10 * scaleFactorY,
         right: 0,
-        left: spec.dimensions?.marginLeft ?? 55,
-        bottom: spec.dimensions?.marginBottom ?? 55
+        left: (spec.dimensions?.marginLeft ?? 55) * scaleFactorX,
+        bottom: (spec.dimensions?.marginBottom ?? 55) * scaleFactorY
     }
 
     const plotInnerWidth = svgWidth - margin.left - margin.right
@@ -187,8 +219,11 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
     const yLabel = isTwoAxisPlot(spec) ? spec.yLabel ?? spec.yAxis : "Cantidad"
 
     return (
-        <div className="relative w-full h-full flex flex-col justify-center items-center" ref={containerRef}>
-            <PlotTitle title={visualization.title}/>
+        <div className="relative w-full h-full flex flex-col justify-center items-center space-y-2" ref={containerRef}>
+            <PlotTitle
+                title={visualization.title}
+                fontSize={18 * Math.min(scaleFactorX, scaleFactorY)}
+            />
             {tooltipOpen && tooltipData && (
                 <TooltipInPortal
                     top={tooltipTop}
@@ -266,6 +301,8 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                     data={data}
                                     showTooltip={showTooltip}
                                     hideTooltip={hideTooltip}
+                                    scaleFactorX={scaleFactorX}
+                                    scaleFactorY={scaleFactorY}
                                 />}
                                 {(isBarplot(spec.plot) || isHistogram(spec.plot)) && <BarplotContent
                                     xScale={axisBottomScale as ScaleBand<string>}
@@ -282,6 +319,8 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                     innerHeight={plotInnerHeight}
                                     hideTooltip={hideTooltip}
                                     showTooltip={showTooltip}
+                                    scaleFactorX={scaleFactorX}
+                                    scaleFactorY={scaleFactorY}
                                 />}
                             </Group>
                             <AxisLeft
@@ -289,18 +328,19 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                 stroke="var(--text-light)"
                                 tickStroke="var(--text-light)"
                                 label={yLabel}
-                                labelOffset={spec.dimensions?.yLabelOffset}
+                                labelOffset={(spec.dimensions?.yLabelOffset ?? 36) * Math.min(scaleFactorX, scaleFactorY)}
                                 labelProps={{
-                                    fontSize: spec.dimensions?.yLabelFontSize ?? 14,
+                                    fontSize: (spec.dimensions?.yLabelFontSize ?? 14) * scaleFactorY,
                                     fill: 'var(--text)'
                                 }}
                                 tickLabelProps={() => ({
                                     fill: 'var(--text)',
-                                    fontSize: spec.dimensions?.yTickLabelsFontSize ?? 12,
+                                    fontSize: (spec.dimensions?.yTickLabelsFontSize ?? 12) * scaleFactorY,
                                     textAnchor: 'end',
                                     dx: '-0.25em',
                                     dy: '0.25em',
                                 })}
+                                tickLength={3*scaleFactorX}
                             />
                             <AxisBottom
                                 top={plotInnerHeight}
@@ -308,36 +348,45 @@ export const TwoAxisPlotPlot = ({spec, visualization}: TwoAxisPlotProps) => {
                                 stroke="var(--text-light)"
                                 tickStroke="var(--text-light)"
                                 label={spec.xLabel ?? spec.xAxis}
-                                labelOffset={spec.dimensions?.xLabelOffset}
+                                numTicks={(plotter.isBarplot() || plotter.isHistogram()) ? 1000000 : undefined}
+                                labelOffset={(spec.dimensions?.xLabelOffset ?? 8) * Math.min(scaleFactorX, scaleFactorY)}
                                 labelProps={{
-                                    fontSize: spec.dimensions?.xLabelFontSize ?? 14,
+                                    fontSize: (spec.dimensions?.xLabelFontSize ?? 14) * scaleFactorX,
                                     fill: 'var(--text)'
                                 }}
                                 tickLabelProps={() => ({
                                     fill: 'var(--text)',
-                                    fontSize: spec.dimensions?.xTickLabelsFontSize ?? 12,
+                                    fontSize: (spec.dimensions?.xTickLabelsFontSize ?? 12) * scaleFactorX,
                                     textAnchor: spec.dimensions?.xTickLabelsAngle != 0 ? 'end' : 'middle',
                                     angle: -spec.dimensions?.xTickLabelsAngle,
                                     dx: spec.dimensions?.xTickLabelsAngle != 0 ? '0.25em' : '0.0em',
                                 })}
+                                tickLength={3*scaleFactorY}
                             />
                         </Group>
                     </svg>
                 }}
             </Zoom>
-            <PlotCaption caption={visualization.caption}/>
+            <PlotCaption caption={visualization.caption} fontSize={14 * Math.min(scaleFactorX, scaleFactorY)}/>
         </div>
     );
 }
 
 
-const TwoAxisPlotComp = ({spec, visualization}: TwoAxisPlotProps) => {
+const TwoAxisPlotComp = ({spec, visualization, maxWidth, maxHeight}: TwoAxisPlotProps) => {
 
     if (!spec.xAxis || spec.xAxis.length == 0) {
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Elegí un eje x.
         </div>
     }
+
+    if(!isDatasetView(visualization.dataset) && !isTopicsDatasetView(visualization.dataset)) {
+        return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
+            Configurá el conjunto de datos.
+        </div>
+    }
+
     if(isOneAxisPlot(spec) && !validColumn(spec.xAxis, visualization.dataset)){
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             No se encontró la columna especificada en los datos.
@@ -359,7 +408,7 @@ const TwoAxisPlotComp = ({spec, visualization}: TwoAxisPlotProps) => {
     }
 
 
-    return <TwoAxisPlotPlot spec={spec} visualization={visualization}/>
+    return <TwoAxisPlotPlot spec={spec} visualization={visualization} maxWidth={maxWidth} maxHeight={maxHeight}/>
 }
 
 

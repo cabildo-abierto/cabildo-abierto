@@ -2,19 +2,19 @@ import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plo
 import {ScaleLinear, ScaleTime} from "d3-scale";
 import {Circle} from "@visx/shape";
 import {localPoint} from "@visx/event";
-import {TransformMatrix} from "@visx/zoom/lib/types";
 import {Group} from "@visx/group";
 
 
-export function ScatterplotContent({data, xScale, yScale, hideTooltip, showTooltip}: {
+export function ScatterplotContent({data, xScale, yScale, hideTooltip, showTooltip, scaleFactorY, scaleFactorX}: {
     data: DataPoint[]
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>
     yScale: ScaleLinear<number, number>
     innerHeight: number
     showTooltip: TooltipHookType["showTooltip"]
     hideTooltip: TooltipHookType["hideTooltip"]
+    scaleFactorX: number
+    scaleFactorY: number
 }) {
-
     return <Group
         onMouseMove={(event) => {
             const { x } = localPoint(event) || { x: 0 };
@@ -34,7 +34,7 @@ export function ScatterplotContent({data, xScale, yScale, hideTooltip, showToolt
                 key={`circle-${i}`}
                 cx={xScale(d.x)}
                 cy={yScale(d.y)}
-                r={3}
+                r={3 * Math.min(scaleFactorX, scaleFactorY)}
                 fill="var(--primary)"
             />
         ))}
