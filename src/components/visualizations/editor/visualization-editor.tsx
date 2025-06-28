@@ -5,12 +5,16 @@ import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import {
-    Main as Visualization,
+    isColumnFilter,
+    Main as Visualization, validateColumnFilter,
     validateMain as validateVisualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import VisualizationEditorSidebar from "@/components/visualizations/editor/visualization-editor-sidebar";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {emptyChar} from "@/utils/utils";
+import {post} from "@/utils/fetch";
+import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {useQuery} from "@tanstack/react-query";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -45,6 +49,39 @@ type VisualizationEditorProps = {
     onClose: () => void
 }
 
+type TopicDatasetSpec = {
+    filters: Visualization["filters"]
+}
+
+async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
+    const validFilters: Visualization["filters"] = []
+    for(let i = 0; i < filters.length; i++) {
+        const f = filters[i]
+        if(isColumnFilter(f)){
+            const valid = validateColumnFilter(f)
+            if(valid.success){
+                validFilters.push(valid.value)
+            } else if(valid.success == false){
+                return {error: "Uno de los filtros aplicados es inválido."}
+            }
+        } else {
+            return {error: `Uno de los filtros aplicados es inválido`}
+        }
+    }
+
+    return await post<TopicDatasetSpec, TopicsDatasetView>("/topics-dataset", {filters: validFilters})
+}
+
+
+export const useTopicsDataset = (filters: PlotConfigProps["filters"], load: boolean = false) => {
+    return useQuery({
+        queryKey: ['topics-dataset', filters],
+        queryFn: () => fetchTopicsDataset(filters),
+        enabled: load
+    })
+}
+
+
 export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: VisualizationEditorProps) => {
     const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
@@ -53,8 +90,9 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
     const [wideEnough, setWideEnough] = useState(window.innerWidth >= editorMinWidth)
     const [width, setWidth] = useState(window.innerWidth-50)
     const [height, setHeight] = useState(window.innerHeight-50)
+    const {refetch} = useTopicsDataset(config.filters)
 
-    const baseSidebarWidth = width / 4
+    const baseSidebarWidth = Math.max(width / 4, 350)
 
     useEffect(() => {
         const handleResize = () => {
@@ -67,8 +105,13 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
 
         return () => {
             window.removeEventListener('resize', handleResize);
-        };
+        }
     }, [])
+
+    async function onReloadData() {
+        await refetch()
+        return {}
+    }
 
     if (!wideEnough) {
         return <div>
@@ -113,15 +156,15 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
                 setSelected={setSelected}
                 baseWidth={baseSidebarWidth}
                 maxWidth={width / 2}
+                onReloadData={onReloadData}
             />
         </div>
 
-        <div className={"flex-1"} style={{width: width * 3 / 4}}>
+        <div className={"flex-1"} style={{width: width - baseSidebarWidth}}>
             <div style={{height}} className={"flex flex-col grow"}>
                 <EditorViewer
                     config={config}
                     selected={selected}
-                    setSelected={setSelected}
                     onSave={onSave}
                 />
             </div>

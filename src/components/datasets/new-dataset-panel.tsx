@@ -11,6 +11,7 @@ import Papa from 'papaparse';
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {post} from "@/utils/fetch";
+import TopicsIcon from "@/components/icons/topics-icon";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -42,7 +43,7 @@ export const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename:
         disableElevation={true}
         startIcon={<CloudUploadIcon />}
     >
-        Subir archivo
+        Subir archivo (.csv)
         <VisuallyHiddenInput
             type="file"
             onChange={loadImage}
@@ -131,6 +132,10 @@ export const NewDatasetPanel = ({open, onClose}: {
         data: JSON.stringify(rows)
     }
 
+    function onClickTopicsBased() {
+
+    }
+
     let center
     if(!columns){
         center = <div className={""}>
@@ -138,8 +143,7 @@ export const NewDatasetPanel = ({open, onClose}: {
                 <CloseButton onClose={onClickClose} size={"small"}/>
             </div>
             <div className={"flex flex-col items-center space-y-8 py-4 px-16"}>
-                <h2>Nuevo dataset</h2>
-                <div className={"text-[var(--text-light)]"}>Subí un archivo en formato csv.</div>
+                <h3>Nuevo conjunto de datos</h3>
                 <UploadDatasetButton onSubmit={onSubmit}/>
             </div>
         </div>
@@ -149,7 +153,7 @@ export const NewDatasetPanel = ({open, onClose}: {
                 <CloseButton onClose={onClickClose} size={"small"}/>
             </div>
             <div className={"flex flex-col items-center space-y-4 px-8"}>
-                <h2>Nuevo dataset</h2>
+                <h3>Nuevo conjunto de datos</h3>
                 <div className={"w-80"}>
                     <TextField
                         size={"small"}

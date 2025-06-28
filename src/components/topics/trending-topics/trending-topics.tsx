@@ -38,7 +38,7 @@ export const TrendingTopicsPanel = () => {
     const {data: topics, isLoading} = useTrendingTopics()
 
     return <div className="space-y-2 bg-[var(--background-dark)] rounded-lg w-[300px]">
-        <div className="flex justify-between p-3 items-center w-full">
+        <div className="flex justify-between pt-3 px-3 items-center w-full">
             <div
                 className={"text-xs font-bold flex items-center w-full space-x-1"}
             >

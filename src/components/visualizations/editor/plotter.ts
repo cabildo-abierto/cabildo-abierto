@@ -134,7 +134,6 @@ export class Plotter {
             }
         }
 
-
         const type = this.getAxisType(axis)
         if ((this.isBarplot() || this.isHistogram()) && axis == 'x') {
             const res: ScaleBand<string> = scaleBand<string>({
@@ -272,6 +271,10 @@ export class Plotter {
     protected sortByX(): void {
         this.dataPoints.sort((a, b) => a.x - b.x);
     }
+
+    protected sortByY(): void {
+        this.dataPoints.sort((a, b) => b.y - a.y);
+    }
 }
 
 
@@ -294,6 +297,7 @@ export class OneAxisPlotter extends Plotter {
         this.dataPoints = Array.from(counts.entries()).map(([v, c]) => ({x: v, y: c}))
 
         this.sortByX()
+        this.sortByY()
     }
 
     yValueToString(y: ValueType): string {
@@ -340,6 +344,9 @@ export class TwoAxisPlotter extends Plotter {
         this.createDataPoints()
         this.groupSameX()
         this.sortByX()
+        if(this.isBarplot()){
+            this.sortByY()
+        }
     }
 
     yValueToString(y: ValueType): string {

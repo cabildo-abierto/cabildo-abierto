@@ -242,6 +242,26 @@ export const schemaDict = {
           },
         },
       },
+      topicsDatasetView: {
+        type: 'object',
+        required: ['columns', 'data'],
+        properties: {
+          columns: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.data.dataset#column',
+            },
+            minLength: 1,
+          },
+          data: {
+            type: 'string',
+          },
+          dataFormat: {
+            type: 'string',
+          },
+        },
+      },
     },
   },
   ArCabildoabiertoEmbedRecord: {
@@ -352,6 +372,13 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.embed.visualization#topicsDataSource',
             ],
           },
+          filters: {
+            type: 'array',
+            items: {
+              type: 'union',
+              refs: ['lex:ar.cabildoabierto.embed.visualization#columnFilter'],
+            },
+          },
           spec: {
             type: 'union',
             refs: [
@@ -387,6 +414,24 @@ export const schemaDict = {
       topicsDataSource: {
         type: 'object',
         properties: {},
+      },
+      columnFilter: {
+        type: 'object',
+        required: ['column', 'operator'],
+        properties: {
+          column: {
+            type: 'string',
+          },
+          operator: {
+            type: 'string',
+          },
+          operands: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
       },
       hemicycle: {
         type: 'object',
@@ -534,8 +579,11 @@ export const schemaDict = {
             type: 'string',
           },
           dataset: {
-            type: 'ref',
-            ref: 'lex:ar.cabildoabierto.data.dataset#datasetView',
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.data.dataset#datasetView',
+              'lex:ar.cabildoabierto.data.dataset#topicsDatasetView',
+            ],
           },
         },
       },

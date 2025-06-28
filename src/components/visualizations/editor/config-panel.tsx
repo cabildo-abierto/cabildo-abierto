@@ -67,7 +67,8 @@ export function lexiconToKind(lexicon: DeepPartial<Visualization["spec"]>): stri
         "lines": "Gráfico de línea",
         "barplot": "Gráfico de barras",
         "scatterplot": "Gráfico de dispersión",
-        "hemicycleVisualization": "Hemiciclo"
+        "hemicycleVisualization": "Hemiciclo",
+        "table": "Tabla"
     }
     if(isOneAxisPlot(lexicon)) {
         return "Histograma"
@@ -140,7 +141,7 @@ const ConfigPanelVisualization = ({config, setConfig}: {
 }) => {
     return <>
         <Select
-            options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión"]}
+            options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión", "Tabla"]}
             value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
             onChange={(v) => {
                 setConfig(produce(config, draft => {

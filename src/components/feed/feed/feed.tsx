@@ -1,6 +1,6 @@
 "use client"
 import React, {ReactNode, useEffect} from "react";
-import {getObjectKey, range} from "@/utils/arrays";
+import {range} from "@/utils/arrays";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {GetFeedProps} from "@/lib/types";
 import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
@@ -30,6 +30,7 @@ export type FeedProps<T> = {
     LoadingFeedContent?: ReactNode
     FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
     queryKey: string[]
+    getFeedElementKey: (e: T) => string | null
 }
 
 
@@ -37,15 +38,9 @@ export type InfiniteFeed<T> = {
     pages: FeedPage<T>[]
 }
 
-
-export function serializeFeedPages<T>(feedPages: FeedPage<T>[]){
-    return feedPages.reduce((prev, page) => [...prev, ...page.data], [] as T[])
-}
-
-
 export interface FeedPage<T> {
-    data: T[];
-    nextCursor?: string;
+    data: T[]
+    nextCursor?: string
 }
 
 
@@ -56,7 +51,8 @@ function Feed<T>({
                      noResultsText,
                      endText,
                      LoadingFeedContent,
-                     FeedElement
+                     FeedElement,
+    getFeedElementKey
                  }: FeedProps<T>) {
     const qc = useQueryClient()
 
@@ -116,7 +112,8 @@ function Feed<T>({
     return (
         <div className="w-full flex flex-col items-center">
             {feedList.map((c, i) => {
-                return <div className={"w-full"} key={i+":"+getObjectKey(c)}>
+                const key = getFeedElementKey(c)
+                return <div className={"w-full"} key={key}>
                     <FeedElement content={c} index={i}/>
                 </div>
             })}

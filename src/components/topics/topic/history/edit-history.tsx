@@ -83,7 +83,6 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
     index: number,
     viewing: boolean
 }) => {
-    const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
 
     const isRejected = false
@@ -102,16 +101,6 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
     const obsolete = getCollectionFromUri(topicVersion.uri) == "ar.com.cabildoabierto.topic"
 
     return <div className="flex items-center w-full">
-        {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
-            topicHistory={topicHistory}
-            version={index}
-            onRemove={async () => {
-                return {}
-            }}
-            onClose={() => {
-                setShowingRemoveAuthorshipPanel(false)
-            }}
-        />}
         <div
             className={className}
             onClick={() => {

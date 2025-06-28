@@ -1,4 +1,3 @@
-import DatasetIcon from '@mui/icons-material/Dataset';
+import {TableIcon} from "@phosphor-icons/react";
 
-
-export default DatasetIcon
+export default TableIcon

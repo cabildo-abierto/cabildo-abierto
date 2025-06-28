@@ -1,12 +1,13 @@
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useRef, useState} from "react";
-import {TableIcon} from "@phosphor-icons/react";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ChooseDatasetPanel} from "@/components/visualizations/editor/choose-dataset";
 import {ConfigPanel} from "@/components/visualizations/editor/config-panel";
 import VisualizationIcon from "@/components/icons/visualization-icon";
+import DatasetIcon from "@/components/icons/dataset-icon";
+import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
 
 const VisualizationEditorSidebar = ({
                                         datasets,
@@ -15,7 +16,8 @@ const VisualizationEditorSidebar = ({
                                         setConfig,
                                         setSelected,
                                         maxWidth,
-                                        baseWidth
+                                        baseWidth,
+                                        onReloadData,
                                     }: {
     datasets: DatasetViewBasic[],
     config: PlotConfigProps,
@@ -24,6 +26,7 @@ const VisualizationEditorSidebar = ({
     setSelected: (v: string) => void
     baseWidth: number
     maxWidth: number
+    onReloadData?: StateButtonClickHandler
 }) => {
     const [width, setWidth] = useState<number>(baseWidth);
     const isResizing = useRef(false);
@@ -60,7 +63,7 @@ const VisualizationEditorSidebar = ({
     }, []);
 
     function optionsNodes(o: string, isSelected: boolean) {
-        const icon = o == "Datos" ? <TableIcon/> : <VisualizationIcon/>
+        const icon = o == "Datos" ? <DatasetIcon/> : <VisualizationIcon/>
         return <Button color={isSelected ? "primary" : "background-dark2"} startIcon={icon}>
             {o}
         </Button>
@@ -83,7 +86,12 @@ const VisualizationEditorSidebar = ({
                     />
                 </div>
 
-                {selected == "Datos" && <ChooseDatasetPanel datasets={datasets} config={config} setConfig={setConfig}/>}
+                {selected == "Datos" && <ChooseDatasetPanel
+                    datasets={datasets}
+                    config={config}
+                    setConfig={setConfig}
+                    onReloadData={onReloadData}
+                />}
                 {selected == "Visualización" && <ConfigPanel config={config} setConfig={setConfig}/>}
             </div>
 

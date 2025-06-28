@@ -2,9 +2,9 @@ import {
     isDatasetDataSource,
     View as VisualizationView,
     Main as Visualization,
-    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot
+    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
+import {DatasetView, TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {useDataset} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {Button} from "../../../modules/ui-utils/src/button";
@@ -12,10 +12,12 @@ import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import dynamic from "next/dynamic";
+import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
+import {$Typed} from "@atproto/api";
+import { pxToNumber } from "@/utils/strings";
 
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
@@ -23,27 +25,31 @@ const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-ax
 
 export const ResponsivePlot = ({
                                    visualization,
+    maxWidth,
+    maxHeight
                                }: {
     visualization: VisualizationView
+    maxWidth?: number
+    maxHeight?: number
 }) => {
-    if (isDatasetDataSource(visualization.dataSource)) {
-        if (isTwoAxisPlot(visualization.spec) || isOneAxisPlot(visualization.spec)) {
-            return <TwoAxisPlotComp
-                spec={visualization.spec}
-                visualization={visualization}
-            />
-        }
+    if (isTwoAxisPlot(visualization.spec) || isOneAxisPlot(visualization.spec)) {
+        return <TwoAxisPlotComp
+            spec={visualization.spec}
+            visualization={visualization}
+            maxWidth={maxWidth}
+            maxHeight={maxHeight}
+        />
     }
 
     return <div className={"text-[var(--text-light)]"}>
-        Esta configuración por ahora no está soportada
+        Esta configuración por ahora no está soportada.
     </div>
 };
 
 
 export const Plot = ({
                          visualization,
-                         height = 400,
+                         height,
                          width,
                          onEdit,
                          onDelete
@@ -82,7 +88,11 @@ export const Plot = ({
                 <DeleteOutlineIcon fontSize={"inherit"}/>
             </IconButton>}
         </div>}
-        <ResponsivePlot visualization={visualization}/>
+        <ResponsivePlot
+            visualization={visualization}
+            maxWidth={width ? pxToNumber(width) : undefined}
+            maxHeight={height ? pxToNumber(height) : undefined}
+        />
         <InsertVisualizationModal
             open={editing}
             onClose={() => {
@@ -95,13 +105,11 @@ export const Plot = ({
 };
 
 
-function getDatasetVisualizationView(visualization: Visualization, dataset: DatasetView): VisualizationView {
-    if (isDatasetDataSource(visualization.dataSource)) {
-        return {
-            ...visualization,
-            $type: "ar.cabildoabierto.embed.visualization#view",
-            dataset
-        }
+function getDatasetVisualizationView(visualization: Visualization, dataset: $Typed<DatasetView> | $Typed<TopicsDatasetView>): VisualizationView {
+    return {
+        ...visualization,
+        $type: "ar.cabildoabierto.embed.visualization#view",
+        dataset
     }
 }
 
@@ -120,7 +128,33 @@ const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, 
         return <div className={"py-4"}><LoadingSpinner/></div>
     }
 
-    const view = getDatasetVisualizationView(visualization, dataset)
+    const view = getDatasetVisualizationView(visualization, {
+        ...dataset,
+        $type: "ar.cabildoabierto.data.dataset#datasetView"
+    })
+
+    return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
+}
+
+
+const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
+    visualization: Visualization
+    dataSource: TopicsDataSource
+    width?: number | string
+    height?: number | string
+    onEdit?: (v: Visualization) => void
+    onDelete?: () => void
+}) => {
+    const {data, isLoading} = useTopicsDataset(visualization.filters, true)
+
+    if (isLoading || !data) {
+        return <div className={"py-4"}><LoadingSpinner/></div>
+    }
+
+    const view = getDatasetVisualizationView(visualization, {
+        ...data.data,
+        $type: "ar.cabildoabierto.data.dataset#topicsDatasetView"
+    })
 
     return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
 }
@@ -142,9 +176,14 @@ export const PlotFromVisualizationMain = ({visualization, height, width, onEdit,
             onEdit={onEdit}
             onDelete={onDelete}
         />
-    } else {
-        return <div>
-            <PrettyJSON data={visualization}/>
-        </div>
+    } else if(isTopicsDataSource(visualization.dataSource)) {
+        return <TopicsDatasetPlotFromMain
+            visualization={visualization}
+            dataSource={visualization.dataSource}
+            height={height}
+            width={width}
+            onEdit={onEdit}
+            onDelete={onDelete}
+        />
     }
 }

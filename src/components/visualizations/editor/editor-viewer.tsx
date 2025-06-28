@@ -1,25 +1,31 @@
 import {PlotConfigProps} from "@/lib/types";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {emptyChar} from "@/utils/utils";
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
 import {
-    isDatasetDataSource,
+    isDatasetDataSource, isTopicsDataSource,
     validateMain as validateVisualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {Button} from "../../../../modules/ui-utils/src/button";
 import {useDataset, useDatasets} from "@/queries/api";
-import {readyToPlot} from "@/components/visualizations/editor/visualization-editor";
+import {readyToPlot, useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 
 
-function nextStep(config: PlotConfigProps) {
-    const datasetAvailable = config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset
-
-    if (!datasetAvailable) {
+function NextStep({config}: { config: PlotConfigProps }) {
+    if (!config.dataSource) {
         return "Elegí un conjunto de datos."
-    } else {
-        return "Configurá la visualización"
+    } else if (config.dataSource && isDatasetDataSource(config.dataSource)) {
+        if (config.dataSource.dataset) {
+            return "Configurá la visualización."
+        } else {
+            return "Elegí un conjunto de datos."
+        }
+    } else if (config.dataSource && isTopicsDataSource(config.dataSource)) {
+        if(config.filters && config.filters.length > 0) {
+            return "Configurá la visualización."
+        } else {
+            return "Configurá el conjunto de datos."
+        }
     }
 }
 
@@ -49,7 +55,7 @@ const EditorViewerViewVisualization = ({
                 />
             </div> :
             <div className={"w-full h-full flex justify-center items-center"}>
-                {nextStep(config)}
+                <NextStep config={config}/>
             </div>}
     </div>
 }
@@ -87,33 +93,47 @@ const EditorViewerViewDataForDataset = ({datasetUri}: { datasetUri: string }) =>
 }
 
 
-const EditorViewerViewData = ({config}: {
-    config: PlotConfigProps
-}) => {
-
-    if (config.dataSource && isDatasetDataSource(config.dataSource)) {
-        if (config.dataSource.dataset) {
-            return <EditorViewerViewDataForDataset
-                datasetUri={config.dataSource.dataset}
-            />
-        } else {
-            return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
-                {nextStep(config)}
-            </div>
-        }
+const EditorViewerViewDataForTopicsDataset = ({config}: {config: PlotConfigProps}) => {
+    const {data, isLoading} = useTopicsDataset(config.filters)
+    if(isLoading) {
+        return <div>
+            <LoadingSpinner/>
+        </div>
+    } else if(data && data.data) {
+        return <DatasetFullView
+            dataset={{
+                ...data.data,
+                $type: "ar.cabildoabierto.data.dataset#topicsDatasetView"
+            }}
+        />
     } else {
-        return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
-            {nextStep(config)}
+        return <div className={"h-full flex justify-center items-center"}>
+            <NextStep config={config}/>
         </div>
     }
-
 }
 
 
-export const EditorViewer = ({config, selected, setSelected, onSave}: {
+const EditorViewerViewData = ({config}: {
+    config: PlotConfigProps
+}) => {
+    if(config.dataSource && isTopicsDataSource(config.dataSource)) {
+        return <EditorViewerViewDataForTopicsDataset config={config}/>
+    } else if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
+        return <EditorViewerViewDataForDataset
+            datasetUri={config.dataSource.dataset}
+        />
+    } else {
+        return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
+            <NextStep config={config}/>
+        </div>
+    }
+}
+
+
+export const EditorViewer = ({config, selected, onSave}: {
     config: PlotConfigProps
     selected: string
-    setSelected: (s: string) => void
     onSave: (v: Visualization) => void
 }) => {
 

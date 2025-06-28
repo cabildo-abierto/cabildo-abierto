@@ -10,6 +10,7 @@ export type StaticFeedProps<T> = {
     LoadingFeedContent?: ReactNode
     FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
     queryKey: string[]
+    getFeedElementKey: (e: T) => string | null
 }
 
 function StaticFeed<T>({
@@ -19,7 +20,8 @@ function StaticFeed<T>({
                            initialContents,
                            LoadingFeedContent,
                            FeedElement,
-                           queryKey
+                           queryKey,
+                           getFeedElementKey
                        }: StaticFeedProps<T>) {
     const getFeed = useCallback<GetFeedProps<T>>(async (cursor: string | undefined) => {
         if (!cursor) {
@@ -42,6 +44,7 @@ function StaticFeed<T>({
         LoadingFeedContent={LoadingFeedContent}
         queryKey={queryKey}
         getFeed={getFeed}
+        getFeedElementKey={getFeedElementKey}
     />
 }
 

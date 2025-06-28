@@ -75,9 +75,9 @@ export function normalizeMarkdown(markdown: string, ensureIdempotent: boolean = 
 
     markdown = markdown.replace(/\n[ \t]+(?=\n)/g, '\n')
     markdown = markdown.replace(
-        /(?<!\n)(?<![-*+]\s|\d+\.\s)\n(?!\n|[-*+]\s|\d+\.\s)/g,
+        /(?<!\n)(?<![-*+]\s|\d+\.\s)\n(?!\n|[-*+]\s|\d+\.\s|#+\s)/g,
         ' '
-    )
+    );
 
     if (ensureIdempotent) {
         const s = markdownToEditorStateNoEmbeds(markdown)
