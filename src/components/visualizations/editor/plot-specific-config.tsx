@@ -4,11 +4,12 @@ import {
     isHemicycle,
     isDatasetDataSource,
     isTwoAxisPlot,
-    isOneAxisPlot
+    isOneAxisPlot, isTable
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {produce} from "immer";
 import {useDatasets} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config";
 
 
 type PlotSpecificConfigProps = {
@@ -77,5 +78,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
         return <div>
             Sin implementar
         </div>
+    } else if(isTable(config.spec)){
+        return <TableVisualizationConfig config={config} setConfig={setConfig}/>
     }
 }

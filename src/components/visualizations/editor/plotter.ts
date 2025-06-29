@@ -5,7 +5,7 @@ import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {useTooltip} from "@visx/tooltip";
 import {AxisScaleOutput} from "@visx/axis";
 import {
-    isOneAxisPlot,
+    isOneAxisPlot, isTable,
     isTwoAxisPlot,
     Main as Visualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
@@ -14,14 +14,20 @@ type DataRow = Record<string, any>
 export type DataPoint = {x: any, y: any}
 export type TooltipHookType = ReturnType<typeof useTooltip>
 
-function guessType(data: DataRow[], axis: string): DataType {
+function guessType(data: DataRow[], col: string): DataType {
     let numCount = 0
     let dateCount = 0
     let stringCount = 0
+    let stringListCount = 0
 
-    const sampleSize = Math.min(20, data.length); // check up to 20 values
+    const sampleSize = Math.min(20, data.length)
     for (let i = 0; i < sampleSize; i++) {
-        const value = data[i][axis]
+        const value = data[i][col]
+
+        if(value instanceof Array){
+            stringListCount ++
+            continue
+        }
 
         if (value == null || value === '') continue;
         if (!isNaN(Number(value))) {
@@ -36,16 +42,16 @@ function guessType(data: DataRow[], axis: string): DataType {
         stringCount++
     }
 
-    const maxCount = Math.max(numCount, dateCount, stringCount);
+    const maxCount = Math.max(numCount, dateCount, stringCount, stringListCount)
     if (maxCount === 0) return null
-    if (maxCount === numCount && dateCount === 0 && stringCount === 0) return "number"
-    if (maxCount === dateCount && numCount === 0 && stringCount === 0) return "date"
-    if (maxCount === stringCount && numCount === 0 && dateCount === 0) return "string"
-    return null
+    if (maxCount === numCount && dateCount === 0 && stringCount === 0 && stringListCount === 0) return "number"
+    if (maxCount === dateCount && numCount === 0 && stringCount === 0 && stringListCount === 0) return "date"
+    if (maxCount === stringListCount && numCount === 0 && dateCount === 0 && stringCount == 0) return "string[]"
+    return "string"
 }
 
-export type DataType = "number" | "string" | "date" | null
-export type ValueType = string | number | Date | null
+export type DataType = "number" | "string" | "date" | "string[]" | null
+export type ValueType = string | number | Date | string[] | null
 export type ScaleOutput = {
     scale?: ScaleBand<string> | ScaleLinear<number, number> | ScaleTime<number, number>
     error?: string
@@ -60,12 +66,69 @@ type Axis = {
 }
 
 export class Plotter {
-    protected plotType: string;
     protected data: DataRow[] = [];
     public dataPoints: DataPoint[] = [];
+
+    constructor(
+        rawData: string,
+        spec: Visualization["spec"]
+    ) {
+        this.data = JSON.parse(rawData);
+    }
+
+    public prepareForPlot(){
+        throw Error("Debería estar implementado por una subclase.")
+    }
+
+    public getDataPoints(): DataPoint[] {
+        if(!this.dataPoints) throw Error("Ocurrió un error al construir el gráfico.")
+        return this.dataPoints;
+    }
+
+    protected valueToString(v: ValueType, type: DataType): string {
+        if(type == "string"){
+            return v as string
+        } else if(type == "date"){
+            return formatIsoDate(v as Date)
+        } else if(type == "number"){
+            return (v as number).toFixed(2).toString()
+        } else if(type == "string[]"){
+            return (v as string[]).join(", ")
+        }
+    }
+
+    protected rawValueToDetectedType(v: any, type: DataType): ValueType | null {
+        if(v == undefined){
+            return null
+        }
+        if (type === "number") {
+            return parseFloat(v)
+        } else if (type === "date") {
+            const date = new Date(v)
+            if(!(date instanceof Date) || date.toString() == "Invalid Date"){
+                return null
+            }
+            return date
+        } else {
+            return String(v)
+        }
+    }
+
+    protected sortByX(): void {
+        this.dataPoints.sort((a, b) => a.x - b.x);
+    }
+
+    protected sortByY(): void {
+        this.dataPoints.sort((a, b) => b.y - a.y);
+    }
+}
+
+
+export class AxesPlotter extends Plotter {
+    protected plotType: string;
     protected axes: Axis[] = []
 
-    static create(rawData: string, spec: Visualization["spec"]): Plotter {
+    static create(rawData: string, spec: Visualization["spec"]): AxesPlotter {
         if(isOneAxisPlot(spec)) {
             return new OneAxisPlotter(rawData, spec)
         } else if(isTwoAxisPlot(spec)) {
@@ -75,47 +138,27 @@ export class Plotter {
         }
     }
 
-    constructor(
-        rawData: string,
-        spec: Visualization["spec"]
-    ) {
-        this.data = JSON.parse(rawData);
+    constructor(rawData: string, spec: Visualization["spec"]) {
+        super(rawData, spec)
 
-        if(isOneAxisPlot(spec) || isTwoAxisPlot(spec)) {
+        if(isTwoAxisPlot(spec) || isOneAxisPlot(spec)){
             this.axes.push({
                 name: "x",
                 column: spec.xAxis,
                 detectedType: guessType(this.data, spec.xAxis)
             })
         } else {
-            throw Error("Sin implementar!");
-        }
-
-        if(isTwoAxisPlot(spec)) {
-            this.axes.push({
-                name: "y",
-                column: spec.yAxis,
-                detectedType: guessType(this.data, spec.yAxis)
-            })
+            throw Error(`Axis plot desconocido: ${spec.$type}`)
         }
 
         this.plotType = spec.plot.$type;
     }
 
-    isBarplot(): boolean {
-        return this.plotType === "ar.cabildoabierto.embed.visualization#barplot"
-    }
 
-    isHistogram(): boolean {
-        return this.plotType === "ar.cabildoabierto.embed.visualization#histogram"
-    }
-
-    isCurvePlot(): boolean {
-        return this.plotType === "ar.cabildoabierto.embed.visualization#lines"
-    }
-
-    isScatterPlot(): boolean {
-        return this.plotType === "ar.cabildoabierto.embed.visualization#scatterplot"
+    public getAxisType(axis: string){
+        const obj = this.axes.find(a => a.name === axis)
+        if(!obj) throw Error(`No se encontró el eje ${axis}.`)
+        return obj.detectedType
     }
 
     public getScale(axis: string, innerMeasure: number): ScaleOutput {
@@ -218,19 +261,20 @@ export class Plotter {
         throw new Error("Scale only supported for number, date or string axes");
     }
 
-    public prepareForPlot(){
-        throw Error("Debería estar implementado por una subclase.")
+    isBarplot(): boolean {
+        return this.plotType === "ar.cabildoabierto.embed.visualization#barplot"
     }
 
-    public getDataPoints(): DataPoint[] {
-        if(!this.dataPoints) throw Error("Ocurrió un error al construir el gráfico.")
-        return this.dataPoints;
+    isHistogram(): boolean {
+        return this.plotType === "ar.cabildoabierto.embed.visualization#histogram"
     }
 
-    public getAxisType(axis: string){
-        const obj = this.axes.find(a => a.name === axis)
-        if(!obj) throw Error(`No se encontró el eje ${axis}.`)
-        return obj.detectedType
+    isCurvePlot(): boolean {
+        return this.plotType === "ar.cabildoabierto.embed.visualization#lines"
+    }
+
+    isScatterPlot(): boolean {
+        return this.plotType === "ar.cabildoabierto.embed.visualization#scatterplot"
     }
 
     xValueToString(x: ValueType): string {
@@ -240,45 +284,10 @@ export class Plotter {
     yValueToString(y: ValueType): string {
         throw Error("Debería estar implementado por una subclase.")
     }
-
-    protected valueToString(v: ValueType, type: DataType): string{
-        if(type == "string"){
-            return v as string
-        } else if(type == "date"){
-            return formatIsoDate(v as Date)
-        } else if(type == "number"){
-            return (v as number).toFixed(2).toString()
-        }
-    }
-
-    protected rawValueToDetectedType(v: any, type: DataType): ValueType | null {
-        if(v == undefined){
-            return null
-        }
-        if (type === "number") {
-            return parseFloat(v)
-        } else if (type === "date") {
-            const date = new Date(v)
-            if(!(date instanceof Date) || date.toString() == "Invalid Date"){
-                return null
-            }
-            return date
-        } else {
-            return String(v)
-        }
-    }
-
-    protected sortByX(): void {
-        this.dataPoints.sort((a, b) => a.x - b.x);
-    }
-
-    protected sortByY(): void {
-        this.dataPoints.sort((a, b) => b.y - a.y);
-    }
 }
 
 
-export class OneAxisPlotter extends Plotter {
+export class OneAxisPlotter extends AxesPlotter {
     private xAxis: Axis
 
     constructor(rawData: string, spec: Visualization["spec"]) {
@@ -306,12 +315,23 @@ export class OneAxisPlotter extends Plotter {
 }
 
 
-export class TwoAxisPlotter extends Plotter {
+export class TwoAxisPlotter extends AxesPlotter {
     private xAxis: Axis
     private yAxis: Axis
 
     constructor(rawData: string, spec: Visualization["spec"]) {
         super(rawData, spec)
+
+        if(isTwoAxisPlot(spec)) {
+            this.axes.push({
+                name: "y",
+                column: spec.yAxis,
+                detectedType: guessType(this.data, spec.yAxis)
+            })
+        } else {
+            throw Error("Debería ser un TwoAxisPlot!")
+        }
+
         this.xAxis = this.axes.find(a => a.name == "x")
         this.yAxis = this.axes.find(a => a.name == "y")
     }
@@ -351,5 +371,30 @@ export class TwoAxisPlotter extends Plotter {
 
     yValueToString(y: ValueType): string {
         return this.valueToString(y, this.getAxisType("y"))
+    }
+}
+
+
+export class TablePlotter extends Plotter {
+    private columnTypes: Map<string, DataType> = new Map()
+
+    constructor(rawData: string, spec: Visualization["spec"]) {
+        super(rawData, spec)
+
+        if(this.data.length > 0){
+            const d0 = this.data[0]
+            Object.entries(d0).forEach(([colName, _]) => {
+                const t = guessType(this.data, colName)
+                this.columnTypes.set(colName, t)
+            })
+        }
+    }
+
+    prepareForPlot() {
+
+    }
+
+    columnValueToString(value: any, col: string): string {
+        return this.valueToString(value, this.columnTypes.get(col))
     }
 }

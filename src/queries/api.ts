@@ -26,17 +26,19 @@ function uriToKey(uri: string) {
 export function useAPI<T>(
     route: string,
     key: readonly unknown[],
-    staleTime: number = Infinity
+    staleTime: number = Infinity,
+    enabled: boolean = true
 ) {
     return useQuery<T>({
         queryKey: key,
         queryFn: async () => {
-            const { data, error } = await get<T>(route)
+            const {data, error} = await get<T>(route)
             if (data) return data
             if (error) return null
             return data
         },
         staleTime,
+        enabled
     })
 }
 
@@ -147,9 +149,15 @@ export function useDatasets() {
 }
 
 
-export function useDataset(uri: string) {
-    const {did, collection, rkey} = splitUri(uri)
-    return useAPI<DatasetView>(`/dataset/${did}/${collection}/${rkey}`, ["dataset", did, collection, rkey])
+export function useDataset(uri: string | null) {
+    let route: string
+    let key: string[] = []
+    if(uri){
+        const {did, collection, rkey} = splitUri(uri)
+        route = `/dataset/${did}/${collection}/${rkey}`
+        key = ["dataset", did, collection, rkey]
+    }
+    return useAPI<DatasetView>(route, key, Infinity, uri != null)
 }
 
 

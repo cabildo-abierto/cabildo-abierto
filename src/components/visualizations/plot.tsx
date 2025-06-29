@@ -2,7 +2,7 @@ import {
     isDatasetDataSource,
     View as VisualizationView,
     Main as Visualization,
-    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource
+    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource, isTable
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView, TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {useDataset} from "@/queries/api";
@@ -18,6 +18,7 @@ import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@atproto/api";
 import { pxToNumber } from "@/utils/strings";
+import {TableVisualizationComp} from "@/components/visualizations/table-visualization-comp";
 
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
@@ -34,6 +35,13 @@ export const ResponsivePlot = ({
 }) => {
     if (isTwoAxisPlot(visualization.spec) || isOneAxisPlot(visualization.spec)) {
         return <TwoAxisPlotComp
+            spec={visualization.spec}
+            visualization={visualization}
+            maxWidth={maxWidth}
+            maxHeight={maxHeight}
+        />
+    } else if(isTable(visualization.spec)) {
+        return <TableVisualizationComp
             spec={visualization.spec}
             visualization={visualization}
             maxWidth={maxWidth}

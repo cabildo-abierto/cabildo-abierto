@@ -106,6 +106,8 @@ export function validateHemicycle<V>(v: V) {
 
 export interface Table {
   $type?: 'ar.cabildoabierto.embed.visualization#table'
+  /** Se puede usar para mostrar solo algunas de las columnas y para opcionalmente renombrar algunas. */
+  columns?: TableVisualizationColumn[]
 }
 
 const hashTable = 'table'
@@ -116,6 +118,26 @@ export function isTable<V>(v: V) {
 
 export function validateTable<V>(v: V) {
   return validate<Table & V>(v, id, hashTable)
+}
+
+export interface TableVisualizationColumn {
+  $type?: 'ar.cabildoabierto.embed.visualization#tableVisualizationColumn'
+  columnName: string
+  alias?: string
+}
+
+const hashTableVisualizationColumn = 'tableVisualizationColumn'
+
+export function isTableVisualizationColumn<V>(v: V) {
+  return is$typed(v, id, hashTableVisualizationColumn)
+}
+
+export function validateTableVisualizationColumn<V>(v: V) {
+  return validate<TableVisualizationColumn & V>(
+    v,
+    id,
+    hashTableVisualizationColumn,
+  )
 }
 
 export interface TwoAxisPlot {

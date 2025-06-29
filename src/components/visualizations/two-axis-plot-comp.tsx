@@ -11,7 +11,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {CurvePlotContent} from "@/components/visualizations/curve-plot";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
-import {Plotter, ValueType} from "@/components/visualizations/editor/plotter";
+import {AxesPlotter, Plotter, ValueType} from "@/components/visualizations/editor/plotter";
 import useMeasure from "react-use-measure";
 import {useCallback, useEffect, useMemo, useRef} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
@@ -25,28 +25,7 @@ import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
 import {$Typed} from "@atproto/api";
 import {ScatterplotContent} from "@/components/visualizations/scatterplot";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-
-
-const PlotCaption = ({caption, fontSize=14}: { caption?: string, fontSize?: number }) => {
-    if (!caption) return null;
-
-    return <div
-        className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1 px-2 break-all"
-        style={{fontSize}}
-    >
-        {caption}
-    </div>
-}
-
-const PlotTitle = ({title, fontSize=18}: { title?: string, fontSize: number }) => {
-    if (!title) return null;
-    return <div
-        className="text-center font-semibold text-lg h-[30px] pt-2 items-baseline flex justify-center"
-        style={{fontSize: fontSize}}
-    >
-        {title}
-    </div>
-}
+import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 
 
 export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
@@ -105,7 +84,7 @@ function getScaleFactor(width: number, height: number, aspectRatio: number, titl
 
     let referenceWidth = referenceMaxWidth
     let referenceHeight = referenceWidth / aspectRatio
-    if(referenceHeight > referenceMaxHeight) {
+    if (referenceHeight > referenceMaxHeight) {
         referenceHeight = referenceMaxHeight
         referenceWidth = referenceHeight * aspectRatio
     }
@@ -155,8 +134,8 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     }, [])
 
     const plotter = useMemo(() => {
-        if(isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
-            const plotter = Plotter.create(visualization.dataset.data, spec)
+        if (isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
+            const plotter = AxesPlotter.create(visualization.dataset.data, spec)
             plotter.prepareForPlot()
             return plotter
         } else {
@@ -164,7 +143,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         }
     }, [visualization.dataset, spec])
 
-    if(!plotter) return <div>
+    if (!plotter) return <div>
         Configurá el conjunto de datos.
     </div>
 
@@ -175,7 +154,8 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const totalWidth = maxWidth ?? bounds.width
     const totalHeight = maxHeight ?? Math.max(bounds.height, 400)
 
-    if(!bounds.width || !bounds.height) return <div className={"w-full h-full"} ref={containerRef}><LoadingSpinner/></div>
+    if (!bounds.width || !bounds.height) return <div className={"w-full h-full"} ref={containerRef}><LoadingSpinner/>
+    </div>
 
     const titleHeight = visualization.title ? 30 : 0
     const captionHeight = visualization.caption ? 50 : 0
@@ -185,12 +165,15 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     let svgWidth = totalWidth
     let svgHeight = totalWidth / aspectRatio
 
-    if(svgHeight > availableHeight){
+    if (svgHeight > availableHeight) {
         svgHeight = availableHeight
         svgWidth = availableHeight * aspectRatio
     }
 
-    const {scaleFactorX, scaleFactorY} = getScaleFactor(svgWidth, svgHeight, aspectRatio, Boolean(visualization.title), Boolean(visualization.caption))
+    const {
+        scaleFactorX,
+        scaleFactorY
+    } = getScaleFactor(svgWidth, svgHeight, aspectRatio, Boolean(visualization.title), Boolean(visualization.caption))
 
     const margin = {
         top: 10 * scaleFactorY,
@@ -219,7 +202,10 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const yLabel = isTwoAxisPlot(spec) ? spec.yLabel ?? spec.yAxis : "Cantidad"
 
     return (
-        <div className="relative w-full h-full flex flex-col justify-center items-center space-y-2" ref={containerRef}>
+        <div
+            className="relative w-full h-full flex flex-col justify-center items-center space-y-2"
+            ref={containerRef}
+        >
             <PlotTitle
                 title={visualization.title}
                 fontSize={18 * Math.min(scaleFactorX, scaleFactorY)}
@@ -340,7 +326,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                     dx: '-0.25em',
                                     dy: '0.25em',
                                 })}
-                                tickLength={3*scaleFactorX}
+                                tickLength={3 * scaleFactorX}
                             />
                             <AxisBottom
                                 top={plotInnerHeight}
@@ -361,7 +347,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                     angle: -spec.dimensions?.xTickLabelsAngle,
                                     dx: spec.dimensions?.xTickLabelsAngle != 0 ? '0.25em' : '0.0em',
                                 })}
-                                tickLength={3*scaleFactorY}
+                                tickLength={3 * scaleFactorY}
                             />
                         </Group>
                     </svg>
@@ -381,19 +367,19 @@ const TwoAxisPlotComp = ({spec, visualization, maxWidth, maxHeight}: TwoAxisPlot
         </div>
     }
 
-    if(!isDatasetView(visualization.dataset) && !isTopicsDatasetView(visualization.dataset)) {
+    if (!isDatasetView(visualization.dataset) && !isTopicsDatasetView(visualization.dataset)) {
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Configurá el conjunto de datos.
         </div>
     }
 
-    if(isOneAxisPlot(spec) && !validColumn(spec.xAxis, visualization.dataset)){
+    if (isOneAxisPlot(spec) && !validColumn(spec.xAxis, visualization.dataset)) {
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             No se encontró la columna especificada en los datos.
         </div>
     }
 
-    if(isTwoAxisPlot(spec)){
+    if (isTwoAxisPlot(spec)) {
         if (!spec.yAxis || spec.yAxis.length == 0) {
             return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
                 Elegí un eje y.
