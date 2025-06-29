@@ -160,41 +160,6 @@ const ConfigPanelVisualization = ({config, setConfig}: {
             config={config}
             setConfig={setConfig}
         />
-        {/*config.filters && config.filters.map((f, i) => {
-                    return <div key={i}>
-                        <FilterConfig
-                            filter={f}
-                            dataset={dataset}
-                            onRemove={() => {
-                                updateConfig("filters", [...config.filters.slice(0, i), ...config.filters.slice(i + 1)])
-                            }}
-                            updateFilter={(f: FilterProps) => {
-                                updateFilter(i, f)
-                            }}
-                        />
-                    </div>
-                })*/}
-        {/*<div>
-                    <Button
-                        color={"background-dark"}
-                        startIcon={<AddIcon/>}
-                        onClick={() => {
-                            updateConfig("filters", [...(config.filters ? config.filters : []), {}])
-                        }}
-                        size={"small"}
-                        variant={"text"}
-                        sx={{borderRadius: "20px", paddingX: "12px", ":hover": {backgroundColor: "var(--background-dark3)"}, backgroundColor: "var(--background-dark)"}}
-                    >
-                        Filtro
-                    </Button>
-                </div>*/}
-        <div className={"flex justify-end"}>
-            {/* TO DO <IconButton size={"small"}
-                    onClick={() => {openJsonInNewTab(getSpecForConfig(config, {dataset}))}}
-                >
-                    <CodeIcon fontSize={"small"}/>
-                </IconButton>*/}
-        </div>
     </>
 }
 

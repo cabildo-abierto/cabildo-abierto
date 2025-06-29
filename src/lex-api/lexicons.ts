@@ -439,7 +439,29 @@ export const schemaDict = {
       },
       table: {
         type: 'object',
-        properties: {},
+        properties: {
+          columns: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.embed.visualization#tableVisualizationColumn',
+            },
+            description:
+              'Se puede usar para mostrar solo algunas de las columnas y para opcionalmente renombrar algunas.',
+          },
+        },
+      },
+      tableVisualizationColumn: {
+        type: 'object',
+        required: ['columnName'],
+        properties: {
+          columnName: {
+            type: 'string',
+          },
+          alias: {
+            type: 'string',
+          },
+        },
       },
       twoAxisPlot: {
         type: 'object',

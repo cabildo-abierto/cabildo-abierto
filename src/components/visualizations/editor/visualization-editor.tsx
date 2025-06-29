@@ -77,7 +77,7 @@ export const useTopicsDataset = (filters: PlotConfigProps["filters"], load: bool
     return useQuery({
         queryKey: ['topics-dataset', filters],
         queryFn: () => fetchTopicsDataset(filters),
-        enabled: load
+        enabled: load && !!filters
     })
 }
 

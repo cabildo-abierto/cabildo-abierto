@@ -2,8 +2,9 @@
 
 import React from "react";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
-import {TextField} from "@mui/material";
+import {TextField, TextFieldProps} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { Color } from "../../../modules/ui-utils/src/button";
 
 
 const SearchBar = ({
@@ -14,7 +15,9 @@ const SearchBar = ({
     setSearchValue,
     setSearching=() => {},
     color="background-dark",
-    placeholder="buscar"
+    borderColor="accent",
+    placeholder="buscar",
+    size="small"
 }: {
     autoFocus?: boolean
     paddingY?: string
@@ -22,11 +25,13 @@ const SearchBar = ({
     searchValue: string
     setSearchValue: (arg: string) => void
     setSearching?: (v: boolean) => void
-    color?: string
+    color?: Color
+    borderColor?: Color
     placeholder?: string
+    size?: TextFieldProps["size"]
 }) => {
     return <TextField
-        size={"small"}
+        size={size}
         autoFocus={autoFocus}
         fullWidth={fullWidth}
         value={searchValue}
@@ -50,15 +55,15 @@ const SearchBar = ({
                 },
                 "& fieldset": {
                     borderRadius: "8px",
-                    borderColor: "var(--accent)",
+                    borderColor: `var(--${borderColor})`,
                     borderWidth: "0px"
                 },
                 "&:hover fieldset": {
-                    borderColor: "var(--accent)",
+                    borderColor: `var(--${borderColor})`,
                 },
                 "&.Mui-focused fieldset": {
                     borderWidth: "2px",
-                    borderColor: "var(--accent)",
+                    borderColor: `var(--${borderColor})`,
                 },
             }
         }}

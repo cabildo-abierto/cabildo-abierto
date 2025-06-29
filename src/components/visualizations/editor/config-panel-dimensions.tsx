@@ -1,5 +1,5 @@
 import {PlotConfigProps} from "@/lib/types";
-import {isOneAxisPlot, isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {isOneAxisPlot, isTable, isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {SliderWithInput} from "../../../../modules/ui-utils/src/slider-with-input";
 import {produce} from "immer";
 import {ReactNode} from "react";
@@ -134,18 +134,20 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
         />)
     }
 
-    inputs.push(<SliderWithInput
-        value={parseFloat(config.aspectRatio ?? "1.33")}
-        onChange={v => {
-            setConfig(produce(config, draft => {
-                draft.aspectRatio = v.toString()
-            }))
-        }}
-        max={4}
-        min={0.25}
-        step={0.01}
-        label={"Relación de aspecto"}
-    />)
+    if(!isTable(config.spec)){
+        inputs.push(<SliderWithInput
+            value={parseFloat(config.aspectRatio ?? "1.33")}
+            onChange={v => {
+                setConfig(produce(config, draft => {
+                    draft.aspectRatio = v.toString()
+                }))
+            }}
+            max={4}
+            min={0.25}
+            step={0.01}
+            label={"Relación de aspecto"}
+        />)
+    }
 
     return <>
         {inputs.map((i, index) => <div key={index}>
