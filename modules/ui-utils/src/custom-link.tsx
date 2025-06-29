@@ -1,6 +1,6 @@
 "use client"
 import {useRouter} from "next/navigation";
-import Link from 'next/link'
+import Link, {LinkProps} from 'next/link'
 import {usePageLeave} from "./prevent-leave";
 
 type CustomLinkProps = {
@@ -11,19 +11,19 @@ type CustomLinkProps = {
     rel?: string
     onMouseEnter?: any
     onMouseLeave?: any
-    onClick?: any
     draggable?: boolean
     style?: any
     title?: string
     id?: string
+    onClick?: LinkProps["onClick"]
 };
 
 export function CustomLink({
                                href,
                                children,
                                id,
-                               className,
                                onClick,
+                               className,
                                target,
                                rel,
                                onMouseEnter,

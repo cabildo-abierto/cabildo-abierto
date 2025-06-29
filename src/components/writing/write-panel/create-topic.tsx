@@ -11,6 +11,7 @@ import {useSession} from "@/queries/api";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {post} from "@/utils/fetch";
 import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
+import {useQueryClient} from "@tanstack/react-query";
 
 
 export const createTopic = async (id: string) => {
@@ -30,6 +31,7 @@ export const CreateTopic = ({onClose, initialSelected="none", backButton=true}: 
     const router = useRouter()
     const [goToArticle, setGoToArticle] = useState(true)
     const [selected, setSelected] = useState(initialSelected)
+    const qc = useQueryClient()
 
     async function onSubmit(){
         setErrorOnCreate(null)
@@ -43,6 +45,9 @@ export const CreateTopic = ({onClose, initialSelected="none", backButton=true}: 
                 return {error}
             }
         }
+
+        qc.refetchQueries({queryKey: ["topic", topicName]})
+
         if (goToArticle) router.push(topicUrl(topicName))
         onClose()
         return {}

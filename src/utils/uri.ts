@@ -79,6 +79,10 @@ export function contentUrl(uri: string) {
     return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
 }
 
+export function chatUrl(convoId: string) {
+    return `/mensajes/${convoId}`
+}
+
 export function topicUrl(title?: string, version?: {did: string, rkey: string}, s?: WikiEditorState, base: string = "tema") {
     const params: string[] = []
 

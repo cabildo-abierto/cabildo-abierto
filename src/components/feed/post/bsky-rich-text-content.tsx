@@ -6,7 +6,7 @@ import {PostRecord} from "@/lib/types";
 
 type BskyRichTextContentProps = {
     className?: string
-    post: PostRecord
+    post: {text: string, facets?: PostRecord["facets"]}
     fontSize?: string
 }
 

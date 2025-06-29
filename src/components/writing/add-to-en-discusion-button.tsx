@@ -12,7 +12,7 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
         size={"small"}
         color={"background-dark"}
         textColor={enDiscusion ? "text" : "text-lighter"}
-        title={'Agregar al feed "En discusión"'}
+        title={'Agregar al muro "En discusión"'}
     >
         <Newspaper color={"inherit"}/>
     </IconButton>

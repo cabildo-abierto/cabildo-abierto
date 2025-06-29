@@ -1,8 +1,4 @@
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {FaExternalLinkAlt} from "react-icons/fa";
-import Link from "next/link";
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
-import {contentUrl} from "@/utils/uri";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Authorship} from "@/components/feed/frame/authorship";
 

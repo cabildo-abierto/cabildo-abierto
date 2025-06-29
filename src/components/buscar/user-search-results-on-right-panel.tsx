@@ -12,7 +12,11 @@ type Props = {
 }
 
 const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
-    const {searchState} = useSearch()
+    const {searchState, setSearchState} = useSearch()
+
+    function onClickResult(did: string) {
+        setSearchState({value: "", searching: false})
+    }
 
     return <div
         className={"w-full max-w-[300px] mt-2"}
@@ -41,7 +45,7 @@ const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) 
                 </div>
             </form>
         )}
-        <UserSearchResults maxCount={6}/>
+        <UserSearchResults maxCount={6} searchState={searchState} onClickResult={onClickResult}/>
     </div>
 }
 

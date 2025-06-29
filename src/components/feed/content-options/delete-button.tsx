@@ -15,7 +15,7 @@ import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 const collection2displayText = {
     "ar.com.cabildoabierto.visualization": "visualización",
-    "app.bsky.feed.post": "post",
+    "app.bsky.feed.post": "publicación",
     "ar.com.cabildoabierto.article": "artículo",
     "ar.com.cabildoabierto.quotePost": "respuesta",
     "ar.com.cabildoabierto.topic": "versión",

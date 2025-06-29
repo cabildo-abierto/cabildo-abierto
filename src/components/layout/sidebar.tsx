@@ -5,7 +5,7 @@ import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
 
 import {profileUrl} from "@/utils/uri";
-import {useSession, useUnreadNotificationsCount} from "@/queries/api";
+import {useConversations, useSession, useUnreadNotificationsCount} from "@/queries/api";
 
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
@@ -22,12 +22,15 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+
 import CabildoIcon from "../icons/home-icon";
 import SupportIcon from "../icons/support-icon";
 import NotificationsIcon from "../icons/notifications-icon";
 
 import dynamic from "next/dynamic";
 import TopicsIcon from "@/components/icons/topics-icon";
+import MessagesIcon from "../icons/messages-icon";
+import {sum} from "@/utils/arrays";
 
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
@@ -97,6 +100,12 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const [writePanelOpen, setWritePanelOpen] = useState(false)
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const {data: unreadNotificationsCount} = useUnreadNotificationsCount()
+    const {data: conversations} = useConversations()
+
+    let unreadMessagesCount = undefined
+    if(conversations){
+        unreadMessagesCount = sum(conversations.map(c => c.unreadCount))
+    }
 
     const showText = layoutConfig.openSidebar
 
@@ -152,7 +161,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             showText={showText}
                             selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
                         />
-
                         <SidebarButton
                             showText={showText}
                             icon={<SearchIcon sx={{strokeWidth: 1, stroke: "var(--text)"}}/>}
@@ -171,16 +179,24 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             href="/notificaciones"
                             selected={pathname.startsWith("/notificaciones")}
                         />
-                        {user.user &&
-                            <SidebarButton
-                                icon={<PersonIcon/>}
-                                iconInactive={<PersonOutlinedIcon/>}
-                                onClick={onClose}
-                                text="Perfil"
-                                href={profileUrl(user.user.handle)}
-                                selected={pathname == profileUrl(user.user.handle)}
-                                showText={showText}
-                            />}
+                        <SidebarButton
+                            showText={showText}
+                            onClick={onClose}
+                            icon={<MessagesIcon active={true} count={unreadMessagesCount}/>}
+                            iconInactive={<MessagesIcon active={false} count={unreadMessagesCount}/>}
+                            text="Mensajes"
+                            href="/mensajes"
+                            selected={pathname.startsWith("/mensajes")}
+                        />
+                        {user.user && <SidebarButton
+                            icon={<PersonIcon/>}
+                            iconInactive={<PersonOutlinedIcon/>}
+                            onClick={onClose}
+                            text="Perfil"
+                            href={profileUrl(user.user.handle)}
+                            selected={pathname == profileUrl(user.user.handle)}
+                            showText={showText}
+                        />}
                         {user.user && user.user.editorStatus == "Administrator" &&
                             <HelpDeskButton
                                 showText={showText}

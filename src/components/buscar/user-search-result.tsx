@@ -13,14 +13,25 @@ type UserSearchResultProps = {
     user: ProfileViewBasic & {
         description?: string
     }
+    showFollowButton?: boolean
+    goToProfile?: boolean
+    onClick?: (did: string) => (void | Promise<void>)
 }
 
 
-const UserSearchResult = ({user}: UserSearchResultProps) => {
+const UserSearchResult = ({user, showFollowButton=true, goToProfile, onClick}: UserSearchResultProps) => {
 
     return <Link
         href={profileUrl(user.handle)}
-        className={"flex justify-between hover:bg-[var(--background-dark)] border-b p-3 " + (user.description ? "h-28" : "")}
+        onClick={e => {
+            if(!goToProfile) {
+                e.preventDefault()
+            }
+            if(onClick) {
+                onClick(user.did)
+            }
+        }}
+        className={"flex justify-between hover:bg-[var(--background-dark2)] border-b p-3 " + (user.description ? "h-28" : "")}
     >
         <div className={"flex justify-center w-16"}>
             <ProfilePic user={user} className={"rounded-full w-10 h-10"}/>
@@ -35,7 +46,7 @@ const UserSearchResult = ({user}: UserSearchResultProps) => {
             </div>}
         </div>
         <div className={"flex flex-col items-center justify-between min-w-24 space-y-4"}>
-            <FollowButton handle={user.handle} profile={user}/>
+            {showFollowButton && <FollowButton handle={user.handle} profile={user}/>}
             {!user.caProfile ? <BlueskyLogo className={"w-5 h-auto"}/> : <>{emptyChar}</>}
         </div>
     </Link>

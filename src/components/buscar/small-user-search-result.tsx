@@ -9,14 +9,12 @@ import {emptyChar} from "@/utils/utils";
 const SmallUserSearchResult: React.FC<{
     result: { displayName?: string, handle: string, avatar?: string, description?: string }
     className?: string
-}> = ({result, className=""}) => {
-    const {setSearchState} = useSearch()
+    onClick?: (handle: string) => void
+}> = ({result, className="", onClick}) => {
 
     return <Link
         href={profileUrl(result.handle)}
-        onClick={() => {
-            setSearchState({value: "", searching: false})
-        }}
+        onClick={() => {if(onClick) onClick(result.handle); }}
         className={"flex flex-col hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] p-2 " + className}
     >
         <div className={"flex space-x-4 items-center"}>
