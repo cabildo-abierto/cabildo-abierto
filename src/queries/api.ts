@@ -15,6 +15,9 @@ import {ValidationRequestView} from "@/components/admin/admin-validation";
 import {DonationHistory} from "@/components/aportar/donation-history";
 import {StatsDashboard} from "@/components/admin/stats";
 import {Notification as BskyNotification} from "@/lex-api/types/app/bsky/notification/listNotifications"
+import {ConvoView} from "@atproto/api/src/client/types/chat/bsky/convo/defs";
+import {$Typed} from "@atproto/api";
+import {DeletedMessageView, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
 
 
 function uriToKey(uri: string) {
@@ -187,10 +190,27 @@ export function useStatsDashboard() {
 
 
 export function useNotifications() {
-    return useAPI<BskyNotification[]>("/notifications", ["notifications"])
+    return useAPI<BskyNotification[]>("/notifications/list", ["notifications"])
 }
 
 
 export function useUnreadNotificationsCount() {
     return useAPI<number>("/notifications/unread-count", ["unread-notifications-count"])
+}
+
+
+export function useConversations() {
+    return useAPI<ConvoView[]>("/conversations/list", ["conversations"])
+}
+
+
+export type Conversation = {
+    messages: PrivateMessage[]
+    conversation: ConvoView
+}
+
+export type PrivateMessage = ($Typed<MessageView> | $Typed<DeletedMessageView> | {$type: string})
+
+export function useConversation(convoId: string) {
+    return useAPI<Conversation>(`/conversation/${convoId}`, ["conversation", convoId])
 }

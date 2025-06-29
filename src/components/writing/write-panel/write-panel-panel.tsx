@@ -83,7 +83,7 @@ const WritePanelPanel = ({
                         onSelection={onSelection}
                         selected={selected}
                         optionsNodes={optionsNodes}
-                        options={["Post", "Artículo", "Tema"]}
+                        options={["Publicación", "Artículo", "Tema"]}
                         className={"flex space-x-2"}
                     /> : <div>{emptyChar}</div>}
                     <CloseButton size="small" onClose={() => {

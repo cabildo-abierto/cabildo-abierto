@@ -8,6 +8,7 @@ import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NotificationCard} from "@/components/notification/notification-card";
 import {useEffect} from "react";
 import {useQueryClient} from "@tanstack/react-query";
+import PageHeader from "../../../../modules/ui-utils/src/page-header";
 
 
 const Page = () => {
@@ -20,28 +21,7 @@ const Page = () => {
     }, [])
 
     return <div className={"flex flex-col"}>
-        <div className={"flex items-center p-2 border-b space-x-2"}>
-            <div className={"w-10 text-[var(--text-light)] min-[500px]:hidden"}>
-                <IconButton
-                    color={"transparent"}
-                    onClick={() => {
-                        setLayoutConfig({
-                            ...layoutConfig,
-                            openSidebar: true
-                        })
-                    }}
-                >
-                    <MenuIcon/>
-                </IconButton>
-            </div>
-            <div className={"max-[500px]:hidden"}>
-                <BackButton defaultURL={"/"}/>
-            </div>
-            <div className={"font-bold text-lg"}>
-                Notificaciones
-            </div>
-
-        </div>
+        <PageHeader title={"Notificaciones"}/>
         {isLoading && <div className={"mt-8"}>
             <LoadingSpinner/>
         </div>}

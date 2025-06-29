@@ -142,3 +142,8 @@ export function deepEqual(a: any, b: any): boolean {
 
     return true;
 }
+
+
+export function sum(a: number[]): number {
+    return a.reduce((acc, cur) => acc + cur, 0)
+}

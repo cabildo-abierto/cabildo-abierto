@@ -1,11 +1,11 @@
-import { useSearch } from "./search-context";
+import {useSearch} from "./search-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import React, { useEffect, useState } from "react";
-import { get } from "@/utils/fetch";
-import { ProfileViewBasic } from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import React, {useEffect, useState} from "react";
+import {get} from "@/utils/fetch";
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import UserSearchResult from "@/components/buscar/user-search-result";
-import { useQuery } from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 
 async function searchUsers(query: string) {
     return (await get<ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
@@ -14,11 +14,20 @@ async function searchUsers(query: string) {
 const UserSearchResults = ({
                                maxCount,
                                showSearchButton = true,
+                               searchState,
+                               onClickResult,
+                               goToProfile = true,
+                               showFollowButton = true,
+                               splitBluesky = true
                            }: {
-    maxCount?: number;
-    showSearchButton?: boolean;
+    searchState: { value: string, searching: boolean }
+    maxCount?: number
+    showSearchButton?: boolean
+    onClickResult?: (did: string) => (Promise<void> | void)
+    showFollowButton?: boolean
+    splitBluesky?: boolean
+    goToProfile?: boolean
 }) => {
-    const { searchState } = useSearch();
     const [debouncedQuery, setDebouncedQuery] = useState("");
 
     useEffect(() => {
@@ -47,7 +56,7 @@ const UserSearchResults = ({
         return (
             <div
                 className={
-                    "mt-8 text-center text-[var(--text-light)] " +
+                    "my-8 text-center text-[var(--text-light)] " +
                     (showSearchButton ? " border-b " : "")
                 }
             >
@@ -75,10 +84,10 @@ const UserSearchResults = ({
                 className={
                     showSearchButton
                         ? "flex items-center bg-[var(--background-dark)] rounded-b-lg h-full w-full"
-                        : "mt-8"
+                        : "my-8"
                 }
             >
-                <LoadingSpinner />
+                <LoadingSpinner/>
             </div>
         );
     }
@@ -111,9 +120,15 @@ const UserSearchResults = ({
                                 <SmallUserSearchResult
                                     result={user}
                                     className={index == rightIndex - 1 ? " rounded-b-lg " : ""}
+                                    onClick={onClickResult}
                                 />
                             ) : (
-                                <UserSearchResult user={user} />
+                                <UserSearchResult
+                                    user={user}
+                                    showFollowButton={showFollowButton}
+                                    goToProfile={goToProfile}
+                                    onClick={onClickResult}
+                                />
                             )}
                         </div>
                     ))}
@@ -123,28 +138,44 @@ const UserSearchResults = ({
                         {caResults.map((user, index) => (
                             <div key={index} className="">
                                 {showSearchButton ? (
-                                    <SmallUserSearchResult result={user} />
+                                    <SmallUserSearchResult
+                                        result={user}
+                                        onClick={onClickResult}
+                                    />
                                 ) : (
-                                    <UserSearchResult user={user} />
+                                    <UserSearchResult
+                                        user={user}
+                                        showFollowButton={showFollowButton}
+                                        goToProfile={goToProfile}
+                                        onClick={onClickResult}
+                                    />
                                 )}
                             </div>
                         ))}
 
-                        {caResults.length == 0 && (
+                        {caResults.length == 0 && splitBluesky && (
                             <div className={"py-16 text-center text-[var(--text-light)]"}>
                                 No se encontró el usuario en Cabildo Abierto.
                             </div>
                         )}
 
-                        <div className={"py-4 text-center text-[var(--text-light)] border-b"}>
+                        {splitBluesky && <div className={"py-4 text-center text-[var(--text-light)] border-b"}>
                             Usuarios de Bluesky
-                        </div>
+                        </div>}
                         {bskyResults.map((user, index) => (
                             <div key={index} className="">
                                 {showSearchButton ? (
-                                    <SmallUserSearchResult result={user} />
+                                    <SmallUserSearchResult
+                                        result={user}
+                                        onClick={onClickResult}
+                                    />
                                 ) : (
-                                    <UserSearchResult user={user} />
+                                    <UserSearchResult
+                                        user={user}
+                                        showFollowButton={showFollowButton}
+                                        goToProfile={goToProfile}
+                                        onClick={onClickResult}
+                                    />
                                 )}
                             </div>
                         ))}
@@ -153,7 +184,7 @@ const UserSearchResults = ({
 
                 {isLoading && (
                     <div className={"py-1 border-b"}>
-                        <LoadingSpinner />
+                        <LoadingSpinner/>
                     </div>
                 )}
             </div>

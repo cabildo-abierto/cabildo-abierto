@@ -4,9 +4,10 @@ import SelectionComponent from "./search-selection-component";
 import {ContentsSearchResults} from "./contents-search-results";
 import {SearchTopics} from "./search-topics";
 import {useSearch} from "./search-context";
-import { Button } from "../../../modules/ui-utils/src/button";
+import {Button} from "../../../modules/ui-utils/src/button";
 
 import dynamic from "next/dynamic";
+
 const UserSearchResults = dynamic(() => import('@/components/buscar/user-search-results'));
 
 type RouteContentProps = {
@@ -54,6 +55,10 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         </div>
     }
 
+    function onClickResult(did: string) {
+        setSearchState({value: "", searching: false})
+    }
+
     return <div className="w-full">
         <div className="flex border-b max-w-screen overflow-x-scroll no-scrollbar">
             <SelectionComponent
@@ -66,15 +71,15 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         </div>
 
         {selected == "Temas" &&
-        <SearchTopics/>
+            <SearchTopics/>
         }
 
         {selected == "Publicaciones" &&
-        <ContentsSearchResults/>
+            <ContentsSearchResults/>
         }
 
         {selected == "Usuarios" &&
-        <UserSearchResults showSearchButton={false}/>
+            <UserSearchResults showSearchButton={false} searchState={searchState} onClickResult={onClickResult}/>
         }
     </div>
 }

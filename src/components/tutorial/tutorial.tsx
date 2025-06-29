@@ -7,11 +7,9 @@ import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/Tab
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
 import {useSession} from "@/queries/api";
 import {post} from "@/utils/fetch";
-
-
-async function setSeenTutorial() {
-    await post("/seen-tutorial")
-}
+import {useQueryClient} from "@tanstack/react-query";
+import {Session} from "@/lib/types";
+import {produce} from "immer";
 
 
 const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) => {
@@ -24,7 +22,7 @@ const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) =
                     Cabildo Abierto es una incipiente plataforma de discusión argentina.
                 </div>
                 <div>
-                    Desde el equipo que la desarrolla intentamos que sirva como una herramienta para discutir ideas, reducir sesgos y mejorar colectivamente la calidad de la información disponible.
+                    Desde el equipo que la desarrolla intentamos que sirva como una herramienta para discutir ideas y mejorar colectivamente la calidad de la información disponible.
                 </div>
                 <div>
                     Estamos en período de prueba. Ante cualquier comentario no dudes en escribirnos a contacto@cabildoabierto.ar o comentar directamente en la plataforma.
@@ -75,6 +73,8 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
         }
     ])
 
+    const qc = useQueryClient()
+
     useEffect(() => {
         const isMobile = window.innerWidth <= 800
 
@@ -86,6 +86,15 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
         }
 
     }, [showingWelcomeMessage])
+
+    async function setSeenTutorial() {
+        qc.setQueryData(["session"], old => {
+            return produce(old as Session, draft => {
+                draft.seenTutorial = true
+            })
+        })
+        await post("/seen-tutorial")
+    }
 
     useEffect(() => {
         if (startedRun && !run) {

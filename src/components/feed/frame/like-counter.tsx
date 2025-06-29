@@ -105,7 +105,7 @@ export const LikeCounter = ({content, showBsky}: {
         onRemove={onClickRemoveLike}
         title="Cantidad de me gustas."
         active={content.viewer?.like != undefined}
-        disabled={content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri) == "optimistic"}
+        disabled={content.viewer && content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri) == "optimistic"}
         count={showBsky ? (content.bskyLikeCount ?? content.likeCount) : content.likeCount}
     />
 }

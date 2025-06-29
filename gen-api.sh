@@ -22,6 +22,9 @@
   ../ca-server/lexicons/app/bsky/unspecced/* \
   ../ca-server/lexicons/app/bsky/video/* \
   ../ca-server/lexicons/app/bsky/actor/* \
-  ../ca-server/lexicons/app/bsky/richtext/*
+  ../ca-server/lexicons/app/bsky/richtext/* \
+  ../ca-server/lexicons/chat/bsky/convo/* \
+  ../ca-server/lexicons/chat/bsky/actor/* \
+  ../ca-server/lexicons/chat/bsky/moderation/*
 
 node fix-imports.js

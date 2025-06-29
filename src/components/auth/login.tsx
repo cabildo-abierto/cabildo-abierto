@@ -47,9 +47,7 @@ export const Login = () => {
                     </div>
 
                     <div className='text-center text-[var(--text-light)] mx-2'>
-                        ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">Registrate
-                        en
-                        Bluesky</Link>.
+                        ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">Registrate en Bluesky</Link>.
                     </div>
 
                     <div className={"pt-8"} onClick={() => {
