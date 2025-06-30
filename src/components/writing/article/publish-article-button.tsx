@@ -28,8 +28,16 @@ const createArticle = async (props: CreateArticleProps) => {
     return post("/article", props)
 }
 
-export function markdownToPlainText(md: string) {
-    return removeMarkdown(md).replace(/\n{2,}/g, '\n').trim()
+
+export function getArticleSummary(md: string){
+    return removeMarkdown(md)
+        .trim()
+        .replaceAll("\n", " ")
+        .replaceAll("\\n", " ")
+        .replaceAll("\|", " ")
+        .replaceAll("\-\-\-", " ")
+        .slice(0, 150)
+        .trim()
 }
 
 

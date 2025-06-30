@@ -12,20 +12,21 @@ import PageHeader from "../../../../modules/ui-utils/src/page-header";
 
 
 const Page = () => {
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const {data: notifications, isLoading} = useNotifications()
     const qc = useQueryClient()
 
     useEffect(() => {
         qc.setQueryData(["unread-notifications-count"], 0)
-    }, [])
+    }, [qc])
+
+    console.log(notifications)
 
     return <div className={"flex flex-col"}>
         <PageHeader title={"Notificaciones"}/>
         {isLoading && <div className={"mt-8"}>
             <LoadingSpinner/>
         </div>}
-        {notifications && notifications.length == 0 && <div className={"text-center text-[var(--text-light)]"}>
+        {notifications != null && notifications.length == 0 && <div className={"text-center text-[var(--text-light)]"}>
             Sin notificaciones.
         </div>}
         {notifications && notifications.length > 0 && <div>

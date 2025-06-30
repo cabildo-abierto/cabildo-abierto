@@ -8,7 +8,6 @@ import {FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/
 import {$Typed} from "@atproto/api";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
-import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
 
 type ArticleCompProps = {
     article: $Typed<FullArticleView>,

@@ -22,8 +22,8 @@ import {
 } from 'lexical';
 import {CA_TRANSFORMERS} from "../../ca-transformers";
 
-const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
-const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-*:? ?)+\|\s?$/;
+const TABLE_ROW_REG_EXP = /^(?:\|)(.*)(?:\|)\s?$/;
+const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-+:? ?)+\|\s?$/;
 
 
 const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
@@ -85,7 +85,7 @@ export const TABLE: ElementTransformer = {
             }
         }
 
-        return output.join('\n');
+        return output.join('\n')+"\n";
     },
     regExp: TABLE_ROW_REG_EXP,
     replace: (parentNode, _1, match) => {

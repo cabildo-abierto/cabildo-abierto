@@ -7,6 +7,8 @@ import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/emb
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {decompress} from "@/utils/compression";
+import {initializeEmpty} from "../../../../../modules/ca-lexical-editor/src/lexical-editor";
+import {PrettyJSON} from "../../../../../modules/ui-utils/src/pretty-json";
 
 type QuoteTextProps = {
     quotedText: EmbedSelectionQuote["quotedText"]
@@ -18,15 +20,18 @@ type QuoteTextProps = {
 export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbeds, selection}: QuoteTextProps) => {
     const strSelection = JSON.stringify(selection.toArray())
     const strEmbeds = JSON.stringify(quotedTextEmbeds)
-    const initialData = useMemo(() => {
+    const content = useMemo(() => {
         if (quotedTextFormat != "markdown" && quotedTextFormat != "markdown-compressed") return null;
 
         try {
             const markdown = quotedTextFormat == "markdown-compressed" ? decompress(quotedText) : quotedText
+            if(quotedText.trim().length == 0){
+                return {content: "", format: "markdown"}
+            }
             const state = markdownToEditorState(markdown, true, true, quotedTextEmbeds);
-            const lexicalSelection = selection.toLexicalSelection(JSON.stringify(state));
-            const newInitialData = lexicalSelection.getSelectedSubtree(state);
-            return JSON.stringify(newInitialData);
+            const lexicalSelection = selection.toLexicalSelection(JSON.stringify(state))
+            const newInitialData = lexicalSelection.getSelectedSubtree(state)
+            return {text: JSON.stringify(newInitialData), format: "lexical"}
         } catch (err) {
             console.error("Error generating initialData:", err);
             return null;
@@ -38,13 +43,11 @@ export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbe
         strEmbeds
     ]);
 
-    if(!initialData){
+    if(!content){
         return null
     }
 
     return (
-        <ReadOnlyEditor
-            text={initialData} format={"lexical"}
-        />
+        <PrettyJSON data={content}/>
     )
 }

@@ -15,6 +15,10 @@ import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
 import {validArticle} from "@/components/writing/article/valid-article";
+import {
+    editorStateToMarkdown, editorStateToMarkdownNoEmbeds,
+    markdownToEditorState
+} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
