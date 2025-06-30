@@ -14,10 +14,11 @@ import StateButton from "../../../../../modules/ui-utils/src/state-button";
 import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
 import {useRouter} from "next/navigation";
 import {LuPartyPopper} from "react-icons/lu";
-import {useCurrentValidationRequest} from "@/queries/api";
+import {useAccount, useCurrentValidationRequest, useSession} from "@/queries/api";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useQueryClient} from "@tanstack/react-query";
+import CheckIcon from "@mui/icons-material/Check";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -370,7 +371,7 @@ const Page = () => {
             if (!error) {
                 setRequestSent(true)
             }
-            qc.setQueryData(["validation-request"], {type: res.request.tipo})
+            qc.setQueryData(["validation-request"], {type: res.request.tipo, result: "Pendiente"})
             return {error}
         } else {
             return {error: res.error}
@@ -392,8 +393,15 @@ const Page = () => {
     }
 
     return <div className={"pt-12 space-y-6"}>
-
-        {curRequest && curRequest.type && <div>
+        {curRequest && curRequest.result == "Aceptada" && <div className={"flex flex-col items-center space-y-4 p-8 bg-[var(--background-dark)] rounded-lg"}>
+            <div className={"h-16 w-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center text-green-400"}>
+                <CheckIcon fontSize={"large"}/>
+            </div>
+            <div className={"text-lg text-[var(--text-light)] font-semibold"}>
+                Tu cuenta ya está verificada
+            </div>
+        </div>}
+        {curRequest && curRequest.type && curRequest.result == "Pendiente" && <div>
             <div className={"bg-[var(--background-dark)] p-4 w-full rounded-lg space-y-6 flex flex-col items-center"}>
                 <div>
                     <HourglassEmptyIcon/>
@@ -403,7 +411,7 @@ const Page = () => {
                 </h2>
                 <div className={"text-center text-[var(--text-light)]"}>
                     <p>
-                        Solicitaste una validación de cuenta {request.tipo == "persona" ? "personal" : "de organización"}. En un plazo de {request.tipo == "org" ? 72 : 48} horas te va a llegar una notificación con el
+                        Solicitaste una verificación de cuenta {request.tipo == "persona" ? "personal" : "de organización"}. En un plazo de {request.tipo == "org" ? 72 : 48} horas te va a llegar una notificación con el
                         resultado.
                     </p>
                 </div>

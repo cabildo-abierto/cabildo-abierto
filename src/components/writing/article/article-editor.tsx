@@ -5,7 +5,6 @@ import dynamic from "next/dynamic"
 import {TitleInput} from "./title-input"
 import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
-import {validArticle} from "./valid-article";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
@@ -15,9 +14,7 @@ import {Authorship} from "@/components/feed/frame/authorship";
 import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
-import {
-    editorStateToMarkdown, markdownToEditorState,
-} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {validArticle} from "@/components/writing/article/valid-article";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
@@ -51,9 +48,9 @@ const ArticleEditor = () => {
 
     const settings = articleEditorSettings(smallScreen)
 
-    //const valid = validArticle(editorState, settings.charLimit, title)
+    const valid = validArticle(editorState, settings.charLimit, title)
 
-    let disabled = false // valid.problem != undefined
+    let disabled = valid.problem != undefined
 
     const createdAt = new Date()
 

@@ -6,16 +6,19 @@ import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useTheme} from "@/components/theme/theme-context";
-import {useAccount, useSession} from "@/queries/api";
+import {useAccount, useCurrentValidationRequest, useProfile, useSession} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { Button } from "../../../../modules/ui-utils/src/button";
+import {profileUrl} from "@/utils/uri";
+import PageHeader from "../../../../modules/ui-utils/src/page-header";
 
 
 const AccountSettings = () => {
     const {user} = useSession()
     const {account, isLoading} = useAccount()
+    const {data: request, isLoading: requestLoading} = useCurrentValidationRequest()
 
-    if(isLoading){
+    if(isLoading || requestLoading){
         return <div className={"py-8"}>
             <LoadingSpinner/>
         </div>
@@ -40,11 +43,15 @@ const AccountSettings = () => {
                 <PermissionLevel level={user.editorStatus} className={""}/>
             </div>
         </div>
-        <div className="mt-6 space-y-4 link">
-            <Link href={`/src/app/(main)/perfil/${user.did}`} className="block hover:underline">
-                Ver perfil
-            </Link>
+        <div className="mb-4">
+            <div className="text-[var(--text-light)] font-medium text-sm">Verificación de la cuenta</div>
+            <div className="text-lg">
+                {!request || request.result != "Aceptada" ? "Sin verificar." : (request.type == "persona" ? "Cuenta de persona verificada." : "Cuenta de organización verificada.")}
+            </div>
         </div>
+        {(!request.result || request.result != "Aceptada") && <Button size={"small"} href={"/ajustes/solicitar-validacion"}>
+            <span className={"font-semibold text-sm py-1"}>Verificar cuenta</span>
+        </Button>}
         <div className={"mt-4 flex justify-end"}>
             <CloseSessionButton/>
         </div>
@@ -139,11 +146,9 @@ const Ajustes = () => {
     }
 
     return (
-        <div className="max-w-lg mx-auto">
+        <div className="mx-auto">
             <div className={"border-b"}>
-                <h3 className="text-xl font-semibold py-6 text-center">
-                    Ajustes
-                </h3>
+                <PageHeader title={"Ajustes"}/>
                 <div className={"flex"}>
                     <SelectionComponent
                         selected={selected}
@@ -156,7 +161,7 @@ const Ajustes = () => {
                     />
                 </div>
             </div>
-            <div className="pl-6 pr-4 py-6 pb-4">
+            <div className="p-4">
                 {selected == "Cuenta" && <AccountSettings/>}
                 {selected == "Apariencia" && <AppearanceSettings/>}
             </div>

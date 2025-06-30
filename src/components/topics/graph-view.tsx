@@ -109,7 +109,7 @@ function useSimulateLayout(graph: TopicsGraph, width: number) {
             .force('center', forceCenter(width / 2, height / 2))
             .force('link', forceLink(initialEdges).id((d: any) => d.id).distance(100).strength(0.5))
             .force('charge', forceManyBody().strength(1000))
-            .stop(); // Stop automatic ticking
+            .stop();
 
         let tickCount = 0;
         const maxTicks = 200;

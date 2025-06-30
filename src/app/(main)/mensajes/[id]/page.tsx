@@ -16,6 +16,9 @@ import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {$Typed} from "@atproto/api";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
+import {bottomBarHeight} from "@/components/layout/bottom-bar-mobile";
+import {useMediaQuery, useTheme} from "@mui/system";
+import {pxToNumber} from "@/utils/strings";
 
 
 type SendMessageParams = { message: MessageInput, convoId: string }
@@ -72,6 +75,8 @@ export default function Page() {
     const {user} = useSession()
     const [newMessage, setNewMessage] = useState<string>("")
     const qc = useQueryClient()
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const readMutation = useMutation({
         mutationFn: markRead,
@@ -143,15 +148,17 @@ export default function Page() {
 
     const other = data.conversation ? data.conversation.members.filter(m => m.did != user.did)[0] : undefined
 
+    const title = other.displayName && other.displayName.length > 0 ? other.displayName : ("@" + other.handle)
+
     return (
-        <div className="flex flex-col h-screen border-l border-r">
-            <PageHeader title={other.displayName ?? "@" + other.handle} defaultBackHref={"/mensajes"}/>
+        <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-44px)]" : "h-screen")}>
+            <PageHeader title={title} defaultBackHref={"/mensajes"}/>
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2">
                     <div className="space-y-1 mt-2 pb-2">
                         {messages.map((m, index) => {
                             const isAuthor = m.sender.did == user.did
-                            const prevOtherAuthor = index == 0 || messages[index - 1].sender.did != m.sender.did
+                            const prevOtherAuthor = index > 0 && messages[index - 1].sender.did != m.sender.did
                             const isOptimistic = m.id == "optimistic"
                             return (
                                 <div
@@ -162,10 +169,10 @@ export default function Page() {
                                     }
                                 >
                                     <div className={
-                                        "rounded-lg p-3 max-w-[80%] " + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark)]" : "bg-[var(--background-dark2)]"))
+                                        "rounded-lg max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark)]" : "bg-[var(--background-dark2)]"))
                                     }>
-                                        <BskyRichTextContent post={{text: m.text, facets: m.facets}}/>
-                                        <div className="flex justify-end text-xs text-[var(--text-light)]">
+                                        <BskyRichTextContent post={{text: m.text, facets: m.facets}} fontSize={isMobile ? "14px" : "15px"}/>
+                                        <div className={"flex justify-end text-[var(--text-light)] " + (isMobile ? "text-[10px]" : "text-xs")}>
                                             {formatIsoDate(m.sentAt, true)}
                                         </div>
                                     </div>
