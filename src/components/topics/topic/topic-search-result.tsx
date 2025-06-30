@@ -4,10 +4,11 @@ import {DateSince} from "../../../../modules/ui-utils/src/date"
 import {getTopicCategories, getTopicTitle} from "./utils";
 import TopicCategories from "./topic-categories";
 import {useRouter} from "next/navigation";
-import {People} from "@mui/icons-material";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {HandIcon, HandPalmIcon, UsersFourIcon, UsersIcon, UsersThreeIcon} from "@phosphor-icons/react";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import TopicPopularity from "@/components/topics/topic/topic-popularity";
 
 
 const DateLastEdit = ({date}: { date: Date }) => {
@@ -25,6 +26,8 @@ const TopicSearchResult = ({topic, index}: { topic: TopicViewBasic, index?: numb
         // TO DO preload("/api/topic/"+topic.id, fetcher)
     }
 
+    const categories = getTopicCategories(topic.props)
+
     return (
         <div
             onClick={() => {
@@ -34,25 +37,28 @@ const TopicSearchResult = ({topic, index}: { topic: TopicViewBasic, index?: numb
             onMouseEnter={onMouseEnter}
         >
             <div className={"max-w-[70%] flex flex-col space-y-2"}>
-                <TopicCategories
-                    className={"text-[var(--text-light)]"}
-                    containerClassName={"text-xs"}
-                    categories={getTopicCategories(topic.props)}
-                />
+                <div className={"flex space-x-1 items-center text-xs text-[var(--text-light)]"}>
+                    {index != undefined ? <div className={""}>
+                        {index + 1}
+                    </div> : <div/>}
+                    {categories && categories.length > 0 && <div>
+                        -
+                    </div>}
+                    <TopicCategories
+                        className={"text-[var(--text-light)]"}
+                        containerClassName={"text-xs"}
+                        categories={categories}
+                    />
+                </div>
 
                 <div className="font-semibold mb-1">
                     {getTopicTitle(topic)}
                 </div>
 
-                {topic.popularity != null && <div className={"text-[var(--text-light)] text-sm flex items-center"}>
-                    <div>{topic.popularity[0]} persona{topic.popularity[0] == 1 ? "" : "s"}.</div>
-                </div>}
+                {topic.popularity != null && <TopicPopularity count={topic.popularity[0]}/>}
             </div>
 
             <div className={"flex flex-col justify-between items-end space-y-2 min-w-[30%]"}>
-                {index != undefined ? <div className={"text-xs text-[var(--text-light)]"}>
-                    {index+1}
-                </div> : <div/>}
                 <div className={"flex space-x-2 items-center text-sm mt-1"}>
                     {topic.lastEdit && <DateLastEdit date={new Date(topic.lastEdit)}/>}
                 </div>

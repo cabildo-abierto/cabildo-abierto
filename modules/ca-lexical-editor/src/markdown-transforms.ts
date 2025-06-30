@@ -62,20 +62,13 @@ export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | Ser
 
 
 export function normalizeMarkdown(markdown: string, ensureIdempotent: boolean = false) {
-    while (markdown.startsWith("\n")) {
-        markdown = markdown.slice(1)
-    }
-    while (markdown.endsWith("\n")) {
-        markdown = markdown.slice(0, markdown.length - 1)
-    }
+    markdown = markdown.replace(/^\n+|\n+$/g, '')
 
-    while (markdown.includes("\n\n\n")) {
-        markdown = markdown.replaceAll("\n\n\n", "\n\n")
-    }
+    markdown = markdown.replace(/\n{3,}/g, '\n\n')
 
-    markdown = markdown.replace(/\n[ \t]+(?=\n)/g, '\n')
+    markdown = markdown.replace(/[ \t]+\n/g, '\n')
     markdown = markdown.replace(
-        /(?<!\n)(?<![-*+]\s|\d+\.\s)\n(?!\n|[-*+]\s|\d+\.\s|#+\s)/g,
+        /(?<!\n)(?<![-*+]\s|\d+\.\s|\|.*)\n(?!\n|[-*+]\s|\d+\.\s|#+\s|\|.*)/g,
         ' '
     );
 

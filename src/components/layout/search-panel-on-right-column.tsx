@@ -16,15 +16,17 @@ export const SearchPanelOnRightColumn = () => {
         if (searchState.value.length > 0) {
             router.push("/buscar?q=" + encodeURIComponent(searchState.value));
         }
-    };
+    }
 
     return (
         <div className={"w-full"}>
-            <form onSubmit={handleSubmit} className={"w-full"}>
+            <form onSubmit={(e) => {e.preventDefault(); handleSubmit()}} className={"w-full"}>
                 <MainSearchBar/>
             </form>
-            {searchState.searching && searchState.value.length > 0 &&
-            <UserSearchResultsOnRightPanel showSearchButton={showSearchButton} handleSubmit={handleSubmit}/>
+            {searchState.searching && searchState.value.length > 0 && <UserSearchResultsOnRightPanel
+                showSearchButton={showSearchButton}
+                handleSubmit={handleSubmit}
+            />
             }
         </div>
     );

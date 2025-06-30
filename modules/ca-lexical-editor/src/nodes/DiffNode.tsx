@@ -141,13 +141,13 @@ import type {
       return destination !== 'clone';
     }
   }
+
+export function $createDiffNode(kind: string): DiffNode {
+  return $applyNodeReplacement(new DiffNode(kind));
+}
   
-  export function $createDiffNode(kind: string): DiffNode {
-    return $applyNodeReplacement(new DiffNode(kind));
-  }
-  
-  export function $isDiffNode(node: LexicalNode | null): node is DiffNode {
-    return node instanceof DiffNode;
-  }
+export function $isDiffNode(node: LexicalNode | null): node is DiffNode {
+  return node instanceof DiffNode;
+}
 
 

@@ -43,8 +43,8 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
     const deleteMutation = useMutation({
         mutationFn: deleteRecord,
         onMutate: (likedContent) => {
-            qc.cancelQueries(contentQueriesFilter(uri))
             optimisticDelete(qc, likedContent.uri)
+            qc.cancelQueries(contentQueriesFilter(uri))
             onClose()
         },
         onSettled: async () => {

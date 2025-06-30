@@ -28,6 +28,9 @@ async function validSelectionForComment(text: string, format: string, selection:
         const processedState = new ProcessedLexicalState(state)
         const lexicalSelection = selection.toLexicalSelection(processedState)
         const markdownSelectionBack = lexicalSelection.toMarkdownSelection(processedState)
+        if(markdownSelectionBack.isEmpty()) {
+            return null
+        }
         const lexicalSelectionBack = markdownSelectionBack.toLexicalSelection(processedState)
         if(lexicalSelection.equivalentTo(lexicalSelectionBack, processedState)){
             return markdownSelectionBack

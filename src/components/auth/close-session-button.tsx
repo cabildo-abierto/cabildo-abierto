@@ -21,7 +21,7 @@ export const CloseSessionButton = () => {
     const logoutMutation = useMutation({
         mutationFn: logout,
         onSuccess: async () => {
-            queryClient.setQueryData(["session"], null)
+            queryClient.clear()
             router.push("/presentacion")
         }
     })

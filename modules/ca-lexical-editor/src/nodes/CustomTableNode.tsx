@@ -1,5 +1,6 @@
 import {SerializedTableNode, TableNode} from '@lexical/table';
-import { EditorConfig } from 'lexical';
+import {$applyNodeReplacement, EditorConfig, type LexicalNode} from 'lexical';
+import {DiffNode} from "./DiffNode";
 
 export interface SerializedCustomTableNode extends SerializedTableNode {
   type: 'custom-table';
@@ -34,4 +35,14 @@ export class CustomTableNode extends TableNode {
             type: 'custom-table',
         };
     }
+}
+
+
+export function $isCustomTableNode(node: LexicalNode | null): node is CustomTableNode {
+    return node instanceof CustomTableNode;
+}
+
+
+export function $createCustomTableNode(): CustomTableNode {
+    return $applyNodeReplacement(new CustomTableNode())
 }

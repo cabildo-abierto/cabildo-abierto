@@ -21,7 +21,6 @@ export const contentQueriesFilter = (uri: string) => ({
 
 export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
     const {collection} = splitUri(uri)
-
     if (isPost(collection) || isArticle(collection)) {
         return queryKey[0] == "main-feed"
             || queryKey[0] == "profile-feed"
@@ -141,10 +140,6 @@ export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updat
                 if (!old) return old
 
                 const k = q.queryKey
-
-                if(k[0] == "topic-feed"){
-                    console.log(k)
-                }
 
                 if (k[0] == "topic-feed" && k.length == 2 || (k.length == 3 && !["mentions", "replies"].includes(k[2] as string))) {
                     const t = old as TopicFeed

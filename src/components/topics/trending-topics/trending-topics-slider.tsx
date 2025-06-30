@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+import TopicPopularity from "@/components/topics/topic/topic-popularity";
 
 
 const TrendingTopicsSlider = ({trendingArticles}: {
@@ -21,13 +21,13 @@ const TrendingTopicsSlider = ({trendingArticles}: {
                 const title = getTopicTitle(topic)
                 return <div
                     onClick={() => {router.push(topicUrl(topic.id))}} draggable={false}
-                    className="cursor-pointer flex flex-col py-4 w-full px-5 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark2)]"
+                    className="cursor-pointer flex flex-col items-start py-4 w-full px-5 sm:text-sm text-xs hover:bg-[var(--background-dark2)]"
                     key={topic.id}
                     onMouseLeave={() => {
                         setHovering(undefined)
                     }}
                     onMouseEnter={() => {
-                        /*preload("/api/entity/"+entity.id, fetcher);*/
+                        /*preload("/api/entity/"+entity.id, fetcher);*/ // TO DO
                         setHovering(index)
                     }}
                 >
@@ -40,13 +40,8 @@ const TrendingTopicsSlider = ({trendingArticles}: {
                     <div className={"font-semibold w-full text-[15px] " + (hovering == index ? "" : "truncate")}>
                         {title}
                     </div>
-                    {topic.popularity && <div
-                        className="text-[var(--text-light)] text-xs sm:text-sm"
-                    >
-                        <div title="La cantidad de usuarios que participaron en la discusión.">
-                            {topic.popularity[0]} {topic.popularity[0] == 1 ? "persona" : "personas."}
-                        </div>
-                    </div>}
+
+                    {topic.popularity && <TopicPopularity count={topic.popularity[0]}/>}
                 </div>
             })}
             <Link href={"/temas"} className={"hover:bg-[var(--background-dark2)] rounded-b-lg text-sm text-[var(--text-light)] px-5 py-1"}>

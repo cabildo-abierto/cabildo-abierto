@@ -1,11 +1,11 @@
 import StateButton, {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
 import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import {markdownToPlainText} from "@/components/writing/article/publish-article-button";
+import {getArticleSummary} from "@/components/writing/article/publish-article-button";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 
 type PublishArticleModalProps = {
@@ -17,13 +17,11 @@ type PublishArticleModalProps = {
     mentions?: TopicMention[]
 }
 
+
 const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}: PublishArticleModalProps) => {
-    const [enDiscusion, setEnDiscusion] = useState(true)
+    const [enDiscusion, setEnDiscusion] = useState(false)
 
-    const summary = markdownToPlainText(mdText)
-        .slice(0, 150)
-        .replaceAll("\n", " ")
-
+    const summary = useMemo(() => getArticleSummary(mdText), [mdText])
 
     return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
         <div className={"pb-8 sm:w-[500px] min-h-[300px] px-6 flex flex-col justify-between space-y-8"}>
@@ -69,6 +67,7 @@ const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}:
                 <StateButton
                     text1={"Publicar"}
                     handleClick={onSubmit(enDiscusion)}
+                    textClassName={"font-semibold text-sm"}
                 />
             </div>
         </div>
