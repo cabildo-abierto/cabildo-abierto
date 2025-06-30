@@ -111,6 +111,16 @@ function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
 }
 
 
+function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
+    return a.maxWidthCenter == b.maxWidthCenter &&
+        a.defaultSidebarState == b.defaultSidebarState &&
+        a.leftMinWidth == b.leftMinWidth &&
+        a.rightMinWidth == b.rightMinWidth &&
+        a.spaceForLeftSide == b.spaceForLeftSide &&
+        a.spaceForRightSide == b.spaceForRightSide
+}
+
+
 export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const params = useSearchParams()
     const pathname = usePathname()
@@ -128,7 +138,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     useEffect(() => {
         const handleResize = () => {
             const config = getLayoutConfig(pathname, params, layoutConfig)
-            if(!shallowEqual(layoutConfig, config)){
+            if(!baseConfigEqual(layoutConfig, config)){
                 setLayoutConfig(config)
             }
         };

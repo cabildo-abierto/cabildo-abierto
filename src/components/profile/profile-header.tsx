@@ -120,13 +120,13 @@ function ProfileHeader({
             <div className="ml-2 py-2">
                 <div className={"flex space-x-2 items-center"}>
                     <span className={"min-[500px]:text-2xl text-lg font-bold"}>
-                        {getUsername(profile.bsky)}
+                        {profile.bsky.displayName && profile.bsky.displayName.length > 0 ?  profile.bsky.displayName : profile.bsky.handle}
                     </span>
                     <ValidationIcon validation={profile.ca.validation} handle={profile.bsky.handle}/>
                 </div>
-                {profile.bsky.displayName && <div className="text-[var(--text-light)]">
+                <div className="text-[var(--text-light)]">
                     @{profile.bsky.handle}
-                </div>}
+                </div>
             </div>
             <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
         </div>

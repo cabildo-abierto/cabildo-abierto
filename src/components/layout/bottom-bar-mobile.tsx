@@ -9,13 +9,14 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import CollectionsBookmarkOutlinedIcon from "@mui/icons-material/CollectionsBookmarkOutlined";
 import TopicsIcon from "@/components/icons/topics-icon";
 
+export const bottomBarHeight = 44
 
 export const BottomBarMobile = () => {
     const pathname = usePathname()
 
     const buttonClassName = ""
 
-    return <div className={"border-t flex justify-between bg-[var(--background)] px-2"}>
+    return <div style={{height: bottomBarHeight}} className={"border-t flex justify-between bg-[var(--background)] px-2"}>
         <SidebarButton
             icon={<CabildoIcon/>}
             iconInactive={<HomeOutlinedIcon/>}

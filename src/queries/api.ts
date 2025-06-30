@@ -55,9 +55,13 @@ export const useAccount = () => {
     return {...res, account: res.data}
 }
 
+type ValidationRequestStatus = {
+    type: "org" | "persona" | null,
+    result?: "Aceptada" | "Rechazada" | "Pendiente"
+}
 
 export const useCurrentValidationRequest = () => {
-    const res = useAPI<{type: "org" | "persona" | null}>("/validation-request", ["validation-request"])
+    const res = useAPI<ValidationRequestStatus>("/validation-request", ["validation-request"])
     return {...res, user: res.data}
 }
 
