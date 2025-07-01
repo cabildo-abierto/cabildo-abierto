@@ -19,8 +19,6 @@ const Page = () => {
         qc.setQueryData(["unread-notifications-count"], 0)
     }, [qc])
 
-    console.log(notifications)
-
     return <div className={"flex flex-col"}>
         <PageHeader title={"Notificaciones"}/>
         {isLoading && <div className={"mt-8"}>

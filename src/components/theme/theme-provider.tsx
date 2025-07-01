@@ -42,7 +42,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--bold-text', '#000000');
             root.style.setProperty('--button-text', '#fbfbfc');
             root.style.setProperty('--text-light', '#444444');
-            root.style.setProperty('--text-lighter', '#999999');
+            root.style.setProperty('--text-lighter', '#818181');
             root.style.setProperty('--icon-color-filter', 'none');
 
             root.style.setProperty('--accent', '#e0e0e0');

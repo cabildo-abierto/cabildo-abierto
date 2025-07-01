@@ -1,14 +1,14 @@
 "use client"
 import {Box, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
-import { FormControl } from '@mui/material';
-import { isValidHandle } from "@atproto/syntax"
+import {FormControl} from '@mui/material';
+import {isValidHandle} from "@atproto/syntax"
 import {useSession} from "@/queries/api";
-import { Button } from "../../../modules/ui-utils/src/button"
+import {Button} from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 
 
-export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
+export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
     const [error, setError] = useState(undefined)
     const [isLoading, setIsLoading] = useState(false)
     const {refetch} = useSession(inviteCode)
@@ -25,7 +25,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         return () => channel.close()
     }, [refetch])
 
-    async function handleSubmit(e){
+    async function handleSubmit(e) {
         e.preventDefault();
 
         setError(null)
@@ -33,7 +33,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         const handle = handleStart + domain
 
         if (!isValidHandle(handle)) {
-            if(handle.includes("@")){
+            if (handle.includes("@")) {
                 setError("Nombre de usuario inválido. Escribilo sin @.")
             } else {
                 setError('Nombre de usuario inválido.')
@@ -48,26 +48,26 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ handle, code: inviteCode }),
+            body: JSON.stringify({handle, code: inviteCode}),
             redirect: "follow", // ensure browser follows the redirect
         })
 
-        if(!res.ok){
+        if (!res.ok) {
             setError("Error de conexión.")
             setIsLoading(false)
             return
         }
 
-        const body = await res.json() as {error?: string, data?: {url: string}}
+        const body = await res.json() as { error?: string, data?: { url: string } }
 
-        if(body.error){
+        if (body.error) {
             setError(body.error)
             setIsLoading(false)
             return
         }
 
         const url = body.data.url
-        
+
         const width = 600;
         const height = 700;
         const left = (window.screen.width - width) / 2;
@@ -76,7 +76,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     }
 
     return <div className={"max-w-96 w-full"}>
-        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}}>
+        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-2"}>
             <FormControl error={error} sx={{width: "100%"}}>
                 <div className={"flex space-x-2 items-center"}>
                     <TextField
@@ -87,14 +87,13 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
                         label="Nombre de usuario de Bluesky"
                         name="username"
                         autoFocus
-                        autoComplete="off"
                         variant="outlined"
+                        autoComplete="off"
                         value={handleStart}
                         onChange={(e) => {
                             setHandleStart(e.target.value);
                             setError(undefined);
                         }}
-                        sx={{background: "var(--background-dark2)"}}
                     />
                     <TextField
                         margin="normal"
@@ -113,8 +112,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
                             setError(undefined);
                         }}
                         sx={{
-                            width: 160,
-                            background: "var(--background-dark2)"
+                            width: 160
                         }}
                     />
                 </div>
@@ -128,19 +126,13 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
             </FormControl>
             <Button
                 type="submit"
+                fullWidth={true}
                 loading={isLoading}
-                fullWidth
-                size="large"
+                size="medium"
                 variant="contained"
                 color={"primary"}
-                sx={{
-                    mt: 3,
-                    mb: 2,
-                    textTransform: "none",
-                    borderRadius: 20
-                }}
             >
-                <span className={"font-semibold text-[13px]"}>Iniciar sesión</span>
+                <span className={"font-semibold text-[14px]"}>Iniciar sesión</span>
             </Button>
         </Box>
     </div>

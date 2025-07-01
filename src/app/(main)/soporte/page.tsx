@@ -57,8 +57,7 @@ const Page = () => {
                 </Link> en un post.
                 </li>
                 <li>
-                    Escribirnos por mail a <Link
-                    href={"mailto:soporte@cabildoabierto.ar"}>soporte@cabildoabierto.ar</Link>.
+                    Escribirnos por mail a <Link href={"mailto:soporte@cabildoabierto.ar"}>soporte@cabildoabierto.ar</Link>.
                 </li>
                 <li>
                     Comentar los <Link
