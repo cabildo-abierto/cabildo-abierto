@@ -29,6 +29,8 @@ export const RightPanel = () => {
             <TrendingTopicsPanel/>
         </div>
 
-        <RightPanelButtons/>
+        <div className={"text-sm mt-4"}>
+            <RightPanelButtons/>
+        </div>
     </div>
 }

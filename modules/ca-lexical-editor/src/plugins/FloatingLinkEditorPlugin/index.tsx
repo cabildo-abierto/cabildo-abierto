@@ -171,7 +171,6 @@ function FloatingLinkEditor({
             }
             setLastSelection(selection);
         } else if (!activeElement || activeElement.className !== 'p-1 outline-none w-full') {
-            console.log("not active or")
             if (rootElement !== null) {
                 setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
             }

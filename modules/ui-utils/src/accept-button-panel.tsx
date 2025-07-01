@@ -1,6 +1,6 @@
 import {ReactNode} from "react";
 import {BaseFullscreenPopup} from "./base-fullscreen-popup";
-import Button from "@mui/material/Button";
+import { Button } from "./button";
 
 
 export const AcceptButtonPanel = ({
@@ -18,13 +18,10 @@ export const AcceptButtonPanel = ({
 
             <div className="flex justify-center mt-8 mb-1">
                 <Button
-                    variant="contained"
                     color="primary"
                     onClick={onClose}
-                    sx={{textTransform: "none"}}
-                    disableElevation={true}
                 >
-                    <span className="px-4">{buttonText}</span>
+                    <span className="px-4 font-bold text-[13px]">{buttonText}</span>
                 </Button>
             </div>
         </div>

@@ -144,7 +144,7 @@ export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updat
                 if (k[0] == "topic-feed" && k.length == 2 || (k.length == 3 && !["mentions", "replies"].includes(k[2] as string))) {
                     const t = old as TopicFeed
                     return produce(t, draft => {
-                        const idx = t.replies.findIndex(x => isPostView(x.content) && x.content.uri == uri)
+                        const idx = t.replies ? t.replies.findIndex(x => isPostView(x.content) && x.content.uri == uri) : -1
                         if(idx != -1) {
                             const v = updater(t.replies[idx])
                             if(v != null){

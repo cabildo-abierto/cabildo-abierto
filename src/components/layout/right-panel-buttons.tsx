@@ -10,7 +10,7 @@ import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 
 export const RightPanelButton = ({children, icon, href}: {children: ReactNode, icon: ReactNode, href: string}) => {
     return (
-        <Link href={href} className={"text-sm text-[var(--text-light)] hover:font-bold flex items-center space-x-2 hover:text-[var(--text)] transition duration-200 p-1 rounded-lg"}>
+        <Link href={href} className={"text-[var(--text-light)] hover:font-bold flex items-center space-x-2 hover:text-[var(--text)] transition duration-200 p-1 rounded-lg"}>
             <div className={"w-6"}>
                 {icon}
             </div>
@@ -38,7 +38,7 @@ export const SupportButton = () => {
 export const RightPanelButtons = () => {
     const {user} = useSession()
 
-    return <div className={"mt-4 px-3 w-full flex flex-col space-y-1"}>
+    return <div className={"px-3 w-full flex flex-col space-y-1"}>
         <RightPanelButton
             href={"/aportar"}
             icon={<DonateIcon color={"inherit"} fontSize={"small"}/>}

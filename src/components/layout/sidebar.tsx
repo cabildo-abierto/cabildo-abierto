@@ -31,6 +31,7 @@ import dynamic from "next/dynamic";
 import TopicsIcon from "@/components/icons/topics-icon";
 import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
+import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
@@ -124,7 +125,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 className={"pt-4 px-2 overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
             >
                 <div className={"h-full flex flex-col justify-between"}>
-                    <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
+                    <div className={"flex flex-col sm:space-y-2 space-y-1 " + (showText ? "" : "items-center")}>
 
                         <div className={"mb-4"}>
                             {user.user &&
@@ -218,6 +219,9 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             <SidebarWriteButton showText={showText} onClick={() => {
                                 setWritePanelOpen(true)
                             }}/>
+                        </div>
+                        <div className={"sm:hidden text-xs"}>
+                            <RightPanelButtons/>
                         </div>
                     </div>
                     <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>

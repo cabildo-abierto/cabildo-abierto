@@ -66,7 +66,7 @@ export default function Page() {
         return <div className={"pt-2"}>
             <BackButton defaultURL={"/aportar"} preferReferrer={true}/>
 
-            <div className={"flex justify-center"}>
+            <div className={"flex justify-center mx-2"}>
                 <div className={"flex flex-col items-center space-y-4 bg-[var(--background-dark)] rounded-lg p-8 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>
                     <div className={"text-[var(--text-light)] text-lg"}>
                         <LuPartyPopper fontSize={"22px"}/>

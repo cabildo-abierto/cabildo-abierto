@@ -37,7 +37,7 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
                     router.push(chatUrl(data.convoId))
                 }
             } else {
-                if(error == "recipient requires incoming messages to come from someone they follow"){
+                if (error == "recipient requires incoming messages to come from someone they follow") {
                     setCreationError("El usuario elegido solo recibe mensajes de usuarios que sigue.")
                 } else {
                     setCreationError(error)
@@ -47,7 +47,7 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
         }
     }
 
-    return <BaseFullscreenPopup open={open}>
+    return <BaseFullscreenPopup open={open} backgroundShadow={true}>
         <div className={"min-[500px]:w-[500px]"}>
             <div className={"flex justify-between items-center px-2"}>
                 <h3 className={"p-2"}>
@@ -83,7 +83,9 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
                     <div className={"text-center"}>
                         {creationError}
                     </div>
-                    <Button size={"small"} onClick={() => {setCreationError(null)}}>
+                    <Button size={"small"} onClick={() => {
+                        setCreationError(null)
+                    }}>
                         <span className={"font-semibold text-sm"}>Aceptar</span>
                     </Button>
                 </div>}
@@ -96,10 +98,12 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
 const ConversationCard = ({view}: { view: ConvoView }) => {
     const {user} = useSession()
     const other = view.members.filter(x => x.did != user.did)[0]
-    return <Link className={"border-b hover:bg-[var(--background-dark)] flex space-x-4 cursor-pointer"}
-                 href={chatUrl(view.id)}>
-        <ProfilePic user={other} className={"rounded-full w-16 h-16 my-4 ml-4"}/>
-        <div className={"py-4"}>
+    return <Link
+        className={"border-b hover:bg-[var(--background-dark)] p-4 space-x-4 flex cursor-pointer"}
+        href={chatUrl(view.id)}
+    >
+        <ProfilePic user={other} className={"rounded-full w-16 h-16"}/>
+        <div className={"max-w-[80%]"}>
             <div className={"font-semibold"}>
                 {other.displayName ?? `@${other.handle}`}
             </div>

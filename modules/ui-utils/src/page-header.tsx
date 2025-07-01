@@ -33,7 +33,7 @@ export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
                 {title}
             </div>
         </div>
-        <div>
+        <div className={"px-2"}>
             {rightSide}
         </div>
     </div>

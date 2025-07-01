@@ -21,11 +21,9 @@ import Link from "next/link";
 import {useRouter} from "next/navigation";
 
 const Username = ({user}: { user: ProfileView }) => {
-    return <UserSummaryOnHover handle={user.handle}>
-        <div className={"font-bold hover:underline truncate max-w-[300px]"}>
-            {getUsername(user)}
-        </div>
-    </UserSummaryOnHover>
+    return <span className={"font-bold hover:underline"}>
+        {getUsername(user)}
+    </span>
 }
 
 
@@ -39,7 +37,7 @@ const NotificationCardFrame = ({read, reasonIcon, children, href}: {
     return <div
         className={"border-b h-24 px-4 flex space-x-4 py-2 cursor-pointer hover:bg-[var(--background-dark)] " + (!read ? "bg-[var(--background-dark)]" : "")}
         onClick={() => {
-            if(href) router.push(href)
+            if (href) router.push(href)
         }}
     >
         <div className={"flex items-center"}>
@@ -59,12 +57,15 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
         reasonIcon={reasonIcon}
         href={href}
     >
-        <div className={"flex flex-col justify-between w-full"}>
+        <div className={"flex flex-col justify-between w-full sm:text-base text-sm"}>
             <div className={"flex-1"}/>
 
-            <div className={"flex space-x-2 items-center"}>
+            <div className={"flex space-x-2 items-center w-full"}>
                 <ProfilePic user={notification.author} className={"rounded-full h-6 w-6"}/>
-                {children}
+
+                <div className={"max-w-[70%]"}>
+                    {children}
+                </div>
             </div>
 
             <div className={"w-full flex justify-end space-x-1 text-sm flex-1"}>
@@ -75,6 +76,7 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
                     <DateSince date={notification.indexedAt}/>
                 </span>
             </div>
+
         </div>
     </NotificationCardFrame>
 }
@@ -101,12 +103,9 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<UserPlusIcon size={24}/>}
             href={profileUrl(getDidFromUri(notification.uri))}
         >
-            <div className={"flex space-x-1"}>
-                <Username user={notification.author}/>
-                <div>
-                    te siguió.
-                </div>
-            </div>
+            <Username user={notification.author}/> <span>
+                te siguió.
+            </span>
         </UserNotificationCard>
     } else if (notification.reason == "like") {
         return <UserNotificationCard
@@ -114,21 +113,8 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<HeartIcon size={24}/>}
             href={contentUrl(notification.reasonSubject)}
         >
-            <div className={"flex space-x-1"}>
-                <div>
-                    A
-                </div>
-                <Username user={notification.author}/>
-                <div>
-                    le gustó
-                </div>
-                <div className={"flex"}>
-                    <ContentMention uri={notification.reasonSubject} article={"author"}/>
-                    <div>
-                        .
-                    </div>
-                </div>
-            </div>
+            A <Username user={notification.author}/> le gustó <ContentMention uri={notification.reasonSubject}
+                                                                              article={"author"}/>.
         </UserNotificationCard>
     } else if (notification.reason == "quote") {
         return <UserNotificationCard
@@ -136,18 +122,8 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<QuotesIcon size={24}/>}
             href={contentUrl(notification.uri)}
         >
-            <div className={"flex space-x-1"}>
-                <Username user={notification.author}/>
-                <div>
-                    citó
-                </div>
-                <div className={"flex"}>
-                    <ContentMention uri={notification.reasonSubject} article={"author"}/>
-                    <div>
-                        .
-                    </div>
-                </div>
-            </div>
+            <Username user={notification.author}/> citó <ContentMention uri={notification.reasonSubject}
+                                                                        article={"author"}/>.
         </UserNotificationCard>
     } else if (notification.reason == "repost") {
         return <UserNotificationCard
@@ -155,18 +131,8 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<RepeatIcon size={24}/>}
             href={contentUrl(notification.reasonSubject)}
         >
-            <div className={"flex space-x-1"}>
-                <Username user={notification.author}/>
-                <div>
-                    republicó
-                </div>
-                <div className={"flex"}>
-                    <ContentMention uri={notification.reasonSubject} article={"author"}/>
-                    <div>
-                        .
-                    </div>
-                </div>
-            </div>
+            <Username user={notification.author}/> republicó <ContentMention uri={notification.reasonSubject}
+                                                                             article={"author"}/>.
         </UserNotificationCard>
     } else if (notification.reason == "reply") {
         return <UserNotificationCard
@@ -174,27 +140,13 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<ChatTextIcon size={24}/>}
             href={notification.uri}
         >
-            <div className={"flex space-x-1"}>
-                <Username user={notification.author}/>
-                <Link
-                    className={"text-[var(--text-light)] hover:underline"}
-                    href={contentUrl(notification.uri)}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                    }}
-                >
-                    respondió
-                </Link>
-                <div>
-                    a
-                </div>
-                <div className={"flex"}>
-                    <ContentMention uri={notification.reasonSubject} article={"author"}/>
-                    <div>
-                        .
-                    </div>
-                </div>
-            </div>
+            <Username user={notification.author}/> <Link
+                className={"text-[var(--text-light)] hover:underline"}
+                href={contentUrl(notification.uri)}
+                onClick={(e) => {
+                    e.stopPropagation()
+                }}
+            >respondió</Link> a <ContentMention uri={notification.reasonSubject} article={"author"}/>.
         </UserNotificationCard>
     } else if (notification.reason == "mention") {
         return <UserNotificationCard
@@ -202,18 +154,7 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<AtIcon size={24}/>}
             href={notification.uri}
         >
-            <div className={"flex space-x-1"}>
-                <Username user={notification.author}/>
-                <div>
-                    te mencionó en
-                </div>
-                <div className={"flex"}>
-                    <ContentMention uri={notification.uri} article={"not-author"}/>
-                    <div>
-                        .
-                    </div>
-                </div>
-            </div>
+            <Username user={notification.author}/> te mencionó en <ContentMention uri={notification.uri} article={"not-author"}/>.
         </UserNotificationCard>
     }
 
