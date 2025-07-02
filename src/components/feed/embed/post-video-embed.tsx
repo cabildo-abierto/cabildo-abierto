@@ -13,6 +13,7 @@ export const PostVideoEmbed = ({ embed }: PostVideoEmbedProps) => {
     const [error, setError] = useState<string | null>(null);
     const [isReady, setIsReady] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [retryCount, setRetryCount] = useState(0)
 
     useEffect(() => {
         const video = videoRef.current;
@@ -29,8 +30,29 @@ export const PostVideoEmbed = ({ embed }: PostVideoEmbedProps) => {
 
             hls.on(Hls.Events.MANIFEST_PARSED, handleCanPlay);
             hls.on(Hls.Events.ERROR, (_, data) => {
-                console.error("HLS error", data);
-                setError("Error al cargar el video");
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            // Try to recover network errors (e.g., dropped connection)
+                            console.log("Network error, retrying...");
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            // Try to recover media errors (e.g., corrupt segment)
+                            console.log("Media error, recovering...");
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            // Give up after 3 retries
+                            if (retryCount < 3) {
+                                setRetryCount(retryCount + 1)
+                                setTimeout(() => hls.startLoad(), 1000 * retryCount); // Backoff retry
+                            } else {
+                                setError("No se pudo cargar el video");
+                                hls.destroy();
+                            }
+                    }
+                }
             });
 
             return () => {

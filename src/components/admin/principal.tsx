@@ -15,6 +15,16 @@ export const AdminPrincipal = () => {
         return {}
     }
 
+    const suggestions = [
+        "update-topics-categories",
+        "update-topics-popularity",
+        "update-categories-graph",
+        "update-references",
+        "update-topic-contributions",
+        "create-user-months",
+        "batch-jobs"
+    ]
+
     return <div className={"pt-16 space-y-8"}>
         <AdminSection title="Enviar POST">
             <div className={"flex space-x-4 justify-center"}>
@@ -25,6 +35,22 @@ export const AdminPrincipal = () => {
                     onChange={(e) => {setRoute(e.target.value)}}
                 />
                 <StateButton handleClick={onSendPost} text1={"Enviar"}/>
+            </div>
+            <div className={"space-y-2"}>
+                <div className={"text-[var(--text-light)]"}>
+                    Sugerencias
+                </div>
+                <div className={"space-y-2 flex flex-col pb-2 font-mono"}>
+                    {suggestions.map((s, i) => {
+                        return <div
+                            key={i}
+                            className={"p-2 bg-[var(--background-dark)] hover:bg-[var(--background-dark2)] rounded cursor-pointer"}
+                            onClick={() => {setRoute(`/${s}`)}}
+                        >
+                            {s}
+                        </div>
+                    })}
+                </div>
             </div>
         </AdminSection>
     </div>
