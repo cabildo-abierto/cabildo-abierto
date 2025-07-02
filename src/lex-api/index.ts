@@ -21,6 +21,9 @@ import * as ArCabildoabiertoFeedGetFeed from './types/ar/cabildoabierto/feed/get
 import * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion'
 import * as ArCabildoabiertoWikiVoteAccept from './types/ar/cabildoabierto/wiki/voteAccept'
 import * as ArCabildoabiertoWikiVoteReject from './types/ar/cabildoabierto/wiki/voteReject'
+import * as ArCabildoabiertoNotificationGetUnreadCount from './types/ar/cabildoabierto/notification/getUnreadCount'
+import * as ArCabildoabiertoNotificationListNotifications from './types/ar/cabildoabierto/notification/listNotifications'
+import * as ArCabildoabiertoNotificationUpdateSeen from './types/ar/cabildoabierto/notification/updateSeen'
 import * as ComAtprotoAdminDefs from './types/com/atproto/admin/defs'
 import * as ComAtprotoAdminDeleteAccount from './types/com/atproto/admin/deleteAccount'
 import * as ComAtprotoAdminDisableAccountInvites from './types/com/atproto/admin/disableAccountInvites'
@@ -236,6 +239,9 @@ export * as ArCabildoabiertoFeedGetFeed from './types/ar/cabildoabierto/feed/get
 export * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion'
 export * as ArCabildoabiertoWikiVoteAccept from './types/ar/cabildoabierto/wiki/voteAccept'
 export * as ArCabildoabiertoWikiVoteReject from './types/ar/cabildoabierto/wiki/voteReject'
+export * as ArCabildoabiertoNotificationGetUnreadCount from './types/ar/cabildoabierto/notification/getUnreadCount'
+export * as ArCabildoabiertoNotificationListNotifications from './types/ar/cabildoabierto/notification/listNotifications'
+export * as ArCabildoabiertoNotificationUpdateSeen from './types/ar/cabildoabierto/notification/updateSeen'
 export * as ComAtprotoAdminDefs from './types/com/atproto/admin/defs'
 export * as ComAtprotoAdminDeleteAccount from './types/com/atproto/admin/deleteAccount'
 export * as ComAtprotoAdminDisableAccountInvites from './types/com/atproto/admin/disableAccountInvites'
@@ -507,6 +513,7 @@ export class ArCabildoabiertoNS {
   embed: ArCabildoabiertoEmbedNS
   feed: ArCabildoabiertoFeedNS
   wiki: ArCabildoabiertoWikiNS
+  notification: ArCabildoabiertoNotificationNS
 
   constructor(client: XrpcClient) {
     this._client = client
@@ -515,6 +522,7 @@ export class ArCabildoabiertoNS {
     this.embed = new ArCabildoabiertoEmbedNS(client)
     this.feed = new ArCabildoabiertoFeedNS(client)
     this.wiki = new ArCabildoabiertoWikiNS(client)
+    this.notification = new ArCabildoabiertoNotificationNS(client)
   }
 }
 
@@ -972,6 +980,50 @@ export class VoteRejectRecord {
       undefined,
       { collection: 'ar.cabildoabierto.wiki.voteReject', ...params },
       { headers },
+    )
+  }
+}
+
+export class ArCabildoabiertoNotificationNS {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  getUnreadCount(
+    params?: ArCabildoabiertoNotificationGetUnreadCount.QueryParams,
+    opts?: ArCabildoabiertoNotificationGetUnreadCount.CallOptions,
+  ): Promise<ArCabildoabiertoNotificationGetUnreadCount.Response> {
+    return this._client.call(
+      'ar.cabildoabierto.notification.getUnreadCount',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  listNotifications(
+    params?: ArCabildoabiertoNotificationListNotifications.QueryParams,
+    opts?: ArCabildoabiertoNotificationListNotifications.CallOptions,
+  ): Promise<ArCabildoabiertoNotificationListNotifications.Response> {
+    return this._client.call(
+      'ar.cabildoabierto.notification.listNotifications',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  updateSeen(
+    data?: ArCabildoabiertoNotificationUpdateSeen.InputSchema,
+    opts?: ArCabildoabiertoNotificationUpdateSeen.CallOptions,
+  ): Promise<ArCabildoabiertoNotificationUpdateSeen.Response> {
+    return this._client.call(
+      'ar.cabildoabierto.notification.updateSeen',
+      opts?.qp,
+      data,
+      opts,
     )
   }
 }

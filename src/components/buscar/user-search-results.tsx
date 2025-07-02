@@ -8,7 +8,11 @@ import UserSearchResult from "@/components/buscar/user-search-result";
 import {useQuery} from "@tanstack/react-query";
 
 async function searchUsers(query: string) {
-    return (await get<ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
+    if(encodeURIComponent(query).trim().length > 0){
+        return (await get<ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
+    } else {
+        return []
+    }
 }
 
 const UserSearchResults = ({

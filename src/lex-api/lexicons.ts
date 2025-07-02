@@ -1487,6 +1487,195 @@ export const schemaDict = {
       },
     },
   },
+  ArCabildoabiertoNotificationGetUnreadCount: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.notification.getUnreadCount',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Count the number of unread notifications for the requesting account. Requires auth.',
+        parameters: {
+          type: 'params',
+          properties: {
+            priority: {
+              type: 'boolean',
+            },
+            seenAt: {
+              type: 'string',
+              format: 'datetime',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['count'],
+            properties: {
+              count: {
+                type: 'integer',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoNotificationListNotifications: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.notification.listNotifications',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Enumerate notifications for the requesting account. Requires auth.',
+        parameters: {
+          type: 'params',
+          properties: {
+            reasons: {
+              description: 'Notification reasons to include in response.',
+              type: 'array',
+              items: {
+                type: 'string',
+                description:
+                  'A reason that matches the reason property of #notification.',
+              },
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 100,
+              default: 50,
+            },
+            priority: {
+              type: 'boolean',
+            },
+            cursor: {
+              type: 'string',
+            },
+            seenAt: {
+              type: 'string',
+              format: 'datetime',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['notifications'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              notifications: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:ar.cabildoabierto.notification.listNotifications#notification',
+                },
+              },
+              priority: {
+                type: 'boolean',
+              },
+              seenAt: {
+                type: 'string',
+                format: 'datetime',
+              },
+            },
+          },
+        },
+      },
+      notification: {
+        type: 'object',
+        required: [
+          'uri',
+          'cid',
+          'author',
+          'reason',
+          'record',
+          'isRead',
+          'indexedAt',
+        ],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileView',
+          },
+          reason: {
+            type: 'string',
+            description:
+              "Expected values are 'like', 'repost', 'follow', 'mention', 'reply', 'quote', and 'starterpack-joined'.",
+            knownValues: [
+              'like',
+              'repost',
+              'follow',
+              'mention',
+              'reply',
+              'quote',
+              'starterpack-joined',
+              'topic-edit',
+              'topic-version-vote',
+            ],
+          },
+          reasonSubject: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          record: {
+            type: 'unknown',
+          },
+          isRead: {
+            type: 'boolean',
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoNotificationUpdateSeen: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.notification.updateSeen',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Notify server that the requesting account has seen notifications. Requires auth.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['seenAt'],
+            properties: {
+              seenAt: {
+                type: 'string',
+                format: 'datetime',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
   ComAtprotoAdminDefs: {
     lexicon: 1,
     id: 'com.atproto.admin.defs',
@@ -13156,6 +13345,12 @@ export const ids = {
   ArCabildoabiertoWikiTopicVersion: 'ar.cabildoabierto.wiki.topicVersion',
   ArCabildoabiertoWikiVoteAccept: 'ar.cabildoabierto.wiki.voteAccept',
   ArCabildoabiertoWikiVoteReject: 'ar.cabildoabierto.wiki.voteReject',
+  ArCabildoabiertoNotificationGetUnreadCount:
+    'ar.cabildoabierto.notification.getUnreadCount',
+  ArCabildoabiertoNotificationListNotifications:
+    'ar.cabildoabierto.notification.listNotifications',
+  ArCabildoabiertoNotificationUpdateSeen:
+    'ar.cabildoabierto.notification.updateSeen',
   ComAtprotoAdminDefs: 'com.atproto.admin.defs',
   ComAtprotoAdminDeleteAccount: 'com.atproto.admin.deleteAccount',
   ComAtprotoAdminDisableAccountInvites:

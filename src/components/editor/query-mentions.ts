@@ -11,7 +11,9 @@ function profileViewBasicToMentionProps(p: ProfileViewBasic): MentionProps {
 }
 
 export const queryMentions: QueryMentionsProps = async (trigger, query) => {
-    const {error, data} = await get<ProfileViewBasic[]>(`/search-users/${query}`)
+    const encodedQuery = encodeURIComponent(query)
+    if(encodedQuery.trim().length == 0) return []
+    const {error, data} = await get<ProfileViewBasic[]>(`/search-users/${encodedQuery}`)
     if(error || !data) return []
     return data.map(profileViewBasicToMentionProps)
 }

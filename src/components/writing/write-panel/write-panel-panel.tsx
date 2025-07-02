@@ -56,10 +56,11 @@ const WritePanelPanel = ({
                     backgroundColor: isSelected ? "var(--background-dark2)" : "transparent",
                     ":hover": {
                         backgroundColor: "var(--background-dark2)"
-                    }
+                    },
+                    borderRadius: 10
                 }}
             >
-                <div className={"text-[var(--text-light)]"}>
+                <div className={"text-[var(--text-light)] font-semibold px-2"}>
                     {o}
                 </div>
             </Button>

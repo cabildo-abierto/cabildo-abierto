@@ -134,6 +134,7 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
                     disabled={!validExplanation(message)}
                     disableElevation={true}
                     text1="Confirmar"
+                    textClassName={"font-semibold text-[13px]"}
                 />
             </div>
         </div>

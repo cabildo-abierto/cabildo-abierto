@@ -1,10 +1,11 @@
 import {Notification as BskyNotification} from "@/lex-api/types/app/bsky/notification/listNotifications"
+import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/notification/listNotifications"
 import {getUsername} from "@/utils/utils";
 import {ProfileView} from "@/lex-api/types/app/bsky/actor/defs";
 import UserSummaryOnHover from "@/components/profile/user-summary";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {AtIcon, UserPlusIcon} from "@phosphor-icons/react";
+import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
 import {HeartIcon} from "@phosphor-icons/react";
 import {QuotesIcon} from "@phosphor-icons/react";
 import {RepeatIcon, ChatTextIcon} from "@phosphor-icons/react";
@@ -15,10 +16,11 @@ import {
     contentUrl,
     getCollectionFromUri,
     getDidFromUri,
-    profileUrl
+    profileUrl, topicUrl
 } from "@/utils/uri";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
+import TopicsIcon from "@/components/icons/topics-icon";
 
 const Username = ({user}: { user: ProfileView }) => {
     return <span className={"font-bold hover:underline"}>
@@ -35,7 +37,7 @@ const NotificationCardFrame = ({read, reasonIcon, children, href}: {
 }) => {
     const router = useRouter()
     return <div
-        className={"border-b h-24 px-4 flex space-x-4 py-2 cursor-pointer hover:bg-[var(--background-dark)] " + (!read ? "bg-[var(--background-dark)]" : "")}
+        className={"border-b h-24 px-4 flex space-x-4 py-2 text-[var(--text)] cursor-pointer hover:bg-[var(--background-dark)] " + (!read ? "bg-[var(--background-dark)]" : "")}
         onClick={() => {
             if (href) router.push(href)
         }}
@@ -50,7 +52,7 @@ const NotificationCardFrame = ({read, reasonIcon, children, href}: {
 
 
 const UserNotificationCard = ({notification, children, reasonIcon, href}: {
-    notification: BskyNotification, children: ReactNode, reasonIcon: ReactNode, href?: string
+    notification: CANotification, children: ReactNode, reasonIcon: ReactNode, href?: string
 }) => {
     return <NotificationCardFrame
         read={notification.isRead}
@@ -86,7 +88,7 @@ const ContentMention = ({uri, article}: { uri: string, article: ArticleKind }) =
     if (!uri) return "[contenido no encontrado]"
     return <Link
         href={contentUrl(uri)}
-        className={"lowercase text-[var(--text-light)] hover:underline"}
+        className={"lowercase font-semibold hover:underline"}
         onClick={(e) => {
             e.stopPropagation()
         }}
@@ -96,7 +98,7 @@ const ContentMention = ({uri, article}: { uri: string, article: ArticleKind }) =
 }
 
 
-export const NotificationCard = ({notification}: { notification: BskyNotification }) => {
+export const NotificationCard = ({notification}: { notification: CANotification }) => {
     if (notification.reason == "follow") {
         return <UserNotificationCard
             notification={notification}
@@ -138,15 +140,15 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
         return <UserNotificationCard
             notification={notification}
             reasonIcon={<ChatTextIcon size={24}/>}
-            href={notification.uri}
+            href={contentUrl(notification.reasonSubject ?? notification.uri)}
         >
             <Username user={notification.author}/> <Link
-                className={"text-[var(--text-light)] hover:underline"}
-                href={contentUrl(notification.uri)}
-                onClick={(e) => {
-                    e.stopPropagation()
-                }}
-            >respondió</Link> a <ContentMention uri={notification.reasonSubject} article={"author"}/>.
+            className={"text-[var(--text-light)] hover:underline"}
+            href={contentUrl(notification.uri)}
+            onClick={(e) => {
+                e.stopPropagation()
+            }}
+        >respondió</Link> a <ContentMention uri={notification.reasonSubject} article={"author"}/>.
         </UserNotificationCard>
     } else if (notification.reason == "mention") {
         return <UserNotificationCard
@@ -154,9 +156,37 @@ export const NotificationCard = ({notification}: { notification: BskyNotificatio
             reasonIcon={<AtIcon size={24}/>}
             href={notification.uri}
         >
-            <Username user={notification.author}/> te mencionó en <ContentMention uri={notification.uri} article={"not-author"}/>.
+            <Username user={notification.author}/> te mencionó en <ContentMention uri={notification.uri}
+                                                                                  article={"not-author"}/>.
         </UserNotificationCard>
+    } else if (notification.reason == "topic-edit") {
+        const topicId = notification.reasonSubject
+        return <UserNotificationCard
+            notification={notification}
+            reasonIcon={<TopicsIcon outlined={false} fontSize={24}/>}
+            href={notification.uri}
+        >
+            <Username user={notification.author}/> editó el tema <Link className="font-semibold hover:underline"
+                                                                       href={topicUrl(topicId)}>{topicId}</Link>, que
+            vos también edistaste.
+        </UserNotificationCard>
+    } else if (notification.reason == "topic-version-vote") {
+        const topicId = notification.reasonSubject
+        const accept = getCollectionFromUri(notification.uri) == "ar.cabildoabierto.wiki.voteAccept"
+        return <UserNotificationCard
+            notification={notification}
+            reasonIcon={accept ? <CheckIcon fontSize={24}/> : <XIcon fontSize={24}/>}
+            href={notification.uri}
+        >
+            <Username user={notification.author}/> {accept ? "validó" : "rechazó"} tu edición del tema <Link
+                className="font-semibold hover:underline"
+                href={topicUrl(topicId)}>
+                {topicId}
+            </Link>.
+        </UserNotificationCard>
+    } else {
+        return <div className={"p-2 text-center text-[var(--text-light)]"}>
+            Notificación desconocida
+        </div>
     }
-
-    return null
 }
