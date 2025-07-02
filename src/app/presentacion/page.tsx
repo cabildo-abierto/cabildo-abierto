@@ -233,7 +233,8 @@ const PresentacionAbierto = () => {
         <p>
             Cabildo Abierto usa <span className={""}>AT</span><span
             className={""}>Protocol</span>, un sistema de redes sociales
-            descentralizadas que permite que nadie más que vos sea dueño de tus datos y facilita la libre competencia entre plataformas.
+            descentralizadas que permite que nadie más que vos sea dueño de tus datos y facilita la libre competencia
+            entre plataformas.
         </p>
         <p>
             Además, el código de Cabildo Abierto es público, para que cualquiera lo pueda revisar.

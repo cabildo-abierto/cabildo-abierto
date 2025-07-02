@@ -26,7 +26,11 @@ export const CategorySelector = ({categories, setCategories}: {
 
     function onClick(c: string){
         if(!categories.includes(c)){
-            setCategories([...categories, c])
+            if(c == "Sin categoría"){
+                setCategories([c])
+            } else {
+                setCategories([...categories.filter(x => x != "Sin categoría"), c])
+            }
         } else {
             setCategories(categories.filter(cat => cat != c))
         }

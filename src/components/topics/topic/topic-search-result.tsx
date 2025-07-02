@@ -38,8 +38,8 @@ const TopicSearchResult = ({topic, index}: { topic: TopicViewBasic, index?: numb
                 <div className={"flex space-x-1 items-center text-xs text-[var(--text-light)]"}>
                     {index != undefined ? <div className={""}>
                         {index + 1}
-                    </div> : <div/>}
-                    {categories && categories.length > 0 && <div>
+                    </div> : null}
+                    {categories && categories.length > 0 && index != undefined && <div>
                         -
                     </div>}
                     <TopicCategories

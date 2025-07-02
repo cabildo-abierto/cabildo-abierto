@@ -37,7 +37,7 @@ const TrendingTopicsSlider = ({trendingArticles}: {
                         maxCount={1}
                     />
 
-                    <div className={"font-semibold w-full text-[15px] " + (hovering == index ? "" : "truncate")}>
+                    <div className={"font-semibold w-full max-w-[225px] text-[15px] " + (hovering == index ? "" : "truncate")}>
                         {title}
                     </div>
 
