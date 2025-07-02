@@ -41,7 +41,7 @@ const TrendingTopicsSlider = ({trendingArticles}: {
                         {title}
                     </div>
 
-                    {topic.popularity && <TopicPopularity count={topic.popularity[0]}/>}
+                    {topic.popularity && <TopicPopularity count={topic.popularity[0]} paddingBottom={2}/>}
                 </div>
             })}
             <Link href={"/temas"} className={"hover:bg-[var(--background-dark2)] rounded-b-lg text-sm text-[var(--text-light)] px-5 py-1"}>

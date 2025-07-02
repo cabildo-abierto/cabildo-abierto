@@ -76,7 +76,9 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
                     }}
                     id={"write-button"}
                 >
-                    Escribir
+                    <span className={"font-bold text-[14px]"}>
+                        Escribir
+                    </span>
                 </Button> :
                 <IconButton
                     color={"primary"}

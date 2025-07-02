@@ -36,6 +36,14 @@ export const BaseFullscreenPopup = ({
             disableEnforceFocus={true}
             disableScrollLock={disableScrollLock}
             className={"flex justify-center items-center"}
+            slotProps={{
+                root: {
+                    style: {
+                        overflow: 'visible', // 👈 allow dropdowns to show
+                        zIndex: 1300,        // 👈 match default MUI modal layering
+                    }
+                }
+            }}
             BackdropProps={{
                 style: {
                     backgroundColor: backgroundShadow ? "rgba(0, 0, 0, 0.5)" : "transparent",

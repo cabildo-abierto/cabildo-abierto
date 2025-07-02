@@ -58,16 +58,16 @@ export const CreateTopic = ({onClose, initialSelected="none", backButton=true}: 
             <div className={"flex space-x-8 h-full"}>
                 <Link href={"/temas?view=lista"} onClick={onClose}>
                     <Button
-                        sx={{width: "128px"}}
+                        sx={{width: "150px"}}
                     >
-                        Editar un tema
+                        <span className={"font-bold"}>Editar un tema</span>
                     </Button>
                 </Link>
                 <Button
                     onClick={() => {setSelected("new")}}
-                    sx={{width: "128px"}}
+                    sx={{width: "150px"}}
                 >
-                    Nuevo tema
+                    <span className={"font-bold"}>Nuevo tema</span>
                 </Button>
             </div>
         </div>

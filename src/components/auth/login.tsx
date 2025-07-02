@@ -131,7 +131,7 @@ export const Login = () => {
                     <Button color="background-dark2" size={"large"} fullWidth={true} onClick={() => {
                         setWantsAccess(true)
                     }}>
-                        <span className={"font-bold text-[13px]"}>Solicitar acceso al período de prueba</span>
+                        <span className={"font-bold text-[13px]"}>Quiero participar en el período de prueba</span>
                     </Button>
                 </div>}
 

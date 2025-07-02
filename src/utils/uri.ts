@@ -166,7 +166,7 @@ export function collectionToDisplay(c: string, article: ArticleKind = "none"){
     } else if (isArticle(c)){
         return artStr + "Artículo"
     } else if (isTopicVersion(c)){
-        return artStr + "Tema"
+        return artStr + "versión de un tema"
     } else if (isDataset(c)){
         return artStr + "Conjunto de datos"
     } else if (isVisualization(c)){

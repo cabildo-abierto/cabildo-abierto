@@ -1,8 +1,4 @@
 "use client"
-import {IconButton} from "../../../../modules/ui-utils/src/icon-button"
-import MenuIcon from "@mui/icons-material/Menu";
-import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import {useNotifications} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NotificationCard} from "@/components/notification/notification-card";

@@ -29,7 +29,7 @@ export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
             <div className={"max-[500px]:hidden"}>
                 <BackButton defaultURL={defaultBackHref}/>
             </div>
-            <div className={"font-bold text-lg"}>
+            <div className={"font-extrabold text-lg"}>
                 {title}
             </div>
         </div>

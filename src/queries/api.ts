@@ -14,7 +14,7 @@ import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/d
 import {ValidationRequestView} from "@/components/admin/admin-validation";
 import {DonationHistory} from "@/components/aportar/donation-history";
 import {StatsDashboard} from "@/components/admin/stats";
-import {Notification as BskyNotification} from "@/lex-api/types/app/bsky/notification/listNotifications"
+import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/notification/listNotifications"
 import {ConvoView} from "@atproto/api/src/client/types/chat/bsky/convo/defs";
 import {$Typed} from "@atproto/api";
 import {DeletedMessageView, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
@@ -85,9 +85,6 @@ export const useThread = (uri: string) => {
 export const useTrendingTopics = () => {
     return useAPI<TopicViewBasic[]>("/trending-topics", ["trending-topics"])
 }
-
-
-export type FeedKind = "discusion" | "siguiendo" | "descubrir"
 
 
 export function useProfile(handle: string) {
@@ -194,7 +191,7 @@ export function useStatsDashboard() {
 
 
 export function useNotifications() {
-    return useAPI<BskyNotification[]>("/notifications/list", ["notifications"])
+    return useAPI<CANotification[]>("/notifications/list", ["notifications"])
 }
 
 
