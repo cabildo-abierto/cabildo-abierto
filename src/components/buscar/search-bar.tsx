@@ -38,7 +38,6 @@ const SearchBar = ({
         variant={"outlined"}
         placeholder={placeholder}
         onFocus={() => {setSearching(true)}}
-        onBlur={() => {setSearching(false)}}
         onChange={(e) => {setSearchValue(e.target.value)}}
         slotProps={{
             input: {

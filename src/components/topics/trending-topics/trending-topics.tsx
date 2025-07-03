@@ -42,7 +42,7 @@ export const TrendingTopicsPanel = () => {
                 className={"text-xs font-bold flex items-center w-full space-x-1"}
             >
                 <TopicsIcon fontSize={12}/>
-                <span>En agenda</span>
+                <span>Temas en tendencia</span>
             </div>
         </div>
         {topics ?

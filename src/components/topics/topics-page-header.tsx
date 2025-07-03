@@ -53,8 +53,10 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
     const searchBar = <MainSearchBar
         autoFocus={false}
         paddingY={"5px"}
-        placeholder={"buscar un tema"}
+        placeholder={"buscar"}
     />
+
+    const currentView = view ? view : "lista"
 
     return <div className="flex justify-between px-2 items-center space-x-1">
         {!onlySearchBar && <div className={"flex space-x-2 flex-1"}>
@@ -64,16 +66,16 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
                     setSearchState({value: "", searching: false})
                 }}
                 options={["lista", "mapa"]}
-                selected={view ? view : "lista"}
+                selected={currentView}
                 optionsNodes={optionsNodes}
                 className="flex space-x-2"
             />
-            <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy}/>
-            <DescriptionOnHover description={"Habilitar la selección múltiple para obtener la intersección de las categorías."}>
+            <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy} disabled={currentView == "mapa"}/>
+            <DescriptionOnHover description={"Habilitar la selección múltiple de categorías."}>
                 <IconButton
                     size={"small"}
                     onClick={() => setMultipleEnabled(!multipleEnabled)}
-                    color={!multipleEnabled ? "transparent" : "background-dark"}>
+                    color={!multipleEnabled ? "transparent" : "background-dark3"}>
                     <StackIcon/>
                 </IconButton>
             </DescriptionOnHover>

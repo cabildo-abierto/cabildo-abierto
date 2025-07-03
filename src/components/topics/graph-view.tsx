@@ -53,7 +53,7 @@ const Node = ({node, onClickNode, nodeWidth, nodeHeight, showText}: {
                 {node.id.length > 60 ? node.id.slice(0, 40) + "..." : node.id}
             </div>
             {categorySize != undefined && <div className={"text-xs text-[var(--text-light)]"}>
-                {categorySize} temas.
+                {categorySize} {categorySize == 1 ? "tema" : "temas"}.
             </div>}
             </>}
         </div>
