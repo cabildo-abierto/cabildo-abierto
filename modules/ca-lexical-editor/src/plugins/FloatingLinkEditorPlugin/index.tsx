@@ -46,9 +46,15 @@ import { IconButton } from '../../../../ui-utils/src/icon-button';
 
 
 async function searchTopics(query: string) {
+    if(query.trim().length == 0 || query.startsWith("/")) return []
     const {error, data} = await get<TopicViewBasic[]>(`/search-topics/${query}`)
     if(error) return []
     return data
+}
+
+
+function encodeParentheses(s: string){
+    return s.replaceAll("(", "%28").replaceAll(")", "%29")
 }
 
 
@@ -66,7 +72,7 @@ const SearchResults = ({results, setValue}: {results: TopicViewBasic[] | "loadin
                 key={topic.id}
                 className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
                 onClick={() => {
-                    setValue(topicUrl(topic.id))
+                    setValue(encodeParentheses(topicUrl(topic.id)))
                 }}
             >
                 {getTopicTitle(topic)}
@@ -126,10 +132,8 @@ function FloatingLinkEditor({
     const $updateLinkEditor = useCallback(async () => {
         if(!isLink) return
 
-        console.log("updating link editor")
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
-            console.log("range selection")
             const node = getSelectedNode(selection);
             const linkParent = $findMatchingParent(node, $isLinkNode);
             if (linkParent) {
@@ -140,7 +144,9 @@ function FloatingLinkEditor({
                 setLinkUrl('');
             }
             if (isLinkEditMode) {
-                setEditedLinkUrl(linkUrl)
+                if(!editedLinkUrl || editedLinkUrl.length == 0) {
+                    setEditedLinkUrl(linkUrl)
+                }
             }
         }
         const editorElem = editorRef.current;
@@ -148,12 +154,10 @@ function FloatingLinkEditor({
         const activeElement = document.activeElement;
 
         if (editorElem === null) {
-            console.log("no editor elem")
             return;
         }
 
-        const rootElement = editor.getRootElement();
-        console.log("got root")
+        const rootElement = editor.getRootElement()
         if (
             selection !== null &&
             nativeSelection !== null &&
@@ -161,10 +165,8 @@ function FloatingLinkEditor({
             rootElement.contains(nativeSelection.anchorNode) &&
             editor.isEditable()
         ) {
-            console.log("editable")
             const domRect: DOMRect | undefined =
                 nativeSelection.focusNode?.parentElement?.getBoundingClientRect();
-            console.log("domRect", domRect);
             if (domRect) {
                 domRect.y += 40;
                 setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);

@@ -47,7 +47,10 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
             qc.cancelQueries(contentQueriesFilter(uri))
             onClose()
         },
-        onSettled: async () => {
+        onSettled: async (res) => {
+            if(res.error){
+                console.error(res.error)
+            }
             qc.invalidateQueries(contentQueriesFilter(uri))
         },
     })
