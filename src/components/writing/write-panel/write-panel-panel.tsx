@@ -34,7 +34,7 @@ const WritePanelPanel = ({
                              quotedPost,
                              handleSubmit
                          }: WritePanelProps) => {
-    const [selected, setSelected] = useState("Post")
+    const [selected, setSelected] = useState("Publicación")
     const router = useRouter()
     const [hidden, setHidden] = useState(false)
 
@@ -91,7 +91,7 @@ const WritePanelPanel = ({
                         onClose()
                     }}/>
                 </div>
-                {selected == "Post" && <WritePost
+                {selected == "Publicación" && <WritePost
                     onClose={onClose}
                     replyTo={replyTo}
                     selection={selection}
