@@ -94,7 +94,7 @@ export function useProfile(handle: string) {
 
 export function useFollowx(handle: string, kind: FollowKind) {
     const route = kind == "seguidores" ? "followers" : "follows"
-    return useAPI<ProfileViewBasic[]>(`/${route}/` + handle, [kind, handle])
+    return useAPI<ProfileViewBasic[]>(`/${route}/` + handle, [route, handle])
 }
 
 

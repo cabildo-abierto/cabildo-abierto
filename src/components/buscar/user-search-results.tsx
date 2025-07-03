@@ -15,23 +15,8 @@ async function searchUsers(query: string) {
     }
 }
 
-const UserSearchResults = ({
-                               maxCount,
-                               showSearchButton = true,
-                               searchState,
-                               onClickResult,
-                               goToProfile = true,
-                               showFollowButton = true,
-                               splitBluesky = true
-                           }: {
-    searchState: { value: string, searching: boolean }
-    maxCount?: number
-    showSearchButton?: boolean
-    onClickResult?: (did: string) => (Promise<void> | void)
-    showFollowButton?: boolean
-    splitBluesky?: boolean
-    goToProfile?: boolean
-}) => {
+
+export const useSearchUsers = (searchState: {value: string, searching: boolean}) => {
     const [debouncedQuery, setDebouncedQuery] = useState("");
 
     useEffect(() => {
@@ -54,7 +39,30 @@ const UserSearchResults = ({
         queryFn: () => searchUsers(debouncedQuery),
         enabled: debouncedQuery.length > 0,
         select: (data) => data,
-    });
+    })
+
+    return {results, isLoading, isError, error}
+}
+
+
+const UserSearchResults = ({
+                               maxCount,
+                               showSearchButton = true,
+                               searchState,
+                               onClickResult,
+                               goToProfile = true,
+                               showFollowButton = true,
+                               splitBluesky = true
+                           }: {
+    searchState: { value: string, searching: boolean }
+    maxCount?: number
+    showSearchButton?: boolean
+    onClickResult?: (did: string) => (Promise<void> | void)
+    showFollowButton?: boolean
+    splitBluesky?: boolean
+    goToProfile?: boolean
+}) => {
+    const {results, isLoading, isError, error} = useSearchUsers(searchState)
 
     if (searchState.value.length == 0) {
         return (

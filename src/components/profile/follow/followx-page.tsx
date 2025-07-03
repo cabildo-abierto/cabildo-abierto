@@ -44,7 +44,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
         </div>
     }
 
-    return <div>
+    return <div className={"pb-32"}>
         <div className={"flex flex-col items-start border-b w-full"}>
             <div className={"flex space-x-2 py-2 items-center"}>
                 <BackButton/>

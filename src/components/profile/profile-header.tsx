@@ -116,7 +116,7 @@ function ProfileHeader({
                 {emptyChar}
             </div>}
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between pr-1">
             <div className="ml-2 py-2">
                 <div className={"flex space-x-2 items-center"}>
                     <span className={"min-[500px]:text-2xl text-lg font-bold"}>

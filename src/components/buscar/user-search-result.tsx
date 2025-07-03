@@ -19,7 +19,7 @@ type UserSearchResultProps = {
 }
 
 
-const UserSearchResult = ({user, showFollowButton=true, goToProfile, onClick}: UserSearchResultProps) => {
+const UserSearchResult = ({user, showFollowButton=true, goToProfile=true, onClick}: UserSearchResultProps) => {
 
     return <Link
         href={profileUrl(user.handle)}

@@ -40,6 +40,7 @@ export const TrendingTopicsPanel = () => {
         <div className="flex justify-between pt-3 px-3 items-center w-full">
             <div
                 className={"text-xs font-bold flex items-center w-full space-x-1"}
+                id={"trending-topics"}
             >
                 <TopicsIcon fontSize={12}/>
                 <span>Temas en tendencia</span>
