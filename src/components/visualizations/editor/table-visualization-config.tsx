@@ -56,9 +56,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                         }
                     }
                 } else {
-                    console.log("searching to remove", c)
                     const index = draft.spec.columns.findIndex(c2 => c2.columnName == c)
-                    console.log("got index", index)
                     if(index != -1){
                         console.log("removing index")
                         draft.spec.columns.splice(index, 1)

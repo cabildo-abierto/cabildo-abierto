@@ -24,7 +24,7 @@ const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) =
 
 export type FeedProps<T> = {
     loadWhenRemaining?: number
-    noResultsText: string
+    noResultsText: ReactNode
     endText: string
     getFeed: GetFeedProps<T>
     LoadingFeedContent?: ReactNode

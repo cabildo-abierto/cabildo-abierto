@@ -16,6 +16,9 @@ const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true, placehold
         setSearchValue={(v: string) => {
             setSearchState({value: v, searching: true});
         }}
+        setSearching={(v: boolean) => {
+            setSearchState({value: v ? searchState.value : "", searching: v})
+        }}
         autoFocus={autoFocus}
         paddingY={paddingY}
         fullWidth={fullWidth}

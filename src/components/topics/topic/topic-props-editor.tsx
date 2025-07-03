@@ -68,7 +68,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             setItems={(values: string[]) => {
                 setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
             }}
-            options={p.name == "Categorías" ? categories?.map(c => c.category) : []}
+            options={p.name == "Categorías" && categories ? categories : []}
         />}
         {isStringProp(p.value) && <TextField
             value={p.value.value}

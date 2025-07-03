@@ -1,17 +1,12 @@
-"use client"
-import {useSearchParams} from "next/navigation";
 import {CategoriesMap} from "./categories-map";
 import {CategoryMap} from "./category-map";
 
 
 
-export const TopicsMapView = () => {
-    const searchParams = useSearchParams()
+export const TopicsMapView = ({categories}: {categories: string[]}) => {
 
-    const c = searchParams.get("c")
-
-    if(c){
-        return <CategoryMap c={c}/>
+    if(categories.length > 0){
+        return <CategoryMap categories={categories}/>
     } else {
         return <CategoriesMap/>
     }

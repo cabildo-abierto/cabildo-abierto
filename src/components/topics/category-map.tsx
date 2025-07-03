@@ -8,21 +8,15 @@ import dynamic from "next/dynamic";
 
 const Graph = dynamic(() => import("./graph-view"));
 
-export const CategoryMap = ({c}: {c: string}) => {
+export const CategoryMap = ({categories}: {categories: string[]}) => {
     const router = useRouter()
-    const {data: graph, isLoading, error} = useCategoryGraph(c)
+    const {data: graph, isLoading, error} = useCategoryGraph(categories)
 
     function onClickNode(nodeId: string){
         router.push(topicUrl(nodeId))
     }
 
     return <div className={"mt-12 ml-6 space-y-8 mb-8"}>
-        <div className={"flex space-x-2 items-center text-[var(--text-light)] justify-center"}>
-            <BackButton defaultURL={"/temas?view=mapa"} preferReferrer={false}/>
-            <div className={"text-lg font-bold"}>
-                {c}
-            </div>
-        </div>
         {graph && <Graph
             onClickNode={onClickNode}
             graph={graph}
