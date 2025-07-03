@@ -25,9 +25,6 @@ export const CategoriesMap = () => {
     }
 
     return <div className={"space-y-8 mb-8"}>
-        <div className={"mt-12 w-full flex justify-center max-[500px]:text-lg font-bold text-xl text-[var(--text-light)]"}>
-            Categorías
-        </div>
         {graph && <Graph
             onClickNode={onClickNode}
             graph={graph}

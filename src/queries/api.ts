@@ -129,8 +129,9 @@ export function useTopics(categories: string[], sortedBy: "popular" | "recent") 
 
 
 export function useCategories() {
-    return useAPI<{category: string, size: number}[]>("/categories", ["categories"])
+    return useAPI<string[]>("/categories", ["categories"])
 }
+
 
 
 export function useTopicHistory(id: string) {
@@ -170,8 +171,9 @@ export function useCategoriesGraph() {
 }
 
 
-export function useCategoryGraph(c: string) {
-    return useAPI<TopicsGraph>("/category-graph/" + c, ["category-graph", c])
+export function useCategoryGraph(categories: string[]) {
+    const query = categoriesSearchParam(categories)
+    return useAPI<TopicsGraph>("/category-graph?" + query, ["category-graph", categories.sort()])
 }
 
 

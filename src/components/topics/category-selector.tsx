@@ -6,12 +6,21 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
 
 
-export const CategorySelector = ({categories, setCategories}: {
-    categories: string[], setCategories: (c: string[]) => void
+export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
+    categories: string[]
+    setCategories: (c: string[]) => void
+    multipleEnabled: boolean
 }) => {
-    const {data: allCategories, isLoading, error} = useCategories()
+    let {data: allCategories, isLoading, error} = useCategories()
     const {layoutConfig} = useLayoutConfig()
     const [maxCount, setMaxCount] = useState(pxToNumber(layoutConfig.maxWidthCenter) < 600 ? 5 : 10)
+
+    if(allCategories && categories && categories.some(c => !allCategories.slice(0, maxCount).map(x => x).includes(c))){
+        allCategories = [
+            ...allCategories.filter(c => categories.includes(c)),
+            ...allCategories.filter(c => !categories.includes(c))
+        ]
+    }
 
     useEffect(() => {
         const defaultMaxCount = pxToNumber(layoutConfig.maxWidthCenter) < 600 ? 5 : 10
@@ -25,19 +34,19 @@ export const CategorySelector = ({categories, setCategories}: {
     }
 
     function onClick(c: string){
-        if(!categories.includes(c)){
-            if(c == "Sin categoría"){
+        if(categories.includes(c)){
+            setCategories(categories.filter(cat => cat != c))
+        } else {
+            if(!multipleEnabled || c == "Sin categoría"){
                 setCategories([c])
             } else {
                 setCategories([...categories.filter(x => x != "Sin categoría"), c])
             }
-        } else {
-            setCategories(categories.filter(cat => cat != c))
         }
     }
 
     return <div className={"flex flex-wrap items-center gap-x-2 gap-y-1 min-[500px]:text-sm text-[11px]"}>
-        {allCategories.slice(0, maxCount).map(({category: c}, index) => {
+        {allCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}
                 className={"rounded-lg px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-[var(--button-text)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)]")}

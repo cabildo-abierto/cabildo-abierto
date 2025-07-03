@@ -4,7 +4,7 @@ import Feed from "./feed";
 
 export type StaticFeedProps<T> = {
     loadWhenRemaining?: number
-    noResultsText: string
+    noResultsText: ReactNode
     endText: string
     initialContents: T[]
     LoadingFeedContent?: ReactNode
