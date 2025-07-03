@@ -1629,7 +1629,9 @@ export const schemaDict = {
           },
           reasonSubject: {
             type: 'string',
-            format: 'at-uri',
+          },
+          reasonSubjectContext: {
+            type: 'string',
           },
           record: {
             type: 'unknown',

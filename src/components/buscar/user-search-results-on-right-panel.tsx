@@ -22,28 +22,25 @@ const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) 
         className={"w-full max-w-[300px] mt-2"}
     >
         {showSearchButton && (
-            <form onSubmit={handleSubmit}>
-                <div className={""}>
-                    <Button
-                        onClick={handleSubmit}
-                        variant={"text"}
-                        color={"background-dark2"}
-                        type="submit"
-                        sx={{
-                            textTransform: "none",
-                            width: "100%",
-                            borderRadius: "0px",
-                            borderTopLeftRadius: "8px",
-                            borderTopRightRadius: "8px",
-                        }}
-                    >
-                        <div className={"space-x-1 w-full"}>
-                            <span>Buscar</span>
-                            <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
-                        </div>
-                    </Button>
-                </div>
-            </form>
+            <div className={""}>
+                <Button
+                    onClick={handleSubmit}
+                    variant={"text"}
+                    color={"background-dark2"}
+                    sx={{
+                        textTransform: "none",
+                        width: "100%",
+                        borderRadius: "0px",
+                        borderTopLeftRadius: "8px",
+                        borderTopRightRadius: "8px",
+                    }}
+                >
+                    <div className={"space-x-1 w-full"}>
+                        <span>Buscar</span>
+                        <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
+                    </div>
+                </Button>
+            </div>
         )}
         <UserSearchResults maxCount={6} searchState={searchState} onClickResult={onClickResult}/>
     </div>

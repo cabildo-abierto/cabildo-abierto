@@ -48,7 +48,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
                 }}
             >
                 <div
-                    className={"pb-1 pt-2 border-b-[4px] px-2 " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                    className={"font-semibold pb-1 pt-2 border-b-[4px] px-2 " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
