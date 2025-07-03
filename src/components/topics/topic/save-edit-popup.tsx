@@ -200,6 +200,7 @@ export const SaveEditPopup = ({
                         text1="Confirmar"
                         disabled={(diff.isLoading == false && !diff.diff) || diff.isLoading == true}
                         disableElevation={true}
+                        textClassName={"font-semibold"}
                     />
                 </div>
             </div>

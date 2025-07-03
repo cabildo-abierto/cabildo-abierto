@@ -76,34 +76,6 @@ const TopicContentExpandedViewContent = ({
     setEditor: (editor: LexicalEditor) => void
 }) => {
 
-    useEffect(() => {
-        if (!editor) return;
-
-        const timeoutId = setTimeout(() => {
-            async function refresh() {
-                const state = editor.getEditorState();
-                const jsonState = state.toJSON();
-                const markdown = editorStateToMarkdown(jsonState);
-                if (markdown.markdown.length === 0) return;
-
-                const refreshedState = markdownToEditorState(
-                    markdown.markdown,
-                    true,
-                    true,
-                    markdown.embeds,
-                    markdown.embedContexts
-                );
-                const parsedState = editor.parseEditorState(refreshedState);
-                editor.update(() => {
-                    editor.setEditorState(parsedState);
-                }, {discrete: true});
-            }
-
-            refresh();
-        }, 500);
-
-        return () => clearTimeout(timeoutId); // clean up on unmount or when editor changes
-    }, [editor]);
 
 
     return <>
