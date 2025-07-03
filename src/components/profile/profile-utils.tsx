@@ -7,6 +7,8 @@ import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
+import {Color, darker} from "../../../modules/ui-utils/src/button";
+import {useEffect} from "react";
 
 
 const follow = async ({did}: { did: string }) => {
@@ -28,16 +30,14 @@ function optimisticFollow(qc: QueryClient, handle: string) {
 
                 const k = q.queryKey
 
-                if (k[0] == "profile") {
+                if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as Profile, draft => {
                         draft.bsky.viewer.following = "optimistic-follow"
                         draft.bsky.followersCount++
-                        draft.bsky.followsCount++
                         draft.ca.followersCount++
-                        draft.ca.followsCount++
                     })
-                } else if (k[0] == "user-search") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
@@ -60,16 +60,14 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
 
                 const k = q.queryKey
 
-                if (k[0] == "profile") {
+                if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as Profile, draft => {
                         draft.bsky.viewer.following = undefined
                         draft.bsky.followersCount--
-                        draft.bsky.followsCount--
                         draft.ca.followersCount--
-                        draft.ca.followsCount--
                     })
-                } else if (k[0] == "user-search") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
@@ -92,12 +90,12 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
 
                 const k = q.queryKey
 
-                if (k[0] == "profile") {
+                if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as Profile, draft => {
                         draft.bsky.viewer.following = followUri
                     })
-                } else if (k[0] == "user-search") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
@@ -111,16 +109,22 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
 }
 
 const isQueryRelatedToFollow = (query: Query) => {
-    return query.queryKey[0] == "profile" || query.queryKey[0] == "user-search"
+    return query.queryKey[0] == "profile" || query.queryKey[0] == "user-search" || query.queryKey[0] == "followers" || query.queryKey[0] == "follows"
 }
 
 
-export function FollowButton({handle, profile}: {
+export function FollowButton({handle, profile, backgroundColor="background", textClassName}: {
     handle: string,
     profile: { did: string, viewer?: { following?: string } }
+    backgroundColor?: Color
+    textClassName?: string
 }) {
     const qc = useQueryClient()
     const {user} = useSession()
+
+    useEffect(() => {
+        console.log(qc.getQueryCache().getAll().map(q => q.queryKey))
+    }, []);
 
     const followMutation = useMutation({
         mutationFn: follow,
@@ -181,16 +185,17 @@ export function FollowButton({handle, profile}: {
         return null
     }
 
-    return <div className="flex items-center mr-2">
+    return <div className="flex items-center">
         {profile.viewer.following ?
             <StateButton
                 handleClick={onUnfollow}
-                color="background-dark"
+                color={darker(backgroundColor)}
                 size="small"
                 variant="contained"
                 startIcon={<CheckIcon fontSize={"small"}/>}
                 disableElevation={true}
                 text1="Siguiendo"
+                textClassName={textClassName}
                 disabled={profile.viewer.following == "optimistic-follow"}
             /> :
             <StateButton
@@ -201,6 +206,7 @@ export function FollowButton({handle, profile}: {
                 startIcon={<AddIcon fontSize={"small"}/>}
                 disableElevation={true}
                 text1="Seguir"
+                textClassName={textClassName}
             />}
     </div>
 }

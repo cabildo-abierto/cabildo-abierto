@@ -1,20 +1,25 @@
 "use client"
 
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useMemo, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
-import {useSession} from "@/queries/api";
+import {useProfile, useSession} from "@/queries/api";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
+import {useSearchUsers} from "@/components/buscar/user-search-results";
+import SearchBar from "@/components/buscar/search-bar";
+import {ProfilePic} from "@/components/profile/profile-pic";
+import {FollowButton} from "@/components/profile/profile-utils";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
-const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) => {
+const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
     return <AcceptButtonPanel open={open} buttonText={"Empezar"} onClose={onClose} className={"py-4 px-8"}>
-        <div className={"flex flex-col items-center max-w-[600px]"}>
+        <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
             <h2 className={"mb-4"}>¡Bienvenida/o!</h2>
 
             <div className={"text-[var(--text-light)] space-y-3"}>
@@ -22,10 +27,15 @@ const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) =
                     Cabildo Abierto es una incipiente plataforma de discusión argentina.
                 </div>
                 <div>
-                    Desde el equipo que la desarrolla intentamos que sirva como una herramienta para discutir ideas y mejorar colectivamente la calidad de la información disponible.
+                    Desde el equipo que la desarrolla intentamos que sirva como una herramienta para discutir ideas y
+                    mejorar colectivamente la calidad de la información disponible.
                 </div>
                 <div>
-                    Estamos en período de prueba. Ante cualquier comentario no dudes en escribirnos a contacto@cabildoabierto.ar o comentar directamente en la plataforma.
+                    Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá
+                    en cualquier contenido de la plataforma.
+                </div>
+                <div className={"sm:hidden"}>
+                    Nota: En algún momento va a haber una App, pero por ahora, algunas funcionalidades no están disponibles en el celular.
                 </div>
             </div>
         </div>
@@ -33,55 +43,182 @@ const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) =
 }
 
 
-export const RunTutorial = ({children}: {children: ReactNode}) => {
+const FirstFollowsMessage = ({open, onClose}: {
+    open: boolean
+    onClose: () => void
+}) => {
+    const {user} = useSession()
+    const {data: profile} = useProfile(user.handle)
+    const {data: caProfile} = useProfile("cabildoabierto.ar")
+    const {data: bskyProfile} = useProfile("bsky.app")
+    const [searchState, setSearchState] = useState({searching: false, value: ""})
+    const {results, isLoading, isError, error} = useSearchUsers(searchState)
+
+    const resultsWithSuggestions = useMemo(() => {
+        if (!results && caProfile && bskyProfile) {
+            return [
+                caProfile.bsky,
+                bskyProfile.bsky
+            ]
+        }
+        return results
+    }, [results, searchState, caProfile, bskyProfile])
+
+    if (!profile) {
+        return null
+    }
+
+    return <AcceptButtonPanel open={open} buttonText={"Terminar intro"} onClose={onClose} className={"py-4 px-8"}>
+        <div className={"flex flex-col items-center max-w-[500px] h-[500px]"}>
+            <h2 className={"mb-4"}>Siguiendo a los primeros usuarios</h2>
+
+            <div className={"text-[var(--text-light)] space-y-3"}>
+                <div>
+                    Antes de terminar, buscá algunos usuarios para seguir.
+                </div>
+            </div>
+
+            <div className={"mt-4 w-full"}>
+                <SearchBar
+                    fullWidth={true}
+                    color={"background-dark2"}
+                    searchValue={searchState.value}
+                    setSearchValue={v => {
+                        setSearchState({value: v, searching: searchState.searching})
+                    }}
+                    setSearching={v => {
+                        if (v) setSearchState({value: searchState.value, searching: true})
+                        else setSearchState({value: "", searching: false})
+                    }}
+                />
+            </div>
+
+            <div className="flex flex-wrap w-full h-full max-w-full sm:max-w-[400px] overflow-y-auto no-scrollbar mt-4">
+                {(isLoading || !bskyProfile || !caProfile) && <LoadingSpinner/>}
+                {resultsWithSuggestions && resultsWithSuggestions.map(r => (
+                    <div
+                        key={r.did}
+                        className="w-1/3 p-1 box-border"
+                    >
+                        <div
+                            className="rounded bg-[var(--background-dark2)] py-2 w-full aspect-[0.82] flex flex-col items-center justify-center space-y-1 text-center overflow-hidden">
+                            <div className={"pointer-events-none"}>
+                                <ProfilePic user={r} className="w-14 h-14 rounded-full" descriptionOnHover={false}/>
+                            </div>
+                            <div className="text-sm px-1 truncate max-w-full whitespace-nowrap">
+                                {r.displayName}
+                            </div>
+                            <div className="text-xs px-1 truncate max-w-full whitespace-nowrap text-gray-400">
+                                @{r.handle}
+                            </div>
+                            <div className={""}>
+                                <FollowButton
+                                    handle={r.handle}
+                                    profile={r}
+                                    backgroundColor={"background-dark2"}
+                                    textClassName={"text-xs"}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+
+        </div>
+    </AcceptButtonPanel>
+}
+
+
+const TourContent = ({children}: {children: ReactNode}) => {
+    return <span className={"text-[var(--text-light)]"}>{children}</span>
+}
+
+
+export const RunTutorial = ({children}: { children: ReactNode }) => {
     const [run, setRun] = useState(false)
     const [showingWelcomeMessage, setShowingWelcomeMessage] = useState(true)
+    const [showingFirstFollowsMessage, setShowingFirstFollowsMessage] = useState(false)
     const [startedRun, setStartedRun] = useState(false)
-    const [steps] = useState<Step[]>([
+    const {user} = useSession()
+    const {data: profile} = useProfile(user.handle)
+    const qc = useQueryClient()
+
+    useEffect(() => {
+        if (user && startedRun) {
+            qc.prefetchQuery({queryKey: ["profile", "cabildoabierto.ar"]})
+            qc.prefetchQuery({queryKey: ["profile", "bsky.app"]})
+        }
+    }, [user, startedRun])
+
+    useEffect(() => {
+        if (profile && profile.bsky.followsCount == 1) {
+            post<{}, {}>("/clear-follows")
+        }
+    }, [profile]);
+
+    const [steps, setSteps] = useState<Step[]>([
+        {
+            target: "body",
+            content: <TourContent>
+                Empecemos con un pequeño tour.
+            </TourContent>,
+            placement: 'center',
+            disableBeacon: true
+        },
         {
             target: '#siguiendo',
-            content: 'El muro con las personas que seguís. Igual a Bluesky o Twitter pero también hay artículos.',
+            content: <TourContent>
+                El muro con las personas que seguís. Igual a Twitter o Bluesky, pero también hay artículos.
+            </TourContent>,
             placement: 'bottom',
             disableBeacon: true
         },
         {
             target: '#discusion',
-            content: 'Un muro con lo más popular en Cabildo Abierto.',
+            content: <TourContent>
+                Un muro con lo más popular en Cabildo Abierto. Sin inteligencia artificial.
+            </TourContent>,
             placement: 'bottom',
         },
         {
             target: '#descubrir',
-            content: 'Un muro para explorar contenidos de personas que no seguís.',
+            content: <TourContent>
+                Un muro para explorar contenidos de personas que no seguís.
+            </TourContent>,
             placement: 'bottom',
         },
         {
-            target: 'body',
-            content: 'Ninguno de los muros usa IA. Dicen por ahí que lo viejo funciona...',
-            placement: 'center',
-            disableBeacon: true,
-            spotlightClicks: false,
-        },
-        {
             target: '#temas',
-            content: 'Una wiki sobre los temas en discusión, con los consensos de la plataforma, visualizaciones y más.',
+            content: <TourContent>
+                Una wiki (como Wikipedia) sobre los temas en discusión, con los consensos de la plataforma, visualizaciones y más.
+            </TourContent>,
             placement: 'bottom',
         },
         {
             target: '#write-button',
-            content: 'Escribí publicaciones rápidas y artículos o editá temas de discusión.',
+            content: <TourContent>
+                Escribí publicaciones rápidas y artículos, editá temas de la wiki o creá temas nuevos.
+            </TourContent>,
+            placement: 'bottom',
+        },
+        {
+            target: '#trending-topics',
+            content: <TourContent>
+                Los temas de la wiki en tendencia. Cada uno tiene un artículo asociado.
+            </TourContent>,
             placement: 'bottom',
         }
     ])
 
-    const qc = useQueryClient()
-
     useEffect(() => {
         const isMobile = window.innerWidth <= 800
+        if(isMobile) {
+            setSteps([])
+        }
 
-        if(!showingWelcomeMessage){
-            if(!isMobile){
-                setRun(true)
-            }
+        if (!showingWelcomeMessage && !showingFirstFollowsMessage) {
+            setRun(true)
             setStartedRun(true)
         }
 
@@ -103,13 +240,16 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
     }, [run, startedRun]);
 
     const handleJoyrideCallback = async (data: CallBackProps) => {
-        const { status } = data;
+        const {status} = data;
         const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
         smoothScrollTo(0)
 
         if (finishedStatuses.includes(status)) {
             setRun(false)
+            if (profile && profile.bsky.followsCount <= 1) {
+                setShowingFirstFollowsMessage(true)
+            }
         }
     };
 
@@ -122,7 +262,6 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
                 scrollToFirstStep={false}
                 disableScrolling={true}
                 showProgress={false}
-                showSkipButton
                 disableOverlayClose={true}
                 spotlightClicks={true}
                 callback={handleJoyrideCallback}
@@ -171,18 +310,26 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
                 }}
             />
             {children}
-            <WelcomeMessage open={showingWelcomeMessage} onClose={() => {setShowingWelcomeMessage(false)}}/>
+            <WelcomeMessage open={showingWelcomeMessage} onClose={() => {
+                setShowingWelcomeMessage(false)
+            }}/>
+            {showingFirstFollowsMessage && <FirstFollowsMessage
+                open={showingFirstFollowsMessage}
+                onClose={() => {
+                    setShowingFirstFollowsMessage(false)
+                }}
+            />}
         </>
     )
 }
 
 
-export const Tutorial = ({children}: {children: ReactNode}) => {
+export const Tutorial = ({children}: { children: ReactNode }) => {
     const params = useSearchParams()
     const {user} = useSession()
 
     const showAnyways = false
-    if(params.get("tutorial") || (user && (showAnyways || !user.seenTutorial))){
+    if (params.get("tutorial") || (user && (showAnyways || !user.seenTutorial))){
         return (
             <RunTutorial>
                 {children}
