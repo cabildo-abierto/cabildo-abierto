@@ -116,7 +116,7 @@ export const SaveEditPopup = ({
 
     const infoAuthorship = <span className="link">
         Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o un texto extenso escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link
-        href={topicUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
+        href={topicUrl("Cabildo Abierto: Wiki")}>Más información</Link>
     </span>
 
     const newVersionSize = useMemo(() => {

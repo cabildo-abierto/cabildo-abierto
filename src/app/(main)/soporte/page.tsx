@@ -26,7 +26,6 @@ const Page = () => {
         } else {
             const {data, error} = await post<{}, {convoId: string}>(`/conversation/create/${cabildoDid}`)
             if(data){
-                console.log("got data", data)
                 router.push(chatUrl(data.convoId))
             } else {
                 setStartingConv(false)

@@ -36,13 +36,13 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
     return <div className="flex flex-wrap gap-x-12 gap-y-4">
         {showCA && <div className="flex flex-col space-y-1">
             <h4>Cabildo Abierto</h4>
-            <DimOnHoverLink href={topicUrl("Cabildo_Abierto")}>
+            <DimOnHoverLink href={topicUrl("Cabildo Abierto")}>
                 FAQ
             </DimOnHoverLink>
-            <DimOnHoverLink href={topicUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}>
+            <DimOnHoverLink href={topicUrl("Cabildo Abierto: Términos y condiciones")}>
                 Términos y condiciones
             </DimOnHoverLink>
-            <DimOnHoverLink href={topicUrl("Cabildo_Abierto%3A_Política_de_privacidad")}>
+            <DimOnHoverLink href={topicUrl("Cabildo Abierto: Política de privacidad")}>
                 Política de privacidad
             </DimOnHoverLink>
         </div>}
