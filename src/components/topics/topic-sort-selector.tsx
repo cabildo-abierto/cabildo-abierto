@@ -7,9 +7,10 @@ const TopicSortSelectorModal = dynamic(() => import("@/components/topics/topic-s
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 
 
-const TopicsSortSelector = ({sortedBy, setSortedBy}: {
+const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
     sortedBy: TopicsSortOrder
     setSortedBy: (s: TopicsSortOrder) => void
+    disabled: boolean
 }) => {
     const modal = (onClose: () => void) =>
         <TopicSortSelectorModal
@@ -21,6 +22,7 @@ const TopicsSortSelector = ({sortedBy, setSortedBy}: {
     return <ModalOnClick modal={modal}>
         <div className={"text-[var(--text-light)]"}>
             <IconButton
+                disabled={disabled}
                 size={"small"}
                 color={"background"}
             >

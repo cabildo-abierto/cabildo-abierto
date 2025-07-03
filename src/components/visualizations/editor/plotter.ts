@@ -91,7 +91,7 @@ export class Plotter {
         } else if(type == "date"){
             return formatIsoDate(v as Date)
         } else if(type == "number"){
-            return (v as number).toFixed(2).toString()
+            return Number(v).toFixed(2).toString()
         } else if(type == "string[]"){
             return (v as string[]).join(", ")
         }
