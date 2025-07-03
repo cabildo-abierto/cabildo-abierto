@@ -154,7 +154,7 @@ export function isVisualization(c: string){
 
 export type ArticleKind = "none" | "author" | "not-author"
 
-export function collectionToDisplay(c: string, article: ArticleKind = "none"){
+export function collectionToDisplay(c: string, article: ArticleKind = "none", topicId?: string){
     const masc = isArticle(c) || isDataset(c)
     let artStr: string
     if(article == "none") artStr = ""
@@ -162,15 +162,15 @@ export function collectionToDisplay(c: string, article: ArticleKind = "none"){
     else if(article == "not-author") artStr = masc ? "un" : "una "
 
     if(isPost(c)){
-        return artStr + "Publicación"
+        return artStr + (artStr ? "publicación" : "Publicación")
     } else if (isArticle(c)){
-        return artStr + "Artículo"
+        return artStr + (artStr ? "artículo" : "Artículo")
     } else if (isTopicVersion(c)){
-        return artStr + "versión de un tema"
+        return artStr + `versión ${topicId ? `del tema ${topicId}` : "de un tema"}`
     } else if (isDataset(c)){
-        return artStr + "Conjunto de datos"
+        return artStr + (artStr ? "conjunto de datos" : "Conjunto de datos")
     } else if (isVisualization(c)){
-        return artStr + "Visualización"
+        return artStr + (artStr ? "visualización" : "Visualización")
     }
 }
 

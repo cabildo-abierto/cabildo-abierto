@@ -20,7 +20,10 @@ export const SearchPanelOnRightColumn = () => {
 
     return (
         <div className={"w-full"}>
-            <form onSubmit={(e) => {e.preventDefault(); handleSubmit()}} className={"w-full"}>
+            <form
+                onSubmit={(e) => {e.preventDefault(); console.log("submitting"); handleSubmit()}}
+                className={"w-full"}
+            >
                 <MainSearchBar/>
             </form>
             {searchState.searching && searchState.value.length > 0 && <UserSearchResultsOnRightPanel

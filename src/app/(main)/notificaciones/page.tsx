@@ -12,7 +12,7 @@ const Page = () => {
     const qc = useQueryClient()
 
     useEffect(() => {
-        qc.setQueryData(["unread-notifications-count"], 0)
+        qc.setQueryData(["unread-notifications-count"], () => 0)
     }, [qc])
 
     return <div className={"flex flex-col"}>

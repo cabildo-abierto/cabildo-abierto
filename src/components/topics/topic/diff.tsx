@@ -6,6 +6,8 @@ export function getPlainText(node: any){
     let text = ""
     if(node.type == "text"){
         text += node.text
+    } else if(node.type == "custom-beautifulMention"){
+        text += node.trigger + node.value
     }
     if(node.children) {
         for (let i = 0; i < node.children.length; i++) {

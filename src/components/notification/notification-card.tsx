@@ -21,6 +21,9 @@ import {
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import TopicsIcon from "@/components/icons/topics-icon";
+import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+
 
 const Username = ({user}: { user: ProfileView }) => {
     return <span className={"font-bold hover:underline"}>
@@ -59,18 +62,16 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
         reasonIcon={reasonIcon}
         href={href}
     >
-        <div className={"flex flex-col justify-between w-full sm:text-base text-sm"}>
-            <div className={"flex-1"}/>
-
+        <div className={"flex justify-between w-full sm:text-base text-sm"}>
             <div className={"flex space-x-2 items-center w-full"}>
                 <ProfilePic user={notification.author} className={"rounded-full h-6 w-6"}/>
 
-                <div className={"max-w-[70%]"}>
+                <div className={"max-w-[70%] text-sm"}>
                     {children}
                 </div>
             </div>
 
-            <div className={"w-full flex justify-end space-x-1 text-sm flex-1"}>
+            <div className={"w-full flex items-end space-x-1 text-sm flex-1 pr-1"}>
                 <span>
                     Hace
                 </span>
@@ -84,16 +85,20 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
 }
 
 
-const ContentMention = ({uri, article}: { uri: string, article: ArticleKind }) => {
+const ContentMention = ({uri, article, topicId}: {
+    uri: string
+    article: ArticleKind
+    topicId?: string
+}) => {
     if (!uri) return "[contenido no encontrado]"
     return <Link
         href={contentUrl(uri)}
-        className={"lowercase font-semibold hover:underline"}
+        className={"font-semibold hover:underline"}
         onClick={(e) => {
             e.stopPropagation()
         }}
     >
-        {collectionToDisplay(getCollectionFromUri(uri), article)}
+        {collectionToDisplay(getCollectionFromUri(uri), article, topicId)}
     </Link>
 }
 
@@ -148,23 +153,29 @@ export const NotificationCard = ({notification}: { notification: CANotification 
             onClick={(e) => {
                 e.stopPropagation()
             }}
-        >respondió</Link> a <ContentMention uri={notification.reasonSubject} article={"author"}/>.
+            >respondió</Link> a <ContentMention
+                uri={notification.reasonSubject}
+                article={"author"}
+                topicId={notification.reasonSubjectContext}
+            />.
         </UserNotificationCard>
     } else if (notification.reason == "mention") {
         return <UserNotificationCard
             notification={notification}
             reasonIcon={<AtIcon size={24}/>}
-            href={notification.uri}
+            href={contentUrl(notification.uri)}
         >
-            <Username user={notification.author}/> te mencionó en <ContentMention uri={notification.uri}
-                                                                                  article={"not-author"}/>.
+            <Username user={notification.author}/> te mencionó en <ContentMention
+                uri={notification.uri}
+                article={"not-author"}
+            />.
         </UserNotificationCard>
     } else if (notification.reason == "topic-edit") {
         const topicId = notification.reasonSubject
         return <UserNotificationCard
             notification={notification}
             reasonIcon={<TopicsIcon outlined={false} fontSize={24}/>}
-            href={notification.uri}
+            href={topicUrl(topicId)}
         >
             <Username user={notification.author}/> editó el tema <Link className="font-semibold hover:underline"
                                                                        href={topicUrl(topicId)}>{topicId}</Link>, que
@@ -176,11 +187,12 @@ export const NotificationCard = ({notification}: { notification: CANotification 
         return <UserNotificationCard
             notification={notification}
             reasonIcon={accept ? <CheckIcon fontSize={24}/> : <XIcon fontSize={24}/>}
-            href={notification.uri}
+            href={topicUrl(topicId)}
         >
             <Username user={notification.author}/> {accept ? "validó" : "rechazó"} tu edición del tema <Link
                 className="font-semibold hover:underline"
-                href={topicUrl(topicId)}>
+                href={topicUrl(topicId)}
+        >
                 {topicId}
             </Link>.
         </UserNotificationCard>
