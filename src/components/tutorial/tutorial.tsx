@@ -20,7 +20,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
     return <AcceptButtonPanel open={open} buttonText={"Empezar"} onClose={onClose} className={"py-4 px-8"}>
         <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
-            <h2 className={"mb-4"}>¡Bienvenida/o!</h2>
+            <h2 className={"mb-4"}>¡Te damos la bienvenida!</h2>
 
             <div className={"text-[var(--text-light)] space-y-3"}>
                 <div>
@@ -35,7 +35,7 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                     en cualquier contenido de la plataforma.
                 </div>
                 <div className={"sm:hidden"}>
-                    Nota: En algún momento va a haber una App, pero por ahora, algunas funcionalidades no están disponibles en el celular.
+                    Nota: En algún momento va a haber una App, pero por ahora algunas funcionalidades no están disponibles en el celular.
                 </div>
             </div>
         </div>
