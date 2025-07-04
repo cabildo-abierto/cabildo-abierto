@@ -106,11 +106,6 @@ export function useTopicFeed(id?: string, did?: string, rkey?: string){
 }
 
 
-export function useCodes(){
-    return useAPI<string[]>("/invite-code/all", ["codes"])
-}
-
-
 export function useTopic(id?: string, did?: string, rkey?: string) {
     return useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
 }

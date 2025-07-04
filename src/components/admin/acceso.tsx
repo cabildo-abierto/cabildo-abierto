@@ -4,7 +4,7 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {categoriesSearchParam, useCodes} from "@/queries/api";
+import {categoriesSearchParam} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {get, post} from "@/utils/fetch";
 import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
@@ -36,7 +36,7 @@ const syncUser = async (handle: string, collections: string[]) => {
 }
 
 const createCodes = async (count: number) => {
-    return await post(`/invite-code/create?c=${count}`)
+    return await post<{}, {inviteCodes: string[]}>(`/invite-code/create?c=${count}`)
 }
 
 const getUsers = async () => {
@@ -46,7 +46,7 @@ const getUsers = async () => {
 export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")
     const [codesAmount, setCodesAmount] = useState<number>(0)
-    const {data: codes} = useCodes()
+    const [codes, setCodes] = useState([])
     const [users, setUsers] = useState<ProfileViewBasic[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
 
@@ -127,7 +127,8 @@ export const AdminAcceso = () => {
                     fullWidth={true}
                     text1={"Generar códigos"}
                     handleClick={async () => {
-                        const {error} = await createCodes(codesAmount)
+                        const {error, data} = await createCodes(codesAmount)
+                        setCodes(data.inviteCodes)
                         return {error}
                     }}
                 />
