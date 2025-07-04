@@ -9,7 +9,8 @@ export type Color = "text-lighter" |
     "text" | "button-text" | "accent" | "accent-dark" |
     "transparent" | "primary" | "background" |
     "background-dark" | "background-dark2" | "background-dark4" |
-    "background-dark3" | "primary-dark" | "red" | "background-ldark"
+    "background-dark3" | "primary-dark" | "red" |
+    "background-ldark" | "red-dark" | "red-dark2"
 
 
 export type ButtonProps = Omit<MUIButtonProps, "color"> & {color?: Color}
@@ -22,6 +23,7 @@ export function darker(color: Color): Color {
     else if(color == "background-dark3") return "background-dark4"
     else if(color == "transparent") return "background-dark"
     else if(color == "accent") return "accent-dark"
+    else if(color == "red") return "red-dark2"
     else return color
 }
 

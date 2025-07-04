@@ -18,7 +18,8 @@ const LoginPanel = ({children, onClickBack}: { children: ReactNode, onClickBack?
         <div
             className={"bg-[var(--background)] sm:w-[480px] sm:rounded-2xl px-4 space-y-4 sm:h-auto sm:mt-10 flex flex-col items-center w-screen h-screen"}>
             <div className={"flex justify-start w-full text-[var(--text-light)] mt-4"}>
-                <BackButton defaultURL={"/presentacion"} preferReferrer={false} color={"background"} onClick={onClickBack}/>
+                <BackButton defaultURL={"/presentacion"} preferReferrer={false} color={"background"}
+                            onClick={onClickBack}/>
             </div>
             {children}
         </div>
@@ -34,10 +35,11 @@ export const Login = () => {
     const [email, setEmail] = useState<string>("")
     const [comment, setComment] = useState<string>("")
     const [showRequestCreated, setShowRequestCreated] = useState<boolean>(false)
+    const [showWhyBsky, setShowWhyBsky] = useState(false)
 
     async function onSendAccessRequest() {
         const {error} = await post<{}, {}>("/access-request", {email, comment})
-        if(error) {
+        if (error) {
             return {error}
         } else {
             setShowRequestCreated(true)
@@ -48,9 +50,14 @@ export const Login = () => {
     }
 
     if (wantsAccess) {
-        return <LoginPanel onClickBack={() => {setWantsAccess(false)}}>
+        return <LoginPanel onClickBack={() => {
+            setWantsAccess(false)
+        }}>
             {showRequestCreated && <AcceptButtonPanel
-                onClose={() => {setShowRequestCreated(false); setWantsAccess(false)}}
+                onClose={() => {
+                    setShowRequestCreated(false);
+                    setWantsAccess(false)
+                }}
                 open={showRequestCreated}
             >
                 <div className={"text-[var(--text-light)] sm:text-lg p-5 max-w-[360px] text-center"}>
@@ -95,6 +102,29 @@ export const Login = () => {
         </LoginPanel>
     }
 
+    if(showWhyBsky){
+        return <LoginPanel onClickBack={() => {
+            setShowWhyBsky(false)
+        }}>
+            <h2 className={"font-extrabold"}>¿Por qué el registro es en Bluesky?</h2>
+            <div className={"flex flex-col items-center space-y-2 pb-12 text-justify p-4 text-[var(--text-light)]"}>
+                <p>
+                    Bluesky y Cabildo Abierto se basan en un mismo {'"protocolo de redes sociales descentralizadas"'}, que se
+                llama ATProtocol. Esto significa fundamentalmente que las cuentas y algunos contenidos son compartidos entre las dos plataformas,
+                    y cualquier otra plataforma que use el mismo protocolo.
+                </p>
+                <p>
+                    Cuando te registrás en Bluesky, te estás creando una cuenta en este protocolo, que te sirve para cualquier plataforma que lo use.
+
+                    Eventualmente vamos a agregar la posibilidad de registrarte directamente en Cabildo Abierto, pero por ahora, te pedimos que vayas a Bluesky.
+                </p>
+                <p>
+                    Podés encontrar más información sobre ATProtocol en su <Link target={"_blank"} className="text-[var(--primary)] hover:underline" href={"https://atproto.com/"}>página oficial</Link>.
+                </p>
+            </div>
+        </LoginPanel>
+    }
+
     return <LoginPanel>
         <div className="mb-2 mt-4 space-y-4">
             <Logo width={60} height={60}/>
@@ -123,7 +153,8 @@ export const Login = () => {
                 </div>
 
                 <div className='text-center text-[var(--text-light)] mx-2'>
-                    ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">Registrate en
+                    ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">
+                    Registrate en
                     Bluesky</Link>.
                 </div>
 
@@ -135,13 +166,26 @@ export const Login = () => {
                     </Button>
                 </div>}
 
-                <div className={"pt-0"} onClick={() => {
-                    router.push("/presentacion" + (inviteCode ? `?c=${inviteCode}` : ""))
-                }}>
-                    <Button color={"background"}>
-                        <span className={"text-[var(--text-light)] text-[14px]"}>Conocer más</span>
-                    </Button>
+                <div className={"pt-0 flex flex-col space-y-2 pb-2"}>
+                    <Link
+                        href={"/presentacion"}
+                        target={"_blank"}
+                        onClick={(e) => {
+                            e.preventDefault()
+                            router.push("/presentacion" + (inviteCode ? `?c=${inviteCode}` : ""))
+                        }}
+                        className={"text-[var(--text-light)] hover:text-[var(--text)] text-[14px]"}
+                    >
+                        Conocer más sobre Cabildo Abierto
+                    </Link>
+                    <span
+                        onClick={() => {setShowWhyBsky(true)}}
+                        className={"text-[var(--text-light)] hover:text-[var(--text)] text-[14px] cursor-pointer"}
+                    >
+                        ¿Por qué el registro es en Bluesky?
+                    </span>
                 </div>
+
             </div>
         </div>
     </LoginPanel>

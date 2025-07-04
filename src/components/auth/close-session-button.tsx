@@ -34,8 +34,8 @@ export const CloseSessionButton = () => {
     return (
         <StateButton
             variant="contained"
-            size="small"
-            color="accent"
+            size="medium"
+            color="red-dark"
             handleClick={onLogout}
             text1="Cerrar sesión"
         />

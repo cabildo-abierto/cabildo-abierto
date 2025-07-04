@@ -34,11 +34,20 @@ const AccountSettings = () => {
             <div className="text-lg ">{user.displayName ? user.displayName : "Sin definir."}</div>
         </div>
         <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Mail</div>
-            {account.email ? <div className="text-lg ">{account.email}</div> : <div className="text-lg ">Pendiente</div>}
+            <div className="text-[var(--text-light)] font-medium text-sm">Contraseña</div>
+            <Link className="text-[var(--primary)] hover:underline" target="_blank" href={"https://bsky.app/settings/account"}>
+                Cambiar desde Bluesky.
+            </Link>
         </div>
         <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Nivel de permisos de edición</div>
+            <div className="text-[var(--text-light)] font-medium text-sm">Mail</div>
+            {account.email ? <div className="text-lg ">{account.email}</div> : <div className="text-lg ">Pendiente</div>}
+            <Link className="text-[var(--primary)] hover:underline" target="_blank" href={"https://bsky.app/settings/account"}>
+                {account.email ? "Cambiar" : "Agregar"} desde Bluesky.
+            </Link>
+        </div>
+        <div className="mb-4">
+            <div className="text-[var(--text-light)] font-medium text-sm">Permisos de edición en la wiki</div>
             <div className="text-lg">
                 <PermissionLevel level={user.editorStatus} className={""}/>
             </div>
@@ -52,7 +61,7 @@ const AccountSettings = () => {
         {(!request.result || request.result != "Aceptada") && <Button size={"small"} href={"/ajustes/solicitar-validacion"}>
             <span className={"font-semibold text-sm py-1"}>Verificar cuenta</span>
         </Button>}
-        <div className={"mt-4 flex justify-end"}>
+        <div className={"mt-4 flex justify-start"}>
             <CloseSessionButton/>
         </div>
     </>
