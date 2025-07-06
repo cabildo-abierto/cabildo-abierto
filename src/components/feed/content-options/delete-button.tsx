@@ -60,12 +60,14 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
         return {}
     }
 
+    const isOptimistic = getRkeyFromUri(uri).startsWith("optimistic")
+
     const collection = getCollectionFromUri(uri)
     return <OptionsDropdownButton
         text1={"Borrar " + collection2displayText[collection]}
         startIcon={<DeleteOutlineIcon/>}
         handleClick={onClickDelete}
-        disabled={getRkeyFromUri(uri) == "optimistic"}
+        disabled={isOptimistic}
     />
 }
 

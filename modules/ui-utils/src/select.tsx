@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Select as MUISelect, MenuItem, FormControl, InputLabel} from '@mui/material';
 
 export const Select = ({
-                           options, value, onChange, label, fontSize, labelShrinkFontSize
+                           options, value, onChange, label, fontSize, labelShrinkFontSize, textClassName
                        }: {
     options: string[]
     onChange: (v: string) => void
@@ -10,6 +10,7 @@ export const Select = ({
     label?: string
     fontSize?: string
     labelShrinkFontSize?: string
+    textClassName?: string
 }) => {
     const selectId = label ? `select-${label}` : 'select';
 
@@ -64,7 +65,7 @@ export const Select = ({
                             }
                         }}
                     >
-                        {o}
+                        <span className={textClassName}>{o}</span>
                     </MenuItem>
                 ))}
             </MUISelect>

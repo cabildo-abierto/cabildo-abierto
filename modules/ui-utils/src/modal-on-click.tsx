@@ -1,6 +1,4 @@
 import React, {ReactNode, useState} from 'react';
-import {Popper, Fade} from '@mui/material';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
 import {ModalOnClickControlled} from "./modal-on-click-controlled";
 
 type ModalOnClickProps = {
@@ -9,19 +7,19 @@ type ModalOnClickProps = {
 }
 
 export const ModalOnClick = ({children, modal}: ModalOnClickProps) => {
-    const [open, setOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const [open, setOpen] = useState(false)
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
     const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setAnchorEl(e.currentTarget);
-        setOpen(true);
-    };
+        e.stopPropagation()
+        e.preventDefault()
+        setAnchorEl(e.currentTarget)
+        setOpen(true)
+    }
 
     const handleClickAway = () => {
-        setOpen(false);
-    };
+        setOpen(false)
+    }
 
     return <ModalOnClickControlled
         open={open}
@@ -33,5 +31,5 @@ export const ModalOnClick = ({children, modal}: ModalOnClickProps) => {
     >
         {children}
     </ModalOnClickControlled>
-};
+}
 

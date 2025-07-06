@@ -170,7 +170,7 @@ const Ajustes = () => {
                     />
                 </div>
             </div>
-            <div className="p-4">
+            <div className="py-4 px-8">
                 {selected == "Cuenta" && <AccountSettings/>}
                 {selected == "Apariencia" && <AppearanceSettings/>}
             </div>

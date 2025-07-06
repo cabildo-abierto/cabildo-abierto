@@ -16,13 +16,14 @@ export const AdminPrincipal = () => {
     }
 
     const suggestions = [
-        "update-topics-categories",
-        "update-topics-popularity",
-        "update-categories-graph",
-        "update-references",
-        "update-topic-contributions",
-        "create-user-months",
-        "batch-jobs"
+        "job/update-topics-categories",
+        "job/update-topics-popularity",
+        "job/update-categories-graph",
+        "job/update-references",
+        "job/update-topic-contributions",
+        "job/create-user-months",
+        "job/batch-jobs",
+        "job/update-bsky-followers"
     ]
 
     return <div className={"pt-16 space-y-8"}>
