@@ -14,20 +14,10 @@ export type DonationHistory = Donation[]
 export const DonationHistory = () => {
     const {data, isLoading} = useDonationHistory()
 
-    const total = data ? data.reduce((acc, d) => acc + d.amount, 0) : undefined
+    if(!data || data.length == 0) return null
 
     return <div className={"space-y-4 w-full flex flex-col items-center bg-[var(--background-dark)] rounded p-4 mx-2"}>
-        <div className={"flex justify-between w-full"}>
-            <h3 className={"w-full"}>Tus aportes</h3>
-            {total != undefined && <div className={"flex justify-between rounded bg-[var(--background-dark2)] p-2 text-sm text-center space-x-4"}>
-                <div>
-                    Total
-                </div>
-                <div>
-                    ${total}
-                </div>
-            </div>}
-        </div>
+        <h3 className={"w-full"}>Tus aportes</h3>
         <div className={"w-full"}>
             <GradientHRule/>
         </div>

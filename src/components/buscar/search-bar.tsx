@@ -4,7 +4,7 @@ import React from "react";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {TextField, TextFieldProps} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { Color } from "../../../modules/ui-utils/src/button";
+import {Color, darker} from "../../../modules/ui-utils/src/button";
 
 
 const SearchBar = ({
@@ -42,7 +42,7 @@ const SearchBar = ({
         slotProps={{
             input: {
                 startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
-                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color="background-dark" size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
+                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}
         autoComplete={"off"}

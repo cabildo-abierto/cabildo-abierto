@@ -12,6 +12,7 @@ import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import dynamic from "next/dynamic";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
@@ -77,19 +78,31 @@ export const PublishArticleButton = ({editorState, title, disabled, modalOpen, s
         return {stopResubmit: true}
     }
 
+    let helpMsg: string
+
+    if(disabled){
+        if(!title || title.length == 0){
+            helpMsg = "Agregá un título."
+        } else {
+            helpMsg = "El contenido no puede estar vacío."
+        }
+    }
+
     return <>
-        <StateButton
-            onClick={() => {
-                setModalOpen(true)
-            }}
-            text1={"Publicar"}
-            textClassName="whitespace-nowrap px-2 font-semibold"
-            disabled={disabled}
-            color={"background"}
-            size="medium"
-            variant={"text"}
-            sx={{borderRadius: 20}}
-        />
+        <DescriptionOnHover description={helpMsg}>
+            <StateButton
+                onClick={() => {
+                    setModalOpen(true)
+                }}
+                text1={"Publicar"}
+                textClassName="whitespace-nowrap px-2 font-semibold"
+                disabled={disabled}
+                color={"background"}
+                size="medium"
+                variant={"text"}
+                sx={{borderRadius: 20}}
+            />
+        </DescriptionOnHover>
         <PublishArticleModal
             onSubmit={handleSubmit}
             onClose={() => {

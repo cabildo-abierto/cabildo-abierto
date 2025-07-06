@@ -18,11 +18,9 @@ export const TableVisualizationComp = ({spec, visualization, maxWidth, maxHeight
 
     if(isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
         return <div className={"space-y-4"}>
-            <PlotTitle title={visualization.title} fontSize={18}/>
-            <div className={"max-h-[800px] overflow-y-scroll"}>
-                <DatasetTableView dataset={visualization.dataset} columnsConfig={spec.columns}/>
-            </div>
-            <PlotCaption caption={visualization.caption} fontSize={14}/>
+            <PlotTitle title={visualization.visualization.title} fontSize={18}/>
+            <DatasetTableView sort={false} dataset={visualization.dataset} columnsConfig={spec.columns} maxHeight={450}/>
+            <PlotCaption caption={visualization.visualization.caption} fontSize={14}/>
         </div>
     }
 }

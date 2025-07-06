@@ -1,12 +1,25 @@
-import {DatasetView, TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {
+    Column,
+    DatasetView,
+    isTopicsDatasetView,
+    TopicsDatasetView
+} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {useMemo, useState} from "react";
 import {TablePlotter} from "@/components/visualizations/editor/plotter";
 import SearchBar from "@/components/buscar/search-bar";
 import {cleanText} from "@/utils/strings";
 import {Table} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {topicUrl} from "@/utils/uri";
+import Link from "next/link";
 
 
-export type DatasetForTableView = Omit<DatasetView | TopicsDatasetView, "name" | "uri" | "cid" | "author" | "createdAt">
+export type RawDatasetView = {
+    data: string
+    columns: Column[]
+}
+
+
+export type DatasetForTableView = Omit<DatasetView | TopicsDatasetView | RawDatasetView, "name" | "uri" | "cid" | "author" | "createdAt">
 
 
 type DatasetTableViewProps = {
@@ -14,6 +27,7 @@ type DatasetTableViewProps = {
     maxHeight?: number
     maxWidth?: number
     columnsConfig?: Table["columns"]
+    sort?: boolean
 }
 
 
@@ -22,7 +36,36 @@ const CellContent = ({content, col, plotter}: { content: any, col: string, plott
 }
 
 
-export const DatasetTableView = ({dataset, maxHeight, maxWidth, columnsConfig}: DatasetTableViewProps) => {
+const TableRow = ({values, plotter, columns, href}: {
+    values: [string, any][], dataset: DatasetForTableView, plotter: TablePlotter, columns: Column[], href?: string
+}) => {
+
+    return values.map(([col, value], colIndex) => {
+        if (columns.some(c => col == c.name)) {
+            const content = <CellContent content={value} col={col} plotter={plotter}/>
+            if (href) {
+                return <td className="border-none text-[var(--text-light)] exclude-links px-4 py-2" onClick={() => {
+                    window.open(href, "_blank")
+                }} key={colIndex}>
+                    <Link
+                        href={href}
+                        target="_blank"
+                        className={""}
+                    >
+                        {content}
+                    </Link>
+                </td>
+            } else {
+                return <td className="border-none px-4 py-2" key={colIndex}>
+                    {content}
+                </td>
+            }
+        }
+    })
+}
+
+
+export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, columnsConfig}: DatasetTableViewProps) => {
     const rows: Record<string, any>[] = JSON.parse(dataset.data)
     const columns = dataset.columns.filter(c => !columnsConfig || columnsConfig.length == 0 || columnsConfig.some(c2 => c2.columnName == c.name))
     const [showingRowsCount, setShowingRowsCount] = useState(20)
@@ -36,22 +79,39 @@ export const DatasetTableView = ({dataset, maxHeight, maxWidth, columnsConfig}: 
         return plotter
     }, [dataset])
 
-    if (rows.length == 0 || columns.length == 0) return <div className={"text-[var(--text-light)]"}>
-        El conjunto de datos está vacío.
-    </div>
+    const empty = rows.length == 0 || columns.length == 0
 
-    let filteredRows = rows
-    if(searchValue != ""){
-        const searchKey = cleanText(searchValue)
-        filteredRows = rows.filter(row => {
-            return Array.from(Object.entries(row)).some(([k, v]) => {
-                return cleanText(plotter.columnValueToString(v, k)).includes(searchKey)
+    let sortedRows = useMemo(() => {
+        if (!empty && sort) {
+            const key = columns[0].name
+            return rows.toSorted((a, b) => {
+                return plotter.cmpValues(key, a[key], b[key])
             })
-        })
-    }
+        } else {
+            return rows
+        }
+    }, [empty, columns, rows, plotter])
+
+    let filteredRows = useMemo(() => {
+        if (!empty && searchValue != "") {
+            const searchKey = cleanText(searchValue)
+            return sortedRows.filter(row => {
+                return Array.from(Object.entries(row)).some(([k, v]) => {
+                    return cleanText(plotter.columnValueToString(v, k)).includes(searchKey)
+                })
+            })
+        }
+        return sortedRows
+    }, [empty, searchValue, sortedRows, plotter])
+
+    if (empty) return (
+        <div className={"text-[var(--text-light)]"}>
+            El conjunto de datos está vacío.
+        </div>
+    )
 
     return <div
-        className={"border rounded-lg mb-4 custom-scrollbar overflow-auto text-sm grow"}
+        className={"border rounded-lg mb-4 custom-scrollbar overflow-scroll text-sm grow"}
         style={{maxHeight, maxWidth}}
     >
         <div className={"bg-[var(--background-dark)] flex justify-start rounded-t-lg"}>
@@ -68,33 +128,38 @@ export const DatasetTableView = ({dataset, maxHeight, maxWidth, columnsConfig}: 
         </div>
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)]">
-                <tr>
-                    {columns.map((header, colIndex) => {
-                        let name = header.name
-                        const index = columnsConfig ? columnsConfig.findIndex(c => c.columnName == header.name) : -1
-                        if(index != -1){
-                            const alias = columnsConfig[index].alias
-                            if(alias) name = alias
-                        }
+            <tr>
+                {columns.map((header, colIndex) => {
+                    let name = header.name
+                    const index = columnsConfig ? columnsConfig.findIndex(c => c.columnName == header.name) : -1
+                    if (index != -1) {
+                        const alias = columnsConfig[index].alias
+                        if (alias) name = alias
+                    }
 
-                        return <th key={colIndex} className="px-4 py-2 text-left">
-                            {name}
-                        </th>
-                    })}
-                </tr>
+                    return <th key={colIndex} className="px-4 py-2 text-left">
+                        {name}
+                    </th>
+                })}
+            </tr>
             </thead>
             <tbody>
-            {filteredRows && filteredRows.slice(0, showingRowsCount).map((r, rowIndex) => (
-                <tr key={rowIndex} className="even:bg-[var(--background-ldark)]">
-                    {Object.entries(r as Record<string, any>).map(([col, value], colIndex) => {
-                        if(columns.some(c => col == c.name)){
-                            return <td key={colIndex} className=" border-none px-4 py-2">
-                                <CellContent content={value} col={col} plotter={plotter}/>
-                            </td>
-                        }
-                    })}
+            {filteredRows && filteredRows.slice(0, showingRowsCount).map((r, rowIndex) => {
+                let href: string = undefined
+
+                const values = Object.entries(r)
+                if (isTopicsDatasetView(dataset)) {
+                    const tema = values.find(([k, v]) => k == "Tema")
+                    href = topicUrl(tema[1])
+                }
+
+                return <tr
+                    key={rowIndex}
+                    className={"even:bg-[var(--background-ldark)] " + (href ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
+                >
+                    <TableRow values={values} href={href} columns={columns} plotter={plotter} dataset={dataset}/>
                 </tr>
-            ))}
+            })}
             </tbody>
         </table>
         {showingRowsCount < filteredRows.length && <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>

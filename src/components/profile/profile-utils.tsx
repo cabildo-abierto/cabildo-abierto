@@ -113,11 +113,12 @@ const isQueryRelatedToFollow = (query: Query) => {
 }
 
 
-export function FollowButton({handle, profile, backgroundColor="background", textClassName}: {
+export function FollowButton({handle, profile, backgroundColor="background", textClassName, dense=false}: {
     handle: string,
     profile: { did: string, viewer?: { following?: string } }
     backgroundColor?: Color
     textClassName?: string
+    dense?: boolean
 }) {
     const qc = useQueryClient()
     const {user} = useSession()
@@ -192,8 +193,9 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 color={darker(backgroundColor)}
                 size="small"
                 variant="contained"
-                startIcon={<CheckIcon fontSize={"small"}/>}
+                startIcon={!dense && <CheckIcon fontSize={"small"}/>}
                 disableElevation={true}
+                dense={dense}
                 text1="Siguiendo"
                 textClassName={textClassName}
                 disabled={profile.viewer.following == "optimistic-follow"}
@@ -203,8 +205,9 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 color="primary"
                 size="small"
                 variant="contained"
-                startIcon={<AddIcon fontSize={"small"}/>}
+                startIcon={!dense && <AddIcon fontSize={"small"}/>}
                 disableElevation={true}
+                dense={dense}
                 text1="Seguir"
                 textClassName={textClassName}
             />}

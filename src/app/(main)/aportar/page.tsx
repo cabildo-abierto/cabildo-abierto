@@ -10,11 +10,10 @@ import {topicUrl} from "@/utils/uri";
 
 
 export default function Aportar() {
-    const p = 75
     return <div className={"space-y-2 flex flex-col items-center"}>
         <ThreadHeader title={"Aportar"}/>
         <div className={"text-center text-[var(--text-light)] max-w-[400px] pt-8 px-4 sm:text-base text-sm"}>
-            Con tu aporte se financia el equipo que trabaja en la plataforma y los autores que consumís.
+            Con tu aporte se financia el equipo que trabaja en la plataforma y los autores de los contenidos que leés.
         </div>
         <Link
             className="link2 sm:text-sm text-xs text-[var(--text-light)] "
@@ -28,7 +27,7 @@ export default function Aportar() {
             </Link>
         </div>
         <div className={"w-full pt-8 flex justify-center max-w-[500px]"}>
-            <FundingProgress p={p}/>
+            <FundingProgress/>
         </div>
         <div className={"w-full pt-8 flex justify-center max-w-[500px]"}>
             <DonationHistory/>

@@ -78,6 +78,10 @@ export const schemaDict = {
             type: 'string',
             format: 'at-uri',
           },
+          verification: {
+            type: 'string',
+            knownValues: ['person', 'org'],
+          },
         },
       },
     },
@@ -571,34 +575,11 @@ export const schemaDict = {
       },
       view: {
         type: 'object',
-        required: ['dataSource', 'spec', 'dataset'],
+        required: ['visualization', 'dataset'],
         properties: {
-          dataSource: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.embed.visualization#datasetDataSource',
-              'lex:ar.cabildoabierto.embed.visualization#topicsDataSource',
-            ],
-          },
-          spec: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.embed.visualization#hemicycle',
-              'lex:ar.cabildoabierto.embed.visualization#barplot',
-              'lex:ar.cabildoabierto.embed.visualization#scatterplot',
-              'lex:ar.cabildoabierto.embed.visualization#histogram',
-              'lex:ar.cabildoabierto.embed.visualization#lines',
-              'lex:ar.cabildoabierto.embed.visualization#table',
-            ],
-          },
-          title: {
-            type: 'string',
-          },
-          caption: {
-            type: 'string',
-          },
-          aspectRatio: {
-            type: 'string',
+          visualization: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.visualization',
           },
           dataset: {
             type: 'union',

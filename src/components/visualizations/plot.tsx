@@ -33,16 +33,16 @@ export const ResponsivePlot = ({
     maxWidth?: number
     maxHeight?: number
 }) => {
-    if (isTwoAxisPlot(visualization.spec) || isOneAxisPlot(visualization.spec)) {
+    if (isTwoAxisPlot(visualization.visualization.spec) || isOneAxisPlot(visualization.visualization.spec)) {
         return <TwoAxisPlotComp
-            spec={visualization.spec}
+            spec={visualization.visualization.spec}
             visualization={visualization}
             maxWidth={maxWidth}
             maxHeight={maxHeight}
         />
-    } else if(isTable(visualization.spec)) {
+    } else if(isTable(visualization.visualization.spec)) {
         return <TableVisualizationComp
-            spec={visualization.spec}
+            spec={visualization.visualization.spec}
             visualization={visualization}
             maxWidth={maxWidth}
             maxHeight={maxHeight}
@@ -115,9 +115,9 @@ export const Plot = ({
 
 function getDatasetVisualizationView(visualization: Visualization, dataset: $Typed<DatasetView> | $Typed<TopicsDatasetView>): VisualizationView {
     return {
-        ...visualization,
-        $type: "ar.cabildoabierto.embed.visualization#view",
-        dataset
+        visualization,
+        dataset,
+        $type: "ar.cabildoabierto.embed.visualization#view"
     }
 }
 
