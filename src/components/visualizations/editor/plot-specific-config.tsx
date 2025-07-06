@@ -4,12 +4,15 @@ import {
     isHemicycle,
     isDatasetDataSource,
     isTwoAxisPlot,
-    isOneAxisPlot, isTable
+    isOneAxisPlot, isTable, isTopicsDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {produce} from "immer";
 import {useDatasets} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config";
+import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
+import {useMemo} from "react";
+import {TablePlotter} from "@/components/visualizations/editor/plotter";
 
 
 type PlotSpecificConfigProps = {
@@ -19,19 +22,33 @@ type PlotSpecificConfigProps = {
 
 export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps) => {
     const {data: datasets} = useDatasets()
+    const {
+        data: topicsDataset,
+        isLoading: loadingTopicsDataset
+    } = useTopicsDataset(isTopicsDataSource(config.dataSource) ? config.filters : null, true)
+    const dataSource = config.dataSource
+    const dataset = datasets && isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined
+
+    const columnOptions = useMemo(() => {
+        if(dataset){
+            return dataset.columns.map(c => c.name)
+        } else if(topicsDataset && topicsDataset.data){
+            return topicsDataset.data.columns.map(c => c.name)
+        } else {
+            return null
+        }
+    }, [dataset, topicsDataset])
+
     if(!config.spec || !config.spec.$type) return null
 
     if(!datasets) return <div>
         <LoadingSpinner/>
     </div>
 
-    const dataSource = config.dataSource
-    const dataset = isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined
-
     if(isTwoAxisPlot(config.spec)){
         return <div className={"flex flex-col space-y-4"}>
             <SearchableDropdown
-                options={dataset ? dataset.columns.map(c => c.name) : []}
+                options={columnOptions}
                 label={"Eje x"}
                 size={"small"}
                 selected={config.spec.xAxis ?? ""}
@@ -44,7 +61,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
                 }}
             />
             <SearchableDropdown
-                options={dataset ? dataset.columns.map(c => c.name) : []}
+                options={columnOptions}
                 label={"Eje y"}
                 size={"small"}
                 selected={config.spec.yAxis ??  ""}
@@ -61,7 +78,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
     if(isOneAxisPlot(config.spec)) {
         return <div>
             <SearchableDropdown
-                options={dataset ? dataset.columns.map(c => c.name) : []}
+                options={columnOptions}
                 label={"Eje x"}
                 size={"small"}
                 selected={config.spec.xAxis ?? ""}

@@ -15,12 +15,15 @@ import SearchBar from "@/components/buscar/search-bar";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/profile-utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {pxToNumber} from "@/utils/strings";
+import {timeout} from "d3-timer";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
     return <AcceptButtonPanel open={open} buttonText={"Empezar"} onClose={onClose} className={"py-4 px-8"}>
         <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
-            <h2 className={"mb-4"}>¡Te damos la bienvenida!</h2>
+            <h2 className={"mb-4 py-2"}>¡Te damos la bienvenida!</h2>
 
             <div className={"text-[var(--text-light)] space-y-3"}>
                 <div>
@@ -34,8 +37,8 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                     Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá
                     en cualquier contenido de la plataforma.
                 </div>
-                <div className={"sm:hidden"}>
-                    Nota: En algún momento va a haber una App, pero por ahora algunas funcionalidades no están disponibles en el celular.
+                <div className={"sm:hidden bg-[var(--background-dark2)] p-2 rounded"}>
+                    <span className={"font-semibold"}>Nota.</span> Eventualmente vamos a tener una app, pero por ahora algunas funcionalidades no están disponibles en el celular.
                 </div>
             </div>
         </div>
@@ -53,6 +56,7 @@ const FirstFollowsMessage = ({open, onClose}: {
     const {data: bskyProfile} = useProfile("bsky.app")
     const [searchState, setSearchState] = useState({searching: false, value: ""})
     const {results, isLoading, isError, error} = useSearchUsers(searchState)
+    const {layoutConfig} = useLayoutConfig()
 
     const resultsWithSuggestions = useMemo(() => {
         if (!results && caProfile && bskyProfile) {
@@ -68,14 +72,12 @@ const FirstFollowsMessage = ({open, onClose}: {
         return null
     }
 
-    return <AcceptButtonPanel open={open} buttonText={"Terminar intro"} onClose={onClose} className={"py-4 px-8"}>
-        <div className={"flex flex-col items-center max-w-[500px] h-[500px]"}>
-            <h2 className={"mb-4"}>Siguiendo a los primeros usuarios</h2>
+    return <AcceptButtonPanel open={open} buttonText={"Terminar intro"} onClose={onClose} className={"py-4 flex flex-col items-center px-4 sm:px-8"}>
+        <div className={"flex flex-col items-center min-[500px]:w-[400px] h-[70vh]"}>
+            <h2 className={"mb-4 text-xl sm:text-2xl"}>Siguiendo a los primeros usuarios</h2>
 
-            <div className={"text-[var(--text-light)] space-y-3"}>
-                <div>
-                    Antes de terminar, buscá algunos usuarios para seguir.
-                </div>
+            <div className={"text-[var(--text-light)] space-y-3 text-sm"}>
+                Antes de terminar, te sugerimos buscar algunos usuarios para seguir.
             </div>
 
             <div className={"mt-4 w-full"}>
@@ -98,10 +100,11 @@ const FirstFollowsMessage = ({open, onClose}: {
                 {resultsWithSuggestions && resultsWithSuggestions.map(r => (
                     <div
                         key={r.did}
-                        className="w-1/3 p-1 box-border"
+                        className="w-1/2 min-[400px]:w-1/3 p-1 box-border"
                     >
                         <div
-                            className="rounded bg-[var(--background-dark2)] py-2 w-full aspect-[0.82] flex flex-col items-center justify-center space-y-1 text-center overflow-hidden">
+                            className="rounded bg-[var(--background-dark2)] py-2 w-full aspect-[0.82] flex flex-col items-center justify-center space-y-1 text-center overflow-hidden"
+                        >
                             <div className={"pointer-events-none"}>
                                 <ProfilePic user={r} className="w-14 h-14 rounded-full" descriptionOnHover={false}/>
                             </div>
@@ -115,6 +118,7 @@ const FirstFollowsMessage = ({open, onClose}: {
                                 <FollowButton
                                     handle={r.handle}
                                     profile={r}
+                                    dense={pxToNumber(layoutConfig.maxWidthCenter) < 400}
                                     backgroundColor={"background-dark2"}
                                     textClassName={"text-xs"}
                                 />
@@ -123,33 +127,30 @@ const FirstFollowsMessage = ({open, onClose}: {
                     </div>
                 ))}
             </div>
-
-
         </div>
     </AcceptButtonPanel>
 }
 
 
 const TourContent = ({children}: {children: ReactNode}) => {
-    return <span className={"text-[var(--text-light)]"}>{children}</span>
+    return <span className={"text-[var(--text-light)] sm:text-base text-sm"}>{children}</span>
 }
 
 
 export const RunTutorial = ({children}: { children: ReactNode }) => {
-    const [run, setRun] = useState(false)
-    const [showingWelcomeMessage, setShowingWelcomeMessage] = useState(true)
-    const [showingFirstFollowsMessage, setShowingFirstFollowsMessage] = useState(false)
-    const [startedRun, setStartedRun] = useState(false)
+    const [runStatus, setRunStatus] = useState<"not started" | "welcome" | "running" | "waiting sidebar" | "finished" | "follows">("welcome")
     const {user} = useSession()
+    const [stepIndex, setStepIndex] = useState<number>(0)
     const {data: profile} = useProfile(user.handle)
     const qc = useQueryClient()
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
     useEffect(() => {
-        if (user && startedRun) {
+        if (user) {
             qc.prefetchQuery({queryKey: ["profile", "cabildoabierto.ar"]})
             qc.prefetchQuery({queryKey: ["profile", "bsky.app"]})
         }
-    }, [user, startedRun])
+    }, [user, runStatus])
 
     useEffect(() => {
         if (profile && profile.bsky.followsCount == 1) {
@@ -164,7 +165,8 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 Empecemos con un pequeño tour.
             </TourContent>,
             placement: 'center',
-            disableBeacon: true
+            disableBeacon: true,
+            hideBackButton: true
         },
         {
             target: '#siguiendo',
@@ -172,7 +174,8 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 El muro con las personas que seguís. Igual a Twitter o Bluesky, pero también hay artículos.
             </TourContent>,
             placement: 'bottom',
-            disableBeacon: true
+            disableBeacon: true,
+            hideBackButton: true
         },
         {
             target: '#discusion',
@@ -180,13 +183,7 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 Un muro con lo más popular en Cabildo Abierto. Sin inteligencia artificial.
             </TourContent>,
             placement: 'bottom',
-        },
-        {
-            target: '#descubrir',
-            content: <TourContent>
-                Un muro para explorar contenidos de personas que no seguís.
-            </TourContent>,
-            placement: 'bottom',
+            hideBackButton: true
         },
         {
             target: '#temas',
@@ -194,6 +191,7 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 Una wiki (como Wikipedia) sobre los temas en discusión, con los consensos de la plataforma, visualizaciones y más.
             </TourContent>,
             placement: 'bottom',
+            hideBackButton: true
         },
         {
             target: '#write-button',
@@ -201,6 +199,7 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 Escribí publicaciones rápidas y artículos, editá temas de la wiki o creá temas nuevos.
             </TourContent>,
             placement: 'bottom',
+            hideBackButton: true
         },
         {
             target: '#trending-topics',
@@ -208,21 +207,21 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 Los temas de la wiki en tendencia. Cada uno tiene un artículo asociado.
             </TourContent>,
             placement: 'bottom',
+            hideBackButton: true,
         }
     ])
 
+    console.log("index", stepIndex, "steps", steps.length)
+
     useEffect(() => {
-        const isMobile = window.innerWidth <= 800
-        if(isMobile) {
-            setSteps([])
+        if(!layoutConfig.openRightPanel || !layoutConfig.spaceForRightSide){
+            const i = steps
+                .findIndex(x => x.target == "#trending-topics")
+            if(i != -1){
+                setSteps(steps.toSpliced(i))
+            }
         }
-
-        if (!showingWelcomeMessage && !showingFirstFollowsMessage) {
-            setRun(true)
-            setStartedRun(true)
-        }
-
-    }, [showingWelcomeMessage])
+    }, [layoutConfig, steps])
 
     async function setSeenTutorial() {
         qc.setQueryData(["session"], old => {
@@ -234,10 +233,32 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
     }
 
     useEffect(() => {
-        if (startedRun && !run) {
+        if (runStatus == "finished") {
             setSeenTutorial()
         }
-    }, [run, startedRun]);
+    }, [runStatus])
+
+    useEffect(() => {
+        async function waitForSidebarRender(){
+            for(let i = 0; i < 3; i++){
+                const element = document.getElementById("temas")
+                await new Promise(resolve => setTimeout(resolve, 100))
+                if(element){
+                    console.log("found element temas")
+                    console.log(element)
+                    setRunStatus("running")
+                    setStepIndex(3)
+                    break
+                }
+            }
+        }
+
+        if(runStatus == "waiting sidebar") {
+            if(layoutConfig.openSidebar){
+                waitForSidebarRender()
+            }
+        }
+    }, [runStatus, layoutConfig]);
 
     const handleJoyrideCallback = async (data: CallBackProps) => {
         const {status} = data;
@@ -245,10 +266,35 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
 
         smoothScrollTo(0)
 
-        if (finishedStatuses.includes(status)) {
-            setRun(false)
+        console.log(`type ${data.type} step ${data.index}`)
+
+        if (data.type === "step:after" && data.index === 2) {
+            console.log("setting waiting sidebar")
+            setRunStatus("waiting sidebar")
+            setLayoutConfig({
+                ...layoutConfig,
+                openSidebar: true
+            })
+        } else if (data.type == "step:after") {
+            console.log("setting step index", data.index+1, stepIndex)
+            setStepIndex(data.index+1)
+        } else if (finishedStatuses.includes(status)) {
             if (profile && profile.bsky.followsCount <= 1) {
-                setShowingFirstFollowsMessage(true)
+                setRunStatus("follows")
+                if(!layoutConfig.spaceForRightSide){
+                    setLayoutConfig({
+                        ...layoutConfig,
+                        openSidebar: false
+                    })
+                }
+            } else {
+                setRunStatus("finished")
+                if(!profile){
+                    console.log("sin perfil! no podemos ver los follows")
+                } else {
+                    console.log("follows count", profile.bsky.followsCount)
+                    console.log(profile.bsky)
+                }
             }
         }
     };
@@ -257,7 +303,8 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
         <>
             <Joyride
                 steps={steps}
-                run={run}
+                stepIndex={stepIndex}
+                run={runStatus == "running"}
                 continuous
                 scrollToFirstStep={false}
                 disableScrolling={true}
@@ -310,13 +357,13 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 }}
             />
             {children}
-            <WelcomeMessage open={showingWelcomeMessage} onClose={() => {
-                setShowingWelcomeMessage(false)
+            <WelcomeMessage open={runStatus == "welcome"} onClose={() => {
+                setRunStatus("running")
             }}/>
-            {showingFirstFollowsMessage && <FirstFollowsMessage
-                open={showingFirstFollowsMessage}
+            {runStatus == "follows" && <FirstFollowsMessage
+                open={true}
                 onClose={() => {
-                    setShowingFirstFollowsMessage(false)
+                    setRunStatus("finished")
                 }}
             />}
         </>

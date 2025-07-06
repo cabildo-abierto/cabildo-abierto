@@ -127,13 +127,8 @@ export const NewDatasetPanel = ({open, onClose}: {
     }
 
     const dataset: DatasetForTableView | null = columns && rows && {
-        $type: "ar.cabildoabierto.data.dataset#datasetView",
         columns: columns.map(c => ({name: c, $type: "ar.cabildoabierto.data.dataset#column"})),
         data: JSON.stringify(rows)
-    }
-
-    function onClickTopicsBased() {
-
     }
 
     let center

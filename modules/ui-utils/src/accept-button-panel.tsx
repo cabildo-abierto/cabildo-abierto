@@ -16,7 +16,7 @@ export const AcceptButtonPanel = ({
         <div className={className}>
             {children}
 
-            <div className="flex justify-center mt-8 mb-1">
+            <div className="flex justify-center mt-4 mb-1">
                 <Button
                     color="primary"
                     onClick={onClose}

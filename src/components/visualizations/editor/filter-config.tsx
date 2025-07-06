@@ -4,10 +4,15 @@ import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import RemoveIcon from "@mui/icons-material/Remove";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {isColumnFilter, validateColumnFilter} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {
+    isColumnFilter,
+    isDatasetDataSource,
+    validateColumnFilter
+} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {produce} from "immer";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import {TextField} from "../../../../modules/ui-utils/src/text-field";
+import {useCategories} from "@/queries/api";
 
 
 function operandViewToValue(op: string) {
@@ -39,15 +44,25 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
     onRemove: () => void
     dataset?: DatasetViewBasic
 }) => {
+    const {data: categories} = useCategories()
     const filter = config.filters[index]
 
 
     if (isColumnFilter(filter)) {
-        const isDatasetSource = config.dataSource.$type == "ar.cabildoabierto.embed.visualization#datasetDataSource"
-        const columnOptions = dataset ? dataset.columns.map(c => c.name) : []
+        const isDatasetSource = isDatasetDataSource(config.dataSource)
+        const columnOptions = dataset ? dataset.columns.map(c => c.name) : ["Categorías", "Título", "Sinónimos"]
         const isSingleOperand = !filter.operator || ["<=", "<", ">", ">=", "=", "!=", "includes"].includes(filter.operator)
 
         const valid = validateColumnFilter(filter)
+
+        const selectedColumn = filter.column ?? (dataset ? dataset.columns[0].name : "")
+        let valueOptions: string[] | "loading" = undefined
+        if(selectedColumn == "Categorías" && categories){
+            valueOptions = categories ?? "loading"
+        }
+
+        // TO DO: "=", "≠", ">", "<", "≥", "≤", "en", "no en"
+        const operatorOptions = ["incluye"]
 
         return <div
             className={"flex space-x-2 justify-between items-center" + (!valid.success ? "border border-red-200" : "")}>
@@ -58,7 +73,7 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                         label={isDatasetSource ? "Columna" : "Propiedad"}
                         size={"small"}
                         fontSize={"12px"}
-                        selected={filter.column ?? (dataset ? dataset.columns[0].name : "")}
+                        selected={selectedColumn}
                         onChange={(c: string) => {
                             setConfig(produce(config, draft => {
                                 if (isColumnFilter(draft.filters[index])) {
@@ -70,7 +85,7 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                 </div>
                 <div className={"min-w-20"}>
                     <Select
-                        options={["incluye"]} // TO DO: "=", "≠", ">", "<", "≥", "≤", "en", "no en"
+                        options={operatorOptions}
                         label={"Operador"}
                         value={operandToView(filter.operator) ?? "="}
                         fontSize={"12px"}
@@ -84,15 +99,16 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                     />
                 </div>
                 <div className={"flex-1"}>
-                    {isSingleOperand && <TextField
+                    {isSingleOperand && <SearchableDropdown
                         label={"Valor"}
                         size={"small"}
                         fontSize={"12px"}
-                        value={filter.operands && filter.operands.length > 0 ? filter.operands[0] : ""}
+                        options={valueOptions}
+                        selected={filter.operands && filter.operands.length > 0 ? filter.operands[0] : ""}
                         onChange={(e) => {
                             setConfig(produce(config, draft => {
                                 if (isColumnFilter(draft.filters[index])) {
-                                    draft.filters[index].operands = [e.target.value]
+                                    draft.filters[index].operands = [e]
                                 }
                             }))
                         }}

@@ -182,6 +182,11 @@ export function useMonthlyValue() {
 }
 
 
+export function useFundingState() {
+    return useAPI<number>("/funding-state", ["funding-state"])
+}
+
+
 export function useStatsDashboard() {
     return useAPI<StatsDashboard>("/stats-dashboard", ["stats-dashboard"])
 }

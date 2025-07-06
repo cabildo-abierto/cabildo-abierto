@@ -209,16 +209,13 @@ const settings: SettingsProps = getEditorSettings({
     placeholderClassName: "text-[var(--text-light)] absolute top-0",
     editorClassName: "link relative",
     isReadOnly: false,
-    isRichText: false
+    isRichText: false,
+    markdownShortcuts: false
 })
 
 
 export function visualizationViewToMain(v: VisualizationView): Visualization {
-    const {dataset, ...props} = v
-    return {
-        ...props,
-        $type: "ar.cabildoabierto.embed.visualization"
-    }
+    return v.visualization
 }
 
 

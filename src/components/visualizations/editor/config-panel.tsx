@@ -146,10 +146,7 @@ const ConfigPanelVisualization = ({config, setConfig}: {
             onChange={(v) => {
                 setConfig(produce(config, draft => {
                     if (!draft.spec) draft.spec = {}
-                    draft.spec = {
-                        ...draft.spec,
-                        ...kindToLexicon(v)
-                    }
+                    draft.spec = kindToLexicon(v)
                 }))
             }}
             label="Tipo de gráfico"

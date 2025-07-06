@@ -143,8 +143,8 @@ export const Login = () => {
                         ¡Recibiste un código de invitación!
                     </div>
                     <div className={"text-sm text-[var(--text-light)]"}>
-                        Si ya tenés una cuenta de Bluesky, iniciá sesión. Si no, podés crearla <Link
-                        className={"link2"} target={"_blank"} href={"https://bsky.app"}>acá</Link>.
+                        Si ya tenés una cuenta de Bluesky, iniciá sesión. Si no, creala <Link
+                        className={"link2"} target={"_blank"} href={"https://bsky.app"}>acá</Link> y volvé.
                     </div>
                 </div>}
 

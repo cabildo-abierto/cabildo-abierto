@@ -266,21 +266,7 @@ export function validateBarplot<V>(v: V) {
 
 export interface View {
   $type?: 'ar.cabildoabierto.embed.visualization#view'
-  dataSource:
-    | $Typed<DatasetDataSource>
-    | $Typed<TopicsDataSource>
-    | { $type: string }
-  spec:
-    | $Typed<Hemicycle>
-    | $Typed<Barplot>
-    | $Typed<Scatterplot>
-    | $Typed<Histogram>
-    | $Typed<Lines>
-    | $Typed<Table>
-    | { $type: string }
-  title?: string
-  caption?: string
-  aspectRatio?: string
+  visualization: Main
   dataset:
     | $Typed<ArCabildoabiertoDataDataset.DatasetView>
     | $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView>

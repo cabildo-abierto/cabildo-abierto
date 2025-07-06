@@ -27,6 +27,7 @@ export interface ProfileViewBasic {
   labels?: ComAtprotoLabelDefs.Label[]
   createdAt?: string
   caProfile?: string
+  verification?: 'person' | 'org' | (string & {})
 }
 
 const hashProfileViewBasic = 'profileViewBasic'

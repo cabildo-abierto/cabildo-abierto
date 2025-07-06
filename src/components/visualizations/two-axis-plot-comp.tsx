@@ -102,6 +102,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         showTooltip,
         hideTooltip,
     } = useTooltip<{ x: ValueType; y: ValueType }>();
+    const svgRef = useRef<SVGSVGElement>(null);
 
     const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({scroll: true})
     const [measureRef, bounds] = useMeasure()
@@ -110,28 +111,6 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         tooltipContainerRef(node)
         measureRef(node)
     }, [tooltipContainerRef, measureRef])
-
-    const zoomContainerRef = useRef<SVGRectElement | null>(null)
-    const handleWheelRef = useRef<(e: WheelEvent) => void>(null)
-
-    useEffect(() => {
-        const node = zoomContainerRef.current
-        if (!node) return
-
-        const handleWheel = (e: WheelEvent) => {
-            e.preventDefault()
-            e.stopPropagation()
-            if (handleWheelRef.current) {
-                handleWheelRef.current?.(e)
-            }
-        }
-
-        node.addEventListener("wheel", handleWheel, {passive: false})
-
-        return () => {
-            node.removeEventListener("wheel", handleWheel)
-        }
-    }, [])
 
     const plotter = useMemo(() => {
         if (isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
@@ -149,16 +128,19 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
 
     const data = plotter.getDataPoints()
 
-    const aspectRatio = parseFloat(visualization.aspectRatio ?? "1.33")
+    const vis = visualization.visualization
+
+    const aspectRatio = parseFloat(vis.aspectRatio ?? "1.33")
 
     const totalWidth = maxWidth ?? bounds.width
     const totalHeight = maxHeight ?? Math.max(bounds.height, 400)
 
-    if (!bounds.width || !bounds.height) return <div className={"w-full h-full"} ref={containerRef}><LoadingSpinner/>
+    if (!bounds.width || !bounds.height) return <div className={"w-full h-full"} ref={containerRef}>
+        <LoadingSpinner/>
     </div>
 
-    const titleHeight = visualization.title ? 30 : 0
-    const captionHeight = visualization.caption ? 50 : 0
+    const titleHeight = vis.title ? 30 : 0
+    const captionHeight = vis.caption ? 50 : 0
     const reservedHeight = titleHeight + captionHeight
 
     const availableHeight = totalHeight - reservedHeight
@@ -173,7 +155,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const {
         scaleFactorX,
         scaleFactorY
-    } = getScaleFactor(svgWidth, svgHeight, aspectRatio, Boolean(visualization.title), Boolean(visualization.caption))
+    } = getScaleFactor(svgWidth, svgHeight, aspectRatio, Boolean(vis.title), Boolean(vis.caption))
 
     const margin = {
         top: 10 * scaleFactorY,
@@ -207,7 +189,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
             ref={containerRef}
         >
             <PlotTitle
-                title={visualization.title}
+                title={vis.title}
                 fontSize={18 * Math.min(scaleFactorX, scaleFactorY)}
             />
             {tooltipOpen && tooltipData && (
@@ -229,7 +211,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 </TooltipInPortal>
             )}
 
-            <Zoom
+            <Zoom<SVGSVGElement>
                 width={plotInnerWidth}
                 height={plotInnerHeight}
                 scaleXMin={0.5}
@@ -239,8 +221,6 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 initialTransformMatrix={initialTransform}
             >
                 {zoom => {
-                    handleWheelRef.current = zoom.handleWheel;
-
                     let axisLeftScale
                     let axisBottomScale
                     if (allowZoom) {
@@ -252,7 +232,12 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         axisLeftScale = yScale
                     }
 
-                    return <svg width={svgWidth} height={svgHeight}>
+                    return <svg
+                        width={svgWidth}
+                        height={svgHeight}
+                        style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                        ref={zoom.containerRef}
+                    >
                         <defs>
                             <clipPath id={`zoom-clip-${randId}`}>
                                 <rect width={plotInnerWidth} height={plotInnerHeight}/>
@@ -260,13 +245,9 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         </defs>
                         <Group top={margin.top} left={margin.left}>
                             <rect
-                                ref={zoomContainerRef}
                                 width={plotInnerWidth}
                                 height={plotInnerHeight}
                                 fill={"transparent"}
-                                onWheel={(e) => {
-                                    zoom.handleWheel(e)
-                                }}
                                 onMouseDown={zoom.dragStart}
                                 onMouseMove={zoom.dragMove}
                                 onMouseUp={zoom.dragEnd}
@@ -353,7 +334,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                     </svg>
                 }}
             </Zoom>
-            <PlotCaption caption={visualization.caption} fontSize={14 * Math.min(scaleFactorX, scaleFactorY)}/>
+            <PlotCaption caption={vis.caption} fontSize={15 * Math.min(scaleFactorX, scaleFactorY)}/>
         </div>
     );
 }

@@ -11,13 +11,13 @@ const ValidationIcon = ({handle, validation, fontSize = 22, color="primary"}: {
     const moreInfoHref = topicUrl("Cabildo Abierto: Verificación de cuentas")
 
     if (validation == "persona") {
-        return <DescriptionOnHover description={`@${handle} es una persona real.`} moreInfoHref={moreInfoHref}>
+        return <DescriptionOnHover description={handle && `@${handle} es una persona real.`} moreInfoHref={moreInfoHref}>
             <div style={{backgroundColor: `var(--${color})`}} className={"rounded-full"}>
                 <UserCircle fontSize={fontSize} color={"var(--text)"} weight={"fill"}/>
             </div>
         </DescriptionOnHover>
     } else if (validation == "org") {
-        return <DescriptionOnHover description={`@${handle} es una organización verificada.`} moreInfoHref={moreInfoHref}>
+        return <DescriptionOnHover description={handle && `@${handle} es una organización verificada.`} moreInfoHref={moreInfoHref}>
             <div style={{backgroundColor: `var(--${color})`}} className={"rounded-full"}>
                 <CheckCircle fontSize={fontSize} color={"var(--text)"} weight={"bold"}/>
             </div>

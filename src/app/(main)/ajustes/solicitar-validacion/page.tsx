@@ -370,8 +370,8 @@ const Page = () => {
             const {error} = await post<ValidationRequestProps, {}>("/validation-request", res.request)
             if (!error) {
                 setRequestSent(true)
+                qc.setQueryData(["validation-request"], {type: res.request.tipo, result: "Pendiente"})
             }
-            qc.setQueryData(["validation-request"], {type: res.request.tipo, result: "Pendiente"})
             return {error}
         } else {
             return {error: res.error}
@@ -443,7 +443,6 @@ const Page = () => {
                 <StateButton handleClick={onSubmit} text1={"Enviar"} textClassName={"font-semibold"}/>
             </div>
         </div>}
-
 
         <div className={"space-y-4 pb-16"}>
             <Desplegable text={"¿Cómo funciona la validación de personas?"}>

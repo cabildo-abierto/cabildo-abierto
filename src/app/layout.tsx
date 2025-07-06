@@ -41,7 +41,6 @@ export default function RootLayout({
 }>) {
     return <html lang="es" spellCheck="false" className={fonts.join(" ")}>
         <head>
-
             <script
                 defer
                 src="https://cloud.umami.is/script.js"
@@ -54,7 +53,7 @@ export default function RootLayout({
                 content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
             </meta>
         </head>
-        <body className={"font-flex overflow-y-scroll"}>
+        <body className={"font-flex"}>
             <AppLayout>
                 {children}
             </AppLayout>

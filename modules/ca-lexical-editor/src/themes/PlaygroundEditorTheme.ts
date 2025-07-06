@@ -103,7 +103,6 @@ const theme: EditorThemeClasses = {
   tableSelection: 'PlaygroundEditorTheme__tableSelection',
   text: {
     bold: 'bold-text',
-    code: 'PlaygroundEditorTheme__textCode',
     italic: 'custom-italic',
     strikethrough: 'PlaygroundEditorTheme__textStrikethrough',
     subscript: 'PlaygroundEditorTheme__textSubscript',

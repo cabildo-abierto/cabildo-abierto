@@ -100,10 +100,10 @@ export const ContentOptions = ({
             }}
             disabled={getRkeyFromUri(record.uri) == "optimistic"}
         />}
-        {isPostView(record) && isVisualizationView(record.embed) && isDatasetDataSource(record.embed.dataSource) && <OptionsDropdownButton
+        {isPostView(record) && isVisualizationView(record.embed) && isDatasetDataSource(record.embed.visualization.dataSource) && <OptionsDropdownButton
             text1={"Ver los datos usados"}
             startIcon={<DatasetIcon/>}
-            href={contentUrl(record.embed.dataSource.dataset)}
+            href={contentUrl(record.embed.visualization.dataSource.dataset)}
             disabled={getRkeyFromUri(record.uri) == "optimistic"}
         />}
         {setShowBluesky &&

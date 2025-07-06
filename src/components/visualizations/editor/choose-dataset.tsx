@@ -175,16 +175,29 @@ const ChooseDatasetPanelFiltersConfig = ({
     }
 
     if(!config.dataSource || !config.dataSource.$type) {
-        return <div className={"text-[var(--text-light)] py-4 text-center"}>
+        return <div className={"text-sm text-[var(--text-light)] p-4 text-center"}>
             Elegí una fuente de datos primero.
         </div>
+    } else if(isDatasetDataSource(config.dataSource)){
+        return <div className={"text-sm text-[var(--text-light)] p-4 text-center"}>
+            Los filtros por ahora solo funcionan con conjuntos de datos basados en temas.
+        </div>
     }
+
+    const datasetUri = isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : undefined
+    const dataset = datasetUri ? datasets.find(d => d.uri == datasetUri) : undefined
 
     return <div className={"flex flex-col justify-between h-full pb-2 px-2"}>
         <div className={"flex flex-col items-start space-y-4"}>
             {(config.filters ?? []).map((d, i) => {
                 return <div key={i} className={"mt-4"}>
-                    <FilterConfig config={config} setConfig={setConfig} index={i} onRemove={() => {onRemoveFilter(i)}}/>
+                    <FilterConfig
+                        config={config}
+                        setConfig={setConfig}
+                        index={i}
+                        onRemove={() => {onRemoveFilter(i)}}
+                        dataset={dataset}
+                    />
                 </div>
             })}
             <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
@@ -199,7 +212,8 @@ const ChooseDatasetPanelFiltersConfig = ({
             text1="Cargar datos"
             size={"small"}
             handleClick={onReloadData}
-            /></div>}
+            />
+        </div>}
     </div>
 }
 

@@ -397,4 +397,17 @@ export class TablePlotter extends Plotter {
     columnValueToString(value: any, col: string): string {
         return this.valueToString(value, this.columnTypes.get(col))
     }
+
+    cmpValues(col: string, a: any, b: any){
+        const type = this.columnTypes.get(col)
+        if(type == "string"){
+            return (a as string) >= b ? 1 : -1
+        } else if(type == "number"){
+            return Number(a) >= Number(b) ? 1 : -1
+        } else if(type == "date"){
+            return new Date(a) >= new Date(b) ? 1 : -1
+        } else if(type == "string[]"){
+            return 0
+        }
+    }
 }
