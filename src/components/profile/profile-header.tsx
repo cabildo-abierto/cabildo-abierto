@@ -103,7 +103,7 @@ function ProfileHeader({
                         setViewingProfilePic(0)
                     }}
                 />
-                {isOwner && <div className={"pt-2"}>
+                {isOwner && <div className={"pt-2 pr-1"}>
                     <Button
                         color={"background-dark2"}
                         size={"small"}

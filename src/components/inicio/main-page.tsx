@@ -24,10 +24,21 @@ export function searchParamToOption(v: string) {
 }
 
 
+export function useEnDiscusionParams(){
+    const params = useSearchParams()
+
+    const metric = params.get("m") ?? "Popularidad relativa"
+    const time = params.get("p") ?? "Último día"
+
+    return {metric, time}
+}
+
+
 export const MainPage = () => {
     const params = useSearchParams()
     const paramsFeed = params.get("f")
     const selected = paramsFeed ? searchParamToOption(paramsFeed) : "Siguiendo"
+    const {metric, time} = useEnDiscusionParams()
 
     function onSelection(v: string) {
         updateSearchParam("f", optionToSearchParam(v))
@@ -49,18 +60,10 @@ export const MainPage = () => {
             />}
         {selected == "En discusión" &&
             <FeedViewContentFeed
-                getFeed={getFeed({type: "discusion"})}
+                getFeed={getFeed({type: "discusion", params: {metric, time}})}
                 noResultsText={"No hay contenidos en discusión."}
                 endText={"Fin del feed."}
-                queryKey={["main-feed", optionToSearchParam(selected)]}
+                queryKey={["main-feed", optionToSearchParam(selected), metric, time]}
             />}
-        {selected == "Descubrir" &&
-            <FeedViewContentFeed
-                getFeed={getFeed({type: "descubrir"})}
-                noResultsText={"Próximamente acá vas a encontrar contenidos de usuarios que no seguís."}
-                endText={"Fin del feed."}
-                queryKey={["main-feed", optionToSearchParam(selected)]}
-            />
-        }
     </div>
 }

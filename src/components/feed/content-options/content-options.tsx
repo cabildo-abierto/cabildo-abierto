@@ -65,6 +65,8 @@ export const ContentOptions = ({
     const authorDid = getDidFromUri(record.uri)
     const inBluesky = collection == "app.bsky.feed.post"
 
+    const isOptimistic = getRkeyFromUri(record.uri).startsWith("optimistic")
+
     return <div className={"flex flex-col space-y-1"}>
         {user.did == authorDid && <DeleteButton uri={record.uri} onClose={onClose}/>}
         {user.did == authorDid && canBeEnDiscusion(collection) && <OptionsDropdownButton
@@ -89,7 +91,7 @@ export const ContentOptions = ({
             }}
             startIcon={<Newspaper/>}
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
-            disabled={getRkeyFromUri(record.uri) == "optimistic"}
+            disabled={isOptimistic}
         />}
         {inBluesky && <OptionsDropdownButton
             text1={"Abrir en Bluesky"}
@@ -98,13 +100,13 @@ export const ContentOptions = ({
                 e.stopPropagation();
                 window.open(getBlueskyUrl(record.uri), "_blank")
             }}
-            disabled={getRkeyFromUri(record.uri) == "optimistic"}
+            disabled={isOptimistic}
         />}
         {isPostView(record) && isVisualizationView(record.embed) && isDatasetDataSource(record.embed.visualization.dataSource) && <OptionsDropdownButton
             text1={"Ver los datos usados"}
             startIcon={<DatasetIcon/>}
             href={contentUrl(record.embed.visualization.dataSource.dataset)}
-            disabled={getRkeyFromUri(record.uri) == "optimistic"}
+            disabled={isOptimistic}
         />}
         {setShowBluesky &&
             <OptionsDropdownButton

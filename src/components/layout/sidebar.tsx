@@ -222,9 +222,9 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                                 setWritePanelOpen(true)
                             }}/>
                         </div>
-                        <div className={"sm:hidden text-xs"}>
+                        {showText && <div className={"sm:hidden text-xs"}>
                             <RightPanelButtons/>
-                        </div>
+                        </div>}
                     </div>
                     <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
                         <IconButton

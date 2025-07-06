@@ -26,7 +26,7 @@ export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbe
         try {
             const markdown = quotedTextFormat == "markdown-compressed" ? decompress(quotedText) : quotedText
             if(quotedText.trim().length == 0){
-                return {content: "", format: "markdown"}
+                return {text: "", format: "markdown"}
             }
             const state = markdownToEditorState(markdown, true, true, quotedTextEmbeds);
             const lexicalSelection = selection.toLexicalSelection(JSON.stringify(state))
@@ -48,6 +48,6 @@ export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbe
     }
 
     return (
-        <PrettyJSON data={content}/>
+        <ReadOnlyEditor text={content.text} format={content.format}/>
     )
 }

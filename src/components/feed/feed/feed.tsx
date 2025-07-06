@@ -31,6 +31,7 @@ export type FeedProps<T> = {
     FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
     queryKey: string[]
     getFeedElementKey: (e: T) => string | null
+    enabled?: boolean
 }
 
 
@@ -45,45 +46,36 @@ export interface FeedPage<T> {
 
 
 function Feed<T>({
-                     getFeed,
-                     queryKey,
-                     loadWhenRemaining = 2000,
-                     noResultsText,
-                     endText,
-                     LoadingFeedContent,
-                     FeedElement,
-    getFeedElementKey
-                 }: FeedProps<T>) {
-    const qc = useQueryClient()
-
+    getFeed,
+    queryKey,
+    loadWhenRemaining = 2000,
+    noResultsText,
+    endText,
+    LoadingFeedContent,
+    FeedElement,
+    getFeedElementKey,
+    enabled=true
+}: FeedProps<T>) {
     const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isFetched, isError} = useInfiniteQuery({
         queryKey,
         queryFn: async ({pageParam}) => {
-            const {data, error} = await getFeed(pageParam == "start" ? undefined : pageParam);
+            const {data, error} = await getFeed(pageParam == "start" ? undefined : pageParam)
             if (error) {
-                throw new Error("Failed to fetch feed");
+                throw new Error("Failed to fetch feed")
             }
-
             const newPage: FeedPage<T> = {
                 data: data.feed,
                 nextCursor: data.cursor
             }
             return newPage
         },
-        getNextPageParam: (lastPage) => {
+        getNextPageParam: lastPage => {
             return lastPage.data.length > 0 ? lastPage.nextCursor : undefined
         },
         initialPageParam: "start",
-        staleTime: 1000 * 60 * 5
+        staleTime: 1000 * 60 * 5,
+        enabled
     })
-
-
-    useEffect(() => {
-        if (isFetched) {
-            qc.removeQueries({ queryKey });
-            qc.refetchQueries({ queryKey });
-        }
-    }, [getFeed]);
 
     useEffect(() => {
         const handleScroll = async () => {

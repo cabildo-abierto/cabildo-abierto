@@ -21,9 +21,11 @@ export const CategoryTopics = ({sortedBy, categories}: {
     if (isLoading) return <LoadingSpinner/>
     if (!topics) return <ErrorPage>{error.message}</ErrorPage>
 
+    const queryKey = ["category-topics", categories.sort().join(":"), sortedBy]
+
     return <div className="flex flex-col items-center w-full" key={sortedBy + categories.join("-")}>
         <StaticFeed
-            queryKey={["category-topics", ...categories.sort().join(":"), sortedBy]}
+            queryKey={queryKey}
             initialContents={topics}
             FeedElement={({content: t, index}: {content: TopicViewBasic, index?: number}) =>
                 <TopicSearchResult topic={t} index={index}/>

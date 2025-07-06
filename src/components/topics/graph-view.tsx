@@ -49,8 +49,11 @@ const Node = ({node, onClickNode, nodeWidth, nodeHeight, showText}: {
             className={"cursor-pointer flex-col text-sm justify-center leading-tight p-1 bg-[var(--background-dark)] border-2 border-[var(--text)] flex items-center text-center w-full h-full " + (categorySize == undefined ? "rounded-lg" : "")}
         >
             {showText && <>
-            <div className={"text-wrap " + (categorySize != undefined ? "font-semibold" : "")} style={{fontSize: 12}}>
-                {node.id.length > 60 ? node.id.slice(0, 40) + "..." : node.id}
+            <div
+                className={`text-wrap line-clamp-2 ${categorySize !== undefined ? "font-semibold" : ""}`}
+                style={{ fontSize: 12 }}
+            >
+                {node.id}
             </div>
             {categorySize != undefined && <div className={"text-xs text-[var(--text-light)]"}>
                 {categorySize} {categorySize == 1 ? "tema" : "temas"}.

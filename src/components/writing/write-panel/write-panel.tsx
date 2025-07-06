@@ -163,8 +163,8 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
 
     const content: $Typed<PostView> = {
         $type: "ar.cabildoabierto.feed.defs#postView",
-        uri: getUri(author.bsky.did, "app.bsky.feed.post", "optimistic"),
-        cid: "optimistic-post-cid",
+        uri: getUri(author.bsky.did, "app.bsky.feed.post", `optimistic-${Date.now()}`),
+        cid: `optimistic-post-cid`,
         author: basicAuthor,
         likeCount: 0,
         repostCount: 0,
