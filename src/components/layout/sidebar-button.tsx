@@ -3,6 +3,9 @@ import { ReactNode } from "react"
 import { CustomLink } from "../../../modules/ui-utils/src/custom-link"
 import { Button, Color } from "../../../modules/ui-utils/src/button"
 import { IconButton } from "../../../modules/ui-utils/src/icon-button"
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {pxToNumber} from "@/utils/strings";
+import {produce} from "immer";
 
 type SidebarButtonProps = {
     text: string
@@ -31,9 +34,19 @@ export const SidebarButton = ({
     id,
     color="background-dark"
 }: SidebarButtonProps) => {
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+
+    function handleClick(){
+        if(!layoutConfig.spaceForLeftSide) {
+            setLayoutConfig({
+                ...layoutConfig,
+                openSidebar: false
+            })
+        }
+    }
 
     return <>
-        <CustomLink href={href} className={className} id={id}>
+        <CustomLink href={href} className={className} id={id} onClick={handleClick}>
             {showText ? <Button
                 variant="text"
                 color={color}

@@ -16,9 +16,7 @@ import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {$Typed} from "@atproto/api";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
-import {bottomBarHeight} from "@/components/layout/bottom-bar-mobile";
 import {useMediaQuery, useTheme} from "@mui/system";
-import {pxToNumber} from "@/utils/strings";
 
 
 type SendMessageParams = { message: MessageInput, convoId: string }
@@ -151,7 +149,7 @@ export default function Page() {
     const title = other.displayName && other.displayName.length > 0 ? other.displayName : ("@" + other.handle)
 
     return (
-        <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-44px)]" : "h-screen")}>
+        <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-56px)]" : "h-screen")}>
             <PageHeader title={title} defaultBackHref={"/mensajes"}/>
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2">

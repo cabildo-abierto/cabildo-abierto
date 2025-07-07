@@ -27,7 +27,7 @@ const FeedConfig = () => {
         <div className={"p-2 space-y-4 bg-[var(--background-dark)] border w-56"}>
             <div className={"w-full flex justify-between items-end space-x-8"}>
                 <div className={"text-sm text-[var(--text)]"}>
-                    Configurar <span className={"font-semibold"}>En discusión</span>
+                    Configurar <span className={"font-semibold text-[var(--text-light)]"}>En discusión</span>
                 </div>
                 <InfoPanel onClick={() => {
                     window.open(topicUrl("Cabildo Abierto: Muros"), "_blank")

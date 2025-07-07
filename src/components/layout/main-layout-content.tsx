@@ -64,8 +64,6 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
             </div>
         }
 
-        <div className="fixed bottom-0 left-0 w-full max-[500px]:block hidden">
-            <BottomBarMobile/>
-        </div>
+        <BottomBarMobile/>
     </div>
 }

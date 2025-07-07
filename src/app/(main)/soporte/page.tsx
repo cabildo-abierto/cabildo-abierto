@@ -1,5 +1,5 @@
 "use client"
-import {chatUrl, profileUrl, topicUrl} from "@/utils/uri";
+import {categoryUrl, chatUrl, profileUrl, topicUrl} from "@/utils/uri";
 
 import Link from "next/link"
 import {post} from "@/utils/fetch";
@@ -60,7 +60,7 @@ const Page = () => {
                 </li>
                 <li>
                     Comentar los <Link
-                    href={topicUrl("Cabildo Abierto")}
+                    href={categoryUrl("Cabildo Abierto", "lista")}
                 >
                     temas de Cabildo Abierto
                 </Link>.

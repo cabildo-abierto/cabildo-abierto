@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from 'next/image'
 import {isMobile} from 'react-device-detect'
 import BlueskyLogo from "@/components/icons/bluesky-logo";
-import Footer from "../../../modules/ui-utils/src/footer";
-import {Logo} from "../../../modules/ui-utils/src/logo";
-import {Button, Color} from "../../../modules/ui-utils/src/button";
+import Footer from "../../modules/ui-utils/src/footer";
+import {Logo} from "../../modules/ui-utils/src/logo";
+import {Button, Color} from "../../modules/ui-utils/src/button";
 import {CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, Suspense} from "react";

@@ -36,9 +36,6 @@ function getChanges(prevText: SerializedEditorState, newText: SerializedEditorSt
         if (md.length == 0) {
             return null
         }
-        if (nodeEditorState.root.children.length > 1) {
-            console.log("Warning: Se perdió información al mostrar los cambios.")
-        }
         const diffNode: SerializedDiffNode = {
             children: [nodeEditorState.root.children[0]],
             type: "diff",

@@ -11,8 +11,7 @@ type ClickableModalOnClickProps = {
 export const ClickableModalOnClick = ({
                                           children,
                                           id,
-                                          modal,
-                                          className = "mt-2 bg-[var(--background-dark)]"
+                                          modal
                                       }: ClickableModalOnClickProps) => {
     const buttonRef = useRef<HTMLDivElement>(null)
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
@@ -36,10 +35,18 @@ export const ClickableModalOnClick = ({
             open={open}
             anchorEl={anchorEl}
             onClose={handleClose}
-            style={{zIndex: 1300}}
+            style={{
+                zIndex: 1300
+            }}
             anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'left',
+            }}
+            PaperProps={{
+                elevation: 0,
+                style: {
+                    boxShadow: 'none'
+                }
             }}
         >
             {modal(handleClose)}
