@@ -12,6 +12,7 @@ import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 import {topicUrl} from "@/utils/uri";
+import {MobileHeader} from "@/components/layout/mobile-header";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
@@ -85,8 +86,9 @@ export const TopicPage = ({topicId, did, rkey}: {
         }
     }
 
-    return <div className="flex flex-col items-center w-full pt-4">
-        <div className="flex flex-col py-1 mb-2 w-full space-y-2 px-2">
+    return <div className="flex flex-col items-center w-full min-[500px]:pt-4">
+        <MobileHeader/>
+        <div className="flex flex-col py-1 mb-2 w-full sm:space-y-2 px-2">
             <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>

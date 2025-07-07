@@ -18,8 +18,12 @@ const LoginPanel = ({children, onClickBack}: { children: ReactNode, onClickBack?
         <div
             className={"bg-[var(--background)] sm:w-[480px] sm:rounded-2xl px-4 space-y-4 sm:h-auto sm:mt-10 flex flex-col items-center w-screen h-screen"}>
             <div className={"flex justify-start w-full text-[var(--text-light)] mt-4"}>
-                <BackButton defaultURL={"/presentacion"} preferReferrer={false} color={"background"}
-                            onClick={onClickBack}/>
+                <BackButton
+                    defaultURL={"/"}
+                    preferReferrer={false}
+                    color={"background"}
+                    onClick={onClickBack}
+                />
             </div>
             {children}
         </div>
@@ -168,11 +172,11 @@ export const Login = () => {
 
                 <div className={"pt-0 flex flex-col space-y-2 pb-2"}>
                     <Link
-                        href={"/presentacion"}
+                        href={"/"}
                         target={"_blank"}
                         onClick={(e) => {
                             e.preventDefault()
-                            router.push("/presentacion" + (inviteCode ? `?c=${inviteCode}` : ""))
+                            router.push(inviteCode ? `/?c=${inviteCode}` : "/")
                         }}
                         className={"text-[var(--text-light)] hover:text-[var(--text)] text-[14px]"}
                     >

@@ -1,55 +1,30 @@
-import {SidebarButton} from "./sidebar-button";
 import CabildoIcon from "../icons/home-icon";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import React from "react";
-import {usePathname} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "../icons/notifications-icon";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import CollectionsBookmarkOutlinedIcon from "@mui/icons-material/CollectionsBookmarkOutlined";
 import TopicsIcon from "@/components/icons/topics-icon";
-
-export const bottomBarHeight = 50
+import {BottomNavigation, BottomNavigationAction, Paper} from "@mui/material";
 
 export const BottomBarMobile = () => {
     const pathname = usePathname()
+    const router = useRouter()
 
-    const buttonClassName = ""
+    const values = ["inicio", "temas", "buscar", "notificaciones"]
+    const value: string = values.find(v => pathname.startsWith(`/${v}`)) ?? null
 
-    return <div style={{height: bottomBarHeight}} className={"border-t flex justify-between items-center bg-[var(--background)] px-2"}>
-        <SidebarButton
-            icon={<CabildoIcon/>}
-            iconInactive={<HomeOutlinedIcon/>}
-            text="Inicio"
-            href="/inicio"
-            selected={pathname.startsWith("/inicio")}
-            className={buttonClassName}
-            color={"background"}
-        />
-        <SidebarButton
-            icon={<TopicsIcon/>}
-            iconInactive={<TopicsIcon outlined={true}/>}
-            text="Temas"
-            href="/temas"
-            selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
-            className={buttonClassName}
-            color={"background"}
-        />
-        <SidebarButton
-            icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
-            iconInactive={<SearchIcon/>}
-            text="Buscar"
-            selected={pathname.startsWith("/buscar")}
-            href="/buscar"
-            className={buttonClassName}
-            color={"background"}
-        />
-        <SidebarButton
-            icon={<NotificationsIcon count={0}/>}
-            iconInactive={<NotificationsOutlinedIcon/>}
-            text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
-            className={buttonClassName}
-            color={"background"}
-        />
-    </div>
+    return <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+        <BottomNavigation
+            showLabels
+            value={value}
+            onChange={(event, newValue: string) => {
+                router.push(`/${newValue}`)
+            }}
+        >
+            <BottomNavigationAction value="inicio" label="Inicio" icon={<CabildoIcon />} />
+            <BottomNavigationAction value="temas" label="Temas" icon={<TopicsIcon />} />
+            <BottomNavigationAction value="buscar" label="Buscar" icon={<SearchIcon />} />
+            <BottomNavigationAction value="notificaciones" label="Notificaciones" icon={<NotificationsIcon />} />
+        </BottomNavigation>
+    </Paper>
 }

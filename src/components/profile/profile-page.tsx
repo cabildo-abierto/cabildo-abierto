@@ -7,6 +7,7 @@ import {getFeed} from "@/components/feed/feed/get-feed";
 
 import dynamic from "next/dynamic";
 import {updateSearchParam} from "@/utils/fetch";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
 const ProfileHeader = dynamic(() => import("./profile-header"), {ssr: false})
 const FeedViewContentFeed = dynamic(() => import("@/components/feed/feed/feed-view-content-feed"), {ssr: false})
@@ -45,7 +46,7 @@ export const ProfilePage = ({
         updateSearchParam("s", profileDisplayToOption(v))
     }
 
-    return <div>
+    return <div className={""}>
         {!profile && <LoadingProfile/>}
         {profile &&
             <ProfileHeader

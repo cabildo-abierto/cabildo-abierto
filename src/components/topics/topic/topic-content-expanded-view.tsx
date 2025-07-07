@@ -76,11 +76,9 @@ const TopicContentExpandedViewContent = ({
     setEditor: (editor: LexicalEditor) => void
 }) => {
 
-
-
     return <>
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
-            <div id="editor" className={"pb-2 min-h-[300px] mt-4 px-2"} key={topic.uri}>
+            <div id="editor" className={"pb-2 min-h-[300px] mt-4 sm:px-2 px-4"} key={topic.uri}>
                 {["editing", "editing-props", "normal", "props"].includes(wikiEditorState) && <div
                     className={wikiEditorState.startsWith("editing") ? "mb-32" : "mb-8"}
                 >

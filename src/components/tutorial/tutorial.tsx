@@ -211,8 +211,6 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
         }
     ])
 
-    console.log("index", stepIndex, "steps", steps.length)
-
     useEffect(() => {
         if(!layoutConfig.openRightPanel || !layoutConfig.spaceForRightSide){
             const i = steps
@@ -244,8 +242,6 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 const element = document.getElementById("temas")
                 await new Promise(resolve => setTimeout(resolve, 100))
                 if(element){
-                    console.log("found element temas")
-                    console.log(element)
                     setRunStatus("running")
                     setStepIndex(3)
                     break
@@ -266,17 +262,13 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
 
         smoothScrollTo(0)
 
-        console.log(`type ${data.type} step ${data.index}`)
-
         if (data.type === "step:after" && data.index === 2) {
-            console.log("setting waiting sidebar")
             setRunStatus("waiting sidebar")
             setLayoutConfig({
                 ...layoutConfig,
                 openSidebar: true
             })
         } else if (data.type == "step:after") {
-            console.log("setting step index", data.index+1, stepIndex)
             setStepIndex(data.index+1)
         } else if (finishedStatuses.includes(status)) {
             if (profile && profile.bsky.followsCount <= 1) {
@@ -289,12 +281,6 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
                 }
             } else {
                 setRunStatus("finished")
-                if(!profile){
-                    console.log("sin perfil! no podemos ver los follows")
-                } else {
-                    console.log("follows count", profile.bsky.followsCount)
-                    console.log(profile.bsky)
-                }
             }
         }
     };

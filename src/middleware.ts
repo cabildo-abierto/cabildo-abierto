@@ -2,14 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 import {backendUrl} from "@/utils/uri";
 
 
-function isNewUserRoute(request: NextRequest){
-  return ['/login'].includes(request.nextUrl.pathname)
-}
-
-function isPublicRoute(request: NextRequest){
-    return ["/bingo", "/v1", "/.well-known/atproto-did", "/client-metadata.json", "/presentacion", "/api/oauth/callback", "/login/ok"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/api/")
-}
-
 export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
 
@@ -42,11 +34,6 @@ export async function middleware(request: NextRequest) {
 
         articleUrl.searchParams.set('i', id)
         return NextResponse.redirect(articleUrl)
-    }
-
-    if(url.pathname == "/" || url.pathname == ""){
-        const url = new URL("/inicio", request.url)
-        return NextResponse.redirect(url)
     }
 
     return NextResponse.next()

@@ -15,6 +15,7 @@ import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/api";
 import ValidationIcon from "@/components/profile/validation-icon";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
 
@@ -62,9 +63,12 @@ function ProfileHeader({
     }
 
     return <div className="flex flex-col border-b">
-        <div className={"flex flex-col"}>
+        <div className={"flex flex-col relative"}>
+            <div className={"absolute z-2 top-2 left-2"}>
+                <BackButton size={"medium"} color={"background-dark3"}/>
+            </div>
             {profile.bsky.banner ?
-                <div>
+                <div className={""}>
                     <FullscreenImageViewer
                         images={[profile.bsky.banner]}
                         viewing={viewingBanner}

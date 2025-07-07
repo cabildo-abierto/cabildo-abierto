@@ -17,7 +17,7 @@ nextConfig = {
             },
         ],
     },
-    allowedDevOrigins: ['127.0.0.1', '*.127.0.0.1'],
+    allowedDevOrigins: ['127.0.0.1', '*.127.0.0.1', '192.168.0.10', '192.168.0.11'],
     experimental: {
         optimizePackageImports: ['@mui/material', '@mui/icons-material', '@mui', 'react-icons'],
     },

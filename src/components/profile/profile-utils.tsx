@@ -123,10 +123,6 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
     const qc = useQueryClient()
     const {user} = useSession()
 
-    useEffect(() => {
-        console.log(qc.getQueryCache().getAll().map(q => q.queryKey))
-    }, []);
-
     const followMutation = useMutation({
         mutationFn: follow,
         onMutate: (followedDid) => {

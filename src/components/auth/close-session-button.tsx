@@ -22,7 +22,7 @@ export const CloseSessionButton = () => {
         mutationFn: logout,
         onSuccess: async () => {
             queryClient.clear()
-            router.push("/presentacion")
+            router.push("/")
         }
     })
 
@@ -36,6 +36,7 @@ export const CloseSessionButton = () => {
             variant="contained"
             size="medium"
             color="red-dark"
+            textClassName={"text-[var(--button-text)]"}
             handleClick={onLogout}
             text1="Cerrar sesión"
         />
