@@ -11,6 +11,7 @@ import {TextField} from "../../../modules/ui-utils/src/text-field";
 import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
+import {topicUrl} from "@/utils/uri";
 
 
 const LoginPanel = ({children, onClickBack}: { children: ReactNode, onClickBack?: () => void }) => {
@@ -170,7 +171,7 @@ export const Login = () => {
                     </Button>
                 </div>}
 
-                <div className={"pt-0 flex flex-col space-y-2 pb-2"}>
+                <div className={"pt-0 flex flex-col space-y-2 pb-2 items-center text-center"}>
                     <Link
                         href={"/"}
                         target={"_blank"}
@@ -188,8 +189,13 @@ export const Login = () => {
                     >
                         ¿Por qué el registro es en Bluesky?
                     </span>
+                    <span
+                        className={"text-[var(--text-light)] text-[14px] text-xs"}
+                    >
+                        Al iniciar sesión aceptás los <Link target="_blank" className="hover:underline hover:text-[var(--text)]" href={topicUrl("Cabildo Abierto: Términos y condiciones", undefined, "normal")}>
+                        Términos y condiciones</Link> y <Link target="_blank" className="hover:underline hover:text-[var(--text)]" href={topicUrl("Cabildo Abierto: Política de privacidad", undefined, "normal")}>Política de privacidad</Link>, ¡leelos!.
+                    </span>
                 </div>
-
             </div>
         </div>
     </LoginPanel>

@@ -8,6 +8,7 @@ import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {useSession} from "@/queries/api";
 
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
@@ -30,6 +31,7 @@ export const TopicContentExpandedViewHeader = ({
     saveEnabled: boolean
 }) => {
     const searchParams = useSearchParams()
+    const {user} = useSession()
 
     const paramsVersion = searchParams.get("v") ? Number(searchParams.get("v")) : undefined
 
@@ -38,12 +40,11 @@ export const TopicContentExpandedViewHeader = ({
     if (!paramsVersion && !wikiEditorState.startsWith("editing")) {
         function optionsNodes(o: string, isSelected: boolean) {
             let name: string
-            if (o == "authors") name = "Autores"
-            else if (o == "changes") name = "Cambios"
-            else if (o == "history") name = "Historial"
+            if (o == "history") name = "Historial"
             else if (o == "editing") name = "Editar"
             else if (o == "props") name = "Propiedades"
-            return <div className="text-[var(--text)] h-10 ">
+            return <div className="text-[var(--text)] h-10 "
+                        title={user != undefined ? undefined : "Iniciá sesión."}>
                 <Button
                     variant="text"
                     color="background"
@@ -54,6 +55,7 @@ export const TopicContentExpandedViewHeader = ({
                         paddingY: 0,
                         borderRadius: 0
                     }}
+                    disabled={!user}
                 >
                     <div
                         className={"whitespace-nowrap mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
@@ -84,6 +86,7 @@ export const TopicContentExpandedViewHeader = ({
                 optionsNodes={optionsNodes}
                 selected={wikiEditorState}
                 className={"flex"}
+                disabled={!user}
             />
         </div>
     } else if (!paramsVersion && wikiEditorState.startsWith("editing")) {

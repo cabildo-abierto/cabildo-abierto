@@ -5,7 +5,7 @@ import {useSession} from "@/queries/api";
 
 export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void, text?: string }) => {
     const {user} = useSession()
-    return <div className="border-b px-4 py-1">
+    return <div className="px-2 py-1">
         <Button
             color={"background-dark"}
             onClick={onClick}
@@ -16,7 +16,7 @@ export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void
                 <ProfilePic user={user} className={"w-8 h-auto rounded-full"} descriptionOnHover={false}/>
                 <span className="text-[var(--text-light)]">{text}</span>
             </>}
-            {!user && <div className={"text-[var(--text-light)]"}>Iniciá sesión para responder</div>}
+            {!user && <div className={"text-[var(--text-light)]"}>Iniciá sesión para responder y ver las respuestas de otros</div>}
         </Button>
     </div>
 }

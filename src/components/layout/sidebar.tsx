@@ -106,7 +106,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const {data: conversations} = useConversations()
 
     let unreadMessagesCount = undefined
-    if(conversations){
+    if (conversations) {
         unreadMessagesCount = sum(conversations.map(c => c.unreadCount))
     }
 
@@ -130,17 +130,15 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                     <div className={"flex flex-col sm:space-y-2 space-y-1 " + (showText ? "" : "items-center")}>
 
                         <div className={"mb-4"}>
-                            {user.user &&
-                                <div className={"w-full flex justify-center"}>
-                                    <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
-                                        <ProfilePic user={user.user}
-                                                    className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}
-                                                    descriptionOnHover={false}
-                                        />
-                                    </Link>
-                                </div>
-                            }
-                            {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
+                            <div className={"w-full flex justify-center"}>
+                                <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
+                                    <ProfilePic
+                                        user={user.user}
+                                        className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}
+                                        descriptionOnHover={false}
+                                    />
+                                </Link>
+                            </div>
                         </div>
 
                         <SidebarButton

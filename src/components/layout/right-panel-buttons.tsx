@@ -33,6 +33,8 @@ export const RightPanelButtons = () => {
     const {user} = useSession()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
+    if(!user) return null
+
     function handleClick() {
         if(!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar){
             setLayoutConfig({
