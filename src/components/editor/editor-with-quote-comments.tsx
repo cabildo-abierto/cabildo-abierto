@@ -19,6 +19,8 @@ import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNo
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/article/read-tracking/track-reading";
 import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {useSession} from "@/queries/api";
+import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 
 const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -84,7 +86,8 @@ export const EditorWithQuoteComments = ({
     const {layoutConfig} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
     const editorElement = useRef<HTMLDivElement>(null)
-    //const [readChunks, setReadChunks] = useState<Map<number, number>>(new Map())
+    const {user} = useSession()
+    const {setShowLoginRequiredModal, modal: loginRequiredModal} = useLoginRequiredModal()
     useTrackReading(uri, editorElement)
 
     // blockToUri es un mapa de índices de hijos de la raíz (en Lexical) a uris de respuestas
@@ -183,7 +186,11 @@ export const EditorWithQuoteComments = ({
         ...settings,
         allowComments: true,
         onAddComment: (quote: MarkdownSelection | LexicalSelection) => {
-            setCommentingQuote(quote)
+            if(user){
+                setCommentingQuote(quote)
+            } else {
+                setShowLoginRequiredModal(true)
+            }
         },
     }), [settings]);
 
@@ -195,14 +202,14 @@ export const EditorWithQuoteComments = ({
                 setEditorState={setEditorState}
             />
         </div>
-        <WritePanel
+        {user && <WritePanel
             open={commentingQuote != null}
             onClose={() => {
                 setCommentingQuote(null)
             }}
             selection={commentingQuote}
             replyTo={replyTo}
-        />
+        />}
 
         {blockToUri && Array.from(blockToUri).map(([_, repliesURIs], index) => {
             return <div key={index}>
@@ -216,11 +223,6 @@ export const EditorWithQuoteComments = ({
                 />, document.body)}
             </div>
         })}
-
-        {/*<ReadHeatmap readChunks={readChunks} totalChunks={totalChunks}/>
-
-        <div>
-            Porcentaje leído: %{(Array.from(readChunks.values()).map(r => r > 20000 ? 1 : 0).reduce((acc, cur) => acc+cur, 0) * 100 / totalChunks).toFixed(2)}
-        </div>*/}
+        {loginRequiredModal}
     </>
 }

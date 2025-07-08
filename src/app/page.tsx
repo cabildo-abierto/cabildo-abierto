@@ -9,6 +9,7 @@ import {Button, Color} from "../../modules/ui-utils/src/button";
 import {CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, Suspense} from "react";
+import {pxToNumber} from "@/utils/strings";
 
 
 const TwoImages = ({url1, url2, alt1, alt2}: { url1: string, alt1: string, url2: string, alt2: string }) => {
@@ -31,8 +32,8 @@ const TwoImages = ({url1, url2, alt1, alt2}: { url1: string, alt1: string, url2:
 }
 
 
-const FeatureSection = ({title, description, image, inverted, background = "background"}: {
-    title: string, description: ReactNode, image: ReactNode, inverted: boolean, background?: Color
+const FeatureSection = ({title, subtitle, description, image, inverted, background = "background"}: {
+    title: string, subtitle?: string, description: ReactNode, image: ReactNode, inverted: boolean, background?: Color
 }) => {
     return <div style={{background: `var(--${background})`}} className={"w-full flex justify-center"}>
         <div className={"sm:hidden"}>
@@ -42,6 +43,9 @@ const FeatureSection = ({title, description, image, inverted, background = "back
                         <h2 className={"font-extrabold sm:text-3xl text-2xl leading-none"}>
                             {title}
                         </h2>
+                        {subtitle && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
+                            {subtitle}
+                        </div>}
                         <div className={"font-light text-lg max-[400px]:text-base"}>
                             {description}
                         </div>
@@ -58,9 +62,12 @@ const FeatureSection = ({title, description, image, inverted, background = "back
                 className={"w-screen max-w-[1200px] h-[600px] space-y-0 flex-row items-center " + (inverted ? "flex flex-row-reverse" : "flex")}>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center flex-col"}>
                     <div className={"w-full max-w-[400px] space-y-2"}>
-                        <h2 className={"font-extrabold md:text-3xl text-2xl leading-tight"}>
+                        <h2 className={"font-extrabold md:text-[29px] text-2xl leading-tight"}>
                             {image ? title : null}
                         </h2>
+                        {subtitle && image && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
+                            {subtitle}
+                        </div>}
                         <div className={"font-light md:text-xl text-lg"}>
                             {description}
                         </div>
@@ -68,7 +75,12 @@ const FeatureSection = ({title, description, image, inverted, background = "back
                 </div>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center font-light text-xl"}>
                     {image ? image :
-                        <h2 className={"font-extrabold md:text-3xl text-2xl leading-tight"}>{title}</h2>}
+                        <div className={"space-y-2"}>
+                            <h2 className={"font-extrabold md:text-3xl text-2xl leading-tight"}>{title}</h2>
+                            {subtitle && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
+                                {subtitle}
+                            </div>}
+                        </div>}
                 </div>
             </div>
         </div>
@@ -79,28 +91,33 @@ const FeatureSection = ({title, description, image, inverted, background = "back
 const PresentacionFormato = () => {
     const itemIcon = <CheckIcon fontSize={36}/>
 
-    const description = <ul className={"pt-4"}>
-        <li className={"flex items-start gap-2"}>
-            {itemIcon}
-            <div className={"w-full"}>
-                <span className={"font-bold"}>Publicaciones</span> con límite de caracteres.
-            </div>
-        </li>
-        <li className="flex items-start gap-2">
-            {itemIcon}
-            <div className={"w-full"}>
-                <span className={"font-bold"}>Artículos</span> sin límite de caracteres, con comentarios sobre el texto.
-            </div>
-        </li>
-        <li className={"flex items-start gap-2"}>
-            {itemIcon}
-            <div className={"w-full"}>
-                <span className={"font-bold"}>Visualizaciones</span> interactivas, con un
-                editor que no requiere saber
-                programar.
-            </div>
-        </li>
-    </ul>
+    const description = <div>
+        <ul className={"pt-4"}>
+
+            <li className={"flex items-start gap-2"}>
+                {itemIcon}
+                <div className={"w-full"}>
+                    <span className={"font-bold"}>Publicaciones</span> con límite de caracteres, como las de Twitter o
+                    Bluesky.
+                </div>
+            </li>
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <div className={"w-full"}>
+                    <span className={"font-bold"}>Artículos</span> sin límite de caracteres, con comentarios sobre el
+                    texto.
+                </div>
+            </li>
+            <li className={"flex items-start gap-2"}>
+                {itemIcon}
+                <div className={"w-full"}>
+                    <span className={"font-bold"}>Visualizaciones</span> interactivas, con un
+                    editor que no requiere saber
+                    programar.
+                </div>
+            </li>
+        </ul>
+    </div>
 
     const image = <div className={"flex space-x-2 max-w-[500px]"}>
         <div className={"flex flex-col space-y-2 h-full justify-center w-3/5"}>
@@ -138,7 +155,8 @@ const PresentacionFormato = () => {
     </div>
 
     return <FeatureSection
-        title={"Los formatos que conocés y mucho más."}
+        title={"Nuevos formatos."}
+        subtitle={"Porque a veces 280 caracteres se quedan cortos."}
         description={description}
         image={image}
         inverted={true}
@@ -149,11 +167,15 @@ const PresentacionFormato = () => {
 
 const PresentacionWiki = () => {
 
-    const description = <div className="mt-4">
-        <p className={"mt-4"}>
-            Cada tema tiene asociado un artículo con el consenso de la plataforma, que cualquiera puede editar.
+    const description = <div className="mt-4 space-y-4">
+        <p className={"text-sm sm:text-base text-[var(--text-light)]"}>
+            Para que las discusiones avancen.
         </p>
-        <p className="mt-4">
+        <p className={""}>
+            Cada tema de discusión tiene asociado un artículo con el consenso de la plataforma, que cualquiera puede
+            editar, como en Wikipedia.
+        </p>
+        <p className="">
             Los artículos tienen documentos oficiales, datos y explicaciones.
         </p>
     </div>
@@ -176,29 +198,32 @@ const PresentacionWiki = () => {
 
 const PresentacionCalidadDeLaInformacion = () => {
     const itemIcon = <ChecksIcon className="mt-1" fontSize={36}/>
-    const description = <ul className="space-y-4 px-2 max-w-[400px]">
-        <li className="flex items-start gap-2">
-            {itemIcon}
-            <span className={"w-full"}>
-                Selección de contenido transparente y configurable, para que ninguna IA elija lo que llega a tu pantalla.
+    const description = <div className={"space-y-4"}>
+        <ul className="space-y-4 px-2 max-w-[400px]">
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
+                Selección de contenido transparente y configurable.
             </span>
-        </li>
-        <li className="flex items-start gap-2">
-            {itemIcon}
-            <span className={"w-full"}>
+            </li>
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
                 Sin publicidad.
             </span>
-        </li>
-        <li className="flex items-start gap-2">
-            {itemIcon}
-            <span className={"w-full"}>
+            </li>
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
                 Con interlocutores de verdad. Validamos que todos los usuarios sean personas reales únicas.
             </span>
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
     return <FeatureSection
         title={"Informate sin algoritmos ni bots."}
+        subtitle={"Que ni una IA ni nadie controle lo que llega a tu pantalla."}
         description={description}
         image={null}
         inverted={true}
@@ -220,7 +245,8 @@ const PresentacionRemuneraciones = () => {
     </div>
 
     return <FeatureSection
-        title={"Las contribuciones se valoran."}
+        title={"Remuneración a autores."}
+        subtitle={"Porque las contribuciones se valoran."}
         description={description}
         image={null}
         inverted={true}
@@ -237,7 +263,7 @@ const PresentacionAbierto = () => {
             entre plataformas.
         </p>
         <p>
-            Además, el código de Cabildo Abierto es público, para que cualquiera lo pueda revisar.
+            Además, el código de Cabildo Abierto es público (<Link target={"_blank"} className="hover:underline" href={"https://github.com/cabildo-abierto"}>acá</Link>), para que cualquiera lo pueda revisar.
         </p>
     </div>
 
@@ -271,6 +297,7 @@ const PresentacionAbierto = () => {
 
     return <FeatureSection
         title={"Abierto en serio."}
+        subtitle={"Porque las redes sociales son demasiado importantes."}
         description={description}
         image={image}
         inverted={true}
@@ -279,45 +306,59 @@ const PresentacionAbierto = () => {
 }
 
 
-const PresentacionInicio = () => {
+const GoToLoginButton = ({fontSize = 13, className = "font-bold", text = "Crear una cuenta o iniciar sesión"}: {
+    className?: string, fontSize?: number, text?: string
+}) => {
     const router = useRouter()
     const params = useSearchParams()
     const inviteCode = params.get("c")
 
-    return <div className={"flex flex-col h-[600px] justify-center space-y-12"}>
-        <div className="flex items-center flex-col">
-            <div className="">
-                <Logo width={80} height={80}/>
-            </div>
-            <div className="flex justify-center flex-col items-center mt-8">
-                <h1 className="lg:text-[46px] sm:text-[38px] text-[26px] tracking-tight">
-                    Cabildo Abierto
-                </h1>
-                <div
-                    className="lg:text-[28px] sm:text-[22px] text-[16px] font-light tracking-tight  text-[var(--text-lighter)] text-center leading-tight"
-                >
-                    <div>Una plataforma para discutir de verdad,</div>
-                    <div>hecha en Argentina.</div>
+    return <Button
+        color={"primary"}
+        size={!isMobile ? "large" : "medium"}
+        sx={{
+            textTransform: "none",
+            borderRadius: 20,
+        }}
+        onClick={() => {
+            router.push("/login" + (inviteCode ? `?c=${inviteCode}` : ""))
+        }}
+    >
+        <span className={className} style={{fontSize}}>{text}</span>
+    </Button>
+}
+
+
+const PresentacionInicio = () => {
+
+    return <>
+        <div className="absolute top-4 right-4 w-36 z-10 md:hidden">
+            <GoToLoginButton fontSize={12}/>
+        </div>
+        <div className="absolute top-10 right-10 z-10 hidden md:block">
+            <GoToLoginButton fontSize={13}/>
+        </div>
+        <div className={"flex flex-col h-[500px] justify-center space-y-12"}>
+            <div className="flex items-center flex-col">
+                <div className="">
+                    <Logo width={80} height={80}/>
+                </div>
+                <div className="flex justify-center flex-col items-center mt-8">
+                    <h1 className="lg:text-[46px] sm:text-[38px] text-[26px] tracking-tight">
+                        Cabildo Abierto
+                    </h1>
+                    <div
+                        className="lg:text-[28px] sm:text-[22px] text-[16px] font-light tracking-tight  text-[var(--text-lighter)] text-center leading-tight"
+                    >
+                        <div>Una plataforma para discutir en serio,</div>
+                        <div>
+                            hecha en Argentina.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div className="flex flex-col items-center">
-            <Button
-                color="background-dark2"
-                size={!isMobile ? "large" : "medium"}
-                sx={{
-                    textTransform: "none",
-                    borderRadius: 20,
-                }}
-                onClick={() => {
-                    router.push("/login" + (inviteCode ? `?c=${inviteCode}` : ""))
-                }}
-            >
-                <span className={"font-bold"}>Empezar</span>
-            </Button>
-        </div>
-    </div>
+    </>
 }
 
 
@@ -330,7 +371,10 @@ export default function Page() {
             <PresentacionCalidadDeLaInformacion/>
             <PresentacionRemuneraciones/>
             <PresentacionAbierto/>
+            <div className="pb-8 z-10 bg-[var(--background-ldark)] w-full flex justify-center">
+                <GoToLoginButton className="w-36 sm:w-48 font-bold sm:p-1" fontSize={16} text={"Empezar"}/>
+            </div>
         </div>
-        <Footer showCA={false}/>
+        <Footer showCA={false} color={"background-ldark"}/>
     </Suspense>
 }

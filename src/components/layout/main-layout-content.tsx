@@ -6,25 +6,27 @@ import {emptyChar} from "@/utils/utils";
 import {createPortal} from "react-dom";
 import {SidebarContent} from "@/components/layout/sidebar";
 import {RightPanel} from "@/components/layout/right-panel";
+import {useSession} from "@/queries/api";
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {user} = useSession()
 
-    const left = (
+    const left = user && (
         <div className={"fixed top-0 z-[1010] left-0 right-auto bg-[var(--background-dark)]"}>
             <SidebarContent onClose={() => {}}/>
         </div>
     )
 
     let right: ReactNode
-    if (layoutConfig.openRightPanel) {
+    if (layoutConfig.openRightPanel && user) {
         right = <RightPanel/>
     }
 
     return <div className="flex justify-between w-full min-h-screen">
         <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "min-[500px]:w-20")}>
             {left}
-            {layoutConfig.openSidebar && (
+            {user && layoutConfig.openSidebar && (
                 createPortal(
                     <div
                         className={

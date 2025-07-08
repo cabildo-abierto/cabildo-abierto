@@ -55,7 +55,7 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
             quoteReplies={quoteReplies}
         />
 
-        <div className={"w-full"}>
+        <div className={"w-full border-b"}>
             <ReplyButton onClick={() => {
                 setOpenReplyPanel(true)
             }}/>

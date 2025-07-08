@@ -5,6 +5,7 @@ import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
 import GradientHRule from "./gradient-hrule";
+import { Color } from './button';
 
 
 const FooterLeftSide = () => {
@@ -17,7 +18,7 @@ const FooterLeftSide = () => {
         <div className="flex space-x-1">
             <DimOnHoverLink
                 target="_blank"
-                href="https://bsky.app/profile/cabildoabierto.com.ar"
+                href="https://bsky.app/profile/cabildoabierto.ar"
             >
                 <SiBluesky fontSize="25"/>
             </DimOnHoverLink>
@@ -60,8 +61,8 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
 }
 
 
-export default function Footer({showCA = true}: { showCA?: boolean }) {
-    return <div className="flex justify-between px-4 md:px-16 space-x-4 py-12">
+export default function Footer({showCA = true, color="background"}: { showCA?: boolean, color?: Color }) {
+    return <div className="flex justify-between px-4 md:px-16 space-x-4 py-12" style={{backgroundColor: `var(--${color})`}}>
         <FooterLeftSide/>
         <FooterRightSide showCA={showCA}/>
     </div>

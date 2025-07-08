@@ -33,7 +33,7 @@ export const useLayoutConfig = () => {
 };
 
 
-function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps): LayoutConfigProps {
+function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps, noWindow?: boolean): LayoutConfigProps {
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
         leftMinWidth: "80px",
@@ -59,7 +59,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         openRightPanel: false
     }
     const mobileConfig: LayoutConfigProps = {
-        maxWidthCenter: `${window.innerWidth}px`,
+        maxWidthCenter: "100%",
         leftMinWidth: "0px",
         rightMinWidth: "0px",
         defaultSidebarState: false,
@@ -68,7 +68,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
 
     let config: LayoutConfigProps
-    if(window.innerWidth < 600){
+    if(!noWindow && window.innerWidth < 600){
         return mobileConfig
     } else if(pathname.startsWith("/temas")){
         config = {
@@ -87,7 +87,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         config = feedConfig
     }
 
-    const {spaceForLeftSide, spaceForRightSide} = getSpaceAvailable(config)
+    const {spaceForLeftSide, spaceForRightSide} = getSpaceAvailable(config, noWindow)
 
     return {
         ...config,
@@ -97,7 +97,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
 }
 
 
-function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
+function getSpaceAvailable(curLayoutConfig: LayoutConfigProps, noWindow: boolean) {
     const reqWidth = 224 +
         pxToNumber(curLayoutConfig.rightMinWidth) +
         pxToNumber(curLayoutConfig.maxWidthCenter);
@@ -105,8 +105,10 @@ function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
     const reqWidthRightSide = 80 + pxToNumber(curLayoutConfig.rightMinWidth) +
         pxToNumber(curLayoutConfig.maxWidthCenter);
 
-    const spaceForLeftSide = window.innerWidth >= reqWidth
-    const spaceForRightSide = window.innerWidth >= reqWidthRightSide
+    const width = noWindow ? 1000 : window.innerWidth
+
+    const spaceForLeftSide = width >= reqWidth
+    const spaceForRightSide = width >= reqWidthRightSide
     return {spaceForLeftSide, spaceForRightSide}
 }
 
@@ -124,7 +126,7 @@ function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
 export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const params = useSearchParams()
     const pathname = usePathname()
-    const [layoutConfig, setLayoutConfig] = useState(getLayoutConfig(pathname, params));
+    const [layoutConfig, setLayoutConfig] = useState(getLayoutConfig(pathname, params, undefined, true))
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {

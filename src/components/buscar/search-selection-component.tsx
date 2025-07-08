@@ -8,17 +8,28 @@ type SelectionComponentProps = {
     className?: string
     unselectedOption?: string
     optionContainerClassName?: string
+    disabled?: boolean
 }
 
 const SelectionComponent = ({
-                                onSelection, options, selected, className = "search", optionsNodes, optionContainerClassName="w-full"
+                                onSelection,
+                                options,
+                                selected,
+                                disabled=false,
+                                className = "search",
+                                optionsNodes,
+                                optionContainerClassName = "w-full"
                             }: SelectionComponentProps) => {
 
     return <div className={className}>
         {options.map((option, index) => {
-            return <div key={index} onClick={() => {
-                onSelection(option)
-            }} className={optionContainerClassName}>
+            return <div
+                key={index}
+                onClick={() => {
+                    if(!disabled) onSelection(option)
+                }}
+                className={optionContainerClassName}
+            >
                 {optionsNodes(option, option == selected)}
             </div>
         })}
