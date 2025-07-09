@@ -168,7 +168,7 @@ const PresentacionWiki = () => {
 
     const description = <div className="mt-4 space-y-4">
         <p className={"text-sm sm:text-base text-[var(--text-light)]"}>
-            Para que las discusiones avancen.
+            Porque las discusiones tienen que avanzar.
         </p>
         <p className={""}>
             Cada tema de discusión tiene asociado un artículo con el consenso de la plataforma, que cualquiera puede
@@ -198,7 +198,7 @@ const PresentacionWiki = () => {
 const PresentacionCalidadDeLaInformacion = () => {
     const itemIcon = <ChecksIcon className="mt-1" fontSize={36}/>
     const description = <div className={"space-y-4"}>
-        <ul className="space-y-4 px-2 max-w-[400px]">
+        <ul className="space-y-4 max-w-[400px]">
             <li className="flex items-start gap-2">
                 {itemIcon}
                 <span className={"w-full"}>
@@ -222,7 +222,7 @@ const PresentacionCalidadDeLaInformacion = () => {
 
     return <FeatureSection
         title={"Informate sin algoritmos ni bots."}
-        subtitle={"Que ni una IA ni nadie controle lo que llega a tu pantalla."}
+        subtitle={"Que ninguna IA ni nadie controle lo que llega a tu pantalla."}
         description={description}
         image={null}
         inverted={true}
@@ -232,15 +232,23 @@ const PresentacionCalidadDeLaInformacion = () => {
 
 
 const PresentacionRemuneraciones = () => {
-
-    const description = <div className={"space-y-6 max-w-[400px]"}>
-        <p className="">
-            Cabildo Abierto se financia con aportes voluntarios de sus usuarios.
-        </p>
-        <p className="mt-6">
-            Con eso, se remunera a cada autor de artículos individuales o temas de la wiki según su
-            contribución y las lecturas que haya recibido.
-        </p>
+    const itemIcon = <ChecksIcon className="mt-1" fontSize={36}/>
+    const description = <div className={"space-y-4"}>
+        <ul className="space-y-4 max-w-[400px]">
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
+                    Cabildo Abierto se financia con aportes voluntarios de sus usuarios.
+                </span>
+            </li>
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
+                    Con eso, se remunera a cada autor de artículos o temas de la wiki según su
+                    contribución y las lecturas que haya recibido.
+                </span>
+            </li>
+        </ul>
     </div>
 
     return <FeatureSection
@@ -258,11 +266,13 @@ const PresentacionAbierto = () => {
         <p>
             Cabildo Abierto usa <span className={""}>AT</span><span
             className={""}>Protocol</span>, un sistema de redes sociales
-            descentralizadas que permite que nadie más que vos sea dueño de tus datos y facilita la libre competencia
+            descentralizadas que te da el control sobre tus datos y facilita la libre competencia
             entre plataformas.
         </p>
         <p>
-            Además, el código de Cabildo Abierto es público (<Link target={"_blank"} className="hover:underline" href={"https://github.com/cabildo-abierto"}>acá</Link>), para que cualquiera lo pueda revisar.
+            Además, el código de Cabildo Abierto es público (<Link target={"_blank"} className="hover:underline"
+                                                                   href={"https://github.com/cabildo-abierto"}>acá</Link>),
+            para que cualquiera lo pueda revisar.
         </p>
     </div>
 
@@ -295,8 +305,8 @@ const PresentacionAbierto = () => {
     </div>
 
     return <FeatureSection
-        title={"Abierto en serio."}
-        subtitle={"Porque las redes sociales son demasiado importantes."}
+        title={"Abierto de verdad."}
+        subtitle={"Porque los datos son tuyos."}
         description={description}
         image={image}
         inverted={true}
