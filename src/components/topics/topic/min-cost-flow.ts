@@ -1,4 +1,4 @@
-import {makeMatrix} from "../../../utils/arrays";
+import {makeMatrix} from "@/utils/arrays";
 
 
 const INF = 1e9
@@ -8,7 +8,6 @@ export function assignment(a: Array<Array<number>>): Array<number> {
     let f = makeMatrix(m, m, 0)
     let s = m - 2
     let t = m - 1
-    let cost = 0
 
     while (true) {
         let dist = new Array<number>(m).fill(INF)
@@ -68,7 +67,6 @@ export function assignment(a: Array<Array<number>>): Array<number> {
         }
         if (curcost == INF)
             break;
-        cost += curcost;
         for (let cur = t; cur != -1; cur = p[cur]) {
             let prev = p[cur];
             if (prev != -1)

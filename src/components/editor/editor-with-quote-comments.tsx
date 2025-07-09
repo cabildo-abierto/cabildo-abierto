@@ -18,7 +18,6 @@ import {$isEmbedNode} from "../../../modules/ca-lexical-editor/src/nodes/EmbedNo
 import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNode";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/article/read-tracking/track-reading";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 import {useSession} from "@/queries/api";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 

@@ -1,5 +1,5 @@
 "use client"
-import {categoryUrl, chatUrl, profileUrl, topicUrl} from "@/utils/uri";
+import {categoryUrl, chatUrl, profileUrl} from "@/utils/uri";
 
 import Link from "next/link"
 import {post} from "@/utils/fetch";
@@ -24,7 +24,7 @@ const Page = () => {
                 router.push(chatUrl(conversations[idx].id))
             }
         } else {
-            const {data, error} = await post<{}, {convoId: string}>(`/conversation/create/${cabildoDid}`)
+            const {data} = await post<{}, {convoId: string}>(`/conversation/create/${cabildoDid}`)
             if(data){
                 router.push(chatUrl(data.convoId))
             } else {

@@ -12,9 +12,8 @@ import {file2base64, FilePayload} from "@/utils/files";
 import {FileIcon} from "@phosphor-icons/react";
 import StateButton from "../../../../../modules/ui-utils/src/state-button";
 import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
-import {useRouter} from "next/navigation";
 import {LuPartyPopper} from "react-icons/lu";
-import {useAccount, useCurrentValidationRequest, useSession} from "@/queries/api";
+import {useCurrentValidationRequest} from "@/queries/api";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useQueryClient} from "@tanstack/react-query";
@@ -66,7 +65,7 @@ const FormItem = ({label, children, below = false, contentBelow}: FormItemProps)
 
 const FormItemWithFiles = ({fileNames, onRemove, ...props}: Omit<FormItemProps, "fileNames"> & {
     fileNames: string[],
-    onRemove: (i: number) => void
+    onRemove: (_: number) => void
 }) => {
     const contentBelow = fileNames && fileNames.length > 0 ? <div className={"flex space-y-2 flex-col"}>
         {fileNames.map((fileName, i) => {
@@ -96,7 +95,7 @@ const FormItemWithFiles = ({fileNames, onRemove, ...props}: Omit<FormItemProps, 
 
 const UploadFileButton = ({children, onUpload, multiple = false}: {
     children: ReactNode,
-    onUpload: (files: FileList) => void,
+    onUpload: (_: FileList) => void,
     multiple?: boolean
 }) => {
     return <Button
@@ -121,7 +120,7 @@ const UploadFileButton = ({children, onUpload, multiple = false}: {
 
 const ValidacionPersona = ({request, setRequest}: {
     request: LoadingValidationRequest,
-    setRequest: (r: LoadingValidationRequest) => void
+    setRequest: (_: LoadingValidationRequest) => void
 }) => {
     if (request.tipo != "persona") return
 
@@ -129,7 +128,7 @@ const ValidacionPersona = ({request, setRequest}: {
         <FormItemWithFiles
             label={"Foto del frente de tu DNI"}
             fileNames={request.dniFrente ? [request.dniFrente.fileName] : []}
-            onRemove={(i) => {
+            onRemove={() => {
                 setRequest(produce(request, draft => {
                     draft.dniFrente = undefined
                 }))
@@ -150,7 +149,7 @@ const ValidacionPersona = ({request, setRequest}: {
         <FormItemWithFiles
             label={"Foto del dorso de tu DNI"}
             fileNames={request.dniDorso ? [request.dniDorso.fileName] : []}
-            onRemove={(i) => {
+            onRemove={() => {
                 setRequest(produce(request, draft => {
                     draft.dniDorso = undefined
                 }))
@@ -173,7 +172,7 @@ const ValidacionPersona = ({request, setRequest}: {
 
 const ValidacionOrg = ({request, setRequest}: {
     request: LoadingValidationRequest,
-    setRequest: (r: LoadingValidationRequest) => void
+    setRequest: (_: LoadingValidationRequest) => void
 }) => {
 
     if (request.tipo != "org") return

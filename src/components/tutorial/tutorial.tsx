@@ -17,7 +17,6 @@ import {FollowButton} from "@/components/profile/profile-utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
-import {timeout} from "d3-timer";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -55,7 +54,7 @@ const FirstFollowsMessage = ({open, onClose}: {
     const {data: caProfile} = useProfile("cabildoabierto.ar")
     const {data: bskyProfile} = useProfile("bsky.app")
     const [searchState, setSearchState] = useState({searching: false, value: ""})
-    const {results, isLoading, isError, error} = useSearchUsers(searchState)
+    const {results, isLoading} = useSearchUsers(searchState)
     const {layoutConfig} = useLayoutConfig()
 
     const resultsWithSuggestions = useMemo(() => {

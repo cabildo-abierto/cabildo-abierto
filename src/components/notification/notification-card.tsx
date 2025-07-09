@@ -1,8 +1,6 @@
-import {Notification as BskyNotification} from "@/lex-api/types/app/bsky/notification/listNotifications"
 import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/notification/listNotifications"
 import {getUsername} from "@/utils/utils";
 import {ProfileView} from "@/lex-api/types/app/bsky/actor/defs";
-import UserSummaryOnHover from "@/components/profile/user-summary";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
@@ -21,8 +19,6 @@ import {
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import TopicsIcon from "@/components/icons/topics-icon";
-import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 const Username = ({user}: { user: ProfileView }) => {

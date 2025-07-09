@@ -1,8 +1,7 @@
 import {BskyRichTextContent} from "./bsky-rich-text-content";
-import {FeedViewContent, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {PostRecord} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 type PostContentProps = {

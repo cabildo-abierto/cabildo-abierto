@@ -9,7 +9,6 @@ import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
 import {View as RecordEmbedView} from "@/lex-api/types/app/bsky/embed/record"
 import {$Typed} from "@atproto/api";
 import {isPostView} from "@/lex-api/types/app/bsky/feed/defs";
-import {isArticle} from "@/utils/uri";
 import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
 import {View as CARecordEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/record"
 

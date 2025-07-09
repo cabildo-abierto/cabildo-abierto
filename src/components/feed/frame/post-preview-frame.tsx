@@ -6,8 +6,7 @@ import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
-import {urlFromRecord, profileUrl, getCollectionFromUri, isPost, isArticle} from "@/utils/uri";
-import {formatIsoDate} from "@/utils/dates";
+import {urlFromRecord, profileUrl, getCollectionFromUri, isPost} from "@/utils/uri";
 import {emptyChar} from "@/utils/utils";
 import {ReasonRepost} from '@/lex-api/types/app/bsky/feed/defs'
 import {

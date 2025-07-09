@@ -9,7 +9,6 @@ import {Button, Color} from "../../modules/ui-utils/src/button";
 import {CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, Suspense} from "react";
-import {pxToNumber} from "@/utils/strings";
 
 
 const TwoImages = ({url1, url2, alt1, alt2}: { url1: string, alt1: string, url2: string, alt2: string }) => {

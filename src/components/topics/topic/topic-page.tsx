@@ -1,8 +1,6 @@
 "use client"
 import {useEffect, useState} from "react"
-import {useRouter, useSearchParams} from "next/navigation";
-
-
+import {useSearchParams} from "next/navigation";
 import {useTopic, useTopicFeed} from "@/queries/api";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
@@ -10,8 +8,6 @@ import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
-import {topicUrl} from "@/utils/uri";
 import {MobileHeader} from "@/components/layout/mobile-header";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
@@ -50,7 +46,7 @@ export const TopicPage = ({topicId, did, rkey}: {
     did?: string
     rkey?: string
 }) => {
-    const {data} = useTopicFeed(topicId, did, rkey) // prefetch
+    useTopicFeed(topicId, did, rkey) // prefetch
     const {data: topic, isLoading} = useTopic(topicId, did, rkey)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])

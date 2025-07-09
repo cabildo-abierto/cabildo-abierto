@@ -1,18 +1,14 @@
 import React, {useState} from "react";
 import {usePathname} from "next/navigation";
-
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
-
 import {profileUrl} from "@/utils/uri";
 import {useConversations, useSession, useUnreadNotificationsCount} from "@/queries/api";
-
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
 import {SidebarButton} from "./sidebar-button";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from '@mui/icons-material/Person';
@@ -43,17 +39,9 @@ const HelpDeskButton = ({user, onClose, showText, setShowText}: {
     user?: {},
     onClose: () => void
 }) => {
-    const count = 0 // TO DO: Implement
+    const count = 0 // TO DO: Implementar
     return <SidebarButton showText={showText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder"
                           href="/soporte/responder"/>
-}
-
-
-const SidebarUsernameNoUser = () => {
-    return <div className="flex flex-col items-center">
-        <Link href="/public" className="link3 text-center text-[var(--text-light)] px-1 text-sm mb-4">Creá una cuenta o
-            iniciá sesión para acceder a todas las funcionalidades del sitio</Link>
-    </div>
 }
 
 

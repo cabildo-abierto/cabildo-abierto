@@ -8,7 +8,6 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import {isOneAxisPlot, isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import { TextField } from "../../../../modules/ui-utils/src/text-field";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {SliderWithInput} from "../../../../modules/ui-utils/src/slider-with-input";
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
 import VisualizationIcon from "@/components/icons/visualization-icon";
 import TextFieldsIcon from '@mui/icons-material/TextFields';

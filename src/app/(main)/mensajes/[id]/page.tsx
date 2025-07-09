@@ -17,15 +17,16 @@ import {produce} from "immer";
 import {$Typed} from "@atproto/api";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import {useMediaQuery, useTheme} from "@mui/system";
+import {QueryFilters} from "@tanstack/query-core";
 
 
 type SendMessageParams = { message: MessageInput, convoId: string }
 
-const conversationQueriesFilter = (convoId: string) => ({
+const conversationQueriesFilter = (convoId: string): QueryFilters<readonly unknown[]> => ({
     predicate: query => query.queryKey[0] == "conversation" && query.queryKey[1] == convoId
 })
 
-const conversationsQueriesFilter = () => ({
+const conversationsQueriesFilter = (): QueryFilters<readonly unknown[]> => ({
     predicate: query => query.queryKey[0] == "conversations"
 })
 
@@ -89,7 +90,7 @@ export default function Page() {
     })
 
     async function markRead(convoId: string) {
-        const {error} = await post<{}, {}>(`/conversation/read/${convoId}`)
+        await post<{}, {}>(`/conversation/read/${convoId}`)
     }
 
     useEffect(() => {
@@ -141,7 +142,7 @@ export default function Page() {
     }
 
     async function sendMessage(msg: SendMessageParams) {
-        const {error} = await post<SendMessageParams, {}>("/send-message", msg)
+        await post<SendMessageParams, {}>("/send-message", msg)
     }
 
     const other = data.conversation ? data.conversation.members.filter(m => m.did != user.did)[0] : undefined

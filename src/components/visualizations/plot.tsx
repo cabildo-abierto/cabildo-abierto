@@ -18,7 +18,7 @@ import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@atproto/api";
 import { pxToNumber } from "@/utils/strings";
-import {TableVisualizationComp} from "@/components/visualizations/table-visualization-comp";
+import TableVisualizationComp from "@/components/visualizations/table-visualization-comp";
 
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
@@ -44,8 +44,6 @@ export const ResponsivePlot = ({
         return <TableVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
-            maxWidth={maxWidth}
-            maxHeight={maxHeight}
         />
     }
 

@@ -1,4 +1,4 @@
-import {BothContributionsProps, EditorStatus} from "@/lib/types";
+import {EditorStatus} from "@/lib/types";
 
 import {
     BooleanProp,
@@ -7,7 +7,6 @@ import {
     isDateProp,
     isNumberProp,
     isStringListProp, isStringProp, NumberProp, StringListProp, StringProp,
-    TopicHistory,
     TopicProp,
     TopicVersionStatus
 } from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
@@ -118,62 +117,6 @@ export function getPropsDict(props?: TopicProp[]) {
 
 export function isTopicVersionDemonetized(topicVersion: {}) {
     return false
-}
-
-export function contributionsToProportionsMap(contributions: BothContributionsProps, author: string) {
-    let map = {}
-
-    if (!contributions.all.some(([a, _]) => (a == author))) {
-        contributions.all.push([author, 0])
-    }
-
-    let total = 0
-    for (let i = 0; i < contributions.monetized.length; i++) {
-        const [author, charCount] = contributions.monetized[i]
-        total += charCount
-    }
-
-    const monetized = total > 0
-
-    for (let i = 0; i < contributions.all.length; i++) {
-        const [author, charCount] = contributions.all[i]
-        map[author] = 1.0 / contributions.all.length * (monetized ? 0.1 : 1)
-    }
-
-    if (total > 0) {
-        for (let i = 0; i < contributions.monetized.length; i++) {
-            const [author, charCount] = contributions.monetized[i]
-            map[author] += charCount / total * 0.9
-        }
-    }
-
-    return map
-}
-
-export function getEntityMonetizedContributions(topic: TopicHistory, version: number){
-    const authors = new Map()
-    for(let i = 0; i <= version; i++){
-        if(!isTopicVersionDemonetized(topic.versions[i])){
-            const author = topic.versions[i].author.did
-
-            if(authors.has(author)){
-                authors.set(author, authors.get(author) + topic.versions[i].addedChars)
-            } else {
-                authors.set(author, topic.versions[i].addedChars)
-            }
-        }
-    }
-    return Array.from(authors)
-}
-
-export function getTopicMonetizedChars(topic: TopicHistory, version: number) {
-    let monetizedCharsAdded = 0
-    for (let i = 0; i <= version; i++) {
-        if (!isTopicVersionDemonetized(topic.versions[i])) {
-            monetizedCharsAdded += topic.versions[i].addedChars
-        }
-    }
-    return monetizedCharsAdded
 }
 
 export function validEntityName(name: string) {

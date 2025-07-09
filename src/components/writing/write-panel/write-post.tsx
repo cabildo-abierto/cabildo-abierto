@@ -224,9 +224,9 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
-    setHidden: (v: boolean) => void
+    setHidden: (_: boolean) => void
     quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
-    handleSubmit: (post: CreatePostProps) => Promise<void>
+    handleSubmit: (_: CreatePostProps) => Promise<void>
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)

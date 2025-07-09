@@ -1,5 +1,4 @@
 import Image from "next/image";
-//import {useTheme} from "@/components/theme/theme-context";
 
 export const Logo = ({
                          width = 64,
@@ -10,8 +9,6 @@ export const Logo = ({
     height?: number;
     showLabel?: boolean
 }) => {
-    //const theme = useTheme()
-    //const dark = theme.currentTheme == "dark"
     return (
         <div className={"flex items-center justify-center flex-col space-y-1"}>
         <Image

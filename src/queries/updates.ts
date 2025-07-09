@@ -12,9 +12,10 @@ import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/ur
 import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {TopicFeed} from "@/queries/api";
+import {QueryFilters} from "@tanstack/query-core";
 
 
-export const contentQueriesFilter = (uri: string) => ({
+export const contentQueriesFilter = (uri: string): QueryFilters<readonly unknown[]> => ({
     predicate: query => isQueryRelatedToUri(query.queryKey, uri)
 })
 
@@ -36,7 +37,9 @@ export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
 }
 
 
-function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, updater: (e: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
+type Updater<T> = (_: T) => T | null
+
+function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, updater: Updater<FeedViewContent["content"]>) {
     return produce(feed, draft => {
         if(!feed) return
         for (let i = 0; i < draft.pages.length; i++) {
@@ -56,7 +59,7 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
     })
 }
 
-export async function updateContentInQueries(qc: QueryClient, uri: string, updater: (e: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
+export async function updateContentInQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
     qc.getQueryCache()
         .getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
@@ -94,7 +97,7 @@ export async function updateContentInQueries(qc: QueryClient, uri: string, updat
 }
 
 
-export async function updateTopicHistories(qc: QueryClient, uri: string, updater: (e: VersionInHistory) => VersionInHistory | null) {
+export async function updateTopicHistories(qc: QueryClient, uri: string, updater: (_: VersionInHistory) => VersionInHistory | null) {
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && q.queryKey[0] == "topic-history")
         .forEach(q => {
@@ -115,7 +118,7 @@ export async function updateTopicHistories(qc: QueryClient, uri: string, updater
 }
 
 
-export async function updateDatasets(qc: QueryClient, uri: string, updater: (e: DatasetViewBasic) => DatasetViewBasic | null) {
+export async function updateDatasets(qc: QueryClient, uri: string, updater: (_: DatasetViewBasic) => DatasetViewBasic | null) {
     qc.setQueryData(["datasets"], old => {
         return produce(old as DatasetViewBasic[] | undefined, draft => {
             if(!draft) return
@@ -131,7 +134,7 @@ export async function updateDatasets(qc: QueryClient, uri: string, updater: (e: 
 }
 
 
-export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updater: (e: FeedViewContent) => FeedViewContent | null) {
+export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent) => FeedViewContent | null) {
     qc.getQueryCache()
         .getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
@@ -157,7 +160,7 @@ export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updat
                 } else if (k[0] == "topic-feed" && k.length == 3 && ["mentions", "replies"].includes(k[2] as string)) {
                     const replies = old as InfiniteFeed<FeedViewContent>
                     return produce(replies, draft => {
-                        draft.pages.forEach((p, i) => {
+                        draft.pages.forEach(p => {
                             const idx = p.data.findIndex(x => isPostView(x.content) && x.content.uri == uri)
                             const v = updater(p.data[idx])
                             if (idx != -1) {

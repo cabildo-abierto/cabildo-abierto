@@ -2,16 +2,12 @@ import {Button, styled, TextField} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {useEffect, useState} from "react";
 import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
-import {useRouter} from "next/navigation";
-import JSZip from "jszip";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {UploadFile} from "@mui/icons-material";
 import {DatasetForTableView, DatasetTableView} from "./dataset-table-view";
 import Papa from 'papaparse';
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
-import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {post} from "@/utils/fetch";
-import TopicsIcon from "@/components/icons/topics-icon";
 
 
 const VisuallyHiddenInput = styled('input')({

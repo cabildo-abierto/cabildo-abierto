@@ -1,11 +1,12 @@
 import {Logo} from './logo';
-import {FaXTwitter} from "react-icons/fa6";
-import {SiBluesky} from "react-icons/si";
+
 import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
-import GradientHRule from "./gradient-hrule";
 import { Color } from './button';
+import BlueskyLogo from "@/components/icons/bluesky-logo";
+import {XLogoIcon} from "@phosphor-icons/react";
+
 
 
 const FooterLeftSide = () => {
@@ -15,18 +16,18 @@ const FooterLeftSide = () => {
                 <Logo width={40} height={40}/>
             </div>
         </ScrollToButton>
-        <div className="flex space-x-1">
+        <div className="flex space-x-1 items-center">
             <DimOnHoverLink
                 target="_blank"
                 href="https://bsky.app/profile/cabildoabierto.ar"
             >
-                <SiBluesky fontSize="25"/>
+                <BlueskyLogo className={"w-[22] h-[22]"}/>
             </DimOnHoverLink>
             <DimOnHoverLink
                 target="_blank"
                 href="https://x.com/CabildoAbiertoX"
             >
-                <FaXTwitter fontSize="25"/>
+                <XLogoIcon fontSize="25"/>
             </DimOnHoverLink>
         </div>
     </div>

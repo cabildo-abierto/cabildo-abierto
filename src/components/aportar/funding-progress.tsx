@@ -6,7 +6,7 @@ import {useFundingState, useMonthlyValue} from "@/queries/api";
 
 const FundingProgress = () => {
     let {data: progress, isLoading: isLoadingFundingState} = useFundingState()
-    const { data: value, isLoading: isLoadingMonthlyValue } = useMonthlyValue()
+    const { data: value } = useMonthlyValue()
 
     const state = isLoadingFundingState ? "loading" : (progress === 100 ? 'good' : progress >= 80 ? 'medium' : 'bad')
     const progressColor = state === "good" ? 'bg-green-500' : state === "medium" ? 'bg-yellow-500' : state == "bad" ? 'bg-red-500' : "bg-[var(--background-dark2)]";

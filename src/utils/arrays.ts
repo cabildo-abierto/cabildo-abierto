@@ -1,20 +1,9 @@
-import stringify from "json-stable-stringify";
-import objectHash from "object-hash";
 
-export function getObjectKey(obj: any): string {
-    const stableStr = stringify(obj);
-    return objectHash(stableStr);
-}
 
 export function union<T>(s: Set<T>, t: Set<T>): Set<T> {
     const m = new Set<T>(s)
     t.forEach(x => {m.add(x)})
     return m
-}
-
-
-export function unique<T>(list: T[]): T[]{
-    return Array.from(new Set(list))
 }
 
 export function areSetsEqual<T>(a: Set<T>, b: Set<T>) {
@@ -82,20 +71,6 @@ export function range(a: number, b?: number){
         return Array.from({ length: b-a }, (_, i) => a+i)
     }
     return Array.from({ length: a }, (_, i) => i)
-}
-
-
-export function sortByKey<T, V>(a: T[], keyFn: (x: T) => V, keyCmp: (a: V, b: V) => number){
-    function cmp(a: {x: T, key: V}, b: {x: T, key: V}) {
-        return keyCmp(a.key, b.key)
-    }
-
-    return a.map(x => ({x, key: keyFn(x)})).sort(cmp).map(({x}) => x)
-}
-
-
-export function concat<T>(a: T[][]): T[] {
-    return a.reduce((acc: T[], cur) => ([...acc, ...cur]))
 }
 
 

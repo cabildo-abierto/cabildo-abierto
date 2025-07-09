@@ -1,18 +1,17 @@
-import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
-import {PlotConfigProps} from "@/lib/types";
+import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown"
+import {PlotConfigProps} from "@/lib/types"
 import {
     isHemicycle,
     isDatasetDataSource,
     isTwoAxisPlot,
     isOneAxisPlot, isTable, isTopicsDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {produce} from "immer";
-import {useDatasets} from "@/queries/api";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config";
-import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
-import {useMemo} from "react";
-import {TablePlotter} from "@/components/visualizations/editor/plotter";
+import {produce} from "immer"
+import {useDatasets} from "@/queries/api"
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner"
+import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config"
+import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor"
+import {useMemo} from "react"
 
 
 type PlotSpecificConfigProps = {
@@ -23,8 +22,7 @@ type PlotSpecificConfigProps = {
 export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps) => {
     const {data: datasets} = useDatasets()
     const {
-        data: topicsDataset,
-        isLoading: loadingTopicsDataset
+        data: topicsDataset
     } = useTopicsDataset(isTopicsDataSource(config.dataSource) ? config.filters : null, true)
     const dataSource = config.dataSource
     const dataset = datasets && isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined

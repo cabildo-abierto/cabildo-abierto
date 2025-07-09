@@ -6,10 +6,9 @@ import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useTheme} from "@/components/theme/theme-context";
-import {useAccount, useCurrentValidationRequest, useProfile, useSession} from "@/queries/api";
+import {useAccount, useCurrentValidationRequest, useSession} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { Button } from "../../../../modules/ui-utils/src/button";
-import {profileUrl} from "@/utils/uri";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
 
 

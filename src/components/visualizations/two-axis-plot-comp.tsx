@@ -11,9 +11,9 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {CurvePlotContent} from "@/components/visualizations/curve-plot";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
-import {AxesPlotter, Plotter, ValueType} from "@/components/visualizations/editor/plotter";
+import {AxesPlotter, ValueType} from "@/components/visualizations/editor/plotter";
 import useMeasure from "react-use-measure";
-import {useCallback, useEffect, useMemo, useRef} from "react";
+import {useCallback, useMemo} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
 import {Zoom} from "@visx/zoom";
 import {Group} from "@visx/group";
@@ -102,7 +102,6 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         showTooltip,
         hideTooltip,
     } = useTooltip<{ x: ValueType; y: ValueType }>();
-    const svgRef = useRef<SVGSVGElement>(null);
 
     const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({scroll: true})
     const [measureRef, bounds] = useMeasure()

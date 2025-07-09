@@ -5,7 +5,7 @@ import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {useTooltip} from "@visx/tooltip";
 import {AxisScaleOutput} from "@visx/axis";
 import {
-    isOneAxisPlot, isTable,
+    isOneAxisPlot,
     isTwoAxisPlot,
     Main as Visualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"

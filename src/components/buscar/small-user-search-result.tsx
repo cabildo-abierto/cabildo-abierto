@@ -1,5 +1,4 @@
 import React from "react";
-import {useSearch} from "@/components/buscar/search-context";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {profileUrl} from "@/utils/uri";
 import Image from "next/image";

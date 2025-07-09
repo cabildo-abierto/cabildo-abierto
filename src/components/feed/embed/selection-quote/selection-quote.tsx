@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {useEffect, useState } from "react";
 import {
     anyEditorStateToMarkdown,

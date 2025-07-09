@@ -15,10 +15,6 @@ import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
 import {validArticle} from "@/components/writing/article/valid-article";
-import {
-    editorStateToMarkdown, editorStateToMarkdownNoEmbeds,
-    markdownToEditorState
-} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
@@ -46,7 +42,7 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
 const ArticleEditor = () => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [modalOpen, setModalOpen] = useState(false)
-    const {topicsMentioned, setLastTextChange, editor, setEditor, title, setTitle} = useTopicsMentioned()
+    const {topicsMentioned, setLastTextChange, setEditor, title, setTitle} = useTopicsMentioned()
     const {user} = useSession()
     const smallScreen = window.innerWidth < 700
 
