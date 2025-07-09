@@ -1,7 +1,6 @@
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button"
 import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
 import {FixedCounter} from "./reaction-counter"
-import {ViewsIcon} from "../../icons/views-icon";
 import {getCollectionFromUri} from "@/utils/uri";
 import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
 import React, {MouseEventHandler, useState} from "react";

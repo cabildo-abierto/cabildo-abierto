@@ -1,4 +1,3 @@
-import {useSearch} from "./search-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import React, {useEffect, useState} from "react";
 import {get} from "@/utils/fetch";

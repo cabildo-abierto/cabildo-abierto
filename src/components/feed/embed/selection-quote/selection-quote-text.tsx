@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useMemo} from "react";
 import {
     markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
@@ -7,8 +7,6 @@ import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/emb
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {decompress} from "@/utils/compression";
-import {initializeEmpty} from "../../../../../modules/ca-lexical-editor/src/lexical-editor";
-import {PrettyJSON} from "../../../../../modules/ui-utils/src/pretty-json";
 
 type QuoteTextProps = {
     quotedText: EmbedSelectionQuote["quotedText"]

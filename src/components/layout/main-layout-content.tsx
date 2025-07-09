@@ -66,6 +66,6 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
             </div>
         }
 
-        <BottomBarMobile/>
+        {user && <BottomBarMobile/>}
     </div>
 }

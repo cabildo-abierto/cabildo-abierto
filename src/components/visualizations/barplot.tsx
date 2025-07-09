@@ -5,7 +5,7 @@ import {ScaleBand} from "d3-scale";
 import {ScaleLinear} from "d3-scale";
 
 
-export function BarplotContent<X, Y>({data, xScale, yScale, innerHeight, hideTooltip, showTooltip}: {
+export function BarplotContent<X>({data, xScale, yScale, innerHeight, hideTooltip, showTooltip}: {
     data: DataPoint[]
     xScale: ScaleBand<X>
     yScale: ScaleLinear<number, number>

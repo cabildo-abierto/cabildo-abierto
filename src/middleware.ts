@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import {backendUrl} from "@/utils/uri";
 
 
 export async function middleware(request: NextRequest) {

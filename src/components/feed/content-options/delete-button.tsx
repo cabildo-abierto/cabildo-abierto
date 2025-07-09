@@ -10,7 +10,6 @@ import {
     updateTopicFeedQueries,
     updateTopicHistories
 } from "@/queries/updates";
-import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 const collection2displayText = {

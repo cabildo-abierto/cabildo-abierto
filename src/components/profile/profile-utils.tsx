@@ -8,7 +8,6 @@ import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-q
 import {produce} from "immer";
 import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
 import {Color, darker} from "../../../modules/ui-utils/src/button";
-import {useEffect} from "react";
 
 
 const follow = async ({did}: { did: string }) => {

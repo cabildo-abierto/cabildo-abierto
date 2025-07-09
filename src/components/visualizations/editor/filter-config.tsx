@@ -1,9 +1,7 @@
-import {FilterProps, PlotConfigProps} from "@/lib/types";
+import {PlotConfigProps} from "@/lib/types";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
-import RemoveIcon from "@mui/icons-material/Remove";
 import {Select} from "../../../../modules/ui-utils/src/select";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {
     isColumnFilter,
     isDatasetDataSource,
@@ -11,7 +9,6 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {produce} from "immer";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {TextField} from "../../../../modules/ui-utils/src/text-field";
 import {useCategories} from "@/queries/api";
 
 

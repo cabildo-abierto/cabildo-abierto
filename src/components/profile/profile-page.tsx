@@ -4,10 +4,9 @@ import {useSearchParams} from "next/navigation";
 import {LoadingProfile} from "@/components/profile/loading-profile";
 import {getUsername} from "@/utils/utils";
 import {getFeed} from "@/components/feed/feed/get-feed";
-
 import dynamic from "next/dynamic";
 import {updateSearchParam} from "@/utils/fetch";
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
+
 
 const ProfileHeader = dynamic(() => import("./profile-header"), {ssr: false})
 const FeedViewContentFeed = dynamic(() => import("@/components/feed/feed/feed-view-content-feed"), {ssr: false})

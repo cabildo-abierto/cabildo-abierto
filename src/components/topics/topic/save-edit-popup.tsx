@@ -16,7 +16,7 @@ import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {post} from "@/utils/fetch";
 import {editorStateToMarkdown, normalizeMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {decompress} from "@/utils/compression";
 

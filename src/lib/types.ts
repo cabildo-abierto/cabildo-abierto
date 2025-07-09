@@ -110,7 +110,7 @@ export type FilterProps = {
 }
 
 
-export type GetFeedProps<T> = (cursor?: string) => PostOutput<GetFeedOutput<T>>
+export type GetFeedProps<T> = (_?: string) => PostOutput<GetFeedOutput<T>>
 
 
 export type GetFeedOutput<T> = {

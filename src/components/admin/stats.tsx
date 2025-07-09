@@ -1,14 +1,11 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useProfile, useStatsDashboard} from "@/queries/api";
 import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
-import {DateSince} from "../../../modules/ui-utils/src/date";
-import {TableVisualizationComp} from "@/components/visualizations/table-visualization-comp";
 import {DatasetTableView, RawDatasetView} from "@/components/datasets/dataset-table-view";
 import {Plot} from "@/components/visualizations/plot";
 import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {$Typed} from "@atproto/api";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 export type StatsDashboard = {

@@ -15,7 +15,6 @@ import {SelectionQuoteEmbed} from "@/components/feed/embed/selection-quote/selec
 import {ATProtoStrongRef} from "@/lib/types";
 import {Plot} from "@/components/visualizations/plot";
 import {isView as isCARecordEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/record"
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
 
 type PostEmbedProps = {

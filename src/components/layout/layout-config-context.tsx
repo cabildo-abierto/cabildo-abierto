@@ -3,7 +3,6 @@
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import {isArticle, shortCollectionToCollection} from "@/utils/uri";
 import {usePathname, useSearchParams} from "next/navigation";
-import {shallowEqual} from "@/utils/arrays";
 import {pxToNumber} from "@/utils/strings";
 
 export type LayoutConfigProps = {

@@ -1,8 +1,4 @@
-import {$getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode} from "lexical";
-import {
-    editorStateToMarkdown,
-    editorStateToMarkdownNoEmbeds
-} from "../../modules/ca-lexical-editor/src/markdown-transforms";
+import {$getRoot, EditorState} from "lexical"
 
 export function nodesEqual(node1: any, node2: any){
     if(node1.type != node2.type){
@@ -40,69 +36,29 @@ export function nodesEqual(node1: any, node2: any){
     return true
 }
 
-export function $isWhitespace(node: ElementNode): boolean {
-    for (const child of node.getChildren()) {
-        if (
-            ($isElementNode(child) && !$isWhitespace(child)) ||
-            ($isTextNode(child) && child.getTextContent().trim() !== "") ||
-            $isDecoratorNode(child)
-        ) {
-            return false;
-        }
-    }
-    return true;
-}
 
 export function emptyOutput(editorState: EditorState | undefined) {
     if (!editorState) return true
 
-    const t1 = Date.now()
-    const res = editorState.read(() => {
+    return editorState.read(() => {
         const root = $getRoot()
         const children = root.getChildren()
 
-        for(let i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             const child = children[i]
-            if(child.getTextContent().trim() !== ""){
+            if (child.getTextContent().trim() !== "") {
                 return false
             }
         }
 
         return true
     })
-    return res
 }
 
-function findMentionsInNode(node: any): { id: string }[] {
-    let references: { id: string }[] = []
-    if (node.type === "custom-beautifulMention") {
-        references.push({id: node.data.id})
-    }
-    if (node.children) {
-        for (let i = 0; i < node.children.length; i++) {
-            const childRefs = findMentionsInNode(node.children[i])
-            childRefs.forEach((x) => {
-                references.push(x)
-            })
-        }
-    }
-    return references
-}
-
-export function editorStateFromJSON(text: string) {
-    let res = null
-    try {
-        res = JSON.parse(text)
-    } catch {
-
-    }
-    return res
-}
 
 export function charCount(state: EditorState | undefined) {
-    let count = state.read(() => {
+    return state.read(() => {
         const root = $getRoot()
         return root.getTextContentSize()
     })
-    return count
 }

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import {ViewImage} from "@/lex-api/types/app/bsky/embed/images";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 import useMeasure from "react-use-measure";
 
 
@@ -18,7 +17,8 @@ type EmbedImageProps = {
 export const ATProtoImage = ({
                                img, className = "rounded-lg border", onClick, did, maxHeight=500, maxWidth, cover=false
                            }: EmbedImageProps) => {
-    const [ref, bounds] = useMeasure()
+    const measure = useMeasure()
+    const bounds = measure[1]
     if(!maxWidth) maxWidth = bounds.width ? bounds.width : undefined
     if(!maxHeight) maxHeight = bounds.height ? bounds.height : undefined
     let width: number

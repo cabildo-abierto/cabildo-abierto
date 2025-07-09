@@ -1,6 +1,5 @@
 "use client"
 import {SearchContent} from "@/components/buscar/search-content";
-import {SmallBackButtonHeader} from "@/components/layout/small-back-button-header";
 import {useSearchParams} from "next/navigation";
 import {useEffect} from "react";
 import {useSearch} from "@/components/buscar/search-context";

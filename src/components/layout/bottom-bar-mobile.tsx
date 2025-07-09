@@ -40,7 +40,7 @@ export const BottomBarMobile = () => {
                             lineHeight: '20px'
                         },
                         '& .MuiSvgIcon-root, & .MuiBottomNavigationAction-label': {
-                            color: theme => 'var(--text)'
+                            color: () => 'var(--text)'
                         }
                     }
                 }}

@@ -1,5 +1,4 @@
 import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter";
-import {TransformMatrix} from "@visx/zoom/lib/types";
 import {LinePath} from "@visx/shape";
 import {curveMonotoneX} from "d3-shape";
 import {localPoint} from "@visx/event";

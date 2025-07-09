@@ -134,8 +134,6 @@ const ChooseDatasetPanelDatasetSelection = ({
         <div className={"px-2 pb-2"}>
             {!creatingTopicsBased && <DatasetsSearch datasets={datasets} setConfig={setConfig} config={config}/>}
             {creatingTopicsBased && <TopicsDataSourceConfig
-                config={config}
-                setConfig={setConfig}
                 onGoToFilters={() => {
                     setSelectedMenu("Filtros")
                 }}

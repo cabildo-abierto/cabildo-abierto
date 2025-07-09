@@ -1,13 +1,11 @@
-import FullscreenIcon from "@mui/icons-material/Fullscreen";
-import dynamic from "next/dynamic";
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
+import dynamic from "next/dynamic"
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
-import {Button} from "@/../modules/ui-utils/src/button"
-import {useRouter} from "next/navigation";
-import {topicUrl} from "@/utils/uri";
-import {getEditorSettings} from "@/components/editor/settings";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
-import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
+import {useRouter} from "next/navigation"
+import {topicUrl} from "@/utils/uri"
+import {getEditorSettings} from "@/components/editor/settings"
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
+import HistoryEduIcon from "@mui/icons-material/HistoryEdu"
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 

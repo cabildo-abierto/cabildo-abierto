@@ -1,7 +1,3 @@
-import {useRouter} from "next/navigation"
-import {validEntityName} from "./utils";
-import {topicUrl} from "@/utils/uri";
-import {createTopic} from "@/components/writing/write-panel/create-topic";
 import {useTopic} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 

@@ -22,7 +22,7 @@ type WritePanelProps = {
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
     quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
-    handleSubmit: (post: CreatePostProps) => Promise<void>
+    handleSubmit: (_: CreatePostProps) => Promise<void>
 }
 
 

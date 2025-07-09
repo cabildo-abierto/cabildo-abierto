@@ -1,14 +1,12 @@
 import {useState} from "react";
 import Image from 'next/image'
 import Link from "next/link";
-
 import {Profile} from "@/lib/types";
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
-
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {ArticleIcon} from "../icons/article-icon"
-import {emptyChar, getUsername} from "@/utils/utils";
+import {emptyChar} from "@/utils/utils";
 import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";

@@ -1,12 +1,10 @@
 "use client"
 
-import Image from 'next/image'
 import {getUsername} from '@/utils/utils'
 import Link from 'next/link'
-import {ReactNode, useState} from 'react'
+import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
-import {backendUrl, profileUrl} from "@/utils/uri";
-import {formatIsoDate} from "@/utils/dates";
+import {profileUrl} from "@/utils/uri";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {$Typed} from "@atproto/api";

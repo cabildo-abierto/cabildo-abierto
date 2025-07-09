@@ -8,7 +8,7 @@ import {useTopicFeed, useTopicVersion} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {
-    editorStateToMarkdown, markdownToEditorState
+    editorStateToMarkdown
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
@@ -26,8 +26,7 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/updates";
 import {areSetsEqual} from "@/utils/arrays";
-import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {Record as TopicVersionRecord} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";

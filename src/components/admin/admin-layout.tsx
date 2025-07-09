@@ -1,12 +1,10 @@
 "use client"
-
-
 import {ReactNode} from "react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter, useSearchParams} from "next/navigation";
 import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
 import {useSession} from "@/queries/api";
-import { Button } from "../../../modules/ui-utils/src/button";
+
 
 export const AdminLayout = ({children}: {children: ReactNode}) => {
     const router = useRouter()

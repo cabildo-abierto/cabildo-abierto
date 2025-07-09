@@ -15,7 +15,6 @@ import {
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import React, {useMemo, useState} from "react";
 import {TopicHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {ProfilePic} from "@/components/profile/profile-pic";
 import {FormControl, InputLabel, MenuItem, Select as MUISelect} from "@mui/material";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 
@@ -167,21 +166,6 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
         </div>
     </div>
 }
-
-
-const ProfilePicAndHandle = ({author}: {author: {avatar?: string, handle: string}}) => {
-    return (
-        <div className="flex items-center space-x-1">
-            <ProfilePic
-                user={author}
-                className="rounded-full h-4 w-4"
-            />
-            <span className={"text-[var(--text-light)]"}>
-                @{author.handle}
-            </span>
-        </div>
-    );
-};
 
 
 const VersionSelector = ({selected, setSelected, history, label}: {

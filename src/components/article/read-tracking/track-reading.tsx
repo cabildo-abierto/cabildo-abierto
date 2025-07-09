@@ -1,5 +1,4 @@
-
-import {RefObject, useEffect, useRef, useState } from "react";
+import {RefObject, useEffect, useRef } from "react";
 import {post} from "@/utils/fetch";
 import {splitUri} from "@/utils/uri";
 import {usePathname, useSearchParams} from 'next/navigation'

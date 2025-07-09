@@ -3,7 +3,7 @@ import React, {ReactNode, useEffect} from "react";
 import {range} from "@/utils/arrays";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {GetFeedProps} from "@/lib/types";
-import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
+import {useInfiniteQuery} from "@tanstack/react-query";
 
 
 const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) => {
@@ -56,7 +56,7 @@ function Feed<T>({
     getFeedElementKey,
     enabled=true
 }: FeedProps<T>) {
-    const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isFetched, isError} = useInfiniteQuery({
+    const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isError} = useInfiniteQuery({
         queryKey,
         queryFn: async ({pageParam}) => {
             const {data, error} = await getFeed(pageParam == "start" ? undefined : pageParam)

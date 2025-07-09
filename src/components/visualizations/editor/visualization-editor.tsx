@@ -1,5 +1,5 @@
 import {useDatasets} from "@/queries/api";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
