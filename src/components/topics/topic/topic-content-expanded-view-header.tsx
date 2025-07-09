@@ -9,6 +9,7 @@ import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useSession} from "@/queries/api";
+import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
@@ -31,6 +32,7 @@ export const TopicContentExpandedViewHeader = ({
     saveEnabled: boolean
 }) => {
     const searchParams = useSearchParams()
+    const {setShowLoginRequiredModal, modal} = useLoginRequiredModal("Iniciá sesión para usar esa funcionalidad.")
     const {user} = useSession()
 
     const paramsVersion = searchParams.get("v") ? Number(searchParams.get("v")) : undefined
@@ -55,7 +57,6 @@ export const TopicContentExpandedViewHeader = ({
                         paddingY: 0,
                         borderRadius: 0
                     }}
-                    disabled={!user}
                 >
                     <div
                         className={"whitespace-nowrap mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
@@ -66,10 +67,14 @@ export const TopicContentExpandedViewHeader = ({
         }
 
         function onSelection(v: string) {
-            if (wikiEditorState != v) {
-                setWikiEditorState(v as WikiEditorState)
+            if(!user) {
+                setShowLoginRequiredModal(true)
             } else {
-                setWikiEditorState("normal")
+                if (wikiEditorState != v) {
+                    setWikiEditorState(v as WikiEditorState)
+                } else {
+                    setWikiEditorState("normal")
+                }
             }
         }
 
@@ -86,7 +91,6 @@ export const TopicContentExpandedViewHeader = ({
                 optionsNodes={optionsNodes}
                 selected={wikiEditorState}
                 className={"flex"}
-                disabled={!user}
             />
         </div>
     } else if (!paramsVersion && wikiEditorState.startsWith("editing")) {
@@ -168,5 +172,6 @@ export const TopicContentExpandedViewHeader = ({
                 <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
             </IconButton>
         </div>}
+        {modal}
     </div>
 }

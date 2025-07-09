@@ -1,32 +1,39 @@
 "use client"
 
-import React, {ReactNode, useEffect} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import { LoadingScreen } from '../../../modules/ui-utils/src/loading-screen';
 import {useSession} from "@/queries/api";
-import {ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 
 
-function isPublicPage(pathname: string, searchParams: ReadonlyURLSearchParams){
+function isPublicPage(pathname: string, searchParams: URLSearchParams) {
     const publicTopics = [
         "Cabildo Abierto: Términos y condiciones",
-        "Cabildo Abierto: Política de privacidad"
+        "Cabildo Abierto: Política de privacidad",
+        "Cabildo Abierto"
     ]
     return pathname == "/tema" && publicTopics.includes(decodeURIComponent(searchParams.get("i")))
 }
 
 
-const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
+const LoadingPage= ({children}: {children: ReactNode}) => {
     const user = useSession()
     const router = useRouter()
-    const pathname = usePathname()
-    const searchParams = useSearchParams()
-    const isPublic = isPublicPage(pathname, searchParams)
+    const [isPublic, setIsPublic] = useState(false);
 
     useEffect(() => {
-        if (!user.isLoading && !user.user && !isPublic) {
-            router.push("/login")
+        const url = new URL(window.location.href);
+        const pathname = url.pathname;
+        const searchParams = url.searchParams;
+        const isPublic = isPublicPage(pathname, searchParams);
+        if(isPublic) {
+            setIsPublic(true)
         }
-    }, [user.isLoading, user.user, router, isPublic])
+
+        if (!user.isLoading && !user.user && !isPublic) {
+            router.push("/login");
+        }
+    }, [user.isLoading, user.user, router]);
 
     if(user.user || isPublic) {
         return children

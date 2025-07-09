@@ -9,7 +9,9 @@ export const useLoginRequiredModal = (text: string = "Iniciá sesión para reali
         onClose={() => {setOpen(false)}}
         open={open}
     >
-        {text}
+        <div className={"text-center text-[var(--text-light)] p-4"}>
+            {text}
+        </div>
     </AcceptButtonPanel>
 
     return {setShowLoginRequiredModal: setOpen, showingLoginRequiredModal: open, modal}
