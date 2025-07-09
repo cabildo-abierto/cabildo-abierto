@@ -374,6 +374,6 @@ export default function Page() {
                 <GoToLoginButton className="w-36 sm:w-48 font-bold sm:p-1" fontSize={16} text={"Empezar"}/>
             </div>
         </div>
-        <Footer showCA={false} color={"background-ldark"}/>
+        <Footer showCA={true} color={"background-ldark"}/>
     </Suspense>
 }
