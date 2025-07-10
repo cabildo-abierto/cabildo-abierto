@@ -34,16 +34,21 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
     function optionsNodes(o: string, isSelected: boolean) {
         let icon: ReactNode
         icon = null
+        let description: string
         if (o == "mapa") {
+            description = "Ver como mapa"
             icon = isSelected ? <GraphIcon fontSize={"22px"} weight={"bold"}/> : <GraphIcon fontSize={"22px"}/>
         } else if (o == "lista") {
+            description = "Ver como lista"
             icon = isSelected ? <ListBulletsIcon fontSize={"22px"} weight={"bold"}/> :
                 <ListBulletsIcon fontSize={"22px"}/>
         }
-        return <button
+        return <DescriptionOnHover description={description}>
+            <button
             className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}>
             {icon}
         </button>
+        </DescriptionOnHover>
     }
 
     const searching = searchState.searching
@@ -86,7 +91,8 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
         </div>
 
         {!onlySearchBar && <div className={"py-1 flex-1 flex justify-end"}>
-            <Button
+            <DescriptionOnHover description={"Crear un tema"}>
+                <Button
                 color="background"
                 variant="text"
                 disableElevation={true}
@@ -100,6 +106,7 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
                 <span className={"hidden min-[600px]:block"}>Tema</span>
                 <span className={"block min-[600px]:hidden"}>Tema</span>
             </Button>
+            </DescriptionOnHover>
         </div>}
 
         {!onlySearchBar && newTopicOpen && <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>}

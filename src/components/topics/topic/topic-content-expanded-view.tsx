@@ -58,14 +58,14 @@ function emptyTopic(topic: TopicView) {
 
 
 const TopicContentExpandedViewContent = ({
-                                             wikiEditorState,
-                                             topic,
-                                             quoteReplies,
-                                             pinnedReplies,
-                                             setPinnedReplies,
-                                             editor,
-                                             setEditor
-                                         }: {
+     wikiEditorState,
+     topic,
+     quoteReplies,
+     pinnedReplies,
+     setPinnedReplies,
+     editor,
+     setEditor
+}: {
     wikiEditorState: WikiEditorState
     topic: TopicView
     quoteReplies: PostView[]
@@ -74,7 +74,6 @@ const TopicContentExpandedViewContent = ({
     editor: LexicalEditor,
     setEditor: (editor: LexicalEditor) => void
 }) => {
-
     return <>
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
             <div id="editor" className={"pb-2 min-h-[300px] mt-4 sm:px-2 px-4"} key={topic.uri}>

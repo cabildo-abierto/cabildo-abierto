@@ -9,8 +9,18 @@ import {$Typed} from "@atproto/api";
 
 
 export type StatsDashboard = {
-    lastUsers: ProfileViewBasicCA[]
-    WAUPlot: {date: Date, count: number}[]
+    lastUsers: (ProfileViewBasicCA & { lastReadSession: Date | null })[]
+    counts: {
+        registered: number
+        active: number
+        verified: number
+        verifiedActive: number
+    }
+    WAUPlot: { date: Date, count: number }[]
+    WAUPlotVerified: { date: Date, count: number }[]
+    articlesPlot: {date: Date, count: number}[]
+    topicVersionsPlot: {date: Date, count: number}[]
+    caCommentsPlot: {date: Date, count: number}[]
 }
 
 
@@ -42,7 +52,10 @@ function recordListToRawDataset(rows: Record<string, any>[]): RawDatasetView {
 }
 
 
-const WAUPlot = ({data}: {data: StatsDashboard["WAUPlot"]}) => {
+const WAUPlot = ({data, title}: {
+    data: StatsDashboard["WAUPlot"]
+    title: string
+}) => {
     const {data: profile, isLoading} = useProfile("cabildoabierto.ar")
 
     if(isLoading || !profile) return <LoadingSpinner />
@@ -69,6 +82,7 @@ const WAUPlot = ({data}: {data: StatsDashboard["WAUPlot"]}) => {
                 $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
                 dataset: ""
             },
+            title,
             spec: {
                 $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
                 xAxis: "date",
@@ -99,17 +113,54 @@ export const AdminStats = () => {
 
 
     return <div className={"space-y-2 mt-8"}>
-        <div className={"w-full flex justify-center"}>
-            <div className={"text-8xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-32 aspect-square"}>
-                {data.WAUPlot[data.WAUPlot.length-1].count}
+        <div className={"flex flex-wrap items-end gap-x-4 gap-y-4"}>
+            <div className={"flex-col text-8xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-32 aspect-square"}>
+                <div>
+                    {data.counts.active}
+                </div>
+                <div className={"text-sm text-[var(--text-light)] text-center"}>
+                    Activos
+                </div>
+            </div>
+            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-24 h-24 aspect-square"}>
+                <div>
+                    {data.counts.registered}
+                </div>
+                <div className={"text-sm text-[var(--text-light)] text-center"}>
+                    Registrados
+                </div>
+            </div>
+            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-24 h-24 aspect-square"}>
+                <div>
+                    {data.counts.verifiedActive}
+                </div>
+                <div className={"text-sm text-[var(--text-light)] text-center"}>
+                    Verificados activos
+                </div>
+            </div>
+            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-24 h-24 aspect-square"}>
+                <div>
+                    {data.counts.verified}
+                </div>
+                <div className={"text-sm text-[var(--text-light)] text-center"}>
+                    Verificados
+                </div>
             </div>
         </div>
 
-        <WAUPlot data={data.WAUPlot}/>
-        <DatasetTableView dataset={recordListToRawDataset(data.lastUsers.map(u => ({
+        <WAUPlot data={data.WAUPlot} title={"WAU"}/>
+
+        <WAUPlot data={data.articlesPlot} title={"Artículos"}/>
+
+        <WAUPlot data={data.caCommentsPlot} title={"Comentarios"}/>
+
+        <WAUPlot data={data.topicVersionsPlot} title={"Ediciones de temas"}/>
+
+        <DatasetTableView sort={false} dataset={recordListToRawDataset(data.lastUsers.map(u => ({
             handle: u.handle,
             createdAt: u.createdAt,
-            verification: u.verification
+            lastReadSession: u.lastReadSession,
+            verification: u.verification,
         })))}/>
     </div>
 }

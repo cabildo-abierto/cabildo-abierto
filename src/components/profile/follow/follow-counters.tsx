@@ -10,7 +10,7 @@ export const FollowCounters = ({profile}: { profile: Profile }) => {
     const followingCountAT = profile.bsky.followsCount
     const [hovered, setHovered] = useState(false)
 
-    const showBsky = hovered
+    const showBsky = hovered || !profile.ca || !profile.ca.inCA
     const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg px-2 py-1 cursor-pointer " + (showBsky ? "bg-[var(--background-dark)]" : "")
 
     return <div className={className}

@@ -10,20 +10,23 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
 }) => {
 
     const description = <div>
-        {'Agregar al muro "En discusión".'} <Link href={topicUrl("Cabildo Abierto: Muros")} target="_blank" className={"hover:underline text-[var(--text-light)]"}>Más información.</Link>
+        {'Agregar al muro "En discusión".'} <Link href={topicUrl("Cabildo Abierto: Muros")} target="_blank"
+                                                  className={"hover:underline text-[var(--text-light)]"}>Más
+        información.</Link>
     </div>
 
     return <DescriptionOnHover description={!enDiscusion ? description : null}>
         <IconButton
-        onClick={() => {
-            setEnDiscusion(!enDiscusion)
-        }}
-        size={"small"}
-        color={enDiscusion ? "background-dark3" : "background-dark"}
-        textColor={enDiscusion ? "text" : "text-lighter"}
-    >
-        <Newspaper color={"inherit"}/>
-    </IconButton>
+            onClick={e => {
+                e.stopPropagation()
+                setEnDiscusion(!enDiscusion)
+            }}
+            size={"small"}
+            color={enDiscusion ? "background-dark3" : "background-dark"}
+            textColor={enDiscusion ? "text" : "text-lighter"}
+        >
+            <Newspaper color={"inherit"}/>
+        </IconButton>
     </DescriptionOnHover>
 }
 
