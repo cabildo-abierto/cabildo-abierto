@@ -10,6 +10,7 @@ import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {$Typed} from "@atproto/api";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
+import ValidationIcon from "@/components/profile/validation-icon";
 
 
 type MainPostFrameProps = { children: ReactNode, postView: $Typed<PostView> }
@@ -31,8 +32,12 @@ export const MainPostFrame = ({
                     <div className="flex space-x-2">
                         <ProfilePic user={author} className={"w-11 h-11 rounded-full"}/>
                         <div className="flex flex-col">
-                            <Link href={authorUrl} className="hover:underline font-bold mr-1">  {getUsername(author)}
+                            <div className={"flex items-center space-x-1"}>
+                            <Link href={authorUrl} className="hover:underline font-bold">
+                                {getUsername(author)}
                             </Link>
+                            <ValidationIcon fontSize={18} handle={author.handle} validation={author.verification}/>
+                            </div>
                             <Link href={authorUrl} className="text-[var(--text-light)] text-sm">
                                 @{author?.handle}
                             </Link>

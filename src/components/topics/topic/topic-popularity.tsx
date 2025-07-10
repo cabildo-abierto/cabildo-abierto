@@ -12,7 +12,12 @@ export default function TopicPopularity({count, paddingBottom=3}: {count: number
         <div className={"text-[var(--text-light)] text-xs flex items-end"}>
             <div>{count}</div>
             <div style={{paddingBottom}}> {/*Por algún motivo se ve distinto en el slider*/}
-                <ValidationIcon fontSize={10} validation={"persona"} handle={null} color={"background-dark"}/>
+                <ValidationIcon
+                    fontSize={10}
+                    validation={"person"}
+                    handle={null}
+                    color={"background-dark"}
+                />
             </div>
         </div>
     </DescriptionOnHover>

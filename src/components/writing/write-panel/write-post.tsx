@@ -181,7 +181,7 @@ function getPlaceholder(replyToCollection?: string) {
     } else if (isArticle(replyToCollection)) {
         return "Respondé al artículo"
     } else if (isTopicVersion(replyToCollection)) {
-        return "Respondé al artículo del tema"
+        return "Responder en la discusión del tema"
     } else if (isVisualization(replyToCollection)) {
         return "Respondé a la visualización"
     } else if (isDataset(replyToCollection)) {

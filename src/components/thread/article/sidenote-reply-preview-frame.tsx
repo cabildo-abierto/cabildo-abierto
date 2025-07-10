@@ -60,7 +60,7 @@ export const SidenoteReplyPreviewFrame = ({
             <div className="flex w-52 flex-col py-3 text-sm pr-2">
                 <div className="flex items-center gap-x-1">
                     <span className="truncate">
-                        <ContentTopRowAuthor author={record.author}/>
+                        <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...record.author}}/>
                     </span>
                     <span className="text-[var(--text-light)]">
                         ·

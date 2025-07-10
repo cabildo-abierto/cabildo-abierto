@@ -7,6 +7,7 @@ import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import ProfileDescription from "@/components/profile/profile-description";
 import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
 import {ProfilePic} from "@/components/profile/profile-pic";
+import ValidationIcon from "@/components/profile/validation-icon";
 
 type UserSummaryProps = {
     handle: string
@@ -35,10 +36,13 @@ const UserSummary = ({handle}: UserSummaryProps) => {
                 <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
             </div>
 
-            <div className="flex flex-col">
-                <Link className="font-semibold text-base" href={profileUrl(profile.bsky.handle)}>
-                    {profile.bsky.displayName}
-                </Link>
+            <div className="flex flex-col items-start">
+                <div className={"flex space-x-1 items-center"}>
+                    <Link className="font-semibold text-base" href={profileUrl(profile.bsky.handle)}>
+                        {profile.bsky.displayName}
+                    </Link>
+                    <ValidationIcon fontSize={16} handle={profile.bsky.handle} validation={profile.ca.validation}/>
+                </div>
                 <Link className="text-[var(--text-light)]" href={profileUrl(profile.bsky.handle)}>
                     @{profile.bsky.handle}
                 </Link>

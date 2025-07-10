@@ -1,19 +1,38 @@
 import Link from "next/link";
 import {profileUrl} from "@/utils/uri";
 import {getUsername} from "@/utils/utils";
+import ValidationIcon from "@/components/profile/validation-icon";
+import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 
-export const Authorship = ({content, className = "hover:underline font-medium", onlyAuthor = false, text = "Por"}: {
+
+export const Authorship = ({
+    author,
+    className = "hover:underline font-medium",
+    onlyAuthor = false,
+    text = "Por",
+    showIcon = true,
+    iconFontSize = 13
+}: {
     className?: string,
     text?: string,
-    content: { author: { displayName?: string, handle: string, did: string } },
+    author: ProfileViewBasicCA,
     onlyAuthor?: boolean
+    iconFontSize?: number
+    showIcon?: boolean
 }) => {
-    return <span className="space-x-1">
+    return <div className="flex space-x-1 items-center">
         {!onlyAuthor && <span>
             {text}
         </span>}
-        <Link href={profileUrl(content.author?.handle)} className={className} onClick={(e) => {e.stopPropagation()}}>
-            {getUsername(content.author)}
+        <Link href={profileUrl(author.handle)} className={className} onClick={(e) => {
+            e.stopPropagation()
+        }}>
+            {getUsername(author)}
         </Link>
-    </span>
+        {showIcon && <ValidationIcon
+            fontSize={iconFontSize}
+            handle={author.handle}
+            validation={author.verification}
+        />}
+    </div>
 }

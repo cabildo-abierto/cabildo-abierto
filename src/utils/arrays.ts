@@ -1,5 +1,14 @@
 
 
+export function sortByKey<T, V>(a: T[], keyFn: (x: T) => V, keyCmp: (a: V, b: V) => number){
+    function cmp(a: {x: T, key: V}, b: {x: T, key: V}) {
+        return keyCmp(a.key, b.key)
+    }
+
+    return a.map(x => ({x, key: keyFn(x)})).sort(cmp).map(({x}) => x)
+}
+
+
 export function union<T>(s: Set<T>, t: Set<T>): Set<T> {
     const m = new Set<T>(s)
     t.forEach(x => {m.add(x)})

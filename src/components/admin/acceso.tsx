@@ -4,10 +4,13 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {categoriesSearchParam} from "@/queries/api";
+import {categoriesSearchParam, useAccessRequests} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {get, post} from "@/utils/fetch";
 import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
+import {formatIsoDate} from "@/utils/dates";
+import {DateSince} from "../../../modules/ui-utils/src/date";
+import {listOrder, sortByKey} from "@/utils/arrays";
 
 
 export const collectionsList = [
@@ -49,6 +52,8 @@ export const AdminAcceso = () => {
     const [codes, setCodes] = useState([])
     const [users, setUsers] = useState<ProfileViewBasic[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
+    const {data: accessRequests, refetch} = useAccessRequests()
+
 
     async function copyCode(c: string) {
         const url = `https://www.cabildoabierto.ar/login?c=${c}`
@@ -173,6 +178,40 @@ export const AdminAcceso = () => {
                 </div>
             )}
 
+        </AdminSection>
+
+        <AdminSection title={"Solicitudes de acceso"}>
+            {accessRequests && sortByKey(accessRequests, c => {return c.createdAt ? [new Date(c.createdAt).getTime()] : [0]}, listOrder).map((a, i) => {
+                return <div key={i} className={"space-y-1 bg-[var(--background-dark)] rounded-lg p-2 flex flex-col items-start"}>
+                    <div className={"font-bold"}>
+                        {a.email}
+                    </div>
+                    {a.comment && <div className={"bg-[var(--background-dark4)] rounded p-1"}>
+                        {a.comment}
+                    </div>}
+                    <div>
+                        {a.sentInviteAt ? <div className={"bg-green-800 rounded text-sm px-1"}>
+                            Enviada {formatIsoDate(a.sentInviteAt)}
+                        </div> : <div className={"bg-[var(--background-dark3)] px-1 text-sm rounded"}>
+                            Pendiente
+                        </div>}
+                    </div>
+                    <div className={"text-sm"}>
+                        Hace <DateSince date={a.createdAt}/>
+                    </div>
+                    {!a.sentInviteAt && <div className={"w-full flex justify-end"}>
+                        <StateButton
+                            text1={"Marcar como enviada"}
+                            size={"small"}
+                            handleClick={async () => {
+                                const {error} = await post<{}, {}>(`/access-request-sent/${a.id}`)
+                                refetch()
+                                return {error}
+                            }}
+                        />
+                    </div>}
+                </div>
+            })}
         </AdminSection>
     </div>
 }

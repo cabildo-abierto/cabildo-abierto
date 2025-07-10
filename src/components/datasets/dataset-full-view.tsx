@@ -30,7 +30,9 @@ export const DatasetFullView = ({dataset, maxWidth}: {
             </div>
             {!isTopicsDatasetView(dataset) &&
                 <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
-                    <div><Authorship content={dataset} text={"Publicado por"}/></div>
+                    <div>
+                        <Authorship author={dataset.author} text={"Publicado por"}/>
+                    </div>
                     <div>hace <DateSince date={dataset.createdAt}/></div>
                 </div>}
             <div className={"mt-3 text-[var(--text-light)]"}>

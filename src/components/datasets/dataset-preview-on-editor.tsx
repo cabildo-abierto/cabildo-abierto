@@ -20,7 +20,7 @@ export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
             <span className={"font-semibold"}>{dataset.columns.length}</span> columnas
         </div>
         <div className={"text-sm text-[var(--text-light)] truncate"}>
-            Publicado por <Authorship content={dataset} onlyAuthor={true}/>
+            Publicado por <Authorship author={dataset.author} onlyAuthor={true}/>
         </div>
         <div className={"text-[var(--text-light)] text-sm"}>
             Hace <DateSince date={dataset.createdAt}/>

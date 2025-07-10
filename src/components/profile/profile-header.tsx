@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import {useSession} from "@/queries/api";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
+
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
 
@@ -25,10 +26,10 @@ type ProfileHeaderProps = {
 }
 
 function ProfileHeader({
-                                  profile,
-                                  selected,
-                                  setSelected
-                              }: ProfileHeaderProps) {
+                           profile,
+                           selected,
+                           setSelected
+                       }: ProfileHeaderProps) {
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
     const [editingProfile, setEditingProfile] = useState(false)
@@ -61,7 +62,7 @@ function ProfileHeader({
     }
 
     return <div className="flex flex-col border-b">
-        <div className={"flex flex-col relative"}>
+        <div className={"flex flex-col relative w-full"}>
             <div className={"absolute z-2 top-2 left-2"}>
                 <BackButton size={"medium"} color={"background-dark3"}/>
             </div>
@@ -109,28 +110,33 @@ function ProfileHeader({
                     <Button
                         color={"background-dark2"}
                         size={"small"}
-                        onClick={() => {setEditingProfile(true)}}
+                        onClick={() => {
+                            setEditingProfile(true)
+                        }}
                     >
                         Editar perfil
                     </Button>
                 </div>}
+                <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
             </div> : <div className={"w-24 h-24 ml-6 mt-[-48px]"}>
                 {emptyChar}
             </div>}
         </div>
-        <div className="flex justify-between pr-1">
+        <div className="flex justify-between pr-1 space-x-2">
             <div className="ml-2 py-2">
-                <div className={"flex space-x-2 items-center"}>
-                    <span className={"min-[500px]:text-2xl text-lg font-bold"}>
-                        {profile.bsky.displayName && profile.bsky.displayName.length > 0 ?  profile.bsky.displayName : profile.bsky.handle}
-                    </span>
-                    <ValidationIcon validation={profile.ca.validation} handle={profile.bsky.handle}/>
+                <div className={"flex space-x-1 items-center"}>
+                    <div className={"min-[500px]:text-2xl text-lg font-bold"}>
+                        {profile.bsky.displayName && profile.bsky.displayName.length > 0 ? profile.bsky.displayName : profile.bsky.handle}
+                    </div>
+                    <ValidationIcon
+                        validation={profile.ca.validation}
+                        handle={profile.bsky.handle}
+                    />
                 </div>
                 <div className="text-[var(--text-light)]">
                     @{profile.bsky.handle}
                 </div>
             </div>
-            <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
         </div>
 
         {profile.bsky.description && profile.bsky.description.length > 0 && <div className="ml-2 mb-2">
@@ -156,7 +162,9 @@ function ProfileHeader({
                     <Link
                         target={"_blank"}
                         rel="noopener noreferrer"
-                        onClick={() => {window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')}}
+                        onClick={() => {
+                            window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')
+                        }}
                         href={"https://bsky.app/profile/" + profile.bsky.handle}
                         className="text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center"
                     >
@@ -177,7 +185,9 @@ function ProfileHeader({
         </div>
         {editingProfile && <EditProfileMobile
             open={editingProfile}
-            onClose={() => {setEditingProfile(false)}}
+            onClose={() => {
+                setEditingProfile(false)
+            }}
         />}
     </div>
 }

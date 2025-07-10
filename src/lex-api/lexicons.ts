@@ -1218,7 +1218,7 @@ export const schemaDict = {
           },
           author: {
             type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           message: {
             type: 'string',

@@ -55,7 +55,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
                     />
                 </Link>
                 <span className="truncate text-sm">
-                    <ContentTopRowAuthor author={author}/>
+                    <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
                 </span>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
@@ -98,7 +98,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
                     />
                 </Link>
                 <span className="truncate text-sm">
-                    <ContentTopRowAuthor author={author}/>
+                    <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
                 </span>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>

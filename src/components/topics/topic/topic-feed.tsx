@@ -7,6 +7,7 @@ import {topicUrl} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
@@ -18,7 +19,12 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
     const [mentionsSelected, setMentionsSelected] = useState<string>("Publicaciones")
 
     function optionsNodes(o: string, isSelected: boolean){
+        const description = o == "Menciones" ?
+            "Las publicaciones, respuestas, artículos y otros temas que hablaron del tema." :
+            "Discusión sobre el tema y el contenido del artículo."
+
         return <div className="text-[var(--text)] h-10 ">
+            <DescriptionOnHover description={description}>
             <Button
                 variant="text"
                 color="background"
@@ -33,6 +39,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                     {o}
                 </div>
             </Button>
+            </DescriptionOnHover>
         </div>
     }
 
@@ -62,7 +69,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 onSelection={setSelected}
                 selected={selected}
                 optionsNodes={optionsNodes}
-                options={["Menciones", "Respuestas al contenido"]}
+                options={["Menciones", "Discusión"]}
                 className={"flex w-full"}
             />
         </div>

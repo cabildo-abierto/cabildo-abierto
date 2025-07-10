@@ -1,5 +1,5 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {ProfileViewBasic, ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
+import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
 import {
     Main as Visualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
@@ -14,7 +14,7 @@ export type Profile = {
     ca: CAProfile | null
 }
 
-export type ValidationState = "org" | "persona" | null
+export type ValidationState = "org" | "persona" | string | null
 
 export type CAProfile = {
     inCA: boolean
@@ -56,7 +56,7 @@ export type FastPostReplyProps = {
 }
 
 
-export type TopicContributor = {profile: ProfileViewBasic, all: number, monetized: number}
+export type TopicContributor = {profile: ProfileViewBasicCA, all: number, monetized: number}
 
 export type TopicVersionChangesProps = {
     prevText: string
@@ -101,13 +101,6 @@ export type DeepPartial<T> = {
 
 
 export type PlotConfigProps = DeepPartial<Visualization>
-
-
-export type FilterProps = {
-    value: any
-    op: string
-    column: string
-}
 
 
 export type GetFeedProps<T> = (_?: string) => PostOutput<GetFeedOutput<T>>
