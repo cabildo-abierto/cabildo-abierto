@@ -13,17 +13,20 @@ export const ArticleHeader = ({article}: {article: FullArticleView}) => {
             {article.title}
         </h1>
         <div className="gap-x-4 flex flex-wrap items-baseline">
-            <span className={"max-[500px]:text-base text-lg"}>
-                Artículo de <Authorship content={article} onlyAuthor={true}/>
-            </span>
-            <span className={"max-[500px]:text-sm text-[var(--text-light)]"}>
+            <div className={"max-[500px]:text-base text-lg flex space-x-1"}>
+                <div>
+                    Artículo de
+                </div>
+                <Authorship author={article.author} onlyAuthor={true}/>
+            </div>
+            <div className={"max-[500px]:text-sm text-[var(--text-light)]"}>
                 {localeDate(new Date(article.indexedAt), false, false)}
-            </span>
-            <span className={"text-[var(--text-light)]"}>
+            </div>
+            <div className={"text-[var(--text-light)]"}>
                 <ReadingTime
                     numWords={getNumWords(article.text, "markdown")} // TO DO: article.format
                 />
-            </span>
+            </div>
         </div>
     </>
 }

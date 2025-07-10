@@ -217,3 +217,15 @@ export type PrivateMessage = ($Typed<MessageView> | $Typed<DeletedMessageView> |
 export function useConversation(convoId: string) {
     return useAPI<Conversation>(`/conversation/${convoId}`, ["conversation", convoId])
 }
+
+type AccessRequest = {
+    id: string
+    email: string
+    comment: string
+    createdAt: Date
+    sentInviteAt: Date | null
+}
+
+export function useAccessRequests() {
+    return useAPI<AccessRequest[]>("/access-requests", ["access-requests"])
+}

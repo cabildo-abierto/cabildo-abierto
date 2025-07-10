@@ -1,7 +1,7 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {usePendingValidationRequests} from "@/queries/api";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";
 import {DateSince} from "../../../modules/ui-utils/src/date";
@@ -16,7 +16,7 @@ import Image from "next/image"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {post} from "@/utils/fetch";
 
-export type ValidationRequestView = { id: string, user: ProfileViewBasic, createdAt: Date } & ({
+export type ValidationRequestView = { id: string, user: ProfileViewBasicCA, createdAt: Date } & ({
     tipo: "persona"
     dniFrente: FilePayload
     dniDorso: FilePayload
@@ -127,9 +127,14 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
             <span className={"font-bold rounded bg-[var(--primary)] px-2 mr-2"}>
                 {request.tipo}
             </span>
-                <ProfilePic user={request.user} className={"w-6 h-6 rounded-full"}/>
+                <ProfilePic
+                    user={request.user}
+                    className={"w-6 h-6 rounded-full"}
+                />
                 <span className="truncate">
-                <ContentTopRowAuthor author={request.user}/>
+                <ContentTopRowAuthor
+                    author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...request.user}}
+                />
             </span>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(request.createdAt)}>

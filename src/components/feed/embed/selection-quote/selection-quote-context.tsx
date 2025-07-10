@@ -22,7 +22,7 @@ export const SelectionQuoteContext = ({quotedContent, quotedContentTitle, quoted
             <div className={"not-article-content text-sm text-[var(--text-light)] space-x-1"}>
                 <Authorship
                     onlyAuthor={true}
-                    content={{author: quotedContentAuthor}}
+                    author={quotedContentAuthor}
                 />
                 <span>en</span>
                 <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>

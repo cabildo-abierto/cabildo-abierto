@@ -148,7 +148,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                                 user={topicVersion.author}
                             />
                             <Authorship
-                                content={topicVersion}
+                                author={topicVersion.author}
                                 onlyAuthor={true}
                             />
                         </div>

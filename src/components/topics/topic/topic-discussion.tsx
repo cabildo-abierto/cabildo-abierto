@@ -23,7 +23,7 @@ const TopicDiscussion = ({
     return <div className="w-full flex flex-col items-center mb-16">
         {replyToContent != null && <div className={"w-full"}>
             <ReplyButton
-                text={"Responder al artículo del tema"}
+                text={"Responder en la discusión del tema"}
                 onClick={() => {setWritingReply(true)}}
             />
         </div>}

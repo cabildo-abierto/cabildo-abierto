@@ -91,7 +91,7 @@ const ArticleEditor = () => {
             <TitleInput onChange={setTitle} title={title}/>
             <div className="gap-x-4 flex flex-wrap items-baseline">
                 <span className={"max-[500px]:text-base text-lg text-[var(--text-light)]"}>
-                    Artículo de <Authorship content={{author: user}} onlyAuthor={true}/>
+                    Artículo de <Authorship author={user} onlyAuthor={true}/>
                 </span>
                 <span className={"max-[500px]:text-sm text-[var(--text-light)]"}>
                     {localeDate(createdAt, true)}
