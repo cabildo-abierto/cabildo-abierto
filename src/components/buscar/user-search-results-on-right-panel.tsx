@@ -37,7 +37,9 @@ const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) 
                 >
                     <div className={"space-x-1 w-full"}>
                         <span>Buscar</span>
-                        <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
+                        <span className={"text-[var(--text-light)]"}>
+                            {searchState.value}
+                        </span>
                     </div>
                 </Button>
             </div>

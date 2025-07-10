@@ -71,16 +71,16 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 
 
 export const EditorWithQuoteComments = ({
-                                            uri,
-                                            settings,
-                                            replyTo,
-                                            editor,
-                                            setEditor,
-                                            setEditorState,
-                                            quoteReplies,
-                                            pinnedReplies,
-                                            setPinnedReplies
-                                        }: EditorWithQuoteCommentsProps) => {
+    uri,
+    settings,
+    replyTo,
+    editor,
+    setEditor,
+    setEditorState,
+    quoteReplies,
+    pinnedReplies,
+    setPinnedReplies
+}: EditorWithQuoteCommentsProps) => {
     const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | LexicalSelection | null>(null)
     const {layoutConfig} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)

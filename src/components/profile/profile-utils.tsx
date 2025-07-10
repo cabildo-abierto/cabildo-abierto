@@ -6,7 +6,8 @@ import {Profile} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
+import {ProfileViewBasic, ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
+import {ProfileViewBasic as CAProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 import {Color, darker} from "../../../modules/ui-utils/src/button";
 
 
@@ -114,7 +115,7 @@ const isQueryRelatedToFollow = (query: Query) => {
 
 export function FollowButton({handle, profile, backgroundColor="background", textClassName, dense=false}: {
     handle: string,
-    profile: { did: string, viewer?: { following?: string } }
+    profile: ProfileViewDetailed | ProfileViewBasic | CAProfileViewBasic
     backgroundColor?: Color
     textClassName?: string
     dense?: boolean
@@ -181,6 +182,8 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
         return null
     }
 
+    const followText = profile.viewer.followedBy ? "Seguir también" : "Seguir"
+
     return <div className="flex items-center">
         {profile.viewer.following ?
             <StateButton
@@ -203,7 +206,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 startIcon={!dense && <AddIcon fontSize={"small"}/>}
                 disableElevation={true}
                 dense={dense}
-                text1="Seguir"
+                text1={followText}
                 textClassName={textClassName}
             />}
     </div>
