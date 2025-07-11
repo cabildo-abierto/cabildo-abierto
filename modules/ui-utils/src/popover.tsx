@@ -1,18 +1,21 @@
-import React, {ReactNode, Ref, useRef, useState} from 'react';
+import React, {ReactNode, useRef, useState} from 'react';
 import {Popover} from '@mui/material';
+import DescriptionOnHover from "./description-on-hover";
 
 type ClickableModalOnClickProps = {
     children: ReactNode
     id: string
     modal: (close: () => void) => ReactNode
     className?: string
+    description?: string
 }
 
 export const ClickableModalOnClick = ({
-                                          children,
-                                          id,
-                                          modal
-                                      }: ClickableModalOnClickProps) => {
+    children,
+    id,
+    modal,
+    description
+}: ClickableModalOnClickProps) => {
     const buttonRef = useRef<HTMLDivElement>(null)
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
 
@@ -28,7 +31,9 @@ export const ClickableModalOnClick = ({
 
     return <>
         <div aria-describedby={id} ref={buttonRef} onClick={handleClick}>
-            {children}
+            <DescriptionOnHover description={!open ? description : undefined}>
+                {children}
+            </DescriptionOnHover>
         </div>
         <Popover
             id={id}

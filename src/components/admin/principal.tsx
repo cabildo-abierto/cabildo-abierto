@@ -23,7 +23,11 @@ export const AdminPrincipal = () => {
         "job/update-topic-contributions",
         "job/create-user-months",
         "job/batch-jobs",
-        "job/update-bsky-followers"
+        "job/update-bsky-followers",
+        "job/restart-interactions-last-update",
+        "job/restart-references-last-update",
+        "job/restart-interactions-last-update",
+        "job/sync-all-users"
     ]
 
     return <div className={"pt-16 space-y-8"}>

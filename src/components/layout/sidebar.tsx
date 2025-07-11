@@ -20,7 +20,6 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
 import CabildoIcon from "../icons/home-icon";
-import SupportIcon from "../icons/support-icon";
 import NotificationsIcon from "../icons/notifications-icon";
 
 import dynamic from "next/dynamic";
@@ -31,18 +30,6 @@ import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
-
-
-const HelpDeskButton = ({user, onClose, showText, setShowText}: {
-    showText: boolean,
-    setShowText: (v: boolean) => void,
-    user?: {},
-    onClose: () => void
-}) => {
-    const count = 0 // TO DO: Implementar
-    return <SidebarButton showText={showText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder"
-                          href="/soporte/responder"/>
-}
 
 
 const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: () => void }) => {
@@ -186,14 +173,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             selected={pathname == profileUrl(user.user.handle)}
                             showText={showText}
                         />}
-                        {user.user && user.user.editorStatus == "Administrator" &&
-                            <HelpDeskButton
-                                showText={showText}
-                                setShowText={setShowText}
-                                user={user.user}
-                                onClose={onClose}
-                            />
-                        }
                         <SidebarButton
                             icon={<SettingsIcon/>}
                             iconInactive={<SettingsOutlinedIcon/>}

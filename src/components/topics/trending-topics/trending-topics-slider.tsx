@@ -5,11 +5,14 @@ import {useRouter} from "next/navigation";
 import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import TopicPopularity from "@/components/topics/topic/topic-popularity";
+import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
+import {TimePeriod} from "@/queries/api";
 
 
-const TrendingTopicsSlider = ({trendingArticles}: {
-    trendingArticles: TopicViewBasic[]}) => {
+const TrendingTopicsSlider = ({selected, trendingArticles}: {
+    trendingArticles: TopicViewBasic[]
+    selected: TimePeriod
+}) => {
     const [hovering, setHovering] = useState<number>(undefined)
     const router = useRouter()
 
@@ -41,7 +44,11 @@ const TrendingTopicsSlider = ({trendingArticles}: {
                         {title}
                     </div>
 
-                    {topic.popularity && <TopicPopularity count={topic.popularity[0]} paddingBottom={2}/>}
+                    {topic.popularity && <TopicPopularityIndicator
+                        selected={selected}
+                        counts={topic.popularity}
+                        paddingBottom={2}
+                    />}
                 </div>
             })}
             <Link href={"/temas"} className={"hover:bg-[var(--background-dark2)] rounded-b-lg text-sm text-[var(--text-light)] px-5 py-1"}>

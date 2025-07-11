@@ -1,51 +1,106 @@
-import React, {useState} from 'react';
-import {Select as MUISelect, MenuItem, FormControl, InputLabel} from '@mui/material';
+import React from 'react';
+import {
+    Select as MUISelect,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    OutlinedInput
+} from '@mui/material';
+import {Color, darker} from "./button";
 
 export const Select = ({
-                           options, value, onChange, label, fontSize, labelShrinkFontSize, textClassName
+                           options,
+                           value,
+                           onChange,
+                           label,
+                           paddingX,
+                           paddingY,
+                           fontSize,
+                           labelShrinkFontSize,
+                           textClassName,
+                           backgroundColor = "background-dark",
+                           borderColor,
+                           outlineColor
                        }: {
-    options: string[]
-    onChange: (v: string) => void
-    value: string
-    label?: string
-    fontSize?: string
-    labelShrinkFontSize?: string
-    textClassName?: string
+    options: string[];
+    onChange: (v: string) => void;
+    value: string;
+    label?: string;
+    fontSize?: string;
+    labelShrinkFontSize?: string;
+    textClassName?: string;
+    paddingY?: number;
+    paddingX?: number;
+    backgroundColor?: Color;
+    borderColor?: Color;
+    outlineColor?: Color;
 }) => {
-    const selectId = label ? `select-${label}` : 'select';
+    const selectId = label ? `select-${label}` : "select";
+
+    const paddingStyles =
+        typeof paddingX === "number"
+            ? {
+                ".MuiSelect-select": {
+                    paddingY: paddingY,
+                    paddingX: paddingX
+                },
+            }
+            : {};
+
+    const borderStyles = (themeProp: string | undefined) =>
+        themeProp ? `var(--${themeProp})` : undefined;
 
     return (
         <FormControl fullWidth variant="outlined" size="small">
-            {label && <InputLabel
-                id={selectId}
-                sx={{
-                    fontSize: fontSize,
-                    "&.MuiInputLabel-shrink": {fontSize: labelShrinkFontSize}
-                }}
-            >{label}
-            </InputLabel>}
+            {label && (
+                <InputLabel
+                    id={selectId}
+                    sx={{
+                        fontSize: fontSize,
+                        "&.MuiInputLabel-shrink": {fontSize: labelShrinkFontSize},
+                    }}
+                >
+                    {label}
+                </InputLabel>
+            )}
             <MUISelect
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => onChange(e.target.value as string)}
                 label={label}
                 labelId={selectId}
                 fullWidth
-                sx={{
-                    fontSize: fontSize,
-                    backgroundColor: "var(--background-dark)"
-                }}
+                input={
+                    <OutlinedInput
+                        notched
+                        label={label}
+                        sx={{
+                            fontSize: fontSize,
+                            backgroundColor: `var(--${backgroundColor})`,
+                            ...paddingStyles,
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: borderStyles(borderColor),
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: borderStyles(borderColor),
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: borderStyles(outlineColor),
+                            },
+                        }}
+                    />
+                }
                 MenuProps={{
                     PaperProps: {
                         sx: {
-                            backgroundColor: "var(--background-dark)",
+                            backgroundColor: `var(--${backgroundColor})`,
                             paddingTop: 0,
                             marginTop: "2px",
                             paddingBottom: 0,
-                            boxShadow: "none", // Removes the shadow
-                            borderWidth: "1px"
+                            boxShadow: "none",
+                            borderWidth: "1px",
                         },
-                        elevation: 0 // Also ensures no elevation shadow
-                    }
+                        elevation: 0,
+                    },
                 }}
             >
                 {options.map((o, i) => (
@@ -53,23 +108,23 @@ export const Select = ({
                         key={i}
                         value={o}
                         sx={{
-                            backgroundColor: "var(--background-dark)",
-                            '&.Mui-selected': {
-                                backgroundColor: "var(--background-dark)",
+                            backgroundColor: `var(--${backgroundColor})`,
+                            "&.Mui-selected": {
+                                backgroundColor: `var(--${backgroundColor})`,
                             },
-                            '&.Mui-selected:hover': {
-                                backgroundColor: "var(--background-dark2)",
+                            "&.Mui-selected:hover": {
+                                backgroundColor: `var(--${darker(backgroundColor)})`,
                             },
-                            '&:hover': {
-                                backgroundColor: "var(--background-dark2)",
-                            }
+                            "&:hover": {
+                                backgroundColor: `var(--${darker(backgroundColor)})`,
+                            },
                         }}
                     >
                         <span className={textClassName}>{o}</span>
                     </MenuItem>
                 ))}
             </MUISelect>
-
         </FormControl>
     );
 };
+

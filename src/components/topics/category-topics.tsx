@@ -1,4 +1,4 @@
-import {useTopics} from "@/queries/api"
+import {TimePeriod, useTopics} from "@/queries/api"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React from "react"
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
@@ -16,10 +16,15 @@ export const CategoryTopics = ({sortedBy, categories}: {
     categories: string[]
     onSearchPage?: boolean
 }) => {
-    const {data: topics, error, isLoading} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
+    const time: TimePeriod = sortedBy == "Populares última semana" ? "week" : (sortedBy == "Populares último mes" ? "month" : (sortedBy == "Populares último día" ? "day" : "all"))
+    const {data: topics, error, isLoading} = useTopics(
+        categories,
+        sortedBy.startsWith("Populares") ? "popular" : "recent",
+        time
+    )
 
     if (isLoading) return <LoadingSpinner/>
-    if (!topics) return <ErrorPage>{error.message}</ErrorPage>
+    if (!topics) return <ErrorPage>{error?.message ?? "Ocurrió un error al cargar los temas."}</ErrorPage>
 
     const queryKey = ["category-topics", categories.sort().join(":"), sortedBy]
 
@@ -28,11 +33,11 @@ export const CategoryTopics = ({sortedBy, categories}: {
             queryKey={queryKey}
             initialContents={topics}
             FeedElement={({content: t, index}: {content: TopicViewBasic, index?: number}) =>
-                <TopicSearchResult topic={t} index={index}/>
+                <TopicSearchResult topic={t} index={index} time={time}/>
             }
             noResultsText={"No se encontró ningún tema."}
             endText={""}
-            getFeedElementKey={(e: TopicViewBasic) => {return e.id}}
+            getFeedElementKey={(e: TopicViewBasic) => {return `${e.id}:${time}`}}
         />
     </div>
 }
