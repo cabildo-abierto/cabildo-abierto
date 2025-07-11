@@ -46,6 +46,41 @@ const getUsers = async () => {
     return await get<ProfileViewBasic[]>("/users")
 }
 
+
+async function copyCode(c: string) {
+    const url = `https://www.cabildoabierto.ar/login?c=${c}`
+
+    if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url)
+    } else {
+        console.warn("Clipboard API not available")
+    }
+}
+
+
+const GenerateCode = () => {
+    const [code, setCode] = useState<string | null>(null)
+
+    async function onGenerateCode() {
+        const {data, error} = await createCodes(1)
+        if(error) return {error}
+        if(data){
+            setCode(data.inviteCodes[0])
+        }
+        return {}
+    }
+
+    return <div>
+        {code && <div className={"font-mono text-sm cursor-pointer"} onClick={() => {
+            copyCode(code)
+        }}>
+            {code}
+        </div>}
+        {!code && <StateButton handleClick={onGenerateCode} size={"small"} text1={"Generar código"}/>}
+    </div>
+}
+
+
 export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")
     const [codesAmount, setCodesAmount] = useState<number>(0)
@@ -53,17 +88,6 @@ export const AdminAcceso = () => {
     const [users, setUsers] = useState<ProfileViewBasic[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
     const {data: accessRequests, refetch} = useAccessRequests()
-
-
-    async function copyCode(c: string) {
-        const url = `https://www.cabildoabierto.ar/login?c=${c}`
-
-        if (navigator.clipboard) {
-            await navigator.clipboard.writeText(url)
-        } else {
-            console.warn("Clipboard API not available")
-        }
-    }
 
 
     return <div className={"mt-12 flex flex-col items-center max-w-90 space-y-4 mb-64"}>
@@ -199,6 +223,7 @@ export const AdminAcceso = () => {
                     <div className={"text-sm"}>
                         Hace <DateSince date={a.createdAt}/>
                     </div>
+                    <GenerateCode/>
                     {!a.sentInviteAt && <div className={"w-full flex justify-end"}>
                         <StateButton
                             text1={"Marcar como enviada"}

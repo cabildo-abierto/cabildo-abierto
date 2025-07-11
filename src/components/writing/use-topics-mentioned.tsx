@@ -27,13 +27,10 @@ export const useTopicsMentioned = () => {
                         const mdText = editorStateToMarkdownNoEmbeds(editorStateStr);
                         let data: TopicMention[] = []
                         if (mdText.length + title.length > 0) {
-                            console.log("getting topics mentioned")
-                            const t1 = Date.now()
                             data = (await post<{ title: string; text: string }, TopicMention[]>(
                                 `/get-topics-mentioned`,
                                 {title, text: mdText}
                             )).data
-                            console.log("got result", data, "after", Date.now()-t1)
                         }
                         if (data) {
                             setTopicsMentioned(data);

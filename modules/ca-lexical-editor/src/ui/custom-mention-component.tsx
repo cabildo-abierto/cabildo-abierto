@@ -7,7 +7,7 @@ import {forwardRef} from "react";
 import Link from "next/link";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import LoadingSpinner from "../../../ui-utils/src/loading-spinner";
-import {createPortal} from "react-dom";
+
 
 export const EmptyMentionResults = () => (
     <div
@@ -53,8 +53,8 @@ export const CustomMenuItemMentions = forwardRef<
 >(({selected, item, ...props}, ref) => {
         return (
             <li
+                {...props}
                 className="m-0 flex p-2 w-full items-center space-x-2 cursor-pointer hover:bg-[var(--background-dark3)] rounded"
-                key={item.data.id}
                 ref={ref}
             >
                 <div className={"flex items-center"}>
