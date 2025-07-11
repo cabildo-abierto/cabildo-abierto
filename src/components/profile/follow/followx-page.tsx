@@ -5,6 +5,7 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {optionToSearchParam} from "@/components/inicio/main-page";
 import Link from "next/link";
 import { Button } from "../../../../modules/ui-utils/src/button";
+import {profileUrl} from "@/utils/uri";
 
 export type FollowKind = "seguidores" | "siguiendo"
 
@@ -48,7 +49,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
         <div className={"flex flex-col items-start border-b w-full"}>
             <div className={"flex space-x-2 py-2 items-center"}>
                 <BackButton/>
-                <Link href={"/src/app/(main)/perfil/" + id} className={"font-semibold text-lg"}>
+                <Link href={profileUrl(id)} className={"font-semibold text-lg"}>
                     @{id}
                 </Link>
             </div>
@@ -60,7 +61,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
                 className={"flex justify-start"}
             />
         </div>
-        {kind == "siguiendo" && <Followx handle={id} kind={kind}/>}
+        {kind == "siguiendo" &&<Followx handle={id} kind={kind}/>}
         {kind == "seguidores" && <Followx handle={id} kind={kind}/>}
     </div>
 }

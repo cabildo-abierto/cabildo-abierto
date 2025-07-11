@@ -28,7 +28,7 @@ export function useEnDiscusionParams(){
     const params = useSearchParams()
 
     const metric = params.get("m") ?? "Popularidad relativa"
-    const time = params.get("p") ?? "Último día"
+    const time = params.get("p") ?? "Última semana"
 
     return {metric, time}
 }

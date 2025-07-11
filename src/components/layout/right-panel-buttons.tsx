@@ -8,6 +8,7 @@ import {useSession} from "@/queries/api";
 import SupportIcon from "@/components/icons/support-icon";
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {UserCheckIcon} from "@phosphor-icons/react";
 
 export const RightPanelButton = ({children, icon, href, onClick}: {
     children: ReactNode, icon: ReactNode, href: string, onClick?: () => void
@@ -43,7 +44,6 @@ export const RightPanelButtons = () => {
             })
         }
     }
-
 
     return <div className={"px-3 w-full flex flex-col space-y-1"}>
         <RightPanelButton
@@ -81,5 +81,12 @@ export const RightPanelButtons = () => {
         >
             Sugerencias
         </RightPanelButton>
+        {!user.validation && <RightPanelButton
+            onClick={handleClick}
+            href={"/ajustes/solicitar-validacion"}
+            icon={<UserCheckIcon color={"var(--text)"} fontSize={20}/>}
+        >
+            Verificá tu cuenta
+        </RightPanelButton>}
     </div>
 }
