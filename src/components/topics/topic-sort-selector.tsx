@@ -1,11 +1,10 @@
-import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import dynamic from "next/dynamic";
-import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
 const TopicSortSelectorModal = dynamic(() => import("@/components/topics/topic-sort-selector-modal"))
 
-export type TopicsSortOrder = "Populares" | "Ediciones recientes"
+export type TopicsSortOrder = "Populares última semana" | "Populares último día" | "Populares último mes" | "Ediciones recientes"
 
 
 const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
@@ -20,19 +19,17 @@ const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
             onClose={onClose}
         />
 
-    return <DescriptionOnHover description={"Ordenar"}>
-        <ModalOnClick modal={modal}>
-            <div className={"text-[var(--text-light)]"}>
-                <IconButton
-                    disabled={disabled}
-                    size={"small"}
-                    color={"background"}
-                >
-                    <SwapVertIcon fontSize={"small"}/>
-                </IconButton>
-            </div>
-        </ModalOnClick>
-    </DescriptionOnHover>
+    return <ClickableModalOnClick id="topics-sort-selector" modal={modal} description={"Ordenar"}>
+        <div className={"text-[var(--text-light)]"}>
+            <IconButton
+                disabled={disabled}
+                size={"small"}
+                color={"background"}
+            >
+                <SwapVertIcon fontSize={"small"}/>
+            </IconButton>
+        </div>
+    </ClickableModalOnClick>
 }
 
 

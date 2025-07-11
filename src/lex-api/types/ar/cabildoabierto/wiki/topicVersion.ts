@@ -261,7 +261,7 @@ export interface TopicViewBasic {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicViewBasic'
   id: string
   props?: TopicProp[]
-  popularity?: number[]
+  popularity?: TopicPopularity
   lastEdit?: string
 }
 
@@ -293,4 +293,21 @@ export function validateTopicVersionContribution<V>(v: V) {
     id,
     hashTopicVersionContribution,
   )
+}
+
+export interface TopicPopularity {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicPopularity'
+  lastDay: number[]
+  lastWeek: number[]
+  lastMonth: number[]
+}
+
+const hashTopicPopularity = 'topicPopularity'
+
+export function isTopicPopularity<V>(v: V) {
+  return is$typed(v, id, hashTopicPopularity)
+}
+
+export function validateTopicPopularity<V>(v: V) {
+  return validate<TopicPopularity & V>(v, id, hashTopicPopularity)
 }

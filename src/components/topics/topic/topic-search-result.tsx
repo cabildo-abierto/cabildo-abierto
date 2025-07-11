@@ -6,7 +6,8 @@ import TopicCategories from "./topic-categories";
 import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import TopicPopularity from "@/components/topics/topic/topic-popularity";
+import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
+import {TimePeriod} from "@/queries/api";
 
 
 const DateLastEdit = ({date}: { date: Date }) => {
@@ -17,7 +18,11 @@ const DateLastEdit = ({date}: { date: Date }) => {
 }
 
 
-const TopicSearchResult = ({topic, index}: { topic: TopicViewBasic, index?: number }) => {
+const TopicSearchResult = ({topic, index, time}: {
+    topic: TopicViewBasic
+    index?: number
+    time?: TimePeriod
+}) => {
     const router = useRouter()
 
     function onMouseEnter() {
@@ -52,8 +57,10 @@ const TopicSearchResult = ({topic, index}: { topic: TopicViewBasic, index?: numb
                 <div className="font-semibold mb-1">
                     {getTopicTitle(topic)}
                 </div>
-
-                {topic.popularity != null && <TopicPopularity count={topic.popularity[0]}/>}
+                {topic.popularity != null && <TopicPopularityIndicator
+                    selected={time}
+                    counts={topic.popularity}
+                />}
             </div>
 
             <div className={"flex flex-col justify-between items-end space-y-2 sm:min-w-[30%]"}>

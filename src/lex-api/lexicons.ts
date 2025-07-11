@@ -1384,10 +1384,8 @@ export const schemaDict = {
             },
           },
           popularity: {
-            type: 'array',
-            items: {
-              type: 'integer',
-            },
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicPopularity',
           },
           lastEdit: {
             type: 'string',
@@ -1404,6 +1402,30 @@ export const schemaDict = {
           },
           all: {
             type: 'string',
+          },
+        },
+      },
+      topicPopularity: {
+        type: 'object',
+        required: ['lastDay', 'lastWeek', 'lastMonth'],
+        properties: {
+          lastDay: {
+            type: 'array',
+            items: {
+              type: 'integer',
+            },
+          },
+          lastWeek: {
+            type: 'array',
+            items: {
+              type: 'integer',
+            },
+          },
+          lastMonth: {
+            type: 'array',
+            items: {
+              type: 'integer',
+            },
           },
         },
       },

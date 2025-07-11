@@ -9,8 +9,8 @@ type Props = {
 
 const TopicSortSelectorModal = ({setSortedBy, sortedBy, onClose}: Props) => {
     return (
-        <div className={"p-1 space-y-1 border rounded"}>
-            {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
+        <div className={"p-1 space-y-1 border rounded bg-[var(--background-dark)]"}>
+            {["Populares último día", "Populares última semana", "Populares último mes", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
                 return <div key={index}>
                     <OptionsDropdownButton
                         onClick={() => {

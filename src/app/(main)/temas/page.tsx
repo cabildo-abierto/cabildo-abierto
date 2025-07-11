@@ -13,7 +13,7 @@ import {updateSearchParam} from "@/utils/fetch";
 const Temas = () => {
     const searchParams = useSearchParams()
     const categories = searchParams.getAll("c")
-    const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares")
+    const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares última semana")
     const [multipleEnabled, setMultipleEnabled] = useState(false)
 
     function setCategories(newCats: string[]) {

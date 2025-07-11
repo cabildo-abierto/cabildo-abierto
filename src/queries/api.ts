@@ -81,9 +81,10 @@ export const useThread = (uri: string) => {
     return useAPI<ThreadViewContent>(threadApiUrl(uri), threadQueryKey(uri))
 }
 
+export type TimePeriod = "day" | "week" | "month" | "all"
 
-export const useTrendingTopics = () => {
-    return useAPI<TopicViewBasic[]>("/trending-topics", ["trending-topics"])
+export const useTrendingTopics = (time: TimePeriod) => {
+    return useAPI<TopicViewBasic[]>(`/trending-topics/${time}`, ["trending-topics", time])
 }
 
 
@@ -116,10 +117,10 @@ export function categoriesSearchParam(categories: string[]) {
 }
 
 
-export function useTopics(categories: string[], sortedBy: "popular" | "recent") {
+export function useTopics(categories: string[], sortedBy: "popular" | "recent", time: TimePeriod) {
     const query = categoriesSearchParam(categories)
-    const url = `/topics/${sortedBy}${query ? `?${query}` : ""}`;
-    return useAPI<TopicViewBasic[]>(url, ["topic", sortedBy, ...categories]);
+    const url = `/topics/${sortedBy}/${time}${query ? `?${query}` : ""}`;
+    return useAPI<TopicViewBasic[]>(url, ["topic", sortedBy, ...categories, time]);
 }
 
 
