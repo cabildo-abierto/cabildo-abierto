@@ -27,12 +27,12 @@ const FundingProgress = () => {
                 />
             </div>
             <div className="flex items-center w-full space-x-1">
-                <div className="w-full bg-gray-200 rounded-full h-8 overflow-hidden shadow-inner relative">
+                <div className="w-full bg-[var(--background-dark2)] rounded-full h-8 overflow-hidden shadow-inner relative">
                     <div
-                        className={`h-full ${progressColor} text-white text-center font-bold flex items-center justify-center`}
+                        className={`h-full ${progressColor}  text-center font-bold flex items-center justify-center`}
                         style={{width: `${state == "loading" ? 0 : progress}%`}}
                     />
-                    {state != "loading" && <div className="absolute inset-0 flex items-center justify-center text-[var(--button-text)] font-semibold">
+                    {state != "loading" && <div className="absolute inset-0 flex items-center justify-center text-[var(--text)] font-semibold">
                         {Math.round(progress * 10) / 10}%
                     </div>}
                 </div>
