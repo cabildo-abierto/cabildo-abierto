@@ -1,4 +1,4 @@
-import {useFollowx} from "@/queries/api";
+import {useFollowx, useProfile} from "@/queries/api";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import Link from "next/link";
 import {rounder} from "@/utils/strings";
@@ -27,15 +27,27 @@ export const FollowCount = ({count, kind, url}: FollowCountProps) => {
 
 export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) => {
     const {data, isLoading} = useFollowx(handle, kind)
+    const {data: profile} = useProfile(handle)
 
     if (isLoading) return <div className={"py-4"}>
         <LoadingSpinner/>
     </div>
 
     return <div>
-        <div className={"w-full flex p-2 border-b text-sm"}>
-            <FollowCount count={data.length} kind={kind}/>
-        </div>
+        {profile && <div className={"w-full flex p-2 sm:text-base text-sm border-b space-x-1 text-[var(--text-light)] items-baseline"}>
+            <div className={"flex space-x-1"}>
+                <FollowCount count={kind == "seguidores" ? profile.ca.followersCount : profile.ca.followsCount} kind={kind}/>
+                <div className={""}>
+                    en Cabildo Abierto,
+                </div>
+            </div>
+            <div className={"flex space-x-1"}>
+                <FollowCount count={kind == "seguidores" ? profile.bsky.followersCount : profile.bsky.followsCount} kind={kind}/>
+                <div className={""}>
+                    en Bluesky
+                </div>
+            </div>
+        </div>}
         {data.map((user) => {
             return <div key={user.did}>
                 <UserSearchResult user={user}/>

@@ -18,6 +18,7 @@ import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner"
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useQueryClient} from "@tanstack/react-query";
 import CheckIcon from "@mui/icons-material/Check";
+import {MobileHeader} from "@/components/layout/mobile-header";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -391,7 +392,8 @@ const Page = () => {
         </div>
     }
 
-    return <div className={"pt-12 space-y-6"}>
+    return <div className={"sm:pt-12 space-y-6"}>
+        <MobileHeader/>
         {curRequest && curRequest.result == "Aceptada" && <div className={"flex flex-col items-center space-y-4 p-8 bg-[var(--background-dark)] rounded-lg"}>
             <div className={"h-16 w-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center text-green-400"}>
                 <CheckIcon fontSize={"large"}/>
@@ -417,7 +419,7 @@ const Page = () => {
                 <StateButton endIcon={<DeleteOutlineIcon/>} text1="Cancelar solicitud" color={"background-dark2"} size={"small"} handleClick={onCancel}/>
             </div>
         </div>}
-        {(!curRequest || !curRequest.type) && <div className={"bg-[var(--background-dark)] rounded-lg p-4 space-y-6"}>
+        {(!curRequest || !curRequest.type) && <div className={"mx-1 bg-[var(--background-dark)] rounded-lg p-4 space-y-6"}>
             <h2>
                 Solicitá la validación de tu cuenta
             </h2>
@@ -443,7 +445,7 @@ const Page = () => {
             </div>
         </div>}
 
-        <div className={"space-y-4 pb-16"}>
+        <div className={"space-y-4 pb-16 px-1"}>
             <Desplegable text={"¿Cómo funciona la validación de personas?"}>
                 <div className={"text-[var(--text-light)] py-2 space-y-2"}>
                     <p>

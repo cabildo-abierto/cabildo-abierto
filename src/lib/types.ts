@@ -35,6 +35,7 @@ export type Session = {
     did: string
     hasAccess: boolean
     usedInviteCode: string | null
+    validation: ValidationState
 }
 
 
