@@ -1,25 +1,25 @@
 import {ReactNode} from "react";
 
-type SelectionComponentProps = {
-    selected?: string
-    onSelection: (arg: string) => void
-    options: string[]
-    optionsNodes: (o: string, isSelected: boolean) => ReactNode
+type SelectionComponentProps<T> = {
+    selected?: T
+    onSelection: (arg: T) => void
+    options: T[]
+    optionsNodes: (o: T, isSelected: boolean) => ReactNode
     className?: string
     unselectedOption?: string
     optionContainerClassName?: string
     disabled?: boolean
 }
 
-const SelectionComponent = ({
-                                onSelection,
-                                options,
-                                selected,
-                                disabled=false,
-                                className = "search",
-                                optionsNodes,
-                                optionContainerClassName = "w-full"
-                            }: SelectionComponentProps) => {
+function SelectionComponent<T>({
+    onSelection,
+    options,
+    selected,
+    disabled=false,
+    className = "search",
+    optionsNodes,
+    optionContainerClassName = "w-full"
+}: SelectionComponentProps<T>) {
 
     return <div className={className}>
         {options.map((option, index) => {

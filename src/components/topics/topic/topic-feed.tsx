@@ -9,16 +9,18 @@ import { Button } from "../../../../modules/ui-utils/src/button";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
+type TopicFeedOption = "Menciones" | "Discusión"
+type MentionFeedOption = "Publicaciones" | "Temas"
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
     let feed = useTopicFeed(topicId)
     const params = useSearchParams()
     const s = params.get("s")
     const minimized = !s || s == "minimized"
-    const [selected, setSelected] = useState<string>(minimized ? "Menciones" : "Respuestas al contenido")
-    const [mentionsSelected, setMentionsSelected] = useState<string>("Publicaciones")
+    const [selected, setSelected] = useState<TopicFeedOption>(minimized ? "Menciones" : "Discusión")
+    const [mentionsSelected, setMentionsSelected] = useState<MentionFeedOption>("Publicaciones")
 
-    function optionsNodes(o: string, isSelected: boolean){
+    function optionsNodes(o: TopicFeedOption, isSelected: boolean){
         const description = o == "Menciones" ?
             "Las publicaciones, respuestas, artículos y otros temas que hablaron del tema." :
             "Discusión sobre el tema y el contenido del artículo."
@@ -35,7 +37,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                     borderRadius: 0
                 }}
             >
-                <div className={"whitespace-nowrap font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
+                <div className={"w-24 whitespace-nowrap font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -43,7 +45,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         </div>
     }
 
-    function optionsNodesMentions(o: string, isSelected: boolean){
+    function optionsNodesMentions(o: MentionFeedOption, isSelected: boolean){
         return <div className="text-[var(--text)]">
             <Button
                 size={"small"}
@@ -64,13 +66,13 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
 
 
     return <div className={"mb-96"}>
-        <div className={"flex border-b w-full max-w-screen overflow-scroll no-scrollbar " + (minimized ? "" : "justify-center")}>
+        <div className={"flex border-b w-full max-w-screen overflow-scroll no-scrollbar"}>
             <SelectionComponent
                 onSelection={setSelected}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 options={["Menciones", "Discusión"]}
-                className={"flex w-full"}
+                className={"flex"}
             />
         </div>
         {/*TO DO: BUG: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
@@ -96,7 +98,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                     />
                 }
 
-                {selected == "Respuestas al contenido" &&
+                {selected == "Discusión" &&
                     <div className={"pt-10"}>
                         <FeedViewContentFeed
                             queryKey={["topic-feed", topicId, "replies"]}
