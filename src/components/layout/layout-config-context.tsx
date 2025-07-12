@@ -21,6 +21,7 @@ export type LayoutConfigProps = {
 const LayoutConfigContext = createContext<{
     layoutConfig: LayoutConfigProps;
     setLayoutConfig: React.Dispatch<React.SetStateAction<LayoutConfigProps>>;
+    isMobile: boolean
 } | undefined>(undefined);
 
 export const useLayoutConfig = () => {
@@ -126,6 +127,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     const params = useSearchParams()
     const pathname = usePathname()
     const [layoutConfig, setLayoutConfig] = useState(getLayoutConfig(pathname, params, undefined, true))
+    const isMobile = layoutConfig.maxWidthCenter == "100%"
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
@@ -154,7 +156,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, [layoutConfig, params, pathname]);
 
     return (
-        <LayoutConfigContext.Provider value={{ layoutConfig, setLayoutConfig }}>
+        <LayoutConfigContext.Provider value={{ layoutConfig, setLayoutConfig, isMobile }}>
             {children}
         </LayoutConfigContext.Provider>
     );

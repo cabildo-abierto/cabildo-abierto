@@ -38,6 +38,7 @@ const TopicSearchResult = ({topic, index, time}: {
             }}
             className={"px-3 py-4 w-full flex justify-between hover:bg-[var(--background-dark)] bg-[var(--background)] cursor-pointer"}
             onMouseEnter={onMouseEnter}
+            id={"topic-search-result"}
         >
             <div className={"sm:max-w-[70%] w-full flex items-start flex-col sm:space-y-2"}>
                 <div className={"flex space-x-1 items-center text-xs text-[var(--text-light)]"}>

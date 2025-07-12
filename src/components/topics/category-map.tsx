@@ -37,7 +37,7 @@ export const CategoryMap = ({categories}: {categories: string[]}) => {
         }
     }, [searchState, graph])
 
-    return <div className={"mt-12 ml-6 space-y-8 mb-8"}>
+    return <div className={"mt-12 mb-8 px-4"}>
         {filteredGraph && <Graph
             onClickNode={onClickNode}
             graph={filteredGraph}

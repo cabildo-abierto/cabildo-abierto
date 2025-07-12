@@ -28,7 +28,10 @@ export type CAProfile = {
 export type Session = {
     platformAdmin: boolean
     editorStatus: EditorStatus
-    seenTutorial: boolean
+    seenTutorial: {
+        topics: boolean
+        home: boolean
+    }
     handle: string
     displayName: string | null
     avatar: string | null

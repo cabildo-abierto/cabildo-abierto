@@ -3,7 +3,6 @@ import {emptyChar} from "@/utils/utils";
 import {useEffect, useState} from "react";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {pxToNumber} from "@/utils/strings";
 
 
 export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
@@ -12,8 +11,8 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
     multipleEnabled: boolean
 }) => {
     let {data: allCategories, isLoading, error} = useCategories()
-    const {layoutConfig} = useLayoutConfig()
-    const [maxCount, setMaxCount] = useState(pxToNumber(layoutConfig.maxWidthCenter) < 600 ? 5 : 10)
+    const {layoutConfig, isMobile} = useLayoutConfig()
+    const [maxCount, setMaxCount] = useState(isMobile ? 5 : 10)
 
     if(allCategories && categories && categories.some(c => !allCategories.slice(0, maxCount).map(x => x).includes(c))){
         allCategories = [
@@ -23,7 +22,7 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
     }
 
     useEffect(() => {
-        const defaultMaxCount = pxToNumber(layoutConfig.maxWidthCenter) < 600 ? 5 : 10
+        const defaultMaxCount = isMobile ? 5 : 10
         if(maxCount < defaultMaxCount) setMaxCount(defaultMaxCount)
     }, [layoutConfig])
 

@@ -136,7 +136,7 @@ const TourContent = ({children}: {children: ReactNode}) => {
 }
 
 
-export const RunTutorial = ({children}: { children: ReactNode }) => {
+const RunTutorial = ({children}: { children: ReactNode }) => {
     const [runStatus, setRunStatus] = useState<"not started" | "welcome" | "running" | "waiting sidebar" | "finished" | "follows">("welcome")
     const {user} = useSession()
     const [stepIndex, setStepIndex] = useState<number>(0)
@@ -223,10 +223,10 @@ export const RunTutorial = ({children}: { children: ReactNode }) => {
     async function setSeenTutorial() {
         qc.setQueryData(["session"], old => {
             return produce(old as Session, draft => {
-                draft.seenTutorial = true
+                draft.seenTutorial.home = true
             })
         })
-        await post("/seen-tutorial")
+        await post("/seen-tutorial/home")
     }
 
     useEffect(() => {

@@ -26,7 +26,7 @@ export default function TopicPopularityIndicator({counts, selected, paddingBotto
         description={`${count} persona${count == 1 ? " participó" : "s participaron"} en la discusión sobre el tema en ${periodText}.`}
         moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas")}
     >
-        <div className={"text-[var(--text-light)] text-xs flex items-end"}>
+        <div className={"text-[var(--text-light)] text-xs flex items-end"} id={"topic-popularity"}>
             <div>{count}</div>
             <div style={{paddingBottom}}> {/*Por algún motivo se ve distinto en el slider*/}
                 <ValidationIcon

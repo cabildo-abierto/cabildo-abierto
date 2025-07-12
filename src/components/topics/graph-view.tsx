@@ -271,7 +271,7 @@ export default function GraphView({
     onClickNode: (nodeId: string) => void;
 }) {
     const {currentTheme} = useTheme();
-    const {layoutConfig} = useLayoutConfig()
+    const {layoutConfig, isMobile} = useLayoutConfig()
     const nodeIds = graph.nodeIds
 
     const border = currentTheme === 'dark' ? '#fbfbfc' : '#1a1a1a';
@@ -279,11 +279,11 @@ export default function GraphView({
     const spacing = '20px';
     const dotSize = '1px';
 
-    const width = pxToNumber(layoutConfig.maxWidthCenter);
+    const width = isMobile ? window.innerWidth : pxToNumber(layoutConfig.maxWidthCenter)
 
     const {edges: positionedEdges, nodes: positionedNodes} = useSimulateLayout(graph, width)
 
-    return <div className={"relative"} style={{width}}>
+    return <div className={"relative"} style={{width: layoutConfig.maxWidthCenter}}>
         <div
             style={{
                 width: width,
