@@ -3,7 +3,6 @@ import {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
 import {useSearch} from "@/components/buscar/search-context";
 import {SearchTopics} from "@/components/buscar/search-topics";
 import {useEffect, useState} from "react";
-import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 
@@ -14,7 +13,6 @@ export const TopicsListView = ({sortedBy, categories, setCategories}: {
 }) => {
     const {searchState} = useSearch()
     const [activeSearch, setActiveSearch] = useState(searchState.searching && searchState.value.length > 0)
-    const {layoutConfig} = useLayoutConfig()
 
     // solo para evitar re-render
     useEffect(() => {
