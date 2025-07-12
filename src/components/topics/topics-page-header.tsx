@@ -13,9 +13,10 @@ import TopicsSortSelector, {TopicsSortOrder} from "@/components/topics/topic-sor
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import { pxToNumber } from "@/utils/strings";
 
 const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
+
+type TopicsViewOption = "mapa" | "lista"
 
 export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMultipleEnabled}: {
     sortedBy: TopicsSortOrder
@@ -28,10 +29,13 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
     const router = useRouter()
     const c = searchParams.get("c")
     const view = searchParams.get("view")
-    const {searchState, setSearchState} = useSearch()
-    const {layoutConfig} = useLayoutConfig()
 
-    function optionsNodes(o: string, isSelected: boolean) {
+    const currentView: TopicsViewOption = view && (view == "lista" || view == "mapa") ? view : "lista"
+
+    const {searchState, setSearchState} = useSearch()
+    const {isMobile} = useLayoutConfig()
+
+    function optionsNodes(o: TopicsViewOption, isSelected: boolean) {
         let icon: ReactNode
         icon = null
         let description: string
@@ -43,16 +47,19 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
             icon = isSelected ? <ListBulletsIcon fontSize={"22px"} weight={"bold"}/> :
                 <ListBulletsIcon fontSize={"22px"}/>
         }
-        return <DescriptionOnHover description={description}>
-            <button
-            className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}>
-            {icon}
-        </button>
-        </DescriptionOnHover>
+        return (
+            <DescriptionOnHover description={description}>
+                <button
+                    id={o}
+                    className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}
+                >
+                    {icon}
+                </button>
+            </DescriptionOnHover>
+        )
     }
 
     const searching = searchState.searching
-    const isMobile = pxToNumber(layoutConfig.maxWidthCenter) <= 600
     const onlySearchBar = searching && isMobile
 
     const searchBar = <MainSearchBar
@@ -61,12 +68,10 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
         placeholder={"buscar"}
     />
 
-    const currentView = view ? view : "lista"
-
     return <div className="flex justify-between px-2 items-center space-x-1">
         {!onlySearchBar && <div className={"flex space-x-2 flex-1"}>
-            <SelectionComponent
-                onSelection={(s: string) => {
+            <SelectionComponent<TopicsViewOption>
+                onSelection={(s: TopicsViewOption) => {
                     router.push("/temas?view=" + s + (c ? "&c=" + c : ""));
                     setSearchState({value: "", searching: false})
                 }}
@@ -93,22 +98,23 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
         {!onlySearchBar && <div className={"py-1 flex-1 flex justify-end"}>
             <DescriptionOnHover description={"Crear un tema"}>
                 <Button
-                color="background"
-                variant="text"
-                disableElevation={true}
-                startIcon={<AddIcon/>}
-                size={"small"}
-                sx={{textTransform: "none", height: "32px", borderRadius: 20, padding: "0 10px"}}
-                onClick={() => {
-                    setNewTopicOpen(true)
-                }}
-            >
-                <span className={"hidden min-[600px]:block"}>Tema</span>
-                <span className={"block min-[600px]:hidden"}>Tema</span>
-            </Button>
+                    color="background"
+                    variant="text"
+                    disableElevation={true}
+                    startIcon={<AddIcon/>}
+                    size={"small"}
+                    sx={{textTransform: "none", height: "32px", borderRadius: 20, padding: "0 10px"}}
+                    onClick={() => {
+                        setNewTopicOpen(true)
+                    }}
+                >
+                    <span className={"hidden min-[600px]:block"}>Tema</span>
+                    <span className={"block min-[600px]:hidden"}>Tema</span>
+                </Button>
             </DescriptionOnHover>
         </div>}
 
-        {!onlySearchBar && newTopicOpen && <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>}
+        {!onlySearchBar && newTopicOpen &&
+            <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>}
     </div>
 }

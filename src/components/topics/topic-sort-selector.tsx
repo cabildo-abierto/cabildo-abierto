@@ -19,8 +19,8 @@ const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
             onClose={onClose}
         />
 
-    return <ClickableModalOnClick id="topics-sort-selector" modal={modal} description={"Ordenar"}>
-        <div className={"text-[var(--text-light)]"}>
+    return <ClickableModalOnClick modal={modal} description={"Ordenar"} id="topics-sort-selector">
+        <div className={"text-[var(--text-light)]"} id="topics-sort-selector">
             <IconButton
                 disabled={disabled}
                 size={"small"}

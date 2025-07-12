@@ -16,7 +16,7 @@ const TopicCategories = ({
     maxCount?: number
     containerClassName?: string
 }) => {
-    return <div className={"flex gap-x-2 flex-wrap items-center gap-y-2 " + containerClassName}>
+    return <div className={"flex gap-x-2 flex-wrap items-center gap-y-2 " + containerClassName} id={"topic-categories"}>
         {categories.slice(0, maxCount != null ? maxCount : categories.length).map((c, index) => {
             return <Link key={index} href={categoryUrl(c)} className={className} onClick={(e) => {e.stopPropagation()}}>
                 {c}

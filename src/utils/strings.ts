@@ -11,6 +11,9 @@ export function cleanText(s: string): string {
 
 export function pxToNumber(x: string | number): number {
     if (typeof x == "string") {
+        if(x.includes("%")){
+            throw Error(`Can't transform px to number: ${x}`)
+        }
         return parseInt(x, 10)
     }
     return x

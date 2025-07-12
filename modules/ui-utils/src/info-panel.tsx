@@ -1,6 +1,7 @@
 import {ReactNode} from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import { ModalOnHover } from './modal-on-hover';
+import DescriptionOnHover from "./description-on-hover";
 
 export const InfoPanel = ({text, className, onClick, iconClassName = "text-gray-600", icon = <InfoIcon fontSize="small"/>}: {
     text?: ReactNode,
@@ -20,11 +21,11 @@ export const InfoPanel = ({text, className, onClick, iconClassName = "text-gray-
         </div>
     )
 
-    return <ModalOnHover modal={modal}>
+    return <DescriptionOnHover description={modal}>
         <div className={"cursor-pointer " + iconClassName} onClick={onClick}>
             {icon}
         </div>
-    </ModalOnHover>
+    </DescriptionOnHover>
 };
 
 export default InfoPanel

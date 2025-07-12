@@ -8,6 +8,7 @@ import {useState} from "react";
 import {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
 import {CategorySelector} from "@/components/topics/category-selector";
 import {updateSearchParam} from "@/utils/fetch";
+import TopicsPageTutorial from "@/components/tutorial/topics-tutorial";
 
 
 const Temas = () => {
@@ -21,7 +22,7 @@ const Temas = () => {
     }
 
     const view = searchParams.get("view")
-    return <div>
+    return <TopicsPageTutorial>
         <MobileHeader/>
         <TopicsPageHeader sortedBy={sortedBy} setSortedBy={setSortedBy} multipleEnabled={multipleEnabled} setMultipleEnabled={setMultipleEnabled}/>
         <div className={"w-full flex justify-between items-center pt-1 pb-2 px-2"}>
@@ -35,7 +36,7 @@ const Temas = () => {
         </div>
         {view == "mapa" && <TopicsMapView categories={categories}/>}
         {(!view || view == "lista") && <TopicsListView categories={categories} sortedBy={sortedBy} setCategories={setCategories}/>}
-    </div>
+    </TopicsPageTutorial>
 }
 
 export default Temas

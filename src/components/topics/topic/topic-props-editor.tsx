@@ -19,6 +19,7 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
+import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 
 export const TopicPropEditor = ({p, setProp, deleteProp}: {
     p: TopicProp,
@@ -28,6 +29,8 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
     const isDefault = isDefaultProp(p)
     const [hovered, setHovered] = useState(false)
     const {data: categories} = useCategories()
+
+    const info: string = "información útil"
 
     return <div className={"flex space-x-8 w-full items-center"}>
         <Button
@@ -61,6 +64,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 <span className={"text-[var(--text-light)]"}>
                     {!isDefault && hovered && <CloseIcon color={"inherit"}/>}
                 </span>
+                {info && <InfoPanel text={info}/>}
             </Box>
         </Button>
         {isStringListProp(p.value) && <ListEditor
