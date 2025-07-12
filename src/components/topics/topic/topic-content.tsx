@@ -25,7 +25,7 @@ const TopicContent = ({
     const params = useSearchParams()
 
     if(wikiEditorState == "minimized") {
-        return <div className={"px-2 w-full"}>
+        return <div className={"px-2 w-full"} id={"topic-minimized-content"}>
             <TopicContentPreview
                 topic={topic}
                 onMaximize={() => {setWikiEditorState("normal")}}

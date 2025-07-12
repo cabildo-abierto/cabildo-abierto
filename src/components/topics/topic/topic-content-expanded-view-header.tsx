@@ -40,13 +40,16 @@ export const TopicContentExpandedViewHeader = ({
     let buttons: ReactNode
 
     if (!paramsVersion && !wikiEditorState.startsWith("editing")) {
-        function optionsNodes(o: string, isSelected: boolean) {
+        function optionsNodes(o: WikiEditorState, isSelected: boolean) {
             let name: string
             if (o == "history") name = "Historial"
             else if (o == "editing") name = "Editar"
             else if (o == "props") name = "Propiedades"
-            return <div className="text-[var(--text)] h-10 "
-                        title={user != undefined ? undefined : "Iniciá sesión."}>
+            return <div
+                className="text-[var(--text)] h-10"
+                title={user != undefined ? undefined : "Iniciá sesión."}
+                id={`topic-header-button-${o}`}
+            >
                 <Button
                     variant="text"
                     color="background"
@@ -67,7 +70,7 @@ export const TopicContentExpandedViewHeader = ({
         }
 
         function onSelection(v: string) {
-            if(!user) {
+            if (!user) {
                 setShowLoginRequiredModal(true)
             } else {
                 if (wikiEditorState != v) {

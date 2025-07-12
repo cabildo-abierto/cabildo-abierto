@@ -107,6 +107,7 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
                     onClick={() => {
                         setNewTopicOpen(true)
                     }}
+                    id={"new-topic-button"}
                 >
                     <span className={"hidden min-[600px]:block"}>Tema</span>
                     <span className={"block min-[600px]:hidden"}>Tema</span>

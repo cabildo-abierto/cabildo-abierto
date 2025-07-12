@@ -8,16 +8,15 @@ import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
-import {useSession} from "@/queries/api";
 import {getEditorSettings} from "@/components/editor/settings";
-import {Authorship} from "@/components/feed/frame/authorship";
 import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
 import {validArticle} from "@/components/writing/article/valid-article";
+import {getUsername} from "@/utils/utils";
+import { useSession } from "@/queries/api"
 
-const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
-
+const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
 const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
@@ -71,7 +70,7 @@ const ArticleEditor = () => {
     return <div className={"mb-32"}>
         {/*<button onClick={refresh}>refresh</button>*/}
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
-			<div className="flex justify-between w-full text-[var(--text-light)]">
+            <div className="flex justify-between w-full text-[var(--text-light)]">
                 <BackButton defaultURL={"/"}/>
                 <PublishArticleButton
                     title={title}
@@ -81,26 +80,30 @@ const ArticleEditor = () => {
                     editorState={editorState}
                     mentions={topicsMentioned}
                 />
-			</div>
-		</div>
+            </div>
+        </div>
         <GradientHRule/>
         <div className="mt-8 rounded-lg px-5">
             <div className={"mb-2"}>
-            <TopicsMentioned mentions={topicsMentioned}/>
+                <TopicsMentioned mentions={topicsMentioned}/>
             </div>
             <TitleInput onChange={setTitle} title={title}/>
-            <div className="gap-x-4 flex flex-wrap items-baseline">
-                <span className={"max-[500px]:text-base text-lg text-[var(--text-light)]"}>
-                    Artículo de <Authorship author={user} onlyAuthor={true}/>
-                </span>
-                <span className={"max-[500px]:text-sm text-[var(--text-light)]"}>
+            <div className="gap-x-4 flex flex-wrap items-baseline md:text-lg sm:text-base text-sm">
+                <div className={"text-[var(--text-light)] truncate"}>
+                    <span>
+                        Artículo de
+                    </span> <span className={"font-semibold"}>
+                        {getUsername(user)}
+                    </span>
+                </div>
+                <div className={"max-[500px]:text-sm text-[var(--text-light)]"}>
                     {localeDate(createdAt, true)}
-                </span>
-                <span className={"text-[var(--text-light)]"}>
+                </div>
+                <div className={"text-[var(--text-light)]"}>
                     {editorState && <ReadingTime
                         numWords={getAllText(editorState.toJSON().root).split(" ").length}
                     />}
-                </span>
+                </div>
             </div>
         </div>
         <div className={"mt-8 px-4"}>

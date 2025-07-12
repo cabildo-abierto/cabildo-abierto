@@ -16,7 +16,6 @@ import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/profile-utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {pxToNumber} from "@/utils/strings";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -55,7 +54,6 @@ const FirstFollowsMessage = ({open, onClose}: {
     const {data: bskyProfile} = useProfile("bsky.app")
     const [searchState, setSearchState] = useState({searching: false, value: ""})
     const {results, isLoading} = useSearchUsers(searchState)
-    const {layoutConfig} = useLayoutConfig()
 
     const resultsWithSuggestions = useMemo(() => {
         if (!results && caProfile && bskyProfile) {
@@ -110,14 +108,14 @@ const FirstFollowsMessage = ({open, onClose}: {
                             <div className="text-sm px-1 truncate max-w-full whitespace-nowrap">
                                 {r.displayName}
                             </div>
-                            <div className="text-xs px-1 truncate max-w-full whitespace-nowrap text-gray-400">
+                            <div className="text-xs px-1 truncate max-w-full whitespace-nowrap text-[var(--text-light)]">
                                 @{r.handle}
                             </div>
                             <div className={""}>
                                 <FollowButton
                                     handle={r.handle}
                                     profile={r}
-                                    dense={pxToNumber(layoutConfig.maxWidthCenter) < 400}
+                                    dense={false}
                                     backgroundColor={"background-dark2"}
                                     textClassName={"text-xs"}
                                 />
@@ -143,6 +141,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
     const {data: profile} = useProfile(user.handle)
     const qc = useQueryClient()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const searchParams = useSearchParams()
 
     useEffect(() => {
         if (user) {
@@ -270,7 +269,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         } else if (data.type == "step:after") {
             setStepIndex(data.index+1)
         } else if (finishedStatuses.includes(status)) {
-            if (profile && profile.bsky.followsCount <= 1) {
+            if (profile && profile.bsky.followsCount <= 1 || searchParams.get("tutorial")) {
                 setRunStatus("follows")
                 if(!layoutConfig.spaceForRightSide){
                     setLayoutConfig({
@@ -356,12 +355,12 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
 }
 
 
-export const Tutorial = ({children}: { children: ReactNode }) => {
+export const HomeTutorial = ({children}: { children: ReactNode }) => {
     const params = useSearchParams()
     const {user} = useSession()
 
     const showAnyways = false
-    if (params.get("tutorial") || (user && (showAnyways || !user.seenTutorial))){
+    if (params.get("tutorial") || (user && (showAnyways || !user.seenTutorial.home))){
         return (
             <RunTutorial>
                 {children}

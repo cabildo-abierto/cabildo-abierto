@@ -4,15 +4,16 @@ import React, {createContext, useContext, useState, ReactNode, useEffect} from "
 import {isArticle, shortCollectionToCollection} from "@/utils/uri";
 import {usePathname, useSearchParams} from "next/navigation";
 import {pxToNumber} from "@/utils/strings";
+import {useMediaQuery} from "@mui/system";
 
 export type LayoutConfigProps = {
     maxWidthCenter: string
     leftMinWidth: string
     rightMinWidth: string
     defaultSidebarState: boolean
-
     openSidebar: boolean
     openRightPanel: boolean
+    centerWidth?: string
     spaceForRightSide?: boolean
     spaceForLeftSide?: boolean
 }
@@ -33,7 +34,7 @@ export const useLayoutConfig = () => {
 };
 
 
-function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps, noWindow?: boolean): LayoutConfigProps {
+function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps, isMobile: boolean = false): LayoutConfigProps {
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
         leftMinWidth: "80px",
@@ -59,7 +60,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         openRightPanel: false
     }
     const mobileConfig: LayoutConfigProps = {
-        maxWidthCenter: "100%",
+        maxWidthCenter: "600px",
         leftMinWidth: "0px",
         rightMinWidth: "0px",
         defaultSidebarState: false,
@@ -68,8 +69,8 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
 
     let config: LayoutConfigProps
-    if(!noWindow && window.innerWidth < 600){
-        return mobileConfig
+    if(isMobile){
+        config = mobileConfig
     } else if(pathname.startsWith("/temas")){
         config = {
             ...feedConfig,
@@ -87,17 +88,18 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         config = feedConfig
     }
 
-    const {spaceForLeftSide, spaceForRightSide} = getSpaceAvailable(config, noWindow)
+    const {spaceForLeftSide, spaceForRightSide, centerWidth} = getSpaceAvailable(config)
 
     return {
         ...config,
         spaceForLeftSide,
-        spaceForRightSide
+        spaceForRightSide,
+        centerWidth
     }
 }
 
 
-function getSpaceAvailable(curLayoutConfig: LayoutConfigProps, noWindow: boolean) {
+function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
     const reqWidth = 224 +
         pxToNumber(curLayoutConfig.rightMinWidth) +
         pxToNumber(curLayoutConfig.maxWidthCenter);
@@ -105,11 +107,16 @@ function getSpaceAvailable(curLayoutConfig: LayoutConfigProps, noWindow: boolean
     const reqWidthRightSide = 80 + pxToNumber(curLayoutConfig.rightMinWidth) +
         pxToNumber(curLayoutConfig.maxWidthCenter);
 
-    const width = noWindow ? 1000 : window.innerWidth
+    const width = window.innerWidth
 
     const spaceForLeftSide = width >= reqWidth
     const spaceForRightSide = width >= reqWidthRightSide
-    return {spaceForLeftSide, spaceForRightSide}
+    const centerWidth = Math.min(
+        pxToNumber(curLayoutConfig.maxWidthCenter),
+        width - (spaceForRightSide ? pxToNumber(curLayoutConfig.rightMinWidth) : 0) - pxToNumber(curLayoutConfig.leftMinWidth)
+    )
+
+    return {spaceForLeftSide, spaceForRightSide, centerWidth: `${centerWidth}px`}
 }
 
 
@@ -126,8 +133,10 @@ function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
 export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const params = useSearchParams()
     const pathname = usePathname()
-    const [layoutConfig, setLayoutConfig] = useState(getLayoutConfig(pathname, params, undefined, true))
-    const isMobile = layoutConfig.maxWidthCenter == "100%"
+    const isMobile = useMediaQuery('(max-width:600px)')
+
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobile))
+
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
@@ -136,11 +145,11 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
                 openSidebar: layoutConfig.spaceForLeftSide
             }))
         }
-    }, [layoutConfig.defaultSidebarState, layoutConfig.spaceForLeftSide])
+    }, [layoutConfig?.defaultSidebarState, layoutConfig?.spaceForLeftSide])
 
     useEffect(() => {
         const handleResize = () => {
-            const config = getLayoutConfig(pathname, params, layoutConfig)
+            const config = getLayoutConfig(pathname, params, layoutConfig, isMobile)
             if(!baseConfigEqual(layoutConfig, config)){
                 setLayoutConfig(config)
             }

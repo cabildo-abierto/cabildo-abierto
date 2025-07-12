@@ -244,9 +244,9 @@ export default function TableOfContentsPlugin({title, marginAboveEditor}: {
   title?: string
   marginAboveEditor: number
 }) {
-  const {layoutConfig} = useLayoutConfig()
+  const {isMobile} = useLayoutConfig()
 
-  if(window.innerWidth < pxToNumber(layoutConfig.maxWidthCenter) + pxToNumber(layoutConfig.leftMinWidth) + 275){
+  if(isMobile){
       return <></>
   }
 

@@ -21,7 +21,7 @@ const FundingProgress = () => {
                     text={
                         value != undefined ? <div className="text-[var(--text-light)]">
                             <span>Si todos los usuarios aportaran ${value} por mes estaríamos 100% financiados. </span>
-                            <Link className="link2" href={topicUrl("Cabildo Abierto: Financiamiento y remuneración a autores", undefined, "normal")}>Más información</Link>.
+                            <Link className="link2" href={topicUrl("Cabildo Abierto: Financiamiento", undefined, "normal")}>Más información</Link>.
                         </div> : <div>cargando...</div>
                     }
                 />
