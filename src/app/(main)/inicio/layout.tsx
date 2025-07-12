@@ -1,6 +1,6 @@
 import {Metadata} from "next";
 import {ReactNode} from "react";
-import {Tutorial} from "@/components/tutorial/tutorial";
+import {HomeTutorial} from "@/components/tutorial/home-tutorial";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({children}: { children: ReactNode }) {
-    return <Tutorial>
+    return <HomeTutorial>
         {children}
-    </Tutorial>
+    </HomeTutorial>
 }

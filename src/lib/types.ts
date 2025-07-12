@@ -31,6 +31,8 @@ export type Session = {
     seenTutorial: {
         topics: boolean
         home: boolean
+        topicMinimized: boolean
+        topicMaximized: boolean
     }
     handle: string
     displayName: string | null

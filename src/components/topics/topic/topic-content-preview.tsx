@@ -43,6 +43,7 @@ export const TopicContentPreview = ({
                 onClick={onMaximize}
                 size={"small"}
                 color={"background-dark"}
+                id={"maximize-topic"}
             >
                 <FullscreenIcon fontSize={"small"}/>
             </IconButton>

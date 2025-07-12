@@ -9,6 +9,7 @@ import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {MobileHeader} from "@/components/layout/mobile-header";
+import TopicTutorial from "@/components/tutorial/topic-tutorial";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
@@ -82,9 +83,10 @@ export const TopicPage = ({topicId, did, rkey}: {
         }
     }
 
-    return <div className="flex flex-col items-center w-full min-[500px]:pt-4">
+    return <TopicTutorial wikiState={wikiEditorState}>
+        <div className="flex flex-col items-center w-full min-[500px]:pt-4">
         <MobileHeader/>
-        <div className="flex flex-col py-1 sm:mt-8 mb-2 w-full sm:space-y-2 px-2">
+        <div className="flex flex-col py-1 sm:mt-8 mb-2 w-full sm:space-y-2 px-2" id={"topic-header"}>
             <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>
@@ -114,4 +116,5 @@ export const TopicPage = ({topicId, did, rkey}: {
                 />
             </div>}
     </div>
+    </TopicTutorial>
 }

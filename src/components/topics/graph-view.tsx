@@ -14,6 +14,7 @@ import {inRange} from "lodash-es";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
 
+
 type GraphNode = {
     id: string;
     x: number;
@@ -271,7 +272,7 @@ export default function GraphView({
     onClickNode: (nodeId: string) => void;
 }) {
     const {currentTheme} = useTheme();
-    const {layoutConfig, isMobile} = useLayoutConfig()
+    const {layoutConfig} = useLayoutConfig()
     const nodeIds = graph.nodeIds
 
     const border = currentTheme === 'dark' ? '#fbfbfc' : '#1a1a1a';
@@ -279,11 +280,11 @@ export default function GraphView({
     const spacing = '20px';
     const dotSize = '1px';
 
-    const width = isMobile ? window.innerWidth : pxToNumber(layoutConfig.maxWidthCenter)
+    const width = pxToNumber(layoutConfig.centerWidth)
 
     const {edges: positionedEdges, nodes: positionedNodes} = useSimulateLayout(graph, width)
 
-    return <div className={"relative"} style={{width: layoutConfig.maxWidthCenter}}>
+    return <div className={"relative"} style={{width}}>
         <div
             style={{
                 width: width,

@@ -9,6 +9,7 @@ import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
+import {WikiEditorState} from "@/components/topics/topic/topic-content-expanded-view-header";
 
 
 const TourContent = ({children}: {children: ReactNode}) => {
@@ -16,108 +17,104 @@ const TourContent = ({children}: {children: ReactNode}) => {
 }
 
 
-const RunTutorial = ({children}: { children: ReactNode }) => {
+const minimizedSteps: Step[] = [
+    {
+        target: '#topic-header',
+        content: <TourContent>
+            Estás viendo la página de este tema.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    },
+    {
+        target: '#topic-minimized-content',
+        content: <TourContent>
+            Este es el consenso actual sobre el tema. Cualquiera lo puede editar.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    },
+    {
+        target: '#maximize-topic',
+        content: <TourContent>
+            Para verlo mejor, editarlo o comentar una selección de texto, lo podés maximizar.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    },
+    {
+        target: '#discussion-start',
+        content: <TourContent>
+            Acá te mostramos todo lo que se discutió sobre el tema en Cabildo Abierto.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    }
+]
+
+
+const maximizedSteps: Step[] = [
+    {
+        target: '#topic-header-button-editing',
+        content: <TourContent>
+            Con este botón podés editar el tema.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    },
+    {
+        target: '#topic-header-button-history',
+        content: <TourContent>
+            Con este botón podés ver el historial de versiones, donde podés votar a favor o en contra de cada versión y ver los cambios.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    },
+    {
+        target: '#topic-header-button-props',
+        content: <TourContent>
+            Acá podés ver las propiedades del tema, como sus categorías y sinónimos.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    },
+    {
+        target: '#editor',
+        content: <TourContent>
+            Te mostramos la última versión aceptada del tema. Si estás en una computadora, podés comentar selecciones de texto.
+        </TourContent>,
+        placement: 'bottom',
+        disableBeacon: true,
+        hideBackButton: true
+    }
+]
+
+
+const RunTutorial = ({children, wikiState}: { children: ReactNode, wikiState: WikiEditorState }) => {
     const [runStatus, setRunStatus] = useState<"not started" | "running" | "finished">("running")
     const [stepIndex, setStepIndex] = useState<number>(0)
     const qc = useQueryClient()
 
-    const steps: Step[] = [
-        {
-            target: "body",
-            content: <TourContent>
-                Te damos la bienvenida a la wiki de Cabildo Abierto.
-            </TourContent>,
-            placement: 'center',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-search-result',
-            content: <TourContent>
-                Este es un <span className={"font-semibold"}>tema</span>.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-categories',
-            content: <TourContent>
-                Acá aparecen las categorías a las que pertenece.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-popularity',
-            content: <TourContent>
-                Esta es la cantidad de personas que participó en la discusión del tema en la última semana.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-search-result',
-            content: <TourContent>
-                Cada tema tiene una página propia, podés entrar haciendo clic cuando termine el tutorial.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#lista',
-            content: <TourContent>
-                En este momento estamos viendo los temas como una lista.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topics-sort-selector',
-            content: <TourContent>
-                La lista se puede ordenar por distintos criterios.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#mapa',
-            content: <TourContent>
-                También podés ver los temas como un mapa.
-            </TourContent>,
-            placement: 'bottom',
-            hideBackButton: true
-        },
-        {
-            target: '#category-selector',
-            content: <TourContent>
-                Estas son las categorías que se crearon hasta ahora. Podés usarlas para encontrar más rápido temas que te interesen.
-            </TourContent>,
-            placement: 'bottom',
-            hideBackButton: true
-        },
-        {
-            target: '#new-topic-button',
-            content: <TourContent>
-                ¿Falta algún tema? Crealo con este botón.
-            </TourContent>,
-            placement: 'bottom',
-            hideBackButton: true,
-        }
-    ]
+    const steps: Step[] = wikiState == "minimized" ? minimizedSteps : maximizedSteps
 
     async function setSeenTutorial() {
         qc.setQueryData(["session"], old => {
             return produce(old as Session, draft => {
-                draft.seenTutorial.topics = true
+                if(wikiState == "minimized") {
+                    draft.seenTutorial.topicMinimized = true
+                } else {
+                    draft.seenTutorial.topicMaximized = true
+                }
             })
         })
-        await post("/seen-tutorial/topics")
+        await post(`/seen-tutorial/topic-${wikiState}`)
     }
 
     useEffect(() => {
@@ -202,13 +199,14 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
 }
 
 
-const TopicsPageTutorial = ({children}: {children: ReactNode}) => {
+const TopicTutorial = ({children, wikiState}: {children: ReactNode, wikiState: WikiEditorState}) => {
     const params = useSearchParams()
-    let {user} = useSession()
+    const {user} = useSession()
+    const notSeen = wikiState == "minimized" ? user && !user.seenTutorial.topicMinimized : user && !user.seenTutorial.topicMaximized
 
-    if (params.get("tutorial") || (user && !user.seenTutorial.topics)){
+    if (params.get("tutorial") || notSeen){
         return (
-            <RunTutorial>
+            <RunTutorial wikiState={wikiState}>
                 {children}
             </RunTutorial>
         )
@@ -218,4 +216,4 @@ const TopicsPageTutorial = ({children}: {children: ReactNode}) => {
 }
 
 
-export default TopicsPageTutorial
+export default TopicTutorial

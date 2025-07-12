@@ -44,7 +44,7 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
         }
     }
 
-    return <div className={"flex flex-wrap items-center gap-x-2 gap-y-1 min-[500px]:text-sm text-[11px]"}>
+    return <div id="category-selector" className={"flex flex-wrap items-center gap-x-2 gap-y-1 min-[500px]:text-sm text-[11px]"}>
         {allCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}
