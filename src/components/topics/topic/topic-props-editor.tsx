@@ -20,6 +20,19 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import Link from "next/link";
+import {topicUrl} from "@/utils/uri";
+
+function getDescriptionForProp(propName: string) {
+    if (propName == "Categorías") {
+        return "Las categorías del tema. Si elegís una que no existe se crea automáticamente una nueva categoría."
+    } else if (propName == "Sinónimos") {
+        return "Sinónimos del título del tema. Se considera que un tema fue mencionado en alguna publicación o artículo si alguno de sus sinónimos (o su título) aparece en el contenido. Esto afecta la popularidad del tema y el muro de menciones de la página del tema."
+    } else if (propName == "Título") {
+        return "El título del tema. Usá esta propiedad para cambiar su título."
+    }
+    return null
+}
 
 export const TopicPropEditor = ({p, setProp, deleteProp}: {
     p: TopicProp,
@@ -30,98 +43,106 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
     const [hovered, setHovered] = useState(false)
     const {data: categories} = useCategories()
 
-    const info: string = "información útil"
+    const info: string | null = getDescriptionForProp(p.name)
 
-    return <div className={"flex space-x-8 w-full items-center"}>
-        <Button
-            color={"transparent"}
-            variant="text"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={deleteProp}
-            disabled={isDefault}
-            sx={{
-                width: 120,
-                justifyContent: "flex-start",
-                color: "var(--text)",
-                '&.Mui-disabled': {
-                    color: "var(--text)",
-                },
-                padding: '6px 8px', // optional: tighter control over padding
-            }}
-        >
-            <Box
+    return <div className={"flex space-x-2 w-full items-center justify-between"}>
+        <div className={"flex items-center"}>
+            {info && <InfoPanel text={info} iconClassName={"text-[var(--text-lighter)]"}/>}
+            <Button
+                color={"transparent"}
+                variant="text"
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                onClick={deleteProp}
+                disabled={isDefault}
                 sx={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "space-between",
-                    alignItems: "center",
+                    width: 120,
+                    justifyContent: "flex-start",
+                    color: "var(--text)",
+                    '&.Mui-disabled': {
+                        color: "var(--text)",
+                    },
+                    padding: '6px 8px', // optional: tighter control over padding
                 }}
             >
+                <Box
+                    sx={{
+                        display: "flex",
+                        width: "100%",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}
+                >
                 <span style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
                   {p.name}
                 </span>
-                <span className={"text-[var(--text-light)]"}>
+                    <span className={"text-[var(--text-light)]"}>
                     {!isDefault && hovered && <CloseIcon color={"inherit"}/>}
                 </span>
-                {info && <InfoPanel text={info}/>}
-            </Box>
-        </Button>
-        {isStringListProp(p.value) && <ListEditor
-            items={p.value.value}
-            setItems={(values: string[]) => {
-                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
-            }}
-            options={p.name == "Categorías" && categories ? categories : []}
-        />}
-        {isStringProp(p.value) && <TextField
-            value={p.value.value}
-            size={"small"}
-            onChange={(e) => {
-                setProp({
-                    ...p,
-                    $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
-                    value: {
-                        $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
-                        value: e.target.value
-                    },
-                })
-            }}
-        />}
-        {isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
-            value={isNaN(p.value.value) ? 0 : p.value.value}
-            size={"small"}
-            onChange={(e) => {
-                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#numberProp", value: parseInt(e.target.value) ?? 0}})
-            }}
-        />}
-        {isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-            <DatePicker
-                label={"Fecha"}
-                value={dayjs(p.value.value).locale('es')}
-                onChange={(newValue) => {
-                    if (newValue?.isValid()) {
-                        setProp({
-                            ...p,
-                            value: {
-                                $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-                                value: newValue.toISOString(),
-                            },
-                        });
-                    }
+                </Box>
+            </Button>
+            {isStringListProp(p.value) && <ListEditor
+                items={p.value.value}
+                setItems={(values: string[]) => {
+                    setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
                 }}
-                minDate={dayjs("1000-01-01")}
-                format="DD/MM/YYYY"
-                slotProps={{
-                    textField: { size: 'small' },
-                    openPickerButton: {
-                        sx: {
-                            padding: '4px'
+                options={p.name == "Categorías" && categories ? categories : []}
+            />}
+            {isStringProp(p.value) && <TextField
+                value={p.value.value}
+                size={"small"}
+                onChange={(e) => {
+                    setProp({
+                        ...p,
+                        $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
+                        value: {
+                            $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
+                            value: e.target.value
                         },
-                    },
+                    })
                 }}
-            />
-        </LocalizationProvider>}
+            />}
+            {isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
+                value={isNaN(p.value.value) ? 0 : p.value.value}
+                size={"small"}
+                onChange={(e) => {
+                    setProp({
+                        ...p,
+                        value: {
+                            $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
+                            value: parseInt(e.target.value) ?? 0
+                        }
+                    })
+                }}
+            />}
+            {isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                <DatePicker
+                    label={"Fecha"}
+                    value={dayjs(p.value.value).locale('es')}
+                    onChange={(newValue) => {
+                        if (newValue?.isValid()) {
+                            setProp({
+                                ...p,
+                                value: {
+                                    $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
+                                    value: newValue.toISOString(),
+                                },
+                            });
+                        }
+                    }}
+                    minDate={dayjs("1000-01-01")}
+                    format="DD/MM/YYYY"
+                    slotProps={{
+                        textField: {size: 'small'},
+                        openPickerButton: {
+                            sx: {
+                                padding: '4px'
+                            },
+                        },
+                    }}
+                />
+            </LocalizationProvider>}
+        </div>
     </div>
 }
 
@@ -129,11 +150,11 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
 export function addDefaults(props: TopicProp[], topic: TopicView): TopicProp[] {
     if (!props) props = []
     const newProps: TopicProp[] = []
-    for(let i = 0; i < props.length; i++) {
+    for (let i = 0; i < props.length; i++) {
         const p = props[i]
         const valid = validateTopicProp(p)
-        if(!valid.success){
-            if(isKnownProp(p.value)){
+        if (!valid.success) {
+            if (isKnownProp(p.value)) {
                 newProps.push({
                     ...p,
                     value: defaultPropValue(p.name, p.value.$type, topic)
@@ -199,12 +220,12 @@ export function defaultPropValue(name: string, type: PropValueType, topic: Topic
             $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
             value: ""
         }
-    } else if(type == "ar.cabildoabierto.wiki.topicVersion#numberProp") {
+    } else if (type == "ar.cabildoabierto.wiki.topicVersion#numberProp") {
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
             value: 0
         }
-    } else if(type == "ar.cabildoabierto.wiki.topicVersion#booleanProp") {
+    } else if (type == "ar.cabildoabierto.wiki.topicVersion#booleanProp") {
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#booleanProp",
             value: false
@@ -235,8 +256,20 @@ function NewPropModal({open, onClose, onAddProp}: {
     }
 
     return <BaseFullscreenPopup open={open} onClose={cleanAndClose} closeButton={true}>
-        <div className={"px-6 pb-6 space-y-6 flex flex-col items-center"}>
-            <div className={"font-semibold"}>Nueva propiedad</div>
+        <div className={"px-6 pb-6 space-y-4 flex flex-col items-center"}>
+            <div className={"font-semibold"}>
+                Nueva propiedad
+            </div>
+            <div className={"text-sm text-[var(--text-light)] max-w-[300px]"}>
+                Agregá una característica del tema.
+                Si muchos temas tienen la misma propiedad, se puede hacer una visualización con ellos. <Link
+                    href={topicUrl("Cabildo Abierto: Wiki (Temas)", undefined, "normal")}
+                    target={"_blank"}
+                    className={"hover:underline font-semibold"}
+                >
+                Más información.
+            </Link>
+            </div>
             <TextField
                 size={"small"}
                 value={name}
