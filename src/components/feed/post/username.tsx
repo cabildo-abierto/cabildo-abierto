@@ -13,7 +13,11 @@ export const Username = ({user}: { user: { displayName?: string, handle: string,
     if (!user) return <span>No user</span>
 
     return <UserSummaryOnHover handle={user.handle}>
-        <Link className="hover:underline" href={profileUrl(user.handle)}>
+        <Link
+            className="hover:underline"
+            href={profileUrl(user.handle)}
+            onClick={e => {e.stopPropagation()}}
+        >
             {session.user.handle == user.handle ? "vos" : getUsername(user)}
         </Link>
     </UserSummaryOnHover>
