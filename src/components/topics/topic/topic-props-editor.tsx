@@ -47,7 +47,10 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
 
     return <div className={"flex space-x-2 w-full items-center justify-between"}>
         <div className={"flex items-center"}>
-            {info && <InfoPanel text={info} iconClassName={"text-[var(--text-lighter)]"}/>}
+            {info ?
+                <div className={"w-8"}><InfoPanel text={info} iconClassName={"text-[var(--text-lighter)]"}/></div> :
+                <div className={"w-8"}/>
+            }
             <Button
                 color={"transparent"}
                 variant="text"

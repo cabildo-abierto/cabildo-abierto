@@ -70,6 +70,19 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 };*/
 
 
+export function refreshEditor(editor: LexicalEditor) {
+    editor.update(() => {
+        const state = editor.getEditorState().toJSON();
+        const nodes = $dfs()
+        if (nodes.some(n => $isEmbedNode(n.node) || $isImageNode(n.node))) {
+            const stateStr = JSON.stringify(state);
+            const newState = editor.parseEditorState(stateStr);
+            editor.setEditorState(newState);
+        }
+    });
+}
+
+
 export const EditorWithQuoteComments = ({
     uri,
     settings,
@@ -165,15 +178,7 @@ export const EditorWithQuoteComments = ({
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (editor) {
-                editor.update(() => {
-                    const state = editor.getEditorState().toJSON();
-                    const nodes = $dfs()
-                    if (nodes.some(n => $isEmbedNode(n.node) || $isImageNode(n.node))) {
-                        const stateStr = JSON.stringify(state);
-                        const newState = editor.parseEditorState(stateStr);
-                        editor.setEditorState(newState);
-                    }
-                });
+                refreshEditor(editor)
                 setHasRefreshed(true);
             }
         }, 200);

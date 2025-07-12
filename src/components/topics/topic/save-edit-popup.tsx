@@ -15,7 +15,7 @@ import {Button} from "@/../modules/ui-utils/src/button"
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {post} from "@/utils/fetch";
-import {editorStateToMarkdown, normalizeMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {decompress} from "@/utils/compression";
@@ -40,13 +40,13 @@ const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: stri
 }
 
 
-function normalizeTopicText(text: string, format: string) {
+function topicTextToMarkdown(text: string, format: string) {
     if(format == "markdown"){
         return {
-            text: normalizeMarkdown(text), format
+            text: text, format
         }
     } else if(format == "markdown-compressed"){
-        return normalizeTopicText(decompress(text), "markdown")
+        return topicTextToMarkdown(decompress(text), "markdown")
     } else {
         return {text, format}
     }
@@ -54,10 +54,16 @@ function normalizeTopicText(text: string, format: string) {
 
 
 async function getNewVersionDiff(editor: LexicalEditor, topic: TopicView) {
+    if(!editor) return {
+        data: {
+            charsDeleted: 0,
+            charsAdded: 0
+        }
+    }
     const state = editor.getEditorState().toJSON()
     const md = editorStateToMarkdown(state)
 
-    const {text: currentText, format: currentFormat} = normalizeTopicText(topic.text, topic.format)
+    const {text: currentText, format: currentFormat} = topicTextToMarkdown(topic.text, topic.format)
 
     type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArticleEmbedView[]}
     type O = {charsAdded: number, charsDeleted: number}
@@ -120,24 +126,30 @@ export const SaveEditPopup = ({
     </span>
 
     const newVersionSize = useMemo(() => {
-        const state = editor.getEditorState().toJSON()
-        const md = editorStateToMarkdown(state)
-        return md.markdown.length
+        if(editor){
+            const state = editor.getEditorState().toJSON()
+            const md = editorStateToMarkdown(state)
+            return md.markdown.length
+        } else {
+            return null
+        }
     }, [editor])
 
-    if (newVersionSize > 1200000) {
+    if (newVersionSize && newVersionSize > 1200000) {
         return <AcceptButtonPanel
             open={true}
             onClose={onClose}
         >
-            <span>No se pueden guardar los cambios porque el tema supera el límite de 1.200.000 caracteres (con <span
-                className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos temas.</span>
+            <span className={"sm:max-w-[450px]"}>
+                No se pueden guardar los cambios porque el tema supera el límite de 1.200.000 caracteres (con <span
+                className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos temas.
+            </span>
         </AcceptButtonPanel>
     }
 
     return (
         <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
-            <div className="py-4 lg:px-12 px-2 text-center">
+            <div className="py-4 lg:px-12 px-2 text-center sm:w-[450px]">
 
                 <h2 className="pb-4 text-lg">
                     Confirmar cambios

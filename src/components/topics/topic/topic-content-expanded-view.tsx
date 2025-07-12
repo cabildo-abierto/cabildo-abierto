@@ -11,7 +11,7 @@ import {
     editorStateToMarkdown
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
-import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
+import {EditorWithQuoteComments, refreshEditor} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
@@ -74,6 +74,20 @@ const TopicContentExpandedViewContent = ({
     editor: LexicalEditor,
     setEditor: (editor: LexicalEditor) => void
 }) => {
+    const [hasRefreshed, setHasRefreshed] = useState(false)
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if(wikiEditorState.startsWith("editing")){
+                if (editor) {
+                    refreshEditor(editor)
+                    setHasRefreshed(true);
+                }
+            }
+        }, 200);
+
+        return () => clearTimeout(timeoutId);
+    }, [editor, hasRefreshed])
+
     return <>
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
             <div id="editor" className={"pb-2 min-h-[300px] mt-4 sm:px-2 px-4"} key={topic.uri}>
@@ -144,7 +158,7 @@ export const TopicContentExpandedViewWithVersion = ({
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [topicProps, setTopicProps] = useState<TopicProp[]>(topic.props ?? [])
+    const [topicProps, setTopicProps] = useState<TopicProp[]>(Array.from(topic.props) ?? [])
     const feed = useTopicFeed(topic.id)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const [quoteReplies, setQuoteReplies] = useState<PostView[] | null>(null)
@@ -157,12 +171,10 @@ export const TopicContentExpandedViewWithVersion = ({
         },
         onSettled: (data, variables, context) => {
             qc.removeQueries(contentQueriesFilter(topic.uri))
-            // TO DO: Actualización optimista con el contenido del tema
         }
     })
 
     useEffect(() => {
-        // TO DO
         if (feed.data) {
             const q: PostView[] = feed.data.replies.map(c => c.content)
                 .filter(c => isPostView(c)).filter(c => isSelectionQuoteEmbed(c.embed))
@@ -174,26 +186,37 @@ export const TopicContentExpandedViewWithVersion = ({
 
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
-        if (!editor) return {error: "Ocurrió un error con el editor."}
+        if(editor){
+            const {
+                markdown,
+                embeds,
+                embedContexts
+            } = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
 
-        const {
-            markdown,
-            embeds,
-            embedContexts
-        } = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
+            const {error} = await saveEditMutation.mutateAsync({
+                id: topic.id,
+                text: compress(markdown),
+                format: "markdown-compressed",
+                claimsAuthorship,
+                message: editMsg,
+                props: topicProps,
+                embeds,
+                embedContexts
+            })
+            if (error) return {error}
+        } else {
 
-        const {error} = await saveEditMutation.mutateAsync({
-            id: topic.id,
-            text: compress(markdown),
-            format: "markdown-compressed",
-            claimsAuthorship,
-            message: editMsg,
-            props: topicProps,
-            embeds,
-            embedContexts
-        })
-        if (error) {
-            return {error}
+            const {error} = await saveEditMutation.mutateAsync({
+                id: topic.id,
+                text: topic.text,
+                format: topic.format,
+                claimsAuthorship,
+                message: editMsg,
+                props: topicProps,
+                embeds: topic.embeds
+            })
+            if (error) return {error}
+
         }
 
         setShowingSaveEditPopup(false)
@@ -201,7 +224,7 @@ export const TopicContentExpandedViewWithVersion = ({
         return {}
     }
 
-    const saveEnabled = editor != null // TO DO
+    const saveEnabled = true
 
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
         <div className={"w-full"}>
@@ -229,7 +252,7 @@ export const TopicContentExpandedViewWithVersion = ({
 
             {wikiEditorState == "props" && <TopicPropsView topic={topic}/>}
 
-            <TopicContentExpandedViewContent
+            {wikiEditorState != "editing-props" && <TopicContentExpandedViewContent
                 editor={editor}
                 setEditor={setEditor}
                 topic={topic}
@@ -237,7 +260,7 @@ export const TopicContentExpandedViewWithVersion = ({
                 setPinnedReplies={setPinnedReplies}
                 quoteReplies={quoteReplies}
                 wikiEditorState={wikiEditorState}
-            />
+            />}
 
             {showingSaveEditPopup && <SaveEditPopup
                 open={showingSaveEditPopup}

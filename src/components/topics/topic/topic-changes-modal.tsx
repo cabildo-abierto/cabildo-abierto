@@ -52,15 +52,17 @@ function getChanges(prevText: SerializedEditorState, newText: SerializedEditorSt
     let newChildren = []
     for (let k = 0; k < common.length; k++) {
         const {x, y} = common[k]
-        while (i < x) {
+        while (i < x && i < nodes1.length) {
             newChildren.push(newDiffNode("removed", nodes1[i]))
             i++
         }
-        while (j < y) {
+        while (j < y && j < nodes2.length) {
             newChildren.push(newDiffNode("new", nodes2[j]))
             j++
         }
-        newChildren.push(newDiffNode("no dif", nodes1[x]))
+        if(x < nodes1.length){
+            newChildren.push(newDiffNode("no dif", nodes1[x]))
+        }
         i++
         j++
     }

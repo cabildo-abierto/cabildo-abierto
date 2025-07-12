@@ -1,5 +1,5 @@
 import { assignment } from "./min-cost-flow"
-import {areArraysEqual, makeMatrix} from "@/utils/arrays";
+import {areArraysEqual, makeMatrix, range} from "@/utils/arrays";
 
 
 export function getPlainText(node: any){
@@ -66,19 +66,19 @@ export function nodesFromJSONStr(s: string){
 }
 
 
-export function minMatch(nodes1: string[], nodes2: string[], common: {x: number, y: number}[]){
+export function minMatch(nodes1: string[], nodes2: string[], common: {x: number, y: number}[], safe: boolean = true){
     if(nodes1.length == 0 || nodes2.length == 0) return []
-    
+
     const commonNodes1 = new Set(common.map(({x}) => (x)))
     const commonNodes2 = new Set(common.map(({y}) => (y)))
-    
-    let uncommonNodes1 = []
+
+    let uncommonNodes1: any[] = []
     nodes1.forEach((x, index) => {
         if(!commonNodes1.has(index)){
             uncommonNodes1.push({node: x, index: index})
         }
     })
-    let uncommonNodes2 = []
+    let uncommonNodes2: any[] = []
     nodes2.forEach((x, index) => {
         if(!commonNodes2.has(index)){
             uncommonNodes2.push({node: x, index: index})
@@ -89,16 +89,22 @@ export function minMatch(nodes1: string[], nodes2: string[], common: {x: number,
         return [...common]
     }
 
-    let a = makeMatrix(uncommonNodes1.length, uncommonNodes2.length, 0)
+    let res: number[]
+    if(safe && uncommonNodes1.length * uncommonNodes2.length > 100000){
+        // hay demasiados nodos distintos, no podemos armar la matriz, los matcheamos en orden
+        res = range(Math.min(uncommonNodes1.length, uncommonNodes2.length))
+    } else {
+        let a = makeMatrix(uncommonNodes1.length, uncommonNodes2.length, 0)
 
-    for(let i = 0; i < uncommonNodes1.length; i++){
-        for(let j = 0; j < uncommonNodes2.length; j++){
-            const d = charDiff(uncommonNodes1[i].node, uncommonNodes2[j].node)
-            a[i][j] = d.total
+        for(let i = 0; i < uncommonNodes1.length; i++){
+            for(let j = 0; j < uncommonNodes2.length; j++){
+                const d = charDiff(uncommonNodes1[i].node, uncommonNodes2[j].node)
+                a[i][j] = d.total
+            }
         }
-    }
 
-    let res = assignment(a)
+        res = assignment(a)
+    }
 
     let resDicts = res.map((y, x) => ({x: x, y: y}))
     resDicts = resDicts.map(({x, y}) => ({x: uncommonNodes1[x].index, y: uncommonNodes2[y].index}))
@@ -152,7 +158,7 @@ function lcs(s1: any[], s2: any[]) {
 }
 
 
-export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
+export function diff(nodes1: string[], nodes2: string[], safe: boolean = true){
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
 
     if(safe && (nodes1.length - common.length) * (nodes2.length - common.length) > 10000){
@@ -183,39 +189,4 @@ export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
     }
 
     return {common: common, matches: matches, perfectMatches: perfectMatches}
-}
-
-
-export function nodesCharDiff(nodes1: string[], nodes2: string[], safe: boolean = false) {
-    const d = diff(nodes1, nodes2, safe)
-    if(!d) return null
-
-    const {common, matches, perfectMatches} = d
-
-    let charsDeleted = 0
-    let charsAdded = 0
-    for(let i = 0; i < nodes1.length; i++){
-        if(!matches.some(({x}) => (i == x))){
-            charsDeleted += nodes1[i].length
-        }
-    }
-
-    for(let i = 0; i < nodes2.length; i++){
-        if(!matches.some(({y}) => (i == y))){
-            charsAdded += nodes2[i].length
-        }
-    }
-
-    for(let i = 0; i < matches.length; i++){
-        if(matches[i]){
-            const node1 = nodes1[matches[i].x]
-            const node2 = nodes2[matches[i].y]
-            const matchDiff = charDiff(node1, node2)
-            charsDeleted += matchDiff.deletions
-            charsAdded += matchDiff.insertions
-        }
-    }
-
-    return {charsAdded: charsAdded, charsDeleted: charsDeleted, 
-        matches: matches, common: common, perfectMatches: perfectMatches}
 }
