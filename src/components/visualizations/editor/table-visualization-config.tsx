@@ -27,7 +27,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     let columns: Column[] = data && data.data ? data.data.columns : (dataset ? dataset.columns : null)
 
     useEffect(() => {
-        if(isTable(config.spec) && config.spec.columns == null){
+        if(isTable(config.spec) && config.spec.columns == null && columns){
             setConfig(produce(config, draft => {
                 if(isTable(draft.spec)){
                     draft.spec.columns = columns.map(c => ({
@@ -47,9 +47,15 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     }
 
     if (!columns) {
-        return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
-            Ocurrió un error al cargar los datos
-        </div>
+        if(isTopicsDataSource(config.dataSource)){
+            return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
+                Cargá los datos primero.
+            </div>
+        } else {
+            return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
+                Ocurrió un error al cargar los datos.
+            </div>
+        }
     }
 
     if (!isTable(config.spec)) {
@@ -111,7 +117,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                             label={"Alias"}
                             fontSize={"12px"}
                             size={"small"}
-                            value={configIndex != -1 && config.spec.columns[configIndex].alias ? config.spec.columns[configIndex].columnName : c.name}
+                            value={configIndex != -1 && config.spec.columns[configIndex].alias != null ? config.spec.columns[configIndex].alias : config.spec.columns[configIndex].columnName}
                             onChange={e => setShowColumn(c.name, true, e.target.value)}
                         />
                     </div>}

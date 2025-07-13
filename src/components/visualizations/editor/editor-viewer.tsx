@@ -21,11 +21,7 @@ function NextStep({config}: { config: PlotConfigProps }) {
             return "Elegí un conjunto de datos."
         }
     } else if (config.dataSource && isTopicsDataSource(config.dataSource)) {
-        if(config.filters && config.filters.length > 0) {
-            return "Configurá la visualización."
-        } else {
-            return "Configurá el conjunto de datos."
-        }
+        return "Configurá los filtros y cargá los datos. Después, configurá la visualización."
     }
 }
 

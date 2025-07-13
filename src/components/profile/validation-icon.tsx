@@ -12,13 +12,13 @@ const ValidationIcon = ({handle, validation, fontSize = 22, color="primary"}: {
     if (validation == "person") {
         return <DescriptionOnHover description={handle && `@${handle} es una persona real.`} moreInfoHref={moreInfoHref}>
             <div style={{backgroundColor: `var(--${color})`}} className={"rounded-full"}>
-                <UserCircleIcon fontSize={fontSize} color={"var(--text)"} weight={"fill"}/>
+                <UserCircleIcon fontSize={fontSize} color={"var(--button-text)"} weight={"fill"}/>
             </div>
         </DescriptionOnHover>
     } else if (validation == "org") {
         return <DescriptionOnHover description={handle && `@${handle} es una organización verificada.`} moreInfoHref={moreInfoHref}>
             <div style={{backgroundColor: `var(--${color})`}} className={"rounded-full"}>
-                <CheckCircleIcon fontSize={fontSize} color={"var(--text)"} weight={"bold"}/>
+                <CheckCircleIcon fontSize={fontSize} color={"var(--button-text)"} weight={"bold"}/>
             </div>
         </DescriptionOnHover>
     }
