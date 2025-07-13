@@ -153,8 +153,10 @@ const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, on
 }) => {
     const {data, isLoading} = useTopicsDataset(visualization.filters, true)
 
-    if (isLoading || !data) {
+    if (isLoading) {
         return <div className={"py-4"}><LoadingSpinner/></div>
+    } else if(!data) {
+        return null
     }
 
     const view = getDatasetVisualizationView(visualization, {
