@@ -3,10 +3,7 @@ import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-edit
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {$getRoot, EditorState, LexicalEditor} from "lexical";
-import {
-    $createSidenoteNode,
-    $isSidenoteNode
-} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
+import {$createSidenoteNode, $isSidenoteNode} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
 import {$dfs, $wrapNodeInElement} from "@lexical/utils";
 import {createPortal} from "react-dom";
 import {NodeQuoteReplies} from "./node-quote-replies";
@@ -14,12 +11,11 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {$isEmbedNode} from "../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
-import {$isImageNode} from "../../../modules/ca-lexical-editor/src/nodes/ImageNode";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/article/read-tracking/track-reading";
 import {useSession} from "@/queries/api";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
+import {editorStateToMarkdown, markdownToEditorState} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -73,12 +69,10 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 export function refreshEditor(editor: LexicalEditor) {
     editor.update(() => {
         const state = editor.getEditorState().toJSON();
-        const nodes = $dfs()
-        if (nodes.some(n => $isEmbedNode(n.node) || $isImageNode(n.node))) {
-            const stateStr = JSON.stringify(state);
-            const newState = editor.parseEditorState(stateStr);
-            editor.setEditorState(newState);
-        }
+        const markdown = editorStateToMarkdown(state)
+        const state2 = markdownToEditorState(markdown.markdown, true, true, markdown.embeds, markdown.embedContexts)
+        const newState = editor.parseEditorState(JSON.stringify(state2))
+        editor.setEditorState(newState)
     });
 }
 
@@ -112,6 +106,14 @@ export const EditorWithQuoteComments = ({
         }
     }
 
+    const normalizedEditorState = useMemo(() => {
+        if(editor){
+            const s = JSON.stringify(editor.getEditorState().toJSON())
+            const markdown = editorStateToMarkdown(s)
+            return markdownToEditorState(markdown.markdown, true, true, markdown.embeds, markdown.embedContexts)
+        }
+    }, [editor])
+
     useEffect(() => {
         updateCoordinates()
     }, [layoutConfig])
@@ -123,11 +125,10 @@ export const EditorWithQuoteComments = ({
         }
         const m = new Map<number, string[]>()
         for (let i = 0; i < quoteReplies.length; i++) {
-            const s = JSON.stringify(editor.getEditorState().toJSON())
             const selection = quoteReplies[i].embed
             if (isSelectionQuoteView(selection)) {
                 const markdownSelection = new MarkdownSelection(selection.start, selection.end)
-                const lexicalSelection = markdownSelection.toLexicalSelection(s)
+                const lexicalSelection = markdownSelection.toLexicalSelection(normalizedEditorState)
                 const key = lexicalSelection.start.node[0]
                 const value = quoteReplies[i].uri
                 if (m.has(key)) {
@@ -141,10 +142,8 @@ export const EditorWithQuoteComments = ({
         setBlockToUri(m)
     }, [editor, quoteReplies])
 
-    const state = editor ? editor.getEditorState() : undefined
-
     useEffect(() => {
-        if (!editor || !state) return // !state está solo para asegurar que el useEffect se ejecute cuando state cambia
+        if (!normalizedEditorState) return
         editor.update(() => {
             if (!blockToUri) return
 
@@ -171,7 +170,7 @@ export const EditorWithQuoteComments = ({
                 }
             })
         })
-    }, [blockToUri, editor, state])
+    }, [blockToUri, editor])
 
     // Esto es necesario por algún motivo muy extraño relacionado con cómo insertamos los embeds en el editor.
     const [hasRefreshed, setHasRefreshed] = useState(false)
@@ -181,9 +180,9 @@ export const EditorWithQuoteComments = ({
                 refreshEditor(editor)
                 setHasRefreshed(true);
             }
-        }, 200);
+        }, 200)
 
-        return () => clearTimeout(timeoutId);
+        return () => clearTimeout(timeoutId)
     }, [editor, hasRefreshed])
 
     const editorSettings = useMemo(() => ({
