@@ -57,9 +57,9 @@ export function AddCommentButton({
   }, [anchorKey, editor, updatePosition]);
 
 
-  return <div ref={boxRef}>
+  return <div ref={boxRef} className={"z-[2000]"}>
     <Button
-        className="z-[52] flex space-x-2 text-sm py-2 px-4 justify-center items-center cursor-pointer border rounded-full"
+        className="flex space-x-2 text-sm py-2 px-4 justify-center items-center cursor-pointer border rounded-full"
         onClick={onAddComment}
         sx={{
           borderRadius: 20

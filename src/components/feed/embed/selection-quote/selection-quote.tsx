@@ -6,7 +6,7 @@ import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import {
     anyEditorStateToMarkdown,
     markdownToEditorState
@@ -15,24 +15,26 @@ import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/sr
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
-async function validSelectionForComment(text: string, format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
+async function validSelectionForComment(text: string, embeds: ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
     try {
-        const markdown = anyEditorStateToMarkdown(text, format)
-        const state = markdownToEditorState(markdown.markdown, true, true, markdown.embeds)
-        if(selection instanceof LexicalSelection){
+        const markdown = anyEditorStateToMarkdown(text, format, embeds)
+        const state = markdownToEditorState(
+            markdown.markdown, true, true, markdown.embeds
+        )
+        if (selection instanceof LexicalSelection) {
             selection = selection.toMarkdownSelection(state)
         }
-        if(selection.isEmpty()) {
+        if (selection.isEmpty()) {
             return null
         }
         const processedState = new ProcessedLexicalState(state)
         const lexicalSelection = selection.toLexicalSelection(processedState)
         const markdownSelectionBack = lexicalSelection.toMarkdownSelection(processedState)
-        if(markdownSelectionBack.isEmpty()) {
+        if (markdownSelectionBack.isEmpty()) {
             return null
         }
         const lexicalSelectionBack = markdownSelectionBack.toLexicalSelection(processedState)
-        if(lexicalSelection.equivalentTo(lexicalSelectionBack, processedState)){
+        if (lexicalSelection.equivalentTo(lexicalSelectionBack, processedState)) {
             return markdownSelectionBack
         } else {
             return null
@@ -56,8 +58,18 @@ type SelectionQuoteProps = {
     selection: MarkdownSelection | LexicalSelection
 }
 
-export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
-                                   quotedContentTitle, quotedContentEmbeds, quotedContentAuthor, quotedContent, quotedText, quotedTextFormat, selection}: SelectionQuoteProps) => {
+export const SelectionQuote = ({
+    onClick,
+    mainPostRef,
+    showContext = false,
+    quotedContentTitle,
+    quotedContentEmbeds,
+    quotedContentAuthor,
+    quotedContent,
+    quotedText,
+    quotedTextFormat,
+    selection
+}: SelectionQuoteProps) => {
     const [normalizedSelection, setNormalizedSelection] = useState<"error" | MarkdownSelection | null>(null)
     const router = useRouter()
 
@@ -69,7 +81,7 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
                 onClick(mainPostRef?.cid)
             }, 0);
         } else {
-            if(mainPostRef){
+            if (mainPostRef) {
                 router.push(contentUrl(quotedContent) + "&s=normal" + "#" + mainPostRef.cid)
             }
         }
@@ -78,7 +90,7 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
     useEffect(() => {
         setNormalizedSelection(null);
         const timeout = setTimeout(async () => {
-            const n = await validSelectionForComment(quotedText, quotedTextFormat, selection);
+            const n = await validSelectionForComment(quotedText, quotedContentEmbeds, quotedTextFormat, selection);
             setNormalizedSelection(n ?? "error");
         }, 0);
 
@@ -91,7 +103,8 @@ export const SelectionQuote = ({onClick, mainPostRef, showContext=false,
 
     const collection = getCollectionFromUri(quotedContent)
 
-    return <div className={"article-content no-margin-first pr-2 " + (isArticle(collection) ? "" : "not-article-content")}>
+    return <div
+        className={"article-content no-margin-first pr-2 " + (isArticle(collection) ? "" : "not-article-content")}>
         <blockquote
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}

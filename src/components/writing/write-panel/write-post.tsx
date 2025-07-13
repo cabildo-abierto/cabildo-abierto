@@ -248,7 +248,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
 
         let selectionForPost: [number, number]
         if(selection instanceof LexicalSelection && (isTopicView(replyTo) || isFullArticleView(replyTo)) && replyTo.format == "markdown") {
-            const state = markdownToEditorState(replyTo.text)
+            const state = markdownToEditorState(replyTo.text, true, true, replyTo.embeds)
             selectionForPost = selection.toMarkdownSelection(state).toArray()
         }
 

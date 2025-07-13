@@ -110,26 +110,30 @@ export default function EmbedPlugin() {
                 COMMAND_PRIORITY_HIGH,
             ),
             editor.registerNodeTransform(EmbedNode, (node) => {
-                const parent = node.getParent();
-                if (parent && !$isRootOrShadowRoot(parent) && !$isSidenoteNode(parent) && !$isCustomMarkNode(parent)) {
-                    const grandParent = parent.getParent();
-                    const clone = EmbedNode.clone(node);
-                    node.remove();
+                if(editor.isEditable()){
+                    const parent = node.getParent();
+                    if (parent && !$isRootOrShadowRoot(parent) && !$isSidenoteNode(parent) && !$isCustomMarkNode(parent)) {
+                        const grandParent = parent.getParent();
+                        const clone = EmbedNode.clone(node);
+                        node.remove();
 
-                    if (grandParent && $isRootOrShadowRoot(grandParent)) {
-                        parent.insertAfter(clone);
-                    } else {
-                        const root = $getRoot();
-                        root.append(clone);
+                        if (grandParent && $isRootOrShadowRoot(grandParent)) {
+                            parent.insertAfter(clone);
+                        } else {
+                            const root = $getRoot();
+                            root.append(clone);
+                        }
                     }
                 }
             }),
             editor.registerNodeTransform(RootNode, (node) => {
-                const children = node.getChildren()
-                const last = children[children.length - 1]
-                if(!$isParagraphNode(last)) {
-                    const p = $createParagraphNode()
-                    last.insertAfter(p)
+                if(editor.isEditable()){
+                    const children = node.getChildren()
+                    const last = children[children.length - 1]
+                    if(!$isParagraphNode(last)) {
+                        const p = $createParagraphNode()
+                        last.insertAfter(p)
+                    }
                 }
             })
         )

@@ -4,7 +4,11 @@ import {
     TopicsGraph, TopicVersionChangesProps,
 } from "@/lib/types"
 import {splitUri, threadApiUrl, topicUrl} from "@/utils/uri";
-import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    FeedViewContent,
+    isFullArticleView,
+    ThreadViewContent
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
@@ -18,6 +22,9 @@ import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/
 import {ConvoView} from "@atproto/api/src/client/types/chat/bsky/convo/defs";
 import {$Typed} from "@atproto/api";
 import {DeletedMessageView, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
+import {editorStateToMarkdown, markdownToEditorState, normalizeMarkdown} from "../../modules/ca-lexical-editor/src/markdown-transforms";
+import {decompress} from "@/utils/compression";
+import {useMemo} from "react";
 
 
 function uriToKey(uri: string) {
@@ -81,6 +88,46 @@ export const useThread = (uri: string) => {
     return useAPI<ThreadViewContent>(threadApiUrl(uri), threadQueryKey(uri))
 }
 
+export const useThreadWithNormalizedContent = (uri: string) => {
+    const res = useAPI<ThreadViewContent>(threadApiUrl(uri), threadQueryKey(uri))
+
+    const newContent = useMemo(() => {
+        if(res.data){
+            const content = res.data
+
+            if(isFullArticleView(content.content)){
+                let newText: string
+                if(content.content.format == "markdown-compressed"){
+                    newText = decompress(content.content.text)
+                } else if(content.content.format == "markdown"){
+                    newText = content.content.text
+                } else {
+                    return content
+                }
+
+                const state = markdownToEditorState(
+                    newText, true, true, content.content.embeds)
+                const markdown = editorStateToMarkdown(state)
+
+                return {
+                    ...content,
+                    content: {
+                        ...content.content,
+                        text: normalizeMarkdown(markdown.markdown, true),
+                        embeds: markdown.embeds,
+                        format: "markdown"
+                    }
+                }
+            } else {
+                return content
+            }
+        }
+    }, [res.data])
+
+
+    return {query: res, thread: newContent}
+}
+
 export type TimePeriod = "day" | "week" | "month" | "all"
 
 export const useTrendingTopics = (time: TimePeriod) => {
@@ -109,6 +156,41 @@ export function useTopicFeed(id?: string, did?: string, rkey?: string){
 
 export function useTopic(id?: string, did?: string, rkey?: string) {
     return useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
+}
+
+
+export function useTopicWithNormalizedContent(id?: string, did?: string, rkey?: string){
+    const res = useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
+
+    const newTopic = useMemo(() => {
+        if(res.data){
+            const topic = res.data
+
+            let newText: string
+            if(topic.format == "markdown-compressed"){
+                newText = decompress(topic.text)
+            } else if(topic.format == "markdown"){
+                newText = topic.text
+            } else {
+                return topic
+            }
+
+            const state = markdownToEditorState(newText, true, true, topic.embeds)
+            const markdown = editorStateToMarkdown(state)
+
+            const newTopic: TopicView = {
+                ...topic,
+                text: normalizeMarkdown(markdown.markdown, true),
+                embeds: markdown.embeds,
+                format: "markdown"
+            }
+
+            return newTopic
+        }
+    }, [res.data])
+
+
+    return {query: res, topic: newTopic}
 }
 
 

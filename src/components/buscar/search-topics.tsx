@@ -41,7 +41,7 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
             setResults("loading")
             const {data: topics} = await searchTopics(debouncedValue, categories)
             setResults(topics)
-            setResultsQuery([debouncedValue, ...categories.sort()])
+            setResultsQuery([debouncedValue, ...(categories ? categories.sort() : [])])
         }
 
         search();

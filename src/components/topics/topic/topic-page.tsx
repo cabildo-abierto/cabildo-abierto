@@ -1,7 +1,7 @@
 "use client"
 import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
-import {useTopic, useTopicFeed} from "@/queries/api";
+import {useTopicFeed, useTopicWithNormalizedContent} from "@/queries/api";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
@@ -48,14 +48,14 @@ export const TopicPage = ({topicId, did, rkey}: {
     rkey?: string
 }) => {
     useTopicFeed(topicId, did, rkey) // prefetch
-    const {data: topic, isLoading} = useTopic(topicId, did, rkey)
+    const {query: topicQuery, topic} = useTopicWithNormalizedContent(topicId, did, rkey)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const s = searchParams.get("s")
     const wikiEditorState = (s && isWikiEditorState(s) ? s : "minimized")
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
-    if (isLoading) {
+    if (topicQuery.isLoading) {
         return <LoadingSpinner/>
     }
 

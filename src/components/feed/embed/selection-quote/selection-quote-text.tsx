@@ -26,8 +26,10 @@ export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbe
             if(quotedText.trim().length == 0){
                 return {text: "", format: "markdown"}
             }
-            const state = markdownToEditorState(markdown, true, true, quotedTextEmbeds);
-            const lexicalSelection = selection.toLexicalSelection(JSON.stringify(state))
+            const state = markdownToEditorState(
+                markdown, true, true, quotedTextEmbeds
+            );
+            const lexicalSelection = selection.toLexicalSelection(state)
             const newInitialData = lexicalSelection.getSelectedSubtree(state)
             return {text: JSON.stringify(newInitialData), format: "lexical"}
         } catch (err) {

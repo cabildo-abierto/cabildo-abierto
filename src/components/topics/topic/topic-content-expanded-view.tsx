@@ -11,7 +11,7 @@ import {
     editorStateToMarkdown
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
-import {EditorWithQuoteComments, refreshEditor} from "@/components/editor/editor-with-quote-comments";
+import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
@@ -74,20 +74,6 @@ const TopicContentExpandedViewContent = ({
     editor: LexicalEditor,
     setEditor: (editor: LexicalEditor) => void
 }) => {
-    const [hasRefreshed, setHasRefreshed] = useState(false)
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if(wikiEditorState.startsWith("editing")){
-                if (editor) {
-                    refreshEditor(editor)
-                    setHasRefreshed(true);
-                }
-            }
-        }, 200);
-
-        return () => clearTimeout(timeoutId);
-    }, [editor, hasRefreshed])
-
     return <>
         {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
             <div id="editor" className={"pb-2 min-h-[300px] mt-4 sm:px-2 px-4"} key={topic.uri}>
@@ -126,7 +112,9 @@ const TopicContentExpandedViewContent = ({
                             embeds: topic.embeds ?? [],
                             allowComments: true,
                             tableOfContents: true,
-                            editorClassName: "relative article-content not-article-content"
+                            editorClassName: "relative article-content not-article-content",
+                            shouldPreserveNewLines: true,
+                            markdownShortcuts: false
                         })}
                         quoteReplies={quoteReplies}
                         pinnedReplies={pinnedReplies}

@@ -13,7 +13,9 @@ export function getInitialData(text: string, format: string, shouldPreserveNewLi
 
     if(format == "markdown"){
         text = normalizeMarkdown(text, true)
-        const state = markdownToEditorState(text, shouldPreserveNewLines, true, embeds ?? [])
+        const state = markdownToEditorState(
+            text, shouldPreserveNewLines, true, embeds ?? []
+        )
         if(state.root.children.length == 0){
             return initializeEmpty("")
         }
