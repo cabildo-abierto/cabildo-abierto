@@ -58,7 +58,7 @@ export const TABLE: ElementTransformer = {
         const output: string[] = [];
 
         for (const row of node.getChildren()) {
-            const rowOutput = [];
+            let rowOutput: string[] = [];
             if (!$isTableRowNode(row)) {
                 continue;
             }
@@ -78,6 +78,14 @@ export const TABLE: ElementTransformer = {
                     }
                 }
             }
+
+            rowOutput = rowOutput.map(e => {
+                if(e.trim().length == 0 || e == "\\n\\n") {
+                    return ""
+                } else {
+                    return e
+                }
+            })
 
             output.push(`| ${rowOutput.join(' | ')} |`);
             if (isHeaderRow) {

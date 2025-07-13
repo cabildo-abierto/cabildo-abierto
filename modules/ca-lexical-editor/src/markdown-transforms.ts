@@ -17,7 +17,7 @@ import {$isSidenoteNode} from "./nodes/SidenoteNode";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
-import {ElementOrTextNode, LexicalPointer} from "./selection/lexical-selection";
+import {LexicalPointer} from "./selection/lexical-selection";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 
@@ -103,13 +103,13 @@ function joinEditorStates(a: SerializedEditorState, b: SerializedEditorState): S
     return a
 }
 
-function nodeForPrint(node: ElementOrTextNode) {
+/*function nodeForPrint(node: ElementOrTextNode) {
     return {
         type: node.type,
         children: "children" in node ? node.children.map(nodeForPrint) : undefined,
         text: "text" in node ? node.text : undefined,
     }
-}
+}*/
 
 
 export function markdownToEditorState(
@@ -229,12 +229,13 @@ export function htmlToEditorStateStr(text: string) {
 }
 
 
-export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArticleEmbedView[]): {
+export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArticleEmbedView[], embedContexts?: EmbedContext[]): {
     markdown: string,
-    embeds: ArticleEmbedView[]
+    embeds: ArticleEmbedView[],
+    embedContexts: EmbedContext[]
 } {
     if (format == "markdown") {
-        return {markdown: normalizeMarkdown(text, true), embeds}
+        return {markdown: normalizeMarkdown(text, true), embeds, embedContexts}
     } else if (format == "lexical") {
         return editorStateToMarkdown(ProcessedLexicalState.fromMaybeProcessed(text))
     } else if (format == "lexical-compressed") {

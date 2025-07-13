@@ -15,7 +15,6 @@ import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection
 import {useTrackReading} from "@/components/article/read-tracking/track-reading";
 import {useSession} from "@/queries/api";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
-import {editorStateToMarkdown, markdownToEditorState} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -66,17 +65,6 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 };*/
 
 
-export function refreshEditor(editor: LexicalEditor) {
-    editor.update(() => {
-        const state = editor.getEditorState().toJSON();
-        const markdown = editorStateToMarkdown(state)
-        const state2 = markdownToEditorState(markdown.markdown, true, true, markdown.embeds, markdown.embedContexts)
-        const newState = editor.parseEditorState(JSON.stringify(state2))
-        editor.setEditorState(newState)
-    });
-}
-
-
 export const EditorWithQuoteComments = ({
     uri,
     settings,
@@ -108,9 +96,17 @@ export const EditorWithQuoteComments = ({
 
     const normalizedEditorState = useMemo(() => {
         if(editor){
-            const s = JSON.stringify(editor.getEditorState().toJSON())
-            const markdown = editorStateToMarkdown(s)
-            return markdownToEditorState(markdown.markdown, true, true, markdown.embeds, markdown.embedContexts)
+            /*const markdown = editorStateToMarkdown(state)
+            console.log("is state markdown equal to original markdown?", markdown.markdown == settings.initialText, markdown.markdown.length, settings.initialText.length)
+            for(let i = 0; i < markdown.markdown.length; i += 100){
+                if(markdown.markdown.slice(0, i) != settings.initialText.slice(0, i)){
+                    console.log("diff found at", i)
+                    console.log("original", settings.initialText.slice(i-200, i))
+                    console.log("markdown", markdown.markdown.slice(i-200, i))
+                    break
+                }
+            }*/
+            return JSON.stringify(editor.getEditorState().toJSON())
         }
     }, [editor])
 
@@ -172,19 +168,6 @@ export const EditorWithQuoteComments = ({
         })
     }, [blockToUri, editor])
 
-    // Esto es necesario por algún motivo muy extraño relacionado con cómo insertamos los embeds en el editor.
-    const [hasRefreshed, setHasRefreshed] = useState(false)
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (editor) {
-                refreshEditor(editor)
-                setHasRefreshed(true);
-            }
-        }, 200)
-
-        return () => clearTimeout(timeoutId)
-    }, [editor, hasRefreshed])
-
     const editorSettings = useMemo(() => ({
         ...settings,
         allowComments: true,
@@ -213,7 +196,6 @@ export const EditorWithQuoteComments = ({
             selection={commentingQuote}
             replyTo={replyTo}
         />}
-
         {blockToUri && Array.from(blockToUri).map(([_, repliesURIs], index) => {
             return <div key={index}>
                 {createPortal(<NodeQuoteReplies
