@@ -104,7 +104,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                             queryKey={["topic-feed", topicId, "replies"]}
                             initialContents={feed.data ? feed.data.replies : undefined}
                             onClickQuote={onClickQuote}
-                            noResultsText={"Todavía no recibió respuestas."}
+                            noResultsText={"Sé la primera persona en agregar un comentario."}
                             endText={""}
                             isThreadFeed={true}
                         />
