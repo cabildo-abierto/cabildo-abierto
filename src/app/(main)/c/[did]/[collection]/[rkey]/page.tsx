@@ -5,7 +5,14 @@ import {ErrorPage} from "../../../../../../../modules/ui-utils/src/error-page";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
 import dynamic from "next/dynamic";
-const Thread = dynamic(() => import("@/components/thread/thread"), {ssr: false})
+import {isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+
+const Thread = dynamic(
+    () => import("@/components/thread/thread"), {ssr: false}
+)
+const DatasetPage = dynamic(
+    () => import("@/components/datasets/dataset-page"), {ssr: false}
+)
 
 
 const ContentPage = ({params}: {
@@ -22,6 +29,12 @@ const ContentPage = ({params}: {
     </div>
 
     if (threadQuery.error || !thread) return <ErrorPage>No se encontró el contenido.</ErrorPage>
+
+    if(isDatasetView(thread.content)){
+        return <DatasetPage
+            dataset={thread.content}
+        />
+    }
 
     return <Thread thread={thread}/>
 }

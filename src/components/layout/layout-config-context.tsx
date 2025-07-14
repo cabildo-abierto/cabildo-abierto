@@ -1,7 +1,7 @@
 "use client"
 
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
-import {isArticle, shortCollectionToCollection} from "@/utils/uri";
+import {isArticle, isDataset, shortCollectionToCollection} from "@/utils/uri";
 import {usePathname, useSearchParams} from "next/navigation";
 import {pxToNumber} from "@/utils/strings";
 import {useMediaQuery} from "@mui/system";
@@ -37,6 +37,14 @@ export const useLayoutConfig = () => {
 function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps, isMobile: boolean = false): LayoutConfigProps {
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
+        leftMinWidth: "80px",
+        rightMinWidth: "300px",
+        openSidebar: currentConfig?.openSidebar ?? true,
+        openRightPanel: true,
+        defaultSidebarState: true
+    }
+    const datasetConfig: LayoutConfigProps = {
+        maxWidthCenter: "800px",
         leftMinWidth: "80px",
         rightMinWidth: "300px",
         openSidebar: currentConfig?.openSidebar ?? true,
@@ -80,8 +88,16 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         const s = params.get("s")
         config = s && s != "minimized" ? maximizedTopicConfig : feedConfig
     } else if(pathname.startsWith("/c")){
-        const collection = pathname.split("/")[3]
-        config = isArticle(shortCollectionToCollection(collection)) ? articleConfig : feedConfig
+        const shortCollection = pathname.split("/")[3]
+        const collection = shortCollectionToCollection(shortCollection)
+        if(isArticle(collection)){
+            config = articleConfig
+        } else if(isDataset(collection)){
+            console.log("dataset! returning", feedConfig)
+            config = datasetConfig
+        } else {
+            config = feedConfig
+        }
     } else if(pathname.startsWith("/escribir/articulo")){
         config = articleConfig
     } else {
@@ -136,7 +152,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     const isMobile = useMediaQuery('(max-width:600px)')
 
     const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobile))
-
+    console.log(layoutConfig)
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
