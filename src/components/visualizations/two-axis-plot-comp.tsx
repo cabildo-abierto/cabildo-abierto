@@ -269,6 +269,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                     hideTooltip={hideTooltip}
                                     scaleFactorX={scaleFactorX}
                                     scaleFactorY={scaleFactorY}
+                                    margin={margin}
                                 />}
                                 {(isBarplot(spec.plot) || isHistogram(spec.plot)) && <BarplotContent
                                     xScale={axisBottomScale as ScaleBand<string>}
