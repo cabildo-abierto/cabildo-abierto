@@ -1,7 +1,9 @@
 import {LexicalEditor} from "lexical";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
 import {INSERT_EMBED_COMMAND} from "./index";
+import dynamic from "next/dynamic";
+
+const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"));
 
 export function InsertVisualizationDialog({
                                               activeEditor,

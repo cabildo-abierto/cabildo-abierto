@@ -3,7 +3,7 @@ import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/vis
 import {VisualizationEditor} from "@/components/visualizations/editor/visualization-editor";
 
 
-export const InsertVisualizationModal = ({open, onClose, onSave, initialConfig}: {
+const InsertVisualizationModal = ({open, onClose, onSave, initialConfig}: {
     open: boolean
     onClose: () => void;
     onSave: (v: Visualization) => void
@@ -23,3 +23,6 @@ export const InsertVisualizationModal = ({open, onClose, onSave, initialConfig}:
         />
     </BaseFullscreenPopup>
 }
+
+
+export default InsertVisualizationModal

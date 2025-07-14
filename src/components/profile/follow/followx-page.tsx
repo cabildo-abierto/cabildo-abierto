@@ -2,7 +2,6 @@ import {useParams, useRouter} from "next/navigation";
 import {Followx} from "@/components/profile/follow/followx";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {optionToSearchParam} from "@/components/inicio/main-page";
 import Link from "next/link";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import {profileUrl} from "@/utils/uri";
@@ -22,10 +21,8 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
         router.push("/perfil/" + id + "/" + v)
     }
 
-    function optionsNodes(o: string, isSelected: boolean){
-        const id = optionToSearchParam(o)
-
-        return <div className="text-[var(--text)] h-10" id={id}>
+    function optionsNodes(o: FollowKind, isSelected: boolean){
+        return <div className="text-[var(--text)] h-10">
             <Button
                 onClick={() => {}}
                 variant="text"

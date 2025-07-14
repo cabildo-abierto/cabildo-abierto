@@ -14,7 +14,6 @@ import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
-import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/queries/api";
@@ -55,6 +54,11 @@ const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-edi
     ssr: false,
     loading: () => <></>,
 })
+
+
+const InsertVisualizationModal = dynamic(() => import(
+    './insert-visualization-modal'
+))
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
