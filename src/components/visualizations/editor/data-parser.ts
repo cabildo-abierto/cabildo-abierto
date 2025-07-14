@@ -69,9 +69,9 @@ export class DataParser {
         if(typeof value == "string"){
             let num: number
             if(value.includes(",")){
-                num = Number(value.replace(".", "").replace(",", "."))
+                num = Number(value.replace("%", "").replace("$", "").replace(".", "").replace(",", "."))
             } else {
-                num = Number(value)
+                num = Number(value.replace("%", "").replace("$", ""))
             }
             if(!isNaN(num)){
                 return {success: true, value: num}
