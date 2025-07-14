@@ -140,8 +140,8 @@ const ConfigPanelVisualization = ({config, setConfig}: {
 }) => {
     return <>
         <Select
-            options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión", "Tabla"]}
-            value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : "Histograma"}
+            options={["", "Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión", "Tabla"]}
+            value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
             onChange={(v) => {
                 setConfig(produce(config, draft => {
                     if (!draft.spec) draft.spec = {}

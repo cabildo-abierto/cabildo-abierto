@@ -1,15 +1,15 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useProfile, useStatsDashboard} from "@/queries/api";
 import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
-import {DatasetTableView, RawDatasetView} from "@/components/datasets/dataset-table-view";
 import {Plot} from "@/components/visualizations/plot";
 import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {$Typed} from "@atproto/api";
+import {listOrderDesc, sortByKey} from "@/utils/arrays";
 
 
 export type StatsDashboard = {
-    lastUsers: (ProfileViewBasicCA & { lastReadSession: Date | null })[]
+    lastUsers: (ProfileViewBasicCA & { lastReadSession: Date | null, CAProfileCreatedAt?: Date })[]
     counts: {
         registered: number
         active: number
@@ -17,6 +17,7 @@ export type StatsDashboard = {
         verifiedActive: number
     }
     WAUPlot: { date: Date, count: number }[]
+    usersPlot: { date: Date, count: number }[]
     WAUPlotVerified: { date: Date, count: number }[]
     articlesPlot: {date: Date, count: number}[]
     topicVersionsPlot: {date: Date, count: number}[]
@@ -24,7 +25,7 @@ export type StatsDashboard = {
 }
 
 
-function recordListToRawDataset(rows: Record<string, any>[]): RawDatasetView {
+/*function recordListToRawDataset(rows: Record<string, any>[]): RawDatasetView {
     if (rows.length === 0) return {data: "[]", columns: []}
 
     const firstRow = rows[0]
@@ -49,7 +50,7 @@ function recordListToRawDataset(rows: Record<string, any>[]): RawDatasetView {
             name: k
         }))
     }
-}
+}*/
 
 
 const WAUPlot = ({data, title}: {
@@ -150,17 +151,20 @@ export const AdminStats = () => {
 
         <WAUPlot data={data.WAUPlot} title={"WAU"}/>
 
+        <WAUPlot data={data.usersPlot} title={"Registrados acumulados"}/>
+
         <WAUPlot data={data.articlesPlot} title={"Artículos"}/>
 
         <WAUPlot data={data.caCommentsPlot} title={"Comentarios"}/>
 
         <WAUPlot data={data.topicVersionsPlot} title={"Ediciones de temas"}/>
 
-        <DatasetTableView sort={false} dataset={recordListToRawDataset(data.lastUsers.map(u => ({
-            handle: u.handle,
-            createdAt: u.createdAt,
-            lastReadSession: u.lastReadSession,
-            verification: u.verification,
-        })))}/>
+        <div className={"font-mono pb-32"}>
+            {sortByKey(data.lastUsers, u => [new Date(u.createdAt).getTime()], listOrderDesc).map(u => {
+                return <div key={u.did}>
+                    @{u.handle} {u.displayName}
+                </div>
+            })}
+        </div>
     </div>
 }

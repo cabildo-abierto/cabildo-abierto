@@ -1,6 +1,5 @@
 import {scaleBand, ScaleConfig, scaleTime} from "@visx/scale";
 import {scaleLinear} from "@visx/scale";
-import {formatIsoDate} from "@/utils/dates";
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {useTooltip} from "@visx/tooltip";
 import {AxisScaleOutput} from "@visx/axis";
@@ -9,46 +8,25 @@ import {
     isTwoAxisPlot,
     Main as Visualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {DataParser} from "@/components/visualizations/editor/data-parser";
+import { timeFormatLocale } from 'd3-time-format'
 
-type DataRow = Record<string, any>
+export const esLocale = timeFormatLocale({
+    dateTime: '%A, %e de %B de %Y, %X',
+    date: '%d/%m/%Y',
+    time: '%H:%M:%S',
+    periods: ['', ''],
+    days: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    shortDays: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    months: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+        'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+    shortMonths: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul',
+        'ago', 'sep', 'oct', 'nov', 'dic']
+})
+
+export type DataRow = Record<string, any>
 export type DataPoint = {x: any, y: any}
 export type TooltipHookType = ReturnType<typeof useTooltip>
-
-function guessType(data: DataRow[], col: string): DataType {
-    let numCount = 0
-    let dateCount = 0
-    let stringCount = 0
-    let stringListCount = 0
-
-    const sampleSize = Math.min(20, data.length)
-    for (let i = 0; i < sampleSize; i++) {
-        const value = data[i][col]
-
-        if(value instanceof Array){
-            stringListCount ++
-            continue
-        }
-
-        if (value == null || value === '') continue;
-        if (!isNaN(Number(value))) {
-            numCount++
-            continue
-        }
-        const parsedDate = new Date(value)
-        if (!isNaN(parsedDate.getTime())) {
-            dateCount++
-            continue
-        }
-        stringCount++
-    }
-
-    const maxCount = Math.max(numCount, dateCount, stringCount, stringListCount)
-    if (maxCount === 0) return null
-    if (maxCount === numCount && dateCount === 0 && stringCount === 0 && stringListCount === 0) return "number"
-    if (maxCount === dateCount && numCount === 0 && stringCount === 0 && stringListCount === 0) return "date"
-    if (maxCount === stringListCount && numCount === 0 && dateCount === 0 && stringCount == 0) return "string[]"
-    return "string"
-}
 
 export type DataType = "number" | "string" | "date" | "string[]" | null
 export type ValueType = string | number | Date | string[] | null
@@ -68,6 +46,7 @@ type Axis = {
 export class Plotter {
     protected data: DataRow[] = [];
     public dataPoints: DataPoint[] = [];
+    public parser: DataParser = new DataParser()
 
     constructor(
         rawData: string,
@@ -89,28 +68,16 @@ export class Plotter {
         if(type == "string"){
             return v as string
         } else if(type == "date"){
-            return formatIsoDate(v as Date)
+            if(v instanceof Date){
+                const formater = this.parser.getDateFormater(v)
+                return formater(v)
+            } else {
+                return `Fecha inválida: ${v.toString()}`
+            }
         } else if(type == "number"){
             return Number(v).toFixed(2).toString()
         } else if(type == "string[]"){
             return (v as string[]).join(", ")
-        }
-    }
-
-    protected rawValueToDetectedType(v: any, type: DataType): ValueType | null {
-        if(v == undefined){
-            return null
-        }
-        if (type === "number") {
-            return parseFloat(v)
-        } else if (type === "date") {
-            const date = new Date(v)
-            if(!(date instanceof Date) || date.toString() == "Invalid Date"){
-                return null
-            }
-            return date
-        } else {
-            return String(v)
         }
     }
 
@@ -142,10 +109,11 @@ export class AxesPlotter extends Plotter {
         super(rawData, spec)
 
         if(isTwoAxisPlot(spec) || isOneAxisPlot(spec)){
+            const detectedType = this.parser.guessType(this.data, spec.xAxis)
             this.axes.push({
                 name: "x",
                 column: spec.xAxis,
-                detectedType: guessType(this.data, spec.xAxis)
+                detectedType
             })
         } else {
             throw Error(`Axis plot desconocido: ${spec.$type}`)
@@ -284,6 +252,13 @@ export class AxesPlotter extends Plotter {
     yValueToString(y: ValueType): string {
         throw Error("Debería estar implementado por una subclase.")
     }
+
+    getXTicksFormat() {
+        const detectedType = this.axes.find(a => a.name === "x")?.detectedType
+        if (detectedType !== "date" || !this.dataPoints.length) return undefined
+
+        return this.parser.getDateFormater(this.dataPoints[0].x)
+    }
 }
 
 
@@ -298,7 +273,7 @@ export class OneAxisPlotter extends AxesPlotter {
     public prepareForPlot() {
         const counts = new Map<ValueType, number>()
         this.data.forEach(row => {
-            const v = this.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
+            const v = this.parser.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
             if(v == null) return
             counts.set(v, (counts.get(v) ?? 0) + 1)
         })
@@ -326,7 +301,7 @@ export class TwoAxisPlotter extends AxesPlotter {
             this.axes.push({
                 name: "y",
                 column: spec.yAxis,
-                detectedType: guessType(this.data, spec.yAxis)
+                detectedType: this.parser.guessType(this.data, spec.yAxis)
             })
         } else {
             throw Error("Debería ser un TwoAxisPlot!")
@@ -338,8 +313,8 @@ export class TwoAxisPlotter extends AxesPlotter {
 
     private createDataPoints(): void {
         this.dataPoints = this.data.map(row => {
-            let x: ValueType = this.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
-            let y: ValueType = this.rawValueToDetectedType(row[this.yAxis.column], this.yAxis.detectedType)
+            let x: ValueType = this.parser.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
+            let y: ValueType = this.parser.rawValueToDetectedType(row[this.yAxis.column], this.yAxis.detectedType)
 
             return { x, y }
         })
@@ -384,7 +359,7 @@ export class TablePlotter extends Plotter {
         if(this.data.length > 0){
             const d0 = this.data[0]
             Object.entries(d0).forEach(([colName, _]) => {
-                const t = guessType(this.data, colName)
+                const t = this.parser.guessType(this.data, colName)
                 this.columnTypes.set(colName, t)
             })
         }
@@ -395,7 +370,12 @@ export class TablePlotter extends Plotter {
     }
 
     columnValueToString(value: any, col: string): string {
-        return this.valueToString(value, this.columnTypes.get(col))
+        const parsed = this.parser.parseValue(value)
+        if(parsed.success){
+            return this.valueToString(parsed.value, parsed.dataType)
+        } else {
+            return "Valor inválido."
+        }
     }
 
     cmpValues(col: string, a: any, b: any){

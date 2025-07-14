@@ -47,7 +47,6 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
                     {topic.popularity && <TopicPopularityIndicator
                         selected={selected}
                         counts={topic.popularity}
-                        paddingBottom={2}
                     />}
                 </div>
             })}

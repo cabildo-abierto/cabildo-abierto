@@ -43,7 +43,7 @@ const FeedConfig = () => {
                     labelShrinkFontSize={"14px"}
                     textClassName={"text-sm text-[var(--text)]"}
                 />
-                <Select
+                {metric != "Recientes" && <Select
                     options={["Último día", "Última semana", "Último mes"]}
                     onChange={setTime}
                     value={time}
@@ -51,7 +51,7 @@ const FeedConfig = () => {
                     labelShrinkFontSize={"14px"}
                     label={"Período"}
                     textClassName={"text-sm text-[var(--text)]"}
-                />
+                />}
             </div>
         </div>
     )
@@ -67,14 +67,17 @@ const FeedConfig = () => {
 }
 
 
+export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir"
+
+
 export const MainFeedHeader = ({
                                    selected, onSelection
                                }: {
-    selected: string
-    onSelection: (v: string) => void
+    selected: MainFeedOption
+    onSelection: (v: MainFeedOption) => void
 }) => {
 
-    function optionsNodes(o: string, isSelected: boolean) {
+    function optionsNodes(o: MainFeedOption, isSelected: boolean) {
         const id = optionToSearchParam(o)
 
         return <div className="text-[var(--text)]" id={id}>
@@ -97,9 +100,9 @@ export const MainFeedHeader = ({
     return <div className="flex flex-col border-b">
         <MobileHeader/>
         <div className={"flex justify-between items-center pr-1"}>
-            <SelectionComponent
+            <SelectionComponent<MainFeedOption>
                 onSelection={onSelection}
-                options={["Siguiendo", "En discusión"]}
+                options={["Siguiendo", "En discusión", "Descubrir"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 className="flex"
