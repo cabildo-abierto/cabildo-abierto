@@ -165,16 +165,13 @@ export const AdminAcceso = () => {
         </div>
 
         <AdminSection title={"Códigos de acceso"}>
-            {codes && <div className={"flex flex-col space-y-2 max-h-[400px] overflow-y-scroll px-4"}>
-                {codes.map(c => {
-                    return <button className="hover:bg-[var(--background-dark)] p-1 rounded" key={c} onClick={() => {
-                        copyCode(c)
-                    }}>
-                        {c}
-                    </button>
-                })}
+            <div>
+                {codes &&
+                    <div className={"font-mono whitespace-pre-line"}>
+                        {codes.map(c => `https://www.cabildoabierto.ar/login?c=${c}`).join("\n")}
+                    </div>
+                }
             </div>
-            }
         </AdminSection>
 
         <AdminSection title={"Usuarios de CA"}>
