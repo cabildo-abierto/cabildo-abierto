@@ -5,7 +5,7 @@ export const PlotCaption = ({caption, fontSize = 14}: { caption?: string, fontSi
     if (!caption) return null;
 
     return <div
-        className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1 px-2 break-all"
+        className="italic text-center text-[var(--text-light)] h-[20px] leading-[20px] mt-1 px-2"
         style={{fontSize}}
     >
         {caption}
