@@ -14,7 +14,6 @@ import {useTopicHistory} from "@/queries/api";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import {useSession} from "@/queries/api";
 import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
@@ -44,7 +43,7 @@ const EditDetails = ({topicHistory, index}: { topicHistory: TopicHistory, index:
 
 
 const EditMessage = ({msg}: { msg?: string }) => {
-    return <span className="text-sm">
+    return <span className="text-sm truncate text-ellipsis">
         {(msg != null && msg.length > 0) ? msg : ""}
     </span>
 }
@@ -63,7 +62,7 @@ export const TopicProperties = ({topicVersion, topic}: { topicVersion: VersionIn
     </div>
 
     return <ModalOnHover modal={modal}>
-        <div className={"text-[var(--text-light)]"}>
+        <div className={"text-[var(--text-light)]"} onClick={e => {e.stopPropagation()}}>
             <IconButton
                 size={"small"}
                 textColor={"text-light"}
@@ -114,13 +113,6 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                             <StarIcon color="primary" fontSize={"inherit"}/>
                         </div>}
                         <EditDetails topicHistory={topicHistory} index={index}/>
-                        {topicVersion.message &&
-                            <div className={"text-[var(--text-light)] pl-2 flex items-baseline"}>
-                                <EditMessage
-                                    msg={topicVersion.message}
-                                />
-                            </div>
-                        }
                         {obsolete && <div className={"text-red-400 pl-2"}>
                             Formato obsoleto
                         </div>}
@@ -140,6 +132,13 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                         />
                     </div>
                 </div>
+                {topicVersion.message &&
+                    <div className={"text-[var(--text-light)] flex items-baseline"}>
+                        <EditMessage
+                            msg={topicVersion.message}
+                        />
+                    </div>
+                }
                 <div className={"flex justify-between w-full space-y-1"}>
                     <div className="flex flex-col w-full mt-2">
                         <div className="text-xs flex space-x-1 text-[var(--text-light)]">
@@ -269,7 +268,6 @@ function getTopicContributors(history: TopicHistory): TopicContributor[] {
 
 
 const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: TopicContributor[] }) => {
-    const [monetized, setMonetized] = useState(false)
     const [open, setOpen] = useState(false)
 
     return <div className={"border px-2 py-1 rounded-lg"}>
@@ -278,26 +276,21 @@ const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: Topic
                 Contribuciones
             </div>
             <div className={"text-base"}>
-                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {setOpen(!open)}} color="transparent" textColor={monetized ? "text" : "text-light"}>
+                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {setOpen(!open)}} color="transparent" textColor={"text"}>
                     {!open ? <ArrowDropDownIcon fontSize={"inherit"} /> : <ArrowDropUpIcon fontSize={"inherit"}/>}
                 </IconButton>
             </div>
         </div>
-        {open && <div>
+        {open && <div className={"text-[var(--text-light)]"}>
             <div className="flex flex-wrap space-x-2 text-sm">
                 {topicVersionAuthors.map((c, index) => {
                     return <div key={index}
                                 className={"flex space-x-1 items-center rounded-lg"}>
                         <ProfilePic user={c.profile} className={"rounded-full w-4 h-4"}/>
-                        <span>({((monetized ? c.monetized : c.all) * 100).toFixed(1)}%)</span>
+                        <span>({(c.all * 100).toFixed(1)}%)</span>
                     </div>
                 })}
             </div>
-            {topicVersionAuthors.length > 1 && <div className={"text-sm flex justify-end"}>
-                <IconButton size="small" onClick={() => {setMonetized(!monetized)}} color="transparent" textColor={monetized ? "text" : "text-light"}>
-                    <AttachMoneyIcon fontSize={"inherit"}/>
-                </IconButton>
-            </div>}
         </div>}
     </div>
 }
@@ -329,7 +322,7 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
         <div className={"flex justify-end py-1"}>
             <TopicVersionAuthors topicVersionAuthors={contributors}/>
         </div>
-        <div className="hidden min-[800px]:block border-t">
+        <div className="border-t">
             {topicHistory.versions.map((_, index) => {
                 const versionIndex = topicHistory.versions.length - 1 - index
                 return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
@@ -340,11 +333,7 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
                         viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.versions[versionIndex].uri}
                     />
                 </div>
-            })}</div>
-        <div className="text-sm text-center block min-[800px]:hidden text-[var(--text-light)]">
-            <p className={"py-2"}>
-                Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).
-            </p>
+            })}
         </div>
     </>
 }
