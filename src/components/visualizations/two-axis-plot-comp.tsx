@@ -312,6 +312,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 top={plotInnerHeight}
                                 scale={axisBottomScale}
                                 stroke="var(--text-light)"
+                                tickFormat={plotter.getXTicksFormat()}
                                 tickStroke="var(--text-light)"
                                 label={spec.xLabel ?? spec.xAxis}
                                 numTicks={(plotter.isBarplot() || plotter.isHistogram()) ? 1000000 : undefined}

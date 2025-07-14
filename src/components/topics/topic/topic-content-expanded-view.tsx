@@ -1,4 +1,4 @@
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
 import {LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
 import {SaveEditPopup} from "./save-edit-popup";
@@ -214,6 +214,18 @@ export const TopicContentExpandedViewWithVersion = ({
 
     const saveEnabled = true
 
+    const content = useMemo(() => {
+        return <TopicContentExpandedViewContent
+            editor={editor}
+            setEditor={setEditor}
+            topic={topic}
+            pinnedReplies={pinnedReplies}
+            setPinnedReplies={setPinnedReplies}
+            quoteReplies={quoteReplies}
+            wikiEditorState={wikiEditorState}
+        />
+    }, [editor, setEditor, topic, pinnedReplies, setPinnedReplies, quoteReplies, wikiEditorState])
+
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
         <div className={"w-full"}>
             <TopicContentExpandedViewHeader
@@ -240,15 +252,7 @@ export const TopicContentExpandedViewWithVersion = ({
 
             {wikiEditorState == "props" && <TopicPropsView topic={topic}/>}
 
-            {wikiEditorState != "editing-props" && <TopicContentExpandedViewContent
-                editor={editor}
-                setEditor={setEditor}
-                topic={topic}
-                pinnedReplies={pinnedReplies}
-                setPinnedReplies={setPinnedReplies}
-                quoteReplies={quoteReplies}
-                wikiEditorState={wikiEditorState}
-            />}
+            {content}
 
             {showingSaveEditPopup && <SaveEditPopup
                 open={showingSaveEditPopup}

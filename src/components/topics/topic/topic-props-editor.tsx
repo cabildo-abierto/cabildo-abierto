@@ -109,11 +109,12 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 value={isNaN(p.value.value) ? 0 : p.value.value}
                 size={"small"}
                 onChange={(e) => {
+                    const v = parseInt(e.target.value)
                     setProp({
                         ...p,
                         value: {
                             $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
-                            value: parseInt(e.target.value) ?? 0
+                            value: v && !isNaN(v) ? v : 0
                         }
                     })
                 }}

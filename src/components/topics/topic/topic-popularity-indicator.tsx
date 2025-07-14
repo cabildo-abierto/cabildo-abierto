@@ -5,7 +5,9 @@ import {TopicPopularity} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersi
 import {TimePeriod} from "@/queries/api";
 
 
-export default function TopicPopularityIndicator({counts, selected, paddingBottom=3}: {counts: TopicPopularity, selected: TimePeriod, paddingBottom?: number}) {
+export default function TopicPopularityIndicator({counts, selected}: {
+    counts: TopicPopularity, selected: TimePeriod
+}) {
 
     let count: number | undefined
     let periodText: string | undefined
@@ -26,9 +28,9 @@ export default function TopicPopularityIndicator({counts, selected, paddingBotto
         description={`${count} persona${count == 1 ? " participó" : "s participaron"} en la discusión sobre el tema en ${periodText}.`}
         moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas")}
     >
-        <div className={"text-[var(--text-light)] text-xs flex items-end"} id={"topic-popularity"}>
+        <div className={"text-[var(--text-light)] text-xs flex items-center"} id={"topic-popularity"}>
             <div>{count}</div>
-            <div style={{paddingBottom}}> {/*Por algún motivo se ve distinto en el slider*/}
+            <div>
                 <ValidationIcon
                     fontSize={10}
                     validation={"person"}

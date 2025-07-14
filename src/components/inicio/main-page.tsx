@@ -1,6 +1,6 @@
 "use client"
 
-import {MainFeedHeader} from "./main-feed-header"
+import {MainFeedHeader, MainFeedOption} from "./main-feed-header"
 import {useSearchParams} from "next/navigation";
 import React from "react";
 import {getFeed} from "@/components/feed/feed/get-feed";
@@ -40,7 +40,7 @@ export const MainPage = () => {
     const selected = paramsFeed ? searchParamToOption(paramsFeed) : "Siguiendo"
     const {metric, time} = useEnDiscusionParams()
 
-    function onSelection(v: string) {
+    function onSelection(v: MainFeedOption) {
         updateSearchParam("f", optionToSearchParam(v))
     }
 
