@@ -318,7 +318,6 @@ export class TwoAxisPlotter extends AxesPlotter {
 
             return { x, y }
         })
-        console.log(this.dataPoints)
     }
 
     private groupSameX(): void {

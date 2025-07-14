@@ -71,7 +71,9 @@ export const TopicPage = ({topicId, did, rkey}: {
     }
 
     const onClickQuote = (cid: string) => {
-        setPinnedReplies([cid])
+        if(!pinnedReplies.includes(cid)){
+            setPinnedReplies([cid])
+        }
         if (wikiEditorState != "minimized") {
             const elem = document.getElementById("selection:" + cid)
             if (elem) {

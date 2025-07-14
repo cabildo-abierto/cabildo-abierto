@@ -105,6 +105,7 @@ const TopicContentExpandedViewContent = ({
                     }
                     {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
                         uri={topic.uri}
+                        cid={topic.cid}
                         settings={getEditorSettings({
                             isReadOnly: true,
                             initialText: topic.text,
