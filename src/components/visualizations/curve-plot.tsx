@@ -14,6 +14,7 @@ export function CurvePlotContent({
                                      scaleFactorY,
                                      scaleFactorX,
                                      markerRadius = 4,
+    margin
                                  }: {
     data: DataPoint[];
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>;
@@ -24,19 +25,25 @@ export function CurvePlotContent({
     scaleFactorY: number;
     /** Radius (in px) of the point markers. Scaled internally by scaleFactor props. */
     markerRadius?: number;
+    margin: {left: number}
 }) {
     // Scale marker radius based on the current zoom so it remains visually consistent.
     const effectiveRadius = markerRadius * Math.min(scaleFactorX, scaleFactorY);
 
     const handleMouseMove = (event: React.MouseEvent<SVGPathElement | SVGCircleElement>) => {
-        const { x } = localPoint(event) || { x: 0 };
+        const point = localPoint(event);
+        if (!point) return;
+
+        const x = point.x - margin.left
+
         const nearest = data.reduce((prev, curr) =>
-            Math.abs((xScale(curr.x) ?? 0) - x) < Math.abs((xScale(prev.x) ?? 0) - x) ? curr : prev,
+            Math.abs((xScale(curr.x) ?? 0) - x) < Math.abs((xScale(prev.x) ?? 0) - x) ? curr : prev
         );
+
         showTooltip({
             tooltipData: nearest,
             tooltipLeft: xScale(nearest.x),
-            tooltipTop: yScale(nearest.y),
+            tooltipTop: yScale(nearest.y)+15,
         });
     };
 

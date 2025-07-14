@@ -318,6 +318,7 @@ export class TwoAxisPlotter extends AxesPlotter {
 
             return { x, y }
         })
+        console.log(this.dataPoints)
     }
 
     private groupSameX(): void {
@@ -326,6 +327,8 @@ export class TwoAxisPlotter extends AxesPlotter {
         this.dataPoints.forEach((d: any) => {
             if (d.x != null && !isNaN(d.y)) {
                 grouped.set(d.x, [...(grouped.get(d.x) ?? []), d.y])
+            } else {
+                console.log(d, "is not being set")
             }
         });
 
