@@ -15,6 +15,7 @@ import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection
 import {useTrackReading} from "@/components/article/read-tracking/track-reading";
 import {useSession} from "@/queries/api";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
+import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 
 const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -22,6 +23,7 @@ const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-
 
 type EditorWithQuoteCommentsProps = {
     uri: string
+    cid: string
     settings: SettingsProps
     replyTo: ReplyToContent
     setEditor: (editor: LexicalEditor) => void
@@ -67,6 +69,7 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 
 export const EditorWithQuoteComments = ({
     uri,
+    cid,
     settings,
     replyTo,
     editor,
@@ -119,14 +122,21 @@ export const EditorWithQuoteComments = ({
             setBlockToUri(new Map<number, string[]>())
             return
         }
+
+        // por ahora, no mostramos ningún comentario que haya citado una versión anterior del contenido
+        // sí los mostramos en la sección de discusión
+        const filteredReplies = quoteReplies.filter(r => {
+            return (r.record as PostRecord).reply.parent.cid == cid
+        })
+
         const m = new Map<number, string[]>()
-        for (let i = 0; i < quoteReplies.length; i++) {
-            const selection = quoteReplies[i].embed
+        for (let i = 0; i < filteredReplies.length; i++) {
+            const selection = filteredReplies[i].embed
             if (isSelectionQuoteView(selection)) {
                 const markdownSelection = new MarkdownSelection(selection.start, selection.end)
                 const lexicalSelection = markdownSelection.toLexicalSelection(normalizedEditorState)
                 const key = lexicalSelection.start.node[0]
-                const value = quoteReplies[i].uri
+                const value = filteredReplies[i].uri
                 if (m.has(key)) {
                     m.set(key, [...m.get(key), value])
                 } else {

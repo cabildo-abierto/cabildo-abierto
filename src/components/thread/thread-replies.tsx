@@ -38,7 +38,9 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                         if (isThreadViewContent(r) && isPostView(r.content)) {
                             setPinnedReplies([r.content.cid])
                             const elem = document.getElementById("selection:" + r.content.cid)
-                            smoothScrollTo(elem)
+                            if(elem) {
+                                smoothScrollTo(elem)
+                            }
                         }
                     }
 
