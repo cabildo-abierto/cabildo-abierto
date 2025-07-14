@@ -4,12 +4,16 @@ import {
     Main as Visualization,
     DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource, isTable
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {DatasetView, TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
+import {
+    DatasetView,
+    isDatasetView,
+    isTopicsDatasetView,
+    TopicsDatasetView
+} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {useDataset} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
-import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -17,17 +21,22 @@ import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@atproto/api";
-import { pxToNumber } from "@/utils/strings";
+import {pxToNumber} from "@/utils/strings";
 import TableVisualizationComp from "@/components/visualizations/table-visualization-comp";
+import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
+import {Authorship} from "@/components/feed/frame/authorship";
+import {DateSince} from "../../../modules/ui-utils/src/date";
+import {contentUrl} from "@/utils/uri";
+import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
 
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
-
+const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
 
 export const ResponsivePlot = ({
                                    visualization,
-    maxWidth,
-    maxHeight
+                                   maxWidth,
+                                   maxHeight
                                }: {
     visualization: VisualizationView
     maxWidth?: number
@@ -40,7 +49,7 @@ export const ResponsivePlot = ({
             maxWidth={maxWidth}
             maxHeight={maxHeight}
         />
-    } else if(isTable(visualization.visualization.spec)) {
+    } else if (isTable(visualization.visualization.spec)) {
         return <TableVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
@@ -51,6 +60,65 @@ export const ResponsivePlot = ({
         Esta configuración por ahora no está soportada.
     </div>
 };
+
+
+const PlotData = ({visualization}: { visualization: VisualizationView }) => {
+    const dataset = visualization.dataset
+
+    const href = isDatasetView(dataset) ? contentUrl(dataset.uri) : null
+
+    const modal = (onClose: () => void) => <div className={""}>
+        {isDatasetView(dataset) && <div
+            className={"py-2 space-y-1 rounded-lg px-2 cursor-pointer bg-[var(--background-dark)]" + (href ? " hover:bg-[var(--background-dark2)]" : "")}
+            onClick={(e) => {e.stopPropagation(); if(href) window.open(href, "_blank")}}
+        >
+            <div className={"flex justify-between space-x-1"}>
+                <div className={"font-semibold text-[16px] break-all truncate"}>
+                    {dataset.name}
+                </div>
+            </div>
+            <div className={"max-w-[400px] text-sm line-clamp-5"}>
+                {dataset.description}
+            </div>
+            <div className={"text-sm text-[var(--text-light)] truncate flex space-x-1"}>
+                <div>Publicado por</div>
+                <Authorship author={dataset.author} onlyAuthor={true}/>
+            </div>
+            <div className={"text-[var(--text-light)] text-sm"}>
+                Hace <DateSince date={dataset.createdAt}/>
+            </div>
+        </div>}
+        {isTopicsDatasetView(dataset) && <div
+            className={"py-2 space-y-1 rounded-lg px-2 text-sm text-[var(--text-light)] cursor-pointer bg-[var(--background-dark)]"}
+        >
+            <div className={"font-semibold text-[var(--text)]"}>
+                Construído en base a propiedades en temas de la wiki.
+            </div>
+            <div className={""}>
+                Filtro usado:
+            </div>
+            <div className={"pointer-events-none"}>
+                <ChooseDatasetPanelFiltersConfig
+                    config={visualizationViewToMain(visualization)}
+                />
+            </div>
+        </div>}
+    </div>
+
+    return <ClickableModalOnClick id="datos" modal={modal}>
+        <Button
+            size={"small"}
+            color={"background-dark"}
+            sx={{
+                height: "28px"
+            }}
+        >
+            <span className={"font-semibold"}>
+                Datos
+            </span>
+        </Button>
+    </ClickableModalOnClick>
+}
 
 
 export const Plot = ({
@@ -69,31 +137,37 @@ export const Plot = ({
     const [editing, setEditing] = useState(false)
 
     return <div style={{height, width}} className={"relative not-article-content"}>
-        {(onEdit != null || onDelete != null) && <div
-            className={"absolute top-2 right-2 z-10 space-x-2"}
+        <div
+            className={"absolute top-0 right-0 z-10 space-x-2 flex justify-between w-full pt-2 px-2"}
         >
-            {onEdit && <Button
-                size={"small"}
-                startIcon={<WriteButtonIcon/>}
-                color={"background-dark2"}
-                onClick={() => {
-                    setEditing(true)
-                }}
-                sx={{height: "28px"}}
-            >
-                Editar
-            </Button>}
-            {onDelete && <IconButton
-                size={"small"}
-                color={"background-dark2"}
-                onClick={() => {
-                    onDelete()
-                }}
-                sx={{height: "28px"}}
-            >
-                <DeleteOutlineIcon fontSize={"inherit"}/>
-            </IconButton>}
-        </div>}
+            {!isTable(visualization.visualization.spec) && <PlotData visualization={visualization}/>}
+            <div className={"flex space-x-2"}>
+                {onEdit && <Button
+                    size={"small"}
+                    startIcon={<WriteButtonIcon/>}
+                    color={"background-dark2"}
+                    onClick={() => {
+                        setEditing(true)
+                    }}
+                    sx={{height: "28px"}}
+
+                >
+                <span className={"font-semibold"}>
+                    Editar
+                </span>
+                </Button>}
+                {onDelete && <IconButton
+                    size={"small"}
+                    color={"background-dark2"}
+                    onClick={() => {
+                        onDelete()
+                    }}
+                    sx={{height: "28px"}}
+                >
+                    <DeleteOutlineIcon fontSize={"inherit"}/>
+                </IconButton>}
+            </div>
+        </div>
         <ResponsivePlot
             visualization={visualization}
             maxWidth={width ? pxToNumber(width) : undefined}
@@ -155,7 +229,7 @@ const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, on
 
     if (isLoading) {
         return <div className={"py-4"}><LoadingSpinner/></div>
-    } else if(!data) {
+    } else if (!data) {
         return null
     }
 
@@ -184,7 +258,7 @@ export const PlotFromVisualizationMain = ({visualization, height, width, onEdit,
             onEdit={onEdit}
             onDelete={onDelete}
         />
-    } else if(isTopicsDataSource(visualization.dataSource)) {
+    } else if (isTopicsDataSource(visualization.dataSource)) {
         return <TopicsDatasetPlotFromMain
             visualization={visualization}
             dataSource={visualization.dataSource}

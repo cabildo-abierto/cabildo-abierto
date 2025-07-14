@@ -16,10 +16,10 @@ import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
 import {LexicalPointer} from "./selection/lexical-selection";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
-import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {

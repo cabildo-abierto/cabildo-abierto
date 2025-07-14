@@ -65,17 +65,23 @@ export class DataParser {
         return {success: false}
     }
 
-    parseNumber(value: string): {success: true, value: number} | {success: false} {
-        let num: number
-        if(value.includes(",")){
-            num = Number(value.replace(".", "").replace(",", "."))
+    parseNumber(value: any): {success: true, value: number} | {success: false} {
+        if(typeof value == "string"){
+            let num: number
+            if(value.includes(",")){
+                num = Number(value.replace(".", "").replace(",", "."))
+            } else {
+                num = Number(value)
+            }
+            if(!isNaN(num)){
+                return {success: true, value: num}
+            }
+            return {success: false}
+        } else if(typeof value == "number"){
+            return {success: true, value: value}
         } else {
-            num = Number(value)
+            return {success: false}
         }
-        if(!isNaN(num)){
-            return {success: true, value: num}
-        }
-        return {success: false}
     }
 
     parseValue(value: any): ParsingResult {

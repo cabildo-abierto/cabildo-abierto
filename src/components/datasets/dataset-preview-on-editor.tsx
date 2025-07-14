@@ -1,9 +1,9 @@
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Authorship} from "@/components/feed/frame/authorship";
 
 export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
-    dataset: DatasetViewBasic,
+    dataset: DatasetViewBasic | DatasetView,
     selected: boolean,
     onClick: () => void
 }) => {

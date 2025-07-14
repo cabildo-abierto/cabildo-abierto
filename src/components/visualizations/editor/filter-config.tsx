@@ -36,7 +36,7 @@ function operandToView(op: string) {
 
 export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
     config: PlotConfigProps
-    setConfig: (c: PlotConfigProps) => void
+    setConfig?: (c: PlotConfigProps) => void
     index: number
     onRemove: () => void
     dataset?: DatasetViewBasic
@@ -112,7 +112,7 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                     />}
                 </div>
             </div>
-            <CloseButton onClose={onRemove} size={"small"}/>
+            {setConfig && <CloseButton onClose={onRemove} size={"small"}/>}
         </div>
     }
 }

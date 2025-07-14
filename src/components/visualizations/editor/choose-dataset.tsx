@@ -143,7 +143,7 @@ const ChooseDatasetPanelDatasetSelection = ({
 }
 
 
-const ChooseDatasetPanelFiltersConfig = ({
+export const ChooseDatasetPanelFiltersConfig = ({
                                                 config,
                                                 setConfig,
                                                 setSelectedMenu,
@@ -151,8 +151,8 @@ const ChooseDatasetPanelFiltersConfig = ({
     onReloadData
                                             }: {
     config: PlotConfigProps
-    setConfig: (c: PlotConfigProps) => void
-    setSelectedMenu: (v: "Conjuntos de datos" | "Filtros") => void
+    setConfig?: (c: PlotConfigProps) => void
+    setSelectedMenu?: (v: "Conjuntos de datos" | "Filtros") => void
     datasets?: DatasetViewBasic[]
     onReloadData?: StateButtonClickHandler
 }) => {
@@ -198,9 +198,9 @@ const ChooseDatasetPanelFiltersConfig = ({
                     />
                 </div>
             })}
-            <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
+            {setConfig && <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
                 Nuevo filtro
-            </Button>
+            </Button>}
         </div>
 
         {onReloadData && <div className={"flex justify-end w-full"}>

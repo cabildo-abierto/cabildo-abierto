@@ -8,7 +8,7 @@ import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {updateSearchParam} from "@/utils/fetch";
 
 
-export function optionToSearchParam(v: string) {
+export function mainFeedOptionToSearchParam(v: MainFeedOption) {
     if (v == "Siguiendo") return "siguiendo"
     if (v == "En discusión") return "discusion"
     if (v == "Descubrir") return "descubrir"
@@ -16,7 +16,7 @@ export function optionToSearchParam(v: string) {
 }
 
 
-export function searchParamToOption(v: string) {
+export function searchParamToMainFeedOption(v: string): MainFeedOption {
     if (v == "siguiendo") return "Siguiendo"
     if (v == "discusion") return "En discusión"
     if (v == "descubrir") return "Descubrir"
@@ -37,11 +37,11 @@ export function useEnDiscusionParams(){
 export const MainPage = () => {
     const params = useSearchParams()
     const paramsFeed = params.get("f")
-    const selected = paramsFeed ? searchParamToOption(paramsFeed) : "Siguiendo"
+    const selected = paramsFeed ? searchParamToMainFeedOption(paramsFeed) : "Siguiendo"
     const {metric, time} = useEnDiscusionParams()
 
     function onSelection(v: MainFeedOption) {
-        updateSearchParam("f", optionToSearchParam(v))
+        updateSearchParam("f", mainFeedOptionToSearchParam(v))
     }
 
     return <div className="w-full min-[500px]:mt-10 mt-20">
@@ -56,14 +56,14 @@ export const MainPage = () => {
                 getFeed={getFeed({type: "siguiendo"})}
                 noResultsText={"No se encontraron contenidos. Buscá usuarios para seguir."}
                 endText={"Fin del feed."}
-                queryKey={["main-feed", optionToSearchParam(selected)]}
+                queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
             />}
         {selected == "En discusión" &&
             <FeedViewContentFeed
                 getFeed={getFeed({type: "discusion", params: {metric, time}})}
                 noResultsText={"No hay contenidos en discusión."}
                 endText={"Fin del feed."}
-                queryKey={["main-feed", optionToSearchParam(selected), metric, time]}
+                queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time]}
             />}
     </div>
 }

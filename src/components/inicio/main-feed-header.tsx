@@ -1,6 +1,6 @@
 import SelectionComponent from "@/components/buscar/search-selection-component"
 import {MobileHeader} from "../layout/mobile-header";
-import {optionToSearchParam, useEnDiscusionParams} from "@/components/inicio/main-page";
+import {mainFeedOptionToSearchParam, useEnDiscusionParams} from "@/components/inicio/main-page";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
 import {Select} from "../../../modules/ui-utils/src/select";
@@ -78,7 +78,7 @@ export const MainFeedHeader = ({
 }) => {
 
     function optionsNodes(o: MainFeedOption, isSelected: boolean) {
-        const id = optionToSearchParam(o)
+        const id = mainFeedOptionToSearchParam(o)
 
         return <div className="text-[var(--text)]" id={id}>
             <Button
@@ -102,7 +102,7 @@ export const MainFeedHeader = ({
         <div className={"flex justify-between items-center pr-1"}>
             <SelectionComponent<MainFeedOption>
                 onSelection={onSelection}
-                options={["Siguiendo", "En discusión", "Descubrir"]}
+                options={["Siguiendo", "En discusión"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 className="flex"

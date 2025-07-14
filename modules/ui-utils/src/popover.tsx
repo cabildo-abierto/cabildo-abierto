@@ -53,6 +53,12 @@ export const ClickableModalOnClick = ({
                     boxShadow: 'none'
                 }
             }}
+            sx={{
+                '& .MuiPopover-paper': {
+                    marginTop: '4px'
+                }
+            }}
+            disableScrollLock={true}
         >
             {modal(handleClose)}
         </Popover>
