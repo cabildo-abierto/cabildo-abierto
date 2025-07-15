@@ -346,7 +346,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 }}
             </Zoom>
             <div style={{maxWidth: svgWidth, height: captionHeight}}>
-            <PlotCaption caption={vis.caption} fontSize={15 * Math.min(scaleFactorX, scaleFactorY)}/>
+            <PlotCaption caption={vis.caption} fontSize={Math.min(15, 16 * Math.min(scaleFactorX, scaleFactorY))}/>
             </div>
         </div>
     );

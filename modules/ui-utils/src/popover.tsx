@@ -30,7 +30,7 @@ export const ClickableModalOnClick = ({
     const open = Boolean(anchorEl)
 
     return <>
-        <div aria-describedby={id} ref={buttonRef} onClick={handleClick}>
+        <div aria-describedby={id} ref={buttonRef} onClick={(e) => {e.stopPropagation(); handleClick()}}>
             <DescriptionOnHover description={!open ? description : undefined}>
                 {children}
             </DescriptionOnHover>
@@ -59,6 +59,7 @@ export const ClickableModalOnClick = ({
                 }
             }}
             disableScrollLock={true}
+            onClick={(e => {e.stopPropagation()})}
         >
             {modal(handleClose)}
         </Popover>
