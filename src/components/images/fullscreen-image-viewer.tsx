@@ -11,13 +11,11 @@ import {ATProtoImage} from "@/components/images/atproto-image";
 const FullscreenImageViewer = ({
                                           images,
                                           viewing,
-                                          did,
                                           setViewing,
                                           className = ""
                                       }: {
     images: (ViewImage | string)[]
     viewing: number | null
-    did?: string
     setViewing: (i: number | null) => void
     className?: string
 }) => {
@@ -65,15 +63,16 @@ const FullscreenImageViewer = ({
                             </IconButton>
                         ) : null}
                     </div>
+                    <div className={"w-[800px] flex justify-center"}>
                     <ATProtoImage
                         img={images[viewing]}
-                        did={did}
-                        className={"h-screen w-[800px] object-contain pointer-events-none " + className}
+                        className={"z-[3000] object-cover " + className}
                         onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault()
                         }}
                     />
+                    </div>
                     <div className="w-24 px-2 z-[1022] flex flex-col justify-between items-center mt-4">
                         <CloseButton onClose={() => {
                             setViewing(null)

@@ -2,6 +2,7 @@ import {Profile} from "@/lib/types";
 import {useState} from "react";
 import {FollowCount} from "@/components/profile/follow/followx";
 import BlueskyLogo from "@/components/icons/bluesky-logo";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
 export const FollowCounters = ({profile}: { profile: Profile }) => {
     const followersCountCA = profile.ca ? profile.ca.followersCount : undefined
@@ -11,7 +12,7 @@ export const FollowCounters = ({profile}: { profile: Profile }) => {
     const [hovered, setHovered] = useState(false)
 
     const showBsky = hovered || !profile.ca || !profile.ca.inCA
-    const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg px-2 py-1 cursor-pointer " + (showBsky ? "bg-[var(--background-dark)]" : "")
+    const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
 
     return <div className={className}
         onMouseEnter={() => {
@@ -32,7 +33,9 @@ export const FollowCounters = ({profile}: { profile: Profile }) => {
                          url={"/perfil/" + profile.bsky.handle + "/seguidores"}/>
             <FollowCount count={followingCountAT} kind={"siguiendo"}
                          url={"/perfil/" + profile.bsky.handle + "/siguiendo"}/>
-            <BlueskyLogo className={"h-4 w-auto"}/>
+            <DescriptionOnHover description={"Cantidad de seguidores y seguidos en Bluesky."}>
+                <BlueskyLogo className={"h-4 w-auto"}/>
+            </DescriptionOnHover>
         </>}
     </div>
 }

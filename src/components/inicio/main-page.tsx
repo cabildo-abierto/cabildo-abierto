@@ -12,6 +12,7 @@ export function mainFeedOptionToSearchParam(v: MainFeedOption) {
     if (v == "Siguiendo") return "siguiendo"
     if (v == "En discusión") return "discusion"
     if (v == "Descubrir") return "descubrir"
+    if (v == "Artículos") return "articulos"
     return "siguiendo"
 }
 
@@ -20,11 +21,12 @@ export function searchParamToMainFeedOption(v: string): MainFeedOption {
     if (v == "siguiendo") return "Siguiendo"
     if (v == "discusion") return "En discusión"
     if (v == "descubrir") return "Descubrir"
+    if (v == "articulos") return "Artículos"
     return "Siguiendo"
 }
 
 
-export function useEnDiscusionParams(){
+export function useEnDiscusionParams() {
     const params = useSearchParams()
 
     const metric = params.get("m") ?? "Popularidad relativa"
@@ -52,18 +54,18 @@ export const MainPage = () => {
             />
         </div>
         {selected == "Siguiendo" &&
-            <FeedViewContentFeed
-                getFeed={getFeed({type: "siguiendo"})}
-                noResultsText={"No se encontraron contenidos. Buscá usuarios para seguir."}
-                endText={"Fin del feed."}
-                queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
-            />}
+        <FeedViewContentFeed
+            getFeed={getFeed({type: "siguiendo"})}
+            noResultsText={"No se encontraron contenidos. Buscá usuarios para seguir."}
+            endText={"Fin del feed."}
+            queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
+        />}
         {selected == "En discusión" &&
-            <FeedViewContentFeed
-                getFeed={getFeed({type: "discusion", params: {metric, time}})}
-                noResultsText={"No hay contenidos en discusión."}
-                endText={"Fin del feed."}
-                queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time]}
-            />}
+        <FeedViewContentFeed
+            getFeed={getFeed({type: "discusion", params: {metric, time}})}
+            noResultsText={"No hay contenidos en discusión."}
+            endText={"Fin del feed."}
+            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time]}
+        />}
     </div>
 }

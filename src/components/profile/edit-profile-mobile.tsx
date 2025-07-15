@@ -11,6 +11,8 @@ import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {useQueryClient} from "@tanstack/react-query";
+import FullscreenImageViewer from "@/components/images/fullscreen-image-viewer";
+import Link from "next/link";
 
 type Props = {
     open: boolean,
@@ -79,6 +81,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
     const {data: profile} = useProfile(user.handle)
     const [displayName, setDisplayName] = useState(profile.bsky.displayName ?? "")
     const [description, setDescription] = useState(profile.bsky.description ?? "")
+    const [viewingProfilePic, setViewingProfilePic] = useState<null | number>(null)
     const [banner, setBanner] = useState<ImagePayload | undefined>(profile.bsky.banner ? {
         $type: "url",
         src: profile.bsky.banner
@@ -134,7 +137,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                     /> :
                     <div
                         className={"bg-[var(--background-dark2)] w-full max-[680px]:h-auto h-[150px] cursor-pointer"}/>}
-                <div className={"absolute bottom-2 right-4 z-[1500]"}>
+                <div className={"absolute bottom-2 right-4 z-[1000]"}>
                     <IconButton
                         color={"background-dark"}
                         size={"small"}
@@ -153,6 +156,13 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                         height={400}
                         alt={profile.bsky.handle + " avatar"}
                         className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
+                        onClick={e => {e.stopPropagation(); setViewingProfilePic(0)}}
+                    />
+                    <FullscreenImageViewer
+                        images={[profilePic.src]}
+                        viewing={viewingProfilePic}
+                        setViewing={setViewingProfilePic}
+                        className={"rounded-full w-full max-w-[80vw] sm:max-w-[500px] aspect-square"}
                     />
                     <div className={"absolute bottom-1 right-1"}>
                         <IconButton
@@ -165,7 +175,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                 </div>
             </UploadImageModalOnClick>
         </div>
-        <div className={"my-8 px-8 flex flex-col space-y-8"}>
+        <div className={"my-8 px-8 flex flex-col space-y-8 min-[600px]:w-[600px] w-screen"}>
             <TextField
                 value={displayName}
                 label={"Nombre visible"}
@@ -184,6 +194,11 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                     setDescription(e.target.value)
                 }}
             />
+            <div className={"w-full flex"}>
+            <div className={"text-[var(--text-light)] text-sm"}>
+                Si la imagen no queda como querrías, probá <Link href={`https://bsky.app/profile/${profile.bsky.handle}`} target="_blank" className={"hover:underline font-semibold"}>editar tu perfil en Bluesky</Link>, que te permite recortar la imagen.
+            </div>
+            </div>
         </div>
     </BaseFullscreenPopup>
 }

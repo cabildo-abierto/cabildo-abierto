@@ -160,7 +160,7 @@ export const AdminStats = () => {
         <WAUPlot data={data.topicVersionsPlot} title={"Ediciones de temas"}/>
 
         <div className={"font-mono pb-32"}>
-            {sortByKey(data.lastUsers, u => [new Date(u.createdAt).getTime()], listOrderDesc).map(u => {
+            {sortByKey(data.lastUsers, u => [new Date(u.CAProfileCreatedAt).getTime()], listOrderDesc).map(u => {
                 return <div key={u.did}>
                     @{u.handle} {u.displayName}
                 </div>

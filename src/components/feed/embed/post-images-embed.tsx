@@ -26,7 +26,6 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
                 <div className="mt-2">
                     <ATProtoImage
                         img={img}
-                        did={did}
                         onClick={() => {
                             setViewing(0)
                         }}
@@ -40,7 +39,6 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
                         <div className={"w-1/2 h-full"} key={index}>
                             <ATProtoImage
                                 img={img}
-                                did={did}
                                 onClick={() => {
                                     setViewing(index)
                                 }}
@@ -57,7 +55,6 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
                     <div className="w-1/2 h-full">
                         <ATProtoImage
                             img={images[0]}
-                            did={did}
                             onClick={() => {
                                 setViewing(0)
                             }}
@@ -68,7 +65,6 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
                     <div className="w-1/2 space-y-1 flex flex-col justify-between h-[268px]">
                         <ATProtoImage
                             img={images[1]}
-                            did={did}
                             onClick={() => {
                                 setViewing(1)
                             }}
@@ -77,7 +73,6 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
                         />
                         <ATProtoImage
                             img={images[2]}
-                            did={did}
                             onClick={() => {
                                 setViewing(2)
                             }}
@@ -94,7 +89,6 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
                         <ATProtoImage
                             key={index}
                             img={img}
-                            did={did}
                             onClick={() => {
                                 setViewing(index)
                             }}
@@ -108,7 +102,7 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
     }
 
     return <>
-        {images && images.length > 0 && <FullscreenImageViewer did={did} images={images} viewing={viewing} setViewing={setViewing}/>}
+        {images && images.length > 0 && <FullscreenImageViewer images={images} viewing={viewing} setViewing={setViewing}/>}
         {imagesInPost}
     </>
 };
