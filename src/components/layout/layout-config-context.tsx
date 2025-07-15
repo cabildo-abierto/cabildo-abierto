@@ -93,7 +93,6 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         if(isArticle(collection)){
             config = articleConfig
         } else if(isDataset(collection)){
-            console.log("dataset! returning", feedConfig)
             config = datasetConfig
         } else {
             config = feedConfig
@@ -152,7 +151,6 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     const isMobile = useMediaQuery('(max-width:600px)')
 
     const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobile))
-    console.log(layoutConfig)
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {

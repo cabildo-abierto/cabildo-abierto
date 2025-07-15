@@ -128,7 +128,7 @@ export const TopicContentExpandedViewHeader = ({
                     sx={{borderRadius: 0}}
                     color={"background"}
                 >
-                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar edición</div>
+                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar</div>
                 </Button>
                 <Button
                     onClick={() => {
@@ -140,7 +140,7 @@ export const TopicContentExpandedViewHeader = ({
                     color={"background"}
                 >
                     <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>
-                        Guardar cambios
+                        Guardar
                     </div>
                 </Button>
             </div>

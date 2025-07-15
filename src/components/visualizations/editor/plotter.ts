@@ -298,10 +298,14 @@ export class TwoAxisPlotter extends AxesPlotter {
         super(rawData, spec)
 
         if(isTwoAxisPlot(spec)) {
+            const detectedType = this.parser.guessType(this.data, spec.yAxis)
+            if(detectedType != "number"){
+                throw Error("El eje y debería ser un número.")
+            }
             this.axes.push({
                 name: "y",
                 column: spec.yAxis,
-                detectedType: this.parser.guessType(this.data, spec.yAxis)
+                detectedType
             })
         } else {
             throw Error("Debería ser un TwoAxisPlot!")

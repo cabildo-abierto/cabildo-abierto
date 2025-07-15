@@ -12,7 +12,6 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {useDataset} from "@/queries/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {Button} from "../../../modules/ui-utils/src/button";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
@@ -106,17 +105,10 @@ const PlotData = ({visualization}: { visualization: VisualizationView }) => {
     </div>
 
     return <ClickableModalOnClick id="datos" modal={modal}>
-        <Button
-            size={"small"}
-            color={"background-dark"}
-            sx={{
-                height: "28px"
-            }}
+        <div className={"cursor-pointer text-[var(--text-light)] sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
         >
-            <span className={"font-semibold"}>
-                Datos
-            </span>
-        </Button>
+            Datos
+        </div>
     </ClickableModalOnClick>
 }
 
@@ -142,27 +134,23 @@ export const Plot = ({
         >
             {!isTable(visualization.visualization.spec) && <PlotData visualization={visualization}/>}
             <div className={"flex space-x-2"}>
-                {onEdit && <Button
-                    size={"small"}
-                    startIcon={<WriteButtonIcon/>}
-                    color={"background-dark2"}
+                {onEdit && <div
                     onClick={() => {
                         setEditing(true)
                     }}
-                    sx={{height: "28px"}}
-
+                    className={"flex items-center space-x-1 text-[var(--text-light)] cursor-pointer sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
                 >
-                <span className={"font-semibold"}>
-                    Editar
-                </span>
-                </Button>}
+                    <WriteButtonIcon fontSize={"inherit"}/>
+                    <div>
+                        Editar
+                    </div>
+                </div>}
                 {onDelete && <IconButton
                     size={"small"}
                     color={"background-dark2"}
                     onClick={() => {
                         onDelete()
                     }}
-                    sx={{height: "28px"}}
                 >
                     <DeleteOutlineIcon fontSize={"inherit"}/>
                 </IconButton>}
