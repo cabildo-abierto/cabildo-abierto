@@ -30,7 +30,7 @@ export const EmbedNodeComp = ({
     }
 
     if(isVisualization(embed)){
-        return <div className={"relative my-4 visualization"}>
+        return <div className={"relative mt-4 mb-8 visualization"}>
             <PlotFromVisualizationMain
                 visualization={embed}
                 onEdit={editable ? onEdit : undefined}

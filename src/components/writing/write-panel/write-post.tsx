@@ -315,7 +315,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                 <PlotFromVisualizationMain
                     visualization={visualization}
                     onDelete={() => {setVisualization(null)}}
-                    onEdit={() => {setVisualizationModalOpen(true)}}
+                    onEdit={(v) => {setVisualization(v)}}
                     width={450}
                 />
             </div>}
@@ -356,7 +356,10 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
             onClose={() => {
                 setVisualizationModalOpen(false)
             }}
-            onSave={setVisualization}
+            onSave={(v) => {
+                setVisualization(v)
+                setVisualizationModalOpen(false)
+            }}
             initialConfig={visualization}
         />
         <InsertImageModal

@@ -111,18 +111,26 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         measureRef(node)
     }, [tooltipContainerRef, measureRef])
 
-    const plotter = useMemo(() => {
+    const {plotter, error} = useMemo(() => {
         if (isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
-            const plotter = AxesPlotter.create(visualization.dataset.data, spec)
-            plotter.prepareForPlot()
-            return plotter
+            try {
+                const plotter = AxesPlotter.create(visualization.dataset.data, spec)
+                plotter.prepareForPlot()
+                return {plotter}
+            } catch (err) {
+                if(err instanceof Error) {
+                    return {error: err.message}
+                } else {
+                    return {error: "Ocurrió un error intentando crear el gráfico."}
+                }
+            }
         } else {
-            return null
+            return {error: "Configurá el conjunto de datos."}
         }
     }, [visualization.dataset, spec])
 
     if (!plotter) return <div>
-        Configurá el conjunto de datos.
+        {error}
     </div>
 
     const data = plotter.getDataPoints()
@@ -184,13 +192,15 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
 
     return (
         <div
-            className="relative w-full h-full flex flex-col justify-center items-center space-y-2"
+            className="relative w-full h-full flex flex-col justify-center items-center space-y-2 overflow-clip"
             ref={containerRef}
         >
-            <PlotTitle
+            <div style={{height: titleHeight, maxWidth: svgWidth}}>
+                <PlotTitle
                 title={vis.title}
                 fontSize={18 * Math.min(scaleFactorX, scaleFactorY)}
             />
+            </div>
             {tooltipOpen && tooltipData && (
                 <TooltipInPortal
                     top={tooltipTop}
@@ -335,7 +345,9 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                     </svg>
                 }}
             </Zoom>
+            <div style={{maxWidth: svgWidth, height: captionHeight}}>
             <PlotCaption caption={vis.caption} fontSize={15 * Math.min(scaleFactorX, scaleFactorY)}/>
+            </div>
         </div>
     );
 }
