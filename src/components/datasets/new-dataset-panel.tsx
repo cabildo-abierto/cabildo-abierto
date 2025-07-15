@@ -8,6 +8,7 @@ import {DatasetForTableView, DatasetTableView} from "./dataset-table-view";
 import Papa from 'papaparse';
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {post} from "@/utils/fetch";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -66,11 +67,21 @@ async function createDataset(dataset: CreateDatasetProps){
 export const NewDatasetPanel = ({open, onClose}: {
     open: boolean, onClose: () => void
 }) => {
+    const qc = useQueryClient()
     const [data, setData] = useState<File | null>(null)
     const [columns, setColumns] = useState<string[] | null>()
     const [rows, setRows] = useState<any[] | null>()
     const [name, setName] = useState<string>("")
     const [description, setDescription] = useState<string>("")
+
+    const createDatasetMutation = useMutation({
+        mutationFn: createDataset,
+        onSuccess: async ({data}) => {
+            qc.invalidateQueries({
+                predicate: query => query.queryKey.length > 0 && query.queryKey[0] == "datasets"
+            })
+        },
+    })
 
     function onSubmit(f: File, filename: string){
         setData(f)
@@ -101,7 +112,7 @@ export const NewDatasetPanel = ({open, onClose}: {
     }, [data])
 
     async function onUpload(){
-        const {error} = await createDataset({
+        const {error} = await createDatasetMutation.mutateAsync({
             name: name,
             columns,
             description,

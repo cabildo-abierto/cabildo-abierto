@@ -312,3 +312,16 @@ type AccessRequest = {
 export function useAccessRequests() {
     return useAPI<AccessRequest[]>("/access-requests", ["access-requests"])
 }
+
+export type UserSyncStatus = {
+    did: string
+    handle: string | null
+    mirrorStatus: string | null
+    CAProfile: {
+        createdAt: Date
+    } | null
+}
+
+export function useUsersSyncStatus() {
+    return useAPI<UserSyncStatus[]>("/sync-status", ["sync-status"])
+}

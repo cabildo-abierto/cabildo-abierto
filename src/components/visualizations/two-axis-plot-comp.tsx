@@ -114,7 +114,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const {plotter, error} = useMemo(() => {
         if (isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
             try {
-                const plotter = AxesPlotter.create(visualization.dataset.data, spec)
+                const plotter = AxesPlotter.create(spec, visualization.dataset)
                 plotter.prepareForPlot()
                 return {plotter}
             } catch (err) {

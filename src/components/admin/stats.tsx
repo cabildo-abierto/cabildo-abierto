@@ -6,6 +6,7 @@ import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed
 import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {$Typed} from "@atproto/api";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
+import {DateSince} from "../../../modules/ui-utils/src/date";
 
 
 export type StatsDashboard = {
@@ -162,7 +163,7 @@ export const AdminStats = () => {
         <div className={"font-mono pb-32"}>
             {sortByKey(data.lastUsers, u => [new Date(u.CAProfileCreatedAt).getTime()], listOrderDesc).map(u => {
                 return <div key={u.did}>
-                    @{u.handle} {u.displayName}
+                    @{u.handle} {u.displayName} <DateSince date={u.lastReadSession}/>
                 </div>
             })}
         </div>
