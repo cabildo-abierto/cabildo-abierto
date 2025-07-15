@@ -1,6 +1,5 @@
 import {ShareContentButton} from "./share-content-button";
 import {
-    contentUrl,
     getBlueskyUrl,
     getCollectionFromUri,
     getDidFromUri,
@@ -18,13 +17,8 @@ import {ViewsIcon} from "@/components/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
 import {$Typed} from "@atproto/api";
-import {ArticleView, FullArticleView, isPostView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {
-    isDatasetDataSource,
-    isView as isVisualizationView
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import DatasetIcon from "@mui/icons-material/Dataset";
 import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
@@ -100,12 +94,6 @@ export const ContentOptions = ({
                 e.stopPropagation();
                 window.open(getBlueskyUrl(record.uri), "_blank")
             }}
-            disabled={isOptimistic}
-        />}
-        {isPostView(record) && isVisualizationView(record.embed) && isDatasetDataSource(record.embed.visualization.dataSource) && <OptionsDropdownButton
-            text1={"Ver los datos usados"}
-            startIcon={<DatasetIcon/>}
-            href={contentUrl(record.embed.visualization.dataSource.dataset)}
             disabled={isOptimistic}
         />}
         {setShowBluesky &&
