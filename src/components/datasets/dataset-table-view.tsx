@@ -7,7 +7,6 @@ import {
 import {useMemo, useState} from "react";
 import {TablePlotter} from "@/components/visualizations/editor/plotter";
 import SearchBar from "@/components/buscar/search-bar";
-import {cleanText} from "@/utils/strings";
 import {Table} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
@@ -31,18 +30,13 @@ type DatasetTableViewProps = {
 }
 
 
-const CellContent = ({content, col, plotter}: { content: any, col: string, plotter: TablePlotter }) => {
-    return plotter.columnValueToString(content, col)
-}
-
-
 const TableRow = ({values, plotter, columns, href}: {
     values: [string, any][], dataset: DatasetForTableView, plotter: TablePlotter, columns: Column[], href?: string
 }) => {
-
     return values.map(([col, value], colIndex) => {
         if (columns.some(c => col == c.name)) {
-            const content = <CellContent content={value} col={col} plotter={plotter}/>
+            const content = plotter.columnValueToString(value, col)
+
             if (href) {
                 return <td className="border-none text-[var(--text-light)] exclude-links px-4 py-2" onClick={() => {
                     window.open(href, "_blank")
@@ -66,43 +60,18 @@ const TableRow = ({values, plotter, columns, href}: {
 
 
 export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, columnsConfig}: DatasetTableViewProps) => {
-    const rows: Record<string, any>[] = JSON.parse(dataset.data)
-    const columns = dataset.columns.filter(c => !columnsConfig || columnsConfig.length == 0 || columnsConfig.some(c2 => c2.columnName == c.name))
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
 
     const plotter = useMemo(() => {
-        const plotter = new TablePlotter(dataset.data, {
+        const plotter = new TablePlotter({
             $type: "ar.cabildoabierto.embed.visualization#table"
-        })
+        }, dataset, sort, searchValue)
         plotter.prepareForPlot()
         return plotter
     }, [dataset])
 
-    const empty = rows.length == 0 || columns.length == 0
-
-    let sortedRows = useMemo(() => {
-        if (!empty && sort) {
-            const key = columns[0].name
-            return rows.toSorted((a, b) => {
-                return plotter.cmpValues(key, a[key], b[key])
-            })
-        } else {
-            return rows
-        }
-    }, [empty, columns, rows, plotter])
-
-    let filteredRows = useMemo(() => {
-        if (!empty && searchValue != "") {
-            const searchKey = cleanText(searchValue)
-            return sortedRows.filter(row => {
-                return Array.from(Object.entries(row)).some(([k, v]) => {
-                    return cleanText(plotter.columnValueToString(v, k)).includes(searchKey)
-                })
-            })
-        }
-        return sortedRows
-    }, [empty, searchValue, sortedRows, plotter])
+    const empty = plotter.isEmpty()
 
     if (empty) return (
         <div className={"text-[var(--text-light)]"}>
@@ -129,7 +98,7 @@ export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, colum
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)]">
             <tr>
-                {columns.map((header, colIndex) => {
+                {plotter.columns.map((header, colIndex) => {
                     let name = header.name
                     const index = columnsConfig ? columnsConfig.findIndex(c => c.columnName == header.name) : -1
                     if (index != -1) {
@@ -144,7 +113,7 @@ export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, colum
             </tr>
             </thead>
             <tbody>
-            {filteredRows && filteredRows.slice(0, showingRowsCount).map((r, rowIndex) => {
+            {plotter && plotter.dataForPlot.slice(0, showingRowsCount).map((r, rowIndex) => {
                 let href: string = undefined
 
                 const values = Object.entries(r)
@@ -157,12 +126,12 @@ export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, colum
                     key={rowIndex}
                     className={"even:bg-[var(--background-ldark)] " + (href ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
                 >
-                    <TableRow values={values} href={href} columns={columns} plotter={plotter} dataset={dataset}/>
+                    <TableRow values={values} href={href} columns={plotter.columns} plotter={plotter} dataset={dataset}/>
                 </tr>
             })}
             </tbody>
         </table>
-        {showingRowsCount < filteredRows.length && <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
+        {showingRowsCount < plotter.dataForPlot.length && <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
             Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {
             setShowingRowsCount(showingRowsCount + 20)
         }} className={"text-[var(--primary)] hover:underline"}>Ver más</button>.

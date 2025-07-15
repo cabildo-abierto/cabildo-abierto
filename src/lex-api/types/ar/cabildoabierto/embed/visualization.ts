@@ -124,6 +124,7 @@ export interface TableVisualizationColumn {
   $type?: 'ar.cabildoabierto.embed.visualization#tableVisualizationColumn'
   columnName: string
   alias?: string
+  precision?: number
 }
 
 const hashTableVisualizationColumn = 'tableVisualizationColumn'
@@ -190,10 +191,12 @@ export interface PlotDimensions {
   xTickLabelsFontSize?: number
   xTicksCount?: number
   xLabelOffset?: number
+  xAxisPrecision?: number
   yTicksCount?: number
   yLabelOffset?: number
   yLabelFontSize?: number
   yTickLabelsFontSize?: number
+  yAxisPrecision?: number
   marginBottom?: number
   marginLeft?: number
 }

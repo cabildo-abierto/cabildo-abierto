@@ -4,12 +4,15 @@ import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {useTooltip} from "@visx/tooltip";
 import {AxisScaleOutput} from "@visx/axis";
 import {
-    isOneAxisPlot,
+    isOneAxisPlot, isTable,
     isTwoAxisPlot,
     Main as Visualization
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {DataParser} from "@/components/visualizations/editor/data-parser";
 import { timeFormatLocale } from 'd3-time-format'
+import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {cleanText} from "@/utils/strings";
 
 export const esLocale = timeFormatLocale({
     dateTime: '%A, %e de %B de %Y, %X',
@@ -47,12 +50,28 @@ export class Plotter {
     protected data: DataRow[] = [];
     public dataPoints: DataPoint[] = [];
     public parser: DataParser = new DataParser()
+    public columns: Column[]
+    protected columnNames: string[]
+    protected spec: Visualization["spec"]
 
     constructor(
-        rawData: string,
-        spec: Visualization["spec"]
+        spec: Visualization["spec"],
+        dataset: DatasetForTableView
     ) {
-        this.data = JSON.parse(rawData);
+        this.spec = spec
+        this.columns = dataset.columns
+        this.columnNames = this.columns.map(c => c.name).sort()
+        this.data = this.preprocessRawData(dataset.data)
+    }
+
+    preprocessRawData(rawData: string): DataRow[] {
+        const parsed = JSON.parse(rawData)
+        return (parsed as DataRow[]).filter(x => this.validRow(x))
+    }
+
+    validRow(x: DataRow): boolean {
+        const keys = Object.keys(x)
+        return keys.length == this.columnNames.length
     }
 
     public prepareForPlot(){
@@ -64,7 +83,7 @@ export class Plotter {
         return this.dataPoints;
     }
 
-    protected valueToString(v: ValueType, type: DataType): string {
+    protected valueToString(v: ValueType, type: DataType, precision: number = 2): string {
         if(type == "string"){
             return v as string
         } else if(type == "date"){
@@ -75,7 +94,7 @@ export class Plotter {
                 return `Fecha inválida: ${v.toString()}`
             }
         } else if(type == "number"){
-            return Number(v).toFixed(2).toString()
+            return Number(v).toFixed(precision).toString()
         } else if(type == "string[]"){
             return (v as string[]).join(", ")
         }
@@ -95,18 +114,18 @@ export class AxesPlotter extends Plotter {
     protected plotType: string;
     protected axes: Axis[] = []
 
-    static create(rawData: string, spec: Visualization["spec"]): AxesPlotter {
+    static create(spec: Visualization["spec"], dataset: DatasetForTableView): AxesPlotter {
         if(isOneAxisPlot(spec)) {
-            return new OneAxisPlotter(rawData, spec)
+            return new OneAxisPlotter(spec, dataset)
         } else if(isTwoAxisPlot(spec)) {
-            return new TwoAxisPlotter(rawData, spec)
+            return new TwoAxisPlotter(spec, dataset)
         } else {
             throw new Error("Sin implementar!");
         }
     }
 
-    constructor(rawData: string, spec: Visualization["spec"]) {
-        super(rawData, spec)
+    constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
+        super(spec, dataset)
 
         if(isTwoAxisPlot(spec) || isOneAxisPlot(spec)){
             const detectedType = this.parser.guessType(this.data, spec.xAxis)
@@ -245,8 +264,8 @@ export class AxesPlotter extends Plotter {
         return this.plotType === "ar.cabildoabierto.embed.visualization#scatterplot"
     }
 
-    xValueToString(x: ValueType): string {
-        return this.valueToString(x, this.getAxisType("x"));
+    xValueToString(x: ValueType, precision?: number): string {
+        return this.valueToString(x, this.getAxisType("x"), precision)
     }
 
     yValueToString(y: ValueType): string {
@@ -265,8 +284,8 @@ export class AxesPlotter extends Plotter {
 export class OneAxisPlotter extends AxesPlotter {
     private xAxis: Axis
 
-    constructor(rawData: string, spec: Visualization["spec"]) {
-        super(rawData, spec)
+    constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
+        super(spec, dataset)
         this.xAxis = this.axes.find(a => a.name == "x")
     }
 
@@ -285,7 +304,8 @@ export class OneAxisPlotter extends AxesPlotter {
     }
 
     yValueToString(y: ValueType): string {
-        return this.valueToString(y, "number")
+        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions.yAxisPrecision : undefined
+        return this.valueToString(y, "number", precision)
     }
 }
 
@@ -294,8 +314,8 @@ export class TwoAxisPlotter extends AxesPlotter {
     private xAxis: Axis
     private yAxis: Axis
 
-    constructor(rawData: string, spec: Visualization["spec"]) {
-        super(rawData, spec)
+    constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
+        super(spec, dataset)
 
         if(isTwoAxisPlot(spec)) {
             const detectedType = this.parser.guessType(this.data, spec.yAxis)
@@ -351,16 +371,22 @@ export class TwoAxisPlotter extends AxesPlotter {
     }
 
     yValueToString(y: ValueType): string {
-        return this.valueToString(y, this.getAxisType("y"))
+        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions.yAxisPrecision : undefined
+        return this.valueToString(y, this.getAxisType("y"), precision)
     }
 }
 
 
 export class TablePlotter extends Plotter {
     private columnTypes: Map<string, DataType> = new Map()
+    private sort: boolean
+    private searchValue: string
+    public dataForPlot: DataRow[]
 
-    constructor(rawData: string, spec: Visualization["spec"]) {
-        super(rawData, spec)
+    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, sort: boolean, searchValue?: string) {
+        super(spec, dataset)
+        this.sort = sort
+        this.searchValue = searchValue
 
         if(this.data.length > 0){
             const d0 = this.data[0]
@@ -372,13 +398,29 @@ export class TablePlotter extends Plotter {
     }
 
     prepareForPlot() {
-
+        this.dataForPlot = this.data
+        if (this.searchValue && this.searchValue.length > 0) {
+            const searchKey = cleanText(this.searchValue)
+            this.dataForPlot = this.dataForPlot.filter(row => {
+                return Array.from(Object.entries(row)).some(([k, v]) => {
+                    return cleanText(this.columnValueToString(v, k)).includes(searchKey)
+                })
+            })
+        }
+        if(this.sort){
+            const key = this.columns[0].name
+            this.dataForPlot = this.dataForPlot.toSorted((a, b) => {
+                return this.cmpValues(key, a[key], b[key])
+            })
+        }
     }
 
     columnValueToString(value: any, col: string): string {
         const parsed = this.parser.parseValue(value)
+        const columns = isTable(this.spec) ? this.spec.columns : undefined
+        const column = columns ? columns.find(c => c.columnName == col) : undefined
         if(parsed.success){
-            return this.valueToString(parsed.value, parsed.dataType)
+            return this.valueToString(parsed.value, parsed.dataType, column?.precision)
         } else {
             return "Valor inválido."
         }
@@ -395,5 +437,9 @@ export class TablePlotter extends Plotter {
         } else if(type == "string[]"){
             return 0
         }
+    }
+
+    isEmpty(): boolean {
+        return this.data.length == 0
     }
 }

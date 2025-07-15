@@ -47,6 +47,8 @@ export function CurvePlotContent({
         });
     };
 
+    const showMarkers = data.length < 200
+
     return (
         <g>
             <LinePath
@@ -60,7 +62,7 @@ export function CurvePlotContent({
                 onMouseLeave={() => hideTooltip()}
             />
 
-            {data.length < 30 && data.map((d, i) => (
+            {showMarkers && data.map((d, i) => (
                 <Circle
                     key={i}
                     cx={xScale(d.x) ?? 0}

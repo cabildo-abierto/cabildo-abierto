@@ -465,6 +465,9 @@ export const schemaDict = {
           alias: {
             type: 'string',
           },
+          precision: {
+            type: 'integer',
+          },
         },
       },
       twoAxisPlot: {
@@ -537,6 +540,9 @@ export const schemaDict = {
           xLabelOffset: {
             type: 'integer',
           },
+          xAxisPrecision: {
+            type: 'integer',
+          },
           yTicksCount: {
             type: 'integer',
           },
@@ -547,6 +553,9 @@ export const schemaDict = {
             type: 'integer',
           },
           yTickLabelsFontSize: {
+            type: 'integer',
+          },
+          yAxisPrecision: {
             type: 'integer',
           },
           marginBottom: {
