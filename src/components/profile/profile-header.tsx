@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import {useSession} from "@/queries/api";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
@@ -94,7 +95,7 @@ function ProfileHeader({
                     images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}
                     setViewing={setViewingProfilePic}
-                    className={"rounded-full border max-w-[500px] max-h-[500px]"}
+                    className={"rounded-full max-w-[500px] max-h-[500px]"}
                 />
                 <Image
                     src={profile.bsky.avatar}
@@ -114,7 +115,7 @@ function ProfileHeader({
                             setEditingProfile(true)
                         }}
                     >
-                        Editar perfil
+                        <span className={"font-semibold text-[var(--text-light)]"}>Editar perfil</span>
                     </Button>
                 </div>}
                 <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
@@ -148,28 +149,34 @@ function ProfileHeader({
             <FollowCounters profile={profile}/>
 
             <div className="flex text-sm sm:text-base">
-                {inCA ? <div
+                {inCA ? <DescriptionOnHover description={"Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor."}>
+                    <div
                         className="text-sm rounded-lg px-2 flex items-center justify-center py-1 bg-[var(--background-dark)] cursor-default space-x-1"
-                        title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
+                    >
                     <span className="text-[var(--text-light)]">
                         <ArticleIcon color={"inherit"}/>
                     </span>
                         <PermissionLevel
                             level={profile.ca.editorStatus}
-                            className="text-[var(--text-light)] text-xs"
+                            className="text-[var(--text-light)] font-semibold text-xs"
                         />
-                    </div> :
-                    <Link
-                        target={"_blank"}
-                        rel="noopener noreferrer"
-                        onClick={() => {
-                            window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')
-                        }}
-                        href={"https://bsky.app/profile/" + profile.bsky.handle}
-                        className="text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center"
-                    >
-                        Usuario de Bluesky
-                    </Link>}
+                    </div>
+                </DescriptionOnHover> :
+                    <span className={"text-[var(--text-light)] text-sm"}>
+                        <span>
+                            Este usuario todavía no está en Cabildo Abierto.
+                        </span> <Link
+                            target={"_blank"}
+                            rel="noopener noreferrer"
+                            onClick={() => {
+                                window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')
+                            }}
+                            href={"https://bsky.app/profile/" + profile.bsky.handle}
+                            className="hover:underline text-[var(--text-lighter)]"
+                        >
+                            Ver perfil en Bluesky.
+                        </Link>
+                    </span>}
             </div>
         </div>
         <div className="flex mt-4 overflow-scroll no-scrollbar">

@@ -6,7 +6,6 @@ import useMeasure from "react-use-measure";
 type EmbedImageProps = {
     img: ViewImage | string
     className?: string
-    did?: string
     onClick?: (e: any) => void
     maxHeight?: number
     maxWidth?: number
@@ -15,7 +14,7 @@ type EmbedImageProps = {
 
 
 export const ATProtoImage = ({
-                               img, className = "rounded-lg border", onClick, did, maxHeight=500, maxWidth, cover=false
+                               img, className = "rounded-lg border", onClick, maxHeight=500, maxWidth, cover=false
                            }: EmbedImageProps) => {
     const measure = useMeasure()
     const bounds = measure[1]

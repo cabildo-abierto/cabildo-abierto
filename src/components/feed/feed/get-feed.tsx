@@ -5,7 +5,7 @@ import {GetFeedOutput, GetFeedProps} from "@/lib/types";
 
 function getFeedRoute(type: string, handleOrDid?: string, cursor?: string, params?: {metric: string, time: string}) {
     let base: string
-    if (["siguiendo", "discusion", "descubrir"].includes(type)) {
+    if (["siguiendo", "discusion", "descubrir", "articulos"].includes(type)) {
         base = `/feed/${type}`
     } else if (["publicaciones", "respuestas", "ediciones"].includes(type)) {
         base = `/profile-feed/${handleOrDid}/${type}`

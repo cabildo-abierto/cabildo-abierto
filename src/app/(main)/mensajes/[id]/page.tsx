@@ -94,7 +94,6 @@ export default function Page() {
     }
 
     useEffect(() => {
-
         if(data && data.conversation.unreadCount) {
             readMutation.mutate(convoId)
         }

@@ -67,7 +67,7 @@ const FeedConfig = () => {
 }
 
 
-export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir"
+export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir" | "Artículos"
 
 
 export const MainFeedHeader = ({

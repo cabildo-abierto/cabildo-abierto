@@ -33,10 +33,11 @@ export const PostImagesEditor = ({images, setImages}: PostImagesEditorProps) => 
                             />
                         </div>
                         <Image
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation()
                                 setViewing(index)
                             }}
-                            className="border rounded-lg cursor-pointer h-[200px] object-cover"
+                            className="z-[1] border rounded-lg cursor-pointer h-[200px] object-cover"
                             src={i.src}
                             width={350}
                             height={350}
