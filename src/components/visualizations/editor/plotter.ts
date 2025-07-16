@@ -421,8 +421,12 @@ export class TablePlotter extends Plotter {
         const column = columns ? columns.find(c => c.columnName == col) : undefined
         if(parsed.success){
             return this.valueToString(parsed.value, parsed.dataType, column?.precision)
+        } else if(value == undefined) {
+            return "null"
+        } else if(typeof value == "string" && value.trim().length == 0) {
+            return "null"
         } else {
-            return "Valor inválido."
+            return `Valor inválido.`
         }
     }
 

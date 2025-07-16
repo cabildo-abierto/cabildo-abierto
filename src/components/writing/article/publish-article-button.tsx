@@ -13,6 +13,7 @@ import dynamic from "next/dynamic";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import {useQueryClient} from "@tanstack/react-query";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
@@ -23,6 +24,7 @@ export type CreateArticleProps = {
     enDiscusion: boolean
     embeds?: ArticleEmbedView[]
     embedContexts?: EmbedContext[]
+    draftId?: string
 }
 
 const createArticle = async (props: CreateArticleProps) => {
@@ -42,16 +44,18 @@ export function getArticleSummary(md: string){
 }
 
 
-export const PublishArticleButton = ({editorState, title, disabled, modalOpen, setModalOpen, mentions}: {
+export const PublishArticleButton = ({editorState, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
     editorState: EditorState
     disabled: boolean
     title?: string
     modalOpen: boolean
     setModalOpen: (o: boolean) => void
     mentions?: TopicMention[]
+    draftId?: string
 }) => {
     const [mdText, setMdText] = useState("")
     const router = useRouter()
+    const qc = useQueryClient()
 
     useEffect(() => {
         if (editorState && modalOpen) {
@@ -70,9 +74,12 @@ export const PublishArticleButton = ({editorState, title, disabled, modalOpen, s
             title,
             enDiscusion,
             embeds,
-            embedContexts
+            embedContexts,
+            draftId
         })
         if (error) return {error}
+
+        qc.invalidateQueries({queryKey: ["drafts"]})
 
         router.push("/inicio?f=siguiendo")
         return {stopResubmit: true}
@@ -91,8 +98,9 @@ export const PublishArticleButton = ({editorState, title, disabled, modalOpen, s
     return <>
         <DescriptionOnHover description={helpMsg}>
             <StateButton
-                onClick={() => {
+                handleClick={async () => {
                     setModalOpen(true)
+                    return {}
                 }}
                 text1={"Publicar"}
                 textClassName="whitespace-nowrap px-2 font-semibold"

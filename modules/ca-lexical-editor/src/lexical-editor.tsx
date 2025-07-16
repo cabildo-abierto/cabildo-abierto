@@ -64,6 +64,7 @@ import {getInitialData} from "./get-initial-data";
 import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {EmbedContext} from "./nodes/EmbedNode";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -81,6 +82,7 @@ export type SettingsProps = {
     markdownShortcuts: boolean
     shouldPreserveNewLines: boolean
     embeds?: ArticleEmbedView[]
+    embedContexts?: EmbedContext[]
 
     useSuperscript: boolean
     useStrikethrough: boolean

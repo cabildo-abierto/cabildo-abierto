@@ -14,17 +14,24 @@ import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
 import {validArticle} from "@/components/writing/article/valid-article";
 import {getUsername} from "@/utils/utils";
-import { useSession } from "@/queries/api"
+import {Draft, useDraft, useSession} from "@/queries/api"
+import {SaveDraftArticleButton} from "@/components/writing/article/save-draft-article-button";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
-const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
+const articleEditorSettings = (smallScreen: boolean, draft?: Draft) => getEditorSettings({
     charLimit: 1200000,
     allowImages: true,
     allowVisualizations: true,
     allowTables: true,
     markdownShortcuts: true,
+
+    initialText: draft ? draft.text : "",
+    initialTextFormat: draft ? "markdown" : "plain-text",
+    embeds: draft ? draft.embeds : null,
 
     tableOfContents: true,
     showToolbar: true,
@@ -38,18 +45,46 @@ const articleEditorSettings = (smallScreen: boolean) => getEditorSettings({
 })
 
 
-const ArticleEditor = () => {
+export const ArticleEditorFromDraft = ({id}: { id: string }) => {
+    const {data, isLoading} = useDraft(id)
+
+    if (isLoading) {
+        return <div className={"mt-32"}>
+            <LoadingSpinner/>
+        </div>
+    } else if (data) {
+        return <ArticleEditor
+            draft={data}
+        />
+    } else {
+        return <ErrorPage>
+            Ocurrió un error al obtener el borrador.
+        </ErrorPage>
+    }
+}
+
+
+const ArticleEditor = ({draft}: { draft?: Draft }) => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [modalOpen, setModalOpen] = useState(false)
-    const {topicsMentioned, setLastTextChange, setEditor, title, setTitle} = useTopicsMentioned()
+    const [lastSavedChanges, setLastSavedChanges] = useState<Date | null>(null)
+    const {
+        topicsMentioned,
+        lastTextChange,
+        setLastTextChange,
+        setEditor,
+        title,
+        setTitle
+    } = useTopicsMentioned(draft?.title)
+    const [draftId, setDraftId] = useState<string | null>(draft?.id)
     const {user} = useSession()
     const smallScreen = window.innerWidth < 700
 
-    const settings = articleEditorSettings(smallScreen)
+    const settings = articleEditorSettings(smallScreen, draft)
 
-    const valid = validArticle(editorState, settings.charLimit, title)
+    const {valid, empty} = validArticle(editorState, settings.charLimit, title)
 
-    let disabled = valid.problem != undefined
+    console.log("draft", draft)
 
     const createdAt = new Date()
 
@@ -57,29 +92,33 @@ const ArticleEditor = () => {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
 
-    /*function refresh() {
-        const state = editorState.toJSON()
-        const markdown = editorStateToMarkdown(state)
-        const stateBack = markdownToEditorState(markdown.markdown)
-        const parsedState = editor.parseEditorState(stateBack)
-        editor.update(() => {
-            editor.setEditorState(parsedState)
-        }, {discrete: true})
-    }*/
+    const unsavedChanges = !empty && (!lastSavedChanges || lastSavedChanges.getTime() < lastTextChange.getTime())
 
     return <div className={"mb-32"}>
-        {/*<button onClick={refresh}>refresh</button>*/}
         <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
-            <div className="flex justify-between w-full text-[var(--text-light)]">
+            <div className="flex justify-between w-full text-[var(--text-light)] items-center">
                 <BackButton defaultURL={"/"}/>
-                <PublishArticleButton
-                    title={title}
-                    disabled={disabled}
-                    modalOpen={modalOpen}
-                    setModalOpen={setModalOpen}
-                    editorState={editorState}
-                    mentions={topicsMentioned}
-                />
+                <div className={"flex space-x-2"}>
+                    <SaveDraftArticleButton
+                        disabled={!unsavedChanges || editorState == null}
+                        title={title}
+                        editorState={editorState}
+                        draftId={draftId}
+                        onSavedChanges={(time, draftId) => {
+                            setLastSavedChanges(time)
+                            setDraftId(draftId)
+                        }}
+                    />
+                    <PublishArticleButton
+                        title={title}
+                        disabled={!valid}
+                        modalOpen={modalOpen}
+                        setModalOpen={setModalOpen}
+                        editorState={editorState}
+                        mentions={topicsMentioned}
+                        draftId={draftId}
+                    />
+                </div>
             </div>
         </div>
         <GradientHRule/>

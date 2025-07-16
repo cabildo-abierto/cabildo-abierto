@@ -1,5 +1,5 @@
 import {Metadata} from "next"
-import ArticleEditor from "../../../../components/writing/article/article-editor"
+import ArticleEditor, {ArticleEditorFromDraft} from "../../../../components/writing/article/article-editor"
 
 export const metadata: Metadata = {
     title: 'Escribir publicación',
@@ -7,9 +7,15 @@ export const metadata: Metadata = {
 }
 
 
-const Publicacion = () => {
+const Publicacion = async ({searchParams}: {searchParams: Promise<{i?: string | string[] | null}>}) => {
+    const {i} = await searchParams
 
-    return <ArticleEditor/>
+    if(typeof i == "string"){
+        return <ArticleEditorFromDraft id={i}/>
+    } else {
+        return <ArticleEditor/>
+    }
+
 }
 
 export default Publicacion

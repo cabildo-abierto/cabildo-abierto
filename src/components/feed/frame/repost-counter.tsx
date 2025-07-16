@@ -117,23 +117,24 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
             {!reposted && <OptionsDropdownButton
                 text1={"Republicar"}
                 startIcon={<RepostIcon fontSize={"small"}/>}
-                onClick={async (e) => {close(); await onClickRepost(e)}}
+                handleClick={async (e) => {close(); await onClickRepost(e); return {}}}
                 disabled={getRkeyFromUri(content.uri) == "optimistic"}
             />}
             {reposted && <OptionsDropdownButton
                 text1={"Eliminar republicación"}
                 startIcon={<RepostIcon fontSize={"small"}/>}
-                onClick={async (e) => {close(); await onClickRemoveRepost(e)}}
+                handleClick={async (e) => {close(); await onClickRemoveRepost(e); return {}}}
                 disabled={content.viewer.repost == "optimistic-repost-uri"}
             />}
             <OptionsDropdownButton
                 text1={"Citar"}
                 startIcon={<FormatQuoteIcon/>}
-                onClick={(e) => {
+                handleClick={async (e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     setWritingQuotePost(true)
                     close()
+                    return {}
                 }}
             />
         </div>

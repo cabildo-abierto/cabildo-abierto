@@ -9,17 +9,9 @@ import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-li
 import {SidebarButton} from "./sidebar-button";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import SearchIcon from "@mui/icons-material/Search";
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from "../icons/settings-icon";
 import {WriteButtonIcon} from "../icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-
-import CabildoIcon from "../icons/home-icon";
 import NotificationsIcon from "../icons/notifications-icon";
 
 import dynamic from "next/dynamic";
@@ -27,7 +19,7 @@ import TopicsIcon from "@/components/icons/topics-icon";
 import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
-
+import {GearIcon, HouseLineIcon, MagnifyingGlassIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
 
@@ -119,8 +111,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         <SidebarButton
                             showText={showText}
                             onClick={onClose}
-                            icon={<CabildoIcon/>}
-                            iconInactive={<HomeOutlinedIcon/>}
+                            icon={<HouseLineIcon fontSize={24} weight={"fill"}/>}
+                            iconInactive={<HouseLineIcon fontSize={24}/>}
                             text="Inicio"
                             href="/inicio"
                             selected={pathname.startsWith("/inicio")}
@@ -139,8 +131,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         />
                         <SidebarButton
                             showText={showText}
-                            icon={<SearchIcon sx={{strokeWidth: 1, stroke: "var(--text)"}}/>}
-                            iconInactive={<SearchIcon/>}
+                            icon={<MagnifyingGlassIcon fontSize={24} weight={"bold"}/>}
+                            iconInactive={<MagnifyingGlassIcon fontSize={24}/>}
                             onClick={onClose}
                             text="Buscar"
                             selected={pathname.startsWith("/buscar")}
@@ -164,9 +156,18 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             href="/mensajes"
                             selected={pathname.startsWith("/mensajes")}
                         />
+                        <SidebarButton
+                            icon={<TrayIcon size={24} weight={"fill"}/>}
+                            iconInactive={<TrayIcon size={24}/>}
+                            onClick={onClose}
+                            text="Tus papeles"
+                            href="/papeles"
+                            selected={pathname.startsWith("/papeles")}
+                            showText={showText}
+                        />
                         {user.user && <SidebarButton
-                            icon={<PersonIcon/>}
-                            iconInactive={<PersonOutlinedIcon/>}
+                            icon={<UserIcon fontSize={24} weight={"fill"}/>}
+                            iconInactive={<UserIcon fontSize={24}/>}
                             onClick={onClose}
                             text="Perfil"
                             href={profileUrl(user.user.handle)}
@@ -174,8 +175,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                             showText={showText}
                         />}
                         <SidebarButton
-                            icon={<SettingsIcon/>}
-                            iconInactive={<SettingsOutlinedIcon/>}
+                            icon={<GearIcon fontSize={24} weight={"fill"}/>}
+                            iconInactive={<GearIcon fontSize={24}/>}
                             onClick={onClose}
                             text="Ajustes"
                             href="/ajustes"

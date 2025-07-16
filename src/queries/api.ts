@@ -25,6 +25,7 @@ import {DeletedMessageView, MessageView} from "@/lex-api/types/chat/bsky/convo/d
 import {editorStateToMarkdown, markdownToEditorState, normalizeMarkdown} from "../../modules/ca-lexical-editor/src/markdown-transforms";
 import {decompress} from "@/utils/compression";
 import {useMemo} from "react";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 
 
 function uriToKey(uri: string) {
@@ -83,10 +84,6 @@ export function threadQueryKey(uri: string){
     return ["thread", uriToKey(uri)]
 }
 
-
-export const useThread = (uri: string) => {
-    return useAPI<ThreadViewContent>(threadApiUrl(uri), threadQueryKey(uri))
-}
 
 export const useThreadWithNormalizedContent = (uri: string) => {
     const res = useAPI<ThreadViewContent>(threadApiUrl(uri), threadQueryKey(uri))
@@ -324,4 +321,36 @@ export type UserSyncStatus = {
 
 export function useUsersSyncStatus() {
     return useAPI<UserSyncStatus[]>("/sync-status", ["sync-status"])
+}
+
+
+export type Draft = {
+    text: string
+    summary: string
+    embeds?: ArticleEmbedView[]
+    collection: string
+    createdAt: Date
+    lastUpdate: Date
+    id: string
+    title?: string
+}
+
+
+export type DraftPreview = {
+    summary: string
+    collection: string
+    createdAt: Date
+    lastUpdate: Date
+    id: string
+    title?: string
+}
+
+
+export function useDrafts() {
+    return useAPI<DraftPreview[]>("/drafts", ["drafts"])
+}
+
+
+export function useDraft(id: string) {
+    return useAPI<Draft>(`/draft/${id}`, ["draft", id])
 }

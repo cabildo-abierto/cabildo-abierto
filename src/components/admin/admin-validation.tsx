@@ -119,7 +119,7 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
     return <div className={"space-y-4"}>
         <div
             className="cursor-pointer"
-            onClick={(e) => {
+            onClick={() => {
                 setOpen(!open)
             }}
         >
@@ -229,7 +229,11 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
                 />
             </div>}
             <div className={"flex justify-end space-x-2"}>
-                <StateButton text1={"Enviar"} textClassName={"font-semibold"} onClick={onSubmit}/>
+                <StateButton
+                    text1={"Enviar"}
+                    textClassName={"font-semibold"}
+                    handleClick={onSubmit}
+                />
             </div>
         </div>}
     </div>
