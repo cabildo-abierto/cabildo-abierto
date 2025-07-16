@@ -132,6 +132,34 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             min={0}
             label={"Margen del eje y"}
         />)
+        inputs.push(<SliderWithInput
+            value={config.spec.dimensions?.xAxisPrecision ?? 2}
+            onChange={v => {
+                setConfig(produce(config, draft => {
+                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
+                        draft.spec.dimensions.xAxisPrecision = v
+                    }
+                }))
+            }}
+            max={10}
+            min={0}
+            label={"Precisión del eje x"}
+        />)
+        inputs.push(<SliderWithInput
+            value={config.spec.dimensions?.yAxisPrecision ?? 2}
+            onChange={v => {
+                setConfig(produce(config, draft => {
+                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                        if(!draft.spec.dimensions) draft.spec.dimensions = {}
+                        draft.spec.dimensions.yAxisPrecision = v
+                    }
+                }))
+            }}
+            max={10}
+            min={0}
+            label={"Precisión del eje y"}
+        />)
     }
 
     if(!isTable(config.spec)){

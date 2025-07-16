@@ -59,6 +59,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
                                         $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
                                         dataset: d.uri
                                     }
+                                    draft.spec = undefined
                                 }))
                             }}
                         />

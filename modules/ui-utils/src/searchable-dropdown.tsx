@@ -44,7 +44,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     }
 
     return (
-        <div className="relative w-full max-w-md mx-auto">
+        <div className="relative mx-auto w-full">
             <TextField
                 size={size}
                 variant="outlined"
