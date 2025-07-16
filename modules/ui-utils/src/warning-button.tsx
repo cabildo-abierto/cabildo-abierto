@@ -7,8 +7,8 @@ import {Button} from "./button";
 export const WarningButton = ({handleClick, warningText="¿Estás seguro/a?", ...props}: StateButtonProps & {warningText: string}) => {
     const [open, setOpen] = useState(false)
 
-    async function handleConfirmClick() {
-        const {error} = await handleClick()
+    async function handleConfirmClick(e: MouseEvent) {
+        const {error} = await handleClick(e)
         if(!error) setOpen(false)
         return {error}
     }

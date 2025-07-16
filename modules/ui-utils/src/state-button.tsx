@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { AcceptButtonPanel } from './accept-button-panel';
 import {Button, ButtonProps} from "./button";
 
-export type StateButtonProps = ButtonProps & {
+export type StateButtonProps = Omit<ButtonProps, "onClick"> & {
     handleClick?: StateButtonClickHandler
     text1: ReactNode
     text2?: ReactNode
@@ -13,7 +13,7 @@ export type StateButtonProps = ButtonProps & {
     stopPropagation?: boolean
 }
 
-export type StateButtonClickHandler = () => Promise<{ error?: string; stopResubmit?: boolean }>;
+export type StateButtonClickHandler = (e: MouseEvent) => Promise<{ error?: string; stopResubmit?: boolean }>;
 
 const StateButton = ({
     handleClick=async () => {return {}},
@@ -31,18 +31,11 @@ const StateButton = ({
 }: StateButtonProps) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(undefined)
-
-    async function onClick(e) {
-        if(stopPropagation){
-            e.stopPropagation()
-            e.preventDefault()
-        }
-        setLoading(true)
-    }
+    const [mouseEvent, setMouseEvent] = useState<any>(null)
 
     useEffect(() => {
         async function submit(){
-            const result = await handleClick()
+            const result = await handleClick(mouseEvent)
             if(result.error){
                 setError(result.error)
             }
@@ -63,7 +56,14 @@ const StateButton = ({
             loadingIndicator={text2}
             color={color}
             size={size}
-            onClick={onClick}
+            onClick={(e) => {
+                if(stopPropagation){
+                    e.stopPropagation()
+                    e.preventDefault()
+                }
+                setLoading(true)
+                setMouseEvent(e)
+            }}
             disabled={disabled}
             disableElevation={disableElevation}
             fullWidth={fullWidth}

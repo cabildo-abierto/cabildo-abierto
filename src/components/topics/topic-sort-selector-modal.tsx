@@ -13,9 +13,10 @@ const TopicSortSelectorModal = ({setSortedBy, sortedBy, onClose}: Props) => {
             {["Populares último día", "Populares última semana", "Populares último mes", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
                 return <div key={index}>
                     <OptionsDropdownButton
-                        onClick={() => {
+                        handleClick={async () => {
                             setSortedBy(s)
                             onClose()
+                            return {}
                         }}
                         color={"background-dark"}
                         fullWidth={true}

@@ -25,6 +25,7 @@ export const AdminPDS = () => {
         const {data, error} = await get<UserRepoCounts>(`/repo/${handleOrDid}`)
         if (error) return {error}
         setCounts(data)
+        return {}
     }
 
     return <div className={"space-y-8"}>
@@ -94,7 +95,7 @@ export const AdminPDS = () => {
                         setHandleOrDid(e.target.value)
                     }}
                 />
-                <StateButton onClick={readRepo} text1={"Leer repo"}/>
+                <StateButton handleClick={readRepo} text1={"Leer repo"}/>
                 {counts && <div>{counts.counts.map(c => {
                     return <div key={c.collection}>
                         {c.collection} {c.count}

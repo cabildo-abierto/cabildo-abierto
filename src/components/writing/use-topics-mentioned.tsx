@@ -4,12 +4,12 @@ import {LexicalEditor} from "lexical";
 import {editorStateToMarkdownNoEmbeds} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {post} from "@/utils/fetch";
 
-export const useTopicsMentioned = () => {
+export const useTopicsMentioned = (initialTitle?: string) => {
     const [topicsMentioned, setTopicsMentioned] = useState<TopicMention[]>([])
     const [lastMentionsFetch, setLastMentionsFetch] = useState(new Date(0))
     const [lastTextChange, setLastTextChange] = useState(new Date(0))
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [title, setTitle] = useState("")
+    const [title, setTitle] = useState(initialTitle ?? "")
 
 
     useEffect(() => {
@@ -49,6 +49,7 @@ export const useTopicsMentioned = () => {
 
     return {
         topicsMentioned,
+        lastTextChange,
         setLastTextChange,
         editor,
         setEditor,
