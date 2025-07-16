@@ -44,7 +44,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
     </div>
 
     if(isTwoAxisPlot(config.spec)){
-        return <div className={"flex flex-col space-y-4"}>
+        return <div className={"flex flex-col space-y-4 w-full"}>
             <SearchableDropdown
                 options={columnOptions}
                 label={"Eje x"}

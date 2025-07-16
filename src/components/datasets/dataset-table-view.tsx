@@ -31,20 +31,28 @@ type DatasetTableViewProps = {
 
 
 const TableRow = ({values, plotter, columns, href}: {
-    values: [string, any][], dataset: DatasetForTableView, plotter: TablePlotter, columns: Column[], href?: string
+    values: [string, any][]
+    dataset: DatasetForTableView
+    plotter: TablePlotter
+    columns: Map<string, string>
+    href?: string
+    columnsConfig?: Table["columns"]
 }) => {
     return values.map(([col, value], colIndex) => {
-        if (columns.some(c => col == c.name)) {
+        if (columns.has(col)) {
             const content = plotter.columnValueToString(value, col)
 
             if (href) {
-                return <td className="border-none text-[var(--text-light)] exclude-links px-4 py-2" onClick={() => {
-                    window.open(href, "_blank")
-                }} key={colIndex}>
+                return <td
+                    className="border-none text-[var(--text-light)] exclude-links px-4 py-2"
+                    onClick={() => {
+                        window.open(href, "_blank")
+                    }}
+                    key={colIndex}
+                >
                     <Link
                         href={href}
                         target="_blank"
-                        className={""}
                     >
                         {content}
                     </Link>
@@ -59,13 +67,14 @@ const TableRow = ({values, plotter, columns, href}: {
 }
 
 
-export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, columnsConfig}: DatasetTableViewProps) => {
+export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight, maxWidth}: DatasetTableViewProps) => {
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
 
     const plotter = useMemo(() => {
         const plotter = new TablePlotter({
-            $type: "ar.cabildoabierto.embed.visualization#table"
+            $type: "ar.cabildoabierto.embed.visualization#table",
+            columns: columnsConfig
         }, dataset, sort, searchValue)
         plotter.prepareForPlot()
         return plotter
@@ -78,6 +87,8 @@ export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, colum
             El conjunto de datos está vacío.
         </div>
     )
+
+    const columns = plotter.getKeysToHeadersMap()
 
     return <div
         className={"border rounded-lg mb-4 custom-scrollbar overflow-scroll text-sm grow"}
@@ -98,16 +109,9 @@ export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, colum
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)]">
             <tr>
-                {plotter.columns.map((header, colIndex) => {
-                    let name = header.name
-                    const index = columnsConfig ? columnsConfig.findIndex(c => c.columnName == header.name) : -1
-                    if (index != -1) {
-                        const alias = columnsConfig[index].alias
-                        if (alias) name = alias
-                    }
-
+                {Array.from(columns.values()).map((header, colIndex) => {
                     return <th key={colIndex} className="px-4 py-2 text-left">
-                        {name}
+                        {header}
                     </th>
                 })}
             </tr>
@@ -126,15 +130,22 @@ export const DatasetTableView = ({sort=true, dataset, maxHeight, maxWidth, colum
                     key={rowIndex}
                     className={"even:bg-[var(--background-ldark)] " + (href ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
                 >
-                    <TableRow values={values} href={href} columns={plotter.columns} plotter={plotter} dataset={dataset}/>
+                    <TableRow
+                        values={values}
+                        href={href}
+                        columns={columns}
+                        plotter={plotter}
+                        dataset={dataset}
+                    />
                 </tr>
             })}
             </tbody>
         </table>
-        {showingRowsCount < plotter.dataForPlot.length && <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
-            Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {
-            setShowingRowsCount(showingRowsCount + 20)
-        }} className={"text-[var(--primary)] hover:underline"}>Ver más</button>.
-        </div>}
+        {showingRowsCount < plotter.dataForPlot.length &&
+            <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
+                Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {
+                setShowingRowsCount(showingRowsCount + 20)
+            }} className={"text-[var(--primary)] hover:underline"}>Ver más</button>.
+            </div>}
     </div>
 }

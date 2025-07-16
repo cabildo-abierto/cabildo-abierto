@@ -108,7 +108,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                 const configIndex = config.spec.columns ? config.spec.columns.findIndex(colConfig => colConfig.columnName == c.name) : -1
 
                 return <div key={i} className={"flex justify-between space-x-2 items-center"}>
-                    <div className={"text-sm flex-1"}>
+                    <div className={"text-sm flex-1 max-w-[1/3] truncate"}>
                         {c.name}
                     </div>
                     {value && <div className={"flex-1"}>

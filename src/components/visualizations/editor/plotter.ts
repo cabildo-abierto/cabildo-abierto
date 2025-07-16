@@ -304,7 +304,7 @@ export class OneAxisPlotter extends AxesPlotter {
     }
 
     yValueToString(y: ValueType): string {
-        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions.yAxisPrecision : undefined
+        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
         return this.valueToString(y, "number", precision)
     }
 }
@@ -371,7 +371,7 @@ export class TwoAxisPlotter extends AxesPlotter {
     }
 
     yValueToString(y: ValueType): string {
-        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions.yAxisPrecision : undefined
+        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
         return this.valueToString(y, this.getAxisType("y"), precision)
     }
 }
@@ -441,5 +441,23 @@ export class TablePlotter extends Plotter {
 
     isEmpty(): boolean {
         return this.data.length == 0
+    }
+
+    getKeysToHeadersMap(): Map<string, string> {
+        const m = new Map<string, string>()
+
+        if(isTable(this.spec)) {
+            const config = this.spec.columns
+            if(config && config.length > 0){
+                config.forEach(c => {
+                    m.set(c.columnName, c.alias)
+                })
+            } else {
+                this.columns.forEach(c => {
+                    m.set(c.name, c.name)
+                })
+            }
+        }
+        return m
     }
 }
