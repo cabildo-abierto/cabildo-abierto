@@ -84,8 +84,6 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
 
     const {valid, empty} = validArticle(editorState, settings.charLimit, title)
 
-    console.log("draft", draft)
-
     const createdAt = new Date()
 
     useEffect(() => {
