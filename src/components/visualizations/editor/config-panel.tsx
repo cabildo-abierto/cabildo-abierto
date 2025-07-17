@@ -120,7 +120,7 @@ const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConf
         {isTwoAxisPlot(config.spec) && <TextField
             label={"Etiqueta eje y"}
             size={"small"}
-            value={config.spec.yLabel ?? config.spec.yAxis}
+            value={config.spec.yLabel ?? (config.spec.yAxis ?? "")}
             onChange={e => {
                 setConfig(produce(config, draft => {
                     if (isTwoAxisPlot(draft.spec)) {
@@ -211,10 +211,16 @@ export const ConfigPanel = ({config, setConfig}: {
             />
         </div>
 
-        <div className={"flex flex-col mt-2 space-y-4 px-2 mb-2 pt-2 overflow-y-scroll h-full"}>
-            {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
-            {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
-            {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
+        <div className={"flex flex-col justify-between mt-2 space-y-4 px-2 mb-2 pt-2 overflow-y-scroll h-full"}>
+            <div className={"flex flex-col space-y-4"}>
+                {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
+                {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
+                {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
+            </div>
+
+            <div className={"p-2 text-[var(--text-light)] text-sm"}>
+                El editor de visualizaciones está en fase experimental. Si ves algo raro o querés que le agreguemos una funcionalidad, escribinos.
+            </div>
         </div>
     </>
 }

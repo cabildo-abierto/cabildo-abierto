@@ -17,9 +17,9 @@ export function BarplotContent<X>({data, xScale, yScale, innerHeight, hideToolti
     return <>
         {data.map((d, i) => {
             const barWidth = xScale.bandwidth();
-            const barHeight = innerHeight - yScale(d.y);
-            const barX = xScale(d.x)
-            const barY = yScale(d.y)
+            const barHeight = innerHeight - yScale(d.y as number);
+            const barX = xScale(d.x as X)
+            const barY = yScale(d.y as number)
 
             if (barX == null || isNaN(barY) || isNaN(barX) || isNaN(barHeight)) return null;
 

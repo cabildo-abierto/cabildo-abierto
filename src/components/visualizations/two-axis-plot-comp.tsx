@@ -11,7 +11,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {CurvePlotContent} from "@/components/visualizations/curve-plot";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
-import {AxesPlotter, ValueType} from "@/components/visualizations/editor/plotter";
+import {AxesPlotter, DataPoint, ValueType} from "@/components/visualizations/editor/plotter";
 import useMeasure from "react-use-measure";
 import {useCallback, useMemo} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
@@ -35,7 +35,7 @@ export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
     yValue: string
 }) {
     return (
-        <div className={"bg-[var(--background)] border-2 border-black p-1 text-sm"}>
+        <div className={"bg-[var(--background)] border-2 border-[var(--text)] p-1 text-sm"}>
             <div className={"flex justify-between space-x-2"}>
                 <div className={"font-bold"}>{yLabel}</div>
                 <div>{yValue}</div>
@@ -115,7 +115,10 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         if (isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
             try {
                 const plotter = AxesPlotter.create(spec, visualization.dataset)
-                plotter.prepareForPlot()
+                const {error} = plotter.prepareForPlot()
+                if(error){
+                    return {error}
+                }
                 return {plotter}
             } catch (err) {
                 if(err instanceof Error) {
@@ -129,7 +132,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         }
     }, [visualization.dataset, spec])
 
-    if (!plotter) return <div>
+    if (!plotter) return <div className={"w-full h-full flex justify-center items-center text-[var(--text-light)]"}>
         {error}
     </div>
 
@@ -188,7 +191,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const allowZoom = plotter.isCurvePlot() || plotter.isScatterPlot()
     const randId = Math.random().toString()
 
-    const yLabel = isTwoAxisPlot(spec) ? spec.yLabel ?? spec.yAxis : "Cantidad"
+    const yLabel = isTwoAxisPlot(spec) ? spec.yLabel ?? (spec.yAxis ?? "") : "Cantidad"
 
     return (
         <div
@@ -274,7 +277,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 {isLines(spec.plot) && <CurvePlotContent
                                     xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
-                                    data={data}
+                                    data={data as DataPoint<number, number>[]}
                                     showTooltip={showTooltip}
                                     hideTooltip={hideTooltip}
                                     scaleFactorX={scaleFactorX}
@@ -292,12 +295,13 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 {isScatterplot(spec.plot) && <ScatterplotContent
                                     xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
-                                    data={data}
+                                    data={data as DataPoint<number, number>[]}
                                     innerHeight={plotInnerHeight}
                                     hideTooltip={hideTooltip}
                                     showTooltip={showTooltip}
                                     scaleFactorX={scaleFactorX}
                                     scaleFactorY={scaleFactorY}
+                                    margin={margin}
                                 />}
                             </Group>
                             <AxisLeft
@@ -361,34 +365,43 @@ const TwoAxisPlotComp = ({spec, visualization, maxWidth, maxHeight}: TwoAxisPlot
         </div>
     }
 
-    if (!isDatasetView(visualization.dataset) && !isTopicsDatasetView(visualization.dataset)) {
+    const dataset = visualization.dataset
+
+    if (!isDatasetView(dataset) && !isTopicsDatasetView(dataset)) {
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             Configurá el conjunto de datos.
         </div>
     }
 
-    if (isOneAxisPlot(spec) && !validColumn(spec.xAxis, visualization.dataset)) {
+    if (isOneAxisPlot(spec) && !validColumn(spec.xAxis, dataset)) {
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             No se encontró la columna especificada en los datos.
         </div>
     }
 
     if (isTwoAxisPlot(spec)) {
-        if (!spec.yAxis || spec.yAxis.length == 0) {
+        if ((!spec.yAxis || spec.yAxis.length == 0) && (!spec.yAxes || spec.yAxes.length == 0)) {
             return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
                 Elegí un eje y.
             </div>
         }
 
-        if (!validColumn(spec.xAxis, visualization.dataset) || !validColumn(spec.yAxis, visualization.dataset)) {
+        const invalidY = spec.yAxis && !validColumn(spec.yAxis, dataset) ||
+            spec.yAxes && spec.yAxes.some(a => !validColumn(a.column, dataset))
+
+        if (!validColumn(spec.xAxis, dataset) || invalidY) {
             return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
                 No se encontraron las columnas especificadas en los datos.
             </div>
         }
     }
 
-
-    return <TwoAxisPlotPlot spec={spec} visualization={visualization} maxWidth={maxWidth} maxHeight={maxHeight}/>
+    return <TwoAxisPlotPlot
+        spec={spec}
+        visualization={visualization}
+        maxWidth={maxWidth}
+        maxHeight={maxHeight}
+    />
 }
 
 

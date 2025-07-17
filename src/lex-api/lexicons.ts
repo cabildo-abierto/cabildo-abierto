@@ -472,7 +472,7 @@ export const schemaDict = {
       },
       twoAxisPlot: {
         type: 'object',
-        required: ['xAxis', 'yAxis', 'plot'],
+        required: ['xAxis', 'plot'],
         properties: {
           xAxis: {
             type: 'string',
@@ -497,6 +497,24 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.embed.visualization#lines',
               'lex:ar.cabildoabierto.embed.visualization#scatterplot',
             ],
+          },
+          yAxes: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.embed.visualization#axisConfig',
+            },
+          },
+        },
+      },
+      axisConfig: {
+        type: 'object',
+        properties: {
+          column: {
+            type: 'string',
+          },
+          label: {
+            type: 'string',
           },
         },
       },
