@@ -145,7 +145,7 @@ export interface TwoAxisPlot {
   $type?: 'ar.cabildoabierto.embed.visualization#twoAxisPlot'
   xAxis: string
   xLabel?: string
-  yAxis: string
+  yAxis?: string
   yLabel?: string
   dimensions?: PlotDimensions
   plot:
@@ -153,6 +153,7 @@ export interface TwoAxisPlot {
     | $Typed<Lines>
     | $Typed<Scatterplot>
     | { $type: string }
+  yAxes?: AxisConfig[]
 }
 
 const hashTwoAxisPlot = 'twoAxisPlot'
@@ -163,6 +164,22 @@ export function isTwoAxisPlot<V>(v: V) {
 
 export function validateTwoAxisPlot<V>(v: V) {
   return validate<TwoAxisPlot & V>(v, id, hashTwoAxisPlot)
+}
+
+export interface AxisConfig {
+  $type?: 'ar.cabildoabierto.embed.visualization#axisConfig'
+  column?: string
+  label?: string
+}
+
+const hashAxisConfig = 'axisConfig'
+
+export function isAxisConfig<V>(v: V) {
+  return is$typed(v, id, hashAxisConfig)
+}
+
+export function validateAxisConfig<V>(v: V) {
+  return validate<AxisConfig & V>(v, id, hashAxisConfig)
 }
 
 export interface OneAxisPlot {

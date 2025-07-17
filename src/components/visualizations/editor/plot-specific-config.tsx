@@ -12,6 +12,7 @@ import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner"
 import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config"
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor"
 import {useMemo} from "react"
+import {TwoAxisPlotConfig} from "@/components/visualizations/editor/two-axis-plot-config";
 
 
 type PlotSpecificConfigProps = {
@@ -44,34 +45,11 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
     </div>
 
     if(isTwoAxisPlot(config.spec)){
-        return <div className={"flex flex-col space-y-4 w-full"}>
-            <SearchableDropdown
-                options={columnOptions}
-                label={"Eje x"}
-                size={"small"}
-                selected={config.spec.xAxis ?? ""}
-                onChange={(v: string) => {
-                    setConfig(produce(config, draft => {
-                        if(isTwoAxisPlot(draft.spec)){
-                            draft.spec.xAxis = v
-                        }
-                    }))
-                }}
-            />
-            <SearchableDropdown
-                options={columnOptions}
-                label={"Eje y"}
-                size={"small"}
-                selected={config.spec.yAxis ??  ""}
-                onChange={(v: string) => {
-                    setConfig(produce(config, draft => {
-                        if(isTwoAxisPlot(draft.spec)){
-                            draft.spec.yAxis = v
-                        }
-                    }))
-                }}
-            />
-        </div>
+        return <TwoAxisPlotConfig
+            columnOptions={columnOptions}
+            config={config}
+            setConfig={setConfig}
+        />
     }
     if(isOneAxisPlot(config.spec)) {
         return <div>

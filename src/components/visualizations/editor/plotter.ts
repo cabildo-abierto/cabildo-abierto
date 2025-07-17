@@ -13,6 +13,7 @@ import { timeFormatLocale } from 'd3-time-format'
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
 import {cleanText} from "@/utils/strings";
+import {orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@/utils/arrays";
 
 export const esLocale = timeFormatLocale({
     dateTime: '%A, %e de %B de %Y, %X',
@@ -28,7 +29,7 @@ export const esLocale = timeFormatLocale({
 })
 
 export type DataRow = Record<string, any>
-export type DataPoint = {x: any, y: any}
+export type DataPoint<X=ValueType, Y=ValueType> = {x: X, y: Y, color?: string}
 export type TooltipHookType = ReturnType<typeof useTooltip>
 
 export type DataType = "number" | "string" | "date" | "string[]" | null
@@ -74,7 +75,7 @@ export class Plotter {
         return keys.length == this.columnNames.length
     }
 
-    public prepareForPlot(){
+    public prepareForPlot(): {error?: string}{
         throw Error("Debería estar implementado por una subclase.")
     }
 
@@ -99,20 +100,13 @@ export class Plotter {
             return (v as string[]).join(", ")
         }
     }
-
-    protected sortByX(): void {
-        this.dataPoints.sort((a, b) => a.x - b.x);
-    }
-
-    protected sortByY(): void {
-        this.dataPoints.sort((a, b) => b.y - a.y);
-    }
 }
 
 
 export class AxesPlotter extends Plotter {
     protected plotType: string;
     protected axes: Axis[] = []
+    protected xAxis: Axis
 
     static create(spec: Visualization["spec"], dataset: DatasetForTableView): AxesPlotter {
         if(isOneAxisPlot(spec)) {
@@ -225,7 +219,8 @@ export class AxesPlotter extends Plotter {
                 return [0, Math.max(...nums)]
             }
             if (axis === 'x'){
-                return this.dataPoints.map((d) => d.x)
+                const xValues = this.dataPoints.map((d) => d.x as number)
+                return [Math.min(...xValues), Math.max(...xValues)]
             }
         }
 
@@ -242,7 +237,7 @@ export class AxesPlotter extends Plotter {
         }
 
         if (type === "string") {
-            return this.dataPoints.map((d) => d.x)
+            return this.dataPoints.map((d) => d.x as string)
         }
 
         throw new Error("Scale only supported for number, date or string axes");
@@ -276,13 +271,39 @@ export class AxesPlotter extends Plotter {
         const detectedType = this.axes.find(a => a.name === "x")?.detectedType
         if (detectedType !== "date" || !this.dataPoints.length) return undefined
 
-        return this.parser.getDateFormater(this.dataPoints[0].x)
+        return this.parser.getDateFormater(this.dataPoints[0].x as Date)
+    }
+
+    protected sortByX(): void {
+        const detectedType = this.xAxis.detectedType
+
+        if(detectedType == "number"){
+            this.dataPoints = sortByKey(this.dataPoints, d => d.x, orderNumberAsc)
+        } else if(detectedType == "date"){
+            this.dataPoints = sortByKey(this.dataPoints, d => d.x, orderDateAsc)
+        } else if(detectedType == "string"){
+            this.dataPoints = sortByKey(this.dataPoints, d => d.x, orderStrAsc)
+        }
+    }
+
+    protected sortByY(): void {
+        const detectedType = this.axes.find(a => a.name == "y")?.detectedType
+        console.log("ordenando por y que es", detectedType)
+        if(!detectedType){
+            throw Error("No se encontró el eje y!")
+        }
+        if(detectedType == "number"){
+            this.dataPoints = sortByKey(this.dataPoints, d => d.y, orderNumberAsc)
+        } else if(detectedType == "date"){
+            this.dataPoints = sortByKey(this.dataPoints, d => d.y, orderDateAsc)
+        } else if(detectedType == "string"){
+            this.dataPoints = sortByKey(this.dataPoints, d => d.y, orderStrAsc)
+        }
     }
 }
 
 
 export class OneAxisPlotter extends AxesPlotter {
-    private xAxis: Axis
 
     constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
         super(spec, dataset)
@@ -298,9 +319,21 @@ export class OneAxisPlotter extends AxesPlotter {
         })
 
         this.dataPoints = Array.from(counts.entries()).map(([v, c]) => ({x: v, y: c}))
+        this.axes.push({
+            column: "count",
+            detectedType: "number",
+            name: "y"
+        })
 
         this.sortByX()
         this.sortByY()
+
+        if(this.isHistogram()) {
+            if(this.data.length > 100){
+                return {error: `El gráfico tiene demasiadas barras (${this.data.length}). Revisá la configuración.`}
+            }
+        }
+        return {}
     }
 
     yValueToString(y: ValueType): string {
@@ -311,54 +344,72 @@ export class OneAxisPlotter extends AxesPlotter {
 
 
 export class TwoAxisPlotter extends AxesPlotter {
-    private xAxis: Axis
-    private yAxis: Axis
+    private yAxes: Axis[]
 
     constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
         super(spec, dataset)
 
         if(isTwoAxisPlot(spec)) {
-            const detectedType = this.parser.guessType(this.data, spec.yAxis)
-            if(detectedType != "number"){
-                throw Error("El eje y debería ser un número.")
+            let yAxisCols: string[] = []
+            if(spec.yAxis){
+                yAxisCols = [spec.yAxis]
+            } else if(spec.yAxes){
+                yAxisCols = spec.yAxes.map(a => a.column)
             }
-            this.axes.push({
-                name: "y",
-                column: spec.yAxis,
-                detectedType
+            this.yAxes = yAxisCols.map(c => {
+                const detectedType = this.parser.guessType(this.data, c)
+                if(detectedType != "number"){
+                    throw Error("El eje y debería ser numérico.")
+                }
+                return {
+                    name: "y",
+                    column: c,
+                    detectedType
+                }
             })
+            this.axes.push(...this.yAxes)
         } else {
             throw Error("Debería ser un TwoAxisPlot!")
         }
 
         this.xAxis = this.axes.find(a => a.name == "x")
-        this.yAxis = this.axes.find(a => a.name == "y")
     }
 
     private createDataPoints(): void {
-        this.dataPoints = this.data.map(row => {
+        this.dataPoints = this.data.flatMap(row => {
             let x: ValueType = this.parser.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
-            let y: ValueType = this.parser.rawValueToDetectedType(row[this.yAxis.column], this.yAxis.detectedType)
 
-            return { x, y }
+            return this.yAxes.map(ax => {
+                return {
+                    x,
+                    y: this.parser.rawValueToDetectedType(row[ax.column], ax.detectedType),
+                    color: this.yAxes.length > 1 ? ax.column : undefined
+                }
+            })
         })
     }
 
     private groupSameX(): void {
-        const grouped = new Map<string | number | Date, number[]>();
+        const grouped = new Map<string | number | Date, Map<string, number[]>>()
 
-        this.dataPoints.forEach((d: any) => {
-            if (d.x != null && !isNaN(d.y)) {
-                grouped.set(d.x, [...(grouped.get(d.x) ?? []), d.y])
-            } else {
-                console.log(d, "is not being set")
+        this.dataPoints.forEach((d) => {
+            if (d.x != null && !(d.x instanceof Array)) {
+                const m = grouped.get(d.x) ?? new Map<string, number[]>
+                m.set(d.color, [...(m.get(d.color) ?? []), d.y as number])
+
+                grouped.set(d.x, m)
             }
         });
 
-        this.dataPoints = Array.from(grouped.entries()).map(([x, ys]) => ({
-            x: x,
-            y: ys.reduce((sum, val) => sum + val, 0) / ys.length
-        }));
+        this.dataPoints = Array.from(grouped.entries()).flatMap(([x, colors]) => {
+            return Array.from(colors.entries()).map(([color, ys]) => {
+                return {
+                    x: x,
+                    y: ys.reduce((sum, val) => sum + val, 0) / ys.length,
+                    color
+                }
+            })
+        });
     }
 
     public prepareForPlot() {
@@ -368,6 +419,7 @@ export class TwoAxisPlotter extends AxesPlotter {
         if(this.isBarplot()){
             this.sortByY()
         }
+        return {}
     }
 
     yValueToString(y: ValueType): string {
@@ -413,6 +465,7 @@ export class TablePlotter extends Plotter {
                 return this.cmpValues(key, a[key], b[key])
             })
         }
+        return {}
     }
 
     columnValueToString(value: any, col: string): string {

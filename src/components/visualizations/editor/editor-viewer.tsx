@@ -50,7 +50,7 @@ const EditorViewerViewVisualization = ({
                     height={500}
                 />
             </div> :
-            <div className={"w-full h-full flex justify-center items-center"}>
+            <div className={"w-full h-full flex justify-center items-center text-[var(--text-light)]"}>
                 <NextStep config={config}/>
             </div>}
     </div>
@@ -103,7 +103,7 @@ const EditorViewerViewDataForTopicsDataset = ({config}: {config: PlotConfigProps
             }}
         />
     } else {
-        return <div className={"h-full flex justify-center items-center"}>
+        return <div className={"h-full flex justify-center items-center text-[var(--text-light)]"}>
             <NextStep config={config}/>
         </div>
     }

@@ -1,22 +1,14 @@
-import React from "react";
-import { DataPoint, TooltipHookType } from "@/components/visualizations/editor/plotter";
-import { LinePath, Circle } from "@visx/shape";
-import { curveMonotoneX } from "d3-shape";
-import { localPoint } from "@visx/event";
-import { ScaleLinear, ScaleTime } from "d3-scale";
+import React, {useMemo} from "react";
+import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter";
+import {LinePath, Circle} from "@visx/shape";
+import {curveMonotoneX} from "d3-shape";
+import {localPoint} from "@visx/event";
+import {ScaleLinear, ScaleTime} from "d3-scale";
+import {palette} from "@/components/visualizations/palette";
+import {dist} from "@/utils/math";
 
-export function CurvePlotContent({
-                                     data,
-                                     xScale,
-                                     yScale,
-                                     showTooltip,
-                                     hideTooltip,
-                                     scaleFactorY,
-                                     scaleFactorX,
-                                     markerRadius = 4,
-    margin
-                                 }: {
-    data: DataPoint[];
+type Props = {
+    data: DataPoint<number, number>[];
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>;
     yScale: ScaleLinear<number, number>;
     showTooltip: TooltipHookType["showTooltip"];
@@ -25,9 +17,20 @@ export function CurvePlotContent({
     scaleFactorY: number;
     /** Radius (in px) of the point markers. Scaled internally by scaleFactor props. */
     markerRadius?: number;
-    margin: {left: number}
-}) {
-    // Scale marker radius based on the current zoom so it remains visually consistent.
+    margin: { left: number, top: number }
+}
+
+export function CurvePlotContent({
+    data,
+    xScale,
+    yScale,
+    showTooltip,
+    hideTooltip,
+    scaleFactorY,
+    scaleFactorX,
+    markerRadius = 4,
+    margin
+}: Props) {
     const effectiveRadius = markerRadius * Math.min(scaleFactorX, scaleFactorY);
 
     const handleMouseMove = (event: React.MouseEvent<SVGPathElement | SVGCircleElement>) => {
@@ -35,46 +38,54 @@ export function CurvePlotContent({
         if (!point) return;
 
         const x = point.x - margin.left
+        const y = point.y - margin.top
 
         const nearest = data.reduce((prev, curr) =>
-            Math.abs((xScale(curr.x) ?? 0) - x) < Math.abs((xScale(prev.x) ?? 0) - x) ? curr : prev
+            dist([xScale(curr.x) ?? 0, yScale(curr.y)], [x, y]) < dist([xScale(prev.x) ?? 0, yScale(prev.y)], [x, y]) ? curr : prev
         );
 
         showTooltip({
             tooltipData: nearest,
             tooltipLeft: xScale(nearest.x),
-            tooltipTop: yScale(nearest.y)+15,
+            tooltipTop: yScale(nearest.y) + 15,
         });
-    };
+    }
 
-    const showMarkers = data.length < 200
+    const {dataByColor, colors} = useMemo(() => {
+        const colors = Array.from(new Set<string>(data.map(d => d.color ?? "")))
+        const dataByColor = new Map<string, DataPoint<number, number>[]>()
+        data.forEach(d => {
+            const color = d.color ?? ""
+            dataByColor.set(color, [...(dataByColor.get(color) ?? []), d])
+        })
+        return {colors, dataByColor}
+    }, [data])
 
-    return (
-        <g>
+    return colors.map((color, colorIndex) => {
+        const colorData = dataByColor.get(color)
+        const showMarkers = colorData.length < 200
+        return <g key={color} onMouseMove={handleMouseMove}>
             <LinePath
-                data={data}
+                data={colorData}
                 x={(d) => xScale(d.x) ?? 0}
                 y={(d) => yScale(d.y)}
-                stroke="var(--primary)"
+                stroke={palette(colorIndex)}
                 strokeWidth={2 * Math.min(scaleFactorX, scaleFactorY)}
                 curve={curveMonotoneX}
-                onMouseMove={handleMouseMove}
                 onMouseLeave={() => hideTooltip()}
             />
-
-            {showMarkers && data.map((d, i) => (
+            {showMarkers && colorData.map((d, i) => (
                 <Circle
                     key={i}
                     cx={xScale(d.x) ?? 0}
                     cy={yScale(d.y)}
                     r={effectiveRadius}
-                    fill="var(--primary)"
+                    fill={palette(colorIndex)}
                     stroke="var(--background)"
                     strokeWidth={1}
-                    onMouseMove={handleMouseMove}
                     onMouseLeave={() => hideTooltip()}
                 />
             ))}
         </g>
-    );
+    })
 }

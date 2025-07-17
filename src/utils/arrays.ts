@@ -131,3 +131,17 @@ export function deepEqual(a: any, b: any): boolean {
 export function sum(a: number[]): number {
     return a.reduce((acc, cur) => acc + cur, 0)
 }
+
+
+export const orderStrAsc = (a: string, b: string) => {
+    return b > a ? 1 : -1
+}
+
+export const orderDateAsc = (a: Date, b: Date) => {
+    return b.getTime() - a.getTime()
+}
+
+export const orderNumberAsc = (a: number, b: number) => {
+    console.log("sorting!", a, b)
+    return b - a
+}
