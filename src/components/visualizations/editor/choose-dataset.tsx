@@ -227,7 +227,7 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
     const [newDatasetPanelOpen, setNewDatasetPanelOpen] = useState(false)
 
     useEffect(() => {
-        if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
+        if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets) {
             if (!datasets.some(d => isDatasetDataSource(config.dataSource) && d.uri == config.dataSource.dataset)) {
                 setConfig(produce(config, draft => {
                     if (isDatasetDataSource(draft.dataSource)) {

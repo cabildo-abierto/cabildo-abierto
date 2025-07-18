@@ -74,7 +74,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
 
     let unreadMessagesCount = undefined
     if (conversations) {
-        unreadMessagesCount = sum(conversations.map(c => c.unreadCount))
+        unreadMessagesCount = sum(conversations, c => c.unreadCount)
     }
 
     const showText = layoutConfig.openSidebar

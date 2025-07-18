@@ -19,7 +19,7 @@ type PublishArticleModalProps = {
 
 
 const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}: PublishArticleModalProps) => {
-    const [enDiscusion, setEnDiscusion] = useState(false)
+    const [enDiscusion, setEnDiscusion] = useState(true)
 
     const summary = useMemo(() => getArticleSummary(mdText), [mdText])
 

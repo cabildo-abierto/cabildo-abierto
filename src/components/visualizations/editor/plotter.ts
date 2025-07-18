@@ -13,7 +13,7 @@ import { timeFormatLocale } from 'd3-time-format'
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
 import {cleanText} from "@/utils/strings";
-import {orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@/utils/arrays";
+import {count, orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@/utils/arrays";
 
 export const esLocale = timeFormatLocale({
     dateTime: '%A, %e de %B de %Y, %X',
@@ -206,16 +206,20 @@ export class AxesPlotter extends Plotter {
 
     public getDomain(axis: string): [number, number] | [Date, Date] | string[]{
         const values = this.dataPoints.map((d) => d[axis])
-
         if(this.isHistogram() && axis == "y"){
-            return [0, Math.max(...values as number[])]
+            const nums = removeNulls(values as number[])
+            return [0, Math.max(...nums)]
+        }
+
+        function removeNulls(a: number[]){
+            return a.filter(x => x != null && !isNaN(x))
         }
 
         const type = this.getAxisType(axis)
 
         if ((this.isBarplot() || this.isHistogram()) && type === "number") {
             if (axis === 'y'){
-                const nums = values as number[];
+                const nums = removeNulls(values as number[])
                 return [0, Math.max(...nums)]
             }
             if (axis === 'x'){
@@ -225,8 +229,8 @@ export class AxesPlotter extends Plotter {
         }
 
         if (type === "number") {
-            const nums = values as number[];
-            return [Math.min(...nums), Math.max(...nums)];
+            const nums = removeNulls(values as number[])
+            return [Math.min(...nums), Math.max(...nums)]
         }
 
         if (type === "date") {
@@ -288,7 +292,6 @@ export class AxesPlotter extends Plotter {
 
     protected sortByY(): void {
         const detectedType = this.axes.find(a => a.name == "y")?.detectedType
-        console.log("ordenando por y que es", detectedType)
         if(!detectedType){
             throw Error("No se encontró el eje y!")
         }
@@ -299,6 +302,10 @@ export class AxesPlotter extends Plotter {
         } else if(detectedType == "string"){
             this.dataPoints = sortByKey(this.dataPoints, d => d.y, orderStrAsc)
         }
+    }
+
+    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string}[] {
+        throw Error("Debería estar implementado por una subclase!")
     }
 }
 
@@ -340,11 +347,16 @@ export class OneAxisPlotter extends AxesPlotter {
         const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
         return this.valueToString(y, "number", precision)
     }
+
+    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string}[] {
+        return [{label: undefined, value: this.yValueToString(tooltipData.y)}]
+    }
 }
 
 
 export class TwoAxisPlotter extends AxesPlotter {
     private yAxes: Axis[]
+    private xToYMap: Map<ValueType, {value: ValueType, color: string}[]> = new Map()
 
     constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
         super(spec, dataset)
@@ -409,22 +421,39 @@ export class TwoAxisPlotter extends AxesPlotter {
                     color
                 }
             })
-        });
+        })
+
+        this.xToYMap = new Map()
+        this.dataPoints.forEach(d => {
+            this.xToYMap.set(d.x, [...(this.xToYMap.get(d.x) ?? []), {color: d.color, value: d.y}])
+        })
     }
 
     public prepareForPlot() {
         this.createDataPoints()
         this.groupSameX()
-        this.sortByX()
+        /*this.sortByX()
         if(this.isBarplot()){
             this.sortByY()
-        }
+        }*/
         return {}
     }
 
     yValueToString(y: ValueType): string {
         const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
         return this.valueToString(y, this.getAxisType("y"), precision)
+    }
+
+    isMultipleYAxis() {
+        return count(this.axes, ax => (ax.name == "y")) > 1
+    }
+
+    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string}[] {
+        if(this.isMultipleYAxis()){
+            return this.xToYMap.get(tooltipData.x)?.map(x => ({value: this.yValueToString(x.value), label: x.color})) ?? []
+        } else {
+            return [{label: undefined, value: this.yValueToString(tooltipData.y)}]
+        }
     }
 }
 
