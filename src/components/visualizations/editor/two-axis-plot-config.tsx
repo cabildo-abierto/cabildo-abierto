@@ -13,7 +13,7 @@ type Props = {
 }
 
 export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => {
-    const [multipleYAxis, setMultipleYAxis] = useState(false)
+    const [multipleYAxis, setMultipleYAxis] = useState(isTwoAxisPlot(config.spec) && config.spec.yAxes && config.spec.yAxes.length > 0)
 
     if (!isTwoAxisPlot(config.spec)) {
         return null
@@ -73,6 +73,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             <Switch
                 size={"small"}
                 value={multipleYAxis}
+                defaultChecked={multipleYAxis}
                 onChange={(e, v) => {
                     setMultipleYAxis(v)
                     setConfig(produce(config, draft => {

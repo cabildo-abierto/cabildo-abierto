@@ -92,44 +92,12 @@ export function gett<K, V>(map: Map<K, V>, key: K): V {
 }
 
 
-export function shallowEqual<T extends Record<string, any>>(a: T, b: T): boolean {
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
-
-    if (keysA.length !== keysB.length) return false;
-
-    for (const key of keysA) {
-        if (a[key] !== b[key]) return false;
-    }
-
-    return true;
+export function sum<T>(a: T[], f: (x: T) => number): number {
+    return a.reduce((acc, x) => acc+f(x), 0)
 }
 
-
-export function deepEqual(a: any, b: any): boolean {
-    if (a === b) return true;
-
-    if (typeof a !== typeof b) return false;
-
-    if (a === null || b === null) return false;
-
-    if (typeof a !== "object") return false;
-
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
-    if (keysA.length !== keysB.length) return false;
-
-    for (const key of keysA) {
-        if (!keysB.includes(key)) return false;
-        if (!deepEqual(a[key], b[key])) return false;
-    }
-
-    return true;
-}
-
-
-export function sum(a: number[]): number {
-    return a.reduce((acc, cur) => acc + cur, 0)
+export function count<T>(a: T[], f: (x: T) => boolean): number {
+    return sum(a, x => f(x) ? 1 : 0)
 }
 
 
@@ -142,6 +110,5 @@ export const orderDateAsc = (a: Date, b: Date) => {
 }
 
 export const orderNumberAsc = (a: number, b: number) => {
-    console.log("sorting!", a, b)
     return b - a
 }

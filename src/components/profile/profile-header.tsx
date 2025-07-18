@@ -185,7 +185,7 @@ function ProfileHeader({
                 onSelection={(v) => {
                     setSelected(v)
                 }}
-                options={["Publicaciones", "Respuestas", ...(inCA ? ["Ediciones"] : [])]}
+                options={["Publicaciones", "Respuestas", ...(inCA ? ["Ediciones", "Artículos"] : [])]}
                 optionsNodes={optionsNodes}
                 className="flex"
             />

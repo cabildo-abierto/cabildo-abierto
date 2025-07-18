@@ -11,12 +11,13 @@ import {updateSearchParam} from "@/utils/fetch";
 const ProfileHeader = dynamic(() => import("./profile-header"), {ssr: false})
 const FeedViewContentFeed = dynamic(() => import("@/components/feed/feed/feed-view-content-feed"), {ssr: false})
 
-export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones"
+export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones" | "articulos"
 
 function profileDisplayToOption(s: string): ProfileFeedOption {
     if (s == "Publicaciones") return "publicaciones"
     if (s == "Respuestas") return "respuestas"
     if (s == "Ediciones") return "ediciones"
+    if (s == "Artículos") return "articulos"
     return "publicaciones"
 }
 
@@ -25,6 +26,7 @@ export function profileOptionToDisplay(s: string) {
     if (s == "publicaciones") return "Publicaciones"
     if (s == "respuestas") return "Respuestas"
     if (s == "ediciones") return "Ediciones"
+    if (s == "articulos") return "Artículos"
     return "Publicaciones"
 }
 
@@ -39,7 +41,7 @@ export const ProfilePage = ({
     const {data: profile} = useProfile(handle)
 
     const s = params.get("s")
-    let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" ? s : "publicaciones"
+    let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" || s == "articulos" ? s : "publicaciones"
 
     function setSelected(v: string) {
         updateSearchParam("s", profileDisplayToOption(v))
@@ -74,6 +76,13 @@ export const ProfilePage = ({
                     queryKey={["profile-feed", handle, "edits"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile.bsky) + " todavía no hizo ninguna edición en la wiki."}
+                    endText={"Fin del feed."}
+                />}
+            {selected == "articulos" &&
+                <FeedViewContentFeed
+                    queryKey={["profile-feed", handle, "articles"]}
+                    getFeed={getFeed({handleOrDid: handle, type: selected})}
+                    noResultsText={profile && getUsername(profile.bsky) + " todavía no publicó ningún artículo."}
                     endText={"Fin del feed."}
                 />}
         </div>

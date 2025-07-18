@@ -44,11 +44,13 @@ export function CurvePlotContent({
             dist([xScale(curr.x) ?? 0, yScale(curr.y)], [x, y]) < dist([xScale(prev.x) ?? 0, yScale(prev.y)], [x, y]) ? curr : prev
         );
 
-        showTooltip({
-            tooltipData: nearest,
-            tooltipLeft: xScale(nearest.x),
-            tooltipTop: yScale(nearest.y) + 15,
-        });
+        if(dist([xScale(nearest.x), yScale(nearest.y)], [x, y]) < 50){
+            showTooltip({
+                tooltipData: nearest,
+                tooltipLeft: xScale(nearest.x),
+                tooltipTop: yScale(nearest.y) + 15,
+            });
+        }
     }
 
     const {dataByColor, colors} = useMemo(() => {

@@ -55,7 +55,6 @@ const hslToHex = ({ h, s, l }: { h: number, s: number, l: number }): string => {
 }
 
 export const palette = (index: number): string => {
-    console.log("getting color for index", index)
     if (index < colors.length) {
         return colors[index]
     }

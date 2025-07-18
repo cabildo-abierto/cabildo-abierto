@@ -28,21 +28,29 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 
 
-export function TwoAxisTooltip({xLabel, yLabel, xValue, yValue}: {
+export function TwoAxisTooltip({xLabel, yLabel, xValue, yValues}: {
     xLabel: string,
     yLabel: string,
     xValue: string,
-    yValue: string
+    yValues: {value: string, label: string}[]
 }) {
     return (
         <div className={"bg-[var(--background)] border-2 border-[var(--text)] p-1 text-sm"}>
             <div className={"flex justify-between space-x-2"}>
-                <div className={"font-bold"}>{yLabel}</div>
-                <div>{yValue}</div>
-            </div>
-            <div className={"flex justify-between space-x-2"}>
                 <span className={"font-bold"}>{xLabel}</span>
                 <div>{xValue}</div>
+            </div>
+            <div>
+                {yValues.map((v, index) => {
+                    return <div key={index} className={"flex justify-between space-x-2"}>
+                        <div className={"font-bold"}>
+                            {v.label ?? yLabel}
+                        </div>
+                        <div>
+                            {v.value}
+                        </div>
+                    </div>
+                })}
             </div>
         </div>
     )
@@ -218,7 +226,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         xLabel={spec.xLabel ?? spec.xAxis}
                         yLabel={yLabel}
                         xValue={plotter.xValueToString(tooltipData.x)}
-                        yValue={plotter.yValueToString(tooltipData.y)}
+                        yValues={plotter.getTooltipYValues(tooltipData)}
                     />
                 </TooltipInPortal>
             )}
