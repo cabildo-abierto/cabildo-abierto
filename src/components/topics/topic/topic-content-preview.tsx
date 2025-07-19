@@ -22,6 +22,7 @@ export const TopicContentPreview = ({
     if (topic.text == null || topic.text.trim().length == 0) {
         return <div className={"my-4"}>
             <button
+                id={"maximize-topic"}
                 className={"h-32 w-full rounded space-y-4 border hover:bg-[var(--background-dark)] text-[var(--text-light)]"}
                 onClick={() => {
                     router.push(topicUrl(topic.id, undefined, "editing"))

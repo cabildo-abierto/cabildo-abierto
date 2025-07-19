@@ -39,7 +39,7 @@ const minimizedSteps: Step[] = [
     {
         target: '#maximize-topic',
         content: <TourContent>
-            Para verlo mejor, editarlo o comentar una selección de texto, lo podés maximizar.
+            Para verlo mejor, editarlo o comentar una selección de texto, lo podés maximizar apretando acá.
         </TourContent>,
         placement: 'bottom',
         disableBeacon: true,
