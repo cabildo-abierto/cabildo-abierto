@@ -26,13 +26,42 @@ export function searchParamToMainFeedOption(v: string): MainFeedOption {
 }
 
 
-export function useEnDiscusionParams() {
+export type FollowingFeedFilterOption = "Todos" | "Solo Cabildo Abierto"
+export type FeedFormatOption = "Todos" | "Artículos"
+export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad relativa" | "Recientes"
+export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes"
+const enDiscusionMetricOptions: EnDiscusionMetric[] = ["Me gustas", "Interacciones", "Popularidad relativa", "Recientes"]
+const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Último mes", "Última semana"]
+const feedFormatOptions: FeedFormatOption[] = ["Todos", "Artículos"]
+const followingFeedFilterOption: FollowingFeedFilterOption[] = ["Todos", "Solo Cabildo Abierto"]
+
+export function useFollowingParams(): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const metric = params.get("m") ?? "Popularidad relativa"
-    const time = params.get("p") ?? "Última semana"
+    const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, "Todos")
+    const format = stringToEnum(params.get("formato"), feedFormatOptions, "Todos")
 
-    return {metric, time}
+    return {filter, format}
+}
+
+
+function stringToEnum<T>(s: string | undefined, options: string[], defaultValue: T): T {
+    if(!s || !options.includes(s)){
+        return defaultValue
+    } else {
+        return s as T
+    }
+}
+
+
+export function useEnDiscusionParams(): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
+    const params = useSearchParams()
+
+    const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions,"Popularidad relativa")
+    const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, "Última semana")
+    const format = params.get("formato") == "Artículos" ? "Artículos" : "Todos"
+
+    return {metric, time, format}
 }
 
 
@@ -41,6 +70,7 @@ export const MainPage = () => {
     const paramsFeed = params.get("f")
     const selected = paramsFeed ? searchParamToMainFeedOption(paramsFeed) : "Siguiendo"
     const {metric, time} = useEnDiscusionParams()
+    const {filter, format} = useFollowingParams()
 
     function onSelection(v: MainFeedOption) {
         updateSearchParam("f", mainFeedOptionToSearchParam(v))
@@ -55,17 +85,17 @@ export const MainPage = () => {
         </div>
         {selected == "Siguiendo" &&
         <FeedViewContentFeed
-            getFeed={getFeed({type: "siguiendo"})}
+            getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
             noResultsText={"No se encontraron contenidos. Buscá usuarios para seguir."}
             endText={"Fin del feed."}
-            queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
+            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
         />}
         {selected == "En discusión" &&
         <FeedViewContentFeed
-            getFeed={getFeed({type: "discusion", params: {metric, time}})}
+            getFeed={getFeed({type: "discusion", params: {metric, time, format}})}
             noResultsText={"No hay contenidos en discusión."}
             endText={"Fin del feed."}
-            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time]}
+            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time, format]}
         />}
     </div>
 }

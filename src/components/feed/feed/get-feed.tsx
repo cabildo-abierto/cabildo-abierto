@@ -1,9 +1,19 @@
 import {get} from "@/utils/fetch";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {GetFeedOutput, GetFeedProps} from "@/lib/types";
+import {FeedFormatOption, FollowingFeedFilterOption} from "@/components/inicio/main-page";
 
 
-function getFeedRoute(type: string, handleOrDid?: string, cursor?: string, params?: {metric: string, time: string}) {
+function setSearchParams(baseUrl: string, params: {[key: string]: string | undefined}): string {
+    const keyValues = Array.from(Object.entries(params))
+    if(keyValues.length == 0) {
+        return baseUrl
+    }
+    return baseUrl + "?" + keyValues.filter(([_, value]) => value != undefined).map(([key, value]) => `${key}=${value}`).join("&")
+}
+
+
+function getFeedRoute(type: string, handleOrDid?: string, cursor?: string, params?: {metric?: string, time?: string, filter?: FollowingFeedFilterOption, format?: FeedFormatOption}) {
     let base: string
     if (["publicaciones", "respuestas", "ediciones", "articulos"].includes(type) && handleOrDid) {
         base = `/profile-feed/${handleOrDid}/${type}`
@@ -13,16 +23,16 @@ function getFeedRoute(type: string, handleOrDid?: string, cursor?: string, param
         throw new Error(`Tipo de feed inválido: ${type}`)
     }
     if(params){
-        return base + `?metric=${params.metric}&time=${params.time}` + (cursor ? `&cursor=${cursor}` : "")
+        return setSearchParams(base, {...params, cursor})
     }
-    return base + (cursor ? `?cursor=${cursor}` : "")
+    return setSearchParams(base, {cursor})
 }
 
 
 export const getFeed = ({handleOrDid, type, params}: {
     handleOrDid?: string
     type: string
-    params?: {metric: string, time: string}
+    params?: {metric?: string, time?: string, filter?: FollowingFeedFilterOption, format?: FeedFormatOption}
 }): GetFeedProps<FeedViewContent> =>
     async (cursor) => {
         const {
