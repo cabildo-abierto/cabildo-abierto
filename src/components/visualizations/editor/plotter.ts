@@ -304,7 +304,7 @@ export class AxesPlotter extends Plotter {
         }
     }
 
-    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string}[] {
+    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string, selected: boolean}[] {
         throw Error("Debería estar implementado por una subclase!")
     }
 }
@@ -348,8 +348,8 @@ export class OneAxisPlotter extends AxesPlotter {
         return this.valueToString(y, "number", precision)
     }
 
-    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string}[] {
-        return [{label: undefined, value: this.yValueToString(tooltipData.y)}]
+    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string, selected: boolean}[] {
+        return [{label: undefined, value: this.yValueToString(tooltipData.y), selected: true}]
     }
 }
 
@@ -448,11 +448,15 @@ export class TwoAxisPlotter extends AxesPlotter {
         return count(this.axes, ax => (ax.name == "y")) > 1
     }
 
-    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType}): {label: string, value: string}[] {
+    public getTooltipYValues(tooltipData: {x: ValueType, y: ValueType, color: string}): {label: string, value: string, selected: boolean}[] {
         if(this.isMultipleYAxis()){
-            return this.xToYMap.get(tooltipData.x)?.map(x => ({value: this.yValueToString(x.value), label: x.color})) ?? []
+            return this.xToYMap.get(tooltipData.x)?.map(x => ({
+                value: this.yValueToString(x.value),
+                label: x.color,
+                selected: tooltipData.color == x.color
+            })) ?? []
         } else {
-            return [{label: undefined, value: this.yValueToString(tooltipData.y)}]
+            return [{label: undefined, value: this.yValueToString(tooltipData.y), selected: true}]
         }
     }
 }

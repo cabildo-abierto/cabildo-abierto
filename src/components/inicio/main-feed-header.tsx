@@ -1,6 +1,10 @@
 import SelectionComponent from "@/components/buscar/search-selection-component"
 import {MobileHeader} from "../layout/mobile-header";
-import {mainFeedOptionToSearchParam, useEnDiscusionParams} from "@/components/inicio/main-page";
+import {
+    mainFeedOptionToSearchParam,
+    useEnDiscusionParams,
+    useFollowingParams
+} from "@/components/inicio/main-page";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
 import {Select} from "../../../modules/ui-utils/src/select";
@@ -11,48 +15,102 @@ import {updateSearchParam} from "@/utils/fetch";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
 
 
-const FeedConfig = () => {
-    const buttonRef = useRef<HTMLButtonElement>(null)
-    const {metric, time} = useEnDiscusionParams()
+const EnDiscusionFeedConfig = () => {
+    const {metric, time, format} = useEnDiscusionParams()
 
-    function setMetric(v: string){
+    function setMetric(v: string) {
         updateSearchParam("m", v)
     }
 
-    function setTime(v: string){
+    function setTime(v: string) {
         updateSearchParam("p", v)
     }
+
+    function setFormat(v: string) {
+        updateSearchParam("formato", v)
+    }
+
+    return <div className={"space-y-4"}>
+        <Select
+            options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
+            onChange={setMetric}
+            value={metric}
+            label={"Métrica"}
+            fontSize={"14px"}
+            labelShrinkFontSize={"14px"}
+            textClassName={"text-sm text-[var(--text)]"}
+        />
+        {metric != "Recientes" && <Select
+            options={["Último día", "Última semana", "Último mes"]}
+            onChange={setTime}
+            value={time}
+            fontSize={"14px"}
+            labelShrinkFontSize={"14px"}
+            label={"Período"}
+            textClassName={"text-sm text-[var(--text)]"}
+        />}
+        <Select
+            options={["Todos", "Artículos"]}
+            onChange={setFormat}
+            value={format}
+            label={"Formato"}
+            fontSize={"14px"}
+            labelShrinkFontSize={"14px"}
+            textClassName={"text-sm text-[var(--text)]"}
+        />
+    </div>
+}
+
+
+const SiguiendoFeedConfig = () => {
+    const {filter, format} = useFollowingParams()
+
+    function setFilter(v: string) {
+        updateSearchParam("filtro", v)
+    }
+    function setFormat(v: string) {
+        updateSearchParam("formato", v)
+    }
+
+    return <div className={"space-y-4"}>
+        <Select
+            options={["Todos", "Solo Cabildo Abierto"]}
+            onChange={setFilter}
+            value={filter}
+            label={"Filtro"}
+            fontSize={"14px"}
+            labelShrinkFontSize={"14px"}
+            textClassName={"text-sm text-[var(--text)]"}
+        />
+        <Select
+            options={["Todos", "Artículos"]}
+            onChange={setFormat}
+            value={format}
+            label={"Formato"}
+            fontSize={"14px"}
+            labelShrinkFontSize={"14px"}
+            textClassName={"text-sm text-[var(--text)]"}
+        />
+    </div>
+}
+
+
+const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
+    const buttonRef = useRef<HTMLButtonElement>(null)
 
     const modal = (close: () => void) => (
         <div className={"p-2 space-y-4 bg-[var(--background-dark)] border w-56"}>
             <div className={"w-full flex justify-between items-end space-x-8"}>
                 <div className={"text-sm text-[var(--text)]"}>
-                    Configurar <span className={"font-semibold text-[var(--text-light)]"}>En discusión</span>
+                    Configurar <span className={"font-semibold text-[var(--text-light)]"}
+                >{selected}</span>
                 </div>
                 <InfoPanel onClick={() => {
                     window.open(topicUrl("Cabildo Abierto: Muros"), "_blank")
                 }}/>
             </div>
-            <div className={"space-y-4"}>
-                <Select
-                    options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
-                    onChange={setMetric}
-                    value={metric}
-                    label={"Métrica"}
-                    fontSize={"14px"}
-                    labelShrinkFontSize={"14px"}
-                    textClassName={"text-sm text-[var(--text)]"}
-                />
-                {metric != "Recientes" && <Select
-                    options={["Último día", "Última semana", "Último mes"]}
-                    onChange={setTime}
-                    value={time}
-                    fontSize={"14px"}
-                    labelShrinkFontSize={"14px"}
-                    label={"Período"}
-                    textClassName={"text-sm text-[var(--text)]"}
-                />}
-            </div>
+            {selected == "En discusión" && <EnDiscusionFeedConfig/>}
+            {selected == "Siguiendo" && <SiguiendoFeedConfig/>}
         </div>
     )
 
@@ -107,7 +165,7 @@ export const MainFeedHeader = ({
                 optionsNodes={optionsNodes}
                 className="flex"
             />
-            {selected == "En discusión" && <FeedConfig/>}
+            <FeedConfig selected={selected}/>
         </div>
     </div>
 }

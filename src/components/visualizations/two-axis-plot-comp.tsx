@@ -26,27 +26,31 @@ import {$Typed} from "@atproto/api";
 import {ScatterplotContent} from "@/components/visualizations/scatterplot";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
+import {palette} from "./palette";
 
 
 export function TwoAxisTooltip({xLabel, yLabel, xValue, yValues}: {
     xLabel: string,
     yLabel: string,
     xValue: string,
-    yValues: {value: string, label: string}[]
+    yValues: { value: string, label: string, selected: boolean }[]
 }) {
     return (
         <div className={"bg-[var(--background)] border-2 border-[var(--text)] p-1 text-sm"}>
             <div className={"flex justify-between space-x-2"}>
                 <span className={"font-bold"}>{xLabel}</span>
-                <div>{xValue}</div>
+                <div className={"font-bold"}>{xValue}</div>
             </div>
             <div>
                 {yValues.map((v, index) => {
-                    return <div key={index} className={"flex justify-between space-x-2"}>
-                        <div className={"font-bold"}>
-                            {v.label ?? yLabel}
+                    return <div key={index} className={"flex justify-between items-center space-x-2"}>
+                        <div className={"flex space-x-1 items-center"}>
+                            <div className={"w-3 h-3 rounded-full"} style={{backgroundColor: palette(index)}}/>
+                            <div className={v.selected ? "font-bold" : "text-[var(--text-light)]"}>
+                                {v.label ?? yLabel}
+                            </div>
                         </div>
-                        <div>
+                        <div className={v.selected ? "font-bold" : "text-[var(--text-light)]"}>
                             {v.value}
                         </div>
                     </div>
@@ -124,12 +128,12 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
             try {
                 const plotter = AxesPlotter.create(spec, visualization.dataset)
                 const {error} = plotter.prepareForPlot()
-                if(error){
+                if (error) {
                     return {error}
                 }
                 return {plotter}
             } catch (err) {
-                if(err instanceof Error) {
+                if (err instanceof Error) {
                     return {error: err.message}
                 } else {
                     return {error: "Ocurrió un error intentando crear el gráfico."}
@@ -208,9 +212,9 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         >
             <div style={{height: titleHeight, maxWidth: svgWidth}}>
                 <PlotTitle
-                title={vis.title}
-                fontSize={18 * Math.min(scaleFactorX, scaleFactorY)}
-            />
+                    title={vis.title}
+                    fontSize={18 * Math.min(scaleFactorX, scaleFactorY)}
+                />
             </div>
             {tooltipOpen && tooltipData && (
                 <TooltipInPortal
@@ -255,7 +259,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                     return <svg
                         width={svgWidth}
                         height={svgHeight}
-                        style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                        style={{cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none'}}
                         ref={zoom.containerRef}
                     >
                         <defs>
@@ -358,7 +362,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 }}
             </Zoom>
             <div style={{maxWidth: svgWidth, height: captionHeight}}>
-            <PlotCaption caption={vis.caption} fontSize={Math.min(15, 16 * Math.min(scaleFactorX, scaleFactorY))}/>
+                <PlotCaption caption={vis.caption} fontSize={Math.min(15, 16 * Math.min(scaleFactorX, scaleFactorY))}/>
             </div>
         </div>
     );
