@@ -4,12 +4,13 @@ import {
     isTopicsDatasetView,
     TopicsDatasetView
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {TablePlotter} from "@/components/visualizations/editor/plotter";
 import SearchBar from "@/components/buscar/search-bar";
 import {Table} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
+import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 
 
 export type RawDatasetView = {
@@ -34,13 +35,14 @@ const TableRow = ({values, plotter, columns, href}: {
     values: [string, any][]
     dataset: DatasetForTableView
     plotter: TablePlotter
-    columns: Map<string, string>
+    columns: [string, string][]
     href?: string
     columnsConfig?: Table["columns"]
 }) => {
-    return values.map(([col, value], colIndex) => {
-        if (columns.has(col)) {
-            const content = plotter.columnValueToString(value, col)
+    return columns.map(([col, header], colIndex) => {
+        const value = values.find(v => v[0] == col)
+        if (value) {
+            const content = plotter.columnValueToString(value[1], col)
 
             if (href) {
                 return <td
@@ -53,12 +55,14 @@ const TableRow = ({values, plotter, columns, href}: {
                     <Link
                         href={href}
                         target="_blank"
+                        className={"line-clamp-2"}
+                        title={content}
                     >
                         {content}
                     </Link>
                 </td>
             } else {
-                return <td className="border-none px-4 py-2" key={colIndex}>
+                return <td className="border-none px-4 line-clamp-2 py-2" title={content} key={colIndex}>
                     {content}
                 </td>
             }
@@ -67,18 +71,49 @@ const TableRow = ({values, plotter, columns, href}: {
 }
 
 
+export type DatasetSortOrder = { col: string, order: "asc" | "desc" }
+
+
+export function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState(value)
+
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedValue(value), delay)
+        return () => clearTimeout(handler)
+    }, [value, delay])
+
+    return debouncedValue
+}
+
+
 export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight, maxWidth}: DatasetTableViewProps) => {
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
+    const [sortingBy, setSortingBy] = useState<DatasetSortOrder | null>(null)
+    const debouncedSearchValue = useDebounce(searchValue, 100)
+    const plotterRef = useRef<TablePlotter | null>(null)
 
     const plotter = useMemo(() => {
+        const prev = plotterRef.current
         const plotter = new TablePlotter({
             $type: "ar.cabildoabierto.embed.visualization#table",
             columns: columnsConfig
-        }, dataset, sort, searchValue)
-        plotter.prepareForPlot()
+        }, dataset, sortingBy, searchValue)
+        plotter.prepareForPlot(prev)
+        plotterRef.current = plotter
         return plotter
-    }, [dataset])
+    }, [dataset, sortingBy, debouncedSearchValue])
+
+    const columns = plotter.getKeysToHeadersMap()
+
+    useEffect(() => {
+        if (!sortingBy && sort && columns) {
+            setSortingBy({
+                col: columns[0][0],
+                order: "desc"
+            })
+        }
+    }, [sortingBy, sort])
 
     const empty = plotter.isEmpty()
 
@@ -87,8 +122,6 @@ export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight
             El conjunto de datos está vacío.
         </div>
     )
-
-    const columns = plotter.getKeysToHeadersMap()
 
     return <div
         className={"border rounded-lg mb-4 custom-scrollbar overflow-scroll text-sm grow"}
@@ -106,12 +139,34 @@ export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight
                 />
             </div>
         </div>
-        <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
+        <table className="table-fixed w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)]">
-            <tr>
-                {Array.from(columns.values()).map((header, colIndex) => {
-                    return <th key={colIndex} className="px-4 py-2 text-left">
-                        {header}
+            <tr className={""}>
+                {columns.map(([col, header], colIndex) => {
+
+                    function onClick() {
+                        if (sortingBy && sortingBy.col == col) {
+                            setSortingBy({
+                                col,
+                                order: sortingBy.order == "desc" ? "asc" : "desc"
+                            })
+                        } else {
+                            setSortingBy({
+                                col,
+                                order: "desc"
+                            })
+                        }
+                    }
+
+                    return <th key={colIndex} className="text-left px-4 py-2 cursor-pointer" onClick={onClick}>
+                        <div className="inline-flex items-center gap-1">
+                            <span>{header}</span>
+                            {sortingBy && sortingBy.col == col && (
+                                <span className="inline-block">
+                                    {sortingBy.order == "desc" ? <CaretDownIcon/> : <CaretUpIcon/>}
+                                </span>
+                            )}
+                        </div>
                     </th>
                 })}
             </tr>
