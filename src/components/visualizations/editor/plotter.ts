@@ -11,7 +11,7 @@ import {
 import {DataParser} from "@/components/visualizations/editor/data-parser";
 import { timeFormatLocale } from 'd3-time-format'
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView, DatasetSortOrder} from "@/components/datasets/dataset-table-view";
 import {cleanText} from "@/utils/strings";
 import {count, orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@/utils/arrays";
 
@@ -54,6 +54,7 @@ export class Plotter {
     public columns: Column[]
     protected columnNames: string[]
     protected spec: Visualization["spec"]
+    protected dataset: DatasetForTableView
 
     constructor(
         spec: Visualization["spec"],
@@ -62,7 +63,7 @@ export class Plotter {
         this.spec = spec
         this.columns = dataset.columns
         this.columnNames = this.columns.map(c => c.name).sort()
-        this.data = this.preprocessRawData(dataset.data)
+        this.dataset = dataset
     }
 
     preprocessRawData(rawData: string): DataRow[] {
@@ -75,8 +76,9 @@ export class Plotter {
         return keys.length == this.columnNames.length
     }
 
-    public prepareForPlot(): {error?: string}{
-        throw Error("Debería estar implementado por una subclase.")
+    public prepareForPlot(prev?: Plotter): {error?: string} {
+        this.data = this.preprocessRawData(this.dataset.data)
+        return {}
     }
 
     public getDataPoints(): DataPoint[] {
@@ -122,17 +124,26 @@ export class AxesPlotter extends Plotter {
         super(spec, dataset)
 
         if(isTwoAxisPlot(spec) || isOneAxisPlot(spec)){
-            const detectedType = this.parser.guessType(this.data, spec.xAxis)
-            this.axes.push({
-                name: "x",
-                column: spec.xAxis,
-                detectedType
-            })
         } else {
             throw Error(`Axis plot desconocido: ${spec.$type}`)
         }
 
         this.plotType = spec.plot.$type;
+    }
+
+
+    prepareForPlot(prev?: Plotter): { error?: string } {
+        super.prepareForPlot(prev)
+        if(isTwoAxisPlot(this.spec) || isOneAxisPlot(this.spec)){
+            const detectedType = this.parser.guessType(this.data, this.spec.xAxis)
+            this.axes.push({
+                name: "x",
+                column: this.spec.xAxis,
+                detectedType
+            })
+            this.xAxis = this.axes.find(a => a.name == "x")
+        }
+        return {}
     }
 
 
@@ -244,7 +255,7 @@ export class AxesPlotter extends Plotter {
             return this.dataPoints.map((d) => d.x as string)
         }
 
-        throw new Error("Scale only supported for number, date or string axes");
+        throw new Error(`Tipo de datos del eje ${axis} no soportado para este gráfico: ${type}.`);
     }
 
     isBarplot(): boolean {
@@ -314,10 +325,10 @@ export class OneAxisPlotter extends AxesPlotter {
 
     constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
         super(spec, dataset)
-        this.xAxis = this.axes.find(a => a.name == "x")
     }
 
-    public prepareForPlot() {
+    public prepareForPlot(prev?: Plotter) {
+        super.prepareForPlot(prev)
         const counts = new Map<ValueType, number>()
         this.data.forEach(row => {
             const v = this.parser.rawValueToDetectedType(row[this.xAxis.column], this.xAxis.detectedType)
@@ -360,31 +371,6 @@ export class TwoAxisPlotter extends AxesPlotter {
 
     constructor(spec: Visualization["spec"], dataset: DatasetForTableView) {
         super(spec, dataset)
-
-        if(isTwoAxisPlot(spec)) {
-            let yAxisCols: string[] = []
-            if(spec.yAxis){
-                yAxisCols = [spec.yAxis]
-            } else if(spec.yAxes){
-                yAxisCols = spec.yAxes.map(a => a.column)
-            }
-            this.yAxes = yAxisCols.map(c => {
-                const detectedType = this.parser.guessType(this.data, c)
-                if(detectedType != "number"){
-                    throw Error("El eje y debería ser numérico.")
-                }
-                return {
-                    name: "y",
-                    column: c,
-                    detectedType
-                }
-            })
-            this.axes.push(...this.yAxes)
-        } else {
-            throw Error("Debería ser un TwoAxisPlot!")
-        }
-
-        this.xAxis = this.axes.find(a => a.name == "x")
     }
 
     private createDataPoints(): void {
@@ -429,13 +415,35 @@ export class TwoAxisPlotter extends AxesPlotter {
         })
     }
 
-    public prepareForPlot() {
+    public prepareForPlot(prev?: Plotter) {
+        super.prepareForPlot(prev)
+
+        const spec = this.spec
+        if(isTwoAxisPlot(spec)) {
+            let yAxisCols: string[] = []
+            if(spec.yAxis){
+                yAxisCols = [spec.yAxis]
+            } else if(spec.yAxes){
+                yAxisCols = spec.yAxes.map(a => a.column)
+            }
+            this.yAxes = yAxisCols.map(c => {
+                const detectedType = this.parser.guessType(this.data, c)
+                if(detectedType != "number"){
+                    throw Error("El eje y debería ser numérico.")
+                }
+                return {
+                    name: "y",
+                    column: c,
+                    detectedType
+                }
+            })
+            this.axes.push(...this.yAxes)
+        } else {
+            throw Error("Debería ser un TwoAxisPlot!")
+        }
+
         this.createDataPoints()
         this.groupSameX()
-        /*this.sortByX()
-        if(this.isBarplot()){
-            this.sortByY()
-        }*/
         return {}
     }
 
@@ -464,38 +472,53 @@ export class TwoAxisPlotter extends AxesPlotter {
 
 export class TablePlotter extends Plotter {
     private columnTypes: Map<string, DataType> = new Map()
-    private sort: boolean
+    private sortingBy: DatasetSortOrder | null
     private searchValue: string
     public dataForPlot: DataRow[]
+    public strRows: string[][]
 
-    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, sort: boolean, searchValue?: string) {
+    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, sortingBy: DatasetSortOrder | null, searchValue?: string) {
         super(spec, dataset)
-        this.sort = sort
+        this.sortingBy = sortingBy
         this.searchValue = searchValue
-
-        if(this.data.length > 0){
-            const d0 = this.data[0]
-            Object.entries(d0).forEach(([colName, _]) => {
-                const t = this.parser.guessType(this.data, colName)
-                this.columnTypes.set(colName, t)
-            })
-        }
     }
 
-    prepareForPlot() {
-        this.dataForPlot = this.data
-        if (this.searchValue && this.searchValue.length > 0) {
-            const searchKey = cleanText(this.searchValue)
-            this.dataForPlot = this.dataForPlot.filter(row => {
-                return Array.from(Object.entries(row)).some(([k, v]) => {
-                    return cleanText(this.columnValueToString(v, k)).includes(searchKey)
+    prepareForPlot(prev?: TablePlotter) {
+        super.prepareForPlot(prev)
+
+        if(prev){
+            this.columnTypes = prev.columnTypes
+        } else {
+            if(this.data.length > 0){
+                const d0 = this.data[0]
+                Object.entries(d0).forEach(([colName, _]) => {
+                    const t = this.parser.guessType(this.data, colName)
+                    this.columnTypes.set(colName, t)
+                })
+            }
+        }
+
+        if(prev){
+            this.strRows = prev.strRows
+        } else {
+            this.strRows = this.data.map(r => {
+                return Array.from(Object.entries(r)).map(([key, value]) => {
+                    return cleanText(this.columnValueToString(value, key))
                 })
             })
         }
-        if(this.sort){
-            const key = this.columns[0].name
+
+        this.dataForPlot = this.data
+        if (this.searchValue && this.searchValue.length > 0) {
+            const searchKey = cleanText(this.searchValue)
+            this.dataForPlot = this.dataForPlot.filter(((row, index) => {
+                return this.strRows[index].some(x => x.includes(searchKey))
+            }))
+        }
+        if(this.sortingBy){
+            const col = this.sortingBy.col
             this.dataForPlot = this.dataForPlot.toSorted((a, b) => {
-                return this.cmpValues(key, a[key], b[key])
+                return (this.sortingBy.order == "desc" ? -1 : 1) * this.cmpValues(col, a[col], b[col])
             })
         }
         return {}
@@ -533,21 +556,21 @@ export class TablePlotter extends Plotter {
         return this.data.length == 0
     }
 
-    getKeysToHeadersMap(): Map<string, string> {
-        const m = new Map<string, string>()
+    getKeysToHeadersMap(): [string, string][] {
+        const res: [string, string][] = []
 
         if(isTable(this.spec)) {
             const config = this.spec.columns
             if(config && config.length > 0){
                 config.forEach(c => {
-                    m.set(c.columnName, c.alias)
+                    res.push([c.columnName, c.alias ?? c.columnName])
                 })
             } else {
                 this.columns.forEach(c => {
-                    m.set(c.name, c.name)
+                    res.push([c.name, c.name])
                 })
             }
         }
-        return m
+        return res
     }
 }

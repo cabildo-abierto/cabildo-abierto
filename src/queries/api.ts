@@ -271,6 +271,18 @@ export function useStatsDashboard() {
     return useAPI<StatsDashboard>("/stats-dashboard", ["stats-dashboard"])
 }
 
+export type ActivityStats = {
+    did: string
+    handle: string
+    articles: number
+    topicVersions: number
+    enDiscusion: number
+}[]
+
+export function useActivityStats() {
+    return useAPI<ActivityStats>("/activity-stats", ["activity-stats"])
+}
+
 
 export function useNotifications() {
     return useAPI<CANotification[]>("/notifications/list", ["notifications"])

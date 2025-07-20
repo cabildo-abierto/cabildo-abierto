@@ -37,15 +37,6 @@ export function nextSubscriptionEnd(user: { subscriptionsUsed: { endsAt: string 
 }
 
 
-export function validSubscription(user: { subscriptionsUsed: { endsAt: string | Date }[] } | undefined) {
-    if (!user) return false
-    if (user.subscriptionsUsed.length == 0) return false
-
-    const nextEnd = nextSubscriptionEnd(user)
-    return nextEnd > new Date()
-}
-
-
 export function getUsername(user: { displayName?: string, handle: string, did: string }) {
     return user.displayName ? user.displayName : (user.handle ? "@" + user.handle : user.did)
 }
@@ -55,6 +46,16 @@ export const ErrorMsg = ({text}: { text: string }) => {
     return <div className="text-red-600 text-sm">
         {text}
     </div>
+}
+
+
+export function logTimes(s: string, times: number[]){
+    const diffs: number[] = []
+    for(let i = 1; i < times.length; i++){
+        diffs.push(times[i]-times[i-1])
+    }
+    const sum = diffs.join(" + ")
+    console.log(s, times[times.length-1]-times[0], "=", sum)
 }
 
 
