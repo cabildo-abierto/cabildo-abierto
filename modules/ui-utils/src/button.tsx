@@ -44,8 +44,8 @@ export const Button = ({
     const densePadding = dense ? {
         paddingTop: 0,
         paddingBottom: 0,
-        paddingLeft: 0,
-        paddingRight: 0
+        paddingLeft: "5px",
+        paddingRight: "5px"
     } : {}
 
     return (

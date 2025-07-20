@@ -61,7 +61,6 @@ export const ContentsSearchResults = () => {
     return <FeedViewContentFeed
         queryKey={["search-contents", resultsValue]}
         initialContents={results}
-        isThreadFeed={true}
         noResultsText={"No se encontraron resultados."}
         endText={""}
     />
