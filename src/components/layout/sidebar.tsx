@@ -3,7 +3,7 @@ import {usePathname} from "next/navigation";
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
 import {profileUrl} from "@/utils/uri";
-import {useConversations, useSession, useUnreadNotificationsCount} from "@/queries/api";
+import {useConversations, useNextMeeting, useSession, useUnreadNotificationsCount} from "@/queries/api";
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
 import {SidebarButton} from "./sidebar-button";
@@ -20,6 +20,8 @@ import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 import {GearIcon, HouseLineIcon, MagnifyingGlassIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
+import {formatIsoDate} from "@/utils/dates";
+
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
 
@@ -61,6 +63,39 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
             }
         </div>
     </>
+}
+
+
+const NextMeetingInvite = () => {
+    const {layoutConfig} = useLayoutConfig()
+    const {data: meetingData} = useNextMeeting()
+
+    if (!layoutConfig.openRightPanel || !layoutConfig.spaceForRightSide) {
+        if (layoutConfig.openSidebar && meetingData && meetingData.show) {
+            return <div className={"bg-[var(--background-dark2)] mb-2 border rounded-lg p-2 text-xs"}>
+                <div className={"font-semibold"}>
+                    {meetingData.title}
+                </div>
+                <div className={"text-[var(--text-light)] text-[11px]"}>
+                    {meetingData.description}
+                </div>
+                <div className={"text-[var(--text-light)]"}>
+                    <span className={"font-semibold"}>Link:</span> <Link
+                    href={meetingData.url}
+                    target={"_blank"}
+                    className={"hover:underline"}
+                >
+                    {meetingData.url.replace("https://", "")}
+                </Link>
+                </div>
+                <div className={"text-[var(--text-light)]"}>
+                    {formatIsoDate(meetingData.date, true, true, false)}hs.
+                </div>
+            </div>
+        }
+    }
+
+    return null
 }
 
 
@@ -188,6 +223,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                                 setWritePanelOpen(true)
                             }}/>
                         </div>
+                        <NextMeetingInvite/>
                         {showText && <div className={"sm:hidden text-xs"}>
                             <RightPanelButtons/>
                         </div>}

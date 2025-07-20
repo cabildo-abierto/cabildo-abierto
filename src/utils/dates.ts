@@ -1,11 +1,11 @@
 
 
 export const formatIsoDate = (
-    isoDate: string | Date, hoursAndMinutes: boolean = false, day: boolean = true) => {
+    isoDate: string | Date, hoursAndMinutes: boolean = false, day: boolean = true, year: boolean = true) => {
     const date = new Date(isoDate)
     try {
         return new Intl.DateTimeFormat("es-AR", {
-            year: day ? "numeric" : undefined,
+            year: year && day ? "numeric" : undefined,
             month: day ? "long" : undefined,
             day: day ? "numeric" : undefined,
             hour: hoursAndMinutes ? "2-digit" : undefined,
