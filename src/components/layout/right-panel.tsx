@@ -3,7 +3,6 @@ import React from "react";
 import {TrendingTopicsPanel} from "@/components/topics/trending-topics/trending-topics";
 import {usePathname} from "next/navigation";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
-import {emptyChar} from "@/utils/utils";
 import {SearchProvider} from "../buscar/search-context";
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import Link from "next/link";
