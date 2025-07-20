@@ -119,7 +119,14 @@ export const TopicContentExpandedViewHeader = ({
                     </div>
                 </Button>
             </div>
-            <div>
+            <div className={"flex items-center"}>
+                <Link
+                    target={"_blank"}
+                    className={"mr-2 rounded-lg text-sm hover:bg-[var(--background-dark2)] py-1 px-2 bg-[var(--background-dark)] font-semibold"}
+                    href={topicUrl("Cabildo Abierto: Wiki", undefined, "normal")}
+                >
+                    Guía de edición
+                </Link>
                 <Button
                     onClick={() => {
                         setWikiEditorState("normal")

@@ -27,7 +27,7 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
             <StaticFeed
                 queryKey={["thread-feed", did, collection, rkey]}
                 initialContents={replies}
-                noResultsText={"Sé el primero en responder."}
+                noResultsText={"Sé la primera persona en responder."}
                 endText={""}
                 FeedElement={({content: r}) => {
                     if ((!isThreadViewContent(r) && !isFeedViewContent(r)) || !isPostView(r.content)) {
