@@ -48,7 +48,7 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                         postView={r.content}
                         parentIsMainPost={true}
                         onClickQuote={onClickQuote}
-                        inThreadFeed={true}
+                        threadViewContent={r}
                     />
                 }}
                 getFeedElementKey={e => {

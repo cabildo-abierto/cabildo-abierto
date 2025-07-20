@@ -15,7 +15,7 @@ export const ThreadContent = ({thread, pinnedReplies, setPinnedReplies, quoteRep
     const content = thread.content
     return <>
         {isPostView(content) && <Post
-            postView={content}
+            threadViewContent={thread}
         />}
         {isFullArticleView(content) && <Article
             article={content}

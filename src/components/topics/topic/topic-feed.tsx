@@ -94,7 +94,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                         onClickQuote={onClickQuote}
                         noResultsText={"Todavía no fue mencionado."}
                         endText={""}
-                        isThreadFeed={true}
                     />
                 }
 
@@ -106,7 +105,6 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                             onClickQuote={onClickQuote}
                             noResultsText={"Sé la primera persona en agregar un comentario."}
                             endText={""}
-                            isThreadFeed={true}
                         />
                     </div>
                 }

@@ -61,23 +61,25 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
             }}/>
         </div>
 
-        {replies && <ThreadReplies
-            threadUri={content.uri}
-            setPinnedReplies={setPinnedReplies}
-            replies={replies}
-        />}
+        <div className={"min-h-screen flex flex-col items-center"}>
+            {replies && <ThreadReplies
+                threadUri={content.uri}
+                setPinnedReplies={setPinnedReplies}
+                replies={replies}
+            />}
 
-        {!replies && <div className={"py-4"}>
-            <LoadingSpinner/>
-        </div>}
+            {!replies && <div className={"py-4"}>
+                <LoadingSpinner/>
+            </div>}
 
-        {postOrArticle(thread.content) && <WritePanel
-            replyTo={thread.content}
-            open={openReplyPanel}
-            onClose={() => {
-                setOpenReplyPanel(false)
-            }}
-        />}
+            {postOrArticle(thread.content) && <WritePanel
+                replyTo={thread.content}
+                open={openReplyPanel}
+                onClose={() => {
+                    setOpenReplyPanel(false)
+                }}
+            />}
+        </div>
     </div>
 }
 

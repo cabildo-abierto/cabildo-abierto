@@ -11,14 +11,12 @@ const FeedElement = ({
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false,
-    inThreadFeed=false,
 }: {
     elem: FeedViewContent
     onClickQuote?: (cid: string) => void
     showingChildren?: boolean
     showingParent?: boolean
     showReplyMessage?: boolean
-    inThreadFeed?: boolean
 }) => {
 
     if (isArticleView(elem.content)) {
@@ -35,7 +33,6 @@ const FeedElement = ({
             showingParent={showingParent}
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
-            inThreadFeed={inThreadFeed}
         />
     } else if (isTopicViewBasic(elem.content)) {
         return <TopicViewBasicOnFeed
