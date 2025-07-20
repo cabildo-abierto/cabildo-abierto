@@ -21,7 +21,7 @@ export const RightPanel = () => {
             <Logo width={32} height={32}/>
         </div>
 
-        {meetingData && meetingData.show && <div className={"bg-[var(--background-dark)] rounded-lg p-2  text-sm"}>
+        {pathname.includes("inicio") && meetingData && meetingData.show ? <div className={"bg-[var(--background-dark)] rounded-lg p-2 text-sm"}>
             <div className={"font-semibold"}>
                 {meetingData.title}
             </div>
@@ -40,21 +40,18 @@ export const RightPanel = () => {
             <div className={"text-[var(--text-light)]"}>
                 {formatIsoDate(meetingData.date, true, true, false)}hs.
             </div>
-        </div>}
+        </div> : (inSearchPage ? <div className={"h-10"}/> : null)}
 
-        <div className={"min-h-10"}>
-            {!inSearchPage ?
-                <SearchProvider>
-                    <SearchPanelOnRightColumn/>
-                </SearchProvider> :
-                <>{emptyChar}</>}
-        </div>
+        {!inSearchPage &&
+        <SearchProvider>
+            <SearchPanelOnRightColumn/>
+        </SearchProvider>}
 
         <div className={"flex justify-center w-full"}>
             <TrendingTopicsPanel/>
         </div>
 
-        <div className={"text-sm mt-4"}>
+        <div className={"text-sm mt-4 pb-8"}>
             <RightPanelButtons/>
         </div>
     </div>
