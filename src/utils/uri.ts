@@ -87,9 +87,9 @@ export function topicUrl(title?: string, version?: {did: string, rkey: string}, 
     const params: string[] = []
 
     if(title) {
-        params.push(`i=${encodeURIComponent(title)}`)
+        params.push(`i=${encodeParentheses(encodeURIComponent(title))}`)
     }
-    if(version) {
+    if(version && version.did && version.rkey) {
         params.push(`did=${version.did}`)
         params.push(`rkey=${version.rkey}`)
     }
@@ -175,4 +175,6 @@ export function collectionToDisplay(c: string, article: ArticleKind = "none", to
 }
 
 
-export const urlCongreso = "/temas/congreso"
+export function encodeParentheses(s: string){
+    return s.replaceAll("(", "%28").replaceAll(")", "%29")
+}

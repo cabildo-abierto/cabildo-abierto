@@ -3,6 +3,7 @@ import {Metadata} from "next";
 import {produce} from "immer";
 import {mainMetadata} from "@/utils/metadata";
 import {get} from "@/utils/fetch";
+import {encodeParentheses} from "@/utils/uri";
 
 type Props = {
     params: Promise<{ id: string }>
@@ -13,8 +14,9 @@ export async function generateMetadata(
     { params, searchParams }: Props
 ): Promise<Metadata> {
     const p = await searchParams
-    const i = p?.i
-    const topicTitle = await get<{title: string}>(`/topic-title/${i}`)
+    const i = p?.i instanceof Array ? p?.i[0] : p?.i
+    const enc = encodeParentheses(encodeURIComponent(i))
+    const topicTitle = await get<{title: string}>(`/topic-title/${enc}`)
     if(topicTitle.data){
         return produce(mainMetadata, draft => {
             draft.title = `${topicTitle.data.title} - Tema en Cabildo Abierto`

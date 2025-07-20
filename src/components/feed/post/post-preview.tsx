@@ -33,7 +33,7 @@ const ShowThreadButton = ({uri}: { uri: string }) => {
             </div>
             <div
                 className={"absolute left-1/2 font-semibold -translate-x-1/2 text-center text-sm text-[var(--primary)]"}>
-                Ver thread completo
+                Ver hilo completo
             </div>
         </Link>
     );
