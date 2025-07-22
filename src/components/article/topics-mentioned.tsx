@@ -4,6 +4,7 @@ import { ModalOnHover } from "../../../modules/ui-utils/src/modal-on-hover";
 import TagIcon from '@mui/icons-material/Tag';
 import Link from "next/link";
 import { IconButton } from "../../../modules/ui-utils/src/icon-button";
+import {useMemo} from "react";
 
 type TopicsMentionedProps = {mentions: TopicMention[]}
 
@@ -36,7 +37,11 @@ export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
         return b.count - a.count
     }
 
-    if(!mentions || mentions.length == 0) {
+    const mentionsMemo = useMemo(() => {
+        return mentions
+    }, [JSON.stringify(mentions)])
+
+    if(!mentionsMemo || mentionsMemo.length == 0) {
         return null
     }
 
@@ -44,7 +49,7 @@ export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
         <div className={"text-sm text-[var(--text-light)]"} title={"Temas mencionados"}>
             #
         </div>
-        {mentions.sort(cmp).slice(0, 4).map((r, index) => {
+        {mentionsMemo.sort(cmp).slice(0, 4).map((r, index) => {
             return <a // TO DO: Prevent leave
                 href={topicUrl(r.id)}
                 key={index}

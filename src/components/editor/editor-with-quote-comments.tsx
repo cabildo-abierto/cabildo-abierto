@@ -126,7 +126,7 @@ export const EditorWithQuoteComments = ({
         // por ahora, no mostramos ningún comentario que haya citado una versión anterior del contenido
         // sí los mostramos en la sección de discusión
         const filteredReplies = quoteReplies.filter(r => {
-            return (r.record as PostRecord).reply.parent.cid == cid
+            return r.cid == "optimistic-post-cid" || (r.record as PostRecord)?.reply?.parent?.cid == cid
         })
 
         const m = new Map<number, string[]>()
