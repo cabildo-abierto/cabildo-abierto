@@ -10,7 +10,7 @@ import {XLogoIcon} from "@phosphor-icons/react";
 
 
 const FooterLeftSide = () => {
-    return <div className="flex flex-col justify-between space-y-16">
+    return <div className="flex flex-col justify-between items-start space-y-16 min-w-16">
         <ScrollToButton>
             <div className={dimOnHoverClassName}>
                 <Logo width={40} height={40}/>
@@ -63,7 +63,10 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
 
 
 export default function Footer({showCA = true, color="background"}: { showCA?: boolean, color?: Color }) {
-    return <div className="flex justify-between px-4 md:px-16 space-x-4 py-12" style={{backgroundColor: `var(--${color})`}}>
+    return <div
+        className="flex justify-between px-4 md:px-16 space-x-12 py-12"
+        style={{backgroundColor: `var(--${color})`}}
+    >
         <FooterLeftSide/>
         <FooterRightSide showCA={showCA}/>
     </div>

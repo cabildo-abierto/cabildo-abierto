@@ -6,7 +6,7 @@ import BlueskyLogo from "@/components/icons/bluesky-logo";
 import Footer from "../../modules/ui-utils/src/footer";
 import {Logo} from "../../modules/ui-utils/src/logo";
 import {Button, Color} from "../../modules/ui-utils/src/button";
-import {CheckIcon, ChecksIcon} from "@phosphor-icons/react";
+import {ArrowDownIcon, CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, Suspense} from "react";
 
@@ -74,7 +74,7 @@ const FeatureSection = ({title, subtitle, description, image, inverted, backgrou
                 </div>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center font-light text-xl"}>
                     {image ? image :
-                        <div className={"space-y-2"}>
+                        <div className={"space-y-2 max-w-[400px]"}>
                             <h2 className={"font-extrabold md:text-3xl text-2xl leading-tight"}>{title}</h2>
                             {subtitle && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
                                 {subtitle}
@@ -154,8 +154,7 @@ const PresentacionFormato = () => {
     </div>
 
     return <FeatureSection
-        title={"Nuevos formatos."}
-        subtitle={"Porque a veces 280 caracteres se quedan cortos."}
+        title={"Porque a veces 280 caracteres se quedan cortos."}
         description={description}
         image={image}
         inverted={true}
@@ -167,9 +166,6 @@ const PresentacionFormato = () => {
 const PresentacionWiki = () => {
 
     const description = <div className="mt-4 space-y-4">
-        <p className={"text-sm sm:text-base text-[var(--text-light)]"}>
-            Porque las discusiones tienen que avanzar.
-        </p>
         <p className={""}>
             Cada tema de discusión tiene asociado un artículo con el consenso de la plataforma, que cualquiera puede
             editar, como en Wikipedia.
@@ -187,7 +183,8 @@ const PresentacionWiki = () => {
     />
 
     return <FeatureSection
-        title={"Una wiki para la discusión pública."}
+        title={"Porque datos y discusión no pueden ir separados."}
+        subtitle={"Estamos construyendo una wiki para la discusión pública."}
         description={description}
         image={image}
         inverted={false}
@@ -202,27 +199,26 @@ const PresentacionCalidadDeLaInformacion = () => {
             <li className="flex items-start gap-2">
                 {itemIcon}
                 <span className={"w-full"}>
-                Selección de contenido transparente y configurable.
+                Selección de contenido transparente y configurable, sin inteligencia artificial.
             </span>
             </li>
             <li className="flex items-start gap-2">
                 {itemIcon}
                 <span className={"w-full"}>
-                Sin publicidad.
+                Sin publicidad. Ni ahora ni nunca.
             </span>
             </li>
             <li className="flex items-start gap-2">
                 {itemIcon}
                 <span className={"w-full"}>
-                Con interlocutores de verdad. Validamos que todos los usuarios sean personas reales únicas.
+                Con interlocutores de verdad. Verificamos que todos los usuarios sean personas reales únicas.
             </span>
             </li>
         </ul>
     </div>
 
     return <FeatureSection
-        title={"Informate sin algoritmos ni bots."}
-        subtitle={"Que ninguna IA ni nadie controle lo que llega a tu pantalla."}
+        title={"Para que nadie más que vos controle lo que llega a tu pantalla."}
         description={description}
         image={null}
         inverted={true}
@@ -252,8 +248,8 @@ const PresentacionRemuneraciones = () => {
     </div>
 
     return <FeatureSection
-        title={"Remuneración a autores."}
-        subtitle={"Porque las contribuciones se valoran."}
+        title={"Porque las contribuciones se valoran."}
+        subtitle={""}
         description={description}
         image={null}
         inverted={true}
@@ -262,18 +258,27 @@ const PresentacionRemuneraciones = () => {
 
 
 const PresentacionAbierto = () => {
-    const description = <div className="space-y-2">
-        <p>
-            Cabildo Abierto usa <span className={""}>AT</span><span
-            className={""}>Protocol</span>, un sistema de redes sociales
-            descentralizadas que te da el control sobre tus datos y facilita la libre competencia
-            entre plataformas.
-        </p>
-        <p>
-            Además, el código de Cabildo Abierto es público (<Link target={"_blank"} className="hover:underline"
-                                                                   href={"https://github.com/cabildo-abierto"}>acá</Link>),
-            para que cualquiera lo pueda revisar.
-        </p>
+    const itemIcon = <ChecksIcon className="mt-1" fontSize={36}/>
+    const description = <div className={"mt-4"}>
+        <ul className="space-y-4 max-w-[400px]">
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
+                    Cabildo Abierto usa <span className={""}>AT</span><span
+                            className={""}>Protocol</span>, un sistema de redes sociales
+                    descentralizadas que te da el control sobre tus datos y facilita la libre competencia
+                    entre plataformas.
+                </span>
+            </li>
+            <li className="flex items-start gap-2">
+                {itemIcon}
+                <span className={"w-full"}>
+                    Además, el código de Cabildo Abierto es público (<Link target={"_blank"} className="hover:underline"
+                                                                           href={"https://github.com/cabildo-abierto"}>acá</Link>),
+                    para que cualquiera lo pueda revisar.
+                </span>
+            </li>
+        </ul>
     </div>
 
     const image = <div className={"rounded-lg p-2"}>
@@ -305,8 +310,7 @@ const PresentacionAbierto = () => {
     </div>
 
     return <FeatureSection
-        title={"Abierto de verdad."}
-        subtitle={"Porque los datos son tuyos."}
+        title={"Porque los datos son tuyos."}
         description={description}
         image={image}
         inverted={true}
@@ -347,7 +351,7 @@ const PresentacionInicio = () => {
         <div className="absolute top-10 right-10 z-10 hidden md:block">
             <GoToLoginButton fontSize={13}/>
         </div>
-        <div className={"flex flex-col h-[500px] justify-center space-y-12"}>
+        <div className={"relative flex flex-col h-[500px] justify-center space-y-12 items-center"}>
             <div className="flex items-center flex-col">
                 <div className="">
                     <Logo width={80} height={80}/>
@@ -365,6 +369,9 @@ const PresentacionInicio = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className={"absolute bottom-[-40px] left-1/2"}>
+                <ArrowDownIcon fontSize={24}/>
             </div>
         </div>
     </>
