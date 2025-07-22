@@ -310,7 +310,10 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                     {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
                 </div>
             </div>
-            {replyTo != undefined && <WritePanelReplyPreview replyTo={replyTo} selection={selection}/>}
+            {replyTo != undefined && <WritePanelReplyPreview
+                replyTo={replyTo}
+                selection={selection}
+            />}
             {visualization && <div className={"flex justify-center w-full"}>
                 <PlotFromVisualizationMain
                     visualization={visualization}
@@ -351,7 +354,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                 />
             </div>
         </div>
-        <InsertVisualizationModal
+        {visualizationModalOpen && <InsertVisualizationModal
             open={visualizationModalOpen}
             onClose={() => {
                 setVisualizationModalOpen(false)
@@ -361,8 +364,8 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                 setVisualizationModalOpen(false)
             }}
             initialConfig={visualization}
-        />
-        <InsertImageModal
+        />}
+        {imageModalOpen && <InsertImageModal
             open={imageModalOpen}
             onClose={() => {
                 setImageModalOpen(false)
@@ -371,6 +374,6 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                 setImages([...images, i])
                 setImageModalOpen(false)
             }}
-        />
+        />}
     </div>
 }
