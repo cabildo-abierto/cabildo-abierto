@@ -1,6 +1,6 @@
 
 
-export const mainDescription = "Una plataforma para la discusión pública argentina."
+export const mainDescription = "Una plataforma para discutir en serio, hecha en Argentina."
 
 export const openGraphMetadata = {
     title: 'Cabildo Abierto',

@@ -1,24 +1,32 @@
-"use client"
-import { Login } from '@/components/auth/login';
-import {useSession} from "@/queries/api";
-import {useRouter} from "next/navigation";
-import {LoadingScreen} from "../../../modules/ui-utils/src/loading-screen";
-import {useEffect} from "react";
+import {Metadata} from "next";
+import {mainMetadata, twitterMetadata} from "@/utils/metadata";
+import LoginPage from "@/components/auth/login-page";
+
+
+export async function generateMetadata(
+    { params, searchParams }: {params: Promise<any>, searchParams: Promise<{ [key: string]: string | string[] | undefined }>}
+): Promise<Metadata> {
+    const s = await searchParams
+
+    if(s && s.c){
+        return {
+            ...mainMetadata,
+            title: "¡Sumate a Cabildo Abierto!",
+            openGraph: {
+                ...mainMetadata.openGraph,
+                title: "¡Sumate a Cabildo Abierto!"
+            },
+            twitter: {
+                ...twitterMetadata,
+                title: "¡Sumate a Cabildo Abierto!"
+            }
+        }
+    } else {
+        return mainMetadata
+    }
+}
 
 
 export default function Page() {
-    const session = useSession()
-    const router = useRouter()
-
-    useEffect(() => {
-        if(session.user){
-            router.push("/inicio")
-        }
-    }, [session])
-
-    if(session.isLoading || session.data) return <LoadingScreen/>
-
-    return <div className={"flex items-center justify-center"}>
-        <Login/>
-    </div>
+    return <LoginPage/>
 }
