@@ -27,7 +27,8 @@ export const AdminPrincipal = () => {
         "job/restart-interactions-last-update",
         "job/restart-references-last-update",
         "job/restart-interactions-last-update",
-        "job/sync-all-users"
+        "job/sync-all-users",
+        "job/assign-invite-codes"
     ]
 
     return <div className={"pt-16 space-y-8"}>

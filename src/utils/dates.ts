@@ -16,5 +16,4 @@ export const formatIsoDate = (
     } catch (error) {
         return isoDate.toString()
     }
-
 }

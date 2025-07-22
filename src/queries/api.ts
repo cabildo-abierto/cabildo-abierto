@@ -378,3 +378,11 @@ export function useDrafts() {
 export function useDraft(id: string) {
     return useAPI<Draft>(`/draft/${id}`, ["draft", id])
 }
+
+export type InviteCode = {
+    code: string
+}
+
+export function useInviteCodesToShare() {
+    return useAPI<InviteCode[]>("/invite-codes-to-share", ["invite-codes-to-share"])
+}
