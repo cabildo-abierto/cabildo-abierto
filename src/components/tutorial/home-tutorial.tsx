@@ -184,6 +184,14 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             hideBackButton: true
         },
         {
+            target: '#feed-config-button',
+            content: <TourContent>
+                Ambos muros se pueden configurar. Podés filtrarlos para ver solo artículos, solo usuarios de Cabildo Abierto o cambiar el criterio con el que se ordenan los contenidos.
+            </TourContent>,
+            placement: 'bottom',
+            hideBackButton: true
+        },
+        {
             target: '#temas',
             content: <TourContent>
                 Una wiki (como Wikipedia) sobre los temas en discusión, con los consensos de la plataforma, visualizaciones y más.
@@ -211,7 +219,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             target: "body",
             content: <TourContent>
                 Eso es todo por ahora. Cuando vayas a la sección Temas vas a encontrar otro tour.
-                Si querés profundizar sobre algo también podés buscar en los temas de Cabildo Abierto.
+                Si querés profundizar sobre algo también podés explorar los temas sobre Cabildo Abierto.
             </TourContent>,
             placement: 'center',
             disableBeacon: true,

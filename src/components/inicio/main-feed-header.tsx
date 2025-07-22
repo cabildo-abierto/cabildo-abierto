@@ -118,7 +118,7 @@ const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
         modal={modal}
         id={"feed-config"}
     >
-        <button ref={buttonRef} className={"hover:bg-[var(--background-dark)] rounded p-1"}>
+        <button id="feed-config-button" ref={buttonRef} className={"hover:bg-[var(--background-dark)] rounded p-1"}>
             <SlidersHorizontalIcon size={22}/>
         </button>
     </ClickableModalOnClick>
