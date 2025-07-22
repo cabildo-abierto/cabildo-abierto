@@ -7,7 +7,6 @@
  */
 
 import type {
-    BaseSelection,
     LexicalCommand,
     LexicalEditor,
     NodeKey,
@@ -161,9 +160,7 @@ export default function ImageComponent({
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const [isSelected, setSelected, clearSelection] =
         useLexicalNodeSelection(nodeKey);
-    const [isResizing, setIsResizing] = useState<boolean>(false);
     const [editor] = useLexicalComposerContext();
-    const [selection, setSelection] = useState<BaseSelection | null>(null);
     const activeEditorRef = useRef<LexicalEditor | null>(null);
     const [isLoadError, setIsLoadError] = useState<boolean>(false);
 
@@ -193,7 +190,6 @@ export default function ImageComponent({
             ) {
                 if (showCaption) {
                     // Move focus into nested editor
-                    $setSelection(null);
                     event.preventDefault();
                     caption.focus();
                     return true;
@@ -236,9 +232,6 @@ export default function ImageComponent({
         (payload: MouseEvent) => {
             const event = payload;
 
-            if (isResizing) {
-                return true;
-            }
             if (event.target === imageRef.current) {
                 if (event.shiftKey) {
                     setSelected(!isSelected);
@@ -251,7 +244,7 @@ export default function ImageComponent({
 
             return false;
         },
-        [isResizing, isSelected, setSelected, clearSelection],
+        [isSelected, setSelected, clearSelection],
     );
 
     const onRightClick = useCallback(
@@ -275,14 +268,8 @@ export default function ImageComponent({
     );
 
     useEffect(() => {
-        let isMounted = true;
         const rootElement = editor.getRootElement();
         const unregister = mergeRegister(
-            editor.registerUpdateListener(({editorState}) => {
-                if (isMounted) {
-                    setSelection(editorState.read(() => $getSelection()));
-                }
-            }),
             editor.registerCommand(
                 SELECTION_CHANGE_COMMAND,
                 (_, activeEditor) => {
@@ -335,14 +322,12 @@ export default function ImageComponent({
         rootElement?.addEventListener('contextmenu', onRightClick);
 
         return () => {
-            isMounted = false;
             unregister();
             rootElement?.removeEventListener('contextmenu', onRightClick);
         };
     }, [
         clearSelection,
         editor,
-        isResizing,
         isSelected,
         nodeKey,
         $onDelete,

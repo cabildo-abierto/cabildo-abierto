@@ -206,7 +206,17 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true,
-        }
+        },
+        {
+            target: "body",
+            content: <TourContent>
+                Eso es todo por ahora. Cuando vayas a la sección Temas vas a encontrar otro tour.
+                Si querés profundizar sobre algo también podés buscar en los temas de Cabildo Abierto.
+            </TourContent>,
+            placement: 'center',
+            disableBeacon: true,
+            hideBackButton: true
+        },
     ])
 
     useEffect(() => {
