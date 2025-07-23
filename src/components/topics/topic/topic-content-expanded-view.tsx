@@ -30,6 +30,7 @@ import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
+import Link from "next/link";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -58,14 +59,14 @@ function emptyTopic(topic: TopicView) {
 
 
 const TopicContentExpandedViewContent = ({
-     wikiEditorState,
-     topic,
-     quoteReplies,
-     pinnedReplies,
-     setPinnedReplies,
-     editor,
-     setEditor
-}: {
+                                             wikiEditorState,
+                                             topic,
+                                             quoteReplies,
+                                             pinnedReplies,
+                                             setPinnedReplies,
+                                             editor,
+                                             setEditor
+                                         }: {
     wikiEditorState: WikiEditorState
     topic: TopicView
     quoteReplies: PostView[]
@@ -103,29 +104,37 @@ const TopicContentExpandedViewContent = ({
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>
                     }
-                    {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
-                        uri={topic.uri}
-                        cid={topic.cid}
-                        settings={getEditorSettings({
-                            isReadOnly: true,
-                            initialText: topic.text,
-                            initialTextFormat: topic.format,
-                            embeds: topic.embeds ?? [],
-                            allowComments: true,
-                            tableOfContents: true,
-                            editorClassName: "relative article-content not-article-content",
-                            shouldPreserveNewLines: true,
-                            markdownShortcuts: false
-                        })}
-                        quoteReplies={quoteReplies}
-                        pinnedReplies={pinnedReplies}
-                        setPinnedReplies={setPinnedReplies}
-                        replyTo={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
-                        editor={editor}
-                        setEditor={setEditor}
-                        setEditorState={() => {
-                        }}
-                    />}
+                    {!wikiEditorState.startsWith("editing") && <div>
+                        {topic.uri != topic.currentVersion && <div className={"text-sm text-[var(--text-light)]"}>
+                            Esta actualmente no es la versión oficial del tema. <Link
+                            className={"font-semibold hover:underline"}
+                            href={topicUrl(topic.id, undefined, wikiEditorState)}>
+                            Ir a la versión actual</Link>.
+                        </div>}
+                        <EditorWithQuoteComments
+                            uri={topic.uri}
+                            cid={topic.cid}
+                            settings={getEditorSettings({
+                                isReadOnly: true,
+                                initialText: topic.text,
+                                initialTextFormat: topic.format,
+                                embeds: topic.embeds ?? [],
+                                allowComments: true,
+                                tableOfContents: true,
+                                editorClassName: "relative article-content not-article-content",
+                                shouldPreserveNewLines: true,
+                                markdownShortcuts: false
+                            })}
+                            quoteReplies={quoteReplies}
+                            pinnedReplies={pinnedReplies}
+                            setPinnedReplies={setPinnedReplies}
+                            replyTo={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
+                            editor={editor}
+                            setEditor={setEditor}
+                            setEditorState={() => {
+                            }}
+                        />
+                    </div>}
                 </div>}
             </div>
         }
@@ -175,7 +184,7 @@ export const TopicContentExpandedViewWithVersion = ({
 
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
-        if(editor){
+        if (editor) {
             const {
                 markdown,
                 embeds,
@@ -194,7 +203,6 @@ export const TopicContentExpandedViewWithVersion = ({
             })
             if (error) return {error}
         } else {
-
             const {error} = await saveEditMutation.mutateAsync({
                 id: topic.id,
                 text: topic.text,
@@ -205,7 +213,6 @@ export const TopicContentExpandedViewWithVersion = ({
                 embeds: topic.embeds
             })
             if (error) return {error}
-
         }
 
         setShowingSaveEditPopup(false)

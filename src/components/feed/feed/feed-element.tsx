@@ -11,12 +11,14 @@ const FeedElement = ({
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false,
+    pageRootUri
 }: {
     elem: FeedViewContent
     onClickQuote?: (cid: string) => void
     showingChildren?: boolean
     showingParent?: boolean
     showReplyMessage?: boolean
+    pageRootUri?: string
 }) => {
 
     if (isArticleView(elem.content)) {
@@ -33,6 +35,7 @@ const FeedElement = ({
             showingParent={showingParent}
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
+            pageRootUri={pageRootUri}
         />
     } else if (isTopicViewBasic(elem.content)) {
         return <TopicViewBasicOnFeed

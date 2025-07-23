@@ -9,17 +9,36 @@ import { Button } from "../../../../modules/ui-utils/src/button";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import Link from "next/link"
+import {updateSearchParam} from "@/utils/fetch";
 
 type TopicFeedOption = "Menciones" | "Discusión"
 type MentionFeedOption = "Publicaciones" | "Temas"
 
-export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
-    let feed = useTopicFeed(topicId)
+function topicFeedParamToTopicFeedOption(v: string | undefined, minimized: boolean): TopicFeedOption {
+    if(v){
+        return v == "discusion" ? "Discusión" : "Menciones"
+    } else {
+        return minimized ? "Menciones" : "Discusión"
+    }
+}
+
+export const useTopicFeedParams = () => {
     const params = useSearchParams()
     const s = params.get("s")
     const minimized = !s || s == "minimized"
-    const [selected, setSelected] = useState<TopicFeedOption>(minimized ? "Menciones" : "Discusión")
+
+    return topicFeedParamToTopicFeedOption(params.get("f"), minimized)
+}
+
+export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersionUri: string, topicId: string, onClickQuote: (cid: string) => void}) => {
+    let feed = useTopicFeed(topicId)
+    const selected = useTopicFeedParams()
+
     const [mentionsSelected, setMentionsSelected] = useState<MentionFeedOption>("Publicaciones")
+
+    function setSelected(v: TopicFeedOption) {
+        updateSearchParam("f", v == "Discusión" ? "discusion" : "menciones")
+    }
 
     function optionsNodes(o: TopicFeedOption, isSelected: boolean){
 
@@ -113,6 +132,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                             onClickQuote={onClickQuote}
                             noResultsText={"Sé la primera persona en agregar un comentario."}
                             endText={""}
+                            pageRootUri={topicVersionUri}
                         />
                     </div>
                 }

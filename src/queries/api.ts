@@ -155,7 +155,11 @@ export function useFollowx(handle: string, kind: FollowKind) {
 }
 
 
-export type TopicFeed = {mentions: FeedViewContent[], replies: FeedViewContent[], topics: string[]}
+export type TopicFeed = {
+    mentions: FeedViewContent[]
+    replies: FeedViewContent[]
+    topics: string[]
+}
 
 
 export function useTopicFeed(id?: string, did?: string, rkey?: string){

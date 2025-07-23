@@ -842,6 +842,10 @@ export const schemaDict = {
             type: 'ref',
             ref: 'lex:app.bsky.feed.defs#threadgateView',
           },
+          rootCreationDate: {
+            type: 'string',
+            format: 'datetime',
+          },
         },
       },
       articleView: {
