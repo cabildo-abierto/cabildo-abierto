@@ -132,7 +132,7 @@ export const Plot = ({
         <div
             className={"absolute top-0 right-0 z-10 space-x-2 flex justify-between w-full pt-2 px-2"}
         >
-            {!isTable(visualization.visualization.spec) && <PlotData visualization={visualization}/>}
+            {!isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
             <div className={"flex space-x-2"}>
                 {onEdit && <div
                     onClick={() => {

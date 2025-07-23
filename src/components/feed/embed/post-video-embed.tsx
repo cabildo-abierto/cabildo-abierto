@@ -86,15 +86,15 @@ export const PostVideoEmbed = ({ embed }: PostVideoEmbedProps) => {
                 e.stopPropagation();
             }}
             className="mt-2 relative w-full max-h-[500px]"
-            style={{ aspectRatio: `${embed.aspectRatio.width} / ${embed.aspectRatio.height}` }}
+            style={{ aspectRatio: embed.aspectRatio ? `${embed.aspectRatio.width} / ${embed.aspectRatio.height}` : 0.75 }}
         >
             {!isReady && (
                 <Image
                     src={embed.thumbnail}
                     alt="Video thumbnail"
                     className="absolute top-0 left-0 w-full h-full object-cover rounded-lg"
-                    width={embed.aspectRatio.width}
-                    height={embed.aspectRatio.height}
+                    width={embed.aspectRatio?.width ?? 400}
+                    height={embed.aspectRatio?.height ?? 500}
                 />
             )}
             <video
@@ -103,8 +103,8 @@ export const PostVideoEmbed = ({ embed }: PostVideoEmbedProps) => {
                 controls
                 playsInline
                 poster={embed.thumbnail}
-                width={embed.aspectRatio.width}
-                height={embed.aspectRatio.height}
+                width={embed.aspectRatio?.width ?? 400}
+                height={embed.aspectRatio?.height ?? 500}
             >
                 Tu navegador no soporta reproducción de videos.
             </video>

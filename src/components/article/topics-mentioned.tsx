@@ -49,7 +49,7 @@ export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
         <div className={"text-sm text-[var(--text-light)]"} title={"Temas mencionados"}>
             #
         </div>
-        {mentionsMemo.sort(cmp).slice(0, 4).map((r, index) => {
+        {mentionsMemo.toSorted(cmp).slice(0, 4).map((r, index) => {
             return <a // TO DO: Prevent leave
                 href={topicUrl(r.id)}
                 key={index}
