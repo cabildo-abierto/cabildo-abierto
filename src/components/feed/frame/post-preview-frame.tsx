@@ -13,11 +13,13 @@ import {
     ArticleView,
     FullArticleView,
     PostView,
+    isPostView,
     ThreadViewContent
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {$Typed} from "@atproto/api";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/api";
+import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {
@@ -37,6 +39,7 @@ type FastPostPreviewFrameProps = {
     showingParent?: boolean
     showingChildren?: boolean
     reason?: ReasonRepost
+    pageRootUri?: string
 }
 
 export const PostPreviewFrame = ({
@@ -45,7 +48,8 @@ export const PostPreviewFrame = ({
                                      borderBelow = true,
                                      showingParent = false,
                                      showingChildren = false,
-                                     reason
+                                     reason,
+                                     pageRootUri,
                                  }: FastPostPreviewFrameProps) => {
     const router = useRouter()
     const url = urlFromRecord(postView.uri)
@@ -77,6 +81,7 @@ export const PostPreviewFrame = ({
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={onClick}
     >
+        {isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full items-stretch"}>
             <div className="max-w-[13%] w-full flex flex-col items-center px-2">

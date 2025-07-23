@@ -10,9 +10,10 @@ const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-
 
 
 const TopicDiscussion = ({
-    replyToContent, topicId, onClickQuote, wikiEditorState
+    replyToContent, topicId, onClickQuote, wikiEditorState, topicVersionUri
 }: {
     topicId: string
+    topicVersionUri: string
     replyToContent?: ReplyToContent
     onClickQuote: (cid: string) => void
     wikiEditorState: WikiEditorState
@@ -31,6 +32,7 @@ const TopicDiscussion = ({
             <TopicFeed
                 topicId={topicId}
                 onClickQuote={onClickQuote}
+                topicVersionUri={topicVersionUri}
             />
         </div>}
         {user && replyToContent && <WritePanel

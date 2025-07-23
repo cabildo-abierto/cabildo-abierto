@@ -10,6 +10,7 @@ import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {MobileHeader} from "@/components/layout/mobile-header";
 import TopicTutorial from "@/components/tutorial/topic-tutorial";
+import {getUri} from "@/utils/uri";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
@@ -85,6 +86,8 @@ export const TopicPage = ({topicId, did, rkey}: {
         }
     }
 
+    const topicVersionUri = topicId ? topic.uri : getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
+
     return <TopicTutorial wikiState={wikiEditorState}>
         <div className="flex flex-col items-center w-full min-[500px]:pt-4">
         <MobileHeader/>
@@ -112,6 +115,7 @@ export const TopicPage = ({topicId, did, rkey}: {
             <div className="w-full" id="discussion-start">
                 <TopicDiscussion
                     topicId={topic.id}
+                    topicVersionUri={topicVersionUri}
                     replyToContent={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
                     onClickQuote={onClickQuote}
                     wikiEditorState={wikiEditorState}

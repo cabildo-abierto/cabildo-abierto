@@ -1,16 +1,17 @@
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {getTopicTitle} from "@/components/topics/topic/utils";
-import {topicUrl} from "@/utils/uri";
-import Link from "next/link";
-import ReplyIcon from "@mui/icons-material/Reply";
-import {usePathname, useSearchParams} from "next/navigation";
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
+import {getTopicTitle} from "@/components/topics/topic/utils"
+import {topicUrl} from "@/utils/uri"
+import Link from "next/link"
+import ReplyIcon from "@mui/icons-material/Reply"
+import {useTopicFeedParams} from "@/components/topics/topic/topic-feed"
+import {usePathname} from "next/navigation";
 
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicViewBasic, showingChildren: boolean }) => {
-    const searchParams = useSearchParams()
+    const option = useTopicFeedParams()
     const pathname = usePathname()
 
-    if(pathname.startsWith("/tema") && decodeURIComponent(searchParams.get("i")) == topic.id){
+    if(pathname.startsWith("/tema") && option == "Discusión"){
         return null
     }
 

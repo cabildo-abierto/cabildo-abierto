@@ -16,6 +16,7 @@ type FeedViewContentFeedProps =
     onClickQuote?: (cid: string) => void
     queryKey: string[]
     getFeed?: GetFeedProps<FeedViewContent>
+    pageRootUri?: string
 }
 
 const FeedViewContentFeed = ({
@@ -23,11 +24,12 @@ const FeedViewContentFeed = ({
                                  onClickQuote,
                                  queryKey,
                                  getFeed,
+                                 pageRootUri,
                                  ...props
                              }: FeedViewContentFeedProps) => {
 
     const getFeedElementKey = (e: FeedViewContent) => {
-        if(isPostView(e.content) || isArticleView(e.content)){
+        if (isPostView(e.content) || isArticleView(e.content)) {
             return e.content.uri
         } else {
             return null
@@ -41,6 +43,7 @@ const FeedViewContentFeed = ({
             FeedElement={({content}) => <FeedElement
                 elem={content}
                 onClickQuote={onClickQuote}
+                pageRootUri={pageRootUri}
             />}
             getFeedElementKey={getFeedElementKey}
             {...props}
@@ -51,6 +54,7 @@ const FeedViewContentFeed = ({
             FeedElement={({content}) => <FeedElement
                 elem={content}
                 onClickQuote={onClickQuote}
+                pageRootUri={pageRootUri}
             />}
             LoadingFeedContent={<LoadingFeedViewContent/>}
             getFeedElementKey={getFeedElementKey}

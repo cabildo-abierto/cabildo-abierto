@@ -51,6 +51,7 @@ export type FastPostPreviewProps = {
     onClickQuote?: (cid: string) => void
     showReplyMessage?: boolean
     repostedBy?: { handle: string, displayName?: string }
+    pageRootUri?: string
 }
 
 function getParentAndRoot(f: FeedViewContent): { parent?: ReplyRefContent, root?: ReplyRefContent } {
@@ -152,7 +153,8 @@ export const PostPreview = ({
                                 showingParent = false,
                                 showReplyMessage = false,
                                 onClickQuote,
-                                threadViewContent
+                                threadViewContent,
+    pageRootUri
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
 
@@ -180,6 +182,7 @@ export const PostPreview = ({
             showingChildren={showingChildren}
             showingParent={(parent != null && postOrArticle(parent)) || showingParent}
             borderBelow={!showingChildren}
+            pageRootUri={pageRootUri}
         >
             {parent && showReplyMessage && grandparentAuthor && <IsReplyMessage
                 author={grandparentAuthor}

@@ -107,6 +107,7 @@ export interface PostView {
   viewer?: AppBskyFeedDefs.ViewerState
   labels?: ComAtprotoLabelDefs.Label[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
+  rootCreationDate?: string
 }
 
 const hashPostView = 'postView'
