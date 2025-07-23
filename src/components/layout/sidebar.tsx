@@ -70,7 +70,7 @@ const NextMeetingInvite = () => {
     const {layoutConfig} = useLayoutConfig()
     const {data: meetingData} = useNextMeeting()
 
-    if (!layoutConfig.openRightPanel || !layoutConfig.spaceForRightSide) {
+    if (!layoutConfig.spaceForRightSide) {
         if (layoutConfig.openSidebar && meetingData && meetingData.show) {
             return <div className={"bg-[var(--background-dark2)] mb-2 border rounded-lg p-2 text-xs"}>
                 <div className={"font-semibold"}>

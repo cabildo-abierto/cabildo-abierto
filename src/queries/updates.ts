@@ -82,7 +82,15 @@ export async function updateContentInQueries(qc: QueryClient, uri: string, updat
                         return produce(t, draft => {
                             draft.replies = draft.replies.map(r => {
                                 if (isThreadViewContent(r) && postOrArticle(r.content) && r.content.uri == uri) {
-                                    return null
+                                    const newContent = updater(r.content)
+                                    if(newContent){
+                                        return {
+                                            ...r,
+                                            content: newContent
+                                        }
+                                    } else {
+                                        return null
+                                    }
                                 }
                                 return r
                             }).filter(r => r != null)
