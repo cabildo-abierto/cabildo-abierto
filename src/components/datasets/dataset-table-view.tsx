@@ -62,7 +62,7 @@ const TableRow = ({values, plotter, columns, href}: {
                     </Link>
                 </td>
             } else {
-                return <td className="border-none px-4 line-clamp-2 py-2" title={content} key={colIndex}>
+                return <td className="border-none px-4 truncate py-2" title={content} key={colIndex}>
                     {content}
                 </td>
             }
