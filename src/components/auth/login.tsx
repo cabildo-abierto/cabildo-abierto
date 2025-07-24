@@ -71,9 +71,9 @@ export const Login = () => {
             </AcceptButtonPanel>}
             <h2 className={"font-extrabold"}>Solicitar acceso</h2>
             <div className={"flex flex-col items-center space-y-8 pb-12"}>
-                <div className={"text-[var(--text-light)] text-center sm:text-lg max-w-[380px]"}>
+                <div className={"text-[var(--text-light)] text-center max-w-[380px]"}>
                     Estamos enviando invitaciones por orden de llegada a medida que hacemos espacio para más
-                    gente.
+                    gente. También te puede invitar alguna persona que ya haya entrado.
                 </div>
                 <TextField
                     fullWidth
