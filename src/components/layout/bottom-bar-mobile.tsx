@@ -5,15 +5,19 @@ import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "../icons/notifications-icon";
 import TopicsIcon from "@/components/icons/topics-icon";
 import {BottomNavigation, BottomNavigationAction, Box, Paper} from "@mui/material";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 export const BottomBarMobile = () => {
     const pathname = usePathname()
     const router = useRouter()
+    const {isMobile} = useLayoutConfig()
+    if(!isMobile) return null
+
 
     const values = ["inicio", "temas", "buscar", "notificaciones"]
     const value: string = values.find(v => pathname.startsWith(`/${v}`)) ?? null
 
-    return <Box sx={{display: {xs: 'block', sm: 'block', md: 'none'}}}>
+    return <Box>
         <Paper
             sx={{
                 position: 'fixed',

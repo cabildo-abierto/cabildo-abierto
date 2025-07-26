@@ -12,7 +12,7 @@ export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
     return <div className={"flex items-center justify-between py-2 border-b h-12"} style={{width: layoutConfig.centerWidth}}>
-        <div className={"flex space-x-2 items-center"}>
+        <div className={"px-2 flex space-x-2 items-center"}>
             <div className={"w-10 text-[var(--text-light)] min-[500px]:hidden"}>
                 <IconButton
                     color={"transparent"}
