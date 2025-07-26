@@ -15,7 +15,7 @@ export const ArticleHeader = ({article}: {article: FullArticleView}) => {
         <div className="gap-x-4 flex flex-wrap items-baseline">
             <div className={"max-[500px]:text-base text-lg flex space-x-1"}>
                 <div>
-                    Artículo de
+                    Por
                 </div>
                 <Authorship author={article.author} onlyAuthor={true}/>
             </div>

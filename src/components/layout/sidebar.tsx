@@ -259,9 +259,11 @@ export const Sidebar = ({onClose}: { onClose: () => void }) => {
     const hideBackdrop = isMobile ? false : (layoutConfig.spaceForLeftSide || !layoutConfig.openSidebar)
 
     return <SwipeableDrawer
+        key={JSON.stringify({...layoutConfig, isMobile})}
         anchor={"left"}
         hideBackdrop={hideBackdrop}
         open={drawerState != "closed"}
+        disableScrollLock={drawerState != "expanded" || hideBackdrop}
         onOpen={() => {
             setLayoutConfig((prev) => ({...prev, openSidebar: true}))
         }}
