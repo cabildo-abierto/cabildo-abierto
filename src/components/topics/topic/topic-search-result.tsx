@@ -7,7 +7,7 @@ import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
-import {TimePeriod} from "@/queries/api";
+import {TimePeriod} from "@/queries/useTrendingTopics";
 
 
 const DateLastEdit = ({date}: { date: Date }) => {

@@ -14,10 +14,14 @@ export const ArticleHeader = ({article}: {article: FullArticleView}) => {
         </h1>
         <div className="gap-x-4 flex flex-wrap items-baseline">
             <div className={"max-[500px]:text-base text-lg flex space-x-1"}>
-                <div>
+                <span>
                     Por
-                </div>
-                <Authorship author={article.author} onlyAuthor={true}/>
+                </span>
+                <Authorship
+                    author={article.author}
+                    onlyAuthor={true}
+                    className={"font-medium hover:underline truncate max-w-[70vw]"}
+                />
             </div>
             <div className={"max-[500px]:text-sm text-[var(--text-light)]"}>
                 {localeDate(new Date(article.indexedAt), false, false)}

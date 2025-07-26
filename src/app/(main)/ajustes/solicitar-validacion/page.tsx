@@ -13,7 +13,7 @@ import {FileIcon} from "@phosphor-icons/react";
 import StateButton from "../../../../../modules/ui-utils/src/state-button";
 import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
 import {LuPartyPopper} from "react-icons/lu";
-import {useCurrentValidationRequest} from "@/queries/api";
+import {useCurrentValidationRequest} from "@/queries/useValidation";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useQueryClient} from "@tanstack/react-query";

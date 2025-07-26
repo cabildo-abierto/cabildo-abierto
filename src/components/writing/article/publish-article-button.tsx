@@ -1,18 +1,13 @@
 import {EditorState} from "lexical";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {useRouter} from "next/navigation";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
-import {
-    editorStateToMarkdownNoEmbeds,
-    editorStateToMarkdown
-} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {post} from "@/utils/fetch";
 import {useEffect, useState} from "react";
-import removeMarkdown from "remove-markdown";
-import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import dynamic from "next/dynamic";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
+import StateButton from "../../../../modules/ui-utils/src/state-button";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import dynamic from "next/dynamic";
+import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
@@ -32,18 +27,6 @@ const createArticle = async (props: CreateArticleProps) => {
 }
 
 
-export function getArticleSummary(md: string){
-    return removeMarkdown(md)
-        .trim()
-        .replaceAll("\n", " ")
-        .replaceAll("\\n", " ")
-        .replaceAll("\|", " ")
-        .replaceAll("\-\-\-", " ")
-        .slice(0, 150)
-        .trim()
-}
-
-
 export const PublishArticleButton = ({editorState, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
     editorState: EditorState
     disabled: boolean
@@ -58,14 +41,20 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
     const qc = useQueryClient()
 
     useEffect(() => {
-        if (editorState && modalOpen) {
+        async function process() {
+            const { editorStateToMarkdownNoEmbeds } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
             const editorStateStr = JSON.stringify(editorState.toJSON())
             setMdText(editorStateToMarkdownNoEmbeds(editorStateStr))
+        }
+
+        if (editorState && modalOpen) {
+            process()
         }
     }, [editorState, modalOpen])
 
     const handleSubmit = (enDiscusion: boolean) => async () => {
         const editorStateStr = JSON.stringify(editorState.toJSON())
+        const { editorStateToMarkdown } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
         const {embeds, markdown, embedContexts} = editorStateToMarkdown(editorStateStr)
 
         const {error} = await createArticle({
@@ -111,7 +100,7 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
                 sx={{borderRadius: 20}}
             />
         </DescriptionOnHover>
-        <PublishArticleModal
+        {modalOpen && <PublishArticleModal
             onSubmit={handleSubmit}
             onClose={() => {
                 setModalOpen(false)
@@ -120,6 +109,6 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
             mdText={mdText}
             title={title}
             mentions={mentions}
-        />
+        />}
     </>
 }

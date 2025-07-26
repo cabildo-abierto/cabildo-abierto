@@ -5,7 +5,7 @@ import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
-import {useProfile, useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
@@ -16,6 +16,7 @@ import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/profile-utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {useProfile} from "@/queries/useProfile";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {

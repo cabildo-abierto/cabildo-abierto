@@ -16,7 +16,7 @@ import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {
     ArticleView, FullArticleView,

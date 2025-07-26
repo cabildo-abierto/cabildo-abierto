@@ -9,7 +9,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {produce} from "immer";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {useCategories} from "@/queries/api";
+import {useCategories} from "@/queries/useTopics";
 
 
 function operandViewToValue(op: string) {

@@ -4,13 +4,14 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {categoriesSearchParam, useAccessRequests} from "@/queries/api";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {get, post} from "@/utils/fetch";
 import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
 import {formatIsoDate} from "@/utils/dates";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrder, sortByKey} from "@/utils/arrays";
+import {useAccessRequests} from "@/queries/admin";
+import {categoriesSearchParam} from "@/queries/utils";
 
 
 export const collectionsList = [

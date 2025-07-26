@@ -1,6 +1,6 @@
 "use client"
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
-import {useConversations, useSession} from "@/queries/api";
+import {useConversations} from "@/queries/useConversations";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ConvoView} from "@atproto/api/src/client/types/chat/bsky/convo/defs";
 import {ProfilePic} from "@/components/profile/profile-pic";
@@ -16,6 +16,7 @@ import SearchBar from "@/components/buscar/search-bar";
 import UserSearchResults from "@/components/buscar/user-search-results";
 import {post} from "@/utils/fetch";
 import {useRouter} from "next/navigation";
+import {useSession} from "@/queries/useSession";
 
 
 const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }) => {

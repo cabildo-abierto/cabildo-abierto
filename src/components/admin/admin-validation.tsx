@@ -1,5 +1,5 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {usePendingValidationRequests} from "@/queries/api";
+import {usePendingValidationRequests} from "@/queries/admin";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";

@@ -18,7 +18,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {$Typed} from "@atproto/api";
 import {useQueryClient} from "@tanstack/react-query";
-import {threadQueryKey} from "@/queries/api";
+import {threadQueryKey} from "@/queries/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
 
 

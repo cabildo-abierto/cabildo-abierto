@@ -1,10 +1,10 @@
 "use client"
 import {PageCardMessage} from "@/components/aportar/page-card-message";
-import {useInviteCodesToShare} from "@/queries/api";
 import {useState} from "react";
 import {CheckIcon} from "@phosphor-icons/react";
 import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import {useAPI} from "@/queries/utils";
 
 
 function inviteCodeUrl(code: string) {
@@ -19,6 +19,15 @@ async function copyCode(c: string) {
     } else {
         console.warn("Clipboard API not available")
     }
+}
+
+
+type InviteCode = {
+    code: string
+}
+
+export function useInviteCodesToShare() {
+    return useAPI<InviteCode[]>("/invite-codes-to-share", ["invite-codes-to-share"])
 }
 
 export default function Page() {

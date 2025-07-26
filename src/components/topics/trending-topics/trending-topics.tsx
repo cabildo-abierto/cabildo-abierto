@@ -1,4 +1,4 @@
-import {TimePeriod, useTrendingTopics} from "@/queries/api";
+import {TimePeriod, useTrendingTopics} from "@/queries/useTrendingTopics";
 import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
 

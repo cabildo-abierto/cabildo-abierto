@@ -1,4 +1,4 @@
-import {WikiEditorState} from "@/components/topics/topic/topic-content-expanded-view-header";
+import {WikiEditorState} from "@/lib/types";
 
 export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL!
 
@@ -26,43 +26,28 @@ export function getRkeyFromUri(uri: string) {
 
 export function shortCollectionToCollection(collection: string) {
     if (collection == "article") {
-        return "ar.com.cabildoabierto.article"
+        return "ar.cabildoabierto.article"
     }
     if (collection == "post") {
         return "app.bsky.feed.post"
     }
-    if (collection == "visualization") {
-        return "ar.com.cabildoabierto.visualization"
+    if (collection == "dataset") {
+        return "ar.cabildoabierto.data.dataset"
     }
     return collection
 }
 
 export function collectionToShortCollection(collection: string) {
-    if (collection == "ar.com.cabildoabierto.article") {
-        return "article"
-    }
-    if (collection == "app.bsky.feed.post") {
+    if (isPost(collection)) {
         return "post"
     }
-    if (collection == "ar.com.cabildoabierto.visualization") {
-        return "visualization"
+    if(isArticle(collection)){
+        return "article"
+    }
+    if(isDataset(collection)){
+        return "dataset"
     }
     return collection
-}
-
-export function expandURI(uri: string){
-    if(!uri.startsWith("at://")){
-        uri = "at://" + uri
-    }
-    const {did, collection, rkey} = splitUri(uri)
-
-    return getUri(did, shortCollectionToCollection(collection), rkey)
-}
-
-export function editVisualizationUrl(uri: string) {
-    const {did, rkey, collection} = splitUri(uri)
-    const collectionParam = collection != "ar.com.cabildoabierto.visualization" ? "&c=" + collection : ""
-    return "/nueva-visualizacion?did=" + did + "&rkey=" + rkey + collectionParam
 }
 
 export function profileUrl(handleOrDid: string) {

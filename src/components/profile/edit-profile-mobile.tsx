@@ -2,7 +2,7 @@ import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import Image from "next/image";
 import React, {ReactNode, useState} from "react";
-import {useProfile, useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {Menu, TextField} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
@@ -13,6 +13,7 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import {useQueryClient} from "@tanstack/react-query";
 import FullscreenImageViewer from "@/components/images/fullscreen-image-viewer";
 import Link from "next/link";
+import {useProfile} from "@/queries/useProfile";
 
 type Props = {
     open: boolean,

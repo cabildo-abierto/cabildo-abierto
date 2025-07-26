@@ -1,9 +1,10 @@
-import {useFollowx, useProfile} from "@/queries/api";
+import {useFollowx} from "@/queries/useFollowx";
 import {FollowKind} from "@/components/profile/follow/followx-page";
 import Link from "next/link";
 import {rounder} from "@/utils/strings";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import dynamic from "next/dynamic";
+import {useProfile} from "@/queries/useProfile";
 
 const UserSearchResult = dynamic(() => import("@/components/buscar/user-search-result"), {ssr: false});
 

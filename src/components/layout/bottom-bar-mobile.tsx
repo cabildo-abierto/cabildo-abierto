@@ -7,7 +7,7 @@ import TopicsIcon from "@/components/icons/topics-icon";
 import {BottomNavigation, BottomNavigationAction, Box, Paper} from "@mui/material";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
-export const BottomBarMobile = () => {
+const BottomBarMobile = () => {
     const pathname = usePathname()
     const router = useRouter()
     const {isMobile} = useLayoutConfig()
@@ -57,3 +57,5 @@ export const BottomBarMobile = () => {
         </Paper>
     </Box>
 }
+
+export default BottomBarMobile

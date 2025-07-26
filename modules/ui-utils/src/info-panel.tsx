@@ -2,7 +2,12 @@ import {ReactNode} from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import DescriptionOnHover from "./description-on-hover";
 
-export const InfoPanel = ({text, className, onClick, iconClassName = "text-gray-600", icon = <InfoIcon fontSize="small"/>}: {
+export const InfoPanel = ({
+                              text,
+                              className,
+                              onClick,
+                              iconClassName = "text-gray-600",
+                              icon = <InfoIcon fontSize="small"/>}: {
     text?: ReactNode,
     className?: string,
     iconClassName?: string,
@@ -15,6 +20,6 @@ export const InfoPanel = ({text, className, onClick, iconClassName = "text-gray-
             {icon}
         </div>
     </DescriptionOnHover>
-};
+}
 
 export default InfoPanel

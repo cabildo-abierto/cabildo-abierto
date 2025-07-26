@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 import {useState} from "react";
-import {useConversations} from "@/queries/api";
+import {useConversations} from "@/queries/useConversations";
 
 const cabildoDid = "did:plc:2semihha42b7efhu4ywv7whi"
 

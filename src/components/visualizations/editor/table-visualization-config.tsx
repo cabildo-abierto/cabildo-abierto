@@ -1,7 +1,7 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {isDatasetDataSource, isTable, isTopicsDataSource} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {useDataset} from "@/queries/api";
+import {useDataset} from "@/queries/useDataset";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Switch} from "@mui/material";

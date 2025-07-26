@@ -1,4 +1,4 @@
-import {useTopicFeed} from "@/queries/api";
+import {useTopicFeed} from "@/queries/useTopic";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";

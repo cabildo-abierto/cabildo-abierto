@@ -6,10 +6,22 @@ import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useTheme} from "@/components/theme/theme-context";
-import {useAccount, useCurrentValidationRequest, useSession} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
+
+
+import {
+    Account,
+} from "@/lib/types"
+import {useAPI} from "@/queries/utils";
+import {useCurrentValidationRequest} from "@/queries/useValidation";
+import {useSession} from "@/queries/useSession";
+
+const useAccount = () => {
+    const res = useAPI<Account>("/account", ["account"])
+    return {...res, account: res.data}
+}
 
 
 const AccountSettings = () => {

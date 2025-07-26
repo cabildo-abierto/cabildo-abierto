@@ -9,17 +9,18 @@ import {
     $insertNodes,
     $isParagraphNode,
     $isTextNode,
-    LexicalNode, SerializedEditorState
+    LexicalNode,
+    SerializedEditorState
 } from "lexical";
 import {$generateNodesFromDOM} from "@lexical/html";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images"
 import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
-import {LexicalPointer} from "./selection/lexical-selection";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
+import {LexicalPointer} from "./selection/lexical-selection";
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images";
 
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
@@ -229,6 +230,62 @@ export function htmlToEditorStateStr(text: string) {
 }
 
 
+export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): {
+    markdown: string;
+    embeds: ArticleEmbedView[],
+    embedContexts: EmbedContext[]
+} | null {
+    /***
+     * Transformamos el editor state a markdown
+     * y buscamos los VisualizationNodes para armar la lista de embeds
+     * el índice de los embeds se obtiene transformando a markdown todos los nodos anteriores
+     * ***/
+    state = ProcessedLexicalState.fromMaybeProcessed(state)
+    const markdown = editorStateToMarkdownNoEmbeds(state);
+    const embeds: ArticleEmbedView[] = [];
+    const contexts: EmbedContext[] = []
+
+    for (let i = 0; i < state.state.root.children.length; i++) {
+        const node = state.state.root.children[i]
+        if (node.type == "embed") {
+            const vNode = node as SerializedEmbedNode
+            const lexicalPointer = new LexicalPointer([i])
+            const markdownUpTo = lexicalPointer.getMarkdownUpTo(state, true)
+            const index = markdownUpTo.length
+            if (vNode.spec) {
+                const spec = JSON.parse(vNode.spec)
+                if (spec.$type == "ar.cabildoabierto.embed.visualization") {
+                    embeds.push({
+                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                        value: {
+                            $type: "ar.cabildoabierto.embed.visualization",
+                            ...(spec as Visualization)
+                        },
+                        index
+                    })
+                } else if (spec.$type == "app.bsky.embed.images#view") {
+                    embeds.push({
+                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                        value: {
+                            $type: "app.bsky.embed.images#view",
+                            ...(spec as ImagesEmbedView)
+                        },
+                        index
+                    })
+                }
+                if (vNode.context) {
+                    const context = JSON.parse(vNode.context) as EmbedContext
+                    contexts.push(context)
+                } else {
+                    contexts.push(null)
+                }
+            }
+        }
+    }
+
+    return {markdown, embeds, embedContexts: contexts}
+}
+
 export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArticleEmbedView[], embedContexts?: EmbedContext[]): {
     markdown: string,
     embeds: ArticleEmbedView[],
@@ -254,54 +311,3 @@ export function anyEditorStateToMarkdown(text: string, format: string, embeds?: 
 }
 
 
-export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): { markdown: string; embeds: ArticleEmbedView[], embedContexts: EmbedContext[] } | null {
-    /***
-     * Transformamos el editor state a markdown
-     * y buscamos los VisualizationNodes para armar la lista de embeds
-     * el índice de los embeds se obtiene transformando a markdown todos los nodos anteriores
-     * ***/
-    state = ProcessedLexicalState.fromMaybeProcessed(state)
-    const markdown = editorStateToMarkdownNoEmbeds(state);
-    const embeds: ArticleEmbedView[] = [];
-    const contexts: EmbedContext[] = []
-
-    for (let i = 0; i < state.state.root.children.length; i++) {
-        const node = state.state.root.children[i]
-        if (node.type == "embed") {
-            const vNode = node as SerializedEmbedNode
-            const lexicalPointer = new LexicalPointer([i])
-            const markdownUpTo = lexicalPointer.getMarkdownUpTo(state, true)
-            const index = markdownUpTo.length
-            if (vNode.spec) {
-                const spec = JSON.parse(vNode.spec)
-                if(spec.$type == "ar.cabildoabierto.embed.visualization"){
-                    embeds.push({
-                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
-                        value: {
-                            $type: "ar.cabildoabierto.embed.visualization",
-                            ...(spec as Visualization)
-                        },
-                        index
-                    })
-                } else if(spec.$type == "app.bsky.embed.images#view"){
-                    embeds.push({
-                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
-                        value: {
-                            $type: "app.bsky.embed.images#view",
-                            ...(spec as ImagesEmbedView)
-                        },
-                        index
-                    })
-                }
-                if(vNode.context){
-                    const context = JSON.parse(vNode.context) as EmbedContext
-                    contexts.push(context)
-                } else {
-                    contexts.push(null)
-                }
-            }
-        }
-    }
-
-    return {markdown, embeds, embedContexts: contexts}
-}

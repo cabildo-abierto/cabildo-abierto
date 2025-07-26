@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {LexicalEditor} from "lexical";
-import {editorStateToMarkdownNoEmbeds} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {post} from "@/utils/fetch";
 
 export const useTopicsMentioned = (initialTitle?: string) => {
@@ -24,6 +23,9 @@ export const useTopicsMentioned = (initialTitle?: string) => {
                 const fetchTopicsMentioned = async () => {
                     try {
                         const editorStateStr = JSON.stringify(editor.getEditorState().toJSON());
+
+                        const { editorStateToMarkdownNoEmbeds } = await import("../../../modules/ca-lexical-editor/src/markdown-transforms");
+
                         const mdText = editorStateToMarkdownNoEmbeds(editorStateStr);
                         let data: TopicMention[] = []
                         if (mdText.length + title.length > 0) {

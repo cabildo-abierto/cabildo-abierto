@@ -1,4 +1,4 @@
-import {DraftPreview} from "@/queries/api";
+import {DraftPreview} from "@/queries/useDrafts";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
 import {isArticle} from "@/utils/uri";
 import {useRouter} from "next/navigation";
