@@ -2,7 +2,8 @@
 
 import {useParams} from "next/navigation";
 import PageHeader from "../../../../../modules/ui-utils/src/page-header";
-import {Conversation, PrivateMessage, useConversation, useSession} from "@/queries/api";
+import {Conversation, PrivateMessage} from "@/queries/useConversations";
+import {useSession} from "@/queries/useSession";
 import {ConvoView, isMessageView, MessageInput, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {BskyRichTextContent} from "@/components/feed/post/bsky-rich-text-content";
@@ -18,6 +19,7 @@ import {$Typed} from "@atproto/api";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import {useMediaQuery, useTheme} from "@mui/system";
 import {QueryFilters} from "@tanstack/query-core";
+import {useAPI} from "@/queries/utils";
 
 
 type SendMessageParams = { message: MessageInput, convoId: string }
@@ -65,6 +67,10 @@ function optimisticMarkRead(qc: QueryClient, convoId: string){
     })
 }
 
+
+function useConversation(convoId: string) {
+    return useAPI<Conversation>(`/conversation/${convoId}`, ["conversation", convoId])
+}
 
 
 export default function Page() {

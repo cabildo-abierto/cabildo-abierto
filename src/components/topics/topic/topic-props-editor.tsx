@@ -14,7 +14,7 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
 import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
-import {useCategories} from "@/queries/api";
+import {useCategories} from "@/queries/useTopics";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";

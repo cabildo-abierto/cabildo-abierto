@@ -4,7 +4,7 @@ import React, {ReactNode, useEffect, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";

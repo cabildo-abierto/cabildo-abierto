@@ -7,7 +7,7 @@ import {
     isOneAxisPlot, isTable, isTopicsDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {produce} from "immer"
-import {useDatasets} from "@/queries/api"
+import {useDatasets} from "@/queries/useDataset"
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner"
 import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config"
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor"

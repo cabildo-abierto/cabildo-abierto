@@ -1,16 +1,16 @@
 "use client"
 import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
-import {useTopicFeed, useTopicWithNormalizedContent} from "@/queries/api";
+import {useTopicFeed, useTopicWithNormalizedContent} from "@/queries/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {updateSearchParam} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {MobileHeader} from "@/components/layout/mobile-header";
 import TopicTutorial from "@/components/tutorial/topic-tutorial";
 import {getUri} from "@/utils/uri";
+import {WikiEditorState} from "@/lib/types";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
@@ -56,7 +56,7 @@ export const TopicPage = ({topicId, did, rkey}: {
     const wikiEditorState = (s && isWikiEditorState(s) ? s : "minimized")
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
-    if (topicQuery.isLoading) {
+    if (topicQuery.isLoading || topic == "loading") {
         return <LoadingSpinner/>
     }
 
@@ -66,7 +66,7 @@ export const TopicPage = ({topicId, did, rkey}: {
 
     function setWikiEditorStateAndRouterPush(s: WikiEditorState) {
         updateSearchParam("s", s)
-        updateSearchParam("i", topic.id)
+        if(topic && topic != "loading") updateSearchParam("i", topic.id)
         updateSearchParam("did", did ?? null)
         updateSearchParam("rkey", rkey ?? null)
     }

@@ -7,7 +7,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {useDataset, useDatasets} from "@/queries/api";
+import {useDataset, useDatasets} from "@/queries/useDataset";
 import {readyToPlot, useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 
 

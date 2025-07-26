@@ -1,6 +1,9 @@
-import {useDrafts} from "@/queries/api";
+import {useDrafts} from "@/queries/useDrafts";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import DraftPreviewComp from "@/components/writing/drafts/draft-preview";
+import dynamic from "next/dynamic";
+
+const DraftPreviewComp = dynamic(() => import("@/components/writing/drafts/draft-preview"));
+
 
 
 export default function Drafts() {

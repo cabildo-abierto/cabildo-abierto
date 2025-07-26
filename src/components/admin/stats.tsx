@@ -1,5 +1,5 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {useProfile, useStatsDashboard} from "@/queries/api";
+import {useStatsDashboard} from "@/queries/admin";
 import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 import {Plot} from "@/components/visualizations/plot";
 import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
@@ -7,6 +7,7 @@ import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {$Typed} from "@atproto/api";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
 import {DateSince} from "../../../modules/ui-utils/src/date";
+import {useProfile} from "@/queries/useProfile";
 
 
 export type StatsDashboard = {

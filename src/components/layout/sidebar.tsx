@@ -1,9 +1,9 @@
-import React, {useState} from "react";
+import React from "react";
 import {usePathname} from "next/navigation";
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
 import {profileUrl} from "@/utils/uri";
-import {useConversations, useNextMeeting, useSession, useUnreadNotificationsCount} from "@/queries/api";
+import {useConversations} from "@/queries/useConversations";
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
 import {SidebarButton} from "./sidebar-button";
@@ -13,23 +13,20 @@ import {WriteButtonIcon} from "../icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import NotificationsIcon from "../icons/notifications-icon";
-
-import dynamic from "next/dynamic";
 import TopicsIcon from "@/components/icons/topics-icon";
 import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 import {GearIcon, HouseLineIcon, MagnifyingGlassIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
-import {formatIsoDate} from "@/utils/dates";
 import {SwipeableDrawer} from "@mui/material";
-
-const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
-const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
+import NextMeetingInvite from "@/components/layout/next-meeting-invite";
+import {useAPI} from "@/queries/utils";
+import {useSession} from "@/queries/useSession";
 
 
 const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: () => void }) => {
+
     return <>
-        <FloatingWriteButton onClick={onClick}/>
         <div className={"my-2 h-12 " + (showText ? "pr-4 sm:w-[180px] w-full max-w-[300px]" : "")}>
             {showText ? <Button
                     startIcon={<WriteButtonIcon/>}
@@ -66,44 +63,18 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
 }
 
 
-const NextMeetingInvite = () => {
-    const {layoutConfig} = useLayoutConfig()
-    const {data: meetingData} = useNextMeeting()
-
-    if (!layoutConfig.spaceForRightSide) {
-        if (layoutConfig.openSidebar && meetingData && meetingData.show) {
-            return <div className={"bg-[var(--background-dark2)] mb-2 border rounded-lg p-2 text-xs"}>
-                <div className={"font-semibold"}>
-                    {meetingData.title}
-                </div>
-                <div className={"text-[var(--text-light)] text-[11px]"}>
-                    {meetingData.description}
-                </div>
-                <div className={"text-[var(--text-light)]"}>
-                    <span className={"font-semibold"}>Link:</span> <Link
-                    href={meetingData.url}
-                    target={"_blank"}
-                    className={"hover:underline"}
-                >
-                    {meetingData.url.replace("https://", "")}
-                </Link>
-                </div>
-                <div className={"text-[var(--text-light)]"}>
-                    {formatIsoDate(meetingData.date, true, true, false)}hs.
-                </div>
-            </div>
-        }
-    }
-
-    return null
+function useUnreadNotificationsCount() {
+    return useAPI<number>("/notifications/unread-count", ["unread-notifications-count"])
 }
 
 
-const SidebarContent = ({onClose}: {onClose: () => void}) => {
+const SidebarContent = ({onClose, setWritePanelOpen}: {
+    onClose: () => void
+    setWritePanelOpen: (open: boolean) => void
+}) => {
     const user = useSession()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const pathname = usePathname()
-    const [writePanelOpen, setWritePanelOpen] = useState(false)
     const {data: conversations} = useConversations()
     const {data: unreadNotificationsCount} = useUnreadNotificationsCount()
 
@@ -240,18 +211,15 @@ const SidebarContent = ({onClose}: {onClose: () => void}) => {
                     </div>
                 </div>
             </div>
-            <WritePanel
-                open={writePanelOpen}
-                onClose={() => {
-                    setWritePanelOpen(false)
-                }}
-            />
         </>
     )
 }
 
 
-export const Sidebar = ({onClose}: { onClose: () => void }) => {
+export const Sidebar = ({onClose, setWritePanelOpen}: {
+    onClose: () => void
+    setWritePanelOpen: (open: boolean) => void
+}) => {
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
 
     const drawerState = layoutConfig.openSidebar ? "expanded" : (isMobile ? "closed" : "collapsed")
@@ -262,6 +230,7 @@ export const Sidebar = ({onClose}: { onClose: () => void }) => {
         key={JSON.stringify({...layoutConfig, isMobile})}
         anchor={"left"}
         hideBackdrop={hideBackdrop}
+        disableEnforceFocus={true}
         open={drawerState != "closed"}
         disableScrollLock={drawerState != "expanded" || hideBackdrop}
         onOpen={() => {
@@ -287,7 +256,7 @@ export const Sidebar = ({onClose}: { onClose: () => void }) => {
         }}
     >
         <div className={"bg-[var(--background-dark)] min-h-screen"}>
-            <SidebarContent onClose={onClose}/>
+            <SidebarContent onClose={onClose} setWritePanelOpen={setWritePanelOpen} />
         </div>
     </SwipeableDrawer>
 }

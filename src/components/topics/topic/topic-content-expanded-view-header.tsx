@@ -8,12 +8,9 @@ import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
-
-
-export type WikiEditorState = "changes" | "authors" | "normal" |
-    "editing" | "editing-props" | "history" | "minimized" | "props"
+import {WikiEditorState} from "@/lib/types";
 
 
 export const TopicContentExpandedViewHeader = ({

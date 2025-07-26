@@ -1,7 +1,7 @@
 "use client"
 import {BackButton} from "../../../../../modules/ui-utils/src/back-button";
 import {useState} from "react";
-import {useMonthlyValue} from "@/queries/api";
+import {useMonthlyValue} from "@/queries/useFunding";
 import { post } from "@/utils/fetch";
 import { IntegerInputPlusMinus } from "@/components/aportar/integer-input-plus-minus";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";

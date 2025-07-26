@@ -1,8 +1,6 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
-import {
-    Main as Visualization
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 import {PostOutput} from "@/utils/fetch";
 
@@ -116,3 +114,7 @@ export type GetFeedOutput<T> = {
     feed: T[]
     cursor: string | undefined
 }
+
+
+export type WikiEditorState = "changes" | "authors" | "normal" |
+    "editing" | "editing-props" | "history" | "minimized" | "props"

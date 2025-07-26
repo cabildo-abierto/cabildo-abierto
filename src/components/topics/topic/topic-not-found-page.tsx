@@ -1,4 +1,4 @@
-import {useTopic} from "@/queries/api";
+import {useTopic} from "@/queries/useTopic";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 
 

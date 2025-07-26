@@ -1,7 +1,7 @@
 "use client"
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel"
 import { PermissionLevel } from "./permission-level"
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {getTopicProtection} from "@/components/topics/topic/utils";
 

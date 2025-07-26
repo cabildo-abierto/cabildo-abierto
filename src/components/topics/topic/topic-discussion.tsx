@@ -2,9 +2,9 @@ import {ReplyButton} from "../../thread/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent} from "../../writing/write-panel/write-panel";
-import {WikiEditorState} from "./topic-content-expanded-view-header";
 import dynamic from "next/dynamic";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
+import {WikiEditorState} from "@/lib/types";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 

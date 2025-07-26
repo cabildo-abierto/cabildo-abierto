@@ -12,7 +12,7 @@ import {OptionsDropdownButton} from "./options-dropdown-button";
 import BlueskyLogo from "../../icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useState} from "react";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {ViewsIcon} from "@/components/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";

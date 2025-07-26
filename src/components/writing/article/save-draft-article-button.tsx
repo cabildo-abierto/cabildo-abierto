@@ -1,10 +1,10 @@
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {EditorState} from "lexical";
 import {post, updateSearchParam} from "@/utils/fetch";
-import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
+
 
 type CreateDraftParams = {
     id?: string
@@ -25,6 +25,8 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
     const qc = useQueryClient()
 
     async function onSaveDraft() {
+        const { editorStateToMarkdown } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
+
         const markdown = editorStateToMarkdown(editorState.toJSON())
 
         const saveTime = new Date()

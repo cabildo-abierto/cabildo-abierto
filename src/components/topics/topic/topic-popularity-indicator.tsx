@@ -2,7 +2,7 @@ import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-
 import {topicUrl} from "@/utils/uri";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {TopicPopularity} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {TimePeriod} from "@/queries/api";
+import {TimePeriod} from "@/queries/useTrendingTopics";
 
 
 export default function TopicPopularityIndicator({counts, selected}: {

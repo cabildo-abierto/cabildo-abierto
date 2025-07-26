@@ -11,7 +11,7 @@ import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";

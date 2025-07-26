@@ -6,7 +6,7 @@ import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
-import {TimePeriod} from "@/queries/api";
+import {TimePeriod} from "@/queries/useTrendingTopics";
 
 
 const TrendingTopicsSlider = ({selected, trendingArticles}: {

@@ -14,7 +14,6 @@ import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel"
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {getUri, splitUri} from "@/utils/uri";
 import {contentQueriesFilter} from "@/queries/updates";
-import {threadQueryKey, TopicFeed, useProfile, useSession} from "@/queries/api";
 import {Profile} from "@/lib/types";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
@@ -23,6 +22,10 @@ import {post} from "@/utils/fetch";
 import {View as EmbedImagesView, ViewImage} from "@/lex-api/types/app/bsky/embed/images"
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+import {TopicFeed} from "@/queries/useTopic";
+import {threadQueryKey} from "@/queries/useThread";
+import {useSession} from "@/queries/useSession";
+import {useProfile} from "@/queries/useProfile";
 
 
 function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewContent) {

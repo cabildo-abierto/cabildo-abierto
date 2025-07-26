@@ -1,7 +1,7 @@
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {Profile} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";

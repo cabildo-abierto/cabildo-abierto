@@ -3,7 +3,7 @@ import {PostContent} from "./post-content";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
 import {FeedViewContent, isThreadViewContent, PostView} from '@/lex-api/types/ar/cabildoabierto/feed/defs';
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";

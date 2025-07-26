@@ -5,7 +5,7 @@ import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscr
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import {getArticleSummary} from "@/components/writing/article/publish-article-button";
+import removeMarkdown from "remove-markdown";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 
 type PublishArticleModalProps = {
@@ -15,6 +15,18 @@ type PublishArticleModalProps = {
     mdText?: string
     title?: string
     mentions?: TopicMention[]
+}
+
+
+export function getArticleSummary(md: string){
+    return removeMarkdown(md)
+        .trim()
+        .replaceAll("\n", " ")
+        .replaceAll("\\n", " ")
+        .replaceAll("\|", " ")
+        .replaceAll("\-\-\-", " ")
+        .slice(0, 150)
+        .trim()
 }
 
 

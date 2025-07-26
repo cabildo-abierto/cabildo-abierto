@@ -1,10 +1,9 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {useTopicVersionChanges} from "@/queries/api";
 import {splitUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {getEditorSettings} from "@/components/editor/settings";
 import dynamic from "next/dynamic";
-import {MatchesType} from "@/lib/types";
+import {MatchesType, TopicVersionChangesProps} from "@/lib/types";
 import {SerializedDiffNode} from "../../../../modules/ca-lexical-editor/src/nodes/DiffNode";
 import {SerializedEditorState} from "lexical";
 import {produce} from "immer";
@@ -17,6 +16,7 @@ import React, {useMemo, useState} from "react";
 import {TopicHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {FormControl, InputLabel, MenuItem, Select as MUISelect} from "@mui/material";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {useAPI} from "@/queries/utils";
 
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
@@ -114,6 +114,11 @@ export function anyEditorStateToLexical(text: string | null, format: string | nu
     } else {
         return JSON.parse(mdOrLexical.text)
     }
+}
+
+
+function useTopicVersionChanges(did: string, rkey: string, prevDid: string, prevRkey: string) {
+    return useAPI<TopicVersionChangesProps>("/topic-version-changes/"+did+"/"+rkey+"/"+prevDid+"/"+prevRkey, ["topic-version-changes", did, rkey, prevDid, prevRkey])
 }
 
 

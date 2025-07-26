@@ -12,7 +12,7 @@ import {produce} from "immer";
 import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
 import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {TopicFeed} from "@/queries/api";
+import {TopicFeed} from "@/queries/useTopic";
 import {QueryFilters} from "@tanstack/query-core";
 
 

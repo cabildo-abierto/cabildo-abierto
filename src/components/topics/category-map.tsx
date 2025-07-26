@@ -1,5 +1,5 @@
 import {useRouter} from "next/navigation";
-import {useCategoryGraph} from "@/queries/api";
+import {useCategoryGraph} from "@/queries/useTopics";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {topicUrl} from "@/utils/uri";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";

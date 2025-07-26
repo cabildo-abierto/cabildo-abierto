@@ -1,15 +1,12 @@
 import {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
 import {LexicalEditor} from "lexical";
-import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
+import {TopicContentExpandedViewHeader} from "./topic-content-expanded-view-header";
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
-import {useTopicFeed, useTopicVersion} from "@/queries/api";
+import {useTopicFeed, useTopicVersion} from "@/queries/useTopic";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
-import {
-    editorStateToMarkdown
-} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
@@ -31,6 +28,9 @@ import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import Link from "next/link";
+import {WikiEditorState} from "@/lib/types";
+
+import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 export type CreateTopicVersionProps = {
     id: string

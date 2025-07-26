@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {get} from "@/utils/fetch";
 import dynamic from "next/dynamic";
-import {categoriesSearchParam} from "@/queries/api";
+import {categoriesSearchParam} from "@/queries/utils";
 import { Button } from "../../../modules/ui-utils/src/button";
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))

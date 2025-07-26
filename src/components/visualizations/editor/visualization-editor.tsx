@@ -1,4 +1,3 @@
-import {useDatasets} from "@/queries/api";
 import {useEffect, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
 import {EditorViewer} from "./editor-viewer";
@@ -15,6 +14,7 @@ import {emptyChar} from "@/utils/utils";
 import {post} from "@/utils/fetch";
 import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {useQuery} from "@tanstack/react-query";
+import {useDatasets} from "@/queries/useDataset";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {

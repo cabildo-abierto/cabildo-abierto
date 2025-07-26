@@ -1,5 +1,5 @@
 "use client"
-import {useSession} from "@/queries/api";
+import {useSession} from "@/queries/useSession";
 import {useRouter} from "next/navigation";
 import {LoadingScreen} from "../../../modules/ui-utils/src/loading-screen";
 import {Login} from "@/components/auth/login";

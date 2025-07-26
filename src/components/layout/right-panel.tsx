@@ -6,7 +6,7 @@ import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 import {SearchProvider} from "../buscar/search-context";
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import Link from "next/link";
-import { useNextMeeting } from "@/queries/api";
+import { useNextMeeting } from "@/queries/useNextMeeting";
 import {formatIsoDate} from "@/utils/dates";
 
 

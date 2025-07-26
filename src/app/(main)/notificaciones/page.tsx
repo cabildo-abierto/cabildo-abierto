@@ -1,10 +1,15 @@
 "use client"
-import {useNotifications} from "@/queries/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NotificationCard} from "@/components/notification/notification-card";
 import {useEffect} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
+import {useAPI} from "@/queries/utils";
+import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/notification/listNotifications";
+
+function useNotifications() {
+    return useAPI<CANotification[]>("/notifications/list", ["notifications"])
+}
 
 
 const Page = () => {

@@ -1,6 +1,5 @@
 import {ElementOrTextNode, getOrderedNodeListWithPointers, LexicalPointer} from "./lexical-selection";
 import {SerializedEditorState} from "lexical";
-import {editorStateToMarkdown} from "../markdown-transforms";
 
 type NodeWithMarkdownLength = {
     node: ElementOrTextNode,

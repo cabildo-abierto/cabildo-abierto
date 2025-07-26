@@ -1,7 +1,6 @@
 import {LexicalPointer, LexicalSelection} from "./lexical-selection";
 import {$createRangeSelection, $getRoot, LexicalEditor, SerializedEditorState} from "lexical";
 import {ProcessedLexicalState} from "./processed-lexical-state";
-import {editorStateToMarkdown, markdownToEditorState} from "../markdown-transforms";
 
 
 export class MarkdownSelection {

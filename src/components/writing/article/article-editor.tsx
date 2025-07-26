@@ -14,7 +14,8 @@ import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/article/topics-mentioned";
 import {validArticle} from "@/components/writing/article/valid-article";
 import {getUsername} from "@/utils/utils";
-import {Draft, useDraft, useSession} from "@/queries/api"
+import {useSession} from "@/queries/useSession";
+import {Draft, useDraft} from "@/queries/useDrafts"
 import {SaveDraftArticleButton} from "@/components/writing/article/save-draft-article-button";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";

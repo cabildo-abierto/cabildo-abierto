@@ -1,4 +1,4 @@
-import {useActivityStats} from "@/queries/api";
+import {useActivityStats} from "@/queries/admin";
 import {DatasetForTableView, DatasetTableView} from "@/components/datasets/dataset-table-view";
 
 

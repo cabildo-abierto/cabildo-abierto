@@ -1,4 +1,3 @@
-import {useProfile} from "@/queries/api";
 import {ReactNode, useEffect, useState} from "react";
 import {FollowButton} from "@/components/profile/profile-utils";
 import Link from "next/link";
@@ -8,6 +7,7 @@ import ProfileDescription from "@/components/profile/profile-description";
 import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import ValidationIcon from "@/components/profile/validation-icon";
+import {useProfile} from "@/queries/useProfile";
 
 type UserSummaryProps = {
     handle: string

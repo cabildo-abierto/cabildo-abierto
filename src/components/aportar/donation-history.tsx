@@ -1,5 +1,5 @@
 import GradientHRule from "../../../modules/ui-utils/src/gradient-hrule";
-import {useDonationHistory} from "@/queries/api";
+import {useDonationHistory} from "@/queries/useFunding";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 
 type Donation = {

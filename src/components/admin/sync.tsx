@@ -5,11 +5,12 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
 import {collectionsList} from "@/components/admin/acceso";
 import {post} from "@/utils/fetch";
-import {categoriesSearchParam, useUsersSyncStatus} from "@/queries/api";
+import {categoriesSearchParam} from "@/queries/utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
 import { Button } from "../../../modules/ui-utils/src/button";
+import {useUsersSyncStatus} from "@/queries/admin";
 
 
 export const AdminSync = () => {

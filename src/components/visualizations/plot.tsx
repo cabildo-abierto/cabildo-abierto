@@ -10,7 +10,7 @@ import {
     isTopicsDatasetView,
     TopicsDatasetView
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset"
-import {useDataset} from "@/queries/api";
+import {useDataset} from "@/queries/useDataset";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 import {useState} from "react";
