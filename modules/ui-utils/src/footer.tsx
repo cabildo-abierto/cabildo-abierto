@@ -6,11 +6,11 @@ import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
 import { Color } from './button';
 import BlueskyLogo from "@/components/icons/bluesky-logo";
 import {XLogoIcon} from "@phosphor-icons/react";
-
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 
 const FooterLeftSide = () => {
-    return <div className="flex flex-col justify-between items-start space-y-16 min-w-16">
+    return <div className="flex flex-col justify-between items-start space-y-16 min-w-24">
         <ScrollToButton>
             <div className={dimOnHoverClassName}>
                 <Logo width={40} height={40}/>
@@ -28,6 +28,12 @@ const FooterLeftSide = () => {
                 href="https://x.com/CabildoAbiertoX"
             >
                 <XLogoIcon fontSize="25"/>
+            </DimOnHoverLink>
+            <DimOnHoverLink
+                target="_blank"
+                href="https://github.com/cabildo-abierto"
+            >
+                <GitHubIcon />
             </DimOnHoverLink>
         </div>
     </div>
@@ -64,7 +70,7 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
 
 export default function Footer({showCA = true, color="background"}: { showCA?: boolean, color?: Color }) {
     return <div
-        className="flex justify-between px-4 md:px-16 space-x-12 py-12"
+        className="flex justify-between px-4 md:px-16 space-x-4 sm:space-x-12 py-12"
         style={{backgroundColor: `var(--${color})`}}
     >
         <FooterLeftSide/>

@@ -21,6 +21,7 @@ import {sum} from "@/utils/arrays";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 import {GearIcon, HouseLineIcon, MagnifyingGlassIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
 import {formatIsoDate} from "@/utils/dates";
+import {SwipeableDrawer} from "@mui/material";
 
 const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
 const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
@@ -29,14 +30,13 @@ const FloatingWriteButton = dynamic(() => import('../writing/floating-write-butt
 const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: () => void }) => {
     return <>
         <FloatingWriteButton onClick={onClick}/>
-        <div className={"my-2 h-12"}>
+        <div className={"my-2 h-12 " + (showText ? "pr-4 sm:w-[180px] w-full max-w-[300px]" : "")}>
             {showText ? <Button
-                    fullWidth={true}
                     startIcon={<WriteButtonIcon/>}
                     size={"large"}
+                    fullWidth={true}
                     sx={{
                         borderRadius: "20px",
-                        width: "160px",
                         marginLeft: "10px"
                     }}
                     color={"primary"}
@@ -45,7 +45,7 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
                     }}
                     id={"write-button"}
                 >
-                    <span className={"font-bold text-[14px]"}>
+                    <span className={"font-bold text-[16px] sm:text-[14px]"}>
                         Escribir
                     </span>
                 </Button> :
@@ -99,13 +99,13 @@ const NextMeetingInvite = () => {
 }
 
 
-export const SidebarContent = ({onClose}: { onClose: () => void }) => {
+const SidebarContent = ({onClose}: {onClose: () => void}) => {
     const user = useSession()
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
-    const {data: unreadNotificationsCount} = useUnreadNotificationsCount()
     const {data: conversations} = useConversations()
+    const {data: unreadNotificationsCount} = useUnreadNotificationsCount()
 
     let unreadMessagesCount = undefined
     if (conversations) {
@@ -126,11 +126,10 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     return (
         <>
             <div
-                className={"pt-4 px-2 overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
+                className={"pt-4 px-2 overflow-scroll no-scrollbar h-full " + (showText ? "" : "hidden min-[500px]:block")}
             >
                 <div className={"h-full flex flex-col justify-between"}>
-                    <div className={"flex flex-col sm:space-y-2 space-y-1 " + (showText ? "" : "items-center")}>
-
+                    <div className={"flex pb-8 flex-col sm:space-y-2 space-y-2 " + (showText ? "" : "items-center")}>
                         <div className={"mb-4"}>
                             <div className={"w-full flex justify-center"}>
                                 <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
@@ -249,4 +248,44 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
             />
         </>
     )
+}
+
+
+export const Sidebar = ({onClose}: { onClose: () => void }) => {
+    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+
+    const drawerState = layoutConfig.openSidebar ? "expanded" : (isMobile ? "closed" : "collapsed")
+    const drawerWidth = drawerState === 'expanded' ? (isMobile ? "80%" : 224) : drawerState === 'collapsed' ? 80 : 0
+    const hideBackdrop = isMobile ? false : (layoutConfig.spaceForLeftSide || !layoutConfig.openSidebar)
+
+    return <SwipeableDrawer
+        anchor={"left"}
+        hideBackdrop={hideBackdrop}
+        open={drawerState != "closed"}
+        onOpen={() => {
+            setLayoutConfig((prev) => ({...prev, openSidebar: true}))
+        }}
+        onClose={() => {
+            setLayoutConfig((prev) => ({...prev, openSidebar: false}))
+        }}
+        sx={{
+            width: drawerWidth,
+            transition: 'width 0.3s',
+            '& .MuiDrawer-paper': {
+                boxShadow: "none",
+                width: drawerWidth,
+                boxSizing: 'border-box',
+                overflowY: 'auto',
+                scrollbarWidth: 'none',
+                '&::-webkit-scrollbar': {
+                    display: 'none'
+                },
+                border: 'none'
+            },
+        }}
+    >
+        <div className={"bg-[var(--background-dark)] min-h-screen"}>
+            <SidebarContent onClose={onClose}/>
+        </div>
+    </SwipeableDrawer>
 }

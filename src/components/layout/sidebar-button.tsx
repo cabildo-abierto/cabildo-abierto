@@ -32,7 +32,7 @@ export const SidebarButton = ({
     id,
     color="background-dark"
 }: SidebarButtonProps) => {
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
 
     function handleClick(){
         if(!layoutConfig.spaceForLeftSide) {
@@ -58,7 +58,7 @@ export const SidebarButton = ({
                 fullWidth
                 disabled={disabled}
             >
-                <div className={"flex items-center space-x-2"}>
+                <div className={"flex items-center space-x-2 " + (isMobile ? "text-lg" : "text-base")}>
                     {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
                 </div>
             </Button> :
@@ -68,8 +68,7 @@ export const SidebarButton = ({
                 sx={{borderRadius: "16px", padding: "10px"}}
             >
                 {selected || !iconInactive ? icon : iconInactive}
-            </IconButton>
-            }
+            </IconButton>}
         </CustomLink>
     </>
 }
