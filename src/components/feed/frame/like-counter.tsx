@@ -8,13 +8,13 @@ import {post} from "@/utils/fetch";
 import {getRkeyFromUri} from "@/utils/uri";
 import {$Typed} from "@atproto/api";
 import {
-    ArticleView,
+    ArticleView, FeedViewContent,
     FullArticleView,
     PostView
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
-import {contentQueriesFilter, updateContentInQueries} from "@/queries/updates";
+import {contentQueriesFilter, updateContentInQueries, updateTopicFeedQueries} from "@/queries/updates";
 
 
 async function addLike(ref: ATProtoStrongRef) {
@@ -29,30 +29,45 @@ async function removeLike(likeUri: string) {
 
 
 async function optimisticAddLike(qc: QueryClient, uri: string) {
-    await updateContentInQueries(qc, uri, content => produce(content, draft => {
-        if (!postOrArticle(draft)) return
-        draft.viewer.like = "optimistic-like-uri"
-        draft.likeCount++
-        draft.bskyLikeCount++
-    }))
+    function updater(content: FeedViewContent["content"]) {
+        return produce(content, draft => {
+            if (!postOrArticle(draft)) return
+            draft.viewer.like = "optimistic-like-uri"
+            draft.likeCount++
+            draft.bskyLikeCount++
+        })
+    }
+
+    await updateContentInQueries(qc, uri, updater)
+    await updateTopicFeedQueries(qc, uri, updater)
 }
 
 
 async function setCreatedLike(qc: QueryClient, uri: string, likeUri: string) {
-    await updateContentInQueries(qc, uri, content => produce(content, draft => {
-        if (!postOrArticle(draft)) return
-        draft.viewer.like = likeUri
-    }))
+    function updater(content: FeedViewContent["content"]) {
+        return produce(content, draft => {
+            if (!postOrArticle(draft)) return
+            draft.viewer.like = likeUri
+        })
+    }
+
+    await updateContentInQueries(qc, uri, updater)
+    await updateTopicFeedQueries(qc, uri, updater)
 }
 
 
 async function optimisticRemoveLike(qc: QueryClient, uri: string) {
-    await updateContentInQueries(qc, uri, content => produce(content, draft => {
-        if (!postOrArticle(draft)) return
-        draft.viewer.like = undefined
-        draft.likeCount--
-        draft.bskyLikeCount--
-    }))
+    function updater(content: FeedViewContent["content"]) {
+        return produce(content, draft => {
+            if (!postOrArticle(draft)) return
+            draft.viewer.like = undefined
+            draft.likeCount--
+            draft.bskyLikeCount--
+        })
+    }
+
+    await updateContentInQueries(qc, uri, updater)
+    await updateTopicFeedQueries(qc, uri, updater)
 }
 
 export const LikeCounter = ({content, showBsky}: {

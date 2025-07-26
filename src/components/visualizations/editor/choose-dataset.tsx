@@ -47,7 +47,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
             fullWidth={true}
             color={"background-dark2"}
         />
-        <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-220px)]"}>
+        <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-250px)]"}>
             {filteredDatasets ? filteredDatasets.map((d, i) => {
                     return <div key={i} className={""}>
                         <DatasetPreviewOnEditor

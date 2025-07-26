@@ -163,7 +163,7 @@ export type TopicFeed = {
 
 
 export function useTopicFeed(id?: string, did?: string, rkey?: string){
-    return useAPI<TopicFeed>(topicUrl(id, {did, rkey}, undefined, "topic-feed"), ["topic-feed", id, did, rkey].filter(x => x != undefined))
+    return useAPI<TopicFeed>(topicUrl(id, {did, rkey}, undefined, "topic-feed"), ["topic-feed-backend", id, did, rkey].filter(x => x != undefined))
 }
 
 
