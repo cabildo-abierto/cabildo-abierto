@@ -1,6 +1,6 @@
 import {Profile} from "@/lib/types";
 import {useState} from "react";
-import {FollowCount} from "@/components/profile/follow/followx";
+import {FollowCount} from "@/components/profile/follow/follow-counter";
 import BlueskyLogo from "@/components/icons/bluesky-logo";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
@@ -14,7 +14,8 @@ export const FollowCounters = ({profile}: { profile: Profile }) => {
     const showBsky = hovered || !profile.ca || !profile.ca.inCA
     const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
 
-    return <div className={className}
+    return <div
+        className={className}
         onMouseEnter={() => {
             setHovered(true)
         }}

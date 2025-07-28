@@ -15,7 +15,21 @@ import {useQueryClient} from "@tanstack/react-query";
 
 
 export const createTopic = async (id: string) => {
-    return await post<CreateTopicVersionProps, {}>(`/topic-version`, {id})
+    const topic: CreateTopicVersionProps = {
+        id,
+        props: [
+            {
+                $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
+                name: "Sinónimos",
+                value: {
+                    $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
+                    value: [id]
+                }
+            }
+        ]
+    }
+
+    return await post<CreateTopicVersionProps, {}>(`/topic-version`, topic)
 }
 
 type CreateTopicProps = {
