@@ -26,13 +26,16 @@ export function getRkeyFromUri(uri: string) {
 
 export function shortCollectionToCollection(collection: string) {
     if (collection == "article") {
-        return "ar.cabildoabierto.article"
+        return "ar.cabildoabierto.feed.article"
     }
     if (collection == "post") {
         return "app.bsky.feed.post"
     }
-    if (collection == "dataset") {
-        return "ar.cabildoabierto.data.dataset"
+    if (collection == "visualization") {
+        return "ar.cabildoabierto.data.visualization"
+    }
+    if (collection == "topicVersion") {
+        return "ar.cabildoabierto.wiki.topicVersion"
     }
     return collection
 }

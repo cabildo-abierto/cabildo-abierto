@@ -25,7 +25,7 @@ export const ShareContentButton = ({uri}: {uri: string}) => {
     return <OptionsDropdownButton
         handleClick={async () => {await onShare(); return {}}}
         startIcon={<ShareIcon/>}
-        text1={<div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Link copiado"}</div>}
+        text1={<div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Enlace copiado"}</div>}
         disabled={getRkeyFromUri(uri) == "optimistic"}
     />
 };

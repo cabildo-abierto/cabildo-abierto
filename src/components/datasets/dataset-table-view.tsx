@@ -46,7 +46,7 @@ const TableRow = ({values, plotter, columns, href}: {
 
             if (href) {
                 return <td
-                    className="border-none text-[var(--text-light)] exclude-links px-4 py-2"
+                    className="overflow-hidden text-ellipsis whitespace-nowrap border-none text-[var(--text-light)] exclude-links px-4 py-2"
                     onClick={() => {
                         window.open(href, "_blank")
                     }}
@@ -62,7 +62,7 @@ const TableRow = ({values, plotter, columns, href}: {
                     </Link>
                 </td>
             } else {
-                return <td className="border-none px-4 truncate py-2" title={content} key={colIndex}>
+                return <td className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2" title={content} key={colIndex}>
                     {content}
                 </td>
             }
@@ -124,22 +124,22 @@ export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight
     )
 
     return <div
-        className={"border rounded-lg mb-4 custom-scrollbar overflow-scroll text-sm grow"}
+        className={"border rounded-lg mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
         style={{maxHeight, maxWidth}}
     >
-        <div className={"bg-[var(--background-dark)] flex justify-start rounded-t-lg"}>
+        <div className={"flex justify-start rounded-t-lg"}>
             <div className={"w-64 p-1"}>
                 <SearchBar
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
                     size={"small"}
                     paddingY={"6px"}
-                    color={"background-dark2"}
-                    borderColor={"background-dark3"}
+                    color={"background"}
+                    borderColor={"background-dark"}
                 />
             </div>
         </div>
-        <table className="table-fixed w-full border-collapse max-[1080px]:text-xs">
+        <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)]">
             <tr className={""}>
                 {columns.map(([col, header], colIndex) => {

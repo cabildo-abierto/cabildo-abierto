@@ -11,6 +11,7 @@ import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useSession} from "@/queries/useSession";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 import {WikiEditorState} from "@/lib/types";
+import {TopicOptionsButton} from "@/components/topics/topic/topic-options-button";
 
 
 export const TopicContentExpandedViewHeader = ({
@@ -167,17 +168,20 @@ export const TopicContentExpandedViewHeader = ({
 
     return <div className={"flex justify-between items-end border-b"}>
         {buttons}
-        {!wikiEditorState.startsWith("editing") && <div className={"pb-1 text-[var(--text-light)]"}>
-            <IconButton
-                size="small"
-                onClick={() => {
-                    setPinnedReplies([])
-                    setWikiEditorState("minimized")
-                }}
-                color={"background"}
-            >
-                <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
-            </IconButton>
+        {!wikiEditorState.startsWith("editing") && <div className={"flex items-center space-x-1"}>
+            {user.platformAdmin && <TopicOptionsButton topic={topic}/>}
+            <div className={"pb-1 text-[var(--text-light)]"}>
+                <IconButton
+                    size="small"
+                    onClick={() => {
+                        setPinnedReplies([])
+                        setWikiEditorState("minimized")
+                    }}
+                    color={"background"}
+                >
+                    <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
+                </IconButton>
+            </div>
         </div>}
         {modal}
     </div>
