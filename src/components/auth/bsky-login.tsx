@@ -30,14 +30,10 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
 
         setError(null)
 
-        const handle = handleStart + domain
+        const handle = (handleStart.trim() + domain.trim()).replaceAll("@", "")
 
         if (!isValidHandle(handle)) {
-            if (handle.includes("@")) {
-                setError("Nombre de usuario inválido. Escribilo sin @.")
-            } else {
-                setError('Nombre de usuario inválido.')
-            }
+            setError('Nombre de usuario inválido.')
             return
         }
 

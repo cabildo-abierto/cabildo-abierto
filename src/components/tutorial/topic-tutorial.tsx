@@ -203,7 +203,7 @@ const TopicTutorial = ({children, wikiState}: {children: ReactNode, wikiState: W
     const {user} = useSession()
     const notSeen = wikiState == "minimized" ? user && !user.seenTutorial.topicMinimized : user && !user.seenTutorial.topicMaximized
 
-    if (params.get("tutorial") || notSeen){
+    if ((params.get("tutorial") || notSeen) && wikiState != "editing"){
         return (
             <RunTutorial wikiState={wikiState}>
                 {children}

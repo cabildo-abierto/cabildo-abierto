@@ -4,7 +4,6 @@ import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {get, post} from "@/utils/fetch";
 import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
 import {formatIsoDate} from "@/utils/dates";
@@ -12,6 +11,7 @@ import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrder, sortByKey} from "@/utils/arrays";
 import {useAccessRequests} from "@/queries/admin";
 import {categoriesSearchParam} from "@/queries/utils";
+import {DatasetTableView, RawDatasetView} from "@/components/datasets/dataset-table-view";
 
 
 export const collectionsList = [
@@ -43,8 +43,19 @@ const createCodes = async (count: number) => {
     return await post<{}, {inviteCodes: string[]}>(`/invite-code/create?c=${count}`)
 }
 
-const getUsers = async () => {
-    return await get<ProfileViewBasic[]>("/users")
+type UserAccessStatus = {
+    did: string
+    handle: string | null
+    created_at: Date | null
+    hasAccess: boolean
+    inCA: boolean
+    inviteCode: string | null
+    mirrorStatus: string
+    displayName: string | null
+}
+
+const getUsersAccessStatus = async () => {
+    return await get<UserAccessStatus[]>("/users")
 }
 
 
@@ -82,11 +93,19 @@ const GenerateCode = () => {
 }
 
 
+function usersAccessStatusToDataset(u: UserAccessStatus[]): RawDatasetView {
+    return {
+        data: JSON.stringify(u),
+        columns: Array.from(Object.keys(u[0])).map(c => ({name: c}))
+    }
+}
+
+
 export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")
     const [codesAmount, setCodesAmount] = useState<number>(0)
     const [codes, setCodes] = useState([])
-    const [users, setUsers] = useState<ProfileViewBasic[] | null>(null)
+    const [users, setUsers] = useState<UserAccessStatus[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
     const {data: accessRequests, refetch} = useAccessRequests()
 
@@ -183,21 +202,18 @@ export const AdminAcceso = () => {
                 text1={"Leer usuarios"}
                 handleClick={async () => {
                     setUsers([])
-                    const {data: users} = await getUsers()
+                    const {data: users} = await getUsersAccessStatus()
                     setUsers(users)
                     return {}
                 }}
             />
 
-            {users && (
-                <div className="flex flex-col space-y-1">
-                    {users.map((u, index) => (
-                        <div key={index} className={"border rounded p-2"}>
-                            <div>@{u.handle ? u.handle : "sin handle"}</div>
-                            <div>{u.displayName ? u.displayName : "sin display name"}</div>
-                        </div>
-                    ))}
-                </div>
+            {users && users.length > 0 && (
+                <DatasetTableView
+                    maxWidth={800}
+                    maxHeight={600}
+                    dataset={usersAccessStatusToDataset(users)}
+                />
             )}
 
         </AdminSection>

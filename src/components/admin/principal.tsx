@@ -16,6 +16,7 @@ export const AdminPrincipal = () => {
     }
 
     const suggestions = [
+        "job/update-contents-text",
         "job/update-topics-categories",
         "job/update-topics-popularity",
         "job/update-categories-graph",
