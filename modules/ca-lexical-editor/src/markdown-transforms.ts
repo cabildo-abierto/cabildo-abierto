@@ -25,7 +25,7 @@ import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images";
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
     state = ProcessedLexicalState.fromMaybeProcessed(state)
-    const nodes = getEditorNodes({allowImages: true})
+    const nodes = getEditorNodes({allowImages: true, topicMentions: true})
 
     const editor = createHeadlessEditor({
         nodes,
@@ -159,7 +159,7 @@ export function markdownToEditorStateNoEmbeds(
     shouldMergeAdjacentLines: boolean = true
 ): SerializedEditorState {
 
-    const nodes = getEditorNodes({allowImages: true})
+    const nodes = getEditorNodes({allowImages: true, topicMentions: true})
 
     markdown = normalizeMarkdown(markdown)
 
@@ -204,7 +204,7 @@ export function markdownToEditorStateNoEmbeds(
 
 
 export function htmlToEditorStateStr(text: string) {
-    const nodes = getEditorNodes({allowImages: true})
+    const nodes = getEditorNodes({allowImages: true, topicMentions: true})
 
     const editor = createHeadlessEditor({
         nodes,

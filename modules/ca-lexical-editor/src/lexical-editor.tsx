@@ -28,6 +28,7 @@ import CommentPlugin, {OnAddCommentProps} from './plugins/CommentPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
+import TopicMentionsPlugin from './plugins/TopicMentionsPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
@@ -111,6 +112,8 @@ export type SettingsProps = {
     onAddComment?: OnAddCommentProps
 
     measureTypingPerf?: boolean
+
+    topicMentions: boolean
 }
 
 
@@ -160,7 +163,8 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
         markdownShortcuts,
         queryMentions,
         onAddComment,
-        measureTypingPerf
+        measureTypingPerf,
+        topicMentions
     } = settings;
 
     const onRef = (_floatingAnchorElem: HTMLDivElement) => {
@@ -242,6 +246,8 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 {allowComments && <CommentPlugin onAddComment={onAddComment}/>}
 
+                {topicMentions && <TopicMentionsPlugin/>}
+
                 {isRichText ? (
                     <>
                         <HistoryPlugin externalHistoryState={historyState}/>
@@ -263,6 +269,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                         <CheckListPlugin/>
                         <ListMaxIndentLevelPlugin maxDepth={7}/>
                         <LinkPlugin/>
+
                         <ClickableLinkPlugin disabled={isEditable} newTab={false}/>
 
                         {!isReadOnly && floatingAnchorElem && (

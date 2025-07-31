@@ -19,9 +19,10 @@ import {LayoutContainerNode} from "./LayoutContainerNode";
 import {LayoutItemNode} from "./LayoutItemNode";
 import {CustomLinkNode} from "./CustomLinkNode";
 import {AutoLinkNode, LinkNode} from "@lexical/link";
+import {TopicMentionNode} from "./TopicMentionNode";
 
-export function getEditorNodes(settings: { allowImages: boolean }): readonly (KlassConstructor<typeof LexicalNode> | LexicalNodeReplacement)[] {
-    const {allowImages} = settings
+export function getEditorNodes(settings: { allowImages: boolean, topicMentions: boolean }): readonly (KlassConstructor<typeof LexicalNode> | LexicalNodeReplacement)[] {
+    const {allowImages, topicMentions} = settings
 
     return [
         ...createBeautifulMentionNode(CustomMentionComponent),
@@ -38,6 +39,7 @@ export function getEditorNodes(settings: { allowImages: boolean }): readonly (Kl
         LayoutContainerNode,
         LayoutItemNode,
         ...(allowImages ? [ImageNode] : []),
+        ...(topicMentions ? [TopicMentionNode] : []),
         EmbedNode,
         CustomMarkNode,
         SidenoteNode,

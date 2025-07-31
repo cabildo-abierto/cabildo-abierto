@@ -35,6 +35,8 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         allowComments: false,
         embeds: [],
 
+        topicMentions: true,
+
         onAddComment: () => {},
 
         ...s

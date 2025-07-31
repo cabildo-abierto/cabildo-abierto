@@ -93,7 +93,8 @@ const TopicContentExpandedViewContent = ({
                             isDraggableBlock: true,
                             editorClassName: "relative article-content not-article-content mt-8 min-h-[300px]",
                             placeholderClassName: "text-[var(--text-light)] absolute top-0",
-                            placeholder: "Agregá información sobre el tema..."
+                            placeholder: "Agregá información sobre el tema...",
+                            topicMentions: false
                         })}
                         setEditor={setEditor}
                         setEditorState={() => {
@@ -123,7 +124,8 @@ const TopicContentExpandedViewContent = ({
                                 tableOfContents: true,
                                 editorClassName: "relative article-content not-article-content",
                                 shouldPreserveNewLines: true,
-                                markdownShortcuts: false
+                                markdownShortcuts: false,
+                                topicMentions: false
                             })}
                             quoteReplies={quoteReplies}
                             pinnedReplies={pinnedReplies}

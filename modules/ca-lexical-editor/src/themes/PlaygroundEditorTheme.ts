@@ -110,6 +110,7 @@ const theme: EditorThemeClasses = {
     underline: 'PlaygroundEditorTheme__textUnderline',
     underlineStrikethrough: 'PlaygroundEditorTheme__textUnderlineStrikethrough',
   },
+  topicMention: "PlaygroundEditorTHeme__topicMention"
 };
 
 export default theme;

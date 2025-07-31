@@ -8,8 +8,9 @@ export function getPlainText(node: any){
         text += node.text
     } else if(node.type == "custom-beautifulMention"){
         text += node.trigger + node.value
-    }
-    if(node.children) {
+    } else if(node.type == "topic-mention"){
+        text += node.url
+    } else if(node.children) {
         for (let i = 0; i < node.children.length; i++) {
             text += getPlainText(node.children[i])
         }
