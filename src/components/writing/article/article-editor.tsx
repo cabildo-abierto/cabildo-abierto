@@ -43,6 +43,8 @@ const articleEditorSettings = (smallScreen: boolean, draft?: Draft) => getEditor
     isReadOnly: false,
     editorClassName: "article-content relative pt-4",
     placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[15px] pt-[32px]",
+
+    topicMentions: false
 })
 
 

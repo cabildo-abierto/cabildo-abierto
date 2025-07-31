@@ -27,7 +27,7 @@ export const PostContent = ({
         <BskyRichTextContent
             post={postView.record as PostRecord}
             fontSize={isMainPost ? "18px" : "16px"}
-            className={"no-margin-top article-content not-article-content"}
+            className={"no-margin-top article-content not-article-content exclude-links"}
         />
         {embed && <PostEmbed
             embed={embed}

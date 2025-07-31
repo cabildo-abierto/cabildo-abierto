@@ -23,6 +23,10 @@ export function useTopic(id?: string, did?: string, rkey?: string) {
 }
 
 
+export function useTopicTitle(id: string) {
+    return useAPI<{title: string}>(`/topic-title/${encodeURIComponent(id)}`, ["topic-title", id])
+}
+
 export function useTopicWithNormalizedContent(id?: string, did?: string, rkey?: string){
     const res = useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
     const [newTopic, setNewTopic] = useState<TopicView | null | "loading">("loading")

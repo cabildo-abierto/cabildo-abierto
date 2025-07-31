@@ -14,7 +14,7 @@ type BskyRichTextContentProps = {
 export const BskyRichTextContent = ({
                                         post,
                                         fontSize = "16px",
-                                        className = "no-margin-top article-content not-article-content"
+                                        className = "no-margin-top article-content exclude-links not-article-content"
                                     }: BskyRichTextContentProps) => {
     const text: string = post.text
     const facets = post.facets
@@ -43,9 +43,10 @@ export const BskyRichTextContent = ({
 
     return <div style={{fontSize: fontSize}} className={className}>
         <ReadOnlyEditor
-            text={markdown}
+            text={markdown.replaceAll("\n", "\n\n")}
             format={"markdown"}
             shouldPreserveNewLines={true}
+            editorClassName={"exclude-links"}
         />
     </div>
 }

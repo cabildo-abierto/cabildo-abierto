@@ -861,6 +861,14 @@ td {
   text-decoration: none;
 }
 
+.link .exclude-links a {
+  color: inherit;
+  text-decoration: none;
+}
+.link .exclude-links a:hover {
+  text-decoration: none;
+}
+
 .article-content .exclude-links a:hover {
   text-decoration: none;
 }

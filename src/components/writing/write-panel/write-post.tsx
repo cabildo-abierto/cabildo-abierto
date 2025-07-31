@@ -214,7 +214,8 @@ const settings: SettingsProps = getEditorSettings({
     editorClassName: "link relative",
     isReadOnly: false,
     isRichText: false,
-    markdownShortcuts: false
+    markdownShortcuts: false,
+    topicMentions: true
 })
 
 
