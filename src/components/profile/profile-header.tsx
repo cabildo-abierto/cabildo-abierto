@@ -15,6 +15,7 @@ import {useSession} from "@/queries/useSession";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
@@ -34,6 +35,7 @@ function ProfileHeader({
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
     const [editingProfile, setEditingProfile] = useState(false)
+    const {isMobile} = useLayoutConfig()
     const {user} = useSession()
     const inCA = profile && profile.ca && profile.ca.inCA
 
@@ -73,7 +75,9 @@ function ProfileHeader({
                         images={[profile.bsky.banner]}
                         viewing={viewingBanner}
                         setViewing={setViewingBanner}
-                        className={"min-w-[700px]"}
+                        maxHeight={isMobile ? "100vw" : "80vh"}
+                        maxWidth={isMobile ? "100vw" : "80vw"}
+                        className={"h-full object-contain"}
                     />
                     <Image
                         src={profile.bsky.banner}
@@ -95,7 +99,9 @@ function ProfileHeader({
                     images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}
                     setViewing={setViewingProfilePic}
-                    className={"rounded-full max-w-[500px] max-h-[500px]"}
+                    maxHeight={isMobile ? "95vw" : "70vh"}
+                    maxWidth={isMobile ? "95vw" : "70vh"}
+                    className={"rounded-full h-full object-contain"}
                 />
                 <Image
                     src={profile.bsky.avatar}
