@@ -3,7 +3,7 @@ import {styled} from "@mui/material";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import {file2base64} from "@/utils/files";
-
+import imageCompression from "browser-image-compression"
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -20,19 +20,30 @@ const VisuallyHiddenInput = styled('input')({
 
 
 export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: string, onSubmit: (i: ImagePayload) => void}) => {
-    const loadImage = async (e: any) => {
+    const loadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files !== null) {
-            const file = e.target.files[0]
+            const file = e.target.files[0];
             if (file) {
+                try {
+                    const compressedFile = await imageCompression(file, {
+                        maxSizeMB: 0.9,
+                        useWebWorker: true,
+                    });
 
-                onSubmit({
-                    $type: "file",
-                    src: URL.createObjectURL(file),
-                    base64: (await file2base64(file)).base64
-                })
+                    const base64 = await file2base64(compressedFile);
+
+                    onSubmit({
+                        $type: "file",
+                        src: URL.createObjectURL(compressedFile),
+                        base64: base64.base64
+                    })
+                } catch (err) {
+                    console.error("Image compression error:", err);
+                }
             }
         }
-    }
+    };
+
 
     return <Button
         component="label"
@@ -47,6 +58,7 @@ export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: stri
         {text}
         <VisuallyHiddenInput
             type="file"
+            accept={"image/*"}
             onChange={loadImage}
             multiple={false}
         />
