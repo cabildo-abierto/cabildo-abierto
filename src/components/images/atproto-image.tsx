@@ -7,66 +7,32 @@ type EmbedImageProps = {
     img: ViewImage | string
     className?: string
     onClick?: (e: any) => void
-    maxHeight?: number
-    maxWidth?: number
+    maxHeight?: number | string
+    maxWidth?: number | string
     cover?: boolean
 }
 
 
 export const ATProtoImage = ({
-                               img, className = "rounded-lg border", onClick, maxHeight=500, maxWidth, cover=false
-                           }: EmbedImageProps) => {
+                                 img,
+                                 className = "rounded-lg border object-cover",
+                                 onClick,
+                                 maxHeight = 500,
+                                 maxWidth,
+                                 cover = false
+                             }: EmbedImageProps) => {
     const measure = useMeasure()
     const bounds = measure[1]
-    if(!maxWidth) maxWidth = bounds.width ? bounds.width : undefined
-    if(!maxHeight) maxHeight = bounds.height ? bounds.height : undefined
-    let width: number
-    let height: number
+    if (!maxWidth) maxWidth = bounds.width ? bounds.width : undefined
+    if (!maxHeight) maxHeight = bounds.height ? bounds.height : undefined
     let src: string
     let alt: string
-    if(typeof img === "string") {
+    if (typeof img === "string") {
         src = img
         alt = ""
-        width = maxWidth ?? 1000
-        height = maxHeight ?? maxWidth ?? 1000
-    } else if(img.thumb) {
+    } else if (img.thumb) {
         src = img.thumb
         alt = img.alt
-        if(img.aspectRatio){
-            width = img.aspectRatio.width
-            height = img.aspectRatio.height
-
-            if(cover){
-
-            } else if(maxHeight && !maxWidth){
-                if(height > maxHeight){
-                    width = width * maxHeight / height
-                    height = maxHeight
-                }
-            } else if(maxWidth && !maxHeight){
-                if(width > maxWidth) {
-                    height = height * maxWidth / width
-                    width = maxWidth
-                }
-            } else if(maxWidth && maxHeight){
-                const widthWithMaxHeight = width * maxHeight / height
-                if(widthWithMaxHeight > maxWidth){
-                    if(width > maxWidth) {
-                        height = height * maxWidth / width
-                        width = maxWidth
-                    }
-                } else {
-                    if(height > maxHeight){
-                        width = width * maxHeight / height
-                        height = maxHeight
-                    }
-                }
-            }
-        } else {
-            width = maxWidth && maxWidth > 0 ? maxWidth : 1000
-            height = maxHeight ?? (maxWidth ?? (bounds.height ?? 300))
-            className += " object-cover"
-        }
     } else {
         return <div className={"py-4 border rounded w-full"}>
             Ocurrió un error al mostrar la imagen.
@@ -77,14 +43,18 @@ export const ATProtoImage = ({
         <Image
             src={src}
             alt={alt}
-            width={width}
-            height={height}
-            style={{maxHeight, maxWidth}}
-            className={className + (onClick ? " cursor-pointer" : "")}
+            width={1500}
+            height={1500}
+            quality={100}
+            style={{
+                maxWidth,
+                maxHeight
+            }}
+            className={className}
             onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
                 e.preventDefault();
-                onClick(e)
+                onClick(e);
             }}
         />
     </>

@@ -4,6 +4,9 @@ import {ATProtoImage} from "@/components/images/atproto-image";
 import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
 import {View as EmbedImagesView} from "@/lex-api/types/app/bsky/embed/images"
 import dynamic from "next/dynamic";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {pxToNumber} from "@/utils/strings";
+
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 
 
@@ -14,27 +17,39 @@ type PostImageEmbedProps = {
 }
 
 
-export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedProps) => {
+export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedProps) => {
     const [viewing, setViewing] = useState(null)
+    const {layoutConfig} = useLayoutConfig()
     let images: ViewImage[] = embed.images
 
     let imagesInPost: ReactNode
     if (images && images.length > 0) {
         if (images.length === 1) {
             const img = images[0];
-            imagesInPost = (
-                <div className="mt-2">
+            imagesInPost = onArticle ?
+                <div className={"flex justify-center w-full"}>
                     <ATProtoImage
                         img={img}
                         onClick={() => {
                             setViewing(0)
                         }}
+                        maxWidth={pxToNumber(layoutConfig.maxWidthCenter)}
+                        maxHeight={400}
+                        className={"cursor-pointer rounded-lg bg-[var(--background-dark)] flex w-full h-full object-contain"}
+                    />
+                </div> :
+                <div className={"w-full"}>
+                    <ATProtoImage
+                        img={img}
+                        onClick={() => {
+                            setViewing(0)
+                        }}
+                        maxHeight={500}
                     />
                 </div>
-            );
         } else if (images.length === 2) {
             imagesInPost = (
-                <div className="mt-2 flex space-x-2 h-[268px]">
+                <div className="flex space-x-2 h-[268px]">
                     {images.map((img, index) => (
                         <div className={"w-1/2 h-full"} key={index}>
                             <ATProtoImage
@@ -51,7 +66,7 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
             )
         } else if (images.length === 3) {
             imagesInPost = (
-                <div className="rounded-xl mt-2 flex space-x-1 h-[268px]">
+                <div className="rounded-xl flex space-x-1 h-[268px]">
                     <div className="w-1/2 h-full">
                         <ATProtoImage
                             img={images[0]}
@@ -84,7 +99,7 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
             );
         } else if (images.length === 4) {
             imagesInPost = (
-                <div className="rounded-xl mt-2 grid grid-cols-2 grid-rows-2 gap-1 h-[324px]">
+                <div className="rounded-xl grid grid-cols-2 grid-rows-2 gap-1 h-[324px]">
                     {images.slice(0, 4).map((img, index) => (
                         <ATProtoImage
                             key={index}
@@ -102,7 +117,12 @@ export const PostImagesEmbed = ({embed, did, onArticle=false}: PostImageEmbedPro
     }
 
     return <>
-        {images && images.length > 0 && <FullscreenImageViewer images={images} viewing={viewing} setViewing={setViewing}/>}
+        {images && images.length > 0 &&
+            <FullscreenImageViewer
+                images={images}
+                viewing={viewing}
+                setViewing={setViewing}
+            />}
         {imagesInPost}
     </>
 };
