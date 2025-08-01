@@ -55,6 +55,7 @@
     "@visx/visx": "^3.13.2-alpha.0",
     "@visx/xychart": "^3.13.2-alpha.0",
     "binary-search-bounds": "^2.0.5",
+    "browser-image-compression": "^2.0.2",
     "child_process": "^1.0.2",
     "d3-bboxCollide": "^1.0.4",
     "d3-force": "^3.0.0",
