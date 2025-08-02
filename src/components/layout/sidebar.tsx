@@ -2,7 +2,7 @@ import React from "react";
 import {usePathname} from "next/navigation";
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {ProfilePic} from "../profile/profile-pic";
-import {profileUrl} from "@/utils/uri";
+import {profileUrl, topicUrl} from "@/utils/uri";
 import {useConversations} from "@/queries/useConversations";
 import {useLayoutConfig} from "./layout-config-context";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
@@ -16,7 +16,6 @@ import NotificationsIcon from "../icons/notifications-icon";
 import TopicsIcon from "@/components/icons/topics-icon";
 import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
-import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 import {GearIcon, HouseLineIcon, MagnifyingGlassIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
 import {SwipeableDrawer} from "@mui/material";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
@@ -65,6 +64,66 @@ const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: (
 
 function useUnreadNotificationsCount() {
     return useAPI<number>("/notifications/unread-count", ["unread-notifications-count"])
+}
+
+
+const SidebarBottom = () => {
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+
+
+    function onClickLink() {
+        setLayoutConfig({
+            ...layoutConfig,
+            openSidebar: false
+        })
+    }
+
+    return <div className={"space-y-2 px-2"}>
+        <div className={"flex gap-x-1 text-sm flex-wrap"}>
+            <Link href={"/ajustes/compartir"} onClick={onClickLink}>
+                Invitar
+            </Link>
+            <div>
+                •
+            </div>
+            <Link href={"/aportar"} onClick={onClickLink}>
+                Aportar
+            </Link>
+            <div>
+                •
+            </div>
+            <Link href={"/soporte"} onClick={onClickLink}>
+                Soporte
+            </Link>
+            <div>
+                •
+            </div>
+            <Link href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")} onClick={onClickLink}>
+                Sugerencias
+            </Link>
+            <div>
+                •
+            </div>
+            <Link href={"/ajustes/solicitar-validacion"} onClick={onClickLink}>
+                Verificar mi cuenta
+            </Link>
+            <div>
+                •
+            </div>
+            <Link href={topicUrl("Cabildo Abierto", undefined, "normal")} onClick={onClickLink}>
+                Preguntas frecuentes
+            </Link>
+        </div>
+
+        <div className={"flex flex-col space-y-1"}>
+            <Link href={topicUrl("Cabildo Abierto: Términos y condiciones", undefined, "normal")} onClick={onClickLink}>
+                Términos y condiciones
+            </Link>
+            <Link href={topicUrl("Cabildo Abierto: Política de privacidad", undefined, "normal")} onClick={onClickLink}>
+                Política de privacidad
+            </Link>
+        </div>
+    </div>
 }
 
 
@@ -195,7 +254,7 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                         </div>
                         <NextMeetingInvite/>
                         {showText && <div className={"sm:hidden text-xs"}>
-                            <RightPanelButtons/>
+                            <SidebarBottom/>
                         </div>}
                     </div>
                     <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
@@ -255,8 +314,8 @@ export const Sidebar = ({onClose, setWritePanelOpen}: {
             },
         }}
     >
-        <div className={"bg-[var(--background-dark)] min-h-screen"}>
-            <SidebarContent onClose={onClose} setWritePanelOpen={setWritePanelOpen} />
+        <div className={"bg-[var(--background-dark)] min-h-screen h-full"}>
+            <SidebarContent onClose={onClose} setWritePanelOpen={setWritePanelOpen}/>
         </div>
     </SwipeableDrawer>
 }

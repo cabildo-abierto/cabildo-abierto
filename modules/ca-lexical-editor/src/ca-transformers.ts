@@ -19,6 +19,7 @@ import {TABLE} from "./plugins/MarkdownTransformers/table-transformer";
 import {$createCustomLinkNode, CustomLinkNode} from "./nodes/CustomLinkNode";
 import {$isLinkNode} from "@lexical/link";
 import {$createHeadingNode, $isHeadingNode, HeadingNode, HeadingTagType} from "@lexical/rich-text";
+import {encodeParentheses} from "./plugins/FloatingLinkEditorPlugin";
 
 
 export const LINK: TextMatchTransformer = {
@@ -31,9 +32,11 @@ export const LINK: TextMatchTransformer = {
 
         const textContent = exportChildren(node);
 
+        const url = encodeParentheses(node.getURL())
+
         return title
-            ? `[${textContent}](${node.getURL()} "${title}")`
-            : `[${textContent}](${node.getURL()})`;
+            ? `[${textContent}](${url} "${title}")`
+            : `[${textContent}](${url})`;
     },
     importRegExp:
         /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))/,

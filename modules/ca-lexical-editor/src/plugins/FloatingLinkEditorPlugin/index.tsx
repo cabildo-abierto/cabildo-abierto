@@ -53,7 +53,7 @@ async function searchTopics(query: string) {
 }
 
 
-function encodeParentheses(s: string){
+export function encodeParentheses(s: string){
     return s.replaceAll("(", "%28").replaceAll(")", "%29")
 }
 

@@ -148,7 +148,7 @@ export const MainFeedHeader = ({
                 }}
             >
                 <div
-                    className={"whitespace-nowrap min-[500px]:mx-4 pb-1 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
+                    className={"whitespace-nowrap text-[0.9rem] min-[500px]:mx-4 pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
                     {o}
                 </div>
             </Button>
