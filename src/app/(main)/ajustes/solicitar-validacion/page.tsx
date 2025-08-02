@@ -392,7 +392,7 @@ const Page = () => {
         </div>
     }
 
-    return <div className={"sm:pt-12 space-y-6"}>
+    return <div className={"sm:pt-12 space-y-6 mx-1"}>
         <MobileHeader/>
         {curRequest && curRequest.result == "Aceptada" && <div className={"flex flex-col items-center space-y-4 p-8 bg-[var(--background-dark)] rounded-lg"}>
             <div className={"h-16 w-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center text-green-400"}>
@@ -419,9 +419,9 @@ const Page = () => {
                 <StateButton endIcon={<DeleteOutlineIcon/>} text1="Cancelar solicitud" color={"background-dark2"} size={"small"} handleClick={onCancel}/>
             </div>
         </div>}
-        {(!curRequest || !curRequest.type) && <div className={"mx-1 bg-[var(--background-dark)] rounded-lg p-4 space-y-6"}>
+        {(!curRequest || !curRequest.type) && <div className={"bg-[var(--background-dark)] rounded-lg p-4 space-y-6"}>
             <h2>
-                Solicitá la validación de tu cuenta
+                Solicitá la verificación de tu cuenta
             </h2>
             <FormItem label={"Tipo de cuenta"}>
                 <ToggleButtonGroup
@@ -445,20 +445,20 @@ const Page = () => {
             </div>
         </div>}
 
-        <div className={"space-y-4 pb-16 px-1"}>
-            <Desplegable text={"¿Cómo funciona la validación de personas?"}>
+        <div className={"space-y-4 pb-16"}>
+            <Desplegable text={"¿Cómo funciona la verificación de personas?"}>
                 <div className={"text-[var(--text-light)] py-2 space-y-2"}>
                     <p>
-                        El objetivo de la validación es asegurar que la cuenta se corresponde con una persona real y que
+                        El objetivo de la verificación es asegurar que la cuenta se corresponde con una persona real y que
                         cada persona real tiene una única cuenta personal.
                         Si querés tener una segunda cuenta, puede ser una cuenta de organización.
                     </p>
                     <p>
-                        El proceso de validación es el siguiente:
+                        El proceso de verificación es el siguiente:
                     </p>
                     <ol>
                         <li>
-                            Solicitás la validación enviándonos una foto de tu DNI.
+                            Solicitás la verificación enviándonos una foto de tu DNI.
                         </li>
                         <li>
                             Revisamos la foto y si está todo bien nos guardamos un código representativo de tu número de
@@ -474,11 +474,11 @@ const Page = () => {
                     </ol>
                 </div>
             </Desplegable>
-            <Desplegable text={"¿Cómo funciona la validación de organizaciones?"}>
+            <Desplegable text={"¿Cómo funciona la verificación de organizaciones?"}>
                 <div className={"text-[var(--text-light)]"}>
                     <ol>
                         <li>
-                            Solicitás la validación enviándonos los datos que creas suficientes, dependiendo del tipo de
+                            Solicitás la verificación enviándonos los datos que creas suficientes, dependiendo del tipo de
                             organización.
                         </li>
                         <li>

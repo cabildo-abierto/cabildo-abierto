@@ -57,7 +57,7 @@ function ProfileHeader({
                 }}
             >
                 <div
-                    className={"pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
+                    className={"pb-1 mx-2 pt-2 text-[0.9rem] font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -185,7 +185,7 @@ function ProfileHeader({
                     </span>}
             </div>
         </div>
-        <div className="flex mt-4 overflow-scroll no-scrollbar">
+        <div className="flex mt-3 overflow-scroll no-scrollbar">
             <SelectionComponent
                 selected={selected}
                 onSelection={(v) => {

@@ -52,7 +52,7 @@ export const RightPanelButtons = () => {
             href={"/ajustes/compartir"}
             icon={<ShareIcon color={"inherit"} fontSize={"small"}/>}
         >
-            Compartir un enlace de invitación
+            Compartir una invitación
         </RightPanelButton>
         <RightPanelButton
             href={"/aportar"}
@@ -94,7 +94,7 @@ export const RightPanelButtons = () => {
             href={"/ajustes/solicitar-validacion"}
             icon={<UserCheckIcon color={"var(--text)"} fontSize={20}/>}
         >
-            Verificá tu cuenta
+            Verificar mi cuenta
         </RightPanelButton>}
     </div>
 }

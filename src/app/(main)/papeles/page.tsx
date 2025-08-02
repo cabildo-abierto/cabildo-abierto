@@ -37,7 +37,7 @@ const Page = () => {
         updateSearchParam("s", selected)
     }
 
-    return <div>
+    return <div className={"mb-32"}>
         <PageHeader title={"Tus papeles"}/>
         <div className={"border-b"}>
             <SelectionComponent<YourPaperOptions>
