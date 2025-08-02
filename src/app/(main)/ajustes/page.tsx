@@ -158,7 +158,7 @@ const Ajustes = () => {
                 }}
             >
                 <div
-                    className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                    className={"pb-1 pt-2 text-[15px] border-b-[4px] font-semibold " + (isSelected ? "border-[var(--primary)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>

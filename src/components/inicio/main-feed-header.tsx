@@ -1,13 +1,13 @@
 import SelectionComponent from "@/components/buscar/search-selection-component"
 import {MobileHeader} from "../layout/mobile-header";
 import {
+    FeedFormatOption, FollowingFeedFilterOption,
     mainFeedOptionToSearchParam,
     useEnDiscusionParams,
     useFollowingParams
 } from "@/components/inicio/main-page";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
-import {Select} from "../../../modules/ui-utils/src/select";
 import {useRef} from "react";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";
 import {topicUrl} from "@/utils/uri";
@@ -30,34 +30,54 @@ const EnDiscusionFeedConfig = () => {
         updateSearchParam("formato", v)
     }
 
-    return <div className={"space-y-4"}>
-        <Select
-            options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
-            onChange={setMetric}
-            value={metric}
-            label={"Métrica"}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            textClassName={"text-sm text-[var(--text)]"}
-        />
-        {metric != "Recientes" && <Select
-            options={["Último día", "Última semana", "Último mes"]}
-            onChange={setTime}
-            value={time}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            label={"Período"}
-            textClassName={"text-sm text-[var(--text)]"}
-        />}
-        <Select
-            options={["Todos", "Artículos"]}
-            onChange={setFormat}
-            value={format}
-            label={"Formato"}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            textClassName={"text-sm text-[var(--text)]"}
-        />
+    function optionsNodes(o: string, selected: boolean) {
+        return <button
+            className={"text-sm rounded-lg px-2 cursor-pointer " + (selected ? "bg-[var(--primary)] text-[var(--button-text)]" : "bg-[var(--background-dark2)] text-[var(--text)]")}
+        >
+            {o}
+        </button>
+    }
+
+    return <div className={"space-y-4 pt-2"}>
+        <div>
+            <div className={"text-xs text-[var(--text-light)]"}>
+                Métrica
+            </div>
+            <SelectionComponent
+                onSelection={setMetric}
+                options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
+                optionsNodes={optionsNodes}
+                selected={metric}
+                className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                optionContainerClassName={""}
+            />
+        </div>
+        {metric != "Recientes" && <div>
+            <div className={"text-xs text-[var(--text-light)]"}>
+                Período
+            </div>
+            <SelectionComponent
+                onSelection={setTime}
+                options={["Último día", "Última semana", "Último mes"]}
+                optionsNodes={optionsNodes}
+                selected={time}
+                className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                optionContainerClassName={""}
+            />
+        </div>}
+        <div>
+            <div className={"text-xs text-[var(--text-light)]"}>
+                Formato
+            </div>
+            <SelectionComponent
+                onSelection={setFormat}
+                options={["Todos", "Artículos"]}
+                optionsNodes={optionsNodes}
+                selected={format}
+                className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                optionContainerClassName={""}
+            />
+        </div>
     </div>
 }
 
@@ -65,31 +85,45 @@ const EnDiscusionFeedConfig = () => {
 const SiguiendoFeedConfig = () => {
     const {filter, format} = useFollowingParams()
 
-    function setFilter(v: string) {
+    function setFilter(v: FollowingFeedFilterOption) {
         updateSearchParam("filtro", v)
     }
-    function setFormat(v: string) {
+
+    function setFormat(v: FeedFormatOption) {
         updateSearchParam("formato", v)
     }
 
-    return <div className={"space-y-4"}>
-        <Select
-            options={["Todos", "Solo Cabildo Abierto"]}
-            onChange={setFilter}
-            value={filter}
-            label={"Filtro"}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            textClassName={"text-sm text-[var(--text)]"}
-        />
-        <Select
-            options={["Todos", "Artículos"]}
-            onChange={setFormat}
-            value={format}
-            label={"Formato"}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            textClassName={"text-sm text-[var(--text)]"}
+    function optionsNodes(o: string, selected: boolean) {
+        return <button
+            className={"text-sm rounded-lg px-2 cursor-pointer " + (selected ? "bg-[var(--primary)] text-[var(--button-text)]" : "bg-[var(--background-dark2)] text-[var(--text)]")}
+        >
+            {o}
+        </button>
+    }
+
+    function onSelection(v: string) {
+        if (v == "Todos") {
+            setFilter("Todos")
+            setFormat("Todos")
+        } else if (v == "Cabildo Abierto") {
+            setFilter("Solo Cabildo Abierto")
+            setFormat("Todos")
+        } else if (v == "Artículos") {
+            setFilter("Solo Cabildo Abierto")
+            setFormat("Artículos")
+        }
+    }
+
+    const selected = format == "Artículos" ? "Artículos" : (filter == "Solo Cabildo Abierto" ? "Cabildo Abierto" : "Todos")
+
+    return <div className={"space-y-2"}>
+        <SelectionComponent
+            onSelection={onSelection}
+            options={["Todos", "Cabildo Abierto", "Artículos"]}
+            optionsNodes={optionsNodes}
+            selected={selected}
+            className={"flex gap-x-2 gap-y-1 flex-wrap"}
+            optionContainerClassName={""}
         />
     </div>
 }
@@ -99,11 +133,13 @@ const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)
 
     const modal = (close: () => void) => (
-        <div className={"p-2 space-y-4 bg-[var(--background-dark)] border w-56"}>
-            <div className={"w-full flex justify-between items-end space-x-8"}>
+        <div className={"p-3 space-y-2 bg-[var(--background-dark)] w-56"}>
+            <div className={"w-full flex justify-between items-end"}>
                 <div className={"text-sm text-[var(--text)]"}>
                     Configurar <span className={"font-semibold text-[var(--text-light)]"}
-                >{selected}</span>
+                >
+                    {selected}
+                </span>
                 </div>
                 <InfoPanel onClick={() => {
                     window.open(topicUrl("Cabildo Abierto: Muros"), "_blank")
@@ -148,7 +184,7 @@ export const MainFeedHeader = ({
                 }}
             >
                 <div
-                    className={"whitespace-nowrap text-[0.9rem] min-[500px]:mx-4 pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
+                    className={"whitespace-nowrap text-[16px] min-[500px]:mx-4 pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
                     {o}
                 </div>
             </Button>

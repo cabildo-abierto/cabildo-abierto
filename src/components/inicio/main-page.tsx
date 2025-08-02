@@ -76,7 +76,7 @@ export const MainPage = () => {
         updateSearchParam("f", mainFeedOptionToSearchParam(v))
     }
 
-    return <div className="w-full min-[500px]:mt-10 mt-[88px]">
+    return <div className="w-full min-[500px]:mt-11 mt-[88px]">
         <div className={"fixed top-0 bg-[var(--background)] max-w-[600px] w-full mx-[1px] z-[1000]"}>
             <MainFeedHeader
                 selected={selected}
