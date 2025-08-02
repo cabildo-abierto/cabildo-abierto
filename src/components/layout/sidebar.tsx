@@ -70,7 +70,6 @@ function useUnreadNotificationsCount() {
 const SidebarBottom = () => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
-
     function onClickLink() {
         setLayoutConfig({
             ...layoutConfig,
@@ -78,8 +77,8 @@ const SidebarBottom = () => {
         })
     }
 
-    return <div className={"space-y-2 px-2"}>
-        <div className={"flex gap-x-1 text-sm flex-wrap"}>
+    return <div className={"space-y-2 h-full flex flex-col justify-between"}>
+        <div className={"flex gap-x-1 text-base flex-wrap"}>
             <Link href={"/ajustes/compartir"} onClick={onClickLink}>
                 Invitar
             </Link>
@@ -98,7 +97,8 @@ const SidebarBottom = () => {
             <div>
                 •
             </div>
-            <Link href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")} onClick={onClickLink}>
+            <Link href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}
+                  onClick={onClickLink}>
                 Sugerencias
             </Link>
             <div>
@@ -132,7 +132,7 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
     setWritePanelOpen: (open: boolean) => void
 }) => {
     const user = useSession()
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
     const pathname = usePathname()
     const {data: conversations} = useConversations()
     const {data: unreadNotificationsCount} = useUnreadNotificationsCount()
@@ -153,39 +153,50 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
         }
     }
 
+    const iconFontSize = isMobile ? 26 : 24
+
     return (
         <>
             <div
                 className={"pt-4 px-2 overflow-scroll no-scrollbar h-full " + (showText ? "" : "hidden min-[500px]:block")}
             >
                 <div className={"h-full flex flex-col justify-between"}>
-                    <div className={"flex pb-8 flex-col sm:space-y-2 space-y-2 " + (showText ? "" : "items-center")}>
-                        <div className={"mb-4"}>
-                            <div className={"w-full flex justify-center"}>
+                    <div
+                        className={"flex pb-8 h-full flex-col sm:space-y-2 space-y-3 " + (showText ? "" : "items-center")}>
+                        <div className={"mt-4 mb-2 px-4 sm:px-0 space-y-2"}>
+                            <div className={"w-full flex sm:justify-center"}>
                                 <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                     <ProfilePic
                                         user={user.user}
-                                        className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}
+                                        className={"w-14 h-14 sm:w-12 sm:h-12 rounded-full border " + dimOnHoverClassName}
                                         descriptionOnHover={false}
                                     />
                                 </Link>
+                            </div>
+                            <div className={"sm:hidden"}>
+                                <div className={"font-bold text-xl"}>
+                                    {user.user.displayName ?? "@" + user.user.handle}
+                                </div>
+                                <div className={"text-[var(--text-light)] text-lg"}>
+                                    {"@" + user.user.handle}
+                                </div>
+                                <hr className={"mt-4 border-2"}/>
                             </div>
                         </div>
 
                         <SidebarButton
                             showText={showText}
                             onClick={onClose}
-                            icon={<HouseLineIcon fontSize={24} weight={"fill"}/>}
-                            iconInactive={<HouseLineIcon fontSize={24}/>}
+                            icon={<HouseLineIcon fontSize={iconFontSize} weight={"fill"}/>}
+                            iconInactive={<HouseLineIcon fontSize={iconFontSize}/>}
                             text="Inicio"
                             href="/inicio"
                             selected={pathname.startsWith("/inicio")}
                             id={"inicio"}
                         />
-
                         <SidebarButton
-                            icon={<TopicsIcon/>}
-                            iconInactive={<TopicsIcon outlined={true}/>}
+                            icon={<TopicsIcon fontSize={iconFontSize}/>}
+                            iconInactive={<TopicsIcon fontSize={iconFontSize} outlined={true}/>}
                             onClick={onClose}
                             text="Temas"
                             href="/temas"
@@ -195,8 +206,8 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                         />
                         <SidebarButton
                             showText={showText}
-                            icon={<MagnifyingGlassIcon fontSize={24} weight={"bold"}/>}
-                            iconInactive={<MagnifyingGlassIcon fontSize={24}/>}
+                            icon={<MagnifyingGlassIcon fontSize={iconFontSize} weight={"bold"}/>}
+                            iconInactive={<MagnifyingGlassIcon fontSize={iconFontSize}/>}
                             onClick={onClose}
                             text="Buscar"
                             selected={pathname.startsWith("/buscar")}
@@ -221,8 +232,8 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                             selected={pathname.startsWith("/mensajes")}
                         />
                         <SidebarButton
-                            icon={<TrayIcon size={24} weight={"fill"}/>}
-                            iconInactive={<TrayIcon size={24}/>}
+                            icon={<TrayIcon size={iconFontSize} weight={"fill"}/>}
+                            iconInactive={<TrayIcon size={iconFontSize}/>}
                             onClick={onClose}
                             text="Tus papeles"
                             href="/papeles"
@@ -230,8 +241,8 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                             showText={showText}
                         />
                         {user.user && <SidebarButton
-                            icon={<UserIcon fontSize={24} weight={"fill"}/>}
-                            iconInactive={<UserIcon fontSize={24}/>}
+                            icon={<UserIcon fontSize={iconFontSize} weight={"fill"}/>}
+                            iconInactive={<UserIcon fontSize={iconFontSize}/>}
                             onClick={onClose}
                             text="Perfil"
                             href={profileUrl(user.user.handle)}
@@ -239,8 +250,8 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                             showText={showText}
                         />}
                         <SidebarButton
-                            icon={<GearIcon fontSize={24} weight={"fill"}/>}
-                            iconInactive={<GearIcon fontSize={24}/>}
+                            icon={<GearIcon fontSize={iconFontSize} weight={"fill"}/>}
+                            iconInactive={<GearIcon fontSize={iconFontSize}/>}
                             onClick={onClose}
                             text="Ajustes"
                             href="/ajustes"
@@ -253,9 +264,12 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                             }}/>
                         </div>
                         <NextMeetingInvite/>
-                        {showText && <div className={"sm:hidden text-xs"}>
-                            <SidebarBottom/>
-                        </div>}
+                        <div className={"px-4 space-y-4 h-full"}>
+                            <hr className={"sm:hidden border-2"}/>
+                            {showText && <div className={"sm:hidden text-xs h-full"}>
+                                <SidebarBottom/>
+                            </div>}
+                        </div>
                     </div>
                     <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
                         <IconButton

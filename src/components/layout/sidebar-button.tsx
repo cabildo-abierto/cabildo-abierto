@@ -58,7 +58,7 @@ export const SidebarButton = ({
                 fullWidth
                 disabled={disabled}
             >
-                <div className={"flex items-center space-x-2 " + (isMobile ? "text-lg" : "text-base")}>
+                <div className={"flex items-center space-x-2 " + (isMobile ? "text-xl" : "text-base")}>
                     {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
                 </div>
             </Button> :

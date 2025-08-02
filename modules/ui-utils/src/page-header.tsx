@@ -11,7 +11,7 @@ export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
 }) {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
-    return <div className={"flex items-center justify-between py-2 border-b h-12"} style={{width: layoutConfig.centerWidth}}>
+    return <div className={"flex items-center justify-between py-2 border-b h-16"} style={{width: layoutConfig.centerWidth}}>
         <div className={"px-2 flex space-x-2 items-center"}>
             <div className={"w-10 text-[var(--text-light)] min-[500px]:hidden"}>
                 <IconButton
@@ -29,7 +29,7 @@ export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
             <div className={"max-[500px]:hidden"}>
                 <BackButton defaultURL={defaultBackHref}/>
             </div>
-            <div className={"font-extrabold text-lg truncate text-ellipsis pr-2"}>
+            <div className={"font-extrabold text-xl truncate text-ellipsis pr-2"}>
                 {title}
             </div>
         </div>

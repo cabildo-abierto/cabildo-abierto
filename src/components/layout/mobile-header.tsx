@@ -9,7 +9,7 @@ import {useLayoutConfig} from "./layout-config-context";
 export const MobileHeader = () => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
-    return <div className={"min-[500px]:hidden flex justify-between items-center w-full px-2 py-[2px]"}>
+    return <div className={"min-[500px]:hidden flex justify-between items-center w-full px-2 py-1"}>
         <div className={"w-10 text-[var(--text-light)]"}>
             <IconButton
                 id={"sidebar-toggle-button"}
