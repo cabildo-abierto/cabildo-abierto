@@ -50,6 +50,7 @@ export const TopicContentPreview = ({
             </IconButton>
         </div>
         <div
+            key={topic.id}
             className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar"}
         >
             <MyLexicalEditor
