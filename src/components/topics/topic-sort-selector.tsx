@@ -2,14 +2,13 @@ import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import dynamic from "next/dynamic";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
+import {TTOption} from "@/lib/types";
 const TopicSortSelectorModal = dynamic(() => import("@/components/topics/topic-sort-selector-modal"))
-
-export type TopicsSortOrder = "Populares última semana" | "Populares último día" | "Populares último mes" | "Ediciones recientes"
 
 
 const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
-    sortedBy: TopicsSortOrder
-    setSortedBy: (s: TopicsSortOrder) => void
+    sortedBy: TTOption
+    setSortedBy: (s: TTOption) => void
     disabled: boolean
 }) => {
     const modal = (onClose: () => void) =>

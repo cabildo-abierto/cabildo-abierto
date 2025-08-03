@@ -13,10 +13,12 @@ import InfoPanel from "../../../modules/ui-utils/src/info-panel";
 import {topicUrl} from "@/utils/uri";
 import {updateSearchParam} from "@/utils/fetch";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
+import {useSession} from "@/queries/useSession";
 
 
 const EnDiscusionFeedConfig = () => {
-    const {metric, time, format} = useEnDiscusionParams()
+    const {user} = useSession()
+    const {metric, time, format} = useEnDiscusionParams(user)
 
     function setMetric(v: string) {
         updateSearchParam("m", v)
@@ -83,7 +85,8 @@ const EnDiscusionFeedConfig = () => {
 
 
 const SiguiendoFeedConfig = () => {
-    const {filter, format} = useFollowingParams()
+    const {user} = useSession()
+    const {filter, format} = useFollowingParams(user)
 
     function setFilter(v: FollowingFeedFilterOption) {
         updateSearchParam("filtro", v)
@@ -184,7 +187,7 @@ export const MainFeedHeader = ({
                 }}
             >
                 <div
-                    className={"whitespace-nowrap text-[16px] min-[500px]:mx-4 pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
+                    className={"whitespace-nowrap sm:text-[15px] text-[16px] min-[500px]:mx-4 pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
                     {o}
                 </div>
             </Button>

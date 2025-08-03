@@ -9,18 +9,19 @@ import dynamic from "next/dynamic";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 import AddIcon from "@mui/icons-material/Add";
 import {useSearch} from "@/components/buscar/search-context";
-import TopicsSortSelector, {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
+import TopicsSortSelector from "@/components/topics/topic-sort-selector";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {TTOption} from "@/lib/types";
 
 const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
 
 type TopicsViewOption = "mapa" | "lista"
 
 export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMultipleEnabled}: {
-    sortedBy: TopicsSortOrder
-    setSortedBy: (v: TopicsSortOrder) => void
+    sortedBy: TTOption
+    setSortedBy: (v: TTOption) => void
     multipleEnabled: boolean
     setMultipleEnabled: (v: boolean) => void
 }) => {
@@ -80,7 +81,11 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
                 optionsNodes={optionsNodes}
                 className="flex space-x-2"
             />
-            <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy} disabled={currentView == "mapa"}/>
+            <TopicsSortSelector
+                sortedBy={sortedBy}
+                setSortedBy={setSortedBy}
+                disabled={currentView == "mapa"}
+            />
             <DescriptionOnHover description={"Habilitar la selección múltiple de categorías."}>
                 <IconButton
                     size={"small"}

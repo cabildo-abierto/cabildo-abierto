@@ -1,13 +1,13 @@
 import {CategoryTopics} from "./category-topics";
-import {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
 import {useSearch} from "@/components/buscar/search-context";
 import {SearchTopics} from "@/components/buscar/search-topics";
 import {useEffect, useState} from "react";
+import {TTOption} from "@/lib/types";
 
 
 
 export const TopicsListView = ({sortedBy, categories, setCategories}: {
-    sortedBy: TopicsSortOrder
+    sortedBy: TTOption
     categories: string[]
     setCategories: (c: string[]) => void
 }) => {

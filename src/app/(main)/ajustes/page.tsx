@@ -5,18 +5,22 @@ import {CustomLink as Link} from '../../../../modules/ui-utils/src/custom-link';
 import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {useTheme} from "@/components/theme/theme-context";
+import {ThemeMode, useTheme} from "@/components/theme/theme-context";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
 
 
 import {
-    Account,
+    Account, AlgorithmConfig,
+    EnDiscusionMetric,
+    EnDiscusionTime, FeedFormatOption,
 } from "@/lib/types"
 import {useAPI} from "@/queries/utils";
 import {useCurrentValidationRequest} from "@/queries/useValidation";
 import {useSession} from "@/queries/useSession";
+import {post} from "@/utils/fetch";
+import { useQueryClient } from "@tanstack/react-query";
 
 const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
@@ -82,55 +86,241 @@ const AccountSettings = () => {
 const AppearanceSettings = () => {
     const { mode, setMode } = useTheme();
 
+    function onSelection(v: ThemeMode) {
+        setMode(v)
+    }
+
+    function optionsNodes(o: ThemeMode, selected: boolean) {
+        let className = "border text-base rounded-lg px-2 cursor-pointer " + (selected ? "border-2 border-[var(--text)]" : "")
+
+        if(o == "light"){
+            className += " bg-[#FFFFF0] text-[#1a1a1a]"
+        } else if(o == "dark"){
+            className += " bg-[#191923] text-[#eeeeee]"
+        } else if(o == "system"){
+            className += " bg-[var(--background-dark)]"
+        }
+
+        return <button
+            className={className}
+        >
+            {o == "system" ? "Sistema" : o == "light" ? "Claro" : "Oscuro"}
+        </button>
+    }
+
     return <>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm mb-2">Tema</div>
-            <div className="space-y-2">
-                <div className="flex items-center">
-                    <input
-                        type="radio"
-                        id="system"
-                        name="theme"
-                        value="system"
-                        checked={mode === 'system'}
-                        onChange={() => setMode('system')}
-                        className="mr-2"
+        <div className="mb-4 space-y-4">
+            <div className={"text-lg text-[var(--text-light)] font-semibold"}>
+                Tema
+            </div>
+            <SelectionComponent<ThemeMode>
+                onSelection={onSelection}
+                options={["system", "light", "dark"]}
+                optionsNodes={optionsNodes}
+                selected={mode}
+                className={"flex space-x-2"}
+                optionContainerClassName={"flex"}
+            />
+        </div>
+    </>
+}
+
+
+function followingConfigToSelected(c: AlgorithmConfig["following"]){
+    if(!c) return "Cabildo Abierto"
+    else if(c.format == "Artículos") return "Artículos"
+    else if(c.filter == "Todos") return "Todos"
+    else return "Cabildo Abierto"
+}
+
+
+const FeedDefaultsSettings = () => {
+    const {user} = useSession()
+    const [config, setConfig] = useState<AlgorithmConfig>(user.algorithmConfig)
+    const qc = useQueryClient()
+
+    function optionsNodes(o: string, selected: boolean) {
+        return <button
+            className={"text-sm rounded-lg px-2 cursor-pointer " + (selected ? "bg-[var(--primary)] text-[var(--button-text)]" : "bg-[var(--background-dark2)] text-[var(--text)]")}
+        >
+            {o}
+        </button>
+    }
+
+    async function onSave(config: AlgorithmConfig) {
+        const {error} = await post<AlgorithmConfig, {}>("/algorithm-config/", config)
+        if(!error){
+            qc.setQueryData(["session"], {
+                ...user,
+                algorithmConfig: config
+            })
+        }
+        return {error}
+    }
+
+    const following = followingConfigToSelected(config.following)
+
+    async function setFollowing(v: string){
+        let newConfig: AlgorithmConfig
+        if(v == "Todos"){
+            newConfig = {
+                ...config,
+                following: {
+                    ...config.following,
+                    filter: "Todos",
+                    format: "Todos"
+                }
+            }
+        } else if(v == "Artículos"){
+            newConfig = {
+                ...config,
+                following: {
+                    ...config.following,
+                    filter: "Solo Cabildo Abierto",
+                    format: "Artículos"
+                }
+            }
+        } else if(v == "Cabildo Abierto") {
+            newConfig = {
+                ...config,
+                following: {
+                    ...config.following,
+                    filter: "Solo Cabildo Abierto",
+                    format: "Todos"
+                }
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    async function setEnDiscusionMetric(v: EnDiscusionMetric){
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            enDiscusion: {
+                ...config.enDiscusion,
+                metric: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    async function setEnDiscusionTime(v: EnDiscusionTime){
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            enDiscusion: {
+                ...config.enDiscusion,
+                time: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    async function setEnDiscusionFormat(v: FeedFormatOption){
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            enDiscusion: {
+                ...config.enDiscusion,
+                format: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    async function setTTTime(v: EnDiscusionTime) {
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            tt: {
+                ...config.tt,
+                time: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    return <div className={"space-y-8"}>
+        <div className={"space-y-2"}>
+            <div className={"text-[var(--text-light)] font-semibold"}>
+                Siguiendo
+            </div>
+            <SelectionComponent
+                onSelection={setFollowing}
+                options={["Todos", "Cabildo Abierto", "Artículos"]}
+                optionsNodes={optionsNodes}
+                selected={following}
+                className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                optionContainerClassName={""}
+            />
+        </div>
+        <div className={"space-y-4"}>
+            <div className={"text-[var(--text-light)] font-semibold"}>
+                En discusión
+            </div>
+            <div className={"space-y-4"}>
+                <div>
+                    <div className={"text-xs text-[var(--text-light)]"}>
+                        Métrica
+                    </div>
+                    <SelectionComponent
+                        onSelection={setEnDiscusionMetric}
+                        options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
+                        optionsNodes={optionsNodes}
+                        selected={config.enDiscusion?.metric ?? "Popularidad relativa"}
+                        className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                        optionContainerClassName={""}
                     />
-                    <label htmlFor="system" className="text-[var(--text)] cursor-pointer ">
-                        Usar tema del sistema
-                    </label>
                 </div>
-                <div className="flex items-center">
-                    <input
-                        type="radio"
-                        id="light"
-                        name="theme"
-                        value="light"
-                        checked={mode === 'light'}
-                        onChange={() => setMode('light')}
-                        className="mr-2"
+                <div>
+                    <div className={"text-xs text-[var(--text-light)]"}>
+                        Período
+                    </div>
+                    <SelectionComponent<EnDiscusionTime>
+                        onSelection={setEnDiscusionTime}
+                        options={["Último día", "Última semana", "Último mes"]}
+                        optionsNodes={optionsNodes}
+                        selected={config.enDiscusion?.time ?? "Última semana"}
+                        className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                        optionContainerClassName={""}
                     />
-                    <label htmlFor="light" className="text-[var(--text)] cursor-pointer">
-                        Modo claro
-                    </label>
                 </div>
-                <div className="flex items-center">
-                    <input
-                        type="radio"
-                        id="dark"
-                        name="theme"
-                        value="dark"
-                        checked={mode === 'dark'}
-                        onChange={() => setMode('dark')}
-                        className="mr-2"
+                <div>
+                    <div className={"text-xs text-[var(--text-light)]"}>
+                        Formato
+                    </div>
+                    <SelectionComponent
+                        onSelection={setEnDiscusionFormat}
+                        options={["Todos", "Artículos"]}
+                        optionsNodes={optionsNodes}
+                        selected={config.enDiscusion?.format ?? "Todos"}
+                        className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                        optionContainerClassName={""}
                     />
-                    <label htmlFor="dark" className="text-[var(--text)] cursor-pointer">
-                        Modo oscuro
-                    </label>
                 </div>
             </div>
         </div>
-    </>
+        <div className={"space-y-2"}>
+            <div className={"text-[var(--text-light)] font-semibold"}>
+                Temas en tendencia
+            </div>
+            <SelectionComponent
+                onSelection={setTTTime}
+                options={["Último mes", "Última semana", "Último día"]}
+                optionsNodes={optionsNodes}
+                selected={config.tt?.time ?? "Última semana"}
+                className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                optionContainerClassName={""}
+            />
+        </div>
+    </div>
 }
 
 
@@ -175,7 +365,7 @@ const Ajustes = () => {
                         onSelection={(v) => {
                             setSelected(v)
                         }}
-                        options={["Cuenta", "Apariencia"]}
+                        options={["Cuenta", "Apariencia", "Algoritmos"]}
                         optionsNodes={optionsNodes}
                         className="flex"
                     />
@@ -184,6 +374,7 @@ const Ajustes = () => {
             <div className="py-4 px-8">
                 {selected == "Cuenta" && <AccountSettings/>}
                 {selected == "Apariencia" && <AppearanceSettings/>}
+                {selected == "Algoritmos" && <FeedDefaultsSettings/>}
             </div>
         </div>
     )

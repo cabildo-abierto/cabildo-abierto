@@ -1,27 +1,41 @@
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
-import {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
+import {TTOption} from "@/lib/types";
 
 type Props = {
-    setSortedBy: (s: TopicsSortOrder) => void
-    sortedBy: TopicsSortOrder
+    setSortedBy: (s: TTOption) => void
+    sortedBy: TTOption
     onClose: () => void
+}
+
+function ttLabelToOption(label: string): TTOption {
+    if(label == "Populares último día"){
+        return "Último día"
+    } else if(label == "Populares última semana"){
+        return "Última semana"
+    } else if(label == "Populares último mes"){
+        return "Último mes"
+    } else if(label == "Ediciones recientes"){
+        return "Ediciones recientes"
+    } else {
+        return "Última semana"
+    }
 }
 
 const TopicSortSelectorModal = ({setSortedBy, sortedBy, onClose}: Props) => {
     return (
         <div className={"p-1 space-y-1 border rounded bg-[var(--background-dark)]"}>
-            {["Populares último día", "Populares última semana", "Populares último mes", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
+            {["Populares último día", "Populares última semana", "Populares último mes", "Ediciones recientes"].map((s, index) => {
                 return <div key={index}>
                     <OptionsDropdownButton
                         handleClick={async () => {
-                            setSortedBy(s)
+                            setSortedBy(ttLabelToOption(s))
                             onClose()
                             return {}
                         }}
                         color={"background-dark"}
                         fullWidth={true}
                         size={"small"}
-                        text1={<span className={s == sortedBy ? "font-bold" : ""}>{s}</span>}
+                        text1={<span className={ttLabelToOption(s) == sortedBy ? "font-bold" : ""}>{s}</span>}
                     />
                 </div>
             })}

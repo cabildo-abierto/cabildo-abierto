@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import TopicsIcon from "@/components/icons/topics-icon";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import {useState} from "react";
+import {useSession} from "@/queries/useSession";
 
 const TrendingTopicsSlider = dynamic(() => import('./trending-topics-slider'));
 
@@ -63,16 +64,29 @@ function timeLabelToTimePeriod(label: string): TimePeriod {
     return "all"
 }
 
-export const TrendingTopicsPanel = () => {
-    const [time, setTime] = useState("semana")
-    const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
+function selectedToTimePeriod(selected: string): TimePeriod {
+    if (selected == "semana") return "week"
+    if (selected == "mes") return "month"
+    if (selected == "día") return "day"
+    return "all"
+}
 
-    function selectedToTimePeriod(selected: string): TimePeriod {
-        if (selected == "semana") return "week"
-        if (selected == "mes") return "month"
-        if (selected == "day") return "day"
-        return "all"
+function configLabelToSelected(label: string): string {
+    if(label == "Última semana"){
+        return "semana"
+    } else if(label == "Último día"){
+        return "día"
+    } else if(label == "Último mes"){
+        return "mes"
+    } else {
+        return "semana"
     }
+}
+
+export const TrendingTopicsPanel = () => {
+    const {user} = useSession()
+    const [time, setTime] = useState<string>(configLabelToSelected(user.algorithmConfig?.tt?.time ?? "Última semana"))
+    const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
     return <div className="space-y-2 bg-[var(--background-dark)] rounded-lg w-[300px]">
         <div className="flex justify-between pt-3 px-3 items-center w-full">
@@ -83,7 +97,10 @@ export const TrendingTopicsPanel = () => {
                 <TopicsIcon fontSize={12}/>
                 <span>Temas en tendencia</span>
             </div>
-            <TrendingTopicsConfig time={time} setTime={setTime}/>
+            <TrendingTopicsConfig
+                time={time}
+                setTime={setTime}
+            />
         </div>
         {topics ?
             <TrendingTopicsSlider

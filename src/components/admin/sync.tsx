@@ -59,13 +59,14 @@ export const AdminSync = () => {
                         {u.mirrorStatus}
                         </td>
                         <td>
-                            {u.mirrorStatus != "Sync" && <StateButton
+                            <StateButton
                                 handleClick={async () => {
                                     await post(`/sync-user/${u.did}`)
                                     return {}
                                 }}
-                                text1={"Sync"}
-                            />}
+                                color={u.mirrorStatus == "Sync" ? "red-dark2" : "primary"}
+                                text1={u.mirrorStatus == "Sync" ? "Resync" : "Sync"}
+                            />
                         </td>
                     </tr>
                 })}

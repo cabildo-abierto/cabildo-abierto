@@ -3,24 +3,39 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React from "react"
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import dynamic from "next/dynamic";
-import {TopicsSortOrder} from "@/components/topics/topic-sort-selector";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {TimePeriod} from "@/queries/useTrendingTopics";
+import {TTOption} from "@/lib/types";
 
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
 const StaticFeed = dynamic(() => import("../feed/feed/static-feed"))
 
 
+function ttOptionToTimePeriod(sortedBy: TTOption): TimePeriod {
+    if(sortedBy == "Último mes"){
+        return "month"
+    } else if(sortedBy == "Última semana"){
+        return "week"
+    } else if(sortedBy == "Último día"){
+        return "day"
+    } else if(sortedBy == "Ediciones recientes"){
+        return "all"
+    } else {
+        return "all"
+    }
+}
+
+
 export const CategoryTopics = ({sortedBy, categories}: {
-    sortedBy: TopicsSortOrder
+    sortedBy: TTOption
     categories: string[]
     onSearchPage?: boolean
 }) => {
-    const time: TimePeriod = sortedBy == "Populares última semana" ? "week" : (sortedBy == "Populares último mes" ? "month" : (sortedBy == "Populares último día" ? "day" : "all"))
+    const time = ttOptionToTimePeriod(sortedBy)
     const {data: topics, error, isLoading} = useTopics(
         categories,
-        sortedBy.startsWith("Populares") ? "popular" : "recent",
+        sortedBy == "Ediciones recientes" ? "recent" : "popular",
         time
     )
 
