@@ -138,7 +138,7 @@ function ProfileHeader({
                         {profile.bsky.displayName && profile.bsky.displayName.length > 0 ? profile.bsky.displayName : profile.bsky.handle}
                     </div>
                     <ValidationIcon
-                        validation={profile.ca.validation}
+                        validation={profile.ca?.validation}
                         handle={profile.bsky.handle}
                     />
                 </div>
