@@ -40,8 +40,8 @@ const followingFeedFilterOption: FollowingFeedFilterOption[] = ["Todos", "Solo C
 export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const defaultFilter = user.algorithmConfig.following.filter ?? "Solo Cabildo Abierto"
-    const defaultFormat = user.algorithmConfig.enDiscusion.format ?? "Todos"
+    const defaultFilter = user.algorithmConfig.following?.filter ?? "Solo Cabildo Abierto"
+    const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? "Todos"
     const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, defaultFilter)
     const format = stringToEnum(params.get("formato"), feedFormatOptions, defaultFormat)
 
