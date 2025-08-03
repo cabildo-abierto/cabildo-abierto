@@ -22,6 +22,27 @@ export type CAProfile = {
     validation: ValidationState
 }
 
+export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
+export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad relativa" | "Recientes"
+export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes"
+export type FeedFormatOption = "Todos" | "Artículos"
+export type TTOption = EnDiscusionTime | "Ediciones recientes"
+
+export type AlgorithmConfig = {
+    following?: {
+        filter?: FollowingFeedFilter
+        format?: FeedFormatOption
+    }
+    enDiscusion?: {
+        time?: EnDiscusionTime
+        metric?: EnDiscusionMetric
+        format?: FeedFormatOption
+    }
+    tt?: {
+        time?: TTOption
+    }
+}
+
 
 export type Session = {
     platformAdmin: boolean
@@ -39,6 +60,7 @@ export type Session = {
     hasAccess: boolean
     usedInviteCode: string | null
     validation: ValidationState
+    algorithmConfig: AlgorithmConfig
 }
 
 

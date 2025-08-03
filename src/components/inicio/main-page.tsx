@@ -6,6 +6,8 @@ import React from "react";
 import {getFeed} from "@/components/feed/feed/get-feed";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {updateSearchParam} from "@/utils/fetch";
+import {useSession} from "@/queries/useSession";
+import {Session} from "@/lib/types";
 
 
 export function mainFeedOptionToSearchParam(v: MainFeedOption) {
@@ -35,13 +37,18 @@ const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Último mes"
 const feedFormatOptions: FeedFormatOption[] = ["Todos", "Artículos"]
 const followingFeedFilterOption: FollowingFeedFilterOption[] = ["Todos", "Solo Cabildo Abierto"]
 
-export function useFollowingParams(): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
+export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, "Todos")
-    const format = stringToEnum(params.get("formato"), feedFormatOptions, "Todos")
+    const defaultFilter = user.algorithmConfig.following.filter ?? "Solo Cabildo Abierto"
+    const defaultFormat = user.algorithmConfig.enDiscusion.format ?? "Todos"
+    const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, defaultFilter)
+    const format = stringToEnum(params.get("formato"), feedFormatOptions, defaultFormat)
 
-    return {filter, format}
+    return {
+        filter,
+        format
+    }
 }
 
 
@@ -54,14 +61,21 @@ function stringToEnum<T>(s: string | undefined, options: string[], defaultValue:
 }
 
 
-export function useEnDiscusionParams(): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
+export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions,"Popularidad relativa")
-    const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, "Última semana")
-    const format = params.get("formato") == "Artículos" ? "Artículos" : "Todos"
+    const defaultMetric = user.algorithmConfig.enDiscusion?.metric ?? "Popularidad relativa"
+    const defaultTime = user.algorithmConfig.enDiscusion?.time ?? "Última semana"
+    const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? "Todos"
+    const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
+    const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
+    const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)
 
-    return {metric, time, format}
+    return {
+        metric,
+        time,
+        format
+    }
 }
 
 
@@ -69,8 +83,9 @@ export const MainPage = () => {
     const params = useSearchParams()
     const paramsFeed = params.get("f")
     const selected = paramsFeed ? searchParamToMainFeedOption(paramsFeed) : "Siguiendo"
-    const {metric, time} = useEnDiscusionParams()
-    const {filter, format} = useFollowingParams()
+    const {user} = useSession()
+    const {metric, time} = useEnDiscusionParams(user)
+    const {filter, format} = useFollowingParams(user)
 
     function onSelection(v: MainFeedOption) {
         updateSearchParam("f", mainFeedOptionToSearchParam(v))
