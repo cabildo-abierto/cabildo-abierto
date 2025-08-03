@@ -8,6 +8,7 @@ import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {useProfile} from "@/queries/useProfile";
+import { ContentCounters } from "./content-counters";
 
 type UserSummaryProps = {
     handle: string
@@ -41,16 +42,27 @@ const UserSummary = ({handle}: UserSummaryProps) => {
                     <Link className="font-semibold text-base" href={profileUrl(profile.bsky.handle)}>
                         {profile.bsky.displayName}
                     </Link>
-                    <ValidationIcon fontSize={16} handle={profile.bsky.handle} validation={profile.ca.validation}/>
+                    <ValidationIcon
+                        fontSize={16}
+                        handle={profile.bsky.handle}
+                        validation={profile.ca?.validation}
+                    />
                 </div>
                 <Link className="text-[var(--text-light)]" href={profileUrl(profile.bsky.handle)}>
                     @{profile.bsky.handle}
                 </Link>
             </div>
 
-            <FollowCounters profile={profile}/>
+            <div>
+                <FollowCounters profile={profile}/>
+                <ContentCounters profile={profile}/>
+            </div>
 
             <ProfileDescription description={profile.bsky.description} className="text-sm"/>
+
+            {!profile.ca?.inCA && <div className={"text-sm text-[var(--text-light)]"}>
+                Este usuario todavía no está en Cabildo Abierto.
+            </div>}
         </div>
     );
 };

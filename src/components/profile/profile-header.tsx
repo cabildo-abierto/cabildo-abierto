@@ -16,6 +16,7 @@ import ValidationIcon from "@/components/profile/validation-icon";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {ContentCounters} from "./content-counters";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
@@ -26,6 +27,7 @@ type ProfileHeaderProps = {
     selected: string
     setSelected: any
 }
+
 
 function ProfileHeader({
                            profile,
@@ -152,34 +154,39 @@ function ProfileHeader({
 
         <div className="flex flex-col items-start px-2 space-y-2 mb-1">
 
-            <FollowCounters profile={profile}/>
+            <div>
+                <FollowCounters profile={profile}/>
+
+                <ContentCounters profile={profile}/>
+            </div>
 
             <div className="flex text-sm sm:text-base">
-                {inCA ? <DescriptionOnHover description={"Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor."}>
-                    <div
-                        className="text-sm rounded-lg px-2 flex items-center justify-center py-1 bg-[var(--background-dark)] cursor-default space-x-1"
-                    >
+                {inCA ? <DescriptionOnHover
+                        description={"Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor."}>
+                        <div
+                            className="text-sm rounded-lg px-2 flex items-center justify-center py-1 bg-[var(--background-dark)] cursor-default space-x-1"
+                        >
                     <span className="text-[var(--text-light)]">
                         <ArticleIcon color={"inherit"}/>
                     </span>
-                        <PermissionLevel
-                            level={profile.ca.editorStatus}
-                            className="text-[var(--text-light)] font-semibold text-xs"
-                        />
-                    </div>
-                </DescriptionOnHover> :
+                            <PermissionLevel
+                                level={profile.ca.editorStatus}
+                                className="text-[var(--text-light)] font-semibold text-xs"
+                            />
+                        </div>
+                    </DescriptionOnHover> :
                     <span className={"text-[var(--text-light)] text-sm"}>
                         <span>
                             Este usuario todavía no está en Cabildo Abierto.
                         </span> <Link
-                            target={"_blank"}
-                            rel="noopener noreferrer"
-                            onClick={() => {
-                                window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')
-                            }}
-                            href={"https://bsky.app/profile/" + profile.bsky.handle}
-                            className="hover:underline text-[var(--text-lighter)]"
-                        >
+                        target={"_blank"}
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                            window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')
+                        }}
+                        href={"https://bsky.app/profile/" + profile.bsky.handle}
+                        className="hover:underline text-[var(--text-lighter)]"
+                    >
                             Ver perfil en Bluesky.
                         </Link>
                     </span>}
