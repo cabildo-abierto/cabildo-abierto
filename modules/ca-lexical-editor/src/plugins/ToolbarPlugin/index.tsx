@@ -49,16 +49,14 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {InsertTableModal} from '../TablePlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import VisualizationsIcon from '../../../../../src/components/icons/visualization-icon';
-import {INSERT_EMBED_COMMAND, InsertEmbedPayload} from "../EmbedPlugin";
+import {INSERT_EMBED_COMMAND} from "../EmbedPlugin";
 import {
     FormatBold,
     FormatItalic,
-    FormatUnderlined,
     ImageOutlined,
     InsertLink,
     TableChartOutlined
 } from "@mui/icons-material";
-import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
 import {ToolbarButton} from "./toolbar-button";
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
@@ -111,12 +109,10 @@ const rootTypeToRootName = {
 function BlockFormatDropDown({
                                  editor,
                                  blockType,
-                                 disabled = false,
                              }: {
     blockType: keyof typeof blockTypeToBlockName;
     rootType: keyof typeof rootTypeToRootName;
     editor: LexicalEditor;
-    disabled?: boolean;
 }) {
     const formatParagraph = () => {
         editor.update(() => {
@@ -223,7 +219,6 @@ export default function ToolbarPlugin({
     const [isLink, setIsLink] = useState(false);
     const [isBold, setIsBold] = useState(false);
     const [isItalic, setIsItalic] = useState(false);
-    const [isUnderline, setIsUnderline] = useState(false);
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [insertTableModalOpen, setInsertTableModalOpen] = useState(false)
@@ -274,7 +269,6 @@ export default function ToolbarPlugin({
             // Update text format
             setIsBold(selection.hasFormat('bold'));
             setIsItalic(selection.hasFormat('italic'));
-            setIsUnderline(selection.hasFormat('underline'))
 
             // Update links
             const node = getSelectedNode(selection);
@@ -408,7 +402,6 @@ export default function ToolbarPlugin({
                     {blockType in blockTypeToBlockName && activeEditor === editor && (
                         <>
                             <BlockFormatDropDown
-                                disabled={!isEditable}
                                 blockType={blockType}
                                 rootType={rootType}
                                 editor={activeEditor}
@@ -440,19 +433,6 @@ export default function ToolbarPlugin({
                         active={isItalic}
                     >
                         <FormatItalic fontSize={"small"} color={"inherit"}/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        disabled={!isEditable}
-                        onClick={() => {
-                            activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-                        }}
-                        title={IS_APPLE ? 'Subrayado (⌘U)' : 'Subrayado (Ctrl+U)'}
-                        aria-label={`Format text to underlined. Shortcut: ${
-                            IS_APPLE ? '⌘U' : 'Ctrl+U'
-                        }`}
-                        active={isUnderline}
-                    >
-                        <FormatUnderlined fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         disabled={!isEditable}

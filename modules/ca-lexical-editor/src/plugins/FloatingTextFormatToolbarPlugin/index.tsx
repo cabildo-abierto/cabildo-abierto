@@ -30,7 +30,7 @@ import {setFloatingElemPosition} from '../../utils/setFloatingElemPosition';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
-import {FormatItalic, FormatUnderlined, InsertLink} from "@mui/icons-material";
+import {FormatItalic, InsertLink} from "@mui/icons-material";
 import {ToolbarButton} from "../ToolbarPlugin/toolbar-button";
 
 function TextFormatFloatingToolbar({
@@ -39,7 +39,6 @@ function TextFormatFloatingToolbar({
                                        isLink,
                                        isBold,
                                        isItalic,
-                                       isUnderline,
                                        setIsLinkEditMode,
                                        settings,
                                    }: {
@@ -48,7 +47,6 @@ function TextFormatFloatingToolbar({
     isBold: boolean;
     isItalic: boolean;
     isLink: boolean;
-    isUnderline: boolean;
     setIsLinkEditMode: Dispatch<boolean>;
     settings: any
 }) {
@@ -208,15 +206,6 @@ function TextFormatFloatingToolbar({
                         <FormatItalic fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
                     <ToolbarButton
-                        onClick={() => {
-                            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-                        }}
-                        active={isUnderline}
-                        aria-label="Format text to underlined"
-                    >
-                        <FormatUnderlined fontSize={"small"} color={"inherit"}/>
-                    </ToolbarButton>
-                    <ToolbarButton
                         onClick={insertLink}
                         aria-label="Insert link"
                         active={isLink}
@@ -246,7 +235,6 @@ function useFloatingTextFormatToolbar(
     const [isLink, setIsLink] = useState(false);
     const [isBold, setIsBold] = useState(false);
     const [isItalic, setIsItalic] = useState(false);
-    const [isUnderline, setIsUnderline] = useState(false);
 
     const updatePopup = useCallback(() => {
         editor.getEditorState().read(() => {
@@ -277,7 +265,6 @@ function useFloatingTextFormatToolbar(
             // Update text format
             setIsBold(selection.hasFormat('bold'));
             setIsItalic(selection.hasFormat('italic'));
-            setIsUnderline(selection.hasFormat('underline'));
 
             // Update links
             const parent = node.getParent();
@@ -334,7 +321,6 @@ function useFloatingTextFormatToolbar(
             isLink={isLink}
             isBold={isBold}
             isItalic={isItalic}
-            isUnderline={isUnderline}
             setIsLinkEditMode={setIsLinkEditMode}
             settings={settings}
         />,

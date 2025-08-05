@@ -18,16 +18,8 @@
     --lexical-indent-base-value: 40px;
 }
 
-.PlaygroundEditorTheme__textUnderline {
-    text-decoration: underline;
-}
-
 .PlaygroundEditorTheme__textStrikethrough {
     text-decoration: line-through;
-}
-
-.PlaygroundEditorTheme__textUnderlineStrikethrough {
-    text-decoration: underline line-through;
 }
 
 .PlaygroundEditorTheme__textSubscript {
