@@ -347,8 +347,8 @@ export class OneAxisPlotter extends AxesPlotter {
         this.sortByY()
 
         if(this.isHistogram()) {
-            if(this.data.length > 100){
-                return {error: `El gráfico tiene demasiadas barras (${this.data.length}). Revisá la configuración.`}
+            if(this.dataPoints.length > 100){
+                return {error: `El gráfico tiene demasiadas barras (${this.dataPoints.length}). Revisá la configuración.`}
             }
         }
         return {}
