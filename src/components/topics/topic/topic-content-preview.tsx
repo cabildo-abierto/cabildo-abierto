@@ -57,7 +57,8 @@ export const TopicContentPreview = ({
                 settings={getEditorSettings({
                     initialText: topic.text,
                     initialTextFormat: topic.format,
-                    editorClassName: "article-content not-article-content"
+                    editorClassName: "article-content not-article-content",
+                    topicMentions: false
                 })}
                 setEditor={() => {
                 }}
