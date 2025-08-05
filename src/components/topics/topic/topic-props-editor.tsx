@@ -222,7 +222,7 @@ export function defaultPropValue(name: string, type: PropValueType, topic: Topic
     } else if (type == "ar.cabildoabierto.wiki.topicVersion#dateProp") {
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-            value: ""
+            value: new Date().toISOString()
         }
     } else if (type == "ar.cabildoabierto.wiki.topicVersion#numberProp") {
         return {
@@ -282,14 +282,17 @@ function NewPropModal({open, onClose, onAddProp}: {
                 fullWidth
             />
             <FormControl fullWidth size="small">
-                <InputLabel>Tipo de datos</InputLabel>
+                <InputLabel>Tipo de propiedad</InputLabel>
                 <Select
                     value={dataType}
                     onChange={(e) => setDataType(e.target.value as PropValueType)}
-                    label="Tipo de datos"
+                    label="Tipo de propiedad"
                 >
                     <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringProp"}>Texto</MenuItem>
                     <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringListProp"}>Lista de textos</MenuItem>
+                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#dateProp"}>Fecha</MenuItem>
+                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#numberProp"}>Número</MenuItem>
+                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#booleanProp"}>Sí/No</MenuItem>
                 </Select>
             </FormControl>
             <Button size={"small"} onClick={() => {
