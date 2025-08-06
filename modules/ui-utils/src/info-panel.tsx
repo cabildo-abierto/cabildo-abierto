@@ -7,15 +7,18 @@ export const InfoPanel = ({
                               className,
                               onClick,
                               iconClassName = "text-gray-600",
-                              icon = <InfoIcon fontSize="small"/>}: {
+                              moreInfoHref,
+                              icon = <InfoIcon fontSize="small"/>
+                          }: {
     text?: ReactNode,
     className?: string,
     iconClassName?: string,
     icon?: ReactNode
     onClick?: () => void
+    moreInfoHref?: string
 }) => {
 
-    return <DescriptionOnHover description={text}>
+    return <DescriptionOnHover description={text} moreInfoHref={moreInfoHref}>
         <div className={"cursor-pointer " + iconClassName} onClick={onClick}>
             {icon}
         </div>
