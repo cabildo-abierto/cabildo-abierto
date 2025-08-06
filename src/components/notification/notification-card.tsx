@@ -58,16 +58,16 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
         reasonIcon={reasonIcon}
         href={href}
     >
-        <div className={"flex justify-between w-full sm:text-base text-sm"}>
+        <div className={"flex justify-between w-full text-xs sm:text-sm"}>
             <div className={"flex space-x-2 items-center w-full"}>
                 <ProfilePic user={notification.author} className={"rounded-full h-6 w-6"}/>
 
-                <div className={"max-w-[70%] text-sm"}>
+                <div className={"max-w-[70%]"}>
                     {children}
                 </div>
             </div>
 
-            <div className={"w-full flex items-end space-x-1 text-sm flex-1 pr-1"}>
+            <div className={"w-full flex items-end space-x-1 flex-1 pr-1"}>
                 <span>
                     Hace
                 </span>
