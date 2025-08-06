@@ -7,7 +7,7 @@ import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ThemeMode, useTheme} from "@/components/theme/theme-context";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../../../modules/ui-utils/src/button";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
 
 
@@ -20,7 +20,9 @@ import {useAPI} from "@/queries/utils";
 import {useCurrentValidationRequest} from "@/queries/useValidation";
 import {useSession} from "@/queries/useSession";
 import {post} from "@/utils/fetch";
-import { useQueryClient } from "@tanstack/react-query";
+import {useQueryClient} from "@tanstack/react-query";
+import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import {topicUrl} from "@/utils/uri";
 
 const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
@@ -33,7 +35,7 @@ const AccountSettings = () => {
     const {account, isLoading} = useAccount()
     const {data: request, isLoading: requestLoading} = useCurrentValidationRequest()
 
-    if(isLoading || requestLoading){
+    if (isLoading || requestLoading) {
         return <div className={"py-8"}>
             <LoadingSpinner/>
         </div>
@@ -50,14 +52,17 @@ const AccountSettings = () => {
         </div>
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Contraseña</div>
-            <Link className="text-[var(--primary)] hover:underline" target="_blank" href={"https://bsky.app/settings/account"}>
+            <Link className="text-[var(--primary)] hover:underline" target="_blank"
+                  href={"https://bsky.app/settings/account"}>
                 Cambiar desde Bluesky.
             </Link>
         </div>
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Mail</div>
-            {account.email ? <div className="text-lg ">{account.email}</div> : <div className="text-lg ">Pendiente</div>}
-            <Link className="text-[var(--primary)] hover:underline" target="_blank" href={"https://bsky.app/settings/account"}>
+            {account.email ? <div className="text-lg ">{account.email}</div> :
+                <div className="text-lg ">Pendiente</div>}
+            <Link className="text-[var(--primary)] hover:underline" target="_blank"
+                  href={"https://bsky.app/settings/account"}>
                 {account.email ? "Cambiar" : "Agregar"} desde Bluesky.
             </Link>
         </div>
@@ -73,9 +78,10 @@ const AccountSettings = () => {
                 {!request || request.result != "Aceptada" ? "Sin verificar." : (request.type == "persona" ? "Cuenta de persona verificada." : "Cuenta de organización verificada.")}
             </div>
         </div>
-        {(!request.result || request.result != "Aceptada") && <Button size={"small"} href={"/ajustes/solicitar-validacion"}>
-            <span className={"font-semibold text-sm py-1"}>Verificar cuenta</span>
-        </Button>}
+        {(!request.result || request.result != "Aceptada") &&
+            <Button size={"small"} href={"/ajustes/solicitar-validacion"}>
+                <span className={"font-semibold text-sm py-1"}>Verificar cuenta</span>
+            </Button>}
         <div className={"mt-4 flex justify-start"}>
             <CloseSessionButton/>
         </div>
@@ -84,7 +90,7 @@ const AccountSettings = () => {
 
 
 const AppearanceSettings = () => {
-    const { mode, setMode } = useTheme();
+    const {mode, setMode} = useTheme();
 
     function onSelection(v: ThemeMode) {
         setMode(v)
@@ -93,11 +99,11 @@ const AppearanceSettings = () => {
     function optionsNodes(o: ThemeMode, selected: boolean) {
         let className = "border text-base rounded-lg px-2 cursor-pointer " + (selected ? "border-2 border-[var(--text)]" : "")
 
-        if(o == "light"){
+        if (o == "light") {
             className += " bg-[#FFFFF0] text-[#1a1a1a]"
-        } else if(o == "dark"){
+        } else if (o == "dark") {
             className += " bg-[#191923] text-[#eeeeee]"
-        } else if(o == "system"){
+        } else if (o == "system") {
             className += " bg-[var(--background-dark)]"
         }
 
@@ -126,10 +132,10 @@ const AppearanceSettings = () => {
 }
 
 
-function followingConfigToSelected(c: AlgorithmConfig["following"]){
-    if(!c) return "Cabildo Abierto"
-    else if(c.format == "Artículos") return "Artículos"
-    else if(c.filter == "Todos") return "Todos"
+function followingConfigToSelected(c: AlgorithmConfig["following"]) {
+    if (!c) return "Cabildo Abierto"
+    else if (c.format == "Artículos") return "Artículos"
+    else if (c.filter == "Todos") return "Todos"
     else return "Cabildo Abierto"
 }
 
@@ -149,7 +155,7 @@ const FeedDefaultsSettings = () => {
 
     async function onSave(config: AlgorithmConfig) {
         const {error} = await post<AlgorithmConfig, {}>("/algorithm-config/", config)
-        if(!error){
+        if (!error) {
             qc.setQueryData(["session"], {
                 ...user,
                 algorithmConfig: config
@@ -160,9 +166,9 @@ const FeedDefaultsSettings = () => {
 
     const following = followingConfigToSelected(config.following)
 
-    async function setFollowing(v: string){
+    async function setFollowing(v: string) {
         let newConfig: AlgorithmConfig
-        if(v == "Todos"){
+        if (v == "Todos") {
             newConfig = {
                 ...config,
                 following: {
@@ -171,7 +177,7 @@ const FeedDefaultsSettings = () => {
                     format: "Todos"
                 }
             }
-        } else if(v == "Artículos"){
+        } else if (v == "Artículos") {
             newConfig = {
                 ...config,
                 following: {
@@ -180,7 +186,7 @@ const FeedDefaultsSettings = () => {
                     format: "Artículos"
                 }
             }
-        } else if(v == "Cabildo Abierto") {
+        } else if (v == "Cabildo Abierto") {
             newConfig = {
                 ...config,
                 following: {
@@ -195,7 +201,7 @@ const FeedDefaultsSettings = () => {
     }
 
 
-    async function setEnDiscusionMetric(v: EnDiscusionMetric){
+    async function setEnDiscusionMetric(v: EnDiscusionMetric) {
         const newConfig: AlgorithmConfig = {
             ...config,
             enDiscusion: {
@@ -208,7 +214,7 @@ const FeedDefaultsSettings = () => {
     }
 
 
-    async function setEnDiscusionTime(v: EnDiscusionTime){
+    async function setEnDiscusionTime(v: EnDiscusionTime) {
         const newConfig: AlgorithmConfig = {
             ...config,
             enDiscusion: {
@@ -221,7 +227,7 @@ const FeedDefaultsSettings = () => {
     }
 
 
-    async function setEnDiscusionFormat(v: FeedFormatOption){
+    async function setEnDiscusionFormat(v: FeedFormatOption) {
         const newConfig: AlgorithmConfig = {
             ...config,
             enDiscusion: {
@@ -249,8 +255,13 @@ const FeedDefaultsSettings = () => {
 
     return <div className={"space-y-8"}>
         <div className={"space-y-2"}>
-            <div className={"text-[var(--text-light)] font-semibold"}>
-                Siguiendo
+            <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
+                <div>
+                    Siguiendo
+                </div>
+                <InfoPanel
+                    moreInfoHref={topicUrl("Cabildo Abierto: Muros", undefined, "normal")}
+                    text={"Configuración por defecto del muro Siguiendo."}/>
             </div>
             <SelectionComponent
                 onSelection={setFollowing}
@@ -262,8 +273,13 @@ const FeedDefaultsSettings = () => {
             />
         </div>
         <div className={"space-y-4"}>
-            <div className={"text-[var(--text-light)] font-semibold"}>
-                En discusión
+            <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
+                <div>
+                    En discusión
+                </div>
+                <InfoPanel
+                    moreInfoHref={topicUrl("Cabildo Abierto: Muros", undefined, "normal")}
+                    text={"Configuración por defecto del muro En discusión."}/>
             </div>
             <div className={"space-y-4"}>
                 <div>
@@ -308,8 +324,12 @@ const FeedDefaultsSettings = () => {
             </div>
         </div>
         <div className={"space-y-2"}>
-            <div className={"text-[var(--text-light)] font-semibold"}>
-                Temas en tendencia
+            <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
+                <div>
+                    Temas en tendencia
+                </div>
+                <InfoPanel moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas", undefined, "normal")}
+                           text={"El período por defecto de los temas en la sección Temas y en el panel lateral (en PC)."}/>
             </div>
             <SelectionComponent
                 onSelection={setTTTime}
@@ -319,6 +339,9 @@ const FeedDefaultsSettings = () => {
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
             />
+        </div>
+        <div className={"link text-[var(--text-light)] text-sm"}>
+            Todas las configuraciones también se pueden cambiar momentáneamente al estar viendo el contenido. Si querés una configuración que no ves acá, <Link href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}>sugerila</Link>.
         </div>
     </div>
 }

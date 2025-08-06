@@ -15,6 +15,7 @@ import {useQueryClient} from "@tanstack/react-query";
 
 
 export const createTopic = async (id: string) => {
+    id = id.trim()
     const topic: CreateTopicVersionProps = {
         id,
         props: [

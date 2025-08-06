@@ -71,7 +71,7 @@ export function useTopicWithNormalizedContent(id?: string, did?: string, rkey?: 
 
 
 export function useTopicHistory(id: string) {
-    return useAPI<TopicHistory>("/topic-history/"+id, ["topic-history", id])
+    return useAPI<TopicHistory>("/topic-history/"+encodeURIComponent(id), ["topic-history", id])
 }
 
 
