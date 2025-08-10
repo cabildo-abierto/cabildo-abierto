@@ -26,7 +26,7 @@ export default function LexicalContentEditable({
 }: Props) {
   return (
     <ContentEditable
-      spellCheck={false}
+      spellCheck={true}
       className={className ?? ('outline-none ' + editorClassName)}
       aria-placeholder={placeholder}
       placeholder={

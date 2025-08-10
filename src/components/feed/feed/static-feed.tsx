@@ -6,7 +6,7 @@ import {InfiniteData, useQueryClient} from "@tanstack/react-query";
 export type StaticFeedProps<T> = {
     loadWhenRemaining?: number
     noResultsText: ReactNode
-    endText: string
+    endText: ReactNode
     initialContents: T[]
     LoadingFeedContent?: ReactNode
     FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode

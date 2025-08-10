@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {ExtraChars} from "./extra-chars";
 import {
@@ -297,6 +297,20 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         images.length > 0 && images.length != 4 ||
         !visualization && !externalEmbedView && (!images || images.length == 0)
 
+    const visualizationComp = useMemo(() => {
+        if(visualization) {
+            return <div className={"flex justify-center w-full"}>
+                <PlotFromVisualizationMain
+                    visualization={visualization}
+                    onDelete={() => {setVisualization(null)}}
+                    onEdit={(v) => {setVisualization(v)}}
+                    width={450}
+                />
+            </div>
+        }
+        return null
+    }, [visualization])
+
     return <div className={"flex flex-col justify-between"}>
         <div
             className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
@@ -315,14 +329,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                 replyTo={replyTo}
                 selection={selection}
             />}
-            {visualization && <div className={"flex justify-center w-full"}>
-                <PlotFromVisualizationMain
-                    visualization={visualization}
-                    onDelete={() => {setVisualization(null)}}
-                    onEdit={(v) => {setVisualization(v)}}
-                    width={450}
-                />
-            </div>}
+            {visualizationComp}
             {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
             {externalEmbedView && <ExternalEmbedInEditor
                 embed={externalEmbedView}

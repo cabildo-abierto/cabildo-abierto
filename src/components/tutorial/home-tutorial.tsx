@@ -170,7 +170,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#siguiendo',
             content: <TourContent>
-                El muro con las personas que seguís. Igual a Twitter o Bluesky, pero también hay artículos.
+                El muro con las personas que seguís. Igual a X o Bluesky, pero también hay artículos.
             </TourContent>,
             placement: 'bottom',
             disableBeacon: true,
@@ -179,7 +179,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#discusion',
             content: <TourContent>
-                Un muro con lo más popular en Cabildo Abierto. Sin inteligencia artificial.
+                Un muro con lo más popular en Cabildo Abierto. Sin personalización con IA.
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true

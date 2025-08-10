@@ -22,20 +22,21 @@ export const esLocale = timeFormatLocale({
 })
 
 
-const customDateFormats = [
-    "MMM-YY",
-    "MMMM-YY",
-    'DD/MM/YYYY',
-    'MM/DD/YYYY',
-    'DD-MM-YYYY',
-    'MM-DD-YYYY',
-    'YYYY/MM/DD',
-    'MMM D, YYYY',
-    "YYYY-MM-DDTHH:mm:ss",
-    "YYYY-MM-DD"
+const dateFormats: [string, string][] = [
+    ["YYYY-MM-DD", "es"],
+    ['DD-MM-YYYY', "es"],
+    ['MM-DD-YYYY', "en"],
+    ["MMM-YY", "es"],
+    ["MMM-YY", "en"],
+    ["MMMM-YY", "es"],
+    ["MMMM-YY", "en"],
+    ['DD/MM/YYYY', "es"],
+    ['MM/DD/YYYY', "en"],
+    ['YYYY/MM/DD', "es"],
+    ['MMM D, YYYY', "en"],
+    ['MMM D, YYYY', "es"],
+    ["YYYY-MM-DDTHH:mm:ss", "en"],
 ]
-
-const locales = ['es', 'en']
 
 
 type ParsingResult = {
@@ -62,14 +63,13 @@ type ParsingResult = {
 export class DataParser {
 
     parseDate(value: string): {success: true, date: Date} | {success: false} {
-        for (const format of customDateFormats) {
-            for (const locale of locales) {
-                const parsed = dayjs(value, format, locale, true)
-                if (parsed.isValid()) {
-                    return {
-                        success: true,
-                        date: parsed.toDate()
-                    }
+
+        for (const [format, locale] of dateFormats) {
+            const parsed = dayjs(value, format, locale, true)
+            if (parsed.isValid()) {
+                return {
+                    success: true,
+                    date: parsed.toDate()
                 }
             }
         }

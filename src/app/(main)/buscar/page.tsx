@@ -27,7 +27,7 @@ const Page = () => {
             <MainSearchBar autoFocus={true}/>
         </div>
         <div className={"w-full"}>
-            <SearchContent query={params.get("q")}/>
+            <SearchContent paramsSelected={params.get("s")} query={params.get("q")}/>
         </div>
     </div>
 }

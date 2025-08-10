@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {TimePeriod} from "@/queries/useTrendingTopics";
 import {TTOption} from "@/lib/types";
+import Link from "next/link";
+import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
@@ -44,6 +46,10 @@ export const CategoryTopics = ({sortedBy, categories}: {
 
     const queryKey = ["category-topics", categories.sort().join(":"), sortedBy]
 
+    const endText = <div className={"text-sm text-[var(--text-light)] link px-4"}>
+        Se muestran los primeros {topics.length} resultados. Para ver más temas usá la <Link href={"/temas?view=mapa"}>vista de mapa</Link> o el <Link href={"/temas"} onClick={(e) => {e.preventDefault(); smoothScrollTo(0)}}>buscador</Link>.
+    </div>
+
     return <div className="flex flex-col items-center w-full" key={sortedBy + categories.join("-")}>
         <StaticFeed
             queryKey={queryKey}
@@ -52,7 +58,7 @@ export const CategoryTopics = ({sortedBy, categories}: {
                 <TopicSearchResult topic={t} index={index} time={time}/>
             }
             noResultsText={"No se encontró ningún tema."}
-            endText={""}
+            endText={endText}
             getFeedElementKey={(e: TopicViewBasic) => {return `${e.id}:${time}`}}
         />
     </div>

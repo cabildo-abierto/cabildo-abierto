@@ -1,6 +1,6 @@
 import GradientHRule from "../../../modules/ui-utils/src/gradient-hrule";
 import {useDonationHistory} from "@/queries/useFunding";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {formatIsoDate} from "@/utils/dates";
 
 type Donation = {
     date: Date
@@ -20,17 +20,12 @@ export const DonationHistory = () => {
         <div className={"w-full"}>
             <GradientHRule/>
         </div>
-        <div>
-            {data && <div>
+        <div className={"w-full"}>
+            {data && <div className={"flex flex-col w-full space-y-4 text-[var(--text-light)]"}>
                 {data.map((d, index) => {
-                    return <div key={index}>
-                        <div>
-                            {d.amount}
-                        </div>
-                        <div>
-                            <DateSince date={d.date} />
-                        </div>
-                    </div>
+                    return <span className="" key={index}>
+                        <span> ${d.amount}, {formatIsoDate(d.date)}.</span>
+                    </span>
                 })}
             </div>}
             {!data && !isLoading && <div className={"text-sm text-[var(--text-light)] text-center"}>
