@@ -112,3 +112,23 @@ export const orderDateAsc = (a: Date, b: Date) => {
 export const orderNumberAsc = (a: number, b: number) => {
     return b - a
 }
+
+
+
+export function unique<T, K>(list: T[], key?: (x: T) => K, removeNulls: boolean = false): T[]{
+    if(key){
+        const seen = new Set<K>()
+        const unique: T[] = []
+        list.forEach(x => {
+            if(removeNulls && (x === null || x === undefined)) return
+            const k = key(x)
+            if(!seen.has(k)){
+                unique.push(x)
+                seen.add(k)
+            }
+        })
+        return unique
+    }
+
+    return Array.from(new Set(list))
+}

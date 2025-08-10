@@ -5,12 +5,12 @@ import {
     TopicsDatasetView
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {TablePlotter} from "@/components/visualizations/editor/plotter";
 import SearchBar from "@/components/buscar/search-bar";
-import {Table} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {Main as Visualization, Table} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
+import {TablePlotter} from "@/components/visualizations/editor/plotter/table-plotter";
 
 
 export type RawDatasetView = {
@@ -28,6 +28,7 @@ type DatasetTableViewProps = {
     maxWidth?: number
     columnsConfig?: Table["columns"]
     sort?: boolean
+    filters?: Visualization["filters"]
 }
 
 
@@ -39,11 +40,12 @@ const TableRow = ({values, plotter, columns, href}: {
     href?: string
     columnsConfig?: Table["columns"]
 }) => {
+    //console.log("values", values)
     return columns.map(([col, header], colIndex) => {
         const value = values.find(v => v[0] == col)
         if (value) {
             const content = plotter.columnValueToString(value[1], col)
-
+            //console.log({col, value, content})
             if (href) {
                 return <td
                     className="overflow-hidden text-ellipsis whitespace-nowrap border-none text-[var(--text-light)] exclude-links px-4 py-2"
@@ -62,10 +64,16 @@ const TableRow = ({values, plotter, columns, href}: {
                     </Link>
                 </td>
             } else {
-                return <td className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2" title={content} key={colIndex}>
+                return <td
+                    className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"
+                    title={content} key={colIndex}>
                     {content}
                 </td>
             }
+        } else {
+            return <td key={colIndex}>
+                not found
+            </td>
         }
     })
 }
@@ -86,7 +94,14 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 
-export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight, maxWidth}: DatasetTableViewProps) => {
+export const DatasetTableView = ({
+                                     sort = true,
+                                     dataset,
+                                     columnsConfig,
+                                     maxHeight,
+                                     maxWidth,
+    filters
+}: DatasetTableViewProps) => {
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
     const [sortingBy, setSortingBy] = useState<DatasetSortOrder | null>(null)
@@ -95,10 +110,16 @@ export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight
 
     const plotter = useMemo(() => {
         const prev = plotterRef.current
-        const plotter = new TablePlotter({
-            $type: "ar.cabildoabierto.embed.visualization#table",
-            columns: columnsConfig
-        }, dataset, sortingBy, searchValue)
+        const plotter = new TablePlotter(
+            {
+                $type: "ar.cabildoabierto.embed.visualization#table",
+                columns: columnsConfig
+            },
+            dataset,
+            filters,
+            sortingBy,
+            searchValue
+        )
         plotter.prepareForPlot(prev)
         plotterRef.current = plotter
         return plotter
@@ -107,7 +128,7 @@ export const DatasetTableView = ({sort = true, dataset, columnsConfig, maxHeight
     const columns = plotter.getKeysToHeadersMap()
 
     useEffect(() => {
-        if (!sortingBy && sort && columns) {
+        if (!sortingBy && sort && columns && columns.length > 0 && columns[0].length > 0) {
             setSortingBy({
                 col: columns[0][0],
                 order: "desc"

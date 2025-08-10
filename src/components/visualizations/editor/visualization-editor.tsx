@@ -4,6 +4,7 @@ import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import {
+    ColumnFilter,
     isColumnFilter,
     Main as Visualization, validateColumnFilter,
     validateMain as validateVisualization
@@ -13,8 +14,10 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import {emptyChar} from "@/utils/utils";
 import {post} from "@/utils/fetch";
 import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {useQuery} from "@tanstack/react-query";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {useDatasets} from "@/queries/useDataset";
+import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import {$Typed} from "@atproto/api";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -38,6 +41,10 @@ const ErrorPanel = ({msg}: { msg?: string }) => {
 
 export function readyToPlot(config: PlotConfigProps): config is Visualization {
     const res = validateVisualization(config)
+    if(res.success == false){
+        console.log("invalid vis", res.error)
+        console.log("config", config)
+    }
     return res.success
 }
 
@@ -53,30 +60,46 @@ type TopicDatasetSpec = {
     filters: Visualization["filters"]
 }
 
-async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
-    const validFilters: Visualization["filters"] = []
+export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typed<ColumnFilter>[] {
+    const validFilters: $Typed<ColumnFilter>[] = []
     for(let i = 0; i < filters.length; i++) {
         const f = filters[i]
         if(isColumnFilter(f)){
             const valid = validateColumnFilter(f)
             if(valid.success){
                 validFilters.push(valid.value)
-            } else if(valid.success == false){
-                return {error: "Uno de los filtros aplicados es inválido."}
             }
+        }
+    }
+    return validFilters
+}
+
+async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
+    const validFilters: $Typed<ColumnFilter>[] = validateColumnFilters(filters)
+
+    if(validFilters.length > 0){
+        return await post<TopicDatasetSpec, TopicsDatasetView>("/topics-dataset", {filters: validFilters})
+    } else {
+        if(filters.length == 0){
+            return {error: "Agregá algún filtro."}
         } else {
-            return {error: `Uno de los filtros aplicados es inválido`}
+            return {error: "El filtro es inválido."}
         }
     }
 
-    return await post<TopicDatasetSpec, TopicsDatasetView>("/topics-dataset", {filters: validFilters})
 }
 
 
 export const useTopicsDataset = (filters: PlotConfigProps["filters"], load: boolean = false) => {
+    const queryFn = async () => {
+        const {error, data} = await fetchTopicsDataset(filters)
+        if(error) throw Error(error)
+        return {data}
+    }
+
     return useQuery({
         queryKey: ['topics-dataset', filters],
-        queryFn: () => fetchTopicsDataset(filters),
+        queryFn,
         enabled: load && !!filters
     })
 }
@@ -91,6 +114,7 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
     const [width, setWidth] = useState(window.innerWidth-50)
     const [height, setHeight] = useState(window.innerHeight-50)
     const {refetch} = useTopicsDataset(config.filters)
+    const qc = useQueryClient()
 
     const baseSidebarWidth = Math.max(width / 4, 350)
 
@@ -108,8 +132,10 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
         }
     }, [])
 
-    async function onReloadData() {
-        await refetch()
+    const onReloadData: StateButtonClickHandler = async () =>  {
+        await qc.cancelQueries({queryKey: config.filters})
+        const {error} = await refetch()
+        if(error && error.message) return {error: error.message}
         return {}
     }
 

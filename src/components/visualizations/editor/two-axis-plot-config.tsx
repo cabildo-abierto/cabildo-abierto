@@ -66,6 +66,26 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 options={columnOptions}
             />
         </div>}
+        <SearchableDropdown
+            options={columnOptions}
+            label={"Color"}
+            size={"small"}
+            selected={config.spec.colors && config.spec.colors.length > 0 ? config.spec.colors[0].column : ""}
+            onChange={(v: string) => {
+                setConfig(produce(config, draft => {
+                    if (isTwoAxisPlot(draft.spec)) {
+                        if(v.trim().length == 0){
+                            draft.spec.colors = undefined
+                        } else {
+                            draft.spec.colors = [{
+                                $type: "ar.cabildoabierto.embed.visualization#axisConfig",
+                                column: v
+                            }]
+                        }
+                    }
+                }))
+            }}
+        />
         <div className={"flex items-center space-x-2 px-1"}>
             <div className={"text-sm text-[var(--text-light)]"}>
                 Eje y múltiple

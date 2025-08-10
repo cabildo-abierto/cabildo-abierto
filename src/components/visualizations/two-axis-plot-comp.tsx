@@ -11,7 +11,7 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {CurvePlotContent} from "@/components/visualizations/curve-plot";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
-import {AxesPlotter, DataPoint, ValueType} from "@/components/visualizations/editor/plotter";
+import {DataPoint, ValueType} from "@/components/visualizations/editor/plotter/plotter";
 import useMeasure from "react-use-measure";
 import {useCallback, useMemo} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
@@ -26,13 +26,16 @@ import {$Typed} from "@atproto/api";
 import {ScatterplotContent} from "@/components/visualizations/scatterplot";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
-import {palette} from "./palette";
+import {createAxesPlotter} from "@/components/visualizations/editor/plotter/plotter-factory";
+import {AxesPlotter} from "@/components/visualizations/editor/plotter/axes-plotter";
+import {isTwoAxisPlotter} from "@/components/visualizations/editor/plotter/two-axis-plotter";
 
 
-export function TwoAxisTooltip({xLabel, yLabel, xValue, yValues}: {
-    xLabel: string,
-    yLabel: string,
-    xValue: string,
+export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {
+    plotter: AxesPlotter
+    xLabel: string
+    yLabel: string
+    xValue: string
     yValues: { value: string, label: string, selected: boolean }[]
 }) {
     return (
@@ -45,7 +48,7 @@ export function TwoAxisTooltip({xLabel, yLabel, xValue, yValues}: {
                 {yValues.map((v, index) => {
                     return <div key={index} className={"flex justify-between items-center space-x-2"}>
                         <div className={"flex space-x-1 items-center"}>
-                            <div className={"w-3 h-3 rounded-full"} style={{backgroundColor: palette(index)}}/>
+                            <div className={"w-3 h-3 rounded-full"} style={{backgroundColor: plotter.getLabelColor(v.label)}}/>
                             <div className={v.selected ? "font-bold" : "text-[var(--text-light)]"}>
                                 {v.label ?? yLabel}
                             </div>
@@ -113,8 +116,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         tooltipOpen,
         showTooltip,
         hideTooltip,
-    } = useTooltip<{ x: ValueType; y: ValueType }>();
-
+    } = useTooltip<{ x: ValueType; y: ValueType }>()
     const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({scroll: true})
     const [measureRef, bounds] = useMeasure()
 
@@ -126,7 +128,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const {plotter, error} = useMemo(() => {
         if (isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) {
             try {
-                const plotter = AxesPlotter.create(spec, visualization.dataset)
+                const plotter = createAxesPlotter(spec, visualization.dataset, visualization.visualization.filters)
                 const {error} = plotter.prepareForPlot()
                 if (error) {
                     return {error}
@@ -228,6 +230,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                     }}
                 >
                     <TwoAxisTooltip
+                        plotter={plotter}
                         xLabel={spec.xLabel ?? spec.xAxis}
                         yLabel={yLabel}
                         xValue={plotter.xValueToString(tooltipData.x)}
@@ -287,7 +290,8 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 }}
                             />
                             <Group clipPath={`url(#zoom-clip-${randId})`}>
-                                {isLines(spec.plot) && <CurvePlotContent
+                                {isLines(spec.plot) && isTwoAxisPlotter(plotter) && <CurvePlotContent
+                                    plotter={plotter}
                                     xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
                                     data={data as DataPoint<number, number>[]}

@@ -1,13 +1,15 @@
 import React, {useMemo} from "react";
-import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter";
+import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter/plotter";
 import {LinePath, Circle} from "@visx/shape";
 import {curveMonotoneX} from "d3-shape";
 import {localPoint} from "@visx/event";
 import {ScaleLinear, ScaleTime} from "d3-scale";
 import {palette} from "@/components/visualizations/palette";
 import {dist} from "@/utils/math";
+import {TwoAxisPlotter} from "@/components/visualizations/editor/plotter/two-axis-plotter";
 
 type Props = {
+    plotter: TwoAxisPlotter
     data: DataPoint<number, number>[];
     xScale: ScaleLinear<number, number> | ScaleTime<number, number>;
     yScale: ScaleLinear<number, number>;
@@ -21,6 +23,7 @@ type Props = {
 }
 
 export function CurvePlotContent({
+    plotter,
     data,
     xScale,
     yScale,
@@ -63,6 +66,7 @@ export function CurvePlotContent({
         return {colors, dataByColor}
     }, [data])
 
+
     return colors.map((color, colorIndex) => {
         const colorData = dataByColor.get(color)
         const showMarkers = colorData.length < 200
@@ -71,7 +75,7 @@ export function CurvePlotContent({
                 data={colorData}
                 x={(d) => xScale(d.x) ?? 0}
                 y={(d) => yScale(d.y)}
-                stroke={palette(colorIndex)}
+                stroke={plotter.getLabelColor(color)}
                 strokeWidth={2 * Math.min(scaleFactorX, scaleFactorY)}
                 curve={curveMonotoneX}
                 onMouseLeave={() => hideTooltip()}

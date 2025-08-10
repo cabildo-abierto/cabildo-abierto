@@ -1,4 +1,4 @@
-import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter";
+import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter/plotter";
 import {Bar} from "@visx/shape";
 import {localPoint} from "@visx/event";
 import {ScaleBand} from "d3-scale";

@@ -8,7 +8,11 @@ import {
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {useDataset, useDatasets} from "@/queries/useDataset";
-import {readyToPlot, useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
+import {
+    readyToPlot,
+    useTopicsDataset,
+    validateColumnFilters
+} from "@/components/visualizations/editor/visualization-editor";
 
 
 function NextStep({config}: { config: PlotConfigProps }) {
@@ -57,7 +61,10 @@ const EditorViewerViewVisualization = ({
 }
 
 
-const EditorViewerViewDataForDataset = ({datasetUri}: { datasetUri: string }) => {
+const EditorViewerViewDataForDataset = ({datasetUri, config}: {
+    datasetUri: string
+    config: PlotConfigProps
+}) => {
     const {data: dataset, isLoading} = useDataset(datasetUri)
     const {data: datasets} = useDatasets()
 
@@ -66,11 +73,13 @@ const EditorViewerViewDataForDataset = ({datasetUri}: { datasetUri: string }) =>
             <LoadingSpinner/>
         </div>
     } else if (!dataset && datasets) {
+        const filters = config.filters ? validateColumnFilters(config.filters) : undefined
         return <DatasetFullView
             dataset={{
                 $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
                 ...datasets.find(d => d.uri == datasetUri)
             }}
+            filters={filters}
         />
     }
 
@@ -80,11 +89,14 @@ const EditorViewerViewDataForDataset = ({datasetUri}: { datasetUri: string }) =>
         </div>
     }
 
+    const filters = config.filters ? validateColumnFilters(config.filters) : undefined
+
     return <DatasetFullView
         dataset={{
             $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
             ...dataset
         }}
+        filters={filters}
     />
 }
 
@@ -96,11 +108,13 @@ const EditorViewerViewDataForTopicsDataset = ({config}: {config: PlotConfigProps
             <LoadingSpinner/>
         </div>
     } else if(data && data.data) {
+        const filters = config.filters ? validateColumnFilters(config.filters) : undefined
         return <DatasetFullView
             dataset={{
                 ...data.data,
                 $type: "ar.cabildoabierto.data.dataset#topicsDatasetView"
             }}
+            filters={filters}
         />
     } else {
         return <div className={"h-full flex justify-center items-center text-[var(--text-light)]"}>
@@ -118,6 +132,7 @@ const EditorViewerViewData = ({config}: {
     } else if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
         return <EditorViewerViewDataForDataset
             datasetUri={config.dataSource.dataset}
+            config={config}
         />
     } else {
         return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>

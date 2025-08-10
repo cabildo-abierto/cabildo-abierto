@@ -1,10 +1,25 @@
-import {DataRow, DataType, esLocale, ValueType} from "@/components/visualizations/editor/plotter";
+import {DataRow, DataType, ValueType} from "@/components/visualizations/editor/plotter/plotter";
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import 'dayjs/locale/es'
 import 'dayjs/locale/en'
+import {timeFormatLocale} from "d3-time-format";
 
 dayjs.extend(customParseFormat)
+
+
+export const esLocale = timeFormatLocale({
+    dateTime: '%A, %e de %B de %Y, %X',
+    date: '%d/%m/%Y',
+    time: '%H:%M:%S',
+    periods: ['', ''],
+    days: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    shortDays: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    months: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+        'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+    shortMonths: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul',
+        'ago', 'sep', 'oct', 'nov', 'dic']
+})
 
 
 const customDateFormats = [
@@ -16,6 +31,8 @@ const customDateFormats = [
     'MM-DD-YYYY',
     'YYYY/MM/DD',
     'MMM D, YYYY',
+    "YYYY-MM-DDTHH:mm:ss",
+    "YYYY-MM-DD"
 ]
 
 const locales = ['es', 'en']
@@ -47,7 +64,7 @@ export class DataParser {
     parseDate(value: string): {success: true, date: Date} | {success: false} {
         for (const format of customDateFormats) {
             for (const locale of locales) {
-                const parsed = dayjs(value, format, locale, false)
+                const parsed = dayjs(value, format, locale, true)
                 if (parsed.isValid()) {
                     return {
                         success: true,
@@ -55,11 +72,6 @@ export class DataParser {
                     }
                 }
             }
-        }
-
-        const date = new Date(value)
-        if(!isNaN(date.getTime())){
-            return {success: true, date}
         }
 
         return {success: false}
@@ -84,7 +96,7 @@ export class DataParser {
         }
     }
 
-    parseValue(value: any): ParsingResult {
+    parseValue(value: any, type?: DataType): ParsingResult {
         if(value instanceof Array){
             if(value.length == 0){
                 return {
@@ -109,24 +121,34 @@ export class DataParser {
 
         if (value == null || value === '') return {success: false}
 
-        const parsedNumber = this.parseNumber(value)
-        if (parsedNumber.success) {
+        if(type && type == "string"){
             return {
                 success: true,
-                value: parsedNumber.value,
-                dataType: "number"
+                value: value,
+                dataType: "string"
             }
         }
-        const parsedDate = this.parseDate(value)
-        if (parsedDate.success) {
-            return {
-                success: true,
-                value: parsedDate.date,
-                dataType: "date"
+        if(!type || type == "number"){
+            const parsedNumber = this.parseNumber(value)
+            if (parsedNumber.success) {
+                return {
+                    success: true,
+                    value: parsedNumber.value,
+                    dataType: "number"
+                }
             }
         }
-
-        if(typeof value == "string"){
+        if(!type || type == "date") {
+            const parsedDate = this.parseDate(value)
+            if (parsedDate.success) {
+                return {
+                    success: true,
+                    value: parsedDate.date,
+                    dataType: "date"
+                }
+            }
+        }
+        if(!type || typeof value == "string"){
             return {
                 success: true,
                 value: value,
@@ -142,11 +164,12 @@ export class DataParser {
         let stringCount = 0
         let stringListCount = 0
 
-        const sampleSize = Math.min(20, data.length)
-        for (let i = 0; i < sampleSize; i++) {
+        const sampleSize = 20
+        let count = 0
+        for(let i = 0; i < data.length; i++){
             const value = data[i][col]
             const p = this.parseValue(value)
-            if(p.success){
+            if(p.success && p.value != null){
                 if(p.dataType == "number"){
                     numCount++
                 } else if(p.dataType == "string"){
@@ -156,6 +179,8 @@ export class DataParser {
                 } else if(p.dataType == "date"){
                     dateCount++
                 }
+                count ++
+                if(count == sampleSize) break
             }
         }
 

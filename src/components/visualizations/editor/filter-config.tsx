@@ -4,15 +4,20 @@ import {Select} from "../../../../modules/ui-utils/src/select";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {
     isColumnFilter,
-    isDatasetDataSource,
-    validateColumnFilter
+    isDatasetDataSource
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {produce} from "immer";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import {useCategories} from "@/queries/useTopics";
+import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {useState} from "react";
+import {Button, Color, darker} from "../../../../modules/ui-utils/src/button";
+import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
+import {Box, IconButton} from "@mui/material";
+import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 
 
-function operandViewToValue(op: string) {
+function operatorViewToValue(op: string) {
     if (op == "≠") return "!="
     if (op == "en") return "in"
     if (op == "no en") return "notIn"
@@ -23,7 +28,7 @@ function operandViewToValue(op: string) {
 }
 
 
-function operandToView(op: string) {
+function operatorToView(op: string) {
     if (op == "!=") return "≠"
     if (op == "in") return "en"
     if (op == "notIn") return "no en"
@@ -31,6 +36,82 @@ function operandToView(op: string) {
     if (op == "<=") return "≤"
     if (op == "includes") return "incluye"
     return op
+}
+
+
+const OperandListEditor = ({
+                               config,
+                               setConfig,
+                               filterIndex,
+                               baseColor = "background-dark"
+                           }: {
+    config: PlotConfigProps
+    setConfig?: (c: PlotConfigProps) => void
+    filterIndex: number
+    baseColor?: Color
+}) => {
+    const [editing, setEditing] = useState(false)
+    const filters = config.filters as PlotConfigProps["filters"]
+    const f = filters[filterIndex]
+
+    if (isColumnFilter(f)) {
+        const values = f.operands ? f.operands.filter(x => x.length > 0) : null
+        return <>
+            {(!values || values.length == 0) && <div className={"text-[var(--text-light)] text-sm"}><IconButton
+                size={"small"}
+                onClick={() => {
+                    setEditing(true)
+                }}
+                color={"inherit"}
+            >
+                <WriteButtonIcon fontSize={"inherit"}/>
+            </IconButton></div>}
+            {values && values.length > 0 && <Box className={"rounded px-1 py-[6px] cursor-pointer"} sx={{
+                background: `var(--${darker(baseColor)})`,
+                "&:hover": {
+                    background: `var(--${darker(darker(baseColor))})`
+                }
+            }}>
+                <span
+                    className={"text-sm line-clamp-1 text-ellipsis"}
+                    onClick={() => {
+                        setEditing(true)
+                    }}>
+                    {values.join(", ")}
+                </span>
+            </Box>}
+            <BaseFullscreenPopup closeButton open={editing} onClose={() => {
+                setEditing(false)
+            }}>
+                <div className={"flex flex-col items-center px-4 space-y-4 pb-4 sm:w-[400px]"}>
+                    <h3>
+                        Editar valores del filtro
+                    </h3>
+                    <div>
+                        {f.column && f.column.length > 0 ? f.column : "sin columna"} {operatorToView(f.operator)}...
+                    </div>
+                    <ListEditor
+                        items={values ?? []}
+                        setItems={(v: string[]) => {
+                            setConfig(produce(config, draft => {
+                                if (isColumnFilter(draft.filters[filterIndex])) {
+                                    draft.filters[filterIndex].operands = v
+                                }
+                            }))
+                        }}
+                    />
+                    <div className={"flex w-full justify-end"}>
+                        <Button onClick={() => {
+                            setEditing(false)
+                        }}>
+                            Ok
+                        </Button>
+                    </div>
+                </div>
+            </BaseFullscreenPopup>
+        </>
+    }
+
 }
 
 
@@ -50,20 +131,19 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
         const columnOptions = dataset ? dataset.columns.map(c => c.name) : ["Categorías", "Título", "Sinónimos"]
         const isSingleOperand = !filter.operator || ["<=", "<", ">", ">=", "=", "!=", "includes"].includes(filter.operator)
 
-        const valid = validateColumnFilter(filter)
-
-        const selectedColumn = filter.column ?? (dataset ? dataset.columns[0].name : "")
+        const selectedColumn = filter.column ?? ""
         let valueOptions: string[] | "loading" = undefined
-        if(selectedColumn == "Categorías" && categories){
+        if (selectedColumn == "Categorías" && categories) {
             valueOptions = categories ?? "loading"
         }
 
-        // TO DO: "=", "≠", ">", "<", "≥", "≤", "en", "no en"
-        const operatorOptions = ["incluye"]
+        // TO DO: "≠", ">", "<", "≥", "≤", "en", "no en"
+        const operatorOptions = ["=", "incluye", "en"]
 
         return <div
-            className={"flex space-x-2 justify-between items-center" + (!valid.success ? "border border-red-200" : "")}>
-            <div className={"flex space-x-2 w-full"}>
+            className={"flex space-x-2 justify-between items-center"}
+        >
+            <div className={"flex space-x-2 items-center w-full"}>
                 <div className={"flex-1"}>
                     <SearchableDropdown
                         options={columnOptions}
@@ -84,12 +164,12 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                     <Select
                         options={operatorOptions}
                         label={"Operador"}
-                        value={operandToView(filter.operator) ?? "="}
+                        value={operatorToView(filter.operator) ?? ""}
                         fontSize={"12px"}
                         onChange={(v: string) => {
                             setConfig(produce(config, draft => {
                                 if (isColumnFilter(draft.filters[index])) {
-                                    draft.filters[index].operator = operandViewToValue(v)
+                                    draft.filters[index].operator = operatorViewToValue(v)
                                 }
                             }))
                         }}
@@ -109,6 +189,11 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                                 }
                             }))
                         }}
+                    />}
+                    {!isSingleOperand && <OperandListEditor
+                        config={config}
+                        setConfig={setConfig}
+                        filterIndex={index}
                     />}
                 </div>
             </div>

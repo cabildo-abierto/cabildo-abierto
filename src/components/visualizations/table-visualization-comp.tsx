@@ -23,6 +23,7 @@ const TableVisualizationComp = ({
             <DatasetTableView
                 sort={false}
                 dataset={visualization.dataset}
+                filters={visualization.visualization.filters}
                 columnsConfig={spec.columns}
                 maxHeight={450}
             />
