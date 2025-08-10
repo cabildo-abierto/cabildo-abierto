@@ -58,7 +58,9 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                 label={label}
                 InputProps={{
                     autoComplete: "off",
-                    sx: {fontSize}
+                    sx: {
+                        fontSize
+                    }
                 }}
                 InputLabelProps={{
                     sx: {fontSize}

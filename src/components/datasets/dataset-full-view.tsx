@@ -11,10 +11,12 @@ import {Authorship} from "@/components/feed/frame/authorship";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {$Typed} from "@atproto/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {ColumnFilter} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 
 
-export const DatasetFullView = ({dataset, maxWidth}: {
+export const DatasetFullView = ({dataset, maxWidth, filters}: {
     dataset: $Typed<DatasetView> | $Typed<DatasetViewBasic> | $Typed<TopicsDatasetView>
+    filters?: $Typed<ColumnFilter>[]
     maxWidth?: number
 }) => {
 
@@ -61,6 +63,7 @@ export const DatasetFullView = ({dataset, maxWidth}: {
         {(isDatasetView(dataset) || isTopicsDatasetView(dataset)) ? <DatasetTableView
                 dataset={dataset}
                 maxWidth={maxWidth}
+                filters={filters}
             /> :
             <div className={"py-8"}>
                 <LoadingSpinner/>

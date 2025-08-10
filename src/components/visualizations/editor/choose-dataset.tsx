@@ -59,6 +59,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
                                         $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
                                         dataset: d.uri
                                     }
+                                    draft.filters = undefined
                                     draft.spec = undefined
                                 }))
                             }}
@@ -145,12 +146,12 @@ const ChooseDatasetPanelDatasetSelection = ({
 
 
 export const ChooseDatasetPanelFiltersConfig = ({
-                                                config,
-                                                setConfig,
-                                                setSelectedMenu,
-                                                datasets,
-    onReloadData
-                                            }: {
+                                                    config,
+                                                    setConfig,
+                                                    setSelectedMenu,
+                                                    datasets,
+                                                    onReloadData
+                                                }: {
     config: PlotConfigProps
     setConfig?: (c: PlotConfigProps) => void
     setSelectedMenu?: (v: "Conjuntos de datos" | "Filtros") => void
@@ -159,7 +160,7 @@ export const ChooseDatasetPanelFiltersConfig = ({
 }) => {
     function onAddFilter() {
         setConfig(produce(config, draft => {
-            if(!draft.filters) draft.filters = []
+            if (!draft.filters) draft.filters = []
 
             draft.filters.push({
                 "$type": "ar.cabildoabierto.embed.visualization#columnFilter"
@@ -173,13 +174,9 @@ export const ChooseDatasetPanelFiltersConfig = ({
         }))
     }
 
-    if(!config.dataSource || !config.dataSource.$type) {
+    if (!config.dataSource || !config.dataSource.$type) {
         return <div className={"text-sm text-[var(--text-light)] p-4 text-center"}>
             Elegí una fuente de datos primero.
-        </div>
-    } else if(isDatasetDataSource(config.dataSource)){
-        return <div className={"text-sm text-[var(--text-light)] p-4 text-center"}>
-            Los filtros por ahora solo funcionan con conjuntos de datos basados en temas.
         </div>
     }
 
@@ -194,23 +191,26 @@ export const ChooseDatasetPanelFiltersConfig = ({
                         config={config}
                         setConfig={setConfig}
                         index={i}
-                        onRemove={() => {onRemoveFilter(i)}}
+                        onRemove={() => {
+                            onRemoveFilter(i)
+                        }}
                         dataset={dataset}
                     />
                 </div>
             })}
-            {setConfig && <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
-                Nuevo filtro
-            </Button>}
+            {setConfig &&
+                <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
+                    Nuevo filtro
+                </Button>}
         </div>
 
         {onReloadData && <div className={"flex justify-end w-full"}>
             <StateButton
                 color={"background-dark3"}
-            startIcon={<CachedIcon/>}
-            text1="Cargar datos"
-            size={"small"}
-            handleClick={onReloadData}
+                startIcon={<CachedIcon/>}
+                text1="Cargar datos"
+                size={"small"}
+                handleClick={onReloadData}
             />
         </div>}
     </div>

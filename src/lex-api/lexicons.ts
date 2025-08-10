@@ -505,6 +505,14 @@ export const schemaDict = {
               ref: 'lex:ar.cabildoabierto.embed.visualization#axisConfig',
             },
           },
+          colors: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.embed.visualization#axisConfig',
+            },
+            maxLength: 1,
+          },
         },
       },
       axisConfig: {

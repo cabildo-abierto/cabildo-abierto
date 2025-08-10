@@ -154,6 +154,7 @@ export interface TwoAxisPlot {
     | $Typed<Scatterplot>
     | { $type: string }
   yAxes?: AxisConfig[]
+  colors?: AxisConfig[]
 }
 
 const hashTwoAxisPlot = 'twoAxisPlot'

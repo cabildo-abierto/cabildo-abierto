@@ -1,9 +1,15 @@
 import MUIIconButton from "@mui/material/IconButton";
 import type { IconButtonProps as MUIIconButtonProps } from "@mui/material/IconButton";
-import {darker, Color} from "./button";
+import { darker, Color } from "./button";
 
-type IconButtonProps = Omit<MUIIconButtonProps, "color"> & { color?: Color, hoverColor?: Color, textColor?: Color }
+type ExtendedSize = MUIIconButtonProps["size"] | "extra-small";
 
+type IconButtonProps = Omit<MUIIconButtonProps, "color" | "size"> & {
+    color?: Color;
+    hoverColor?: Color;
+    textColor?: Color;
+    size?: ExtendedSize;
+};
 
 export const IconButton = ({
                                children,
@@ -11,22 +17,38 @@ export const IconButton = ({
                                color = "background",
                                hoverColor,
                                textColor,
+                               size,
                                ...props
                            }: IconButtonProps) => {
-    if (!textColor) textColor = color == "primary" ? "button-text" : "text"
-    return <MUIIconButton
-        {...props}
-        sx={{
-            textTransform: 'none',
-            color: `var(--${textColor})`,
-            borderRadius: "20px",
-            backgroundColor: `var(--${color})`,
-            ":hover": {
-                backgroundColor: hoverColor ?? `var(--${darker(color)})`
-            },
-            ...sx,
-        }}
-    >
-        {children}
-    </MUIIconButton>
-}
+    if (!textColor) textColor = color === "primary" ? "button-text" : "text";
+
+    const extraSmallStyles =
+        size === "extra-small"
+            ? {
+                padding: "2px",
+                minWidth: 0,
+                minHeight: 0,
+                fontSize: "0.85rem",
+            }
+            : {};
+
+    return (
+        <MUIIconButton
+            {...props}
+            size={size !== "extra-small" ? size : undefined}
+            sx={{
+                textTransform: "none",
+                color: `var(--${textColor})`,
+                borderRadius: "20px",
+                backgroundColor: `var(--${color})`,
+                ":hover": {
+                    backgroundColor: hoverColor ?? `var(--${darker(color)})`,
+                },
+                ...extraSmallStyles,
+                ...sx,
+            }}
+        >
+            {children}
+        </MUIIconButton>
+    );
+};

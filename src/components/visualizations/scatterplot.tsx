@@ -1,4 +1,4 @@
-import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter";
+import {DataPoint, TooltipHookType} from "@/components/visualizations/editor/plotter/plotter";
 import {ScaleLinear, ScaleTime} from "d3-scale";
 import {Circle} from "@visx/shape";
 import {localPoint} from "@visx/event";
