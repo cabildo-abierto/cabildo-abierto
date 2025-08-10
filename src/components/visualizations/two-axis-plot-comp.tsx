@@ -48,7 +48,10 @@ export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {
                 {yValues.map((v, index) => {
                     return <div key={index} className={"flex justify-between items-center space-x-2"}>
                         <div className={"flex space-x-1 items-center"}>
-                            <div className={"w-3 h-3 rounded-full"} style={{backgroundColor: plotter.getLabelColor(v.label)}}/>
+                            <div
+                                className={"w-3 h-3 rounded-full"}
+                                 style={{backgroundColor: plotter.getLabelColor(v.label)}}
+                            />
                             <div className={v.selected ? "font-bold" : "text-[var(--text-light)]"}>
                                 {v.label ?? yLabel}
                             </div>

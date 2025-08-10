@@ -8,6 +8,7 @@ import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {updateSearchParam} from "@/utils/fetch";
 import {useSession} from "@/queries/useSession";
 import {Session} from "@/lib/types";
+import Link from "next/link";
 
 
 export function mainFeedOptionToSearchParam(v: MainFeedOption) {
@@ -79,6 +80,11 @@ export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, met
 }
 
 
+const followingFeedNoResultsText = <span className={"link"}>
+    No se encontraron contenidos. <Link href={"/buscar?s=Usuarios"}>Buscá usuarios para seguir</Link>.
+</span>
+
+
 export const MainPage = () => {
     const params = useSearchParams()
     const paramsFeed = params.get("f")
@@ -101,7 +107,7 @@ export const MainPage = () => {
         {selected == "Siguiendo" &&
         <FeedViewContentFeed
             getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
-            noResultsText={"No se encontraron contenidos. Buscá usuarios para seguir."}
+            noResultsText={followingFeedNoResultsText}
             endText={"Fin del feed."}
             queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
         />}

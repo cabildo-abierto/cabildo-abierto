@@ -8,6 +8,7 @@ import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {scaleBand, scaleLinear, scaleTime} from "@visx/scale";
 import {orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@/utils/arrays";
 import {Axis, DataType, Plotter, ScaleOutput, ValueType} from "@/components/visualizations/editor/plotter/plotter";
+import {palette} from "@/components/visualizations/palette";
 
 
 function dataTypeToPrintable(x: DataType){
@@ -232,8 +233,7 @@ export class AxesPlotter extends Plotter {
         throw Error("Debería estar implementado por una subclase!")
     }
 
-
     public getLabelColor(label: string): string {
-        throw Error("Debería estar implementado por una subclase!")
+        return palette(0)
     }
 }

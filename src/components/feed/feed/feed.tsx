@@ -25,7 +25,7 @@ const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) =
 export type FeedProps<T> = {
     loadWhenRemaining?: number
     noResultsText: ReactNode
-    endText: string
+    endText: ReactNode
     getFeed: GetFeedProps<T>
     LoadingFeedContent?: ReactNode
     FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
@@ -112,7 +112,7 @@ function Feed<T>({
             {(isFetchingNextPage || isFetching) &&
                 <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
             }
-            {feed && <div className={"text-center py-16 text-[var(--text-light)]"}>
+            {feed && !hasNextPage && (endText || noResultsText) && <div className={"text-center py-16 text-[var(--text-light)]"}>
                 {!hasNextPage && feedList.length > 0 && endText}
                 {!hasNextPage && feedList.length == 0 && noResultsText}
             </div>}
