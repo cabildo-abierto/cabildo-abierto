@@ -44,6 +44,8 @@ const UserSummary = ({handle}: UserSummaryProps) => {
                     </Link>
                     <ValidationIcon
                         fontSize={16}
+                        width={14}
+                        height={14}
                         handle={profile.bsky.handle}
                         validation={profile.ca?.validation}
                     />

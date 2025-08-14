@@ -29,7 +29,6 @@ import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 import {createAxesPlotter} from "@/components/visualizations/editor/plotter/plotter-factory";
 import {AxesPlotter} from "@/components/visualizations/editor/plotter/axes-plotter";
 import {isTwoAxisPlotter} from "@/components/visualizations/editor/plotter/two-axis-plotter";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {

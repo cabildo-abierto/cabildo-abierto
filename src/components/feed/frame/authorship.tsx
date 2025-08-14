@@ -31,6 +31,8 @@ export const Authorship = ({
         </Link>
         {showIcon && <ValidationIcon
             fontSize={iconFontSize}
+            width={iconFontSize}
+            height={iconFontSize}
             handle={author.handle}
             validation={author.verification}
         />}

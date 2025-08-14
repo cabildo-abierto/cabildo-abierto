@@ -33,6 +33,8 @@ export default function TopicPopularityIndicator({counts, selected}: {
             <div>
                 <ValidationIcon
                     fontSize={10}
+                    width={10}
+                    height={10}
                     validation={"person"}
                     handle={null}
                     iconColor={"text"}

@@ -140,6 +140,8 @@ function ProfileHeader({
                     <ValidationIcon
                         validation={profile.ca?.validation}
                         handle={profile.bsky.handle}
+                        width={16}
+                        height={16}
                     />
                 </div>
                 <div className="text-[var(--text-light)]">
