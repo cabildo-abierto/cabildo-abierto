@@ -100,7 +100,7 @@ const TopicContentExpandedViewContent = ({
                         setEditorState={() => {
                         }}
                     />}
-                    {!wikiEditorState.startsWith("editing") && emptyTopic(topic) &&
+                    {!wikiEditorState.startsWith("editing") && emptyTopic(topic) && topic.currentVersion == topic.uri &&
                         <div className={"text-[var(--text-light)]"}>
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>
@@ -219,6 +219,7 @@ export const TopicContentExpandedViewWithVersion = ({
 
         setShowingSaveEditPopup(false)
         setWikiEditorState("normal")
+        qc.invalidateQueries({queryKey: ["session"]})
         return {}
     }
 

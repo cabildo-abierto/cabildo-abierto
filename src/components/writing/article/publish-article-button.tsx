@@ -68,6 +68,7 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
         })
         if (error) return {error}
 
+        qc.invalidateQueries({queryKey: ["session"]})
         qc.invalidateQueries({queryKey: ["drafts"]})
 
         router.push("/inicio?f=siguiendo")

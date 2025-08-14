@@ -69,6 +69,7 @@ export interface TopicHistory {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicHistory'
   id: string
   versions: VersionInHistory[]
+  protection?: string
 }
 
 const hashTopicHistory = 'topicHistory'

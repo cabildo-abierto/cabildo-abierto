@@ -28,6 +28,11 @@ export interface ProfileViewBasic {
   createdAt?: string
   caProfile?: string
   verification?: 'person' | 'org' | (string & {})
+  editorStatus?:
+    | 'Editor principiante'
+    | 'Editor'
+    | 'Administrador'
+    | (string & {})
 }
 
 const hashProfileViewBasic = 'profileViewBasic'

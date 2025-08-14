@@ -6,7 +6,6 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {cleanText} from "@/utils/strings";
 import {DataRow, Plotter} from "@/components/visualizations/editor/plotter/plotter";
-import {logTimes} from "@/utils/utils";
 
 export class TablePlotter extends Plotter {
     private sortingBy: DatasetSortOrder | null
@@ -27,9 +26,9 @@ export class TablePlotter extends Plotter {
     }
 
     prepareForPlot(prev?: TablePlotter) {
-        const t1 = Date.now()
+        //const t1 = Date.now()
         super.prepareForPlot(prev)
-        const t2 = Date.now()
+        //const t2 = Date.now()
 
         if (prev) {
             this.strRows = prev.strRows
@@ -40,7 +39,7 @@ export class TablePlotter extends Plotter {
                 })
             })
         }
-        const t3 = Date.now()
+        //const t3 = Date.now()
 
         this.dataForPlot = this.data
         if (this.searchValue && this.searchValue.length > 0) {
@@ -55,8 +54,8 @@ export class TablePlotter extends Plotter {
                 return (this.sortingBy.order == "desc" ? -1 : 1) * this.cmpValues(col, a[col], b[col])
             })
         }
-        const t4 = Date.now()
-        logTimes("prepare for plot", [t1, t2, t3, t4])
+        //const t4 = Date.now()
+        //logTimes("prepare for plot", [t1, t2, t3, t4])
         return {}
     }
 

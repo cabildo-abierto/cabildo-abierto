@@ -15,7 +15,6 @@ export async function sendReadChunks(uri: string, chunks: Map<number, number>, t
     }));
 
     const {did, collection, rkey} = splitUri(uri)
-
     try {
         await post(`/read-session/${did}/${collection}/${rkey}`, {chunks: chunksPayload, totalChunks})
     } catch (err) {
@@ -25,8 +24,8 @@ export async function sendReadChunks(uri: string, chunks: Map<number, number>, t
 
 
 const CHUNK_HEIGHT = 100; // px
-const IDLE_TIMEOUT = 60000; // 60s
-const FLUSH_INTERVAL = 300000 // 30s
+const IDLE_TIMEOUT = 30000; // 60s
+const FLUSH_INTERVAL = 15000 // 30s
 
 type ReadEvent = {
     scrollY: number
@@ -79,9 +78,13 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
             const scrollEnd = window.scrollY
             const now = Date.now();
 
+            const duration = now - lastScroll.current.timestamp
+            if(duration < 0){
+                console.log(`Warning: Tiempo de lectura negativo: ${duration}`)
+            }
             newReadEvent({
                 scrollY: scrollStart,
-                duration: now - lastScroll.current.timestamp
+                duration: Math.max(duration, 0)
             })
 
             lastScroll.current = {scrollY: scrollEnd, timestamp: now}
@@ -119,19 +122,21 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
     }, []);
 
     useEffect(() => {
-        const handleUnload = () => {
-            recordReading();
-            sendReadChunks(uri, readChunks.current, totalChunks)
-            readChunks.current = new Map()
-        };
-        window.addEventListener("beforeunload", handleUnload);
-        window.addEventListener("pagehide", handleUnload); // for bfcache cases
+        if(totalChunks != null){
+            const handleUnload = () => {
+                recordReading();
+                sendReadChunks(uri, readChunks.current, totalChunks)
+                readChunks.current = new Map()
+            };
+            window.addEventListener("beforeunload", handleUnload);
+            window.addEventListener("pagehide", handleUnload); // for bfcache cases
 
-        return () => {
-            window.removeEventListener("beforeunload", handleUnload);
-            window.removeEventListener("pagehide", handleUnload);
-        };
-    }, []);
+            return () => {
+                window.removeEventListener("beforeunload", handleUnload);
+                window.removeEventListener("pagehide", handleUnload);
+            };
+        }
+    }, [totalChunks]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -144,31 +149,35 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
     }, []);
 
     useEffect(() => {
-        const sendInterval = FLUSH_INTERVAL;
-        let lastSent = Date.now();
+        if(!totalChunks != null){
+            const sendInterval = FLUSH_INTERVAL;
+            let lastSent = Date.now();
 
-        const interval = setInterval(() => {
-            const now = Date.now();
-            const copy = new Map(readChunks.current);
+            const interval = setInterval(() => {
+                const now = Date.now();
+                const copy = new Map(readChunks.current);
 
-            if (now - lastSent >= sendInterval && copy.size > 0) {
-                sendReadChunks(uri, copy, totalChunks)
-                readChunks.current = new Map()
-                lastSent = now;
-            }
-        }, 1000);
+                if (now - lastSent >= sendInterval && copy.size > 0) {
+                    sendReadChunks(uri, copy, totalChunks)
+                    readChunks.current = new Map()
+                    lastSent = now;
+                }
+            }, 1000);
 
-        return () => clearInterval(interval);
-    }, []);
+            return () => clearInterval(interval);
+        }
+    }, [totalChunks]);
 
     useEffect(() => {
-        return () => {
-            if (readChunks.current.size > 0) {
-                sendReadChunks(uri, readChunks.current, totalChunks);
-                readChunks.current = new Map()
-            }
-        };
-    }, [pathname, searchParams])
+        if(totalChunks != null){
+            return () => {
+                if (readChunks.current.size > 0) {
+                    sendReadChunks(uri, readChunks.current, totalChunks);
+                    readChunks.current = new Map()
+                }
+            };
+        }
+    }, [pathname, searchParams, totalChunks])
 
     return totalChunks
 };

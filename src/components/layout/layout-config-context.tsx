@@ -84,9 +84,11 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
             ...feedConfig,
             maxWidthCenter: "800px"
         }
-    } else if(pathname.startsWith("/tema")){
+    } else if(pathname.startsWith("/tema")) {
         const s = params.get("s")
         config = s && s != "minimized" ? maximizedTopicConfig : feedConfig
+    } else if(pathname.startsWith("/panel")){
+        config = maximizedTopicConfig
     } else if(pathname.startsWith("/c")){
         const shortCollection = pathname.split("/")[3]
         const collection = shortCollectionToCollection(shortCollection)

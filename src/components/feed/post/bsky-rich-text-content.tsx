@@ -46,7 +46,7 @@ export const BskyRichTextContent = ({
             text={markdown.replaceAll("\n", "\n\n")}
             format={"markdown"}
             shouldPreserveNewLines={true}
-            editorClassName={"exclude-links"}
+            editorClassName={""}
         />
     </div>
 }

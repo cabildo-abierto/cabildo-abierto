@@ -7,7 +7,7 @@ import {
     isDataset,
     isPost,
     isTopicVersion,
-    isVisualization,
+    isVisualization, profileUrl,
 } from "@/utils/uri";
 import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {ProfilePic} from "../../profile/profile-pic";
@@ -49,6 +49,7 @@ import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selec
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import Link from "next/link";
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -58,7 +59,7 @@ const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-edi
 
 const InsertVisualizationModal = dynamic(() => import(
     './insert-visualization-modal'
-))
+    ))
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -224,7 +225,6 @@ export function visualizationViewToMain(v: VisualizationView): Visualization {
 }
 
 
-
 export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
@@ -252,7 +252,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
 
         let selectionForPost: [number, number]
-        if(selection instanceof LexicalSelection && (isTopicView(replyTo) || isFullArticleView(replyTo)) && replyTo.format == "markdown") {
+        if (selection instanceof LexicalSelection && (isTopicView(replyTo) || isFullArticleView(replyTo)) && replyTo.format == "markdown") {
             const state = markdownToEditorState(replyTo.text, true, true, replyTo.embeds)
             selectionForPost = selection.toMarkdownSelection(state).toArray()
         }
@@ -298,12 +298,16 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         !visualization && !externalEmbedView && (!images || images.length == 0)
 
     const visualizationComp = useMemo(() => {
-        if(visualization) {
+        if (visualization) {
             return <div className={"flex justify-center w-full"}>
                 <PlotFromVisualizationMain
                     visualization={visualization}
-                    onDelete={() => {setVisualization(null)}}
-                    onEdit={(v) => {setVisualization(v)}}
+                    onDelete={() => {
+                        setVisualization(null)
+                    }}
+                    onEdit={(v) => {
+                        setVisualization(v)
+                    }}
                     width={450}
                 />
             </div>
@@ -315,7 +319,19 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         <div
             className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
             <div className="flex justify-between space-x-2 w-full my-2">
-                <ProfilePic user={user} className="w-8 h-8 rounded-full" descriptionOnHover={false}/>
+                <Link
+                    href={profileUrl(user.handle)}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                    }}
+                >
+                    <ProfilePic
+                        user={user}
+                        className="w-8 h-8 rounded-full"
+                        descriptionOnHover={false}
+                        clickable={false}
+                    />
+                </Link>
                 <div className="sm:text-lg flex-1" key={editorKey}>
                     <MyLexicalEditor
                         setEditor={setEditor}

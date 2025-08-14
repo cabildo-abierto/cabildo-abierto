@@ -33,6 +33,7 @@ export type ActivityStats = {
     articles: number
     topicVersions: number
     enDiscusion: number
+    income: number
 }[]
 
 export function useActivityStats() {
