@@ -36,6 +36,7 @@ const dateFormats: [string, string][] = [
     ['MMM D, YYYY', "en"],
     ['MMM D, YYYY', "es"],
     ["YYYY-MM-DDTHH:mm:ss", "en"],
+    ["YYYY-MM-DDTHH:mm:ss.SSS[Z]", "en"]
 ]
 
 

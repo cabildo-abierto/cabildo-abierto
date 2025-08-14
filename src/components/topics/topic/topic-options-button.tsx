@@ -15,6 +15,11 @@ export const TopicOptionsButton = ({topic}: {topic: TopicView}) => {
         return {error}
     }
 
+    async function onUpdateContributions() {
+        const {error} = await post("/job/update-topic-contributions", {topicIds: [topic.id]})
+        return {error}
+    }
+
 
     const modal = (onClose: () => void) => (
         <div className="text-base border rounded bg-[var(--background-dark)] p-1 z-[3000]">
@@ -22,6 +27,11 @@ export const TopicOptionsButton = ({topic}: {topic: TopicView}) => {
                 text1={"Actualizar menciones"}
                 startIcon={<ArrowsClockwiseIcon/>}
                 handleClick={onUpdateMentions}
+            />
+            <OptionsDropdownButton
+                text1={"Actualizar contribuciones"}
+                startIcon={<ArrowsClockwiseIcon/>}
+                handleClick={onUpdateContributions}
             />
         </div>
     )

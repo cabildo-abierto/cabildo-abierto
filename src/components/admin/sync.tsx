@@ -61,7 +61,7 @@ export const AdminSync = () => {
                         <td>
                             <StateButton
                                 handleClick={async () => {
-                                    await post(`/sync-user/${u.did}`)
+                                    await post(`/sync-user/${u.did}` + (collections.length > 0 ? `?${categoriesSearchParam(collections)}` : ""))
                                     return {}
                                 }}
                                 color={u.mirrorStatus == "Sync" ? "red-dark2" : "primary"}

@@ -4,7 +4,7 @@ import {ReactNode} from "react";
 
 export function generateMetadata(){
     return produce(mainMetadata, draft => {
-        draft.title = "Notificaciones"
+        draft.title = "Panel de autor"
     })
 }
 

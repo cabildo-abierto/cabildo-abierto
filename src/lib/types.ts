@@ -46,8 +46,15 @@ export type AlgorithmConfig = {
 }
 
 
+export type AuthorStatus = {
+    isAuthor: boolean
+    seenAuthorTutorial: boolean
+}
+
+
 export type Session = {
     platformAdmin: boolean
+    authorStatus: AuthorStatus | null
     editorStatus: EditorStatus
     seenTutorial: {
         topics: boolean
@@ -60,7 +67,6 @@ export type Session = {
     avatar: string | null
     did: string
     hasAccess: boolean
-    usedInviteCode: string | null
     validation: ValidationState
     algorithmConfig: AlgorithmConfig
 }

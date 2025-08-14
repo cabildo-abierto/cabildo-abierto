@@ -82,6 +82,10 @@ export const schemaDict = {
             type: 'string',
             knownValues: ['person', 'org'],
           },
+          editorStatus: {
+            type: 'string',
+            knownValues: ['Editor principiante', 'Editor', 'Administrador'],
+          },
         },
       },
     },
@@ -1237,6 +1241,9 @@ export const schemaDict = {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.wiki.topicVersion#versionInHistory',
             },
+          },
+          protection: {
+            type: 'string',
           },
         },
       },

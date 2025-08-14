@@ -25,7 +25,7 @@ const Page = () => {
         {isLoading && <div className={"mt-8"}>
             <LoadingSpinner/>
         </div>}
-        {notifications != null && notifications.length == 0 && <div className={"text-center text-[var(--text-light)]"}>
+        {notifications != null && notifications.length == 0 && <div className={"py-16 text-center text-[var(--text-light)]"}>
             Sin notificaciones.
         </div>}
         {notifications && notifications.length > 0 && <div>

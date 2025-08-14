@@ -16,7 +16,8 @@ import NotificationsIcon from "../icons/notifications-icon";
 import TopicsIcon from "@/components/icons/topics-icon";
 import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
-import {GearIcon, HouseLineIcon, MagnifyingGlassIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
+import {GearIcon, HouseLineIcon, MagnifyingGlassIcon,
+    ProjectorScreenChartIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
 import {SwipeableDrawer} from "@mui/material";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
 import {useAPI} from "@/queries/utils";
@@ -240,6 +241,15 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                             selected={pathname.startsWith("/papeles")}
                             showText={showText}
                         />
+                        {user.user.authorStatus?.isAuthor && <SidebarButton
+                            icon={<ProjectorScreenChartIcon size={iconFontSize} weight={"fill"}/>}
+                            iconInactive={<ProjectorScreenChartIcon size={iconFontSize}/>}
+                            onClick={onClose}
+                            text="Panel de autor"
+                            href="/panel"
+                            selected={pathname.startsWith("/panel")}
+                            showText={showText}
+                        />}
                         {user.user && <SidebarButton
                             icon={<UserIcon fontSize={iconFontSize} weight={"fill"}/>}
                             iconInactive={<UserIcon fontSize={iconFontSize}/>}

@@ -141,7 +141,7 @@ export class TwoAxisPlotter extends AxesPlotter {
         value: string,
         selected: boolean
     }[] {
-        if (this.isMultipleYAxis() || this.colors && this.colors.length > 1) {
+        if (this.isMultipleYAxis() || this.colors && this.colors.length > 0) {
             return this.xToYMap.get(tooltipData.x)?.map(x => ({
                 value: this.yValueToString(x.value),
                 label: x.color,
