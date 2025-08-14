@@ -27,49 +27,44 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setError(null);
 
-        setError(null)
-
-        const handle = (handleStart.trim() + domain.trim()).replaceAll("@", "")
-
+        const handle = (handleStart.trim() + domain.trim()).replaceAll("@", "");
         if (!isValidHandle(handle)) {
-            setError('Nombre de usuario inválido.')
-            return
+            setError('Nombre de usuario inválido.');
+            return;
         }
 
-        setIsLoading(true)
+        const popup = window.open('', 'bluesky-login', `width=600,height=700`);
+
+        setIsLoading(true);
         const res = await fetch(backendUrl + "/login", {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({handle, code: inviteCode}),
-            redirect: "follow", // ensure browser follows the redirect
-        })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ handle, code: inviteCode }),
+            redirect: "follow",
+        });
 
         if (!res.ok) {
-            setError("Error de conexión.")
-            setIsLoading(false)
-            return
+            popup.close();
+            setError("Error de conexión.");
+            setIsLoading(false);
+            return;
         }
 
-        const body = await res.json() as { error?: string, data?: { url: string } }
-
+        const body = await res.json();
         if (body.error) {
-            setError(body.error)
-            setIsLoading(false)
-            return
+            popup.close();
+            setError(body.error);
+            setIsLoading(false);
+            return;
         }
 
-        const url = body.data.url
-
-        const width = 600;
-        const height = 700;
-        const left = (window.screen.width - width) / 2;
-        const top = (window.screen.height - height) / 2;
-        window.open(url, 'bluesky-login', `width=${width},height=${height},left=${left},top=${top}`);
+        popup.location.href = body.data.url;
+        setIsLoading(false)
     }
+
 
     return <div className={"max-w-96 w-full"}>
         <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-2"}>
