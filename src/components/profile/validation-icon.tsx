@@ -12,7 +12,7 @@ const ValidationIcon = ({handle, validation, fontSize = 22, width=12, height=12,
 
     if (validation == "person" || validation == "persona") {
         return <DescriptionOnHover description={handle && `@${handle} es una persona real argentina.`} moreInfoHref={moreInfoHref}>
-            <Image alt="escarapela" style={{width, height}} src={"/escarapela2.png"} width={400} height={400}/>
+            <Image alt="escarapela" style={{width, height}} src={"/escarapela.png"} width={400} height={400}/>
         </DescriptionOnHover>
     } else if (validation == "org") {
         return <DescriptionOnHover description={handle && `@${handle} es una organización verificada.`} moreInfoHref={moreInfoHref}>
