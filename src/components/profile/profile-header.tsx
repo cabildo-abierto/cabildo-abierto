@@ -17,6 +17,7 @@ import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ContentCounters} from "./content-counters";
+import {bskyProfileUrl} from "@/utils/uri";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
@@ -182,7 +183,7 @@ function ProfileHeader({
                         target={"_blank"}
                         rel="noopener noreferrer"
                         onClick={() => {
-                            window.open("https://bsky.app/profile/" + profile.bsky.handle, '_blank', 'noopener,noreferrer')
+                            window.open(bskyProfileUrl(profile.bsky.handle), '_blank', 'noopener,noreferrer')
                         }}
                         href={"https://bsky.app/profile/" + profile.bsky.handle}
                         className="hover:underline text-[var(--text-lighter)]"

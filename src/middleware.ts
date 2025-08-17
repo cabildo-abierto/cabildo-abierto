@@ -2,39 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 
 export async function middleware(request: NextRequest) {
-    const url = request.nextUrl.clone()
-
-    if(url.pathname.startsWith("/wiki/")){
-        const id = url.searchParams.get("i")
-
-        const articleUrl = new URL('/tema', request.url)
-
-        articleUrl.searchParams.set('i', id)
-        return NextResponse.redirect(articleUrl)
-    }
-
-    if(url.pathname.startsWith("/articulo")){
-        const id = url.searchParams.get("i")
-        const articleUrl = new URL('/tema', request.url)
-        articleUrl.searchParams.set('i', decodeURIComponent(id))
-        return NextResponse.redirect(articleUrl)
-    }
-
-    if(url.pathname.startsWith("/articulo/")){
-        const id = url.searchParams.get("i")
-        const articleUrl = new URL('/tema', request.url)
-        articleUrl.searchParams.set('i', decodeURIComponent(id))
-        return NextResponse.redirect(articleUrl)
-    }
-
-    if(url.pathname.startsWith("/contenido/")){
-        const id = url.searchParams.get("i")
-        const articleUrl = new URL('/tema', request.url)
-
-        articleUrl.searchParams.set('i', id)
-        return NextResponse.redirect(articleUrl)
-    }
-
     return NextResponse.next()
 }
 

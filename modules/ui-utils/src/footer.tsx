@@ -53,6 +53,9 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
             <DimOnHoverLink target="_blank" href={topicUrl("Cabildo Abierto: Política de privacidad", undefined, "normal")}>
                 Política de privacidad
             </DimOnHoverLink>
+            <DimOnHoverLink href={"/equipo"}>
+                ¿Quiénes somos?
+            </DimOnHoverLink>
         </div>}
 
         <div className="flex flex-col space-y-1 text-sm md:text-base">

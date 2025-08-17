@@ -1438,6 +1438,9 @@ export const schemaDict = {
             type: 'string',
             format: 'datetime',
           },
+          numWords: {
+            type: 'integer',
+          },
         },
       },
       topicVersionContribution: {

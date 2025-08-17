@@ -8,12 +8,20 @@ import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/useTrendingTopics";
+import {rounder} from "@/utils/strings";
 
 
 const DateLastEdit = ({date}: { date: Date }) => {
 
     return <div className={"text-[var(--text-light)] text-xs sm:block hidden"}>
         Últ. edición hace <DateSince date={date}/>
+    </div>
+}
+
+
+const TopicNumWords = ({numWords}: {numWords: number}) => {
+    return <div className={"flex space-x-2 items-center text-xs mt-1 text-[var(--text-light)]"}>
+        {numWords <= 1 ? "Sin contenido."  : rounder(numWords) + " palabras."}
     </div>
 }
 
@@ -68,6 +76,7 @@ const TopicSearchResult = ({topic, index, time}: {
                 <div className={"flex space-x-2 items-center text-sm mt-1"}>
                     {topic.lastEdit && <DateLastEdit date={new Date(topic.lastEdit)}/>}
                 </div>
+                {topic.numWords != null && <TopicNumWords numWords={topic.numWords}/>}
             </div>
         </div>
     );

@@ -102,6 +102,11 @@ export function urlFromRecord(uri: string) {
     return contentUrl(uri)
 }
 
+export function bskyProfileUrl(handle: string){
+    return "https://bsky.app/profile/" + handle
+}
+
+
 export function getBlueskyUrl(uri: string) {
     const {did, rkey} = splitUri(uri)
     return "https://bsky.app/profile/" + did + "/post/" + rkey
