@@ -3,7 +3,6 @@ import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hov
 import {topicUrl} from "@/utils/uri";
 import { Color } from "../../../modules/ui-utils/src/button";
 import Image from "next/image"
-import {SealCheckIcon} from "@phosphor-icons/react";
 
 
 const ValidationIcon = ({handle, validation, fontSize = 22, width=12, height=12, iconColor="button-text", color="primary"}: {
@@ -16,9 +15,38 @@ const ValidationIcon = ({handle, validation, fontSize = 22, width=12, height=12,
         </DescriptionOnHover>
     } else if (validation == "org") {
         return <DescriptionOnHover description={handle && `@${handle} es una organización verificada.`} moreInfoHref={moreInfoHref}>
-            <span className={"text-[var(--text)]"}>
-                <SealCheckIcon color="var(--primary)" fontSize={18} weight={"fill"}/>
-            </span>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={width}
+                height={height}
+                viewBox={`0 0 ${width} ${height}`}
+            >
+                {/* Outer circle */}
+                <circle
+                    cx={width / 2}
+                    cy={height / 2}
+                    r={Math.min(width, height) / 2}
+                    fill="var(--primary)"
+                />
+
+                {/* Inner circle */}
+                <circle
+                    cx={width / 2}
+                    cy={height / 2}
+                    r={(Math.min(width, height) * 0.7) / 2}
+                    fill="white"
+                />
+
+                {/* Centered image */}
+                <image
+                    href="/sol.png"
+                    x={width / 2 - (width * 0.5) / 2}
+                    y={height / 2 - (height * 0.5) / 2}
+                    width={width * 0.5}
+                    height={height * 0.5}
+                    preserveAspectRatio="xMidYMid meet"
+                />
+            </svg>
         </DescriptionOnHover>
     }
 
