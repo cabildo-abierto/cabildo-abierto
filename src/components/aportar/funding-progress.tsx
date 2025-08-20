@@ -9,10 +9,10 @@ const FundingProgress = () => {
     const { data: value } = useMonthlyValue()
 
     const state = isLoadingFundingState ? "loading" : (progress === 100 ? 'good' : progress >= 80 ? 'medium' : 'bad')
-    const progressColor = state === "good" ? 'bg-green-500' : state === "medium" ? 'bg-yellow-500' : state == "bad" ? 'bg-red-500' : "bg-[var(--background-dark2)]";
+    const progressColor = state === "good" ? 'bg-green-500' : state === "medium" ? 'bg-yellow-500' : state == "bad" ? 'bg-red-500' : "bg-[var(--background-dark3)]";
 
     return (
-        <div className={"space-y-2 w-full bg-[var(--background-dark)] rounded p-4 mx-2"}>
+        <div className={"space-y-2 w-full bg-[var(--background-dark2)] rounded-lg p-4 mx-2"}>
             <div className={"flex justify-between items-baseline"}>
                 <div className={"text-xs sm:text-sm text-[var(--text-light)]"}>
                     Objetivo de financiamiento
@@ -20,14 +20,14 @@ const FundingProgress = () => {
                 <InfoPanel
                     text={
                         value != undefined ? <div className="text-[var(--text-light)]">
-                            <span>Si todos los usuarios aportaran ${value} por mes estaríamos 100% financiados. </span>
+                            <span>Si todos los usuarios activos aportaran ${value} por mes estaríamos 100% financiados. </span>
                             <Link className="link2" href={topicUrl("Cabildo Abierto: Financiamiento", undefined, "normal")}>Más información</Link>.
                         </div> : <div>cargando...</div>
                     }
                 />
             </div>
             <div className="flex items-center w-full space-x-1">
-                <div className="w-full bg-[var(--background-dark2)] rounded-full h-8 overflow-hidden shadow-inner relative">
+                <div className="w-full bg-[var(--background-dark3)] rounded-full h-8 overflow-hidden shadow-inner relative">
                     <div
                         className={`h-full ${progressColor}  text-center font-bold flex items-center justify-center`}
                         style={{width: `${state == "loading" ? 0 : progress}%`}}

@@ -12,7 +12,7 @@ import {formatIsoDate} from "@/utils/dates";
 
 export const RightPanel = () => {
     const pathname = usePathname();
-    const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas");
+    const inSearchPage = pathname.startsWith("/buscar")
     const {data: meetingData} = useNextMeeting()
 
     return <div className={"flex flex-col pr-6 space-y-6 pt-6"}>
@@ -46,9 +46,9 @@ export const RightPanel = () => {
             <SearchPanelOnRightColumn/>
         </SearchProvider>}
 
-        <div className={"flex justify-center w-full"}>
+        {!pathname.startsWith("/temas") && <div className={"flex justify-center w-full"}>
             <TrendingTopicsPanel/>
-        </div>
+        </div>}
 
         <div className={"text-sm mt-4 pb-8"}>
             <RightPanelButtons/>

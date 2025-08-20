@@ -48,6 +48,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                         setPinnedReplies={setPinnedReplies}
                         replyTo={article}
                         editor={editor}
+                        clippedToHeight={null}
                         setEditor={setEditor}
                         setEditorState={() => {
                         }}

@@ -354,7 +354,10 @@ const PresentacionInicio = () => {
         <div className={"relative flex flex-col h-[500px] justify-center space-y-12 items-center"}>
             <div className="flex items-center flex-col">
                 <div className="">
-                    <Logo width={80} height={80}/>
+                    <Logo
+                        width={80}
+                        height={80}
+                    />
                 </div>
                 <div className="flex justify-center flex-col items-center mt-8">
                     <h1 className="lg:text-[46px] sm:text-[38px] text-[26px] tracking-tight">

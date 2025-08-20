@@ -9,6 +9,7 @@ import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
+import {useTopics} from "@/queries/useTopics";
 
 
 const TourContent = ({children}: {children: ReactNode}) => {
@@ -17,9 +18,16 @@ const TourContent = ({children}: {children: ReactNode}) => {
 
 
 const RunTutorial = ({children}: { children: ReactNode }) => {
-    const [runStatus, setRunStatus] = useState<"not started" | "running" | "finished">("running")
+    const [runStatus, setRunStatus] = useState<"not started" | "running" | "finished">("not started")
     const [stepIndex, setStepIndex] = useState<number>(0)
     const qc = useQueryClient()
+    const {data: topics} = useTopics([], "popular", "week")
+
+    useEffect(() => {
+        if(topics){
+            setRunStatus("running")
+        }
+    }, [topics]);
 
     const steps: Step[] = [
         {

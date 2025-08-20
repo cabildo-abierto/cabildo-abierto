@@ -5,7 +5,7 @@ import {useTopicFeed, useTopicWithNormalizedContent} from "@/queries/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {updateSearchParam} from "@/utils/fetch";
+import {updateSearchParams} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {MobileHeader} from "@/components/layout/mobile-header";
 import TopicTutorial from "@/components/tutorial/topic-tutorial";
@@ -65,10 +65,13 @@ export const TopicPage = ({topicId, did, rkey}: {
     }
 
     function setWikiEditorStateAndRouterPush(s: WikiEditorState) {
-        updateSearchParam("s", s)
-        if(topic && topic != "loading") updateSearchParam("i", topic.id)
-        updateSearchParam("did", did ?? null)
-        updateSearchParam("rkey", rkey ?? null)
+        const params = {
+            s,
+            i: topic && topic != "loading" ? topic.id : undefined,
+            did: did ?? undefined,
+            rkey: rkey ?? undefined
+        }
+        updateSearchParams(params)
     }
 
     const onClickQuote = (cid: string) => {

@@ -1,5 +1,4 @@
 import {Dispatch, SetStateAction} from "react";
-import { TopicContentPreview } from "./topic-content-preview";
 import {
     TopicContentExpandedView,
     TopicContentExpandedViewWithVersion
@@ -10,12 +9,12 @@ import {WikiEditorState} from "@/lib/types";
 
 
 const TopicContent = ({
-    topic,
-    pinnedReplies,
-    setPinnedReplies,
-    wikiEditorState,
-    setWikiEditorState,
-}: {
+                          topic,
+                          pinnedReplies,
+                          setPinnedReplies,
+                          wikiEditorState,
+                          setWikiEditorState,
+                      }: {
     topic: TopicView
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
@@ -24,31 +23,22 @@ const TopicContent = ({
 }) => {
     const params = useSearchParams()
 
-    if(wikiEditorState == "minimized") {
-        return <div className={"px-2 w-full"} id={"topic-minimized-content"}>
-            <TopicContentPreview
-                topic={topic}
-                onMaximize={() => {setWikiEditorState("normal")}}
-            />
-        </div>
+    if (params.get("did") && params.get("rkey")) {
+        return <TopicContentExpandedView
+            pinnedReplies={pinnedReplies}
+            setPinnedReplies={setPinnedReplies}
+            wikiEditorState={wikiEditorState}
+            setWikiEditorState={setWikiEditorState}
+            topicId={topic.id}
+        />
     } else {
-        if(params.get("did") && params.get("rkey")){
-            return <TopicContentExpandedView
-                pinnedReplies={pinnedReplies}
-                setPinnedReplies={setPinnedReplies}
-                wikiEditorState={wikiEditorState}
-                setWikiEditorState={setWikiEditorState}
-                topicId={topic.id}
-            />
-        } else {
-            return <TopicContentExpandedViewWithVersion
-                topic={topic}
-                pinnedReplies={pinnedReplies}
-                setPinnedReplies={setPinnedReplies}
-                wikiEditorState={wikiEditorState}
-                setWikiEditorState={setWikiEditorState}
-            />
-        }
+        return <TopicContentExpandedViewWithVersion
+            topic={topic}
+            pinnedReplies={pinnedReplies}
+            setPinnedReplies={setPinnedReplies}
+            wikiEditorState={wikiEditorState}
+            setWikiEditorState={setWikiEditorState}
+        />
     }
 }
 
