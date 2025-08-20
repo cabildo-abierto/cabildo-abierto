@@ -27,18 +27,9 @@ const minimizedSteps: Step[] = [
         hideBackButton: true
     },
     {
-        target: '#topic-minimized-content',
+        target: '#topic-content',
         content: <TourContent>
-            Este es el consenso actual sobre el tema. Cualquiera lo puede editar.
-        </TourContent>,
-        placement: 'bottom',
-        disableBeacon: true,
-        hideBackButton: true
-    },
-    {
-        target: '#maximize-topic',
-        content: <TourContent>
-            Para verlo mejor, editarlo o comentar una selección de texto, lo podés maximizar apretando acá.
+            Este es el consenso actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar la edición.
         </TourContent>,
         placement: 'bottom',
         disableBeacon: true,
@@ -47,7 +38,7 @@ const minimizedSteps: Step[] = [
     {
         target: '#discussion-start',
         content: <TourContent>
-            Acá te mostramos todo lo que se discutió sobre el tema en Cabildo Abierto.
+            Acá te mostramos todo lo que se discutió sobre el tema en Cabildo Abierto: las menciones que hubo y lo que se discutió sobre el contenido.
         </TourContent>,
         placement: 'bottom',
         disableBeacon: true,
@@ -89,7 +80,7 @@ const maximizedSteps: Step[] = [
         content: <TourContent>
             Te mostramos la última versión aceptada del tema. Si estás en una computadora, podés comentar selecciones de texto.
         </TourContent>,
-        placement: 'bottom',
+        placement: 'top',
         disableBeacon: true,
         hideBackButton: true
     }
