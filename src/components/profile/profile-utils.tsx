@@ -35,7 +35,9 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     return produce(old as Profile, draft => {
                         draft.bsky.viewer.following = "optimistic-follow"
                         draft.bsky.followersCount++
-                        draft.ca.followersCount++
+                        if(draft.ca){
+                            draft.ca.followersCount++
+                        }
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old

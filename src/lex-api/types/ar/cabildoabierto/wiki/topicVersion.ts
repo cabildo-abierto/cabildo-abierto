@@ -264,7 +264,9 @@ export interface TopicViewBasic {
   props?: TopicProp[]
   popularity?: TopicPopularity
   lastEdit?: string
+  currentVersionCreatedAt?: string
   numWords?: number
+  lastSeen?: string
 }
 
 const hashTopicViewBasic = 'topicViewBasic'

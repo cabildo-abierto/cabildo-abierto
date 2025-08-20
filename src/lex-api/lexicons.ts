@@ -1438,8 +1438,16 @@ export const schemaDict = {
             type: 'string',
             format: 'datetime',
           },
+          currentVersionCreatedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
           numWords: {
             type: 'integer',
+          },
+          lastSeen: {
+            type: 'string',
+            format: 'datetime',
           },
         },
       },

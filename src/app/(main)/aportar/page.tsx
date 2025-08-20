@@ -12,7 +12,7 @@ import {topicUrl} from "@/utils/uri";
 export default function Aportar() {
     return <div className={"space-y-2 flex flex-col items-center pb-16"}>
         <ThreadHeader title={"Aportar"}/>
-        <div className={"px-5 py-10 sm:p-10 rounded-lg bg-[var(--background-dark)] flex flex-col items-center space-y-8"}>
+        <div className={"mx-2 px-5 py-10 sm:p-10 rounded-lg bg-[var(--background-dark)] flex flex-col items-center space-y-8"}>
             <div className={"pb-12 pt-8 text-base text-center text-[var(--text-light)]"}>
                 Con tu aporte se financia el equipo que trabaja en la plataforma y los autores de los contenidos que
                 leés.

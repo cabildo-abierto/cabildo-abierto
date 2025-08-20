@@ -38,7 +38,7 @@ export const TopicContentPreview = ({
         </div>
     }
 
-    return <div className={"rounded-lg bg-[var(--background-dark)] mb-2 px-2 pt-1 pb-4 w-full h-full"}>
+    return <div className={"rounded-lg mb-2 px-2 pt-1 pb-4 w-full h-full"}>
         <div className={"flex justify-end items-center pb-1"}>
             <IconButton
                 onClick={onMaximize}

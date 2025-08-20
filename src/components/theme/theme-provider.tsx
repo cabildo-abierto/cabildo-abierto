@@ -25,6 +25,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--background', 'rgb(25, 25, 35)');
             root.style.setProperty('--background-ldark', 'rgb(30, 30, 40)');
             root.style.setProperty('--background-dark', 'rgb(35, 35, 45)');
+            root.style.setProperty('--background-dark-30', 'rgba(35, 35, 45, 0.3)');
             root.style.setProperty('--background-ldark2', 'rgb(40, 40, 50)');
             root.style.setProperty('--background-dark2', 'rgb(45, 45, 55)');
             root.style.setProperty('--background-dark3', 'rgb(65, 65, 75)');
@@ -53,6 +54,7 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
             root.style.setProperty('--background', 'rgb(255, 255, 240)');
             root.style.setProperty('--background-ldark', 'rgb(250, 250, 235)');
             root.style.setProperty('--background-dark', 'rgb(240, 240, 225)');
+            root.style.setProperty('--background-dark-30', 'rgba(240, 240, 225, 0.3)');
             root.style.setProperty('--background-ldark2', 'rgb(235, 235, 220)');
             root.style.setProperty('--background-dark2', 'rgb(225, 225, 210)');
             root.style.setProperty('--background-dark3', 'rgb(210, 210, 195)');

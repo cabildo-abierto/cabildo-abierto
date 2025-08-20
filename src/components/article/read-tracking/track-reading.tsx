@@ -1,4 +1,4 @@
-import {RefObject, useEffect, useRef } from "react";
+import {RefObject, useCallback, useEffect, useRef, useState} from "react";
 import {post} from "@/utils/fetch";
 import {splitUri} from "@/utils/uri";
 import {usePathname, useSearchParams} from 'next/navigation'
@@ -16,6 +16,7 @@ export async function sendReadChunks(uri: string, chunks: Map<number, number>, t
 
     const {did, collection, rkey} = splitUri(uri)
     try {
+        console.log("sending read session!")
         await post(`/read-session/${did}/${collection}/${rkey}`, {chunks: chunksPayload, totalChunks})
     } catch (err) {
         console.error("Failed to send read chunks", err);
@@ -32,54 +33,67 @@ type ReadEvent = {
     duration: number
 }
 
-export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>, setReadChunks?: (r: Map<number, number>) => void) => {
+export const useTrackReading = (
+    uri: string,
+    articleRef: RefObject<HTMLElement>,
+    clippedToHeight: number | null,
+    setReadChunks?: (r: Map<number, number>) => void,
+) => {
     const readChunks = useRef<Map<number, number>>(new Map())
     const lastActivity = useRef(Date.now())
     const idle = useRef(false)
-    const lastScroll = useRef<{scrollY: number, timestamp: number}>({scrollY: 0, timestamp: Date.now()})
+    const lastScroll = useRef<{ scrollY: number, timestamp: number }>({scrollY: 0, timestamp: Date.now()})
     const pathname = usePathname()
     const searchParams = useSearchParams()
+    const [sentInitialView, setSentInitialView] = useState(false)
 
     const articleStart = articleRef.current?.offsetTop
     const articleEnd = articleRef.current?.offsetTop + articleRef.current?.offsetHeight
     const totalChunks = Math.ceil((articleEnd - articleStart) / CHUNK_HEIGHT)
+
+    useEffect(() => {
+        if(totalChunks != null){
+            if(!sentInitialView){
+                sendReadChunks(uri, new Map([[0, 0]]), totalChunks)
+                setSentInitialView(true)
+            }
+        }
+    }, [totalChunks, sentInitialView]);
 
     const updateActivity = () => {
         lastActivity.current = Date.now();
         idle.current = false;
     }
 
-    // se chequea cada 1 seg
     const checkIdle = () => {
         if (Date.now() - lastActivity.current > IDLE_TIMEOUT) {
             idle.current = true
         }
     }
 
-    function newReadEvent(s: ReadEvent){
+    const newReadEvent = useCallback((s: ReadEvent) => {
         const articleStart = articleRef.current?.offsetTop
         const articleEnd = articleRef.current?.offsetTop + articleRef.current?.offsetHeight
         const readSegmentStart = s.scrollY
         const readSegmentEnd = s.scrollY + window.innerHeight
-        if(readSegmentEnd < articleStart) return
-        if(readSegmentStart > articleEnd) return
 
         const firstChunk = Math.max(Math.floor((readSegmentStart - articleStart) / CHUNK_HEIGHT), 0)
-        const lastChunk = Math.ceil((Math.min(readSegmentEnd, articleEnd) - articleStart) / CHUNK_HEIGHT)
-
-        for(let i = firstChunk; i < lastChunk; i++){
+        let lastChunk = Math.ceil((Math.min(readSegmentEnd, Math.min(articleEnd, articleStart + (clippedToHeight ?? Infinity))) - articleStart) / CHUNK_HEIGHT)
+        lastChunk = Math.min(lastChunk, totalChunks)
+        for (let i = firstChunk; i < lastChunk; i++) {
             readChunks.current.set(i, (readChunks.current.get(i) ?? 0) + s.duration)
         }
-    }
+    }, [clippedToHeight, articleRef, CHUNK_HEIGHT, readChunks])
 
-    const recordReading = () => {
-        if(!idle.current){
+
+    const recordReading = useCallback(() => {
+        if (!idle.current) {
             const scrollStart = lastScroll.current.scrollY
             const scrollEnd = window.scrollY
             const now = Date.now();
 
             const duration = now - lastScroll.current.timestamp
-            if(duration < 0){
+            if (duration < 0) {
                 console.log(`Warning: Tiempo de lectura negativo: ${duration}`)
             }
             newReadEvent({
@@ -89,7 +103,7 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
 
             lastScroll.current = {scrollY: scrollEnd, timestamp: now}
         }
-    };
+    }, [clippedToHeight, lastScroll])
 
     useEffect(() => {
         const handleActivity = () => updateActivity();
@@ -119,10 +133,10 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
             clearInterval(idleChecker);
             clearInterval(readTracker);
         };
-    }, []);
+    }, [clippedToHeight])
 
     useEffect(() => {
-        if(totalChunks != null){
+        if (totalChunks != null) {
             const handleUnload = () => {
                 recordReading();
                 sendReadChunks(uri, readChunks.current, totalChunks)
@@ -136,20 +150,20 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
                 window.removeEventListener("pagehide", handleUnload);
             };
         }
-    }, [totalChunks]);
+    }, [totalChunks, clippedToHeight]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if(setReadChunks){
+            if (setReadChunks) {
                 setReadChunks(new Map(readChunks.current));
             }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [clippedToHeight]);
 
     useEffect(() => {
-        if(!totalChunks != null){
+        if (!totalChunks != null) {
             const sendInterval = FLUSH_INTERVAL;
             let lastSent = Date.now();
 
@@ -166,10 +180,10 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
 
             return () => clearInterval(interval);
         }
-    }, [totalChunks]);
+    }, [totalChunks, clippedToHeight]);
 
     useEffect(() => {
-        if(totalChunks != null){
+        if (totalChunks != null) {
             return () => {
                 if (readChunks.current.size > 0) {
                     sendReadChunks(uri, readChunks.current, totalChunks);
@@ -177,7 +191,7 @@ export const useTrackReading = (uri: string, articleRef: RefObject<HTMLElement>,
                 }
             };
         }
-    }, [pathname, searchParams, totalChunks])
+    }, [pathname, searchParams, totalChunks, clippedToHeight])
 
     return totalChunks
 };

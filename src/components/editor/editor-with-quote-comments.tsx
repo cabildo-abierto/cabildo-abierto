@@ -32,6 +32,7 @@ type EditorWithQuoteCommentsProps = {
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
     quoteReplies: PostView[]
+    clippedToHeight: number | null
 }
 
 
@@ -77,7 +78,8 @@ export const EditorWithQuoteComments = ({
     setEditorState,
     quoteReplies,
     pinnedReplies,
-    setPinnedReplies
+    setPinnedReplies,
+    clippedToHeight
 }: EditorWithQuoteCommentsProps) => {
     const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | LexicalSelection | null>(null)
     const {layoutConfig} = useLayoutConfig()
@@ -85,7 +87,13 @@ export const EditorWithQuoteComments = ({
     const editorElement = useRef<HTMLDivElement>(null)
     const {user} = useSession()
     const {setShowLoginRequiredModal, modal: loginRequiredModal} = useLoginRequiredModal()
-    useTrackReading(uri, editorElement)
+
+    useTrackReading(
+        uri,
+        editorElement,
+        clippedToHeight,
+        undefined,
+    )
 
     // blockToUri es un mapa de índices de hijos de la raíz (en Lexical) a uris de respuestas
     const [blockToUri, setBlockToUri] = useState<Map<number, string[]> | null>(null)

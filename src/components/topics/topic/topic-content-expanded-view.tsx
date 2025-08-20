@@ -1,4 +1,4 @@
-import {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader} from "./topic-content-expanded-view-header";
 import {SaveEditPopup} from "./save-edit-popup";
@@ -60,6 +60,7 @@ function emptyTopic(topic: TopicView) {
 
 const TopicContentExpandedViewContent = ({
                                              wikiEditorState,
+    setWikiEditorState,
                                              topic,
                                              quoteReplies,
                                              pinnedReplies,
@@ -68,6 +69,7 @@ const TopicContentExpandedViewContent = ({
                                              setEditor
                                          }: {
     wikiEditorState: WikiEditorState
+    setWikiEditorState: (state: WikiEditorState) => void
     topic: TopicView
     quoteReplies: PostView[]
     pinnedReplies: string[],
@@ -75,11 +77,48 @@ const TopicContentExpandedViewContent = ({
     editor: LexicalEditor,
     setEditor: (editor: LexicalEditor) => void
 }) => {
+    const contentRef = useRef<HTMLDivElement>(null)
+    const [isOverflowing, setIsOverflowing] = useState(false)
+    const [overlayHovered, setOverlayHovered] = useState(false)
+
+    useEffect(() => {
+        if (wikiEditorState === "minimized" && contentRef.current) {
+            console.log(contentRef.current, contentRef.current.scrollHeight)
+            const el = contentRef.current
+            setIsOverflowing(el.scrollHeight > 300)
+        }
+    }, [wikiEditorState, topic, contentRef, contentRef.current])
+
+    const containerClassName = wikiEditorState.startsWith("editing") ? "mb-32" : (wikiEditorState == "minimized" ? "" : "mb-8") +
+        (wikiEditorState == "minimized" ? " max-h-[300px] overflow-y-clip custom-scrollbar" : "")
+
+    const className = "sm:px-2 px-4 " + (wikiEditorState == "minimized" ? "relative min-h-[100px]" : "pb-2 mt-4 min-h-[300px]")
+
     return <>
-        {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
-            <div id="editor" className={"pb-2 min-h-[300px] mt-4 sm:px-2 px-4"} key={topic.uri}>
-                {["editing", "editing-props", "normal", "props"].includes(wikiEditorState) && <div
-                    className={wikiEditorState.startsWith("editing") ? "mb-32" : "mb-8"}
+        {["normal", "authors", "changes", "editing", "minimized", "editing-props", "props"].includes(wikiEditorState) &&
+            <div
+                id="editor"
+                className={className}
+                key={topic.uri}
+            >
+                {wikiEditorState == "minimized" && isOverflowing && <div
+                    className="w-full hover:bg-[var(--background-dark-30)] h-[300px] absolute z-[1500] pb-1 px-2 inset-0 cursor-pointer"
+                    onClick={() => {if(wikiEditorState == "minimized") setWikiEditorState("normal")}}
+                    onMouseEnter={() => {setOverlayHovered(true)}}
+                    onMouseLeave={() => {setOverlayHovered(false)}}
+                >
+                    <div className={"h-full flex flex-col justify-end items-center"}>
+                        <div
+                            id={"maximize-topic"}
+                            className={"p-2 rounded-full cursor-pointer w-full text-[var(--text-light)] text-sm bg-[var(--background-dark)]" + (overlayHovered ? " bg-[var(--background-dark2)]" : "")}
+                        >
+                            Ver más
+                        </div>
+                    </div>
+                </div>}
+                {["editing", "editing-props", "normal", "minimized", "props"].includes(wikiEditorState) && <div
+                    className={containerClassName}
+                    ref={contentRef}
                 >
                     {wikiEditorState.startsWith("editing") && <MyLexicalEditor
                         settings={getEditorSettings({
@@ -88,7 +127,7 @@ const TopicContentExpandedViewContent = ({
                             initialTextFormat: topic.format,
                             embeds: topic.embeds ?? [],
                             allowComments: false,
-                            tableOfContents: true,
+                            tableOfContents: false,
                             showToolbar: true,
                             isDraggableBlock: true,
                             editorClassName: "relative article-content not-article-content mt-8 min-h-[300px]",
@@ -101,7 +140,7 @@ const TopicContentExpandedViewContent = ({
                         }}
                     />}
                     {!wikiEditorState.startsWith("editing") && emptyTopic(topic) && topic.currentVersion == topic.uri &&
-                        <div className={"text-[var(--text-light)]"}>
+                        <div className={"text-[var(--text-light)] " + (wikiEditorState == "minimized" ? "pt-4" : "")}>
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>
                     }
@@ -121,12 +160,13 @@ const TopicContentExpandedViewContent = ({
                                 initialTextFormat: topic.format,
                                 embeds: topic.embeds ?? [],
                                 allowComments: true,
-                                tableOfContents: true,
-                                editorClassName: "relative article-content not-article-content",
+                                tableOfContents: wikiEditorState != "minimized",
+                                editorClassName: "relative article-content not-article-content " + (wikiEditorState == "minimized" ? "no-margin-first pt-2" : ""),
                                 shouldPreserveNewLines: true,
                                 markdownShortcuts: false,
                                 topicMentions: false
                             })}
+                            clippedToHeight={wikiEditorState == "minimized" ? 300 : null}
                             quoteReplies={quoteReplies}
                             pinnedReplies={pinnedReplies}
                             setPinnedReplies={setPinnedReplies}
@@ -228,6 +268,7 @@ export const TopicContentExpandedViewWithVersion = ({
     const content = useMemo(() => {
         return <TopicContentExpandedViewContent
             editor={editor}
+            setWikiEditorState={setWikiEditorState}
             setEditor={setEditor}
             topic={topic}
             pinnedReplies={pinnedReplies}
@@ -238,7 +279,7 @@ export const TopicContentExpandedViewWithVersion = ({
     }, [editor, setEditor, topic, pinnedReplies, setPinnedReplies, quoteReplies, wikiEditorState])
 
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
-        <div className={"w-full"}>
+        <div id="topic-content" className={"w-full " + (wikiEditorState == "minimized" ? "border-b" : "") }>
             <TopicContentExpandedViewHeader
                 topic={topic}
                 wikiEditorState={wikiEditorState}

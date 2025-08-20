@@ -1,6 +1,4 @@
 "use client"
-
-import {DateSince} from "../../../../modules/ui-utils/src/date"
 import {getTopicCategories, getTopicTitle} from "./utils";
 import TopicCategories from "./topic-categories";
 import {useRouter} from "next/navigation";
@@ -9,20 +7,23 @@ import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersio
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/useTrendingTopics";
 import {rounder} from "@/utils/strings";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {formatIsoDate} from "@/utils/dates";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
-const DateLastEdit = ({date}: { date: Date }) => {
-
-    return <div className={"text-[var(--text-light)] text-xs sm:block hidden"}>
-        Últ. edición hace <DateSince date={date}/>
+const TopicNumWords = ({numWords}: {numWords: number}) => {
+    return <div className={"min-w-[90px] justify-end flex space-x-2 items-center text-xs mt-1 text-[var(--text-light)]"}>
+        {numWords <= 1 ? "Sin contenido."  : rounder(numWords) + " palabras."}
     </div>
 }
 
 
-const TopicNumWords = ({numWords}: {numWords: number}) => {
-    return <div className={"flex space-x-2 items-center text-xs mt-1 text-[var(--text-light)]"}>
-        {numWords <= 1 ? "Sin contenido."  : rounder(numWords) + " palabras."}
-    </div>
+export function hasUnseenUpdate(topic: TopicViewBasic){
+    return topic.currentVersionCreatedAt && (
+        !topic.lastSeen || new Date(topic.lastSeen) < new Date(topic.currentVersionCreatedAt)
+    )
 }
 
 
@@ -32,12 +33,15 @@ const TopicSearchResult = ({topic, index, time}: {
     time?: TimePeriod
 }) => {
     const router = useRouter()
+    const {isMobile} = useLayoutConfig()
 
     function onMouseEnter() {
         // TO DO preload("/api/topic/"+topic.id, fetcher)
     }
 
     const categories = getTopicCategories(topic.props)
+
+    const unseenUpdate = hasUnseenUpdate(topic)
 
     return (
         <div
@@ -50,7 +54,7 @@ const TopicSearchResult = ({topic, index, time}: {
         >
             <div className={"sm:max-w-[70%] w-full flex items-start flex-col sm:space-y-2"}>
                 <div className={"flex space-x-1 items-center text-xs text-[var(--text-light)]"}>
-                    {index != undefined ? <div className={""}>
+                    {index != undefined ? <div>
                         {index + 1}
                     </div> : null}
                     {categories && categories.length > 0 && index != undefined && <div>
@@ -59,13 +63,15 @@ const TopicSearchResult = ({topic, index, time}: {
                     <TopicCategories
                         className={"text-[var(--text-light)]"}
                         containerClassName={"text-xs"}
+                        maxCount={isMobile ? 2 : undefined}
                         categories={categories}
                     />
                 </div>
 
-                <div className="font-semibold mb-1">
+                <div className="font-semibold mb-1 flex space-x-1">
                     {getTopicTitle(topic)}
                 </div>
+
                 {topic.popularity != null && <TopicPopularityIndicator
                     selected={time}
                     counts={topic.popularity}
@@ -73,9 +79,16 @@ const TopicSearchResult = ({topic, index, time}: {
             </div>
 
             <div className={"flex flex-col justify-between items-end space-y-2 sm:min-w-[30%]"}>
-                <div className={"flex space-x-2 items-center text-sm mt-1"}>
-                    {topic.lastEdit && <DateLastEdit date={new Date(topic.lastEdit)}/>}
-                </div>
+                {topic.currentVersionCreatedAt != null && <DescriptionOnHover
+                    description={topic.currentVersionCreatedAt ? `La versión oficial del tema cambió desde la última vez que entraste. La versión actual es del ${formatIsoDate(new Date(topic.currentVersionCreatedAt), true)}.` : undefined}
+                >
+                    <div className={"flex space-x-1"}>
+                        <div className={"text-xs text-[var(--text-light)]"}>
+                            <DateSince date={topic.currentVersionCreatedAt} title={false}/>
+                        </div>
+                        {unseenUpdate && <div className={"rounded-full bg-red-600 w-[4px] h-[4px] mt-1"}/>}
+                    </div>
+                </DescriptionOnHover>}
                 {topic.numWords != null && <TopicNumWords numWords={topic.numWords}/>}
             </div>
         </div>
