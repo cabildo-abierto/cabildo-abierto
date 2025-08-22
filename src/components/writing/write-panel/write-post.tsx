@@ -41,7 +41,7 @@ import dynamic from "next/dynamic";
 import {$dfs} from "@lexical/utils";
 import {$isLinkNode} from "@lexical/link";
 import {areSetsEqual} from "@/utils/arrays";
-import {TopicsMentionedSmall} from "@/components/article/topics-mentioned";
+import {TopicsMentionedSmall} from "@/components/thread/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";

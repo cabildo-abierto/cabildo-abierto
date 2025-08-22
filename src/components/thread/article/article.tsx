@@ -1,6 +1,6 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {Dispatch, SetStateAction, useState} from "react";
-import {ArticleHeader} from "@/components/article/article-header";
+import {ArticleHeader} from "@/components/thread/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
 import {LexicalEditor} from "lexical";
