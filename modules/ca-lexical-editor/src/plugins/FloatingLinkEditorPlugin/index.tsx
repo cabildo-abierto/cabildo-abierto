@@ -35,31 +35,35 @@ import {createPortal} from 'react-dom';
 
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
-import {sanitizeUrl} from '../../utils/url';
+import {sanitizeUrl, validateUrl} from '../../utils/url';
 import {CustomLink as Link} from '../../../../ui-utils/src/custom-link';
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import { get } from '@/utils/fetch';
+import {get} from '@/utils/fetch';
 import LoadingSpinner from "../../../../ui-utils/src/loading-spinner";
-import { IconButton } from '../../../../ui-utils/src/icon-button';
+import {IconButton} from '../../../../ui-utils/src/icon-button';
+import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
 
 
 async function searchTopics(query: string) {
-    if(query.trim().length == 0 || query.startsWith("/")) return []
+    if (query.trim().length == 0 || query.startsWith("/")) return []
     const {error, data} = await get<TopicViewBasic[]>(`/search-topics/${query}`)
-    if(error) return []
+    if (error) return []
     return data
 }
 
 
-export function encodeParentheses(s: string){
+export function encodeParentheses(s: string) {
     return s.replaceAll("(", "%28").replaceAll(")", "%29")
 }
 
 
-const SearchResults = ({results, setValue}: {results: TopicViewBasic[] | "loading", setValue: (v: string) => void}) => {
-    if(results == "loading") {
+const SearchResults = ({results, setValue}: {
+    results: TopicViewBasic[] | "loading",
+    setValue: (v: string) => void
+}) => {
+    if (results == "loading") {
         return <div>
             <LoadingSpinner/>
         </div>
@@ -72,7 +76,7 @@ const SearchResults = ({results, setValue}: {results: TopicViewBasic[] | "loadin
                 key={topic.id}
                 className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
                 onClick={() => {
-                    setValue(encodeParentheses(topicUrl(topic.id)))
+                    setValue(topic.id)
                 }}
             >
                 {getTopicTitle(topic)}
@@ -108,6 +112,14 @@ function FloatingLinkEditor({
     const [debouncedValue, setDebouncedValue] = useState(editedLinkUrl)
 
     useEffect(() => {
+        if (!isLink) {
+            setEditedLinkUrl("")
+            setLastSelection(null)
+            setLinkUrl("")
+        }
+    }, [isLink]);
+
+    useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(editedLinkUrl);
         }, 300);
@@ -130,21 +142,27 @@ function FloatingLinkEditor({
     }, [debouncedValue])
 
     const $updateLinkEditor = useCallback(async () => {
-        if(!isLink) return
+        if (!isLink) return
 
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);
             const linkParent = $findMatchingParent(node, $isLinkNode);
+            let newLinkUrl = ""
             if (linkParent) {
-                setLinkUrl(linkParent.getURL());
+                newLinkUrl = linkParent.getURL()
             } else if ($isLinkNode(node)) {
-                setLinkUrl(node.getURL());
+                newLinkUrl = node.getURL()
             } else {
-                setLinkUrl('');
+                newLinkUrl = ""
             }
+
+            if (validateUrl(newLinkUrl)) {
+                setLinkUrl(newLinkUrl)
+            }
+
             if (isLinkEditMode) {
-                if(!editedLinkUrl || editedLinkUrl.length == 0) {
+                if (!editedLinkUrl || editedLinkUrl.length == 0) {
                     setEditedLinkUrl(linkUrl)
                 }
             }
@@ -272,18 +290,18 @@ function FloatingLinkEditor({
     ) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            handleLinkSubmission();
+            handleLinkSubmission(editedLinkUrl);
         } else if (event.key === 'Escape') {
             event.preventDefault();
             setIsLinkEditMode(false);
         }
     };
 
-    const handleLinkSubmission = () => {
+    const handleLinkSubmission = (value: string) => {
         if (lastSelection !== null) {
             if (linkUrl !== '') {
-                const sanitized = sanitizeUrl(editedLinkUrl)
-                const isInternal = editedLinkUrl.startsWith("/")
+                const sanitized = sanitizeUrl(value)
+                const isInternal = value.startsWith("/")
                 const target = isInternal ? "" : "_blank"
                 editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: sanitized, target: target, rel: ""});
                 editor.update(() => {
@@ -306,6 +324,10 @@ function FloatingLinkEditor({
         }
     }
 
+    function onSelectTopic(t: string) {
+        handleLinkSubmission(encodeParentheses(topicUrl(t)))
+    }
+
     const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-[var(--background-dark)] space-y-1">
         <div className="flex items-center justify-between">
             <input
@@ -323,7 +345,9 @@ function FloatingLinkEditor({
             <div className="flex space-x-1 mr-1">
                 <IconButton
                     onMouseDown={(event) => event.preventDefault()}
-                    onClick={handleLinkSubmission}
+                    onClick={() => {
+                        handleLinkSubmission(editedLinkUrl)
+                    }}
                     size={"small"}
                     color={"background-dark"}
                 >
@@ -341,10 +365,42 @@ function FloatingLinkEditor({
                 </IconButton>
             </div>
         </div>
-        <SearchResults results={results} setValue={setEditedLinkUrl}/>
+        <SearchResults results={results} setValue={onSelectTopic}/>
     </div>
 
-    const linkViewComp = (
+    const linkViewComp = linkUrl.startsWith("/tema") ? (
+
+        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
+            <div className="flex items-center">
+                <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1 mr-1">
+                    <TopicMentionComp url={linkUrl}/>
+                </div>
+                <div className="flex space-x-1 mr-1">
+                    <IconButton
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            setEditedLinkUrl(linkUrl);
+                            setIsLinkEditMode(true);
+                        }}
+                        size={"small"}
+                        color={"background-dark"}
+                    >
+                        <EditIcon fontSize="small"/>
+                    </IconButton>
+                    <IconButton
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+                        }}
+                        size={"small"}
+                        color={"background-dark"}
+                    >
+                        <DeleteOutlineIcon fontSize="small"/>
+                    </IconButton>
+                </div>
+            </div>
+        </div>
+    ) : (
         <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
             <div className="flex items-center">
                 <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
@@ -386,14 +442,17 @@ function FloatingLinkEditor({
 
 
     return (
-        <div ref={editorRef} className="link-editor">
+        <div
+            ref={editorRef}
+            className="link-editor"
+        >
             {!isLink ? null : isLinkEditMode ? (
                 linkEditComp
             ) : (
                 linkViewComp
             )}
         </div>
-    );
+    )
 }
 
 function useFloatingLinkEditorToolbar(
@@ -473,7 +532,7 @@ function useFloatingLinkEditorToolbar(
                     return false;
                 },
                 COMMAND_PRIORITY_LOW,
-            ),
+            )
         );
     }, [editor]);
 

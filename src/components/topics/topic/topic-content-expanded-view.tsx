@@ -82,12 +82,27 @@ const TopicContentExpandedViewContent = ({
     const [overlayHovered, setOverlayHovered] = useState(false)
 
     useEffect(() => {
-        if (wikiEditorState === "minimized" && contentRef.current) {
-            console.log(contentRef.current, contentRef.current.scrollHeight)
-            const el = contentRef.current
-            setIsOverflowing(el.scrollHeight > 300)
+        if (!contentRef.current) return
+        const el = contentRef.current
+
+        const checkOverflow = () => {
+            if (wikiEditorState === "minimized") {
+                setIsOverflowing(el.scrollHeight > 300)
+            } else {
+                setIsOverflowing(false)
+            }
         }
-    }, [wikiEditorState, topic, contentRef, contentRef.current])
+
+        checkOverflow()
+
+        const observer = new ResizeObserver(() => {
+            checkOverflow()
+        })
+
+        observer.observe(el)
+
+        return () => observer.disconnect()
+    }, [wikiEditorState, topic])
 
     const containerClassName = wikiEditorState.startsWith("editing") ? "mb-32" : (wikiEditorState == "minimized" ? "" : "mb-8") +
         (wikiEditorState == "minimized" ? " max-h-[300px] overflow-y-clip custom-scrollbar" : "")
@@ -206,10 +221,10 @@ export const TopicContentExpandedViewWithVersion = ({
 
     const saveEditMutation = useMutation({
         mutationFn: createTopicVersion,
-        onMutate: (topicVersion) => {
+        onMutate: () => {
             qc.cancelQueries(contentQueriesFilter(topic.uri))
         },
-        onSettled: (data, variables, context) => {
+        onSettled: () => {
             qc.removeQueries(contentQueriesFilter(topic.uri))
         }
     })
