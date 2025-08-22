@@ -41,7 +41,8 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                             allowComments: true,
                             tableOfContents: true,
                             editorClassName: "article-content",
-                            embeds: article.embeds
+                            embeds: article.embeds,
+                            topicMentions: false
                         })}
                         quoteReplies={quoteReplies}
                         pinnedReplies={pinnedReplies}

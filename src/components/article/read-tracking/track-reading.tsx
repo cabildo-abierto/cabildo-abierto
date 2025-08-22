@@ -16,7 +16,6 @@ export async function sendReadChunks(uri: string, chunks: Map<number, number>, t
 
     const {did, collection, rkey} = splitUri(uri)
     try {
-        console.log("sending read session!")
         await post(`/read-session/${did}/${collection}/${rkey}`, {chunks: chunksPayload, totalChunks})
     } catch (err) {
         console.error("Failed to send read chunks", err);

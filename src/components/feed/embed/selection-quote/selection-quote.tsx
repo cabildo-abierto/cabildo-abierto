@@ -40,7 +40,7 @@ async function validSelectionForComment(text: string, embeds: ArticleEmbedView[]
             return null
         }
     } catch (err) {
-        console.log("Error: ", err)
+        //console.log("Error: ", err)
         return null
     }
 }
@@ -121,7 +121,7 @@ export const SelectionQuote = ({
                 quotedTextEmbeds={quotedContentEmbeds}
             />}
             {normalizedSelection && normalizedSelection == "error" && <div className={"p-2"}>
-                ¡Uh! No pudimos procesar la selección.
+                Ocurrió un error al procesar la selección.
             </div>}
             {!normalizedSelection && <LoadingSpinner/>}
         </blockquote>

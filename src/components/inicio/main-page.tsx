@@ -41,7 +41,7 @@ const followingFeedFilterOption: FollowingFeedFilterOption[] = ["Todos", "Solo C
 export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const defaultFilter = user.algorithmConfig.following?.filter ?? "Solo Cabildo Abierto"
+    const defaultFilter = user.algorithmConfig.following?.filter ?? "Todos"
     const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? "Todos"
     const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, defaultFilter)
     const format = stringToEnum(params.get("formato"), feedFormatOptions, defaultFormat)
@@ -65,7 +65,7 @@ function stringToEnum<T>(s: string | undefined, options: string[], defaultValue:
 export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const defaultMetric = user.algorithmConfig.enDiscusion?.metric ?? "Popularidad relativa"
+    const defaultMetric = user.algorithmConfig.enDiscusion?.metric ?? "Interacciones"
     const defaultTime = user.algorithmConfig.enDiscusion?.time ?? "Última semana"
     const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? "Todos"
     const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)

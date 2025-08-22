@@ -5,10 +5,11 @@ import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 
 function getSearchParam(url: string, param: string): string | null {
     try {
+        if(url.startsWith("/tema")) url = `https://cabildoabierto.ar/${url}`
         const urlObj = new URL(url);
         return urlObj.searchParams.get(param);
     } catch (error) {
-        console.error("Invalid URL:", error);
+        console.error("Invalid URL:", error, url);
         return null;
     }
 }
