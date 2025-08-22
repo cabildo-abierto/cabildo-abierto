@@ -117,7 +117,7 @@ const TopicContentExpandedViewContent = ({
                 key={topic.uri}
             >
                 {wikiEditorState == "minimized" && isOverflowing && <div
-                    className="w-full hover:bg-[var(--background-dark-30)] h-[300px] absolute z-[1500] pb-1 px-2 inset-0 cursor-pointer"
+                    className="w-full hover:bg-[var(--background-dark-30)] h-[300px] absolute z-[1000] pb-1 px-2 inset-0 cursor-pointer"
                     onClick={() => {if(wikiEditorState == "minimized") setWikiEditorState("normal")}}
                     onMouseEnter={() => {setOverlayHovered(true)}}
                     onMouseLeave={() => {setOverlayHovered(false)}}

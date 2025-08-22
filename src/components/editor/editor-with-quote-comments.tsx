@@ -12,7 +12,7 @@ import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {useTrackReading} from "@/components/article/read-tracking/track-reading";
+import {useTrackReading} from "@/components/thread/article/read-tracking/track-reading";
 import {useSession} from "@/queries/useSession";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"

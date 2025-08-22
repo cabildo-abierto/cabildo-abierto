@@ -6,12 +6,12 @@ import {TitleInput} from "./title-input"
 import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
-import {ReadingTime} from "@/components/article/reading-time";
+import {ReadingTime} from "@/components/thread/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {getEditorSettings} from "@/components/editor/settings";
 import GradientHRule from "../../../../modules/ui-utils/src/gradient-hrule";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
-import {TopicsMentioned} from "@/components/article/topics-mentioned";
+import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
 import {validArticle} from "@/components/writing/article/valid-article";
 import {getUsername} from "@/utils/utils";
 import {useSession} from "@/queries/useSession";
