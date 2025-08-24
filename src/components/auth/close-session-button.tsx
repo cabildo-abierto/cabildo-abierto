@@ -2,33 +2,26 @@
 import StateButton from "../../../modules/ui-utils/src/state-button"
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import {QueryClient, useQueryClient} from "@tanstack/react-query"
+import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 
-export const logout = async () => {
+export const logout = async (qc: QueryClient, router: AppRouterInstance) => {
     const {error} = await post("/logout")
-    if(error){
-        console.error("Error on logout", error)
-    }
+    if(error) return {error}
+    qc.clear()
+    router.push("/")
+    return {}
 }
 
 
 
 export const CloseSessionButton = () => {
-    const queryClient = useQueryClient()
+    const qc = useQueryClient()
     const router = useRouter()
 
-    const logoutMutation = useMutation({
-        mutationFn: logout,
-        onSuccess: async () => {
-            queryClient.clear()
-            router.push("/")
-        }
-    })
-
     const onLogout = async () => {
-        await logoutMutation.mutateAsync()
-        return {}
+        return await logout(qc, router)
     }
 
     return (
