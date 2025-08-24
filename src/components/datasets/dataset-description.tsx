@@ -1,4 +1,8 @@
-import ReadOnlyEditor from "../editor/read-only-editor";
+import dynamic from "next/dynamic";
+const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+    ssr: false,
+    loading: () => <></>,
+});
 
 
 export const DatasetDescription = ({description}: {description: string}) => {

@@ -1,41 +1,34 @@
 "use client"
 
-import dynamic from "next/dynamic";
 import {getEditorSettings} from "@/components/editor/settings";
-
-const MyLexicalEditor = dynamic(() => import('../../../modules/ca-lexical-editor/src/lexical-editor'), {
-    ssr: false,
-    loading: () => <></>, 
-});
+import LightEditor from "../../../modules/ca-lexical-editor/src/light-editor";
 
 const ReadOnlyEditor = ({
     text,
     format,
-    allowQuoteComments = false,
     editorClassName="link",
-    showTableOfContents = false,
     shouldPreserveNewLines = false,
-    namespace="namespace"
+    namespace="namespace",
+    topicMentions=true
 }: {
     text: string
     format: string
     allowQuoteComments?: boolean
     editorClassName?: string
-    showTableOfContents?: boolean
     shouldPreserveNewLines?: boolean
     namespace?: string
+    topicMentions?: boolean
 }) => {
     const settings = getEditorSettings({
         initialText: text,
         initialTextFormat: format,
-        allowComments: allowQuoteComments,
         editorClassName,
-        tableOfContents: showTableOfContents,
         shouldPreserveNewLines,
-        namespace
+        namespace,
+        topicMentions
     })
     
-    return <MyLexicalEditor
+    return <LightEditor
         settings={settings}
         setEditor={() => {}}
         setEditorState={() => {}}

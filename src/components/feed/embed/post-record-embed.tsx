@@ -1,6 +1,5 @@
 "use client"
 
-import {BskyRichTextContent} from "../post/bsky-rich-text-content";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useRouter} from "next/navigation";
@@ -11,6 +10,11 @@ import Link from "next/link";
 import {View as RecordEmbedView, isViewRecord, isViewBlocked, isViewNotFound, isViewDetached} from "@/lex-api/types/app/bsky/embed/record"
 import {ATProtoStrongRef, PostRecord} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
+import dynamic from "next/dynamic";
+const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
+    ssr: false,
+    loading: () => <></>,
+});
 
 type PostRecordEmbedRecordProps = {
     record: RecordEmbedView["record"]

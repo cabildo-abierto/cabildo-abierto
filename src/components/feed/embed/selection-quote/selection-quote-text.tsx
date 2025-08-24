@@ -2,11 +2,16 @@ import {useMemo} from "react";
 import {
     markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {decompress} from "@/utils/compression";
+import dynamic from "next/dynamic";
+const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+    ssr: false,
+    loading: () => <></>,
+});
+
 
 type QuoteTextProps = {
     quotedText: EmbedSelectionQuote["quotedText"]

@@ -8,7 +8,7 @@ import {
     ITALIC_STAR,
     ITALIC_UNDERSCORE, ORDERED_LIST,
     QUOTE,
-    STRIKETHROUGH,
+    STRIKETHROUGH, TextFormatTransformer,
     TextMatchTransformer,
     UNORDERED_LIST
 } from "@lexical/markdown";
@@ -113,8 +113,9 @@ export const HEADING: ElementTransformer = {
     type: 'element',
 };
 
+export type MarkdownTransformer = ElementTransformer | TextFormatTransformer | TextMatchTransformer
 
-export const CA_TRANSFORMERS = [
+export const CA_TRANSFORMERS: MarkdownTransformer[] = [
     QUOTE,
     ORDERED_LIST,
     UNORDERED_LIST,

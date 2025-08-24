@@ -10,10 +10,12 @@ import {formatIsoDate} from "@/utils/dates";
 import {useRouter} from "next/navigation";
 import {ATProtoStrongRef, PostRecord} from "@/lib/types";
 import {isPostView as isCAPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
-import {BskyRichTextContent} from "@/components/feed/post/bsky-rich-text-content";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
-
-
+import dynamic from "next/dynamic";
+const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
+    ssr: false,
+    loading: () => <></>,
+});
 
 export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
     embed: CARecordEmbedView

@@ -6,9 +6,9 @@ import {Conversation, PrivateMessage} from "@/queries/useConversations";
 import {useSession} from "@/queries/useSession";
 import {ConvoView, isMessageView, MessageInput, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
-import {BskyRichTextContent} from "@/components/feed/post/bsky-rich-text-content";
+import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
 import {formatIsoDate} from "@/utils/dates";
-import {useEffect, useState} from "react";
+import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {TextField} from "../../../../../modules/ui-utils/src/text-field";
 import SendIcon from '@mui/icons-material/Send';
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
@@ -82,6 +82,7 @@ export default function Page() {
     const qc = useQueryClient()
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     const readMutation = useMutation({
         mutationFn: markRead,
@@ -104,6 +105,12 @@ export default function Page() {
             readMutation.mutate(convoId)
         }
     }, [data])
+
+    useLayoutEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [data]);
 
     const sendMessageMutation = useMutation({
         mutationFn: sendMessage,
@@ -158,8 +165,8 @@ export default function Page() {
         <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-56px)]" : "h-screen")}>
             <PageHeader title={title} defaultBackHref={"/mensajes"}/>
             <div className="flex-1 flex flex-col min-h-0">
-                <div className="flex-1 overflow-y-auto px-2">
-                    <div className="space-y-1 mt-2 pb-2">
+                <div className="flex-1 overflow-y-auto px-2" ref={scrollRef}>
+                    <div className="mt-2 pb-2">
                         {messages.map((m, index) => {
                             const isAuthor = m.sender.did == user.did
                             const prevOtherAuthor = index > 0 && messages[index - 1].sender.did != m.sender.did
@@ -169,7 +176,7 @@ export default function Page() {
                                     key={m.id+":"+index}
                                     className={
                                         (isAuthor ? "flex justify-end" : "flex") +
-                                        (prevOtherAuthor ? " pt-8" : "")
+                                        (prevOtherAuthor ? " pt-8" : " pt-1")
                                     }
                                 >
                                     <div className={

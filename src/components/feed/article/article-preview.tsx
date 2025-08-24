@@ -1,12 +1,16 @@
 "use client"
 import {PostPreviewFrame} from '../frame/post-preview-frame'
-import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {ArticleView, FeedViewContent, TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
 import {$Typed} from "@atproto/api";
 import {Color, darker} from "@/../modules/ui-utils/src/button"
 import {Box} from "@mui/material";
 import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
+import dynamic from "next/dynamic";
+const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+    ssr: false,
+    loading: () => <></>,
+});
 
 
 export type ArticlePreviewProps = {

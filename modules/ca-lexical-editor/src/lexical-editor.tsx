@@ -49,12 +49,6 @@ import {
 } from './ui/custom-mention-component';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
-import {
-    $createParagraphNode,
-    $createTextNode,
-    $getRoot,
-    LexicalEditor as OriginalLexicalEditor
-} from 'lexical';
 import {TableContext} from './plugins/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import {v4 as uuidv4} from 'uuid';
@@ -314,28 +308,18 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 }
 
 
-export const initializeEmpty = (initialText: string) => (editor: OriginalLexicalEditor) => {
-    editor.update(() => {
-        const root = $getRoot()
-        const node = $createParagraphNode()
-        node.append($createTextNode(initialText))
-        root.append(node)
-    })
-}
-
-
 const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
 
     const initialConfig: InitialConfigType = useMemo(() => {
-        const {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines, embeds} = settings
-
+        const {topicMentions, isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines, embeds} = settings
         return {
             namespace: settings.namespace,
             editorState: getInitialData(
                 initialText,
                 initialTextFormat,
                 shouldPreserveNewLines,
-                embeds
+                embeds,
+                topicMentions
             ),
             nodes: getEditorNodes(settings),
             onError: (error: Error) => { throw error },

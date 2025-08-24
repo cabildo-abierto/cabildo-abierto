@@ -1,4 +1,8 @@
-import ReadOnlyEditor from "@/components/editor/read-only-editor";
+import dynamic from "next/dynamic";
+const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+    ssr: false,
+    loading: () => <></>,
+});
 
 
 const ProfileDescription = ({description, className=""}: {description: string, className?: string}) => {

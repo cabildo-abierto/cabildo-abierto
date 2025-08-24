@@ -1,13 +1,18 @@
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {FollowButton} from "@/components/profile/profile-utils";
 import BlueskyLogo from "@/components/icons/bluesky-logo";
 import {emptyChar} from "@/utils/utils";
 import React from "react";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+
+import dynamic from "next/dynamic";
+const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+    ssr: false,
+    loading: () => <></>,
+});
 
 
 type UserSearchResultProps = {
