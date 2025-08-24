@@ -23,7 +23,8 @@ export function darker(color: Color): Color {
     else if (color == "background-dark3") return "background-dark4"
     else if (color == "transparent") return "background-dark"
     else if (color == "accent") return "accent-dark"
-    else if (color == "red") return "red-dark2"
+    else if (color == "red") return "red-dark"
+    else if(color == "red-dark") return "red-dark2"
     else return color
 }
 
