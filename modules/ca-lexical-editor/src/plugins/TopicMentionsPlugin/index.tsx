@@ -10,6 +10,7 @@ import {
     KEY_BACKSPACE_COMMAND,
     KEY_DELETE_COMMAND
 } from "lexical";
+import {isTopicUrl} from "../../get-initial-data";
 
 
 export default function TopicMentionsPlugin() {
@@ -89,32 +90,26 @@ export default function TopicMentionsPlugin() {
 
         return mergeRegister(
             editor.registerNodeTransform(CustomLinkNode, (node) => {
-                const url = node.getURL()
+                if(editor.isEditable()){
+                    const url = node.getURL()
 
-                if(url.startsWith("/tema?")
-                    || url.startsWith("https://cabildoabierto.ar/tema?")
-                    || url.startsWith("https://cabildoabierto.com.ar/tema?")
-                    || url.startsWith("https://www.cabildoabierto.ar/tema?")
-                    || url.startsWith("https://www.cabildoabierto.com.ar/tema?")
-                ){
-                    const newNode = $createTopicMentionNode({url})
-                    node.replace(newNode)
-                    newNode.selectEnd()
+                    if(isTopicUrl(url)){
+                        const newNode = $createTopicMentionNode({url})
+                        node.replace(newNode)
+                        newNode.selectEnd()
+                    }
                 }
             }),
             editor.registerNodeTransform(AutoLinkNode, (node) => {
-                const url = node.getURL()
-
-                if(url.startsWith("/tema?")
-                    || url.startsWith("https://cabildoabierto.ar/tema?")
-                    || url.startsWith("https://cabildoabierto.com.ar/tema?")
-                    || url.startsWith("https://www.cabildoabierto.ar/tema?")
-                    || url.startsWith("https://www.cabildoabierto.com.ar/tema?")
-                ){
-                    const newNode = $createTopicMentionNode({url})
-                    node.replace(newNode)
-                    newNode.selectEnd()
+                if(editor.isEditable()) {
+                    const url = node.getURL()
+                    if(isTopicUrl(url)){
+                        const newNode = $createTopicMentionNode({url})
+                        node.replace(newNode)
+                        newNode.selectEnd()
+                    }
                 }
+
             }),
             editor.registerCommand(
                 KEY_BACKSPACE_COMMAND,

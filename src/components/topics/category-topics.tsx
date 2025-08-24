@@ -44,15 +44,12 @@ export const CategoryTopics = ({sortedBy, categories}: {
     if (isLoading) return <LoadingSpinner/>
     if (!topics) return <ErrorPage>{error?.message ?? "Ocurrió un error al cargar los temas."}</ErrorPage>
 
-    const queryKey = ["category-topics", categories.sort().join(":"), sortedBy]
-
-    const endText = <div className={"text-sm text-[var(--text-light)] link px-4"}>
+    const endText = topics.length == 50 ? <div className={"text-sm text-[var(--text-light)] link px-4"}>
         Se muestran los primeros {topics.length} resultados. Para ver más temas usá la <Link href={"/temas?view=mapa"}>vista de mapa</Link> o el <Link href={"/temas"} onClick={(e) => {e.preventDefault(); smoothScrollTo(0)}}>buscador</Link>.
-    </div>
+    </div> : null
 
     return <div className="flex flex-col items-center w-full" key={sortedBy + categories.join("-")}>
         <StaticFeed
-            queryKey={queryKey}
             initialContents={topics}
             FeedElement={({content: t, index}: {content: TopicViewBasic, index?: number}) =>
                 <TopicSearchResult topic={t} index={index} time={time}/>

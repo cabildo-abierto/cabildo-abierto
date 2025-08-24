@@ -103,13 +103,13 @@ export const PostPreviewFrame = ({
 
             <div className="py-2 flex w-full max-w-[86%] flex-col pr-2">
                 <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
-                    <span className="truncate">
+                    <div className="truncate">
                         <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
-                    </span>
-                    <span className="text-[var(--text-light)]">·</span>
-                    <span className="text-[var(--text-light)] flex-shrink-0" >
+                    </div>
+                    <div className="text-[var(--text-light)]">·</div>
+                    <div className="text-[var(--text-light)] flex-shrink-0" >
                         <DateSince date={createdAt}/>
-                    </span>
+                    </div>
                 </div>
 
                 <div>

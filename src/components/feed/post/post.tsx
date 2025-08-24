@@ -1,15 +1,20 @@
-
-import { MainPostFrame } from '../../thread/post/main-post-frame';
+import {MainPostFrame} from '../../thread/post/main-post-frame';
 import {PostContent} from "./post-content";
-import {isPostView, isThreadViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    isPostView,
+    isThreadViewContent,
+    PostView,
+    ThreadViewContent
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {PostPreview} from "@/components/feed/post/post-preview";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+import {$Typed} from "@atproto/api";
 
 
 function getThreadAncestors(t: ThreadViewContent): ThreadViewContent[] {
     const ancestors: ThreadViewContent[] = []
-    while(t.parent && isThreadViewContent(t.parent)){
+    while (t.parent && isThreadViewContent(t.parent)) {
         ancestors.push(t.parent)
         t = t.parent
     }
@@ -17,7 +22,7 @@ function getThreadAncestors(t: ThreadViewContent): ThreadViewContent[] {
 }
 
 
-const PostThreadAncestors = ({threadViewContent}: {threadViewContent: ThreadViewContent}) => {
+const PostThreadAncestors = ({threadViewContent}: { threadViewContent: ThreadViewContent }) => {
     const ancestors = getThreadAncestors(threadViewContent)
 
     useEffect(() => {
@@ -28,14 +33,14 @@ const PostThreadAncestors = ({threadViewContent}: {threadViewContent: ThreadView
             smoothScrollTo(target, 200)
         }
 
-        if(ancestors.length > 0){
+        if (ancestors.length > 0) {
             scrollAfterDelay()
         }
     }, [ancestors])
 
     return <div className={"mb-1"}>
         {ancestors.map((a, index) => {
-            if(isPostView(a.content)){
+            if (isPostView(a.content)) {
                 return <div key={a.content.uri}>
                     <PostPreview
                         postView={a.content}
@@ -49,20 +54,20 @@ const PostThreadAncestors = ({threadViewContent}: {threadViewContent: ThreadView
 }
 
 
-export const Post = ({threadViewContent}: { threadViewContent: ThreadViewContent }) => {
+export const Post = ({threadViewContent, postView}: { threadViewContent: ThreadViewContent, postView: $Typed<PostView> }) => {
 
-    if(isPostView(threadViewContent.content)){
-        return <div className={"w-full"}>
-            <PostThreadAncestors threadViewContent={threadViewContent}/>
-            <div id={"post"} className={"w-full"}>
-                <MainPostFrame postView={threadViewContent.content}>
-                    <PostContent
-                        postView={threadViewContent.content}
-                        isMainPost={true}
-                        showQuoteContext={true}
-                    />
-                </MainPostFrame>
-            </div>
+    return <div className={"w-full"}>
+        <PostThreadAncestors threadViewContent={threadViewContent}/>
+        <div id={"post"} className={"w-full"}>
+            <MainPostFrame
+                postView={postView}
+            >
+                <PostContent
+                    postView={postView}
+                    isMainPost={true}
+                    showQuoteContext={true}
+                />
+            </MainPostFrame>
         </div>
-    }
+    </div>
 }

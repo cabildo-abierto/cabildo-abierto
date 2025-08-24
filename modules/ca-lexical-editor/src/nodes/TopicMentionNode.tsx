@@ -10,7 +10,7 @@ import {ReactNode} from "react";
 import {TopicMentionComp} from "../plugins/TopicMentionsPlugin/topic-mention-comp";
 
 
-type SerializedTopicMentionNode = {
+export type SerializedTopicMentionNode = {
     type: "topic-mention"
     url: string
     version: number
@@ -28,7 +28,7 @@ export class TopicMentionNode extends DecoratorNode<ReactNode> {
         return new TopicMentionNode(
             node.__url,
             node.__key,
-        );
+        )
     }
 
     constructor(
@@ -69,6 +69,7 @@ export class TopicMentionNode extends DecoratorNode<ReactNode> {
             version: 1,
         }
     }
+
     isIsolated(): boolean {
         return true;
     }

@@ -1,6 +1,6 @@
 import {ReplyButton} from "./reply-button"
 import {useEffect, useState} from "react";
-import {getCollectionFromUri} from "@/utils/uri";
+import {getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ThreadContent} from "@/components/thread/thread-content";
 import {
     isFullArticleView,
@@ -45,8 +45,10 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
         }
     }, [thread, replies, content])
 
+    const collection = getCollectionFromUri(content.uri)
+
     return <div className={"flex flex-col items-center"}>
-        <ThreadHeader c={getCollectionFromUri(content.uri)}/>
+        <ThreadHeader c={collection}/>
 
         <ThreadContent
             thread={thread}
@@ -64,22 +66,22 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
         <div className={"min-h-screen flex flex-col items-center"}>
             {replies && <ThreadReplies
                 threadUri={content.uri}
-                setPinnedReplies={setPinnedReplies}
+                setPinnedReplies={isArticle(collection) ? setPinnedReplies : null}
                 replies={replies}
             />}
 
             {!replies && <div className={"py-4"}>
                 <LoadingSpinner/>
             </div>}
-
-            {postOrArticle(thread.content) && <WritePanel
-                replyTo={thread.content}
-                open={openReplyPanel}
-                onClose={() => {
-                    setOpenReplyPanel(false)
-                }}
-            />}
         </div>
+
+        {postOrArticle(thread.content) && <WritePanel
+            replyTo={thread.content}
+            open={openReplyPanel}
+            onClose={() => {
+                setOpenReplyPanel(false)
+            }}
+        />}
     </div>
 }
 

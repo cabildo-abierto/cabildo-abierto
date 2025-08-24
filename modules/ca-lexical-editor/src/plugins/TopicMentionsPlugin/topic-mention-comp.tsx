@@ -27,10 +27,12 @@ const TopicMentionCompWithId = ({id, url}: {id: string, url: string}) => {
     let target: "_blank" | undefined = editor.isEditable() ? "_blank" : undefined
 
     return <span className={"exclude-links"}>
-        <Link href={url} target={target} className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-lg px-1"}>
-            <span className={"text-[var(--text-light)]"}>
-                {data ? clipStr(data.title, 50) : isLoading ? "..." : "Tema no encontrado"}
-            </span>
+        <Link
+            href={url}
+            target={target}
+            className={"text-[var(--text-light)] bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-lg px-1"}
+        >
+            {data ? clipStr(data.title, 50) : isLoading ? "..." : "Tema no encontrado"}
         </Link>
     </span>
 }
@@ -38,7 +40,16 @@ const TopicMentionCompWithId = ({id, url}: {id: string, url: string}) => {
 
 export const TopicMentionComp = ({url}: {url: string}) => {
     const i = getSearchParam(url, "i")
-    if(!i) return <Link href={url}>{clipStr(url, 50)}</Link>
 
-    return <TopicMentionCompWithId id={i} url={url}/>
+    if(!i) return <Link
+        id={url}
+        href={url}
+    >
+        {clipStr(url, 50)}
+    </Link>
+
+    return <TopicMentionCompWithId
+        id={i}
+        url={url}
+    />
 }

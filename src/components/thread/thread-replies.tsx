@@ -8,7 +8,6 @@ import {
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {PostPreview} from "@/components/feed/post/post-preview";
 import {Dispatch, SetStateAction} from "react";
-import {splitUri} from "@/utils/uri";
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {isBlockedPost, isNotFoundPost} from "@/lex-api/types/app/bsky/feed/defs";
 
@@ -21,11 +20,9 @@ type ThreadRepliesProps = {
 
 
 export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepliesProps) => {
-    const {did, collection, rkey} = splitUri(threadUri)
     return (
         <div className={"w-full"}>
             <StaticFeed
-                queryKey={["thread-feed", did, collection, rkey]}
                 initialContents={replies}
                 noResultsText={"Sé la primera persona en responder."}
                 endText={""}

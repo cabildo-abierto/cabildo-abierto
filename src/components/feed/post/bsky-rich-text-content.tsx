@@ -8,14 +8,16 @@ type BskyRichTextContentProps = {
     className?: string
     post: {text: string, facets?: PostRecord["facets"]}
     fontSize?: string
+    namespace?: string
 }
 
 
 export const BskyRichTextContent = ({
-                                        post,
-                                        fontSize = "16px",
-                                        className = "no-margin-top article-content exclude-links not-article-content"
-                                    }: BskyRichTextContentProps) => {
+    post,
+    fontSize = "16px",
+    className = "no-margin-top article-content exclude-links not-article-content",
+    namespace="namespace"
+}: BskyRichTextContentProps) => {
     const text: string = post.text
     const facets = post.facets
 
@@ -47,6 +49,7 @@ export const BskyRichTextContent = ({
             format={"markdown"}
             shouldPreserveNewLines={true}
             editorClassName={""}
+            namespace={namespace}
         />
     </div>
 }

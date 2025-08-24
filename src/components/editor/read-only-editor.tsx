@@ -14,7 +14,8 @@ const ReadOnlyEditor = ({
     allowQuoteComments = false,
     editorClassName="link",
     showTableOfContents = false,
-    shouldPreserveNewLines = false
+    shouldPreserveNewLines = false,
+    namespace="namespace"
 }: {
     text: string
     format: string
@@ -22,6 +23,7 @@ const ReadOnlyEditor = ({
     editorClassName?: string
     showTableOfContents?: boolean
     shouldPreserveNewLines?: boolean
+    namespace?: string
 }) => {
     const settings = getEditorSettings({
         initialText: text,
@@ -29,7 +31,8 @@ const ReadOnlyEditor = ({
         allowComments: allowQuoteComments,
         editorClassName,
         tableOfContents: showTableOfContents,
-        shouldPreserveNewLines
+        shouldPreserveNewLines,
+        namespace
     })
     
     return <MyLexicalEditor

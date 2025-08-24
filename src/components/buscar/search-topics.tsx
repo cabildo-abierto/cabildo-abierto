@@ -20,7 +20,6 @@ async function searchTopics(q: string, categories?: string[]) {
 export const SearchTopics = ({categories, setCategories}: { categories?: string[], setCategories?: (c: string[]) => void }) => {
     const {searchState} = useSearch();
     const [results, setResults] = useState<TopicViewBasic[] | "loading">([]);
-    const [resultsQuery, setResultsQuery] = useState<string[]>([""]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
     useEffect(() => {
@@ -35,13 +34,11 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
         async function search() {
             if (debouncedValue.length === 0) {
                 setResults([]);
-                setResultsQuery([""])
                 return;
             }
             setResults("loading")
             const {data: topics} = await searchTopics(debouncedValue, categories)
             setResults(topics)
-            setResultsQuery([debouncedValue, ...(categories ? categories.sort() : [])])
         }
 
         search();
@@ -69,7 +66,6 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
     </div>
 
     return <StaticFeed
-        queryKey={["search-topics", ...resultsQuery]}
         initialContents={results}
         FeedElement={({content: r}: { content: TopicViewBasic }) => <TopicSearchResult topic={r}/>}
         noResultsText={noResultsText}

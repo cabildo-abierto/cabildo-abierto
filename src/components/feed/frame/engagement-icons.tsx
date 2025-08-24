@@ -61,12 +61,12 @@ export const EngagementIcons = ({
             showBluesky={showBsky}
             setShowBluesky={setShowBsky}
         />
-        <WritePanel
+        {writingReply && <WritePanel
             open={writingReply}
             onClose={() => {
                 setWritingReply(false)
             }}
             replyTo={content}
-        />
+        />}
     </div>
 }
