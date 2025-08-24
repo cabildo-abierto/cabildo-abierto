@@ -28,6 +28,7 @@ export const PostContent = ({
             post={postView.record as PostRecord}
             fontSize={isMainPost ? "18px" : "16px"}
             className={"no-margin-top article-content not-article-content exclude-links"}
+            namespace={postView.uri}
         />
         {embed && <PostEmbed
             embed={embed}

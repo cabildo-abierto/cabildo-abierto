@@ -59,21 +59,24 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
                 </span>
             </div>
             <div>
-                <BskyRichTextContent post={record.value as PostRecord}/>
+                <BskyRichTextContent
+                    namespace={record.uri}
+                    post={record.value as PostRecord}
+                />
             </div>
             {/* TO DO: Entender por qué puede haber más de un embed */}
             {record.embeds && record.embeds.length > 0 && <PostEmbed embed={record.embeds[0]} mainPostRef={mainPostRef}/>}
         </div>
     } else if(isViewDetached(record)){
-        return <div className={"p-3 mt-2 border rounded-lg"}>
+        return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
             Eliminado
         </div>
     } else if(isViewBlocked(record)){
-        return <div className={"p-3 mt-2 border rounded-lg"}>
+        return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
             Contenido bloqueado
         </div>
     } else if(isViewNotFound(record)){
-        return <div className={"p-3 mt-2 border rounded-lg"}>
+        return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
             No encontrado
         </div>
     } else {

@@ -29,7 +29,7 @@ const minimizedSteps: Step[] = [
     {
         target: '#topic-content',
         content: <TourContent>
-            Este es el consenso actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar la edición.
+            Este es el consenso actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar las ediciones.
         </TourContent>,
         placement: 'bottom',
         disableBeacon: true,
@@ -78,7 +78,7 @@ const maximizedSteps: Step[] = [
     {
         target: '#editor',
         content: <TourContent>
-            Te mostramos la última versión aceptada del tema. Si estás en una computadora, podés comentar selecciones de texto.
+            Esta es la última versión aceptada del tema.
         </TourContent>,
         placement: 'top',
         disableBeacon: true,

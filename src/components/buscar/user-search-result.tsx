@@ -44,7 +44,7 @@ const UserSearchResult = ({user, showFollowButton=true, goToProfile=true, onClic
             </div>
             {user.displayName && <span className="text-[var(--text-light)] truncate text-ellipsis">@{user.handle}</span>}
             {user.description && user.description.length > 0 && <div className={"text-sm pt-1 line-clamp-2"}>
-                <ReadOnlyEditor text={user.description} format={"plain-text"}/>
+                <ReadOnlyEditor namespace={user.did} text={user.description} format={"plain-text"}/>
             </div>}
         </div>
         <div className={"px-2 w-[160px] flex flex-col items-end justify-between space-y-4"}>

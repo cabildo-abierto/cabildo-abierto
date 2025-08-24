@@ -175,7 +175,11 @@ export default function Page() {
                                     <div className={
                                         "rounded-lg max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark)]" : "bg-[var(--background-dark2)]"))
                                     }>
-                                        <BskyRichTextContent post={{text: m.text, facets: m.facets}} fontSize={isMobile ? "14px" : "15px"}/>
+                                        <BskyRichTextContent
+                                            post={{text: m.text, facets: m.facets}}
+                                            fontSize={isMobile ? "14px" : "15px"}
+                                            namespace={m.id}
+                                        />
                                         <div className={"flex justify-end text-[var(--text-light)] " + (isMobile ? "text-[10px]" : "text-xs")}>
                                             {formatIsoDate(m.sentAt, true)}
                                         </div>

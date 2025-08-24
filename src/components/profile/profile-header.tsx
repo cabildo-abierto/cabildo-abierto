@@ -97,7 +97,7 @@ function ProfileHeader({
                     {emptyChar}
                 </div>
             }
-            {profile.bsky.avatar ? <div className={"flex justify-between"}>
+            {profile.bsky.avatar ? <div className={"flex justify-between pr-1"}>
                 <FullscreenImageViewer
                     images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}

@@ -114,6 +114,8 @@ export type SettingsProps = {
     measureTypingPerf?: boolean
 
     topicMentions: boolean
+
+    namespace: string
 }
 
 
@@ -323,11 +325,18 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 
 
 const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
+
     const initialConfig: InitialConfigType = useMemo(() => {
         const {isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines, embeds} = settings
+
         return {
-            namespace: 'Playground',
-            editorState: getInitialData(initialText, initialTextFormat, shouldPreserveNewLines, embeds),
+            namespace: settings.namespace,
+            editorState: getInitialData(
+                initialText,
+                initialTextFormat,
+                shouldPreserveNewLines,
+                embeds
+            ),
             nodes: getEditorNodes(settings),
             onError: (error: Error) => { throw error },
             theme: {

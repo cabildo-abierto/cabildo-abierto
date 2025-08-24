@@ -38,7 +38,6 @@ const FeedViewContentFeed = ({
 
     if (initialContents) {
         return <StaticFeed
-            queryKey={queryKey}
             initialContents={initialContents}
             FeedElement={({content}) => <FeedElement
                 elem={content}

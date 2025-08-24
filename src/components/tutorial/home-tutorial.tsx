@@ -220,7 +220,6 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             target: "body",
             content: <TourContent>
                 Eso es todo por ahora. Cuando vayas a la sección Temas vas a encontrar otro tour.
-                Si querés profundizar sobre algo también podés explorar los temas sobre Cabildo Abierto.
             </TourContent>,
             placement: 'center',
             disableBeacon: true,

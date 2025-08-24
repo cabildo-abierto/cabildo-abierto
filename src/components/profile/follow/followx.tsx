@@ -19,7 +19,7 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
     return <div>
         {profile && <div className={"w-full flex p-2 sm:text-base text-sm border-b space-x-1 text-[var(--text-light)] items-baseline"}>
             <div className={"flex space-x-1"}>
-                <FollowCount count={kind == "seguidores" ? profile.ca.followersCount : profile.ca.followsCount} kind={kind}/>
+                <FollowCount count={kind == "seguidores" ? profile.ca?.followersCount : profile.ca?.followsCount} kind={kind}/>
                 <div className={""}>
                     en Cabildo Abierto,
                 </div>

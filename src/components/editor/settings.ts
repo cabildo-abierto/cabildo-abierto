@@ -39,6 +39,8 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
 
         onAddComment: () => {},
 
+        namespace: "Playground",
+
         ...s
     }
 }

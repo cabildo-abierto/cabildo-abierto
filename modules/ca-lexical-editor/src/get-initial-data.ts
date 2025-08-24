@@ -7,9 +7,60 @@ import {
 } from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {SerializedCustomLinkNode} from "./nodes/CustomLinkNode";
+import {SerializedTopicMentionNode} from "./nodes/TopicMentionNode";
 
 
-export function getInitialData(text: string, format: string, shouldPreserveNewLines: boolean = false, embeds?: ArticleEmbedView[]): InitialEditorStateType {
+export function isTopicUrl(url: string): boolean {
+    return url.startsWith("/tema?")
+        || url.startsWith("https://cabildoabierto.ar/tema?")
+        || url.startsWith("https://cabildoabierto.com.ar/tema?")
+        || url.startsWith("https://www.cabildoabierto.ar/tema?")
+        || url.startsWith("https://www.cabildoabierto.com.ar/tema?")
+}
+
+
+function createTopicMentionsFromNode(node: any){
+    if(node.type == "custom-link"){
+
+        const linkNode: SerializedCustomLinkNode = node as SerializedCustomLinkNode;
+        const url = linkNode.url
+        if(isTopicUrl(url)){
+            const topicMention: SerializedTopicMentionNode = {
+                type: "topic-mention",
+                url: url,
+                version: node.version
+            }
+            return topicMention
+        }
+    } else if(node.children){
+        for(let i = 0; i < node.children.length; i++){
+            let c = node.children[i]
+            c = createTopicMentionsFromNode(c)
+            node.children[i] = c
+        }
+    }
+    return node
+}
+
+
+function createTopicMentions(lexicalStr: string){
+    const state = JSON.parse(lexicalStr)
+    let root = state.root
+    root = createTopicMentionsFromNode(root)
+    state.root = root
+    return JSON.stringify(state)
+}
+
+
+
+export function getInitialData(
+    text: string,
+    format: string,
+    shouldPreserveNewLines: boolean = false,
+    embeds?: ArticleEmbedView[],
+    topicMentions: boolean = true
+): InitialEditorStateType {
 
     if(format == "markdown"){
         text = normalizeMarkdown(text, true)
@@ -26,6 +77,9 @@ export function getInitialData(text: string, format: string, shouldPreserveNewLi
         return (editor: LexicalEditor) => {
             editor.update(() => {
                 try {
+                    if(topicMentions){
+                        text = createTopicMentions(text)
+                    }
                     const parsed = editor.parseEditorState(text)
                     editor.setEditorState(parsed)
                 } catch (e) {
