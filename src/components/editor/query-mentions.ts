@@ -5,7 +5,10 @@ import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-men
 
 function profileViewBasicToMentionProps(p: ProfileViewBasic): MentionProps {
     return {
-        ...p,
+        did: p.did,
+        handle: p.handle,
+        avatar: p.avatar,
+        displayName: p.displayName,
         value: p.handle
     }
 }

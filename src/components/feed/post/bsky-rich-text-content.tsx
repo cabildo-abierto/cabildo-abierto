@@ -26,6 +26,8 @@ const BskyRichTextContent = ({
             facets: post.facets
         })
 
+        rt.detectFacetsWithoutResolution()
+
         const segments = Array.from(rt.segments())
 
         let markdown = ''

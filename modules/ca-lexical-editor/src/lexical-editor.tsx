@@ -13,7 +13,6 @@ import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
 import {ClickableLinkPlugin} from '@lexical/react/LexicalClickableLinkPlugin';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
-import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {ListPlugin} from '@lexical/react/LexicalListPlugin';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
@@ -60,6 +59,7 @@ import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {EmbedContext} from "./nodes/EmbedNode";
+import MentionsToLinksPlugin from "./plugins/MentionsToLinksPlugin";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -236,7 +236,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 {markdownShortcuts && <MarkdownShortcutPlugin/>}
 
-                <HashtagPlugin/>
+                <MentionsToLinksPlugin/>
 
                 <AutoLinkPlugin/>
 

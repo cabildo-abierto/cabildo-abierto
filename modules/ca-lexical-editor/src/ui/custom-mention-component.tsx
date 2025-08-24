@@ -7,6 +7,7 @@ import {forwardRef} from "react";
 import Link from "next/link";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import LoadingSpinner from "../../../ui-utils/src/loading-spinner";
+import {profileUrl} from "@/utils/uri";
 
 
 export const EmptyMentionResults = () => (
@@ -30,7 +31,7 @@ export const CustomMentionComponent = forwardRef<
     BeautifulMentionComponentProps<MentionProps>
 >(({data: myData}, ref) => {
 
-    return <Link className={"text-link"} key={myData.did} href={"/perfil/" + encodeURIComponent(myData.id)}>
+    return <Link className={"text-link"} key={myData.did} href={profileUrl(myData.handle)}>
         @{myData.handle}
     </Link>
 })
@@ -50,10 +51,9 @@ export function CustomMenuMentions({loading, children, ...props}: BeautifulMenti
 export const CustomMenuItemMentions = forwardRef<
     HTMLLIElement,
     BeautifulMentionsMenuItemProps
->(({selected, item, ...props}, ref) => {
-        return (
+>(({selected, item}, ref) => {
+    return (
             <li
-                {...props}
                 className="m-0 flex p-2 w-full items-center space-x-2 cursor-pointer hover:bg-[var(--background-dark3)] rounded"
                 ref={ref}
             >

@@ -113,6 +113,7 @@ export const HEADING: ElementTransformer = {
     type: 'element',
 };
 
+
 export type MarkdownTransformer = ElementTransformer | TextFormatTransformer | TextMatchTransformer
 
 export const CA_TRANSFORMERS: MarkdownTransformer[] = [
