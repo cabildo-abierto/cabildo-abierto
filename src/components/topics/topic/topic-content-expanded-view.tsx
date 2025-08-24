@@ -105,7 +105,7 @@ const TopicContentExpandedViewContent = ({
     }, [wikiEditorState, topic])
 
     const containerClassName = wikiEditorState.startsWith("editing") ? "mb-32" : (wikiEditorState == "minimized" ? "" : "mb-8") +
-        (wikiEditorState == "minimized" ? " max-h-[300px] overflow-y-clip custom-scrollbar" : "")
+        (wikiEditorState == "minimized" ? " max-h-[300px] pb-4 overflow-y-clip custom-scrollbar" : "")
 
     const className = "sm:px-2 px-4 " + (wikiEditorState == "minimized" ? "relative min-h-[100px]" : "pb-2 mt-4 min-h-[300px]")
 
@@ -242,11 +242,12 @@ export const TopicContentExpandedViewWithVersion = ({
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
         if (editor) {
+            const editorState = new ProcessedLexicalState(editor.getEditorState().toJSON())
             const {
                 markdown,
                 embeds,
                 embedContexts
-            } = editorStateToMarkdown(new ProcessedLexicalState(editor.getEditorState().toJSON()))
+            } = editorStateToMarkdown(editorState)
 
             const {error} = await saveEditMutation.mutateAsync({
                 id: topic.id,
