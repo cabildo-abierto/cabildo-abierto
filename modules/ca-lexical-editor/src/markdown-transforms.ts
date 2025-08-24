@@ -1,6 +1,6 @@
 import {createHeadlessEditor} from "@lexical/headless"
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown"
-import {CA_TRANSFORMERS} from "./ca-transformers";
+import {CA_TRANSFORMERS, MarkdownTransformer} from "./ca-transformers";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {decompress} from "@/utils/compression";
 import {
@@ -119,9 +119,14 @@ export function markdownToEditorState(
     shouldMergeAdjacentLines: boolean = true,
     embeds: ArticleEmbedView[] = [],
     embedContexts: EmbedContext[] = [],
+    transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): SerializedEditorState {
     if (embeds.length == 0) {
-        return markdownToEditorStateNoEmbeds(markdown, shouldPreserveNewLines, shouldMergeAdjacentLines)
+        return markdownToEditorStateNoEmbeds(
+            markdown,
+            shouldPreserveNewLines,
+            shouldMergeAdjacentLines,
+            transformers)
     }
 
     let res = null
@@ -147,7 +152,12 @@ export function markdownToEditorState(
         lastIndex = embeds[i].index
     }
 
-    res = joinEditorStates(res, markdownToEditorStateNoEmbeds(markdown.slice(lastIndex), shouldPreserveNewLines, shouldMergeAdjacentLines))
+    res = joinEditorStates(res, markdownToEditorStateNoEmbeds(
+        markdown.slice(lastIndex),
+        shouldPreserveNewLines,
+        shouldMergeAdjacentLines,
+        transformers
+    ))
 
     return res
 }
@@ -156,7 +166,8 @@ export function markdownToEditorState(
 export function markdownToEditorStateNoEmbeds(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
-    shouldMergeAdjacentLines: boolean = true
+    shouldMergeAdjacentLines: boolean = true,
+    transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): SerializedEditorState {
 
     const nodes = getEditorNodes({allowImages: true, topicMentions: true})
@@ -172,7 +183,7 @@ export function markdownToEditorStateNoEmbeds(
     editor.update(() => {
         $convertFromMarkdownString(
             markdown,
-            CA_TRANSFORMERS,
+            transformers,
             undefined,
             shouldPreserveNewLines,
             shouldMergeAdjacentLines)

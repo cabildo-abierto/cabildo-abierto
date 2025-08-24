@@ -99,7 +99,7 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
                 {c}
             </button>
         })}
-        {maxCount < filteredCategories.length && <div className={"text-[var(--text-light)]"}>
+        {filteredCategories && maxCount < filteredCategories.length && <div className={"text-[var(--text-light)]"}>
             <button onClick={() => {setMaxCount(maxCount + 10)}} className={"rounded-full hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] px-2"}>
                 Ver más
             </button>

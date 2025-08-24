@@ -193,8 +193,6 @@ export const NotificationCard = ({notification}: { notification: CANotification 
             </Link>.
         </UserNotificationCard>
     } else {
-        return <div className={"p-2 text-center text-[var(--text-light)]"}>
-            Notificación desconocida
-        </div>
+        return null
     }
 }
