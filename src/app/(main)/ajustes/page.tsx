@@ -115,8 +115,11 @@ const AccountSettings = () => {
         </div>
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Contraseña</div>
-            <Link className="text-[var(--primary)] hover:underline" target="_blank"
-                  href={"https://bsky.app/settings/account"}>
+            <Link
+                className="text-[var(--primary)] hover:underline"
+                target="_blank"
+                href={"https://bsky.app/settings/account"}
+            >
                 Cambiar desde Bluesky.
             </Link>
         </div>
@@ -124,8 +127,11 @@ const AccountSettings = () => {
             <div className="text-[var(--text-light)] font-medium text-sm">Mail</div>
             {account.email ? <div className="text-lg ">{account.email}</div> :
                 <div className="text-lg ">Pendiente</div>}
-            <Link className="text-[var(--primary)] hover:underline" target="_blank"
-                  href={"https://bsky.app/settings/account"}>
+            <Link
+                className="text-[var(--primary)] hover:underline"
+                target="_blank"
+                href={"https://bsky.app/settings/account"}
+            >
                 {account.email ? "Cambiar" : "Agregar"} desde Bluesky.
             </Link>
         </div>

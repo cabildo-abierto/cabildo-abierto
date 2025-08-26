@@ -1,9 +1,10 @@
-import Link from "next/link";
+import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 
 
 function categoryUrl(c: string) {
     return "/temas?view=lista&c=" + c
 }
+
 
 const TopicCategories = ({
                                     categories,
@@ -16,11 +17,17 @@ const TopicCategories = ({
     maxCount?: number
     containerClassName?: string
 }) => {
+
     return <div className={"flex truncate space-x-2 items-center " + containerClassName} id={"topic-categories"}>
         {categories.slice(0, maxCount != null ? maxCount : categories.length).map((c, index) => {
-            return <Link key={index} href={categoryUrl(c)} className={className} onClick={(e) => {e.stopPropagation()}}>
+            return <CustomLink
+                tag={"span"}
+                key={index}
+                className={className}
+                href={categoryUrl(c)}
+            >
                 {c}
-            </Link>
+            </CustomLink>
         })}
         {maxCount && categories.length > maxCount && <span className={containerClassName}>
             ...

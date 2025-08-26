@@ -1,10 +1,10 @@
-import Link from "next/link"
 import {profileUrl} from "@/utils/uri";
 import dynamic from "next/dynamic";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {ProfileViewBasic as ProfileViewBasicCA, isProfileViewBasic as isProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ProfileViewBasic, ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
 import {$Typed} from "@atproto/api";
+import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"));
 
@@ -17,7 +17,8 @@ export const ContentTopRowAuthor = ({author}: ContentTopRowAuthorProps) => {
 
     const verification = isProfileViewBasicCA(author) ? author.verification : null
 
-    return <Link
+    return <CustomLink
+        tag={"span"}
         onClick={(e) => {
             e.stopPropagation()
         }}
@@ -34,5 +35,5 @@ export const ContentTopRowAuthor = ({author}: ContentTopRowAuthorProps) => {
                 </div>
             </div>
         </UserSummaryOnHover>
-    </Link>
+    </CustomLink>
 }

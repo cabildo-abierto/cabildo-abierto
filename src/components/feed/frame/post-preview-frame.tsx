@@ -1,6 +1,4 @@
 import {DateSince} from '../../../../modules/ui-utils/src/date'
-import Link from 'next/link'
-import {useRouter} from 'next/navigation'
 import {ContentTopRowAuthor} from '@/components/feed/frame/content-top-row-author'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
@@ -20,6 +18,7 @@ import {$Typed} from "@atproto/api";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
+import { CustomLink } from '../../../../modules/ui-utils/src/custom-link'
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {
@@ -51,7 +50,6 @@ export const PostPreviewFrame = ({
                                      reason,
                                      pageRootUri,
                                  }: FastPostPreviewFrameProps) => {
-    const router = useRouter()
     const url = urlFromRecord(postView.uri)
     const qc = useQueryClient()
 
@@ -72,32 +70,31 @@ export const PostPreviewFrame = ({
             })
             qc.invalidateQueries({queryKey: threadQueryKey(postView.uri)})
         }
-
-        router.push(url);
     }
 
-    return <div
+    return <CustomLink
+        tag={"div"}
         id={"discussion:" + postView.uri}
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={onClick}
+        href={url}
     >
         {isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full items-stretch"}>
             <div className="max-w-[13%] w-full flex flex-col items-center px-2">
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
-                <Link
+                <CustomLink
+                    tag={"span"}
                     href={profileUrl(author.handle)}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                    }}
                     className="max-w-11 w-full flex items-center justify-center"
                 >
                     <ProfilePic
                         user={author}
+                        clickable={false}
                         className={"rounded-full w-full"}
                     />
-                </Link>
+                </CustomLink>
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
@@ -125,5 +122,5 @@ export const PostPreviewFrame = ({
                 </div>
             </div>
         </div>
-    </div>
+    </CustomLink>
 }

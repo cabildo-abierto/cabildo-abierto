@@ -405,6 +405,7 @@ function FloatingLinkEditor({
             <div className="flex items-center">
                 <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
                     <Link
+                        tag={"link"}
                         href={sanitizeUrl(linkUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
