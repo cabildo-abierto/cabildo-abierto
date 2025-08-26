@@ -54,9 +54,10 @@ export const useThreadWithNormalizedContent = (uri: string) => {
                 setNewContent(content)
             }
         }
-
         if(res.data){
             process()
+        } else if(res.isError || !res.isLoading){
+            setNewContent(null)
         }
     }, [res.data])
 

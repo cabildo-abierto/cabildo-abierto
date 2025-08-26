@@ -7,11 +7,11 @@ function categoryUrl(c: string) {
 
 
 const TopicCategories = ({
-                                    categories,
-                                    maxCount,
-                                    containerClassName = "text-xs",
-                                    className = "px-2 bg-[var(--background-dark2)] truncate text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark3)]"
-                                }: {
+    categories,
+    maxCount,
+    containerClassName = "text-xs",
+    className = "px-2 bg-[var(--background-dark2)] truncate text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark3)]"
+}: {
     categories: string[]
     className?: string
     maxCount?: number
