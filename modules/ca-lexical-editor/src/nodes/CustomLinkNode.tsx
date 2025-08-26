@@ -22,6 +22,7 @@ import {
     Spread,
 } from 'lexical';
 import {LinkAttributes, LinkNode, SerializedAutoLinkNode} from "@lexical/link";
+import {useRouter} from "next/navigation";
 
 export type SerializedCustomLinkNode = Spread<
     {
@@ -51,7 +52,7 @@ export class CustomLinkNode extends LinkNode {
     }
 
     createDOM(config: EditorConfig): LinkHTMLElementType {
-        const element = document.createElement('a');
+        const element = document.createElement('a')
         element.href = this.sanitizeUrl(this.__url);
         if (this.__target !== null) {
             element.target = this.__target;
@@ -62,6 +63,7 @@ export class CustomLinkNode extends LinkNode {
         if (this.__title !== null) {
             element.title = this.__title;
         }
+
         addClassNamesToElement(element, config.theme.link);
         return element;
     }

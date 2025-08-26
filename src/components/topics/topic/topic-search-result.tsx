@@ -1,7 +1,6 @@
 "use client"
 import {getTopicCategories, getTopicTitle} from "./utils";
 import TopicCategories from "./topic-categories";
-import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
@@ -11,6 +10,7 @@ import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 
 
 const TopicNumWords = ({numWords}: {numWords: number}) => {
@@ -32,24 +32,17 @@ const TopicSearchResult = ({topic, index, time}: {
     index?: number
     time?: TimePeriod
 }) => {
-    const router = useRouter()
     const {isMobile} = useLayoutConfig()
-
-    function onMouseEnter() {
-        // TO DO preload("/api/topic/"+topic.id, fetcher)
-    }
 
     const categories = getTopicCategories(topic.props)
 
     const unseenUpdate = hasUnseenUpdate(topic)
 
     return (
-        <div
-            onClick={() => {
-                router.push(topicUrl(topic.id))
-            }}
+        <CustomLink
+            tag={"div"}
+            href={topicUrl(topic.id)}
             className={"px-3 py-4 w-full flex justify-between hover:bg-[var(--background-dark)] bg-[var(--background)] cursor-pointer"}
-            onMouseEnter={onMouseEnter}
             id={"topic-search-result"}
         >
             <div className={"sm:max-w-[70%] w-full flex items-start flex-col sm:space-y-2"}>
@@ -61,7 +54,7 @@ const TopicSearchResult = ({topic, index, time}: {
                         -
                     </div>}
                     <TopicCategories
-                        className={"text-[var(--text-light)]"}
+                        className={"text-[var(--text-light)] hover:text-[var(--text)]"}
                         containerClassName={"text-xs"}
                         maxCount={isMobile ? 2 : undefined}
                         categories={categories}
@@ -91,7 +84,7 @@ const TopicSearchResult = ({topic, index, time}: {
                 </DescriptionOnHover>}
                 {topic.numWords != null && <TopicNumWords numWords={topic.numWords}/>}
             </div>
-        </div>
+        </CustomLink>
     );
 }
 

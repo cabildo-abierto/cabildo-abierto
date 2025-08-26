@@ -44,7 +44,7 @@ export const SidebarButton = ({
     }
 
     return <>
-        <CustomLink href={href} className={className} id={id} onClick={handleClick}>
+        <CustomLink tag="link" href={href} className={className} id={id} onClick={handleClick}>
             {showText ? <Button
                 variant="text"
                 color={color}

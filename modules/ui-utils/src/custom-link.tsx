@@ -1,13 +1,14 @@
-"use client"
 import {useRouter} from "next/navigation";
-import Link, {LinkProps} from 'next/link'
 import {usePageLeave} from "./prevent-leave";
+import Link from "next/link";
+
+type LinkEvent = React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLSpanElement>
 
 type CustomLinkProps = {
     href: string;
     children: React.ReactNode;
     className?: string
-    target?: string
+    target?: "_blank" | undefined
     rel?: string
     onMouseEnter?: any
     onMouseLeave?: any
@@ -15,7 +16,8 @@ type CustomLinkProps = {
     style?: any
     title?: string
     id?: string
-    onClick?: LinkProps["onClick"]
+    onClick?: (e : LinkEvent) => Awaited<void>
+    tag?: "div" | "span" | "link"
 };
 
 export function CustomLink({
@@ -25,39 +27,76 @@ export function CustomLink({
                                onClick,
                                className,
                                target,
-                               rel,
+    rel,
                                onMouseEnter,
                                onMouseLeave,
                                draggable,
                                style,
-                               title
+                               title,
+                               tag = "link",
                            }: CustomLinkProps) {
     const {leaveStoppers} = usePageLeave()
     const router = useRouter()
 
-    function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    function redirect(e: LinkEvent) {
+        if(target == "_blank" || e.metaKey || e.ctrlKey){
+            window.open(href, "_blank")
+        } else {
+            router.push(href)
+        }
+    }
+
+    function handleClick(e: LinkEvent) {
+        e.stopPropagation()
+        e.preventDefault()
         if (leaveStoppers.length > 0) {
             if (window.confirm("Hay cambios sin guardar. ¿Deseas salir de todas formas?")) {
-                router.push(href)
+                redirect(e)
             }
+        } else {
+            redirect(e)
         }
         onClick?.(e)
     }
 
-    if (!href && !onClick) {
+    className += " cursor-pointer"
+
+    if (tag == "span") {
+        return <span
+            className={className}
+            onClick={handleClick}
+            title={title}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            draggable={draggable}
+            style={style}
+            id={id}
+            role={"link"}
+            tabIndex={0}
+        >
+            {children}
+        </span>
+    } else if(tag == "div"){
         return <div
             className={className}
+            onClick={handleClick}
+            title={title}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            draggable={draggable}
+            style={style}
+            id={id}
+            role={"link"}
+            tabIndex={0}
         >
             {children}
         </div>
-    }
-
-    return (
-        <Link
+    } else {
+        return <Link
+            className={className}
+            onClick={handleClick}
             href={href}
             title={title}
-            onClick={handleClick}
-            className={className}
             target={target}
             rel={rel}
             onMouseEnter={onMouseEnter}
@@ -68,5 +107,5 @@ export function CustomLink({
         >
             {children}
         </Link>
-    );
+    }
 }

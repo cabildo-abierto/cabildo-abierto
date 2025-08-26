@@ -168,6 +168,7 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                             <div className={"w-full flex sm:justify-center"}>
                                 <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                     <ProfilePic
+                                        clickable={false}
                                         user={user.user}
                                         className={"w-14 h-14 sm:w-12 sm:h-12 rounded-full border " + dimOnHoverClassName}
                                         descriptionOnHover={false}
@@ -184,7 +185,6 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 <hr className={"mt-4 border-2"}/>
                             </div>
                         </div>
-
                         <SidebarButton
                             showText={showText}
                             onClick={onClose}

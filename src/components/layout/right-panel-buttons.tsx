@@ -16,9 +16,10 @@ export const RightPanelButton = ({children, icon, href, onClick}: {
 }) => {
     return (
         <Link
+            tag={"link"}
             href={href}
             onClick={onClick}
-            className={"text-[var(--text-light)] hover:text-[var(--text)] flex items-center space-x-2 transition duration-200 p-1 rounded-lg"}
+            className={"text-[var(--text-light)] font-light cursor-pointer hover:text-[var(--text)] flex items-center space-x-2 transition duration-200 p-1 rounded-lg"}
         >
             <div className={"w-6"}>
                 {icon}
