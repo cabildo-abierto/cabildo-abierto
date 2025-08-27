@@ -12,8 +12,8 @@ import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {useQueryClient} from "@tanstack/react-query";
 import FullscreenImageViewer from "@/components/images/fullscreen-image-viewer";
-import Link from "next/link";
 import {useProfile} from "@/queries/useProfile";
+import EditImageModal from "@/components/profile/edit-image-modal";
 
 type Props = {
     open: boolean,
@@ -24,18 +24,27 @@ type Props = {
 export const UploadImageModalOnClick = ({
                                             children,
                                             setImage,
+                                            crop
                                         }: {
     children: ReactNode;
     setImage: (i: ImagePayload) => void;
+    crop: "circle" | "rectangle" | "none"
 }) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
+    const open = Boolean(anchorEl)
+    const [editingImage, setEditingImage] = useState<ImagePayload | null>(null)
 
     const onClose = () => {
         setAnchorEl(null);
     };
 
     return <>
+        {crop != "none" && editingImage && <EditImageModal
+            editingImage={editingImage}
+            onClose={() => {setEditingImage(null)}}
+            setImage={setImage}
+            crop={crop}
+        />}
         <div onClick={(e) => setAnchorEl(e.currentTarget)}>
             {children}
         </div>
@@ -60,10 +69,17 @@ export const UploadImageModalOnClick = ({
                 }
             }}
         >
-            <UploadImageButton onSubmit={(i) => {
-                setImage(i);
-                onClose()
-            }} text={"Subir imagen"}/>
+            <UploadImageButton
+                onSubmit={(i) => {
+                    if(crop != "none") {
+                        setEditingImage(i)
+                    } else {
+                        setImage(i)
+                        onClose()
+                    }
+                }}
+                text={"Subir imagen"}
+            />
         </Menu>
     </>
 };
@@ -94,13 +110,15 @@ const EditProfileMobile = ({open, onClose}: Props) => {
     const qc = useQueryClient()
 
     async function onSubmit() {
-        await post<UpdateProfileProps, {}>("/profile", {
+        const {error} = await post<UpdateProfileProps, {}>("/profile", {
             displayName: displayName != profile.bsky.displayName ? displayName : undefined,
             banner: banner && banner.$type == "file" ? banner.base64 : undefined,
             profilePic: profilePic && profilePic.$type == "file" ? profilePic.base64 : undefined,
             description: description != profile.bsky.description ? description : undefined
         })
+        if(error) return {error}
         qc.invalidateQueries({queryKey: ["profile", user.handle]})
+        qc.invalidateQueries({queryKey: ["session"]})
         onClose()
         return {}
     }
@@ -112,7 +130,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
     >
         <div className="flex justify-between items-center border-b p-2 min-[600px]:w-[600px] w-screen">
             <div className="flex-1">
-                <CloseButton onClose={onClose} size="small" />
+                <CloseButton onClose={onClose} size="small"/>
             </div>
 
             <h3 className="text-center flex-1 font-medium">Editar perfil</h3>
@@ -126,7 +144,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                 />
             </div>
         </div>
-        <UploadImageModalOnClick setImage={setBanner}>
+        <UploadImageModalOnClick crop="rectangle" setImage={setBanner}>
             <div className={"relative"}>
                 {banner ?
                     <Image
@@ -149,7 +167,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
             </div>
         </UploadImageModalOnClick>
         <div className={"flex"}>
-            <UploadImageModalOnClick setImage={setProfilePic}>
+            <UploadImageModalOnClick crop="circle" setImage={setProfilePic}>
                 <div className={"relative"}>
                     <Image
                         src={profilePic.src}
@@ -157,7 +175,6 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                         height={400}
                         alt={profile.bsky.handle + " avatar"}
                         className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
-                        onClick={e => {e.stopPropagation(); setViewingProfilePic(0)}}
                     />
                     <FullscreenImageViewer
                         images={[profilePic.src]}
@@ -179,7 +196,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
         <div className={"my-8 px-8 flex flex-col space-y-8 min-[600px]:w-[600px] w-screen"}>
             <TextField
                 value={displayName}
-                label={"Nombre visible"}
+                label={"Nombre"}
                 size={"small"}
                 onChange={(e) => {
                     setDisplayName(e.target.value)
@@ -195,11 +212,6 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                     setDescription(e.target.value)
                 }}
             />
-            <div className={"w-full flex"}>
-            <div className={"text-[var(--text-light)] text-sm"}>
-                Si la imagen no queda como querrías, probá <Link href={`https://bsky.app/profile/${profile.bsky.handle}`} target="_blank" className={"hover:underline font-semibold"}>editar tu perfil en Bluesky</Link>, que te permite recortar la imagen.
-            </div>
-            </div>
         </div>
     </BaseFullscreenPopup>
 }
