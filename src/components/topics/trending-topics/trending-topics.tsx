@@ -88,7 +88,7 @@ export const TrendingTopicsPanel = () => {
     const [time, setTime] = useState<string>(configLabelToSelected(user.algorithmConfig?.tt?.time ?? "Última semana"))
     const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
-    return <div className="space-y-2 bg-[var(--background-ldark2)] rounded-lg w-[300px]">
+    return <div className="w-full space-y-2 bg-[var(--background-ldark2)] rounded-lg ">
         <div className="flex justify-between pt-3 px-3 items-center w-full">
             <Link
                 href={"/temas"}

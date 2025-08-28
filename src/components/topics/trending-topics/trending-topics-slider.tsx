@@ -70,7 +70,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
             </div>
             <Link
                 href={"/temas"}
-                className={"flex hover:bg-[var(--background-dark2)] w-full p-3 rounded-b-lg text-sm text-[var(--text-light)]"}
+                className={"flex hover:bg-[var(--background-dark2)] w-full p-3 font-semibold rounded-b-lg text-xs"}
             >
                 Ver más
             </Link>

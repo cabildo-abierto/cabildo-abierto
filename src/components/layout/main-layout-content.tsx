@@ -24,7 +24,10 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
 
     return <div className="flex justify-between w-full min-h-screen">
         <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "min-[500px]:w-20")}>
-            {user && <Sidebar onClose={()=> {}} setWritePanelOpen={setWritePanelOpen}/>}
+            {user && <Sidebar
+                onClose={()=> {}}
+                setWritePanelOpen={setWritePanelOpen}
+            />}
         </div>
 
         <div className={"w-full flex justify-center"}>

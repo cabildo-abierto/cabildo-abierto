@@ -19,7 +19,6 @@ type RouteContentProps = {
 
 export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
-
     const {searchState, setSearchState} = useSearch()
 
     useEffect(() => {
@@ -27,8 +26,6 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
             if (searchState.value != query) {
                 setSearchState({searching: true, value: query})
             }
-        } else {
-            setSearchState({searching: false, value: ""})
         }
     }, [query])
 
@@ -48,7 +45,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
                 }}
             >
                 <div
-                    className={"font-semibold pb-1 pt-2 border-b-[4px] px-2 " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
+                    className={"font-semibold pb-1 pt-2 border-b-[4px] px-3 " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -66,7 +63,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
                 options={["Publicaciones", "Usuarios", "Temas"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
-                className="flex justify-between w-full"
+                className="flex"
             />
         </div>
 

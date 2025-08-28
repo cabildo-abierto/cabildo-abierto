@@ -14,6 +14,8 @@ import {useQueryClient} from "@tanstack/react-query";
 import FullscreenImageViewer from "@/components/images/fullscreen-image-viewer";
 import {useProfile} from "@/queries/useProfile";
 import EditImageModal from "@/components/profile/edit-image-modal";
+import InfoPanel from "../../../modules/ui-utils/src/info-panel";
+import {Record as ProfileRecord, validateRecord as validateProfileRecord} from "@/lex-api/types/app/bsky/actor/profile"
 
 type Props = {
     open: boolean,
@@ -93,6 +95,18 @@ type UpdateProfileProps = {
 }
 
 
+function validDescription(d: string){
+    const p: ProfileRecord = {
+        $type: "app.bsky.actor.profile",
+        displayName: "test",
+        handle: "test",
+        description: d
+    }
+    const res = validateProfileRecord(p)
+    return res.success
+}
+
+
 const EditProfileMobile = ({open, onClose}: Props) => {
     const {user} = useSession()
     const {data: profile} = useProfile(user.handle)
@@ -123,6 +137,8 @@ const EditProfileMobile = ({open, onClose}: Props) => {
         return {}
     }
 
+    const isValid = validDescription(description)
+
     return <BaseFullscreenPopup
         open={open}
         onClose={onClose}
@@ -141,6 +157,7 @@ const EditProfileMobile = ({open, onClose}: Props) => {
                     handleClick={onSubmit}
                     text1="Guardar"
                     textClassName="font-semibold"
+                    disabled={!isValid}
                 />
             </div>
         </div>
@@ -194,24 +211,41 @@ const EditProfileMobile = ({open, onClose}: Props) => {
             </UploadImageModalOnClick>
         </div>
         <div className={"my-8 px-8 flex flex-col space-y-8 min-[600px]:w-[600px] w-screen"}>
-            <TextField
-                value={displayName}
-                label={"Nombre"}
-                size={"small"}
-                onChange={(e) => {
-                    setDisplayName(e.target.value)
-                }}
-            />
-            <TextField
-                value={description}
-                label={"Descripción"}
-                size={"small"}
-                minRows={2}
-                multiline={true}
-                onChange={(e) => {
-                    setDescription(e.target.value)
-                }}
-            />
+            <div className={"flex space-x-1 items-start w-full"}>
+                <TextField
+                    value={displayName}
+                    label={"Nombre"}
+                    size={"small"}
+                    fullWidth={true}
+                    onChange={(e) => {
+                        setDisplayName(e.target.value)
+                    }}
+                />
+                <InfoPanel
+                    text={"Un nombre que puede contener espacios, mayúsculas y otros símbolos. No es necesario que sea único."}
+                />
+            </div>
+            <div className={"space-y-1"}>
+                <div className={"flex space-x-1 items-start w-full"}>
+                    <TextField
+                        fullWidth={true}
+                        value={description}
+                        label={"Descripción"}
+                        size={"small"}
+                        minRows={2}
+                        multiline={true}
+                        onChange={(e) => {
+                            setDescription(e.target.value)
+                        }}
+                    />
+                    <InfoPanel
+                        text={"Una descripción sobre vos. Máximo 256 caracteres."}
+                    />
+                </div>
+                {!isValid && <div className={"px-1 text-sm text-[var(--text-light)]"}>
+                    La descripción es demasiado larga. No puede tener más de 256 caracteres.
+                </div>}
+            </div>
         </div>
     </BaseFullscreenPopup>
 }
