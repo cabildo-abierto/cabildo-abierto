@@ -39,7 +39,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                             draft.ca.followersCount++
                         }
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows" || k[0] == "follow-suggestions") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
@@ -184,7 +184,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
         return null
     }
 
-    const followText = profile.viewer.followedBy ? "Seguir también" : "Seguir"
+    const followText = profile.viewer.followedBy && !dense ? "Seguir también" : "Seguir"
 
     return <div className="flex items-center">
         {profile.viewer.following ?

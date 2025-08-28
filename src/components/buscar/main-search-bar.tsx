@@ -25,7 +25,6 @@ const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true, placehold
         paddingY={paddingY}
         fullWidth={fullWidth}
         placeholder={placeholder}
-
     />
 }
 

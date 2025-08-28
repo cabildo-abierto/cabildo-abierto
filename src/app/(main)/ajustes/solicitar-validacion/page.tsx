@@ -285,7 +285,7 @@ const Desplegable = ({children, text}: { children: ReactNode, text: string }) =>
             }}
             className={"flex space-x-1 items-center"}
         >
-            <span className={"text-lg"}>
+            <span className={"text-base"}>
                 {text}
             </span>
             {open ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}

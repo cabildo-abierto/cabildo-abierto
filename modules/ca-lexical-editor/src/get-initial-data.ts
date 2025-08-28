@@ -83,9 +83,6 @@ export function getInitialData(
             undefined,
             transformers
         )
-        if(text.includes("timeline")){
-            console.log("state", state)
-        }
         if(state.root.children.length == 0){
             return initializeEmpty("")
         }

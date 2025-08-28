@@ -56,6 +56,12 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }
 
+    if(!searchState.searching) {
+        return <div className={"text-[var(--text-light)] text-center pt-8"}>
+            Buscá un tema de la wiki
+        </div>
+    }
+
     const noResultsText = <div className={"space-y-2 text-center text-[var(--text-light)]"}>
         <div>
             No se encontró ningún tema.

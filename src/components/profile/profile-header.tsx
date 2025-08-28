@@ -1,4 +1,4 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import Image from 'next/image'
 import Link from "next/link";
 import {Profile} from "@/lib/types";
@@ -18,9 +18,47 @@ import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hov
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ContentCounters} from "./content-counters";
 import {bskyProfileUrl} from "@/utils/uri";
+import VerifyAccountButton from "@/components/profile/verify-account-button";
+import {CheckSquareIcon} from "@phosphor-icons/react";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
+
+
+const ProfileTODOs = ({profile, onEdit}: {profile: Profile, onEdit: () => void}) => {
+
+    const todos: string[] = []
+
+    if(!profile.bsky.displayName){
+        todos.push("Agregá un nombre")
+    }
+
+    if(!profile.bsky.avatar){
+        todos.push("Agregá una foto de perfil")
+    }
+
+    if(!profile.bsky.description || profile.bsky.description.length == 0){
+        todos.push("Agregá una descripción")
+    }
+
+    if(!profile.bsky.banner){
+        todos.push("Agregá una foto de portada")
+    }
+
+    return <div className={"space-y-1 w-full"}>
+        {todos.map((t, i) => {
+            return <div key={i} onClick={onEdit} className={"hover:bg-[var(--background-dark2)] cursor-pointer flex py-1 px-2 rounded-full w-full items-center space-x-2 bg-[var(--background-dark)]"}>
+                <div>
+                    <CheckSquareIcon/>
+                </div>
+                <div className={"text-sm text-[var(--text-light)]"}>
+                    {t}
+                </div>
+            </div>
+        })}
+    </div>
+}
+
 
 type ProfileHeaderProps = {
     profile: Profile
@@ -135,9 +173,10 @@ function ProfileHeader({
         <div className="flex justify-between pr-1 space-x-2">
             <div className="ml-2 py-2">
                 <div className={"flex space-x-1 items-center"}>
-                    <div className={"min-[500px]:text-2xl text-lg font-bold"}>
+                    <div className={"min-[500px]:text-2xl text-lg font-bold break-all"}>
                         {profile.bsky.displayName && profile.bsky.displayName.length > 0 ? profile.bsky.displayName : profile.bsky.handle}
                     </div>
+                    {isOwner && <VerifyAccountButton verification={profile.ca?.validation}/>}
                     <ValidationIcon
                         validation={profile.ca?.validation}
                         handle={profile.bsky.handle}
@@ -192,6 +231,9 @@ function ProfileHeader({
                         </Link>
                     </span>}
             </div>
+            {isOwner && <div>
+                <ProfileTODOs profile={profile} onEdit={() => {setEditingProfile(true)}}/>
+            </div>}
         </div>
         <div className="flex mt-3 overflow-scroll no-scrollbar">
             <SelectionComponent

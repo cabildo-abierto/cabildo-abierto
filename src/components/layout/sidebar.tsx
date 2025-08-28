@@ -16,12 +16,15 @@ import NotificationsIcon from "../icons/notifications-icon";
 import TopicsIcon from "@/components/icons/topics-icon";
 import MessagesIcon from "../icons/messages-icon";
 import {sum} from "@/utils/arrays";
-import {GearIcon, HouseLineIcon, MagnifyingGlassIcon,
-    ProjectorScreenChartIcon, TrayIcon, UserIcon} from "@phosphor-icons/react";
+import {
+    GearIcon, HouseLineIcon, MagnifyingGlassIcon,
+    ProjectorScreenChartIcon, TrayIcon, UserIcon
+} from "@phosphor-icons/react";
 import {SwipeableDrawer} from "@mui/material";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
 import {useAPI} from "@/queries/utils";
 import {useSession} from "@/queries/useSession";
+import VerifyAccountButton from "@/components/profile/verify-account-button";
 
 
 const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: () => void }) => {
@@ -78,7 +81,7 @@ const SidebarBottom = () => {
         })
     }
 
-    return <div className={"space-y-2 h-full flex flex-col justify-between"}>
+    return <div className={"space-y-2 h-full flex flex-col justify-between pb-4"}>
         <div className={"flex gap-x-1 text-base flex-wrap"}>
             <Link href={"/ajustes/compartir"} onClick={onClickLink}>
                 Invitar
@@ -101,12 +104,6 @@ const SidebarBottom = () => {
             <Link href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}
                   onClick={onClickLink}>
                 Sugerencias
-            </Link>
-            <div>
-                •
-            </div>
-            <Link href={"/ajustes/solicitar-validacion"} onClick={onClickLink}>
-                Verificar mi cuenta
             </Link>
             <div>
                 •
@@ -165,15 +162,18 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
                     <div
                         className={"flex pb-8 h-full flex-col sm:space-y-2 space-y-3 " + (showText ? "" : "items-center")}>
                         <div className={"mt-4 mb-2 px-4 sm:px-0 space-y-2"}>
-                            <div className={"w-full flex sm:justify-center"}>
-                                <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
-                                    <ProfilePic
-                                        clickable={false}
-                                        user={user.user}
-                                        className={"w-14 h-14 sm:w-12 sm:h-12 rounded-full border " + dimOnHoverClassName}
-                                        descriptionOnHover={false}
-                                    />
-                                </Link>
+                            <div className={"flex w-full sm:justify-center"}>
+                                <div className={"flex flex-col items-center space-y-1"}>
+                                    <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
+                                        <ProfilePic
+                                            clickable={false}
+                                            user={user.user}
+                                            className={"w-14 h-14 sm:w-12 sm:h-12 rounded-full border " + dimOnHoverClassName}
+                                            descriptionOnHover={false}
+                                        />
+                                    </Link>
+                                    <VerifyAccountButton verification={user.user.validation}/>
+                                </div>
                             </div>
                             <div className={"sm:hidden"}>
                                 <div className={"font-bold text-xl"}>
