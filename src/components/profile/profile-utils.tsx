@@ -9,6 +9,7 @@ import {produce} from "immer";
 import {ProfileViewBasic, ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
 import {ProfileViewBasic as CAProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 import {Color, darker} from "../../../modules/ui-utils/src/button";
+import {InfiniteFeed} from "@/components/feed/feed/feed";
 
 
 const follow = async ({did}: { did: string }) => {
@@ -47,6 +48,16 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                             draft[index].viewer.following = "optimistic-follow"
                         }
                     })
+                } else if(k[0] == "follow-suggestions-feed") {
+                    if(!old) return old
+                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                        for(let i = 0; i < draft.pages.length; i++){
+                            const index = draft.pages[i].data.findIndex(u => u.handle == handle)
+                            if (index != -1) {
+                                draft.pages[i].data[index].viewer.following = "optimistic-follow"
+                            }
+                        }
+                    })
                 }
             })
         })
@@ -69,12 +80,22 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                         draft.bsky.followersCount--
                         draft.ca.followersCount--
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows" || k[0] == "follow-suggestions") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = undefined
+                        }
+                    })
+                } else if(k[0] == "follow-suggestions-feed") {
+                    if(!old) return old
+                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                        for(let i = 0; i < draft.pages.length; i++){
+                            const index = draft.pages[i].data.findIndex(u => u.handle == handle)
+                            if (index != -1) {
+                                draft.pages[i].data[index].viewer.following = undefined
+                            }
                         }
                     })
                 }
@@ -100,9 +121,19 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
-                        const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                        const index = draft.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = followUri
+                        }
+                    })
+                } else if(k[0] == "follow-suggestions-feed") {
+                    if(!old) return old
+                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                        for(let i = 0; i < draft.pages.length; i++){
+                            const index = draft.pages[i].data.findIndex(u => u.handle == handle)
+                            if (index != -1) {
+                                draft.pages[i].data[index].viewer.following = followUri
+                            }
                         }
                     })
                 }
@@ -111,7 +142,12 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
 }
 
 const isQueryRelatedToFollow = (query: Query) => {
-    return query.queryKey[0] == "profile" || query.queryKey[0] == "user-search" || query.queryKey[0] == "followers" || query.queryKey[0] == "follows"
+    return query.queryKey[0] == "profile" ||
+        query.queryKey[0] == "user-search" ||
+        query.queryKey[0] == "followers" ||
+        query.queryKey[0] == "follows" ||
+        query.queryKey[0] == "follow-suggestions" ||
+        query.queryKey[0] == "follow-suggestions-feed"
 }
 
 
@@ -127,7 +163,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
 
     const followMutation = useMutation({
         mutationFn: follow,
-        onMutate: (followedDid) => {
+        onMutate: () => {
             qc.cancelQueries({
                 predicate: (query: Query) => {
                     return isQueryRelatedToFollow(query)
@@ -135,7 +171,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
             })
             optimisticFollow(qc, handle)
         },
-        onSuccess: (data, variables, context) => {
+        onSuccess: (data) => {
             if (data.data.followUri) {
                 setFollow(qc, handle, data.data.followUri)
             }
@@ -151,7 +187,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
 
     const unfollowMutation = useMutation({
         mutationFn: unfollow,
-        onMutate: (followUri) => {
+        onMutate: () => {
             qc.cancelQueries({
                 predicate: (query: Query) => {
                     return isQueryRelatedToFollow(query)
