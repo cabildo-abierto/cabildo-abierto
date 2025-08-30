@@ -755,6 +755,7 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.feed.defs#postView',
               'lex:ar.cabildoabierto.feed.defs#articleView',
               'lex:ar.cabildoabierto.feed.defs#fullArticleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
               'lex:ar.cabildoabierto.data.dataset#datasetView',
             ],
           },

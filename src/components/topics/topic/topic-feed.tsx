@@ -112,8 +112,8 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
                 className={"flex space-x-2"}
             />
         </div>}
-        <div className={"flex justify-center"}>
-            <div className={"max-w-[600px]"}>
+        <div className={"flex justify-center w-full"}>
+            <div className={"max-w-[600px] w-full"}>
                 {selected == "Menciones" && mentionsSelected == "Publicaciones" &&
                     <FeedViewContentFeed
                         queryKey={["topic-feed", topicId, "mentions"]}
@@ -138,13 +138,13 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
                 }
 
                 {selected == "Menciones" && mentionsSelected == "Temas" && feed.data &&
-                    <div className={"flex flex-col"}>
+                    <div className={"flex flex-col w-full"}>
                         {
                             feed.data.topics.map((t, index) => {
                                 return <CustomLink
                                     href={topicUrl(t)}
                                     key={index}
-                                    className={"border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
+                                    className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
                                 >
                                     {t}
                                 </CustomLink>
