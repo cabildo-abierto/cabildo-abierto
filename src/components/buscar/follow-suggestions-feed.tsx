@@ -7,9 +7,10 @@ import {get} from "@/utils/fetch";
 export const FollowSuggestionsFeed = () => {
 
     async function getFollowSuggestions(cursor: string): Promise<{error?: string, data?: {feed: ProfileViewBasic[], cursor: string | null}}> {
-        const {error, data} = await get<ProfileViewBasic[]>(`/follow-suggestions/25/${cursor ?? 0}`)
+        const limit = 25
+        const {error, data} = await get<ProfileViewBasic[]>(`/follow-suggestions/${limit}/${cursor ?? 0}`)
         if(error) return {error}
-        return {data: {feed: data, cursor: (parseInt(cursor ?? "0") + data.length).toString()}}
+        return {data: {feed: data, cursor: (parseInt(cursor ?? "0") + limit).toString()}}
     }
 
     return <Feed<ProfileViewBasic>

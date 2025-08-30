@@ -2,6 +2,7 @@ import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {PostRecord} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
 import dynamic from "next/dynamic";
+
 const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
     ssr: false,
     loading: () => <></>,

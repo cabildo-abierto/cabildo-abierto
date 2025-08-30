@@ -5,6 +5,7 @@ import Link from "next/link"
 import ReplyIcon from "@mui/icons-material/Reply"
 import {useTopicFeedParams} from "@/components/topics/topic/topic-feed"
 import {usePathname} from "next/navigation";
+import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicViewBasic, showingChildren: boolean }) => {
@@ -16,13 +17,17 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicVie
     }
 
     if (showingChildren) {
-        return <Link href={topicUrl(topic.id)} className={"hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-4 py-2"}>
+        return <CustomLink
+            tag={"div"}
+            href={topicUrl(topic.id)}
+            className={"w-full hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-4 py-2"}
+        >
             <ReplyIcon fontSize={"inherit"}/> <span>
                 Respuesta al tema
             </span> <span className={"text-[var(--primary)] hover:underline"}>
                 {getTopicTitle(topic)}
             </span>
-        </Link>
+        </CustomLink>
     } else {
         return <Link href={topicUrl(topic.id)}>
             <div className={"hover:bg-[var(--background-dark)] w-full text-[var(--text-light)] p-4 border-b"}>
