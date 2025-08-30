@@ -8,6 +8,7 @@ import {$Typed} from "@atproto/api";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
 import dynamic from "next/dynamic";
 import {LikeCounter} from "@/components/feed/frame/like-counter";
+import {EngagementDetails} from "@/components/feed/frame/engagement-details";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
@@ -16,14 +17,15 @@ type EngagementIconsProps = {
     className?: string
     small?: boolean
     enDiscusion?: boolean
+    showDetails?: boolean
 }
-
 
 
 export const EngagementIcons = ({
                                     content,
                                     className = "space-x-16",
-                                    enDiscusion
+                                    enDiscusion,
+                                    showDetails = false
                                 }: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
     const [writingReply, setWritingReply] = useState<boolean>(false)
@@ -38,7 +40,16 @@ export const EngagementIcons = ({
         }
     }
 
-    return <div className={"flex items-center exclude-links w-full " + className}>
+    return <div>
+
+        <div className={"flex items-center exclude-links w-full "}> {showDetails && <EngagementDetails
+                content={content}
+                showBsky={showBsky}
+                small={true}
+            />}
+        </div>
+
+        <div className={"flex items-center space-x-16 exclude-links w-full " + className}>
         {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
             {content.replyCount != undefined && <div onClick={onClickRepliesButton}>
                 <FixedCounter
@@ -68,5 +79,6 @@ export const EngagementIcons = ({
             }}
             replyTo={content}
         />}
+    </div>
     </div>
 }
