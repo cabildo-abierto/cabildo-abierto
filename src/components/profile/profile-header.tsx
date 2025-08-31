@@ -25,29 +25,30 @@ const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscre
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
 
 
-const ProfileTODOs = ({profile, onEdit}: {profile: Profile, onEdit: () => void}) => {
+const ProfileTODOs = ({profile, onEdit}: { profile: Profile, onEdit: () => void }) => {
 
     const todos: string[] = []
 
-    if(!profile.bsky.displayName){
+    if (!profile.bsky.displayName) {
         todos.push("Agregá un nombre")
     }
 
-    if(!profile.bsky.avatar){
+    if (!profile.bsky.avatar) {
         todos.push("Agregá una foto de perfil")
     }
 
-    if(!profile.bsky.description || profile.bsky.description.length == 0){
+    if (!profile.bsky.description || profile.bsky.description.length == 0) {
         todos.push("Agregá una descripción")
     }
 
-    if(!profile.bsky.banner){
+    if (!profile.bsky.banner) {
         todos.push("Agregá una foto de portada")
     }
 
     return <div className={"space-y-1 w-full"}>
         {todos.map((t, i) => {
-            return <div key={i} onClick={onEdit} className={"hover:bg-[var(--background-dark2)] cursor-pointer flex py-1 px-2 rounded-full w-full items-center space-x-2 bg-[var(--background-dark)]"}>
+            return <div key={i} onClick={onEdit}
+                        className={"hover:bg-[var(--background-dark2)] cursor-pointer flex py-1 px-2 rounded-full w-full items-center space-x-2 bg-[var(--background-dark)]"}>
                 <div>
                     <CheckSquareIcon/>
                 </div>
@@ -135,25 +136,28 @@ function ProfileHeader({
                     {emptyChar}
                 </div>
             }
-            {profile.bsky.avatar ? <div className={"flex justify-between pr-1"}>
-                <FullscreenImageViewer
-                    images={[profile.bsky.avatar]}
-                    viewing={viewingProfilePic}
-                    setViewing={setViewingProfilePic}
-                    maxHeight={isMobile ? "95vw" : "70vh"}
-                    maxWidth={isMobile ? "95vw" : "70vh"}
-                    className={"rounded-full h-full object-contain"}
-                />
-                <Image
-                    src={profile.bsky.avatar}
-                    width={400}
-                    height={400}
-                    alt={profile.bsky.handle + " avatar"}
-                    className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
-                    onClick={() => {
-                        setViewingProfilePic(0)
-                    }}
-                />
+            <div className={"flex justify-between pr-1"}>
+                {profile.bsky.avatar ? <>
+                    <FullscreenImageViewer
+                        images={[profile.bsky.avatar]}
+                        viewing={viewingProfilePic}
+                        setViewing={setViewingProfilePic}
+                        maxHeight={isMobile ? "95vw" : "70vh"}
+                        maxWidth={isMobile ? "95vw" : "70vh"}
+                        className={"rounded-full h-full object-contain"}
+                    />
+                    <Image
+                        src={profile.bsky.avatar}
+                        width={400}
+                        height={400}
+                        alt={profile.bsky.handle + " avatar"}
+                        className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
+                        onClick={() => {
+                            setViewingProfilePic(0)
+                        }}
+                    />
+                </> : <div className={"w-24 h-24 bg-[var(--background-dark)] rounded-full border-2 border-[var(--background)] ml-6 mt-[-48px]"}/>}
+
                 {isOwner && <div className={"pt-2 pr-1"}>
                     <Button
                         color={"background-dark2"}
@@ -166,9 +170,7 @@ function ProfileHeader({
                     </Button>
                 </div>}
                 <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
-            </div> : <div className={"w-24 h-24 ml-6 mt-[-48px]"}>
-                {emptyChar}
-            </div>}
+            </div>
         </div>
         <div className="flex justify-between pr-1 space-x-2">
             <div className="ml-2 py-2">
@@ -232,7 +234,9 @@ function ProfileHeader({
                     </span>}
             </div>
             {isOwner && <div>
-                <ProfileTODOs profile={profile} onEdit={() => {setEditingProfile(true)}}/>
+                <ProfileTODOs profile={profile} onEdit={() => {
+                    setEditingProfile(true)
+                }}/>
             </div>}
         </div>
         <div className="flex mt-3 overflow-scroll no-scrollbar">

@@ -40,12 +40,20 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                             draft.ca.followersCount++
                         }
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows" || k[0] == "follow-suggestions") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = "optimistic-follow"
+                        }
+                    })
+                } else if(k[0] == "follow-suggestions"){
+                    if (!old) return old
+                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                        const index = draft.profiles.findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            draft.profiles[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
@@ -80,12 +88,20 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                         draft.bsky.followersCount--
                         draft.ca.followersCount--
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows" || k[0] == "follow-suggestions") {
+                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ProfileViewBasic[], draft => {
                         const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = undefined
+                        }
+                    })
+                } else if(k[0] == "follow-suggestions"){
+                    if (!old) return old
+                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                        const index = draft.profiles.findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            draft.profiles[index].viewer.following = undefined
                         }
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
