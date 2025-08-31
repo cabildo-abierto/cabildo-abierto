@@ -38,8 +38,8 @@ function optimisticSetNotInterested(qc: QueryClient, subject: string){
                 if (!old) return old
 
                 if(q.queryKey[0] == "follow-suggestions"){
-                    return produce(old as ProfileViewBasic[], draft => {
-                        return draft.filter(x => x.did != subject)
+                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                        draft.profiles = draft.profiles.filter(x => x.did != subject)
                     })
                 } else if(q.queryKey[0] == "follow-suggestions-feed"){
                     return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
