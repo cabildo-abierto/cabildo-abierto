@@ -30,7 +30,7 @@ const LoadingFollowSuggestion = () => {
 export default function FollowSuggestions() {
     let {data, isLoading} = useFollowSuggestions(3)
 
-    if (data && data.length == 0) return null
+    if (data && (!data.profiles || data.profiles.length == 0)) return null
 
     return <div className={"bg-[var(--background-ldark2)] w-full rounded-lg h-full"}>
         <div className={"flex justify-between px-3 py-1 items-center bg"}>
@@ -50,7 +50,7 @@ export default function FollowSuggestions() {
                 <LoadingFollowSuggestion/>
                 <LoadingFollowSuggestion/>
             </div>}
-            {data && data.map(u => {
+            {data && data.profiles.map(u => {
                 return <CustomLink
                     href={profileUrl(u.handle)}
                     key={u.did}
