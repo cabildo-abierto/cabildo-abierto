@@ -88,7 +88,7 @@ const UserSearchResult = ({user, showFollowButton=true, goToProfile=true, onClic
         <div className={"px-3"}>
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>
         </div>
-        <div className="w-[60%] space-y-[-3px]">
+        <div className={"space-y-[-3px] " + (isSuggestion ? "w-[55%]" : "w-[60%]")}>
             <div className={"truncate"}>
                 {user.displayName ? user.displayName : <>@{user.handle}</>}
             </div>

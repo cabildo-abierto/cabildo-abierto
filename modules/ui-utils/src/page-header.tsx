@@ -7,7 +7,7 @@ import {ReactNode} from "react";
 
 
 export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
-    title: string, defaultBackHref?: string, rightSide?: ReactNode
+    title: ReactNode, defaultBackHref?: string, rightSide?: ReactNode
 }) {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
