@@ -197,8 +197,10 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
             addPostToTopicFeedQueries(qc, did, rkey, topicId, feedContent)
         }
     }
-    addPostToFeedQuery(qc, ["main-feed", "siguiendo"], feedContent)
-    addPostToFeedQuery(qc, ["profile-feed", author.bsky.handle, "main"], feedContent)
+    if(!post.reply){
+        addPostToFeedQuery(qc, ["main-feed", "siguiendo"], feedContent)
+        addPostToFeedQuery(qc, ["profile-feed", author.bsky.handle, "main"], feedContent)
+    }
 }
 
 
