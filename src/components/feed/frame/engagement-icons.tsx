@@ -6,10 +6,8 @@ import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/t
 import React, {MouseEventHandler, useState} from "react";
 import {$Typed} from "@atproto/api";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
-import dynamic from "next/dynamic";
 import {LikeCounter} from "@/components/feed/frame/like-counter";
-
-const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
+import WritePanel from "@/components/writing/write-panel/write-panel";
 
 type EngagementIconsProps = {
     content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
@@ -61,12 +59,12 @@ export const EngagementIcons = ({
             showBluesky={showBsky}
             setShowBluesky={setShowBsky}
         />
-        {writingReply && <WritePanel
+        <WritePanel
             open={writingReply}
             onClose={() => {
                 setWritingReply(false)
             }}
             replyTo={content}
-        />}
+        />
     </div>
 }

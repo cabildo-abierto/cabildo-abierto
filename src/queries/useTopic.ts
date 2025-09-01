@@ -1,20 +1,14 @@
 import {useAPI} from "@/queries/utils";
-import {topicUrl} from "@/utils/uri";
-import { FeedViewContent } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {splitUri, topicUrl} from "@/utils/uri";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {decompress} from "@/utils/compression";
 import {useEffect, useState} from "react";
 import {TopicHistory, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
-export type TopicFeed = {
-    mentions: FeedViewContent[]
-    replies: FeedViewContent[]
-    topics: string[]
-}
-
-
-export function useTopicFeed(id?: string, did?: string, rkey?: string){
-    return useAPI<TopicFeed>(topicUrl(id, {did, rkey}, undefined, "topic-feed"), ["topic-feed-backend", id, did, rkey].filter(x => x != undefined))
+export function useTopicVersionQuoteReplies(uri: string){
+    const {did, rkey} = splitUri(uri)
+    return useAPI<PostView[]>(`/topic-quote-replies/${did}/${rkey}`, ["topic-quote-replies", did, rkey])
 }
 
 

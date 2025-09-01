@@ -1,15 +1,16 @@
-import {useTopicFeed} from "@/queries/useTopic";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import Link from "next/link"
-import {updateSearchParam} from "@/utils/fetch";
+import {get, updateSearchParam} from "@/utils/fetch";
+import Feed from "@/components/feed/feed/feed";
+import {GetFeedOutput} from "@/lib/types";
+import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 type TopicFeedOption = "Menciones" | "Discusión"
 type MentionFeedOption = "Publicaciones" | "Temas"
@@ -31,10 +32,20 @@ export const useTopicFeedParams = () => {
 }
 
 export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersionUri: string, topicId: string, onClickQuote: (cid: string) => void}) => {
-    let feed = useTopicFeed(topicId)
     const selected = useTopicFeedParams()
-
     const [mentionsSelected, setMentionsSelected] = useState<MentionFeedOption>("Publicaciones")
+
+    async function getMentionsFeed(cursor: string) {
+        return await get<GetFeedOutput<FeedViewContent>>(`/topic-feed/mentions?i=${topicId}${cursor ? `&cursor=${cursor}` : ""}`)
+    }
+
+    async function getDiscussionFeed(cursor: string) {
+        return await get<GetFeedOutput<FeedViewContent>>(`/topic-feed/discussion?i=${topicId}${cursor ? `&cursor=${cursor}` : ""}`)
+    }
+
+    async function getMentionsInTopicsFeed(cursor: string) {
+        return await get<GetFeedOutput<{ id: string, title: string }>>(`/topic-mentions-in-topics-feed?i=${topicId}${cursor ? `&cursor=${cursor}` : ""}`)
+    }
 
     function setSelected(v: TopicFeedOption) {
         updateSearchParam("f", v == "Discusión" ? "discusion" : "menciones")
@@ -72,12 +83,6 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
         </div>
     }
 
-    if(!feed.data){
-        return <div className={"py-8"}>
-            <LoadingSpinner />
-        </div>
-    }
-
     const info = <div>
         <b>Menciones.</b> Las publicaciones, respuestas, artículos y otros temas que hablaron del tema. <Link
             target="_blank"
@@ -102,7 +107,7 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
                 text={info}
             />
         </div>
-        {/*TO DO: BUG: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
+        {/*TO DO: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         {selected == "Menciones" && <div className={"flex py-2 px-2 justify-center"}>
             <SelectionComponent
                 onSelection={setMentionsSelected}
@@ -117,10 +122,10 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
                 {selected == "Menciones" && mentionsSelected == "Publicaciones" &&
                     <FeedViewContentFeed
                         queryKey={["topic-feed", topicId, "mentions"]}
-                        initialContents={feed.data ? feed.data.mentions : undefined}
+                        getFeed={getMentionsFeed}
                         onClickQuote={onClickQuote}
                         noResultsText={"Todavía no fue mencionado."}
-                        endText={""}
+                        endText={"Fin del feed."}
                     />
                 }
 
@@ -128,7 +133,7 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
                     <div className={"pt-10"}>
                         <FeedViewContentFeed
                             queryKey={["topic-feed", topicId, "replies"]}
-                            initialContents={feed.data ? feed.data.replies : undefined}
+                            getFeed={getDiscussionFeed}
                             onClickQuote={onClickQuote}
                             noResultsText={"Sé la primera persona en agregar un comentario."}
                             endText={""}
@@ -137,25 +142,23 @@ export const TopicFeed = ({topicId, topicVersionUri, onClickQuote}: {topicVersio
                     </div>
                 }
 
-                {selected == "Menciones" && mentionsSelected == "Temas" && feed.data &&
-                    <div className={"flex flex-col w-full"}>
-                        {
-                            feed.data.topics.map((t, index) => {
-                                return <CustomLink
-                                    href={topicUrl(t)}
-                                    key={index}
-                                    className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
-                                >
-                                    {t}
-                                </CustomLink>
-                            })
-                        }
-                        {feed.data.topics.length == 0 &&
-                            <div className={"text-center text-[var(--text-light)] mt-16"}>
-                                Este tema no recibió menciones en otros temas.
-                            </div>
-                        }
-                    </div>
+                {selected == "Menciones" && mentionsSelected == "Temas" &&
+                    <Feed<{id: string, title: string}>
+                        queryKey={["topic-feed", topicId, "mentions-in-topics"]}
+                        getFeed={getMentionsInTopicsFeed}
+                        noResultsText={"Este tema no recibió menciones en otros temas."}
+                        FeedElement={(({content, index}) => {
+                            return <CustomLink
+                                href={topicUrl(content.id)}
+                                key={index}
+                                className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
+                            >
+                                {content.title}
+                            </CustomLink>
+                        })}
+                        endText={""}
+                        getFeedElementKey={e => e.id}
+                    />
                 }
             </div>
         </div>

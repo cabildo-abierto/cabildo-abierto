@@ -29,7 +29,7 @@ const TopicCategories = ({
                 {c}
             </CustomLink>
         })}
-        {maxCount && categories.length > maxCount && <span className={containerClassName}>
+        {maxCount && categories.length > maxCount && <span className={containerClassName + " " + className}>
             ...
         </span>}
     </div>

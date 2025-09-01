@@ -4,7 +4,7 @@ import {TopicContentExpandedViewHeader} from "./topic-content-expanded-view-head
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
-import {useTopicFeed, useTopicVersion} from "@/queries/useTopic";
+import {useTopicVersion, useTopicVersionQuoteReplies} from "@/queries/useTopic";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {getEditorSettings} from "@/components/editor/settings";
@@ -15,14 +15,10 @@ import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topic
 import {post} from "@/utils/fetch";
 import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
 import {TopicPropsView} from "@/components/topics/topic/props/topic-props-view";
-import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
-import {isView as isSelectionQuoteEmbed} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/updates";
-import {areSetsEqual} from "@/utils/arrays";
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
@@ -214,9 +210,8 @@ export const TopicContentExpandedViewWithVersion = ({
 }) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [topicProps, setTopicProps] = useState<TopicProp[]>(Array.from(topic.props) ?? [])
-    const feed = useTopicFeed(topic.id)
+    const {data: quoteReplies} = useTopicVersionQuoteReplies(topic.uri)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
-    const [quoteReplies, setQuoteReplies] = useState<PostView[] | null>(null)
     const qc = useQueryClient()
 
     const saveEditMutation = useMutation({
@@ -228,17 +223,6 @@ export const TopicContentExpandedViewWithVersion = ({
             qc.removeQueries(contentQueriesFilter(topic.uri))
         }
     })
-
-    useEffect(() => {
-        if (feed.data) {
-            const q: PostView[] = feed.data.replies.map(c => c.content)
-                .filter(c => isPostView(c)).filter(c => isSelectionQuoteEmbed(c.embed))
-            if (!quoteReplies || !areSetsEqual(new Set(q.map(x => x.uri)), new Set(quoteReplies.map(x => x.uri)))) {
-                setQuoteReplies(q)
-            }
-        }
-    }, [feed, quoteReplies])
-
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{ error?: string }> {
         if (editor) {
