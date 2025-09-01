@@ -1,7 +1,7 @@
 "use client"
 import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
-import {useTopicFeed, useTopicWithNormalizedContent} from "@/queries/useTopic";
+import {useTopicWithNormalizedContent} from "@/queries/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
@@ -48,7 +48,6 @@ export const TopicPage = ({topicId, did, rkey}: {
     did?: string
     rkey?: string
 }) => {
-    useTopicFeed(topicId, did, rkey) // prefetch
     const {query: topicQuery, topic} = useTopicWithNormalizedContent(topicId, did, rkey)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])

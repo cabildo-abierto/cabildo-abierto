@@ -5,7 +5,7 @@ import {
     ArticleView,
     FeedViewContent,
     FullArticleView,
-    isFullArticleView,
+    isFullArticleView, isPostView,
     PostView,
     ThreadViewContent
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
@@ -13,7 +13,7 @@ import {isTopicView, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/top
 import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {getUri, splitUri} from "@/utils/uri";
-import {contentQueriesFilter} from "@/queries/updates";
+import {contentQueriesFilter, updateContentInQueries} from "@/queries/updates";
 import {Profile} from "@/lib/types";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
@@ -22,10 +22,10 @@ import {post} from "@/utils/fetch";
 import {View as EmbedImagesView, ViewImage} from "@/lex-api/types/app/bsky/embed/images"
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {TopicFeed} from "@/queries/useTopic";
 import {threadQueryKey} from "@/queries/useThread";
 import {useSession} from "@/queries/useSession";
 import {useProfile} from "@/queries/useProfile";
+import {postOrArticle} from "@/utils/type-utils";
 
 
 function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewContent) {
@@ -130,19 +130,16 @@ function addPostToTopicFeedQueries(qc: QueryClient, did: string, rkey: string, i
                 ]
             }
         })
-    });
+    })
 
-    [["topic-feed", id], ["topic-feed", did, rkey]].forEach(queryKey => {
-        qc.setQueryData(queryKey, old => {
-            if(!old) return old
-            const data = old as TopicFeed
+    qc.setQueryData(["topic-quote-replies", did, rkey], old => {
+        if(!old) return old
+        const data = old as PostView[]
 
-            return produce(data, draft => {
-                draft.replies = [
-                    post,
-                    ...draft.replies
-                ]
-            })
+        return produce(data, draft => {
+            if(isPostView(post.content)){
+                draft.push(post.content)
+            }
         })
     })
 }
@@ -196,6 +193,15 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
             const topicId = replyTo.id
             addPostToTopicFeedQueries(qc, did, rkey, topicId, feedContent)
         }
+
+        function parentUpdater(content: FeedViewContent["content"]) {
+            return produce(content, draft => {
+                if (!postOrArticle(draft)) return
+                draft.replyCount ++
+            })
+        }
+
+        updateContentInQueries(qc, post.reply.parent.uri, parentUpdater)
     }
     if(!post.reply){
         addPostToFeedQuery(qc, ["main-feed", "siguiendo"], feedContent)
@@ -228,7 +234,10 @@ const WritePanel = ({
     const {data: author} = useProfile(user.handle)
 
     async function createPost({body}: {body: CreatePostProps}) {
-        return await post<CreatePostProps, { uri: string }>("/post", body)
+        console.log("sending create post")
+        const {error, data} = await post<CreatePostProps, { uri: string }>("/post", body)
+        console.log("send post result", error)
+        return {error, data}
     }
 
     async function handleSubmit(body: CreatePostProps) {
@@ -238,11 +247,15 @@ const WritePanel = ({
     const createPostMutation = useMutation({
         mutationFn: createPost,
         onMutate: (post) => {
-            const optimisticUri = getUri("", "app.bsky.feed.post", "")
-            if(replyTo) qc.cancelQueries(contentQueriesFilter(replyTo.uri))
-            qc.cancelQueries(contentQueriesFilter(optimisticUri))
-            optimisticCreatePost(qc, post.body, author, replyTo)
-            onClose()
+            try {
+                const optimisticUri = getUri("", "app.bsky.feed.post", "")
+                if(replyTo) qc.cancelQueries(contentQueriesFilter(replyTo.uri))
+                qc.cancelQueries(contentQueriesFilter(optimisticUri))
+                optimisticCreatePost(qc, post.body, author, replyTo)
+                onClose()
+            } catch (err) {
+                console.log("error on mutation", err)
+            }
         },
         onSuccess: async ({data}) => {
             if(replyTo) {
