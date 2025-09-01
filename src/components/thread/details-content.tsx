@@ -11,16 +11,16 @@ export const DetailsContent = ({detail, uri}: {detail: DetailType, uri:string}) 
 
     async function getDetails(cursor: string): Promise<{error?: string, data?: {feed: ProfileViewBasic[], cursor: string | null}}> {
         const {did, collection, rkey} = splitUri(uri)
-        const {error, data} = await get<ProfileViewBasic[]>(`/${detail}/${did}/${collection}/${rkey}/25/${cursor ?? 0}`)
+        const {error, data} = await get<{ profiles: ProfileViewBasic[], cursor: string }>(`/${detail}/${did}/${collection}/${rkey}?limit=25${cursor ? "&cursor=" + encodeURIComponent(cursor) : ""}`)
         if(error) return {error}
-        return {data: {feed: data, cursor: (parseInt(cursor ?? "0") + data.length).toString()}}
+        return {data: {feed: data.profiles, cursor: data.cursor}}
     }
 
     return <Feed<ProfileViewBasic>
         queryKey={["follow-suggestions-feed"]}
         FeedElement={({content}) => {
             return <div key={content.did}>
-                <UserSearchResult user={content} isSuggestion={true}/>
+                <UserSearchResult user={content}/>
             </div>
         }}
         getFeedElementKey={u => u.did}
