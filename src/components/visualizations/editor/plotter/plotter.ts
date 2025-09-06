@@ -40,8 +40,8 @@ export class Plotter {
     public parser: DataParser = new DataParser()
     public columns: Column[]
     protected columnNames: string[]
-    protected spec: Visualization["spec"]
-    protected dataset: DatasetForTableView
+    public spec: Visualization["spec"]
+    public dataset: DatasetForTableView
     protected filters: Visualization["filters"]
     protected columnTypes: Map<string, DataType> = new Map()
 

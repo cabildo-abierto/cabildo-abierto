@@ -56,8 +56,10 @@ export function useTopicWithNormalizedContent(id?: string, did?: string, rkey?: 
 
         if(res.data){
             process()
+        } else if(res.status == "success" && !res.data){
+            setNewTopic(null)
         }
-    }, [res.data])
+    }, [res.status, res.data])
 
 
     return {query: res, topic: newTopic}
