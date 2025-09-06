@@ -68,3 +68,14 @@ export const palette = (index: number): string => {
 
     return hslToHex({ h: rotatedHue, s: hsl.s, l: hsl.l })
 }
+
+
+export const darkerPalette = (index: number): string => {
+    const baseColor = palette(index)
+    const hsl = hexToHSL(baseColor)
+
+    // Reduce lightness by 15%
+    const darkerL = Math.max(0, hsl.l - 15)
+
+    return hslToHex({ h: hsl.h, s: hsl.s, l: darkerL })
+}

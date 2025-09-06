@@ -56,7 +56,9 @@ export const TopicPage = ({topicId, did, rkey}: {
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
     if (topicQuery.isLoading || topic == "loading") {
-        return <LoadingSpinner/>
+        return <div>
+            <LoadingSpinner/>
+        </div>
     }
 
     if (!topic) {

@@ -4,7 +4,7 @@ import {
     isHemicycle,
     isDatasetDataSource,
     isTwoAxisPlot,
-    isOneAxisPlot, isTable, isTopicsDataSource
+    isOneAxisPlot, isTable, isTopicsDataSource, isEleccion
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {produce} from "immer"
 import {useDatasets} from "@/queries/useDataset"
@@ -13,6 +13,7 @@ import {TableVisualizationConfig} from "@/components/visualizations/editor/table
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor"
 import {useMemo} from "react"
 import {TwoAxisPlotConfig} from "@/components/visualizations/editor/two-axis-plot-config";
+import {ElectionVisualizationConfig} from "@/components/visualizations/editor/election/election-visualization-config";
 
 
 type PlotSpecificConfigProps = {
@@ -72,6 +73,15 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
             Sin implementar
         </div>
     } else if(isTable(config.spec)){
-        return <TableVisualizationConfig config={config} setConfig={setConfig}/>
+        return <TableVisualizationConfig
+            config={config}
+            setConfig={setConfig}
+        />
+    } else if(isEleccion(config.spec)) {
+        return <ElectionVisualizationConfig
+            config={config}
+            setConfig={setConfig}
+            columnOptions={columnOptions}
+        />
     }
 }

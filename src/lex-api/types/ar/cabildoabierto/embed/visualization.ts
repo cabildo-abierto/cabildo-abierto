@@ -27,6 +27,7 @@ export interface Main {
     | $Typed<TwoAxisPlot>
     | $Typed<OneAxisPlot>
     | $Typed<Table>
+    | $Typed<Eleccion>
     | { $type: string }
   title?: string
   caption?: string
@@ -283,6 +284,46 @@ export function isBarplot<V>(v: V) {
 
 export function validateBarplot<V>(v: V) {
   return validate<Barplot & V>(v, id, hashBarplot)
+}
+
+export interface Eleccion {
+  $type?: 'ar.cabildoabierto.embed.visualization#eleccion'
+  /** Legislativa o Ejecutiva */
+  tipoDeEleccion?: string
+  /** Nombre de la provincia en el caso de ser una elección provincial y 'Nacional' en caso contrario. */
+  region?: string
+  /** Columna con el identificador del tema de la wiki sobre el distrito del candidato. */
+  columnaTopicIdDistrito?: string
+  /** Columna con el nombre del candidato. */
+  columnaNombreCandidato?: string
+  /** Columna con el identificador del tema de la wiki sobre el candidato. */
+  columnaTopicIdCandidato?: string
+  /** Columna usada como distrito en el cual se postula el candidato. */
+  columnaDistritoCandidato?: string
+  /** Columna usada como género del candidato. */
+  columnaGeneroCandidato?: string
+  /** Columna usada como alianza por la cual se postula el candidato. */
+  columnaAlianza?: string
+  /** Columna con el identificador del tema de la wiki sobre la alianza. */
+  columnaTopicIdAlianza?: string
+  /** Columna que indica la posición del candidato en la lista. */
+  columnaPosicion?: string
+  /** Columna que indica si la postulación es como titular o suplente. */
+  columnaSubcargo?: string
+  /** Columna que indica el año de nacimiento del candidato. */
+  columnaAnioNacimiento?: string
+  /** Columna que indica el cargo (Diputado o Senador) */
+  columnaCargo?: string
+}
+
+const hashEleccion = 'eleccion'
+
+export function isEleccion<V>(v: V) {
+  return is$typed(v, id, hashEleccion)
+}
+
+export function validateEleccion<V>(v: V) {
+  return validate<Eleccion & V>(v, id, hashEleccion)
 }
 
 export interface View {
