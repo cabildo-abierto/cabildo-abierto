@@ -9,11 +9,11 @@ import {
     LexicalSelection
 } from "../selection/lexical-selection";
 import {MarkdownSelection} from "../selection/markdown-selection";
-import {ArticleEmbed, ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {ProcessedLexicalState} from "../selection/processed-lexical-state";
 import {$Typed} from "@atproto/api";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {prettyPrintLexicalState} from "../utils/print";
+//import {prettyPrintLexicalState} from "../utils/print";
 
 
 
@@ -101,20 +101,20 @@ function testSelectionTransform(markdown: string, markdownSelection: MarkdownSel
     const s = markdownToEditorStateNoEmbeds(markdown)
     const processedState = new ProcessedLexicalState(s)
 
-    console.log("markdown slice of", markdownSelection, Array.from(markdown.slice(markdownSelection.start, markdownSelection.end)))
+    //console.log("markdown slice of", markdownSelection, Array.from(markdown.slice(markdownSelection.start, markdownSelection.end)))
 
-    prettyPrintLexicalState(s)
+    // prettyPrintLexicalState(s)
 
     // Primero chequeamos idempotencia del markdown
     const markdownBack = editorStateToMarkdownNoEmbeds(processedState)
     expect(markdownBack).toStrictEqual(markdown)
 
     const lexicalSelection = markdownSelection.toLexicalSelection(processedState)
-    console.log("lexicalSelection", lexicalSelection)
+    //console.log("lexicalSelection", lexicalSelection)
     const markdownSelectionBack = lexicalSelection.toMarkdownSelection(processedState)
-    console.log("markdownSelectionBack", markdownSelectionBack)
+    //console.log("markdownSelectionBack", markdownSelectionBack)
     const lexicalSelectionBack = markdownSelectionBack.toLexicalSelection(processedState)
-    console.log("lexicalSelectionBack", lexicalSelectionBack)
+    //console.log("lexicalSelectionBack", lexicalSelectionBack)
 
     if(!expectedLexicalSelection){
         expect(markdownSelectionBack).toStrictEqual(

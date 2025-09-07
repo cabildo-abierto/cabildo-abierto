@@ -1,12 +1,10 @@
 import {
     BOLD_ITALIC_STAR,
-    BOLD_ITALIC_UNDERSCORE,
     BOLD_STAR,
-    BOLD_UNDERSCORE,
     CHECK_LIST,
     ElementTransformer,
     ITALIC_STAR,
-    ITALIC_UNDERSCORE, ORDERED_LIST,
+    ORDERED_LIST,
     QUOTE,
     STRIKETHROUGH, TextFormatTransformer,
     TextMatchTransformer,
@@ -115,6 +113,29 @@ export const HEADING: ElementTransformer = {
 
 
 export type MarkdownTransformer = ElementTransformer | TextFormatTransformer | TextMatchTransformer
+
+
+export const BOLD_ITALIC_UNDERSCORE: TextFormatTransformer = {
+    format: ['bold', 'italic'],
+    intraword: true,
+    tag: '___',
+    type: 'text-format',
+};
+
+export const BOLD_UNDERSCORE: TextFormatTransformer = {
+    format: ['bold'],
+    intraword: true,
+    tag: '__',
+    type: 'text-format',
+};
+
+export const ITALIC_UNDERSCORE: TextFormatTransformer = {
+    format: ['italic'],
+    intraword: true,
+    tag: '_',
+    type: 'text-format',
+};
+
 
 export const CA_TRANSFORMERS: MarkdownTransformer[] = [
     QUOTE,
