@@ -51,8 +51,6 @@ const articleEditorSettings = (smallScreen: boolean, draft?: Draft) => getEditor
 export const ArticleEditorFromDraft = ({id}: { id: string }) => {
     const {data, isLoading} = useDraft(id)
 
-
-
     if (isLoading) {
         return <div className={"mt-32"}>
             <LoadingSpinner/>
