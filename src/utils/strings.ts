@@ -53,3 +53,8 @@ export function capitalize(s: string): string {
 export function capitalizeFirst(s: string): string {
     return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
 }
+
+
+export function valueToPercentage(v: number) {
+    return (v * 100).toFixed(2) + "%"
+}
