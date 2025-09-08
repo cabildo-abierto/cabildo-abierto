@@ -1,7 +1,7 @@
 "use client"
 import PageHeader from "../../../../../../../../modules/ui-utils/src/page-header";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
-import {DetailsContent} from "@/components/thread/details-content";
+import {QuotesDetailsContent} from "@/components/thread/details-content";
 import React from "react";
 
 export default function Page({params}: {
@@ -14,8 +14,7 @@ export default function Page({params}: {
     const uri = getUri(decodeURIComponent(did), shortCollectionToCollection(collection), rkey)
 
     return <div className={"pb-16"}>
-        <PageHeader title={"Reposteado por "}/>
-        <DetailsContent detail={"reposts"}
-                        uri = {uri}/>
+        <PageHeader title={"Citas"}/>
+        <QuotesDetailsContent uri = {uri}/>
     </div>
 }

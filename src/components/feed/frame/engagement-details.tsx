@@ -26,6 +26,12 @@ export const EngagementDetails = ({
             content={content}
             showBsky={showBsky}
         />
+
+
+        <QuotesDetails
+            content={content}
+            showBsky={showBsky}
+        />
     </div>
 }
 
@@ -49,5 +55,17 @@ const LikesDetails = ({content, showBsky}: {content: $Typed<PostView> | $Typed<A
         href={url}
     >
         {content.likeCount} <span className="text-[var(--text-light)]"> {" me gusta"} </span>
+    </Link>
+}
+
+
+const QuotesDetails = ({content, showBsky}: {content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>, showBsky: boolean}) => {
+
+    const url = contentUrl(content.uri) + "/quoted-by"
+
+    return <Link className={"text-sm"}
+                 href={url}
+    >
+        {content.quoteCount} <span className="text-[var(--text-light)]"> {" citas"} </span>
     </Link>
 }
