@@ -118,7 +118,7 @@ export const TopicPage = ({topicId, did, rkey}: {
         {(wikiEditorState == "minimized" || wikiEditorState == "normal" || wikiEditorState == "props") &&
             <div className="w-full" id="discussion-start">
                 <TopicDiscussion
-                    topicId={topic.id}
+                    topic={topic}
                     topicVersionUri={topicVersionUri}
                     replyToContent={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
                     onClickQuote={onClickQuote}

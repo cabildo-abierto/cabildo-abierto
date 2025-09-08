@@ -1,7 +1,6 @@
 import SelectionComponent from "@/components/buscar/search-selection-component"
 import {MobileHeader} from "../layout/mobile-header";
 import {
-    FeedFormatOption, FollowingFeedFilterOption,
     mainFeedOptionToSearchParam,
     useEnDiscusionParams,
     useFollowingParams
@@ -14,6 +13,7 @@ import {topicUrl} from "@/utils/uri";
 import {updateSearchParam} from "@/utils/fetch";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
 import {useSession} from "@/queries/useSession";
+import {FeedFormatOption, FollowingFeedFilterOption} from "@/lib/types";
 
 
 const EnDiscusionFeedConfig = () => {
@@ -47,7 +47,7 @@ const EnDiscusionFeedConfig = () => {
             </div>
             <SelectionComponent
                 onSelection={setMetric}
-                options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
+                options={["Interacciones", "Recientes", "Me gustas", "Popularidad relativa"]}
                 optionsNodes={optionsNodes}
                 selected={metric}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
