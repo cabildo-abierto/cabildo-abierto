@@ -7,8 +7,10 @@ import {getFeed} from "@/components/feed/feed/get-feed";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {updateSearchParam} from "@/utils/fetch";
 import {useSession} from "@/queries/useSession";
-import {Session} from "@/lib/types";
+import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilterOption, Session} from "@/lib/types";
 import Link from "next/link";
+import {stringToEnum} from "@/utils/strings";
+import {defaultEnDiscusionFormat, defaultEnDiscusionMetric, defaultEnDiscusionTime} from "@/components/config/defaults";
 
 
 export function mainFeedOptionToSearchParam(v: MainFeedOption) {
@@ -29,10 +31,6 @@ export function searchParamToMainFeedOption(v: string): MainFeedOption {
 }
 
 
-export type FollowingFeedFilterOption = "Todos" | "Solo Cabildo Abierto"
-export type FeedFormatOption = "Todos" | "Artículos"
-export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad relativa" | "Recientes"
-export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes"
 const enDiscusionMetricOptions: EnDiscusionMetric[] = ["Me gustas", "Interacciones", "Popularidad relativa", "Recientes"]
 const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Último mes", "Última semana"]
 const feedFormatOptions: FeedFormatOption[] = ["Todos", "Artículos"]
@@ -53,21 +51,12 @@ export function useFollowingParams(user: Session): {filter: FollowingFeedFilterO
 }
 
 
-function stringToEnum<T>(s: string | undefined, options: string[], defaultValue: T): T {
-    if(!s || !options.includes(s)){
-        return defaultValue
-    } else {
-        return s as T
-    }
-}
-
-
 export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const defaultMetric = user.algorithmConfig.enDiscusion?.metric ?? "Interacciones"
-    const defaultTime = user.algorithmConfig.enDiscusion?.time ?? "Última semana"
-    const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? "Todos"
+    const defaultMetric = user.algorithmConfig.enDiscusion?.metric ?? defaultEnDiscusionMetric
+    const defaultTime = user.algorithmConfig.enDiscusion?.time ?? defaultEnDiscusionTime
+    const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? defaultEnDiscusionFormat
     const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
     const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
     const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)

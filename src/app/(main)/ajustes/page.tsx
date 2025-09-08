@@ -28,6 +28,14 @@ import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscr
 import {TextField} from "@mui/material";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {useRouter} from "next/navigation";
+import {
+    defaultEnDiscusionFormat,
+    defaultEnDiscusionMetric,
+    defaultEnDiscusionTime,
+    defaultTopicMentionsFormat,
+    defaultTopicMentionsMetric,
+    defaultTopicMentionsTime
+} from "@/components/config/defaults";
 
 const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
@@ -285,6 +293,44 @@ const FeedDefaultsSettings = () => {
         await onSave(newConfig)
     }
 
+    async function setTopicMentionsMetric(v: EnDiscusionMetric) {
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            topicMentions: {
+                ...config.topicMentions,
+                metric: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    async function setTopicMentionsTime(v: EnDiscusionTime) {
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            topicMentions: {
+                ...config.topicMentions,
+                time: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
+
+    async function setTopicMentionsFormat(v: FeedFormatOption) {
+        const newConfig: AlgorithmConfig = {
+            ...config,
+            topicMentions: {
+                ...config.topicMentions,
+                format: v
+            }
+        }
+        setConfig(newConfig)
+        await onSave(newConfig)
+    }
+
 
     async function setEnDiscusionTime(v: EnDiscusionTime) {
         const newConfig: AlgorithmConfig = {
@@ -326,14 +372,15 @@ const FeedDefaultsSettings = () => {
 
 
     return <div className={"space-y-8"}>
-        <div className={"space-y-2"}>
+        <div className={"space-y-2 bg-[var(--background-dark)] p-4 rounded-lg"}>
             <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
                 <div>
                     Siguiendo
                 </div>
                 <InfoPanel
                     moreInfoHref={topicUrl("Cabildo Abierto: Muros", undefined, "normal")}
-                    text={"Configuración por defecto del muro Siguiendo."}/>
+                    text={"Configuración por defecto del muro Siguiendo."}
+                />
             </div>
             <SelectionComponent
                 onSelection={setFollowing}
@@ -344,14 +391,15 @@ const FeedDefaultsSettings = () => {
                 optionContainerClassName={""}
             />
         </div>
-        <div className={"space-y-4"}>
+        <div className={"space-y-4 bg-[var(--background-dark)] p-4 rounded-lg"}>
             <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
                 <div>
                     En discusión
                 </div>
                 <InfoPanel
                     moreInfoHref={topicUrl("Cabildo Abierto: Muros", undefined, "normal")}
-                    text={"Configuración por defecto del muro En discusión."}/>
+                    text={"Configuración por defecto del muro En discusión."}
+                />
             </div>
             <div className={"space-y-4"}>
                 <div>
@@ -362,7 +410,7 @@ const FeedDefaultsSettings = () => {
                         onSelection={setEnDiscusionMetric}
                         options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
                         optionsNodes={optionsNodes}
-                        selected={config.enDiscusion?.metric ?? "Popularidad relativa"}
+                        selected={config.enDiscusion?.metric ?? defaultEnDiscusionMetric}
                         className={"flex gap-x-2 gap-y-1 flex-wrap"}
                         optionContainerClassName={""}
                     />
@@ -375,7 +423,7 @@ const FeedDefaultsSettings = () => {
                         onSelection={setEnDiscusionTime}
                         options={["Último día", "Última semana", "Último mes"]}
                         optionsNodes={optionsNodes}
-                        selected={config.enDiscusion?.time ?? "Última semana"}
+                        selected={config.enDiscusion?.time ?? defaultEnDiscusionTime}
                         className={"flex gap-x-2 gap-y-1 flex-wrap"}
                         optionContainerClassName={""}
                     />
@@ -388,20 +436,22 @@ const FeedDefaultsSettings = () => {
                         onSelection={setEnDiscusionFormat}
                         options={["Todos", "Artículos"]}
                         optionsNodes={optionsNodes}
-                        selected={config.enDiscusion?.format ?? "Todos"}
+                        selected={config.enDiscusion?.format ?? defaultEnDiscusionFormat}
                         className={"flex gap-x-2 gap-y-1 flex-wrap"}
                         optionContainerClassName={""}
                     />
                 </div>
             </div>
         </div>
-        <div className={"space-y-2"}>
+        <div className={"space-y-2 bg-[var(--background-dark)] p-4 rounded-lg"}>
             <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
                 <div>
                     Temas en tendencia
                 </div>
-                <InfoPanel moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas", undefined, "normal")}
-                           text={"El período por defecto de los temas en la sección Temas y en el panel lateral (en PC)."}/>
+                <InfoPanel
+                    moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas", undefined, "normal")}
+                    text={"El período por defecto de los temas en la sección Temas y en el panel lateral (en PC)."}
+                />
             </div>
             <SelectionComponent
                 onSelection={setTTTime}
@@ -411,6 +461,58 @@ const FeedDefaultsSettings = () => {
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
             />
+        </div>
+        <div className={"space-y-4 bg-[var(--background-dark)] p-4 rounded-lg"}>
+            <div className={"text-[var(--text-light)] font-semibold flex space-x-1"}>
+                <div>
+                    Muros de temas
+                </div>
+                <InfoPanel
+                    moreInfoHref={topicUrl("Cabildo Abierto: Muros", undefined, "normal")}
+                    text={"Configuración por defecto del muro de menciones de cada tema."}
+                />
+            </div>
+            <div className={"space-y-4"}>
+                <div>
+                    <div className={"text-xs text-[var(--text-light)]"}>
+                        Métrica
+                    </div>
+                    <SelectionComponent
+                        onSelection={setTopicMentionsMetric}
+                        options={["Popularidad relativa", "Me gustas", "Interacciones", "Recientes"]}
+                        optionsNodes={optionsNodes}
+                        selected={config.topicMentions?.metric ?? defaultTopicMentionsMetric}
+                        className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                        optionContainerClassName={""}
+                    />
+                </div>
+                <div>
+                    <div className={"text-xs text-[var(--text-light)]"}>
+                        Período
+                    </div>
+                    <SelectionComponent<EnDiscusionTime>
+                        onSelection={setTopicMentionsTime}
+                        options={["Último día", "Última semana", "Último mes"]}
+                        optionsNodes={optionsNodes}
+                        selected={config.topicMentions?.time ?? defaultTopicMentionsTime}
+                        className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                        optionContainerClassName={""}
+                    />
+                </div>
+                <div>
+                    <div className={"text-xs text-[var(--text-light)]"}>
+                        Formato
+                    </div>
+                    <SelectionComponent
+                        onSelection={setTopicMentionsFormat}
+                        options={["Todos", "Artículos"]}
+                        optionsNodes={optionsNodes}
+                        selected={config.topicMentions?.format ?? defaultTopicMentionsFormat}
+                        className={"flex gap-x-2 gap-y-1 flex-wrap"}
+                        optionContainerClassName={""}
+                    />
+                </div>
+            </div>
         </div>
         <div className={"link text-[var(--text-light)] text-sm"}>
             Todas las configuraciones también se pueden cambiar momentáneamente al estar viendo el contenido. Si querés una configuración que no ves acá, <Link href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}>sugerila</Link>.

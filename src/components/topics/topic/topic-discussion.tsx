@@ -5,14 +5,15 @@ import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/useSession";
 import {WikiEditorState} from "@/lib/types";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 
 
 const TopicDiscussion = ({
-    replyToContent, topicId, onClickQuote, wikiEditorState, topicVersionUri
+    replyToContent, topic, onClickQuote, wikiEditorState, topicVersionUri
 }: {
-    topicId: string
+    topic: TopicView
     topicVersionUri: string
     replyToContent?: ReplyToContent
     onClickQuote: (cid: string) => void
@@ -21,20 +22,22 @@ const TopicDiscussion = ({
     const [writingReply, setWritingReply] = useState(false)
     const {user} = useSession()
 
-    return <div className="w-full flex flex-col items-center mb-16">
-        {replyToContent != null && <div className={"w-full"}>
-            <ReplyButton
-                text={"Responder en la discusión del tema"}
-                onClick={() => {setWritingReply(true)}}
-            />
-        </div>}
-        {user && <div className={"w-full border-t " + (wikiEditorState == "normal" ? "" : "")}>
-            <TopicFeed
-                topicId={topicId}
-                onClickQuote={onClickQuote}
-                topicVersionUri={topicVersionUri}
-            />
-        </div>}
+    return <div className={"w-full flex flex-col items-center mb-16" + (wikiEditorState == "minimized" ? "" : "pt-16")}>
+        <div className={"w-full max-w-[600px]"}>
+            {replyToContent != null && <div className={"w-full"}>
+                <ReplyButton
+                    text={"Responder"}
+                    onClick={() => {setWritingReply(true)}}
+                />
+            </div>}
+            {user && <div className={"w-full border-t " + (wikiEditorState == "normal" ? "" : "")}>
+                <TopicFeed
+                    topic={topic}
+                    onClickQuote={onClickQuote}
+                    topicVersionUri={topicVersionUri}
+                />
+            </div>}
+        </div>
         {user && replyToContent && <WritePanel
             open={writingReply}
             onClose={() => {setWritingReply(false)}}

@@ -33,7 +33,7 @@ export const AdminLayout = ({children}: {children: ReactNode}) => {
             <SelectionComponent
                 onSelection={onSelection}
                 selected={params.get("s") ? params.get("s") : "Principal"}
-                options={["Principal", "Acceso", "Cache", "Sync", "PDS", "Validacion", "Remuneraciones", "Stats"]}
+                options={["Principal", "Acceso", "Sync", "Validacion", "Remuneraciones", "Stats"]}
                 optionsNodes={optionsNodes}
                 className={"flex"}
             />

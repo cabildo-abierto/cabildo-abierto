@@ -6,13 +6,15 @@ import ReplyIcon from "@mui/icons-material/Reply"
 import {useTopicFeedParams} from "@/components/topics/topic/topic-feed"
 import {usePathname} from "next/navigation";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {useSession} from "@/queries/useSession";
 
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicViewBasic, showingChildren: boolean }) => {
-    const option = useTopicFeedParams()
+    const {user} = useSession()
+    const {selected} = useTopicFeedParams(user)
     const pathname = usePathname()
 
-    if(pathname.startsWith("/tema") && option == "Discusión"){
+    if(pathname.startsWith("/tema") && selected == "Respuestas"){
         return null
     }
 

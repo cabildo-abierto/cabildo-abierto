@@ -58,3 +58,12 @@ export function capitalizeFirst(s: string): string {
 export function valueToPercentage(v: number) {
     return (v * 100).toFixed(2) + "%"
 }
+
+
+export function stringToEnum<T>(s: string | undefined, options: string[], defaultValue: T): T {
+    if(!s || !options.includes(s)){
+        return defaultValue
+    } else {
+        return s as T
+    }
+}
