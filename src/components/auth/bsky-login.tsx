@@ -6,6 +6,7 @@ import {isValidHandle} from "@atproto/syntax"
 import {useSession} from "@/queries/useSession";
 import {Button} from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
+import {AtIcon} from "@phosphor-icons/react";
 
 
 export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
@@ -67,45 +68,55 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
 
 
     return <div className={"max-w-96 w-full"}>
-        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-2"}>
+        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-4"}>
             <FormControl error={error} sx={{width: "100%"}}>
-                <div className={"flex space-x-2 items-center"}>
-                    <TextField
-                        margin="normal"
-                        fullWidth={true}
-                        size={"small"}
-                        id="username"
-                        label="Nombre de usuario de Bluesky"
-                        name="username"
-                        autoFocus
-                        variant="outlined"
-                        autoComplete="off"
-                        value={handleStart}
-                        onChange={(e) => {
-                            setHandleStart(e.target.value);
-                            setError(undefined);
-                        }}
-                    />
-                    <TextField
-                        margin="normal"
-                        fullWidth={false}
-                        id="domain"
-                        label="Dominio"
-                        name="username"
-                        placeholder=".bsky.social"
-                        autoFocus={false}
-                        autoComplete="off"
-                        variant="outlined"
-                        size={"small"}
-                        value={domain}
-                        onChange={(e) => {
-                            setDomain(e.target.value);
-                            setError(undefined);
-                        }}
-                        sx={{
-                            width: 160
-                        }}
-                    />
+                <div>
+                    <div className={"flex space-x-2 items-center"}>
+                        <TextField
+                            margin="normal"
+                            fullWidth={true}
+                            size={"small"}
+                            id="username"
+                            label="Nombre de usuario"
+                            name="username"
+                            autoFocus
+                            variant="outlined"
+                            autoComplete="off"
+                            value={handleStart}
+                            onChange={(e) => {
+                                setHandleStart(e.target.value);
+                                setError(undefined);
+                            }}
+                            slotProps={{
+                                input: {
+                                    startAdornment: <span className={"text-[var(--text-light)] pr-2"}><AtIcon/></span>,
+                                }
+                            }}
+                        />
+                        <TextField
+                            margin="normal"
+                            fullWidth={false}
+                            id="domain"
+                            label="Dominio"
+                            name="username"
+                            placeholder=".bsky.social"
+                            autoFocus={false}
+                            autoComplete="off"
+                            variant="outlined"
+                            size={"small"}
+                            value={domain}
+                            onChange={(e) => {
+                                setDomain(e.target.value);
+                                setError(undefined);
+                            }}
+                            sx={{
+                                width: 160
+                            }}
+                        />
+                    </div>
+                    <div className={"text-[11px] text-[var(--text-light)] text-center font-extralight"}>
+                        Tu cuenta de Cabildo Abierto y Bluesky es la misma.
+                    </div>
                 </div>
 
                 <FormHelperText

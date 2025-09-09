@@ -212,16 +212,20 @@ export class DataParser {
         const hasMilliseconds = sampleDate.getMilliseconds() !== 0
         const hasSeconds = sampleDate.getSeconds() !== 0
         const hasMinutes = sampleDate.getMinutes() !== 0
-        const hasHours = sampleDate.getHours() !== 0
+        let hasHours = sampleDate.getHours() !== 0
         const hasDay = sampleDate.getDate() !== 1
         const hasMonth = sampleDate.getMonth() !== 0
 
+        if(sampleDate.getHours() == 3 && sampleDate.getMinutes() == 0 && sampleDate.getSeconds() == 0 && sampleDate.getMilliseconds() == 0){
+            hasHours = false
+        }
+
         if (hasMilliseconds) {
-            return esLocale.format('%H:%M:%S.%L') // e.g., "13:45:32.123"
+            return esLocale.format('%d %b %Y %H:%M:%S.%L') // e.g., "13:45:32.123"
         } else if (hasSeconds) {
-            return esLocale.format('%H:%M:%S')    // "13:45:32"
+            return esLocale.format('%d %b %Y %H:%M:%S')    // "13:45:32"
         } else if (hasMinutes || hasHours) {
-            return esLocale.format('%H:%M')       // "13:45"
+            return esLocale.format('%d %b %Y %H:%M')       // "13:45"
         } else if (hasDay) {
             return esLocale.format('%d %b %Y')    // "14 jul 2025"
         } else if (hasMonth) {
