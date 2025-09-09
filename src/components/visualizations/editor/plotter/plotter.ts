@@ -142,6 +142,7 @@ export class Plotter {
         } else if(type == "date"){
             if(v instanceof Date){
                 const formater = this.parser.getDateFormater(v)
+                console.log(v, formater(v))
                 return formater(v)
             } else {
                 return `Fecha inválida: ${v.toString()}`

@@ -129,7 +129,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                                 ...p,
                                 value: {
                                     $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-                                    value: newValue.toISOString(),
+                                    value: newValue.startOf("day").toISOString(),
                                 },
                             });
                         }
