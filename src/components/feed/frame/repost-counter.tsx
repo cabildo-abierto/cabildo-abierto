@@ -140,8 +140,10 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
         </div>
     }
 
+    const disabled = content.viewer && content.viewer.repost == "optimistic-repost-uri" || getRkeyFromUri(content.uri).startsWith("optimistic")
+
     return <>
-        <ModalOnClick modal={modal}>
+        <ModalOnClick modal={modal} disabled={disabled}>
             <ReactionButton
                 onClick={() => {
                 }}
@@ -149,7 +151,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 active={reposted}
                 iconActive={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
                 iconInactive={<RepostIcon fontSize={"small"}/>}
-                disabled={false}
+                disabled={disabled}
                 count={showBsky ? (content.bskyRepostCount ?? content.repostCount) : content.repostCount}
                 title="Cantidad de republicaciones y citas."
             />
