@@ -50,6 +50,8 @@ import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/select
 import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import Link from "next/link";
+import {getTextLength} from "@/components/writing/write-panel/rich-text";
+
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -258,7 +260,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
         }
 
         const post: CreatePostProps = {
-            text,
+            text: text,
             reply,
             selection: selectionForPost,
             images,
@@ -338,7 +340,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
                         setEditorState={setEditorState}
                         settings={{...settings, placeholder: getPlaceholder(replyToCollection)}}
                     />
-                    {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
+                    {charLimit && <ExtraChars charLimit={charLimit} count={getTextLength(text)}/>}
                 </div>
             </div>
             {replyTo != undefined && <WritePanelReplyPreview
