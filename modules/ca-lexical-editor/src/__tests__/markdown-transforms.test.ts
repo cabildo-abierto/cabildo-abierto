@@ -8,9 +8,9 @@ import {
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {$Typed} from "@atproto/api";
-import {prettyPrintJSON} from "@/utils/strings";
+//import {prettyPrintJSON} from "@/utils/strings";
 
-function nodeForPrint(node: any){
+/*function nodeForPrint(node: any){
     return {
         type: node.type,
         children: node.children ? node.children.map(nodeForPrint) : undefined,
@@ -21,7 +21,7 @@ function nodeForPrint(node: any){
 
 function prettyPrintLexicalState(s: any){
     prettyPrintJSON(nodeForPrint(s.root))
-}
+}*/
 
 export const longText = `
 Marked - Markdown Parser
@@ -122,7 +122,7 @@ test('markdown transform with visualization', () => {
         }
     ]
     const editorState = markdownToEditorState(markdown, true, true, embeds)
-    prettyPrintLexicalState(editorState)
+    //prettyPrintLexicalState(editorState)
 
     const {markdown: markdownBack, embeds: embedsBack} = editorStateToMarkdown(editorState)
 
@@ -130,3 +130,22 @@ test('markdown transform with visualization', () => {
     expect(embedsBack).toStrictEqual(embeds)
 })
 
+
+test('markdown bold italic transform', () => {
+    const markdown = "abc__xy__*z*abc"
+
+    const lexical = markdownToEditorState(markdown, true, true, [])
+    const markdownBack = editorStateToMarkdown(lexical)
+
+    expect(markdownBack.markdown).toStrictEqual(markdown)
+    const p = lexical.root.children[0]
+    expect(p.type).toStrictEqual("paragraph")
+
+    // children debería ser:
+    // - abc
+    // - xy
+    // - z
+    // - abc
+
+    expect((p as any).children.length).toStrictEqual(4)
+})

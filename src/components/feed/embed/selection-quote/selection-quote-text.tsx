@@ -1,4 +1,4 @@
-import {useMemo} from "react";
+import React, {useMemo} from "react";
 import {
     markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
@@ -7,10 +7,12 @@ import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/se
 import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {decompress} from "@/utils/compression";
 import dynamic from "next/dynamic";
-const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+import {getEditorSettings} from "@/components/editor/settings";
+import {isArticle} from "@/utils/uri";
+const MyLexicalEditor = dynamic(() => import('../../../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
     loading: () => <></>,
-});
+})
 
 
 type QuoteTextProps = {
@@ -18,9 +20,10 @@ type QuoteTextProps = {
     quotedTextFormat: EmbedSelectionQuote["quotedTextFormat"]
     quotedTextEmbeds: ArticleEmbedView[]
     selection: MarkdownSelection
+    quotedCollection: string
 }
 
-export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbeds, selection}: QuoteTextProps) => {
+export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbeds, selection, quotedCollection}: QuoteTextProps) => {
     const strSelection = JSON.stringify(selection.toArray())
     const strEmbeds = JSON.stringify(quotedTextEmbeds)
     const content = useMemo(() => {
@@ -52,7 +55,24 @@ export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbe
         return null
     }
 
+    const settings = getEditorSettings({
+        initialTextFormat: content.format,
+        initialText: content.text,
+        isReadOnly: true,
+        allowComments: false,
+        tableOfContents: false,
+        editorClassName: isArticle(quotedCollection) ? "article-content" : "article-content not-article-content",
+        embeds: quotedTextEmbeds,
+        topicMentions: false
+    })
+
     return (
-        <ReadOnlyEditor text={content.text} format={content.format}/>
+        <div>
+            <MyLexicalEditor
+                settings={settings}
+                setEditor={() => {}}
+                setEditorState={() => {}}
+            />
+        </div>
     )
 }

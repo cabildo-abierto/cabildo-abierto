@@ -76,7 +76,7 @@ const TopicSearchResult = ({topic, index, time}: {
                     description={topic.currentVersionCreatedAt ? `La versión oficial del tema cambió desde la última vez que entraste. La versión actual es del ${formatIsoDate(new Date(topic.currentVersionCreatedAt), true)}.` : undefined}
                 >
                     <div className={"flex space-x-1"}>
-                        <div className={"text-xs text-[var(--text-light)]"}>
+                        <div className={"text-xs text-[var(--text-light)] truncate"}>
                             <DateSince date={topic.currentVersionCreatedAt} title={false}/>
                         </div>
                         {unseenUpdate && <div className={"rounded-full bg-red-600 w-[4px] h-[4px] mt-1"}/>}

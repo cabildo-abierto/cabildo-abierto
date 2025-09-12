@@ -1,7 +1,6 @@
 import {get} from "@/utils/fetch";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {GetFeedOutput, GetFeedProps} from "@/lib/types";
-import {FeedFormatOption, FollowingFeedFilterOption} from "@/components/inicio/main-page";
+import {FeedFormatOption, FollowingFeedFilterOption, GetFeedOutput, GetFeedProps} from "@/lib/types";
 
 
 function setSearchParams(baseUrl: string, params: {[key: string]: string | undefined}): string {

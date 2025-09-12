@@ -24,17 +24,24 @@ export async function sendReadChunks(uri: string, chunks: Map<number, number>, t
 
 
 const CHUNK_HEIGHT = 100; // px
-const IDLE_TIMEOUT = 30000; // 60s
-const FLUSH_INTERVAL = 15000 // 30s
+const IDLE_TIMEOUT = 30000
+const FLUSH_INTERVAL = 5000
 
 type ReadEvent = {
     scrollY: number
     duration: number
 }
 
+function getTotalChunks(article?: HTMLElement){
+    if(!article) return null
+    const articleStart = article.offsetTop
+    const articleEnd = article.offsetTop + article.offsetHeight
+    return Math.ceil((articleEnd - articleStart) / CHUNK_HEIGHT)
+}
+
 export const useTrackReading = (
     uri: string,
-    articleRef: RefObject<HTMLElement>,
+    articleRef: RefObject<HTMLDivElement>,
     clippedToHeight: number | null,
     setReadChunks?: (r: Map<number, number>) => void,
 ) => {
@@ -45,10 +52,14 @@ export const useTrackReading = (
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const [sentInitialView, setSentInitialView] = useState(false)
+    const [totalChunks, setTotalChunks] = useState<number | null>(null)
 
-    const articleStart = articleRef.current?.offsetTop
-    const articleEnd = articleRef.current?.offsetTop + articleRef.current?.offsetHeight
-    const totalChunks = Math.ceil((articleEnd - articleStart) / CHUNK_HEIGHT)
+    useEffect(() => {
+        const v = getTotalChunks(articleRef.current)
+        if(v) {
+            setTotalChunks(v)
+        }
+    }, [articleRef.current, articleRef]);
 
     useEffect(() => {
         if(totalChunks != null){
@@ -57,7 +68,7 @@ export const useTrackReading = (
                 setSentInitialView(true)
             }
         }
-    }, [totalChunks, sentInitialView]);
+    }, [articleRef.current, sentInitialView]);
 
     const updateActivity = () => {
         lastActivity.current = Date.now();
@@ -78,11 +89,12 @@ export const useTrackReading = (
 
         const firstChunk = Math.max(Math.floor((readSegmentStart - articleStart) / CHUNK_HEIGHT), 0)
         let lastChunk = Math.ceil((Math.min(readSegmentEnd, Math.min(articleEnd, articleStart + (clippedToHeight ?? Infinity))) - articleStart) / CHUNK_HEIGHT)
+
         lastChunk = Math.min(lastChunk, totalChunks)
         for (let i = firstChunk; i < lastChunk; i++) {
             readChunks.current.set(i, (readChunks.current.get(i) ?? 0) + s.duration)
         }
-    }, [clippedToHeight, articleRef, CHUNK_HEIGHT, readChunks])
+    }, [clippedToHeight, articleRef, totalChunks, CHUNK_HEIGHT, readChunks])
 
 
     const recordReading = useCallback(() => {
@@ -102,11 +114,9 @@ export const useTrackReading = (
 
             lastScroll.current = {scrollY: scrollEnd, timestamp: now}
         }
-    }, [clippedToHeight, lastScroll])
+    }, [clippedToHeight, lastScroll, totalChunks])
 
     useEffect(() => {
-        const handleActivity = () => updateActivity();
-
         const handleVisibilityChange = () => {
             if (document.visibilityState === "hidden") {
                 idle.current = true;
@@ -116,23 +126,23 @@ export const useTrackReading = (
             }
         };
 
-        window.addEventListener("scroll", handleActivity);
-        window.addEventListener("mousemove", handleActivity);
-        window.addEventListener("keydown", handleActivity);
+        window.addEventListener("scroll", updateActivity);
+        window.addEventListener("mousemove", updateActivity);
+        window.addEventListener("keydown", updateActivity);
         window.addEventListener("visibilitychange", handleVisibilityChange);
 
         const idleChecker = setInterval(checkIdle, 1000);
         const readTracker = setInterval(recordReading, 500);
 
         return () => {
-            window.removeEventListener("scroll", handleActivity);
-            window.removeEventListener("mousemove", handleActivity);
-            window.removeEventListener("keydown", handleActivity);
+            window.removeEventListener("scroll", updateActivity);
+            window.removeEventListener("mousemove", updateActivity);
+            window.removeEventListener("keydown", updateActivity);
             window.removeEventListener("visibilitychange", handleVisibilityChange);
             clearInterval(idleChecker);
             clearInterval(readTracker);
         };
-    }, [clippedToHeight])
+    }, [clippedToHeight, totalChunks])
 
     useEffect(() => {
         if (totalChunks != null) {

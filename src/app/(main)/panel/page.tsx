@@ -1,5 +1,5 @@
 "use client"
-import {rounder} from "@/utils/strings";
+import {rounder, valueToPercentage} from "@/utils/strings";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
 import {useAPI} from "@/queries/utils";
@@ -10,6 +10,9 @@ import {formatIsoDate} from "@/utils/dates";
 import {contentUrl, topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import {WarningIcon} from "@phosphor-icons/react";
+import ValidationIcon from "@/components/profile/validation-icon";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
 
 type ArticleStats = {
@@ -17,8 +20,11 @@ type ArticleStats = {
     created_at: Date
     title: string
     seenBy: number
-    avgReadFraction: number
+    seenByVerified: number
+    avgReadFraction: number | null
+    avgReadFractionVerified: number | null
     income: number
+    likes: number
 }
 
 
@@ -29,7 +35,7 @@ type EditedTopicStats = {
     last_edit: Date
     edits_count: number
     topicSeenBy: number
-    topicAvgReadFraction: number
+    topicSeenByVerified: number
     contribution: number | null
     monetizedContribution: number | null
     income: number
@@ -40,10 +46,12 @@ type AuthorDashboard = {
     articles: ArticleStats[]
     edits: EditedTopicStats[]
     totalReadByArticles: number | null
+    totalReadByArticlesVerified: number | null
     avgReadFractionArticles: number | null
+    avgReadFractionArticlesVerified: number | null
     totalReadByEdits: number | null
-    avgReadFractionEdits: number | null
-    totalIncome: number
+    totalReadByEditsVerified: number | null
+    totalIncome: number | null
 }
 
 function useAuthorDashboard() {
@@ -51,24 +59,62 @@ function useAuthorDashboard() {
 }
 
 
-const StatSquare = ({label, value, info, moreInfoHref}: { moreInfoHref?: string, label: string, value: string, info?: string }) => {
-    return <div
-        className={"relative rounded-lg min-w-32 h-32 bg-[var(--background-dark)] flex-col text-[30px] text-center flex items-center justify-center"}
+const StatSquare = ({
+                        label,
+                        value,
+                        info,
+                        moreInfoHref,
+                        labelVerified,
+                        valueVerified
+                    }: {
+    moreInfoHref?: string
+    label: string
+    value: string
+    info?: string
+    labelVerified?: string
+    valueVerified?: string
+}) => {
+    return <DescriptionOnHover
+        description={info}
+        moreInfoHref={moreInfoHref}
     >
-        <div className={"px-2 font-bold"}>
-            {value}
+        <div
+            className={"relative rounded-lg min-w-32 h-32 bg-[var(--background-dark)] flex-col text-[30px] space-y-2 text-center flex items-center justify-center"}
+        >
+            <div>
+                <div className={"px-2 font-bold"}>
+                    {value}
+                </div>
+                <div className={"font-light text-center text-sm text-[var(--text-light)] px-2"}>
+                    {label}
+                </div>
+            </div>
+
+            {valueVerified != null && <div className={"absolute bottom-1 left-2 text-[var(--text-light)]"}>
+                <div className={"text-xs flex space-x-1 items-center"}>
+                    <div>
+                        {valueVerified}
+                    </div>
+                    <ValidationIcon
+                        color={"background-dark"}
+                        iconColor={"text-light"}
+                        handle={undefined}
+                        validation={"persona"}
+                        fontSize={12}
+                    />
+                </div>
+            </div>}
         </div>
-        <div className={"font-light text-center text-sm text-[var(--text-light)] px-2"}>
-            {label}
-        </div>
-        {info && <div className={"absolute bottom-[-6px] right-1"}>
-            <InfoPanel text={info} moreInfoHref={moreInfoHref} />
-        </div>}
-    </div>
+    </DescriptionOnHover>
 }
 
 
-const CardStat = ({label, value, info, moreInfoHref}: { label: string, value: string, info?: ReactNode, moreInfoHref?: string }) => {
+const CardStat = ({label, value, info, moreInfoHref}: {
+    label: string,
+    value: string,
+    info?: ReactNode,
+    moreInfoHref?: string
+}) => {
     return <div className={"flex space-x-1 items-center text-sm"}>
         <div>
         <span className={" font-semibold"}>
@@ -96,8 +142,14 @@ const ArticleStatsCard = ({article}: { article: ArticleStats }) => {
             </div>
         </div>
         <div className={"sm:w-[40%] sm:text-base text-sm text-[var(--text-light)]"}>
-            <CardStat label={"Lectores"} value={rounder(article.seenBy)}/>
-            <CardStat label={"Lectura promedio"} value={(article.avgReadFraction * 100).toFixed(2) + "%"}/>
+            <CardStat
+                label={"Lectores"}
+                value={rounder(article.seenBy)}
+            />
+            <CardStat
+                label={"Lectura promedio"}
+                value={(article.avgReadFraction * 100).toFixed(2) + "%"}
+            />
             <CardStat
                 label={"Ingresos"}
                 value={"$" + article.income.toFixed(2)}
@@ -175,6 +227,16 @@ const Page = () => {
 
     return <div className={"flex flex-col"}>
         <PageHeader title={"Panel de autor"}/>
+        {data && isAuthor && <div
+            className={"rounded-lg bg-[var(--background-dark)] mx-2 p-3 text-[var(--text-light)] mt-4 font-extralight text-sm flex items-center space-x-4"}>
+            <div className={"px-2"}>
+                <WarningIcon fontSize={26}/>
+            </div>
+            <div>
+                Hubo algunos errores en la medición de lecturas durante agosto así que la métrica de lectura promedio
+                puede ser menor que la real para las publicaciones durante ese mes.
+            </div>
+        </div>}
         {isLoading && <div className={"mt-8"}>
             <LoadingSpinner/>
         </div>}
@@ -184,9 +246,12 @@ const Page = () => {
         {data && !isAuthor && <div className={"text-[var(--text-light)] text-center py-16 px-4"}>
             Escribí tu primer artículo o editá un tema para convertirte en autor.
         </div>}
-        {data && isAuthor && <div className={"pt-4 px-2 space-y-2 pb-32"}>
+        {data && isAuthor && <div className={"pt-4 px-2 space-y-4 pb-32"}>
             <div className={"flex flex-wrap gap-2"}>
-                <StatSquare label={"Artículos"} value={rounder(data.articles.length)}/>
+                <StatSquare
+                    label={"Artículos"}
+                    value={rounder(data.articles.length)}
+                />
                 <StatSquare
                     label={"Temas editados"}
                     value={rounder(data.edits.length)}
@@ -200,19 +265,22 @@ const Page = () => {
                 {data.totalReadByArticles != null && <StatSquare
                     label={"Lecturas en artículos"}
                     value={rounder(data.totalReadByArticles)}
-                    info={"El total de lecturas de tus artículos. Solo cuentan como lectores las cuentas verificadas como personas."}
+                    info={"El total de lecturas de tus artículos. Abajo a la izquierda se muestra la cantidad de lecturas de usuarios verificados."}
                     moreInfoHref={topicUrl("Cabildo Abierto: Remuneraciones", undefined, "normal")}
-
+                    valueVerified={rounder(data.totalReadByArticlesVerified)}
                 />}
                 {data.avgReadFractionArticles != null && <StatSquare
                     label={"Lectura promedio en artículos"}
-                    value={(data.avgReadFractionArticles * 100).toFixed(2) + "%"}
+                    value={valueToPercentage(data.avgReadFractionArticles)}
+                    info={"Cuánto leyó en promedio cada lector de tus artículos. Abajo a la izquierda se muestra el promedio de los lectores verificados."}
+                    valueVerified={valueToPercentage(data.avgReadFractionArticlesVerified)}
                 />}
                 {data.totalReadByEdits != null && <StatSquare
                     label={"Lecturas en temas"}
                     value={rounder(data.totalReadByEdits)}
-                    info={"El total de lecturas en temas que editaste. En cada tema se cuentan solo las lecturas desde tu primera edición. Solo cuentan como lectores las cuentas verificadas como personas."}
+                    info={"El total de lecturas en temas que editaste. En cada tema se cuentan solo las lecturas desde tu primera edición. Abajo a la izquierda se muestra el total de lecturas de usuarios verificados."}
                     moreInfoHref={topicUrl("Cabildo Abierto: Remuneraciones", undefined, "normal")}
+                    valueVerified={data.totalReadByEditsVerified.toString()}
                 />}
             </div>
             <div className={"bg-[var(--background-dark)] rounded-lg"}>

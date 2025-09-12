@@ -61,7 +61,7 @@ const UserSearchResults = ({
     splitBluesky?: boolean
     goToProfile?: boolean
 }) => {
-    const {results, isLoading, isError, error} = useSearchUsers(searchState)
+    const {results, isLoading, isError} = useSearchUsers(searchState)
 
     if (searchState.value.length == 0) {
         return (
@@ -81,10 +81,10 @@ const UserSearchResults = ({
             <div
                 className={
                     "text-[var(--text-light)] text-center px-2 " +
-                    (showSearchButton ? "" : "mt-8")
+                    (showSearchButton ? "mt-2" : "mt-8")
                 }
             >
-                {error.message}
+                Ocurrió un error al buscar
             </div>
         );
     }

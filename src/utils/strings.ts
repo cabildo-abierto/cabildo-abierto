@@ -39,3 +39,31 @@ export function prettyPrintJSON(obj: any): void {
         console.error("Failed to pretty print JSON:", error);
     }
 }
+
+
+export function capitalize(s: string): string {
+    return s
+        .toLowerCase()
+        .split(" ")
+        .map(x => x.charAt(0).toUpperCase() + x.slice(1))
+        .join(" ")
+}
+
+
+export function capitalizeFirst(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+}
+
+
+export function valueToPercentage(v: number) {
+    return (v * 100).toFixed(2) + "%"
+}
+
+
+export function stringToEnum<T>(s: string | undefined, options: string[], defaultValue: T): T {
+    if(!s || !options.includes(s)){
+        return defaultValue
+    } else {
+        return s as T
+    }
+}

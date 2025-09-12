@@ -50,6 +50,10 @@ export function kindToLexicon(kind: string): Visualization["spec"] {
         return {
             $type: "ar.cabildoabierto.embed.visualization#table"
         }
+    } else if(kind == "Elección"){
+        return {
+            $type: "ar.cabildoabierto.embed.visualization#eleccion"
+        }
     }
 }
 
@@ -67,7 +71,8 @@ export function lexiconToKind(lexicon: DeepPartial<Visualization["spec"]>): stri
         "barplot": "Gráfico de barras",
         "scatterplot": "Gráfico de dispersión",
         "hemicycleVisualization": "Hemiciclo",
-        "table": "Tabla"
+        "table": "Tabla",
+        "eleccion": "Elección"
     }
     if(isOneAxisPlot(lexicon)) {
         return "Histograma"
@@ -140,7 +145,14 @@ const ConfigPanelVisualization = ({config, setConfig}: {
 }) => {
     return <>
         <Select
-            options={["Histograma", "Gráfico de línea", "Gráfico de barras", "Gráfico de dispersión", "Tabla"]}
+            options={[
+                "Histograma",
+                "Gráfico de línea",
+                "Gráfico de barras",
+                "Gráfico de dispersión",
+                "Tabla",
+                "Elección"
+            ]}
             value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
             onChange={(v) => {
                 setConfig(produce(config, draft => {

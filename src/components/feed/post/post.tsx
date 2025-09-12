@@ -1,15 +1,17 @@
 import {MainPostFrame} from '../../thread/post/main-post-frame';
 import {PostContent} from "./post-content";
 import {
+    isArticleView,
     isPostView,
     isThreadViewContent,
     PostView,
     ThreadViewContent
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {PostPreview} from "@/components/feed/post/post-preview";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {$Typed} from "@atproto/api";
+import FeedElement from "@/components/feed/feed/feed-element";
+import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 function getThreadAncestors(t: ThreadViewContent): ThreadViewContent[] {
@@ -38,12 +40,15 @@ const PostThreadAncestors = ({threadViewContent}: { threadViewContent: ThreadVie
         }
     }, [ancestors])
 
-    return <div className={"mb-1"}>
+    return <div className={"mb-1 w-full"}>
         {ancestors.map((a, index) => {
-            if (isPostView(a.content)) {
-                return <div key={a.content.uri}>
-                    <PostPreview
-                        postView={a.content}
+            if (isPostView(a.content) || isArticleView(a.content) || isTopicViewBasic(a.content)) {
+                return <div className="w-full" key={isPostView(a.content) || isArticleView(a.content) ? a.content.uri : a.content.id}>
+                    <FeedElement
+                        elem={{
+                            $type: "ar.cabildoabierto.feed.defs#feedViewContent",
+                            content: a.content
+                        }}
                         showingParent={index > 0}
                         showingChildren={true}
                     />

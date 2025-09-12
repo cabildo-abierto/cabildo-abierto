@@ -71,11 +71,11 @@ export function chatUrl(convoId: string) {
     return `/mensajes/${convoId}`
 }
 
-export function topicUrl(title?: string, version?: {did: string, rkey: string}, s?: WikiEditorState, base: string = "tema") {
+export function topicUrl(id?: string, version?: {did: string, rkey: string}, s?: WikiEditorState, base: string = "tema") {
     const params: string[] = []
 
-    if(title) {
-        params.push(`i=${encodeParentheses(encodeURIComponent(title))}`)
+    if(id) {
+        params.push(`i=${encodeParentheses(encodeURIComponent(id))}`)
     }
     if(version && version.did && version.rkey) {
         params.push(`did=${version.did}`)

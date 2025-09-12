@@ -10,7 +10,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from "next/dynamic";
 import { CloseButton } from "../../../modules/ui-utils/src/close-button";
 import {post} from "@/utils/fetch";
-import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
+import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 
@@ -38,8 +38,8 @@ function optimisticSetNotInterested(qc: QueryClient, subject: string){
                 if (!old) return old
 
                 if(q.queryKey[0] == "follow-suggestions"){
-                    return produce(old as ProfileViewBasic[], draft => {
-                        return draft.filter(x => x.did != subject)
+                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                        draft.profiles = draft.profiles.filter(x => x.did != subject)
                     })
                 } else if(q.queryKey[0] == "follow-suggestions-feed"){
                     return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
@@ -56,17 +56,9 @@ function optimisticSetNotInterested(qc: QueryClient, subject: string){
 const NotInterestedButton = ({subject}: {subject: string}) => {
     const qc = useQueryClient()
 
-    const notInterestedMutation = useMutation({
-        mutationFn: async () => {
-            await post<{}, {}>(`/not-interested/${subject}`)
-        },
-        onMutate: (msg) => {
-            optimisticSetNotInterested(qc, subject)
-        }
-    })
-
     function onClose() {
-        notInterestedMutation.mutate()
+        optimisticSetNotInterested(qc, subject)
+        post<{}, {}>(`/not-interested/${subject}`)
     }
 
     return <CloseButton
@@ -81,6 +73,7 @@ const UserSearchResult = ({user, showFollowButton=true, goToProfile=true, onClic
     const {isMobile} = useLayoutConfig()
 
     return <Link
+        tag={"div"}
         href={profileUrl(user.handle)}
         onClick={e => {
             if(!goToProfile) {
@@ -95,7 +88,7 @@ const UserSearchResult = ({user, showFollowButton=true, goToProfile=true, onClic
         <div className={"px-3"}>
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>
         </div>
-        <div className="w-[60%] space-y-[-3px]">
+        <div className={"space-y-[-3px] " + (isSuggestion ? "w-[55%]" : "w-[60%]")}>
             <div className={"truncate"}>
                 {user.displayName ? user.displayName : <>@{user.handle}</>}
             </div>

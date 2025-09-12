@@ -20,6 +20,8 @@ import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import {useMediaQuery, useTheme} from "@mui/system";
 import {QueryFilters} from "@tanstack/query-core";
 import {useAPI} from "@/queries/utils";
+import Link from "next/link";
+import {profileUrl} from "@/utils/uri";
 
 
 type SendMessageParams = { message: MessageInput, convoId: string }
@@ -163,7 +165,7 @@ export default function Page() {
 
     return (
         <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-56px)]" : "h-screen")}>
-            <PageHeader title={title} defaultBackHref={"/mensajes"}/>
+            <PageHeader title={<Link href={profileUrl(other.handle)}>{title}</Link>} defaultBackHref={"/mensajes"}/>
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2" ref={scrollRef}>
                     <div className="mt-2 pb-2">

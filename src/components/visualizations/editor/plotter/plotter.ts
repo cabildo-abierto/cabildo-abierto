@@ -40,8 +40,8 @@ export class Plotter {
     public parser: DataParser = new DataParser()
     public columns: Column[]
     protected columnNames: string[]
-    protected spec: Visualization["spec"]
-    protected dataset: DatasetForTableView
+    public spec: Visualization["spec"]
+    public dataset: DatasetForTableView
     protected filters: Visualization["filters"]
     protected columnTypes: Map<string, DataType> = new Map()
 
@@ -142,6 +142,7 @@ export class Plotter {
         } else if(type == "date"){
             if(v instanceof Date){
                 const formater = this.parser.getDateFormater(v)
+                console.log(v, formater(v))
                 return formater(v)
             } else {
                 return `Fecha inválida: ${v.toString()}`
