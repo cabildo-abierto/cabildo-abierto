@@ -137,7 +137,7 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
                         size={"small"}
                         color={"red-dark"}
                         text1={"Borrar"}
-                        textClassName={"font-semibold"}
+                        textClassName={"font-semibold text-[var(--button-text)]"}
                     />
                 </div>
             </div>

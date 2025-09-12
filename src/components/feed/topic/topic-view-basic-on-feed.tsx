@@ -31,9 +31,11 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicVie
             </span>
         </CustomLink>
     } else {
+        const inSearch = pathname.startsWith("/buscar")
+
         return <Link href={topicUrl(topic.id)}>
             <div className={"hover:bg-[var(--background-dark)] w-full text-[var(--text-light)] p-4 border-b"}>
-                <span>Edición del tema</span> <span className={"text-[var(--primary)]"}>{getTopicTitle(topic)}</span>
+                <span>{inSearch ? "Tema" : "Edición del tema"}</span> <span className={"text-[var(--primary)]"}>{getTopicTitle(topic)}</span>
             </div>
         </Link>
     }
