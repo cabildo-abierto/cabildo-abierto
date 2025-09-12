@@ -46,7 +46,7 @@ import {IconButton} from '../../../../ui-utils/src/icon-button';
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
 
 
-async function searchTopics(query: string) {
+export async function searchTopics(query: string) {
     if (query.trim().length == 0 || query.startsWith("/")) return []
     const {error, data} = await get<TopicViewBasic[]>(`/search-topics/${query}`)
     if (error) return []

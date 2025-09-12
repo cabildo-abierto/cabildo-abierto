@@ -394,6 +394,7 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.embed.visualization#twoAxisPlot',
               'lex:ar.cabildoabierto.embed.visualization#oneAxisPlot',
               'lex:ar.cabildoabierto.embed.visualization#table',
+              'lex:ar.cabildoabierto.embed.visualization#eleccion',
             ],
           },
           title: {
@@ -612,6 +613,72 @@ export const schemaDict = {
         type: 'object',
         properties: {},
       },
+      eleccion: {
+        type: 'object',
+        properties: {
+          tipoDeEleccion: {
+            type: 'string',
+            description: 'Legislativa o Ejecutiva',
+          },
+          region: {
+            type: 'string',
+            description:
+              "Nombre de la provincia en el caso de ser una elección provincial y 'Nacional' en caso contrario.",
+          },
+          columnaTopicIdDistrito: {
+            type: 'string',
+            description:
+              'Columna con el identificador del tema de la wiki sobre el distrito del candidato.',
+          },
+          columnaNombreCandidato: {
+            type: 'string',
+            description: 'Columna con el nombre del candidato.',
+          },
+          columnaTopicIdCandidato: {
+            type: 'string',
+            description:
+              'Columna con el identificador del tema de la wiki sobre el candidato.',
+          },
+          columnaDistritoCandidato: {
+            type: 'string',
+            description:
+              'Columna usada como distrito en el cual se postula el candidato.',
+          },
+          columnaGeneroCandidato: {
+            type: 'string',
+            description: 'Columna usada como género del candidato.',
+          },
+          columnaAlianza: {
+            type: 'string',
+            description:
+              'Columna usada como alianza por la cual se postula el candidato.',
+          },
+          columnaTopicIdAlianza: {
+            type: 'string',
+            description:
+              'Columna con el identificador del tema de la wiki sobre la alianza.',
+          },
+          columnaPosicion: {
+            type: 'string',
+            description:
+              'Columna que indica la posición del candidato en la lista.',
+          },
+          columnaSubcargo: {
+            type: 'string',
+            description:
+              'Columna que indica si la postulación es como titular o suplente.',
+          },
+          columnaAnioNacimiento: {
+            type: 'string',
+            description:
+              'Columna que indica el año de nacimiento del candidato.',
+          },
+          columnaCargo: {
+            type: 'string',
+            description: 'Columna que indica el cargo (Diputado o Senador)',
+          },
+        },
+      },
       view: {
         type: 'object',
         required: ['visualization', 'dataset'],
@@ -755,6 +822,7 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.feed.defs#postView',
               'lex:ar.cabildoabierto.feed.defs#articleView',
               'lex:ar.cabildoabierto.feed.defs#fullArticleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
               'lex:ar.cabildoabierto.data.dataset#datasetView',
             ],
           },

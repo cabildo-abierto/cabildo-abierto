@@ -6,11 +6,10 @@ import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/t
 import React, {MouseEventHandler, useState} from "react";
 import {$Typed} from "@atproto/api";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
-import dynamic from "next/dynamic";
 import {LikeCounter} from "@/components/feed/frame/like-counter";
+import WritePanel from "@/components/writing/write-panel/write-panel";
 import {EngagementDetails} from "@/components/feed/frame/engagement-details";
 
-const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 type EngagementIconsProps = {
     content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
@@ -22,11 +21,11 @@ type EngagementIconsProps = {
 
 
 export const EngagementIcons = ({
-                                    content,
-                                    className = "space-x-16",
-                                    enDiscusion,
-                                    showDetails = false
-                                }: EngagementIconsProps) => {
+    content,
+    className = "space-x-16",
+    enDiscusion,
+    showDetails = false
+}: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
     const [writingReply, setWritingReply] = useState<boolean>(false)
 
@@ -42,7 +41,8 @@ export const EngagementIcons = ({
 
     return <div>
 
-        <div className={"flex items-center exclude-links w-full "}> {showDetails && <EngagementDetails
+        <div className={"flex items-center exclude-links w-full "}>
+            {showDetails && <EngagementDetails
                 content={content}
                 showBsky={showBsky}
                 small={true}
@@ -50,35 +50,35 @@ export const EngagementIcons = ({
         </div>
 
         <div className={"flex items-center space-x-16 exclude-links w-full " + className}>
-        {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
-            {content.replyCount != undefined && <div onClick={onClickRepliesButton}>
-                <FixedCounter
-                    count={content.replyCount}
-                    icon={<InactiveCommentIcon/>}
-                    title="Cantidad de respuestas."
-                />
-            </div>}
-            {content.repostCount != undefined && <RepostCounter
-                content={content}
-                showBsky={showBsky}
-                reactionUri={content.viewer ? content.viewer.repost : undefined}
-            />}
-            {content.likeCount != undefined && <LikeCounter content={content} showBsky={showBsky}/>}
-        </>}
+            {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
+                {content.replyCount != undefined && <div onClick={onClickRepliesButton}>
+                    <FixedCounter
+                        count={content.replyCount}
+                        icon={<InactiveCommentIcon/>}
+                        title="Cantidad de respuestas."
+                    />
+                </div>}
+                {content.repostCount != undefined && <RepostCounter
+                    content={content}
+                    showBsky={showBsky}
+                    reactionUri={content.viewer ? content.viewer.repost : undefined}
+                />}
+                {content.likeCount != undefined && <LikeCounter content={content} showBsky={showBsky}/>}
+            </>}
 
-        <ContentOptionsButton
-            record={content}
-            enDiscusion={enDiscusion}
-            showBluesky={showBsky}
-            setShowBluesky={setShowBsky}
-        />
-        {writingReply && <WritePanel
-            open={writingReply}
-            onClose={() => {
-                setWritingReply(false)
-            }}
-            replyTo={content}
-        />}
-    </div>
+            <ContentOptionsButton
+                record={content}
+                enDiscusion={enDiscusion}
+                showBluesky={showBsky}
+                setShowBluesky={setShowBsky}
+            />
+            <WritePanel
+                open={writingReply}
+                onClose={() => {
+                    setWritingReply(false)
+                }}
+                replyTo={content}
+            />
+        </div>
     </div>
 }

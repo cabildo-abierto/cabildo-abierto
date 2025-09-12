@@ -13,6 +13,8 @@ import {bboxCollide} from "d3-bboxCollide"
 import {inRange} from "lodash-es";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
+import {IconButton} from "@mui/material";
+import {MinusCircleIcon, PlusCircleIcon} from "@phosphor-icons/react";
 
 
 type GraphNode = {
@@ -50,15 +52,15 @@ const Node = ({node, onClickNode, nodeWidth, nodeHeight, showText}: {
             className={"cursor-pointer flex-col text-sm justify-center leading-tight p-1 bg-[var(--background-dark)] border-2 border-[var(--text)] flex items-center text-center w-full h-full " + (categorySize == undefined ? "rounded-lg" : "")}
         >
             {showText && <>
-            <div
-                className={`text-wrap line-clamp-2 ${categorySize !== undefined ? "font-semibold" : ""}`}
-                style={{ fontSize: 12 }}
-            >
-                {node.id}
-            </div>
-            {categorySize != undefined && <div className={"text-xs text-[var(--text-light)]"}>
-                {categorySize} {categorySize == 1 ? "tema" : "temas"}.
-            </div>}
+                <div
+                    className={`text-wrap line-clamp-2 ${categorySize !== undefined ? "font-semibold" : ""}`}
+                    style={{fontSize: 12}}
+                >
+                    {node.id}
+                </div>
+                {categorySize != undefined && <div className={"text-xs text-[var(--text-light)]"}>
+                    {categorySize} {categorySize == 1 ? "tema" : "temas"}.
+                </div>}
             </>}
         </div>
     </foreignObject>
@@ -81,7 +83,7 @@ function useSimulateLayout(graph: TopicsGraph, width: number) {
     const radius = 10 * nodesCount / Math.PI
     const angleStep = (2 * Math.PI) / nodesCount
 
-    const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+    const {nodes: initialNodes, edges: initialEdges} = useMemo(() => {
         const nodesData = graph.data ? new Map(graph.data.map(x => [x.id, x])) : undefined
         const initialNodes: GraphNode[] = nodeIds.slice(0, maxNodes).map((id, index) => ({
             id,
@@ -98,7 +100,7 @@ function useSimulateLayout(graph: TopicsGraph, width: number) {
                 target: nodesMap.get(y),
             }))
 
-        return { nodes: initialNodes, edges: links };
+        return {nodes: initialNodes, edges: links};
     }, [angleStep, centerX, centerY, edgesList, nodeIds, nodeWidth]);
 
     const [animatedNodes, setAnimatedNodes] = useState<GraphNode[]>([]);
@@ -263,10 +265,10 @@ function useELKLayout(graph: TopicsGraph, width: number) {
 
 
 export default function GraphView({
-                                  graph,
-                                  onClickNode,
-                                  title
-                              }: {
+                                      graph,
+                                      onClickNode,
+                                      title
+                                  }: {
     graph: TopicsGraph
     title?: string
     onClickNode: (nodeId: string) => void;
@@ -284,14 +286,14 @@ export default function GraphView({
 
     const {edges: positionedEdges, nodes: positionedNodes} = useSimulateLayout(graph, width)
 
-    return <div className={"relative"} style={{width}}>
+    return <div style={{width}}>
         <div
             style={{
                 width: width,
                 backgroundImage: `radial-gradient(${dotColor} ${dotSize}, transparent ${dotSize})`,
                 backgroundSize: `${spacing} ${spacing}`,
             }}
-            className="flex justify-center items-center select-none"
+            className="flex justify-center items-center select-none relative"
         >
             <Zoom<SVGSVGElement>
                 width={width}
@@ -310,46 +312,63 @@ export default function GraphView({
                 }}
             >
                 {zoom => {
-                    return <svg
-                        width={width}
-                        height={height}
-                        ref={zoom.containerRef}
-                        style={{cursor: zoom.isDragging ? 'grabbing' : undefined, touchAction: "none"}}
-                    >
-                        <g transform={zoom.toString()}>
-                            <VisxGraph<GraphEdge, GraphNode>
-                                graph={{nodes: positionedNodes, links: positionedEdges}}
-                                linkComponent={({link: {source, target}}) => (
-                                    <line
-                                        x1={source.x}
-                                        y1={source.y}
-                                        x2={target.x}
-                                        y2={target.y}
-                                        stroke={border}
-                                        strokeWidth={1}
-                                        strokeOpacity={0}
-                                    />
-                                )}
-                                nodeComponent={({node}) => {
-                                    const p = zoom.applyToPoint({x: node.x, y: node.y})
-                                    const visible = inRange(p.x, -nodeWidth, width+nodeWidth) && inRange(p.y, -nodeHeight, height+nodeHeight)
-                                    if(!visible) return null
-                                    return <Node
-                                        node={node}
-                                        onClickNode={onClickNode}
-                                        nodeWidth={nodeWidth}
-                                        nodeHeight={nodeHeight}
-                                        showText={zoom.transformMatrix.scaleX > 0.3}
-                                    />
-                                }}
-                            />
-                        </g>
-                    </svg>
+                    return <>
+                        <svg
+                            width={width}
+                            height={height}
+                            ref={zoom.containerRef}
+                            style={{cursor: zoom.isDragging ? 'grabbing' : undefined, touchAction: "none"}}
+                        >
+                            <g transform={zoom.toString()}>
+                                <VisxGraph<GraphEdge, GraphNode>
+                                    graph={{nodes: positionedNodes, links: positionedEdges}}
+                                    linkComponent={({link: {source, target}}) => (
+                                        <line
+                                            x1={source.x}
+                                            y1={source.y}
+                                            x2={target.x}
+                                            y2={target.y}
+                                            stroke={border}
+                                            strokeWidth={1}
+                                            strokeOpacity={0}
+                                        />
+                                    )}
+                                    nodeComponent={({node}) => {
+                                        const p = zoom.applyToPoint({x: node.x, y: node.y})
+                                        const visible = inRange(p.x, -nodeWidth, width + nodeWidth) && inRange(p.y, -nodeHeight, height + nodeHeight)
+                                        if (!visible) return null
+                                        return <Node
+                                            node={node}
+                                            onClickNode={onClickNode}
+                                            nodeWidth={nodeWidth}
+                                            nodeHeight={nodeHeight}
+                                            showText={zoom.transformMatrix.scaleX > 0.3}
+                                        />
+                                    }}
+                                />
+                            </g>
+                        </svg>
+                        <div className="absolute bottom-2 right-2 z-10 flex space-x-2">
+                            <IconButton
+                                size={"small"}
+                                className="bg-gray-200 p-2 rounded hover:bg-gray-300"
+                                onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}
+                            >
+                                <PlusCircleIcon/>
+                            </IconButton>
+                            <IconButton
+                                size={"small"}
+                                onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}
+                            >
+                                <MinusCircleIcon/>
+                            </IconButton>
+                        </div>
+                    </>
                 }}
             </Zoom>
         </div>
-        {nodeIds.length > maxNodes && <div className={"flex justify-end text-xs text-[var(--text-lighter)]"}>
-            Se muestran {maxNodes} temas de {nodeIds.length}.
+        {nodeIds.length > maxNodes && <div className={"flex text-xs text-[var(--text-lighter)]"}>
+            Se muestran {maxNodes} temas de {nodeIds.length}. Usá el buscador para filtrar.
         </div>}
     </div>
 }

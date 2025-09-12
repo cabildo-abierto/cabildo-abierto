@@ -1,16 +1,6 @@
-import {useTopic} from "@/queries/useTopic";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-
 
 export default function TopicNotFoundPage({id}: { id: string }) {
     const name = decodeURIComponent(id).replaceAll("_", " ")
-    const {isLoading, isRefetching} = useTopic(id)
-
-    if(isLoading || isRefetching) {
-        return <div className={"py-32"}>
-            <LoadingSpinner/>
-        </div>
-    }
 
     return <>
         <div className="flex justify-center mt-32">

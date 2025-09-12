@@ -61,6 +61,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                     content={article}
                     className={"flex justify-between px-4 w-full"}
                     enDiscusion={enDiscusion}
+                    showDetails={true}
                 />
             </div>
         </div>

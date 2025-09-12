@@ -15,6 +15,7 @@ import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/sr
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 
+
 async function validSelectionForComment(text: string, embeds: ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
     try {
         const markdown = anyEditorStateToMarkdown(text, format, embeds)
@@ -104,7 +105,8 @@ export const SelectionQuote = ({
     const collection = getCollectionFromUri(quotedContent)
 
     return <div
-        className={"article-content no-margin-first pr-2 " + (isArticle(collection) ? "" : "not-article-content")}>
+        className={"article-content no-margin-first pr-2 " + (isArticle(collection) ? "" : "not-article-content")}
+    >
         <blockquote
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
@@ -119,6 +121,7 @@ export const SelectionQuote = ({
                 quotedTextFormat={quotedTextFormat}
                 selection={normalizedSelection}
                 quotedTextEmbeds={quotedContentEmbeds}
+                quotedCollection={collection}
             />}
             {normalizedSelection && normalizedSelection == "error" && <div className={"p-2"}>
                 Ocurrió un error al procesar la selección.

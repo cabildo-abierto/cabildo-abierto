@@ -15,9 +15,10 @@ import {topicUrl} from "@/utils/uri";
 
 
 const LoginPanel = ({children, onClickBack}: { children: ReactNode, onClickBack?: () => void }) => {
-    return <div className="flex flex-col items-center w-screen h-screen bg-[var(--background-dark)]">
+    return <div className="flex flex-col items-center justify-center w-screen h-screen bg-[var(--background-dark)]">
         <div
-            className={"bg-[var(--background)] sm:w-[480px] sm:rounded-2xl px-4 space-y-4 sm:h-auto sm:mt-10 flex flex-col items-center w-screen h-screen"}>
+            className={"bg-[var(--background)] sm:w-[480px] sm:rounded-2xl px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}
+        >
             <div className={"flex justify-start w-full text-[var(--text-light)] mt-4"}>
                 <BackButton
                     defaultURL={"/"}
@@ -71,9 +72,9 @@ export const Login = () => {
             </AcceptButtonPanel>}
             <h2 className={"font-extrabold"}>Solicitar acceso</h2>
             <div className={"flex flex-col items-center space-y-8 pb-12"}>
-                <div className={"text-[var(--text-light)] text-center max-w-[380px]"}>
+                <div className={"text-[var(--text-light)] font-extralight text-center max-w-[380px]"}>
                     Estamos enviando invitaciones al período de prueba por orden de llegada a medida que hacemos espacio para más
-                    gente. También te puede invitar alguna persona que ya haya entrado.
+                    gente.
                 </div>
                 <TextField
                     fullWidth
@@ -103,7 +104,7 @@ export const Login = () => {
                         disabled={!/^.+@.+$/.test(email)}
                     />
                 </div>
-                <div className={"text-xs text-[var(--text-light)] text-center"}>
+                <div className={"text-xs text-[var(--text-light)] text-center font-extralight"}>
                     Ante cualquier duda podés escribirnos a soporte@cabildoabierto.ar.
                 </div>
             </div>
@@ -134,16 +135,16 @@ export const Login = () => {
     }
 
     return <LoginPanel>
-        <div className="mb-2 mt-4 space-y-4">
+        <div className={"space-y-4 flex flex-col items-center"}>
+        <div className="mb-2 space-y-4">
             <Logo width={60} height={60}/>
             <h1 className={"text-2xl font-extrabold"}>Iniciar sesión</h1>
         </div>
 
         <div className="flex justify-center sm:px-8">
             <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
-
                 {inviteCode && <div
-                    className={"flex flex-col space-y-4 items-center bg-[var(--background-dark2)] max-w-80 text-center rounded p-4"}>
+                    className={"font-light flex flex-col space-y-4 items-center bg-[var(--background-dark2)] max-w-80 text-center rounded-lg p-4"}>
                     <div className={"text-[var(--text-light)] text-lg"}>
                         <LuPartyPopper fontSize={"22px"}/>
                     </div>
@@ -151,30 +152,24 @@ export const Login = () => {
                         ¡Recibiste un código de invitación!
                     </div>
                     <div className={"text-sm text-[var(--text-light)]"}>
-                        Si ya tenés una cuenta de Bluesky, iniciá sesión. Si no, creala <Link
-                        className={"link2"} target={"_blank"} href={"https://bsky.app"}>acá</Link> y volvé.
+                        Si ya tenés una cuenta de Bluesky, iniciá sesión. Si no, <Link
+                        className={"link2"} target={"_blank"} href={"https://bsky.app"}>creala primero acá</Link> y después volvé a esta página.
                     </div>
                 </div>}
 
                 <div className={"max-w-[360px]"}>
                     <BlueskyLogin inviteCode={inviteCode}/>
+
+                    {!inviteCode && <div className={"pt-4 w-full"}>
+                        <Button color="background-dark2" size={"large"} fullWidth={true} onClick={() => {
+                            setWantsAccess(true)
+                        }}>
+                            <span className={"font-bold text-[13px]"}>Quiero participar en el período de prueba</span>
+                        </Button>
+                    </div>}
                 </div>
 
-                <div className='text-center text-[var(--text-light)] mx-2'>
-                    ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">
-                    Registrate en
-                    Bluesky</Link>.
-                </div>
-
-                {!inviteCode && <div className={"pt-4 w-full"}>
-                    <Button color="background-dark2" size={"large"} fullWidth={true} onClick={() => {
-                        setWantsAccess(true)
-                    }}>
-                        <span className={"font-bold text-[13px]"}>Quiero participar en el período de prueba</span>
-                    </Button>
-                </div>}
-
-                <div className={"pt-0 flex flex-col space-y-2 pb-2 items-center text-center"}>
+                <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
                     <Link
                         href={"/"}
                         target={"_blank"}
@@ -187,12 +182,6 @@ export const Login = () => {
                         Conocer más sobre Cabildo Abierto
                     </Link>
                     <span
-                        onClick={() => {setShowWhyBsky(true)}}
-                        className={"text-[var(--text-light)] hover:text-[var(--text)] text-[14px] cursor-pointer"}
-                    >
-                        ¿Por qué el registro es en Bluesky?
-                    </span>
-                    <span
                         className={"text-[var(--text-light)] text-[14px] text-xs"}
                     >
                         Al iniciar sesión aceptás los <Link target="_blank" className="hover:underline hover:text-[var(--text)]" href={topicUrl("Cabildo Abierto: Términos y condiciones", undefined, "normal")}>
@@ -200,6 +189,7 @@ export const Login = () => {
                     </span>
                 </div>
             </div>
+        </div>
         </div>
     </LoginPanel>
 }

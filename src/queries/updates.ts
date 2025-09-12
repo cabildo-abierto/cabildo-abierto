@@ -1,9 +1,8 @@
 import {QueryClient} from "@tanstack/react-query";
 import {
     FeedViewContent,
-    isFeedViewContent,
     isPostView,
-    isThreadViewContent,
+    isThreadViewContent, PostView,
     ThreadViewContent
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {postOrArticle} from "@/utils/type-utils";
@@ -12,7 +11,6 @@ import {produce} from "immer";
 import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
 import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {TopicFeed} from "@/queries/useTopic";
 import {QueryFilters} from "@tanstack/query-core";
 
 
@@ -28,7 +26,6 @@ export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
             || queryKey[0] == "profile-feed"
             || queryKey[0] == "thread"
             || queryKey[0] == "topic-feed"
-            || queryKey[0] == "topic-feed-backend"
             || queryKey[0] == "thread-feed"
     } else if (isTopicVersion(collection)) {
         return queryKey[0] == "topic"
@@ -48,7 +45,20 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
             const page = draft.pages[i]
             for (let j = 0; j < page.data.length; j++) {
                 const element = page.data[j]
-                if (postOrArticle(element.content) && element.content.uri == uri) {
+                if (isPostView(element.content) && element.reply && element.reply.parent && postOrArticle(element.reply.parent) && element.reply.parent.uri == uri){
+                    const newParent = updater(element.reply.parent)
+                    if(newParent){
+                        element.reply.parent = newParent
+                    } else if(element.reply.root) {
+                        page.data[j] = {
+                            content: element.reply.root
+                        }
+                    } else {
+                        page.data = page.data.toSpliced(j, 1)
+                    }
+                } else if(isPostView(element.content) && element.reply && element.reply.root && postOrArticle(element.reply.root) && element.reply.root.uri == uri){
+                    page.data = page.data.toSpliced(j, 1)
+                } else if (postOrArticle(element.content) && element.content.uri == uri) {
                     const newContent = updater(element.content)
                     if (newContent) {
                         draft.pages[i].data[j].content = newContent
@@ -99,7 +109,7 @@ export async function updateContentInQueries(qc: QueryClient, uri: string, updat
                         })
                     }
                     return t
-                } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "thread-feed") {
+                } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "thread-feed" || k[0] == "topic-feed") {
                     return updateFeedElement(old as InfiniteFeed<FeedViewContent>, uri, updater)
                 }
             })
@@ -145,61 +155,24 @@ export async function updateDatasets(qc: QueryClient, uri: string, updater: (_: 
 
 
 export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
-    qc.getQueryCache()
-        .getAll()
-        .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
+    qc.getQueryCache().getAll()
+        .filter(q => Array.isArray(q.queryKey))
         .forEach(q => {
             qc.setQueryData(q.queryKey, old => {
                 if (!old) return old
 
-                const k = q.queryKey
-
-                if (k[0] == "topic-feed-backend") {
-                    const t = old as TopicFeed
-                    return produce(t, draft => {
-                        const idx = t.replies ? t.replies.findIndex(x => isPostView(x.content) && x.content.uri == uri) : -1
-                        if(idx != -1) {
-                            const v = updater(t.replies[idx].content)
-                            if(v != null){
-                                const r = draft.replies[idx]
-                                if(isFeedViewContent(r)){
-                                    r.content = v
-                                }
-                            } else {
-                                draft.replies.splice(idx, 1)
-                            }
-                        }
-                        const idxMentions = t.mentions ? t.mentions.findIndex(x => isPostView(x.content) && x.content.uri == uri) : -1
-                        if(idxMentions != -1){
-                            const v = updater(t.mentions[idxMentions].content)
-                            if(v != null){
-                                const r = draft.mentions[idxMentions]
-                                if(isFeedViewContent(r)){
-                                    r.content = v
-                                }
-                            } else {
-                                draft.mentions.splice(idxMentions, 1)
-                            }
-                        }
-
-                    })
-                } else if (k[0] == "topic-feed") {
-                    const replies = old as InfiniteFeed<FeedViewContent>
-                    return produce(replies, draft => {
-                        draft.pages.forEach(p => {
-                            const idx = p.data.findIndex(x => isPostView(x.content) && x.content.uri == uri)
-                            if (idx != -1) {
-                                const v = updater(p.data[idx].content)
-                                if (v != null) {
-                                    const r = p.data[idx]
-                                    if(isFeedViewContent(r)) {
-                                        p.data[idx].content = v
-                                    }
-                                } else {
-                                    p.data.splice(idx, 1)
-                                }
-                            }
+                if(q.queryKey[0] == "topic-quote-replies"){
+                    return produce(old as PostView[], draft => {
+                        const index = draft.findIndex(v => v.uri == uri)
+                        const newVersion = updater({
+                            $type: "ar.cabildoabierto.feed.defs#postView",
+                            ...draft[index]
                         })
+                        if (!newVersion) {
+                            draft.splice(index)
+                        } else if(isPostView(newVersion)){
+                            draft[index] = newVersion
+                        }
                     })
                 }
             })

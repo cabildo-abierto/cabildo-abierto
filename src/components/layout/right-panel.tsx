@@ -64,11 +64,18 @@ export const RightPanel = () => {
         {isFollowSuggestionsPath && <FollowSuggestions/>}
 
         <div className={"flex"}>
-            <Button fullWidth={false} startIcon={<DonateIcon/>} size="small" color="background-dark2" href={"/aportar"}>
-            <span className={"font-semibold"}>
-                Aportar
-            </span>
-            </Button>
+            <Link href={"/aportar"}>
+                <Button
+                    fullWidth={false}
+                    startIcon={<DonateIcon/>}
+                    size="small"
+                    color="background-dark2"
+                >
+                    <span className={"font-semibold"}>
+                        Aportar
+                    </span>
+                </Button>
+            </Link>
         </div>
 
         <div className={"text-sm mt-4 pb-8"}>

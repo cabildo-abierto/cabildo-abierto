@@ -2,7 +2,8 @@ import {
     isDatasetDataSource,
     View as VisualizationView,
     Main as Visualization,
-    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource, isTable
+    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource, isTable,
+    isEleccion
 } from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {
     DatasetView,
@@ -27,6 +28,7 @@ import {Authorship} from "@/components/feed/frame/authorship";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
+import {ElectionVisualizationComp} from "@/components/visualizations/editor/election/election-visualization-comp";
 
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
@@ -52,6 +54,13 @@ export const ResponsivePlot = ({
         return <TableVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
+        />
+    } else if(isEleccion(visualization.visualization.spec)) {
+        return <ElectionVisualizationComp
+            spec={visualization.visualization.spec}
+            visualization={visualization}
+            maxWidth={maxWidth}
+            maxHeight={maxHeight}
         />
     }
 
@@ -130,32 +139,32 @@ export const Plot = ({
 
     return <div style={{height, width}} className={"relative not-article-content"}>
         <div
-            className={"absolute top-0 right-0 z-10 space-x-2 flex justify-between w-full pt-2 px-2"}
+            className={"absolute top-2 left-2 z-[20]"}
         >
             {!isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
-            <div className={"flex space-x-2"}>
-                {onEdit && <div
-                    onClick={() => {
-                        setEditing(true)
-                    }}
-                    className={"flex items-center space-x-1 text-[var(--text-light)] cursor-pointer sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
-                >
-                    <WriteButtonIcon fontSize={"inherit"}/>
-                    <div>
-                        Editar
-                    </div>
-                </div>}
-                {onDelete && <IconButton
-                    size={"small"}
-                    color={"background-dark2"}
-                    onClick={() => {
-                        onDelete()
-                    }}
-                >
-                    <DeleteOutlineIcon fontSize={"inherit"}/>
-                </IconButton>}
-            </div>
         </div>
+        {(onEdit || onDelete) && <div className={"absolute top-2 right-2 z-[20] flex space-x-2"}>
+            {onEdit && <div
+                onClick={() => {
+                    setEditing(true)
+                }}
+                className={"flex items-center space-x-1 text-[var(--text-light)] cursor-pointer sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
+            >
+                <WriteButtonIcon fontSize={"inherit"}/>
+                <div>
+                    Editar
+                </div>
+            </div>}
+            {onDelete && <IconButton
+                size={"small"}
+                color={"background-dark2"}
+                onClick={() => {
+                    onDelete()
+                }}
+            >
+                <DeleteOutlineIcon fontSize={"inherit"}/>
+            </IconButton>}
+        </div>}
         <ResponsivePlot
             visualization={visualization}
             maxWidth={width ? pxToNumber(width) : undefined}

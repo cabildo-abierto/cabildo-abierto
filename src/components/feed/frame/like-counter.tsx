@@ -113,6 +113,8 @@ export const LikeCounter = ({content, showBsky}: {
         }
     }
 
+    console.log("uri", content.uri)
+
     return <ReactionCounter
         iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
         iconInactive={<InactiveLikeIcon fontSize={"small"}/>}
@@ -120,7 +122,7 @@ export const LikeCounter = ({content, showBsky}: {
         onRemove={onClickRemoveLike}
         title="Cantidad de me gustas."
         active={content.viewer?.like != undefined}
-        disabled={content.viewer && content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri) == "optimistic"}
+        disabled={content.viewer && content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri).startsWith("optimistic")}
         count={showBsky ? (content.bskyLikeCount ?? content.likeCount) : content.likeCount}
     />
 }

@@ -32,7 +32,13 @@ export async function post<Body, Output>(route: string, body?: Body): Promise<Po
         body
     })
     if(res.ok){
-        return await res.json()
+        const json = await res.json()
+        if(json.error && (json.error == "No session" || json.error == "Unauthorized")){
+            console.log("sin sesion!")
+            window.location.href = "/login"
+            return {error: "Iniciá sesión"}
+        }
+        return json
     } else {
         return {error: "Error en la conexión."}
     }
@@ -46,7 +52,13 @@ export async function get<Output>(route: string): Promise<PostOutput<Output>> {
         credentials: "include"
     })
     if(res.ok){
-        return await res.json()
+        const json = await res.json()
+        if(json.error && (json.error == "No session" || json.error == "Unauthorized")){
+            console.log("sin sesion!")
+            window.location.href = "/login"
+            return {error: "Iniciá sesión"}
+        }
+        return json
     } else {
         return {error: "Error en la conexión"}
     }

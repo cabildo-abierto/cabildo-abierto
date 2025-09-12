@@ -1,7 +1,7 @@
 "use client"
 import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
-import {useTopicFeed, useTopicWithNormalizedContent} from "@/queries/useTopic";
+import {useTopicWithNormalizedContent} from "@/queries/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
@@ -48,7 +48,6 @@ export const TopicPage = ({topicId, did, rkey}: {
     did?: string
     rkey?: string
 }) => {
-    useTopicFeed(topicId, did, rkey) // prefetch
     const {query: topicQuery, topic} = useTopicWithNormalizedContent(topicId, did, rkey)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
@@ -57,7 +56,9 @@ export const TopicPage = ({topicId, did, rkey}: {
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
     if (topicQuery.isLoading || topic == "loading") {
-        return <LoadingSpinner/>
+        return <div>
+            <LoadingSpinner/>
+        </div>
     }
 
     if (!topic) {
@@ -117,7 +118,7 @@ export const TopicPage = ({topicId, did, rkey}: {
         {(wikiEditorState == "minimized" || wikiEditorState == "normal" || wikiEditorState == "props") &&
             <div className="w-full" id="discussion-start">
                 <TopicDiscussion
-                    topicId={topic.id}
+                    topic={topic}
                     topicVersionUri={topicVersionUri}
                     replyToContent={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
                     onClickQuote={onClickQuote}
