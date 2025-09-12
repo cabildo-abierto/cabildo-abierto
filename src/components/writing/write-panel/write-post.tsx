@@ -227,7 +227,7 @@ export function visualizationViewToMain(v: VisualizationView): Visualization {
 }
 
 
-export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
+export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose}: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
@@ -272,6 +272,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit}: {
 
         await handleSubmit(post)
         setEditorKey(editorKey + 1);
+        onClose()
         return {}
     }
 
