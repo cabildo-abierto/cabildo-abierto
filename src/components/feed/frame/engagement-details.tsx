@@ -42,7 +42,7 @@ const RepostDetails = ({content, showBsky}: {content: $Typed<PostView> | $Typed<
     return <Link className={"text-sm"}
         href={url}
         >
-        {content.repostCount} <span className="text-[var(--text-light)]">  {(content.repostCount == 1) ? " republicación" : " republicaciones"} </span>
+        {showBsky ? content.bskyRepostCount : content.repostCount} <span className="text-[var(--text-light)]">  {(content.repostCount == 1) ? " republicación" : " republicaciones"} </span>
         </Link>
 }
 
@@ -54,7 +54,7 @@ const LikesDetails = ({content, showBsky}: {content: $Typed<PostView> | $Typed<A
     return <Link className={"text-sm"}
         href={url}
     >
-        {content.likeCount} <span className="text-[var(--text-light)]"> {" me gusta"} </span>
+        {showBsky ? content.bskyLikeCount : content.likeCount} <span className="text-[var(--text-light)]"> {" me gusta"} </span>
     </Link>
 }
 
@@ -66,6 +66,6 @@ const QuotesDetails = ({content, showBsky}: {content: $Typed<PostView> | $Typed<
     return <Link className={"text-sm"}
                  href={url}
     >
-        {content.quoteCount} <span className="text-[var(--text-light)]"> {" citas"} </span>
+        {showBsky ? content.bskyQuoteCount : content.quoteCount} <span className="text-[var(--text-light)]"> {" citas"} </span>
     </Link>
 }
