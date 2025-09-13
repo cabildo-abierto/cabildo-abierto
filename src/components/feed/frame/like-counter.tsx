@@ -113,8 +113,6 @@ export const LikeCounter = ({content, showBsky}: {
         }
     }
 
-    console.log("uri", content.uri)
-
     return <ReactionCounter
         iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
         iconInactive={<InactiveLikeIcon fontSize={"small"}/>}

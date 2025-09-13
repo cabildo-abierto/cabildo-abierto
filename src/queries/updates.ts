@@ -59,11 +59,11 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
                 } else if(isPostView(element.content) && element.reply && element.reply.root && postOrArticle(element.reply.root) && element.reply.root.uri == uri){
                     page.data = page.data.toSpliced(j, 1)
                 } else if (postOrArticle(element.content) && element.content.uri == uri) {
-                    const newContent = updater(element.content)
+                    const newContent = updater(feed.pages[i].data[j].content)
                     if (newContent) {
-                        draft.pages[i].data[j].content = newContent
+                        element.content = newContent
                     } else {
-                        draft.pages[i].data = draft.pages[i].data.filter((_, index) => index != j)
+                        page.data = draft.pages[i].data.filter((_, index) => index != j)
                     }
                 }
             }
@@ -164,14 +164,16 @@ export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updat
                 if(q.queryKey[0] == "topic-quote-replies"){
                     return produce(old as PostView[], draft => {
                         const index = draft.findIndex(v => v.uri == uri)
-                        const newVersion = updater({
-                            $type: "ar.cabildoabierto.feed.defs#postView",
-                            ...draft[index]
-                        })
-                        if (!newVersion) {
-                            draft.splice(index)
-                        } else if(isPostView(newVersion)){
-                            draft[index] = newVersion
+                        if(index != -1) {
+                            const newVersion = updater({
+                                $type: "ar.cabildoabierto.feed.defs#postView",
+                                ...draft[index]
+                            })
+                            if (!newVersion) {
+                                draft.splice(index)
+                            } else if(isPostView(newVersion)){
+                                draft[index] = newVersion
+                            }
                         }
                     })
                 }
