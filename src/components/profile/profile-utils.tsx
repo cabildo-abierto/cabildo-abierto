@@ -86,7 +86,9 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     return produce(old as Profile, draft => {
                         draft.bsky.viewer.following = undefined
                         draft.bsky.followersCount--
-                        draft.ca.followersCount--
+                        if(draft.ca){
+                            draft.ca.followersCount--
+                        }
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
@@ -180,11 +182,6 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
     const followMutation = useMutation({
         mutationFn: follow,
         onMutate: () => {
-            qc.cancelQueries({
-                predicate: (query: Query) => {
-                    return isQueryRelatedToFollow(query)
-                }
-            })
             optimisticFollow(qc, handle)
         },
         onSuccess: (data) => {
@@ -203,12 +200,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
 
     const unfollowMutation = useMutation({
         mutationFn: unfollow,
-        onMutate: () => {
-            qc.cancelQueries({
-                predicate: (query: Query) => {
-                    return isQueryRelatedToFollow(query)
-                }
-            })
+        onMutate: (f) => {
             optimisticUnfollow(qc, handle)
         },
         onSettled: () => {
