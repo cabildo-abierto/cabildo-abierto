@@ -234,10 +234,7 @@ const WritePanel = ({
     const {data: author} = useProfile(user.handle)
 
     async function createPost({body}: {body: CreatePostProps}) {
-        console.log("sending create post")
-        const {error, data} = await post<CreatePostProps, { uri: string }>("/post", body)
-        console.log("send post result", error)
-        return {error, data}
+        return await post<CreatePostProps, { uri: string }>("/post", body)
     }
 
     async function handleSubmit(body: CreatePostProps) {

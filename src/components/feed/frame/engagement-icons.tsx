@@ -1,13 +1,14 @@
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button"
 import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
 import {FixedCounter} from "./reaction-counter"
-import {getCollectionFromUri} from "@/utils/uri";
+import {contentUrl, getCollectionFromUri} from "@/utils/uri";
 import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
-import React, {MouseEventHandler, useState} from "react";
+import React, {useState} from "react";
 import {$Typed} from "@atproto/api";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
 import {LikeCounter} from "@/components/feed/frame/like-counter";
 import WritePanel from "@/components/writing/write-panel/write-panel";
+import {useRouter} from "next/navigation";
 
 type EngagementIconsProps = {
     content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
@@ -25,12 +26,11 @@ export const EngagementIcons = ({
                                 }: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
     const [writingReply, setWritingReply] = useState<boolean>(false)
+    const router = useRouter()
 
-    const onClickRepliesButton: MouseEventHandler<HTMLDivElement> = (e) => {
-        e.stopPropagation();
-        e.preventDefault();
+    const onClickRepliesButton = () => {
         if (isArticleView(content)) {
-            // router.push(contentUrl(content.uri))
+            router.push(contentUrl(content.uri))
         } else {
             setWritingReply(true)
         }
@@ -38,13 +38,13 @@ export const EngagementIcons = ({
 
     return <div className={"flex items-center exclude-links w-full " + className}>
         {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
-            {content.replyCount != undefined && <div onClick={onClickRepliesButton}>
-                <FixedCounter
-                    count={content.replyCount}
-                    icon={<InactiveCommentIcon/>}
-                    title="Cantidad de respuestas."
-                />
-            </div>}
+            {content.replyCount != undefined && <FixedCounter
+                count={content.replyCount}
+                icon={<InactiveCommentIcon/>}
+                title="Cantidad de respuestas."
+                onClick={onClickRepliesButton}
+                disabled={content.uri.includes("optimistic")}
+            />}
             {content.repostCount != undefined && <RepostCounter
                 content={content}
                 showBsky={showBsky}

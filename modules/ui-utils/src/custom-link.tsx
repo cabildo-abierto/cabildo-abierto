@@ -5,7 +5,7 @@ import Link from "next/link";
 type LinkEvent = React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLSpanElement>
 
 type CustomLinkProps = {
-    href: string;
+    href?: string;
     children: React.ReactNode;
     className?: string
     target?: "_blank" | undefined
@@ -39,6 +39,7 @@ export function CustomLink({
     const router = useRouter()
 
     function redirect(e: LinkEvent) {
+        if(!href) return
         if(target == "_blank" || e.metaKey || e.ctrlKey){
             window.open(href, "_blank")
         } else {
@@ -76,7 +77,7 @@ export function CustomLink({
         >
             {children}
         </span>
-    } else if(tag == "div"){
+    } else if(tag == "div" || !href){
         return <div
             className={className}
             onClick={handleClick}

@@ -17,7 +17,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import WritePanel from "@/components/writing/write-panel/write-panel";
 
 
-export function hasSelectionQuote(p: PostView) {
+function hasSelectionQuote(p: PostView) {
     return isSelectionQuoteView(p.embed)
 }
 

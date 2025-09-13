@@ -12,11 +12,27 @@ import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/ur
 import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {QueryFilters} from "@tanstack/query-core";
+import {$Typed} from "@atproto/api";
+import {BlockedPost, NotFoundPost} from "@/lex-api/types/app/bsky/feed/defs";
 
 
 export const contentQueriesFilter = (uri: string): QueryFilters<readonly unknown[]> => ({
     predicate: query => isQueryRelatedToUri(query.queryKey, uri)
 })
+
+
+export const specificContentQueriesFilter = (uri: string): QueryFilters<readonly unknown[]> => ({
+    predicate: query => isQueryAboutUri(query.queryKey, uri)
+})
+
+
+export function isQueryAboutUri(queryKey: readonly unknown[], uri: string) {
+    const {collection} = splitUri(uri)
+    if (isPost(collection) || isArticle(collection) || isDataset(collection)) {
+        return queryKey[0] == "thread" && queryKey[1] == uri
+    }
+    return false
+}
 
 
 export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
@@ -71,7 +87,33 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
     })
 }
 
-export async function updateContentInQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
+type MaybeThreadViewContent = $Typed<ThreadViewContent> | $Typed<NotFoundPost> | $Typed<BlockedPost> | {$type: string}
+
+function updateThreadViewContentQuery(uri: string, t: MaybeThreadViewContent, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null, isParent: boolean = false): MaybeThreadViewContent {
+    if(!isThreadViewContent(t)) return t
+
+    let content = t.content
+
+    if(postOrArticle(content) && content.uri == uri){
+        const newContent = updater(content)
+        if(!newContent) return null
+        content = newContent
+    }
+
+    const replies = t.replies
+        ?.map(r => updateThreadViewContentQuery(uri, r, updater))
+        .filter(r => r != null)
+
+    return {
+        $type: "ar.cabildoabierto.feed.defs#threadViewContent",
+        replies,
+        content,
+        parent: t.parent ? updateThreadViewContentQuery(uri, t.parent, updater, true) : undefined
+    }
+}
+
+
+export function updateContentInQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
     qc.getQueryCache()
         .getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
@@ -82,33 +124,8 @@ export async function updateContentInQueries(qc: QueryClient, uri: string, updat
                 const k = q.queryKey
 
                 if (k[0] == "thread") {
-                    const t = old as ThreadViewContent
-                    if (postOrArticle(t.content) && t.content.uri == uri) {
-                        const newContent = updater(t.content)
-                        if (!newContent) return
-                        return {
-                            ...t,
-                            content: newContent
-                        }
-                    } else if (t.replies) {
-                        return produce(t, draft => {
-                            draft.replies = draft.replies.map(r => {
-                                if (isThreadViewContent(r) && postOrArticle(r.content) && r.content.uri == uri) {
-                                    const newContent = updater(r.content)
-                                    if(newContent){
-                                        return {
-                                            ...r,
-                                            content: newContent
-                                        }
-                                    } else {
-                                        return null
-                                    }
-                                }
-                                return r
-                            }).filter(r => r != null)
-                        })
-                    }
-                    return t
+                    const t = old as MaybeThreadViewContent
+                    return updateThreadViewContentQuery(uri, t, updater)
                 } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "thread-feed" || k[0] == "topic-feed") {
                     return updateFeedElement(old as InfiniteFeed<FeedViewContent>, uri, updater)
                 }
