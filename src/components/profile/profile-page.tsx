@@ -54,8 +54,6 @@ export const ProfilePage = ({
         updateSearchParam("s", profileDisplayToOption(v))
     }
 
-    console.log(profile)
-
     return <div className={""}>
         {!profile && <LoadingProfile/>}
         {profile &&

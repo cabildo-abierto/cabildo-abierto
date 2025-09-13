@@ -13,6 +13,7 @@ import {
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {
     contentQueriesFilter,
+    specificContentQueriesFilter,
     updateContentInQueries,
     updateDatasets,
     updateTopicFeedQueries,
@@ -85,15 +86,21 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
     const deleteMutation = useMutation({
         mutationFn: deleteRecord,
         onMutate: (likedContent) => {
-            optimisticDelete(qc, likedContent.uri)
-            qc.cancelQueries(contentQueriesFilter(uri))
-            onClose()
+            try {
+                optimisticDelete(qc, likedContent.uri)
+                qc.cancelQueries(contentQueriesFilter(uri))
+                onClose()
+            } catch (err) {
+                console.log("Error on mutate", uri)
+                console.log(err)
+            }
         },
         onSettled: async (res) => {
             if(res.error){
                 console.error(res.error)
             }
-            qc.resetQueries(contentQueriesFilter(uri))
+            // qc.invalidateQueries(contentQueriesFilter(uri))
+            qc.resetQueries(specificContentQueriesFilter(uri))
         }
     })
 

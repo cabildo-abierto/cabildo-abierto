@@ -57,8 +57,10 @@ export const PostPreviewFrame = ({
     const author = postView.author
     const createdAt = new Date(postView.indexedAt)
 
+    const isOptimistic = postView.uri.includes("optimistic")
+
     async function onClick() {
-        if(isPost(getCollectionFromUri(postView.uri))){
+        if(isPost(getCollectionFromUri(postView.uri)) && !isOptimistic){
             qc.setQueryData(threadQueryKey(postView.uri), old => {
                 if(old) return old
                 const t: ThreadViewContent = {
@@ -76,8 +78,8 @@ export const PostPreviewFrame = ({
         tag={"div"}
         id={"discussion:" + postView.uri}
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
-        onClick={onClick}
-        href={url}
+        onClick={!isOptimistic ? onClick : undefined}
+        href={!isOptimistic ? url : undefined}
     >
         {isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}

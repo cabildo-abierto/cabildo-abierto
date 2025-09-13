@@ -1,4 +1,4 @@
-import React, {ReactNode} from "react"
+import React, {MouseEventHandler, ReactNode, useState} from "react"
 import { ReactionButton } from "./reaction-button";
 import { ActiveLikeIcon } from "../../icons/active-like-icon";
 import { InactiveLikeIcon } from "../../icons/inactive-like-icon";
@@ -46,15 +46,44 @@ export const ReactionCounter = ({
 }
 
 
-export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNode, title?: string}) => {
+export const FixedCounter = ({
+                                 count,
+                                 icon,
+                                 title,
+    onClick,
+    disabled=false,
+    stopPropagation=true
+}: {
+    count: number
+    icon: ReactNode
+    title?: string
+    onClick: () => void
+    disabled?: boolean
+    stopPropagation?: boolean
+}) => {
+    const [shake, setShake] = useState(false);
+
+    const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+        if (stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        if (disabled) {
+            // Trigger shake animation
+            setShake(true)
+            setTimeout(() => setShake(false), 500)
+        } else {
+            onClick()
+        }
+    };
     
-    return <div className={"text-[var(--text-light)]"}>
-        <button
-            className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1 flex items-end space-x-1"}
-            title={title}
-        >
-            <div>{icon}</div>
-            <div className="text-sm">{count}</div>
-        </button>
-    </div>
+    return <button
+        onClick={handleClick}
+        className={(shake ? "animate-shake" : "") + " text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1 flex items-end space-x-1"}
+        title={title}
+    >
+        <div>{icon}</div>
+        <div className="text-sm">{count}</div>
+    </button>
 }
