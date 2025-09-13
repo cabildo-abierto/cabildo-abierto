@@ -1,5 +1,5 @@
 import {ReplyButton} from "./reply-button"
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ThreadContent} from "@/components/thread/thread-content";
 import {
@@ -13,10 +13,9 @@ import {postOrArticle} from "@/utils/type-utils";
 import {ThreadReplies} from "@/components/thread/thread-replies";
 import {ThreadHeader} from "@/components/thread/thread-header";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
-import dynamic from "next/dynamic";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import WritePanel from "@/components/writing/write-panel/write-panel";
 
-const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 
 export function hasSelectionQuote(p: PostView) {
     return isSelectionQuoteView(p.embed)
@@ -36,19 +35,26 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const [quoteReplies, setQuoteReplies] = useState<PostView[]>([])
 
-    const replies = thread.replies
     const content = postOrArticle(thread.content) ? thread.content : null
 
     useEffect(() => {
-        if (isFullArticleView(content) && replies) {
+        if (isFullArticleView(content) && thread.replies) {
             setQuoteReplies(getThreadQuoteReplies(thread))
         }
-    }, [thread, replies, content])
+    }, [thread, thread.replies, content])
 
-    const collection = getCollectionFromUri(content.uri)
+
+    const replies = useMemo(() => {
+        const collection = getCollectionFromUri(content.uri)
+        return thread.replies ? <ThreadReplies
+            threadUri={content.uri}
+            setPinnedReplies={isArticle(collection) ? setPinnedReplies : null}
+            replies={thread.replies}
+        /> : undefined
+    }, [content.uri, thread.replies])
 
     return <div className={"flex flex-col items-center"}>
-        <ThreadHeader c={collection}/>
+        <ThreadHeader c={getCollectionFromUri(content.uri)}/>
 
         <ThreadContent
             thread={thread}
@@ -63,14 +69,10 @@ const Thread = ({thread}: { thread: ThreadViewContent }) => {
             }}/>
         </div>
 
-        <div className={"min-h-screen flex flex-col items-center"}>
-            {replies && <ThreadReplies
-                threadUri={content.uri}
-                setPinnedReplies={isArticle(collection) ? setPinnedReplies : null}
-                replies={replies}
-            />}
+        <div className={"min-h-screen flex flex-col items-center w-full"}>
+            {replies}
 
-            {!replies && <div className={"py-4"}>
+            {!thread.replies && <div className={"py-4"}>
                 <LoadingSpinner/>
             </div>}
         </div>

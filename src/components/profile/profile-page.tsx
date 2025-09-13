@@ -4,12 +4,12 @@ import {useSearchParams} from "next/navigation";
 import {LoadingProfile} from "@/components/profile/loading-profile";
 import {getUsername} from "@/utils/utils";
 import {getFeed} from "@/components/feed/feed/get-feed";
-import dynamic from "next/dynamic";
 import {updateSearchParam} from "@/utils/fetch";
+import ProfileHeader from "@/components/profile/profile-header";
+import {useQueryClient} from "@tanstack/react-query";
+import {useEffect} from "react";
+import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 
-
-const ProfileHeader = dynamic(() => import("./profile-header"), {ssr: false})
-const FeedViewContentFeed = dynamic(() => import("@/components/feed/feed/feed-view-content-feed"), {ssr: false})
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones" | "articulos"
 
@@ -37,8 +37,15 @@ export const ProfilePage = ({
     handle: string
 }) => {
     const params = useSearchParams()
-    // TO DO: Prefetchear el feed
+    const qc = useQueryClient()
     const {data: profile} = useProfile(handle)
+
+    useEffect(() => {
+        qc.prefetchInfiniteQuery({
+            queryKey: ["profile-feed", handle, "main"],
+            initialPageParam: "start"
+        })
+    }, []);
 
     const s = params.get("s")
     let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" || s == "articulos" ? s : "publicaciones"
@@ -46,6 +53,8 @@ export const ProfilePage = ({
     function setSelected(v: string) {
         updateSearchParam("s", profileDisplayToOption(v))
     }
+
+    console.log(profile)
 
     return <div className={""}>
         {!profile && <LoadingProfile/>}
@@ -87,5 +96,4 @@ export const ProfilePage = ({
                 />}
         </div>
     </div>
-
 }
