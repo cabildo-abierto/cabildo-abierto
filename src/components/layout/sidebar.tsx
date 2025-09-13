@@ -160,22 +160,23 @@ const SidebarContent = ({onClose, setWritePanelOpen}: {
             >
                 <div className={"h-full flex flex-col justify-between"}>
                     <div
-                        className={"flex pb-8 h-full flex-col sm:space-y-2 space-y-3 " + (showText ? "" : "items-center")}>
-                        <div className={"mt-4 mb-2 px-4 sm:px-0 space-y-2"}>
+                        className={"flex pb-8 h-full flex-col " + (showText ? "" : "items-center") + (isMobile ? " space-y-3" : " space-y-2")}
+                    >
+                        <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
                             <div className={"flex w-full sm:justify-center"}>
                                 <div className={"flex flex-col items-center space-y-1"}>
                                     <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                         <ProfilePic
                                             clickable={false}
                                             user={user.user}
-                                            className={"w-14 h-14 sm:w-12 sm:h-12 rounded-full border " + dimOnHoverClassName}
+                                            className={" rounded-full border " + dimOnHoverClassName + (isMobile ? " w-14 h-14" : " w-12 h-12")}
                                             descriptionOnHover={false}
                                         />
                                     </Link>
                                     <VerifyAccountButton verification={user.user.validation}/>
                                 </div>
                             </div>
-                            <div className={"sm:hidden"}>
+                            <div className={isMobile && showText ? "" : "hidden"}>
                                 <div className={"font-bold text-xl"}>
                                     {user.user.displayName ?? "@" + user.user.handle}
                                 </div>

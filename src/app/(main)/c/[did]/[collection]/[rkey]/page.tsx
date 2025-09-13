@@ -6,10 +6,8 @@ import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
 import dynamic from "next/dynamic";
 import {isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import Thread from "@/components/thread/thread";
 
-const Thread = dynamic(
-    () => import("@/components/thread/thread"), {ssr: false}
-)
 const DatasetPage = dynamic(
     () => import("@/components/datasets/dataset-page"), {ssr: false}
 )

@@ -28,7 +28,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
 
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
         <div className="w-full">
-            <div className={"p-3 border-b"}>
+            <div className={"p-3"}>
                 <ArticleHeader article={article}/>
                 <div className={"mt-8 mb-16"} id={editorId}>
                     <EditorWithQuoteComments

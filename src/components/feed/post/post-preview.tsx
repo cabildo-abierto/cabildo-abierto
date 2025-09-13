@@ -154,7 +154,7 @@ export const PostPreview = ({
                                 showReplyMessage = false,
                                 onClickQuote,
                                 threadViewContent,
-    pageRootUri
+                                pageRootUri
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
 
