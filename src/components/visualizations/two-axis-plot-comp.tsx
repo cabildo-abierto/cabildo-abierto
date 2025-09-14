@@ -1,8 +1,4 @@
-import {
-    isBarplot, isHistogram, isLines, isOneAxisPlot, isScatterplot, isTwoAxisPlot, OneAxisPlot,
-    TwoAxisPlot,
-    View as VisualizationView
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {
     DatasetView,
     DatasetViewBasic, isDatasetView,
@@ -22,7 +18,7 @@ import {AxisBottom, AxisLeft} from "@visx/axis";
 import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {BarplotContent} from "@/components/visualizations/barplot"
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import {ScatterplotContent} from "@/components/visualizations/scatterplot";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
@@ -68,8 +64,8 @@ export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {
 
 
 type TwoAxisPlotProps = {
-    spec: $Typed<TwoAxisPlot> | $Typed<OneAxisPlot>
-    visualization: VisualizationView
+    spec: $Typed<ArCabildoabiertoEmbedVisualization.TwoAxisPlot> | $Typed<ArCabildoabiertoEmbedVisualization.OneAxisPlot>
+    visualization: ArCabildoabiertoEmbedVisualization.View
     maxWidth?: number
     maxHeight?: number
 }
@@ -209,7 +205,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const allowZoom = plotter.isCurvePlot() || plotter.isScatterPlot()
     const randId = Math.random().toString()
 
-    const yLabel = isTwoAxisPlot(spec) ? spec.yLabel ?? (spec.yAxis ?? "") : "Cantidad"
+    const yLabel = ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(spec) ? spec.yLabel ?? (spec.yAxis ?? "") : "Cantidad"
 
     return (
         <div
@@ -293,7 +289,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 }}
                             />
                             <Group clipPath={`url(#zoom-clip-${randId})`}>
-                                {isLines(spec.plot) && isTwoAxisPlotter(plotter) && <CurvePlotContent
+                                {ArCabildoabiertoEmbedVisualization.isLines(spec.plot) && isTwoAxisPlotter(plotter) && <CurvePlotContent
                                     plotter={plotter}
                                     xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
@@ -304,7 +300,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                     scaleFactorY={scaleFactorY}
                                     margin={margin}
                                 />}
-                                {(isBarplot(spec.plot) || isHistogram(spec.plot)) && <BarplotContent
+                                {(ArCabildoabiertoEmbedVisualization.isBarplot(spec.plot) || ArCabildoabiertoEmbedVisualization.isHistogram(spec.plot)) && <BarplotContent
                                     xScale={axisBottomScale as ScaleBand<string>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
                                     data={data}
@@ -312,7 +308,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                     hideTooltip={hideTooltip}
                                     showTooltip={showTooltip}
                                 />}
-                                {isScatterplot(spec.plot) && <ScatterplotContent
+                                {ArCabildoabiertoEmbedVisualization.isScatterplot(spec.plot) && <ScatterplotContent
                                     xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
                                     data={data as DataPoint<number, number>[]}
@@ -393,13 +389,13 @@ const TwoAxisPlotComp = ({spec, visualization, maxWidth, maxHeight}: TwoAxisPlot
         </div>
     }
 
-    if (isOneAxisPlot(spec) && !validColumn(spec.xAxis, dataset)) {
+    if (ArCabildoabiertoEmbedVisualization.isOneAxisPlot(spec) && !validColumn(spec.xAxis, dataset)) {
         return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
             No se encontró la columna especificada en los datos.
         </div>
     }
 
-    if (isTwoAxisPlot(spec)) {
+    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(spec)) {
         if ((!spec.yAxis || spec.yAxis.length == 0) && (!spec.yAxes || spec.yAxes.length == 0)) {
             return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
                 Elegí un eje y.

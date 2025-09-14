@@ -5,10 +5,10 @@ import {useEffect} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
 import {useAPI} from "@/queries/utils";
-import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/notification/listNotifications";
+import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
 
 function useNotifications() {
-    return useAPI<CANotification[]>("/notifications/list", ["notifications"])
+    return useAPI<ArCabildoabiertoNotificationListNotifications.Notification[]>("/notifications/list", ["notifications"])
 }
 
 

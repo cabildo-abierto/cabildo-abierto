@@ -1,10 +1,10 @@
 import Image from "next/image";
-import {ViewImage} from "@/lex-api/types/app/bsky/embed/images";
 import useMeasure from "react-use-measure";
+import {AppBskyEmbedImages} from "@atproto/api"
 
 
 type EmbedImageProps = {
-    img: ViewImage | string
+    img: AppBskyEmbedImages.ViewImage | string
     className?: string
     onClick?: (e: any) => void
     maxHeight?: number | string

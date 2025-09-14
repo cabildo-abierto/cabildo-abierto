@@ -1,5 +1,5 @@
 import {LexicalEditor} from "lexical";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index";
 import {INSERT_EMBED_COMMAND} from "./index";
 import dynamic from "next/dynamic";
 
@@ -14,7 +14,7 @@ export function InsertVisualizationDialog({
     open: boolean;
     onClose: () => void;
 }) {
-    function onSave(visualization: Visualization) {
+    function onSave(visualization: ArCabildoabiertoEmbedVisualization.Main) {
         activeEditor.dispatchCommand(INSERT_EMBED_COMMAND, {spec: {$type: "ar.cabildoabierto.embed.visualization", ...visualization}});
         onClose();
     }

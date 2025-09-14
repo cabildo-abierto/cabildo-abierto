@@ -1,17 +1,15 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useStatsDashboard} from "@/queries/admin";
-import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
-import {Plot} from "@/components/visualizations/plot";
-import {View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {$Typed} from "@atproto/api";
+import Plot from "@/components/visualizations/plot";
+import {$Typed} from "@/lex-api/util";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {useProfile} from "@/queries/useProfile";
+import {ArCabildoabiertoActorDefs, ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 
 
 export type StatsDashboard = {
-    lastUsers: (ProfileViewBasicCA & { lastReadSession: Date | null, CAProfileCreatedAt?: Date })[]
+    lastUsers: (ArCabildoabiertoActorDefs.ProfileViewBasic & { lastReadSession: Date | null, CAProfileCreatedAt?: Date })[]
     counts: {
         registered: number
         active: number
@@ -63,7 +61,7 @@ const WAUPlot = ({data, title}: {
 
     if(isLoading || !profile) return <LoadingSpinner />
 
-    const dataset: $Typed<DatasetView> = {
+    const dataset: $Typed<ArCabildoabiertoDataDataset.DatasetView> = {
         $type: "ar.cabildoabierto.data.dataset#datasetView",
         data: JSON.stringify(data),
         columns: ["date", "count"].map(x => ({
@@ -74,10 +72,14 @@ const WAUPlot = ({data, title}: {
         uri: "",
         cid: "",
         name: "data",
-        author: {...profile.bsky, $type: "ar.cabildoabierto.actor.defs#profileViewBasic"}
+        author: {
+            ...profile.bsky,
+            verification: null,
+            $type: "ar.cabildoabierto.actor.defs#profileViewBasic"
+        }
     }
 
-    const WAUVisualization: VisualizationView = {
+    const WAUVisualization: ArCabildoabiertoEmbedVisualization.View = {
         $type: "ar.cabildoabierto.embed.visualization#view",
         visualization: {
             $type: "ar.cabildoabierto.embed.visualization",

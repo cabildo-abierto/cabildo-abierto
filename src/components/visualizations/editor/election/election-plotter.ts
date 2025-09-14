@@ -1,5 +1,5 @@
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
-import {Eleccion, isEleccion, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Plotter} from "@/components/visualizations/editor/plotter/plotter";
 import {cleanText} from "@/utils/strings";
 import { unique } from "@/utils/arrays";
@@ -144,18 +144,18 @@ export function getCargo(p: string | null): Cargo {
 
 export class ElectionPlotter extends Plotter {
     searchValue: string | undefined
-    electionSpec: Eleccion
+    electionSpec: ArCabildoabiertoEmbedVisualization.Eleccion
     candidatesByProvince: Map<string, Map<string, [Candidato[], Candidato[]]>> = new Map()
     candidates: Candidato[]
 
     constructor(
-        spec: Visualization["spec"],
+        spec: ArCabildoabiertoEmbedVisualization.Main["spec"],
         dataset: DatasetForTableView,
         searchValue?: string
     ) {
         super(spec, dataset, undefined)
         this.searchValue = searchValue
-        if(isEleccion(spec)){
+        if(ArCabildoabiertoEmbedVisualization.isEleccion(spec)){
             this.electionSpec = spec
         } else {
             throw Error("Visualization should be election!")

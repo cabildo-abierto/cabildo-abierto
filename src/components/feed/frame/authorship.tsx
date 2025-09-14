@@ -2,8 +2,7 @@ import Link from "next/link";
 import {profileUrl} from "@/utils/uri";
 import {getUsername} from "@/utils/utils";
 import ValidationIcon from "@/components/profile/validation-icon";
-import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
-
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
 export const Authorship = ({
     author,
@@ -15,7 +14,7 @@ export const Authorship = ({
 }: {
     className?: string,
     text?: string,
-    author: ProfileViewBasicCA,
+    author: ArCabildoabiertoActorDefs.ProfileViewBasic,
     onlyAuthor?: boolean
     iconFontSize?: number
     showIcon?: boolean

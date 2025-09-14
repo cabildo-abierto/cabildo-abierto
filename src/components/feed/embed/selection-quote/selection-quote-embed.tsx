@@ -1,18 +1,17 @@
-import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {ATProtoStrongRef} from "@/lib/types";
 import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-
+import {ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 
 type SelectionQuoteEmbedProps = {
-    embed: EmbedSelectionQuote
+    embed: ArCabildoabiertoEmbedSelectionQuote.View
     mainPostRef: ATProtoStrongRef
     onClick?: (cid: string) => void
     showContext?: boolean
 }
 
 
-export const SelectionQuoteEmbed = ({embed, mainPostRef, onClick, showContext = false}: SelectionQuoteEmbedProps) => {
+export default function SelectionQuoteEmbed ({embed, mainPostRef, onClick, showContext = false}: SelectionQuoteEmbedProps) {
 
     return <SelectionQuote
         {...embed}

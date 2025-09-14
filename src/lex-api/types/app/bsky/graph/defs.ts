@@ -12,7 +12,6 @@ import {
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
 import type * as AppBskyActorDefs from '../actor/defs'
 import type * as AppBskyRichtextFacet from '../richtext/facet'
-import type * as AppBskyFeedDefs from '../feed/defs'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -83,31 +82,6 @@ export function validateListItemView<V>(v: V) {
   return validate<ListItemView & V>(v, id, hashListItemView)
 }
 
-export interface StarterPackView {
-  $type?: 'app.bsky.graph.defs#starterPackView'
-  uri: string
-  cid: string
-  record: { [_ in string]: unknown }
-  creator: AppBskyActorDefs.ProfileViewBasic
-  list?: ListViewBasic
-  listItemsSample?: ListItemView[]
-  feeds?: AppBskyFeedDefs.GeneratorView[]
-  joinedWeekCount?: number
-  joinedAllTimeCount?: number
-  labels?: ComAtprotoLabelDefs.Label[]
-  indexedAt: string
-}
-
-const hashStarterPackView = 'starterPackView'
-
-export function isStarterPackView<V>(v: V) {
-  return is$typed(v, id, hashStarterPackView)
-}
-
-export function validateStarterPackView<V>(v: V) {
-  return validate<StarterPackView & V>(v, id, hashStarterPackView)
-}
-
 export interface StarterPackViewBasic {
   $type?: 'app.bsky.graph.defs#starterPackViewBasic'
   uri: string
@@ -158,41 +132,4 @@ export function isListViewerState<V>(v: V) {
 
 export function validateListViewerState<V>(v: V) {
   return validate<ListViewerState & V>(v, id, hashListViewerState)
-}
-
-/** indicates that a handle or DID could not be resolved */
-export interface NotFoundActor {
-  $type?: 'app.bsky.graph.defs#notFoundActor'
-  actor: string
-  notFound: true
-}
-
-const hashNotFoundActor = 'notFoundActor'
-
-export function isNotFoundActor<V>(v: V) {
-  return is$typed(v, id, hashNotFoundActor)
-}
-
-export function validateNotFoundActor<V>(v: V) {
-  return validate<NotFoundActor & V>(v, id, hashNotFoundActor)
-}
-
-/** lists the bi-directional graph relationships between one actor (not indicated in the object), and the target actors (the DID included in the object) */
-export interface Relationship {
-  $type?: 'app.bsky.graph.defs#relationship'
-  did: string
-  /** if the actor follows this DID, this is the AT-URI of the follow record */
-  following?: string
-  /** if the actor is followed by this DID, contains the AT-URI of the follow record */
-  followedBy?: string
-}
-
-const hashRelationship = 'relationship'
-
-export function isRelationship<V>(v: V) {
-  return is$typed(v, id, hashRelationship)
-}
-
-export function validateRelationship<V>(v: V) {
-  return validate<Relationship & V>(v, id, hashRelationship)
 }

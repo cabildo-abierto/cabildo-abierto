@@ -26,7 +26,7 @@ type InviteCode = {
     code: string
 }
 
-export function useInviteCodesToShare() {
+function useInviteCodesToShare() {
     return useAPI<InviteCode[]>("/invite-codes-to-share", ["invite-codes-to-share"])
 }
 

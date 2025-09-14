@@ -1,14 +1,14 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import React, {useEffect, useState} from "react";
 import {get} from "@/utils/fetch";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import UserSearchResult from "@/components/buscar/user-search-result";
 import {useQuery} from "@tanstack/react-query";
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
 async function searchUsers(query: string) {
     if(encodeURIComponent(query).trim().length > 0){
-        return (await get<ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
+        return (await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
     } else {
         return []
     }

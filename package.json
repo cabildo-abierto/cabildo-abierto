@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "time next build --turbopack",
+    "dev": "next dev",
+    "build": "time next build",
     "start": "next start",
     "lint": "next lint",
     "signup": "tsx scripts/signup.js",
@@ -22,10 +22,10 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@atproto/api": "^0.14.22",
-    "@atproto/lexicon": "^0.4.10",
-    "@atproto/syntax": "^0.4.0",
-    "@atproto/xrpc": "^0.6.12",
+    "@atproto/api": "^0.16.9",
+    "@atproto/lexicon": "^0.5.1",
+    "@atproto/syntax": "^0.4.1",
+    "@atproto/xrpc": "^0.7.5",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@lexical/hashtag": "0.27.2",
@@ -45,7 +45,7 @@
     "@mui/icons-material": "^7.0.1",
     "@mui/material": "^7.0.1",
     "@mui/x-date-pickers": "^8.4.0",
-    "@next/bundle-analyzer": "15.2.1",
+    "@next/bundle-analyzer": "15.5.3",
     "@phosphor-icons/react": "^2.1.10",
     "@react-spring/web": "^10.0.1",
     "@supabase/ssr": "^0.5.0",
@@ -85,7 +85,6 @@
     "react-joyride": "^3.0.0-7",
     "react-responsive": "^10.0.1",
     "react-use-measure": "^2.1.7",
-    "recharts": "^2.15.3",
     "remove-markdown": "^0.6.2",
     "sass": "^1.77.8",
     "sharp": "^0.33.5",
@@ -93,7 +92,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@atproto/lex-cli": "^0.7.2",
+    "@atproto/lex-cli": "^0.9.5",
     "@jest/globals": "^30.0.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

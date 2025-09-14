@@ -1,6 +1,4 @@
-import {Notification as CANotification} from "@/lex-api/types/ar/cabildoabierto/notification/listNotifications"
 import {getUsername} from "@/utils/utils";
-import {ProfileView} from "@/lex-api/types/app/bsky/actor/defs";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
@@ -19,6 +17,8 @@ import {
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import TopicsIcon from "@/components/icons/topics-icon";
+import {ProfileView} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
 
 
 const Username = ({user}: { user: ProfileView }) => {
@@ -51,7 +51,7 @@ const NotificationCardFrame = ({read, reasonIcon, children, href}: {
 
 
 const UserNotificationCard = ({notification, children, reasonIcon, href}: {
-    notification: CANotification, children: ReactNode, reasonIcon: ReactNode, href?: string
+    notification: ArCabildoabiertoNotificationListNotifications.Notification, children: ReactNode, reasonIcon: ReactNode, href?: string
 }) => {
     return <NotificationCardFrame
         read={notification.isRead}
@@ -99,7 +99,7 @@ const ContentMention = ({uri, article, topicId}: {
 }
 
 
-export const NotificationCard = ({notification}: { notification: CANotification }) => {
+export const NotificationCard = ({notification}: { notification: ArCabildoabiertoNotificationListNotifications.Notification }) => {
     if (notification.reason == "follow") {
         return <UserNotificationCard
             notification={notification}

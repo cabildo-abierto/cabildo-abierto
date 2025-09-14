@@ -1,19 +1,11 @@
 import {RepostIcon} from "@/components/icons/reposts-icon";
 import React from "react";
-import {$Typed} from "@atproto/api";
-import {
-    ArticleView,
-    FullArticleView,
-    isArticleView,
-    isFullArticleView,
-    PostView
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {$Typed} from "@/lex-api/util";
 import {post} from "@/utils/fetch";
 import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
-import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import dynamic from "next/dynamic";
 import {getRkeyFromUri} from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
@@ -22,6 +14,7 @@ import {ATProtoStrongRef} from "@/lib/types";
 import {produce} from "immer";
 import {postOrArticle} from "@/utils/type-utils";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
 async function repost(ref: ATProtoStrongRef) {
@@ -64,7 +57,11 @@ async function optimisticRemoveRepost(qc: QueryClient, uri: string) {
 
 
 export const RepostCounter = ({content, showBsky, reactionUri}: {
-    content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>, showBsky: boolean, reactionUri?: string
+    content: $Typed<ArCabildoabiertoFeedDefs.PostView> |
+        $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
+        $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    showBsky: boolean
+    reactionUri?: string
 }) => {
     const [writingQuotePost, setWritingQuotePost] = React.useState(false)
     const qc = useQueryClient()
@@ -87,7 +84,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
 
     const removeRepostMutation = useMutation({
         mutationFn: removeRepost,
-        onMutate: (repostUri) => {
+        onMutate: () => {
             qc.cancelQueries(contentQueriesFilter(content.uri))
             optimisticRemoveRepost(qc, content.uri)
         },
@@ -156,7 +153,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 title="Cantidad de republicaciones y citas."
             />
         </ModalOnClick>
-        {(isPostView(content) || isFullArticleView(content) || isArticleView(content)) && <WritePanel // TO DO: También podríamos permitir quote posts de artículos y temas
+        {(ArCabildoabiertoFeedDefs.isPostView(content) || ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) && <WritePanel // TO DO: También podríamos permitir quote posts de artículos y temas
             open={writingQuotePost}
             onClose={() => {setWritingQuotePost(false)}}
             quotedPost={content}

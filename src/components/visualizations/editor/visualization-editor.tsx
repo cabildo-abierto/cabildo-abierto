@@ -3,12 +3,7 @@ import {PlotConfigProps} from "@/lib/types";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {
-    ColumnFilter,
-    isColumnFilter,
-    Main as Visualization, validateColumnFilter,
-    validateMain as validateVisualization
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import VisualizationEditorSidebar from "@/components/visualizations/editor/visualization-editor-sidebar";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {emptyChar} from "@/utils/utils";
@@ -17,7 +12,7 @@ import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {useDatasets} from "@/queries/useDataset";
 import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -39,8 +34,8 @@ const ErrorPanel = ({msg}: { msg?: string }) => {
 }
 
 
-export function readyToPlot(config: PlotConfigProps): config is Visualization {
-    const res = validateVisualization(config)
+export function readyToPlot(config: PlotConfigProps): config is ArCabildoabiertoEmbedVisualization.Main {
+    const res = ArCabildoabiertoEmbedVisualization.validateMain(config)
     if(res.success == false){
         console.log("invalid vis", res.error)
         console.log("config", config)
@@ -50,22 +45,22 @@ export function readyToPlot(config: PlotConfigProps): config is Visualization {
 
 
 type VisualizationEditorProps = {
-    onSave: (v: Visualization) => void
+    onSave: (v: ArCabildoabiertoEmbedVisualization.Main) => void
     msg?: string
     initialConfig?: PlotConfigProps
     onClose: () => void
 }
 
 type TopicDatasetSpec = {
-    filters: Visualization["filters"]
+    filters: ArCabildoabiertoEmbedVisualization.Main["filters"]
 }
 
-export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typed<ColumnFilter>[] {
-    const validFilters: $Typed<ColumnFilter>[] = []
+export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] {
+    const validFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] = []
     for(let i = 0; i < filters.length; i++) {
         const f = filters[i]
-        if(isColumnFilter(f)){
-            const valid = validateColumnFilter(f)
+        if(ArCabildoabiertoEmbedVisualization.isColumnFilter(f)){
+            const valid = ArCabildoabiertoEmbedVisualization.validateColumnFilter(f)
             if(valid.success){
                 validFilters.push(valid.value)
             }
@@ -75,7 +70,7 @@ export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typ
 }
 
 async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
-    const validFilters: $Typed<ColumnFilter>[] = validateColumnFilters(filters)
+    const validFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] = validateColumnFilters(filters)
 
     if(validFilters.length > 0){
         return await post<TopicDatasetSpec, TopicsDatasetView>("/topics-dataset", {filters: validFilters})
@@ -86,7 +81,6 @@ async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
             return {error: "El filtro es inválido."}
         }
     }
-
 }
 
 

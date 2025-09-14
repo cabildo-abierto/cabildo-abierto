@@ -2,14 +2,14 @@
 import Hls from "hls.js";
 import { useEffect, useRef, useState } from "react";
 import { PrettyJSON } from "../../../../modules/ui-utils/src/pretty-json";
-import { View as VideoEmbedView } from "@/lex-api/types/app/bsky/embed/video";
 import Image from "next/image";
+import {AppBskyEmbedVideo} from "@atproto/api"
 
 type PostVideoEmbedProps = {
-    embed: VideoEmbedView;
-};
+    embed: AppBskyEmbedVideo.View
+}
 
-export const PostVideoEmbed = ({ embed }: PostVideoEmbedProps) => {
+export default function PostVideoEmbed({ embed }: PostVideoEmbedProps) {
     const [error, setError] = useState<string | null>(null);
     const [isReady, setIsReady] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -89,13 +89,15 @@ export const PostVideoEmbed = ({ embed }: PostVideoEmbedProps) => {
             style={{ aspectRatio: embed.aspectRatio ? `${embed.aspectRatio.width} / ${embed.aspectRatio.height}` : 0.75 }}
         >
             {!isReady && (
-                <Image
+                <div className={"w-full flex justify-center"}>
+                    <Image
                     src={embed.thumbnail}
                     alt="Video thumbnail"
-                    className="absolute top-0 left-0 w-full h-full object-cover rounded-lg"
+                    className="w-[400px] h-[500px] object-cover rounded-lg"
                     width={embed.aspectRatio?.width ?? 400}
                     height={embed.aspectRatio?.height ?? 500}
                 />
+                </div>
             )}
             <video
                 ref={videoRef}

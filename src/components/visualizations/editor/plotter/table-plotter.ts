@@ -1,9 +1,5 @@
 import {DatasetForTableView, DatasetSortOrder} from "@/components/datasets/dataset-table-view";
-import {
-    isTable,
-    Main as Visualization,
-    TableVisualizationColumn
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {cleanText} from "@/utils/strings";
 import {DataRow, Plotter} from "@/components/visualizations/editor/plotter/plotter";
 
@@ -12,13 +8,13 @@ export class TablePlotter extends Plotter {
     private searchValue: string
     public dataForPlot: DataRow[]
     public strRows: string[][]
-    private columnsMap: Map<string, TableVisualizationColumn> = new Map()
+    private columnsMap: Map<string, ArCabildoabiertoEmbedVisualization.TableVisualizationColumn> = new Map()
 
-    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, filters: Visualization["filters"] | null, sortingBy: DatasetSortOrder | null, searchValue?: string) {
+    constructor(spec: ArCabildoabiertoEmbedVisualization.Main["spec"], dataset: DatasetForTableView, filters: ArCabildoabiertoEmbedVisualization.Main["filters"] | null, sortingBy: DatasetSortOrder | null, searchValue?: string) {
         super(spec, dataset, filters ?? undefined)
         this.sortingBy = sortingBy
         this.searchValue = searchValue
-        if (isTable(this.spec) && this.spec.columns) {
+        if (ArCabildoabiertoEmbedVisualization.isTable(this.spec) && this.spec.columns) {
             this.columnsMap = new Map(
                 Array.from(this.spec.columns.map(c => ([c.columnName, c])))
             )
@@ -94,7 +90,7 @@ export class TablePlotter extends Plotter {
     getKeysToHeadersMap(): [string, string][] {
         const res: [string, string][] = []
 
-        if (isTable(this.spec)) {
+        if (ArCabildoabiertoEmbedVisualization.isTable(this.spec)) {
             const config = this.spec.columns
             if (config && config.length > 0) {
                 config.forEach(c => {

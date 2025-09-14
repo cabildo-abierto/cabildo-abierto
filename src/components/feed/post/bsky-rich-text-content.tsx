@@ -1,13 +1,12 @@
-"use client"
-import {RichText} from '@atproto/api'
 import ReadOnlyEditor from '../../editor/read-only-editor';
-import {PostRecord} from "@/lib/types";
+import { AppBskyFeedPost } from '@atproto/api'
 import {useMemo} from "react";
+import {RichText} from "@atproto/api";
 
 
 type BskyRichTextContentProps = {
     className?: string
-    post: {text: string, facets?: PostRecord["facets"]}
+    post: {text: string, facets?: AppBskyFeedPost.Record["facets"]}
     fontSize?: string
     namespace?: string
 }

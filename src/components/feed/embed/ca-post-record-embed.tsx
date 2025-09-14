@@ -1,6 +1,4 @@
-import {View as CARecordEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/record"
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
-import {isArticleView, isFullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import Link from "next/link";
 import {contentUrl, profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
@@ -8,24 +6,22 @@ import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-autho
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useRouter} from "next/navigation";
-import {ATProtoStrongRef, PostRecord} from "@/lib/types";
-import {isPostView as isCAPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
+import {ATProtoStrongRef} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
-import dynamic from "next/dynamic";
-const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
-    ssr: false,
-    loading: () => <></>,
-});
+import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
+import {AppBskyFeedPost} from "@atproto/api";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
+
 
 export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
-    embed: CARecordEmbedView
+    embed: ArCabildoabiertoEmbedRecord.View
     navigateOnClick?: boolean
     mainPostRef?: ATProtoStrongRef
 }) => {
     const record = embed.record
     const router = useRouter()
 
-    if(isArticleView(record) || isFullArticleView(record)){
+    if(ArCabildoabiertoFeedDefs.isArticleView(record) || ArCabildoabiertoFeedDefs.isFullArticleView(record)){
         const summary = record.summary
         const title = record.title
         const author = record.author
@@ -70,7 +66,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
                 />
             </div>
         </div>
-    } else if(isCAPostView(record)) {
+    } else if(ArCabildoabiertoFeedDefs.isPostView(record)) {
         const url = contentUrl(record.uri)
         const author = record.author
         const createdAt = new Date(record.indexedAt)
@@ -108,7 +104,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
                 </span>
             </div>
             <div>
-                <BskyRichTextContent post={record.record as PostRecord}/>
+                <BskyRichTextContent post={record.record as AppBskyFeedPost.Record}/>
             </div>
             {record.embed && <PostEmbed embed={record.embed} mainPostRef={mainPostRef}/>}
         </div>

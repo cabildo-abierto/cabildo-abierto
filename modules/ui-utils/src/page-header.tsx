@@ -6,7 +6,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ReactNode} from "react";
 
 
-export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
+export default function PageHeader({title, defaultBackHref = "/inicio", rightSide}: {
     title: ReactNode, defaultBackHref?: string, rightSide?: ReactNode
 }) {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
@@ -27,7 +27,7 @@ export default function PageHeader({title, defaultBackHref = "/", rightSide}: {
                 </IconButton>
             </div>
             <div className={"max-[500px]:hidden"}>
-                <BackButton defaultURL={defaultBackHref}/>
+                <BackButton defaultURL={defaultBackHref} preferReferrer={false}/>
             </div>
             <div className={"font-extrabold text-xl truncate text-ellipsis pr-2"}>
                 {title}

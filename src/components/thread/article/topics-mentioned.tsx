@@ -1,13 +1,13 @@
 import {topicUrl} from "@/utils/uri";
-import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
 import { ModalOnHover } from "../../../../modules/ui-utils/src/modal-on-hover";
 import TagIcon from '@mui/icons-material/Tag';
 import Link from "next/link";
 import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 import {useMemo} from "react";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
-type TopicsMentionedProps = {mentions: TopicMention[]}
+type TopicsMentionedProps = {mentions: ArCabildoabiertoFeedDefs.TopicMention[]}
 
 
 export const TopicsMentionedSmall = ({mentions}: TopicsMentionedProps) => {

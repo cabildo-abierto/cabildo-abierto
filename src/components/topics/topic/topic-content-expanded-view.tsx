@@ -10,8 +10,6 @@ import {useRouter, useSearchParams} from "next/navigation";
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {post} from "@/utils/fetch";
 import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
 import {TopicPropsView} from "@/components/topics/topic/props/topic-props-view";
@@ -19,12 +17,12 @@ const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-ed
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/updates";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import Link from "next/link";
 import {WikiEditorState} from "@/lib/types";
+import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
@@ -32,10 +30,10 @@ export type CreateTopicVersionProps = {
     id: string
     text?: string
     format?: string,
-    props?: TopicProp[]
+    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
     message?: string,
     claimsAuthorship?: boolean
-    embeds?: ArticleEmbedView[]
+    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
 }
 
@@ -45,7 +43,7 @@ async function createTopicVersion(body: CreateTopicVersionProps) {
 }
 
 
-function emptyTopic(topic: TopicView) {
+function emptyTopic(topic: ArCabildoabiertoWikiTopicVersion.TopicView) {
     if (!topic.text || topic.text.trim().length == 0) {
         const embeds = topic.embeds
         return !embeds || embeds.length == 0
@@ -66,8 +64,8 @@ const TopicContentExpandedViewContent = ({
                                          }: {
     wikiEditorState: WikiEditorState
     setWikiEditorState: (state: WikiEditorState) => void
-    topic: TopicView
-    quoteReplies: PostView[]
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    quoteReplies: ArCabildoabiertoFeedDefs.PostView[]
     pinnedReplies: string[],
     setPinnedReplies: (v: string[]) => void
     editor: LexicalEditor,
@@ -202,14 +200,14 @@ export const TopicContentExpandedViewWithVersion = ({
                                                         wikiEditorState,
                                                         setWikiEditorState,
                                                     }: {
-    topic: TopicView
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
     wikiEditorState: WikiEditorState
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [topicProps, setTopicProps] = useState<TopicProp[]>(Array.from(topic.props) ?? [])
+    const [topicProps, setTopicProps] = useState<ArCabildoabiertoWikiTopicVersion.TopicProp[]>(Array.from(topic.props) ?? [])
     const {data: quoteReplies} = useTopicVersionQuoteReplies(topic.uri)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const qc = useQueryClient()

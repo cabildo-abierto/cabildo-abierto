@@ -4,7 +4,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
-import {Button, Color} from "./button";
+import {Button} from "./button";
+import {Color} from "./color";
 
 const NewItem = ({
                      addItem,

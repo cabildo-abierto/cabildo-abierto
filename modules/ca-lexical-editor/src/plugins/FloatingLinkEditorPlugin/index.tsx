@@ -13,9 +13,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
-
 import {$createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
-
 import {
     $getSelection,
     $isLineBreakNode,
@@ -39,7 +37,7 @@ import {sanitizeUrl, validateUrl} from '../../utils/url';
 import {CustomLink as Link} from '../../../../ui-utils/src/custom-link';
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {get} from '@/utils/fetch';
 import LoadingSpinner from "../../../../ui-utils/src/loading-spinner";
 import {IconButton} from '../../../../ui-utils/src/icon-button';
@@ -48,7 +46,7 @@ import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
 
 export async function searchTopics(query: string) {
     if (query.trim().length == 0 || query.startsWith("/")) return []
-    const {error, data} = await get<TopicViewBasic[]>(`/search-topics/${query}`)
+    const {error, data} = await get<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(`/search-topics/${query}`)
     if (error) return []
     return data
 }
@@ -60,7 +58,7 @@ export function encodeParentheses(s: string) {
 
 
 const SearchResults = ({results, setValue}: {
-    results: TopicViewBasic[] | "loading",
+    results: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading",
     setValue: (v: string) => void
 }) => {
     if (results == "loading") {
@@ -71,7 +69,7 @@ const SearchResults = ({results, setValue}: {
 
     if (results.length == 0) return <></>
     return <div className="mb-1 px-1 space-y-1">
-        {results.slice(0, 5).map((topic: TopicViewBasic) => {
+        {results.slice(0, 5).map((topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {
             return <button
                 key={topic.id}
                 className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
@@ -108,7 +106,7 @@ function FloatingLinkEditor({
     );
     const [linkUrl, setLinkUrl] = useState('')
     const [editedLinkUrl, setEditedLinkUrl] = useState('')
-    const [results, setResults] = useState<TopicViewBasic[] | "loading">([])
+    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([])
     const [debouncedValue, setDebouncedValue] = useState(editedLinkUrl)
 
     useEffect(() => {

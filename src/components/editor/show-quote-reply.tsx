@@ -10,8 +10,7 @@ import {
     $createCustomMarkNode,
     $isCustomMarkNode
 } from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
 import {$dfs} from "@lexical/utils";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
@@ -21,7 +20,7 @@ import {InactiveCommentIcon} from "@/components/icons/inactive-comment-icon";
 export const ShowQuoteReplyButton = ({
                                          reply, pinnedReplies, setPinned, editor
                                      }: {
-    reply: PostView
+    reply: ArCabildoabiertoFeedDefs.PostView
     pinnedReplies: string[]
     setPinned: (v: boolean) => void
     editor: LexicalEditor
@@ -36,10 +35,13 @@ export const ShowQuoteReplyButton = ({
     useEffect(() => {
         if (open) {
             const embed = reply.embed;
-            if (!isSelectionQuoteView(embed)) return;
+            if (!ArCabildoabiertoEmbedSelectionQuote.isView(embed)) return;
 
             editor.update(() => {
-                const markdownSelection = new MarkdownSelection(embed.start, embed.end)
+                const markdownSelection = new MarkdownSelection(
+                    embed.start,
+                    embed.end
+                )
 
                 const id = "h" + reply.uri;
                 const nodes = $dfs();

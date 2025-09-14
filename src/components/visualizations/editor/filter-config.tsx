@@ -2,19 +2,17 @@ import {PlotConfigProps} from "@/lib/types";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {
-    isColumnFilter,
-    isDatasetDataSource
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import {useCategories} from "@/queries/useTopics";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {useState} from "react";
-import {Button, Color, darker} from "../../../../modules/ui-utils/src/button";
+import {Button, darker} from "../../../../modules/ui-utils/src/button";
 import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
 import {Box, IconButton} from "@mui/material";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {Color} from "../../../../modules/ui-utils/src/color";
 
 
 function operatorViewToValue(op: string) {
@@ -54,7 +52,7 @@ const OperandListEditor = ({
     const filters = config.filters as PlotConfigProps["filters"]
     const f = filters[filterIndex]
 
-    if (isColumnFilter(f)) {
+    if (ArCabildoabiertoEmbedVisualization.isColumnFilter(f)) {
         const values = f.operands ? f.operands.filter(x => x.length > 0) : null
         return <>
             {(!values || values.length == 0) && <div className={"text-[var(--text-light)] text-sm"}><IconButton
@@ -94,7 +92,7 @@ const OperandListEditor = ({
                         items={values ?? []}
                         setItems={(v: string[]) => {
                             setConfig(produce(config, draft => {
-                                if (isColumnFilter(draft.filters[filterIndex])) {
+                                if (ArCabildoabiertoEmbedVisualization.isColumnFilter(draft.filters[filterIndex])) {
                                     draft.filters[filterIndex].operands = v
                                 }
                             }))
@@ -126,8 +124,8 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
     const filter = config.filters[index]
 
 
-    if (isColumnFilter(filter)) {
-        const isDatasetSource = isDatasetDataSource(config.dataSource)
+    if (ArCabildoabiertoEmbedVisualization.isColumnFilter(filter)) {
+        const isDatasetSource = ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource)
         const columnOptions = dataset ? dataset.columns.map(c => c.name) : ["Categorías", "Título", "Sinónimos"]
         const isSingleOperand = !filter.operator || ["<=", "<", ">", ">=", "=", "!=", "includes"].includes(filter.operator)
 
@@ -153,7 +151,7 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                         selected={selectedColumn}
                         onChange={(c: string) => {
                             setConfig(produce(config, draft => {
-                                if (isColumnFilter(draft.filters[index])) {
+                                if (ArCabildoabiertoEmbedVisualization.isColumnFilter(draft.filters[index])) {
                                     draft.filters[index].column = c
                                 }
                             }))
@@ -168,7 +166,7 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                         fontSize={"12px"}
                         onChange={(v: string) => {
                             setConfig(produce(config, draft => {
-                                if (isColumnFilter(draft.filters[index])) {
+                                if (ArCabildoabiertoEmbedVisualization.isColumnFilter(draft.filters[index])) {
                                     draft.filters[index].operator = operatorViewToValue(v)
                                 }
                             }))
@@ -184,7 +182,7 @@ export const FilterConfig = ({config, setConfig, index, onRemove, dataset}: {
                         selected={filter.operands && filter.operands.length > 0 ? filter.operands[0] : ""}
                         onChange={(e) => {
                             setConfig(produce(config, draft => {
-                                if (isColumnFilter(draft.filters[index])) {
+                                if (ArCabildoabiertoEmbedVisualization.isColumnFilter(draft.filters[index])) {
                                     draft.filters[index].operands = [e]
                                 }
                             }))

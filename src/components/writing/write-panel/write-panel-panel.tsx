@@ -6,22 +6,26 @@ import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
 import {CreatePostProps, WritePost} from "./write-post";
-import {$Typed} from "@atproto/api";
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {$Typed} from "@/lex-api/util";
 import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 
-export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
+export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
+    $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
+    $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
+    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView>
 
 type WritePanelProps = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
-    quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
+    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> |
+        $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
+        $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     handleSubmit: (_: CreatePostProps) => Promise<void>
 }
 

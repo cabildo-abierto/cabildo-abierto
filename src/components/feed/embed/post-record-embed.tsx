@@ -7,9 +7,11 @@ import {contentUrl, getBlueskyUrl, profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import Link from "next/link";
-import {View as RecordEmbedView, isViewRecord, isViewBlocked, isViewNotFound, isViewDetached} from "@/lex-api/types/app/bsky/embed/record"
-import {ATProtoStrongRef, PostRecord} from "@/lib/types";
+import {ATProtoStrongRef} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
+import {AppBskyEmbedRecord} from "@atproto/api"
+import {AppBskyFeedPost} from "@atproto/api"
+
 import dynamic from "next/dynamic";
 const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
     ssr: false,
@@ -17,7 +19,7 @@ const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-ri
 });
 
 type PostRecordEmbedRecordProps = {
-    record: RecordEmbedView["record"]
+    record: AppBskyEmbedRecord.View["record"]
     mainPostRef?: ATProtoStrongRef
     navigateOnClick?: boolean
 }
@@ -25,7 +27,7 @@ type PostRecordEmbedRecordProps = {
 export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true}: PostRecordEmbedRecordProps) => {
     const router = useRouter()
 
-    if (isViewRecord(record)) {
+    if (AppBskyEmbedRecord.isViewRecord(record)) {
         const url = contentUrl(record.uri)
         const author = record.author
         const createdAt = new Date(record.indexedAt)
@@ -55,7 +57,13 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
                     />
                 </Link>
                 <span className="truncate text-sm">
-                    <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
+                    <ContentTopRowAuthor
+                        author={{
+                            ...author,
+                            $type: "ar.cabildoabierto.actor.defs#profileViewBasic",
+                            verification: null,
+                        }}
+                    />
                 </span>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
@@ -65,21 +73,21 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
             <div>
                 <BskyRichTextContent
                     namespace={record.uri}
-                    post={record.value as PostRecord}
+                    post={record.value as AppBskyFeedPost.Record}
                 />
             </div>
             {/* TO DO: Entender por qué puede haber más de un embed */}
             {record.embeds && record.embeds.length > 0 && <PostEmbed embed={record.embeds[0]} mainPostRef={mainPostRef}/>}
         </div>
-    } else if(isViewDetached(record)){
+    } else if(AppBskyEmbedRecord.isViewDetached(record)){
         return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
             Eliminado
         </div>
-    } else if(isViewBlocked(record)){
+    } else if(AppBskyEmbedRecord.isViewBlocked(record)){
         return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
             Contenido bloqueado
         </div>
-    } else if(isViewNotFound(record)){
+    } else if(AppBskyEmbedRecord.isViewNotFound(record)){
         return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
             No encontrado
         </div>
@@ -102,7 +110,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
 }
 
 type PostRecordEmbedProps = {
-    embed: RecordEmbedView
+    embed: AppBskyEmbedRecord.View
     mainPostRef?: ATProtoStrongRef
     navigateOnClick?: boolean
 }

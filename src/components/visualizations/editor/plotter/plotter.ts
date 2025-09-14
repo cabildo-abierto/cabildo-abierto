@@ -2,11 +2,7 @@ import {ScaleConfig} from "@visx/scale";
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {useTooltip} from "@visx/tooltip";
 import {AxisScaleOutput} from "@visx/axis";
-import {
-    ColumnFilter,
-    isColumnFilter,
-    Main as Visualization
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {DataParser} from "@/components/visualizations/editor/plotter/data-parser";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
@@ -40,15 +36,15 @@ export class Plotter {
     public parser: DataParser = new DataParser()
     public columns: Column[]
     protected columnNames: string[]
-    public spec: Visualization["spec"]
+    public spec: ArCabildoabiertoEmbedVisualization.Main["spec"]
     public dataset: DatasetForTableView
-    protected filters: Visualization["filters"]
+    protected filters: ArCabildoabiertoEmbedVisualization.Main["filters"]
     protected columnTypes: Map<string, DataType> = new Map()
 
     constructor(
-        spec: Visualization["spec"],
+        spec: ArCabildoabiertoEmbedVisualization.Main["spec"],
         dataset: DatasetForTableView,
-        filters?: Visualization["filters"]
+        filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]
     ) {
         this.spec = spec
         this.filters = filters
@@ -67,7 +63,7 @@ export class Plotter {
         return keys.length == this.columnNames.length
     }
 
-    checkFilter(f: ColumnFilter){
+    checkFilter(f: ArCabildoabiertoEmbedVisualization.ColumnFilter){
         return (r: DataRow): boolean => {
             if(f.operator == "includes"){
                 const type = this.columnTypes.get(f.column)
@@ -105,7 +101,7 @@ export class Plotter {
     applyFilters(){
         if(this.filters){
             for(const f of this.filters){
-                if(isColumnFilter(f)){
+                if(ArCabildoabiertoEmbedVisualization.isColumnFilter(f)){
                     this.data = this.data.filter(this.checkFilter(f))
                 }
             }

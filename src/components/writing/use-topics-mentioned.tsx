@@ -1,10 +1,11 @@
 import {useEffect, useState} from "react";
-import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {LexicalEditor} from "lexical";
 import {post} from "@/utils/fetch";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+
 
 export const useTopicsMentioned = (initialTitle?: string) => {
-    const [topicsMentioned, setTopicsMentioned] = useState<TopicMention[]>([])
+    const [topicsMentioned, setTopicsMentioned] = useState<ArCabildoabiertoFeedDefs.TopicMention[]>([])
     const [lastMentionsFetch, setLastMentionsFetch] = useState(new Date(0))
     const [lastTextChange, setLastTextChange] = useState(new Date(0))
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
@@ -27,9 +28,9 @@ export const useTopicsMentioned = (initialTitle?: string) => {
                         const { editorStateToMarkdownNoEmbeds } = await import("../../../modules/ca-lexical-editor/src/markdown-transforms");
 
                         const mdText = editorStateToMarkdownNoEmbeds(editorStateStr);
-                        let data: TopicMention[] = []
+                        let data: ArCabildoabiertoFeedDefs.TopicMention[] = []
                         if (mdText.length + title.length > 0) {
-                            data = (await post<{ title: string; text: string }, TopicMention[]>(
+                            data = (await post<{ title: string; text: string }, ArCabildoabiertoFeedDefs.TopicMention[]>(
                                 `/get-topics-mentioned`,
                                 {title, text: mdText}
                             )).data

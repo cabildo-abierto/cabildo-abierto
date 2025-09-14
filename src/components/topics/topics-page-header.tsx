@@ -1,10 +1,8 @@
 import {useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {Button} from "../../../modules/ui-utils/src/button";
-
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {GraphIcon, ListBulletsIcon, StackIcon} from "@phosphor-icons/react"
-
 import dynamic from "next/dynamic";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 import AddIcon from "@mui/icons-material/Add";

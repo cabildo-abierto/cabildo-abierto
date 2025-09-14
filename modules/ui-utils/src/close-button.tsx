@@ -1,7 +1,8 @@
 import {IconButton} from "./icon-button"
 import {CloseButtonIcon} from "@/components/icons/close-button-icon"
 import {stopPropagation} from "@/utils/utils";
-import {Color} from "./button";
+
+import {Color} from "./color";
 
 
 export const CloseButton = ({onClose, size, color="background-dark"}: {

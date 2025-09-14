@@ -1,33 +1,35 @@
 "use client"
 import {PostPreviewFrame} from '../frame/post-preview-frame'
-import {ArticleView, FeedViewContent, TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
-import {$Typed} from "@atproto/api";
-import {Color, darker} from "@/../modules/ui-utils/src/button"
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index";
+import {$Typed} from "@/lex-api/util";
+import {darker} from "@/../modules/ui-utils/src/button"
 import {Box} from "@mui/material";
-import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
-import dynamic from "next/dynamic";
-const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
-    ssr: false,
-    loading: () => <></>,
-});
+import {AppBskyFeedDefs} from "@atproto/api";
+import ReadOnlyEditor from "@/components/editor/read-only-editor";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
+import {Color} from "../../../../modules/ui-utils/src/color";
 
 
 export type ArticlePreviewProps = {
-    feedViewContent: FeedViewContent
-    articleView: $Typed<ArticleView>
+    feedViewContent: ArCabildoabiertoFeedDefs.FeedViewContent
+    articleView: $Typed<ArCabildoabiertoFeedDefs.ArticleView>
     repostedBy?: { displayName?: string, handle: string }
     showingChildren?: boolean
 }
 
 
 export const ArticlePreviewContent = ({
-                                          color = "background", title, summary, mentions, clickable = true}: {
+                                          color = "background",
+                                          title,
+                                          summary,
+                                          mentions,
+                                          clickable = true
+                                      }: {
     color?: Color
     clickable?: boolean,
     title: string,
     summary: string
-    mentions?: TopicMention[]
+    mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
 }) => {
     return <Box
         className={"border rounded-lg p-2"}
@@ -56,10 +58,10 @@ export const ArticlePreviewContent = ({
 export const ArticlePreview = (
     {articleView, feedViewContent, showingChildren = false}: ArticlePreviewProps
 ) => {
-    const article = articleView.record as ArticleRecord
+    const article = articleView.record as ArCabildoabiertoFeedArticle.Record
     const summary = articleView.summary
     const title = article.title
-    const reason = feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
+    const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
 
     return <PostPreviewFrame
         postView={articleView}

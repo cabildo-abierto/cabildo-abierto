@@ -1,15 +1,12 @@
-import {$Typed} from "@atproto/api";
-import {
-    Eleccion,
-    View as VisualizationView
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {$Typed} from "@/lex-api/util";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ElectionMap} from "@/components/visualizations/editor/election/election-map";
 import {isDatasetView, isTopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {useEffect, useRef, useState} from "react";
 
 type Props = {
-    spec: $Typed<Eleccion>
-    visualization: VisualizationView
+    spec: $Typed<ArCabildoabiertoEmbedVisualization.Eleccion>
+    visualization: ArCabildoabiertoEmbedVisualization.View
     maxWidth: number | undefined
     maxHeight: number | undefined
 }

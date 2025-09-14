@@ -5,7 +5,6 @@ import {FollowButton} from "@/components/profile/profile-utils";
 import BlueskyLogo from "@/components/icons/bluesky-logo";
 import {emptyChar} from "@/utils/utils";
 import React from "react";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from "next/dynamic";
 import { CloseButton } from "../../../modules/ui-utils/src/close-button";
@@ -13,6 +12,7 @@ import {post} from "@/utils/fetch";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
 const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
     ssr: false,
@@ -21,7 +21,7 @@ const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-edito
 
 
 type UserSearchResultProps = {
-    user: ProfileViewBasic & {
+    user: ArCabildoabiertoActorDefs.ProfileViewBasic & {
         description?: string
     }
     showFollowButton?: boolean
@@ -38,11 +38,11 @@ function optimisticSetNotInterested(qc: QueryClient, subject: string){
                 if (!old) return old
 
                 if(q.queryKey[0] == "follow-suggestions"){
-                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                    return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
                         draft.profiles = draft.profiles.filter(x => x.did != subject)
                     })
                 } else if(q.queryKey[0] == "follow-suggestions-feed"){
-                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
                         for(let i = 0; i < draft.pages.length; i++){
                             draft.pages[i].data = draft.pages[i].data
                                 .filter(x => x.did != subject)

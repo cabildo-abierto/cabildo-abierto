@@ -1,11 +1,10 @@
 import {EditHistory} from "./history/edit-history";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export const TopicContentHistory = ({
     topic
 }: {
-    topic: TopicView
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
 }) => {
     return <div className={"w-full mb-32"}>
         <EditHistory topic={topic}/>

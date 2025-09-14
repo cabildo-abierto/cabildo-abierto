@@ -4,13 +4,13 @@ import {useSearchParams} from "next/navigation";
 import {useTopicWithNormalizedContent} from "@/queries/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {updateSearchParams} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {MobileHeader} from "@/components/layout/mobile-header";
 import TopicTutorial from "@/components/tutorial/topic-tutorial";
 import {getUri} from "@/utils/uri";
 import {WikiEditorState} from "@/lib/types";
+import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion"))
 const TopicContent = dynamic(() => import("./topic-content"))
@@ -56,7 +56,7 @@ export const TopicPage = ({topicId, did, rkey}: {
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
     if (topicQuery.isLoading || topic == "loading") {
-        return <div>
+        return <div className={"py-16"}>
             <LoadingSpinner/>
         </div>
     }

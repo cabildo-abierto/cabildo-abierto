@@ -1,7 +1,6 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {usePendingValidationRequests} from "@/queries/admin";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
-import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";
 import {DateSince} from "../../../modules/ui-utils/src/date";
@@ -15,8 +14,10 @@ import {DownloadIcon} from "@phosphor-icons/react";
 import Image from "next/image"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {post} from "@/utils/fetch";
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
-export type ValidationRequestView = { id: string, user: ProfileViewBasicCA, createdAt: Date } & ({
+
+export type ValidationRequestView = { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date } & ({
     tipo: "persona"
     dniFrente: FilePayload
     dniDorso: FilePayload

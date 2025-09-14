@@ -1,8 +1,8 @@
 import {useState} from "react";
 import {TopicChangesModal} from "@/components/topics/topic/topic-changes-modal";
-import {TopicHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
-type CharsCounterProps = { charsAdded: number, charsDeleted: number, uri: string, prevUri: string, history: TopicHistory }
+type CharsCounterProps = { charsAdded: number, charsDeleted: number, uri: string, prevUri: string, history: ArCabildoabiertoWikiTopicVersion.TopicHistory }
 
 
 export const ChangesCounter = ({charsAdded, charsDeleted, uri, prevUri, history}: CharsCounterProps) => {

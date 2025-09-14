@@ -19,6 +19,7 @@ import {Draft, useDraft} from "@/queries/useDrafts"
 import {SaveDraftArticleButton} from "@/components/writing/article/save-draft-article-button";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import {robotoSerif} from "@/components/editor/article-font";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -41,7 +42,7 @@ const articleEditorSettings = (smallScreen: boolean, draft?: Draft) => getEditor
 
     placeholder: "Escribí tu artículo...",
     isReadOnly: false,
-    editorClassName: "article-content relative pt-4",
+    editorClassName: `article-content relative ${robotoSerif.variable} pt-4`,
     placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[15px] pt-[32px]",
 
     topicMentions: false
@@ -146,7 +147,7 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
                 </div>
             </div>
         </div>
-        <div className={"mt-8 px-4"}>
+        <div className={`mt-8 px-4`}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}

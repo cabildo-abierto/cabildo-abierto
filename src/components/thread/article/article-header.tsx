@@ -2,11 +2,11 @@ import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/thread/article/reading-time";
 import {getNumWords} from "../../../../modules/ca-lexical-editor/src/get-num-words";
-import {FullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Authorship} from "@/components/feed/frame/authorship";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
-export const ArticleHeader = ({article}: {article: FullArticleView}) => {
+export const ArticleHeader = ({article}: {article: ArCabildoabiertoFeedDefs.FullArticleView}) => {
     return <>
         <TopicsMentioned mentions={article.topicsMentioned}/>
         <h1 className="text-4xl mt-8 mb-8">

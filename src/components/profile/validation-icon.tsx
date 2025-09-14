@@ -1,8 +1,8 @@
 import {ValidationState} from "@/lib/types";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {topicUrl} from "@/utils/uri";
-import { Color } from "../../../modules/ui-utils/src/button";
 import {CheckCircleIcon, UserCircleIcon} from "@phosphor-icons/react";
+import {Color} from "../../../modules/ui-utils/src/color";
 
 
 const ValidationIcon = ({handle, validation, fontSize = 22, iconColor="button-text", color="primary"}: {

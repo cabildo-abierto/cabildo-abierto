@@ -2,9 +2,7 @@
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
 import {useConversations} from "@/queries/useConversations";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {ConvoView} from "@atproto/api/src/client/types/chat/bsky/convo/defs";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {isMessageView} from "@/lex-api/types/chat/bsky/convo/defs"
 import {chatUrl} from "@/utils/uri";
 import Link from "next/link";
 import {Button} from "../../../../modules/ui-utils/src/button";
@@ -17,6 +15,7 @@ import UserSearchResults from "@/components/buscar/user-search-results";
 import {post} from "@/utils/fetch";
 import {useRouter} from "next/navigation";
 import {useSession} from "@/queries/useSession";
+import { ChatBskyConvoDefs } from "@atproto/api";
 
 
 const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -96,7 +95,7 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
 }
 
 
-const ConversationCard = ({view}: { view: ConvoView }) => {
+const ConversationCard = ({view}: { view: ChatBskyConvoDefs.ConvoView }) => {
     const {user} = useSession()
     const other = view.members.filter(x => x.did != user.did)[0]
     return <Link
@@ -112,7 +111,7 @@ const ConversationCard = ({view}: { view: ConvoView }) => {
                 {`@${other.handle}`}
             </div>
             <div>
-                {isMessageView(view.lastMessage) && <div className={"text-sm"}>
+                {ChatBskyConvoDefs.isMessageView(view.lastMessage) && <div className={"text-sm"}>
                     {view.lastMessage.sender.did == user.did ? "Vos: " : ""}{view.lastMessage.text.slice(0, 80) + (view.lastMessage.text.length > 80 ? "..." : "")}
                 </div>}
             </div>

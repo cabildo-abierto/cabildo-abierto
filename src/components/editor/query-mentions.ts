@@ -1,9 +1,10 @@
 import {QueryMentionsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {get} from "@/utils/fetch";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-mention-component";
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
-function profileViewBasicToMentionProps(p: ProfileViewBasic): MentionProps {
+
+function profileViewBasicToMentionProps(p: ArCabildoabiertoActorDefs.ProfileViewBasic): MentionProps {
     return {
         did: p.did,
         handle: p.handle,
@@ -16,7 +17,7 @@ function profileViewBasicToMentionProps(p: ProfileViewBasic): MentionProps {
 export const queryMentions: QueryMentionsProps = async (trigger, query) => {
     const encodedQuery = encodeURIComponent(query)
     if(encodedQuery.trim().length == 0) return []
-    const {error, data} = await get<ProfileViewBasic[]>(`/search-users/${encodedQuery}`)
+    const {error, data} = await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>(`/search-users/${encodedQuery}`)
     if(error || !data) return []
     return data.map(profileViewBasicToMentionProps)
 }

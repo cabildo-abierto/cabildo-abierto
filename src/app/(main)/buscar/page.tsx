@@ -1,5 +1,4 @@
 "use client"
-import {SearchContent} from "@/components/buscar/search-content";
 import {useSearchParams} from "next/navigation";
 import React, {useEffect} from "react";
 import {useSearch} from "@/components/buscar/search-context";
@@ -9,7 +8,7 @@ import FollowSuggestions from "@/components/layout/follow-suggestions";
 import {TrendingTopicsPanel} from "@/components/topics/trending-topics/trending-topics";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {MagnifyingGlassIcon} from "@phosphor-icons/react";
-
+import SearchContent from "@/components/buscar/search-content";
 
 
 const Page = () => {

@@ -1,10 +1,3 @@
-import {
-    isDateProp, isNumberProp,
-    isStringListProp,
-    isStringProp,
-    TopicProp,
-    TopicView, validateTopicProp
-} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useEffect, useState} from "react";
 import {Box, IconButton, TextField} from "@mui/material";
 import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
@@ -22,6 +15,7 @@ import 'dayjs/locale/es';
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 function getDescriptionForProp(propName: string) {
     if (propName == "Categorías") {
@@ -35,8 +29,8 @@ function getDescriptionForProp(propName: string) {
 }
 
 export const TopicPropEditor = ({p, setProp, deleteProp}: {
-    p: TopicProp,
-    setProp: (p: TopicProp) => void,
+    p: ArCabildoabiertoWikiTopicVersion.TopicProp,
+    setProp: (p: ArCabildoabiertoWikiTopicVersion.TopicProp) => void,
     deleteProp: () => void
 }) => {
     const isDefault = isDefaultProp(p)
@@ -84,14 +78,14 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 </span>
                 </Box>
             </Button>
-            {isStringListProp(p.value) && <ListEditor
+            {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
                 items={p.value.value}
                 setItems={(values: string[]) => {
                     setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
                 }}
                 options={p.name == "Categorías" && categories ? categories : []}
             />}
-            {isStringProp(p.value) && <TextField
+            {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
                 value={p.value.value}
                 size={"small"}
                 onChange={(e) => {
@@ -105,7 +99,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                     })
                 }}
             />}
-            {isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
+            {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
                 value={isNaN(p.value.value) ? 0 : p.value.value}
                 size={"small"}
                 onChange={(e) => {
@@ -119,7 +113,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                     })
                 }}
             />}
-            {isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+            {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                 <DatePicker
                     label={"Fecha"}
                     value={dayjs(p.value.value).locale('es')}
@@ -151,12 +145,12 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
 }
 
 
-export function addDefaults(props: TopicProp[], topic: TopicView): TopicProp[] {
+export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], topic: ArCabildoabiertoWikiTopicVersion.TopicView): ArCabildoabiertoWikiTopicVersion.TopicProp[] {
     if (!props) props = []
-    const newProps: TopicProp[] = []
+    const newProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
     for (let i = 0; i < props.length; i++) {
         const p = props[i]
-        const valid = validateTopicProp(p)
+        const valid = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
         if (!valid.success) {
             if (isKnownProp(p.value)) {
                 newProps.push({
@@ -190,7 +184,7 @@ export function addDefaults(props: TopicProp[], topic: TopicView): TopicProp[] {
 }
 
 
-export function propsEqual(props1: TopicProp[], props2: TopicProp[]) {
+export function propsEqual(props1: ArCabildoabiertoWikiTopicVersion.TopicProp[], props2: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
     if (props1.length != props2.length) {
         return false
     }
@@ -203,7 +197,7 @@ export function propsEqual(props1: TopicProp[], props2: TopicProp[]) {
 }
 
 
-export function defaultPropValue(name: string, type: PropValueType, topic: TopicView): PropValue {
+export function defaultPropValue(name: string, type: PropValueType, topic: ArCabildoabiertoWikiTopicVersion.TopicView): PropValue {
     if (name == "Título") {
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
@@ -240,7 +234,7 @@ export function defaultPropValue(name: string, type: PropValueType, topic: Topic
 }
 
 
-export function isDefaultProp(p: TopicProp) {
+export function isDefaultProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
     return ["Título", "Sinónimos", "Categorías"].includes(p.name)
 }
 
@@ -306,18 +300,18 @@ function NewPropModal({open, onClose, onAddProp}: {
 }
 
 
-function validProps(props: TopicProp[]) {
+function validProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
     return props.filter(p => {
-        const res = validateTopicProp(p)
+        const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
         return res.success
     })
 }
 
 
 export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
-    props: TopicProp[],
-    setProps: (props: TopicProp[]) => void,
-    topic: TopicView,
+    props: ArCabildoabiertoWikiTopicVersion.TopicProp[],
+    setProps: (props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) => void,
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView,
     onClose: () => void
 }) => {
     const [creatingProp, setCreatingProp] = useState(false)
@@ -329,7 +323,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
         }
     }, [])
 
-    function setProp(p: TopicProp) {
+    function setProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
         if (props.some(p2 => p2.name == p.name)) {
             const newProps = [...props]
             const index = newProps.findIndex(p2 => p2.name == p.name)

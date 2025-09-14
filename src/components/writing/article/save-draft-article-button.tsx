@@ -1,9 +1,9 @@
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {EditorState} from "lexical";
 import {post, updateSearchParam} from "@/utils/fetch";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 
 
 type CreateDraftParams = {
@@ -11,7 +11,7 @@ type CreateDraftParams = {
     collection: "ar.cabildoabierto.feed.article" | "app.bsky.feed.post"
     text: string
     title: string
-    embeds?: ArticleEmbedView[]
+    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
 }
 

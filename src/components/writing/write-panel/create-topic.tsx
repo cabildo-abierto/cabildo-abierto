@@ -11,12 +11,11 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import {post} from "@/utils/fetch";
 import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {useQueryClient} from "@tanstack/react-query";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
 import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export const createTopic = async (id: string) => {
     id = id.trim()
@@ -51,7 +50,7 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
     const [goToArticle, setGoToArticle] = useState(true)
     const [selected, setSelected] = useState(initialSelected)
     const qc = useQueryClient()
-    const [results, setResults] = useState<TopicViewBasic[] | "loading" | null>(null)
+    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading" | null>(null)
 
     async function search(v: string) {
         setResults("loading")

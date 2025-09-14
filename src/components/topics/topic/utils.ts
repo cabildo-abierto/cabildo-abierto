@@ -1,17 +1,7 @@
 import {EditorStatus} from "@/lib/types";
-
-import {
-    BooleanProp,
-    DateProp,
-    isBooleanProp,
-    isDateProp,
-    isNumberProp,
-    isStringListProp, isStringProp, NumberProp, StringListProp, StringProp,
-    TopicProp,
-    TopicVersionStatus
-} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {areArraysEqual, gett} from "@/utils/arrays";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
+import { ArCabildoabiertoWikiTopicVersion } from "@/lex-api";
 
 
 export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" |
@@ -20,9 +10,9 @@ export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp"
     "ar.cabildoabierto.wiki.topicVersion#numberProp" |
     "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 
-export type PropValue = TopicProp["value"]
+export type PropValue = ArCabildoabiertoWikiTopicVersion.TopicProp["value"]
 
-export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<StringProp> | $Typed<DateProp> | $Typed<NumberProp> | $Typed<BooleanProp> {
+export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopicVersion.StringListProp> | $Typed<ArCabildoabiertoWikiTopicVersion.StringProp> | $Typed<ArCabildoabiertoWikiTopicVersion.DateProp> | $Typed<ArCabildoabiertoWikiTopicVersion.NumberProp> | $Typed<ArCabildoabiertoWikiTopicVersion.BooleanProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp" ||
@@ -32,15 +22,15 @@ export function isKnownProp(p: PropValue): p is $Typed<StringListProp> | $Typed<
 
 export function propsEqualValue(a: PropValue, b: PropValue) {
     if(a.$type != b.$type) return false
-    if(isStringListProp(a) && isStringListProp(b)){
+    if(ArCabildoabiertoWikiTopicVersion.isStringListProp(a) && ArCabildoabiertoWikiTopicVersion.isStringListProp(b)){
         return areArraysEqual(a.value, b.value)
-    } else if(isStringProp(a) && isStringProp(b)){
+    } else if(ArCabildoabiertoWikiTopicVersion.isStringProp(a) && ArCabildoabiertoWikiTopicVersion.isStringProp(b)){
         return a.value == b.value
-    } else if(isDateProp(a) && isDateProp(b)){
+    } else if(ArCabildoabiertoWikiTopicVersion.isDateProp(a) && ArCabildoabiertoWikiTopicVersion.isDateProp(b)){
         return a.value == b.value
-    } else if(isBooleanProp(a) && isBooleanProp(b)){
+    } else if(ArCabildoabiertoWikiTopicVersion.isBooleanProp(a) && ArCabildoabiertoWikiTopicVersion.isBooleanProp(b)){
         return a.value == b.value
-    } else if(isNumberProp(a) && isNumberProp(b)){
+    } else if(ArCabildoabiertoWikiTopicVersion.isNumberProp(a) && ArCabildoabiertoWikiTopicVersion.isNumberProp(b)){
         return a.value == b.value
     } else {
         throw Error(`Tipo de propiedad desconocido: ${a.$type} ${b.$type}`)
@@ -48,13 +38,13 @@ export function propsEqualValue(a: PropValue, b: PropValue) {
 }
 
 
-export function getTopicCategories(props?: TopicProp[]): string[] {
+export function getTopicCategories(props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]): string[] {
     const c = getTopicProp("Categorías", props)
-    return c && isStringListProp(c.value) ? c.value.value : []
+    return c && ArCabildoabiertoWikiTopicVersion.isStringListProp(c.value) ? c.value.value : []
 }
 
 
-export function getAcceptCount(status: TopicVersionStatus){
+export function getAcceptCount(status: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus){
     let accepts = 0
     status.voteCounts.forEach(v => {
         accepts += v.accepts
@@ -63,7 +53,7 @@ export function getAcceptCount(status: TopicVersionStatus){
 }
 
 
-export function getRejectCount(status: TopicVersionStatus){
+export function getRejectCount(status: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus){
     let rejects = 0
     status.voteCounts.forEach(v => {
         rejects += v.rejects
@@ -72,7 +62,7 @@ export function getRejectCount(status: TopicVersionStatus){
 }
 
 
-export function getTopicProp(prop: string, props?: TopicProp[]): TopicProp | null {
+export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]): ArCabildoabiertoWikiTopicVersion.TopicProp | null {
     const d = getPropsDict(props)
     if(d.has(prop)){
         return gett(d, prop)
@@ -82,21 +72,21 @@ export function getTopicProp(prop: string, props?: TopicProp[]): TopicProp | nul
 }
 
 
-export function getTopicTitle(topic: {id: string, props?: TopicProp[]}): string {
+export function getTopicTitle(topic: {id: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]}): string {
     const t = getTopicProp("Título", topic.props)
-    return t && isStringProp(t.value) && t.value.value != null ? t.value.value : topic.id
+    return t && ArCabildoabiertoWikiTopicVersion.isStringProp(t.value) && t.value.value != null ? t.value.value : topic.id
 }
 
 
-export function getTopicProtection(props: TopicProp[]): string {
+export function getTopicProtection(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]): string {
     const p = getTopicProp("Protección", props)
-    return p && isStringProp(p.value) ? p.value.value : "Principiante"
+    return p && ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) ? p.value.value : "Principiante"
 }
 
 
-export function getPropsDict(props?: TopicProp[]) {
-    if(!props) return new Map<string, TopicProp>()
-    return new Map<string, TopicProp>(props.map(p => [p.name, p]))
+export function getPropsDict(props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
+    if(!props) return new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>()
+    return new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>(props.map(p => [p.name, p]))
 }
 
 export function validEntityName(name: string) {

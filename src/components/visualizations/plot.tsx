@@ -1,16 +1,3 @@
-import {
-    isDatasetDataSource,
-    View as VisualizationView,
-    Main as Visualization,
-    DatasetDataSource, isTwoAxisPlot, isOneAxisPlot, isTopicsDataSource, TopicsDataSource, isTable,
-    isEleccion
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {
-    DatasetView,
-    isDatasetView,
-    isTopicsDatasetView,
-    TopicsDatasetView
-} from "@/lex-api/types/ar/cabildoabierto/data/dataset"
 import {useDataset} from "@/queries/useDataset";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
@@ -20,7 +7,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import {pxToNumber} from "@/utils/strings";
 import TableVisualizationComp from "@/components/visualizations/table-visualization-comp";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
@@ -29,6 +16,7 @@ import {DateSince} from "../../../modules/ui-utils/src/date";
 import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
 import {ElectionVisualizationComp} from "@/components/visualizations/editor/election/election-visualization-comp";
+import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoDataDataset} from "@/lex-api"
 
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
@@ -39,23 +27,23 @@ export const ResponsivePlot = ({
                                    maxWidth,
                                    maxHeight
                                }: {
-    visualization: VisualizationView
+    visualization: ArCabildoabiertoEmbedVisualization.View
     maxWidth?: number
     maxHeight?: number
 }) => {
-    if (isTwoAxisPlot(visualization.visualization.spec) || isOneAxisPlot(visualization.visualization.spec)) {
+    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(visualization.visualization.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(visualization.visualization.spec)) {
         return <TwoAxisPlotComp
             spec={visualization.visualization.spec}
             visualization={visualization}
             maxWidth={maxWidth}
             maxHeight={maxHeight}
         />
-    } else if (isTable(visualization.visualization.spec)) {
+    } else if (ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec)) {
         return <TableVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
         />
-    } else if(isEleccion(visualization.visualization.spec)) {
+    } else if(ArCabildoabiertoEmbedVisualization.isEleccion(visualization.visualization.spec)) {
         return <ElectionVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
@@ -70,13 +58,13 @@ export const ResponsivePlot = ({
 };
 
 
-const PlotData = ({visualization}: { visualization: VisualizationView }) => {
+const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisualization.View }) => {
     const dataset = visualization.dataset
 
-    const href = isDatasetView(dataset) ? contentUrl(dataset.uri) : null
+    const href = ArCabildoabiertoDataDataset.isDatasetView(dataset) ? contentUrl(dataset.uri) : null
 
     const modal = (onClose: () => void) => <div className={""}>
-        {isDatasetView(dataset) && <div
+        {ArCabildoabiertoDataDataset.isDatasetView(dataset) && <div
             className={"py-2 space-y-1 rounded-lg px-2 cursor-pointer bg-[var(--background-dark)]" + (href ? " hover:bg-[var(--background-dark2)]" : "")}
             onClick={(e) => {e.stopPropagation(); if(href) window.open(href, "_blank")}}
         >
@@ -96,7 +84,7 @@ const PlotData = ({visualization}: { visualization: VisualizationView }) => {
                 Hace <DateSince date={dataset.createdAt}/>
             </div>
         </div>}
-        {isTopicsDatasetView(dataset) && <div
+        {ArCabildoabiertoEmbedVisualization.isTopicsDataSource(dataset) && <div
             className={"py-2 space-y-1 rounded-lg px-2 text-sm text-[var(--text-light)] cursor-pointer bg-[var(--background-dark)]"}
         >
             <div className={"font-semibold text-[var(--text)]"}>
@@ -122,26 +110,26 @@ const PlotData = ({visualization}: { visualization: VisualizationView }) => {
 }
 
 
-export const Plot = ({
+export default function Plot ({
                          visualization,
                          height,
                          width,
                          onEdit,
                          onDelete
                      }: {
-    visualization: VisualizationView
+    visualization: ArCabildoabiertoEmbedVisualization.View
     height?: number | string
     width?: number | string
-    onEdit?: (v: Visualization) => void
+    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
     onDelete?: () => void
-}) => {
+}) {
     const [editing, setEditing] = useState(false)
 
     return <div style={{height, width}} className={"relative not-article-content"}>
         <div
             className={"absolute top-2 left-2 z-[20]"}
         >
-            {!isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
+            {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
         </div>
         {(onEdit || onDelete) && <div className={"absolute top-2 right-2 z-[20] flex space-x-2"}>
             {onEdit && <div
@@ -182,7 +170,9 @@ export const Plot = ({
 };
 
 
-function getDatasetVisualizationView(visualization: Visualization, dataset: $Typed<DatasetView> | $Typed<TopicsDatasetView>): VisualizationView {
+function getDatasetVisualizationView(
+    visualization: ArCabildoabiertoEmbedVisualization.Main,
+    dataset: $Typed<ArCabildoabiertoDataDataset.DatasetView> | $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView>): ArCabildoabiertoEmbedVisualization.View {
     return {
         visualization,
         dataset,
@@ -192,11 +182,11 @@ function getDatasetVisualizationView(visualization: Visualization, dataset: $Typ
 
 
 const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
-    visualization: Visualization
-    dataSource: DatasetDataSource
+    visualization: ArCabildoabiertoEmbedVisualization.Main
+    dataSource: ArCabildoabiertoEmbedVisualization.DatasetDataSource
     width?: number | string
     height?: number | string
-    onEdit?: (v: Visualization) => void
+    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
     onDelete?: () => void
 }) => {
     const {data: dataset, isLoading} = useDataset(dataSource.dataset)
@@ -215,11 +205,11 @@ const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, 
 
 
 const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
-    visualization: Visualization
-    dataSource: TopicsDataSource
+    visualization: ArCabildoabiertoEmbedVisualization.Main
+    dataSource: ArCabildoabiertoEmbedVisualization.TopicsDataSource
     width?: number | string
     height?: number | string
-    onEdit?: (v: Visualization) => void
+    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
     onDelete?: () => void
 }) => {
     const {data, isLoading} = useTopicsDataset(visualization.filters, true)
@@ -240,13 +230,13 @@ const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, on
 
 
 export const PlotFromVisualizationMain = ({visualization, height, width, onEdit, onDelete}: {
-    visualization: Visualization
+    visualization: ArCabildoabiertoEmbedVisualization.Main
     height?: number | string
     width?: number | string
-    onEdit?: (v: Visualization) => void
+    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
     onDelete?: () => void
 }) => {
-    if (isDatasetDataSource(visualization.dataSource)) {
+    if (ArCabildoabiertoEmbedVisualization.isDatasetDataSource(visualization.dataSource)) {
         return <DatasetPlotFromMain
             visualization={visualization}
             dataSource={visualization.dataSource}
@@ -255,7 +245,7 @@ export const PlotFromVisualizationMain = ({visualization, height, width, onEdit,
             onEdit={onEdit}
             onDelete={onDelete}
         />
-    } else if (isTopicsDataSource(visualization.dataSource)) {
+    } else if (ArCabildoabiertoEmbedVisualization.isTopicsDataSource(visualization.dataSource)) {
         return <TopicsDatasetPlotFromMain
             visualization={visualization}
             dataSource={visualization.dataSource}

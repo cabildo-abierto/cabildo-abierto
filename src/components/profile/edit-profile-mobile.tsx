@@ -15,7 +15,7 @@ import FullscreenImageViewer from "@/components/images/fullscreen-image-viewer";
 import {useProfile} from "@/queries/useProfile";
 import EditImageModal from "@/components/profile/edit-image-modal";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";
-import {Record as ProfileRecord, validateRecord as validateProfileRecord} from "@/lex-api/types/app/bsky/actor/profile"
+import {AppBskyActorProfile} from "@atproto/api"
 
 type Props = {
     open: boolean,
@@ -96,13 +96,13 @@ type UpdateProfileProps = {
 
 
 function validDescription(d: string){
-    const p: ProfileRecord = {
+    const p: AppBskyActorProfile.Record = {
         $type: "app.bsky.actor.profile",
         displayName: "test",
         handle: "test",
         description: d
     }
-    const res = validateProfileRecord(p)
+    const res = AppBskyActorProfile.validateRecord(p)
     return res.success
 }
 

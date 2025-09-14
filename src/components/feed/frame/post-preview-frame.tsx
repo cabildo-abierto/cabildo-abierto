@@ -6,22 +6,16 @@ import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
 import {urlFromRecord, profileUrl, getCollectionFromUri, isPost} from "@/utils/uri";
 import {emptyChar} from "@/utils/utils";
-import {ReasonRepost} from '@/lex-api/types/app/bsky/feed/defs'
-import {
-    ArticleView,
-    FullArticleView,
-    PostView,
-    isPostView,
-    ThreadViewContent
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {$Typed} from "@atproto/api";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {AppBskyFeedDefs} from "@atproto/api"
+import {$Typed} from "@/lex-api/util";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
 import { CustomLink } from '../../../../modules/ui-utils/src/custom-link'
 
 
-export const hasEnDiscusionLabel = (postView: PostView | ArticleView | FullArticleView) => {
+export const hasEnDiscusionLabel = (postView: ArCabildoabiertoFeedDefs.PostView | ArCabildoabiertoFeedDefs.ArticleView | ArCabildoabiertoFeedDefs.FullArticleView) => {
     const labels = postView.labels
     return labels && labels.some((x) => x.val == "ca:en discusión")
 }
@@ -33,11 +27,11 @@ export const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
 
 type FastPostPreviewFrameProps = {
     children: ReactNode
-    postView: $Typed<PostView> | $Typed<ArticleView>
+    postView: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView>
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
-    reason?: ReasonRepost
+    reason?: AppBskyFeedDefs.ReasonRepost
     pageRootUri?: string
 }
 
@@ -63,7 +57,7 @@ export const PostPreviewFrame = ({
         if(isPost(getCollectionFromUri(postView.uri)) && !isOptimistic){
             qc.setQueryData(threadQueryKey(postView.uri), old => {
                 if(old) return old
-                const t: ThreadViewContent = {
+                const t: ArCabildoabiertoFeedDefs.ThreadViewContent = {
                     $type: "ar.cabildoabierto.feed.defs#threadViewContent",
                     content: postView,
                     replies: null
@@ -81,7 +75,7 @@ export const PostPreviewFrame = ({
         onClick={!isOptimistic ? onClick : undefined}
         href={!isOptimistic ? url : undefined}
     >
-        {isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
+        {ArCabildoabiertoFeedDefs.isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full items-stretch"}>
             <div className="max-w-[13%] w-full flex flex-col items-center px-2">

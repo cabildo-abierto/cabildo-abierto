@@ -1,14 +1,11 @@
-import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {ProfileViewBasic as ProfileViewBasicCA} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 import {PostOutput} from "@/utils/fetch";
-
+import {ArCabildoabiertoActorDefs, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
+import {AppBskyActorDefs} from "@atproto/api"
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
 export type Profile = {
-    bsky: ProfileViewDetailed
+    bsky: AppBskyActorDefs.ProfileViewDetailed
     ca: CAProfile | null
 }
 
@@ -83,7 +80,6 @@ export type Account = {
 }
 
 
-export type PostRecord = BskyPostRecord
 export type ATProtoStrongRef = {
     uri: string
     cid: string
@@ -96,15 +92,15 @@ export type FastPostReplyProps = {
 }
 
 
-export type TopicContributor = {profile: ProfileViewBasicCA, all: number, monetized: number}
+export type TopicContributor = {profile: ArCabildoabiertoActorDefs.ProfileViewBasic, all: number, monetized: number}
 
 export type TopicVersionChangesProps = {
     prevText: string
     prevFormat: string | undefined
     curText: string
     curFormat: string | undefined
-    curAuthor: ProfileViewBasicCA
-    prevAuthor: ProfileViewBasicCA
+    curAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
+    prevAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
     diff: MatchesType
 }
 
@@ -140,7 +136,7 @@ export type DeepPartial<T> = {
 };
 
 
-export type PlotConfigProps = DeepPartial<Visualization>
+export type PlotConfigProps = DeepPartial<ArCabildoabiertoEmbedVisualization.Main>
 
 
 export type GetFeedProps<T> = (_?: string) => PostOutput<GetFeedOutput<T>>

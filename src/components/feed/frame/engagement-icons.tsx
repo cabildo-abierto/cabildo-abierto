@@ -2,21 +2,25 @@ import {ContentOptionsButton} from "@/components/feed/content-options/content-op
 import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
 import {FixedCounter} from "./reaction-counter"
 import {contentUrl, getCollectionFromUri} from "@/utils/uri";
-import {ArticleView, FullArticleView, isArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs"
 import React, {useState} from "react";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import {RepostCounter} from "@/components/feed/frame/repost-counter";
 import {LikeCounter} from "@/components/feed/frame/like-counter";
-import WritePanel from "@/components/writing/write-panel/write-panel";
 import {useRouter} from "next/navigation";
+import dynamic from "next/dynamic";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
+    ssr: false
+})
+
 
 type EngagementIconsProps = {
-    content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
+    content: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     className?: string
     small?: boolean
     enDiscusion?: boolean
 }
-
 
 
 export const EngagementIcons = ({
@@ -29,7 +33,7 @@ export const EngagementIcons = ({
     const router = useRouter()
 
     const onClickRepliesButton = () => {
-        if (isArticleView(content)) {
+        if (ArCabildoabiertoFeedDefs.isArticleView(content)) {
             router.push(contentUrl(content.uri))
         } else {
             setWritingReply(true)

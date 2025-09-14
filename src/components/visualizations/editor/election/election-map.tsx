@@ -1,5 +1,5 @@
-import {$Typed} from "@atproto/api";
-import {Eleccion, View as VisualizationView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {$Typed} from "@/lex-api/util";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Candidato, Cargo, ElectionPlotter, getProvinceName} from "./election-plotter";
 import {DatasetForTableView, useDebounce} from "@/components/datasets/dataset-table-view";
 import React, {useMemo, useState} from "react";
@@ -358,8 +358,8 @@ const SearchResults = ({searchValue, plotter, onSelectCandidate, onSelectAlianza
 
 
 type Props = {
-    spec: $Typed<Eleccion>
-    visualization: VisualizationView
+    spec: $Typed<ArCabildoabiertoEmbedVisualization.Eleccion>
+    visualization: ArCabildoabiertoEmbedVisualization.View
     dataset: DatasetForTableView
     width?: number
     height?: number

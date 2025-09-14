@@ -1,5 +1,6 @@
 import {Dispatch, ReactNode, SetStateAction, useEffect, useState} from "react";
-import {smoothScrollTo} from "../../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+
+import {smoothScrollTo} from "../../../../../modules/ui-utils/src/scroll";
 
 type ScrollToQuotePostProps = {
     children: ReactNode

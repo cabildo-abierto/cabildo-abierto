@@ -15,13 +15,12 @@ import {
 import {$generateNodesFromDOM} from "@lexical/html";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {LexicalPointer} from "./selection/lexical-selection";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-import {View as ImagesEmbedView} from "@/lex-api/types/app/bsky/embed/images";
-
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index";
+import {AppBskyEmbedImages} from "@atproto/api"
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
     state = ProcessedLexicalState.fromMaybeProcessed(state)
@@ -117,7 +116,7 @@ export function markdownToEditorState(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
     shouldMergeAdjacentLines: boolean = true,
-    embeds: ArticleEmbedView[] = [],
+    embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = [],
     embedContexts: EmbedContext[] = [],
     transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): SerializedEditorState {
@@ -243,7 +242,7 @@ export function htmlToEditorStateStr(text: string) {
 
 export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): {
     markdown: string;
-    embeds: ArticleEmbedView[],
+    embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
     embedContexts: EmbedContext[]
 } | null {
     /***
@@ -253,7 +252,7 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
      * ***/
     state = ProcessedLexicalState.fromMaybeProcessed(state)
     const markdown = editorStateToMarkdownNoEmbeds(state);
-    const embeds: ArticleEmbedView[] = [];
+    const embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = [];
     const contexts: EmbedContext[] = []
 
     for (let i = 0; i < state.state.root.children.length; i++) {
@@ -270,7 +269,7 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
                         $type: "ar.cabildoabierto.feed.article#articleEmbedView",
                         value: {
                             $type: "ar.cabildoabierto.embed.visualization",
-                            ...(spec as Visualization)
+                            ...(spec as ArCabildoabiertoEmbedVisualization.Main)
                         },
                         index
                     })
@@ -279,7 +278,7 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
                         $type: "ar.cabildoabierto.feed.article#articleEmbedView",
                         value: {
                             $type: "app.bsky.embed.images#view",
-                            ...(spec as ImagesEmbedView)
+                            ...(spec as AppBskyEmbedImages.View)
                         },
                         index
                     })
@@ -297,9 +296,9 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
     return {markdown, embeds, embedContexts: contexts}
 }
 
-export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArticleEmbedView[], embedContexts?: EmbedContext[]): {
+export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): {
     markdown: string,
-    embeds: ArticleEmbedView[],
+    embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
     embedContexts: EmbedContext[]
 } {
     if (format == "markdown") {

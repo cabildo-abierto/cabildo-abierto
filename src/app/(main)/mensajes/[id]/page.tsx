@@ -4,70 +4,28 @@ import {useParams} from "next/navigation";
 import PageHeader from "../../../../../modules/ui-utils/src/page-header";
 import {Conversation, PrivateMessage} from "@/queries/useConversations";
 import {useSession} from "@/queries/useSession";
-import {ConvoView, isMessageView, MessageInput, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
+import {ChatBskyConvoDefs} from "@atproto/api"
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
-import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
-import {formatIsoDate} from "@/utils/dates";
-import {useEffect, useLayoutEffect, useRef, useState} from "react";
-import {TextField} from "../../../../../modules/ui-utils/src/text-field";
-import SendIcon from '@mui/icons-material/Send';
-import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
+import {useEffect, useLayoutEffect, useRef} from "react";
 import {post} from "@/utils/fetch";
-import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {produce} from "immer";
-import {$Typed} from "@atproto/api";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import {useMediaQuery, useTheme} from "@mui/system";
-import {QueryFilters} from "@tanstack/query-core";
 import {useAPI} from "@/queries/utils";
 import Link from "next/link";
 import {profileUrl} from "@/utils/uri";
+import {
+    conversationsQueriesFilter,
+    optimisticMarkRead
+} from "@/components/mensajes/create-message";
+import dynamic from "next/dynamic";
+import NewMessageInput from "@/components/mensajes/new-message-input";
 
 
-type SendMessageParams = { message: MessageInput, convoId: string }
-
-const conversationQueriesFilter = (convoId: string): QueryFilters<readonly unknown[]> => ({
-    predicate: query => query.queryKey[0] == "conversation" && query.queryKey[1] == convoId
-})
-
-const conversationsQueriesFilter = (): QueryFilters<readonly unknown[]> => ({
-    predicate: query => query.queryKey[0] == "conversations"
-})
-
-function optimisticCreateMessage(qc: QueryClient, msg: SendMessageParams, convoId: string, userDid: string){
-    qc.setQueryData(["conversation", convoId], old => {
-        if(old){
-            const conv = old as Conversation
-            return produce(conv, draft => {
-                const newMsgView: $Typed<MessageView> = {
-                    $type: "chat.bsky.convo.defs#messageView",
-                    id: "optimistic",
-                    rev: "?", // no sé qué es esto
-                    text: msg.message.text,
-                    facets: msg.message.facets,
-                    sentAt: new Date().toISOString(),
-                    sender: {did: userDid}
-                }
-                draft.messages.push(newMsgView)
-            })
-        }
-    })
-}
-
-
-function optimisticMarkRead(qc: QueryClient, convoId: string){
-    qc.setQueryData(["conversations"], old => {
-        if(old){
-            const convs = old as ConvoView[]
-            return produce(convs, draft => {
-                const index = draft.findIndex(item => item.id == convoId)
-                if(index != -1) {
-                    draft[index].unreadCount = 0
-                }
-            })
-        }
-    })
-}
+const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), {
+    ssr: false,
+    loading: () => <div className={"h-[300px]"}/>,
+});
 
 
 function useConversation(convoId: string) {
@@ -80,18 +38,16 @@ export default function Page() {
     const convoId = params.id instanceof Array ? params.id[0] : params.id
     const {data, isLoading} = useConversation(convoId)
     const {user} = useSession()
-    const [newMessage, setNewMessage] = useState<string>("")
     const qc = useQueryClient()
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const scrollRef = useRef<HTMLDivElement>(null)
 
     const readMutation = useMutation({
         mutationFn: markRead,
         onMutate: (msg) => {
             qc.cancelQueries(conversationsQueriesFilter())
             optimisticMarkRead(qc, convoId)
-            setNewMessage("")
         },
         onSettled: async () => {
             qc.invalidateQueries(conversationsQueriesFilter())
@@ -114,18 +70,6 @@ export default function Page() {
         }
     }, [data]);
 
-    const sendMessageMutation = useMutation({
-        mutationFn: sendMessage,
-        onMutate: (msg) => {
-            qc.cancelQueries(conversationQueriesFilter(convoId))
-            optimisticCreateMessage(qc, msg, convoId, user.did)
-            setNewMessage("")
-        },
-        onSettled: async () => {
-            qc.invalidateQueries(conversationQueriesFilter(convoId))
-        },
-    })
-
     if (isLoading) {
         return <LoadingSpinner/>
     } else if(!data){
@@ -135,29 +79,15 @@ export default function Page() {
     }
 
     function cmp(a: PrivateMessage, b: PrivateMessage) {
-        if (isMessageView(a) && isMessageView(b)) {
+        if (ChatBskyConvoDefs.isMessageView(a) && ChatBskyConvoDefs.isMessageView(b)) {
             return new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
         }
         return 0
     }
 
     const messages = data ? data.messages
-        .filter(m => isMessageView(m))
+        .filter(m => ChatBskyConvoDefs.isMessageView(m))
         .toSorted(cmp) : null
-
-    async function onSendMessage(){
-        const msg: SendMessageParams = {
-            message: {
-                text: newMessage
-            },
-            convoId
-        }
-        sendMessageMutation.mutate(msg)
-    }
-
-    async function sendMessage(msg: SendMessageParams) {
-        await post<SendMessageParams, {}>("/send-message", msg)
-    }
 
     const other = data.conversation ? data.conversation.members.filter(m => m.did != user.did)[0] : undefined
 
@@ -166,90 +96,25 @@ export default function Page() {
     return (
         <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-56px)]" : "h-screen")}>
             <PageHeader title={<Link href={profileUrl(other.handle)}>{title}</Link>} defaultBackHref={"/mensajes"}/>
+
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2" ref={scrollRef}>
                     <div className="mt-2 pb-2">
                         {messages.map((m, index) => {
-                            const isAuthor = m.sender.did == user.did
-                            const prevOtherAuthor = index > 0 && messages[index - 1].sender.did != m.sender.did
-                            const isOptimistic = m.id == "optimistic"
-                            return (
-                                <div
-                                    key={m.id+":"+index}
-                                    className={
-                                        (isAuthor ? "flex justify-end" : "flex") +
-                                        (prevOtherAuthor ? " pt-8" : " pt-1")
-                                    }
-                                >
-                                    <div className={
-                                        "rounded-lg max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark)]" : "bg-[var(--background-dark2)]"))
-                                    }>
-                                        <BskyRichTextContent
-                                            post={{text: m.text, facets: m.facets}}
-                                            fontSize={isMobile ? "14px" : "15px"}
-                                            namespace={m.id}
-                                        />
-                                        <div className={"flex justify-end text-[var(--text-light)] " + (isMobile ? "text-[10px]" : "text-xs")}>
-                                            {formatIsoDate(m.sentAt, true)}
-                                        </div>
-                                    </div>
-                                </div>
-                            )
+                            return <div
+                                key={m.id+":"+index}
+                            >
+                                <MessageCard
+                                    isMobile={isMobile}
+                                    message={m}
+                                    prevMessage={index > 0 ? messages[index-1] : undefined}
+                                />
+                            </div>
                         })}
                     </div>
                 </div>
 
-                <div className="m-2 border rounded-lg flex justify-between items-end bg-[var(--background-dark)]">
-                    <TextField
-                        value={newMessage}
-                        size="small"
-                        multiline={true}
-                        fullWidth={true}
-                        onChange={e => setNewMessage(e.target.value)}
-                        minRows={1}
-                        maxRows={6}
-                        placeholder={"Escribí un mensaje..."}
-                        sx={{
-                            backgroundColor: "transparent",
-                            "& fieldset": {border: "none"},
-                            "&:hover fieldset": {border: "none"},
-                            "&.Mui-focused fieldset": {border: "none"},
-                            "& .MuiOutlinedInput-root": {
-                                "& fieldset": {border: "none"},
-                                "&:hover fieldset": {border: "none"},
-                                "&.Mui-focused fieldset": {border: "none"},
-                            },
-                        }}
-                    />
-                    <IconButton
-                        size={"small"}
-                        color={"primary"}
-                        sx={{
-                            height: "32px",
-                            margin: "4px",
-                            paddingTop: '0px',
-                            paddingBottom: '0px',
-                            paddingLeft: '0px',
-                            paddingRight: '0px',
-                            '& .MuiOutlinedInput-input': {
-                                padding: '0px 0px'
-                            },
-                            '& .MuiFilledInput-input': {
-                                paddingTop: '0px',
-                                paddingBottom: '0px'
-                            },
-                            '& .MuiInput-input': {
-                                paddingTop: '0px',
-                                paddingBottom: '0px'
-                            }
-                        }}
-                        onClick={onSendMessage}
-                    >
-                        <div className={"px-4 flex justify-center"}>
-                            <SendIcon fontSize={"inherit"}/>
-                        </div>
-                    </IconButton>
-                </div>
+                <NewMessageInput convoId={convoId}/>
             </div>
         </div>
     )

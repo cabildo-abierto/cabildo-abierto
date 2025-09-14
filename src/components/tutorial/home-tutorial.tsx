@@ -3,7 +3,6 @@
 import React, {ReactNode, useEffect, useMemo, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
-import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
 import {useSession} from "@/queries/useSession";
 import {post} from "@/utils/fetch";
@@ -17,6 +16,7 @@ import {FollowButton} from "@/components/profile/profile-utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useProfile} from "@/queries/useProfile";
+import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {

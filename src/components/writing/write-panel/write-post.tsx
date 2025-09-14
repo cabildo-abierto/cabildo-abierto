@@ -9,7 +9,6 @@ import {
     isTopicVersion,
     isVisualization, profileUrl,
 } from "@/utils/uri";
-import {View as VisualizationView, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
 import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
@@ -18,21 +17,13 @@ import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/queries/useSession";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {
-    ArticleView, FullArticleView,
-    isFullArticleView,
-    isPostView,
-    PostView
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {get} from "@/utils/fetch";
 import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";
-import {View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external"
 import {ExternalEmbedInEditor} from "@/components/writing/write-panel/external-embed-in-editor";
 import {
     WritePanelQuotedPost
 } from "@/components/writing/write-panel/write-panel-quoted-post";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import {EditorState} from "lexical";
 import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
@@ -47,10 +38,13 @@ import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import Link from "next/link";
-import {getTextLength} from "@/components/writing/write-panel/rich-text";
+import {getTextLength} from "@/components/writing/write-panel/rich-text"
+import {AppBskyFeedPost} from "@atproto/api"
+import {AppBskyEmbedExternal} from "@atproto/api";
+import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
@@ -65,15 +59,15 @@ const InsertVisualizationModal = dynamic(() => import(
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
-    if (isPostView(replyTo)) {
+    if (ArCabildoabiertoFeedDefs.isPostView(replyTo)) {
         const parent = {
             uri: replyTo.uri,
             cid: replyTo.cid
         }
-        if ((replyTo.record as PostRecord).reply) {
+        if ((replyTo.record as AppBskyFeedPost.Record).reply) {
             return {
                 parent,
-                root: (replyTo.record as PostRecord).reply.root
+                root: (replyTo.record as AppBskyFeedPost.Record).reply.root
             }
         } else {
             return {
@@ -94,7 +88,7 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 }
 
 function useExternalEmbed(editorState: EditorState, disabled: boolean) {
-    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<ExternalEmbedView> | null>(null)
+    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<AppBskyEmbedExternal.View> | null>(null)
     const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(null)
     const [links, setLinks] = useState<string[]>([])
 
@@ -118,7 +112,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
                 }
 
                 const {title, description, thumb} = data
-                const embed: $Typed<ExternalEmbedView> = {
+                const embed: $Typed<AppBskyEmbedExternal.View> = {
                     $type: "app.bsky.embed.external#view",
                     external: {
                         $type: 'app.bsky.embed.external#viewExternal',
@@ -174,9 +168,9 @@ export type CreatePostProps = {
     selection?: [number, number]
     images?: ImagePayloadForPostCreation[]
     enDiscusion?: boolean
-    externalEmbedView?: $Typed<ExternalEmbedView>
+    externalEmbedView?: $Typed<AppBskyEmbedExternal.View>
     quotedPost?: ATProtoStrongRef
-    visualization?: Visualization
+    visualization?: ArCabildoabiertoEmbedVisualization.Main
 }
 
 
@@ -222,7 +216,7 @@ const settings: SettingsProps = getEditorSettings({
 })
 
 
-export function visualizationViewToMain(v: VisualizationView): Visualization {
+export function visualizationViewToMain(v: ArCabildoabiertoEmbedVisualization.View): ArCabildoabiertoEmbedVisualization.Main {
     return v.visualization
 }
 
@@ -232,14 +226,14 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (_: boolean) => void
-    quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
+    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     handleSubmit: (_: CreatePostProps) => Promise<void>
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
     const [images, setImages] = useState<ImagePayload[]>([])
     const [text, setText] = useState("")
-    const [visualization, setVisualization] = useState<Visualization>(null)
+    const [visualization, setVisualization] = useState<ArCabildoabiertoEmbedVisualization.Main>(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [enDiscusion, setEnDiscusion] = useState(!replyTo)
@@ -254,7 +248,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
 
         let selectionForPost: [number, number]
-        if (selection instanceof LexicalSelection && (isTopicView(replyTo) || isFullArticleView(replyTo)) && replyTo.format == "markdown") {
+        if (selection instanceof LexicalSelection && (ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo)) && replyTo.format == "markdown") {
             const state = markdownToEditorState(replyTo.text, true, true, replyTo.embeds)
             selectionForPost = selection.toMarkdownSelection(state).toArray()
         }

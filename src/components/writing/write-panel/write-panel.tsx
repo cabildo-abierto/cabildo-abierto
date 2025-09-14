@@ -1,25 +1,17 @@
 import React from "react"
 import {CreatePostProps, ImagePayloadForPostCreation} from "./write-post";
-import {$Typed} from "@atproto/api";
-import {
-    ArticleView,
-    FeedViewContent,
-    FullArticleView,
-    isFullArticleView, isPostView,
-    PostView,
-    ThreadViewContent
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isTopicView, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {$Typed} from "@/lex-api/util";
+import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {getUri, splitUri} from "@/utils/uri";
 import {contentQueriesFilter, updateContentInQueries} from "@/queries/updates";
 import {Profile} from "@/lib/types";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {post} from "@/utils/fetch";
-import {View as EmbedImagesView, ViewImage} from "@/lex-api/types/app/bsky/embed/images"
+import {AppBskyEmbedImages} from "@atproto/api"
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {threadQueryKey} from "@/queries/useThread";
@@ -28,10 +20,10 @@ import {useProfile} from "@/queries/useProfile";
 import {postOrArticle} from "@/utils/type-utils";
 
 
-function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewContent) {
+function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: ArCabildoabiertoFeedDefs.FeedViewContent) {
     qc.setQueryData(queryKey, old => {
         if(!old) return old
-        const data = old as InfiniteFeed<FeedViewContent>
+        const data = old as InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>
 
         return produce(data, draft => {
             if(draft.pages.length == 0) {
@@ -50,10 +42,10 @@ function addPostToFeedQuery(qc: QueryClient, queryKey: string[], post: FeedViewC
 }
 
 
-function addReplyPostToThreadQuery(qc: QueryClient, queryKey: string[], post: FeedViewContent) {
+function addReplyPostToThreadQuery(qc: QueryClient, queryKey: string[], post: ArCabildoabiertoFeedDefs.FeedViewContent) {
     qc.setQueryData(queryKey, old => {
         if(!old) return old
-        const data = old as ThreadViewContent
+        const data = old as ArCabildoabiertoFeedDefs.ThreadViewContent
 
         return produce(data, draft => {
             if(!draft.replies) draft.replies = []
@@ -67,9 +59,9 @@ function addReplyPostToThreadQuery(qc: QueryClient, queryKey: string[], post: Fe
 }
 
 
-function imagePayloadToEmbedImageView(images: ImagePayloadForPostCreation[]): $Typed<EmbedImagesView> {
+function imagePayloadToEmbedImageView(images: ImagePayloadForPostCreation[]): $Typed<AppBskyEmbedImages.View> {
 
-    function payloadToViewImage(payload: ImagePayloadForPostCreation): ViewImage {
+    function payloadToViewImage(payload: ImagePayloadForPostCreation): AppBskyEmbedImages.ViewImage {
         const src = payload.$type == "url" ? payload.src : `data:image/png;base64,${payload.base64}`
 
         return {
@@ -87,9 +79,9 @@ function imagePayloadToEmbedImageView(images: ImagePayloadForPostCreation[]): $T
 }
 
 
-function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToContent): PostView["embed"] | undefined | "error" {
+function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToContent): ArCabildoabiertoFeedDefs.PostView["embed"] | undefined | "error" {
     if(post.selection){
-        if(!isFullArticleView(replyTo) && !isTopicView(replyTo)) return undefined
+        if(!ArCabildoabiertoFeedDefs.isFullArticleView(replyTo) && !ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)) return undefined
         if(post.images && post.images.length > 0 || post.externalEmbedView) return "error" // TO DO
         return {
             $type: "ar.cabildoabierto.embed.selectionQuote#view",
@@ -112,10 +104,10 @@ function getEmbedViewFromCreatePost(post: CreatePostProps, replyTo: ReplyToConte
 }
 
 
-function addPostToTopicFeedQueries(qc: QueryClient, did: string, rkey: string, id: string, post: FeedViewContent) {
+function addPostToTopicFeedQueries(qc: QueryClient, did: string, rkey: string, id: string, post: ArCabildoabiertoFeedDefs.FeedViewContent) {
     qc.setQueryData(["topic-feed", id, "replies"], old => {
         if(!old) return old
-        const data = old as InfiniteFeed<FeedViewContent>
+        const data = old as InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>
 
         return produce(data, draft => {
             if(draft.pages.length == 0) {
@@ -134,10 +126,10 @@ function addPostToTopicFeedQueries(qc: QueryClient, did: string, rkey: string, i
 
     qc.setQueryData(["topic-quote-replies", did, rkey], old => {
         if(!old) return old
-        const data = old as PostView[]
+        const data = old as ArCabildoabiertoFeedDefs.PostView[]
 
         return produce(data, draft => {
-            if(isPostView(post.content)){
+            if(ArCabildoabiertoFeedDefs.isPostView(post.content)){
                 draft.push(post.content)
             }
         })
@@ -146,7 +138,7 @@ function addPostToTopicFeedQueries(qc: QueryClient, did: string, rkey: string, i
 
 
 function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Profile, replyTo: ReplyToContent) {
-    const basicAuthor: ProfileViewBasic = {
+    const basicAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic = {
         $type: "ar.cabildoabierto.actor.defs#profileViewBasic",
         did: author.bsky.did,
         handle: author.bsky.handle,
@@ -155,13 +147,13 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         caProfile: author.ca.inCA ? "optimistic" : undefined
     }
 
-    const embed: PostView["embed"] | undefined | "error" = getEmbedViewFromCreatePost(post, replyTo)
+    const embed: ArCabildoabiertoFeedDefs.PostView["embed"] | undefined | "error" = getEmbedViewFromCreatePost(post, replyTo)
 
     if(embed == "error") {
         return
     }
 
-    const content: $Typed<PostView> = {
+    const content: $Typed<ArCabildoabiertoFeedDefs.PostView> = {
         $type: "ar.cabildoabierto.feed.defs#postView",
         uri: getUri(author.bsky.did, "app.bsky.feed.post", `optimistic-${Date.now()}`),
         cid: `optimistic-post-cid`,
@@ -180,7 +172,7 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         viewer: {}
     }
 
-    const feedContent: FeedViewContent = {
+    const feedContent: ArCabildoabiertoFeedDefs.FeedViewContent = {
         content,
         $type: "ar.cabildoabierto.feed.defs#feedViewContent"
     }
@@ -189,12 +181,12 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         const {did, collection, rkey} = splitUri(post.reply.parent.uri)
         addPostToFeedQuery(qc, ["thread-feed", did, collection, rkey], feedContent)
         addReplyPostToThreadQuery(qc, threadQueryKey(post.reply.parent.uri), feedContent)
-        if(isTopicView(replyTo)) {
+        if(ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)) {
             const topicId = replyTo.id
             addPostToTopicFeedQueries(qc, did, rkey, topicId, feedContent)
         }
 
-        function parentUpdater(content: FeedViewContent["content"]) {
+        function parentUpdater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
             return produce(content, draft => {
                 if (!postOrArticle(draft)) return
                 draft.replyCount ++
@@ -210,7 +202,10 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
 }
 
 
-export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
+export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
+    $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
+    $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
+    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView>
 
 
 type WritePanelProps = {
@@ -218,7 +213,7 @@ type WritePanelProps = {
     open: boolean
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
-    quotedPost?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
+    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
 }
 
 

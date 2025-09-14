@@ -12,14 +12,13 @@ import {topicUrl} from "@/utils/uri";
 import {getTopicProtection, hasEditPermission} from "./utils";
 import {useSession} from "@/queries/useSession";
 import {Button} from "@/../modules/ui-utils/src/button"
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {post} from "@/utils/fetch";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {decompress} from "@/utils/compression";
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 
 
 const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: string) => void }) => {
@@ -54,7 +53,7 @@ function topicTextToMarkdown(text: string, format: string) {
 }
 
 
-async function getNewVersionDiff(editor: LexicalEditor, topic: TopicView) {
+async function getNewVersionDiff(editor: LexicalEditor, topic: ArCabildoabiertoWikiTopicVersion.TopicView) {
     if(!editor) return {
         data: {
             charsDeleted: 0,
@@ -66,7 +65,7 @@ async function getNewVersionDiff(editor: LexicalEditor, topic: TopicView) {
 
     const {text: currentText, format: currentFormat} = topicTextToMarkdown(topic.text, topic.format)
 
-    type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArticleEmbedView[]}
+    type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[]}
     type O = {charsAdded: number, charsDeleted: number}
 
     const params = {
@@ -86,7 +85,7 @@ export const SaveEditPopup = ({
     editor: LexicalEditor
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{ error?: string }>,
-    topic: TopicView
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useSession()

@@ -1,6 +1,6 @@
 import {useSearch} from "./search-context";
 import {useEffect, useState} from "react";
-import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {get} from "@/utils/fetch";
 import {GetFeedOutput} from "@/lib/types";
@@ -8,14 +8,14 @@ import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 
 
 async function searchContents(q: string) {
-    return await get<GetFeedOutput<FeedViewContent>>(`/search-contents/${q}`)
+    return await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(`/search-contents/${q}`)
 }
 
 
 // TO DO: Que cargue más resultados a medida que scrolleás
 export const ContentsSearchResults = () => {
     const { searchState } = useSearch();
-    const [results, setResults] = useState<FeedViewContent[] | "loading">([]);
+    const [results, setResults] = useState<ArCabildoabiertoFeedDefs.FeedViewContent[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
     const [resultsValue, setResultsValue] = useState<string | undefined>()
 

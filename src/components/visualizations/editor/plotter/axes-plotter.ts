@@ -1,8 +1,4 @@
-import {
-    isOneAxisPlot,
-    isTwoAxisPlot,
-    Main as Visualization
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {scaleBand, scaleLinear, scaleTime} from "@visx/scale";
@@ -26,10 +22,10 @@ export class AxesPlotter extends Plotter {
     protected axes: Axis[] = []
     protected xAxis: Axis
 
-    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, filters?: Visualization["filters"]) {
+    constructor(spec: ArCabildoabiertoEmbedVisualization.Main["spec"], dataset: DatasetForTableView, filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]) {
         super(spec, dataset, filters)
 
-        if (isTwoAxisPlot(spec) || isOneAxisPlot(spec)) {
+        if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(spec)) {
         } else {
             throw Error(`Axis plot desconocido: ${spec.$type}`)
         }
@@ -39,7 +35,7 @@ export class AxesPlotter extends Plotter {
 
     prepareForPlot(prev?: Plotter): { error?: string } {
         super.prepareForPlot(prev)
-        if (isTwoAxisPlot(this.spec) || isOneAxisPlot(this.spec)) {
+        if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(this.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(this.spec)) {
             const detectedType = this.columnTypes.get(this.spec.xAxis)
             this.axes.push({
                 name: "x",

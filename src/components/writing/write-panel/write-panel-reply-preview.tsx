@@ -1,9 +1,9 @@
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {isFullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-quote"
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+
 
 type Props = {
     replyTo: ReplyToContent,
@@ -13,13 +13,13 @@ type Props = {
 
 export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
     if (selection) {
-        if (isTopicView(replyTo) || isFullArticleView(replyTo)) {
+        if (ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo)) {
             return <div className={"pb-2 pr-2"}>
                 <SelectionQuote
                     quotedContent={replyTo.uri}
                     quotedText={replyTo.text}
                     quotedTextFormat={replyTo.format}
-                    quotedContentEmbeds={(isFullArticleView(replyTo) || isTopicView(replyTo)) ? replyTo.embeds : []}
+                    quotedContentEmbeds={(ArCabildoabiertoFeedDefs.isFullArticleView(replyTo) || ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)) ? replyTo.embeds : []}
                     quotedContentAuthor={replyTo.author}
                     selection={selection}
                 />

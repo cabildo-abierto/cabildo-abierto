@@ -1,11 +1,11 @@
-import {isTwoAxisPlot, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
 import {Plotter, ValueType} from "@/components/visualizations/editor/plotter/plotter";
 import {AxesPlotter} from "@/components/visualizations/editor/plotter/axes-plotter";
 
 export class OneAxisPlotter extends AxesPlotter {
 
-    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, filters?: Visualization["filters"]) {
+    constructor(spec: ArCabildoabiertoEmbedVisualization.Main["spec"], dataset: DatasetForTableView, filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]) {
         super(spec, dataset, filters)
     }
 
@@ -37,7 +37,7 @@ export class OneAxisPlotter extends AxesPlotter {
     }
 
     yValueToString(y: ValueType): string {
-        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
+        const precision = ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
         return this.valueToString(y, "number", precision)
     }
 

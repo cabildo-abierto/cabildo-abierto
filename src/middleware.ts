@@ -1,8 +1,31 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 
+const contentRedirectMap: Record<string, string> = {
+    "app.bsky.feed.post": "post",
+    "ar.cabildoabierto.feed.article": "article",
+    "ar.cabildoabierto.data.dataset": "dataset",
+};
+
 export async function middleware(request: NextRequest) {
-    return NextResponse.next()
+    const url = request.nextUrl.clone();
+
+    // Split path segments
+    const segments = url.pathname.split("/").filter(Boolean);
+    // Example: /c/abc/p/xyz → ["c", "abc", "p", "xyz"]
+
+    if (segments.length == 4 && segments[0] == "c") {
+        const did = segments[1];
+        const collection = segments[2];
+        const rkey = segments[3];
+
+        if (contentRedirectMap[collection]) {
+            url.pathname = `/c/${did}/${contentRedirectMap[collection]}/${rkey}`;
+            return NextResponse.redirect(url);
+        }
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {

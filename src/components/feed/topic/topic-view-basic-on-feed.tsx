@@ -1,4 +1,3 @@
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion"
 import {getTopicTitle} from "@/components/topics/topic/utils"
 import {topicUrl} from "@/utils/uri"
 import Link from "next/link"
@@ -7,9 +6,12 @@ import {useTopicFeedParams} from "@/components/topics/topic/topic-feed"
 import {usePathname} from "next/navigation";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSession} from "@/queries/useSession";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
-
-export const TopicViewBasicOnFeed = ({topic, showingChildren}: { topic: TopicViewBasic, showingChildren: boolean }) => {
+export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
+    topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic
+    showingChildren: boolean
+}) => {
     const {user} = useSession()
     const {selected} = useTopicFeedParams(user)
     const pathname = usePathname()

@@ -9,8 +9,6 @@ import {ThemeMode, useTheme} from "@/components/theme/theme-context";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import PageHeader from "../../../../modules/ui-utils/src/page-header";
-
-
 import {
     Account, AlgorithmConfig,
     EnDiscusionMetric,

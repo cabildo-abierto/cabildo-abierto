@@ -6,9 +6,17 @@ import {RightPanel} from "@/components/layout/right-panel";
 import {useSession} from "@/queries/useSession";
 import {usePathname} from "next/navigation";
 import dynamic from "next/dynamic";
-const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'));
-const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'));
-const BottomBarMobile = dynamic(() => import('./bottom-bar-mobile'));
+const FloatingWriteButton = dynamic(() => import('../writing/floating-write-button'), {
+    ssr: false,
+    loading: () => <></>,
+});
+const WritePanel = dynamic(() => import('../writing/write-panel/write-panel'), {
+    ssr: false,
+    loading: () => <></>,
+});
+const BottomBarMobile = dynamic(() => import('./bottom-bar-mobile'), {
+    ssr: false
+});
 
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {

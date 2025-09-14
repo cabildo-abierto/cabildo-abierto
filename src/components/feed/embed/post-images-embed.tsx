@@ -1,17 +1,20 @@
 "use client"
 import {ReactNode, useState} from "react";
 import {ATProtoImage} from "@/components/images/atproto-image";
-import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
-import {View as EmbedImagesView} from "@/lex-api/types/app/bsky/embed/images"
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
+import {AppBskyEmbedImages} from "@atproto/api"
 
-const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
+
+const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'), {
+    ssr: false,
+    loading: () => <></>
+});
 
 
 type PostImageEmbedProps = {
-    embed: EmbedImagesView
+    embed: AppBskyEmbedImages.View
     did?: string
     onArticle?: boolean
 }
@@ -20,7 +23,7 @@ type PostImageEmbedProps = {
 export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedProps) => {
     const [viewing, setViewing] = useState(null)
     const {layoutConfig} = useLayoutConfig()
-    let images: ViewImage[] = embed.images
+    let images: AppBskyEmbedImages.ViewImage[] = embed.images
 
     let imagesInPost: ReactNode
     if (images && images.length > 0) {

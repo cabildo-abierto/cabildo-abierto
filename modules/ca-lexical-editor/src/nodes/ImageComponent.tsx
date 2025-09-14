@@ -39,7 +39,10 @@ import brokenImage from '../images/image-broken.svg';
 import {$isImageNode} from './ImageNode';
 import NextImage from "next/image"
 import dynamic from "next/dynamic";
-const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
+const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'), {
+    ssr: false,
+    loading: () => <></>
+});
 
 const imageCache = new Set();
 

@@ -1,7 +1,7 @@
 import {PlotConfigProps} from "@/lib/types";
 import SearchableDropdown from "../../../../../modules/ui-utils/src/searchable-dropdown";
 import {produce} from "immer";
-import {isEleccion} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Select} from "../../../../../modules/ui-utils/src/select";
 
 type ElectionVisualizationConfigProps = {
@@ -15,7 +15,7 @@ export const ElectionVisualizationConfig = ({
                                                 setConfig,
     columnOptions,
 }: ElectionVisualizationConfigProps) => {
-    if(isEleccion(config.spec)){
+    if(ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)){
         return <div className={"space-y-4"}>
             <Select
                 options={[
@@ -25,7 +25,7 @@ export const ElectionVisualizationConfig = ({
                 value={config.spec.tipoDeEleccion ?? ""}
                 onChange={(v) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.tipoDeEleccion = v
                         }
                     }))
@@ -64,7 +64,7 @@ export const ElectionVisualizationConfig = ({
                 value={config.spec.region ?? ""}
                 onChange={(v) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.region = v
                         }
                     }))
@@ -80,7 +80,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaNombreCandidato ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaNombreCandidato = v
                         }
                     }))
@@ -93,7 +93,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaAlianza ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaAlianza = v
                         }
                     }))
@@ -106,7 +106,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaDistritoCandidato ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaDistritoCandidato = v
                         }
                     }))
@@ -119,7 +119,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaCargo ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaCargo = v
                         }
                     }))
@@ -132,7 +132,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaSubcargo ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaSubcargo = v
                         }
                     }))
@@ -145,7 +145,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaPosicion ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaPosicion = v
                         }
                     }))
@@ -158,7 +158,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaTopicIdCandidato ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaTopicIdCandidato = v
                         }
                     }))
@@ -171,7 +171,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaTopicIdAlianza ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaTopicIdAlianza = v
                         }
                     }))
@@ -184,7 +184,7 @@ export const ElectionVisualizationConfig = ({
                 selected={config.spec.columnaTopicIdDistrito ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if (isEleccion(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
                             draft.spec.columnaTopicIdDistrito = v
                         }
                     }))
