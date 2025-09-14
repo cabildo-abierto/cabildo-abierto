@@ -7,6 +7,7 @@ import {
     PresentacionWiki
 } from "@/components/presentacion/sections";
 import {Suspense} from "react";
+import Footer from "../../modules/ui-utils/src/footer";
 
 
 export default function Page() {
@@ -22,5 +23,6 @@ export default function Page() {
                 <GoToLoginButton className="w-36 sm:w-48 font-bold sm:p-1" fontSize={16} text={"Empezar"}/>
             </div>
         </div>
+        <Footer/>
     </Suspense>
 }
