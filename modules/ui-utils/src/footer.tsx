@@ -3,11 +3,10 @@ import {Logo} from './logo';
 import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
-import { Color } from './button';
 import BlueskyLogo from "@/components/icons/bluesky-logo";
-import {XLogoIcon} from "@phosphor-icons/react";
-import GitHubIcon from '@mui/icons-material/GitHub';
+import {GithubLogoIcon, XLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
+import {Color} from "./color";
 
 
 const FooterLeftSide = () => {
@@ -22,7 +21,7 @@ const FooterLeftSide = () => {
                 target="_blank"
                 href="https://bsky.app/profile/cabildoabierto.ar"
             >
-                <BlueskyLogo className={"w-[22] h-[22]"}/>
+                <BlueskyLogo className={"w-[22px] h-[22px]"}/>
             </DimOnHoverLink>
             <DimOnHoverLink
                 target="_blank"
@@ -34,7 +33,7 @@ const FooterLeftSide = () => {
                 target="_blank"
                 href="https://github.com/cabildo-abierto"
             >
-                <GitHubIcon />
+                <GithubLogoIcon fontSize={22}/>
             </DimOnHoverLink>
         </div>
     </div>

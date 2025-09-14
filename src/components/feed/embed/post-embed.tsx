@@ -1,24 +1,33 @@
-import {isView as isEmbedImagesView} from "@/lex-api/types/app/bsky/embed/images";
 import {PostImagesEmbed} from "@/components/feed/embed/post-images-embed";
-import {isView as isEmbedRecordWithMediaView} from "@/lex-api/types/app/bsky/embed/recordWithMedia";
 import {PostRecordWithMediaEmbed} from "@/components/feed/embed/post-record-with-media-embed";
-import {isView as isVideoEmbedView} from "@/lex-api/types/app/bsky/embed/video";
-import {PostVideoEmbed} from "@/components/feed/embed/post-video-embed";
-import {isView as isRecordEmbedView} from "@/lex-api/types/app/bsky/embed/record";
 import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
-import {isView as isExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external";
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";
-import {PostView} from "@/lex-api/types/app/bsky/feed/defs";
-import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
-import {isView as isVisualizationEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
-import {SelectionQuoteEmbed} from "@/components/feed/embed/selection-quote/selection-quote-embed";
 import {ATProtoStrongRef} from "@/lib/types";
-import {Plot} from "@/components/visualizations/plot";
-import {isView as isCARecordEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/record"
 import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
+import dynamic from "next/dynamic";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote, ArCabildoabiertoEmbedRecord, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
+import {AppBskyEmbedExternal, AppBskyEmbedRecordWithMedia, AppBskyEmbedImages, AppBskyEmbedVideo, AppBskyEmbedRecord} from "@atproto/api"
+
+
+const PostVideoEmbed = dynamic(() => import("@/components/feed/embed/post-video-embed"), {
+    ssr: false,
+    loading: () => <div className={"w-full flex justify-center"}>
+        <div className={"w-[400px] h-[500px]"}/>
+    </div>
+})
+
+const SelectionQuoteEmbed = dynamic(() => import("@/components/feed/embed/selection-quote/selection-quote-embed"), {
+    ssr: false,
+    loading: () => <></>
+})
+
+const Plot = dynamic(() => import("@/components/visualizations/plot"), {
+    ssr: false,
+    loading: () => <div className={"w-full h-[500px] bg-[var(--background-dark)] rounded-lg"}/>
+})
 
 type PostEmbedProps = {
-    embed: PostView["embed"]
+    embed: ArCabildoabiertoFeedDefs.PostView["embed"]
     mainPostRef: ATProtoStrongRef
     hideSelectionQuote?: boolean
     onClickSelectionQuote?: (cid: string) => void
@@ -29,35 +38,35 @@ type PostEmbedProps = {
 
 export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true, onArticle=false}: PostEmbedProps) => {
     return <>
-        {isEmbedImagesView(embed) && <PostImagesEmbed
+        {AppBskyEmbedImages.isView(embed) && <PostImagesEmbed
             embed={embed}
             onArticle={onArticle}
         />}
-        {isEmbedRecordWithMediaView(embed) && <PostRecordWithMediaEmbed
+        {AppBskyEmbedRecordWithMedia.isView(embed) && <PostRecordWithMediaEmbed
             embed={embed}
             mainPostRef={mainPostRef}
         />}
-        {isVideoEmbedView(embed) && <PostVideoEmbed
+        {AppBskyEmbedVideo.isView(embed) && <PostVideoEmbed
             embed={embed}
         />}
-        {isRecordEmbedView(embed) && <PostRecordEmbed
-            embed={embed}
-            mainPostRef={mainPostRef}
-        />}
-        {isCARecordEmbedView(embed) && <CAPostRecordEmbed
+        {AppBskyEmbedRecord.isView(embed) && <PostRecordEmbed
             embed={embed}
             mainPostRef={mainPostRef}
         />}
-        {isExternalEmbedView(embed) && <PostExternalEmbed
+        {ArCabildoabiertoEmbedRecord.isView(embed) && <CAPostRecordEmbed
+            embed={embed}
+            mainPostRef={mainPostRef}
+        />}
+        {AppBskyEmbedExternal.isView(embed) && <PostExternalEmbed
             embed={embed}
         />}
-        {!hideSelectionQuote && isSelectionQuoteView(embed) && <SelectionQuoteEmbed
+        {!hideSelectionQuote && ArCabildoabiertoEmbedSelectionQuote.isView(embed) && <SelectionQuoteEmbed
             embed={embed}
             mainPostRef={mainPostRef}
             onClick={onClickSelectionQuote}
             showContext={showContext}
         />}
-        {isVisualizationEmbedView(embed) && <Plot
+        {ArCabildoabiertoEmbedVisualization.isView(embed) && <Plot
             visualization={embed}
         />}
     </>

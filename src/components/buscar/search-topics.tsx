@@ -1,4 +1,3 @@
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useSearch} from "./search-context"
 import React, {useEffect, useState} from "react"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
@@ -6,6 +5,7 @@ import {get} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {categoriesSearchParam} from "@/queries/utils";
 import { Button } from "../../../modules/ui-utils/src/button";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
 const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), {ssr: false});
@@ -13,13 +13,13 @@ const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), {
 
 async function searchTopics(q: string, categories?: string[]) {
     const query = categories ? categoriesSearchParam(categories) : null
-    return await get<TopicViewBasic[]>(`/search-topics/${q}` + (query ? `?${query}` : ""))
+    return await get<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(`/search-topics/${q}` + (query ? `?${query}` : ""))
 }
 
 
 export const SearchTopics = ({categories, setCategories}: { categories?: string[], setCategories?: (c: string[]) => void }) => {
     const {searchState} = useSearch();
-    const [results, setResults] = useState<TopicViewBasic[] | "loading">([]);
+    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
     useEffect(() => {
@@ -73,9 +73,9 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
 
     return <StaticFeed
         initialContents={results}
-        FeedElement={({content: r}: { content: TopicViewBasic }) => <TopicSearchResult topic={r}/>}
+        FeedElement={({content: r}: { content: ArCabildoabiertoWikiTopicVersion.TopicViewBasic }) => <TopicSearchResult topic={r}/>}
         noResultsText={noResultsText}
         endText={""}
-        getFeedElementKey={(e: TopicViewBasic) => e.id}
+        getFeedElementKey={(e: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => e.id}
     />
 };

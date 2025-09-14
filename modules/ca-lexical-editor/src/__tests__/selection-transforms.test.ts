@@ -9,11 +9,10 @@ import {
     LexicalSelection
 } from "../selection/lexical-selection";
 import {MarkdownSelection} from "../selection/markdown-selection";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {ProcessedLexicalState} from "../selection/processed-lexical-state";
 import {$Typed} from "@atproto/api";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
-//import {prettyPrintLexicalState} from "../utils/print";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index";
 
 
 
@@ -51,7 +50,7 @@ Ready to start writing?  Either start changing stuff on the left or
 `
 
 
-const titanicVisualization: $Typed<Visualization> = {
+const titanicVisualization: $Typed<ArCabildoabiertoEmbedVisualization.Main> = {
     $type: "ar.cabildoabierto.embed.visualization",
     dataSource: {
         $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
@@ -400,7 +399,7 @@ test("selection between images", () => {
 
 test("selection with visualizations", () => {
     const markdown = "abc\n\ndef\n\nghi"
-    const embeds: ArticleEmbedView[] = [
+    const embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = [
         {
             $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,

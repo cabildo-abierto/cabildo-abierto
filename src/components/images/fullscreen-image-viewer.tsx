@@ -3,21 +3,20 @@ import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
 import {ATProtoImage} from "@/components/images/atproto-image";
 import {createPortal} from "react-dom";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-
+import {AppBskyEmbedImages} from "@atproto/api"
 
 const FullscreenImageViewer = ({
                                    images,
                                    viewing,
                                    setViewing,
                                    maxHeight,
-    maxWidth,
+                                   maxWidth,
                                    className = "h-full object-contain bg-black bg-opacity-20 rounded-lg"
                                }: {
-    images: (ViewImage | string)[]
+    images: (AppBskyEmbedImages.ViewImage | string)[]
     maxHeight?: number | string
     maxWidth?: number | string
     viewing: number | null

@@ -1,5 +1,5 @@
 import {categoriesSearchParam, useAPI} from "@/queries/utils";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {TimePeriod} from "@/queries/useTrendingTopics";
 import {TopicsGraph} from "@/lib/types";
 
@@ -8,7 +8,7 @@ import {TopicsGraph} from "@/lib/types";
 export function useTopics(categories: string[], sortedBy: "popular" | "recent", time: TimePeriod) {
     const query = categoriesSearchParam(categories)
     const url = `/topics/${sortedBy}/${time}${query ? `?${query}` : ""}`;
-    return useAPI<TopicViewBasic[]>(url, ["topic", sortedBy, ...categories, time]);
+    return useAPI<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(url, ["topic", sortedBy, ...categories, time]);
 }
 
 

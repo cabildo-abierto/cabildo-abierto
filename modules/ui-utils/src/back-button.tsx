@@ -1,10 +1,12 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {useRouter} from "next/navigation";
-import { Color } from './button';
+
+import {Color} from "./color";
 
 export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medium", color="background"}: {
-    preferReferrer?: boolean, size?: "small" | "medium" | "large"
+    preferReferrer?: boolean,
+    size?: "small" | "medium" | "large"
     defaultURL?: string
     onClick?: () => void
     color?: Color

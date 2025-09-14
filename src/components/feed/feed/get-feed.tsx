@@ -1,5 +1,5 @@
 import {get} from "@/utils/fetch";
-import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {FeedFormatOption, FollowingFeedFilterOption, GetFeedOutput, GetFeedProps} from "@/lib/types";
 
 
@@ -32,12 +32,12 @@ export const getFeed = ({handleOrDid, type, params}: {
     handleOrDid?: string
     type: string
     params?: {metric?: string, time?: string, filter?: FollowingFeedFilterOption, format?: FeedFormatOption}
-}): GetFeedProps<FeedViewContent> =>
+}): GetFeedProps<ArCabildoabiertoFeedDefs.FeedViewContent> =>
     async (cursor) => {
         const {
             error,
             data
-        } = await get<GetFeedOutput<FeedViewContent>>(getFeedRoute(type, handleOrDid, cursor, params))
+        } = await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(getFeedRoute(type, handleOrDid, cursor, params))
 
         if (error) return {error}
         return {

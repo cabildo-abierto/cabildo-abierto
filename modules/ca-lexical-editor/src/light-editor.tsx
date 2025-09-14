@@ -140,8 +140,6 @@ const LightEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) 
         };
     }, [settings]);
 
-    if(!initialConfig) return null
-
     return (
         <LexicalComposer initialConfig={initialConfig}>
             <SharedHistoryContext>

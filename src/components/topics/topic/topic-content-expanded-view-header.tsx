@@ -7,11 +7,11 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useSession} from "@/queries/useSession";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 import {WikiEditorState} from "@/lib/types";
 import {TopicOptionsButton} from "@/components/topics/topic/topic-options-button";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 
 export const TopicContentExpandedViewHeader = ({
@@ -22,7 +22,7 @@ export const TopicContentExpandedViewHeader = ({
                                                    topic,
                                                    saveEnabled
                                                }: {
-    topic: TopicView
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
     wikiEditorState: WikiEditorState
     setWikiEditorState: (s: WikiEditorState) => void
     setPinnedReplies: Dispatch<SetStateAction<string[]>>

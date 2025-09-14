@@ -5,15 +5,14 @@ import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/useSession";
 import {WikiEditorState} from "@/lib/types";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 
 const TopicDiscussion = ({
     replyToContent, topic, onClickQuote, wikiEditorState, topicVersionUri
 }: {
-    topic: TopicView
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
     topicVersionUri: string
     replyToContent?: ReplyToContent
     onClickQuote: (cid: string) => void

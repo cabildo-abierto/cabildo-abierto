@@ -1,12 +1,8 @@
 import {PlotConfigProps} from "@/lib/types";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
-import {
-    isDatasetDataSource, isTopicsDataSource,
-    validateMain as validateVisualization
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset, useDatasets} from "@/queries/useDataset";
 import {
     readyToPlot,
@@ -18,13 +14,13 @@ import {
 function NextStep({config}: { config: PlotConfigProps }) {
     if (!config.dataSource) {
         return "Elegí un conjunto de datos."
-    } else if (config.dataSource && isDatasetDataSource(config.dataSource)) {
+    } else if (config.dataSource && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource)) {
         if (config.dataSource.dataset) {
             return "Configurá la visualización."
         } else {
             return "Elegí un conjunto de datos."
         }
-    } else if (config.dataSource && isTopicsDataSource(config.dataSource)) {
+    } else if (config.dataSource && ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)) {
         return "Configurá los filtros y cargá los datos. Después, configurá la visualización."
     }
 }
@@ -32,7 +28,7 @@ function NextStep({config}: { config: PlotConfigProps }) {
 
 type EditorViewerViewVisualizationProps = {
     config: PlotConfigProps
-    onSave: (v: Visualization) => void
+    onSave: (v: ArCabildoabiertoEmbedVisualization.Main) => void
 }
 
 
@@ -42,7 +38,7 @@ const EditorViewerViewVisualization = ({
                                        }: EditorViewerViewVisualizationProps) => {
 
 
-    const validatedVisualization = validateVisualization(config)
+    const validatedVisualization = ArCabildoabiertoEmbedVisualization.validateMain(config)
     const visualization = validatedVisualization.success ? validatedVisualization.value : null
 
     return <div className={"flex flex-col justify-center items-center h-full w-full"}>
@@ -127,9 +123,9 @@ const EditorViewerViewDataForTopicsDataset = ({config}: {config: PlotConfigProps
 const EditorViewerViewData = ({config}: {
     config: PlotConfigProps
 }) => {
-    if(config.dataSource && isTopicsDataSource(config.dataSource)) {
+    if(config.dataSource && ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)) {
         return <EditorViewerViewDataForTopicsDataset config={config}/>
-    } else if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
+    } else if (config.dataSource && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
         return <EditorViewerViewDataForDataset
             datasetUri={config.dataSource.dataset}
             config={config}
@@ -145,7 +141,7 @@ const EditorViewerViewData = ({config}: {
 export const EditorViewer = ({config, selected, onSave}: {
     config: PlotConfigProps
     selected: string
-    onSave: (v: Visualization) => void
+    onSave: (v: ArCabildoabiertoEmbedVisualization.Main) => void
 }) => {
 
     return <div className={"h-full w-full pt-12 px-16"}>

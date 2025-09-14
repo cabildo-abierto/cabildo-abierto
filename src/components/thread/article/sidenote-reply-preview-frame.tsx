@@ -4,12 +4,11 @@ import Link from 'next/link'
 import {ContentTopRowAuthor} from '@/components/feed/frame/content-top-row-author'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
-import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
-
 import {emptyChar} from "@/utils/utils";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
 const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
@@ -18,7 +17,7 @@ const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
 
 type SidenoteReplyPreviewFrameProps = {
     children: ReactNode
-    post: PostView
+    post: ArCabildoabiertoFeedDefs.PostView
     showingParent?: boolean
     showingChildren?: boolean
 }

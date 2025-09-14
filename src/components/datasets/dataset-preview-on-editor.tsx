@@ -1,9 +1,10 @@
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Authorship} from "@/components/feed/frame/authorship";
+import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
+
 
 export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
-    dataset: DatasetViewBasic | DatasetView,
+    dataset: ArCabildoabiertoDataDataset.DatasetViewBasic | ArCabildoabiertoDataDataset.DatasetView,
     selected: boolean,
     onClick: () => void
 }) => {

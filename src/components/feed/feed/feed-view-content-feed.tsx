@@ -1,21 +1,19 @@
 import Feed, {FeedProps} from "@/components/feed/feed/feed";
-import {FeedViewContent, isArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import LoadingFeedViewContent from "@/components/feed/feed/loading-feed-view-content"
-import dynamic from "next/dynamic";
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {GetFeedProps} from "@/lib/types";
-import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import FeedElement from "@/components/feed/feed/feed-element";
 
-const FeedElement = dynamic(() => import('@/components/feed/feed/feed-element'));
 
 
 type FeedViewContentFeedProps =
-    Omit<FeedProps<FeedViewContent>, "initialContents" | "FeedElement" | "LoadingFeedContent" | "getFeed" | "getFeedElementKey">
+    Omit<FeedProps<ArCabildoabiertoFeedDefs.FeedViewContent>, "initialContents" | "FeedElement" | "LoadingFeedContent" | "getFeed" | "getFeedElementKey">
     & {
-    initialContents?: FeedViewContent[]
+    initialContents?: ArCabildoabiertoFeedDefs.FeedViewContent[]
     onClickQuote?: (cid: string) => void
     queryKey: string[]
-    getFeed?: GetFeedProps<FeedViewContent>
+    getFeed?: GetFeedProps<ArCabildoabiertoFeedDefs.FeedViewContent>
     pageRootUri?: string
 }
 
@@ -28,8 +26,8 @@ const FeedViewContentFeed = ({
                                  ...props
                              }: FeedViewContentFeedProps) => {
 
-    const getFeedElementKey = (e: FeedViewContent) => {
-        if (isPostView(e.content) || isArticleView(e.content)) {
+    const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) => {
+        if (ArCabildoabiertoFeedDefs.isPostView(e.content) || ArCabildoabiertoFeedDefs.isArticleView(e.content)) {
             return e.content.uri
         } else {
             return null

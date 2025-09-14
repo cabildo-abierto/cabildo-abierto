@@ -57,7 +57,7 @@ import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {EmbedContext} from "./nodes/EmbedNode";
 import MentionsToLinksPlugin from "./plugins/MentionsToLinksPlugin";
 
@@ -76,7 +76,7 @@ export type SettingsProps = {
     allowVisualizations: boolean
     markdownShortcuts: boolean
     shouldPreserveNewLines: boolean
-    embeds?: ArticleEmbedView[]
+    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
 
     useSuperscript: boolean

@@ -4,9 +4,8 @@ import {
     TopicContentExpandedViewWithVersion
 } from "./topic-content-expanded-view";
 import {useSearchParams} from "next/navigation";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {WikiEditorState} from "@/lib/types";
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 const TopicContent = ({
                           topic,
@@ -15,7 +14,7 @@ const TopicContent = ({
                           wikiEditorState,
                           setWikiEditorState,
                       }: {
-    topic: TopicView
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
     wikiEditorState: WikiEditorState

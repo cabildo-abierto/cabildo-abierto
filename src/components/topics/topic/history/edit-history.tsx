@@ -15,7 +15,6 @@ import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner"
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import {useSession} from "@/queries/useSession";
-import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
@@ -28,8 +27,9 @@ import {TopicContributor} from "@/lib/types";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
-const EditDetails = ({topicHistory, index}: { topicHistory: TopicHistory, index: number }) => {
+const EditDetails = ({topicHistory, index}: { topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory, index: number }) => {
     const v = topicHistory.versions[index]
 
     return <ChangesCounter
@@ -49,7 +49,7 @@ const EditMessage = ({msg}: { msg?: string }) => {
 }
 
 
-export const TopicProperties = ({topicVersion, topic}: { topicVersion: VersionInHistory, topic: TopicView }) => {
+export const TopicProperties = ({topicVersion, topic}: { topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory, topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
     const props = topicVersion.props != null ? topicVersion.props.filter(
         p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)
     ) : []
@@ -77,8 +77,8 @@ export const TopicProperties = ({topicVersion, topic}: { topicVersion: VersionIn
 
 
 export const HistoryElement = ({topic, topicHistory, index, viewing}: {
-    topic: TopicView,
-    topicHistory: TopicHistory
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView,
+    topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory
     index: number,
     viewing: boolean
 }) => {
@@ -174,7 +174,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
 
 
 export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}: {
-    topicHistory: TopicHistory,
+    topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory,
     onClose: () => void,
     version: number,
     onRemove: () => Promise<{ error?: string }>
@@ -236,7 +236,7 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
 };
 
 
-function getTopicContributors(history: TopicHistory): TopicContributor[] {
+function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHistory): TopicContributor[] {
     const authors = new Map<string, TopicContributor>()
 
     history.versions.forEach(v => {
@@ -296,7 +296,7 @@ const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: Topic
 }
 
 
-export const EditHistory = ({topic}: { topic: TopicView }) => {
+export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
     const {data: topicHistory, isLoading} = useTopicHistory(topic.id)
     const searchParams = useSearchParams()
 

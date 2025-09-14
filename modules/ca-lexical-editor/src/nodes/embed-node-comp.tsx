@@ -1,8 +1,8 @@
 import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
-import {Main as Visualization, isMain as isVisualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getNodeByKey} from "lexical";
-import {isView as isImageEmbedView} from "@/lex-api/types/app/bsky/embed/images"
+import {AppBskyEmbedImages} from "@atproto/api"
 import {$isEmbedNode, EmbedSpec} from "./EmbedNode";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
 
@@ -17,7 +17,7 @@ export const EmbedNodeComp = ({
 
     const editable = editor.isEditable()
 
-    const onEdit = (v: Visualization) => {
+    const onEdit = (v: ArCabildoabiertoEmbedVisualization.Main) => {
         editor.update(() => {
             const n = $getNodeByKey(nodeKey)
             if($isEmbedNode(n)){
@@ -29,7 +29,7 @@ export const EmbedNodeComp = ({
         })
     }
 
-    if(isVisualization(embed)){
+    if(ArCabildoabiertoEmbedVisualization.isMain(embed)){
         return <div className={"relative mt-4 mb-8 visualization"}>
             <PlotFromVisualizationMain
                 visualization={embed}
@@ -42,7 +42,7 @@ export const EmbedNodeComp = ({
                 } : null}
             />
         </div>
-    } else if(isImageEmbedView(embed)){
+    } else if(AppBskyEmbedImages.isView(embed)){
         return <PostEmbed
             embed={embed}
             mainPostRef={null}

@@ -5,7 +5,7 @@ import {collectionToDisplay} from "@/utils/uri";
 export const ThreadHeader = ({c, title}: { c?: string, title?: string }) => {
     return <div className={"flex space-x-4 items-center w-full px-2 py-2"}>
         <div className={""}>
-            <BackButton defaultURL={"/"} size={"medium"}/>
+            <BackButton defaultURL={"/inicio"} preferReferrer={false} size={"medium"}/>
         </div>
         <div className={"font-bold text-lg"}>
             {c ? collectionToDisplay(c) : title}

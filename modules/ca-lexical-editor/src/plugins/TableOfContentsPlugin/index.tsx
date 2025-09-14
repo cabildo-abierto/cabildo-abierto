@@ -6,43 +6,20 @@
  *
  */
 import type {TableOfContentsEntry} from '@lexical/react/LexicalTableOfContentsPlugin';
+import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import type {HeadingTagType} from '@lexical/rich-text';
 import type {NodeKey} from 'lexical';
 
 import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {smoothScrollTo} from "../../../../ui-utils/src/scroll";
 
 
 const HEADING_WIDTH = 30;
 
-
-export function smoothScrollTo(target, duration = 600) {
-  const start = window.scrollY;
-  const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 60;
-  const startTime = performance.now();
-
-  function scroll(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.max(Math.min(elapsed / duration, 1), 0); 
-
-      const easing = progress * (2 - progress);
-
-      const stepDestination = start + (targetPosition - start) * easing
-      if(dist(start, targetPosition) > dist(stepDestination, targetPosition)){
-        window.scrollTo(0, stepDestination);
-      }
-
-      if (progress < 1) {
-          requestAnimationFrame(scroll);
-      }
-  }
-
-  requestAnimationFrame(scroll);
-}
 
 function indent(tagName: HeadingTagType) {
   if (tagName === 'h2') {
@@ -56,10 +33,6 @@ function indent(tagName: HeadingTagType) {
   } else if (tagName === 'h6') {
     return 'heading6'
   }
-}
-
-function dist(x: number, y: number){
-  return Math.abs(x-y)
 }
 
 function TableOfContentsList({

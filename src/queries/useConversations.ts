@@ -1,16 +1,17 @@
 import {useAPI} from "@/queries/utils";
-import {ConvoView} from "@atproto/api/src/client/types/chat/bsky/convo/defs";
+import {ChatBskyConvoDefs} from "@atproto/api";
 import {$Typed} from "@atproto/api";
-import {DeletedMessageView, MessageView} from "@/lex-api/types/chat/bsky/convo/defs";
+
 
 export function useConversations() {
-    return useAPI<ConvoView[]>("/conversations/list", ["conversations"])
+    return useAPI<ChatBskyConvoDefs.ConvoView[]>("/conversations/list", ["conversations"])
 }
-
 
 export type Conversation = {
     messages: PrivateMessage[]
-    conversation: ConvoView
+    conversation: ChatBskyConvoDefs.ConvoView
 }
 
-export type PrivateMessage = ($Typed<MessageView> | $Typed<DeletedMessageView> | {$type: string})
+export type PrivateMessage = $Typed<ChatBskyConvoDefs.MessageView> |
+    $Typed<ChatBskyConvoDefs.DeletedMessageView> |
+    {$type: string}

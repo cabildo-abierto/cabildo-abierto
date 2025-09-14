@@ -2,10 +2,8 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconButton } from '@mui/material';
 import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 import {ContentOptions} from "@/components/feed/content-options/content-options";
-import {$Typed} from "@atproto/api";
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {$Typed} from "@/lex-api/util";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api/index";
 
 
 export const ContentOptionsButton = ({
@@ -14,8 +12,8 @@ export const ContentOptionsButton = ({
     showBluesky,
     setShowBluesky,
 }: {
-    record?: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> |
-        $Typed<VersionInHistory> | $Typed<DatasetView> | $Typed<DatasetViewBasic>
+    record?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
+        $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory> | $Typed<ArCabildoabiertoDataDataset.DatasetView> | $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic>
     enDiscusion?: boolean
     showBluesky?: boolean
     setShowBluesky?: (v: boolean) => void

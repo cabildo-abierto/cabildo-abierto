@@ -13,11 +13,10 @@ import {
     markdownToEditorState
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import React, {useMemo, useState} from "react";
-import {TopicHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {FormControl, InputLabel, MenuItem, Select as MUISelect} from "@mui/material";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useAPI} from "@/queries/utils";
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -123,7 +122,7 @@ function useTopicVersionChanges(did: string, rkey: string, prevDid: string, prev
 
 
 const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
-    history: TopicHistory, prevVersionIdx: number, newVersionIdx: number
+    history: ArCabildoabiertoWikiTopicVersion.TopicHistory, prevVersionIdx: number, newVersionIdx: number
 }) => {
     const {did, rkey} = splitUri(history.versions[newVersionIdx].uri)
     const {did: prevDid, rkey: prevRkey} = splitUri(history.versions[prevVersionIdx].uri)
@@ -176,7 +175,7 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
 
 
 const VersionSelector = ({selected, setSelected, history, label}: {
-    label: string, selected: number, setSelected: (v: number) => void, history: TopicHistory
+    label: string, selected: number, setSelected: (v: number) => void, history: ArCabildoabiertoWikiTopicVersion.TopicHistory
 }) => {
 
     const selectId = label
@@ -251,7 +250,7 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
     onClose: () => void
     uri: string
     prevUri: string
-    history: TopicHistory
+    history: ArCabildoabiertoWikiTopicVersion.TopicHistory
 }) => {
     const [prevVersionIdx, setPrevVersionIdx] = useState<number>(history.versions.findIndex(v => v.uri == prevUri))
     const [newVersionIdx, setNewVersionIdx] = useState<number>(history.versions.findIndex(v => v.uri == uri))

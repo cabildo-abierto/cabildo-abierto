@@ -9,10 +9,7 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import SearchBar from "@/components/buscar/search-bar";
 import {produce} from "immer";
-import {
-    isDatasetDataSource,
-    isTopicsDataSource
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import TopicsIcon from "@/components/icons/topics-icon";
 import {TopicsDataSourceConfig} from "@/components/visualizations/editor/topics-data-source-config";
 import {ReactNode} from "react";
@@ -52,7 +49,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
                     return <div key={i} className={""}>
                         <DatasetPreviewOnEditor
                             dataset={d}
-                            selected={config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset == d.uri}
+                            selected={config.dataSource && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) && config.dataSource.dataset == d.uri}
                             onClick={() => {
                                 setConfig(produce(config, draft => {
                                     draft.dataSource = {
@@ -86,7 +83,7 @@ const ChooseDatasetPanelDatasetSelection = ({
     datasets?: DatasetViewBasic[]
 }) => {
 
-    const creatingTopicsBased = isTopicsDataSource(config.dataSource)
+    const creatingTopicsBased = ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)
     return <>
         <div className={"flex space-x-1 px-2"}>
             <Button
@@ -180,7 +177,7 @@ export const ChooseDatasetPanelFiltersConfig = ({
         </div>
     }
 
-    const datasetUri = isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : undefined
+    const datasetUri = ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : undefined
     const dataset = datasetUri ? datasets.find(d => d.uri == datasetUri) : undefined
 
     return <div className={"flex flex-col justify-between h-full pb-2 px-2"}>
@@ -227,10 +224,10 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
     const [newDatasetPanelOpen, setNewDatasetPanelOpen] = useState(false)
 
     useEffect(() => {
-        if (config.dataSource && isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets) {
-            if (!datasets.some(d => isDatasetDataSource(config.dataSource) && d.uri == config.dataSource.dataset)) {
+        if (config.dataSource && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets) {
+            if (!datasets.some(d => ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) && d.uri == config.dataSource.dataset)) {
                 setConfig(produce(config, draft => {
-                    if (isDatasetDataSource(draft.dataSource)) {
+                    if (ArCabildoabiertoEmbedVisualization.isDatasetDataSource(draft.dataSource)) {
                         draft.dataSource.dataset = undefined
                     }
                 }))

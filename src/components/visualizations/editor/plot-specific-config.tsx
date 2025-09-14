@@ -1,11 +1,6 @@
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown"
 import {PlotConfigProps} from "@/lib/types"
-import {
-    isHemicycle,
-    isDatasetDataSource,
-    isTwoAxisPlot,
-    isOneAxisPlot, isTable, isTopicsDataSource, isEleccion
-} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer"
 import {useDatasets} from "@/queries/useDataset"
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner"
@@ -25,9 +20,9 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
     const {data: datasets} = useDatasets()
     const {
         data: topicsDataset
-    } = useTopicsDataset(isTopicsDataSource(config.dataSource) ? config.filters : null, true)
+    } = useTopicsDataset(ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource) ? config.filters : null, true)
     const dataSource = config.dataSource
-    const dataset = datasets && isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined
+    const dataset = datasets && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined
 
     const columnOptions = useMemo(() => {
         if(dataset){
@@ -45,14 +40,14 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
         <LoadingSpinner/>
     </div>
 
-    if(isTwoAxisPlot(config.spec)){
+    if(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec)){
         return <TwoAxisPlotConfig
             columnOptions={columnOptions}
             config={config}
             setConfig={setConfig}
         />
     }
-    if(isOneAxisPlot(config.spec)) {
+    if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) {
         return <div>
             <SearchableDropdown
                 options={columnOptions}
@@ -61,23 +56,23 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
                 selected={config.spec.xAxis ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
-                        if(isOneAxisPlot(draft.spec)){
+                        if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)){
                             draft.spec.xAxis = v
                         }
                     }))
                 }}
             />
         </div>
-    } else if(isHemicycle(config.spec)){
+    } else if(ArCabildoabiertoEmbedVisualization.isHemicycle(config.spec)){
         return <div>
             Sin implementar
         </div>
-    } else if(isTable(config.spec)){
+    } else if(ArCabildoabiertoEmbedVisualization.isTable(config.spec)){
         return <TableVisualizationConfig
             config={config}
             setConfig={setConfig}
         />
-    } else if(isEleccion(config.spec)) {
+    } else if(ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)) {
         return <ElectionVisualizationConfig
             config={config}
             setConfig={setConfig}

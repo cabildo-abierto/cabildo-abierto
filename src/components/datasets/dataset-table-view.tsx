@@ -1,12 +1,7 @@
-import {
-    Column,
-    DatasetView,
-    isTopicsDatasetView,
-    TopicsDatasetView
-} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
 import {useEffect, useMemo, useRef, useState} from "react";
 import SearchBar from "@/components/buscar/search-bar";
-import {Main as Visualization, Table} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
@@ -15,20 +10,20 @@ import {TablePlotter} from "@/components/visualizations/editor/plotter/table-plo
 
 export type RawDatasetView = {
     data: string
-    columns: Column[]
+    columns: ArCabildoabiertoDataDataset.Column[]
 }
 
 
-export type DatasetForTableView = Omit<DatasetView | TopicsDatasetView | RawDatasetView, "name" | "uri" | "cid" | "author" | "createdAt">
+export type DatasetForTableView = Omit<ArCabildoabiertoDataDataset.DatasetView | ArCabildoabiertoDataDataset.TopicsDatasetView | RawDatasetView, "name" | "uri" | "cid" | "author" | "createdAt">
 
 
 type DatasetTableViewProps = {
     dataset: DatasetForTableView
     maxHeight?: number
     maxWidth?: number
-    columnsConfig?: Table["columns"]
+    columnsConfig?: ArCabildoabiertoEmbedVisualization.Table["columns"]
     sort?: boolean
-    filters?: Visualization["filters"]
+    filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]
 }
 
 
@@ -38,7 +33,7 @@ const TableRow = ({values, plotter, columns, href}: {
     plotter: TablePlotter
     columns: [string, string][]
     href?: string
-    columnsConfig?: Table["columns"]
+    columnsConfig?: ArCabildoabiertoEmbedVisualization.Table["columns"]
 }) => {
     //console.log("values", values)
     return columns.map(([col, header], colIndex) => {
@@ -197,7 +192,7 @@ export const DatasetTableView = ({
                 let href: string = undefined
 
                 const values = Object.entries(r)
-                if (isTopicsDatasetView(dataset)) {
+                if (ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset)) {
                     const tema = values.find(([k, v]) => k == "Tema")
                     href = topicUrl(tema[1])
                 }

@@ -1,6 +1,4 @@
 import {EditorState} from "lexical";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
 import {useEffect, useState} from "react";
@@ -9,6 +7,7 @@ import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-
 import dynamic from "next/dynamic";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
+import {ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
@@ -17,7 +16,7 @@ export type CreateArticleProps = {
     format: string
     text: string
     enDiscusion: boolean
-    embeds?: ArticleEmbedView[]
+    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
     draftId?: string
 }
@@ -33,7 +32,7 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
     title?: string
     modalOpen: boolean
     setModalOpen: (o: boolean) => void
-    mentions?: TopicMention[]
+    mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
     draftId?: string
 }) => {
     const [mdText, setMdText] = useState("")

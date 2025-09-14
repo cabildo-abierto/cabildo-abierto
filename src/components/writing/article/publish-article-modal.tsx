@@ -1,5 +1,4 @@
 import StateButton, {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
-import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {useMemo, useState} from "react";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
@@ -7,6 +6,7 @@ import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
 import removeMarkdown from "remove-markdown";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 type PublishArticleModalProps = {
     open: boolean
@@ -14,7 +14,7 @@ type PublishArticleModalProps = {
     onSubmit: (enDiscusion: boolean) => StateButtonClickHandler
     mdText?: string
     title?: string
-    mentions?: TopicMention[]
+    mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
 }
 
 

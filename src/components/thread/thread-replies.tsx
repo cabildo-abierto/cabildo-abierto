@@ -1,38 +1,33 @@
-import {
-    isArticleView,
-    isFeedViewContent,
-    isPostView,
-    isThreadViewContent,
-    ThreadViewContent
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {PostPreview} from "@/components/feed/post/post-preview";
 import {Dispatch, SetStateAction} from "react";
 import StaticFeed from "@/components/feed/feed/static-feed";
-import {isBlockedPost, isNotFoundPost} from "@/lex-api/types/app/bsky/feed/defs";
+import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {$Typed} from "@atproto/api";
+import {AppBskyFeedDefs} from "@atproto/api"
 
 
 type ThreadRepliesProps = {
-    threadUri: string
-    replies: ThreadViewContent["replies"]
-    setPinnedReplies: Dispatch<SetStateAction<string[]>>
+    replies: ArCabildoabiertoFeedDefs.ThreadViewContent["replies"] | null
+    setPinnedReplies?: Dispatch<SetStateAction<string[]>>
 }
 
 
-export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepliesProps) => {
+export default function ThreadReplies({replies, setPinnedReplies}: ThreadRepliesProps) {
+    if(!replies) return null
     return (
         <div className={"w-full"}>
-            <StaticFeed
+            <StaticFeed<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<AppBskyFeedDefs.BlockedPost> | {$type: string}>
                 initialContents={replies}
                 noResultsText={"Sé la primera persona en responder."}
                 endText={""}
                 FeedElement={({content: r}) => {
-                    if ((!isThreadViewContent(r) && !isFeedViewContent(r)) || !isPostView(r.content)) {
+                    if ((!ArCabildoabiertoFeedDefs.isThreadViewContent(r) && !ArCabildoabiertoFeedDefs.isFeedViewContent(r)) || !ArCabildoabiertoFeedDefs.isPostView(r.content)) {
                         return null
                     }
 
                     function onClickQuote() {
-                        if (isThreadViewContent(r) && isPostView(r.content)) {
+                        if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
                             setPinnedReplies([r.content.cid])
                             const elem = document.getElementById("selection:" + r.content.cid)
                             if(elem) {
@@ -49,13 +44,14 @@ export const ThreadReplies = ({threadUri, replies, setPinnedReplies}: ThreadRepl
                     />
                 }}
                 getFeedElementKey={e => {
-                    if(isThreadViewContent(e)) {
-                        if(isPostView(e.content) || isArticleView(e.content)) {
+                    if(ArCabildoabiertoFeedDefs.isThreadViewContent(e)) {
+                        if (ArCabildoabiertoFeedDefs.isPostView(e.content) || ArCabildoabiertoFeedDefs.isArticleView(e.content)) {
                             return e.content.uri
                         }
-                    } else if(isNotFoundPost(e) || isBlockedPost(e)) {
+                    } else if(AppBskyFeedDefs.isBlockedPost(e) || AppBskyFeedDefs.isNotFoundPost(e)) {
                         return e.uri
                     }
+                    return null
                 }}
             />
         </div>

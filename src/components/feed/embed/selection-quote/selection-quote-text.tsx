@@ -2,23 +2,19 @@ import React, {useMemo} from "react";
 import {
     markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {View as EmbedSelectionQuote} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {decompress} from "@/utils/compression";
-import dynamic from "next/dynamic";
 import {getEditorSettings} from "@/components/editor/settings";
 import {isArticle} from "@/utils/uri";
-const MyLexicalEditor = dynamic(() => import('../../../../../modules/ca-lexical-editor/src/lexical-editor'), {
-    ssr: false,
-    loading: () => <></>,
-})
+import {ArCabildoabiertoFeedArticle, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
+import MyLexicalEditor from '../../../../../modules/ca-lexical-editor/src/lexical-editor'
+import {robotoSerif} from "@/components/editor/article-font";
 
 
 type QuoteTextProps = {
-    quotedText: EmbedSelectionQuote["quotedText"]
-    quotedTextFormat: EmbedSelectionQuote["quotedTextFormat"]
-    quotedTextEmbeds: ArticleEmbedView[]
+    quotedText: ArCabildoabiertoEmbedSelectionQuote.View["quotedText"]
+    quotedTextFormat: ArCabildoabiertoEmbedSelectionQuote.View["quotedTextFormat"]
+    quotedTextEmbeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     selection: MarkdownSelection
     quotedCollection: string
 }
@@ -61,7 +57,7 @@ export const SelectionQuoteText = ({quotedText, quotedTextFormat, quotedTextEmbe
         isReadOnly: true,
         allowComments: false,
         tableOfContents: false,
-        editorClassName: isArticle(quotedCollection) ? "article-content" : "article-content not-article-content",
+        editorClassName: isArticle(quotedCollection) ? `article-content ${robotoSerif.variable}` : `article-content not-article-content`,
         embeds: quotedTextEmbeds,
         topicMentions: false
     })

@@ -9,8 +9,7 @@ import Link from "next/link"
 import {get, updateSearchParam} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
 import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session} from "@/lib/types";
-import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useRef} from "react";
 import {ClickableModalOnClick} from "../../../../modules/ui-utils/src/popover";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
@@ -160,7 +159,7 @@ const FeedConfig = ({selected}: { selected: TopicFeedOption }) => {
 
 export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
     topicVersionUri: string,
-    topic: TopicView,
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView,
     onClickQuote: (cid: string) => void
 }) => {
     const {user} = useSession()
@@ -169,13 +168,13 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
     const topicId = topic.id
 
     async function getMentionsFeed(cursor: string) {
-        return await get<GetFeedOutput<FeedViewContent>>(
+        return await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(
             `/topic-feed/mentions?i=${topicId}&metric=${metric}&time=${time}&format=${format}${cursor ? `&cursor=${cursor}` : ""}`
         )
     }
 
     async function getDiscussionFeed(cursor: string) {
-        return await get<GetFeedOutput<FeedViewContent>>(`/topic-feed/discussion?i=${topicId}${cursor ? `&cursor=${cursor}` : ""}`)
+        return await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(`/topic-feed/discussion?i=${topicId}${cursor ? `&cursor=${cursor}` : ""}`)
     }
 
     async function getMentionsInTopicsFeed(cursor: string) {

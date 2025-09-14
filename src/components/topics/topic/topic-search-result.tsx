@@ -2,7 +2,6 @@
 import {getTopicCategories, getTopicTitle} from "./utils";
 import TopicCategories from "./topic-categories";
 import {topicUrl} from "@/utils/uri";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/useTrendingTopics";
 import {rounder} from "@/utils/strings";
@@ -11,6 +10,7 @@ import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 
 const TopicNumWords = ({numWords}: {numWords: number}) => {
@@ -20,7 +20,7 @@ const TopicNumWords = ({numWords}: {numWords: number}) => {
 }
 
 
-export function hasUnseenUpdate(topic: TopicViewBasic){
+export function hasUnseenUpdate(topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic){
     return topic.currentVersionCreatedAt && (
         !topic.lastSeen || new Date(topic.lastSeen) < new Date(topic.currentVersionCreatedAt)
     )
@@ -28,7 +28,7 @@ export function hasUnseenUpdate(topic: TopicViewBasic){
 
 
 const TopicSearchResult = ({topic, index, time}: {
-    topic: TopicViewBasic
+    topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic
     index?: number
     time?: TimePeriod
 }) => {

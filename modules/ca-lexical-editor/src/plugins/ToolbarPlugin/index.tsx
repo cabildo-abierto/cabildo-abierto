@@ -71,7 +71,8 @@ import {InsertImageModal} from "@/components/writing/write-panel/insert-image-mo
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {InsertVisualizationDialog} from "../EmbedPlugin/insert-visualization-dialog";
 import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
-import {ViewImage} from "@/lex-api/types/app/bsky/embed/images";
+import {AppBskyEmbedImages} from "@atproto/api"
+
 
 const blockTypeToBlockName = {
     bullet: 'Lista',
@@ -227,7 +228,7 @@ export default function ToolbarPlugin({
     const [imageModalOpen, setImageModalOpen] = useState(false)
 
     const onInsertImage = (i: ImagePayload) => {
-        const image: ViewImage = {
+        const image: AppBskyEmbedImages.ViewImage = {
             $type: "app.bsky.embed.images#viewImage",
             thumb: i.src,
             alt: "",

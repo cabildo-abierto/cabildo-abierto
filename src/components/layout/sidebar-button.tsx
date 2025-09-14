@@ -1,8 +1,9 @@
 import { ReactNode } from "react"
 import { CustomLink } from "../../../modules/ui-utils/src/custom-link"
-import { Button, Color } from "../../../modules/ui-utils/src/button"
+import { Button } from "../../../modules/ui-utils/src/button"
 import { IconButton } from "../../../modules/ui-utils/src/icon-button"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {Color} from "../../../modules/ui-utils/src/color";
 
 
 type SidebarButtonProps = {
@@ -59,7 +60,7 @@ export const SidebarButton = ({
                 disabled={disabled}
             >
                 <div className={"flex items-center space-x-2 " + (isMobile ? "text-xl" : "text-base")}>
-                    {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
+                    {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : "font-[400]"}>{showText ? text : ""}</span>
                 </div>
             </Button> :
             <IconButton

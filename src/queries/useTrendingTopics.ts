@@ -1,8 +1,8 @@
 import {useAPI} from "@/queries/utils";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
 export const useTrendingTopics = (time: TimePeriod) => {
-    return useAPI<TopicViewBasic[]>(`/trending-topics/${time}`, ["trending-topics", time])
+    return useAPI<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(`/trending-topics/${time}`, ["trending-topics", time])
 }

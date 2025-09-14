@@ -1,6 +1,6 @@
 import Image from "next/image";
 import PublicIcon from '@mui/icons-material/Public';
-import {View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external";
+import {AppBskyEmbedExternal} from "@atproto/api"
 
 const Domain = ({url}: { url: string }) => {
     try {
@@ -17,7 +17,7 @@ const Domain = ({url}: { url: string }) => {
 }
 
 type PostExternalEmbedProps = {
-    embed: ExternalEmbedView
+    embed: AppBskyEmbedExternal.View
 }
 
 export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {

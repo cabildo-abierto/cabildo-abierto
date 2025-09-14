@@ -1,9 +1,8 @@
 import {ArticlePreview} from "../article/article-preview";
 import {PostPreview} from "../post/post-preview";
-import {FeedViewContent, isArticleView, isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {TopicViewBasicOnFeed} from "@/components/feed/topic/topic-view-basic-on-feed";
-
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 const FeedElement = ({
     elem,
@@ -13,7 +12,7 @@ const FeedElement = ({
     showReplyMessage=false,
     pageRootUri
 }: {
-    elem: FeedViewContent
+    elem: ArCabildoabiertoFeedDefs.FeedViewContent
     onClickQuote?: (cid: string) => void
     showingChildren?: boolean
     showingParent?: boolean
@@ -21,13 +20,13 @@ const FeedElement = ({
     pageRootUri?: string
 }) => {
 
-    if (isArticleView(elem.content)) {
+    if (ArCabildoabiertoFeedDefs.isArticleView(elem.content)) {
         return <ArticlePreview
             articleView={elem.content}
             feedViewContent={elem}
             showingChildren={showingChildren}
         />
-    } else if (isPostView(elem.content)) {
+    } else if (ArCabildoabiertoFeedDefs.isPostView(elem.content)) {
         return <PostPreview
             postView={elem.content}
             feedViewContent={elem}
@@ -37,7 +36,7 @@ const FeedElement = ({
             showingChildren={showingChildren}
             pageRootUri={pageRootUri}
         />
-    } else if (isTopicViewBasic(elem.content)) {
+    } else if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(elem.content)) {
         return <TopicViewBasicOnFeed
             topic={elem.content}
             showingChildren={showingChildren}

@@ -1,6 +1,6 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
-import {isDatasetDataSource, isTable, isTopicsDataSource} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset} from "@/queries/useDataset";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
@@ -18,18 +18,18 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     const {
         data,
         isLoading: loadingTopicsDataset
-    } = useTopicsDataset(isTopicsDataSource(config.dataSource) ? config.filters : null, true)
+    } = useTopicsDataset(ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource) ? config.filters : null, true)
     const {
         data: dataset,
         isLoading: loadingDataset
-    } = useDataset(isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : null)
+    } = useDataset(ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : null)
 
     let columns: Column[] = data && data.data ? data.data.columns : (dataset ? dataset.columns : null)
 
     useEffect(() => {
-        if(isTable(config.spec) && config.spec.columns == null && columns){
+        if(ArCabildoabiertoEmbedVisualization.isTable(config.spec) && config.spec.columns == null && columns){
             setConfig(produce(config, draft => {
-                if(isTable(draft.spec)){
+                if(ArCabildoabiertoEmbedVisualization.isTable(draft.spec)){
                     draft.spec.columns = columns.map(c => ({
                         $type: "ar.cabildoabierto.embed.visualization#tableVisualizationColumn",
                         columnName: c.name,
@@ -47,7 +47,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     }
 
     if (!columns) {
-        if(isTopicsDataSource(config.dataSource)){
+        if(ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)){
             return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
                 Cargá los datos primero.
             </div>
@@ -58,13 +58,13 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
         }
     }
 
-    if (!isTable(config.spec)) {
+    if (!ArCabildoabiertoEmbedVisualization.isTable(config.spec)) {
         return null
     }
 
     function setShowColumn(c: string, v: boolean, alias?: string) {
         setConfig(produce(config, draft => {
-            if (isTable(draft.spec) && draft.spec.columns) {
+            if (ArCabildoabiertoEmbedVisualization.isTable(draft.spec) && draft.spec.columns) {
                 if (v) {
                     const index = draft.spec.columns.findIndex(c2 => c2.columnName == c)
                     if (index == -1) {
@@ -96,7 +96,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
         </div>
         <div className={"space-y-2"}>
             {columns.map((c, i) => {
-                if (!isTable(config.spec)) return null
+                if (!ArCabildoabiertoEmbedVisualization.isTable(config.spec)) return null
                 let value: boolean = true
                 if (config.spec.columns && config.spec.columns.length > 0) {
                     if (!config.spec.columns.some(colConfig => colConfig.columnName == c.name)) {

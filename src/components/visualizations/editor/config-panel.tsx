@@ -5,15 +5,14 @@ import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ReactNode, useState} from "react";
 import {Button} from "../../../../modules/ui-utils/src/button";
-import {isOneAxisPlot, isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import { TextField } from "../../../../modules/ui-utils/src/text-field";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
 import VisualizationIcon from "@/components/icons/visualization-icon";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import SquareFootIcon from '@mui/icons-material/SquareFoot';
 
-export function kindToLexicon(kind: string): Visualization["spec"] {
+export function kindToLexicon(kind: string): ArCabildoabiertoEmbedVisualization.Main["spec"] {
     if(kind == "Histograma") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#oneAxisPlot",
@@ -64,7 +63,7 @@ function getLexiconHash(l?: string){
 }
 
 
-export function lexiconToKind(lexicon: DeepPartial<Visualization["spec"]>): string {
+export function lexiconToKind(lexicon: DeepPartial<ArCabildoabiertoEmbedVisualization.Main["spec"]>): string {
     const dict = {
         "histogram": "Histograma",
         "lines": "Gráfico de línea",
@@ -74,9 +73,9 @@ export function lexiconToKind(lexicon: DeepPartial<Visualization["spec"]>): stri
         "table": "Tabla",
         "eleccion": "Elección"
     }
-    if(isOneAxisPlot(lexicon)) {
+    if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(lexicon)) {
         return "Histograma"
-    } else if(isTwoAxisPlot(lexicon)) {
+    } else if(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(lexicon)) {
         return dict[getLexiconHash(lexicon.plot.$type)]
     } else {
         return dict[getLexiconHash(lexicon.$type)]
@@ -109,26 +108,26 @@ const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConf
             }}
             fontSize={"0.875rem"}
         />
-        {(isTwoAxisPlot(config.spec) || isOneAxisPlot(config.spec)) && <TextField
+        {(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) && <TextField
             label={"Etiqueta eje x"}
             size={"small"}
             value={config.spec.xLabel ?? config.spec.xAxis}
             onChange={e => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         draft.spec.xLabel = e.target.value
                     }
                 }))
             }}
             fontSize={"0.875rem"}
         />}
-        {isTwoAxisPlot(config.spec) && <TextField
+        {ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) && <TextField
             label={"Etiqueta eje y"}
             size={"small"}
             value={config.spec.yLabel ?? (config.spec.yAxis ?? "")}
             onChange={e => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
                         draft.spec.yLabel = e.target.value
                     }
                 }))

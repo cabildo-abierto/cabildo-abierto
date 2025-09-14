@@ -4,19 +4,11 @@ import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
 import {useSession} from "@/queries/useSession";
-import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
-import {FeedViewContent, isThreadViewContent, PostView} from '@/lex-api/types/ar/cabildoabierto/feed/defs';
+import {AppBskyFeedDefs, AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
-import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
-import {isTopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import dynamic from "next/dynamic";
-import {
-    isPostView,
-    ThreadViewContent
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
-
-const FeedElement = dynamic(() => import('@/components/feed/feed/feed-element'));
+import FeedElement from "@/components/feed/feed/feed-element";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 
 const ShowThreadButton = ({uri}: { uri: string }) => {
@@ -41,9 +33,9 @@ const ShowThreadButton = ({uri}: { uri: string }) => {
 
 
 export type FastPostPreviewProps = {
-    postView: PostView
-    feedViewContent?: FeedViewContent
-    threadViewContent?: ThreadViewContent
+    postView: ArCabildoabiertoFeedDefs.PostView
+    feedViewContent?: ArCabildoabiertoFeedDefs.FeedViewContent
+    threadViewContent?: ArCabildoabiertoFeedDefs.ThreadViewContent
     showingChildren?: boolean
     showingParent?: boolean
     parentIsMainPost?: boolean
@@ -54,7 +46,7 @@ export type FastPostPreviewProps = {
     pageRootUri?: string
 }
 
-function getParentAndRoot(f: FeedViewContent): { parent?: ReplyRefContent, root?: ReplyRefContent } {
+function getParentAndRoot(f: ArCabildoabiertoFeedDefs.FeedViewContent): { parent?: ReplyRefContent, root?: ReplyRefContent } {
     if (!f || !f.reply) {
         return {}
     }
@@ -78,7 +70,7 @@ function getParentAndRoot(f: FeedViewContent): { parent?: ReplyRefContent, root?
             return {parent}
         }
     } else {
-        if (isTopicViewBasic(parent)) {
+        if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(parent)) {
             return {parent} // en este caso tienen que ser parent == root
         }
         return {parent, root}
@@ -89,10 +81,10 @@ function getParentAndRoot(f: FeedViewContent): { parent?: ReplyRefContent, root?
 const PostPreviewParentAndRoot = ({root, parent, grandparentAuthor, feedViewContent}: {
     root: ReplyRefContent
     parent: ReplyRefContent
-    grandparentAuthor: ProfileViewBasic
-    feedViewContent: FeedViewContent
+    grandparentAuthor: AppBskyActorDefs.ProfileViewBasic
+    feedViewContent: ArCabildoabiertoFeedDefs.FeedViewContent
 }) => {
-    const showThreadButton = root != null && isPostView(parent) && ("uri" in root && (parent.record as PostRecord).reply.parent.uri != root.uri)
+    const showThreadButton = root != null && ArCabildoabiertoFeedDefs.isPostView(parent) && ("uri" in root && (parent.record as AppBskyFeedPost.Record).reply.parent.uri != root.uri)
 
     return <>
         {root && <FeedElement
@@ -116,22 +108,22 @@ const PostPreviewParentAndRoot = ({root, parent, grandparentAuthor, feedViewCont
 }
 
 
-function getChildrenFromThreadViewContent(t: ThreadViewContent): ThreadViewContent[] {
-    const children: ThreadViewContent[] = []
-    let filteredReplies = t.replies?.filter(isThreadViewContent)
+function getChildrenFromThreadViewContent(t: ArCabildoabiertoFeedDefs.ThreadViewContent): ArCabildoabiertoFeedDefs.ThreadViewContent[] {
+    const children: ArCabildoabiertoFeedDefs.ThreadViewContent[] = []
+    let filteredReplies = t.replies?.filter(ArCabildoabiertoFeedDefs.isThreadViewContent)
     while (filteredReplies && filteredReplies.length > 0) {
         const child = filteredReplies[0]
         children.push(child)
-        filteredReplies = child.replies?.filter(isThreadViewContent)
+        filteredReplies = child.replies?.filter(ArCabildoabiertoFeedDefs.isThreadViewContent)
     }
     return children
 }
 
 
-const ThreadChildren = ({threadChildren}: { threadChildren: ThreadViewContent[] }) => {
+const ThreadChildren = ({threadChildren}: { threadChildren: ArCabildoabiertoFeedDefs.ThreadViewContent[] }) => {
     return <div>
         {threadChildren.map((a, index) => {
-            if (isPostView(a.content)) {
+            if (ArCabildoabiertoFeedDefs.isPostView(a.content)) {
                 return <div key={a.content.uri}>
                     <PostPreview
                         postView={a.content}
@@ -160,7 +152,7 @@ export const PostPreview = ({
 
     const {parent, root} = getParentAndRoot(feedViewContent)
 
-    const reason = feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
+    const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
 
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
 

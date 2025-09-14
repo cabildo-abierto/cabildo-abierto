@@ -1,6 +1,7 @@
 import MUIIconButton from "@mui/material/IconButton";
 import type { IconButtonProps as MUIIconButtonProps } from "@mui/material/IconButton";
-import { darker, Color } from "./button";
+import { darker } from "./button";
+import {Color} from "./color";
 
 type ExtendedSize = MUIIconButtonProps["size"] | "extra-small";
 

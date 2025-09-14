@@ -4,19 +4,22 @@ import {ArticleHeader} from "@/components/thread/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
 import {LexicalEditor} from "lexical";
-import {FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
+import {robotoSerif} from "@/components/editor/article-font";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+
 
 type ArticleCompProps = {
-    article: $Typed<FullArticleView>,
-    quoteReplies: PostView[]
+    article: $Typed<ArCabildoabiertoFeedDefs.FullArticleView>,
+    quoteReplies: ArCabildoabiertoFeedDefs.PostView[]
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
 }
 
-export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
+
+const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
     const [editor, setEditor] = useState<LexicalEditor>(null)
 
     const enDiscusion = hasEnDiscusionLabel(article)
@@ -40,7 +43,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                             initialTextFormat: format,
                             allowComments: true,
                             tableOfContents: true,
-                            editorClassName: "article-content",
+                            editorClassName: `article-content ${robotoSerif.variable}`,
                             embeds: article.embeds,
                             topicMentions: false
                         })}
@@ -66,3 +69,5 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
         </div>
     </ScrollToQuotePost>
 }
+
+export default Article

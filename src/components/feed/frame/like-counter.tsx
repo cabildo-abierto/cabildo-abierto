@@ -6,12 +6,8 @@ import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {ATProtoStrongRef} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {getRkeyFromUri} from "@/utils/uri";
-import {$Typed} from "@atproto/api";
-import {
-    ArticleView, FeedViewContent,
-    FullArticleView,
-    PostView
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {$Typed} from "@/lex-api/util";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
 import {contentQueriesFilter, updateContentInQueries, updateTopicFeedQueries} from "@/queries/updates";
@@ -29,7 +25,7 @@ async function removeLike(likeUri: string) {
 
 
 async function optimisticAddLike(qc: QueryClient, uri: string) {
-    function updater(content: FeedViewContent["content"]) {
+    function updater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
         return produce(content, draft => {
             if (!postOrArticle(draft)) return
             draft.viewer.like = "optimistic-like-uri"
@@ -44,7 +40,7 @@ async function optimisticAddLike(qc: QueryClient, uri: string) {
 
 
 async function setCreatedLike(qc: QueryClient, uri: string, likeUri: string) {
-    function updater(content: FeedViewContent["content"]) {
+    function updater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
         return produce(content, draft => {
             if (!postOrArticle(draft)) return
             draft.viewer.like = likeUri
@@ -57,7 +53,7 @@ async function setCreatedLike(qc: QueryClient, uri: string, likeUri: string) {
 
 
 async function optimisticRemoveLike(qc: QueryClient, uri: string) {
-    function updater(content: FeedViewContent["content"]) {
+    function updater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
         return produce(content, draft => {
             if (!postOrArticle(draft)) return
             draft.viewer.like = undefined
@@ -71,7 +67,7 @@ async function optimisticRemoveLike(qc: QueryClient, uri: string) {
 }
 
 export const LikeCounter = ({content, showBsky}: {
-    content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
+    content: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     showBsky: boolean
 }) => {
     const qc = useQueryClient()

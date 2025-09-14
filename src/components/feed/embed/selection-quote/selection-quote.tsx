@@ -1,11 +1,9 @@
 import {SelectionQuoteContext} from "@/components/feed/embed/selection-quote/selection-quote-context";
 import {SelectionQuoteText} from "@/components/feed/embed/selection-quote/selection-quote-text";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {useRouter} from "next/navigation";
 import {contentUrl, getCollectionFromUri, isArticle} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/types";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
 import {useEffect, useState} from "react";
 import {
     anyEditorStateToMarkdown,
@@ -14,9 +12,9 @@ import {
 import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
+import {ArCabildoabiertoFeedArticle, ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
-
-async function validSelectionForComment(text: string, embeds: ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
+async function validSelectionForComment(text: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
     try {
         const markdown = anyEditorStateToMarkdown(text, format, embeds)
         const state = markdownToEditorState(
@@ -52,8 +50,8 @@ type SelectionQuoteProps = {
     showContext?: boolean
     quotedContent: string
     quotedText: string
-    quotedContentEmbeds?: ArticleEmbedView[]
-    quotedContentAuthor: ProfileViewBasic
+    quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string
     selection: MarkdownSelection | LexicalSelection

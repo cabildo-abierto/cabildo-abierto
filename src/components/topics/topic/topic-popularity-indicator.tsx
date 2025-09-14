@@ -1,12 +1,12 @@
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {topicUrl} from "@/utils/uri";
 import ValidationIcon from "@/components/profile/validation-icon";
-import {TopicPopularity} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {TimePeriod} from "@/queries/useTrendingTopics";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 
 export default function TopicPopularityIndicator({counts, selected}: {
-    counts: TopicPopularity, selected: TimePeriod
+    counts: ArCabildoabiertoWikiTopicVersion.TopicPopularity, selected: TimePeriod
 }) {
 
     let count: number | undefined

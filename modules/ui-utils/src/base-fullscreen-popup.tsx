@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { Box, Modal } from "@mui/material";
 import { CloseButton } from "./close-button";
-import {Color} from "./button";
+
+import {Color} from "./color";
 
 export const BaseFullscreenPopup = ({
     children,

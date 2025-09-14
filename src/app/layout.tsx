@@ -3,31 +3,19 @@ import './globals.scss'
 import {Metadata} from "next";
 import {mainMetadata} from "@/utils/metadata";
 
-import localFont from 'next/font/local'
 import {ReactNode} from "react";
 import {AppLayout} from "@/components/layout/app-layout";
+import { Geist } from 'next/font/google';
 
-
-
-const Roboto_Serif = localFont({
-    src: '../../public/fonts/Roboto_Serif/RobotoSerif-VariableFont_GRAD,opsz,wdth,wght.ttf',
-
-    display: 'swap',
-    weight: "100 900",
-    variable: '--font-roboto-serif',
-})
-
-const Roboto_Flex = localFont({
-    src: '../../public/fonts/roboto_flex/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf',
-    display: 'swap',
-    weight: "100 900",
+const robotoFlex = Geist({
+    subsets: ['latin'],
+    weight: "variable",
     variable: '--font-roboto-flex',
 })
 
 
 const fonts = [
-    Roboto_Serif.variable,
-    Roboto_Flex.variable
+    robotoFlex.variable
 ]
 
 

@@ -5,8 +5,8 @@ import {
     markdownToEditorStateNoEmbeds,
     normalizeMarkdown
 } from "../markdown-transforms";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {$Typed} from "@atproto/api";
 //import {prettyPrintJSON} from "@/utils/strings";
 
@@ -98,7 +98,7 @@ test('markdownTransformsIdempotentABCNNDEF', () => {
 })
 
 
-const titanicVisualization: $Typed<Visualization> = {
+const titanicVisualization: $Typed<ArCabildoabiertoEmbedVisualization.Main> = {
     $type: "ar.cabildoabierto.embed.visualization",
     dataSource: {
         $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
@@ -114,7 +114,7 @@ const titanicVisualization: $Typed<Visualization> = {
 
 test('markdown transform with visualization', () => {
     const markdown = "abc\n\ndef"
-    const embeds: ArticleEmbedView[] = [
+    const embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = [
         {
             $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,

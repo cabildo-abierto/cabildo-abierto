@@ -5,15 +5,14 @@ import Link from 'next/link'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {profileUrl} from "@/utils/uri";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import ValidationIcon from "@/components/profile/validation-icon";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
-
-type MainPostFrameProps = { children: ReactNode, postView: $Typed<PostView> }
+type MainPostFrameProps = { children: ReactNode, postView: $Typed<ArCabildoabiertoFeedDefs.PostView> }
 
 
 export const MainPostFrame = ({

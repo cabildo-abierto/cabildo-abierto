@@ -3,12 +3,12 @@ import { ModalOnClick } from "../../../../modules/ui-utils/src/modal-on-click"
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
 import {ArrowsClockwiseIcon} from "@phosphor-icons/react";
-import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {post} from "@/utils/fetch";
 
 
 
-export const TopicOptionsButton = ({topic}: {topic: TopicView}) => {
+export const TopicOptionsButton = ({topic}: {topic: ArCabildoabiertoWikiTopicVersion.TopicView}) => {
 
     async function onUpdateMentions() {
         const {error} = await post("/job/update-topic-mentions", {id: topic.id})

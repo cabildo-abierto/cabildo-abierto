@@ -1,5 +1,5 @@
 import {PlotConfigProps} from "@/lib/types";
-import {isOneAxisPlot, isTable, isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {SliderWithInput} from "../../../../modules/ui-utils/src/slider-with-input";
 import {produce} from "immer";
 import {ReactNode} from "react";
@@ -8,12 +8,12 @@ import {ReactNode} from "react";
 export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void }) => {
     const inputs: ReactNode[] = []
 
-    if(isTwoAxisPlot(config.spec) || isOneAxisPlot(config.spec)) {
+    if(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) {
         inputs.push(<SliderWithInput
             value={config.spec.dimensions?.xLabelOffset ?? 0}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xLabelOffset = v
                     }
@@ -26,7 +26,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.yLabelOffset ?? 0}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.yLabelOffset = v
                     }
@@ -39,7 +39,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.xTickLabelsAngle ?? 0}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xTickLabelsAngle = v
                     }
@@ -52,7 +52,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.xLabelFontSize ?? 12}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xLabelFontSize = v
                     }
@@ -66,7 +66,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.yLabelFontSize ?? 12}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.yLabelFontSize = v
                     }
@@ -80,7 +80,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.xTickLabelsFontSize ?? 10}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xTickLabelsFontSize = v
                     }
@@ -94,7 +94,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.yTickLabelsFontSize ?? 10}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.yTickLabelsFontSize = v
                     }
@@ -108,7 +108,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.marginBottom ?? 55}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.marginBottom = v
                     }
@@ -122,7 +122,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.marginLeft ?? 55}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.marginLeft = v
                     }
@@ -136,7 +136,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.xAxisPrecision ?? 2}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.xAxisPrecision = v
                     }
@@ -150,7 +150,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
             value={config.spec.dimensions?.yAxisPrecision ?? 2}
             onChange={v => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec) || isOneAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
                         if(!draft.spec.dimensions) draft.spec.dimensions = {}
                         draft.spec.dimensions.yAxisPrecision = v
                     }
@@ -162,7 +162,7 @@ export const ConfigPanelDimensions = ({config, setConfig}: { config: PlotConfigP
         />)
     }
 
-    if(!isTable(config.spec)){
+    if(!ArCabildoabiertoEmbedVisualization.isTable(config.spec)){
         inputs.push(<SliderWithInput
             value={parseFloat(config.aspectRatio ?? "1.33")}
             onChange={v => {

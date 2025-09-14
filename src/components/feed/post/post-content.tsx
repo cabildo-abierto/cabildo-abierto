@@ -1,15 +1,10 @@
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {PostRecord} from "@/lib/types";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {PostEmbed} from "@/components/feed/embed/post-embed";
-import dynamic from "next/dynamic";
-
-const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
-    ssr: false,
-    loading: () => <></>,
-});
+import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
+import {AppBskyFeedPost} from "@atproto/api";
 
 type PostContentProps = {
-    postView: PostView
+    postView: ArCabildoabiertoFeedDefs.PostView
     isMainPost?: boolean
     hideQuote?: boolean
     showQuoteContext?: boolean
@@ -29,7 +24,7 @@ export const PostContent = ({
 
     return <div className={"flex flex-col space-y-2"}>
         <BskyRichTextContent
-            post={postView.record as PostRecord}
+            post={postView.record as AppBskyFeedPost.Record}
             fontSize={isMainPost ? "18px" : "16px"}
             className={"no-margin-top article-content not-article-content exclude-links"}
             namespace={postView.uri}

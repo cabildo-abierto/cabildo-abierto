@@ -6,7 +6,8 @@ import {
     InputLabel,
     OutlinedInput
 } from '@mui/material';
-import {Color, darker} from "./button";
+import {darker} from "./button";
+import {Color} from "./color";
 
 export const Select = ({
                            options,

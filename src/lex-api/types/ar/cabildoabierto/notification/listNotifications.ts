@@ -10,7 +10,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
 
 const is$typed = _is$typed,
@@ -54,7 +54,7 @@ export interface Notification {
   $type?: 'ar.cabildoabierto.notification.listNotifications#notification'
   uri: string
   cid: string
-  author: AppBskyActorDefs.ProfileView
+  author: ArCabildoabiertoActorDefs.ProfileView
   /** Expected values are 'like', 'repost', 'follow', 'mention', 'reply', 'quote', and 'starterpack-joined'. */
   reason:
     | 'like'

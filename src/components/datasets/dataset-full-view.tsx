@@ -1,36 +1,31 @@
 import {DatasetTableView} from "./dataset-table-view";
 import {DatasetDescription} from "./dataset-description";
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {
-    DatasetView,
-    DatasetViewBasic,
-    isDatasetView, isTopicsDatasetView,
-    TopicsDatasetView
-} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
 import {Authorship} from "@/components/feed/frame/authorship";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
-import {$Typed} from "@atproto/api";
+import {$Typed} from "@/lex-api/util";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {ColumnFilter} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 
 
 export const DatasetFullView = ({dataset, maxWidth, filters}: {
-    dataset: $Typed<DatasetView> | $Typed<DatasetViewBasic> | $Typed<TopicsDatasetView>
-    filters?: $Typed<ColumnFilter>[]
+    dataset: $Typed<ArCabildoabiertoDataDataset.DatasetView> | $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic> | $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView>
+    filters?: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[]
     maxWidth?: number
 }) => {
 
-    const rows = isDatasetView(dataset) || isTopicsDatasetView(dataset) ? JSON.parse(dataset.data).length : undefined
+    const rows = ArCabildoabiertoDataDataset.isDatasetView(dataset) || ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) ? JSON.parse(dataset.data).length : undefined
 
-    const name = isTopicsDatasetView(dataset) ? "Datos" : dataset.name
+    const name = ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) ? "Datos" : dataset.name
 
     return <div className={"px-2 space-y-1 flex flex-col h-full pb-4"}>
         <div className={"flex flex-col space-y-1"}>
             <div className={"flex justify-between items-start space-x-2"}>
                 <h2>{name}</h2>
-                {!isTopicsDatasetView(dataset) && <ContentOptionsButton record={dataset}/>}
+                {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <ContentOptionsButton record={dataset}/>}
             </div>
-            {!isTopicsDatasetView(dataset) &&
+            {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) &&
                 <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
                     <div>
                         <Authorship author={dataset.author} text={"Publicado por"}/>
@@ -38,7 +33,7 @@ export const DatasetFullView = ({dataset, maxWidth, filters}: {
                     <div>hace <DateSince date={dataset.createdAt}/></div>
                 </div>}
             <div className={"mt-3 text-[var(--text-light)]"}>
-                {!isTopicsDatasetView(dataset) && <>
+                {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <>
                     <div className={"font-semibold text-[var(--text)]"}>
                         Descripción
                     </div>
@@ -60,7 +55,7 @@ export const DatasetFullView = ({dataset, maxWidth, filters}: {
                 </div>
             </div>
         </div>
-        {(isDatasetView(dataset) || isTopicsDatasetView(dataset)) ? <DatasetTableView
+        {(ArCabildoabiertoDataDataset.isDatasetView(dataset) || ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset)) ? <DatasetTableView
                 dataset={dataset}
                 maxWidth={maxWidth}
                 filters={filters}

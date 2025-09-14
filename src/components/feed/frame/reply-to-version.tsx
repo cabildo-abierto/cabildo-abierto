@@ -1,13 +1,13 @@
 import {DateSince} from "../../../../modules/ui-utils/src/date";
-import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import Link from "next/link";
 import {splitUri, topicUrl} from "@/utils/uri";
+import {AppBskyFeedPost} from "@atproto/api";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
-export const ReplyToVersion = ({postView, pageRootUri}: {postView: PostView, pageRootUri?: string}) => {
+export const ReplyToVersion = ({postView, pageRootUri}: {postView: ArCabildoabiertoFeedDefs.PostView, pageRootUri?: string}) => {
     if(pageRootUri && postView.rootCreationDate){
-        const record = postView.record as PostRecord
+        const record = postView.record as AppBskyFeedPost.Record
         if(record.reply && record.reply.root){
             const rootUri = record.reply.root.uri
             if(rootUri != pageRootUri){

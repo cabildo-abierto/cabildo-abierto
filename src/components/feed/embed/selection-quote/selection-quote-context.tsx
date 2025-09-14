@@ -1,13 +1,13 @@
 import {contentUrl, getCollectionFromUri, isArticle, isTopicVersion} from "@/utils/uri";
 import Link from "next/link";
-import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {Authorship} from "@/components/feed/frame/authorship";
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
 
 type SelectionQuoteContextProps = {
     quotedContent: string
     quotedContentTitle: string
-    quotedContentAuthor: ProfileViewBasic
+    quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
 }
 
 

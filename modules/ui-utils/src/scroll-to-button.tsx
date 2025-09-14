@@ -1,6 +1,6 @@
 "use client"
-import {smoothScrollTo} from "../../ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {ReactNode} from "react";
+import {smoothScrollTo} from "./scroll";
 
 
 export const ScrollToButton = ({target=0, children}: {target?: any, children: ReactNode}) => {

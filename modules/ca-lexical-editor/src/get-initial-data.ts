@@ -5,7 +5,7 @@ import {
     normalizeMarkdown
 } from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
-import {ArticleEmbedView} from "@/lex-api/types/ar/cabildoabierto/feed/article";
+import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {SerializedCustomLinkNode} from "./nodes/CustomLinkNode";
 import {SerializedTopicMentionNode} from "./nodes/TopicMentionNode";
 import {CA_TRANSFORMERS, MarkdownTransformer} from "./ca-transformers";
@@ -69,7 +69,7 @@ export function getInitialData(
     text: string,
     format: string,
     shouldPreserveNewLines: boolean = false,
-    embeds?: ArticleEmbedView[],
+    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
     topicMentions: boolean = false,
     transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): InitialEditorStateType {

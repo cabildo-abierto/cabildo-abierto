@@ -3,11 +3,12 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React from "react"
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import dynamic from "next/dynamic";
-import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {TimePeriod} from "@/queries/useTrendingTopics";
 import {TTOption} from "@/lib/types";
 import Link from "next/link";
-import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+
+import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
@@ -51,12 +52,12 @@ export const CategoryTopics = ({sortedBy, categories}: {
     return <div className="flex flex-col items-center w-full" key={sortedBy + categories.join("-")}>
         <StaticFeed
             initialContents={topics}
-            FeedElement={({content: t, index}: {content: TopicViewBasic, index?: number}) =>
+            FeedElement={({content: t, index}: {content: ArCabildoabiertoWikiTopicVersion.TopicViewBasic, index?: number}) =>
                 <TopicSearchResult topic={t} index={index} time={time}/>
             }
             noResultsText={"No se encontró ningún tema."}
             endText={endText}
-            getFeedElementKey={(e: TopicViewBasic) => {return `${e.id}:${time}`}}
+            getFeedElementKey={(e: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {return `${e.id}:${time}`}}
         />
     </div>
 }

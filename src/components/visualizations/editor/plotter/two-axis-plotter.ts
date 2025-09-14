@@ -1,4 +1,4 @@
-import {isTwoAxisPlot, Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
 import {count, unique} from "@/utils/arrays";
 import {Axis, Plotter, ValueType} from "@/components/visualizations/editor/plotter/plotter";
@@ -11,7 +11,10 @@ export class TwoAxisPlotter extends AxesPlotter {
     private xToYMap: Map<ValueType, { value: ValueType, color: string }[]> = new Map()
     private colorLabelToColor: Map<string, string> = new Map()
 
-    constructor(spec: Visualization["spec"], dataset: DatasetForTableView, filters?: Visualization["filters"]) {
+    constructor(
+        spec: ArCabildoabiertoEmbedVisualization.Main["spec"],
+        dataset: DatasetForTableView, filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]
+    ) {
         super(spec, dataset, filters)
     }
 
@@ -72,7 +75,7 @@ export class TwoAxisPlotter extends AxesPlotter {
 
     createAxes() {
         const spec = this.spec
-        if (isTwoAxisPlot(spec)) {
+        if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(spec)) {
             let yAxisCols: string[] = []
             if (spec.yAxis) {
                 yAxisCols = [spec.yAxis]
@@ -128,7 +131,7 @@ export class TwoAxisPlotter extends AxesPlotter {
     }
 
     yValueToString(y: ValueType): string {
-        const precision = isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
+        const precision = ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(this.spec) ? this.spec.dimensions?.yAxisPrecision : undefined
         return this.valueToString(y, this.getAxisType("y"), precision)
     }
 

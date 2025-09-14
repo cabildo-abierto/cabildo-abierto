@@ -17,7 +17,7 @@ type RouteContentProps = {
 }
 
 
-export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
+const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
     const {searchState, setSearchState} = useSearch()
 
@@ -80,3 +80,6 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         }
     </div>
 }
+
+
+export default SearchContent

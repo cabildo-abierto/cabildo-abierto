@@ -6,11 +6,11 @@ import {Profile} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {ProfileViewBasic, ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
-import {ProfileViewBasic as CAProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
-import {Color, darker} from "../../../modules/ui-utils/src/button";
+import {darker} from "../../../modules/ui-utils/src/button";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
-
+import {AppBskyActorDefs} from "@atproto/api"
+import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import {Color} from "../../../modules/ui-utils/src/color";
 
 const follow = async ({did}: { did: string }) => {
     return await post<{ followedDid: string }, { followUri: string }>("/follow", {followedDid: did})
@@ -42,15 +42,15 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
-                    return produce(old as ProfileViewBasic[], draft => {
-                        const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
+                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if(k[0] == "follow-suggestions"){
                     if (!old) return old
-                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                    return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft.profiles[index].viewer.following = "optimistic-follow"
@@ -58,7 +58,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
                     if(!old) return old
-                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
                         for(let i = 0; i < draft.pages.length; i++){
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
@@ -92,15 +92,15 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
-                    return produce(old as ProfileViewBasic[], draft => {
-                        const index = (old as ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
+                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = undefined
                         }
                     })
                 } else if(k[0] == "follow-suggestions"){
                     if (!old) return old
-                    return produce(old as {profiles: ProfileViewBasic[]}, draft => {
+                    return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft.profiles[index].viewer.following = undefined
@@ -108,7 +108,7 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
                     if(!old) return old
-                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
                         for(let i = 0; i < draft.pages.length; i++){
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
@@ -138,7 +138,7 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
-                    return produce(old as ProfileViewBasic[], draft => {
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
                         const index = draft.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             draft[index].viewer.following = followUri
@@ -146,7 +146,7 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
                     if(!old) return old
-                    return produce(old as InfiniteFeed<ProfileViewBasic>, draft => {
+                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
                         for(let i = 0; i < draft.pages.length; i++){
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
@@ -171,7 +171,7 @@ const isQueryRelatedToFollow = (query: Query) => {
 
 export function FollowButton({handle, profile, backgroundColor="background", textClassName, dense=false}: {
     handle: string,
-    profile: ProfileViewDetailed | ProfileViewBasic | CAProfileViewBasic
+    profile: AppBskyActorDefs.ProfileViewDetailed | AppBskyActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewBasic
     backgroundColor?: Color
     textClassName?: string
     dense?: boolean

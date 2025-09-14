@@ -4,7 +4,8 @@ import React from "react";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {TextField, TextFieldProps} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import {Color} from "../../../modules/ui-utils/src/button";
+
+import {Color} from "../../../modules/ui-utils/src/color";
 
 
 const SearchBar = ({

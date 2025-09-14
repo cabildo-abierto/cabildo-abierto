@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
@@ -8,18 +7,20 @@ import {$dfs, $wrapNodeInElement} from "@lexical/utils";
 import {createPortal} from "react-dom";
 import {NodeQuoteReplies} from "./node-quote-replies";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/thread/article/read-tracking/track-reading";
 import {useSession} from "@/queries/useSession";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
-import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {AppBskyFeedPost} from "@atproto/api"
+import dynamic from "next/dynamic";
+import MyLexicalEditor from "../../../modules/ca-lexical-editor/src/lexical-editor"
+import {ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 
-const MyLexicalEditor = dynamic(() => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
-
-const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
+    ssr: false
+});
 
 type EditorWithQuoteCommentsProps = {
     uri: string
@@ -31,7 +32,7 @@ type EditorWithQuoteCommentsProps = {
     setEditorState: (state: EditorState) => void
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
-    quoteReplies: PostView[]
+    quoteReplies: ArCabildoabiertoFeedDefs.PostView[]
     clippedToHeight: number | null
 }
 
@@ -134,13 +135,13 @@ export const EditorWithQuoteComments = ({
         // por ahora, no mostramos ningún comentario que haya citado una versión anterior del contenido
         // sí los mostramos en la sección de discusión
         const filteredReplies = quoteReplies.filter(r => {
-            return r.cid == "optimistic-post-cid" || (r.record as PostRecord)?.reply?.parent?.cid == cid
+            return r.cid == "optimistic-post-cid" || (r.record as AppBskyFeedPost.Record)?.reply?.parent?.cid == cid
         })
 
         const m = new Map<number, string[]>()
         for (let i = 0; i < filteredReplies.length; i++) {
             const selection = filteredReplies[i].embed
-            if (isSelectionQuoteView(selection)) {
+            if (ArCabildoabiertoEmbedSelectionQuote.isView(selection)) {
                 const markdownSelection = new MarkdownSelection(selection.start, selection.end)
                 const lexicalSelection = markdownSelection.toLexicalSelection(normalizedEditorState)
                 const key = lexicalSelection.start.node[0]

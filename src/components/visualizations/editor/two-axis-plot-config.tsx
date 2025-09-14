@@ -1,6 +1,6 @@
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {produce} from "immer";
-import {isTwoAxisPlot} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {PlotConfigProps} from "@/lib/types";
 import {useState} from "react";
 import {Switch} from "@mui/material";
@@ -13,9 +13,9 @@ type Props = {
 }
 
 export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => {
-    const [multipleYAxis, setMultipleYAxis] = useState(isTwoAxisPlot(config.spec) && config.spec.yAxes && config.spec.yAxes.length > 0)
+    const [multipleYAxis, setMultipleYAxis] = useState(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) && config.spec.yAxes && config.spec.yAxes.length > 0)
 
-    if (!isTwoAxisPlot(config.spec)) {
+    if (!ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec)) {
         return null
     }
 
@@ -27,7 +27,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             selected={config.spec.xAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
                         draft.spec.xAxis = v
                     }
                 }))
@@ -40,7 +40,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             selected={config.spec.yAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
                         draft.spec.yAxis = v
                     }
                 }))
@@ -54,7 +54,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 items={config.spec.yAxes ? config.spec.yAxes.map(c => c.column) : []}
                 setItems={(yCols: string[]) => {
                     setConfig(produce(config, draft => {
-                        if (isTwoAxisPlot(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
                             draft.spec.yAxes = yCols.map(c => ({
                                 $type: "ar.cabildoabierto.embed.visualization#axisConfig",
                                 column: c
@@ -73,7 +73,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             selected={config.spec.colors && config.spec.colors.length > 0 ? config.spec.colors[0].column : ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
-                    if (isTwoAxisPlot(draft.spec)) {
+                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
                         if(v.trim().length == 0){
                             draft.spec.colors = undefined
                         } else {
@@ -97,7 +97,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 onChange={(e, v) => {
                     setMultipleYAxis(v)
                     setConfig(produce(config, draft => {
-                        if (isTwoAxisPlot(draft.spec)) {
+                        if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
                             draft.spec.yAxes = undefined
                             draft.spec.yAxis = undefined
                         }

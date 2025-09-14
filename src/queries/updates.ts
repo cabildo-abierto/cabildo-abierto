@@ -1,19 +1,12 @@
 import {QueryClient} from "@tanstack/react-query";
-import {
-    FeedViewContent,
-    isPostView,
-    isThreadViewContent, PostView,
-    ThreadViewContent
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api/index"
 import {postOrArticle} from "@/utils/type-utils";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
-import {TopicHistory, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {QueryFilters} from "@tanstack/query-core";
 import {$Typed} from "@atproto/api";
-import {BlockedPost, NotFoundPost} from "@/lex-api/types/app/bsky/feed/defs";
+import {AppBskyFeedDefs} from "@/lex-api/index"
 
 
 export const contentQueriesFilter = (uri: string): QueryFilters<readonly unknown[]> => ({
@@ -54,14 +47,14 @@ export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
 
 type Updater<T> = (_: T) => T | null
 
-function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, updater: Updater<FeedViewContent["content"]>) {
+function updateFeedElement(feed: InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>, uri: string, updater: Updater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]>) {
     return produce(feed, draft => {
         if(!feed) return
         for (let i = 0; i < draft.pages.length; i++) {
             const page = draft.pages[i]
             for (let j = 0; j < page.data.length; j++) {
                 const element = page.data[j]
-                if (isPostView(element.content) && element.reply && element.reply.parent && postOrArticle(element.reply.parent) && element.reply.parent.uri == uri){
+                if (ArCabildoabiertoFeedDefs.isPostView(element.content) && element.reply && element.reply.parent && postOrArticle(element.reply.parent) && element.reply.parent.uri == uri){
                     const newParent = updater(element.reply.parent)
                     if(newParent){
                         element.reply.parent = newParent
@@ -72,7 +65,7 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
                     } else {
                         page.data = page.data.toSpliced(j, 1)
                     }
-                } else if(isPostView(element.content) && element.reply && element.reply.root && postOrArticle(element.reply.root) && element.reply.root.uri == uri){
+                } else if(ArCabildoabiertoFeedDefs.isPostView(element.content) && element.reply && element.reply.root && postOrArticle(element.reply.root) && element.reply.root.uri == uri){
                     page.data = page.data.toSpliced(j, 1)
                 } else if (postOrArticle(element.content) && element.content.uri == uri) {
                     const newContent = updater(feed.pages[i].data[j].content)
@@ -87,10 +80,13 @@ function updateFeedElement(feed: InfiniteFeed<FeedViewContent>, uri: string, upd
     })
 }
 
-type MaybeThreadViewContent = $Typed<ThreadViewContent> | $Typed<NotFoundPost> | $Typed<BlockedPost> | {$type: string}
+type MaybeThreadViewContent = $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> |
+    $Typed<AppBskyFeedDefs.NotFoundPost> |
+    $Typed<AppBskyFeedDefs.BlockedPost> |
+    {$type: string}
 
-function updateThreadViewContentQuery(uri: string, t: MaybeThreadViewContent, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null, isParent: boolean = false): MaybeThreadViewContent {
-    if(!isThreadViewContent(t)) return t
+function updateThreadViewContentQuery(uri: string, t: MaybeThreadViewContent, updater: (_: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) => ArCabildoabiertoFeedDefs.FeedViewContent["content"] | null, isParent: boolean = false): MaybeThreadViewContent {
+    if(!ArCabildoabiertoFeedDefs.isThreadViewContent(t)) return t
 
     let content = t.content
 
@@ -113,7 +109,7 @@ function updateThreadViewContentQuery(uri: string, t: MaybeThreadViewContent, up
 }
 
 
-export function updateContentInQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
+export function updateContentInQueries(qc: QueryClient, uri: string, updater: (_: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) => ArCabildoabiertoFeedDefs.FeedViewContent["content"] | null) {
     qc.getQueryCache()
         .getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToUri(q.queryKey, uri))
@@ -127,20 +123,20 @@ export function updateContentInQueries(qc: QueryClient, uri: string, updater: (_
                     const t = old as MaybeThreadViewContent
                     return updateThreadViewContentQuery(uri, t, updater)
                 } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "thread-feed" || k[0] == "topic-feed") {
-                    return updateFeedElement(old as InfiniteFeed<FeedViewContent>, uri, updater)
+                    return updateFeedElement(old as InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>, uri, updater)
                 }
             })
         })
 }
 
 
-export async function updateTopicHistories(qc: QueryClient, uri: string, updater: (_: VersionInHistory) => VersionInHistory | null) {
+export async function updateTopicHistories(qc: QueryClient, uri: string, updater: (_: ArCabildoabiertoWikiTopicVersion.VersionInHistory) => ArCabildoabiertoWikiTopicVersion.VersionInHistory | null) {
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && q.queryKey[0] == "topic-history")
         .forEach(q => {
             qc.setQueryData(q.queryKey, old => {
                 if (!old) return old
-                const history = old as TopicHistory
+                const history = old as ArCabildoabiertoWikiTopicVersion.TopicHistory
                 return produce(history, draft => {
                     const index = draft.versions.findIndex(v => v.uri == uri)
                     const newVersion = updater(draft.versions[index])
@@ -155,9 +151,9 @@ export async function updateTopicHistories(qc: QueryClient, uri: string, updater
 }
 
 
-export async function updateDatasets(qc: QueryClient, uri: string, updater: (_: DatasetViewBasic) => DatasetViewBasic | null) {
+export async function updateDatasets(qc: QueryClient, uri: string, updater: (_: ArCabildoabiertoDataDataset.DatasetViewBasic) => ArCabildoabiertoDataDataset.DatasetViewBasic | null) {
     qc.setQueryData(["datasets"], old => {
-        return produce(old as DatasetViewBasic[] | undefined, draft => {
+        return produce(old as ArCabildoabiertoDataDataset.DatasetViewBasic[] | undefined, draft => {
             if(!draft) return
             const index = draft.findIndex(d => d.uri == uri)
             const newVersion = updater(draft[index])
@@ -171,7 +167,7 @@ export async function updateDatasets(qc: QueryClient, uri: string, updater: (_: 
 }
 
 
-export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updater: (_: FeedViewContent["content"]) => FeedViewContent["content"] | null) {
+export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updater: (_: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) => ArCabildoabiertoFeedDefs.FeedViewContent["content"] | null) {
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey))
         .forEach(q => {
@@ -179,7 +175,7 @@ export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updat
                 if (!old) return old
 
                 if(q.queryKey[0] == "topic-quote-replies"){
-                    return produce(old as PostView[], draft => {
+                    return produce(old as ArCabildoabiertoFeedDefs.PostView[], draft => {
                         const index = draft.findIndex(v => v.uri == uri)
                         if(index != -1) {
                             const newVersion = updater({
@@ -188,7 +184,7 @@ export async function updateTopicFeedQueries(qc: QueryClient, uri: string, updat
                             })
                             if (!newVersion) {
                                 draft.splice(index)
-                            } else if(isPostView(newVersion)){
+                            } else if(ArCabildoabiertoFeedDefs.isPostView(newVersion)){
                                 draft[index] = newVersion
                             }
                         }

@@ -8,13 +8,13 @@ import type {
     Spread,
 } from 'lexical';
 import {$applyNodeReplacement, DecoratorNode} from 'lexical';
-import {Main as Visualization} from "@/lex-api/types/ar/cabildoabierto/embed/visualization"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {EmbedNodeComp} from "./embed-node-comp";
 import {ReactNode} from "react";
 import {$Typed} from "@atproto/api";
-import {View as ImageEmbedView} from "@/lex-api/types/app/bsky/embed/images"
+import {AppBskyEmbedImages} from "@atproto/api"
 
-export type EmbedSpec = $Typed<Visualization> | $Typed<ImageEmbedView>
+export type EmbedSpec = $Typed<ArCabildoabiertoEmbedVisualization.Main> | $Typed<AppBskyEmbedImages.View>
 
 export type EmbedContext = {
     base64files?: string[]

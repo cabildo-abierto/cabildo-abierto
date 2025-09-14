@@ -1,16 +1,14 @@
 import {ShowQuoteReplyButton} from "./show-quote-reply";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";
-
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-
+import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
 export const NodeQuoteReplies = ({
      editor, replies, pinnedReplies, setPinnedReplies, leftCoordinates, parentContent
 }: {
-    replies: PostView[]
+    replies: ArCabildoabiertoFeedDefs.PostView[]
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
     editor: LexicalEditor

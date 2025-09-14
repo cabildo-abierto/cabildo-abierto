@@ -1,44 +1,39 @@
-import {
-    ArticleView,
-    FullArticleView,
-    isArticleView,
-    isFullArticleView,
-    PostView
-} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
-import {View as RecordEmbedView} from "@/lex-api/types/app/bsky/embed/record"
-import {$Typed} from "@atproto/api";
-import {isPostView} from "@/lex-api/types/app/bsky/feed/defs";
+import {$Typed} from "@/lex-api/util";
+import {AppBskyFeedDefs, AppBskyEmbedRecord} from "@atproto/api"
 import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
-import {View as CARecordEmbedView} from "@/lex-api/types/ar/cabildoabierto/embed/record"
+import {ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
-export function postViewToRecordEmbedView(post: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>): $Typed<RecordEmbedView> {
+export function postViewToRecordEmbedView(post: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>): $Typed<AppBskyEmbedRecord.View> {
     return {
         $type: "app.bsky.embed.record#view",
         record: {
             $type: "app.bsky.embed.record#viewRecord",
             uri: post.uri,
             cid: post.cid,
-            author: {...post.author, $type: "app.bsky.actor.defs#profileViewBasic"},
+            author: {
+                ...post.author,
+                verification: null,
+                $type: "app.bsky.actor.defs#profileViewBasic"},
             indexedAt: post.indexedAt,
-            value: post.record
+            value: post.record,
         }
     }
 }
 
 
-export const WritePanelQuotedPost = ({quotedPost}: { quotedPost:  $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> }) => {
-    if(isPostView(quotedPost)){
-        const embed: RecordEmbedView = postViewToRecordEmbedView(quotedPost)
+export const WritePanelQuotedPost = ({quotedPost}: { quotedPost:  $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> }) => {
+    if(AppBskyFeedDefs.isPostView(quotedPost)){
+        const embed: AppBskyEmbedRecord.View = postViewToRecordEmbedView(quotedPost)
         return <div className={"pointer-events-none"}>
             <PostRecordEmbed
                 embed={embed}
                 navigateOnClick={false}
             />
         </div>
-    } else if(isArticleView(quotedPost) || isFullArticleView(quotedPost)){
-        const embed: CARecordEmbedView = {
+    } else if(ArCabildoabiertoFeedDefs.isArticleView(quotedPost) || ArCabildoabiertoFeedDefs.isFullArticleView(quotedPost)){
+        const embed: ArCabildoabiertoEmbedRecord.View = {
             $type: "ar.cabildoabierto.embed.record#view",
             record: quotedPost
         }

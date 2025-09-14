@@ -16,10 +16,8 @@ import {useSession} from "@/queries/useSession";
 import {ViewsIcon} from "@/components/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
-import {$Typed} from "@atproto/api";
-import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
+import {$Typed} from "@/lex-api/util";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api/index"
 
 
 export function canBeEnDiscusion(c: string) {
@@ -48,7 +46,12 @@ export const ContentOptions = ({
                                    setShowBluesky,
                                }: {
     onClose: () => void
-    record: $Typed<PostView> | $Typed<DatasetViewBasic> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<VersionInHistory> | $Typed<DatasetView>
+    record: $Typed<ArCabildoabiertoFeedDefs.PostView> |
+        $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic> |
+        $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
+        $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
+        $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory> |
+        $Typed<ArCabildoabiertoDataDataset.DatasetView>
     enDiscusion: boolean
     showBluesky?: boolean,
     setShowBluesky?: (v: boolean) => void
