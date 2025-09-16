@@ -12,12 +12,15 @@ export const GoToLoginButton = ({fontSize = 13, className = "font-bold", text = 
     const inviteCode = params.get("c")
 
     return <Button
-        color={"primary"}
+        color={"transparent"}
+        variant={"outlined"}
         size={!isMobile ? "large" : "medium"}
+        textTransform={""}
         sx={{
-            textTransform: "none",
-            borderRadius: 20,
+            borderRadius: 0,
+            borderColor: "var(--text)"
         }}
+
         onClick={() => {
             router.push("/login" + (inviteCode ? `?c=${inviteCode}` : ""))
         }}

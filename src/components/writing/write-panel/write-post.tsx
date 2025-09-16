@@ -27,7 +27,7 @@ import {$Typed} from "@/lex-api/util";
 import {EditorState} from "lexical";
 import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
-import {getEditorSettings} from "@/components/editor/settings";
+import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {$dfs} from "@lexical/utils";
 import {$isLinkNode} from "@lexical/link";
@@ -208,7 +208,7 @@ function getLinksFromEditor(editorState: EditorState) {
 const settings: SettingsProps = getEditorSettings({
     placeholder: "¿Qué está pasando?",
     placeholderClassName: "text-[var(--text-light)] absolute top-0",
-    editorClassName: "link relative",
+    editorClassName: "link relative h-full",
     isReadOnly: false,
     isRichText: false,
     markdownShortcuts: false,
@@ -312,9 +312,10 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
         return null
     }, [visualization])
 
-    return <div className={"flex flex-col justify-between"}>
+    return <div className={"flex flex-col flex-grow justify-between"}>
         <div
-            className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
+            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-2 justify-between min-h-64"}
+        >
             <div className="flex justify-between space-x-2 w-full my-2">
                 <Link
                     href={profileUrl(user.handle)}
@@ -365,13 +366,12 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
-                    color={"primary"}
+                    variant={"outlined"}
                     text1={isReply ? "Responder" : "Publicar"}
                     handleClick={handleClickSubmit}
                     disabled={!valid}
-                    textClassName="font-semibold"
+                    textClassName="font-semibold text-xs py-[2px]"
                     size="medium"
-                    sx={{borderRadius: 20}}
                 />
             </div>
         </div>

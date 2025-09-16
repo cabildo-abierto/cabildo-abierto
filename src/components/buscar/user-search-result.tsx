@@ -14,7 +14,7 @@ import {produce} from "immer";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 
-const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+const ReadOnlyEditor = dynamic(() => import('@/components/writing/read-only-editor'), {
     ssr: false,
     loading: () => <></>,
 });

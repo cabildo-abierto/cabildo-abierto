@@ -33,7 +33,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
         const createdAt = new Date(record.indexedAt)
 
         return <div
-            className={"rounded-lg border p-3 hover:bg-[var(--background-dark2)]"}
+            className={"border-[1px] p-3 hover:bg-[var(--background-dark2)]"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

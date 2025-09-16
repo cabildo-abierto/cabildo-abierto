@@ -7,8 +7,8 @@ import {TopicContentHistory} from "./topic-content-history";
 import {useTopicVersion, useTopicVersionQuoteReplies} from "@/queries/useTopic";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
-import {getEditorSettings} from "@/components/editor/settings";
-import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
+import {getEditorSettings} from "@/components/writing/settings";
+import {EditorWithQuoteComments} from "@/components/writing/editor-with-quote-comments";
 import dynamic from "next/dynamic";
 import {post} from "@/utils/fetch";
 import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
@@ -111,7 +111,7 @@ const TopicContentExpandedViewContent = ({
                 key={topic.uri}
             >
                 {wikiEditorState == "minimized" && isOverflowing && <div
-                    className="w-full hover:bg-[var(--background-dark-30)] h-[300px] absolute z-[1000] pb-1 px-2 inset-0 cursor-pointer"
+                    className="w-full border-b border-[var(--text-lighter)] hover:bg-[var(--background-dark-30)] h-[300px] absolute z-[1000] inset-0 cursor-pointer"
                     onClick={() => {if(wikiEditorState == "minimized") setWikiEditorState("normal")}}
                     onMouseEnter={() => {setOverlayHovered(true)}}
                     onMouseLeave={() => {setOverlayHovered(false)}}
@@ -119,7 +119,7 @@ const TopicContentExpandedViewContent = ({
                     <div className={"h-full flex flex-col justify-end items-center"}>
                         <div
                             id={"maximize-topic"}
-                            className={"p-2 rounded-full cursor-pointer w-full text-[var(--text-light)] text-sm bg-[var(--background-dark)]" + (overlayHovered ? " bg-[var(--background-dark2)]" : "")}
+                            className={"py-2 px-4 text-xs uppercase font-light border-l border-r border-t cursor-pointer w-full bg-[var(--background-dark)]" + (overlayHovered ? " bg-[var(--background-dark2)]" : "")}
                         >
                             Ver más
                         </div>
@@ -277,7 +277,7 @@ export const TopicContentExpandedViewWithVersion = ({
     }, [editor, setEditor, topic, pinnedReplies, setPinnedReplies, quoteReplies, wikiEditorState])
 
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
-        <div id="topic-content" className={"w-full " + (wikiEditorState == "minimized" ? "border-b" : "") }>
+        <div id="topic-content" className={"w-full " + (wikiEditorState == "minimized" ? "" : "") }>
             <TopicContentExpandedViewHeader
                 topic={topic}
                 wikiEditorState={wikiEditorState}

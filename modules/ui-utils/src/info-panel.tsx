@@ -1,8 +1,8 @@
 import {ReactNode} from 'react';
-import InfoIcon from '@mui/icons-material/Info';
 import DescriptionOnHover from "./description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import DescriptionOnClick from "./description-on-click";
+import {InfoIcon} from "@phosphor-icons/react";
 
 export const InfoPanel = ({
                               text,
@@ -10,7 +10,7 @@ export const InfoPanel = ({
                               onClick,
                               iconClassName = "text-gray-600",
                               moreInfoHref,
-                              icon = <InfoIcon fontSize="small"/>
+                              icon = <InfoIcon fontSize="20" weight={"regular"}/>
                           }: {
     text?: ReactNode,
     className?: string,

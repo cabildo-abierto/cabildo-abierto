@@ -25,7 +25,7 @@ export default function MessageCard({
             }
         >
             <div className={
-                "max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark2)] rounded-t-[16px] rounded-l-[16px]" : "bg-[var(--background-dark)] rounded-t-[16px] rounded-r-[16px]"))
+                "border border-[var(--text-lighter)] max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark2)] rounded-t-[16px] rounded-l-[16px]" : "bg-[var(--background-dark)] rounded-t-[16px] rounded-r-[16px]"))
             }>
                 <BskyRichTextContent
                     post={{text: message.text, facets: message.facets}}

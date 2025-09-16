@@ -12,10 +12,7 @@ const DraftPreviewComp = ({draft}: { draft: DraftPreview }) => {
     }
 
     if (isArticle(draft.collection)) {
-        return <div className={"relative cursor-pointer"} onClick={onGoToEditDraft}>
-            <div className={"absolute right-3 top-2 text-xs text-[var(--text-light)]"}>
-                Seguir editando
-            </div>
+        return <div className={"cursor-pointer"} onClick={onGoToEditDraft}>
             <ArticlePreviewContent
                 title={draft.title && draft.title.trim().length > 0 ? draft.title : "Sin título"}
                 summary={draft.summary ?? "Sin contenido"}

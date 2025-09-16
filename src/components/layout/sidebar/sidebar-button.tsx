@@ -1,9 +1,8 @@
 import { ReactNode } from "react"
-import { CustomLink } from "../../../modules/ui-utils/src/custom-link"
-import { Button } from "../../../modules/ui-utils/src/button"
-import { IconButton } from "../../../modules/ui-utils/src/icon-button"
+import { CustomLink } from "../../../../modules/ui-utils/src/custom-link"
+import { Button } from "../../../../modules/ui-utils/src/button"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {Color} from "../../../modules/ui-utils/src/color";
+import {Color} from "../../../../modules/ui-utils/src/color";
 
 
 type SidebarButtonProps = {
@@ -20,6 +19,7 @@ type SidebarButtonProps = {
     color?: Color
 }
 
+
 export const SidebarButton = ({
     showText=false,
     text,
@@ -31,7 +31,7 @@ export const SidebarButton = ({
     selected=false,
     className="mt-1 h-10",
     id,
-    color="background-dark"
+    color="transparent"
 }: SidebarButtonProps) => {
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
 
@@ -45,31 +45,29 @@ export const SidebarButton = ({
     }
 
     return <>
-        <CustomLink tag="link" href={href} className={className} id={id} onClick={handleClick}>
-            {showText ? <Button
+        <CustomLink tag="link" href={href} className={className + (showText ? "" : " pl-2")} id={id} onClick={handleClick}>
+            <Button
                 variant="text"
                 color={color}
                 size="large"
                 sx={{
-                    textTransform: 'none',
-                    justifyContent: 'flex-start',
-                    paddingLeft: 2,
+                    justifyContent: showText ? "flex-start" : "center",
+                    paddingLeft: showText ? 2 : 0,
+                    paddingRight: showText ? 0 : 0, // make it symmetrical
+                    minWidth: showText ? undefined : "40px", // keep a square icon button size
                 }}
                 onClick={onClick}
-                fullWidth
+                fullWidth={showText}
                 disabled={disabled}
             >
-                <div className={"flex items-center space-x-2 " + (isMobile ? "text-xl" : "text-base")}>
-                    {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : "font-[400]"}>{showText ? text : ""}</span>
+                <div className={"uppercase flex items-center space-x-2 " + (isMobile ? "text-lg" : "text-sm")}>
+                    {selected || !iconInactive ? icon : iconInactive}
+                    {showText && <div
+                    className={selected ? "font-bold" : "font-light"}>
+                        {text}
+                    </div>}
                 </div>
-            </Button> :
-            <IconButton
-                color={color}
-                size={"large"}
-                sx={{borderRadius: "16px", padding: "10px"}}
-            >
-                {selected || !iconInactive ? icon : iconInactive}
-            </IconButton>}
+            </Button>
         </CustomLink>
     </>
 }

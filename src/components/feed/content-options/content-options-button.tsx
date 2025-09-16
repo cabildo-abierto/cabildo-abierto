@@ -19,7 +19,7 @@ export const ContentOptionsButton = ({
     setShowBluesky?: (v: boolean) => void
 }) => {
     const modal = (onClose: () => void) => (
-        <div className="text-base border rounded bg-[var(--background-dark)] p-1 z-[3000]">
+        <div className="text-base p-1 z-[3000]">
             <ContentOptions
                 record={record}
                 onClose={onClose}
@@ -30,7 +30,7 @@ export const ContentOptionsButton = ({
         </div>
     )
 
-    return <ModalOnClick modal={modal}>
+    return <ModalOnClick modal={modal} className={"mt-2 bg-[var(--background)] border border-[var(--text-light)]"}>
         <div className={"text-[var(--text-light)] text-xs"}>
             <IconButton
                 color="inherit"

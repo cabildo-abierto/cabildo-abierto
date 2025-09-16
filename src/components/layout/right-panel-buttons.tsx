@@ -10,7 +10,7 @@ export const RightPanelButtons = () => {
     if (!user) return null
 
     return <div className={"w-full flex flex-wrap gap-1"}>
-        <div className={"flex gap-x-1 flex-wrap text-xs text-[11px] text-[var(--text-light)]"}>
+        <div className={"uppercase flex gap-x-1 flex-wrap leading-[16px] text-[0.598rem] text-[var(--text-light)]"}>
             <Link href={"/soporte"} className={"hover:text-[var(--text)]"}>
                 Soporte
             </Link>

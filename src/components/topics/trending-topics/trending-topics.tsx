@@ -12,7 +12,7 @@ const TrendingTopicsSlider = dynamic(() => import('./trending-topics-slider'));
 
 
 const LoadingTrendingTopicsSlider = ({count = 10}: { count?: number }) => {
-    return <div className={"flex flex-col bg-[var(--background-dark)] overflow-y-scroll max-h-[300px] no-scrollbar"}>
+    return <div className={"flex flex-col overflow-y-scroll max-h-[300px] no-scrollbar"}>
         {range(count).map(i => {
             return <div key={i}
                         className={"cursor-pointer space-y-1 flex flex-col py-4 w-full px-5 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark2)]"}>
@@ -45,14 +45,14 @@ const TrendingTopicsConfig = ({time, setTime}: { time: string, setTime: (v: stri
             options={["día", "semana", "mes"]}
             onChange={setTime}
             value={time}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            paddingY={0.3}
+            fontSize={"13px"}
+            labelShrinkFontSize={"13px"}
+            paddingY={0.1}
             paddingX={1}
             textClassName={"text-sm text-[var(--text)]"}
-            backgroundColor={"background-dark2"}
-            borderColor={"background-dark"}
-            outlineColor={"background-dark3"}
+            backgroundColor={"transparent"}
+            borderColor={"text-light"}
+            outlineColor={"text-light"}
         />
     </div>
 }
@@ -88,11 +88,11 @@ export const TrendingTopicsPanel = () => {
     const [time, setTime] = useState<string>(configLabelToSelected(user.algorithmConfig?.tt?.time ?? "Última semana"))
     const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
-    return <div className="w-full space-y-2 bg-[var(--background-ldark2)] rounded-lg ">
-        <div className="flex justify-between pt-3 px-3 items-center w-full">
+    return <div className="w-full space-y-2 border-[1px] border-[var(--text-lighter)]">
+        <div className="flex justify-between h-10 px-3 items-center w-full">
             <Link
                 href={"/temas"}
-                className={"text-xs font-bold flex items-center w-full space-x-1"}
+                className={"text-xs uppercase font-bold flex items-center w-full space-x-1"}
                 id={"trending-topics"}
             >
                 Tendencias

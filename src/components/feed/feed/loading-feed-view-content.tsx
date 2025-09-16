@@ -13,9 +13,9 @@ const LoadingFeedViewContent = () => {
             <div className={"w-full h-3 rounded-lg bg-[var(--background-dark)]"}/>
             <div className={"w-full h-3 rounded-lg bg-[var(--background-dark)]"}/>
             <div className={"pt-2 flex space-x-12 text-[var(--background-dark3)]"}>
-                <InactiveCommentIcon fontSize={"small"}/>
-                <RepostIcon fontSize={"small"}/>
-                <InactiveLikeIcon fontSize={"small"}/>
+                <InactiveCommentIcon fontSize={"20"} color={"var(--background-dark)"}/>
+                <RepostIcon fontSize={"20"} color={"var(--background-dark)"}/>
+                <InactiveLikeIcon fontSize={"20"} color={"var(--background-dark)"}/>
             </div>
         </div>
     </div>

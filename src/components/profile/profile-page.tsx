@@ -5,10 +5,15 @@ import {LoadingProfile} from "@/components/profile/loading-profile";
 import {getUsername} from "@/utils/utils";
 import {getFeed} from "@/components/feed/feed/get-feed";
 import {updateSearchParam} from "@/utils/fetch";
-import ProfileHeader from "@/components/profile/profile-header";
 import {useQueryClient} from "@tanstack/react-query";
 import {useEffect} from "react";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
+import dynamic from "next/dynamic";
+
+
+const ProfileHeader = dynamic(() => import("@/components/profile/profile-header"), {
+    ssr: false
+})
 
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones" | "articulos"

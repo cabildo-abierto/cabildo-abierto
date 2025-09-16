@@ -2,7 +2,7 @@ import {ShowQuoteReplyButton} from "./show-quote-reply";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs} from "@/lex-api"
 
 
 export const NodeQuoteReplies = ({

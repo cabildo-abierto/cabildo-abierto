@@ -1,5 +1,5 @@
 "use client"
-import {Box, FormHelperText, TextField} from "@mui/material"
+import {Box, FormHelperText} from "@mui/material"
 import {useEffect, useState} from "react"
 import {FormControl} from '@mui/material';
 import {isValidHandle} from "@atproto/syntax"
@@ -7,6 +7,7 @@ import {useSession} from "@/queries/useSession";
 import {Button} from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 import {AtIcon} from "@phosphor-icons/react";
+import { TextField } from "../../../modules/ui-utils/src/text-field";
 
 
 export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
@@ -134,7 +135,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                 variant="contained"
                 color={"primary"}
             >
-                <span className={"font-semibold text-[14px]"}>Iniciar sesión</span>
+                <span className={"text-[13px]"}>Iniciar sesión</span>
             </Button>
         </Box>
     </div>

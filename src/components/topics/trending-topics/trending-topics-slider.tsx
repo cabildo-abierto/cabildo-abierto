@@ -20,9 +20,9 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
     const router = useRouter()
 
     return (
-        <div className={"flex flex-col bg-[var(--background-ldark2)] rounded-lg"}>
+        <div className={"flex flex-col rounded-lg"}>
             <div
-                className="bg-[var(--background-dark)] flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
+                className="flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
             >
                 {trendingArticles.map((topic, index) => {
                     const title = getTopicTitle(topic)
@@ -70,7 +70,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
             </div>
             <Link
                 href={"/temas"}
-                className={"flex hover:bg-[var(--background-dark2)] w-full p-3 font-semibold rounded-b-lg text-xs"}
+                className={"uppercase flex hover:bg-[var(--background-dark)] w-full p-3 font-semibold text-xs"}
             >
                 Ver más
             </Link>

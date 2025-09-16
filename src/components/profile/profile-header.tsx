@@ -13,16 +13,16 @@ import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/useSession";
 import ValidationIcon from "@/components/profile/validation-icon";
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ContentCounters} from "./content-counters";
 import {bskyProfileUrl} from "@/utils/uri";
 import VerifyAccountButton from "@/components/profile/verify-account-button";
 import {CheckSquareIcon} from "@phosphor-icons/react";
+import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
-const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-mobile'))
+const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-modal'))
 
 
 const ProfileTODOs = ({profile, onEdit}: { profile: Profile, onEdit: () => void }) => {
@@ -83,34 +83,8 @@ function ProfileHeader({
 
     const isOwner = profile.bsky.handle == user.handle
 
-    function optionsNodes(o: string, isSelected: boolean) {
-        return <div className="text-[var(--text)]">
-            <Button
-                onClick={() => {
-                }}
-                variant="text"
-                color={"background"}
-                fullWidth={true}
-                disableElevation={true}
-                sx={{
-                    textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0,
-                }}
-            >
-                <div
-                    className={"pb-1 mx-2 pt-2 text-[0.9rem] font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
-                    {o}
-                </div>
-            </Button>
-        </div>
-    }
-
-    return <div className="flex flex-col border-b">
+    return <div className="flex flex-col border-b border-[var(--text-lighter)]">
         <div className={"flex flex-col relative w-full"}>
-            <div className={"absolute z-2 top-2 left-2"}>
-                <BackButton size={"medium"} color={"background-dark3"}/>
-            </div>
             {profile.bsky.banner ?
                 <div className={""}>
                     <FullscreenImageViewer
@@ -151,7 +125,7 @@ function ProfileHeader({
                         width={400}
                         height={400}
                         alt={profile.bsky.handle + " avatar"}
-                        className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
+                        className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border-2 border-[var(--background)] cursor-pointer"
                         onClick={() => {
                             setViewingProfilePic(0)
                         }}
@@ -160,7 +134,12 @@ function ProfileHeader({
 
                 {isOwner && <div className={"pt-2 pr-1"}>
                     <Button
-                        color={"background-dark2"}
+                        color={"transparent"}
+                        variant={"outlined"}
+                        borderColor={"text-lighter"}
+                        sx={{
+                            borderRadius: 0,
+                        }}
                         size={"small"}
                         onClick={() => {
                             setEditingProfile(true)
@@ -246,7 +225,7 @@ function ProfileHeader({
                     setSelected(v)
                 }}
                 options={["Publicaciones", "Respuestas", ...(inCA ? ["Ediciones", "Artículos"] : [])]}
-                optionsNodes={optionsNodes}
+                optionsNodes={feedOptionNodes(40, o => o, "sm:text-[12px] text-[13px]")}
                 className="flex"
             />
         </div>

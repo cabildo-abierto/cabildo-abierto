@@ -5,7 +5,7 @@ import {$Typed} from "@/lex-api/util";
 import {darker} from "@/../modules/ui-utils/src/button"
 import {Box} from "@mui/material";
 import {AppBskyFeedDefs} from "@atproto/api";
-import ReadOnlyEditor from "@/components/editor/read-only-editor";
+import ReadOnlyEditor from "@/components/writing/read-only-editor";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {Color} from "../../../../modules/ui-utils/src/color";
 
@@ -32,7 +32,7 @@ export const ArticlePreviewContent = ({
     mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
 }) => {
     return <Box
-        className={"border rounded-lg p-2"}
+        className={"border p-2"}
         sx={{
             backgroundColor: `var(--${color})`,
             "&:hover": {
@@ -41,7 +41,7 @@ export const ArticlePreviewContent = ({
         }}
     >
         <div className={"flex justify-between w-full"}>
-            <div className={"text-sm text-[var(--text-light)]"}>
+            <div className={"text-[11px] text-[var(--text-light)] uppercase"}>
                 Artículo
             </div>
         </div>

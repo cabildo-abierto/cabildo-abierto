@@ -17,7 +17,7 @@ import {topicUrl} from "@/utils/uri";
 const LoginPanel = ({children, onClickBack}: { children: ReactNode, onClickBack?: () => void }) => {
     return <div className="flex flex-col items-center justify-center w-screen h-screen bg-[var(--background-dark)]">
         <div
-            className={"bg-[var(--background)] sm:w-[480px] sm:rounded-2xl px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}
+            className={"bg-[var(--background)] sm:w-[480px] border border-[var(--text)] px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}
         >
             <div className={"flex justify-start w-full text-[var(--text-light)] mt-4"}>
                 <BackButton
@@ -138,7 +138,7 @@ export const Login = () => {
         <div className={"space-y-4 flex flex-col items-center"}>
         <div className="mb-2 space-y-4">
             <Logo width={60} height={60}/>
-            <h1 className={"text-2xl font-extrabold"}>Iniciar sesión</h1>
+            <h1 className={"text-2xl font-normal uppercase"}>Iniciar sesión</h1>
         </div>
 
         <div className="flex justify-center sm:px-8">
@@ -161,10 +161,18 @@ export const Login = () => {
                     <BlueskyLogin inviteCode={inviteCode}/>
 
                     {!inviteCode && <div className={"pt-4 w-full"}>
-                        <Button color="background-dark2" size={"large"} fullWidth={true} onClick={() => {
+                        <Button
+                            color="background-dark"
+                            size={"large"}
+                            borderColor={"text-lighter"}
+                            sx={{
+                                border: "1px solid"
+                            }}
+                            fullWidth={true}
+                            onClick={() => {
                             setWantsAccess(true)
                         }}>
-                            <span className={"font-bold text-[13px]"}>Quiero participar en el período de prueba</span>
+                            <span className={"text-[13px] uppercase"}>Participar en el período de prueba</span>
                         </Button>
                     </div>}
                 </div>

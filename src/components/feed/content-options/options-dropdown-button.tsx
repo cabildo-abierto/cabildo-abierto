@@ -4,15 +4,16 @@ import StateButton, { StateButtonProps} from "../../../../modules/ui-utils/src/s
 
 export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
     return <StateButton
-        color={"background-dark"}
+        color={"transparent"}
         variant={"text"}
         sx={{
             paddingX: "8px",
-            borderRadius: "4px"
+            paddingY: "8px",
+            borderRadius: 0
         }}
         fullWidth={true}
         stopPropagation={true}
-        textClassName={"whitespace-nowrap w-full px-1"}
+        textClassName={"whitespace-nowrap w-full px-1 uppercase text-xs"}
         {...props}
     />
 }

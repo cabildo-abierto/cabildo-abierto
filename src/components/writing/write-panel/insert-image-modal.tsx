@@ -25,13 +25,13 @@ export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProp
             {!mode &&
                 <div className={"w-48 space-y-4"}>
                     <Button
-                        variant="contained"
-                        sx={{textTransform: "none"}}
+                        variant="outlined"
                         disableElevation={true}
                         startIcon={<LinkIcon/>}
                         fullWidth={true}
-                        onClick={() => setMode('url')}>
-                        Desde un URL
+                        onClick={() => setMode('url')}
+                    >
+                        <span className={"text-sm"}>Desde un URL</span>
                     </Button>
                     <UploadImageButton
                         onSubmit={onSubmit}
@@ -40,7 +40,7 @@ export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProp
             }
             {mode === 'url' &&
                 <div className={"w-72 space-y-4 flex flex-col items-center"}>
-                    <div className={"text-[var(--text-light)]"}>
+                    <div className={"text-[var(--text-light)] text-sm"}>
                         Pegá el URL de una imágen.
                     </div>
                     <InsertImageUriDialogBody

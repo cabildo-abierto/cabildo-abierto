@@ -1,7 +1,7 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {splitUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {getEditorSettings} from "@/components/editor/settings";
+import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {MatchesType, TopicVersionChangesProps} from "@/lib/types";
 import {SerializedDiffNode} from "../../../../modules/ca-lexical-editor/src/nodes/DiffNode";

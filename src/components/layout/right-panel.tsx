@@ -1,9 +1,7 @@
-import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
 import React from "react";
 import {TrendingTopicsPanel} from "@/components/topics/trending-topics/trending-topics";
 import {usePathname} from "next/navigation";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
-import {SearchProvider} from "../buscar/search-context";
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import Link from "next/link";
 import {useNextMeeting} from "@/queries/useNextMeeting";
@@ -15,7 +13,6 @@ import DonateIcon from "@/components/icons/donate-icon";
 
 export const RightPanel = () => {
     const pathname = usePathname();
-    const inSearchPage = pathname.startsWith("/buscar")
     const {data: meetingData} = useNextMeeting()
 
     const isFollowSuggestionsPath = ![
@@ -27,9 +24,11 @@ export const RightPanel = () => {
         "/temas"
     ].some(x => pathname.startsWith(x))
 
-    return <div className={"flex flex-col pr-6 space-y-6 pt-6"}>
-        <div className={"flex justify-center"}>
-            <Logo width={32} height={32}/>
+
+    return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
+
+        <div className={"flex justify-center mt-4"}>
+            <Logo width={48} height={48}/>
         </div>
 
         {pathname.includes("inicio") && meetingData && meetingData.show ?
@@ -54,11 +53,6 @@ export const RightPanel = () => {
                 </div>
             </div> : null}
 
-        {!inSearchPage &&
-            <SearchProvider>
-                <SearchPanelOnRightColumn/>
-            </SearchProvider>}
-
         {isTrendingTopicsPath && <TrendingTopicsPanel/>}
 
         {isFollowSuggestionsPath && <FollowSuggestions/>}
@@ -69,7 +63,10 @@ export const RightPanel = () => {
                     fullWidth={false}
                     startIcon={<DonateIcon/>}
                     size="small"
-                    color="background-dark2"
+                    color="primary"
+                    sx={{
+                        borderRadius: 0
+                    }}
                 >
                     <span className={"font-semibold"}>
                         Aportar

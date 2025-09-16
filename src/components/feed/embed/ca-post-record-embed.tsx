@@ -29,7 +29,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
         const url = contentUrl(record.uri)
 
         return <div
-            className={"rounded-lg border p-3 hover:bg-[var(--background-ldark2)]"}
+            className={"border-[1px] p-3 hover:bg-[var(--background-ldark2)]"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -72,7 +72,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
         const createdAt = new Date(record.indexedAt)
 
         return <div
-            className={"rounded-lg border p-3 hover:bg-[var(--background-dark2)]"}
+            className={"border-[1px] p-3 hover:bg-[var(--background-dark2)]"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

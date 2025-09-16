@@ -9,7 +9,7 @@ const DescriptionOnHover = ({children, description, moreInfoHref}: {
 
     const modal = <div
         onClick={e => {e.stopPropagation()}}
-        className={"hidden sm:block max-w-[300px] bg-[var(--background-dark)] shadow-xl border border-[var(--text)] rounded px-2 py-1 text-sm"}>
+        className={"hidden sm:block max-w-[300px] bg-[var(--background)] border border-[var(--accent-dark)] text-xs px-2 py-1"}>
         {description} {moreInfoHref && <Link
         href={moreInfoHref}
         onClick={e => e.stopPropagation()}

@@ -1,6 +1,5 @@
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import {FontSizeType} from "./icon-utils";
+import {HeartIcon} from "@phosphor-icons/react";
 
-export const ActiveLikeIcon = ({fontSize}: {fontSize?: FontSizeType}) => {
-    return <FavoriteIcon fontSize={fontSize}/>
+export const ActiveLikeIcon = ({fontSize}: {fontSize?: string | number}) => {
+    return <HeartIcon fontSize={fontSize} weight={"fill"}/>
 }

@@ -59,14 +59,10 @@ export function AddCommentButton({
 
   return <div ref={boxRef} className={"z-[2000]"}>
     <Button
-        className="flex space-x-2 text-sm py-2 px-4 justify-center items-center cursor-pointer border rounded-full"
         onClick={onAddComment}
-        sx={{
-          borderRadius: 20
-        }}
         startIcon={<WriteButtonIcon/>}
     >
-        Responder
+        <span className={"text-xs"}>Responder</span>
     </Button>
   </div>
 }

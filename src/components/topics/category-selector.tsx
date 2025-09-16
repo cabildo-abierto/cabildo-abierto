@@ -70,8 +70,10 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
                 }
             }}
             sx={{
-                backgroundColor: 'var(--background-dark)', // bg-[var(--background-dark)]
-                borderRadius: '0.5rem',                     // rounded-lg
+                backgroundColor: '', // bg-[var(--background-dark)]
+                borderRadius: '0',                     // rounded-lg
+                border: "1px solid",
+                borderColor: "var(--text-lighter)",
                 width: isMobile ? '135px' : '150px',                             // w-[132px]
                 outline: 'none',                            // outline-none
                 px: 0,                                      // removes padding from the wrapper
@@ -93,14 +95,15 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
         {filteredCategories && filteredCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}
-                className={"rounded-lg px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-[var(--button-text)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)]")}
+                className={"border border-[var(--text-lighter)] px-2 " + (categories.includes(c) ? "bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]")}
                 onClick={() => {onClick(c)}}
             >
                 {c}
             </button>
         })}
         {filteredCategories && maxCount < filteredCategories.length && <div className={"text-[var(--text-light)]"}>
-            <button onClick={() => {setMaxCount(maxCount + 10)}} className={"rounded-full hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] px-2"}>
+            <button onClick={() => {setMaxCount(maxCount + 10)}}
+                    className={"border border-[var(--text-lighter)] hover:bg-[var(--background-dark)] px-2"}>
                 Ver más
             </button>
         </div>}

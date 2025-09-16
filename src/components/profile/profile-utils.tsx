@@ -243,6 +243,9 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 text1="Siguiendo"
                 textClassName={textClassName}
                 disabled={profile.viewer.following == "optimistic-follow"}
+                sx={{
+                    borderRadius: 0
+                }}
             /> :
             <StateButton
                 handleClick={onFollow}
@@ -254,6 +257,9 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 dense={dense}
                 text1={followText}
                 textClassName={textClassName}
+                sx={{
+                    borderRadius: 0
+                }}
             />}
     </div>
 }

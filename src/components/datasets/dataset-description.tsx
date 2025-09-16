@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-const ReadOnlyEditor = dynamic(() => import('@/components/editor/read-only-editor'), {
+const ReadOnlyEditor = dynamic(() => import('@/components/writing/read-only-editor'), {
     ssr: false,
     loading: () => <></>,
 });

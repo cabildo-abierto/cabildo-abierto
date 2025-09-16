@@ -12,11 +12,11 @@ import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection
 import {useTrackReading} from "@/components/thread/article/read-tracking/track-reading";
 import {useSession} from "@/queries/useSession";
 import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
-import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs} from "@/lex-api"
 import {AppBskyFeedPost} from "@atproto/api"
 import dynamic from "next/dynamic";
 import MyLexicalEditor from "../../../modules/ca-lexical-editor/src/lexical-editor"
-import {ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
+import {ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api"
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false

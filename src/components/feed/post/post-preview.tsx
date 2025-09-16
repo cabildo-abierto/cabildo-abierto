@@ -160,7 +160,7 @@ export const PostPreview = ({
 
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px]"}>
+    return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px] " + (!showingChildren ? "" : "")}>
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}

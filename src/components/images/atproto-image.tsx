@@ -15,7 +15,7 @@ type EmbedImageProps = {
 
 export const ATProtoImage = ({
                                  img,
-                                 className = "rounded-lg border object-cover",
+                                 className = "object-cover",
                                  onClick,
                                  maxHeight = 500,
                                  maxWidth,

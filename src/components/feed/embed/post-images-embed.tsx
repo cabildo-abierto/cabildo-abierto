@@ -38,7 +38,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                         }}
                         maxWidth={pxToNumber(layoutConfig.maxWidthCenter)}
                         maxHeight={400}
-                        className={"cursor-pointer rounded-lg bg-[var(--background-dark)] flex w-full h-full object-contain"}
+                        className={"cursor-pointer bg-[var(--background-dark)] flex w-full h-full object-contain"}
                     />
                 </div> :
                 <div className={"w-full"}>
@@ -61,7 +61,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                                     setViewing(index)
                                 }}
                                 cover={true}
-                                className={"border rounded-lg object-cover h-full w-full"}
+                                className={"rounded-lg object-cover h-full w-full"}
                             />
                         </div>
                     ))}

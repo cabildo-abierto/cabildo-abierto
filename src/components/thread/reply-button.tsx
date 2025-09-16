@@ -1,22 +1,29 @@
 import { Button } from "../../../modules/ui-utils/src/button";
-import {ProfilePic} from "../profile/profile-pic";
 import {useSession} from "@/queries/useSession";
+import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 
 
 export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void, text?: string }) => {
     const {user} = useSession()
-    return <div className="px-2 py-1">
+    return <div className="py-1">
         <Button
-            color={"background-dark"}
+            color={"transparent"}
             onClick={onClick}
-            sx={{flexDirection: "row", justifyContent: "left"}}
+            variant={"outlined"}
+            sx={{
+                flexDirection: "row",
+                justifyContent: "left",
+                border: "1px solid",
+                borderRadius: 0
+            }}
+            borderColor={"text-lighter"}
             className="rounded-full bg-[var(--background-dark3)] w-full hover:bg-[var(--accent)] transition duration-200 flex items-center px-4 py-1 space-x-2"
         >
             {user && <>
-                <ProfilePic user={user} className={"pointer-events-none w-8 h-auto rounded-full"} descriptionOnHover={false}/>
-                <span className="text-[var(--text-light)]">{text}</span>
+                <WriteButtonIcon/>
+                <span className="uppercase text-xs">{text}</span>
             </>}
-            {!user && <div className={"text-[var(--text-light)]"}>Iniciá sesión para responder y ver las respuestas de otros</div>}
+            {!user && <div className={""}>Iniciá sesión para responder y ver las respuestas de otros</div>}
         </Button>
     </div>
 }

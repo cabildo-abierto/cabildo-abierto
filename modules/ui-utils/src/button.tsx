@@ -5,7 +5,8 @@ import React from "react";
 import {Color} from "./color";
 
 
-export type ButtonProps = Omit<MUIButtonProps, "color"> & { color?: Color, dense?: boolean }
+export type ButtonProps = Omit<MUIButtonProps, "color"> & {
+    color?: Color, dense?: boolean, textTransform?: string, borderColor?: Color }
 
 export function darker(color: Color): Color {
     if (color == "primary") return "primary-dark"
@@ -16,7 +17,7 @@ export function darker(color: Color): Color {
     else if (color == "transparent") return "background-dark"
     else if (color == "accent") return "accent-dark"
     else if (color == "red") return "red-dark"
-    else if(color == "red-dark") return "red-dark2"
+    else if (color == "red-dark") return "red-dark2"
     else return color
 }
 
@@ -27,9 +28,11 @@ export const Button = ({
                            disableElevation = true,
                            color = "primary",
                            dense = false,
+                           textTransform = "none",
+    borderColor,
                            ...props
                        }: ButtonProps) => {
-    const textColor =
+    let textColor =
         color == "primary" && variant == "contained"
             ? "var(--button-text)"
             : "var(--text)"
@@ -41,19 +44,28 @@ export const Button = ({
         paddingRight: "5px"
     } : {}
 
+    if(color == "primary") {
+        color = "background-dark"
+        textColor = "var(--text)"
+        textTransform = undefined
+        variant = "outlined"
+        borderColor = "text-lighter"
+    }
+
     return (
         <MUIButton
             {...props}
             sx={{
-                textTransform: "none",
+                borderRadius: 0,
+                ...sx,
+                textTransform,
                 color: textColor,
-                borderRadius: "20px",
                 backgroundColor: `var(--${color})`,
+                borderColor: `var(--${borderColor})`,
                 ":hover": {
                     backgroundColor: `var(--${darker(color)})`,
                 },
-                ...densePadding,
-                ...sx,
+                ...densePadding
             }}
             variant={variant}
             disableElevation={disableElevation}
