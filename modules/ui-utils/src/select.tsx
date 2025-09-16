@@ -87,6 +87,7 @@ export const Select = ({
                             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                                 borderColor: borderStyles(outlineColor),
                             },
+                            borderRadius: 0
                         }}
                     />
                 }
@@ -99,8 +100,11 @@ export const Select = ({
                             paddingBottom: 0,
                             boxShadow: "none",
                             borderWidth: "1px",
+                            borderRadius: 0,
+                            borderColor: "var(--text-lighter)"
                         },
                         elevation: 0,
+                        borderRadius: 0
                     },
                 }}
             >

@@ -6,6 +6,7 @@ import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 import {useMemo} from "react";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import TopicsIcon from "@/components/icons/topics-icon";
 
 type TopicsMentionedProps = {mentions: ArCabildoabiertoFeedDefs.TopicMention[]}
 
@@ -32,7 +33,9 @@ export const TopicsMentionedSmall = ({mentions}: TopicsMentionedProps) => {
 }
 
 
-export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
+export const TopicsMentioned = ({
+                                    mentions
+}: TopicsMentionedProps) => {
 
     function cmp(a: {count: number}, b: {count: number}) {
         return b.count - a.count
@@ -63,9 +66,9 @@ export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
             })}
     </div> : null
 
-    return <div className={"w-full flex space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
-        <div className={"text-sm text-[var(--text-light)]"} title={"Temas mencionados"}>
-            #
+    return <div className={"w-full flex text-light space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
+        <div className={"text-sm text-[var(--text-light)] pt-[1px]"} title={"Temas mencionados"}>
+            <TopicsIcon fontSize={15}/>
         </div>
         {mentionsMemo.toSorted(cmp).slice(0, maxCount).map((r, index) => {
             return <a // TO DO: Prevent leave

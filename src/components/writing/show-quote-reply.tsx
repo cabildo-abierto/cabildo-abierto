@@ -10,7 +10,7 @@ import {
     $createCustomMarkNode,
     $isCustomMarkNode
 } from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api"
 import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
 import {$dfs} from "@lexical/utils";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";

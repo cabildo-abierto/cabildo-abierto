@@ -1,7 +1,7 @@
 import {useState} from "react";
-import {TextField} from "@mui/material";
-import Button from "@mui/material/Button";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
+import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import { Button } from "../../../../modules/ui-utils/src/button";
 
 export function InsertImageUriDialogBody ({
     onClick,
@@ -27,6 +27,7 @@ export function InsertImageUriDialogBody ({
             label="URL"
             size={"small"}
             fullWidth={true}
+            variant={"outlined"}
             autoComplete="off"
             placeholder="ej. https://dominio.com/imagen.jpg"
             onChange={(e) => {setSrc(e.target.value)}}

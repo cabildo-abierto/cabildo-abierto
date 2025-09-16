@@ -2,7 +2,6 @@ import React, {useState} from "react"
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup"
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button"
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
 import {CreatePostProps, WritePost} from "./write-post";
@@ -11,6 +10,7 @@ import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import { Button } from "../../../../modules/ui-utils/src/button";
 
 
 export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
@@ -50,22 +50,19 @@ const WritePanelPanel = ({
                 onClick={() => {
                 }}
                 variant="text"
-                color="inherit"
+                color="transparent"
                 size={"small"}
                 fullWidth={true}
                 disableElevation={true}
                 sx={{
-                    textTransform: "none",
                     paddingY: 0,
-                    backgroundColor: isSelected ? "var(--background-dark2)" : "transparent",
-                    ":hover": {
-                        backgroundColor: "var(--background-dark2)"
-                    },
-                    borderRadius: 10
+                    borderRadius: 0
                 }}
             >
-                <div className={"text-[var(--text-light)] font-semibold px-2"}>
-                    {o}
+                <div className={"px-2"}>
+                    <div className={"uppercase text-[11px] font-semibold " + (isSelected ? "border-b-2 border-[var(--text-light)]" : "")}>
+                        {o}
+                    </div>
                 </div>
             </Button>
         </div>
@@ -81,8 +78,14 @@ const WritePanelPanel = ({
     }
 
     return (
-        <BaseFullscreenPopup hidden={hidden} open={open} className="w-full max-w-[512px]" disableScrollLock={false}>
-            <div className="w-full rounded pt-1 max-h-[80vh] overflow-y-auto">
+        <BaseFullscreenPopup
+            hidden={hidden}
+            open={open}
+            className="w-full max-w-[512px]"
+            disableScrollLock={false}
+            color={"background"}
+        >
+            <div className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] overflow-y-auto">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {!isReply && !quotedPost ? <SelectionComponent
                         onSelection={onSelection}
@@ -91,7 +94,7 @@ const WritePanelPanel = ({
                         options={["Publicación", "Artículo", "Tema"]}
                         className={"flex space-x-2"}
                     /> : <div>{emptyChar}</div>}
-                    <CloseButton size="small" onClose={() => {
+                    <CloseButton size="small" color="transparent" onClose={() => {
                         onClose()
                     }}/>
                 </div>

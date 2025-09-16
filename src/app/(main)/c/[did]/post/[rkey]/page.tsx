@@ -5,14 +5,23 @@ import {getUri, shortCollectionToCollection} from "@/utils/uri";
 import {ThreadHeader} from "@/components/thread/thread-header";
 import {ReplyButton} from "@/components/thread/reply-button";
 import {isPostView, isThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import Post from "@/components/thread/post/post";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
 import dynamic from "next/dynamic";
-import ThreadReplies from "@/components/thread/thread-replies";
+
+
+const ThreadReplies = dynamic(() => import("@/components/thread/thread-replies"), {
+    ssr: false
+})
+
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
 });
+
+
+const Post = dynamic(() => import("@/components/thread/post/post"), {
+    ssr: false
+})
 
 
 const Page = ({params}: {

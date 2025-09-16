@@ -31,7 +31,7 @@ const UserSummary = ({handle}: UserSummaryProps) => {
     const className: string = 'w-12 h-12 rounded-full';
 
     return (
-        <div className="bg-[var(--background)] border p-4 w-90 rounded-xl hidden md:flex flex-col space-y-2 ">
+        <div className="bg-[var(--background)] border p-4 w-90 border-[var(--text-lighter)] hidden md:flex flex-col space-y-2 ">
             <div className="flex justify-between items-center">
                 <ProfilePic user={profile.bsky} descriptionOnHover={false} className={className}/>
                 <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>

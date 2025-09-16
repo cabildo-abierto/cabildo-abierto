@@ -83,18 +83,23 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
             <div className={"flex space-x-8 h-full"}>
                 <Link href={"/temas?view=lista"} onClick={onClose}>
                     <Button
-                        sx={{width: "150px"}}
+                        sx={{
+                            width: "150px",
+                            borderRadius: 0
+                    }}
                     >
-                        <span className={"font-bold"}>Editar un tema</span>
+                        <span className={""}>Editar un tema</span>
                     </Button>
                 </Link>
                 <Button
                     onClick={() => {
                         setSelected("new")
                     }}
-                    sx={{width: "150px"}}
+                    sx={{width: "150px",
+                        borderRadius: 0
+                    }}
                 >
-                    <span className={"font-bold"}>Nuevo tema</span>
+                    <span className={""}>Nuevo tema</span>
                 </Button>
             </div>
         </div>
@@ -102,7 +107,7 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
 
     const disabled = !user.user || !validEntityName(topicName)
 
-    return <div className="space-y-3 px-6 mb-2 flex flex-col min-h-[200px] justify-between">
+    return <div className="space-y-3 px-6 mb-2 flex flex-col min-h-[200px] max-w-[400px] justify-between">
         <div className={"space-y-3"}>
             <div className={"mt-6 w-full"}>
                 <input
@@ -113,7 +118,7 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
                     }}
                     placeholder="Título del tema..."
                     autoFocus={true}
-                    className={"bg-[var(--background-dark2)] w-full rounded p-2 font-semibold text-lg outline-none"}
+                    className={"border w-full bg-[var(--background)] p-2 font-semibold text-lg outline-none"}
                 />
             </div>
             {errorOnCreate && <ErrorMsg text={errorOnCreate}/>}
@@ -185,8 +190,9 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
             <StateButton
                 handleClick={onSubmit}
                 disabled={disabled}
-                textClassName="font-bold px-4"
-                sx={{borderRadius: 20}}
+                size={"small"}
+                textClassName="px-4"
+                sx={{borderRadius: 0}}
                 text1="Crear tema"
             />
             </div>

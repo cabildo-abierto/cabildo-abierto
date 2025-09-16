@@ -1,7 +1,7 @@
 import {QueryMentionsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {get} from "@/utils/fetch";
 import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-mention-component";
-import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import {ArCabildoabiertoActorDefs} from "@/lex-api"
 
 
 function profileViewBasicToMentionProps(p: ArCabildoabiertoActorDefs.ProfileViewBasic): MentionProps {

@@ -163,7 +163,7 @@ function TableOfContentsList({
   }, [tableOfContents, editor, lastClickedIndex]);
 
   return (
-    <div className="table-of-contents">
+    <div className="table-of-contents font-light">
       <ul className="headings">
         <div className="normal-heading-wrapper" key="title">
           <div

@@ -1,5 +1,5 @@
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
-import {queryMentions} from "@/components/editor/query-mentions";
+import {queryMentions} from "@/components/writing/query-mentions";
 
 
 export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {

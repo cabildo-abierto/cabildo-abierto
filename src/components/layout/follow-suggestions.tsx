@@ -6,7 +6,7 @@ import {FollowButton} from "@/components/profile/profile-utils";
 import {profileUrl, topicUrl} from "@/utils/uri";
 
 
-export const followSuggestionsInfo = "Te sugerimos cuentas para seguir. Se priorizan usuarios seguidos por personas que seguís, usuarios activos, autores de artículos y usuarios de Cabildo Abierto."
+export const followSuggestionsInfo = "Se priorizan usuarios seguidos por personas que seguís, usuarios activos, autores de artículos y usuarios de Cabildo Abierto."
 
 
 const LoadingFollowSuggestion = () => {
@@ -32,9 +32,9 @@ export default function FollowSuggestions() {
 
     if (data && (!data.profiles || data.profiles.length == 0)) return null
 
-    return <div className={"bg-[var(--background-ldark2)] w-full rounded-lg h-full"}>
+    return <div className={"border-[var(--text-lighter)] border-[1px] w-full h-full"}>
         <div className={"flex justify-between px-3 py-1 items-center bg"}>
-            <div className={"text-xs font-semibold"}>
+            <div className={"text-xs font-semibold uppercase"}>
                 Cuentas sugeridas
             </div>
             <div>
@@ -44,7 +44,7 @@ export default function FollowSuggestions() {
                 />
             </div>
         </div>
-        <div className={"space-y-1 bg-[var(--background-dark)]"}>
+        <div className={"space-y-1"}>
             {isLoading && !data && <div>
                 <LoadingFollowSuggestion/>
                 <LoadingFollowSuggestion/>
@@ -54,7 +54,7 @@ export default function FollowSuggestions() {
                 return <CustomLink
                     href={profileUrl(u.handle)}
                     key={u.did}
-                    className={"hover:bg-[var(--background-dark2)] flex space-x-2 justify-between p-2 items-center"}
+                    className={"hover:bg-[var(--background-dark)] flex space-x-2 justify-between p-2 items-center"}
                 >
                     <div className={"flex space-x-2 items-center w-full"}>
                         <div>
@@ -69,13 +69,13 @@ export default function FollowSuggestions() {
                             </div>
                         </div>
                     </div>
-                    <FollowButton dense={true} handle={u.handle} profile={u}/>
+                    <FollowButton textClassName={"text-xs py-[2px]"} dense={true} handle={u.handle} profile={u}/>
                 </CustomLink>
             })}
         </div>
         <Link
             href={"/perfil/cuentas-sugeridas"}
-            className={"flex hover:bg-[var(--background-dark2)] text-xs w-full px-3 py-2 rounded-b-lg font-semibold"}
+            className={"uppercase flex hover:bg-[var(--background-dark)] text-xs w-full px-3 py-2 font-semibold"}
         >
             Ver más
         </Link>

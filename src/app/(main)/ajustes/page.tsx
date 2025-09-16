@@ -8,7 +8,6 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ThemeMode, useTheme} from "@/components/theme/theme-context";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {Button} from "../../../../modules/ui-utils/src/button";
-import PageHeader from "../../../../modules/ui-utils/src/page-header";
 import {
     Account, AlgorithmConfig,
     EnDiscusionMetric,
@@ -34,6 +33,8 @@ import {
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime
 } from "@/components/config/defaults";
+import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+
 
 const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
@@ -58,6 +59,7 @@ const DeleteAccountButton = () => {
             color={"background-dark2"}
             startIcon={<DeleteOutlineIcon/>}
             onClick={() => {setDeletingAccount(true)}}
+            borderColor={"text-lighter"}
         >
             Borrar cuenta
         </Button>
@@ -527,44 +529,18 @@ const Ajustes = () => {
         return <></>
     }
 
-    function optionsNodes(o: string, isSelected: boolean) {
-        return <div className="text-[var(--text)] w-36">
-            <Button
-                onClick={() => {
-                }}
-                variant="text"
-                color="transparent"
-                fullWidth={true}
-                disableElevation={true}
-                sx={{
-                    textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0
-                }}
-            >
-                <div
-                    className={"pb-1 pt-2 text-[15px] border-b-[4px] font-semibold " + (isSelected ? "border-[var(--primary)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
-                    {o}
-                </div>
-            </Button>
-        </div>
-    }
-
     return (
-        <div className="mx-auto">
-            <div className={"border-b"}>
-                <PageHeader title={"Ajustes"}/>
-                <div className={"flex"}>
-                    <SelectionComponent
-                        selected={selected}
-                        onSelection={(v) => {
-                            setSelected(v)
-                        }}
-                        options={["Cuenta", "Apariencia", "Algoritmos"]}
-                        optionsNodes={optionsNodes}
-                        className="flex"
-                    />
-                </div>
+        <div className="">
+            <div className={"border-b border-[var(--text-lighter)] flex"}>
+                <SelectionComponent
+                    selected={selected}
+                    onSelection={(v) => {
+                        setSelected(v)
+                    }}
+                    options={["Cuenta", "Apariencia", "Algoritmos"]}
+                    optionsNodes={feedOptionNodes(40)}
+                    className="flex h-full"
+                />
             </div>
             <div className="py-4 px-8">
                 {selected == "Cuenta" && <AccountSettings/>}

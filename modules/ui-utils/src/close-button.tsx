@@ -5,7 +5,7 @@ import {stopPropagation} from "@/utils/utils";
 import {Color} from "./color";
 
 
-export const CloseButton = ({onClose, size, color="background-dark"}: {
+export const CloseButton = ({onClose, size, color="transparent"}: {
     onClose: () => void, size?: "small" | "medium" | "large", color?: Color }) => {
     return <IconButton
         onClick={stopPropagation(onClose)}

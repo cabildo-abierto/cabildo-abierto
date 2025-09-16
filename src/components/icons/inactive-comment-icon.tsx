@@ -1,7 +1,7 @@
+import {ChatIcon} from "@phosphor-icons/react";
 
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import {FontSizeType} from "@/components/icons/icon-utils";
 
-export const InactiveCommentIcon = ({fontSize="small"}: {fontSize?: FontSizeType}) => {
-    return <ChatBubbleOutlineIcon fontSize={fontSize} color={"inherit"}/>
+export const InactiveCommentIcon = ({fontSize="20", color="var(--text-light)"}: {
+    fontSize?: string | number, color?: string}) => {
+    return <ChatIcon fontSize={fontSize} color={color} weight={"regular"}/>
 }

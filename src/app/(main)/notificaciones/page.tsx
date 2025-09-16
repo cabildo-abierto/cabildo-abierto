@@ -3,7 +3,6 @@ import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NotificationCard} from "@/components/notification/notification-card";
 import {useEffect} from "react";
 import {useQueryClient} from "@tanstack/react-query";
-import PageHeader from "../../../../modules/ui-utils/src/page-header";
 import {useAPI} from "@/queries/utils";
 import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
 
@@ -20,8 +19,7 @@ const Page = () => {
         qc.setQueryData(["unread-notifications-count"], () => 0)
     }, [qc])
 
-    return <div className={"flex flex-col"}>
-        <PageHeader title={"Notificaciones"}/>
+    return <div className={"flex flex-col pb-16"}>
         {isLoading && <div className={"mt-8"}>
             <LoadingSpinner/>
         </div>}

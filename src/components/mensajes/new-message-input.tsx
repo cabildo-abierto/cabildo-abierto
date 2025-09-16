@@ -48,7 +48,7 @@ export default function NewMessageInput({
         sendMessageMutation.mutate(msg)
     }
 
-    return <div className="m-2 border rounded-lg flex justify-between items-end bg-[var(--background-dark)]">
+    return <div className="m-2 border border-[var(--text-lighter)] flex justify-between items-end bg-[var(--background-dark)]">
         <TextField
             value={newMessage}
             size="small"
@@ -58,22 +58,17 @@ export default function NewMessageInput({
             minRows={1}
             maxRows={6}
             placeholder={"Escribí un mensaje..."}
-            sx={{
-                backgroundColor: "transparent",
-                "& fieldset": {border: "none"},
-                "&:hover fieldset": {border: "none"},
-                "&.Mui-focused fieldset": {border: "none"},
-                "& .MuiOutlinedInput-root": {
-                    "& fieldset": {border: "none"},
-                    "&:hover fieldset": {border: "none"},
-                    "&.Mui-focused fieldset": {border: "none"},
-                },
-            }}
+            borderWidth={0}
+            borderColor={"transparent"}
+            color="transparent"
+            borderWidthNoFocus={0}
         />
         <IconButton
             size={"small"}
-            color={"primary"}
+            color={"background-dark2"}
             sx={{
+                borderRadius: 0,
+                border: "1px solid var(--text-lighter)",
                 height: "32px",
                 margin: "4px",
                 paddingTop: '0px',

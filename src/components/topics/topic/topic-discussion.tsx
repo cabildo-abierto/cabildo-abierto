@@ -1,5 +1,4 @@
-import {ReplyButton} from "../../thread/reply-button";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import dynamic from "next/dynamic";
@@ -21,20 +20,21 @@ const TopicDiscussion = ({
     const [writingReply, setWritingReply] = useState(false)
     const {user} = useSession()
 
-    return <div className={"w-full flex flex-col items-center mb-16" + (wikiEditorState == "minimized" ? "" : "pt-16")}>
-        <div className={"w-full max-w-[600px]"}>
-            {replyToContent != null && <div className={"w-full"}>
-                <ReplyButton
-                    text={"Responder"}
-                    onClick={() => {setWritingReply(true)}}
-                />
-            </div>}
-            {user && <div className={"w-full border-t " + (wikiEditorState == "normal" ? "" : "")}>
-                <TopicFeed
-                    topic={topic}
-                    onClickQuote={onClickQuote}
-                    topicVersionUri={topicVersionUri}
-                />
+    const feed = useMemo(() => {
+        return <TopicFeed
+            topic={topic}
+            onClickQuote={onClickQuote}
+            topicVersionUri={topicVersionUri}
+            wikiEditorState={wikiEditorState}
+            setWritingReply={setWritingReply}
+            replyToContent={replyToContent}
+        />
+    }, [topic, onClickQuote, topicVersionUri])
+
+    return <div className={"w-full flex flex-col items-center mb-16 " + (wikiEditorState == "minimized" ? "" : "")}>
+        <div className={"w-full"}>
+            {user && <div className={"w-full " + (wikiEditorState == "normal" ? "" : "")}>
+                {feed}
             </div>}
         </div>
         {user && replyToContent && <WritePanel

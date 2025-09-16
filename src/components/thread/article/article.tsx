@@ -1,13 +1,13 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {Dispatch, SetStateAction, useState} from "react";
 import {ArticleHeader} from "@/components/thread/article/article-header";
-import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
-import {getEditorSettings} from "@/components/editor/settings";
+import {EditorWithQuoteComments} from "@/components/writing/editor-with-quote-comments";
+import {getEditorSettings} from "@/components/writing/settings";
 import {LexicalEditor} from "lexical";
 import {$Typed} from "@/lex-api/util";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
-import {robotoSerif} from "@/components/editor/article-font";
+import {robotoSerif} from "@/components/writing/article-font";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
 
@@ -59,7 +59,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                     />
                 </div>
             </div>
-            <div className={"py-2 px-3 border-b"}>
+            <div className={"py-2 px-3 border-b border-[var(--text)]"}>
                 <EngagementIcons
                     content={article}
                     className={"flex justify-between px-4 w-full"}

@@ -1,9 +1,7 @@
 import {Button} from "../../../modules/ui-utils/src/button";
 import React from "react";
 import { useSearch } from "./search-context";
-import dynamic from "next/dynamic";
-
-const UserSearchResults = dynamic(() => import('@/components/buscar/user-search-results'));
+import UserSearchResults from "@/components/buscar/user-search-results";
 
 
 type Props = {
@@ -19,21 +17,20 @@ const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) 
     }
 
     return <div
-        className={"w-full max-w-[300px] mt-2"}
+        className={"w-full max-w-[300px]"}
     >
         {showSearchButton && (
             <div className={""}>
                 <Button
                     onClick={handleSubmit}
-                    variant={"text"}
-                    color={"background-dark2"}
+                    variant={"outlined"}
+                    color={"background-dark"}
                     sx={{
                         textTransform: "none",
                         width: "100%",
-                        borderRadius: "0px",
-                        borderTopLeftRadius: "8px",
-                        borderTopRightRadius: "8px",
+                        borderRadius: "0px"
                     }}
+                    borderColor={"text-lighter"}
                 >
                     <div className={"space-x-1 w-full"}>
                         <span>Buscar</span>

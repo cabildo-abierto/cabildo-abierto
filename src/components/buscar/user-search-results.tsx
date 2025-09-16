@@ -67,7 +67,7 @@ const UserSearchResults = ({
         return (
             <div
                 className={
-                    "my-8 text-center text-[var(--text-light)] " +
+                    "my-8 text-center text-[var(--text-light)] font-light " +
                     (showSearchButton ? " border-b " : "")
                 }
             >
@@ -94,7 +94,7 @@ const UserSearchResults = ({
             <div
                 className={
                     showSearchButton
-                        ? "flex items-center bg-[var(--background-dark)] rounded-b-lg h-full w-full"
+                        ? "flex items-center border-b border-l border-r border-[var(--text-light)] h-full w-full"
                         : "my-8"
                 }
             >
@@ -123,7 +123,7 @@ const UserSearchResults = ({
 
     return (
         <div className="flex flex-col items-center">
-            <div className="flex flex-col justify-center w-full">
+            <div className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--text-lighter)]" : "")}>
                 {showSearchButton &&
                     results?.slice(0, rightIndex).map((user, index) => (
                         <div key={index} className="">
@@ -170,7 +170,7 @@ const UserSearchResults = ({
                             </div>
                         )}
 
-                        {splitBluesky && <div className={"py-4 text-center text-[var(--text-light)] border-b"}>
+                        {splitBluesky && <div className={"uppercase text-[13px] py-4 text-center text-[var(--text-light)] border-b"}>
                             Usuarios de Bluesky
                         </div>}
                         {bskyResults.map((user, index) => (

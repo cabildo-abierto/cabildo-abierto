@@ -1,6 +1,12 @@
 import {HashIcon} from "@phosphor-icons/react";
+import { Color } from "../../../modules/ui-utils/src/color";
 
 
-export default function TopicsIcon({outlined=false, fontSize=22}: {outlined?: boolean, fontSize?: number}) {
-    return <HashIcon weight={outlined ? "regular" : "bold"} fontSize={fontSize}/>
+export default function TopicsIcon({fontSize=22, weight, color}: {
+    outlined?: boolean
+    fontSize?: number
+    weight?: "light" | "fill" | "regular"
+    color?: Color
+}) {
+    return <HashIcon weight={weight} fontSize={fontSize} color={color}/>
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import {getEditorSettings} from "@/components/editor/settings";
+import {getEditorSettings} from "@/components/writing/settings";
 import LightEditor from "../../../modules/ca-lexical-editor/src/light-editor";
 
 const ReadOnlyEditor = ({

@@ -1,4 +1,4 @@
-import ReadOnlyEditor from '../../editor/read-only-editor';
+import ReadOnlyEditor from '../../writing/read-only-editor';
 import { AppBskyFeedPost } from '@atproto/api'
 import {useMemo} from "react";
 import {RichText} from "@atproto/api";

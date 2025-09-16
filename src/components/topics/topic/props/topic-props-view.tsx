@@ -12,7 +12,7 @@ export const TopicPropView = ({p}: {p: ArCabildoabiertoWikiTopicVersion.TopicPro
         {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
             items={p.value.value}
         />}
-        {(ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) || ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value)) && <div>
+        {(ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) || ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value)) && <div className={"text-sm"}>
             {p.value.value}
         </div>}
         {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <div>
@@ -25,9 +25,9 @@ export const TopicPropView = ({p}: {p: ArCabildoabiertoWikiTopicVersion.TopicPro
 export const TopicPropsView = ({topic}: {topic: ArCabildoabiertoWikiTopicVersion.TopicView}) => {
     const props = addDefaults(topic.props, topic)
 
-    return <div className={"border bg-[var(--background-dark)] rounded p-4 space-y-6 mx-2 my-4"}>
+    return <div className={"border p-4 space-y-6 mx-2 my-4"}>
         <div className={"font-semibold flex items-center space-x-2"}>
-            <div>Propiedades</div>
+            <div className={"uppercase text-sm"}>Propiedades</div>
         </div>
         <div className={"space-y-6"}>
             {props.map((p, index) => {

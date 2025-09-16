@@ -44,7 +44,7 @@ export const EngagementIcons = ({
         {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
             {content.replyCount != undefined && <FixedCounter
                 count={content.replyCount}
-                icon={<InactiveCommentIcon/>}
+                icon={<InactiveCommentIcon fontSize={"20"}/>}
                 title="Cantidad de respuestas."
                 onClick={onClickRepliesButton}
                 disabled={content.uri.includes("optimistic")}
@@ -54,7 +54,10 @@ export const EngagementIcons = ({
                 showBsky={showBsky}
                 reactionUri={content.viewer ? content.viewer.repost : undefined}
             />}
-            {content.likeCount != undefined && <LikeCounter content={content} showBsky={showBsky}/>}
+            {content.likeCount != undefined && <LikeCounter
+                content={content}
+                showBsky={showBsky}
+            />}
         </>}
 
         <ContentOptionsButton

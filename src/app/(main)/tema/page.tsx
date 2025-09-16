@@ -6,12 +6,11 @@ import {get} from "@/utils/fetch";
 import {encodeParentheses} from "@/utils/uri";
 
 type Props = {
-    params: Promise<{ id: string }>
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export async function generateMetadata(
-    { params, searchParams }: Props
+    { searchParams }: Props
 ): Promise<Metadata> {
     const p = await searchParams
     const i = p?.i instanceof Array ? p?.i[0] : p?.i
@@ -31,7 +30,7 @@ export async function generateMetadata(
 }
 
 export default async function Page(
-    { params, searchParams }: Props
+    { searchParams }: Props
 ) {
     const p = await searchParams
     const i = p?.i

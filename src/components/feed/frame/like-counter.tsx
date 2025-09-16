@@ -1,5 +1,3 @@
-import {ActiveLikeIcon} from "@/components/icons/active-like-icon";
-import {InactiveLikeIcon} from "@/components/icons/inactive-like-icon";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import React from "react";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
@@ -11,6 +9,8 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
 import {contentQueriesFilter, updateContentInQueries, updateTopicFeedQueries} from "@/queries/updates";
+import {ActiveLikeIcon} from "@/components/icons/active-like-icon";
+import {InactiveLikeIcon} from "@/components/icons/inactive-like-icon";
 
 
 async function addLike(ref: ATProtoStrongRef) {
@@ -110,8 +110,8 @@ export const LikeCounter = ({content, showBsky}: {
     }
 
     return <ReactionCounter
-        iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
-        iconInactive={<InactiveLikeIcon fontSize={"small"}/>}
+        iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"20"}/></span>}
+        iconInactive={<InactiveLikeIcon fontSize={"20"}/>}
         onAdd={onClickLike}
         onRemove={onClickRemoveLike}
         title="Cantidad de me gustas."

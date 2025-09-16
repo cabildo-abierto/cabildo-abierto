@@ -71,7 +71,7 @@ export const PostPreviewFrame = ({
     return <CustomLink
         tag={"div"}
         id={"discussion:" + postView.uri}
-        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
+        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? "border-b" : "")}
         onClick={!isOptimistic ? onClick : undefined}
         href={!isOptimistic ? url : undefined}
     >
@@ -88,7 +88,7 @@ export const PostPreviewFrame = ({
                     <ProfilePic
                         user={author}
                         clickable={false}
-                        className={"rounded-full w-full"}
+                        className={"rounded-full w-full border-[1px] border-[var(--text)]"}
                     />
                 </CustomLink>
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}

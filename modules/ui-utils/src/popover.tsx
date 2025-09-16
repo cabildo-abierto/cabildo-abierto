@@ -51,11 +51,15 @@ export const ClickableModalOnClick = ({
                 elevation: 0,
                 style: {
                     boxShadow: 'none'
-                }
+                },
+                borderRadius: 0,
+                border: "1px solid var(--text-light)"
             }}
             sx={{
                 '& .MuiPopover-paper': {
-                    marginTop: '4px'
+                    marginTop: '4px',
+                    borderRadius: 0,
+                    border: "1px solid var(--text-light)"
                 }
             }}
             disableScrollLock={true}

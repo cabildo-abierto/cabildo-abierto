@@ -81,7 +81,7 @@ const lightTheme = createTheme({
     }
   },
   typography: {
-    fontFamily: '"Roboto", sans-serif',
+    fontFamily: 'var(--font-roboto-flex)'
   },
 });
 

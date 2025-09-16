@@ -5,9 +5,11 @@ type ModalOnClickProps = {
     children: ReactNode
     modal: (close: () => void) => ReactNode
     disabled?: boolean
+    className?: string
 }
 
-export const ModalOnClick = ({children, modal, disabled=false}: ModalOnClickProps) => {
+export const ModalOnClick = ({
+                                 children, modal, disabled=false, className}: ModalOnClickProps) => {
     const [open, setOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
@@ -31,6 +33,7 @@ export const ModalOnClick = ({children, modal, disabled=false}: ModalOnClickProp
         anchorEl={anchorEl}
         handleClick={handleClick}
         handleClickAway={handleClickAway}
+        className={className}
     >
         {children}
     </ModalOnClickControlled>

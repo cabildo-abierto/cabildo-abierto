@@ -3,9 +3,10 @@ import {useThreadWithNormalizedContent} from "@/queries/useThread";
 import {ErrorPage} from "../../../../../../../modules/ui-utils/src/error-page";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
-import ArticleThread from "@/components/thread/article-thread";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
+import dynamic from "next/dynamic";
 
+const ArticleThread = dynamic(() => import("@/components/thread/article-thread"), {ssr: false})
 
 
 const Page = ({params}: {

@@ -1,10 +1,7 @@
 import {useParams, useRouter} from "next/navigation";
 import {Followx} from "@/components/profile/follow/followx";
-import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import Link from "next/link";
 import { Button } from "../../../../modules/ui-utils/src/button";
-import {profileUrl} from "@/utils/uri";
 
 export type FollowKind = "seguidores" | "siguiendo"
 
@@ -43,13 +40,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
     }
 
     return <div className={"pb-32"}>
-        <div className={"flex flex-col items-start border-b w-full"}>
-            <div className={"flex space-x-2 py-2 items-center"}>
-                <BackButton/>
-                <Link href={profileUrl(id)} className={"font-semibold text-lg"}>
-                    @{id}
-                </Link>
-            </div>
+        <div className={"flex flex-col items-start border-b border-[var(--text-lighter)] w-full"}>
             <SelectionComponent
                 options={["seguidores", "siguiendo"]}
                 selected={kind}

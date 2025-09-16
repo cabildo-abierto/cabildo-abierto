@@ -3,7 +3,7 @@ import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import Image from "next/image";
 import React, {ReactNode, useState} from "react";
 import {useSession} from "@/queries/useSession";
-import {Menu, TextField} from "@mui/material";
+import {Menu} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import {UploadImageButton} from "@/components/writing/write-panel/upload-image-button";
@@ -16,6 +16,7 @@ import {useProfile} from "@/queries/useProfile";
 import EditImageModal from "@/components/profile/edit-image-modal";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";
 import {AppBskyActorProfile} from "@atproto/api"
+import {TextField} from "../../../modules/ui-utils/src/text-field"
 
 type Props = {
     open: boolean,
@@ -107,7 +108,7 @@ function validDescription(d: string){
 }
 
 
-const EditProfileMobile = ({open, onClose}: Props) => {
+const EditProfileModal = ({open, onClose}: Props) => {
     const {user} = useSession()
     const {data: profile} = useProfile(user.handle)
     const [displayName, setDisplayName] = useState(profile.bsky.displayName ?? "")
@@ -146,15 +147,18 @@ const EditProfileMobile = ({open, onClose}: Props) => {
     >
         <div className="flex justify-between items-center border-b p-2 min-[600px]:w-[600px] w-screen">
             <div className="flex-1">
-                <CloseButton onClose={onClose} size="small"/>
+                <CloseButton color="transparent" onClose={onClose} size="small"/>
             </div>
 
-            <h3 className="text-center flex-1 font-medium">Editar perfil</h3>
+            <div className="text-center flex-1 uppercase font-semibold text-sm">Editar perfil</div>
 
             <div className="flex-1 flex justify-end">
                 <StateButton
                     size="small"
                     handleClick={onSubmit}
+                    variant={"outlined"}
+                    color={"transparent"}
+                    sx={{borderRadius: 0}}
                     text1="Guardar"
                     textClassName="font-semibold"
                     disabled={!isValid}
@@ -251,4 +255,4 @@ const EditProfileMobile = ({open, onClose}: Props) => {
 }
 
 
-export default EditProfileMobile
+export default EditProfileModal

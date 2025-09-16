@@ -2,13 +2,12 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
-import {Button} from "../../../../modules/ui-utils/src/button";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import Link from "next/link"
 import {get, updateSearchParam} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
-import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session} from "@/lib/types";
+import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session, WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useRef} from "react";
 import {ClickableModalOnClick} from "../../../../modules/ui-utils/src/popover";
@@ -20,6 +19,9 @@ import {
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime
 } from "@/components/config/defaults";
+import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {ReplyButton} from "@/components/thread/reply-button";
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 
 type TopicFeedOption = "Menciones" | "Respuestas" | "Otros temas"
 
@@ -124,11 +126,11 @@ const TopicMentionsFeedConfig = () => {
 }
 
 
-const FeedConfig = ({selected}: { selected: TopicFeedOption }) => {
+const TopicFeedConfig = ({selected}: { selected: TopicFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)
 
     const modal = (close: () => void) => (
-        <div className={"p-3 space-y-2 bg-[var(--background-dark)] w-56"}>
+        <div className={"p-3 space-y-2 bg-[var(--background)] w-56"}>
             <div className={"w-full flex justify-between items-end"}>
                 <div className={"text-sm text-[var(--text)]"}>
                     Configurar <span className={"font-semibold text-[var(--text-light)]"}
@@ -151,16 +153,25 @@ const FeedConfig = ({selected}: { selected: TopicFeedOption }) => {
         id={"feed-config"}
     >
         <button id="feed-config-button" ref={buttonRef} className={"hover:bg-[var(--background-dark)] rounded p-1"}>
-            <SlidersHorizontalIcon size={22}/>
+            <SlidersHorizontalIcon size={22} weight={"light"}/>
         </button>
     </ClickableModalOnClick>
 }
 
 
-export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
+export const TopicFeed = ({
+                              topic,
+                              topicVersionUri,
+                              onClickQuote,
+    replyToContent,
+    setWritingReply,
+                          wikiEditorState}: {
     topicVersionUri: string,
     topic: ArCabildoabiertoWikiTopicVersion.TopicView,
     onClickQuote: (cid: string) => void
+    wikiEditorState: WikiEditorState
+    replyToContent?: ReplyToContent
+    setWritingReply: (v: boolean) => void
 }) => {
     const {user} = useSession()
     const {selected, metric, time, format} = useTopicFeedParams(user)
@@ -188,28 +199,6 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
         updateSearchParam("f", v == "Respuestas" ? "discusion" : v == "Menciones" ? "menciones" : "temas")
     }
 
-    function optionsNodes(o: TopicFeedOption, isSelected: boolean) {
-
-        return <div className="text-[var(--text)] h-10 ">
-            <Button
-                variant="text"
-                color="transparent"
-                fullWidth={true}
-                disableElevation={true}
-                sx={{
-                    textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0
-                }}
-            >
-                <div
-                    className={"px-4 whitespace-nowrap font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
-                    {o}
-                </div>
-            </Button>
-        </div>
-    }
-
     const info = <div>
         <div>
             <b>Menciones.</b> Las publicaciones, respuestas, artículos y otros temas que hablaron del tema. <Link
@@ -230,22 +219,27 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
     </div>
 
     return <div className={"mb-96 flex flex-col items-center"}>
+        <div className={"border-b border-[var(--text-lighter)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
         <div
-            className={"max-w-[600px] flex justify-between items-center pr-2 border-b w-full max-w-screen overflow-scroll no-scrollbar"}>
+            className={"max-w-[600px] flex justify-between items-center pr-2 w-full max-w-screen overflow-scroll no-scrollbar"}
+        >
             <SelectionComponent<TopicFeedOption>
                 onSelection={setSelected}
                 selected={selected}
-                optionsNodes={optionsNodes}
+                optionsNodes={feedOptionNodes(40, undefined, "sm:text-[12px] text-[13px]")}
                 options={["Menciones", "Respuestas", "Otros temas"]}
                 className={"flex"}
             />
 
-            <div className={"flex space-x-2 items-start"}>
-                <InfoPanel
+            <div className={"flex space-x-2 items-center"}>
+                <div className={"pb-1"}>
+                    <InfoPanel
                     text={info}
                 />
-                <FeedConfig selected={"Menciones"}/>
+                </div>
+                <TopicFeedConfig selected={"Menciones"}/>
             </div>
+        </div>
         </div>
         {/*TO DO: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         <div className={"flex justify-center w-full"}>
@@ -261,7 +255,13 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
                 }
 
                 {selected == "Respuestas" &&
-                    <div className={"pt-10"}>
+                    <div className={""}>
+                        {replyToContent != null && <div className={"w-full"}>
+                            <ReplyButton
+                                text={"Responder"}
+                                onClick={() => {setWritingReply(true)}}
+                            />
+                        </div>}
                         <FeedViewContentFeed
                             queryKey={["topic-feed", topicId, "replies"]}
                             getFeed={getDiscussionFeed}

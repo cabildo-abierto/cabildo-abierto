@@ -1,6 +1,6 @@
-import RepeatIcon from '@mui/icons-material/Repeat';
-import {FontSizeType} from "./icon-utils";
+import {RepeatIcon} from "@phosphor-icons/react";
 
-export const RepostIcon = ({fontSize, color="inherit"}: {fontSize?: FontSizeType, color?: "inherit"}) => {
-    return <RepeatIcon fontSize={fontSize} color={color}/>
+export const RepostIcon = ({fontSize, color="var(--text-light)"}: {
+    fontSize?: string | number, color?: string}) => {
+    return <RepeatIcon fontSize={fontSize} color={color} weight={"regular"}/>
 }

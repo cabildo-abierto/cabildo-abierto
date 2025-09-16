@@ -13,6 +13,8 @@ const BottomBarMobile = () => {
     const {isMobile} = useLayoutConfig()
     if(!isMobile) return null
 
+    const notificationsSelected = pathname.startsWith("/notificaciones")
+    const topicsSelected = pathname.startsWith("/temas")
 
     const values = ["inicio", "temas", "buscar", "notificaciones"]
     const value: string = values.find(v => pathname.startsWith(`/${v}`)) ?? null
@@ -35,7 +37,8 @@ const BottomBarMobile = () => {
                     router.push(`/${newValue}`)
                 }}
                 sx={{
-                    bgcolor: 'var(--background-dark)',
+                    bgcolor: 'var(--background)',
+                    borderTop: '1px solid var(--text-lighter)',
                     '& .Mui-selected': {
                         '& .MuiBottomNavigationAction-label': {
                             fontSize: theme => theme.typography.caption,
@@ -44,15 +47,32 @@ const BottomBarMobile = () => {
                             lineHeight: '20px'
                         },
                         '& .MuiSvgIcon-root, & .MuiBottomNavigationAction-label': {
-                            color: () => 'var(--text)'
+                            color: 'var(--text)',
+                            fill: 'var(--text)'
                         }
                     }
                 }}
             >
-                <BottomNavigationAction value="inicio" label="Inicio" icon={<CabildoIcon/>}/>
-                <BottomNavigationAction value="temas" label="Temas" icon={<TopicsIcon/>}/>
-                <BottomNavigationAction value="buscar" label="Buscar" icon={<SearchIcon/>}/>
-                <BottomNavigationAction value="notificaciones" label="Notificaciones" icon={<NotificationsIcon/>}/>
+                <BottomNavigationAction
+                    value="inicio"
+                    label="Inicio"
+                    icon={<CabildoIcon/>}
+                />
+                <BottomNavigationAction
+                    value="temas"
+                    label="Temas"
+                    icon={<TopicsIcon color={topicsSelected ? "text" : undefined}/>}
+                />
+                <BottomNavigationAction
+                    value="buscar"
+                    label="Buscar"
+                    icon={<SearchIcon/>}
+                />
+                <BottomNavigationAction
+                    value="notificaciones"
+                    label="Notificaciones"
+                    icon={<div><NotificationsIcon color={notificationsSelected ? "text" : undefined}/></div>}
+                />
             </BottomNavigation>
         </Paper>
     </Box>
