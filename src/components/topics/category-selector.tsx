@@ -3,9 +3,9 @@ import {emptyChar} from "@/utils/utils";
 import React, {useEffect, useMemo, useState} from "react";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import {cleanText} from "@/utils/strings";
+import { TextField } from "../../../modules/ui-utils/src/text-field";
 
 
 export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
@@ -57,8 +57,13 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
     }
 
     return <div id="category-selector" className={"flex flex-wrap items-center gap-x-2 gap-y-1 min-[500px]:text-sm text-[11px]"}>
-        <TextField
+        <div className={"border-b w-36"}><TextField
             variant="outlined"
+            paddingY={0.5}
+            size={"small"}
+            fontSize={11}
+            borderWidth={0}
+            borderWidthNoFocus={0}
             value={categorySearch}
             onChange={(e) => {
                 setCategorySearch(e.target.value)
@@ -69,33 +74,13 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
                         <SearchIcon fontSize="inherit" color={"inherit"}/></span>,
                 }
             }}
-            sx={{
-                backgroundColor: '', // bg-[var(--background-dark)]
-                borderRadius: '0',                     // rounded-lg
-                border: "1px solid",
-                borderColor: "var(--text-lighter)",
-                width: isMobile ? '135px' : '150px',                             // w-[132px]
-                outline: 'none',                            // outline-none
-                px: 0,                                      // removes padding from the wrapper
-                '& .MuiOutlinedInput-root': {
-                    padding: 0,                               // removes root padding
-                    paddingLeft: "8px",
-                    paddingRight: "8px",
-                    '& input': {
-                        padding: 0,                              // removes input text padding
-                        fontSize: isMobile ? "12px" : "14px"
-                    },
-                    '& fieldset': { border: 'none' },         // removes outline
-                    '&:hover fieldset': { border: 'none' },
-                    '&.Mui-focused fieldset': { border: 'none' }
-                },
-            }}
             placeholder={"buscar categoría..."}
         />
+        </div>
         {filteredCategories && filteredCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}
-                className={"border border-[var(--text-lighter)] px-2 " + (categories.includes(c) ? "bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]")}
+                className={(categories.includes(c) ? "font-light bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]")}
                 onClick={() => {onClick(c)}}
             >
                 {c}
@@ -103,7 +88,7 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
         })}
         {filteredCategories && maxCount < filteredCategories.length && <div className={"text-[var(--text-light)]"}>
             <button onClick={() => {setMaxCount(maxCount + 10)}}
-                    className={"border border-[var(--text-lighter)] hover:bg-[var(--background-dark)] px-2"}>
+                    className={"font-light hover:bg-[var(--background-dark)]"}>
                 Ver más
             </button>
         </div>}

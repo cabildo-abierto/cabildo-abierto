@@ -48,9 +48,8 @@ export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: stri
     return <Button
         component="label"
         role={undefined}
-        variant="contained"
+        variant="outlined"
         tabIndex={-1}
-        sx={{textTransform: "none"}}
         disableElevation={true}
         startIcon={<CloudUploadIcon />}
         fullWidth={true}

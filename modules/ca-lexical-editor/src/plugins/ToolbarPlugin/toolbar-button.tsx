@@ -9,12 +9,17 @@ type ToolbarButtonProps = {
     disabled?: boolean
     children: ReactNode
     "aria-label": string
+    borderRadius?: number | string
 }
 
-export const ToolbarButton = ({active=false, children, ...props}: ToolbarButtonProps) => {
+export const ToolbarButton = ({
+                                  active=false,
+                                  children,
+    borderRadius=0,
+                                  ...props}: ToolbarButtonProps) => {
     return <IconButton
-        color={active ? "background-dark2" : "background-dark"}
-        sx={{borderRadius: "8px", width: "36px", height: "36px"}}
+        color={active ? "background-dark" : "background"}
+        sx={{borderRadius, width: "36px", height: "36px"}}
         {...props}
     >
         <div className={active ? "" : (props.disabled ? "text-[var(--text-lighter)]" : "text-[var(--text-light)]")}>

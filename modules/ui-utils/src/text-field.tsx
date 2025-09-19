@@ -30,7 +30,9 @@ export const TextField = ({
             {...props}
 
             sx={{
+
                 "& .MuiOutlinedInput-root": {
+                    fontSize,
                     backgroundColor: `var(--${color})`,
                     borderRadius,
                     borderColor: `var(--${borderColor})`,
@@ -51,6 +53,7 @@ export const TextField = ({
                     },
                 }
             }}
+
             InputProps={{
                 autoComplete: "off",
                 sx: {
@@ -79,7 +82,7 @@ export const TextField = ({
                 sx: {
                     fontSize,
                     "&.MuiInputLabel-shrink": {
-                        color: `var(--text-light)`
+                        color: `var(--text)`
                     }
                 }
             }}

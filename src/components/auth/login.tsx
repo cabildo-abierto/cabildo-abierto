@@ -136,9 +136,9 @@ export const Login = () => {
 
     return <LoginPanel>
         <div className={"space-y-4 flex flex-col items-center"}>
-        <div className="mb-2 space-y-4">
-            <Logo width={60} height={60}/>
-            <h1 className={"text-2xl font-normal uppercase"}>Iniciar sesión</h1>
+        <div className="mb-2 space-y-4 flex flex-col items-center">
+            <Logo width={80} height={80}/>
+            <h1 className={"text-lg font-bold uppercase"}>Iniciar sesión</h1>
         </div>
 
         <div className="flex justify-center sm:px-8">
@@ -162,12 +162,8 @@ export const Login = () => {
 
                     {!inviteCode && <div className={"pt-4 w-full"}>
                         <Button
-                            color="background-dark"
-                            size={"large"}
-                            borderColor={"text-lighter"}
-                            sx={{
-                                border: "1px solid"
-                            }}
+                            size={"medium"}
+                            variant={"outlined"}
                             fullWidth={true}
                             onClick={() => {
                             setWantsAccess(true)

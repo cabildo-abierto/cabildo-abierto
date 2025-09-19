@@ -53,11 +53,11 @@ export const SidebarButton = ({
                 sx={{
                     justifyContent: showText ? "flex-start" : "center",
                     paddingLeft: showText ? 2 : 0,
-                    paddingRight: showText ? 0 : 0, // make it symmetrical
-                    minWidth: showText ? undefined : "40px", // keep a square icon button size
+                    paddingRight: showText ? 2 : 0,
+                    minWidth: showText ? undefined : "40px",
                 }}
                 onClick={onClick}
-                fullWidth={showText}
+                fullWidth={showText && isMobile}
                 disabled={disabled}
             >
                 <div className={"uppercase flex items-center space-x-2 " + (isMobile ? "text-lg" : "text-sm")}>

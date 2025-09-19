@@ -12,7 +12,6 @@ import {
 import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
-import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/queries/useSession";
@@ -35,7 +34,6 @@ import {areSetsEqual} from "@/utils/arrays";
 import {TopicsMentionedSmall} from "@/components/thread/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
-import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
@@ -45,6 +43,12 @@ import {AppBskyFeedPost} from "@atproto/api"
 import {AppBskyEmbedExternal} from "@atproto/api";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {AddVisualizationButton} from "./add-visualization-button";
+
+const PlotFromVisualizationMain = dynamic(
+    () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
+        ssr: false
+    })
 
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
@@ -55,7 +59,7 @@ const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-edi
 
 const InsertVisualizationModal = dynamic(() => import(
     './insert-visualization-modal'
-    ))
+))
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -351,7 +355,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
             />}
             {quotedPost && <WritePanelQuotedPost quotedPost={quotedPost}/>}
         </div>
-        <div className="flex justify-between p-1 border-t items-center">
+        <div className="flex justify-between py-1 px-2 border-t items-center">
             <div className={"flex space-x-2 items-center"}>
                 <AddImageButton
                     disabled={!canAddImage}
@@ -362,7 +366,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
                     setModalOpen={setVisualizationModalOpen}
                 />
             </div>
-            <div className={"flex space-x-2 text-[var(--text-light)] items-center px-1"}>
+            <div className={"flex space-x-2 text-[var(--text-light)] items-center"}>
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
@@ -370,7 +374,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
                     text1={isReply ? "Responder" : "Publicar"}
                     handleClick={handleClickSubmit}
                     disabled={!valid}
-                    textClassName="font-semibold text-xs py-[2px]"
+                    textClassName="font-semibold text-xs py-[2px] uppercase"
                     size="medium"
                 />
             </div>

@@ -18,6 +18,14 @@ export function useTopbarTitle() {
         return {title: "Cuentas para seguir"}
     } else if (pathname.startsWith("/tema?")){
         return {title: "Tema"}
+    } else if (pathname.startsWith("/c")) {
+        if(pathname.includes("article")){
+            return {title: "Artículo"}
+        } else if(pathname.includes("post")){
+            return {title: "Publicación"}
+        } else if(pathname.includes("dataset")){
+            return {title: "Conjunto de datos"}
+        }
     }
     return {}
 }

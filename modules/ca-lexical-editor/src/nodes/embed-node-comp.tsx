@@ -1,10 +1,16 @@
-import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getNodeByKey} from "lexical";
 import {AppBskyEmbedImages} from "@atproto/api"
 import {$isEmbedNode, EmbedSpec} from "./EmbedNode";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
+import dynamic from "next/dynamic";
+const PlotFromVisualizationMain = dynamic(
+    () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
+    ssr: false
+})
+
+
 
 export const EmbedNodeComp = ({
                                           embed,

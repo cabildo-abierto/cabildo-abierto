@@ -8,7 +8,7 @@ import {Button} from "../../../modules/ui-utils/src/button";
 import {ArticleIcon} from "../icons/article-icon"
 import {emptyChar} from "@/utils/utils";
 import ProfileDescription from "@/components/profile/profile-description";
-import {FollowButton} from "@/components/profile/profile-utils";
+import {FollowButton} from "@/components/profile/follow-button";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/useSession";
@@ -83,7 +83,7 @@ function ProfileHeader({
 
     const isOwner = profile.bsky.handle == user.handle
 
-    return <div className="flex flex-col border-b border-[var(--text-lighter)]">
+    return <div className="flex flex-col border-b border-[var(--text-lighter)] mt-2">
         <div className={"flex flex-col relative w-full"}>
             {profile.bsky.banner ?
                 <div className={""}>
@@ -100,7 +100,7 @@ function ProfileHeader({
                         width={800}
                         height={300}
                         alt={profile.bsky.handle + " banner"}
-                        className="max-[500px]:w-screen max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
+                        className="max-[500px]:w-screen border-t border-b border-r border-l border-[var(--text-lighter)] max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
                         onClick={() => {
                             setViewingBanner(0)
                         }}

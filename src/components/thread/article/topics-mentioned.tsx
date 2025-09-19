@@ -57,7 +57,7 @@ export const TopicsMentioned = ({
             .map(x => {
                 return <div key={x.id}>
                     <Link
-                        className="text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"
+                        className="text-[var(--text-light)] font-light hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"
                         href={topicUrl(x.id)}
                     >
                         {x.title}
@@ -68,13 +68,13 @@ export const TopicsMentioned = ({
 
     return <div className={"w-full flex text-light space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
         <div className={"text-sm text-[var(--text-light)] pt-[1px]"} title={"Temas mencionados"}>
-            <TopicsIcon fontSize={15}/>
+            <TopicsIcon fontSize={15} weight={"light"}/>
         </div>
         {mentionsMemo.toSorted(cmp).slice(0, maxCount).map((r, index) => {
             return <a // TO DO: Prevent leave
                 href={topicUrl(r.id)}
                 key={index}
-                className={"text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap"}
+                className={"text-[var(--text-light)] font-light hover:text-[var(--text)] text-sm whitespace-nowrap"}
                 title={"Tema mencionado en el artículo."}
             >
                 {r.title}

@@ -72,6 +72,8 @@ import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {InsertVisualizationDialog} from "../EmbedPlugin/insert-visualization-dialog";
 import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
 import {AppBskyEmbedImages} from "@atproto/api"
+import { Color } from '../../../../ui-utils/src/color';
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 const blockTypeToBlockName = {
@@ -110,10 +112,14 @@ const rootTypeToRootName = {
 function BlockFormatDropDown({
                                  editor,
                                  blockType,
+    backgroundColor = "transparent",
+    borderRadius = 0
                              }: {
     blockType: keyof typeof blockTypeToBlockName;
     rootType: keyof typeof rootTypeToRootName;
     editor: LexicalEditor;
+    backgroundColor?: Color;
+    borderRadius?: string | number
 }) {
     const formatParagraph = () => {
         editor.update(() => {
@@ -171,31 +177,31 @@ function BlockFormatDropDown({
         quote: formatQuote,
     }
 
-    const modal = (onClose: () => void) => <div className={"rounded-[8px] border flex flex-col w-48 space-y-1 p-1"}>
+    const modal = (onClose: () => void) => <div style={{borderRadius}} className={"border flex flex-col w-48 space-y-1 p-1"}>
         {Object.keys(blockTypeToIcon).map((key) => {
             return <div key={key}>
                 <Button
-                    color={"background-dark"}
+                    color={backgroundColor}
                     variant={"text"}
-                    sx={{borderRadius: "8px", paddingX: "8px", flexDirection: "row", justifyContent: "left"}}
+                    sx={{borderRadius, paddingX: "8px", flexDirection: "row", justifyContent: "left"}}
                     fullWidth
                     size={"small"}
                     onClick={() => {blockTypeToAction[key](); onClose()}}
                 >
-                    <div className={"flex items-center space-x-1 justify-start w-full"}>
+                    <div className={"flex items-center space-x-1 justify-start w-full uppercase"}>
                         <div className={"text-[var(--text-light)] flex items-center h-7"}>{blockTypeToIcon[key]}</div>
-                        <div className={"whitespace-nowrap text-[15px] text-center w-full px-1"}>{blockTypeToBlockName[key]}</div>
+                        <div className={"whitespace-nowrap text-[14px] text-center w-full px-1"}>{blockTypeToBlockName[key]}</div>
                     </div>
                 </Button>
             </div>
         })}
     </div>
 
-    return <ModalOnClick modal={modal}>
+    return <ModalOnClick modal={modal} className={`mt-2 bg-[var(--${backgroundColor})]`}>
         <Button
-            color={"background-dark"}
+            color={backgroundColor}
             variant={"text"}
-            sx={{borderRadius: "8px"}}
+            sx={{borderRadius}}
         >
             <div className={"flex items-center space-x-1 justify-start"}>
                 <div className={"text-[var(--text-light)] flex items-center h-7"}>{blockTypeToIcon[blockType]}</div>
@@ -226,6 +232,7 @@ export default function ToolbarPlugin({
     const [isEditable, setIsEditable] = useState(() => editor.isEditable());
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
+    const {isMobile} = useLayoutConfig()
 
     const onInsertImage = (i: ImagePayload) => {
         const image: AppBskyEmbedImages.ViewImage = {
@@ -374,10 +381,10 @@ export default function ToolbarPlugin({
     }, [activeEditor, isLink, setIsLinkEditMode]);
 
     return (
-        <div className={"toolbar-container"}>
+        <div className={"sticky z-[1205] h-[47px] border-[var(--text-lighter)] bg-[var(--background)] " + (isMobile ? "overflow-x-scroll top-[49px] w-full" : "top-0")}>
             <div className={"flex w-full"}>
                 <div
-                    className="toolbar items-center rounded-lg px-2 py-1 border flex bg-[var(--background-dark)] space-x-2">
+                    className="toolbar items-center py-1  flex space-x-2">
                     <ToolbarButton
                         disabled={!canUndo || !isEditable}
                         onClick={() => {
@@ -401,13 +408,12 @@ export default function ToolbarPlugin({
                         <RedoIcon fontSize={"small"}/>
                     </ToolbarButton>
                     {blockType in blockTypeToBlockName && activeEditor === editor && (
-                        <>
-                            <BlockFormatDropDown
-                                blockType={blockType}
-                                rootType={rootType}
-                                editor={activeEditor}
-                            />
-                        </>
+                        <BlockFormatDropDown
+                            blockType={blockType}
+                            rootType={rootType}
+                            editor={activeEditor}
+                            backgroundColor={"background"}
+                        />
                     )}
                     <ToolbarButton
                         disabled={!isEditable}

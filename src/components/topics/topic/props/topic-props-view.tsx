@@ -2,6 +2,22 @@ import {ListEditor} from "../../../../../modules/ui-utils/src/list-editor";
 import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import Image from "next/image"
+
+
+const TopicStringPropViewValue = ({name, value}: {name: string, value: string}) => {
+    if(name == "Foto"){
+        return <Image
+            src={value}
+            alt={name}
+            width={400}
+            height={400}
+            className={"w-36 h-auto object-contain"}
+        />
+    } else {
+        return <div className={"text-sm"}>{value}</div>
+    }
+}
 
 
 export const TopicPropView = ({p}: {p: ArCabildoabiertoWikiTopicVersion.TopicProp}) => {
@@ -12,10 +28,14 @@ export const TopicPropView = ({p}: {p: ArCabildoabiertoWikiTopicVersion.TopicPro
         {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
             items={p.value.value}
         />}
-        {(ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) || ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value)) && <div className={"text-sm"}>
+        {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TopicStringPropViewValue
+            name={p.name}
+            value={p.value.value}
+        />}
+        {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) && <div className={"text-sm"}>
             {p.value.value}
         </div>}
-        {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <div>
+        {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <div className={"text-sm"}>
             {formatIsoDate(p.value.value, false)}
         </div>}
     </div>

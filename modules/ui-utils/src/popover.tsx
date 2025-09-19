@@ -50,9 +50,9 @@ export const ClickableModalOnClick = ({
             PaperProps={{
                 elevation: 0,
                 style: {
+                    borderRadius: 0,
                     boxShadow: 'none'
                 },
-                borderRadius: 0,
                 border: "1px solid var(--text-light)"
             }}
             sx={{

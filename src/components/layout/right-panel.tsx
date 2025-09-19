@@ -1,6 +1,6 @@
 import React from "react";
 import {TrendingTopicsPanel} from "@/components/topics/trending-topics/trending-topics";
-import {usePathname} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import Link from "next/link";
@@ -9,11 +9,24 @@ import {formatIsoDate} from "@/utils/dates";
 import FollowSuggestions from "@/components/layout/follow-suggestions";
 import {Button} from "../../../modules/ui-utils/src/button";
 import DonateIcon from "@/components/icons/donate-icon";
+import {useSearch} from "@/components/buscar/search-context";
+import UserSearchResultsOnRightPanel from "@/components/buscar/user-search-results-on-right-panel";
 
 
 export const RightPanel = () => {
     const pathname = usePathname();
     const {data: meetingData} = useNextMeeting()
+    const router = useRouter()
+    const {searchState} = useSearch()
+
+    const showSearchButton = searchState.searching && searchState.value.length > 0
+
+    const searching = searchState.searching && searchState.value.length > 0
+    const handleSubmit = () => {
+        if (searchState.value.length > 0) {
+            router.push("/buscar?q=" + encodeURIComponent(searchState.value));
+        }
+    }
 
     const isFollowSuggestionsPath = ![
         "/perfil/cuentas-sugeridas",
@@ -23,9 +36,17 @@ export const RightPanel = () => {
     const isTrendingTopicsPath = ![
         "/temas"
     ].some(x => pathname.startsWith(x))
+    const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas")
 
 
     return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
+
+        {searching && !inSearchPage && <div className={"w-[276px]"}>
+            <UserSearchResultsOnRightPanel
+                showSearchButton={showSearchButton}
+                handleSubmit={handleSubmit}
+            />
+        </div>}
 
         <div className={"flex justify-center mt-4"}>
             <Logo width={48} height={48}/>
@@ -63,12 +84,9 @@ export const RightPanel = () => {
                     fullWidth={false}
                     startIcon={<DonateIcon/>}
                     size="small"
-                    color="primary"
-                    sx={{
-                        borderRadius: 0
-                    }}
+                    variant={"outlined"}
                 >
-                    <span className={"font-semibold"}>
+                    <span className={"font-semibold uppercase"}>
                         Aportar
                     </span>
                 </Button>

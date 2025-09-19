@@ -9,7 +9,7 @@ import {get, updateSearchParam} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
 import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session, WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {useRef} from "react";
+import {useMemo, useRef} from "react";
 import {ClickableModalOnClick} from "../../../../modules/ui-utils/src/popover";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
 import {useSession} from "@/queries/useSession";
@@ -218,6 +218,47 @@ export const TopicFeed = ({
         </div>
     </div>
 
+    const mentionsFeed = useMemo(() => {
+        return <FeedViewContentFeed
+            queryKey={["topic-feed", topicId, "mentions", metric, time, format]}
+            getFeed={getMentionsFeed}
+            onClickQuote={onClickQuote}
+            noResultsText={"Todavía no fue mencionado."}
+            endText={"Fin del feed."}
+        />
+    }, [metric, time, format, topicId])
+
+    const repliesFeed = useMemo(() => {
+        return <FeedViewContentFeed
+            queryKey={["topic-feed", topicId, "replies"]}
+            getFeed={getDiscussionFeed}
+            onClickQuote={onClickQuote}
+            noResultsText={"Todavía no hay respuestas."}
+            endText={""}
+            pageRootUri={topicVersionUri}
+        />
+    }, [metric, time, format, topicVersionUri])
+
+    const topicsFeed = useMemo(() => {
+        return <Feed<{ id: string, title: string }>
+            queryKey={["topic-feed", topicId, "mentions-in-topics"]}
+            getFeed={getMentionsInTopicsFeed}
+            noResultsText={"Este tema no recibió menciones en otros temas."}
+            FeedElement={(({content, index}) => {
+                return <CustomLink
+                    tag={"div"}
+                    href={topicUrl(content.id)}
+                    key={index}
+                    className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
+                >
+                    {content.title}
+                </CustomLink>
+            })}
+            endText={""}
+            getFeedElementKey={e => e.id}
+        />
+    }, [metric, time, format, topicId])
+
     return <div className={"mb-96 flex flex-col items-center"}>
         <div className={"border-b border-[var(--text-lighter)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
         <div
@@ -244,15 +285,7 @@ export const TopicFeed = ({
         {/*TO DO: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         <div className={"flex justify-center w-full"}>
             <div className={"max-w-[600px] w-full"}>
-                {selected == "Menciones" &&
-                    <FeedViewContentFeed
-                        queryKey={["topic-feed", topicId, "mentions", metric, time, format]}
-                        getFeed={getMentionsFeed}
-                        onClickQuote={onClickQuote}
-                        noResultsText={"Todavía no fue mencionado."}
-                        endText={"Fin del feed."}
-                    />
-                }
+                {selected == "Menciones" && mentionsFeed}
 
                 {selected == "Respuestas" &&
                     <div className={""}>
@@ -262,36 +295,11 @@ export const TopicFeed = ({
                                 onClick={() => {setWritingReply(true)}}
                             />
                         </div>}
-                        <FeedViewContentFeed
-                            queryKey={["topic-feed", topicId, "replies"]}
-                            getFeed={getDiscussionFeed}
-                            onClickQuote={onClickQuote}
-                            noResultsText={"Sé la primera persona en responder."}
-                            endText={""}
-                            pageRootUri={topicVersionUri}
-                        />
+                        {repliesFeed}
                     </div>
                 }
 
-                {selected == "Otros temas" &&
-                    <Feed<{ id: string, title: string }>
-                        queryKey={["topic-feed", topicId, "mentions-in-topics"]}
-                        getFeed={getMentionsInTopicsFeed}
-                        noResultsText={"Este tema no recibió menciones en otros temas."}
-                        FeedElement={(({content, index}) => {
-                            return <CustomLink
-                                tag={"div"}
-                                href={topicUrl(content.id)}
-                                key={index}
-                                className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
-                            >
-                                {content.title}
-                            </CustomLink>
-                        })}
-                        endText={""}
-                        getFeedElementKey={e => e.id}
-                    />
-                }
+                {selected == "Otros temas" && topicsFeed}
             </div>
         </div>
     </div>

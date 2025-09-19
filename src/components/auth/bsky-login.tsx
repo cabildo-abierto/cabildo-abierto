@@ -132,8 +132,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                 fullWidth={true}
                 loading={isLoading}
                 size="medium"
-                variant="contained"
-                color={"primary"}
+                variant="outlined"
             >
                 <span className={"text-[13px]"}>Iniciar sesión</span>
             </Button>

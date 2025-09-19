@@ -1,7 +1,6 @@
 import {PlotConfigProps} from "@/lib/types";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {DatasetFullView} from "@/components/datasets/dataset-full-view";
-import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset, useDatasets} from "@/queries/useDataset";
 import {
@@ -10,6 +9,11 @@ import {
     validateColumnFilters
 } from "@/components/visualizations/editor/visualization-editor";
 
+import dynamic from "next/dynamic";
+const PlotFromVisualizationMain = dynamic(
+    () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
+    ssr: false
+})
 
 function NextStep({config}: { config: PlotConfigProps }) {
     if (!config.dataSource) {

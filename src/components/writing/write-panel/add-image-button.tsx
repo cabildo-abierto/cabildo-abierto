@@ -1,4 +1,5 @@
 import {ImageOutlined} from "@mui/icons-material";
+import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 
 export const AddImageButton = ({
     disabled,
@@ -7,14 +8,16 @@ export const AddImageButton = ({
     disabled: boolean
     setModalOpen: (open: boolean) => void
 }) => {
-    return <button
+    return <IconButton
         onClick={() => {setModalOpen(true)}}
         disabled={disabled}
         type="button"
         title="Insertar imágen"
-        className="toolbar-item spaced text-[var(--text-light)]"
         aria-label="Insertar imágen"
+        sx={{
+            borderRadius: 0
+        }}
     >
         <ImageOutlined fontSize={"small"} color={"inherit"}/>
-    </button>
+    </IconButton>
 }

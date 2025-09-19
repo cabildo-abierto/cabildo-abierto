@@ -12,7 +12,7 @@ import {produce} from "immer";
 import {useSearchUsers} from "@/components/buscar/user-search-results";
 import SearchBar from "@/components/buscar/search-bar";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {FollowButton} from "@/components/profile/profile-utils";
+import {FollowButton} from "@/components/profile/follow-button";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useProfile} from "@/queries/useProfile";

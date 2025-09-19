@@ -44,7 +44,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
     const info: string | null = getDescriptionForProp(p.name)
 
     return <div className={"flex space-x-2 w-full items-center justify-between"}>
-        <div className={"flex items-center"}>
+        <div className={"flex items-center space-x-4"}>
             {info ?
                 <div className={"w-8"}><InfoPanel text={info} iconClassName={"text-[var(--text-lighter)]"}/></div> :
                 <div className={"w-8"}/>
@@ -57,6 +57,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 onClick={deleteProp}
                 disabled={isDefault}
                 sx={{
+                    textTransform: "none",
                     width: 120,
                     justifyContent: "flex-start",
                     color: "var(--text)",
@@ -74,9 +75,9 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                         alignItems: "center",
                     }}
                 >
-                <span style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
-                  {p.name}
-                </span>
+                    <span className="text-sm" style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
+                      {p.name}
+                    </span>
                     <span className={"text-[var(--text-light)]"}>
                     {!isDefault && hovered && <CloseIcon color={"inherit"}/>}
                 </span>
@@ -93,6 +94,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
                 value={p.value.value}
                 size={"small"}
+                fontSize={12}
                 onChange={(e) => {
                     setProp({
                         ...p,
@@ -108,6 +110,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 <TextField // TO DO: Marcar rojo si no es un número.
                     value={isNaN(p.value.value) ? 0 : p.value.value}
                     size={"small"}
+                    fontSize={12}
                     onChange={(e) => {
                         const v = parseInt(e.target.value)
                         setProp({
@@ -123,26 +126,34 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                     <DatePicker
                         label={"Fecha"}
-                        value={dayjs(p.value.value).locale('es')}
-                        onChange={(newValue) => {
-                            if (newValue?.isValid()) {
-                                setProp({
-                                    ...p,
-                                    value: {
-                                        $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-                                        value: newValue.startOf("day").toISOString(),
-                                    },
-                                });
-                            }
-                        }}
                         minDate={dayjs("1000-01-01")}
                         format="DD/MM/YYYY"
-                        slotProps={{
-                            textField: {size: 'small'},
-                            openPickerButton: {
-                                sx: {
-                                    padding: '4px'
+                        sx={{
+                            "& .MuiInputLabel-root": {
+                                color: `var(--text-lighter)`,
+                            },
+                            "& .MuiPickersInputBase-root": {
+                                borderRadius: 0,
+                                "&:hover fieldset": {
+                                    borderColor: `var(--text-lighter)`,
                                 },
+                                "& fieldset": {
+                                    borderRadius: 0,
+                                    borderColor: `var(--text-lighter)`,
+                                    borderWidth: 1,
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderWidth: 1,
+                                    borderRadius: 0,
+                                    "&.MuiPickersOutlinedInput-notchedOutline": {
+                                        borderColor: `var(--text-lighter)`
+                                    }
+                                },
+                            },
+                        }}
+                        slotProps={{
+                            textField: {
+                                size: "small",
                             },
                         }}
                     />
@@ -298,7 +309,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
 
     return <div className={"border p-4 space-y-6 my-4 mx-2"}>
         <div className={"font-semibold flex items-center space-x-2"}>
-            <div>Propiedades</div>
+            <div className={"uppercase text-sm"}>Propiedades</div>
         </div>
         <div className={"space-y-6"}>
             {vProps.map((p, index) => {
@@ -309,26 +320,26 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
                 </div>
             })}
         </div>
-        <div className={"flex justify-between"}>
+        <div className={"flex justify-between items-center"}>
             <Button
-                style={{width: 150}}
-                    onClick={() => {
-                setCreatingProp(true)
-            }}
+                color={"transparent"}
+                onClick={() => {
+                    setCreatingProp(true)
+                }}
                 size={"small"}
-                variant={"contained"}
+                variant={"text"}
             >
-                <span className={"text-xs"}>Nueva propiedad</span>
+                <span className={"text-[11px] font-normal uppercase"}>Nueva propiedad</span>
             </Button>
-            <div className={"text-[var(--text-light)] flex space-x-2"}>
+            <div className={"text-[var(--text-light)] flex space-x-2 items-center"}>
                 <DescriptionOnHover description={"Cancelar cambios"}>
-                <IconButton
-                    size={"small"}
-                    onClick={resetProps}
-                    color={"transparent"}
-                >
-                    <TrashIcon fontSize="20" fill={"light"}/>
-                </IconButton>
+                    <IconButton
+                        size={"small"}
+                        onClick={resetProps}
+                        color={"transparent"}
+                    >
+                        <TrashIcon fontSize="20" fill={"light"}/>
+                    </IconButton>
                 </DescriptionOnHover>
                 <IconButton
                     size={"small"}

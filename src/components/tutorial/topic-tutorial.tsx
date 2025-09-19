@@ -67,15 +67,6 @@ const maximizedSteps: Step[] = [
         hideBackButton: true
     },
     {
-        target: '#topic-header-button-props',
-        content: <TourContent>
-            Acá podés ver las propiedades del tema, como sus categorías y sinónimos.
-        </TourContent>,
-        placement: 'bottom',
-        disableBeacon: true,
-        hideBackButton: true
-    },
-    {
         target: '#editor',
         content: <TourContent>
             Esta es la última versión aceptada del tema.

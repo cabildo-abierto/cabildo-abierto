@@ -17,7 +17,7 @@ export type StateButtonClickHandler = (e: MouseEvent) => Promise<{ error?: strin
 
 const StateButton = ({
     handleClick=async () => {return {}},
-    color = "primary",
+    color = "background-dark",
     textClassName = "",
     startIcon,
     text1,

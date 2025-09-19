@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import {usePathname} from "next/navigation";
 
 // Create a context
 const SearchContext = createContext<{
@@ -20,6 +21,11 @@ export const useSearch = () => {
 // BarsProvider component to provide the context
 export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [searchState, setSearchState] = useState({value: "", searching: false});
+    const pathname = usePathname()
+
+    useEffect(() => {
+        setSearchState({value: "", searching: false})
+    }, [pathname]);
 
     return (
         <SearchContext.Provider value={{ searchState, setSearchState }}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {
     Select as MUISelect,
     MenuItem,
@@ -13,6 +13,7 @@ export const Select = ({
                            options,
                            value,
                            onChange,
+    optionNodes,
                            label,
                            paddingX,
                            paddingY,
@@ -20,11 +21,12 @@ export const Select = ({
                            labelShrinkFontSize,
                            textClassName,
                            backgroundColor = "background-dark",
-                           borderColor,
-                           outlineColor
+                           borderColor = "text-lighter",
+                           outlineColor = "text-lighter"
                        }: {
     options: string[];
     onChange: (v: string) => void;
+    optionNodes?: (o: string) => ReactNode
     value: string;
     label?: string;
     fontSize?: string;
@@ -48,17 +50,19 @@ export const Select = ({
             }
             : {};
 
-    const borderStyles = (themeProp: string | undefined) =>
-        themeProp ? `var(--${themeProp})` : undefined;
-
     return (
         <FormControl fullWidth variant="outlined" size="small">
             {label && (
                 <InputLabel
                     id={selectId}
+                    shrink
                     sx={{
                         fontSize: fontSize,
                         "&.MuiInputLabel-shrink": {fontSize: labelShrinkFontSize},
+                        "&.Mui-focused": {
+                            color: "var(--text)"
+                        },
+                        color: "var(--text)"
                     }}
                 >
                     {label}
@@ -75,19 +79,35 @@ export const Select = ({
                         notched
                         label={label}
                         sx={{
+                            borderRadius: 0,
+                            border: "1px",
                             fontSize: fontSize,
                             backgroundColor: `var(--${backgroundColor})`,
                             ...paddingStyles,
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: borderStyles(borderColor),
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: borderStyles(borderColor),
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: borderStyles(outlineColor),
-                            },
-                            borderRadius: 0
+                            '& .MuiOutlinedInput-notchedOutline': borderColor
+                                ? {
+                                    borderColor: `var(--${borderColor})`,
+                                    borderWidth: "1px"
+                                }
+                                : {
+                                    border: "none",
+                                },
+                            '&:hover .MuiOutlinedInput-notchedOutline': borderColor
+                                ? {
+                                    borderColor: `var(--${borderColor})`,
+                                    borderWidth: "1px"
+                                }
+                                : {
+                                    border: "none",
+                                },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': borderColor
+                                ? {
+                                    borderColor: `var(--${outlineColor})`,
+                                    borderWidth: "1px"
+                                }
+                                : {
+                                    border: "none",
+                                },
                         }}
                     />
                 }
@@ -103,8 +123,7 @@ export const Select = ({
                             borderRadius: 0,
                             borderColor: "var(--text-lighter)"
                         },
-                        elevation: 0,
-                        borderRadius: 0
+                        elevation: 0
                     },
                 }}
             >
@@ -125,11 +144,13 @@ export const Select = ({
                             },
                         }}
                     >
-                        <span className={textClassName}>{o}</span>
+                        {optionNodes ?
+                            optionNodes(o) :
+                            <span className={textClassName}>{o}</span>
+                        }
                     </MenuItem>
                 ))}
             </MUISelect>
         </FormControl>
     );
 };
-

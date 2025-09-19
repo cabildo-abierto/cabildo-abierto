@@ -26,10 +26,10 @@ export const Button = ({
                            sx,
                            variant = "contained",
                            disableElevation = true,
-                           color = "primary",
+                           color = "background-dark",
                            dense = false,
-                           textTransform = "none",
-    borderColor,
+                           textTransform,
+    borderColor = "text-lighter",
                            ...props
                        }: ButtonProps) => {
     let textColor =
@@ -44,21 +44,14 @@ export const Button = ({
         paddingRight: "5px"
     } : {}
 
-    if(color == "primary") {
-        color = "background-dark"
-        textColor = "var(--text)"
-        textTransform = undefined
-        variant = "outlined"
-        borderColor = "text-lighter"
-    }
-
     return (
         <MUIButton
             {...props}
             sx={{
                 borderRadius: 0,
-                ...sx,
                 textTransform,
+                ...sx,
+                transition: "none",
                 color: textColor,
                 backgroundColor: `var(--${color})`,
                 borderColor: `var(--${borderColor})`,

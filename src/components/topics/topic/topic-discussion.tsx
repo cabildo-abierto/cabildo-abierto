@@ -1,4 +1,4 @@
-import {useMemo, useState} from "react";
+import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import dynamic from "next/dynamic";
@@ -20,21 +20,17 @@ const TopicDiscussion = ({
     const [writingReply, setWritingReply] = useState(false)
     const {user} = useSession()
 
-    const feed = useMemo(() => {
-        return <TopicFeed
-            topic={topic}
-            onClickQuote={onClickQuote}
-            topicVersionUri={topicVersionUri}
-            wikiEditorState={wikiEditorState}
-            setWritingReply={setWritingReply}
-            replyToContent={replyToContent}
-        />
-    }, [topic, onClickQuote, topicVersionUri])
-
     return <div className={"w-full flex flex-col items-center mb-16 " + (wikiEditorState == "minimized" ? "" : "")}>
         <div className={"w-full"}>
             {user && <div className={"w-full " + (wikiEditorState == "normal" ? "" : "")}>
-                {feed}
+                <TopicFeed
+                    topic={topic}
+                    onClickQuote={onClickQuote}
+                    topicVersionUri={topicVersionUri}
+                    wikiEditorState={wikiEditorState}
+                    setWritingReply={setWritingReply}
+                    replyToContent={replyToContent}
+                />
             </div>}
         </div>
         {user && replyToContent && <WritePanel

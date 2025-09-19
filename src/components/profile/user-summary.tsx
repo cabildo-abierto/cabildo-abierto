@@ -1,5 +1,5 @@
 import {ReactNode, useEffect, useState} from "react";
-import {FollowButton} from "@/components/profile/profile-utils";
+import {FollowButton} from "@/components/profile/follow-button";
 import Link from "next/link";
 import {profileUrl} from "@/utils/uri";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
