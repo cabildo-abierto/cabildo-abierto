@@ -47,10 +47,10 @@ const TrendingTopicsConfig = ({time, setTime}: { time: string, setTime: (v: stri
             value={time}
             fontSize={"13px"}
             labelShrinkFontSize={"13px"}
-            paddingY={0.1}
+            paddingY={0.05}
             paddingX={1}
-            textClassName={"text-sm text-[var(--text)]"}
-            backgroundColor={"transparent"}
+            textClassName={"text-[11px] text-[var(--text-light)] uppercase"}
+            backgroundColor={"background"}
             borderColor={"text-light"}
             outlineColor={"text-light"}
         />

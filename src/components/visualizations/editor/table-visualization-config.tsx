@@ -105,7 +105,8 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                     </div>
                     {value && <div className={"flex-1"}>
                         <TextField
-                            dense={true}
+                            paddingX={"0px"}
+                            paddingY={"6px"}
                             label={"Alias"}
                             fontSize={"12px"}
                             size={"small"}
