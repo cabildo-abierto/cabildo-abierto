@@ -4,10 +4,10 @@ import {Color} from "./color";
 
 type TextFieldProps = Omit<MUITextFieldProps, "fontSize" | "color"> & {
     fontSize?: number | string
-    dense?: boolean
     color?: Color
     borderRadius?: number | string
     borderColor?: Color
+    paddingX?: string | number
     paddingY?: number | string
     borderWidthNoFocus?: number | string
     borderWidth?: number | string
@@ -16,13 +16,13 @@ type TextFieldProps = Omit<MUITextFieldProps, "fontSize" | "color"> & {
 export const TextField = ({
                               children,
                               fontSize,
-                              dense = false,
                               color = "transparent",
                               borderRadius = 0,
                               borderColor = "text-lighter",
                               paddingY = "8px",
-                              borderWidthNoFocus="1px",
-                              borderWidth="1px",
+                              paddingX = "6px",
+                              borderWidthNoFocus = "1px",
+                              borderWidth = "1px",
                               ...props
                           }: TextFieldProps) => {
     return (
@@ -30,7 +30,6 @@ export const TextField = ({
             {...props}
 
             sx={{
-
                 "& .MuiOutlinedInput-root": {
                     fontSize,
                     backgroundColor: `var(--${color})`,
@@ -51,6 +50,9 @@ export const TextField = ({
                         borderWidth,
                         borderColor: `var(--${borderColor})`,
                     },
+                },
+                "& .MuiInputBase-root": {
+                    paddingX,
                 }
             }}
 
@@ -58,24 +60,7 @@ export const TextField = ({
                 autoComplete: "off",
                 sx: {
                     fontSize,
-                    borderRadius: 0,
-                    ...(dense && {
-                        paddingTop: '2px',
-                        paddingBottom: '4px',
-                        paddingLeft: '6px',
-                        paddingRight: '6px',
-                        '& .MuiOutlinedInput-input': {
-                            padding: '2px 4px'
-                        },
-                        '& .MuiFilledInput-input': {
-                            paddingTop: '2px',
-                            paddingBottom: '2px'
-                        },
-                        '& .MuiInput-input': {
-                            paddingTop: '2px',
-                            paddingBottom: '2px'
-                        }
-                    })
+                    borderRadius: 0
                 }
             }}
             InputLabelProps={{

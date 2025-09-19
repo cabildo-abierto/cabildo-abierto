@@ -47,7 +47,7 @@ export const TopicsPageHeader = () => {
             <DescriptionOnHover description={description}>
                 <button
                     id={o}
-                    className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}
+                    className={"flex items-center p-1 hover:bg-[var(--background-dark)] " + (isSelected ? "bg-[var(--background-dark2)]" : "")}
                 >
                     {icon}
                 </button>
@@ -95,7 +95,11 @@ export const TopicsPageHeader = () => {
                 <IconButton
                     size={"small"}
                     onClick={() => setMultipleEnabled(!multipleEnabled)}
-                    color={!multipleEnabled ? "transparent" : "background-dark3"}>
+                    color={!multipleEnabled ? "transparent" : "background-dark3"}
+                    sx={{
+                        borderRadius: 0
+                    }}
+                >
                     <StackIcon/>
                 </IconButton>
             </DescriptionOnHover>

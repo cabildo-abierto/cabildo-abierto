@@ -60,7 +60,12 @@ export default function FollowSuggestions() {
                             </div>
                         </div>
                     </div>
-                    <FollowButton textClassName={"text-xs py-[2px]"} dense={true} handle={u.handle} profile={u}/>
+                    <FollowButton
+                        textClassName={"text-xs py-[2px]"}
+                        dense={true}
+                        handle={u.handle}
+                        profile={u}
+                    />
                 </CustomLink>
             })}
         </div>

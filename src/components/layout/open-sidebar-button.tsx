@@ -7,7 +7,10 @@ export const OpenSidebarButton = () => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
     return <IconButton
-        size={"medium"}
+        size={"small"}
+        sx={{
+            borderRadius: 0
+        }}
         onClick={() => {
             setLayoutConfig({
                 ...layoutConfig,
