@@ -1075,7 +1075,7 @@ button.action-button:disabled {
   vertical-align: middle;
   overflow: auto;
   position: sticky;
-  top: 0;
+  top: 48;
   z-index: 2;
 }
 

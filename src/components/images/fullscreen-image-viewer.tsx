@@ -94,9 +94,12 @@ const FullscreenImageViewer = ({
                 )}
             </div>
             <div className="absolute z-[3001] right-2 top-2">
-                <CloseButton onClose={() => {
+                <CloseButton
+                    onClose={() => {
                     setViewing(null)
-                }}/>
+                    }}
+                    hoverColor={"transparent"}
+                />
             </div>
         </div>
     </div>, document.body)

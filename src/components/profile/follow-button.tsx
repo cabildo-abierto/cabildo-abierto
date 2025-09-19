@@ -234,32 +234,25 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
         {profile.viewer.following ?
             <StateButton
                 handleClick={onUnfollow}
-                color={darker(backgroundColor)}
+                color={darker(darker(backgroundColor))}
                 size="small"
-                variant="contained"
+                variant="outlined"
                 startIcon={!dense && <CheckIcon fontSize={"small"}/>}
                 disableElevation={true}
                 dense={dense}
                 text1="Siguiendo"
-                textClassName={textClassName}
+                textClassName={textClassName + " uppercase"}
                 disabled={profile.viewer.following == "optimistic-follow"}
-                sx={{
-                    borderRadius: 0
-                }}
             /> :
             <StateButton
                 handleClick={onFollow}
-                color="primary"
                 size="small"
-                variant="contained"
+                variant="outlined"
                 startIcon={!dense && <AddIcon fontSize={"small"}/>}
                 disableElevation={true}
                 dense={dense}
                 text1={followText}
-                textClassName={textClassName}
-                sx={{
-                    borderRadius: 0
-                }}
+                textClassName={textClassName + " uppercase"}
             />}
     </div>
 }

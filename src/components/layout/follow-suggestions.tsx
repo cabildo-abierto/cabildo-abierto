@@ -1,9 +1,8 @@
 import {useFollowSuggestions} from "@/queries/suggestions";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import InfoPanel from "../../../modules/ui-utils/src/info-panel";
 import {CustomLink, CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
-import {FollowButton} from "@/components/profile/profile-utils";
-import {profileUrl, topicUrl} from "@/utils/uri";
+import {FollowButton} from "@/components/profile/follow-button";
+import {profileUrl} from "@/utils/uri";
 
 
 export const followSuggestionsInfo = "Se priorizan usuarios seguidos por personas que seguís, usuarios activos, autores de artículos y usuarios de Cabildo Abierto."
@@ -33,16 +32,8 @@ export default function FollowSuggestions() {
     if (data && (!data.profiles || data.profiles.length == 0)) return null
 
     return <div className={"border-[var(--text-lighter)] border-[1px] w-full h-full"}>
-        <div className={"flex justify-between px-3 py-1 items-center bg"}>
-            <div className={"text-xs font-semibold uppercase"}>
-                Cuentas sugeridas
-            </div>
-            <div>
-                <InfoPanel
-                    text={followSuggestionsInfo}
-                    moreInfoHref={topicUrl("Cabildo Abierto: Cuentas para seguir", undefined, "normal")}
-                />
-            </div>
+        <div className={"flex px-3 py-2 items-center text-xs font-semibold uppercase"}>
+            Cuentas sugeridas
         </div>
         <div className={"space-y-1"}>
             {isLoading && !data && <div>

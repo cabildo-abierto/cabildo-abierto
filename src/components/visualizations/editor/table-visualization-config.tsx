@@ -47,15 +47,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     }
 
     if (!columns) {
-        if(ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)){
-            return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
-                Cargá los datos primero.
-            </div>
-        } else {
-            return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
-                Ocurrió un error al cargar los datos.
-            </div>
-        }
+        return null
     }
 
     if (!ArCabildoabiertoEmbedVisualization.isTable(config.spec)) {
@@ -90,7 +82,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
         }))
     }
 
-    return <div className={"space-y-1"}>
+    return <div className={"space-y-1 px-1"}>
         <div className={"text-[var(--text-light)] text-sm"}>
             Columnas
         </div>
@@ -128,6 +120,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                             onChange={e => {
                                 setShowColumn(c.name, e.target.checked)
                             }}
+                            color={"primary"}
                         />
                     </div>
                 </div>

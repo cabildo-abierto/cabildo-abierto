@@ -24,8 +24,11 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
                 setEnDiscusion(!enDiscusion)
             }}
             size={"small"}
-            color={enDiscusion ? "background-dark3" : "transparent"}
+            color={enDiscusion ? "background-dark2" : "transparent"}
             textColor={enDiscusion ? "text" : "text-lighter"}
+            sx={{
+                borderRadius: 0
+            }}
         >
             <Newspaper color={"inherit"}/>
         </IconButton>

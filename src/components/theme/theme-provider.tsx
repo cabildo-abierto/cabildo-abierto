@@ -10,16 +10,16 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const root = document.documentElement;
-        root.style.setProperty('--primary', '#3080ff')
         root.style.setProperty('--red', '#ff6666')
         root.style.setProperty('--red-dark', '#c12f2f')
         root.style.setProperty('--red-dark2', '#8f1919')
         if (currentTheme === 'dark') {
-            root.style.setProperty('--text', '#eeeeee');
+            root.style.setProperty('--primary', '#eeeeee')
+            root.style.setProperty('--text', 'rgb(240, 240, 240)');
             root.style.setProperty('--bold-text', '#ffffff');
-            root.style.setProperty('--button-text', '#fbfbfc');
-            root.style.setProperty('--text-light', '#b0b0b0');
-            root.style.setProperty('--text-lighter', '#888888');
+            root.style.setProperty('--button-text', 'rgb(240, 240, 240)');
+            root.style.setProperty('--text-light', 'rgb(190, 190, 190)');
+            root.style.setProperty('--text-lighter', 'rgb(150, 150, 150)');
             root.style.setProperty('--icon-color-filter', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)');
 
             root.style.setProperty('--background', 'rgb(25, 25, 35)');
@@ -42,6 +42,7 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
             root.style.setProperty('--primary-xdark', '#184182')
             root.style.setProperty('--primary-2xdark', '#112e5a')
         } else {
+            root.style.setProperty('--primary', '#1a1a1a')
             root.style.setProperty('--text', '#1a1a1a');
             root.style.setProperty('--bold-text', '#000000');
             root.style.setProperty('--button-text', '#fbfbfc');

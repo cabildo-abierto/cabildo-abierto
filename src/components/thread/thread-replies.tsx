@@ -19,7 +19,7 @@ export default function ThreadReplies({replies, setPinnedReplies}: ThreadReplies
         <div className={"w-full"}>
             <StaticFeed<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<AppBskyFeedDefs.BlockedPost> | {$type: string}>
                 initialContents={replies}
-                noResultsText={"Sé la primera persona en responder."}
+                noResultsText={"Todavía no hay respuestas."}
                 endText={""}
                 FeedElement={({content: r}) => {
                     if ((!ArCabildoabiertoFeedDefs.isThreadViewContent(r) && !ArCabildoabiertoFeedDefs.isFeedViewContent(r)) || !ArCabildoabiertoFeedDefs.isPostView(r.content)) {

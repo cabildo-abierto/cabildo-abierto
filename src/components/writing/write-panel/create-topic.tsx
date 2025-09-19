@@ -14,7 +14,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export const createTopic = async (id: string) => {
@@ -86,7 +86,7 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
                         sx={{
                             width: "150px",
                             borderRadius: 0
-                    }}
+                        }}
                     >
                         <span className={""}>Editar un tema</span>
                     </Button>
@@ -95,7 +95,8 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
                     onClick={() => {
                         setSelected("new")
                     }}
-                    sx={{width: "150px",
+                    sx={{
+                        width: "150px",
                         borderRadius: 0
                     }}
                 >
@@ -131,7 +132,8 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
                 </span>
                     <div className={"space-y-1 flex flex-col max-h-[250px] overflow-y-scroll"}>
                         {results.map(r => {
-                            return <Link href={topicUrl(r.id, undefined, "normal")} key={r.id} className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-lg px-2 py-1"}>
+                            return <Link href={topicUrl(r.id, undefined, "normal")} key={r.id}
+                                         className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-lg px-2 py-1"}>
                                 {getTopicTitle(r)}
                             </Link>
                         })}
@@ -175,26 +177,31 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
                 </div>}
             </div>
             <div className={"space-x-2"}>
-            {backButton && <Button
-                onClick={() => {
-                    setSelected("none")
-                }}
-                variant={"text"}
-                color={"background-dark"}
-                sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}
-            >
+                {backButton && <Button
+                    onClick={() => {
+                        setSelected("none")
+                    }}
+                    variant={"text"}
+                    color={"background-dark"}
+                    sx={{
+                        ":hover": {
+                            backgroundColor: "var(--background-dark3)"
+                        }
+                    }}
+                >
                 <span className={"text-[var(--text-light)] font-semibold"}>
                     Volver
                 </span>
-            </Button>}
-            <StateButton
-                handleClick={onSubmit}
-                disabled={disabled}
-                size={"small"}
-                textClassName="px-4"
-                sx={{borderRadius: 0}}
-                text1="Crear tema"
-            />
+                </Button>}
+                <StateButton
+                    handleClick={onSubmit}
+                    disabled={disabled}
+                    size={"small"}
+                    textClassName="px-4"
+                    variant={"outlined"}
+                    color={"background-dark"}
+                    text1="Crear tema"
+                />
             </div>
         </div>
 

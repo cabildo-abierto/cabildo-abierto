@@ -184,7 +184,7 @@ function TextFormatFloatingToolbar({
 
     return (
         <div ref={popupCharStylesEditorRef}
-             className="floating-text-format-popup space-x-1 bg-[var(--background-dark)]">
+             className="floating-text-format-popup space-x-1 border border-[var(--text-lighter)]">
             {editor.isEditable() && (
                 <>
                     <ToolbarButton

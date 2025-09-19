@@ -1,10 +1,7 @@
 import {SearchPanelOnRightColumn} from "@/components/layout/search-panel-on-right-column";
 import React from "react";
-import {usePathname, useRouter} from "next/navigation";
+import {usePathname} from "next/navigation";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-
-import dynamic from "next/dynamic";
-import {useSearch} from "@/components/buscar/search-context";
 import {OpenSidebarButton} from "@/components/layout/open-sidebar-button";
 import {MainFeedHeader} from "@/components/inicio/main-feed-header";
 import MainSearchBar from "@/components/buscar/main-search-bar";
@@ -14,29 +11,18 @@ import {TopbarConversation} from "@/components/mensajes/topbar-conversation";
 import {TopbarFollowx} from "@/components/layout/topbar-followx";
 import { InfoPanelUserSuggestions } from "../profile/info-panel-user-suggestions";
 import {useTopbarTitle} from "@/components/layout/topbar-title";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
-
-const UserSearchResultsOnRightPanel = dynamic(() => import("@/components/buscar/user-search-results-on-right-panel"),
-    {ssr: false}
-)
 
 export default function TopbarDesktop() {
     const {isMobile} = useLayoutConfig()
     const pathname = usePathname()
     const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas")
-    const router = useRouter()
-    const {searchState} = useSearch()
+
     const {layoutConfig} = useLayoutConfig()
     const {title} = useTopbarTitle()
 
-    const showSearchButton = searchState.searching && searchState.value.length > 0
-
-    const searching = searchState.searching && searchState.value.length > 0
-    const handleSubmit = () => {
-        if (searchState.value.length > 0) {
-            router.push("/buscar?q=" + encodeURIComponent(searchState.value));
-        }
-    }
+    const backButton = pathname.startsWith("/c/") || pathname.startsWith("/tema?")
 
     return <div
         className={"fixed top-0 left-0 items-center px-3 bg-[var(--background)] w-screen border-b border-[var(--text-lighter)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}
@@ -55,8 +41,14 @@ export default function TopbarDesktop() {
                         maxWidth: layoutConfig.maxWidthCenter,
                     }}
                 >
-                    {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && <div className={"font-bold uppercase"}>
+                    {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && <div className={"font-bold uppercase flex space-x-2 items-center"}>
+                        {backButton && <BackButton
+                            preferReferrer={false}
+                            size={"medium"}
+                        />}
+                        <div>
                         {title}
+                        </div>
                     </div>}
 
                     {pathname.startsWith("/perfil/") && (pathname.endsWith("/siguiendo") || pathname.endsWith("/seguidores")) &&
@@ -87,19 +79,12 @@ export default function TopbarDesktop() {
             {layoutConfig.spaceForRightSide &&
                 <div
                     className="flex-shrink-0 sticky no-scrollbar overflow-y-auto h-full flex items-center"
-                    style={{width: layoutConfig.rightMinWidth}}
+                    style={{minWidth: layoutConfig.rightMinWidth}}
                 >
                     {!inSearchPage && <>
                         <div className={"w-[276px] mr-7"}>
                             <SearchPanelOnRightColumn/>
                         </div>
-
-                        {searching && <div className={"w-[276px] z-[1100] absolute top-12 right-7"}>
-                            <UserSearchResultsOnRightPanel
-                                showSearchButton={showSearchButton}
-                                handleSubmit={handleSubmit}
-                            />
-                        </div>}
                     </>}
                 </div>
             }

@@ -3,7 +3,6 @@ import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Candidato, Cargo, ElectionPlotter, getProvinceName} from "./election-plotter";
 import {DatasetForTableView, useDebounce} from "@/components/datasets/dataset-table-view";
 import React, {useMemo, useState} from "react";
-import {TextField} from "@mui/material";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "../../../../../modules/ui-utils/src/button";
@@ -13,6 +12,7 @@ import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
 import {capitalize} from "@/utils/strings";
 import {MemoizedArgentinaMap} from "@/components/visualizations/editor/election/argentina-map";
+import { TextField } from "../../../../../modules/ui-utils/src/text-field";
 
 
 const AlianzaPreview = ({nombre, onSelect}: {
@@ -21,7 +21,7 @@ const AlianzaPreview = ({nombre, onSelect}: {
 }) => {
     return <div
         onClick={onSelect}
-        className={"hover:bg-[var(--background-dark4)] cursor-pointer p-2 font-extralight bg-[var(--background-dark3)] rounded-lg"}
+        className={"hover:bg-[var(--background-dark)] cursor-pointer p-2 font-extralight border border-[var(--text-lighter)]"}
     >
         <div className={"flex justify-between"}>
             <div
@@ -49,13 +49,13 @@ const Lista = ({cargo, subcargos, onSelectCandidate}: {
     const isEmpty = count == 0
 
     return <div
-        className={"rounded-lg p-2 bg-[var(--background-dark3)] " + (isEmpty ? "" : "cursor-pointer")}
+        className={"border border-[var(--text-lighter)] p-2 " + (isEmpty ? "" : "cursor-pointer")}
         onClick={() => {
             if (!isEmpty) setOpen(!open)
         }}
     >
         <div className={"flex justify-between"}>
-            <div className={"text-[var(--text)]"}>
+            <div className={"text-[var(--text)] uppercase text-sm"}>
                 {cargo}
             </div>
             {!isEmpty && (open ? <CaretUpIcon/> : <CaretDownIcon/>)}
@@ -105,7 +105,7 @@ const Alianza = ({
 
     const districts = plotter.getDistrictsForAlianza(nombre).filter(x => x != district)
 
-    return <div className={"rounded-lg bg-[var(--background-dark2)] p-2 mt-2"}>
+    return <div className={"p-2 mt-2 border border-[var(--text-lighter)]"}>
         <div className={"flex justify-between items-start"}>
             <div>
                 <div className={"capitalize leading-tight text-lg font-extrabold"}>
@@ -119,7 +119,7 @@ const Alianza = ({
             </div>
             <CloseButton
                 onClose={onBack}
-                color={"background-dark2"}
+                color={"transparent"}
                 size={"small"}
             />
         </div>
@@ -137,13 +137,7 @@ const Alianza = ({
             })}
         </div>
         {idTema && <div className={"flex justify-end mt-2 text-sm font-extralight"}>
-            <Link
-                className={"rounded bg-[var(--background-dark3)] px-2 cursor-pointer hover:bg-[var(--background-dark4)]"}
-                target={"_blank"}
-                href={topicUrl(capitalize(idTema), undefined, "normal")}
-            >
-                Tema
-            </Link>
+            <TopicLinkButton id={idTema}/>
         </div>}
         <div className={"text-xs mt-2 text-[var(--text-light)] font-extralight"}>
             {districts.length > 0 && <>
@@ -184,14 +178,15 @@ const Distrito = ({distrito, plotter, onSelectAlianza}: {
             <Button
                 size={"small"}
                 sx={{height: "20px"}}
-                color={isSelected ? "background-dark3" : "background-dark"}
+                variant={"outlined"}
+                color={isSelected ? "background-dark" : "background"}
             >
                 <span className={"text-xs"}>{o}</span>
             </Button>
         </div>
     }
 
-    return <div className={"bg-[var(--background-dark2)] rounded-lg p-2 mt-2"}>
+    return <div className={"border border-[var(--text-lighter)] p-2 mt-2"}>
         <div className={"truncate text-xl font-extrabold py-1"}>
             {getProvinceName(distrito)}
         </div>
@@ -225,16 +220,21 @@ const Distrito = ({distrito, plotter, onSelectAlianza}: {
             </div>
 
             {idDistrito && <div className={"flex justify-end mt-1"}>
-                <Link
-                    className={"rounded text-sm bg-[var(--background-dark3)] px-2 cursor-pointer hover:bg-[var(--background-dark4)]"}
-                    target={"_blank"}
-                    href={topicUrl(capitalize(idDistrito), undefined, "normal")}
-                >
-                    Tema
-                </Link>
+                <TopicLinkButton id={idDistrito}/>
             </div>}
         </div>
     </div>
+}
+
+
+const TopicLinkButton = ({id}: {id: string}) => {
+    return <Link
+        className={"border uppercase text-xs border-[var(--text-lighter)] px-2 cursor-pointer hover:bg-[var(--background-dark)]"}
+        target={"_blank"}
+        href={topicUrl(capitalize(id), undefined, "normal")}
+    >
+        Tema
+    </Link>
 }
 
 
@@ -248,12 +248,12 @@ const CandidateComp = ({nombre, plotter, onBack, onSelectProvince, onSelectAlian
 
     const candidato = plotter.getCandidate(nombre)
 
-    return <div className={"mt-2 bg-[var(--background-dark2)] rounded-lg p-2"}>
+    return <div className={"mt-2 border border-[var(--text-lighter)] p-2"}>
         <div className={"flex justify-between items-start space-x-2"}>
             <div className={"capitalize font-extrabold text-lg"}>
                 {nombre.toLowerCase()}
             </div>
-            <CloseButton onClose={onBack} size={"small"} color={"background-dark3"}/>
+            <CloseButton onClose={onBack} size={"small"} color={"background"}/>
         </div>
         <div className={"font-extralight text-sm "}>
             <div>
@@ -279,13 +279,7 @@ const CandidateComp = ({nombre, plotter, onBack, onSelectProvince, onSelectAlian
             }}>{candidato.distrito.toLowerCase()}</span>.
             </div>
             {candidato.idTema && <div className={"flex justify-end mt-1"}>
-                <Link
-                    className={"rounded bg-[var(--background-dark3)] px-2 cursor-pointer hover:bg-[var(--background-dark4)]"}
-                    target={"_blank"}
-                    href={topicUrl(capitalize(candidato.idTema), undefined, "normal")}
-                >
-                    Tema
-                </Link>
+                <TopicLinkButton id={candidato.idTema}/>
             </div>}
         </div>
     </div>
@@ -324,7 +318,7 @@ const SearchResults = ({searchValue, plotter, onSelectCandidate, onSelectAlianza
                             }
                             setSearchValue(null)
                         }}
-                        className={"bg-[var(--background-dark2)] rounded-lg p-1 text-xs font-extralight text-[var(--text-light)]"}
+                        className={"border-[var(--text-lighter)] border cursor-pointer hover:bg-[var(--background-dark)] p-1 text-xs font-extralight text-[var(--text-light)]"}
                     >
                         {r.type == "candidato" && <div>
                             <div className={"capitalize font-semibold"}>
@@ -495,7 +489,7 @@ const ElectionMapSidepanel = ({
 
     return useMemo(() => <div
         style={{width, height}}
-        className={"overflow-y-auto custom-scrollbar bg-[var(--background-dark)] p-2"}
+        className={"overflow-y-auto custom-scrollbar border border-[var(--text-lighter)] p-2"}
     >
         <TextField
             variant="outlined"
@@ -509,26 +503,9 @@ const ElectionMapSidepanel = ({
                         <SearchIcon fontSize="inherit" color={"inherit"}/></span>,
                 }
             }}
+            paddingY={0.5}
+            fontSize={13}
             fullWidth={true}
-            sx={{
-                zIndex: 15,
-                backgroundColor: 'var(--background-dark2)', // bg-[var(--background-dark)]
-                borderRadius: '0.5rem',                     // rounded-lg
-                outline: 'none',                            // outline-none
-                px: 0,                                      // removes padding from the wrapper
-                '& .MuiOutlinedInput-root': {
-                    padding: 0,                               // removes root padding
-                    paddingLeft: "8px",
-                    paddingRight: "8px",
-                    '& input': {
-                        padding: "3px",                              // removes input text padding
-                        fontSize: 12
-                    },
-                    '& fieldset': {border: 'none'},         // removes outline
-                    '&:hover fieldset': {border: 'none'},
-                    '&.Mui-focused fieldset': {border: 'none'}
-                },
-            }}
             placeholder={"buscar candidatos o alianzas..."}
         />
 

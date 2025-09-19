@@ -19,11 +19,12 @@ import {SaveDraftArticleButton} from "@/components/writing/article/save-draft-ar
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {robotoSerif} from "@/components/writing/article-font";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
-const articleEditorSettings = (smallScreen: boolean, draft?: Draft) => getEditorSettings({
+const articleEditorSettings = (smallScreen: boolean, isMobile?: boolean, draft?: Draft) => getEditorSettings({
     charLimit: 1200000,
     allowImages: true,
     allowVisualizations: true,
@@ -41,8 +42,8 @@ const articleEditorSettings = (smallScreen: boolean, draft?: Draft) => getEditor
 
     placeholder: "Escribí tu artículo...",
     isReadOnly: false,
-    editorClassName: `article-content relative ${robotoSerif.variable} pt-4`,
-    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[15px] pt-[32px]",
+    editorClassName: `article-content relative ${robotoSerif.variable} pt-4 ` + (isMobile ? "px-3" : ""),
+    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[15px] pt-[32px] " + (isMobile ? "px-3" : ""),
 
     topicMentions: false
 })
@@ -82,8 +83,9 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
     const [draftId, setDraftId] = useState<string | null>(draft?.id)
     const {user} = useSession()
     const smallScreen = window.innerWidth < 700
+    const {isMobile} = useLayoutConfig()
 
-    const settings = articleEditorSettings(smallScreen, draft)
+    const settings = articleEditorSettings(smallScreen, isMobile, draft)
 
     const {valid, empty} = validArticle(editorState, settings.charLimit, title)
 
@@ -96,7 +98,7 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
     const unsavedChanges = !empty && (!lastSavedChanges || lastSavedChanges.getTime() < lastTextChange.getTime())
 
     return <div className={"mb-32"}>
-        <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
+        <div className={"flex justify-between mt-3 items-center w-full pb-2 " + (isMobile ? "px-3" : "")}>
             <div className="flex justify-between w-full text-[var(--text-light)] items-center">
                 <BackButton defaultURL={"/"}/>
                 <div className={"flex space-x-2"}>
@@ -122,7 +124,7 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
                 </div>
             </div>
         </div>
-        <div className="mt-8 rounded-lg px-5">
+        <div className={"mt-8 rounded-lg space-y-4 " + (isMobile ? "px-5" : "")}>
             <div className={"mb-2"}>
                 <TopicsMentioned mentions={topicsMentioned}/>
             </div>
@@ -145,7 +147,7 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
                 </div>
             </div>
         </div>
-        <div className={`mt-8 px-4`}>
+        <div className={`mt-8`}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}

@@ -5,11 +5,12 @@ import {stopPropagation} from "@/utils/utils";
 import {Color} from "./color";
 
 
-export const CloseButton = ({onClose, size, color="transparent"}: {
-    onClose: () => void, size?: "small" | "medium" | "large", color?: Color }) => {
+export const CloseButton = ({onClose, size, color="transparent", hoverColor}: {
+    onClose: () => void, size?: "small" | "medium" | "large", color?: Color, hoverColor?: Color }) => {
     return <IconButton
         onClick={stopPropagation(onClose)}
         color={color}
+        hoverColor={hoverColor}
         size={size}
     >
         <CloseButtonIcon fontSize="inherit"/>

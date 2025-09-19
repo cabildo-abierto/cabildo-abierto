@@ -102,7 +102,7 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
     </div>
 
     return <ClickableModalOnClick id="datos" modal={modal}>
-        <div className={"cursor-pointer text-[var(--text-light)] sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
+        <div className={"cursor-pointer border border-[var(--text-lighter)] text-[var(--text-light)] sm:text-base text-sm uppercase font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] px-2"}
         >
             Datos
         </div>
@@ -181,7 +181,7 @@ function getDatasetVisualizationView(
 }
 
 
-const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
+export const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
     visualization: ArCabildoabiertoEmbedVisualization.Main
     dataSource: ArCabildoabiertoEmbedVisualization.DatasetDataSource
     width?: number | string
@@ -204,7 +204,7 @@ const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, 
 }
 
 
-const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
+export const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
     visualization: ArCabildoabiertoEmbedVisualization.Main
     dataSource: ArCabildoabiertoEmbedVisualization.TopicsDataSource
     width?: number | string
@@ -226,33 +226,4 @@ const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, on
     })
 
     return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
-}
-
-
-export const PlotFromVisualizationMain = ({visualization, height, width, onEdit, onDelete}: {
-    visualization: ArCabildoabiertoEmbedVisualization.Main
-    height?: number | string
-    width?: number | string
-    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
-    onDelete?: () => void
-}) => {
-    if (ArCabildoabiertoEmbedVisualization.isDatasetDataSource(visualization.dataSource)) {
-        return <DatasetPlotFromMain
-            visualization={visualization}
-            dataSource={visualization.dataSource}
-            height={height}
-            width={width}
-            onEdit={onEdit}
-            onDelete={onDelete}
-        />
-    } else if (ArCabildoabiertoEmbedVisualization.isTopicsDataSource(visualization.dataSource)) {
-        return <TopicsDatasetPlotFromMain
-            visualization={visualization}
-            dataSource={visualization.dataSource}
-            height={height}
-            width={width}
-            onEdit={onEdit}
-            onDelete={onDelete}
-        />
-    }
 }

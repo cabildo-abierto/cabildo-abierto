@@ -1,4 +1,4 @@
-import {Button, styled, TextField} from "@mui/material";
+import {styled} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {useEffect, useState} from "react";
 import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
@@ -9,6 +9,8 @@ import Papa from 'papaparse';
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
+import { Button } from "../../../modules/ui-utils/src/button";
+import { TextField } from "../../../modules/ui-utils/src/text-field";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -33,10 +35,8 @@ export const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename:
     }
     return <Button
         component="label"
-        role={undefined}
-        variant="contained"
+        variant="outlined"
         tabIndex={-1}
-        sx={{textTransform: "none"}}
         disableElevation={true}
         startIcon={<CloudUploadIcon />}
     >

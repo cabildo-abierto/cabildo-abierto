@@ -92,7 +92,7 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
                     return {}
                 }}
                 text1={"Publicar"}
-                textClassName="whitespace-nowrap px-2 font-semibold"
+                textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
                 disabled={disabled}
                 color={"background"}
                 size="medium"

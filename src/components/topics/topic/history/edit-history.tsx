@@ -15,8 +15,6 @@ import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner"
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import {useSession} from "@/queries/useSession";
-import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
-import ListAltIcon from '@mui/icons-material/ListAlt';
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
 import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {VoteEditButtons} from "@/components/topics/topic/history/vote-edit-buttons";
@@ -28,6 +26,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {ListDashesIcon} from "@phosphor-icons/react";
+import DescriptionOnHover from "../../../../../modules/ui-utils/src/description-on-hover";
 
 const EditDetails = ({topicHistory, index}: { topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory, index: number }) => {
     const v = topicHistory.versions[index]
@@ -54,14 +54,14 @@ export const TopicProperties = ({topicVersion, topic}: { topicVersion: ArCabildo
         p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)
     ) : []
 
-    const modal = <div className={"border rounded bg-[var(--background-dark)] text-[var(--text-light)] p-2 text-sm"}>
+    const description = <div className={"text-[var(--text-light)] p-2 text-sm"}>
         {props.length > 0 && props.map((p, index) => {
             return <div key={index}><TopicProperty p={p}/></div>
         })}
         {props.length == 0 && <div>Ninguna propiedad asignada.</div>}
     </div>
 
-    return <ModalOnHover modal={modal}>
+    return <DescriptionOnHover description={description}>
         <div className={"text-[var(--text-light)]"} onClick={e => {e.stopPropagation()}}>
             <IconButton
                 size={"small"}
@@ -69,10 +69,10 @@ export const TopicProperties = ({topicVersion, topic}: { topicVersion: ArCabildo
                 color={"transparent"}
                 hoverColor={"background-dark2"}
             >
-                <ListAltIcon color={"inherit"}/>
+                <ListDashesIcon color={"inherit"} weight={"regular"}/>
             </IconButton>
         </div>
-    </ModalOnHover>
+    </DescriptionOnHover>
 }
 
 
@@ -109,8 +109,11 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
                     <div className="flex space-x-1">
-                        {isCurrent && <div title="Último contenido aceptado" className={"flex"}>
-                            <StarIcon color="primary" fontSize={"inherit"}/>
+                        {isCurrent && <div
+                            title="Último contenido aceptado"
+                            className={"flex text-[var(--text-lighter)]"}
+                        >
+                            <StarIcon color="inherit" fontSize={"inherit"}/>
                         </div>}
                         <EditDetails topicHistory={topicHistory} index={index}/>
                         {obsolete && <div className={"text-red-400 pl-2"}>
@@ -155,7 +158,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
 
                     <div className="flex items-center space-x-2">
                         {claimsAuthorship && <span className={"text-[var(--text-light)] text-xl"} title={"El usuario es autor del contenido agregado."}>
-                            <HistoryEduIcon fontSize={"inherit"}/>
+                            <HistoryEduIcon fontSize={"inherit"} fontWeight={300}/>
                         </span>}
                         <VoteEditButtons
                             topicId={topic.id}
@@ -270,7 +273,7 @@ function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHis
 const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: TopicContributor[] }) => {
     const [open, setOpen] = useState(false)
 
-    return <div className={"border px-2 py-1 rounded-lg"}>
+    return <div className={"border px-2 py-1"}>
         <div className={"flex justify-between items-baseline space-x-2"}>
             <div className={"text-sm text-[var(--text-light)]"}>
                 Contribuciones
@@ -305,7 +308,7 @@ export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.T
     }, [topicHistory])
 
     if (isLoading) {
-        return <div className={"py-4"}>
+        return <div className={"py-16"}>
             <LoadingSpinner/>
         </div>
     }

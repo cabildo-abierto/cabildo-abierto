@@ -14,7 +14,7 @@ const SmallUserSearchResult: React.FC<{
     return <Link
         href={profileUrl(result.handle)}
         onClick={() => {if(onClick) onClick(result.handle); }}
-        className={"flex flex-col hover:bg-[var(--background-dark)] p-2 " + className}
+        className={"flex flex-col hover:bg-[var(--background-dark)] bg-[var(--background)] p-2 " + className}
     >
         <div className={"flex space-x-4 items-center"}>
             {result.avatar ? <Image

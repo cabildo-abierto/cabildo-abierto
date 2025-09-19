@@ -64,7 +64,12 @@ const VisualizationEditorSidebar = ({
 
     function optionsNodes(o: string, isSelected: boolean) {
         const icon = o == "Datos" ? <DatasetIcon/> : <VisualizationIcon/>
-        return <Button color={isSelected ? "primary" : "background-dark2"} startIcon={icon}>
+        return <Button
+            color={isSelected ? "background-dark2" : "background-dark"}
+            startIcon={icon}
+            variant={"outlined"}
+            borderColor={"text-lighter"}
+        >
             {o}
         </Button>
     }

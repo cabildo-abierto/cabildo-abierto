@@ -1,7 +1,8 @@
 "use client"
 import React, {ReactNode, useEffect, useState} from 'react';
-import {TextField, Paper, List, MenuItem} from '@mui/material';
+import {Paper, List, MenuItem} from '@mui/material';
 import LoadingSpinner from "./loading-spinner";
+import { TextField } from './text-field';
 
 interface SearchableDropdownProps {
     options: string[] | "loading" | null
@@ -56,18 +57,20 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                 onFocus={() => setShowDropdown(!options || filteredOptions.length > 0)}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
                 label={label}
-                InputProps={{
-                    autoComplete: "off",
-                    sx: {
-                        fontSize
-                    }
-                }}
-                InputLabelProps={{
-                    sx: {fontSize}
-                }}
+                fontSize={fontSize}
+                borderColor={"text-lighter"}
             />
             {showDropdown && filteredOptions != null && (!filteredOptions || (filteredOptions && filteredOptions.length > 0)) && (
-                <Paper className="absolute z-10 mt-1 min-w-full max-w-max">
+                <Paper
+                    className="absolute z-10 mt-1 min-w-full max-w-max"
+                    sx={{
+                        backgroundColor: "var(--background-dark)",
+                        borderRadius: 0,
+                        boxShadow: "none",
+                        border: "1px solid var(--text-lighter)",
+                    }}
+
+                >
                     <List>
                         {filteredOptions && filteredOptions.map((option, index) => (
                             <MenuItem

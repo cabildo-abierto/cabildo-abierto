@@ -1,7 +1,7 @@
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {FollowButton} from "@/components/profile/profile-utils";
+import {FollowButton} from "@/components/profile/follow-button";
 import BlueskyLogo from "@/components/icons/bluesky-logo";
 import {emptyChar} from "@/utils/utils";
 import React from "react";

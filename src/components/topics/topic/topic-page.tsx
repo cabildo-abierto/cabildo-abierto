@@ -55,7 +55,7 @@ export const TopicPage = ({topicId, did, rkey}: {
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
 
     if (topicQuery.isLoading || topic == "loading") {
-        return <div className={"py-16"}>
+        return <div className={"py-64"}>
             <LoadingSpinner/>
         </div>
     }
@@ -111,16 +111,16 @@ export const TopicPage = ({topicId, did, rkey}: {
                 setPinnedReplies={setPinnedReplies}
             />
 
-            {(wikiEditorState == "minimized" || wikiEditorState == "normal" || wikiEditorState == "props") &&
-                <div className="w-full" id="discussion-start">
-                    <TopicDiscussion
-                        topic={topic}
-                        topicVersionUri={topicVersionUri}
-                        replyToContent={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
-                        onClickQuote={onClickQuote}
-                        wikiEditorState={wikiEditorState}
-                    />
-                </div>}
+            {["minimized", "normal", "props", "history"].includes(wikiEditorState) &&
+            <div className="w-full" id="discussion-start">
+                <TopicDiscussion
+                    topic={topic}
+                    topicVersionUri={topicVersionUri}
+                    replyToContent={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
+                    onClickQuote={onClickQuote}
+                    wikiEditorState={wikiEditorState}
+                />
+            </div>}
         </div>
     </TopicTutorial>
 }

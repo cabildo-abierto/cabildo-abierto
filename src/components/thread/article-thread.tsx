@@ -1,6 +1,5 @@
 import {ReplyButton} from "./reply-button"
 import {useEffect, useMemo, useState} from "react";
-import {ThreadHeader} from "@/components/thread/thread-header";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
@@ -50,8 +49,6 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
     if(!ArCabildoabiertoFeedDefs.isFullArticleView(thread.content)) return null
 
     return <div className={"flex flex-col items-center"}>
-        <ThreadHeader c={"ar.cabildoabierto.feed.article"}/>
-
         <Article
             article={thread.content}
             pinnedReplies={pinnedReplies}

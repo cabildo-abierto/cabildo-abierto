@@ -21,9 +21,9 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#3080ff',
-      dark: '#1d5dc3',
-      light: '#4f93ff'
+      main: 'rgb(25, 25, 35)',
+      dark: 'rgb(35, 35, 45)',
+      light: 'rgb(15, 15, 25)'
     },
     text: {
       primary: '#fbfbfc',
@@ -62,13 +62,14 @@ const lightTheme = createTheme({
         },
       },
     },
+
   },
   palette: {
     mode: 'light',
     primary: {
-      main: '#3080ff',
-      dark: '#1d5dc3',
-      light: '#4f93ff'
+      main: '#1a1a1a',
+      dark: '#666666',
+      light: '#999999',
     },
     text: {
       primary: '#1a1a1a',

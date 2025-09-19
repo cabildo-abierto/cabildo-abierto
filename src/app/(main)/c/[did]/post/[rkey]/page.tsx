@@ -2,7 +2,6 @@
 import {useThreadWithNormalizedContent} from "@/queries/useThread";
 import {use, useMemo, useState} from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
-import {ThreadHeader} from "@/components/thread/thread-header";
 import {ReplyButton} from "@/components/thread/reply-button";
 import {isPostView, isThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
@@ -48,9 +47,7 @@ const Page = ({params}: {
         return <LoadingThread collection={"app.bsky.feed.post"}/>
     }
 
-    return <div className={"flex flex-col items-center"}>
-        <ThreadHeader c={collection}/>
-
+    return <div className={"flex flex-col items-center pt-4"}>
         <Post
             postView={content}
             threadViewContent={threadViewContent}
