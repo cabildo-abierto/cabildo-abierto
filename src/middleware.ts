@@ -5,7 +5,7 @@ const contentRedirectMap: Record<string, string> = {
     "app.bsky.feed.post": "post",
     "ar.cabildoabierto.feed.article": "article",
     "ar.cabildoabierto.data.dataset": "dataset",
-};
+}
 
 export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
@@ -23,6 +23,11 @@ export async function middleware(request: NextRequest) {
             url.pathname = `/c/${did}/${contentRedirectMap[collection]}/${rkey}`;
             return NextResponse.redirect(url);
         }
+    }
+
+    if(url.pathname.startsWith("/login") && !url.pathname.startsWith("/login/ok")) {
+        url.pathname = "/presentacion"
+        return NextResponse.redirect(url)
     }
 
     return NextResponse.next();

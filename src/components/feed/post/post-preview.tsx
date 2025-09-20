@@ -150,8 +150,6 @@ export const PostPreview = ({
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
 
-    console.log("rendering post")
-
     const {parent, root} = getParentAndRoot(feedViewContent)
 
     const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined

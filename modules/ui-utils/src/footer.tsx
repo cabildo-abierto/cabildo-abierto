@@ -48,8 +48,8 @@ const FooterLink = ({children, href}: {href: string, children: ReactNode}) => {
 
 
 export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
-    return <div className="flex flex-wrap gap-x-12 text-sm gap-y-4 uppercase">
-        {showCA && <div className="flex flex-col space-y-1">
+    return <div className="flex flex-wrap gap-x-12 text-sm gap-y-4">
+        {showCA && <div className="flex flex-col space-y-1 uppercase">
             <div className={"font-extrabol"}>Cabildo Abierto</div>
             <FooterLink href={topicUrl("Cabildo Abierto", undefined, "normal")}>
                 FAQ
@@ -66,7 +66,7 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
         </div>}
 
         <div className="flex flex-col space-y-1">
-            <div className={"font-extrabol "}>Contacto</div>
+            <div className={"font-extrabol uppercase"}>Contacto</div>
             <FooterLink href="mailto:soporte@cabildoabierto.ar">
                 soporte@cabildoabierto.ar
             </FooterLink>

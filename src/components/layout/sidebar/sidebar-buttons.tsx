@@ -17,6 +17,7 @@ import {useAPI} from "@/queries/utils";
 import {useConversations} from "@/queries/useConversations";
 import {profileUrl} from "@/utils/uri";
 
+
 function useUnreadNotificationsCount() {
     return useAPI<number>("/notifications/unread-count", ["unread-notifications-count"])
 }
@@ -96,7 +97,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             selected={pathname.startsWith("/papeles")}
             showText={showText}
         />
-        {user.user.authorStatus?.isAuthor && <SidebarButton
+        {user.user && user.user.authorStatus?.isAuthor && <SidebarButton
             icon={<ProjectorScreenChartIcon size={iconFontSize} weight={"fill"}/>}
             iconInactive={<ProjectorScreenChartIcon size={iconFontSize} weight={iconWeight}/>}
             onClick={onClose}

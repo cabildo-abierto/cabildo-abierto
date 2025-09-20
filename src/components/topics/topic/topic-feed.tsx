@@ -42,9 +42,9 @@ export const useTopicFeedParams = (user: Session) => {
     const s = params.get("s")
     const minimized = !s || s == "minimized"
 
-    const defaultMetric = user.algorithmConfig.topicMentions?.metric ?? defaultTopicMentionsMetric
-    const defaultTime = user.algorithmConfig.topicMentions?.time ?? defaultTopicMentionsTime
-    const defaultFormat = user.algorithmConfig.topicMentions?.format ?? defaultTopicMentionsFormat
+    const defaultMetric = user?.algorithmConfig.topicMentions?.metric ?? defaultTopicMentionsMetric
+    const defaultTime = user?.algorithmConfig.topicMentions?.time ?? defaultTopicMentionsTime
+    const defaultFormat = user?.algorithmConfig.topicMentions?.format ?? defaultTopicMentionsFormat
     const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
     const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
     const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)

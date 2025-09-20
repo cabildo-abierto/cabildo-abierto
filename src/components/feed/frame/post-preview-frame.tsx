@@ -88,7 +88,7 @@ export const PostPreviewFrame = ({
                     <ProfilePic
                         user={author}
                         clickable={false}
-                        className={"rounded-full w-full border-[1px] border-[var(--text)]"}
+                        className={"rounded-full w-full"}
                     />
                 </CustomLink>
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}

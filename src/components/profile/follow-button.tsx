@@ -1,6 +1,4 @@
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import CheckIcon from "@mui/icons-material/Check";
-import AddIcon from "@mui/icons-material/Add";
 import {useSession} from "@/queries/useSession";
 import {Profile} from "@/lib/types";
 import {post} from "@/utils/fetch";
@@ -11,6 +9,8 @@ import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {AppBskyActorDefs} from "@atproto/api"
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import {Color} from "../../../modules/ui-utils/src/color";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
+import {CheckIcon, PlusIcon} from "@phosphor-icons/react";
 
 const follow = async ({did}: { did: string }) => {
     return await post<{ followedDid: string }, { followUri: string }>("/follow", {followedDid: did})
@@ -178,6 +178,7 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
 }) {
     const qc = useQueryClient()
     const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
     const followMutation = useMutation({
         mutationFn: follow,
@@ -213,42 +214,50 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
     })
 
     const onUnfollow = async () => {
-        if (profile.viewer && profile.viewer.following) {
-            unfollowMutation.mutate({followUri: profile.viewer.following})
+        if(user) {
+            if (profile.viewer && profile.viewer.following) {
+                unfollowMutation.mutate({followUri: profile.viewer.following})
+            }
+        } else {
+            setLoginModalOpen(true)
         }
         return {}
     }
 
     const onFollow = async () => {
-        followMutation.mutate({did: profile.did})
+        if(user) {
+            followMutation.mutate({did: profile.did})
+        } else {
+            setLoginModalOpen(true)
+        }
         return {}
     }
 
-    if (user.handle == handle) {
+    if (user && user.handle == handle) {
         return null
     }
 
-    const followText = profile.viewer.followedBy && !dense ? "Seguir también" : "Seguir"
+    const followText = profile.viewer?.followedBy && !dense ? "Seguir también" : "Seguir"
 
     return <div className="flex items-center">
-        {profile.viewer.following ?
+        {profile.viewer?.following ?
             <StateButton
                 handleClick={onUnfollow}
                 color={darker(darker(backgroundColor))}
                 size="small"
                 variant="outlined"
-                startIcon={!dense && <CheckIcon fontSize={"small"}/>}
+                startIcon={!dense && <CheckIcon size={14}/>}
                 disableElevation={true}
                 dense={dense}
                 text1="Siguiendo"
                 textClassName={textClassName + " uppercase"}
-                disabled={profile.viewer.following == "optimistic-follow"}
+                disabled={profile.viewer?.following == "optimistic-follow"}
             /> :
             <StateButton
                 handleClick={onFollow}
                 size="small"
                 variant="outlined"
-                startIcon={!dense && <AddIcon fontSize={"small"}/>}
+                startIcon={!dense && <PlusIcon size={14}/>}
                 disableElevation={true}
                 dense={dense}
                 text1={followText}

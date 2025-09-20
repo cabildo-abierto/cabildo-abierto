@@ -112,7 +112,7 @@ function Feed<T>({
             {(isFetchingNextPage || isFetching) &&
                 <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
             }
-            {feed && !hasNextPage && (endText || noResultsText) && <div className={"text-center py-16 text-[var(--text-light)] text-sm"}>
+            {feed && !hasNextPage && (endText || noResultsText) && <div className={"text-center font-light py-16 text-[var(--text-light)] text-sm"}>
                 {!hasNextPage && feedList.length > 0 && endText}
                 {!hasNextPage && feedList.length == 0 && noResultsText}
             </div>}

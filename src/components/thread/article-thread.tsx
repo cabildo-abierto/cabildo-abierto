@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 import ThreadReplies from "./thread-replies";
 import Article from "./article/article";
+import {useSession} from "@/queries/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"), {
@@ -29,6 +31,8 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const [quoteReplies, setQuoteReplies] = useState<ArCabildoabiertoFeedDefs.PostView[]>([])
+    const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
     useEffect(() => {
         if (ArCabildoabiertoFeedDefs.isFullArticleView(thread.content) && thread.replies) {
@@ -58,7 +62,11 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
 
         <div className={"w-full border-b"}>
             <ReplyButton onClick={() => {
-                setOpenReplyPanel(true)
+                if(user) {
+                    setOpenReplyPanel(true)
+                } else {
+                    setLoginModalOpen(true)
+                }
             }}/>
         </div>
 
@@ -70,13 +78,13 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             </div>}
         </div>
 
-        <WritePanel
+        {openReplyPanel && user && <WritePanel
             replyTo={thread.content}
             open={openReplyPanel}
             onClose={() => {
                 setOpenReplyPanel(false)
             }}
-        />
+        />}
     </div>
 }
 

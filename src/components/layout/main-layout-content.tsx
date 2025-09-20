@@ -4,6 +4,8 @@ import {useLayoutConfig} from "./layout-config-context";
 import DesktopLayout from "@/components/layout/desktop-layout";
 import MobileLayout from "@/components/layout/mobile-layout";
 import dynamic from "next/dynamic";
+import {useSession} from "@/queries/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"),
     {ssr: false}
@@ -11,21 +13,31 @@ const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-
 
 export const MainLayoutContent = ({children}: { children: ReactNode }) => {
     const {isMobile} = useLayoutConfig()
+    const {user} = useSession()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
+    const {setLoginModalOpen} = useLoginModal()
+
+    function onSetWritePanelOpen(v: boolean) {
+        if(user) {
+            setWritePanelOpen(v)
+        } else {
+            setLoginModalOpen(v)
+        }
+    }
 
     const content = !isMobile ? <DesktopLayout
-        setWritePanelOpen={setWritePanelOpen}
+        setWritePanelOpen={onSetWritePanelOpen}
     >
         {children}
     </DesktopLayout> : <MobileLayout
-        setWritePanelOpen={setWritePanelOpen}
+        setWritePanelOpen={onSetWritePanelOpen}
     >
         {children}
     </MobileLayout>
 
     return <>
         {content}
-        {writePanelOpen && <WritePanel
+        {writePanelOpen && user && <WritePanel
             open={writePanelOpen}
             onClose={() => {
                 setWritePanelOpen(false)

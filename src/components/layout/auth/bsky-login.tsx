@@ -4,10 +4,12 @@ import {useEffect, useState} from "react"
 import {FormControl} from '@mui/material';
 import {isValidHandle} from "@atproto/syntax"
 import {useSession} from "@/queries/useSession";
-import {Button} from "../../../modules/ui-utils/src/button"
+import {Button} from "../../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 import {AtIcon} from "@phosphor-icons/react";
-import { TextField } from "../../../modules/ui-utils/src/text-field";
+import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import {usePathname, useRouter} from "next/navigation";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
@@ -16,12 +18,19 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
     const {refetch} = useSession(inviteCode)
     const [handleStart, setHandleStart] = useState("")
     const [domain, setDomain] = useState(".bsky.social")
+    const pathname = usePathname()
+    const router = useRouter()
+    const {setLoginModalOpen} = useLoginModal()
 
     useEffect(() => {
         const channel = new BroadcastChannel("auth_channel")
         channel.onmessage = (event) => {
             if (event.data === "auth-success") {
                 refetch()
+                if(pathname.startsWith("/presentacion")){
+                    router.push("/inicio")
+                }
+                setLoginModalOpen(false)
             }
         }
         return () => channel.close()

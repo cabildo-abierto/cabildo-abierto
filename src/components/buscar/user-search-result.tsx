@@ -99,7 +99,7 @@ const UserSearchResult = ({user, showFollowButton=true, goToProfile=true, onClic
         </div>
         <div className={"px-2 w-[200px] flex flex-col items-end justify-between space-y-4"}>
             {showFollowButton && <div className={"flex space-x-2 items-center"}>
-                <FollowButton textClassName={"text-[12px] sm:text-[13px]"} dense={isMobile} handle={user.handle} profile={user}/>
+                <FollowButton textClassName={"text-[12px] sm:text-[12px]"} dense={isMobile} handle={user.handle} profile={user}/>
                 {isSuggestion && <NotInterestedButton subject={user.did}/>}
             </div>}
             {!user.caProfile ? <BlueskyLogo className={"w-5 h-auto"}/> : <>{emptyChar}</>}

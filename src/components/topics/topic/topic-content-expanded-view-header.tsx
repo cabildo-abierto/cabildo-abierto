@@ -8,10 +8,10 @@ import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {useSession} from "@/queries/useSession";
-import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 import {WikiEditorState} from "@/lib/types";
 import {TopicOptionsButton} from "@/components/topics/topic/topic-options-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 export const TopicContentExpandedViewHeader = ({
@@ -30,8 +30,8 @@ export const TopicContentExpandedViewHeader = ({
     saveEnabled: boolean
 }) => {
     const searchParams = useSearchParams()
-    const {setShowLoginRequiredModal, modal} = useLoginRequiredModal("Iniciá sesión para usar esa funcionalidad.")
     const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
     const paramsVersion = searchParams.get("v") ? Number(searchParams.get("v")) : undefined
 
@@ -69,14 +69,10 @@ export const TopicContentExpandedViewHeader = ({
         }
 
         function onSelection(v: string) {
-            if (!user) {
-                setShowLoginRequiredModal(true)
+            if (wikiEditorState != v) {
+                setWikiEditorState(v as WikiEditorState)
             } else {
-                if (wikiEditorState != v) {
-                    setWikiEditorState(v as WikiEditorState)
-                } else {
-                    setWikiEditorState("normal")
-                }
+                setWikiEditorState("normal")
             }
         }
 
@@ -140,7 +136,11 @@ export const TopicContentExpandedViewHeader = ({
                 </Button>
                 <Button
                     onClick={() => {
-                        setShowingSaveEditPopup(true);
+                        if(!user) {
+                            setLoginModalOpen(true)
+                        } else {
+                            setShowingSaveEditPopup(true)
+                        }
                     }}
                     variant={"text"}
                     sx={{borderRadius: 0}}
@@ -186,6 +186,5 @@ export const TopicContentExpandedViewHeader = ({
                 </IconButton>
             </div>
         </div>}
-        {modal}
     </div>
 }

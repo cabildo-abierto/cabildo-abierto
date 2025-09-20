@@ -12,7 +12,7 @@ const TopicStringPropViewValue = ({name, value}: {name: string, value: string}) 
             alt={name}
             width={400}
             height={400}
-            className={"w-36 h-auto object-contain"}
+            className={"w-36 h-auto object-contain border border-[var(--text-light)]"}
         />
     } else {
         return <div className={"text-sm"}>{value}</div>

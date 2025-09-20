@@ -22,7 +22,9 @@ export default function TopbarDesktop() {
     const {layoutConfig} = useLayoutConfig()
     const {title} = useTopbarTitle()
 
-    const backButton = pathname.startsWith("/c/") || pathname.startsWith("/tema?")
+    const backButton = pathname.startsWith("/c/") ||
+        pathname.startsWith("/tema?") ||
+        pathname.startsWith("/aportar")
 
     return <div
         className={"fixed top-0 left-0 items-center px-3 bg-[var(--background)] w-screen border-b border-[var(--text-lighter)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}

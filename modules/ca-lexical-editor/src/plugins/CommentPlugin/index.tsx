@@ -15,7 +15,7 @@ import {mergeRegister} from '@lexical/utils';
 import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
-import {AddCommentButton} from './add-comment-button';
+import {AddSelectionReplyButton} from './add-selection-reply-button';
 import {LexicalSelection} from '../../selection/lexical-selection';
 import {MarkdownSelection} from "../../selection/markdown-selection";
 
@@ -87,7 +87,7 @@ export default function CommentPlugin({onAddComment}: CommentPluginProps) {
             activeAnchorKey !== undefined &&
             !showCommentInput &&
             createPortal(
-                <AddCommentButton
+                <AddSelectionReplyButton
                     anchorKey={activeAnchorKey}
                     editor={editor}
                     onAddComment={() => {

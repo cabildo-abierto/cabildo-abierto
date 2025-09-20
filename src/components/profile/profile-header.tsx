@@ -81,7 +81,7 @@ function ProfileHeader({
     const {user} = useSession()
     const inCA = profile && profile.ca && profile.ca.inCA
 
-    const isOwner = profile.bsky.handle == user.handle
+    const isOwner = user && profile.bsky.handle == user.handle
 
     return <div className="flex flex-col border-b border-[var(--text-lighter)] mt-2">
         <div className={"flex flex-col relative w-full"}>

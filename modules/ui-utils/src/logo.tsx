@@ -1,23 +1,25 @@
 import Image from "next/image";
 
 export const Logo = ({
-    width = 64,
-    height = 64,
-    showLabel = true
+    width,
+    height,
+    showLabel = true,
+    className = "object-contain"
 }: {
     width?: number
     height?: number
     showLabel?: boolean
+    className?: string
 }) => {
     return (
         <div>
             <Image
                 src={showLabel ? "/logo.svg" : "/logo.svg"}
-                width={width}
-                height={height}
-                alt={"Logo de Cabildo Abierto"}
+                width={400}
+                height={400}
                 style={{width, height}}
-                className={"object-contain"}
+                alt={"Logo de Cabildo Abierto"}
+                className={className}
             />
         </div>
     );

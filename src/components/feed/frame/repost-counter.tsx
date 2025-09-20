@@ -15,6 +15,8 @@ import {produce} from "immer";
 import {postOrArticle} from "@/utils/type-utils";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {useSession} from "@/queries/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 async function repost(ref: ATProtoStrongRef) {
@@ -65,6 +67,8 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
 }) => {
     const [writingQuotePost, setWritingQuotePost] = React.useState(false)
     const qc = useQueryClient()
+    const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
     const addRepostMutation = useMutation({
         mutationFn: repost,
@@ -96,21 +100,30 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
     const onClickRepost = async (e) => {
         e.stopPropagation()
         e.preventDefault()
-        addRepostMutation.mutate({uri: content.uri, cid: content.cid})
+
+        if(user){
+            addRepostMutation.mutate({uri: content.uri, cid: content.cid})
+        } else {
+            setLoginModalOpen(true)
+        }
     }
 
     const onClickRemoveRepost = async (e) => {
         e.stopPropagation()
         e.preventDefault()
-        if (content.viewer && content.viewer.repost) {
-            removeRepostMutation.mutate(content.viewer.repost)
+        if(user){
+            if (content.viewer && content.viewer.repost) {
+                removeRepostMutation.mutate(content.viewer.repost)
+            }
+        } else {
+            setLoginModalOpen(true)
         }
     }
 
     const reposted = reactionUri != null
 
     const modal = (close: () => void) => {
-        return <div className="text-base border rounded bg-[var(--background-dark)] p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
+        return <div className="text-base border rounded p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
             {!reposted && <OptionsDropdownButton
                 text1={"Republicar"}
                 startIcon={<RepostIcon fontSize={"small"}/>}
@@ -129,7 +142,11 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 handleClick={async (e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    setWritingQuotePost(true)
+                    if(user) {
+                        setWritingQuotePost(true)
+                    } else {
+                        setLoginModalOpen(true)
+                    }
                     close()
                     return {}
                 }}
@@ -153,7 +170,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 title="Cantidad de republicaciones y citas."
             />
         </ModalOnClick>
-        {(ArCabildoabiertoFeedDefs.isPostView(content) || ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) && <WritePanel // TO DO: También podríamos permitir quote posts de artículos y temas
+        {user && writingQuotePost && (ArCabildoabiertoFeedDefs.isPostView(content) || ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) && <WritePanel
             open={writingQuotePost}
             onClose={() => {setWritingQuotePost(false)}}
             quotedPost={content}

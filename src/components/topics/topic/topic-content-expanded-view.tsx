@@ -23,8 +23,8 @@ import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/Embe
 import Link from "next/link";
 import {WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
-
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {useSession} from "@/queries/useSession";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -211,6 +211,7 @@ export const TopicContentExpandedViewWithVersion = ({
     const {data: quoteReplies} = useTopicVersionQuoteReplies(topic.uri)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const qc = useQueryClient()
+    const {user} = useSession()
 
     const saveEditMutation = useMutation({
         mutationFn: createTopicVersion,
@@ -304,7 +305,7 @@ export const TopicContentExpandedViewWithVersion = ({
 
             {content}
 
-            {showingSaveEditPopup && <SaveEditPopup
+            {showingSaveEditPopup && user && <SaveEditPopup
                 open={showingSaveEditPopup}
                 editor={editor}
                 onSave={saveEdit}

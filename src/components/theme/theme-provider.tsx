@@ -15,22 +15,22 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
         root.style.setProperty('--red-dark2', '#8f1919')
         if (currentTheme === 'dark') {
             root.style.setProperty('--primary', '#eeeeee')
-            root.style.setProperty('--text', 'rgb(240, 240, 240)');
+            root.style.setProperty('--text', 'rgb(229, 229, 229)');
             root.style.setProperty('--bold-text', '#ffffff');
             root.style.setProperty('--button-text', 'rgb(240, 240, 240)');
-            root.style.setProperty('--text-light', 'rgb(190, 190, 190)');
-            root.style.setProperty('--text-lighter', 'rgb(150, 150, 150)');
+            root.style.setProperty('--text-light', 'rgb(187, 187, 187)');
+            root.style.setProperty('--text-lighter', 'rgb(126, 126, 126)');
             root.style.setProperty('--icon-color-filter', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)');
 
-            root.style.setProperty('--background', 'rgb(25, 25, 35)');
-            root.style.setProperty('--background-ldark', 'rgb(30, 30, 40)');
-            root.style.setProperty('--background-dark', 'rgb(35, 35, 45)');
-            root.style.setProperty('--background-dark-30', 'rgba(35, 35, 45, 0.3)');
-            root.style.setProperty('--background-ldark2', 'rgb(40, 40, 50)');
-            root.style.setProperty('--background-dark2', 'rgb(45, 45, 55)');
-            root.style.setProperty('--background-dark3', 'rgb(65, 65, 75)');
-            root.style.setProperty('--background-dark4', 'rgb(75, 75, 85)');
-            root.style.setProperty('--background-dark5', 'rgb(85, 85, 95)');
+            root.style.setProperty('--background', 'rgb(25, 25, 30)');
+            root.style.setProperty('--background-ldark', 'rgb(30, 30, 35)');
+            root.style.setProperty('--background-dark', 'rgb(35, 35, 40)');
+            root.style.setProperty('--background-dark-30', 'rgba(35, 35, 40, 0.3)');
+            root.style.setProperty('--background-ldark2', 'rgb(40, 40, 45)');
+            root.style.setProperty('--background-dark2', 'rgb(45, 45, 50)');
+            root.style.setProperty('--background-dark3', 'rgb(65, 65, 70)');
+            root.style.setProperty('--background-dark4', 'rgb(75, 75, 80)');
+            root.style.setProperty('--background-dark5', 'rgb(85, 85, 90)');
 
             root.style.setProperty('--accent', '#2e364c');
             root.style.setProperty('--accent-dark', '#444d66');
@@ -42,25 +42,25 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
             root.style.setProperty('--primary-xdark', '#184182')
             root.style.setProperty('--primary-2xdark', '#112e5a')
         } else {
-            root.style.setProperty('--primary', '#1a1a1a')
-            root.style.setProperty('--text', '#1a1a1a');
+            root.style.setProperty('--primary', 'rgb(26, 26, 26)')
+            root.style.setProperty('--text', 'rgb(26, 26, 26)');
             root.style.setProperty('--bold-text', '#000000');
             root.style.setProperty('--button-text', '#fbfbfc');
-            root.style.setProperty('--text-light', '#444444');
-            root.style.setProperty('--text-lighter', '#818181');
+            root.style.setProperty('--text-light', 'rgb(68, 68, 68)');
+            root.style.setProperty('--text-lighter', 'rgb(129, 129, 129)');
             root.style.setProperty('--icon-color-filter', 'none');
 
             root.style.setProperty('--accent', '#e0e0e0');
             root.style.setProperty('--accent-dark', '#a9a9a9');
 
-            root.style.setProperty('--background', 'rgb(255, 255, 240)');
-            root.style.setProperty('--background-ldark', 'rgb(250, 250, 235)');
-            root.style.setProperty('--background-dark', 'rgb(240, 240, 225)');
-            root.style.setProperty('--background-dark-30', 'rgba(240, 240, 225, 0.3)');
-            root.style.setProperty('--background-ldark2', 'rgb(235, 235, 220)');
-            root.style.setProperty('--background-dark2', 'rgb(225, 225, 210)');
-            root.style.setProperty('--background-dark3', 'rgb(210, 210, 195)');
-            root.style.setProperty('--background-dark4', 'rgb(195, 195, 180)');
+            root.style.setProperty('--background', 'rgb(255,255,250)');
+            root.style.setProperty('--background-ldark', 'rgb(250, 250, 245)');
+            root.style.setProperty('--background-dark', 'rgb(240, 240, 235)');
+            root.style.setProperty('--background-dark-30', 'rgba(240, 240, 235, 0.3)');
+            root.style.setProperty('--background-ldark2', 'rgb(235, 235, 230)');
+            root.style.setProperty('--background-dark2', 'rgb(225, 225, 220)');
+            root.style.setProperty('--background-dark3', 'rgb(210, 210, 205)');
+            root.style.setProperty('--background-dark4', 'rgb(195, 195, 190)');
 
             root.style.setProperty('--primary-dark', '#4b8ef9')
             root.style.setProperty('--primary-xdark', '#6da4fe')

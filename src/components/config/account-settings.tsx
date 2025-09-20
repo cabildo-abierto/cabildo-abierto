@@ -4,7 +4,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {Button} from "../../../modules/ui-utils/src/button";
-import {CloseSessionButton} from "@/components/auth/close-session-button";
+import {CloseSessionButton} from "@/components/layout/auth/close-session-button";
 import React from "react";
 import {DeleteAccountButton} from "@/components/config/delete-account-button";
 import {useAPI} from "@/queries/utils";

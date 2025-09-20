@@ -5,13 +5,7 @@ import React from "react";
 import {getFeed} from "@/components/feed/feed/get-feed";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {useSession} from "@/queries/useSession";
-import {
-    EnDiscusionMetric,
-    EnDiscusionTime,
-    FeedFormatOption,
-    FollowingFeedFilterOption,
-    Session
-} from "@/lib/types";
+import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilterOption, Session} from "@/lib/types";
 import Link from "next/link";
 import {stringToEnum} from "@/utils/strings";
 import {
@@ -25,13 +19,16 @@ import {
     mainFeedOptionToSearchParam,
     searchParamToMainFeedOption
 } from "@/components/config/defaults";
+import {LoginRequiredPage} from "@/components/layout/page-requires-login-checker";
 
 
 export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const defaultFilter = user.algorithmConfig.following?.filter ?? "Todos"
-    const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? "Todos"
+    const config = user ? user.algorithmConfig : undefined
+
+    const defaultFilter = config?.following?.filter ?? "Todos"
+    const defaultFormat = config?.enDiscusion?.format ?? "Todos"
     const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, defaultFilter)
     const format = stringToEnum(params.get("formato"), feedFormatOptions, defaultFormat)
 
@@ -45,9 +42,11 @@ export function useFollowingParams(user: Session): {filter: FollowingFeedFilterO
 export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
     const params = useSearchParams()
 
-    const defaultMetric = user.algorithmConfig.enDiscusion?.metric ?? defaultEnDiscusionMetric
-    const defaultTime = user.algorithmConfig.enDiscusion?.time ?? defaultEnDiscusionTime
-    const defaultFormat = user.algorithmConfig.enDiscusion?.format ?? defaultEnDiscusionFormat
+    const config = user ? user.algorithmConfig.enDiscusion : undefined
+
+    const defaultMetric = config?.metric ?? defaultEnDiscusionMetric
+    const defaultTime = config?.time ?? defaultEnDiscusionTime
+    const defaultFormat = config?.format ?? defaultEnDiscusionFormat
     const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
     const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
     const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)
@@ -65,22 +64,28 @@ const followingFeedNoResultsText = <span className={"link"}>
 </span>
 
 
-export const MainPage = () => {
+export function useMainPageSelected(user: Session) {
     const params = useSearchParams()
     const paramsFeed = params.get("f")
-    const selected = paramsFeed ? searchParamToMainFeedOption(paramsFeed) : "Siguiendo"
+    return paramsFeed ? searchParamToMainFeedOption(paramsFeed) : (!user ? "En discusión" : "Siguiendo")
+}
+
+
+export const MainPage = () => {
     const {user} = useSession()
+    const selected = useMainPageSelected(user)
     const {metric, time} = useEnDiscusionParams(user)
     const {filter, format} = useFollowingParams(user)
 
     return <div className="w-full">
-        {selected == "Siguiendo" &&
+        {selected == "Siguiendo" && user &&
         <FeedViewContentFeed
             getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
             noResultsText={followingFeedNoResultsText}
             endText={"Fin del feed."}
             queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
         />}
+        {selected == "Siguiendo" && !user && <LoginRequiredPage text={"Creá una cuenta o iniciá sesión para ver este muro."}/>}
         {selected == "En discusión" &&
         <FeedViewContentFeed
             getFeed={getFeed({type: "discusion", params: {metric, time, format}})}

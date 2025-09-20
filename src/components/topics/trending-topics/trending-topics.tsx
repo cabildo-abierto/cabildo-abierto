@@ -7,6 +7,7 @@ import {Select} from "../../../../modules/ui-utils/src/select";
 import {useState} from "react";
 import {useSession} from "@/queries/useSession";
 import Link from "next/link";
+import { Session } from "@/lib/types";
 
 const TrendingTopicsSlider = dynamic(() => import('./trending-topics-slider'));
 
@@ -71,7 +72,8 @@ function selectedToTimePeriod(selected: string): TimePeriod {
     return "all"
 }
 
-function configLabelToSelected(label: string): string {
+function ttInitialConfig(user: Session | null): string {
+    const label = user?.algorithmConfig?.tt?.time ?? "Última semana"
     if(label == "Última semana"){
         return "semana"
     } else if(label == "Último día"){
@@ -85,7 +87,7 @@ function configLabelToSelected(label: string): string {
 
 export const TrendingTopicsPanel = () => {
     const {user} = useSession()
-    const [time, setTime] = useState<string>(configLabelToSelected(user.algorithmConfig?.tt?.time ?? "Última semana"))
+    const [time, setTime] = useState<string>(ttInitialConfig(user))
     const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
     return <div className="w-full space-y-2 border-[1px] border-[var(--text-lighter)]">

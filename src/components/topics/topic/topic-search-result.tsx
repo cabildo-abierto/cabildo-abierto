@@ -11,6 +11,8 @@ import {formatIsoDate} from "@/utils/dates";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import { Session } from "@/lib/types";
+import {useSession} from "@/queries/useSession";
 
 
 const TopicNumWords = ({numWords}: {numWords: number}) => {
@@ -20,8 +22,8 @@ const TopicNumWords = ({numWords}: {numWords: number}) => {
 }
 
 
-export function hasUnseenUpdate(topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic){
-    return topic.currentVersionCreatedAt && (
+export function hasUnseenUpdate(user: Session | null, topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic){
+    return user && topic.currentVersionCreatedAt && (
         !topic.lastSeen || new Date(topic.lastSeen) < new Date(topic.currentVersionCreatedAt)
     )
 }
@@ -33,10 +35,11 @@ const TopicSearchResult = ({topic, index, time}: {
     time?: TimePeriod
 }) => {
     const {isMobile} = useLayoutConfig()
+    const {user} = useSession()
 
     const categories = getTopicCategories(topic.props)
 
-    const unseenUpdate = hasUnseenUpdate(topic)
+    const unseenUpdate = hasUnseenUpdate(user, topic)
 
     return (
         <CustomLink

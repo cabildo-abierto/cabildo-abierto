@@ -11,6 +11,8 @@ import {produce} from "immer";
 import {contentQueriesFilter, updateContentInQueries, updateTopicFeedQueries} from "@/queries/updates";
 import {ActiveLikeIcon} from "@/components/icons/active-like-icon";
 import {InactiveLikeIcon} from "@/components/icons/inactive-like-icon";
+import {useSession} from "@/queries/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 async function addLike(ref: ATProtoStrongRef) {
@@ -71,7 +73,8 @@ export const LikeCounter = ({content, showBsky}: {
     showBsky: boolean
 }) => {
     const qc = useQueryClient()
-
+    const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
     const addLikeMutation = useMutation({
         mutationFn: addLike,
         onMutate: (likedContent) => {
@@ -100,7 +103,11 @@ export const LikeCounter = ({content, showBsky}: {
     })
 
     const onClickLike = async () => {
-        addLikeMutation.mutate({uri: content.uri, cid: content.cid})
+        if(user){
+            addLikeMutation.mutate({uri: content.uri, cid: content.cid})
+        } else {
+            setLoginModalOpen(true)
+        }
     }
 
     const onClickRemoveLike = async () => {
