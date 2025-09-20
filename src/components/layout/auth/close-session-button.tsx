@@ -1,5 +1,5 @@
 "use client"
-import StateButton from "../../../modules/ui-utils/src/state-button"
+import StateButton from "../../../../modules/ui-utils/src/state-button"
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
 import {QueryClient, useQueryClient} from "@tanstack/react-query"

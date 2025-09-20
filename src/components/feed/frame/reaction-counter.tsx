@@ -80,7 +80,7 @@ export const FixedCounter = ({
     
     return <button
         onClick={handleClick}
-        className={(shake ? "animate-shake" : "") + " text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1 flex items-end space-x-1"}
+        className={(shake ? "animate-shake" : "") + " text-[var(--text-light)] hover:bg-[var(--background-dark2)] py-[6px] px-1 flex items-end space-x-1"}
         title={title}
     >
         <div>{icon}</div>

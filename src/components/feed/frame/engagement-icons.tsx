@@ -9,6 +9,8 @@ import {LikeCounter} from "@/components/feed/frame/like-counter";
 import {useRouter} from "next/navigation";
 import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {useSession} from "@/queries/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
@@ -31,12 +33,18 @@ export const EngagementIcons = ({
     const [showBsky, setShowBsky] = useState(false)
     const [writingReply, setWritingReply] = useState<boolean>(false)
     const router = useRouter()
+    const {setLoginModalOpen} = useLoginModal()
+    const {user} = useSession()
 
     const onClickRepliesButton = () => {
         if (ArCabildoabiertoFeedDefs.isArticleView(content)) {
             router.push(contentUrl(content.uri))
         } else {
-            setWritingReply(true)
+            if(user){
+                setWritingReply(true)
+            } else {
+                setLoginModalOpen(true)
+            }
         }
     }
 
@@ -66,12 +74,12 @@ export const EngagementIcons = ({
             showBluesky={showBsky}
             setShowBluesky={setShowBsky}
         />
-        <WritePanel
+        {writingReply && user && <WritePanel
             open={writingReply}
             onClose={() => {
                 setWritingReply(false)
             }}
             replyTo={content}
-        />
+        />}
     </div>
 }

@@ -11,12 +11,12 @@ import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selectio
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/thread/article/read-tracking/track-reading";
 import {useSession} from "@/queries/useSession";
-import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api"
 import {AppBskyFeedPost} from "@atproto/api"
 import dynamic from "next/dynamic";
 import MyLexicalEditor from "../../../modules/ca-lexical-editor/src/lexical-editor"
 import {ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api"
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
@@ -87,7 +87,7 @@ export const EditorWithQuoteComments = ({
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
     const editorElement = useRef<HTMLDivElement>(null)
     const {user} = useSession()
-    const {setShowLoginRequiredModal, modal: loginRequiredModal} = useLoginRequiredModal()
+    const {setLoginModalOpen} = useLoginModal()
 
     useTrackReading(
         uri,
@@ -194,7 +194,7 @@ export const EditorWithQuoteComments = ({
             if(user){
                 setCommentingQuote(quote)
             } else {
-                setShowLoginRequiredModal(true)
+                setLoginModalOpen(true)
             }
         },
     }), [settings]);
@@ -227,6 +227,5 @@ export const EditorWithQuoteComments = ({
                 />, document.body)}
             </div>
         })}
-        {loginRequiredModal}
     </>
 }

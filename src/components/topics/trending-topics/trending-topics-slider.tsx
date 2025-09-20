@@ -10,12 +10,14 @@ import {hasUnseenUpdate} from "@/components/topics/topic/topic-search-result";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useSession} from "@/queries/useSession";
 
 
 const TrendingTopicsSlider = ({selected, trendingArticles}: {
     trendingArticles: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
     selected: TimePeriod
 }) => {
+    const {user} = useSession()
     const [hovering, setHovering] = useState<number>(undefined)
     const router = useRouter()
 
@@ -26,7 +28,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
             >
                 {trendingArticles.map((topic, index) => {
                     const title = getTopicTitle(topic)
-                    const unseenUpdate = hasUnseenUpdate(topic)
+                    const unseenUpdate = hasUnseenUpdate(user, topic)
                     return <div
                         onClick={() => {
                             router.push(topicUrl(topic.id))

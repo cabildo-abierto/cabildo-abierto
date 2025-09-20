@@ -213,9 +213,7 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
                 <div className="px-6 pb-4">
                     <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                     <div className="mb-8">
-                        {user.did == topicVersion.author.did ? <>Estás por remover la autoría de la
-                            modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de
-                            @{topicVersion.author.did}.</>}
+                        Estás por remover la autoría de tu edición.
                     </div>
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <button

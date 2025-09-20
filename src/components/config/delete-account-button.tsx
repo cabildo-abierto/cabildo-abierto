@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {logout} from "@/components/auth/close-session-button";
+import {logout} from "@/components/layout/auth/close-session-button";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";

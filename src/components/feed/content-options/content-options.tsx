@@ -64,9 +64,11 @@ export const ContentOptions = ({
 
     const isOptimistic = getRkeyFromUri(record.uri).startsWith("optimistic")
 
+    const isAuthor = user && user.did == authorDid
+
     return <div className={"flex flex-col space-y-1"}>
-        {user.did == authorDid && <DeleteButton uri={record.uri} onClose={onClose}/>}
-        {user.did == authorDid && canBeEnDiscusion(collection) && <OptionsDropdownButton
+        {isAuthor && <DeleteButton uri={record.uri} onClose={onClose}/>}
+        {isAuthor && canBeEnDiscusion(collection) && <OptionsDropdownButton
             handleClick={async () => {
                 if (!addedToEnDiscusion) {
                     const {error} = await addToEnDiscusion(record.uri)

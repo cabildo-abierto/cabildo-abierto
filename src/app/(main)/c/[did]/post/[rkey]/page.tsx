@@ -53,7 +53,7 @@ const Page = ({params}: {
             threadViewContent={threadViewContent}
         />
 
-        {thread && thread != "loading" && <div className={"w-full border-b"}>
+        {thread && thread != "loading" && <div className={"w-full border-b border-[var(--text-lighter)]"}>
             <ReplyButton onClick={() => {
                 setOpenReplyPanel(true)
             }}/>

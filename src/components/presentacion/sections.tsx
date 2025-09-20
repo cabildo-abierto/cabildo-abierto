@@ -202,7 +202,7 @@ export const PresentacionAbierto = () => {
         </ul>
     </div>
 
-    const image = <div className={"rounded-lg p-2"}>
+    const image = <div className={"p-2"}>
         <div className="relative border p-2 border-[var(--text)] bg-[#fffff0]">
             <Image
                 src="/presentacion/connected.png"
@@ -211,10 +211,8 @@ export const PresentacionAbierto = () => {
                 alt="Red"
                 className="w-full max-w-screen"
             />
-            <div className="absolute z-2 left-3/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
-                <div className={"md:w-32 md:h-32 h-24 w-24"}>
-                    <Logo width={400} height={400}/>
-                </div>
+            <div className="absolute z-2 left-3/4 -translate-x-1/2 -translate-y-1/2 top-1/2 w-24 md:w-32 h-24 md:h-32 ">
+                <Logo className={"w-full h-full object-contain"}/>
             </div>
             <div className="absolute z-2 left-1/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
                 <Link href="https://bsky.social">
@@ -243,23 +241,30 @@ export const PresentacionAbierto = () => {
 export const PresentacionInicio = () => {
 
     return <>
-        <div className="absolute top-4 right-4 w-36 z-10 md:hidden">
+        <div className="absolute top-4 right-4 w-48 z-10 md:hidden">
             <GoToLoginButton fontSize={12}/>
         </div>
         <div className="absolute top-10 right-10 z-10 hidden md:block">
             <GoToLoginButton fontSize={12}/>
         </div>
         <div className={"relative flex flex-col h-[500px] justify-center space-y-12 items-center"}>
-            <div className="flex items-center flex-col">
-                <div className="">
+            <div className="flex items-center flex-col space-y-12">
+                <div className="flex flex-col items-center">
                     <Logo
-                        width={140}
-                        height={140}
+                        width={80}
+                        height={80}
                     />
+                    {/*<div className={"uppercase text-center w-[80px] font-[400] leading-[1]"}>
+                        <div>Cabildo</div>
+                        <div className={"tracking-[0.026em]"}>Abierto</div>
+                    </div>*/}
                 </div>
-                <div className="flex justify-center flex-col items-center mt-8">
+                <h1 className={"text-xl text-center sm:text-2xl md:text-2xl font-bold uppercase"}>
+                    Cabildo Abierto
+                </h1>
+                <div className="flex justify-center flex-col items-center">
                     <div
-                        className="lg:text-[20px] px-6 border-t-[2px] border-b-[2px] border-[var(--text)] py-4 mt-8 sm:text-[22px] text-[16px] font-light tracking-tight text-center leading-tight"
+                        className="lg:text-[20px] px-6 border-t-[2px] border-b-[2px] border-[var(--text)] py-4 sm:text-[22px] text-[16px] font-light tracking-tight text-center leading-tight"
                     >
                         <div>Una plataforma para discutir en serio,</div>
                         <div className={"font-extrabold"}>

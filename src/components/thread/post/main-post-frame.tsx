@@ -26,7 +26,7 @@ export const MainPostFrame = ({
 
     return (
         <div className="w-full bg-[var(--background)]">
-            <div className={"px-2 border-b"}>
+            <div className={"px-2 border-b border-[var(--text-lighter)]"}>
                 <div className="flex justify-between items-center px-2">
                     <div className="flex space-x-2">
                         <ProfilePic user={author} className={"w-11 h-11 rounded-full"}/>

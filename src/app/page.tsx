@@ -1,32 +1,22 @@
 "use client"
-import {GoToLoginButton} from "@/components/presentacion/go-to-login-button";
-import {
-    PresentacionAbierto,
-    PresentacionCalidadDeLaInformacion, PresentacionFormato,
-    PresentacionInicio, PresentacionRemuneraciones,
-    PresentacionWiki
-} from "@/components/presentacion/sections";
-import {Suspense} from "react";
-import Footer from "../../modules/ui-utils/src/footer";
+import {useSession} from "@/queries/useSession";
+import {useRouter} from "next/navigation";
+import {LoadingScreen} from "../../modules/ui-utils/src/loading-screen";
+import {useEffect} from "react";
 
 
 export default function Page() {
-    return <Suspense>
-        <div className="flex flex-col items-center h-full presentation">
-            <PresentacionInicio/>
-            <PresentacionFormato/>
-            <PresentacionWiki/>
-            <PresentacionCalidadDeLaInformacion/>
-            <PresentacionRemuneraciones/>
-            <PresentacionAbierto/>
-            <div className="pb-8 z-10 bg-[var(--background-ldark)] w-full flex justify-center">
-                <GoToLoginButton
-                    className="w-36 sm:w-48 font-bold sm:p-1"
-                    fontSize={16}
-                    text={"Empezar"}
-                />
-            </div>
-        </div>
-        <Footer/>
-    </Suspense>
+    const {user, isLoading} = useSession()
+    const router = useRouter()
+
+    useEffect(() => {
+        if(isLoading) {
+        } else if(user) {
+            router.push("/inicio")
+        } else {
+            router.push("/presentacion")
+        }
+    }, [user, isLoading]);
+
+    return <LoadingScreen/>
 }

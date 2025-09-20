@@ -6,7 +6,7 @@ import { Button } from "@/../modules/ui-utils/src/button"
 import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 
 
-export function AddCommentButton({
+export function AddSelectionReplyButton({
   anchorKey,
   editor,
   onAddComment,
@@ -60,6 +60,7 @@ export function AddCommentButton({
   return <div ref={boxRef} className={"z-[2000]"}>
     <Button
         onClick={onAddComment}
+        variant={"outlined"}
         startIcon={<WriteButtonIcon/>}
     >
         <span className={"text-xs"}>Responder</span>

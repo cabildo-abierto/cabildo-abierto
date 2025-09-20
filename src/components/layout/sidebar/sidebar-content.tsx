@@ -8,6 +8,9 @@ import VerifyAccountButton from '@/components/profile/verify-account-button';
 import {useSession} from "@/queries/useSession";
 import {SidebarButtons} from "@/components/layout/sidebar/sidebar-buttons";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
+import { Button } from '../../../../modules/ui-utils/src/button';
+import {useLoginModal} from "@/components/layout/login-modal-provider";
+import {SignInIcon} from "@phosphor-icons/react";
 
 
 
@@ -19,6 +22,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
     const {layoutConfig, isMobile} = useLayoutConfig()
     const user = useSession()
     const showText = layoutConfig.openSidebar
+    const {setLoginModalOpen} = useLoginModal()
 
     return (
         <>
@@ -29,14 +33,14 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                     <div
                         className={"flex pb-8 h-full flex-col" + (isMobile ? " space-y-3" : " space-y-2")}
                     >
-                        <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
-                            <div className={"flex w-full"}>
+                        {user.user && <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
+                             <div className={"flex w-full"}>
                                 <div className={"flex flex-col items-center space-y-1 " + (!showText ? "pl-4 min-h-12 justify-end" : "")}>
                                     <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                         <ProfilePic
                                             clickable={false}
                                             user={user.user}
-                                            className={"rounded-full border " + dimOnHoverClassName + (isMobile ? " w-14 h-14" : showText ? " w-12 h-12" : " w-7 h-7")}
+                                            className={"rounded-full " + dimOnHoverClassName + (isMobile ? " w-14 h-14" : showText ? " w-12 h-12" : " w-7 h-7")}
                                             descriptionOnHover={false}
                                         />
                                     </Link>
@@ -52,7 +56,18 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 </div>
                                 <hr className={"mt-4 border-[1px] border-[var(--text)]"}/>
                             </div>
-                        </div>
+                        </div>}
+                        {!user.user && <div className={"ml-2 " + (isMobile ? "py-4 pr-4" : "w-36 pb-8")}>
+                            <Button
+                                startIcon={<SignInIcon/>}
+                                variant="outlined"
+                                size={isMobile ? "medium" : "small"}
+                                fullWidth={true}
+                                onClick={() => {setLoginModalOpen(true)}}
+                            >
+                                Iniciar sesión
+                            </Button>
+                        </div>}
                         <SidebarButtons
                             showText={showText}
                             onClose={onClose}
@@ -66,17 +81,6 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                             </div>}
                         </div>
                     </div>
-                    {/*<div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
-                        <IconButton
-                            size={"small"}
-                            color={"transparent"}
-                            onClick={() => {
-                                setShowText(!showText)
-                            }}
-                        >
-                            {showText ? <KeyboardDoubleArrowLeftIcon/> : <KeyboardDoubleArrowRightIcon/>}
-                        </IconButton>
-                    </div>*/}
                 </div>
             </div>
         </>

@@ -1,6 +1,5 @@
 import React, {ReactNode} from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {useSession} from "@/queries/useSession";
 import TopbarDesktop from "@/components/layout/topbar-desktop";
 import {SidebarDesktop} from "@/components/layout/sidebar/sidebar-desktop";
 import {RightPanel} from "@/components/layout/right-panel";
@@ -10,7 +9,6 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
     setWritePanelOpen: (open: boolean) => void
 }) {
     const {layoutConfig} = useLayoutConfig()
-    const {user} = useSession()
 
     return <div>
         <TopbarDesktop/>
@@ -40,7 +38,7 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
                     className="top-12 flex-shrink-0 sticky no-scrollbar mt-12 overflow-y-auto max-h-[calc(100vh-48px)]"
                     style={{width: layoutConfig.rightMinWidth}}
                 >
-                    {layoutConfig.openRightPanel && user && <RightPanel/>}
+                    <RightPanel/>
                 </div>
             }
         </div>

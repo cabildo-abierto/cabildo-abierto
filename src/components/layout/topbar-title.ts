@@ -26,6 +26,8 @@ export function useTopbarTitle() {
         } else if(pathname.includes("dataset")){
             return {title: "Conjunto de datos"}
         }
+    } else if(pathname.startsWith("/aportar")){
+        return {title: "Aportar"}
     }
     return {}
 }

@@ -35,6 +35,7 @@ export const ContentOptionsButton = ({
             <IconButton
                 color="inherit"
                 size={"small"}
+                sx={{borderRadius: 0}}
             >
                 <MoreHorizIcon fontSize="inherit"/>
             </IconButton>
