@@ -77,6 +77,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             iconInactive={<NotificationsIcon count={unreadNotificationsCount} active={false} weight={iconWeight}/>}
             text="Notificaciones"
             href="/notificaciones"
+            requiresAuth={true}
             selected={pathname.startsWith("/notificaciones")}
         />
         <SidebarButton
@@ -87,6 +88,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             text="Mensajes"
             href="/mensajes"
             selected={pathname.startsWith("/mensajes")}
+            requiresAuth={true}
         />
         <SidebarButton
             icon={<TrayIcon size={iconFontSize} weight={"fill"}/>}
@@ -96,6 +98,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             href="/papeles"
             selected={pathname.startsWith("/papeles")}
             showText={showText}
+            requiresAuth={true}
         />
         {user.user && user.user.authorStatus?.isAuthor && <SidebarButton
             icon={<ProjectorScreenChartIcon size={iconFontSize} weight={"fill"}/>}
@@ -105,6 +108,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             href="/panel"
             selected={pathname.startsWith("/panel")}
             showText={showText}
+            requiresAuth={true}
         />}
         {user.user && <SidebarButton
             icon={<UserIcon fontSize={iconFontSize} weight={"fill"}/>}
@@ -114,6 +118,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             href={profileUrl(user.user.handle)}
             selected={pathname == profileUrl(user.user.handle)}
             showText={showText}
+            requiresAuth={true}
         />}
         <SidebarButton
             icon={<GearIcon fontSize={iconFontSize} weight={"fill"}/>}
@@ -123,6 +128,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             href="/ajustes"
             selected={pathname.startsWith("/ajustes")}
             showText={showText}
+            requiresAuth={true}
         />
         <div>
             <SidebarWriteButton
