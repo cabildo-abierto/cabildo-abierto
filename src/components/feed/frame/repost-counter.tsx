@@ -152,7 +152,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 iconActive={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
                 iconInactive={<RepostIcon fontSize={"small"}/>}
                 disabled={disabled}
-                count={showBsky ? (content.bskyRepostCount ?? content.repostCount) : content.repostCount}
+                count={showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)}
                 title="Cantidad de republicaciones y citas."
             />
         </ModalOnClick>
