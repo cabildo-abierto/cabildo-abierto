@@ -44,7 +44,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                             descriptionOnHover={false}
                                         />
                                     </Link>
-                                    <VerifyAccountButton verification={user.user.validation}/>
+                                    {showText && <VerifyAccountButton verification={user.user.validation}/>}
                                 </div>
                             </div>
                             <div className={isMobile && showText ? "" : "hidden"}>

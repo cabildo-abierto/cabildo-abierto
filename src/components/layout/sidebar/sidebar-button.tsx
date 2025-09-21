@@ -3,6 +3,8 @@ import { CustomLink } from "../../../../modules/ui-utils/src/custom-link"
 import { Button } from "../../../../modules/ui-utils/src/button"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {Color} from "../../../../modules/ui-utils/src/color";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
+import {useSession} from "@/queries/useSession";
 
 
 type SidebarButtonProps = {
@@ -17,6 +19,7 @@ type SidebarButtonProps = {
     className?: string
     id?: string
     color?: Color
+    requiresAuth?: boolean
 }
 
 
@@ -31,21 +34,28 @@ export const SidebarButton = ({
     selected=false,
     className="mt-1 h-10",
     id,
-    color="transparent"
+    color="transparent",
+    requiresAuth = false
 }: SidebarButtonProps) => {
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    const {setLoginModalOpen} = useLoginModal()
+    const {user} = useSession()
 
-    function handleClick(){
-        if(!layoutConfig.spaceForLeftSide) {
-            setLayoutConfig({
-                ...layoutConfig,
-                openSidebar: false
-            })
+    function handleClick(e){
+        if(requiresAuth && !user) {
+            setLoginModalOpen(true)
+        } else {
+            if(!layoutConfig.spaceForLeftSide) {
+                setLayoutConfig({
+                    ...layoutConfig,
+                    openSidebar: false
+                })
+            }
         }
     }
 
     return <>
-        <CustomLink tag="link" href={href} className={className + (showText ? "" : " pl-2")} id={id} onClick={handleClick}>
+        <CustomLink tag="link" href={!requiresAuth || user ? href : undefined} className={className + (showText ? "" : " pl-2")} id={id} onClick={handleClick}>
             <Button
                 variant="text"
                 color={color}

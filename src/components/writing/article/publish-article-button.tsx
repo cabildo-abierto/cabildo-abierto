@@ -97,7 +97,6 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
                 color={"background"}
                 size="medium"
                 variant={"text"}
-                sx={{borderRadius: 20}}
             />
         </DescriptionOnHover>
         {modalOpen && <PublishArticleModal

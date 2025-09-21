@@ -140,23 +140,23 @@ export const DatasetTableView = ({
     )
 
     return <div
-        className={"border rounded-lg mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
+        className={"border border-[var(--text-lighter)] mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
         style={{maxHeight, maxWidth}}
     >
-        <div className={"flex justify-start rounded-t-lg"}>
+        <div className={"flex justify-start"}>
             <div className={"w-64 p-1"}>
                 <SearchBar
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
                     size={"small"}
-                    paddingY={"6px"}
+                    paddingY={"4px"}
                     color={"background"}
-                    borderColor={"background-dark"}
+                    borderColor={"text-lighter"}
                 />
             </div>
         </div>
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
-            <thead className="bg-[var(--background-dark)]">
+            <thead className="bg-[var(--background-dark)] border-b border-t border-[var(--text-lighter)]">
             <tr className={""}>
                 {columns.map(([col, header], colIndex) => {
 
