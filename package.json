@@ -60,6 +60,7 @@
     "child_process": "^1.0.2",
     "d3-bboxCollide": "^1.0.4",
     "d3-force": "^3.0.0",
+    "d3-shape": "^3.2.0",
     "d3-zoom": "^3.0.0",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
