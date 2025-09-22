@@ -9,8 +9,8 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
 import {contentQueriesFilter, updateContentInQueries, updateTopicFeedQueries} from "@/queries/updates";
-import {ActiveLikeIcon} from "@/components/icons/active-like-icon";
-import {InactiveLikeIcon} from "@/components/icons/inactive-like-icon";
+import {ActiveLikeIcon} from "@/components/layout/icons/active-like-icon";
+import {InactiveLikeIcon} from "@/components/layout/icons/inactive-like-icon";
 import {useSession} from "@/queries/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 

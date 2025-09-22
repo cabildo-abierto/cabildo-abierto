@@ -5,9 +5,9 @@ import {
     ProjectorScreenChartIcon, TrayIcon, UserIcon
 } from "@phosphor-icons/react";
 import {SidebarButton} from "./sidebar-button";
-import NotificationsIcon from "../../icons/notifications-icon";
-import TopicsIcon from "@/components/icons/topics-icon";
-import MessagesIcon from "../../icons/messages-icon";
+import NotificationsIcon from "@/components/layout/icons/notifications-icon";
+import TopicsIcon from "@/components/layout/icons/topics-icon";
+import MessagesIcon from "@/components/layout/icons/messages-icon";
 import React from "react";
 import {sum} from "@/utils/arrays";
 import {useSession} from "@/queries/useSession";

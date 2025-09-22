@@ -11,7 +11,7 @@ import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {useQueryClient} from "@tanstack/react-query";
-import FullscreenImageViewer from "@/components/images/fullscreen-image-viewer";
+import FullscreenImageViewer from "@/components/layout/images/fullscreen-image-viewer";
 import {useProfile} from "@/queries/useProfile";
 import EditImageModal from "@/components/profile/edit-image-modal";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";

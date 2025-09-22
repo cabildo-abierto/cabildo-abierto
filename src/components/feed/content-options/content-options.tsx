@@ -9,11 +9,11 @@ import {
     splitUri
 } from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
-import BlueskyLogo from "../../icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useState} from "react";
 import {useSession} from "@/queries/useSession";
-import {ViewsIcon} from "@/components/icons/views-icon";
+import {ViewsIcon} from "@/components/layout/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
 import {$Typed} from "@/lex-api/util";

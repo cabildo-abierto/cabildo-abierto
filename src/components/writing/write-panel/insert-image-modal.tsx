@@ -1,6 +1,6 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {useState} from "react";
-import {LinkIcon} from "../../icons/link-icon";
+import {LinkIcon} from "@/components/layout/icons/link-icon";
 import {UploadImageButton} from "./upload-image-button";
 import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";

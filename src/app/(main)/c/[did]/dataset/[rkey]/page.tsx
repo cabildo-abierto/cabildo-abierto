@@ -6,7 +6,7 @@ import {getUri, shortCollectionToCollection} from "@/utils/uri";
 import {isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
 import dynamic from "next/dynamic";
-const DatasetPage = dynamic(() => import("@/components/datasets/dataset-page"), {
+const DatasetPage = dynamic(() => import("@/components/visualizations/datasets/dataset-page"), {
     ssr: false
 })
 

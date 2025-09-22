@@ -1,12 +1,12 @@
 import {DatasetTableView} from "./dataset-table-view";
 import {DatasetDescription} from "./dataset-description";
-import {DateSince} from "../../../modules/ui-utils/src/date";
-import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
+import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {ArCabildoabiertoDataDataset} from "@/lex-api"
 import {Authorship} from "@/components/feed/frame/authorship";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {$Typed} from "@/lex-api/util";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api"
 
 
 export const DatasetFullView = ({dataset, maxWidth, filters}: {

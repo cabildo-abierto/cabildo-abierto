@@ -1,7 +1,7 @@
 import React, {MouseEventHandler, ReactNode, useState} from "react"
 import { ReactionButton } from "./reaction-button";
-import { ActiveLikeIcon } from "../../icons/active-like-icon";
-import { InactiveLikeIcon } from "../../icons/inactive-like-icon";
+import { ActiveLikeIcon } from "@/components/layout/icons/active-like-icon";
+import { InactiveLikeIcon } from "@/components/layout/icons/inactive-like-icon";
 
 type ReactionCounterProps = {
     disabled?: boolean
@@ -80,7 +80,7 @@ export const FixedCounter = ({
     
     return <button
         onClick={handleClick}
-        className={(shake ? "animate-shake" : "") + " text-[var(--text-light)] hover:bg-[var(--background-dark2)] py-[6px] px-1 flex items-end space-x-1"}
+        className={(shake ? "animate-shake" : "") + " text-[var(--text-light)] hover:bg-[var(--background-dark)] py-[6px] px-1 flex items-end space-x-1"}
         title={title}
     >
         <div>{icon}</div>

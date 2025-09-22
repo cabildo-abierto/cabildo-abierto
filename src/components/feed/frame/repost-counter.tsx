@@ -1,4 +1,4 @@
-import {RepostIcon} from "@/components/icons/reposts-icon";
+import {RepostIcon} from "@/components/layout/icons/reposts-icon";
 import React from "react";
 import {$Typed} from "@/lex-api/util";
 import {post} from "@/utils/fetch";

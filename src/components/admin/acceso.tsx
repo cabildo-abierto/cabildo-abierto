@@ -11,7 +11,7 @@ import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrder, sortByKey} from "@/utils/arrays";
 import {useAccessRequests} from "@/queries/admin";
 import {categoriesSearchParam} from "@/queries/utils";
-import {DatasetTableView, RawDatasetView} from "@/components/datasets/dataset-table-view";
+import {DatasetTableView, RawDatasetView} from "@/components/visualizations/datasets/dataset-table-view";
 
 
 export const collectionsList = [

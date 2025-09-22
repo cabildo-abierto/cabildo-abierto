@@ -1,5 +1,5 @@
 import {IconButton} from "./icon-button"
-import {CloseButtonIcon} from "@/components/icons/close-button-icon"
+import {CloseButtonIcon} from "@/components/layout/icons/close-button-icon"
 import {stopPropagation} from "@/utils/utils";
 
 import {Color} from "./color";

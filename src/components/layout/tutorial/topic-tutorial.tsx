@@ -8,7 +8,7 @@ import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session, WikiEditorState} from "@/lib/types";
 import {produce} from "immer";
-import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
 
 
 const TourContent = ({children}: {children: ReactNode}) => {

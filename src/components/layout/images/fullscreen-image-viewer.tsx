@@ -1,9 +1,9 @@
 import {useEffect} from "react";
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import {ATProtoImage} from "@/components/images/atproto-image";
+import {ATProtoImage} from "@/components/layout/images/atproto-image";
 import {createPortal} from "react-dom";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {AppBskyEmbedImages} from "@atproto/api"
@@ -14,7 +14,7 @@ const FullscreenImageViewer = ({
                                    setViewing,
                                    maxHeight,
                                    maxWidth,
-                                   className = "h-full object-contain bg-black bg-opacity-20 rounded-lg"
+                                   className = "h-full object-contain bg-black bg-opacity-20"
                                }: {
     images: (AppBskyEmbedImages.ViewImage | string)[]
     maxHeight?: number | string

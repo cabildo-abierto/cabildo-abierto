@@ -3,7 +3,7 @@
 import React, {ReactNode, useEffect, useMemo, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
-import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
+import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
 import {useSession} from "@/queries/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
@@ -13,10 +13,10 @@ import {useSearchUsers} from "@/components/buscar/user-search-results";
 import SearchBar from "@/components/buscar/search-bar";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/follow-button";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useProfile} from "@/queries/useProfile";
-import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {

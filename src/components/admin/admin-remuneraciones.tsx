@@ -1,5 +1,5 @@
 import {useActivityStats} from "@/queries/admin";
-import {DatasetForTableView, DatasetTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView, DatasetTableView} from "@/components/visualizations/datasets/dataset-table-view";
 
 
 export const AdminRemuneraciones = () => {

@@ -2,7 +2,7 @@
 
 import {ReactNode} from "react";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {AppThemeProvider} from "@/components/theme/theme-provider";
+import {AppThemeProvider} from "@/components/layout/theme/theme-provider";
 import {LoginModalProvider} from "@/components/layout/login-modal-provider";
 
 const queryClient = new QueryClient()

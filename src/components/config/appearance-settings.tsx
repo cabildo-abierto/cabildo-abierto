@@ -1,4 +1,4 @@
-import {ThemeMode, useTheme} from "@/components/theme/theme-context";
+import {ThemeMode, useTheme} from "@/components/layout/theme/theme-context";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import React from "react";
 

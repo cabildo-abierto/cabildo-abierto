@@ -1,5 +1,5 @@
-import {DatasetFullView} from "@/components/datasets/dataset-full-view";
-import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
+import {DatasetFullView} from "@/components/visualizations/datasets/dataset-full-view";
+import {ArCabildoabiertoDataDataset} from "@/lex-api"
 
 
 const DatasetPage = ({dataset}: {dataset: ArCabildoabiertoDataDataset.DatasetView}) => {

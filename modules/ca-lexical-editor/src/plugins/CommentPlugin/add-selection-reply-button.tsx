@@ -3,7 +3,7 @@ import { useRef, useLayoutEffect, useCallback, useEffect } from 'react';
 import * as React from 'react';
 import './index.css';
 import { Button } from "@/../modules/ui-utils/src/button"
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 
 
 export function AddSelectionReplyButton({

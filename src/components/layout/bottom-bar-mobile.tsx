@@ -1,9 +1,9 @@
-import CabildoIcon from "../icons/home-icon";
+import CabildoIcon from "@/components/layout/icons/home-icon";
 import React from "react";
 import {usePathname, useRouter} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
-import NotificationsIcon from "../icons/notifications-icon";
-import TopicsIcon from "@/components/icons/topics-icon";
+import NotificationsIcon from "@/components/layout/icons/notifications-icon";
+import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {BottomNavigation, BottomNavigationAction, Box, Paper} from "@mui/material";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 

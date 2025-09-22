@@ -1,7 +1,7 @@
-import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
+import {ArCabildoabiertoDataDataset} from "@/lex-api"
 import {useEffect, useMemo, useRef, useState} from "react";
 import SearchBar from "@/components/buscar/search-bar";
-import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
+import {ArCabildoabiertoEmbedVisualization} from "@/lex-api"
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";

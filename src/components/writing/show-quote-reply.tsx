@@ -14,7 +14,7 @@ import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/l
 import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
 import {$dfs} from "@lexical/utils";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
-import {InactiveCommentIcon} from "@/components/icons/inactive-comment-icon";
+import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";
 
 
 export const ShowQuoteReplyButton = ({

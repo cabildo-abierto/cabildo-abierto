@@ -1,6 +1,6 @@
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {Authorship} from "@/components/feed/frame/authorship";
-import {ArCabildoabiertoDataDataset} from "@/lex-api/index"
+import {ArCabildoabiertoDataDataset} from "@/lex-api"
 
 
 export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {

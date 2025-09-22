@@ -5,7 +5,7 @@ import {AxisScaleOutput} from "@visx/axis";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {DataParser} from "@/components/visualizations/editor/plotter/data-parser";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
 
 export type DataRow = Record<string, any>
 export type DataPoint<X=ValueType, Y=ValueType> = {

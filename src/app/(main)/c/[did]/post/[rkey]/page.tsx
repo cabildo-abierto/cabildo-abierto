@@ -6,6 +6,7 @@ import {ReplyButton} from "@/components/thread/reply-button";
 import {isPostView, isThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
 import dynamic from "next/dynamic";
+import {useSession} from "@/queries/useSession";
 
 
 const ThreadReplies = dynamic(() => import("@/components/thread/thread-replies"), {
@@ -33,6 +34,7 @@ const Page = ({params}: {
     const uri = getUri(decodeURIComponent(did), shortCollectionToCollection(collection), rkey)
     const {thread} = useThreadWithNormalizedContent(uri)
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
+    const {user} = useSession()
 
     const replies = useMemo(() => {
         return <ThreadReplies
@@ -65,7 +67,7 @@ const Page = ({params}: {
             {replies}
         </div>
 
-        {thread && thread != "loading" && isThreadViewContent(thread) && isPostView(thread.content) && <WritePanel
+        {user && thread && thread != "loading" && isThreadViewContent(thread) && isPostView(thread.content) && <WritePanel
             replyTo={thread.content}
             open={openReplyPanel}
             onClose={() => {

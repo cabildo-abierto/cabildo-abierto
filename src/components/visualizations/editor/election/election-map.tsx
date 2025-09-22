@@ -1,7 +1,7 @@
 import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Candidato, Cargo, ElectionPlotter, getProvinceName} from "./election-plotter";
-import {DatasetForTableView, useDebounce} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView, useDebounce} from "@/components/visualizations/datasets/dataset-table-view";
 import React, {useMemo, useState} from "react";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import SelectionComponent from "@/components/buscar/search-selection-component";

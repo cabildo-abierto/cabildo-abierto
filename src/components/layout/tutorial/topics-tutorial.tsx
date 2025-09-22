@@ -9,7 +9,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
 import {useTopics} from "@/queries/useTopics";
-import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
 
 
 const TourContent = ({children}: {children: ReactNode}) => {
