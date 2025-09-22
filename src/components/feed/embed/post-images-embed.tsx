@@ -1,13 +1,13 @@
 "use client"
 import {ReactNode, useState} from "react";
-import {ATProtoImage} from "@/components/images/atproto-image";
+import {ATProtoImage} from "@/components/layout/images/atproto-image";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
 import {AppBskyEmbedImages} from "@atproto/api"
 
 
-const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'), {
+const FullscreenImageViewer = dynamic(() => import('@/components/layout/images/fullscreen-image-viewer'), {
     ssr: false,
     loading: () => <></>
 });

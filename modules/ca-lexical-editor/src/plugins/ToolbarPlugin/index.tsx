@@ -48,7 +48,7 @@ import {IS_APPLE} from '../../shared/environment';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {InsertTableModal} from '../TablePlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
-import VisualizationsIcon from '../../../../../src/components/icons/visualization-icon';
+import VisualizationsIcon from '@/components/layout/icons/visualization-icon';
 import {INSERT_EMBED_COMMAND} from "../EmbedPlugin";
 import {
     FormatBold,

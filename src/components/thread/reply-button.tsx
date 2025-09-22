@@ -1,5 +1,5 @@
 import { Button } from "../../../modules/ui-utils/src/button";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 
 
 export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void, text?: string }) => {

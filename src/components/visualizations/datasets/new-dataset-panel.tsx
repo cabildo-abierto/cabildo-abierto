@@ -1,16 +1,16 @@
 import {styled} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {useEffect, useState} from "react";
-import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
-import StateButton from "../../../modules/ui-utils/src/state-button";
+import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {UploadFile} from "@mui/icons-material";
 import {DatasetForTableView, DatasetTableView} from "./dataset-table-view";
 import Papa from 'papaparse';
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import { Button } from "../../../modules/ui-utils/src/button";
-import { TextField } from "../../../modules/ui-utils/src/text-field";
+import { Button } from "../../../../modules/ui-utils/src/button";
+import { TextField } from "../../../../modules/ui-utils/src/text-field";
 
 
 const VisuallyHiddenInput = styled('input')({

@@ -3,7 +3,7 @@ import {Logo} from './logo';
 import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
-import BlueskyLogo from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {GithubLogoIcon, XLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {Color} from "./color";

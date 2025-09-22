@@ -11,7 +11,7 @@ import {useState} from "react";
 import {Button, darker} from "../../../../modules/ui-utils/src/button";
 import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
 import {Box, IconButton} from "@mui/material";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {Color} from "../../../../modules/ui-utils/src/color";
 
 

@@ -1,6 +1,6 @@
 import {useDataset} from "@/queries/useDataset";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";

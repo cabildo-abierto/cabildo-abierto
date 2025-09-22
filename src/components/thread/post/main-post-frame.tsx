@@ -21,7 +21,6 @@ export const MainPostFrame = ({
 
     const author = postView.author
     const authorUrl = profileUrl(author.handle)
-
     const enDiscusion = hasEnDiscusionLabel(postView)
 
     return (
@@ -57,12 +56,12 @@ export const MainPostFrame = ({
                     </div>
                 </div>
             </div>
-
             <div className="py-2">
                 <EngagementIcons
                     content={postView}
                     enDiscusion={enDiscusion}
-                    className={"justify-between px-2"}
+                    className={"justify-between px-1"}
+                    showDetails={true}
                 />
             </div>
         </div>

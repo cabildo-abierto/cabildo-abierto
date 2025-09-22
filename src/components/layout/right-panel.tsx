@@ -8,7 +8,7 @@ import {useNextMeeting} from "@/queries/useNextMeeting";
 import {formatIsoDate} from "@/utils/dates";
 import FollowSuggestions from "@/components/layout/follow-suggestions";
 import {Button} from "../../../modules/ui-utils/src/button";
-import DonateIcon from "@/components/icons/donate-icon";
+import DonateIcon from "@/components/layout/icons/donate-icon";
 import {useSearch} from "@/components/buscar/search-context";
 import UserSearchResultsOnRightPanel from "@/components/buscar/user-search-results-on-right-panel";
 import {useSession} from "@/queries/useSession";

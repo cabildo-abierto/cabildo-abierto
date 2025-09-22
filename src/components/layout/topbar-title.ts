@@ -19,7 +19,13 @@ export function useTopbarTitle() {
     } else if (pathname.startsWith("/tema?")){
         return {title: "Tema"}
     } else if (pathname.startsWith("/c")) {
-        if(pathname.includes("article")){
+        if(pathname.includes("quoted-by")){
+            return {title: "Citas"}
+        } else if(pathname.includes("liked-by")) {
+            return {title: "Le gusta a"}
+        } else if(pathname.includes("reposted-by")) {
+            return {title: "Republicado por"}
+        } else if(pathname.includes("article")){
             return {title: "Artículo"}
         } else if(pathname.includes("post")){
             return {title: "Publicación"}

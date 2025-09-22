@@ -16,7 +16,7 @@ import {
 } from "@/utils/uri";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import TopicsIcon from "@/components/icons/topics-icon";
+import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {ProfileView} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
 

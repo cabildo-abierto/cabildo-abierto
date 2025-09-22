@@ -42,7 +42,7 @@ export const ReactionButton = ({
     return (
         <div className={"text-[var(--text-light)] " + (shake ? "animate-shake" : "")}>
             <button
-                className="hover:bg-[var(--background-dark2)] py-1 px-1"
+                className="hover:bg-[var(--background-dark)] py-1 px-1"
                 onClick={handleClick}
                 title={title}
             >

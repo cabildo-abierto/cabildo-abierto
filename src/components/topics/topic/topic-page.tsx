@@ -5,7 +5,7 @@ import {useTopicWithNormalizedContent} from "@/queries/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {updateSearchParams} from "@/utils/fetch";
-import TopicTutorial from "@/components/tutorial/topic-tutorial";
+import TopicTutorial from "@/components/layout/tutorial/topic-tutorial";
 import {getUri} from "@/utils/uri";
 import {WikiEditorState} from "@/lib/types";
 import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";

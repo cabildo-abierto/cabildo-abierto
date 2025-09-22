@@ -1,4 +1,4 @@
-import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Plotter} from "@/components/visualizations/editor/plotter/plotter";
 import {cleanText} from "@/utils/strings";

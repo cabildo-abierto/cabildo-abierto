@@ -1,7 +1,7 @@
 import {Profile} from "@/lib/types";
 import {useState} from "react";
 import {FollowCount} from "@/components/profile/follow/follow-counter";
-import BlueskyLogo from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
 export const FollowCounters = ({profile}: { profile: Profile }) => {

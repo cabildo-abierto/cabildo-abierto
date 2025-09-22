@@ -5,7 +5,7 @@ import {Profile} from "@/lib/types";
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "../../../modules/ui-utils/src/button";
-import {ArticleIcon} from "../icons/article-icon"
+import {ArticleIcon} from "@/components/layout/icons/article-icon"
 import {emptyChar} from "@/utils/utils";
 import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/follow-button";
@@ -21,7 +21,7 @@ import VerifyAccountButton from "@/components/profile/verify-account-button";
 import {CheckSquareIcon} from "@phosphor-icons/react";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 
-const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'));
+const FullscreenImageViewer = dynamic(() => import('@/components/layout/images/fullscreen-image-viewer'));
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-modal'))
 
 

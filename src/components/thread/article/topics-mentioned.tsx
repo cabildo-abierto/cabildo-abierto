@@ -6,7 +6,7 @@ import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 import {useMemo} from "react";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
-import TopicsIcon from "@/components/icons/topics-icon";
+import TopicsIcon from "@/components/layout/icons/topics-icon";
 
 type TopicsMentionedProps = {mentions: ArCabildoabiertoFeedDefs.TopicMention[]}
 

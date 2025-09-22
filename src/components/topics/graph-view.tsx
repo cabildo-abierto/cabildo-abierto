@@ -7,7 +7,7 @@ import {
     forceLink,
     forceCenter
 } from 'd3-force';
-import {useTheme} from "../theme/theme-context";
+import {useTheme} from "@/components/layout/theme/theme-context";
 import {TopicsGraph} from "@/lib/types";
 import {bboxCollide} from "d3-bboxCollide"
 import {inRange} from "lodash-es";

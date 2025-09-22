@@ -1,6 +1,6 @@
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
-import {WriteButtonIcon} from "../../icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import React from "react";
 
 export const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onClick: () => void }) => {

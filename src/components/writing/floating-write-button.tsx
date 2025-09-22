@@ -1,4 +1,4 @@
-import {WriteButtonIcon} from "../icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {createPortal} from "react-dom";
 
 

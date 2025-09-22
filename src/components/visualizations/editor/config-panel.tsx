@@ -7,7 +7,7 @@ import {useState} from "react";
 import { TextField } from "../../../../modules/ui-utils/src/text-field";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
-import VisualizationIcon from "@/components/icons/visualization-icon";
+import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import SquareFootIcon from '@mui/icons-material/SquareFoot';
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";

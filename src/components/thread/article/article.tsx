@@ -64,6 +64,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                     content={article}
                     className={"flex justify-between px-4 w-full"}
                     enDiscusion={enDiscusion}
+                    showDetails={true}
                 />
             </div>
         </div>

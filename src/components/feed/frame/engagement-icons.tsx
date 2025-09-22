@@ -1,5 +1,5 @@
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button"
-import {InactiveCommentIcon} from "../../icons/inactive-comment-icon"
+import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon"
 import {FixedCounter} from "./reaction-counter"
 import {contentUrl, getCollectionFromUri} from "@/utils/uri";
 import React, {useState} from "react";
@@ -15,6 +15,7 @@ import {useLoginModal} from "@/components/layout/login-modal-provider";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
 })
+import {EngagementDetails} from "@/components/feed/frame/engagement-details";
 
 
 type EngagementIconsProps = {
@@ -22,14 +23,16 @@ type EngagementIconsProps = {
     className?: string
     small?: boolean
     enDiscusion?: boolean
+    showDetails?: boolean
 }
 
 
 export const EngagementIcons = ({
-                                    content,
-                                    className = "space-x-16",
-                                    enDiscusion
-                                }: EngagementIconsProps) => {
+    content,
+    className = "space-x-16",
+    enDiscusion,
+    showDetails = false
+}: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
     const [writingReply, setWritingReply] = useState<boolean>(false)
     const router = useRouter()
@@ -48,38 +51,49 @@ export const EngagementIcons = ({
         }
     }
 
-    return <div className={"flex items-center exclude-links w-full " + className}>
-        {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
-            {content.replyCount != undefined && <FixedCounter
-                count={content.replyCount}
-                icon={<InactiveCommentIcon fontSize={"20"}/>}
-                title="Cantidad de respuestas."
-                onClick={onClickRepliesButton}
-                disabled={content.uri.includes("optimistic")}
-            />}
-            {content.repostCount != undefined && <RepostCounter
-                content={content}
-                showBsky={showBsky}
-                reactionUri={content.viewer ? content.viewer.repost : undefined}
-            />}
-            {content.likeCount != undefined && <LikeCounter
-                content={content}
-                showBsky={showBsky}
-            />}
-        </>}
+    return <div>
 
-        <ContentOptionsButton
-            record={content}
-            enDiscusion={enDiscusion}
-            showBluesky={showBsky}
-            setShowBluesky={setShowBsky}
-        />
-        {writingReply && user && <WritePanel
-            open={writingReply}
-            onClose={() => {
-                setWritingReply(false)
-            }}
-            replyTo={content}
-        />}
+        <div className={"flex items-center exclude-links w-full "}>
+            {showDetails && <EngagementDetails
+                content={content}
+                showBsky={showBsky}
+                small={true}
+            />}
+        </div>
+
+        <div className={"flex items-center space-x-16 exclude-links w-full " + className}>
+            {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
+                {content.replyCount != undefined && <FixedCounter
+                    count={content.replyCount}
+                    icon={<InactiveCommentIcon/>}
+                    title="Cantidad de respuestas."
+                    onClick={onClickRepliesButton}
+                    disabled={content.uri.includes("optimistic")}
+                />}
+                {content.repostCount != undefined && <RepostCounter
+                    content={content}
+                    showBsky={showBsky}
+                    reactionUri={content.viewer ? content.viewer.repost : undefined}
+                />}
+                {content.likeCount != undefined && <LikeCounter
+                    content={content}
+                    showBsky={showBsky}
+                />}
+            </>}
+
+            <ContentOptionsButton
+                record={content}
+                enDiscusion={enDiscusion}
+                showBluesky={showBsky}
+                setShowBluesky={setShowBsky}
+            />
+            {writingReply && user && <WritePanel
+                open={writingReply}
+                onClose={() => {
+                    setWritingReply(false)
+                }}
+                replyTo={content}
+            />}
+        </div>
     </div>
 }
