@@ -13,7 +13,7 @@ const Graph = dynamic(() => import("./graph-view"));
 export const CategoriesMap = () => {
     const {data: graph, isLoading, error} = useCategoriesGraph()
     const router = useRouter()
-    const {searchState} = useSearch()
+    const {searchState} = useSearch("topics")
 
     function onClickNode(nodeId: string){
         router.push("/temas?c="+nodeId+"&view=mapa")

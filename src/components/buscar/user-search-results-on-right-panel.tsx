@@ -10,7 +10,7 @@ type Props = {
 }
 
 const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
-    const {searchState, setSearchState} = useSearch()
+    const {searchState, setSearchState} = useSearch("main")
 
     function onClickResult(did: string) {
         setSearchState({value: "", searching: false})

@@ -29,7 +29,7 @@ export const TopicsPageHeader = () => {
 
     const currentView: TopicsViewOption = view && (view == "lista" || view == "mapa") ? view : "lista"
 
-    const {searchState, setSearchState} = useSearch()
+    const {searchState, setSearchState} = useSearch("topics")
 
     function optionsNodes(o: TopicsViewOption, isSelected: boolean) {
         let icon: ReactNode

@@ -61,7 +61,7 @@ export const EngagementIcons = ({
             />}
         </div>
 
-        <div className={"flex items-center space-x-16 exclude-links w-full " + className}>
+        <div className={"flex items-center exclude-links w-full " + className}>
             {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
                 {content.replyCount != undefined && <FixedCounter
                     count={content.replyCount}
@@ -69,6 +69,7 @@ export const EngagementIcons = ({
                     title="Cantidad de respuestas."
                     onClick={onClickRepliesButton}
                     disabled={content.uri.includes("optimistic")}
+                    hoverColor={"background-dark2"}
                 />}
                 {content.repostCount != undefined && <RepostCounter
                     content={content}

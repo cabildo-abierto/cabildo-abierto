@@ -1,7 +1,5 @@
 import { ATProtoStrongRef } from "@/lib/types"
 import {useState} from "react";
-import CheckIcon from "@mui/icons-material/Check";
-import ClearIcon from "@mui/icons-material/Clear";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import {RejectVersionModal} from "./reject-version-modal";
 import {post} from "@/utils/fetch";
@@ -9,6 +7,7 @@ import {getDidFromUri, getRkeyFromUri, splitUri} from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter, updateTopicHistories} from "@/queries/updates";
 import {produce} from "immer";
+import {CheckIcon, XIcon} from "@phosphor-icons/react";
 
 
 // TO DO: Si votó reject advertir que lo va a eliminar
@@ -126,18 +125,20 @@ export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acce
         <ReactionButton
             onClick={acceptUri ? onCancelAcceptEdit : onAcceptEdit}
             active={acceptUri != null}
-            iconActive={<span className={"text-green-400"}><CheckIcon fontSize={"inherit"}/></span>}
-            iconInactive={<CheckIcon fontSize={"inherit"}/>}
+            iconActive={<span className={"text-green-400"}><CheckIcon/></span>}
+            iconInactive={<CheckIcon/>}
             count={acceptCount}
+            hoverColor={"background-dark2"}
             title={"Aceptar versión."}
             disabled={acceptUri == "optimistic-accept-uri"}
         />
         <ReactionButton
             onClick={rejectUri ? onCancelRejectEdit : () => {setOpenRejectModal(true)}}
             active={rejectUri != null}
-            iconActive={<span className={"text-red-400"}><ClearIcon fontSize={"inherit"}/></span>}
-            iconInactive={<ClearIcon fontSize={"inherit"} color={"inherit"}/>}
+            iconActive={<span className={"text-red-400"}><XIcon/></span>}
+            iconInactive={<XIcon/>}
             count={rejectCount}
+            hoverColor={"background-dark2"}
             title={"Rechazar versión."}
             disabled={rejectUri == "optimistic-reject-uri"}
         />

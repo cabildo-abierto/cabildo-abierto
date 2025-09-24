@@ -1,4 +1,3 @@
-import {useSearch} from "./search-context"
 import React, {useEffect, useState} from "react"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {get} from "@/utils/fetch";
@@ -17,8 +16,11 @@ async function searchTopics(q: string, categories?: string[]) {
 }
 
 
-export const SearchTopics = ({categories, setCategories}: { categories?: string[], setCategories?: (c: string[]) => void }) => {
-    const {searchState} = useSearch();
+export const SearchTopics = ({searchState, categories, setCategories}: {
+    categories?: string[]
+    setCategories?: (c: string[]) => void
+    searchState: {searching: boolean, value: string}
+}) => {
     const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 

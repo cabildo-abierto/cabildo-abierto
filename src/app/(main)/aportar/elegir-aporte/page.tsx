@@ -48,12 +48,15 @@ export default function Page() {
 
     if(preferenceId){
         return <div className={"pt-2"}>
-            <BackButton defaultURL={"/aportar"} preferReferrer={true}/>
+            <BackButton defaultURL={"/aportar"} behavior={"fixed"}/>
 
             <div className={"flex justify-center"}>
                 <div className={"flex flex-col items-center space-y-4 bg-[var(--background-dark)] rounded-lg p-8 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>
                     <div className={"w-full"}>
-                        <BackButton onClick={() => {setPreferenceId(undefined)}} color={"background-dark"}/>
+                        <BackButton
+                            onClick={() => {setPreferenceId(undefined)}}
+                            color={"background-dark"}
+                        />
                     </div>
                     <div className={"text-center"}>
                         Aportando ${amount}.
@@ -64,7 +67,7 @@ export default function Page() {
         </div>
     } else {
         return <div className={"pt-2"}>
-            <BackButton defaultURL={"/aportar"} preferReferrer={true}/>
+            <BackButton defaultURL={"/aportar"} behavior={"fixed"}/>
 
             <div className={"flex justify-center mx-2"}>
                 <div className={"flex flex-col items-center space-y-4 bg-[var(--background-dark)] rounded-lg p-8 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>

@@ -20,7 +20,7 @@ export const TopbarConversation = () => {
         <div className={"flex space-x-1 items-center"}>
             <BackButton
                 defaultURL={"/mensajes"}
-                preferReferrer={false}
+                behavior={"fixed"}
                 size={"medium"}
             />
             <div className={"truncate text-ellipsis max-w-[80vw] font-bold text-lg"}>

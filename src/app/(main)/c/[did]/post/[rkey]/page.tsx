@@ -7,6 +7,7 @@ import {isPostView, isThreadViewContent} from "@/lex-api/types/ar/cabildoabierto
 import {LoadingThread} from "@/components/thread/post/loading-thread";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/useSession";
+import LoadingSpinner from "../../../../../../../modules/ui-utils/src/loading-spinner";
 
 
 const ThreadReplies = dynamic(() => import("@/components/thread/thread-replies"), {
@@ -32,15 +33,20 @@ const Page = ({params}: {
     const {did, rkey} = use(params)
     const collection = "app.bsky.feed.post"
     const uri = getUri(decodeURIComponent(did), shortCollectionToCollection(collection), rkey)
-    const {thread} = useThreadWithNormalizedContent(uri)
+    const {thread, query} = useThreadWithNormalizedContent(uri)
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const {user} = useSession()
 
     const replies = useMemo(() => {
-        return <ThreadReplies
-            replies={thread && thread != "loading" && thread.replies && isPostView(thread.content) ?  thread.replies : null}
-        />
-    }, [thread])
+        return <div>
+            <ThreadReplies
+                replies={thread && thread != "loading" && thread.replies && isPostView(thread.content) ?  thread.replies : null}
+            />
+            {query.isFetching && <div className={"py-16"}>
+                <LoadingSpinner/>
+            </div>}
+        </div>
+    }, [thread, query.isFetching])
 
     const content = thread && thread != "loading" && isPostView(thread.content) ? thread.content : null
     const threadViewContent = thread && thread != "loading" ? thread : null

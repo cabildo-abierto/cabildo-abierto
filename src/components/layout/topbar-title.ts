@@ -16,7 +16,7 @@ export function useTopbarTitle() {
         return {title: "Panel de autor"}
     } else if(pathname.startsWith("/perfil/cuentas-sugeridas")){
         return {title: "Cuentas para seguir"}
-    } else if (pathname.startsWith("/tema?")){
+    } else if (pathname.startsWith("/tema") && !pathname.startsWith("/temas")) {
         return {title: "Tema"}
     } else if (pathname.startsWith("/c")) {
         if(pathname.includes("quoted-by")){
@@ -34,6 +34,47 @@ export function useTopbarTitle() {
         }
     } else if(pathname.startsWith("/aportar")){
         return {title: "Aportar"}
+    } else if(pathname.startsWith("/escribir/articulo")){
+        return {title: "Nuevo artículo"}
+    }
+    return {}
+}
+
+
+export function useDefaultBackURL() {
+    const pathname = usePathname()
+    if(pathname.startsWith("/ajustes")){
+        return {defaultURL: "/inicio"}
+    } else if(pathname.startsWith("/buscar")){
+        return {defaultURL: "/inicio"}
+    } else if(pathname.startsWith("/notificaciones")){
+        return {defaultURL: "/inicio"}
+    } else if(pathname.startsWith("/mensajes")){
+        return {defaultURL: "/inicio"}
+    } else if(pathname.startsWith("/papeles")){
+        return {defaultURL: "/inicio"}
+    } else if(pathname.startsWith("/panel")){
+        return {defaultURL: "/inicio"}
+    } else if(pathname.startsWith("/perfil/cuentas-sugeridas")){
+        return {defaultURL: "/inicio"}
+    } else if (pathname.startsWith("/tema?")){
+        return {defaultURL: "/inicio"}
+    } else if (pathname.startsWith("/c")) {
+        if(pathname.includes("quoted-by")){
+            return {defaultURL: pathname.replace("/quoted-by", "")}
+        } else if(pathname.includes("liked-by")) {
+            return {defaultURL: pathname.replace("/liked-by", "")}
+        } else if(pathname.includes("reposted-by")) {
+            return {defaultURL: pathname.replace("/reposted-by", "")}
+        } else if(pathname.includes("article")){
+            return {defaultURL: "/inicio"}
+        } else if(pathname.includes("post")){
+            return {defaultURL: "/inicio"}
+        } else if(pathname.includes("dataset")){
+            return {defaultURL: "/inicio"}
+        }
+    } else if(pathname.startsWith("/aportar")){
+        return {defaultURL: "/inicio"}
     }
     return {}
 }

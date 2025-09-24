@@ -20,7 +20,7 @@ export const RightPanel = () => {
     const {user} = useSession()
     const {data: meetingData} = useNextMeeting()
     const router = useRouter()
-    const {searchState} = useSearch()
+    const {searchState} = useSearch("main")
     const {layoutConfig} = useLayoutConfig()
 
     const showSearchButton = searchState.searching && searchState.value.length > 0

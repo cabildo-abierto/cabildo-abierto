@@ -18,7 +18,7 @@ export default function Topbarmobile() {
     const {title} = useTopbarTitle()
     const height = useTopbarHeight()
 
-    const backButton = ["notificaciones", "panel", "ajustes", "perfil", "mensajes"]
+    const backButton = ["notificaciones", "panel", "ajustes", "perfil", "mensajes", "escribir/articulo"]
         .some(p => pathname.startsWith(`/${p}`))
     const defaultBackHref = ""
     const openSidebarButton = !backButton
@@ -30,7 +30,7 @@ export default function Topbarmobile() {
         <div className={"flex space-x-2 items-center h-12 w-full"}>
             {backButton && !pathname.startsWith("/mensajes") && <BackButton
                 defaultURL={defaultBackHref}
-                preferReferrer={false}
+                behavior={"ca-back"}
                 size={"medium"}
             />}
             {openSidebarButton && !pathname.startsWith("/inicio") && !pathname.startsWith("/buscar") && !pathname.startsWith("/temas") && <OpenSidebarButton/>}
@@ -49,7 +49,7 @@ export default function Topbarmobile() {
             {pathname.startsWith("/mensajes") && !pathname.startsWith("/mensajes/") && <div className={"flex space-x-2 items-center"}>
                 <BackButton
                     defaultURL={defaultBackHref}
-                    preferReferrer={false}
+                    behavior={"ca-back"}
                     size={"medium"}
                 />
                 <div className={"font-bold uppercase"}>

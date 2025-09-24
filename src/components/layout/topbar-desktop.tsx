@@ -10,7 +10,7 @@ import {TopicsPageHeader} from "@/components/topics/topics-page-header";
 import {TopbarConversation} from "@/components/mensajes/topbar-conversation";
 import {TopbarFollowx} from "@/components/layout/topbar-followx";
 import { InfoPanelUserSuggestions } from "../profile/info-panel-user-suggestions";
-import {useTopbarTitle} from "@/components/layout/topbar-title";
+import {useDefaultBackURL, useTopbarTitle} from "@/components/layout/topbar-title";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
 
@@ -21,10 +21,12 @@ export default function TopbarDesktop() {
 
     const {layoutConfig} = useLayoutConfig()
     const {title} = useTopbarTitle()
+    const {defaultURL} = useDefaultBackURL()
 
     const backButton = pathname.startsWith("/c/") ||
-        pathname.startsWith("/tema?") ||
-        pathname.startsWith("/aportar")
+        pathname.startsWith("/tema") && !pathname.startsWith("/temas") ||
+        pathname.startsWith("/aportar") ||
+        pathname.startsWith("/escribir/articulo")
 
     return <div
         className={"fixed top-0 left-0 items-center px-3 bg-[var(--background)] w-screen border-b border-[var(--text-lighter)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}
@@ -45,8 +47,9 @@ export default function TopbarDesktop() {
                 >
                     {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && <div className={"font-bold uppercase flex space-x-2 items-center"}>
                         {backButton && <BackButton
-                            preferReferrer={false}
+                            behavior={"ca-back"}
                             size={"medium"}
+                            defaultURL={defaultURL}
                         />}
                         <div>
                         {title}

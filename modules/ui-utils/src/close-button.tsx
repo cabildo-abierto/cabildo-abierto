@@ -12,6 +12,7 @@ export const CloseButton = ({onClose, size, color="transparent", hoverColor}: {
         color={color}
         hoverColor={hoverColor}
         size={size}
+        sx={{borderRadius: 0}}
     >
         <CloseButtonIcon fontSize="inherit"/>
     </IconButton>

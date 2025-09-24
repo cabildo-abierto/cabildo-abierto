@@ -248,7 +248,8 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 variant="outlined"
                 startIcon={!dense && <CheckIcon size={14}/>}
                 disableElevation={true}
-                dense={dense}
+                paddingX={dense ? "5px" : undefined}
+                paddingY={dense ? 0 : undefined}
                 text1="Siguiendo"
                 textClassName={textClassName + " uppercase"}
                 disabled={profile.viewer?.following == "optimistic-follow"}
@@ -259,7 +260,8 @@ export function FollowButton({handle, profile, backgroundColor="background", tex
                 variant="outlined"
                 startIcon={!dense && <PlusIcon size={14}/>}
                 disableElevation={true}
-                dense={dense}
+                paddingX={dense ? "5px" : undefined}
+                paddingY={dense ? 0 : undefined}
                 text1={followText}
                 textClassName={textClassName + " uppercase"}
             />}

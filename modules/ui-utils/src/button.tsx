@@ -6,7 +6,13 @@ import {Color} from "./color";
 
 
 export type ButtonProps = Omit<MUIButtonProps, "color"> & {
-    color?: Color, dense?: boolean, textTransform?: string, borderColor?: Color }
+    color?: Color
+    textTransform?: string
+    borderColor?: Color
+    hoverColor?: Color
+    paddingX?: string | number
+    paddingY?: string | number
+}
 
 export function darker(color: Color): Color {
     if (color == "primary") return "primary-dark"
@@ -27,7 +33,9 @@ export const Button = ({
                            variant = "contained",
                            disableElevation = true,
                            color = "background-dark",
-                           dense = false,
+    paddingX,
+    paddingY,
+    hoverColor,
                            textTransform,
     borderColor = "text-lighter",
                            ...props
@@ -37,28 +45,22 @@ export const Button = ({
             ? "var(--button-text)"
             : "var(--text)"
 
-    const densePadding = dense ? {
-        paddingTop: 0,
-        paddingBottom: 0,
-        paddingLeft: "5px",
-        paddingRight: "5px"
-    } : {}
-
     return (
         <MUIButton
             {...props}
             sx={{
                 borderRadius: 0,
                 textTransform,
+                paddingX,
+                paddingY,
                 ...sx,
                 transition: "none",
                 color: textColor,
                 backgroundColor: `var(--${color})`,
                 borderColor: `var(--${borderColor})`,
                 ":hover": {
-                    backgroundColor: `var(--${darker(color)})`,
+                    backgroundColor: hoverColor ? `var(--${hoverColor})` : `var(--${darker(color)})`,
                 },
-                ...densePadding
             }}
             variant={variant}
             disableElevation={disableElevation}

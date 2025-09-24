@@ -5,7 +5,7 @@ import MainSearchBar from "@/components/buscar/main-search-bar";
 
 
 export const SearchPanelOnRightColumn = () => {
-    const {searchState} = useSearch();
+    const {searchState} = useSearch("main")
     const router = useRouter();
 
     const handleSubmit = () => {

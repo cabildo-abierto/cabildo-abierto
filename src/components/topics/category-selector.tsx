@@ -61,10 +61,11 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
         <div className={"w-36"}>
             <TextField
                 variant={"outlined"}
-                paddingY={"4px"}
+                paddingY={"0px"}
                 paddingX={"6px"}
                 size={"small"}
-                fontSize={11}
+                fontSize={13}
+                autoComplete={"off"}
                 borderWidth={1}
                 borderColor={"accent"}
                 borderWidthNoFocus={1}
