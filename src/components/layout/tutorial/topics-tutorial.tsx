@@ -10,6 +10,8 @@ import {Session} from "@/lib/types";
 import {produce} from "immer";
 import {useTopics} from "@/queries/useTopics";
 import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
+import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 
 
 const TourContent = ({children}: {children: ReactNode}) => {
@@ -160,49 +162,9 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
                 disableOverlayClose={true}
                 spotlightClicks={true}
                 callback={handleJoyrideCallback}
-                locale={{
-                    back: 'Volver',
-                    close: 'Cerrar',
-                    last: 'Finalizar',
-                    next: 'Siguiente',
-                    skip: 'Saltar intro',
-                }}
-                styles={{
-                    options: {
-                        zIndex: 10000,
-                        arrowColor: 'var(--background-dark)',
-                        backgroundColor: 'var(--background-dark)',
-                        overlayColor: 'rgba(0, 0, 0, 0.5)',
-                        primaryColor: 'var(--primary)',
-                        textColor: 'var(--text)',
-                    },
-                    tooltip: {
-                        fontSize: '16px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                    },
-                    tooltipContainer: {
-                        textAlign: 'left',
-                    },
-                    buttonNext: {
-                        backgroundColor: 'var(--primary)',
-                        color: 'var(--button-text)',
-                        fontSize: '14px'
-                    },
-                    buttonBack: {
-                        color: 'var(--text-light)',
-                        marginRight: 8,
-                        fontSize: '14px',
-                    },
-                    buttonClose: {
-                        display: 'none',
-                        fontSize: '14px',
-                    },
-                    buttonSkip: {
-                        fontSize: '14px',
-                        color: 'var(--text-light)',
-                    },
-                }}
+                locale={tutorialLocale}
+                styles={tutorialStyles}
+                tooltipComponent={CustomJoyrideTooltip}
             />
             {children}
         </>
@@ -214,7 +176,7 @@ const TopicsPageTutorial = ({children}: {children: ReactNode}) => {
     const params = useSearchParams()
     let {user} = useSession()
 
-    if (params.get("tutorial") || (user && !user.seenTutorial.topics)){
+    if (user && (params.get("tutorial") || !user.seenTutorial.topics)){
         return (
             <RunTutorial>
                 {children}

@@ -17,6 +17,8 @@ import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useProfile} from "@/queries/useProfile";
 import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
+import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -36,8 +38,8 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                     Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá
                     en cualquier contenido de la plataforma.
                 </div>
-                <div className={"sm:hidden bg-[var(--background-dark2)] p-2 rounded"}>
-                    <span className={"font-semibold"}>Nota.</span> Eventualmente vamos a tener una app, pero por ahora algunas funcionalidades no están disponibles en el celular.
+                <div className={"sm:hidden border border-[var(--text-lighter)] p-2"}>
+                    <span className={"font-semibold"}>Nota.</span> Algunas funcionalidades no están disponibles desde el celular.
                 </div>
             </div>
         </div>
@@ -70,7 +72,12 @@ const FirstFollowsMessage = ({open, onClose}: {
         return null
     }
 
-    return <AcceptButtonPanel open={open} buttonText={"Terminar intro"} onClose={onClose} className={"py-4 flex flex-col items-center px-4 sm:px-8"}>
+    return <AcceptButtonPanel
+        open={open}
+        buttonText={"Terminar intro"}
+        onClose={onClose}
+        className={"py-4 flex flex-col items-center px-4 sm:px-8"}
+    >
         <div className={"flex flex-col items-center min-[500px]:w-[400px] h-[70vh]"}>
             <h2 className={"mb-4 text-xl sm:text-2xl"}>Siguiendo a los primeros usuarios</h2>
 
@@ -81,7 +88,7 @@ const FirstFollowsMessage = ({open, onClose}: {
             <div className={"mt-4 w-full"}>
                 <SearchBar
                     fullWidth={true}
-                    color={"background-dark2"}
+                    color={"background-dark"}
                     searchValue={searchState.value}
                     setSearchValue={v => {
                         setSearchState({value: v, searching: searchState.searching})
@@ -170,7 +177,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#siguiendo',
             content: <TourContent>
-                El muro con las personas que seguís. Igual a X o Bluesky, pero también hay artículos.
+                El muro con las personas que seguís. Igual a X (Twitter) o Bluesky, pero también hay artículos.
             </TourContent>,
             placement: 'bottom',
             disableBeacon: true,
@@ -179,7 +186,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#discusion',
             content: <TourContent>
-                Un muro con lo más popular en Cabildo Abierto. Sin personalización con IA.
+                Un muro con lo más popular en Cabildo Abierto. Sin personalización automática.
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true
@@ -259,7 +266,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
                 await new Promise(resolve => setTimeout(resolve, 100))
                 if(element){
                     setRunStatus("running")
-                    setStepIndex(3)
+                    setStepIndex(4)
                     break
                 }
             }
@@ -278,7 +285,10 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
 
         smoothScrollTo(0)
 
-        if (data.type === "step:after" && data.index === 2) {
+        console.log("index", data.index)
+
+        if (data.type === "step:after" && data.index === 3) {
+            console.log("waiting sidebar")
             setRunStatus("waiting sidebar")
             setLayoutConfig({
                 ...layoutConfig,
@@ -314,49 +324,9 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
                 disableOverlayClose={true}
                 spotlightClicks={true}
                 callback={handleJoyrideCallback}
-                locale={{
-                    back: 'Volver',
-                    close: 'Cerrar',
-                    last: 'Finalizar',
-                    next: 'Siguiente',
-                    skip: 'Saltar intro',
-                }}
-                styles={{
-                    options: {
-                        zIndex: 10000,
-                        arrowColor: 'var(--background-dark)',
-                        backgroundColor: 'var(--background-dark)',
-                        overlayColor: 'rgba(0, 0, 0, 0.5)',
-                        primaryColor: 'var(--primary)',
-                        textColor: 'var(--text)',
-                    },
-                    tooltip: {
-                        fontSize: '16px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                    },
-                    tooltipContainer: {
-                        textAlign: 'left',
-                    },
-                    buttonNext: {
-                        backgroundColor: 'var(--primary)',
-                        color: 'var(--button-text)',
-                        fontSize: '14px'
-                    },
-                    buttonBack: {
-                        color: 'var(--text-light)',
-                        marginRight: 8,
-                        fontSize: '14px',
-                    },
-                    buttonClose: {
-                        display: 'none',
-                        fontSize: '14px',
-                    },
-                    buttonSkip: {
-                        fontSize: '14px',
-                        color: 'var(--text-light)',
-                    },
-                }}
+                locale={tutorialLocale}
+                tooltipComponent={CustomJoyrideTooltip}
+                styles={tutorialStyles}
             />
             {children}
             <WelcomeMessage open={runStatus == "welcome"} onClose={() => {
@@ -377,8 +347,7 @@ export const HomeTutorial = ({children}: { children: ReactNode }) => {
     const params = useSearchParams()
     const {user} = useSession()
 
-    const showAnyways = false
-    if (params.get("tutorial") || (user && (showAnyways || !user.seenTutorial.home))){
+    if (user && (params.get("tutorial") || !user.seenTutorial.home)){
         return (
             <RunTutorial>
                 {children}

@@ -69,10 +69,14 @@ export const TopicContentExpandedViewHeader = ({
         }
 
         function onSelection(v: string) {
-            if (wikiEditorState != v) {
-                setWikiEditorState(v as WikiEditorState)
+            if((v == "editing" || v == "edit-props") && !user){
+                setLoginModalOpen(true)
             } else {
-                setWikiEditorState("normal")
+                if (wikiEditorState != v) {
+                    setWikiEditorState(v as WikiEditorState)
+                } else {
+                    setWikiEditorState("normal")
+                }
             }
         }
 
@@ -181,6 +185,7 @@ export const TopicContentExpandedViewHeader = ({
                         setWikiEditorState("minimized")
                     }}
                     color={"background"}
+                    sx={{borderRadius: 0}}
                 >
                     <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
                 </IconButton>

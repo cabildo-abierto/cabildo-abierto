@@ -9,6 +9,8 @@ import {useQueryClient} from "@tanstack/react-query";
 import {Session, WikiEditorState} from "@/lib/types";
 import {produce} from "immer";
 import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
+import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 
 
 const TourContent = ({children}: {children: ReactNode}) => {
@@ -29,7 +31,7 @@ const minimizedSteps: Step[] = [
     {
         target: '#topic-content',
         content: <TourContent>
-            Este es el consenso actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar las ediciones.
+            Este es el contenido actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar las ediciones.
         </TourContent>,
         placement: 'bottom',
         disableBeacon: true,
@@ -47,55 +49,20 @@ const minimizedSteps: Step[] = [
 ]
 
 
-const maximizedSteps: Step[] = [
-    {
-        target: '#topic-header-button-editing',
-        content: <TourContent>
-            Con este botón podés editar el tema.
-        </TourContent>,
-        placement: 'bottom',
-        disableBeacon: true,
-        hideBackButton: true
-    },
-    {
-        target: '#topic-header-button-history',
-        content: <TourContent>
-            Con este botón podés ver el historial de versiones, donde podés votar a favor o en contra de cada versión y ver los cambios.
-        </TourContent>,
-        placement: 'bottom',
-        disableBeacon: true,
-        hideBackButton: true
-    },
-    {
-        target: '#editor',
-        content: <TourContent>
-            Esta es la última versión aceptada del tema.
-        </TourContent>,
-        placement: 'top',
-        disableBeacon: true,
-        hideBackButton: true
-    }
-]
-
-
-const RunTutorial = ({children, wikiState}: { children: ReactNode, wikiState: WikiEditorState }) => {
+const RunTutorial = ({children}: { children: ReactNode }) => {
     const [runStatus, setRunStatus] = useState<"not started" | "running" | "finished">("running")
     const [stepIndex, setStepIndex] = useState<number>(0)
     const qc = useQueryClient()
 
-    const steps: Step[] = wikiState == "minimized" ? minimizedSteps : maximizedSteps
+    const steps: Step[] = minimizedSteps
 
     async function setSeenTutorial() {
         qc.setQueryData(["session"], old => {
             return produce(old as Session, draft => {
-                if(wikiState == "minimized") {
-                    draft.seenTutorial.topicMinimized = true
-                } else {
-                    draft.seenTutorial.topicMaximized = true
-                }
+                draft.seenTutorial.topicMinimized = true
             })
         })
-        await post(`/seen-tutorial/topic-${wikiState}`)
+        await post(`/seen-tutorial/topic-minimized`)
     }
 
     useEffect(() => {
@@ -130,49 +97,9 @@ const RunTutorial = ({children, wikiState}: { children: ReactNode, wikiState: Wi
                 disableOverlayClose={true}
                 spotlightClicks={true}
                 callback={handleJoyrideCallback}
-                locale={{
-                    back: 'Volver',
-                    close: 'Cerrar',
-                    last: 'Finalizar',
-                    next: 'Siguiente',
-                    skip: 'Saltar intro',
-                }}
-                styles={{
-                    options: {
-                        zIndex: 10000,
-                        arrowColor: 'var(--background-dark)',
-                        backgroundColor: 'var(--background-dark)',
-                        overlayColor: 'rgba(0, 0, 0, 0.5)',
-                        primaryColor: 'var(--primary)',
-                        textColor: 'var(--text)',
-                    },
-                    tooltip: {
-                        fontSize: '16px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                    },
-                    tooltipContainer: {
-                        textAlign: 'left',
-                    },
-                    buttonNext: {
-                        backgroundColor: 'var(--primary)',
-                        color: 'var(--button-text)',
-                        fontSize: '14px'
-                    },
-                    buttonBack: {
-                        color: 'var(--text-light)',
-                        marginRight: 8,
-                        fontSize: '14px',
-                    },
-                    buttonClose: {
-                        display: 'none',
-                        fontSize: '14px',
-                    },
-                    buttonSkip: {
-                        fontSize: '14px',
-                        color: 'var(--text-light)',
-                    },
-                }}
+                locale={tutorialLocale}
+                styles={tutorialStyles}
+                tooltipComponent={CustomJoyrideTooltip}
             />
             {children}
         </>
@@ -183,11 +110,11 @@ const RunTutorial = ({children, wikiState}: { children: ReactNode, wikiState: Wi
 const TopicTutorial = ({children, wikiState}: {children: ReactNode, wikiState: WikiEditorState}) => {
     const params = useSearchParams()
     const {user} = useSession()
-    const notSeen = wikiState == "minimized" ? user && !user.seenTutorial.topicMinimized : user && !user.seenTutorial.topicMaximized
+    const notSeen = user && !user.seenTutorial.topicMinimized
 
-    if ((params.get("tutorial") || notSeen) && wikiState != "editing"){
+    if (user && (params.get("tutorial") || notSeen) && wikiState != "editing"){
         return (
-            <RunTutorial wikiState={wikiState}>
+            <RunTutorial>
                 {children}
             </RunTutorial>
         )

@@ -163,9 +163,10 @@ export const TopicFeed = ({
                               topic,
                               topicVersionUri,
                               onClickQuote,
-    replyToContent,
-    setWritingReply,
-                          wikiEditorState}: {
+                              replyToContent,
+                              setWritingReply,
+                              wikiEditorState
+                          }: {
     topicVersionUri: string,
     topic: ArCabildoabiertoWikiTopicVersion.TopicView,
     onClickQuote: (cid: string) => void
@@ -223,7 +224,7 @@ export const TopicFeed = ({
             queryKey={["topic-feed", topicId, "mentions", metric, time, format]}
             getFeed={getMentionsFeed}
             onClickQuote={onClickQuote}
-            noResultsText={"Todavía no fue mencionado."}
+            noResultsText={"El tema todavía no fue mencionado."}
             endText={"Fin del feed."}
         />
     }, [metric, time, format, topicId])
@@ -260,27 +261,28 @@ export const TopicFeed = ({
     }, [metric, time, format, topicId])
 
     return <div className={"mb-96 flex flex-col items-center"}>
-        <div className={"border-b border-[var(--text-lighter)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
         <div
-            className={"max-w-[600px] flex justify-between items-center pr-2 w-full max-w-screen overflow-scroll no-scrollbar"}
-        >
-            <SelectionComponent<TopicFeedOption>
-                onSelection={setSelected}
-                selected={selected}
-                optionsNodes={feedOptionNodes(40, undefined, "sm:text-[12px] text-[13px]")}
-                options={["Menciones", "Respuestas", "Otros temas"]}
-                className={"flex"}
-            />
-
-            <div className={"flex space-x-2 items-center"}>
-                <div className={"pb-1"}>
-                    <InfoPanel
-                    text={info}
+            className={"border-b border-[var(--text-lighter)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
+            <div
+                className={"max-w-[600px] flex justify-between items-center pr-2 w-full max-w-screen overflow-scroll no-scrollbar"}
+            >
+                <SelectionComponent<TopicFeedOption>
+                    onSelection={setSelected}
+                    selected={selected}
+                    optionsNodes={feedOptionNodes(40, undefined, "sm:text-[12px] text-[13px]")}
+                    options={["Menciones", "Respuestas", "Otros temas"]}
+                    className={"flex"}
                 />
+
+                <div className={"flex space-x-2 items-center"}>
+                    <div className={"pb-1"}>
+                        <InfoPanel
+                            text={info}
+                        />
+                    </div>
+                    <TopicFeedConfig selected={"Menciones"}/>
                 </div>
-                <TopicFeedConfig selected={"Menciones"}/>
             </div>
-        </div>
         </div>
         {/*TO DO: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         <div className={"flex justify-center w-full"}>
@@ -292,7 +294,9 @@ export const TopicFeed = ({
                         {replyToContent != null && <div className={"w-full"}>
                             <ReplyButton
                                 text={"Responder"}
-                                onClick={() => {setWritingReply(true)}}
+                                onClick={() => {
+                                    setWritingReply(true)
+                                }}
                             />
                         </div>}
                         {repliesFeed}
