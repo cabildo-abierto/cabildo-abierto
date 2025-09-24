@@ -127,13 +127,13 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
 
             {!disabled && <div className={"text-[var(--text-light)] text-sm"}>
                 {results != "loading" && results && results.length > 0 && <div className={"space-y-1"}>
-                <span className={"text-xs"}>
+                <span className={"text-xs font-light"}>
                     Los siguientes temas mencionan <span className={"font-semibold"}>{`"${topicName}"`}</span> en su título.
                 </span>
-                    <div className={"space-y-1 flex flex-col max-h-[250px] overflow-y-scroll"}>
+                    <div className={"space-y-1 flex flex-col max-h-[250px] overflow-y-scroll pb-2"}>
                         {results.map(r => {
                             return <Link href={topicUrl(r.id, undefined, "normal")} key={r.id}
-                                         className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-lg px-2 py-1"}>
+                                         className={"border border-[var(--text-light)] hover:bg-[var(--background-dark)] px-2 py-1"}>
                                 {getTopicTitle(r)}
                             </Link>
                         })}

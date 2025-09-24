@@ -18,7 +18,7 @@ const Username = ({handle}: { handle: string }) => {
 export default function Page() {
     return <div className={"flex flex-col items-center pb-16 pt-4"}>
         <div className={"w-screen px-2 sm:w-[600px] space-y-4"}>
-            <BackButton/>
+            <BackButton behavior={"ca-back"}/>
             <div
                 className={"space-y-4 bg-[var(--background-dark)] rounded-lg px-4 py-6 text-sm sm:text-base text-justify sm:p-8"}
             >

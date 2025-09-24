@@ -10,7 +10,7 @@ export const TopbarFollowx = () => {
     return <div className={"flex space-x-2 h-full items-center"}>
         <BackButton
             defaultURL={`/perfil/${id.toString()}`}
-            preferReferrer={false}
+            behavior={"fixed"}
             size={"medium"}
         />
         <div className={"font-bold text-lg"}>

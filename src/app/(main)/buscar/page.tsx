@@ -11,7 +11,7 @@ import SearchContent from "@/components/buscar/search-content";
 
 const Page = () => {
     const params = useSearchParams()
-    const {searchState, setSearchState} = useSearch()
+    const {searchState, setSearchState} = useSearch("main")
     const {layoutConfig} = useLayoutConfig()
 
     useEffect(() => {
@@ -37,10 +37,10 @@ const Page = () => {
             <MagnifyingGlassIcon fontSize={!layoutConfig.spaceForRightSide ? 128 : 256} weight={"bold"}/>
         </div>}
         {!searching && !layoutConfig.spaceForRightSide &&
-            <div className={"flex flex-col items-center gap-2 w-full pt-2 sm:px-0 px-2"}>
-                <FollowSuggestions/>
-                <TrendingTopicsPanel/>
-            </div>}
+        <div className={"flex flex-col items-center gap-2 w-full pt-2 sm:px-0 px-2"}>
+            <FollowSuggestions/>
+            <TrendingTopicsPanel/>
+        </div>}
     </div>
 }
 

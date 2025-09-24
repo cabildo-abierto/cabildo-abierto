@@ -4,7 +4,7 @@ import {profileUrl} from "@/utils/uri";
 import {dimOnHoverClassName} from "../../../../modules/ui-utils/src/dim-on-hover-link";
 import {SidebarBottom} from "@/components/layout/sidebar/sidebar-bottom";
 import { useLayoutConfig } from '../layout-config-context';
-import VerifyAccountButton from '@/components/profile/verify-account-button';
+import VerifyAccountButton, {isVerified} from '@/components/profile/verify-account-button';
 import {useSession} from "@/queries/useSession";
 import {SidebarButtons} from "@/components/layout/sidebar/sidebar-buttons";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
@@ -35,7 +35,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                     >
                         {user.user && <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
                              <div className={"flex w-full"}>
-                                <div className={"flex flex-col items-center space-y-1 " + (!showText ? "pl-4 min-h-12 justify-end" : "")}>
+                                <div className={"h-16 flex flex-col items-center justify-end space-y-1 " + (!showText ? "pl-4 min-h-12 justify-end" : "")}>
                                     <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                         <ProfilePic
                                             clickable={false}
@@ -44,7 +44,10 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                             descriptionOnHover={false}
                                         />
                                     </Link>
-                                    {showText && <VerifyAccountButton verification={user.user.validation}/>}
+                                    {(showText && !isVerified(user.user.validation) ?
+                                        <div className={"h-4"}><VerifyAccountButton verification={user.user.validation}/></div> :
+                                        <div className={"h-4"}/>
+                                    )}
                                 </div>
                             </div>
                             <div className={isMobile && showText ? "" : "hidden"}>

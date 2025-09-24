@@ -11,7 +11,7 @@ export const TopicsListView = ({sortedBy, categories, setCategories}: {
     categories: string[]
     setCategories: (c: string[]) => void
 }) => {
-    const {searchState} = useSearch()
+    const {searchState} = useSearch("topics")
     const [activeSearch, setActiveSearch] = useState(searchState.searching && searchState.value.length > 0)
 
     // solo para evitar re-render
@@ -21,7 +21,7 @@ export const TopicsListView = ({sortedBy, categories, setCategories}: {
 
     return <div className={"flex justify-center"}>
         <div className={"w-full"}>
-            {activeSearch && <SearchTopics categories={categories} setCategories={setCategories}/>}
+            {activeSearch && <SearchTopics searchState={{value: searchState.value, searching: searchState.searching}} categories={categories} setCategories={setCategories}/>}
             {!activeSearch && <CategoryTopics sortedBy={sortedBy} categories={categories}/>}
         </div>
     </div>

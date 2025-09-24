@@ -177,7 +177,7 @@ function BlockFormatDropDown({
         quote: formatQuote,
     }
 
-    const modal = (onClose: () => void) => <div style={{borderRadius}} className={"border flex flex-col w-48 space-y-1 p-1"}>
+    const modal = (onClose: () => void) => <div style={{borderRadius}} className={"border border-[var(--text-lighter)] flex flex-col w-48 space-y-1 p-1"}>
         {Object.keys(blockTypeToIcon).map((key) => {
             return <div key={key}>
                 <Button
@@ -197,14 +197,16 @@ function BlockFormatDropDown({
         })}
     </div>
 
-    return <ModalOnClick modal={modal} className={`mt-2 bg-[var(--${backgroundColor})]`}>
+    return <ModalOnClick modal={modal} className={`my-2 bg-[var(--${backgroundColor})]`}>
         <Button
             color={backgroundColor}
             variant={"text"}
-            sx={{borderRadius}}
+            sx={{borderRadius, paddingY: "4px"}}
         >
             <div className={"flex items-center space-x-1 justify-start"}>
-                <div className={"text-[var(--text-light)] flex items-center h-7"}>{blockTypeToIcon[blockType]}</div>
+                <div className={"text-[var(--text-light)] flex items-center h-7"}>
+                    {blockTypeToIcon[blockType]}
+                </div>
                 <div className={"whitespace-nowrap text-[var(--text-light)] w-full px-1"}>{blockTypeToBlockName[blockType]}</div>
                 <KeyboardArrowDownIcon fontSize={"small"}/>
             </div>
@@ -378,13 +380,16 @@ export default function ToolbarPlugin({
             setIsLinkEditMode(false);
             activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
         }
-    }, [activeEditor, isLink, setIsLinkEditMode]);
+    }, [activeEditor, isLink, setIsLinkEditMode])
+
+    const backgroundColor = "background-dark"
 
     return (
-        <div className={"sticky z-[1205] h-[47px] border-[var(--text-lighter)] bg-[var(--background)] " + (isMobile ? "overflow-x-scroll top-[49px] w-full" : "top-0")}>
+        <div className={"fixed border z-[1205] border-[var(--text-lighter)] bg-[var(--background-dark)] " + (isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}>
             <div className={"flex w-full"}>
                 <div
-                    className="toolbar items-center py-1  flex space-x-2">
+                    className="toolbar items-center flex"
+                >
                     <ToolbarButton
                         disabled={!canUndo || !isEditable}
                         onClick={() => {
@@ -393,6 +398,7 @@ export default function ToolbarPlugin({
                         title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
                         aria-label="Undo"
                         active={false}
+                        color={backgroundColor}
                     >
                         <UndoIcon fontSize={"small"}/>
                     </ToolbarButton>
@@ -404,6 +410,7 @@ export default function ToolbarPlugin({
                         title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
                         aria-label="Redo"
                         active={false}
+                        color={backgroundColor}
                     >
                         <RedoIcon fontSize={"small"}/>
                     </ToolbarButton>
@@ -412,7 +419,7 @@ export default function ToolbarPlugin({
                             blockType={blockType}
                             rootType={rootType}
                             editor={activeEditor}
-                            backgroundColor={"background"}
+                            backgroundColor={backgroundColor}
                         />
                     )}
                     <ToolbarButton
@@ -425,6 +432,7 @@ export default function ToolbarPlugin({
                             IS_APPLE ? '⌘B' : 'Ctrl+B'
                         }`}
                         active={isBold}
+                        color={backgroundColor}
                     >
                         <FormatBold fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
@@ -438,6 +446,7 @@ export default function ToolbarPlugin({
                             IS_APPLE ? '⌘I' : 'Ctrl+I'
                         }`}
                         active={isItalic}
+                        color={backgroundColor}
                     >
                         <FormatItalic fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
@@ -447,6 +456,7 @@ export default function ToolbarPlugin({
                         aria-label="Insertar vínculo"
                         title="Insertar vínculo"
                         active={isLink}
+                        color={backgroundColor}
                     >
                         <InsertLink fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
@@ -457,6 +467,7 @@ export default function ToolbarPlugin({
                         title="Insertar tabla"
                         active={false}
                         aria-label="Insertar tabla"
+                        color={backgroundColor}
                     >
                         <TableChartOutlined fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
@@ -466,22 +477,17 @@ export default function ToolbarPlugin({
                         }}
                         title="Insertar imágen"
                         aria-label="Insertar imágen"
+                        color={backgroundColor}
                     >
                         <ImageOutlined fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
-                    <InsertImageModal
-                        open={imageModalOpen}
-                        onClose={() => {
-                            setImageModalOpen(false)
-                        }}
-                        onSubmit={onInsertImage}
-                    />
                     <ToolbarButton
                         onClick={() => {
                             setVisualizationModalOpen(true)
                         }}
                         title="Insertar visualización"
                         aria-label="Insertar visualización"
+                        color={backgroundColor}
                     >
                         <VisualizationsIcon color={"inherit"}/>
                     </ToolbarButton>
@@ -493,7 +499,13 @@ export default function ToolbarPlugin({
                         }}
                         activeEditor={activeEditor}
                     />
-
+                    <InsertImageModal
+                        open={imageModalOpen}
+                        onClose={() => {
+                            setImageModalOpen(false)
+                        }}
+                        onSubmit={onInsertImage}
+                    />
                     <InsertVisualizationDialog
                         activeEditor={activeEditor}
                         open={visualizationModalOpen}

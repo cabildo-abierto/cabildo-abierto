@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import type { ReactNode } from "react";
+import { Color } from "../../../../modules/ui-utils/src/color";
+import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 
 type ReactionButtonProps = {
     onClick: () => void
@@ -10,6 +12,7 @@ type ReactionButtonProps = {
     disabled?: boolean
     title?: string
     stopPropagation?: boolean
+    hoverColor?: Color
 }
 
 export const ReactionButton = ({
@@ -20,6 +23,7 @@ export const ReactionButton = ({
                                    active = true,
                                    disabled = false,
                                    title,
+    hoverColor,
                                    stopPropagation = true
                                }: ReactionButtonProps) => {
     const [shake, setShake] = useState(false);
@@ -40,19 +44,22 @@ export const ReactionButton = ({
     };
 
     return (
-        <div className={"text-[var(--text-light)] " + (shake ? "animate-shake" : "")}>
-            <button
-                className="hover:bg-[var(--background-dark)] py-1 px-1"
+        <div className={(shake ? "animate-shake" : "")}>
+            <IconButton
+                hoverColor={hoverColor}
+                color={"transparent"}
                 onClick={handleClick}
                 title={title}
+                size={"small"}
+                sx={{borderRadius: 0}}
             >
-                <div className="flex items-baseline">
+                <div className="flex items-end space-x-1 text-[var(--text-light)]">
                     {active ? <div>{iconActive}</div> : <div>{iconInactive}</div>}
-                    <div className="text-sm mr-1">
+                    <div className="text-sm">
                         {count}
                     </div>
                 </div>
-            </button>
+            </IconButton>
         </div>
     );
 };

@@ -17,7 +17,7 @@ type RouteContentProps = {
 
 const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
-    const {searchState, setSearchState} = useSearch()
+    const {searchState, setSearchState} = useSearch("main")
 
     useEffect(() => {
         if (query && query.length > 0) {
@@ -44,7 +44,7 @@ const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
         </div>
 
         {selected == "Temas" &&
-            <SearchTopics/>
+            <SearchTopics searchState={searchState}/>
         }
 
         {selected == "Publicaciones" &&

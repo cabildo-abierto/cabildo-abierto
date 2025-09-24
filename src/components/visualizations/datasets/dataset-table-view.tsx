@@ -212,6 +212,9 @@ export const DatasetTableView = ({
             })}
             </tbody>
         </table>
+        {plotter && plotter.dataForPlot.length == 0 && <div className={"text-center text-sm font-light text-[var(--text-light)] w-full py-16"}>
+            {searchValue == "" ? "Sin datos." : "Sin resultados."}
+        </div>}
         {showingRowsCount < plotter.dataForPlot.length &&
             <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
                 Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {

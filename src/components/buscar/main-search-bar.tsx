@@ -15,7 +15,7 @@ const MainSearchBar = ({
                            paddingY,
                            fullWidth = true,
                            placeholder = "buscar"}: MainSearchBarProps) => {
-    const {searchState, setSearchState} = useSearch()
+    const {searchState, setSearchState} = useSearch("main")
 
     return <SearchBar
         searchValue={searchState.value}

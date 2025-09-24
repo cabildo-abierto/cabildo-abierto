@@ -214,12 +214,13 @@ const EditProfileModal = ({open, onClose}: Props) => {
                 </div>
             </UploadImageModalOnClick>
         </div>
-        <div className={"my-8 px-8 flex flex-col space-y-8 min-[600px]:w-[600px] w-screen"}>
+        <div className={"my-8 px-8 pb-8 flex flex-col space-y-8 min-[600px]:w-[600px] w-screen"}>
             <div className={"flex space-x-1 items-start w-full"}>
                 <TextField
                     value={displayName}
                     label={"Nombre"}
                     size={"small"}
+                    paddingX={"0"}
                     fullWidth={true}
                     onChange={(e) => {
                         setDisplayName(e.target.value)
@@ -236,6 +237,7 @@ const EditProfileModal = ({open, onClose}: Props) => {
                         value={description}
                         label={"Descripción"}
                         size={"small"}
+                        paddingX={"16px"}
                         minRows={2}
                         multiline={true}
                         onChange={(e) => {

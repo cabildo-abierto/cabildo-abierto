@@ -14,7 +14,7 @@ async function searchContents(q: string) {
 
 // TO DO: Que cargue más resultados a medida que scrolleás
 export const ContentsSearchResults = () => {
-    const { searchState } = useSearch();
+    const { searchState } = useSearch("main")
     const [results, setResults] = useState<ArCabildoabiertoFeedDefs.FeedViewContent[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
     const [resultsValue, setResultsValue] = useState<string | undefined>()

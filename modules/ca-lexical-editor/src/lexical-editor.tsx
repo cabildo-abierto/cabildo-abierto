@@ -197,7 +197,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}/>}
             <div
                 ref={editorContainerRef}
-                className={`${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+                className={`relative ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
             >
                 <DragDropPaste/>
 

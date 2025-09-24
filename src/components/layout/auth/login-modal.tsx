@@ -26,8 +26,6 @@ const LoginPanel = ({children, onClickBack, onClose}: {
         >
             <div className={"flex w-full text-[var(--text-light)] mt-4 " + (onClickBack ? "justify-between" : "justify-end")}>
                 {onClickBack && <BackButton
-                    defaultURL={"/"}
-                    preferReferrer={false}
                     color={"background"}
                     onClick={onClickBack}
                     size={"small"}
