@@ -18,7 +18,7 @@ export const AcceptButtonPanel = ({
 
             <div className="flex justify-center mt-4 mb-1">
                 <Button
-                    color="primary"
+                    variant={"outlined"}
                     onClick={onClose}
                 >
                     <span className="px-4 font-bold text-[13px]">{buttonText}</span>

@@ -6,6 +6,7 @@ import {useSession} from "@/queries/useSession";
 import {WikiEditorState} from "@/lib/types";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 const TopicDiscussion = ({
@@ -18,20 +19,29 @@ const TopicDiscussion = ({
     wikiEditorState: WikiEditorState
 }) => {
     const [writingReply, setWritingReply] = useState(false)
+    const {setLoginModalOpen} = useLoginModal()
     const {user} = useSession()
+
+    function onSetWritingReply(v) {
+        if(!v || user) {
+            setWritingReply(v)
+        } else {
+            setLoginModalOpen(true)
+        }
+    }
 
     return <div className={"w-full flex flex-col items-center mb-16 " + (wikiEditorState == "minimized" ? "" : "")}>
         <div className={"w-full"}>
-            {user && <div className={"w-full " + (wikiEditorState == "normal" ? "" : "")}>
+            <div className={"w-full " + (wikiEditorState == "normal" ? "" : "")}>
                 <TopicFeed
                     topic={topic}
                     onClickQuote={onClickQuote}
                     topicVersionUri={topicVersionUri}
                     wikiEditorState={wikiEditorState}
-                    setWritingReply={setWritingReply}
+                    setWritingReply={onSetWritingReply}
                     replyToContent={replyToContent}
                 />
-            </div>}
+            </div>
         </div>
         {user && replyToContent && <WritePanel
             open={writingReply}

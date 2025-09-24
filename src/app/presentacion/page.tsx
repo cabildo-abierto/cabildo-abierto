@@ -11,6 +11,7 @@ import Footer from "../../../modules/ui-utils/src/footer";
 
 
 export default function Page() {
+
     return <Suspense>
         <div className="flex flex-col items-center h-full presentation">
             <PresentacionInicio/>

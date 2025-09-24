@@ -31,11 +31,11 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
             >
                 <div className={"h-full flex flex-col justify-between"}>
                     <div
-                        className={"flex pb-8 h-full flex-col" + (isMobile ? " space-y-3" : " space-y-2")}
+                        className={"flex pb-8 h-full flex-col" + (isMobile ? " space-y-2" : " space-y-2")}
                     >
                         {user.user && <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
                              <div className={"flex w-full"}>
-                                <div className={"h-16 flex flex-col items-center justify-end space-y-1 " + (!showText ? "pl-4 min-h-12 justify-end" : "")}>
+                                <div className={" " + (!showText ? "pl-4 min-h-12 justify-end " : " ") + (isMobile ? "flex space-x-2 items-end" : "flex flex-col space-y-1 h-16 items-center")}>
                                     <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
                                         <ProfilePic
                                             clickable={false}
@@ -57,7 +57,6 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 <div className={"text-[var(--text-light)] text-lg"}>
                                     {"@" + user.user.handle}
                                 </div>
-                                <hr className={"mt-4 border-[1px] border-[var(--text)]"}/>
                             </div>
                         </div>}
                         {!user.user && <div className={"ml-2 " + (isMobile ? "py-4 pr-4" : "w-36 pb-8")}>

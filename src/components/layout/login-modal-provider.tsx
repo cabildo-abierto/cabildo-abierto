@@ -26,7 +26,9 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
     const pathname = usePathname()
 
     useEffect(() => {
-        setLoginModalOpen(false)
+        if(loginModalOpen){
+            setLoginModalOpen(false)
+        }
     }, [pathname])
 
     return (
