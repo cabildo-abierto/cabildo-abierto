@@ -7,7 +7,6 @@ import StateButton from "../../../../modules/ui-utils/src/state-button";
 import TickButton from "../../../../modules/ui-utils/src/tick-button";
 import {ChangesCounterWithText} from "./changes-counter";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
-import {TextField} from "@mui/material";
 import {topicUrl} from "@/utils/uri";
 import {getTopicProtection, hasEditPermission} from "./utils";
 import {useSession} from "@/queries/useSession";
@@ -19,6 +18,7 @@ import {decompress} from "@/utils/compression";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
+import { TextField } from "../../../../modules/ui-utils/src/text-field";
 
 
 const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: string) => void }) => {
@@ -28,10 +28,8 @@ const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: stri
         fullWidth
         onChange={(e) => setValue(e.target.value)}
         placeholder="Una descripción de lo que cambiaste"
-        inputProps={{
-            autoComplete: 'off',
-            style: {fontSize: '14px'} // Set text size
-        }}
+        fontSize={"14px"}
+        paddingX={"0px"}
         sx={{
             '& .MuiInputBase-input::placeholder': {fontSize: '14px'} // Set placeholder size
         }}
@@ -151,7 +149,7 @@ export const SaveEditPopup = ({
         <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
             <div className="py-4 lg:px-12 px-2 text-center sm:w-[450px]">
 
-                <h2 className="pb-4 text-lg">
+                <h2 className="pb-4 uppercase text-base">
                     Confirmar cambios
                 </h2>
 
@@ -201,6 +199,7 @@ export const SaveEditPopup = ({
                         onClick={async () => {
                             onClose()
                         }}
+                        size={"small"}
                         sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}
                     >
                         Cancelar
@@ -209,6 +208,8 @@ export const SaveEditPopup = ({
                         handleClick={async () => {
                             return await onSave(claimsAuthorship, editMsg)
                         }}
+                        size={"small"}
+                        variant={"outlined"}
                         text1="Confirmar"
                         disabled={(diff.isLoading == false && !diff.diff) || diff.isLoading == true}
                         disableElevation={true}

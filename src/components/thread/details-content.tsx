@@ -14,7 +14,6 @@ export const DetailsContent = ({detail, uri}: {detail: DetailType, uri:string}) 
     async function getDetails(cursor: string): Promise<{error?: string, data?: {feed: ProfileViewBasic[], cursor: string | null}}> {
         const {did, collection, rkey} = splitUri(uri)
         const {error, data} = await get<{ profiles: ProfileViewBasic[], cursor: string }>(`/${detail}/${did}/${collection}/${rkey}?limit=25${cursor ? "&cursor=" + encodeURIComponent(cursor) : ""}`)
-        console.log("details", data.profiles.length, error)
         if(error) return {error}
 
         return {data: {feed: data.profiles, cursor: data.cursor}}

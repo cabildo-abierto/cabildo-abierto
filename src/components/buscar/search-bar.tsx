@@ -60,6 +60,8 @@ const SearchBar = ({
                 backgroundColor: `var(--${color})`,
                 borderRadius,
                 borderColor: `var(--${borderColor})`,
+                paddingRight: "4px",
+                paddingLeft: "8px",
                 "& input": {
                     paddingY: paddingY
                 },

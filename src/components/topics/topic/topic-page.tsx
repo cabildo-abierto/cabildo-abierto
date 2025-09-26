@@ -92,7 +92,7 @@ export const TopicPage = ({topicId, did, rkey}: {
     const topicVersionUri = topicId ? topic.uri : getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
 
     return <TopicTutorial wikiState={wikiEditorState}>
-        <div className="flex flex-col items-center w-full min-[500px]:pt-4 mt-20">
+        <div className="flex flex-col items-center w-full min-[500px]:pt-4 mt-8">
             <div className="flex flex-col py-1 mb-2 w-full px-2 sm:space-y-2" id={"topic-header"}>
                 <h1 className={"font-extrabold"}>
                     {getTopicTitle(topic)}

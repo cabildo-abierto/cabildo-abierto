@@ -66,7 +66,11 @@ export default function Topbarmobile() {
             <MainFeedHeader/>
         </div>}
         {pathname.startsWith("/buscar") && <div className={"h-12 w-full flex items-center"}>
-            <MainSearchBar autoFocus={true} fullWidth={true} paddingY={"6px"}/>
+            <MainSearchBar
+                autoFocus={true}
+                fullWidth={true}
+                paddingY={"6px"}
+            />
         </div>}
         {pathname.startsWith("/temas") && <div className={"h-12 w-full"}>
             <TopicsPageHeader/>

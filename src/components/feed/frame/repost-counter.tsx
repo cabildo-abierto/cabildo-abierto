@@ -58,12 +58,12 @@ async function optimisticRemoveRepost(qc: QueryClient, uri: string) {
 }
 
 
-export const RepostCounter = ({content, showBsky, reactionUri}: {
+export const RepostCounter = ({content, showBsky, repostUri}: {
     content: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     showBsky: boolean
-    reactionUri?: string
+    repostUri?: string
 }) => {
     const [writingQuotePost, setWritingQuotePost] = React.useState(false)
     const qc = useQueryClient()
@@ -120,7 +120,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
         }
     }
 
-    const reposted = reactionUri != null
+    const reposted = repostUri != null
 
     const modal = (close: () => void) => {
         return <div className="text-base border rounded p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
@@ -163,7 +163,7 @@ export const RepostCounter = ({content, showBsky, reactionUri}: {
                 }}
                 stopPropagation={false}
                 active={reposted}
-                iconActive={<RepostIcon fontSize={"20"} color={"green-400"}/>}
+                iconActive={<RepostIcon fontSize={"20"} weight="bold" color={"#5cefaa"}/>}
                 iconInactive={<RepostIcon fontSize={"20"}/>}
                 hoverColor={"background-dark3"}
                 disabled={disabled}

@@ -5,6 +5,20 @@ import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { darkTheme, lightTheme } from './theme';
 import { ThemeProvider as CustomThemeProvider, useTheme } from './theme-context';
 
+function arrToColor(color: number[], delta: number = 0) {
+    if(color.length < 3) {
+        throw Error ("Color should have red, green, and blue!")
+    } else {
+        if(color.length >= 4){
+            return `rgb(${color[0]+delta}, ${color[1]+delta}, ${color[2]+delta}, ${color[3]})`
+        } else {
+            return `rgb(${color[0]+delta}, ${color[1]+delta}, ${color[2]+delta})`
+        }
+    }
+}
+
+
+
 const ThemeVariables = ({ children }: { children: ReactNode }) => {
     const { currentTheme } = useTheme();
 
@@ -18,19 +32,21 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
             root.style.setProperty('--text', 'rgb(229, 229, 229)');
             root.style.setProperty('--bold-text', '#ffffff');
             root.style.setProperty('--button-text', 'rgb(240, 240, 240)');
-            root.style.setProperty('--text-light', 'rgb(187, 187, 187)');
-            root.style.setProperty('--text-lighter', 'rgb(126, 126, 126)');
+            root.style.setProperty('--text-light', 'rgb(187, 195, 203)');
+            root.style.setProperty('--text-lighter', 'rgb(137, 146, 155)');
             root.style.setProperty('--icon-color-filter', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)');
 
-            root.style.setProperty('--background', 'rgb(25, 25, 30)');
-            root.style.setProperty('--background-ldark', 'rgb(30, 30, 35)');
-            root.style.setProperty('--background-dark', 'rgb(35, 35, 40)');
-            root.style.setProperty('--background-dark-30', 'rgba(35, 35, 40, 0.3)');
-            root.style.setProperty('--background-ldark2', 'rgb(40, 40, 45)');
-            root.style.setProperty('--background-dark2', 'rgb(45, 45, 50)');
-            root.style.setProperty('--background-dark3', 'rgb(65, 65, 70)');
-            root.style.setProperty('--background-dark4', 'rgb(75, 75, 80)');
-            root.style.setProperty('--background-dark5', 'rgb(85, 85, 90)');
+            const background = [14, 17, 19]
+
+            root.style.setProperty('--background', arrToColor(background));
+            root.style.setProperty('--background-ldark', arrToColor(background, 5));
+            root.style.setProperty('--background-dark', arrToColor(background, 10));
+            root.style.setProperty('--background-dark-30', arrToColor([...background, 0.3], 10));
+            root.style.setProperty('--background-ldark2', arrToColor(background, 15));
+            root.style.setProperty('--background-dark2', arrToColor(background, 20));
+            root.style.setProperty('--background-dark3', arrToColor(background, 30));
+            root.style.setProperty('--background-dark4', arrToColor(background, 40));
+            root.style.setProperty('--background-dark5', arrToColor(background, 50));
 
             root.style.setProperty('--accent', '#2e364c');
             root.style.setProperty('--accent-dark', '#444d66');

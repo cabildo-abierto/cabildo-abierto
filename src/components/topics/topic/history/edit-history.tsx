@@ -69,7 +69,7 @@ export const TopicProperties = ({topicVersion, topic}: { topicVersion: ArCabildo
                 color={"transparent"}
                 hoverColor={"background-dark2"}
             >
-                <ListDashesIcon color={"inherit"} weight={"regular"}/>
+                <ListDashesIcon color={"var(--text-light)"} weight={"regular"}/>
             </IconButton>
         </div>
     </DescriptionOnHover>

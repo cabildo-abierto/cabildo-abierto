@@ -87,6 +87,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             fullWidth={true}
                             size={"small"}
                             id="username"
+                            paddingX={"8px"}
                             label="Nombre de usuario"
                             name="username"
                             autoFocus
@@ -99,7 +100,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             }}
                             slotProps={{
                                 input: {
-                                    startAdornment: <span className={"text-[var(--text-light)] pr-2"}><AtIcon/></span>,
+                                    startAdornment: <span className={"text-[var(--text-light)] pr-1 pt-[2px]"}><AtIcon/></span>,
                                 }
                             }}
                         />

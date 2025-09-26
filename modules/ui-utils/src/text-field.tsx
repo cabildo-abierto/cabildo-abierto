@@ -20,7 +20,7 @@ export const TextField = ({
                               borderRadius = 0,
                               borderColor = "text-lighter",
                               paddingY = "8px",
-                              paddingX = "6px",
+                              paddingX = "0px",
                               borderWidthNoFocus = "1px",
                               borderWidth = "1px",
                               ...props

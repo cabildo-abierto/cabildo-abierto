@@ -1,5 +1,5 @@
 
-import CreateIcon from '@mui/icons-material/Create';
+import {PencilSimpleIcon} from "@phosphor-icons/react";
 
-export const WriteButtonIcon = CreateIcon
+export const WriteButtonIcon = PencilSimpleIcon
 

@@ -37,7 +37,6 @@ export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
 export const useSearch = (kind: string) => {
     const {searchState, setSearchState} = useSearchBase()
-
     let stateForKind = searchState.find(x => x.kind == kind)
 
     return {
@@ -48,11 +47,15 @@ export const useSearch = (kind: string) => {
         setSearchState: (state: {value: string, searching: boolean}) => {
             const i = searchState.findIndex(x => x.kind == kind)
             if(i != -1) {
-                const newState = [...searchState]
-                newState[i] = {...state, kind}
+                const newState = structuredClone(searchState)
+                if(!state.searching){
+                    newState[i] = {value: "", searching: false, kind}
+                } else {
+                    newState[i] = {...state, kind}
+                }
                 setSearchState(newState)
             } else {
-                setSearchState([{
+                setSearchState([...structuredClone(searchState), {
                     kind,
                     ...state
                 }])

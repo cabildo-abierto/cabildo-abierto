@@ -1,12 +1,31 @@
 import {useState} from "react";
-import {TextField} from "@mui/material";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {PropValueType} from "@/components/topics/topic/utils";
 import 'dayjs/locale/es';
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
+import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import { Select } from "../../../../modules/ui-utils/src/select";
+
+
+const propLexicons = [
+    "ar.cabildoabierto.wiki.topicVersion#stringProp",
+    "ar.cabildoabierto.wiki.topicVersion#stringListProp",
+    "ar.cabildoabierto.wiki.topicVersion#dateProp",
+    "ar.cabildoabierto.wiki.topicVersion#numberProp",
+    "ar.cabildoabierto.wiki.topicVersion#booleanProp"
+]
+
+function getTopicPropDisplayName(o: string) {
+    o = o.replace("ar.cabildoabierto.wiki.topicVersion#", "")
+    if(o == "stringProp") return "Texto"
+    if(o == "stringListProp") return "Lista de textos"
+    if(o == "dateProp") return "Fecha"
+    if(o == "numberProp") return "Número"
+    if(o == "booleanProp") return "Sí/No"
+    throw Error(`Propiedad desconocida: ${o}`)
+}
 
 export default function NewPropModal({open, onClose, onAddProp}: {
     open: boolean,
@@ -44,20 +63,16 @@ export default function NewPropModal({open, onClose, onAddProp}: {
                 label={"Nombre de la propiedad"}
                 fullWidth
             />
-            <FormControl fullWidth size="small">
-                <InputLabel>Tipo de propiedad</InputLabel>
-                <Select
-                    value={dataType}
-                    onChange={(e) => setDataType(e.target.value as PropValueType)}
-                    label="Tipo de propiedad"
-                >
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringProp"}>Texto</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringListProp"}>Lista de textos</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#dateProp"}>Fecha</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#numberProp"}>Número</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#booleanProp"}>Sí/No</MenuItem>
-                </Select>
-            </FormControl>
+            <Select
+                options={propLexicons}
+                optionLabels={(o: string) => {
+                    return getTopicPropDisplayName(o)
+                }}
+                label={"Tipo de propiedad"}
+                backgroundColor={"background"}
+                value={dataType}
+                onChange={(e) => {setDataType(e as PropValueType)}}
+            />
             <Button size={"small"} onClick={() => {
                 cleanAndClose();
                 onAddProp(name, dataType)

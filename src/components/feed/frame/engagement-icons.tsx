@@ -51,6 +51,8 @@ export const EngagementIcons = ({
         }
     }
 
+    console.log("content viewer", content.viewer)
+
     return <div>
 
         <div className={"flex items-center exclude-links w-full "}>
@@ -74,7 +76,7 @@ export const EngagementIcons = ({
                 {content.repostCount != undefined && <RepostCounter
                     content={content}
                     showBsky={showBsky}
-                    reactionUri={content.viewer ? content.viewer.repost : undefined}
+                    repostUri={content.viewer ? content.viewer.repost : undefined}
                 />}
                 {content.likeCount != undefined && <LikeCounter
                     content={content}

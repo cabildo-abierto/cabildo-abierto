@@ -27,7 +27,7 @@ export default function Aportar() {
             </div>
             <div className={"flex space-y-2 text-sm flex-col items-center text-center text-[var(--text-light)] max-w-[400px] px-4"}>
                 <Link
-                    href={"/equipo"}
+                    href={topicUrl("Cabildo Abierto: Financiamiento", undefined, "normal")}
                     className={"font-light hover:text-[var(--text)] transform duration-200"}
                 >
                     ¿Cómo se define el objetivo de financiamiento?

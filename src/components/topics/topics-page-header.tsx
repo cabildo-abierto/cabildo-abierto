@@ -69,6 +69,7 @@ export const TopicsPageHeader = () => {
     const searchBar = <MainSearchBar
         autoFocus={false}
         paddingY={"5px"}
+        kind={"topics"}
         placeholder={"buscar"}
     />
 

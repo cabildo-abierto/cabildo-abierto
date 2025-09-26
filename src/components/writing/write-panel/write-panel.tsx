@@ -163,6 +163,7 @@ function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: Pr
         bskyLikeCount: 0,
         bskyQuoteCount: 0,
         bskyRepostCount: 0,
+        quoteCount: 0,
         replyCount: 0,
         embed: embed,
         record: {

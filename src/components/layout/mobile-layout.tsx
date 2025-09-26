@@ -17,7 +17,7 @@ export default function MobileLayout({children, setWritePanelOpen}: {
     return <div>
         <TopbarMobile/>
 
-        <div className={""}>
+        <div>
             <SidebarMobile setWritePanelOpen={setWritePanelOpen}/>
         </div>
 

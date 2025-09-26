@@ -66,9 +66,7 @@ const TableRow = ({values, plotter, columns, href}: {
                 </td>
             }
         } else {
-            return <td key={colIndex}>
-                not found
-            </td>
+            return <td key={colIndex} className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"/>
         }
     })
 }

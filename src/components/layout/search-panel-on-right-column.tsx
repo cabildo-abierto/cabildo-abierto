@@ -19,7 +19,7 @@ export const SearchPanelOnRightColumn = () => {
             onSubmit={(e) => {e.preventDefault(); handleSubmit()}}
             className={"w-full"}
         >
-            <MainSearchBar paddingY={"5px"}/>
+            <MainSearchBar paddingY={"5px"} kind={"main"}/>
         </form>
     );
 };
