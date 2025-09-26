@@ -94,7 +94,7 @@ const UserSearchResults = ({
             <div
                 className={
                     showSearchButton
-                        ? "flex items-center border-b border-l border-r border-[var(--text-light)] h-full w-full"
+                        ? "flex items-center border-b border-l border-r border-[var(--text-lighter)] h-full w-full"
                         : "my-8"
                 }
             >

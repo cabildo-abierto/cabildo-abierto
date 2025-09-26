@@ -4,21 +4,13 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter, useSearchParams} from "next/navigation";
 import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
 import {useSession} from "@/queries/useSession";
+import {configOptionNodes} from "@/components/config/config-option-nodes";
 
 
 export const AdminLayout = ({children}: {children: ReactNode}) => {
     const router = useRouter()
     const params = useSearchParams()
     const {user} = useSession()
-
-    function optionsNodes(o: string, isSelected: boolean){
-        return <button
-                onClick={() => {}}
-                className={"rounded-lg px-2 " + (isSelected ? "bg-[var(--primary)]" : "")}
-            >
-                {o}
-            </button>
-    }
 
     function onSelection(option: string){
         router.push("/admin?s="+option)
@@ -34,8 +26,9 @@ export const AdminLayout = ({children}: {children: ReactNode}) => {
                 onSelection={onSelection}
                 selected={params.get("s") ? params.get("s") : "Principal"}
                 options={["Principal", "Acceso", "Sync", "Validacion", "Remuneraciones", "Stats"]}
-                optionsNodes={optionsNodes}
-                className={"flex"}
+                optionsNodes={configOptionNodes}
+                className={"flex space-x-2"}
+                optionContainerClassName={""}
             />
         </div>
         {children}

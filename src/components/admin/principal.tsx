@@ -3,9 +3,9 @@
 
 import {AdminSection} from "@/components/admin/admin-section";
 import {useState} from "react";
-import {TextField} from "@mui/material";
 import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
+import { TextField } from "../../../modules/ui-utils/src/text-field";
 
 export const AdminPrincipal = () => {
     const [route, setRoute] = useState("")
@@ -43,7 +43,7 @@ export const AdminPrincipal = () => {
                     size={"small"}
                     onChange={(e) => {setRoute(e.target.value)}}
                 />
-                <StateButton handleClick={onSendPost} text1={"Enviar"}/>
+                <StateButton variant="outlined" handleClick={onSendPost} text1={"Enviar"}/>
             </div>
             <div className={"space-y-2"}>
                 <div className={"text-[var(--text-light)]"}>

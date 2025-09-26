@@ -15,7 +15,7 @@ export function useTopbarTitle() {
     } else if(pathname.startsWith("/panel")){
         return {title: "Panel de autor"}
     } else if(pathname.startsWith("/perfil/cuentas-sugeridas")){
-        return {title: "Cuentas para seguir"}
+        return {title: "Cuentas sugeridas"}
     } else if (pathname.startsWith("/tema") && !pathname.startsWith("/temas")) {
         return {title: "Tema"}
     } else if (pathname.startsWith("/c")) {
@@ -36,6 +36,8 @@ export function useTopbarTitle() {
         return {title: "Aportar"}
     } else if(pathname.startsWith("/escribir/articulo")){
         return {title: "Nuevo artículo"}
+    } else if(pathname.includes("/admin")){
+        return {title: "Admin"}
     }
     return {}
 }

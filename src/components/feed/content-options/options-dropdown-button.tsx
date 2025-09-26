@@ -4,7 +4,7 @@ import StateButton, { StateButtonProps} from "../../../../modules/ui-utils/src/s
 
 export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
     return <StateButton
-        color={"transparent"}
+        color={"background-dark"}
         variant={"text"}
         sx={{
             paddingX: "8px",

@@ -213,13 +213,6 @@ ol {
   border-width: 2px;
 }
 
-.panel {
-  border: 1px solid var(--accent);
-  padding: 0px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
-}
-
 .categories-panel {
   border: 1px solid var(--accent);
   padding: 0px;
@@ -948,4 +941,18 @@ td {
 
 .animate-shake {
   animation: shake 0.5s ease;
+}
+
+
+.panel {
+  border: 1px solid var(--text-lighter);
+  background: var(--background);
+  border-radius: 0;
+}
+
+
+.panel-dark {
+  border: 1px solid var(--text-lighter);
+  background: var(--background-dark);
+  border-radius: 0;
 }
