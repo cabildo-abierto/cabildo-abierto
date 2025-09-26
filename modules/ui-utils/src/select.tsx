@@ -13,6 +13,7 @@ export const Select = ({
                            options,
                            value,
                            onChange,
+    optionLabels,
     optionNodes,
                            label,
                            paddingX,
@@ -27,6 +28,7 @@ export const Select = ({
     options: string[];
     onChange: (v: string) => void;
     optionNodes?: (o: string) => ReactNode
+    optionLabels?: (o: string) => string
     value: string;
     label?: string;
     fontSize?: string;
@@ -112,6 +114,7 @@ export const Select = ({
                     />
                 }
                 MenuProps={{
+                    disableScrollLock: true,
                     PaperProps: {
                         sx: {
                             backgroundColor: `var(--${backgroundColor})`,
@@ -146,7 +149,9 @@ export const Select = ({
                     >
                         {optionNodes ?
                             optionNodes(o) :
-                            <span className={textClassName}>{o}</span>
+                            optionLabels ?
+                                <span style={{fontSize}} className={textClassName}>{optionLabels(o)}</span> :
+                                <span style={{fontSize}} className={textClassName}>{o}</span>
                         }
                     </MenuItem>
                 ))}

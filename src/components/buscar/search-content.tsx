@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect, useState} from "react"
+import React, {useState} from "react"
 import SelectionComponent from "./search-selection-component";
 import {ContentsSearchResults} from "./contents-search-results";
 import {SearchTopics} from "./search-topics";
@@ -11,21 +11,12 @@ import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 type RouteContentProps = {
     paramsSelected?: string
     showRoute?: boolean
-    query?: string
 }
 
 
-const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
+const SearchContent = ({paramsSelected}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
     const {searchState, setSearchState} = useSearch("main")
-
-    useEffect(() => {
-        if (query && query.length > 0) {
-            if (searchState.value != query) {
-                setSearchState({searching: true, value: query})
-            }
-        }
-    }, [query])
 
 
     function onClickResult(did: string) {

@@ -90,7 +90,9 @@ const NewItem = ({
                 }}
                 size={"small"}
             >
-                Agregar
+                <span className={"text-xs"}>
+                    Agregar
+                </span>
             </Button>
         }
     }

@@ -9,6 +9,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import FeedElement from "@/components/feed/feed/feed-element";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 const ShowThreadButton = ({uri}: { uri: string }) => {
@@ -149,18 +150,15 @@ export const PostPreview = ({
                                 pageRootUri
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
+    const {layoutConfig} = useLayoutConfig()
 
     const {parent, root} = getParentAndRoot(feedViewContent)
-
     const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
-
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
-
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
-
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px] " + (!showingChildren ? "" : "")}>
+    return <div style={{maxWidth: layoutConfig.maxWidthCenter}} className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px] " + (!showingChildren ? "" : "")}>
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}

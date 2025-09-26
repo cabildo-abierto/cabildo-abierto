@@ -36,7 +36,6 @@ export class TablePlotter extends Plotter {
             })
         }
         //const t3 = Date.now()
-
         this.dataForPlot = this.data
         if (this.searchValue && this.searchValue.length > 0) {
             const searchKey = cleanText(this.searchValue)

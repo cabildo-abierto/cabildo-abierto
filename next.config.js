@@ -17,7 +17,9 @@ nextConfig = {
             },
         ],
     },
-    allowedDevOrigins: ['127.0.0.1', '*.127.0.0.1', '192.168.0.10', '192.168.0.11', '192.168.0.34'],
+    allowedDevOrigins: [
+        '127.0.0.1', '*.127.0.0.1', '192.168.0.10', '192.168.0.11', '192.168.0.34', '0.0.0.0'
+    ],
     experimental: {
         optimizePackageImports: [
             '@mui/material',

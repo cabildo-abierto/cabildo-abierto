@@ -110,7 +110,9 @@ const ChooseDatasetPanelDatasetSelection = ({
                     }))
                 }}
             >
-                Usar temas
+                <span className={"text-xs"}>
+                    Usar temas
+                </span>
             </Button>
             <Button
                 startIcon={<AddIcon/>}
@@ -124,7 +126,7 @@ const ChooseDatasetPanelDatasetSelection = ({
                     setNewDatasetPanelOpen(true)
                 }}
             >
-                Conjunto de datos
+                <span className={"text-xs"}>Conjunto de datos</span>
             </Button>
         </div>
         <div className={"px-2 pb-2"}>

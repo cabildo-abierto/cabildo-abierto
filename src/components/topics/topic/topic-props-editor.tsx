@@ -75,7 +75,8 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                         alignItems: "center",
                     }}
                 >
-                    <span className="text-sm" style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
+                    <span className="text-sm"
+                          style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
                       {p.name}
                     </span>
                     <span className={"text-[var(--text-light)]"}>
@@ -94,7 +95,9 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
                 value={p.value.value}
                 size={"small"}
-                fontSize={12}
+                fontSize={13}
+                paddingX={"0px"}
+                paddingY={"6px"}
                 onChange={(e) => {
                     setProp({
                         ...p,
@@ -122,18 +125,31 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                         })
                     }}
                 />}
+            {/*TO DO: Achicar el icono del date picker*/}
             {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) &&
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                     <DatePicker
+                        value={p.value.value ? dayjs(p.value.value) : dayjs()}
+                        onChange={(d) => {
+                            console.log("date", d, d.startOf("day").toISOString())
+                            setProp({
+                                ...p,
+                                value: {
+                                    $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
+                                    value: d.startOf("day").toISOString(),
+                                }
+                            })
+                        }}
                         label={"Fecha"}
                         minDate={dayjs("1000-01-01")}
                         format="DD/MM/YYYY"
                         sx={{
                             "& .MuiInputLabel-root": {
-                                color: `var(--text-lighter)`,
+                                color: `var(--text)`,
                             },
                             "& .MuiPickersInputBase-root": {
                                 borderRadius: 0,
+                                fontSize: "13px",
                                 "&:hover fieldset": {
                                     borderColor: `var(--text-lighter)`,
                                 },
@@ -145,11 +161,12 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                                 "&.Mui-focused fieldset": {
                                     borderWidth: 1,
                                     borderRadius: 0,
+                                    color: `var(--text)`,
                                     "&.MuiPickersOutlinedInput-notchedOutline": {
                                         borderColor: `var(--text-lighter)`
                                     }
                                 },
-                            },
+                            }
                         }}
                         slotProps={{
                             textField: {
@@ -338,7 +355,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
                         onClick={resetProps}
                         color={"transparent"}
                     >
-                        <TrashIcon fontSize="20" fill={"light"}/>
+                        <TrashIcon color="var(--text)" fontSize="20"/>
                     </IconButton>
                 </DescriptionOnHover>
                 <IconButton
@@ -349,7 +366,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
                     }}
                     color={"transparent"}
                 >
-                    <XIcon color={"inherit"} fontSize={"20"}/>
+                    <XIcon color={"var(--text)"} fontSize={"20"}/>
                 </IconButton>
             </div>
         </div>

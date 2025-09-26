@@ -3,7 +3,6 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
@@ -17,7 +16,8 @@ import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
 import {ElectionVisualizationComp} from "@/components/visualizations/editor/election/election-visualization-comp";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoDataDataset} from "@/lex-api"
-
+import { Button } from "../../../modules/ui-utils/src/button";
+import {TrashIcon} from "@phosphor-icons/react";
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
@@ -132,25 +132,28 @@ export default function Plot ({
             {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
         </div>
         {(onEdit || onDelete) && <div className={"absolute top-2 right-2 z-[20] flex space-x-2"}>
-            {onEdit && <div
+            {onEdit && <Button
                 onClick={() => {
                     setEditing(true)
                 }}
-                className={"flex items-center space-x-1 text-[var(--text-light)] cursor-pointer sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
+                variant={"contained"}
+                color={"background-dark2"}
+                size={"small"}
+                paddingY={"0px"}
+                sx={{borderRadius: "8px"}}
+                startIcon={<WriteButtonIcon color="var(--text)" fontSize={12}/>}
             >
-                <WriteButtonIcon fontSize={"inherit"}/>
-                <div>
-                    Editar
-                </div>
-            </div>}
+                <span className={"text-xs"}>Editar</span>
+            </Button>}
             {onDelete && <IconButton
                 size={"small"}
                 color={"background-dark2"}
                 onClick={() => {
                     onDelete()
                 }}
+                sx={{borderRadius: "8px"}}
             >
-                <DeleteOutlineIcon fontSize={"inherit"}/>
+                <TrashIcon color="var(--text)" fontSize={16}/>
             </IconButton>}
         </div>}
         <ResponsivePlot

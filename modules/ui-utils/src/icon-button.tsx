@@ -13,14 +13,14 @@ type IconButtonProps = Omit<MUIIconButtonProps, "color" | "size"> & {
 };
 
 export const IconButton = ({
-                               children,
-                               sx,
-                               color = "background",
-                               hoverColor,
-                               textColor,
-                               size,
-                               ...props
-                           }: IconButtonProps) => {
+    children,
+    sx,
+    color = "background",
+    hoverColor,
+    textColor,
+    size,
+    ...props
+}: IconButtonProps) => {
     if (!textColor) textColor = color === "primary" ? "button-text" : "text";
 
     const extraSmallStyles =

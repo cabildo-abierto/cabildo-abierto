@@ -59,8 +59,7 @@ export class Plotter {
     }
 
     validRow(x: DataRow): boolean {
-        const keys = Object.keys(x)
-        return keys.length == this.columnNames.length
+        return true
     }
 
     checkFilter(f: ArCabildoabiertoEmbedVisualization.ColumnFilter){
@@ -138,7 +137,6 @@ export class Plotter {
         } else if(type == "date"){
             if(v instanceof Date){
                 const formater = this.parser.getDateFormater(v)
-                console.log(v, formater(v))
                 return formater(v)
             } else {
                 return `Fecha inválida: ${v.toString()}`

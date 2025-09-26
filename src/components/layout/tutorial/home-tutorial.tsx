@@ -22,7 +22,7 @@ import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/style
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
-    return <AcceptButtonPanel open={open} buttonText={"Empezar"} onClose={onClose} className={"py-4 px-8"}>
+    return <AcceptButtonPanel color="background-dark" backgroundShadow={false} open={open} buttonText={"Empezar"} onClose={onClose} className={"py-4 px-8"}>
         <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
             <h2 className={"mb-4 py-2"}>¡Te damos la bienvenida!</h2>
 
@@ -202,7 +202,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#temas',
             content: <TourContent>
-                Una wiki (como Wikipedia) sobre los temas en discusión, con los consensos de la plataforma, visualizaciones y más.
+                Una wiki (como Wikipedia) sobre los temas en discusión, con información recopilada por los usuarios, visualizaciones y más.
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true
@@ -210,7 +210,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#write-button',
             content: <TourContent>
-                Escribí publicaciones rápidas y artículos, editá temas de la wiki o creá temas nuevos.
+                Podés escribir publicaciones cortas, artículos, editar temas de la wiki o crear temas nuevos.
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true
@@ -285,10 +285,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
 
         smoothScrollTo(0)
 
-        console.log("index", data.index)
-
         if (data.type === "step:after" && data.index === 3) {
-            console.log("waiting sidebar")
             setRunStatus("waiting sidebar")
             setLayoutConfig({
                 ...layoutConfig,

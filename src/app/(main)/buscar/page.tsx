@@ -30,7 +30,6 @@ const Page = () => {
         {searching && <div className={"w-full"}>
             <SearchContent
                 paramsSelected={params.get("s")}
-                query={params.get("q")}
             />
         </div>}
         {!searching && <div className={"sm:py-32 py-8 text-[var(--text)] opacity-[0.05]"}>

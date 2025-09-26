@@ -100,6 +100,7 @@ const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConf
             label={"Epígrafe"}
             multiline
             size={"small"}
+            paddingX={"12px"}
             value={config.caption ?? ""}
             onChange={e => {
                 setConfig(produce(config, draft => {
