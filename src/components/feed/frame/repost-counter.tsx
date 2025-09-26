@@ -82,7 +82,7 @@ export const RepostCounter = ({content, showBsky, repostUri}: {
             }
         },
         onSettled: async () => {
-            qc.invalidateQueries(contentQueriesFilter(content.uri))
+            //qc.invalidateQueries(contentQueriesFilter(content.uri))
         },
     })
 
@@ -93,7 +93,7 @@ export const RepostCounter = ({content, showBsky, repostUri}: {
             optimisticRemoveRepost(qc, content.uri)
         },
         onSettled: () => {
-            qc.invalidateQueries(contentQueriesFilter(content.uri))
+            //qc.invalidateQueries(contentQueriesFilter(content.uri))
         }
     })
 
@@ -123,7 +123,7 @@ export const RepostCounter = ({content, showBsky, repostUri}: {
     const reposted = repostUri != null
 
     const modal = (close: () => void) => {
-        return <div className="text-base border rounded p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
+        return <div className="text-base border border-[var(--text-lighter)] p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
             {!reposted && <OptionsDropdownButton
                 text1={"Republicar"}
                 startIcon={<RepostIcon fontSize={"small"}/>}

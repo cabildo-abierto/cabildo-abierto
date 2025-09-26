@@ -51,8 +51,6 @@ export const EngagementIcons = ({
         }
     }
 
-    console.log("content viewer", content.viewer)
-
     return <div>
 
         <div className={"flex items-center exclude-links w-full "}>

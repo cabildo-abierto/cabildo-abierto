@@ -84,11 +84,9 @@ export const LikeCounter = ({content, showBsky}: {
         onSuccess: (data, variables, context) => {
             if (data.data.uri) {
                 setCreatedLike(qc, content.uri, data.data.uri)
+                //qc.invalidateQueries(contentQueriesFilter(content.uri))
             }
-        },
-        onSettled: async () => {
-            qc.invalidateQueries(contentQueriesFilter(content.uri))
-        },
+        }
     })
 
     const removeLikeMutation = useMutation({
@@ -97,8 +95,8 @@ export const LikeCounter = ({content, showBsky}: {
             qc.cancelQueries(contentQueriesFilter(content.uri))
             optimisticRemoveLike(qc, content.uri)
         },
-        onSettled: () => {
-            qc.invalidateQueries(contentQueriesFilter(content.uri))
+        onSuccess: () => {
+            //qc.invalidateQueries(contentQueriesFilter(content.uri))
         }
     })
 

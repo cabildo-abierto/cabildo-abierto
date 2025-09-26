@@ -30,7 +30,7 @@ export const ContentOptionsButton = ({
         </div>
     )
 
-    return <ModalOnClick modal={modal} className={"mt-2 bg-[var(--background)] border border-[var(--text-light)]"}>
+    return <ModalOnClick modal={modal} className={"mt-2 bg-[var(--background)] border border-[var(--text-lighter)]"}>
         <div className={"text-[var(--text-light)] text-xs"}>
             <IconButton
                 color="inherit"
