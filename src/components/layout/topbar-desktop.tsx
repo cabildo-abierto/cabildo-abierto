@@ -29,7 +29,7 @@ export default function TopbarDesktop() {
         pathname.startsWith("/escribir/articulo")
 
     return <div
-        className={"fixed top-0 left-0 items-center bg-[var(--background)] w-full border-b border-[var(--text-lighter)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}
+        className={"fixed top-0 left-0 items-center bg-[var(--background)] w-full border-b border-[var(--accent-dark)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}
     >
 
         <div className="flex justify-between h-full w-full">

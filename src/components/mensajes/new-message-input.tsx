@@ -48,7 +48,7 @@ export default function NewMessageInput({
         sendMessageMutation.mutate(msg)
     }
 
-    return <div className="m-2 border border-[var(--text-lighter)] flex justify-between items-end bg-[var(--background-dark)]">
+    return <div className="m-2 border border-[var(--accent-dark)] flex justify-between items-end bg-[var(--background-dark)]">
         <TextField
             value={newMessage}
             size="small"
@@ -68,7 +68,7 @@ export default function NewMessageInput({
             color={"background-dark2"}
             sx={{
                 borderRadius: 0,
-                border: "1px solid var(--text-lighter)",
+                border: "1px solid var(--accent-dark)",
                 height: "32px",
                 margin: "4px",
                 paddingTop: '0px',

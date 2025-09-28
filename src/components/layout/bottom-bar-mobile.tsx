@@ -38,7 +38,7 @@ const BottomBarMobile = () => {
                 }}
                 sx={{
                     bgcolor: 'var(--background)',
-                    borderTop: '1px solid var(--text-lighter)',
+                    borderTop: '1px solid var(--accent-dark)',
                     '& .Mui-selected': {
                         '& .MuiBottomNavigationAction-label': {
                             fontSize: theme => theme.typography.caption,

@@ -29,7 +29,7 @@ export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
             e.stopPropagation();
             window.open(embed.external.uri, '_blank')
         }}
-        className={"border cursor-pointer mt-1 hover:bg-[var(--background-dark2)]"}
+        className={"cursor-pointer mt-1 embed-panel"}
     >
         {embed.external.thumb && embed.external.thumb.length > 0 ?
         <div>

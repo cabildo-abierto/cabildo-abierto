@@ -14,7 +14,7 @@ export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void
                 border: "1px solid",
                 borderRadius: 0
             }}
-            borderColor={"text-lighter"}
+            borderColor={"accent-dark"}
             className="rounded-full bg-[var(--background-dark3)] w-full hover:bg-[var(--accent)] transition duration-200 flex items-center px-4 py-1 space-x-2"
         >
             <WriteButtonIcon/>

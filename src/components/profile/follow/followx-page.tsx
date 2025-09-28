@@ -40,7 +40,7 @@ export const FollowxPage = ({kind}: {kind: FollowKind}) => {
     }
 
     return <div className={"pb-32"}>
-        <div className={"flex flex-col items-start border-b border-[var(--text-lighter)] w-full"}>
+        <div className={"flex flex-col items-start border-b border-[var(--accent-dark)] w-full"}>
             <SelectionComponent
                 options={["seguidores", "siguiendo"]}
                 selected={kind}

@@ -13,6 +13,7 @@ export const Select = ({
                            options,
                            value,
                            onChange,
+    width,
     optionLabels,
     optionNodes,
                            label,
@@ -22,8 +23,8 @@ export const Select = ({
                            labelShrinkFontSize,
                            textClassName,
                            backgroundColor = "background-dark",
-                           borderColor = "text-lighter",
-                           outlineColor = "text-lighter"
+                           borderColor = "accent-dark",
+                           outlineColor = "accent-dark"
                        }: {
     options: string[];
     onChange: (v: string) => void;
@@ -31,6 +32,7 @@ export const Select = ({
     optionLabels?: (o: string) => string
     value: string;
     label?: string;
+    width?: string | number
     fontSize?: string;
     labelShrinkFontSize?: string;
     textClassName?: string;
@@ -124,7 +126,7 @@ export const Select = ({
                             boxShadow: "none",
                             borderWidth: "1px",
                             borderRadius: 0,
-                            borderColor: "var(--text-lighter)"
+                            borderColor: "var(--accent-dark)"
                         },
                         elevation: 0
                     },

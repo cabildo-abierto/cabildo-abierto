@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {DatasetPreviewOnEditor} from "@/components/visualizations/datasets/dataset-preview-on-editor";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {NewDatasetPanel} from "@/components/visualizations/datasets/new-dataset-panel";
 import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
@@ -19,7 +18,9 @@ import {FilterConfig} from "@/components/visualizations/editor/filter-config";
 import CachedIcon from "@mui/icons-material/Cached";
 import StateButton, {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import dynamic from "next/dynamic";
 
+const NewDatasetPanel = dynamic(() => import("@/components/visualizations/datasets/new-dataset-panel"));
 
 const DatasetsSearch = ({datasets, config, setConfig}: {
     config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void, datasets: DatasetViewBasic[]
@@ -245,7 +246,7 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
 
     return <>
         <div className={"rounded-lg flex flex-col space-y-2 h-full"}>
-            <div className={"flex border-b border-[var(--text-lighter)] w-full mt-2"}>
+            <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
                 <SelectionComponent
                     options={["Conjuntos de datos", "Filtros"]}
                     optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}

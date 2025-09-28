@@ -12,7 +12,7 @@ export type InsertImageModalProps = {
     onSubmit: (i: ImagePayload) => void;
 }
 
-export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
+const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
     return <BaseFullscreenPopup
@@ -51,3 +51,6 @@ export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProp
         </div>
     </BaseFullscreenPopup>
 }
+
+
+export default InsertImageModal

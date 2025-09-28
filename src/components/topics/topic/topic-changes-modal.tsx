@@ -136,7 +136,7 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
             try {
                 lexicalPrev = anyEditorStateToLexical(data.prevText, data.prevFormat);
                 lexicalCur = anyEditorStateToLexical(data.curText, data.curFormat);
-            } catch (err) {
+            } catch {
                 return null
             }
 
@@ -245,8 +245,10 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
             />
         </div>
         <div className="text-sm text-center block lg:hidden content-container p-1 w-full">
-            <p>Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo
-                una computadora).</p>
+            <p>
+                Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo
+                una computadora).
+            </p>
         </div>
         {newVersionIdx != prevVersionIdx && <div className="p-4 max-w-[800px] max-h-[500px] overflow-y-scroll my-2">
             <TopicChanges

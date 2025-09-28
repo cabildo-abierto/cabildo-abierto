@@ -46,7 +46,7 @@ export const SidebarMobile = ({
             },
         }}
     >
-        <div className={"bg-[var(--background)] border-[var(--text-light)] min-h-screen h-full"}>
+        <div className={"bg-[var(--background)] min-h-screen h-full"}>
             <SidebarContent onClose={() => {}} setWritePanelOpen={setWritePanelOpen}/>
         </div>
     </SwipeableDrawer>

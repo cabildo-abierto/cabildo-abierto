@@ -173,7 +173,7 @@ export const TopicContentExpandedViewHeader = ({
         </div>
     }
 
-    return <div className={"flex justify-between items-end border-b border-[var(--text-lighter)]"}>
+    return <div className={"flex justify-between items-end border-b border-[var(--accent-dark)]"}>
         {buttons}
         {!wikiEditorState.startsWith("editing") && wikiEditorState != "minimized" && <div className={"flex items-center space-x-1"}>
             {user && user.platformAdmin && <TopicOptionsButton topic={topic}/>}

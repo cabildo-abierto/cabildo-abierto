@@ -78,7 +78,7 @@ const StatSquare = ({
         moreInfoHref={moreInfoHref}
     >
         <div
-            className={"relative border border-[var(--text-lighter)] min-w-32 h-32 flex-col text-[30px] space-y-2 text-center flex items-center justify-center"}
+            className={"relative border border-[var(--accent-dark)] min-w-32 h-32 flex-col text-[30px] space-y-2 text-center flex items-center justify-center"}
         >
             <div>
                 <div className={"px-2 font-bold"}>
@@ -130,7 +130,7 @@ const CardStat = ({label, value, info, moreInfoHref}: {
 const ArticleStatsCard = ({article}: { article: ArticleStats }) => {
     return <Link
         href={contentUrl(article.uri)}
-        className={"hover:bg-[var(--background-dark)] border border-[var(--text-lighter)] p-4 mx-2 flex flex-col sm:flex-row sm:justify-between"}
+        className={"hover:bg-[var(--background-dark)] border border-[var(--accent-dark)] p-4 mx-2 flex flex-col sm:flex-row sm:justify-between"}
     >
         <div className={"sm:w-[50%]"}>
             <h2>
@@ -161,7 +161,7 @@ const ArticleStatsCard = ({article}: { article: ArticleStats }) => {
 const EditStatsCard = ({topicVersion}: { topicVersion: EditedTopicStats }) => {
     return <Link
         href={topicUrl(topicVersion.topicId, undefined, "normal")}
-        className={"hover:bg-[var(--background-dark)] p-4 border border-[var(--text-lighter)] mx-2 flex flex-col sm:flex-row sm:justify-between"}
+        className={"hover:bg-[var(--background-dark)] p-4 border border-[var(--accent-dark)] mx-2 flex flex-col sm:flex-row sm:justify-between"}
     >
         <div className={"sm:w-[50%]"}>
             <h2>
@@ -203,7 +203,7 @@ const Page = () => {
 
     return <div className={"flex flex-col"}>
         {data && isAuthor && <div
-            className={"border border-[var(--text-lighter)] mx-2 p-3 text-[var(--text-light)] mt-4 font-extralight text-sm flex items-center space-x-4"}>
+            className={"border border-[var(--accent-dark)] mx-2 p-3 text-[var(--text-light)] mt-4 font-extralight text-sm flex items-center space-x-4"}>
             <div className={"px-2"}>
                 <WarningIcon fontSize={26}/>
             </div>

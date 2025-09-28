@@ -224,7 +224,7 @@ export const AdminAcceso = () => {
                     <div className={"font-bold"}>
                         {a.email}
                     </div>
-                    {a.comment && <div className={"bg-[var(--background-dark4)] rounded p-1"}>
+                    {a.comment && <div className={"bg-[var(--background-dark3)] rounded p-1"}>
                         {a.comment}
                     </div>}
                     <div>

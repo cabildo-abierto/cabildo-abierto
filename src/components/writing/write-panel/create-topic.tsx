@@ -146,7 +146,7 @@ export const CreateTopicResults = ({results, topicName}: {results: CreateTopicSe
             <div className={"space-y-1 flex flex-col max-h-[250px] custom-scrollbar overflow-y-scroll pb-2"}>
                 {results.map(r => {
                     return <Link href={topicUrl(r.id, undefined, "normal")} key={r.id}
-                                 className={"border border-[var(--text-light)] hover:bg-[var(--background-dark)] px-2 py-1"}>
+                                 className={"border border-[var(--accent-dark)] hover:bg-[var(--background-dark)] px-2 py-1"}>
                         {getTopicTitle(r)}
                     </Link>
                 })}
@@ -183,7 +183,7 @@ const CreateTopicInput = ({
                 }}
                 placeholder="Título del tema..."
                 autoFocus={true}
-                className={"border-[var(--text-lighter)] border w-full bg-[var(--background)] py-1 px-2 text-base outline-none"}
+                className={"border-[var(--accent-dark)] border w-full bg-[var(--background)] py-1 px-2 text-base outline-none"}
             />
         </div>
         {topicName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}

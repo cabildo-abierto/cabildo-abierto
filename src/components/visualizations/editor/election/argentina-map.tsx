@@ -99,7 +99,7 @@ export const ArgentinaMap = ({
                         <svg
                             width={width}
                             height={height}
-                            className="border border-[var(--text-lighter)] touch-none"
+                            className="border border-[var(--accent-dark)] touch-none"
                             ref={zoom.containerRef}
                             style={{cursor: zoom.isDragging ? 'grabbing' : ''}}
                         >

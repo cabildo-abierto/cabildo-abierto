@@ -138,7 +138,7 @@ export const DatasetTableView = ({
     )
 
     return <div
-        className={"border border-[var(--text-lighter)] mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
+        className={"border border-[var(--accent-dark)] mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
         style={{maxHeight, maxWidth}}
     >
         <div className={"flex justify-start"}>
@@ -149,12 +149,12 @@ export const DatasetTableView = ({
                     size={"small"}
                     paddingY={"4px"}
                     color={"background"}
-                    borderColor={"text-lighter"}
+                    borderColor={"accent-dark"}
                 />
             </div>
         </div>
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
-            <thead className="bg-[var(--background-dark)] border-b border-t border-[var(--text-lighter)]">
+            <thead className="bg-[var(--background-dark)] border-b border-t border-[var(--accent-dark)]">
             <tr className={""}>
                 {columns.map(([col, header], colIndex) => {
 
@@ -197,7 +197,7 @@ export const DatasetTableView = ({
 
                 return <tr
                     key={rowIndex}
-                    className={"even:bg-[var(--background-ldark)] " + (href ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
+                    className={"even:bg-[var(--background-dark)] " + (href ? " hover:bg-[var(--background-dark2)] cursor-pointer" : "")}
                 >
                     <TableRow
                         values={values}

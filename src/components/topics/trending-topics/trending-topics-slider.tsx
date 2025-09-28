@@ -22,7 +22,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
     const router = useRouter()
 
     return (
-        <div className={"flex flex-col rounded-lg"}>
+        <div className={"flex flex-col"}>
             <div
                 className="flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
             >
@@ -33,7 +33,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
                         onClick={() => {
                             router.push(topicUrl(topic.id))
                         }} draggable={false}
-                        className="cursor-pointer flex flex-col items-start py-4 w-full px-5 sm:text-sm text-xs hover:bg-[var(--background-dark2)]"
+                        className="cursor-pointer flex flex-col items-start py-4 w-full px-5 sm:text-sm text-xs hover:bg-[var(--background-dark)]"
                         key={topic.id}
                         onMouseLeave={() => {
                             setHovering(undefined)

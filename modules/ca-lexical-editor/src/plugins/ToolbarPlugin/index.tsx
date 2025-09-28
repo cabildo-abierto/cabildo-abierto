@@ -46,7 +46,6 @@ import {Dispatch, useCallback, useEffect, useState} from 'react';
 import * as React from 'react';
 import {IS_APPLE} from '../../shared/environment';
 import {getSelectedNode} from '../../utils/getSelectedNode';
-import {InsertTableModal} from '../TablePlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import VisualizationsIcon from '@/components/layout/icons/visualization-icon';
 import {INSERT_EMBED_COMMAND} from "../EmbedPlugin";
@@ -67,14 +66,16 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import {InsertImageModal} from "@/components/writing/write-panel/insert-image-modal";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import {InsertVisualizationDialog} from "../EmbedPlugin/insert-visualization-dialog";
 import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
 import {AppBskyEmbedImages} from "@atproto/api"
 import { Color } from '../../../../ui-utils/src/color';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import dynamic from 'next/dynamic';
 
+const InsertVisualizationDialog = dynamic(() => import("../EmbedPlugin/insert-visualization-dialog"), {ssr: false})
+const InsertImageModal = dynamic(() => import("@/components/writing/write-panel/insert-image-modal"), {ssr: false})
+const InsertTableModal = dynamic(() => import('../TablePlugin/insert-table-modal'), {ssr: false})
 
 const blockTypeToBlockName = {
     bullet: 'Lista',
@@ -177,7 +178,7 @@ function BlockFormatDropDown({
         quote: formatQuote,
     }
 
-    const modal = (onClose: () => void) => <div style={{borderRadius}} className={"border border-[var(--text-lighter)] flex flex-col w-48 space-y-1 p-1"}>
+    const modal = (onClose: () => void) => <div style={{borderRadius, backgroundColor: `var(--${backgroundColor})`}} className={"border border-[var(--accent-dark)] flex flex-col w-48 space-y-1 p-1"}>
         {Object.keys(blockTypeToIcon).map((key) => {
             return <div key={key}>
                 <Button
@@ -197,7 +198,7 @@ function BlockFormatDropDown({
         })}
     </div>
 
-    return <ModalOnClick modal={modal} className={`my-2 bg-[var(--${backgroundColor})]`}>
+    return <ModalOnClick modal={modal} className={`my-2`}>
         <Button
             color={backgroundColor}
             variant={"text"}
@@ -385,7 +386,7 @@ export default function ToolbarPlugin({
     const backgroundColor = "background-dark"
 
     return (
-        <div className={"fixed border z-[1205] border-[var(--text-lighter)] bg-[var(--background-dark)] " + (isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}>
+        <div className={"fixed border z-[1205] border-[var(--accent-dark)] bg-[var(--background-dark)] " + (isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}>
             <div className={"flex w-full"}>
                 <div
                     className="toolbar items-center flex"
@@ -492,27 +493,27 @@ export default function ToolbarPlugin({
                         <VisualizationsIcon color={"inherit"}/>
                     </ToolbarButton>
 
-                    <InsertTableModal
+                    {insertTableModalOpen && <InsertTableModal
                         open={insertTableModalOpen}
                         onClose={() => {
                             setInsertTableModalOpen(false)
                         }}
                         activeEditor={activeEditor}
-                    />
-                    <InsertImageModal
+                    />}
+                    {imageModalOpen && <InsertImageModal
                         open={imageModalOpen}
                         onClose={() => {
                             setImageModalOpen(false)
                         }}
                         onSubmit={onInsertImage}
-                    />
-                    <InsertVisualizationDialog
+                    />}
+                    {visualizationModalOpen && <InsertVisualizationDialog
                         activeEditor={activeEditor}
                         open={visualizationModalOpen}
                         onClose={() => {
                             setVisualizationModalOpen(false)
                         }}
-                    />
+                    />}
                 </div>
             </div>
         </div>

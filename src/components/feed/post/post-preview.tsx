@@ -16,7 +16,7 @@ const ShowThreadButton = ({uri}: { uri: string }) => {
     const url = contentUrl(uri)
     return (
         <Link href={url}
-              className="relative hover:bg-[var(--background-dark)] transition duration-200 flex h-full items-center">
+              className="relative hover:bg-[var(--background-dark)] flex h-full items-center">
             <div className={"w-full max-w-[13%] flex flex-col items-center justify-stretch"}>
                 <ReplyVerticalLine className="h-2"/>
                 <div className="text-xl text-[var(--accent)] leading-none py-1">

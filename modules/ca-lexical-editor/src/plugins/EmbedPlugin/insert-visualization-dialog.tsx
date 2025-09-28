@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"));
 
-export function InsertVisualizationDialog({
+export default function InsertVisualizationDialog({
                                               activeEditor,
                                               onClose,
                                               open

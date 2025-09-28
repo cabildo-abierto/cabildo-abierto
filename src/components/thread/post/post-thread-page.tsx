@@ -38,7 +38,7 @@ const PostThreadPage = ({content, thread}: {
             threadViewContent={thread}
         />
 
-        {thread && <div className={"w-full border-b border-[var(--text-lighter)]"}>
+        {thread && <div className={"w-full border-b border-[var(--accent-dark)]"}>
             <ReplyButton onClick={() => {
                 setOpenReplyPanel(true)
             }}/>

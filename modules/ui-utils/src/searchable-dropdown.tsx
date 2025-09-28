@@ -58,7 +58,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                 onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
                 label={label}
                 fontSize={fontSize}
-                borderColor={"text-lighter"}
+                borderColor={"accent-dark"}
             />
             {showDropdown && filteredOptions != null && (!filteredOptions || (filteredOptions && filteredOptions.length > 0)) && (
                 <Paper
@@ -67,7 +67,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                         backgroundColor: "var(--background-dark)",
                         borderRadius: 0,
                         boxShadow: "none",
-                        border: "1px solid var(--text-lighter)",
+                        border: "1px solid var(--accent-dark)",
                     }}
 
                 >

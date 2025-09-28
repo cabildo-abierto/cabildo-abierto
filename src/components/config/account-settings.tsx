@@ -27,7 +27,7 @@ export const AccountSettings = () => {
         </div>
     }
 
-    return <>
+    return <div className={"p-4"}>
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Nombre de usuario</div>
             <div className="text-lg ">@{user.handle}</div>
@@ -71,8 +71,8 @@ export const AccountSettings = () => {
             </div>
         </div>
         {(!request.result || request.result != "Aceptada") &&
-            <Button size={"small"} href={"/ajustes/solicitar-validacion"}>
-                <span className={"font-semibold text-sm py-1"}>Verificar cuenta</span>
+            <Button variant="outlined" size={"small"} href={"/ajustes/solicitar-validacion"}>
+                <span className={"text-sm py-1"}>Verificar cuenta</span>
             </Button>}
         <div className={"mt-4 flex justify-start"}>
             <CloseSessionButton/>
@@ -80,5 +80,5 @@ export const AccountSettings = () => {
         <div className={"mt-4 flex justify-start"}>
             <DeleteAccountButton/>
         </div>
-    </>
+    </div>
 }

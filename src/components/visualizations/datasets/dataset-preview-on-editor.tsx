@@ -9,7 +9,7 @@ export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
     onClick: () => void
 }) => {
     return <div
-        className={"py-1 border border-[var(--text-lighter)] px-2 cursor-pointer hover:bg-[var(--background-dark2)] " + (selected ? "bg-[var(--background-dark2)]" : "")}
+        className={"py-1 border border-[var(--accent-dark)] px-2 cursor-pointer hover:bg-[var(--background-dark2)] " + (selected ? "bg-[var(--background-dark2)]" : "")}
         onClick={onClick}
     >
         <div className={"flex justify-between space-x-1"}>

@@ -94,7 +94,7 @@ const UserSearchResults = ({
             <div
                 className={
                     showSearchButton
-                        ? "flex items-center border-b border-l border-r border-[var(--text-lighter)] h-full w-full"
+                        ? "flex items-center border-b border-l border-r h-full w-full"
                         : "my-8"
                 }
             >
@@ -123,7 +123,7 @@ const UserSearchResults = ({
 
     return (
         <div className="flex flex-col items-center">
-            <div className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--text-lighter)]" : "")}>
+            <div className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--accent-dark)]" : "")}>
                 {showSearchButton &&
                     results?.slice(0, rightIndex).map((user, index) => (
                         <div key={index} className="">

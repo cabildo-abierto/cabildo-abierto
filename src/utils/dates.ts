@@ -13,7 +13,7 @@ export const formatIsoDate = (
             hour12: false,
             timeZone: "America/Argentina/Buenos_Aires",
         }).format(date)
-    } catch (error) {
+    } catch {
         return isoDate.toString()
     }
 }

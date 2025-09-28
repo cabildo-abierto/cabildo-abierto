@@ -33,7 +33,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
         const createdAt = new Date(record.indexedAt)
 
         return <div
-            className={"border-[1px] p-3 hover:bg-[var(--background-dark2)]"}
+            className={"embed-panel p-3"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -93,12 +93,12 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
         </div>
     } else {
         /* TO DO: Dar un poco más de info */
-        return <div className={"p-3 mt-2 border rounded-lg"}>
+        return <div className={"p-3 mt-2 border"}>
             <span>
                 No sabemos cómo mostrarte este contenido,
             </span>
             <span
-                className={"text-[var(--primary)] hover:underline ml-1 cursor-pointer"}
+                className={"text-[var(--text-light)] hover:underline ml-1 cursor-pointer"}
                 onClick={(e) => {e.stopPropagation(); window.open(getBlueskyUrl(mainPostRef.uri), "_blank")}}>
                 miralo en Bluesky
             </span>

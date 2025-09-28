@@ -8,19 +8,19 @@ import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@/lex-api/util";
 import {pxToNumber} from "@/utils/strings";
-import TableVisualizationComp from "@/components/visualizations/table-visualization-comp";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
-import {ElectionVisualizationComp} from "@/components/visualizations/editor/election/election-visualization-comp";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoDataDataset} from "@/lex-api"
 import { Button } from "../../../modules/ui-utils/src/button";
-import {TrashIcon} from "@phosphor-icons/react";
+import {TableIcon, TrashIcon} from "@phosphor-icons/react";
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
+const TableVisualizationComp = dynamic(() => import("@/components/visualizations/table-visualization-comp"))
+const ElectionVisualizationComp = dynamic(() => import("@/components/visualizations/editor/election/election-visualization-comp"))
 
 export const ResponsivePlot = ({
                                    visualization,
@@ -55,7 +55,7 @@ export const ResponsivePlot = ({
     return <div className={"text-[var(--text-light)]"}>
         Esta configuración por ahora no está soportada.
     </div>
-};
+}
 
 
 const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisualization.View }) => {
@@ -102,10 +102,16 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
     </div>
 
     return <ClickableModalOnClick id="datos" modal={modal}>
-        <div className={"cursor-pointer border border-[var(--text-lighter)] text-[var(--text-light)] sm:text-base text-sm uppercase font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] px-2"}
+        <Button
+            variant={"outlined"}
+            color={"background-dark2"}
+            size={"small"}
+            paddingY={"0px"}
+            style={{height: 28}}
+            startIcon={<TableIcon color="var(--text)" fontSize={12}/>}
         >
-            Datos
-        </div>
+            <span className={"text-xs"}>Datos</span>
+        </Button>
     </ClickableModalOnClick>
 }
 
@@ -127,20 +133,19 @@ export default function Plot ({
 
     return <div style={{height, width}} className={"relative not-article-content"}>
         <div
-            className={"absolute top-2 left-2 z-[20]"}
+            className={"absolute top-0 left-2 z-[20] h-7"}
         >
             {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
         </div>
-        {(onEdit || onDelete) && <div className={"absolute top-2 right-2 z-[20] flex space-x-2"}>
+        {(onEdit || onDelete) && <div className={"absolute h-7 top-2 right-2 z-[20] flex space-x-2"}>
             {onEdit && <Button
                 onClick={() => {
                     setEditing(true)
                 }}
-                variant={"contained"}
+                variant={"outlined"}
                 color={"background-dark2"}
                 size={"small"}
                 paddingY={"0px"}
-                sx={{borderRadius: "8px"}}
                 startIcon={<WriteButtonIcon color="var(--text)" fontSize={12}/>}
             >
                 <span className={"text-xs"}>Editar</span>
@@ -151,7 +156,10 @@ export default function Plot ({
                 onClick={() => {
                     onDelete()
                 }}
-                sx={{borderRadius: "8px"}}
+                style={{
+                    borderRadius: 0,
+                    border: "1px solid var(--accent-dark)",
+                }}
             >
                 <TrashIcon color="var(--text)" fontSize={16}/>
             </IconButton>}

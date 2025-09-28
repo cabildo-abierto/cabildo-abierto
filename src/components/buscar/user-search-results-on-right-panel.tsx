@@ -30,7 +30,7 @@ const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) 
                         width: "100%",
                         borderRadius: "0px"
                     }}
-                    borderColor={"text-lighter"}
+                    borderColor={"accent-dark"}
                 >
                     <div className={"space-x-1 w-full"}>
                         <span>Buscar</span>

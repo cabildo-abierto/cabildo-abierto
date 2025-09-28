@@ -8,8 +8,7 @@ export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
         variant={"text"}
         sx={{
             paddingX: "8px",
-            paddingY: "8px",
-            borderRadius: 0
+            paddingY: "8px"
         }}
         fullWidth={true}
         stopPropagation={true}

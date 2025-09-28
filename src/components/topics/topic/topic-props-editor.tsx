@@ -46,7 +46,11 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
     return <div className={"flex space-x-2 w-full items-center justify-between"}>
         <div className={"flex items-center space-x-4"}>
             {info ?
-                <div className={"w-8"}><InfoPanel text={info} iconClassName={"text-[var(--text-lighter)]"}/></div> :
+                <div className={"w-8"}>
+                    <InfoPanel
+                        text={info}
+                    />
+                </div> :
                 <div className={"w-8"}/>
             }
             <Button
@@ -151,11 +155,11 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                                 borderRadius: 0,
                                 fontSize: "13px",
                                 "&:hover fieldset": {
-                                    borderColor: `var(--text-lighter)`,
+                                    borderColor: `var(--accent-dark)`,
                                 },
                                 "& fieldset": {
                                     borderRadius: 0,
-                                    borderColor: `var(--text-lighter)`,
+                                    borderColor: `var(--accent-dark)`,
                                     borderWidth: 1,
                                 },
                                 "&.Mui-focused fieldset": {
@@ -163,7 +167,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                                     borderRadius: 0,
                                     color: `var(--text)`,
                                     "&.MuiPickersOutlinedInput-notchedOutline": {
-                                        borderColor: `var(--text-lighter)`
+                                        borderColor: `var(--accent-dark)`
                                     }
                                 },
                             }

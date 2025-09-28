@@ -55,6 +55,9 @@ export type AuthorStatus = {
 }
 
 
+export type MirrorStatus = "Sync" | "Dirty" | "InProcess" | "Failed" | "Failed - Too Large"
+
+
 export type Session = {
     platformAdmin: boolean
     authorStatus: AuthorStatus | null
@@ -72,6 +75,7 @@ export type Session = {
     hasAccess: boolean
     validation: ValidationState
     algorithmConfig: AlgorithmConfig
+    mirrorStatus: MirrorStatus
 }
 
 

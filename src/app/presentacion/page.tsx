@@ -20,11 +20,12 @@ export default function Page() {
             <PresentacionCalidadDeLaInformacion/>
             <PresentacionRemuneraciones/>
             <PresentacionAbierto/>
-            <div className="pb-8 z-10 bg-[var(--background-ldark)] w-full flex justify-center">
+            <div className="pb-8 z-10 bg-[var(--background-dark)] w-full flex justify-center">
                 <GoToLoginButton
                     className="w-36 sm:w-48 font-bold sm:p-1"
                     fontSize={16}
                     text={"Empezar"}
+                    color={"background-dark2"}
                 />
             </div>
         </div>

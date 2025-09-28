@@ -1,12 +1,10 @@
 "use client"
-import {BackButton} from "../../../../../modules/ui-utils/src/back-button";
 import {useState} from "react";
 import {useMonthlyValue} from "@/queries/useFunding";
 import { post } from "@/utils/fetch";
 import { IntegerInputPlusMinus } from "@/components/aportar/integer-input-plus-minus";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import StateButton from "../../../../../modules/ui-utils/src/state-button";
-import {LuPartyPopper} from "react-icons/lu";
 import {MPWallet} from "@/components/aportar/mp-wallet";
 
 
@@ -47,55 +45,41 @@ export default function Page() {
     }
 
     if(preferenceId){
-        return <div className={"pt-2"}>
-            <BackButton defaultURL={"/aportar"} behavior={"fixed"}/>
-
-            <div className={"flex justify-center"}>
-                <div className={"flex flex-col items-center space-y-4 bg-[var(--background-dark)] rounded-lg p-8 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>
-                    <div className={"w-full"}>
-                        <BackButton
-                            onClick={() => {setPreferenceId(undefined)}}
-                            color={"background-dark"}
-                        />
-                    </div>
-                    <div className={"text-center"}>
-                        Aportando ${amount}.
-                    </div>
-                    <MPWallet preferenceId={preferenceId}/>
-                </div>
+        return <div className={"p-16 font-light rounded-panel-dark mt-4 flex flex-col items-center space-y-8"}>
+            <div className={"text-center"}>
+                Aportando ${amount}.
             </div>
+            <MPWallet preferenceId={preferenceId}/>
         </div>
     } else {
-        return <div className={"pt-2"}>
-            <BackButton defaultURL={"/aportar"} behavior={"fixed"}/>
-
+        return <div className={"pt-2 w-full h-full rounded-panel-dark mt-4"}>
             <div className={"flex justify-center mx-2"}>
-                <div className={"flex flex-col items-center space-y-4 bg-[var(--background-dark)] rounded-lg p-8 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>
-                    <div className={"text-[var(--text-light)] text-lg"}>
-                        <LuPartyPopper fontSize={"22px"}/>
-                    </div>
-
-                    <div className={"text-center space-y-2"}>
-                        <p>
-                            Elegí un valor para tu aporte.
+                <div className={"flex flex-col items-center space-y-4 p-4 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>
+                    <div className={"text-center font-light space-y-2"}>
+                        <p className={"text-lg"}>
+                            Elegí un valor para tu aporte
                         </p>
-                        <p className={"text-sm text-[var(--text-light)]"}>
+                        <p className={"text-[var(--text-light)]"}>
                             ${value} cubren el uso de la plataforma de un usuario durante un mes.
                         </p>
                     </div>
                     <div className="flex flex-col items-center w-full space-y-2 py-4">
-                        <IntegerInputPlusMinus value={amount} onChange={handleAmountChange} delta={1200}/>
-
+                        <IntegerInputPlusMinus value={amount} onChange={handleAmountChange} delta={value}/>
                         {amount > maxAmount && <div className="flex justify-center text-[var(--text-light)] text-center">
                             Para donar más de ${maxAmount} contactate con nosotros.
                         </div>}
                     </div>
-                    <div className="flex justify-center space-x-4">
+                    <div className="flex justify-center w-full">
                         <StateButton
                             disabled={!validAmount}
                             handleClick={onClickContinue}
                             text1={"Continuar"}
-                            textClassName={"font-semibold"}
+                            variant={"text"}
+                            paddingY={"8px"}
+                            paddingX={"16px"}
+                            textClassName={"text-[15px]"}
+                            sx={{borderRadius: "4px"}}
+                            color={"background-dark2"}
                         />
                     </div>
                 </div>

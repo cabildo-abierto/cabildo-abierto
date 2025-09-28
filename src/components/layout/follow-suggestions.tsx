@@ -31,7 +31,7 @@ export default function FollowSuggestions() {
 
     if (data && (!data.profiles || data.profiles.length == 0)) return null
 
-    return <div className={"border-[var(--text-lighter)] border-[1px] w-full h-full"}>
+    return <div className={"right-panel-panel w-full h-full"}>
         <div className={"flex px-3 py-2 items-center text-xs font-bold uppercase"}>
             Cuentas sugeridas
         </div>

@@ -1,17 +1,13 @@
-import {CustomLink as Link} from '../../../../modules/ui-utils/src/custom-link';
-import {ProfilePic} from "../../profile/profile-pic";
-import {profileUrl} from "@/utils/uri";
-import {dimOnHoverClassName} from "../../../../modules/ui-utils/src/dim-on-hover-link";
+
 import {SidebarBottom} from "@/components/layout/sidebar/sidebar-bottom";
 import { useLayoutConfig } from '../layout-config-context';
-import VerifyAccountButton, {isVerified} from '@/components/profile/verify-account-button';
 import {useSession} from "@/queries/useSession";
 import {SidebarButtons} from "@/components/layout/sidebar/sidebar-buttons";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
 import { Button } from '../../../../modules/ui-utils/src/button';
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {SignInIcon} from "@phosphor-icons/react";
-
+import { SidebarProfilePic } from "./sidebar-profile-pic";
 
 
 
@@ -34,22 +30,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                         className={"flex pb-8 h-full flex-col" + (isMobile ? " space-y-2" : " space-y-2")}
                     >
                         {user.user && <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
-                             <div className={"flex w-full"}>
-                                <div className={" " + (!showText ? "pl-4 min-h-12 justify-end " : " ") + (isMobile ? "flex space-x-2 items-end" : "flex flex-col space-y-1 h-16 items-center")}>
-                                    <Link href={profileUrl(user.user.handle)} id={"sidebar-profile-pic"}>
-                                        <ProfilePic
-                                            clickable={false}
-                                            user={user.user}
-                                            className={"rounded-full " + dimOnHoverClassName + (isMobile ? " w-14 h-14" : showText ? " w-12 h-12" : " w-7 h-7")}
-                                            descriptionOnHover={false}
-                                        />
-                                    </Link>
-                                    {(showText && !isVerified(user.user.validation) ?
-                                        <div className={"h-4"}><VerifyAccountButton verification={user.user.validation}/></div> :
-                                        <div className={"h-4"}/>
-                                    )}
-                                </div>
-                            </div>
+                            <SidebarProfilePic showText={showText}/>
                             <div className={isMobile && showText ? "" : "hidden"}>
                                 <div className={"font-bold text-xl"}>
                                     {user.user.displayName ?? "@" + user.user.handle}
