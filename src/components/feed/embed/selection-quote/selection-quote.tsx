@@ -38,7 +38,7 @@ async function validSelectionForComment(text: string, embeds: ArCabildoabiertoFe
         } else {
             return null
         }
-    } catch (err) {
+    } catch {
         //console.log("Error: ", err)
         return null
     }

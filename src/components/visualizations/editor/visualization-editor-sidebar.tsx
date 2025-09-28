@@ -68,7 +68,7 @@ const VisualizationEditorSidebar = ({
             color={isSelected ? "background-dark2" : "background-dark"}
             startIcon={icon}
             variant={"outlined"}
-            borderColor={"text-lighter"}
+            borderColor={"accent-dark"}
         >
             {o}
         </Button>

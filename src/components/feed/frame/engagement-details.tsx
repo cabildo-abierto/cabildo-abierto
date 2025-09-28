@@ -16,7 +16,7 @@ export const EngagementDetails = ({
                                   }: EngagementDetailsProps) => {
 
     return <div
-        className={"flex items-center exclude-links w-full space-x-3 border-b border-[var(--text-lighter)] pb-2 px-2 mb-2"}>
+        className={"flex items-center exclude-links w-full space-x-3 border-b border-[var(--accent-dark)] pb-2 px-2 mb-2"}>
         <RepostDetails
             content={content}
             showBsky={showBsky}

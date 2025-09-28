@@ -123,16 +123,16 @@ export const RepostCounter = ({content, showBsky, repostUri}: {
     const reposted = repostUri != null
 
     const modal = (close: () => void) => {
-        return <div className="text-base border border-[var(--text-lighter)] p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
+        return <div className="text-base border border-[var(--accent-dark)] p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
             {!reposted && <OptionsDropdownButton
                 text1={"Republicar"}
-                startIcon={<RepostIcon fontSize={"small"}/>}
+                startIcon={<RepostIcon fontSize={20}/>}
                 handleClick={async (e) => {close(); await onClickRepost(e); return {}}}
                 disabled={getRkeyFromUri(content.uri) == "optimistic"}
             />}
             {reposted && <OptionsDropdownButton
                 text1={"Eliminar republicación"}
-                startIcon={<RepostIcon fontSize={"small"}/>}
+                startIcon={<RepostIcon fontSize={20}/>}
                 handleClick={async (e) => {close(); await onClickRemoveRepost(e); return {}}}
                 disabled={content.viewer.repost == "optimistic-repost-uri"}
             />}
@@ -163,8 +163,8 @@ export const RepostCounter = ({content, showBsky, repostUri}: {
                 }}
                 stopPropagation={false}
                 active={reposted}
-                iconActive={<RepostIcon fontSize={"20"} weight="bold" color={"#5cefaa"}/>}
-                iconInactive={<RepostIcon fontSize={"20"}/>}
+                iconActive={<RepostIcon fontSize={20} color={"#5cefaa"}/>}
+                iconInactive={<RepostIcon fontSize={20}/>}
                 hoverColor={"background-dark3"}
                 disabled={disabled}
                 count={showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)}

@@ -19,7 +19,7 @@ const Ajustes = () => {
 
     return (
         <div className="">
-            <div className={"border-b border-[var(--text-lighter)] flex"}>
+            <div className={"border-b border-[var(--accent-dark)] flex"}>
                 <SelectionComponent
                     selected={selected}
                     onSelection={(v) => {

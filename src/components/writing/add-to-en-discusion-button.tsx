@@ -25,7 +25,7 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
             }}
             size={"small"}
             color={enDiscusion ? "background-dark2" : "transparent"}
-            textColor={enDiscusion ? "text" : "text-lighter"}
+            textColor={enDiscusion ? "text" : "accent-dark"}
             sx={{
                 borderRadius: 0
             }}

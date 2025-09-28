@@ -105,7 +105,7 @@ export const SaveEditPopup = ({
                         error: d ? d.error : "Ocurrió un error en la conexión con el servidor."
                     })
                 }
-            } catch (err) {
+            } catch {
                 setDiff({
                     isLoading: false,
                     error: "Ocurrió un error en la conexión con el servidor."
@@ -186,8 +186,10 @@ export const SaveEditPopup = ({
                             setTicked={setClaimsAuthorship}
                             text={
                             <div className="text-sm text-[var(--text-light)] flex space-x-1">
-                                <div>Soy autor/a de los caracteres agregados.</div><InfoPanel
-                                text={infoAuthorship} className="w-72"/>
+                                <div>Soy autor/a de los caracteres agregados.</div>
+                                <InfoPanel
+                                    text={infoAuthorship}
+                                />
                             </div>}
                         />
                     </div>

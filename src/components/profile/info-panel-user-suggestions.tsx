@@ -5,5 +5,8 @@ import React from "react";
 
 
 export const InfoPanelUserSuggestions = () => {
-    return <InfoPanel text={followSuggestionsInfo} moreInfoHref={topicUrl("Cabildo Abierto: Cuentas para seguir", undefined, "normal")}/>
+    return <InfoPanel
+        text={followSuggestionsInfo}
+        moreInfoHref={topicUrl("Cabildo Abierto: Cuentas para seguir", undefined, "normal")}
+    />
 }

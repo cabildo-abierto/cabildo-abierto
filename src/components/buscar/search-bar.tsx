@@ -16,7 +16,7 @@ const SearchBar = ({
     setSearchValue,
     setSearching=() => {},
     color="background",
-    borderColor="text-lighter",
+    borderColor="accent-dark",
     placeholder="buscar",
     size="small",
     borderRadius="0",
@@ -39,6 +39,9 @@ const SearchBar = ({
     placeholder?: string
     size?: TextFieldProps["size"]
 }) => {
+
+    const showCloseButton = searching && searchValue && searchValue.length > 0
+
     return <TextField
         size={size}
         autoFocus={autoFocus}
@@ -51,7 +54,7 @@ const SearchBar = ({
         slotProps={{
             input: {
                 startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
-                endAdornment: (searching ?? (searchValue && searchValue.length > 0)) ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
+                endAdornment: showCloseButton ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}
         autoComplete={"off"}

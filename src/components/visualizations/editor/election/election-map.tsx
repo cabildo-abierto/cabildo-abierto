@@ -21,7 +21,7 @@ const AlianzaPreview = ({nombre, onSelect}: {
 }) => {
     return <div
         onClick={onSelect}
-        className={"hover:bg-[var(--background-dark)] cursor-pointer p-2 font-extralight border border-[var(--text-lighter)]"}
+        className={"hover:bg-[var(--background-dark)] cursor-pointer p-2 font-extralight border border-[var(--accent-dark)]"}
     >
         <div className={"flex justify-between"}>
             <div
@@ -49,7 +49,7 @@ const Lista = ({cargo, subcargos, onSelectCandidate}: {
     const isEmpty = count == 0
 
     return <div
-        className={"border border-[var(--text-lighter)] p-2 " + (isEmpty ? "" : "cursor-pointer")}
+        className={"border border-[var(--accent-dark)] p-2 " + (isEmpty ? "" : "cursor-pointer")}
         onClick={() => {
             if (!isEmpty) setOpen(!open)
         }}
@@ -105,7 +105,7 @@ const Alianza = ({
 
     const districts = plotter.getDistrictsForAlianza(nombre).filter(x => x != district)
 
-    return <div className={"p-2 mt-2 border border-[var(--text-lighter)]"}>
+    return <div className={"p-2 mt-2 border border-[var(--accent-dark)]"}>
         <div className={"flex justify-between items-start"}>
             <div>
                 <div className={"capitalize leading-tight text-lg font-extrabold"}>
@@ -186,7 +186,7 @@ const Distrito = ({distrito, plotter, onSelectAlianza}: {
         </div>
     }
 
-    return <div className={"border border-[var(--text-lighter)] p-2 mt-2"}>
+    return <div className={"border border-[var(--accent-dark)] p-2 mt-2"}>
         <div className={"truncate text-xl font-extrabold py-1"}>
             {getProvinceName(distrito)}
         </div>
@@ -229,7 +229,7 @@ const Distrito = ({distrito, plotter, onSelectAlianza}: {
 
 const TopicLinkButton = ({id}: {id: string}) => {
     return <Link
-        className={"border uppercase text-xs border-[var(--text-lighter)] px-2 cursor-pointer hover:bg-[var(--background-dark)]"}
+        className={"border uppercase text-xs border-[var(--accent-dark)] px-2 cursor-pointer hover:bg-[var(--background-dark)]"}
         target={"_blank"}
         href={topicUrl(capitalize(id), undefined, "normal")}
     >
@@ -248,7 +248,7 @@ const CandidateComp = ({nombre, plotter, onBack, onSelectProvince, onSelectAlian
 
     const candidato = plotter.getCandidate(nombre)
 
-    return <div className={"mt-2 border border-[var(--text-lighter)] p-2"}>
+    return <div className={"mt-2 border border-[var(--accent-dark)] p-2"}>
         <div className={"flex justify-between items-start space-x-2"}>
             <div className={"capitalize font-extrabold text-lg"}>
                 {nombre.toLowerCase()}
@@ -318,7 +318,7 @@ const SearchResults = ({searchValue, plotter, onSelectCandidate, onSelectAlianza
                             }
                             setSearchValue(null)
                         }}
-                        className={"border-[var(--text-lighter)] border cursor-pointer hover:bg-[var(--background-dark)] p-1 text-xs font-extralight text-[var(--text-light)]"}
+                        className={"border-[var(--accent-dark)] border cursor-pointer hover:bg-[var(--background-dark)] p-1 text-xs font-extralight text-[var(--text-light)]"}
                     >
                         {r.type == "candidato" && <div>
                             <div className={"capitalize font-semibold"}>
@@ -489,7 +489,7 @@ const ElectionMapSidepanel = ({
 
     return useMemo(() => <div
         style={{width, height}}
-        className={"overflow-y-auto custom-scrollbar border border-[var(--text-lighter)] p-2"}
+        className={"overflow-y-auto custom-scrollbar border border-[var(--accent-dark)] p-2"}
     >
         <TextField
             variant="outlined"

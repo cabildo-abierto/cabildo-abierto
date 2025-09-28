@@ -11,6 +11,6 @@
   position: absolute;
   top: 0;
   margin-top: 10px; /* lo mismo que el paragraph de content*/
-  color: var(--text-lighter);
+  color: var(--accent-dark);
   pointer-events: none;
 }

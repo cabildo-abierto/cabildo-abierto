@@ -189,7 +189,7 @@ export const ConfigPanel = ({config, setConfig}: {
     }
 
     return <>
-        <div className={"flex border-b border-[var(--text-lighter)] w-full mt-2"}>
+        <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
             <SelectionComponent
                 options={["Visualización", "Texto", "Dimensiones"]}
                 optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}

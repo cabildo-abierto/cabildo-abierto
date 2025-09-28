@@ -16,7 +16,7 @@ export const DonationHistory = () => {
 
     return <div className={"w-full flex justify-center max-w-[500px]"}>
         <div className={"space-y-4 w-full flex flex-col items-center bg-[var(--background-dark2)] rounded p-4 mx-2"}>
-            <h3 className={"w-full"}>Tus aportes</h3>
+            <h3 className={"w-full uppercase text-base"}>Tus aportes</h3>
             <div className={"w-full"}>
                 {data && <div className={"flex flex-col w-full space-y-4 text-[var(--text-light)]"}>
                     {data.map((d, index) => {

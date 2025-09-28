@@ -28,7 +28,7 @@ export const AppearanceSettings = () => {
     }
 
     return <>
-        <div className="mb-4 space-y-4">
+        <div className="mb-4 p-4 space-y-4">
             <div className={"uppercase text-[var(--text-light)] font-semibold"}>
                 Tema
             </div>

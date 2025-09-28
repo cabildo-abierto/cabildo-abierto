@@ -83,7 +83,7 @@ function ProfileHeader({
 
     const isOwner = user && profile.bsky.handle == user.handle
 
-    return <div className="flex flex-col border-b border-[var(--text-lighter)] mt-2">
+    return <div className="flex flex-col border-b border-[var(--accent-dark)] mt-2">
         <div className={"flex flex-col relative w-full"}>
             {profile.bsky.banner ?
                 <div className={""}>
@@ -100,7 +100,7 @@ function ProfileHeader({
                         width={800}
                         height={300}
                         alt={profile.bsky.handle + " banner"}
-                        className="max-[500px]:w-screen border-t border-b border-r border-l border-[var(--text-lighter)] max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
+                        className="max-[500px]:w-screen border-t border-b border-r border-l border-[var(--accent-dark)] max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
                         onClick={() => {
                             setViewingBanner(0)
                         }}
@@ -136,7 +136,7 @@ function ProfileHeader({
                     <Button
                         color={"transparent"}
                         variant={"outlined"}
-                        borderColor={"text-lighter"}
+                        borderColor={"accent-dark"}
                         sx={{
                             borderRadius: 0,
                         }}
@@ -206,7 +206,7 @@ function ProfileHeader({
                             window.open(bskyProfileUrl(profile.bsky.handle), '_blank', 'noopener,noreferrer')
                         }}
                         href={"https://bsky.app/profile/" + profile.bsky.handle}
-                        className="hover:underline text-[var(--text-lighter)]"
+                        className="hover:underline text-[var(--accent-dark)]"
                     >
                             Ver perfil en Bluesky.
                         </Link>

@@ -12,7 +12,6 @@ import {
 import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
-import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/queries/useSession";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
@@ -44,6 +43,8 @@ import {AppBskyEmbedExternal} from "@atproto/api";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
+
+const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
 
 const PlotFromVisualizationMain = dynamic(
     () => import("@/components/visualizations/editor/plot-from-visualization-main"), {

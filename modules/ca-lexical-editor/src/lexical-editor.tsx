@@ -48,7 +48,7 @@ import {
 } from './ui/custom-mention-component';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
-import {TableContext} from './plugins/TablePlugin';
+import {TableContext} from './plugins/TablePlugin/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import {v4 as uuidv4} from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'

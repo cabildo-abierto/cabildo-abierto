@@ -1,5 +1,4 @@
 import {OptionsDropdownButton} from "./options-dropdown-button";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {post} from "@/utils/fetch";
 import {
     getCollectionFromUri,
@@ -23,6 +22,7 @@ import {useState} from "react";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
+import { TrashIcon } from "@phosphor-icons/react";
 
 
 const collection2displayText = {
@@ -115,7 +115,7 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
     return <>
         <OptionsDropdownButton
             text1={"Borrar " + collection2displayText[collection]}
-            startIcon={<DeleteOutlineIcon/>}
+            startIcon={<TrashIcon/>}
             handleClick={onClickDelete}
             disabled={isOptimistic}
         />

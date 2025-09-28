@@ -29,7 +29,7 @@ export const CloseSessionButton = () => {
             variant="contained"
             size="medium"
             color="red-dark"
-            textClassName={"text-[var(--button-text)]"}
+            textClassName={"text-[var(--background)]"}
             handleClick={onLogout}
             text1="Cerrar sesión"
         />

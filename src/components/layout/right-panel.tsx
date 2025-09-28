@@ -15,13 +15,37 @@ import {useSession} from "@/queries/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
+function useRightPanelConfig() {
+    const pathname = usePathname()
+    const isFollowSuggestionsPath = (pathname.startsWith("/inicio")
+        || pathname.startsWith("/perfil")
+        || pathname.startsWith("/buscar"))
+        && !pathname.startsWith("/perfil/cuentas-sugeridas")
+
+    const isDonatePath = !pathname.startsWith("/aportar")
+
+    const isTrendingTopicsPath = isFollowSuggestionsPath
+
+    return {isFollowSuggestionsPath, isTrendingTopicsPath, isDonatePath}
+}
+
+
+function useInSearchPage() {
+    const pathname = usePathname()
+    const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas")
+    return {inSearchPage}
+}
+
+
 export const RightPanel = () => {
     const pathname = usePathname();
     const {user} = useSession()
     const {data: meetingData} = useNextMeeting()
     const router = useRouter()
     const {searchState} = useSearch("main")
+    const {inSearchPage} = useInSearchPage()
     const {layoutConfig} = useLayoutConfig()
+    const {isFollowSuggestionsPath, isTrendingTopicsPath, isDonatePath} = useRightPanelConfig()
 
     const showSearchButton = searchState.searching && searchState.value.length > 0
 
@@ -31,16 +55,6 @@ export const RightPanel = () => {
             router.push("/buscar?q=" + encodeURIComponent(searchState.value));
         }
     }
-
-    const isFollowSuggestionsPath = ![
-        "/perfil/cuentas-sugeridas",
-        "/temas"
-    ].some(x => pathname.startsWith(x))
-
-    const isTrendingTopicsPath = ![
-        "/temas"
-    ].some(x => pathname.startsWith(x))
-    const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas")
 
     if(!layoutConfig.openRightPanel){
         return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
@@ -92,7 +106,7 @@ export const RightPanel = () => {
 
         {isFollowSuggestionsPath && user && <FollowSuggestions/>}
 
-        <div className={"flex"}>
+        {isDonatePath && <div className={"flex"}>
             <Link href={"/aportar"}>
                 <Button
                     fullWidth={false}
@@ -105,7 +119,7 @@ export const RightPanel = () => {
                     </span>
                 </Button>
             </Link>
-        </div>
+        </div>}
 
         <div className={"text-sm mt-4 pb-8"}>
             <RightPanelButtons/>

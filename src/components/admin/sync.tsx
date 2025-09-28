@@ -22,7 +22,10 @@ export const AdminSync = () => {
     }
 
     return <div className={"flex flex-col items-center mt-8 space-y-8 mb-64"}>
-        <div>
+        <div className={"bg-[var(--background-dark)] p-4"}>
+            <div>
+                Elegir collections
+            </div>
             <ListEditor
                 newItemText={"collection"}
                 items={collections}
@@ -74,6 +77,24 @@ export const AdminSync = () => {
             </table>
             }
 
+        </AdminSection>
+
+        <AdminSection title={"Collections"}>
+            <div>
+                <StateButton
+                    handleClick={async () => {
+                        if(collections.length == 1) {
+                            const {error} = await post("/job/reprocess-collection", {
+                                collection: collections[0]
+                            })
+                            return {error}
+                        } else {
+                            return {error: "Seleccioná una collection"}
+                        }
+                    }}
+                    text1={"Reprocesar collection"}
+                />
+            </div>
         </AdminSection>
     </div>
 }

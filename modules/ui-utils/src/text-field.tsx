@@ -18,7 +18,7 @@ export const TextField = ({
                               fontSize,
                               color = "transparent",
                               borderRadius = 0,
-                              borderColor = "text-lighter",
+                              borderColor = "accent-dark",
                               paddingY = "8px",
                               paddingX = "0px",
                               borderWidthNoFocus = "1px",

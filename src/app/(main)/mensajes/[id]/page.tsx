@@ -81,7 +81,7 @@ export default function Page() {
 
 
     return (
-        <div className={"flex flex-col border-l border-r border-[var(--text-lighter)] " + (isMobile ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-48px)]")}>
+        <div className={"flex flex-col border-l border-r border-[var(--accent-dark)] " + (isMobile ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-48px)]")}>
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2" ref={scrollRef}>
                     <div className="mt-2 pb-2">

@@ -28,8 +28,7 @@ export const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onC
                     }}
                     sx={{
                         borderRadius: "0",
-                        borderColor: "var(--text-lighter)",
-                        border: "1px solid"
+                        border: "1px solid var(--accent-dark)"
                     }}
                     size={"medium"}
                     id={"write-button"}

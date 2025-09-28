@@ -13,7 +13,7 @@ import {useTopbarTitle} from "@/components/layout/topbar-title";
 import {InfoPanelUserSuggestions} from "@/components/profile/info-panel-user-suggestions";
 
 
-export default function Topbarmobile() {
+export default function TopbarMobile() {
     const pathname = usePathname()
     const {title} = useTopbarTitle()
     const height = useTopbarHeight()
@@ -25,7 +25,7 @@ export default function Topbarmobile() {
 
     return <div
         style={{height}}
-        className={"fixed top-0 left-0 flex flex-col px-2 bg-[var(--background)] w-screen border-[var(--text-light)] border-b-[1px] z-[1100]"}
+        className={"fixed top-0 left-0 flex flex-col px-2 bg-[var(--background)] w-screen border-[var(--accent-dark)] border-b-[1px] z-[1100]"}
     >
         <div className={"flex space-x-2 items-center h-12 w-full"}>
             {backButton && !pathname.startsWith("/mensajes") && <BackButton

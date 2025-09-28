@@ -1,20 +1,21 @@
 "use client"
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 import {formatIsoDate} from "@/utils/dates";
 
 
 export function localeDate(date: Date, includeCurrentYear: boolean=false, includeSeconds: boolean=false) {
-    let dateFormat = date.getFullYear() !== 2025 || includeCurrentYear
-        ? "d 'de' MMMM 'de' yyyy"
-        : "d 'de' MMMM"
+    let dateFormat = dayjs(date).year() !== 2025 || includeCurrentYear
+        ? "D [de] MMMM [de] YYYY"
+        : "D [de] MMMM"
 
     if(includeSeconds){
-        dateFormat = `${format}, HH:mm:ss`
+        dateFormat = `${dateFormat}, HH:mm:ss`
     }
 
-    return format(date, dateFormat, { locale: es })
+    return dayjs(date).locale('es').format(dateFormat)
 }
+
 
 export const getFormattedTimeSince = (date: Date) => {
     const now = new Date();
@@ -52,6 +53,7 @@ export const getFormattedTimeSince = (date: Date) => {
     const years = Math.floor(days / 365);
     return `${years} a`
 };
+
 
 export function DateSince({ date, title=true }: { date: string | Date, title?: boolean}) {
 

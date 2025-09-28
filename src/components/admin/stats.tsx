@@ -119,7 +119,7 @@ export const AdminStats = () => {
 
     return <div className={"space-y-2 mt-8"}>
         <div className={"flex flex-wrap items-end gap-x-4 gap-y-4"}>
-            <div className={"flex-col text-8xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-32 aspect-square"}>
+            <div className={"flex-col text-8xl bg-[var(--background-dark)] border-4 border-[var(--text)] flex items-center justify-center text-center w-32 aspect-square"}>
                 <div>
                     {data.counts.active}
                 </div>
@@ -127,7 +127,7 @@ export const AdminStats = () => {
                     Activos
                 </div>
             </div>
-            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-24 h-24 aspect-square"}>
+            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] flex items-center justify-center text-center w-24 h-24 aspect-square"}>
                 <div>
                     {data.counts.registered}
                 </div>
@@ -135,7 +135,7 @@ export const AdminStats = () => {
                     Registrados
                 </div>
             </div>
-            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-24 h-24 aspect-square"}>
+            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] flex items-center justify-center text-center w-24 h-24 aspect-square"}>
                 <div>
                     {data.counts.verifiedActive}
                 </div>
@@ -143,7 +143,7 @@ export const AdminStats = () => {
                     Verificados activos
                 </div>
             </div>
-            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] rounded-lg flex items-center justify-center text-center w-24 h-24 aspect-square"}>
+            <div className={"flex-col text-4xl bg-[var(--background-dark)] border-4 border-[var(--text)] flex items-center justify-center text-center w-24 h-24 aspect-square"}>
                 <div>
                     {data.counts.verified}
                 </div>

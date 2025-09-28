@@ -26,7 +26,7 @@ export const ToolbarButton = ({
         sx={{borderRadius, width: "36px", height: "36px"}}
         {...props}
     >
-        <div className={"flex items-center " + (active ? "" : (props.disabled ? "text-[var(--text-lighter)]" : "text-[var(--text-light)]"))}>
+        <div className={"flex items-center " + (active ? "" : (props.disabled ? "text-[var(--accent-dark)]" : "text-[var(--text-light)]"))}>
             {children}
         </div>
     </IconButton>

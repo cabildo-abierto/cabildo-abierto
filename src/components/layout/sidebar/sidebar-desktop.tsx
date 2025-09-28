@@ -9,7 +9,7 @@ export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
 }) => {
     const {layoutConfig} = useLayoutConfig()
 
-    return <div className={"fixed z-[1199] h-screen bg-[var(--background)] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--text-lighter)]" : "")}>
+    return <div className={"fixed z-[1199] h-screen bg-[var(--background)] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--accent-dark)]" : "")}>
         <SidebarContent
             onClose={onClose}
             setWritePanelOpen={setWritePanelOpen}

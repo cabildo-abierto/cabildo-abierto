@@ -79,7 +79,7 @@ export const PresentacionFormato = () => {
         description={description}
         image={image}
         inverted={true}
-        background={"background-ldark"}
+        background={"background-dark"}
     />
 }
 
@@ -143,7 +143,7 @@ export const PresentacionCalidadDeLaInformacion = () => {
         description={description}
         image={null}
         inverted={true}
-        background={"background-ldark"}
+        background={"background-dark"}
     />
 }
 
@@ -203,7 +203,7 @@ export const PresentacionAbierto = () => {
     </div>
 
     const image = <div className={"p-2"}>
-        <div className="relative border p-2 border-[var(--text)] bg-[#fffff0]">
+        <div className="relative p-2">
             <Image
                 src="/presentacion/connected.png"
                 width={400}
@@ -233,7 +233,7 @@ export const PresentacionAbierto = () => {
         description={description}
         image={image}
         inverted={true}
-        background={"background-ldark"}
+        background={"background-dark"}
     />
 }
 

@@ -90,7 +90,7 @@ export const TrendingTopicsPanel = () => {
     const [time, setTime] = useState<string>(ttInitialConfig(user))
     const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
-    return <div className="w-full space-y-2 border-[1px] border-[var(--text-lighter)]">
+    return <div className="w-full space-y-2 right-panel-panel">
         <div className="flex justify-between h-10 px-3 items-center w-full">
             <Link
                 href={"/temas"}

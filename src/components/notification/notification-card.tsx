@@ -4,7 +4,7 @@ import {ProfilePic} from "@/components/profile/profile-pic";
 import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
 import {HeartIcon} from "@phosphor-icons/react";
 import {QuotesIcon} from "@phosphor-icons/react";
-import {RepeatIcon, ChatTextIcon} from "@phosphor-icons/react";
+import {ChatTextIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {
     ArticleKind,
@@ -19,6 +19,7 @@ import {useRouter} from "next/navigation";
 import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {ProfileView} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
+import { RepostIcon } from "../layout/icons/reposts-icon";
 
 
 const Username = ({user}: { user: ProfileView }) => {
@@ -131,7 +132,7 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
     } else if (notification.reason == "repost") {
         return <UserNotificationCard
             notification={notification}
-            reasonIcon={<RepeatIcon size={24}/>}
+            reasonIcon={<RepostIcon fontSize={24} color={"var(--text)"}/>}
             href={contentUrl(notification.reasonSubject)}
         >
             <Username user={notification.author}/> republicó <ContentMention uri={notification.reasonSubject}

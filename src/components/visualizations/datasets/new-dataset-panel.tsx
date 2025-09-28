@@ -64,7 +64,7 @@ async function createDataset(dataset: CreateDatasetProps){
 }
 
 
-export const NewDatasetPanel = ({open, onClose}: {
+const NewDatasetPanel = ({open, onClose}: {
     open: boolean, onClose: () => void
 }) => {
     const qc = useQueryClient()
@@ -206,3 +206,6 @@ export const NewDatasetPanel = ({open, onClose}: {
         {center}
     </BaseFullscreenPopup>
 }
+
+
+export default NewDatasetPanel

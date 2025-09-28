@@ -111,7 +111,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                     <div className="flex space-x-1">
                         {isCurrent && <div
                             title="Último contenido aceptado"
-                            className={"flex text-[var(--text-lighter)]"}
+                            className={"flex text-[var(--accent-dark)]"}
                         >
                             <StarIcon color="inherit" fontSize={"inherit"}/>
                         </div>}

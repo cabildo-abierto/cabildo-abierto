@@ -16,10 +16,10 @@ export type ButtonProps = Omit<MUIButtonProps, "color"> & {
 
 export function darker(color: Color): Color {
     if (color == "primary") return "primary-dark"
+    else if (color == "primary-dark") return "primary-dark2"
     else if (color == "background") return "background-dark"
     else if (color == "background-dark") return "background-dark2"
     else if (color == "background-dark2") return "background-dark3"
-    else if (color == "background-dark3") return "background-dark4"
     else if (color == "transparent") return "background-dark"
     else if (color == "accent") return "accent-dark"
     else if (color == "red") return "red-dark"
@@ -37,7 +37,7 @@ export const Button = ({
     paddingY,
     hoverColor,
                            textTransform,
-    borderColor = "text-lighter",
+    borderColor = "accent-dark",
                            ...props
                        }: ButtonProps) => {
     let textColor =
@@ -48,6 +48,7 @@ export const Button = ({
     return (
         <MUIButton
             {...props}
+
             sx={{
                 borderRadius: 0,
                 textTransform,

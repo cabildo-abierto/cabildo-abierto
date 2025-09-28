@@ -38,7 +38,7 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                     Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá
                     en cualquier contenido de la plataforma.
                 </div>
-                <div className={"sm:hidden border border-[var(--text-lighter)] p-2"}>
+                <div className={"sm:hidden border border-[var(--accent-dark)] p-2"}>
                     <span className={"font-semibold"}>Nota.</span> Algunas funcionalidades no están disponibles desde el celular.
                 </div>
             </div>

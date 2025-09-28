@@ -255,7 +255,7 @@ export const TopicFeed = ({
 
     return <div className={"mb-96 flex flex-col items-center"}>
         <div
-            className={"border-b border-[var(--text-lighter)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
+            className={"border-b border-[var(--accent-dark)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
             <div
                 className={"max-w-[600px] flex justify-between items-center pr-2 w-full max-w-screen overflow-scroll no-scrollbar"}
             >

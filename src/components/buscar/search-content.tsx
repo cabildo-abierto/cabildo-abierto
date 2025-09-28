@@ -24,7 +24,7 @@ const SearchContent = ({paramsSelected}: RouteContentProps) => {
     }
 
     return <div className="w-full">
-        <div className="flex border-b border-[var(--text-lighter)] max-w-screen overflow-x-scroll no-scrollbar">
+        <div className="flex border-b border-[var(--accent-dark)] max-w-screen overflow-x-scroll no-scrollbar">
             <SelectionComponent
                 onSelection={setSelected}
                 options={["Publicaciones", "Usuarios", "Temas"]}

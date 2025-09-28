@@ -52,7 +52,7 @@ export const BaseFullscreenPopup = ({
                 }
             }}
         >
-            <Box className={"w-screen sm:min-w-[300px] shadow-lg sm:border border-[var(--text-lighter)] " + className} sx={{backgroundColor: `var(--${color})`}}>
+            <Box className={"w-screen sm:min-w-[300px] shadow-lg sm:border border-[var(--accent-dark)] " + className} sx={{backgroundColor: `var(--${color})`}}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
                         <CloseButton

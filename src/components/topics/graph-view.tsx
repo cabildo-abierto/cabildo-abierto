@@ -10,11 +10,11 @@ import {
 import {useTheme} from "@/components/layout/theme/theme-context";
 import {TopicsGraph} from "@/lib/types";
 import {bboxCollide} from "d3-bboxCollide"
-import {inRange} from "lodash-es";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
 import {IconButton} from "@mui/material";
 import {MinusCircleIcon, PlusCircleIcon} from "@phosphor-icons/react";
+import { inRange } from '@/utils/math';
 
 
 type GraphNode = {
@@ -367,7 +367,7 @@ export default function GraphView({
                 }}
             </Zoom>
         </div>
-        {nodeIds.length > maxNodes && <div className={"flex text-xs text-[var(--text-lighter)]"}>
+        {nodeIds.length > maxNodes && <div className={"flex text-xs text-[var(--accent-dark)]"}>
             Se muestran {maxNodes} temas de {nodeIds.length}. Usá el buscador para filtrar.
         </div>}
     </div>

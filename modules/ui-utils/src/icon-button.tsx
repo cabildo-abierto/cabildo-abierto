@@ -40,10 +40,9 @@ export const IconButton = ({
             sx={{
                 textTransform: "none",
                 color: `var(--${textColor})`,
-                borderRadius: "20px",
                 backgroundColor: `var(--${color})`,
                 ":hover": {
-                    backgroundColor: hoverColor ?? `var(--${darker(color)})`,
+                    backgroundColor: hoverColor ? `var(--${hoverColor})` : `var(--${darker(color)})`,
                 },
                 ...extraSmallStyles,
                 ...sx,
