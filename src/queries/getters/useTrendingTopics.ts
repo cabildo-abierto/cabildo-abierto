@@ -1,5 +1,5 @@
 import {useAPI} from "@/queries/utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 

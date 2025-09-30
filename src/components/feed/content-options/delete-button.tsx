@@ -9,15 +9,13 @@ import {
     isTopicVersion,
     splitUri
 } from "@/utils/uri";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
     contentQueriesFilter,
-    specificContentQueriesFilter,
     updateContentInQueries,
     updateDatasets,
-    updateTopicFeedQueries,
     updateTopicHistories
-} from "@/queries/updates";
+} from "@/queries/mutations/updates";
 import {useState} from "react";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import { Button } from "../../../../modules/ui-utils/src/button";
@@ -37,11 +35,69 @@ const collection2displayText = {
     "ar.cabildoabierto.data.dataset": "conjunto de datos"
 }
 
-function optimisticDelete(qc: any, uri: string) {
+
+/*function isContentInThreadViewContent(uri: string, t: MaybeThreadViewContent) {
+    if(!ArCabildoabiertoFeedDefs.isThreadViewContent(t)) return false
+
+    let content = t.content
+
+    if(postOrArticle(content) && content.uri == uri){
+        return true
+    }
+
+    const inReplies = t.replies
+        ?.some(r => isContentInThreadViewContent(uri, r))
+
+    if(inReplies) return true
+
+    return isContentInThreadViewContent(uri, t.parent)
+}
+
+
+function isContentInFeed(uri: string, feed: InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>){
+    return feed.pages
+        .some(page => page.data.some(r => postOrArticle(r.content) && r.content.uri == uri))
+}
+
+
+function isContentInPostFeed(uri: string, feed: InfiniteFeed<ArCabildoabiertoFeedDefs.PostView>){
+    return feed.pages
+        .some(page => page.data.some(r => r.uri == uri))
+}
+
+
+function queriesWithContent(qc: QueryClient, uri: string) {
+    const queries: string[][] = []
+    qc.getQueryCache()
+        .getAll()
+        .filter(q => Array.isArray(q.queryKey))
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+
+                const k = q.queryKey
+
+                if (k[0] == "thread") {
+                    const t = old as MaybeThreadViewContent
+                    return isContentInThreadViewContent(uri, t)
+                } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "topic-feed") {
+                    return isContentInFeed(uri, old as InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>)
+                } else if(k[0] == "topic-quote-replies"){
+                    return (old as ArCabildoabiertoFeedDefs.PostView[]).some(p => p.uri == uri)
+                } else if(k[0] == "details-content" && k[1] == "quotes"){
+                    if(uri == k[2]) return true
+                    return isContentInPostFeed(uri, old as InfiniteFeed<ArCabildoabiertoFeedDefs.PostView>)
+                }
+            })
+        })
+    return queries
+}*/
+
+
+function optimisticDelete(qc: QueryClient, uri: string) {
     updateContentInQueries(qc, uri, c => null)
     updateTopicHistories(qc, uri, e => null)
     updateDatasets(qc,  uri, e => null)
-    updateTopicFeedQueries(qc, uri, e => null)
 }
 
 const deleteRecord = async ({uri}: { uri: string }) => {
@@ -79,6 +135,12 @@ function getCollectionWithArticle(collection: string){
 }
 
 
+function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient) {
+    //const queries = queriesWithContent(qc, uri)
+    //invalidateQueries(qc, queries)
+}
+
+
 const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
     const qc = useQueryClient()
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -95,12 +157,11 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
                 console.log(err)
             }
         },
-        onSettled: async (res) => {
+        onSuccess: async (res) => {
             if(res.error){
                 console.error(res.error)
             }
-            // qc.invalidateQueries(contentQueriesFilter(uri))
-            qc.resetQueries(specificContentQueriesFilter(uri))
+            invalidateQueriesAfterDeleteSuccess(uri, qc)
         }
     })
 
@@ -121,7 +182,7 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
         />
         <BaseFullscreenPopup open={deleteModalOpen} closeButton={true} onClose={() => {setDeleteModalOpen(false)}}>
             <div className={"px-8 pb-4 space-y-4"}>
-                <h3>
+                <h3 className={"normal-case"}>
                     ¿Querés borrar {getCollectionWithArticle(collection)}?
                 </h3>
                 <div className={"font-light text-[var(--text-light)] max-w-[300px]"}>
@@ -144,7 +205,7 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
                         size={"small"}
                         color={"red-dark"}
                         text1={"Borrar"}
-                        textClassName={"font-semibold text-[var(--button-text)]"}
+                        textClassName={"font-semibold text-[var(--white-text)]"}
                     />
                 </div>
             </div>

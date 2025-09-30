@@ -9,7 +9,7 @@ import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
 import {formatIsoDate} from "@/utils/dates";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrder, sortByKey} from "@/utils/arrays";
-import {useAccessRequests} from "@/queries/admin";
+import {useAccessRequests} from "@/queries/getters/admin";
 import {categoriesSearchParam} from "@/queries/utils";
 import {DatasetTableView, RawDatasetView} from "@/components/visualizations/datasets/dataset-table-view";
 

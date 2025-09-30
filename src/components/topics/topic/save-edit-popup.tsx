@@ -9,7 +9,7 @@ import {ChangesCounterWithText} from "./changes-counter";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
 import {topicUrl} from "@/utils/uri";
 import {getTopicProtection, hasEditPermission} from "./utils";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {Button} from "@/../modules/ui-utils/src/button"
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {post} from "@/utils/fetch";

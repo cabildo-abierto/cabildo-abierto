@@ -37,7 +37,7 @@ const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}:
 
     return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
         <div className={"pb-8 sm:w-[500px] min-h-[300px] px-6 flex flex-col justify-between space-y-8"}>
-            <h3 className={"text-center uppercase text-base"}>
+            <h3 className={"text-center normal-case"}>
                 ¿Listo para publicar?
             </h3>
 

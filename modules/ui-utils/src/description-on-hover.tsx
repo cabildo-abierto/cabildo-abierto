@@ -8,15 +8,18 @@ const DescriptionOnHover = ({children, description, moreInfoHref}: {
 }) => {
 
     const modal = <div
-        onClick={e => {e.stopPropagation()}}
-        className={"hidden sm:block max-w-[300px] panel text-xs p-2"}>
+        onClick={e => {
+            e.stopPropagation()
+        }}
+        className={"hidden sm:block max-w-[300px] panel-dark text-xs p-2"}
+    >
         {description} {moreInfoHref && <Link
         href={moreInfoHref}
         onClick={e => e.stopPropagation()}
-         className={"hover:underline text-[var(--text-light)]"}>Más información.</Link>}
+        className={"hover:underline text-[var(--text-light)]"}>Más información.</Link>}
     </div>
 
-    if(!description) return children
+    if (!description) return children
 
     return <ModalOnHover modal={modal}>
         {children}

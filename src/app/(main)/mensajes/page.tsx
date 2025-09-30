@@ -1,10 +1,10 @@
 "use client"
-import {useConversations} from "@/queries/useConversations";
+import {useConversations} from "@/queries/getters/useConversations";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {chatUrl} from "@/utils/uri";
 import Link from "next/link";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import { ChatBskyConvoDefs } from "@atproto/api";
 
 

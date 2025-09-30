@@ -2,7 +2,7 @@ import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import dynamic from "next/dynamic";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {WikiEditorState} from "@/lib/types";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"

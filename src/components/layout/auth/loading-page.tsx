@@ -2,7 +2,7 @@
 
 import React, {ReactNode} from 'react';
 import { LoadingScreen } from '../../../../modules/ui-utils/src/loading-screen';
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 const LoadingPage= ({children}: {children: ReactNode}) => {

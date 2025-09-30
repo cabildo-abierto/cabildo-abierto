@@ -31,7 +31,7 @@ export const SidenoteReplyPreviewFrame = ({
     const record = post
 
     return <div
-        className={"w-64 z-[1000] rounded border bg-[var(--background-dark2)] flex flex-col transition duration-300 ease-in-out cursor-pointer"}
+        className={"w-64 z-[1000] panel-dark flex flex-col transition duration-300 ease-in-out cursor-pointer"}
         onClick={() => {
             const element = document.getElementById("discussion:"+post.uri)
             smoothScrollTo(element)
@@ -77,7 +77,10 @@ export const SidenoteReplyPreviewFrame = ({
                 <div className={"mt-1"}>
                     <EngagementIcons
                         content={{$type: "ar.cabildoabierto.feed.defs#postView", ...post}}
-                        className={"flex justify-between w-full px-1"}
+                        className={"flex w-full px-1"}
+                        iconFontSize={16}
+                        textClassName={"text-sm text-[var(--text)]"}
+                        iconHoverColor={"background-dark2"}
                     />
                 </div>
             </div>

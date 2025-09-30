@@ -32,7 +32,7 @@ export const ContentTopRowAuthor = ({author}: ContentTopRowAuthorProps) => {
                 <div className="hover:underline font-bold">
                 {author.displayName ? author.displayName : author.handle}
                 </div>
-                <ValidationIcon fontSize={15} handle={author.handle} validation={verification}/>
+                <ValidationIcon fontSize={15} handle={author.handle} verification={verification}/>
                 <div className="text-[var(--text-light)] truncate">
                     @{author.handle}
                 </div>

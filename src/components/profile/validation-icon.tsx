@@ -7,24 +7,24 @@ import {CheckCircleIcon, UserCircleIcon} from "@phosphor-icons/react";
 
 const ValidationIcon = ({
                             handle,
-                            validation,
+                            verification,
                             fontSize = 22,
                             iconColor="button-text",
                             color="primary"
 }: {
     fontSize?: number
     handle: string
-    validation: ValidationState
+    verification: ValidationState
     color?: Color
     iconColor?: Color
 }) => {
     const moreInfoHref = topicUrl("Cabildo Abierto: Verificación de cuentas")
 
-    if (validation == "person" || validation == "persona") {
+    if (verification == "person" || verification == "persona") {
         return <DescriptionOnHover description={handle && `@${handle} es una persona real.`} moreInfoHref={moreInfoHref}>
             <UserCircleIcon fontSize={fontSize} color={`var(--text)`} weight={"fill"}/>
         </DescriptionOnHover>
-    } else if (validation == "org") {
+    } else if (verification == "org") {
         return <DescriptionOnHover description={handle && `@${handle} es una organización verificada.`} moreInfoHref={moreInfoHref}>
             <CheckCircleIcon fontSize={fontSize} color={`var(--text)`} weight={"bold"}/>
         </DescriptionOnHover>

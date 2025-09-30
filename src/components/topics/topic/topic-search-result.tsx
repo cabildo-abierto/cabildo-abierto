@@ -3,7 +3,7 @@ import {getTopicCategories, getTopicTitle} from "./utils";
 import TopicCategories from "./topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
-import {TimePeriod} from "@/queries/useTrendingTopics";
+import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {rounder} from "@/utils/strings";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
@@ -12,7 +12,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import { Session } from "@/lib/types";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 const TopicNumWords = ({numWords}: {numWords: number}) => {

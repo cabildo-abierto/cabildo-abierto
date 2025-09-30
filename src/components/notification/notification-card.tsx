@@ -17,12 +17,11 @@ import {
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import TopicsIcon from "@/components/layout/icons/topics-icon";
-import {ProfileView} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
 import { RepostIcon } from "../layout/icons/reposts-icon";
 
 
-const Username = ({user}: { user: ProfileView }) => {
+const Username = ({user}: { user: {displayName?: string, handle: string, did: string} }) => {
     return <span className={"font-bold hover:underline"}>
         {getUsername(user)}
     </span>
@@ -132,7 +131,7 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
     } else if (notification.reason == "repost") {
         return <UserNotificationCard
             notification={notification}
-            reasonIcon={<RepostIcon fontSize={24} color={"var(--text)"}/>}
+            reasonIcon={<RepostIcon fontSize={24} color={"text"}/>}
             href={contentUrl(notification.reasonSubject)}
         >
             <Username user={notification.author}/> republicó <ContentMention uri={notification.reasonSubject}

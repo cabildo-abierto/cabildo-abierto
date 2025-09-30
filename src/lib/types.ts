@@ -1,25 +1,10 @@
 import {PostOutput} from "@/utils/fetch";
 import {ArCabildoabiertoActorDefs, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {AppBskyActorDefs} from "@atproto/api"
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
-export type Profile = {
-    bsky: AppBskyActorDefs.ProfileViewDetailed
-    ca: CAProfile | null
-}
-
 export type ValidationState = "org" | "persona" | string | null
 
-export type CAProfile = {
-    inCA: boolean
-    followersCount: number
-    followsCount: number
-    articlesCount: number
-    editsCount: number
-    editorStatus: EditorStatus
-    validation: ValidationState
-}
 
 export type FollowingFeedFilterOption = "Todos" | "Solo Cabildo Abierto"
 export type FeedFormatOption = "Todos" | "Artículos"
@@ -114,15 +99,6 @@ export type TopicsGraph = {
     edges: {x: string, y: string}[]
     data?: {id: string, categorySize?: number}[]
 }
-
-
-export type BothContributionsProps = {
-    monetized: [string, number][]
-    all: [string, number][]
-}
-
-
-export type ContributionsProps = [string, number][]
 
 
 export type MatchesType = {

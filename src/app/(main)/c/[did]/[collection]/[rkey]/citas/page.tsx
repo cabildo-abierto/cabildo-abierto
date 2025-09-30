@@ -1,6 +1,6 @@
 "use client"
+import { QuotesDetailsContent } from "@/components/thread/quotes-details-content";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
-import {QuotesDetailsContent} from "@/components/thread/details-content";
 import React from "react";
 
 export default function Page({params}: {

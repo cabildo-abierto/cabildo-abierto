@@ -42,7 +42,19 @@ const FeedElement = ({
             showingChildren={showingChildren}
         />
     } else if(elem.content.$type == "deleted") {
-        return null
+        if(elem.reply){
+            return <PostPreview
+                postView={null}
+                feedViewContent={elem}
+                onClickQuote={onClickQuote}
+                showingParent={showingParent}
+                showReplyMessage={showReplyMessage}
+                showingChildren={showingChildren}
+                pageRootUri={pageRootUri}
+            />
+        } else {
+            return null
+        }
     } else {
         return <div className={"py-4"}>
             Error: No pudimos mostrar un elemento de la colección {elem.content.$type}

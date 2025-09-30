@@ -10,11 +10,11 @@ import TopicsIcon from "@/components/layout/icons/topics-icon";
 import MessagesIcon from "@/components/layout/icons/messages-icon";
 import React from "react";
 import {sum} from "@/utils/arrays";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {usePathname} from "next/navigation";
 import {useAPI} from "@/queries/utils";
-import {useConversations} from "@/queries/useConversations";
+import {useConversations} from "@/queries/getters/useConversations";
 import {profileUrl} from "@/utils/uri";
 
 

@@ -39,7 +39,7 @@ export function useTopicWithNormalizedContent(id?: string, did?: string, rkey?: 
                 return
             }
 
-            const { markdownToEditorState, editorStateToMarkdown, normalizeMarkdown } = await import("../../modules/ca-lexical-editor/src/markdown-transforms");
+            const { markdownToEditorState, editorStateToMarkdown, normalizeMarkdown } = await import("../../../modules/ca-lexical-editor/src/markdown-transforms");
 
             const state = markdownToEditorState(newText, true, true, topic.embeds)
             const markdown = editorStateToMarkdown(state)

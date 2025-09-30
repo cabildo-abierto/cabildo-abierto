@@ -10,9 +10,10 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AppBskyFeedDefs} from "@atproto/api"
 import {$Typed} from "@/lex-api/util";
 import {useQueryClient} from "@tanstack/react-query";
-import {threadQueryKey} from "@/queries/useThread";
+import {threadQueryKey} from "@/queries/getters/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
 import { CustomLink } from '../../../../modules/ui-utils/src/custom-link'
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 export const hasEnDiscusionLabel = (postView: ArCabildoabiertoFeedDefs.PostView | ArCabildoabiertoFeedDefs.ArticleView | ArCabildoabiertoFeedDefs.FullArticleView) => {
@@ -46,6 +47,7 @@ export const PostPreviewFrame = ({
                                  }: FastPostPreviewFrameProps) => {
     const url = urlFromRecord(postView.uri)
     const qc = useQueryClient()
+    const {isMobile} = useLayoutConfig()
 
     const enDiscusion = hasEnDiscusionLabel(postView)
     const author = postView.author
@@ -77,13 +79,13 @@ export const PostPreviewFrame = ({
     >
         {ArCabildoabiertoFeedDefs.isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
-        <div className={"flex h-full items-stretch"}>
-            <div className="max-w-[13%] w-full flex flex-col items-center px-2">
+        <div className={"flex h-full"}>
+            <div className="flex flex-col items-center pr-2 pl-4">
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <CustomLink
                     tag={"span"}
                     href={profileUrl(author.handle)}
-                    className="max-w-11 w-full flex items-center justify-center"
+                    className={"flex items-center justify-center " + (isMobile ? "w-9" : "w-11")}
                 >
                     <ProfilePic
                         user={author}
@@ -94,7 +96,7 @@ export const PostPreviewFrame = ({
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
-            <div className="py-2 flex w-full max-w-[86%] flex-col pr-2">
+            <div className="py-2 flex w-full flex-col pr-2">
                 <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
                     <div className="truncate">
                         <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
@@ -112,8 +114,11 @@ export const PostPreviewFrame = ({
                 <div className={"mt-1 text-sm"}>
                     <EngagementIcons
                         content={postView}
-                        className={"justify-between px-2"}
+                        className={"px-2"}
                         enDiscusion={enDiscusion}
+                        iconFontSize={18}
+                        textClassName={"font-light text-[var(--text)] text-sm"}
+                        iconHoverColor={"background-dark2"}
                     />
                 </div>
             </div>

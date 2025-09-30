@@ -8,7 +8,7 @@ import {profileUrl} from "@/utils/uri";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {$Typed} from "@/lex-api/util";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {localeDate} from "../../../../modules/ui-utils/src/date";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
@@ -24,9 +24,9 @@ export const MainPostFrame = ({
     const enDiscusion = hasEnDiscusionLabel(postView)
 
     return (
-        <div className="w-full bg-[var(--background)]">
-            <div className={"px-2 border-b border-[var(--accent-dark)]"}>
-                <div className="flex justify-between items-center px-2">
+        <div className="w-full bg-[var(--background)] border-[var(--accent-dark)] border-b">
+            <div className={"pl-4 pr-2"}>
+                <div className="flex justify-between items-center">
                     <div className="flex space-x-2">
                         <ProfilePic user={author} className={"w-11 h-11 rounded-full"}/>
                         <div className="flex flex-col">
@@ -34,7 +34,7 @@ export const MainPostFrame = ({
                             <Link href={authorUrl} className="hover:underline font-bold">
                                 {getUsername(author)}
                             </Link>
-                            <ValidationIcon fontSize={18} handle={author.handle} validation={author.verification}/>
+                            <ValidationIcon fontSize={18} handle={author.handle} verification={author.verification}/>
                             </div>
                             <Link href={authorUrl} className="text-[var(--text-light)] text-sm">
                                 @{author?.handle}
@@ -50,17 +50,18 @@ export const MainPostFrame = ({
                     </div>
 
                     <div className="py-2">
-                        <div className="text-sm text-[var(--text-light)]">
-                            Hace <DateSince date={postView.indexedAt} />
+                        <div className="text-sm text-[var(--text-light)] font-light" title={localeDate(new Date(postView.indexedAt), false, false, false, true)}>
+                            {localeDate(new Date(postView.indexedAt), false, false, true)}
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="py-2">
+            <div className="pb-1 pl-2 text-[15px]">
                 <EngagementIcons
                     content={postView}
                     enDiscusion={enDiscusion}
-                    className={"justify-between px-1"}
+                    className={"px-1"}
+                    textClassName={"text-sm font-light text-[var(--text)]"}
                     showDetails={true}
                 />
             </div>

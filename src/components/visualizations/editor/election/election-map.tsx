@@ -1,7 +1,7 @@
 import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {Candidato, Cargo, ElectionPlotter, getProvinceName} from "./election-plotter";
-import {DatasetForTableView, useDebounce} from "@/components/visualizations/datasets/dataset-table-view";
+import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
 import React, {useMemo, useState} from "react";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
@@ -13,6 +13,7 @@ import {topicUrl} from "@/utils/uri";
 import {capitalize} from "@/utils/strings";
 import {MemoizedArgentinaMap} from "@/components/visualizations/editor/election/argentina-map";
 import { TextField } from "../../../../../modules/ui-utils/src/text-field";
+import {useDebounce} from "@/utils/debounce";
 
 
 const AlianzaPreview = ({nombre, onSelect}: {

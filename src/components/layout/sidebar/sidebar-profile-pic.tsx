@@ -3,7 +3,7 @@ import {ProfilePic} from "../../profile/profile-pic";
 import {profileUrl} from "@/utils/uri";
 import {dimOnHoverClassName} from "../../../../modules/ui-utils/src/dim-on-hover-link";
 import VerifyAccountButton, {isVerified} from '@/components/profile/verify-account-button';
-import { useSession } from '@/queries/useSession';
+import { useSession } from '@/queries/getters/useSession';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import { HourglassIcon, WarningIcon } from '@phosphor-icons/react';
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";

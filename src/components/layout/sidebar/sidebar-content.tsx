@@ -1,7 +1,7 @@
 
 import {SidebarBottom} from "@/components/layout/sidebar/sidebar-bottom";
 import { useLayoutConfig } from '../layout-config-context';
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {SidebarButtons} from "@/components/layout/sidebar/sidebar-buttons";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
 import { Button } from '../../../../modules/ui-utils/src/button';

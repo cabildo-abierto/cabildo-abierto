@@ -4,7 +4,7 @@ import React, {ReactNode, useEffect, useMemo, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
@@ -15,7 +15,7 @@ import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/follow-button";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {useProfile} from "@/queries/useProfile";
+import {useProfile} from "@/queries/getters/useProfile";
 import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
 import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
@@ -61,8 +61,8 @@ const FirstFollowsMessage = ({open, onClose}: {
     const resultsWithSuggestions = useMemo(() => {
         if (!results && caProfile && bskyProfile) {
             return [
-                caProfile.bsky,
-                bskyProfile.bsky
+                caProfile,
+                bskyProfile
             ]
         }
         return results
@@ -159,7 +159,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
     }, [user, runStatus])
 
     useEffect(() => {
-        if (profile && profile.bsky.followsCount == 1) {
+        if (profile && profile.bskyFollowsCount == 1) {
             post<{}, {}>("/clear-follows")
         }
     }, [profile]);
@@ -294,7 +294,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         } else if (data.type == "step:after") {
             setStepIndex(data.index+1)
         } else if (finishedStatuses.includes(status)) {
-            if (profile && profile.bsky.followsCount <= 1 || searchParams.get("tutorial")) {
+            if (profile && profile.bskyFollowsCount <= 1 || searchParams.get("tutorial")) {
                 setRunStatus("follows")
                 if(!layoutConfig.spaceForRightSide){
                     setLayoutConfig({

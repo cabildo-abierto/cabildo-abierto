@@ -1,5 +1,5 @@
 "use client"
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {useRouter} from "next/navigation";
 import {LoadingScreen} from "../../modules/ui-utils/src/loading-screen";
 import {useEffect} from "react";

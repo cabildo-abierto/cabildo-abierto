@@ -1,5 +1,5 @@
-import {useSession} from "@/queries/useSession";
-import {useCurrentValidationRequest} from "@/queries/useValidation";
+import {useSession} from "@/queries/getters/useSession";
+import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {PermissionLevel} from "@/components/topics/topic/permission-level";

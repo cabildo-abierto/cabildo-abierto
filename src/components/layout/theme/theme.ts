@@ -13,6 +13,7 @@ export const darkThemePalette = {
   textLight: 'rgb(187, 195, 203)',
   boldText: '#ffffff',
   buttonText: 'rgb(229, 229, 229)',
+  whiteText: 'rgb(229, 229, 229)',
 
   accentDark: 'rgb(74,80,87)',
   accent: 'rgb(45,48,53)',
@@ -24,7 +25,10 @@ export const darkThemePalette = {
 
   red: "#ff6666",
   redDark: "#c12f2f",
-  redDark2: "#8f1919"
+  redDark2: "#8f1919",
+
+  like: "#EC4899",
+  repost: "#5CEFAA"
 }
 
 
@@ -36,21 +40,25 @@ export const lightThemePalette = {
   primaryLight: '#000000',
 
   text: 'rgb(26, 26, 26)',
-  textLight: 'rgb(68, 68, 68)',
+  textLight: 'rgb(92, 108, 116)',
   boldText: '#000000',
   buttonText: 'rgb(26, 26, 26)',
+  whiteText: 'rgb(229, 229, 229)',
 
   accentDark: 'rgb(137, 146, 155)',
   accent: 'rgb(188,198,208)',
 
   background: 'rgb(255,255,247)',
-  backgroundDark: 'rgb(235, 235, 227)',
-  backgroundDark2: 'rgb(215, 215, 207)',
-  backgroundDark3: 'rgb(195,195,189)',
+  backgroundDark: 'rgb(242,242,234)',
+  backgroundDark2: 'rgb(229,229,221)',
+  backgroundDark3: 'rgb(212,212,205)',
 
   red: "#ff6666",
   redDark: "#c12f2f",
-  redDark2: "#8f1919"
+  redDark2: "#8f1919",
+
+  like: "#EC4899",
+  repost: "#13C371"
 }
 
 const [darkTheme, lightTheme] = ["dark", "light"].map((t: "dark" | "light") => {

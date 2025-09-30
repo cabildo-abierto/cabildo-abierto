@@ -2,7 +2,7 @@ import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/thread/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {getUsername} from "@/utils/utils";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {EditorState} from "lexical";
 
 const ArticleEditorAuthor = ({

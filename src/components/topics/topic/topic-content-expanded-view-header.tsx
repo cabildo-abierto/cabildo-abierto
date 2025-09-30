@@ -7,7 +7,7 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {WikiEditorState} from "@/lib/types";
 import {TopicOptionsButton} from "@/components/topics/topic/topic-options-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"

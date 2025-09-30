@@ -1,11 +1,11 @@
-import {ArCabildoabiertoDataDataset} from "@/lex-api"
+import {ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@/lex-api"
 import {useEffect, useMemo, useRef, useState} from "react";
 import SearchBar from "@/components/buscar/search-bar";
-import {ArCabildoabiertoEmbedVisualization} from "@/lex-api"
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import {TablePlotter} from "@/components/visualizations/editor/plotter/table-plotter";
+import {useDebounce} from "@/utils/debounce";
 
 
 export type RawDatasetView = {
@@ -66,7 +66,8 @@ const TableRow = ({values, plotter, columns, href}: {
                 </td>
             }
         } else {
-            return <td key={colIndex} className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"/>
+            return <td key={colIndex}
+                       className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"/>
         }
     })
 }
@@ -75,26 +76,14 @@ const TableRow = ({values, plotter, columns, href}: {
 export type DatasetSortOrder = { col: string, order: "asc" | "desc" }
 
 
-export function useDebounce<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState(value)
-
-    useEffect(() => {
-        const handler = setTimeout(() => setDebouncedValue(value), delay)
-        return () => clearTimeout(handler)
-    }, [value, delay])
-
-    return debouncedValue
-}
-
-
 export const DatasetTableView = ({
                                      sort = true,
                                      dataset,
                                      columnsConfig,
                                      maxHeight,
                                      maxWidth,
-    filters
-}: DatasetTableViewProps) => {
+                                     filters
+                                 }: DatasetTableViewProps) => {
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
     const [sortingBy, setSortingBy] = useState<DatasetSortOrder | null>(null)
@@ -210,9 +199,10 @@ export const DatasetTableView = ({
             })}
             </tbody>
         </table>
-        {plotter && plotter.dataForPlot.length == 0 && <div className={"text-center text-sm font-light text-[var(--text-light)] w-full py-16"}>
-            {searchValue == "" ? "Sin datos." : "Sin resultados."}
-        </div>}
+        {plotter && plotter.dataForPlot.length == 0 &&
+            <div className={"text-center text-sm font-light text-[var(--text-light)] w-full py-16"}>
+                {searchValue == "" ? "Sin datos." : "Sin resultados."}
+            </div>}
         {showingRowsCount < plotter.dataForPlot.length &&
             <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
                 Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {

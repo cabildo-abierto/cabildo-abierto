@@ -13,7 +13,7 @@ import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {get} from "@/utils/fetch";
 import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";

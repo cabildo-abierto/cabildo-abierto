@@ -69,11 +69,11 @@ const SearchResults = ({results, setValue}: {
     }
 
     if (results.length == 0) return <></>
-    return <div className="mb-1 px-1 space-y-1">
+    return <div className="mb-1 space-y-1">
         {results.slice(0, 5).map((topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {
             return <button
                 key={topic.id}
-                className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
+                className={"text-left text-sm text-[var(--text)] hover:bg-[var(--background-dark3)] bg-[var(--background-dark2)] py-2 px-2 w-full"}
                 onClick={() => {
                     setValue(topic.id)
                 }}

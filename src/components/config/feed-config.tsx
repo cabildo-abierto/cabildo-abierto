@@ -11,7 +11,7 @@ export const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)
 
     const modal = (close: () => void) => (
-        <div className={"p-3 space-y-2 bg-[var(--background)] uppercase w-56"}>
+        <div className={"p-3 space-y-2 uppercase w-56"}>
             <div className={"w-full flex justify-between items-end"}>
                 <div className={"text-[13px] text-[var(--text)]"}>
                     Configurar <span className={"font-semibold text-[var(--text-light)]"}

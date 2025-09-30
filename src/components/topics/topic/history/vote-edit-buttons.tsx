@@ -5,7 +5,7 @@ import {RejectVersionModal} from "./reject-version-modal";
 import {post} from "@/utils/fetch";
 import {getDidFromUri, getRkeyFromUri, splitUri} from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter, updateTopicHistories} from "@/queries/updates";
+import {contentQueriesFilter, updateTopicHistories} from "@/queries/mutations/updates";
 import {produce} from "immer";
 import {CheckIcon, XIcon} from "@phosphor-icons/react";
 
@@ -121,24 +121,28 @@ export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acce
         cancelRejectEditMutation.mutate(rejectUri)
     }
 
+    const iconFontSize = 20
+
     return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
         <ReactionButton
             onClick={acceptUri ? onCancelAcceptEdit : onAcceptEdit}
             active={acceptUri != null}
-            iconActive={<span className={"text-green-400"}><CheckIcon/></span>}
-            iconInactive={<CheckIcon/>}
+            iconActive={<span className={"text-green-400"}><CheckIcon fontSize={iconFontSize}/></span>}
+            iconInactive={<CheckIcon fontSize={iconFontSize}/>}
             count={acceptCount}
             hoverColor={"background-dark2"}
             title={"Aceptar versión."}
+            textClassName={"text-sm"}
             disabled={acceptUri == "optimistic-accept-uri"}
         />
         <ReactionButton
             onClick={rejectUri ? onCancelRejectEdit : () => {setOpenRejectModal(true)}}
             active={rejectUri != null}
-            iconActive={<span className={"text-red-400"}><XIcon/></span>}
-            iconInactive={<XIcon/>}
+            iconActive={<span className={"text-red-400"}><XIcon fontSize={iconFontSize}/></span>}
+            iconInactive={<XIcon fontSize={iconFontSize}/>}
             count={rejectCount}
             hoverColor={"background-dark2"}
+            textClassName={"text-sm"}
             title={"Rechazar versión."}
             disabled={rejectUri == "optimistic-reject-uri"}
         />

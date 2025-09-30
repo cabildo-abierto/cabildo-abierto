@@ -1,11 +1,11 @@
 import {ReplyButton} from "./reply-button"
-import {useEffect, useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 import ThreadReplies from "./thread-replies";
 import Article from "./article/article";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
@@ -30,15 +30,12 @@ function getThreadQuoteReplies(t: ArCabildoabiertoFeedDefs.ThreadViewContent) {
 const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewContent }) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
-    const [quoteReplies, setQuoteReplies] = useState<ArCabildoabiertoFeedDefs.PostView[]>([])
     const {user} = useSession()
     const {setLoginModalOpen} = useLoginModal()
 
-    useEffect(() => {
-        if (ArCabildoabiertoFeedDefs.isFullArticleView(thread.content) && thread.replies) {
-            setQuoteReplies(getThreadQuoteReplies(thread))
-        }
-    }, [thread, thread.replies, thread.content])
+    const quoteReplies = useMemo(() => {
+        return getThreadQuoteReplies(thread)
+    }, [thread])
 
     const replies = useMemo(() => {
         if(thread.replies && ArCabildoabiertoFeedDefs.isFullArticleView(thread.content)) {
@@ -60,7 +57,7 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             quoteReplies={quoteReplies}
         />
 
-        <div className={"w-full border-b"}>
+        <div className={"w-full border-b border-[var(--accent-dark)]"}>
             <ReplyButton onClick={() => {
                 if(user) {
                     setOpenReplyPanel(true)

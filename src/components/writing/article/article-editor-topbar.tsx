@@ -6,7 +6,7 @@ import {useState} from "react";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
 import {EditorState} from "lexical";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
-import {Draft} from "@/queries/useDrafts"
+import {Draft} from "@/queries/getters/useDrafts"
 
 
 export const ArticleEditorTopbar = ({

@@ -16,71 +16,56 @@ export const EngagementDetails = ({
                                   }: EngagementDetailsProps) => {
 
     return <div
-        className={"flex items-center exclude-links w-full space-x-3 border-b border-[var(--accent-dark)] pb-2 px-2 mb-2"}>
-        <RepostDetails
-            content={content}
+        className={"flex items-center exclude-links w-full space-x-3 border-[var(--accent-dark)] px-2"}
+    >
+        <Details
+            count={content.repostCount}
+            countBsky={content.bskyRepostCount}
+            label={"republicaciones"}
+            labelSing={"republicación"}
             showBsky={showBsky}
+            url={contentUrl(content.uri) + "/republicaciones"}
         />
 
-        <LikesDetails
-            content={content}
+        <Details
+            count={content.likeCount}
+            countBsky={content.bskyLikeCount}
+            label={"me gustas"}
+            labelSing={"me gusta"}
             showBsky={showBsky}
+            url={contentUrl(content.uri) + "/me-gustas"}
         />
 
-        <QuotesDetails
-            content={content}
+        <Details
+            count={content.quoteCount}
+            countBsky={content.bskyQuoteCount}
+            label={"citas"}
+            labelSing={"cita"}
             showBsky={showBsky}
+            url={contentUrl(content.uri) + "/citas"}
         />
     </div>
 }
 
-const RepostDetails = ({content, showBsky}: {
-    content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>,
+const Details = ({count, countBsky, label, labelSing, url, showBsky}: {
+    count: number
+    countBsky: number
+    label: string
+    labelSing: string
     showBsky: boolean
+    url: string
 }) => {
 
-    const url = contentUrl(content.uri) + "/reposted-by"
+    const shownCount = showBsky ? countBsky : count
+
+    if(shownCount == 0) return
 
     return <Link
-        className={"text-sm"}
         href={url}
+        className={"text-[var(--text-light)] hover:text-[var(--text)]"}
     >
-        {showBsky ? content.bskyRepostCount : content.repostCount} <span className="text-[var(--text-light)] hover:text-[var(--text)]">
-            {(content.repostCount == 1) ? " republicación" : " republicaciones"}
+        <span className={"text-[var(--text)]"}>{shownCount}</span> <span className="font-light">
+            {(shownCount == 1) ? ` ${labelSing}` : ` ${label}`}
         </span>
-    </Link>
-}
-
-
-const LikesDetails = ({content, showBsky}: {
-    content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>,
-    showBsky: boolean
-}) => {
-
-    const url = contentUrl(content.uri) + "/liked-by"
-
-    return <Link
-        className={"text-sm"}
-        href={url}
-    >
-        {showBsky ? content.bskyLikeCount : content.likeCount} <span
-        className="text-[var(--text-light)] hover:text-[var(--text)]"> {" me gusta"} </span>
-    </Link>
-}
-
-
-const QuotesDetails = ({content, showBsky}: {
-    content: $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>,
-    showBsky: boolean
-}) => {
-
-    const url = contentUrl(content.uri) + "/quoted-by"
-
-    return <Link
-        className={"text-sm"}
-        href={url}
-    >
-        {showBsky ? content.bskyQuoteCount : content.quoteCount} <span
-        className="text-[var(--text-light)] hover:text-[var(--text)]"> {" citas"} </span>
     </Link>
 }

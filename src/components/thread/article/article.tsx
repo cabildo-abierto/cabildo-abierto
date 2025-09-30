@@ -1,7 +1,7 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {Dispatch, SetStateAction, useState} from "react";
 import {ArticleHeader} from "@/components/thread/article/article-header";
-import {EditorWithQuoteComments} from "@/components/writing/editor-with-quote-comments";
+import {EditorWithQuoteComments, getEditorKey} from "@/components/writing/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/writing/settings";
 import {LexicalEditor} from "lexical";
 import {$Typed} from "@/lex-api/util";
@@ -9,6 +9,7 @@ import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
 import {robotoSerif} from "@/components/writing/article-font";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 type ArticleCompProps = {
@@ -21,10 +22,9 @@ type ArticleCompProps = {
 
 const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
     const [editor, setEditor] = useState<LexicalEditor>(null)
+    const {layoutConfig} = useLayoutConfig()
 
     const enDiscusion = hasEnDiscusionLabel(article)
-
-    const editorId = article.uri + "-" + quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
 
     const text = article.text
     const format = article.format
@@ -33,7 +33,10 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
         <div className="w-full">
             <div className={"p-3"}>
                 <ArticleHeader article={article}/>
-                <div className={"mt-8 mb-16"} id={editorId}>
+                <div
+                    className={"mt-8 mb-16"}
+                    key={getEditorKey(article.uri, quoteReplies)}
+                >
                     <EditorWithQuoteComments
                         uri={article.uri}
                         cid={article.cid}
@@ -42,7 +45,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                             initialText: text,
                             initialTextFormat: format,
                             allowComments: true,
-                            tableOfContents: true,
+                            tableOfContents: layoutConfig.spaceForRightSide,
                             editorClassName: `article-content ${robotoSerif.variable}`,
                             embeds: article.embeds,
                             topicMentions: false
@@ -59,12 +62,13 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                     />
                 </div>
             </div>
-            <div className={"py-2 px-3 border-b border-[var(--text)]"}>
+            <div className={"py-2 px-1 border-b border-[var(--accent-dark)]"}>
                 <EngagementIcons
                     content={article}
-                    className={"flex justify-between px-4 w-full"}
+                    className={"flex px-[2px] w-full"}
                     enDiscusion={enDiscusion}
                     showDetails={true}
+                    textClassName={"text-base font-light text-[var(--text)]"}
                 />
             </div>
         </div>

@@ -1,6 +1,6 @@
 "use client"
 import {useState} from "react";
-import {useMonthlyValue} from "@/queries/useFunding";
+import {useMonthlyValue} from "@/queries/getters/useFunding";
 import { post } from "@/utils/fetch";
 import { IntegerInputPlusMinus } from "@/components/aportar/integer-input-plus-minus";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";

@@ -1,6 +1,6 @@
 import {categoriesSearchParam, useAPI} from "@/queries/utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {TimePeriod} from "@/queries/useTrendingTopics";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
+import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {TopicsGraph} from "@/lib/types";
 
 

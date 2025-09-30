@@ -1,7 +1,7 @@
 import {EditorState} from "lexical";
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import dynamic from "next/dynamic";
@@ -39,18 +39,6 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
     const router = useRouter()
     const qc = useQueryClient()
 
-    useEffect(() => {
-        async function process() {
-            const { editorStateToMarkdownNoEmbeds } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
-            const editorStateStr = JSON.stringify(editorState.toJSON())
-            setMdText(editorStateToMarkdownNoEmbeds(editorStateStr))
-        }
-
-        if (editorState && modalOpen) {
-            process()
-        }
-    }, [editorState, modalOpen])
-
     const handleSubmit = (enDiscusion: boolean) => async () => {
         const editorStateStr = JSON.stringify(editorState.toJSON())
         const { editorStateToMarkdown } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
@@ -69,6 +57,11 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
 
         qc.invalidateQueries({queryKey: ["session"]})
         qc.invalidateQueries({queryKey: ["drafts"]})
+        qc.invalidateQueries({
+            predicate: query => {
+                return query.queryKey.length == 3 && query.queryKey[0] == "profile-feed" && query.queryKey[2] == "articles"
+            }
+        })
 
         router.push("/inicio?f=siguiendo")
         return {stopResubmit: true}
@@ -88,6 +81,10 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
         <DescriptionOnHover description={helpMsg}>
             <StateButton
                 handleClick={async () => {
+                    const { editorStateToMarkdownNoEmbeds } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
+                    const editorStateStr = JSON.stringify(editorState.toJSON())
+                    const mdText = editorStateToMarkdownNoEmbeds(editorStateStr)
+                    setMdText(mdText)
                     setModalOpen(true)
                     return {}
                 }}
@@ -101,7 +98,7 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
         </DescriptionOnHover>
         {modalOpen && <PublishArticleModal
             onSubmit={handleSubmit}
-            onClose={() => {
+            onClose={async () => {
                 setModalOpen(false)
             }}
             open={modalOpen}

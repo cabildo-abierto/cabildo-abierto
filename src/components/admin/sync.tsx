@@ -10,7 +10,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
 import { Button } from "../../../modules/ui-utils/src/button";
-import {useUsersSyncStatus} from "@/queries/admin";
+import {useUsersSyncStatus} from "@/queries/getters/admin";
 
 
 export const AdminSync = () => {

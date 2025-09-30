@@ -17,7 +17,7 @@ const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) 
     }
 
     return <div
-        className={"w-full"}
+        className={"w-full z-[20000]"}
     >
         {showSearchButton && (
             <div className={""}>

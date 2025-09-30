@@ -4,19 +4,20 @@ import {TopicContentExpandedViewHeader} from "./topic-content-expanded-view-head
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
-import {useTopicVersion, useTopicVersionQuoteReplies} from "@/queries/useTopic";
+import {useTopicVersion, useTopicVersionQuoteReplies} from "@/queries/getters/useTopic";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {getEditorSettings} from "@/components/writing/settings";
-import {EditorWithQuoteComments} from "@/components/writing/editor-with-quote-comments";
+import {EditorWithQuoteComments, getEditorKey} from "@/components/writing/editor-with-quote-comments";
 import dynamic from "next/dynamic";
 import {post} from "@/utils/fetch";
 import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
 import {TopicPropsView} from "@/components/topics/topic/props/topic-props-view";
+
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter} from "@/queries/updates";
+import {contentQueriesFilter} from "@/queries/mutations/updates";
 import {topicUrl} from "@/utils/uri";
 import {ProcessedLexicalState} from "../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
@@ -24,7 +25,8 @@ import Link from "next/link";
 import {WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -54,7 +56,7 @@ function emptyTopic(topic: ArCabildoabiertoWikiTopicVersion.TopicView) {
 
 const TopicContentExpandedViewContent = ({
                                              wikiEditorState,
-    setWikiEditorState,
+                                             setWikiEditorState,
                                              topic,
                                              quoteReplies,
                                              pinnedReplies,
@@ -74,6 +76,7 @@ const TopicContentExpandedViewContent = ({
     const contentRef = useRef<HTMLDivElement>(null)
     const [isOverflowing, setIsOverflowing] = useState(false)
     const [overlayHovered, setOverlayHovered] = useState(false)
+    const {layoutConfig} = useLayoutConfig()
 
     useEffect(() => {
         if (!contentRef.current) return
@@ -112,9 +115,15 @@ const TopicContentExpandedViewContent = ({
             >
                 {wikiEditorState == "minimized" && isOverflowing && <div
                     className="w-full border-b border-[var(--accent-dark)] hover:bg-[var(--background-dark-30)] h-[300px] absolute z-[1000] inset-0 cursor-pointer"
-                    onClick={() => {if(wikiEditorState == "minimized") setWikiEditorState("normal")}}
-                    onMouseEnter={() => {setOverlayHovered(true)}}
-                    onMouseLeave={() => {setOverlayHovered(false)}}
+                    onClick={() => {
+                        if (wikiEditorState == "minimized") setWikiEditorState("normal")
+                    }}
+                    onMouseEnter={() => {
+                        setOverlayHovered(true)
+                    }}
+                    onMouseLeave={() => {
+                        setOverlayHovered(false)
+                    }}
                 >
                     <div className={"h-full flex flex-col justify-end items-center"}>
                         <div
@@ -160,31 +169,33 @@ const TopicContentExpandedViewContent = ({
                             href={topicUrl(topic.id, undefined, wikiEditorState)}>
                             Ir a la versión actual</Link>.
                         </div>}
-                        <EditorWithQuoteComments
-                            uri={topic.uri}
-                            cid={topic.cid}
-                            settings={getEditorSettings({
-                                isReadOnly: true,
-                                initialText: topic.text,
-                                initialTextFormat: topic.format,
-                                embeds: topic.embeds ?? [],
-                                allowComments: true,
-                                tableOfContents: wikiEditorState != "minimized",
-                                editorClassName: "relative article-content not-article-content " + (wikiEditorState == "minimized" ? "no-margin-first pt-2" : ""),
-                                shouldPreserveNewLines: true,
-                                markdownShortcuts: false,
-                                topicMentions: false
-                            })}
-                            clippedToHeight={wikiEditorState == "minimized" ? 300 : null}
-                            quoteReplies={quoteReplies}
-                            pinnedReplies={pinnedReplies}
-                            setPinnedReplies={setPinnedReplies}
-                            replyTo={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
-                            editor={editor}
-                            setEditor={setEditor}
-                            setEditorState={() => {
-                            }}
-                        />
+                        <div key={getEditorKey(topic.uri, quoteReplies)}>
+                            <EditorWithQuoteComments
+                                uri={topic.uri}
+                                cid={topic.cid}
+                                settings={getEditorSettings({
+                                    isReadOnly: true,
+                                    initialText: topic.text,
+                                    initialTextFormat: topic.format,
+                                    embeds: topic.embeds ?? [],
+                                    allowComments: true,
+                                    tableOfContents: wikiEditorState != "minimized" && layoutConfig.spaceForRightSide,
+                                    editorClassName: "relative article-content not-article-content " + (wikiEditorState == "minimized" ? "no-margin-first pt-2" : ""),
+                                    shouldPreserveNewLines: true,
+                                    markdownShortcuts: false,
+                                    topicMentions: false
+                                })}
+                                clippedToHeight={wikiEditorState == "minimized" ? 300 : null}
+                                quoteReplies={quoteReplies}
+                                pinnedReplies={pinnedReplies}
+                                setPinnedReplies={setPinnedReplies}
+                                replyTo={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
+                                editor={editor}
+                                setEditor={setEditor}
+                                setEditorState={() => {
+                                }}
+                            />
+                        </div>
                     </div>}
                 </div>}
             </div>
@@ -278,7 +289,7 @@ export const TopicContentExpandedViewWithVersion = ({
     }, [editor, setEditor, topic, pinnedReplies, setPinnedReplies, quoteReplies, wikiEditorState])
 
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
-        <div id="topic-content" className={"w-full " + (wikiEditorState == "minimized" ? "" : "") }>
+        <div id="topic-content" className={"w-full " + (wikiEditorState == "minimized" ? "" : "")}>
             <TopicContentExpandedViewHeader
                 topic={topic}
                 wikiEditorState={wikiEditorState}

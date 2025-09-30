@@ -155,9 +155,10 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
     }
 
     let settings = getEditorSettings({
+        topicMentions: false,
         initialText: JSON.stringify(contentWithChanges),
         initialTextFormat: "lexical",
-        tableOfContents: true,
+        tableOfContents: false,
         editorClassName: "relative article-content not-article-content min-h-[300px]",
     })
 

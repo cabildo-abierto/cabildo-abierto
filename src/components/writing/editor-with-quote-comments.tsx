@@ -2,15 +2,15 @@ import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-edit
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {Dispatch, SetStateAction, useEffect, useMemo, useRef, useState} from "react";
 import {$getRoot, EditorState, LexicalEditor} from "lexical";
-import {$createSidenoteNode, $isSidenoteNode} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
-import {$dfs, $wrapNodeInElement} from "@lexical/utils";
+import {$createSidenoteNode} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
+import {$wrapNodeInElement} from "@lexical/utils";
 import {createPortal} from "react-dom";
 import {NodeQuoteReplies} from "./node-quote-replies";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {useTrackReading} from "@/components/thread/article/read-tracking/track-reading";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api"
 import {AppBskyFeedPost} from "@atproto/api"
 import dynamic from "next/dynamic";
@@ -20,7 +20,7 @@ import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
-});
+})
 
 type EditorWithQuoteCommentsProps = {
     uri: string
@@ -69,6 +69,11 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 };*/
 
 
+export function getEditorKey(uri: string, quoteReplies: ArCabildoabiertoFeedDefs.PostView[]){
+    return [uri, ...(quoteReplies?.map(q => q.uri) ?? [])].join(":")
+}
+
+
 export const EditorWithQuoteComments = ({
     uri,
     cid,
@@ -95,9 +100,6 @@ export const EditorWithQuoteComments = ({
         clippedToHeight,
         undefined,
     )
-
-    // blockToUri es un mapa de índices de hijos de la raíz (en Lexical) a uris de respuestas
-    const [blockToUri, setBlockToUri] = useState<Map<number, string[]> | null>(null)
 
     const updateCoordinates = () => {
         if (editorElement.current) {
@@ -126,10 +128,10 @@ export const EditorWithQuoteComments = ({
         updateCoordinates()
     }, [layoutConfig])
 
-    useEffect(() => {
+    // blockToUri es un mapa de índices de hijos de la raíz (en Lexical) a uris de respuestas
+    const blockToUri = useMemo(() => {
         if (!quoteReplies || quoteReplies.length == 0 || !editor) {
-            setBlockToUri(new Map<number, string[]>())
-            return
+            return new Map<number, string[]>()
         }
 
         // por ahora, no mostramos ningún comentario que haya citado una versión anterior del contenido
@@ -154,25 +156,12 @@ export const EditorWithQuoteComments = ({
             }
         }
 
-        setBlockToUri(m)
+        return m
     }, [editor, quoteReplies])
 
     useEffect(() => {
         if (!normalizedEditorState) return
         editor.update(() => {
-            if (!blockToUri) return
-
-            const sidenotes = $dfs().map(n => n.node).filter($isSidenoteNode)
-            for (let i = 0; i < sidenotes.length; i++) {
-                const s = sidenotes[i]
-                const children = s.getChildren()
-                let node = s.insertAfter(children[0])
-                for (let j = 1; j < children.length; j++) {
-                    node = node.insertAfter(children[j])
-                }
-                s.remove()
-            }
-
             // cada bloque que tenga uris es wrapeado en un SidenoteNode
             const root = $getRoot()
             const children = root.getChildren()
@@ -197,7 +186,7 @@ export const EditorWithQuoteComments = ({
                 setLoginModalOpen(true)
             }
         },
-    }), [settings]);
+    }), [settings])
 
     return <>
         <div ref={editorElement}>

@@ -17,7 +17,7 @@ const is$typed = _is$typed,
   validate = _validate
 const id = 'ar.cabildoabierto.notification.listNotifications'
 
-export interface QueryParams {
+export type QueryParams = {
   /** Notification reasons to include in response. */
   reasons?: string[]
   limit?: number
@@ -25,7 +25,6 @@ export interface QueryParams {
   cursor?: string
   seenAt?: string
 }
-
 export type InputSchema = undefined
 
 export interface OutputSchema {
@@ -54,7 +53,7 @@ export interface Notification {
   $type?: 'ar.cabildoabierto.notification.listNotifications#notification'
   uri: string
   cid: string
-  author: ArCabildoabiertoActorDefs.ProfileView
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
   /** Expected values are 'like', 'repost', 'follow', 'mention', 'reply', 'quote', and 'starterpack-joined'. */
   reason:
     | 'like'

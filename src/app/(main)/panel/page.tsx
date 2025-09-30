@@ -94,13 +94,15 @@ const StatSquare = ({
                     <div>
                         {valueVerified}
                     </div>
-                    <ValidationIcon
-                        color={"background-dark"}
-                        iconColor={"text-light"}
-                        handle={undefined}
-                        validation={"persona"}
-                        fontSize={12}
-                    />
+                    <div className={"pb-[2px]"}>
+                        <ValidationIcon
+                            color={"background-dark"}
+                            iconColor={"text-light"}
+                            handle={undefined}
+                            verification={"persona"}
+                            fontSize={12}
+                        />
+                    </div>
                 </div>
             </div>}
         </div>
@@ -114,11 +116,11 @@ const CardStat = ({label, value, info, moreInfoHref}: {
     info?: ReactNode,
     moreInfoHref?: string
 }) => {
-    return <div className={"flex space-x-1 items-center text-sm"}>
+    return <div className={"flex space-x-1 items-center text-sm font-light"}>
         <div>
-        <span className={" font-semibold"}>
+        <span className={""}>
             {label}.
-        </span> <span className={"text-[var(--text)] text-extralight text-sm"}>
+        </span> <span className={"text-[var(--text)] text-sm"}>
             {value}
         </span>
         </div>
@@ -136,7 +138,7 @@ const ArticleStatsCard = ({article}: { article: ArticleStats }) => {
             <h2>
                 {article.title}
             </h2>
-            <div className={"text-[var(--text-light)] text-sm"}>
+            <div className={"text-[var(--text-light)] font-light text-sm"}>
                 {formatIsoDate(article.created_at)}
             </div>
         </div>

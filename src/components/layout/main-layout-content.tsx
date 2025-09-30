@@ -4,7 +4,7 @@ import {useLayoutConfig} from "./layout-config-context";
 import DesktopLayout from "@/components/layout/desktop-layout";
 import MobileLayout from "@/components/layout/mobile-layout";
 import dynamic from "next/dynamic";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"),

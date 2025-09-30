@@ -5,7 +5,7 @@ import ReplyIcon from "@mui/icons-material/Reply"
 import {useTopicFeedParams} from "@/components/topics/topic/topic-feed"
 import {usePathname} from "next/navigation";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: {

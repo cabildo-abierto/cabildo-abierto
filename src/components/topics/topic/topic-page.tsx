@@ -1,7 +1,7 @@
 "use client"
 import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
-import {useTopicWithNormalizedContent} from "@/queries/useTopic";
+import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {updateSearchParams} from "@/utils/fetch";

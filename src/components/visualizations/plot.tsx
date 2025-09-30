@@ -1,4 +1,4 @@
-import {useDataset} from "@/queries/useDataset";
+import {useDataset} from "@/queries/getters/useDataset";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useState} from "react";

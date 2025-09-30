@@ -2,7 +2,7 @@
 import Link from "next/link"
 import {getUsername} from "@/utils/utils"
 import {profileUrl} from "@/utils/uri";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import dynamic from "next/dynamic";
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"));
 

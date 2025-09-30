@@ -82,10 +82,10 @@ const WritePanelPanel = ({
             hidden={hidden}
             open={open}
             className="w-full max-w-[512px]"
-            disableScrollLock={false}
+            disableScrollLock={true}
             color={"background"}
         >
-            <div className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto">
+            <div className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {!isReply && !quotedPost ? <SelectionComponent
                         onSelection={onSelection}

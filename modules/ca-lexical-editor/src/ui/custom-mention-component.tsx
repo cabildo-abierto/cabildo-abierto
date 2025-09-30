@@ -40,7 +40,7 @@ CustomMentionComponent.displayName = 'CustomMentionComponent';
 
 export function CustomMenuMentions({loading, children, ...props}: BeautifulMentionsMenuProps) {
     return <ul
-        className="absolute p-1 space-y-1 bg-[var(--background-dark2)] z-[1300] rounded border w-80 flex flex-col items-center justify-center"
+        className="absolute p-1 space-y-1 z-[1300] panel-dark w-80 flex flex-col items-center justify-center"
         {...props}
     >
         {loading && <LoadingSpinner/>}
@@ -54,7 +54,7 @@ export const CustomMenuItemMentions = forwardRef<
 >(({selected, item}, ref) => {
     return (
             <li
-                className="m-0 flex p-2 w-full items-center space-x-2 cursor-pointer hover:bg-[var(--background-dark3)] rounded"
+                className="m-0 flex p-2 w-full items-center space-x-2 cursor-pointer hover:bg-[var(--background-dark3)]"
                 ref={ref}
             >
                 <div className={"flex items-center"}>

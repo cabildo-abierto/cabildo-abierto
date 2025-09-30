@@ -182,9 +182,12 @@ function TextFormatFloatingToolbar({
         );
     }, [editor, $updateTextFormatFloatingToolbar]);
 
+    const backgroundColor = "background-dark"
+
     return (
         <div ref={popupCharStylesEditorRef}
-             className="bg-[var(--background)] floating-text-format-popup border border-[var(--accent-dark)]">
+             className="floating-text-format-popup panel-dark"
+        >
             {editor.isEditable() && (
                 <>
                     <ToolbarButton
@@ -193,6 +196,7 @@ function TextFormatFloatingToolbar({
                         }}
                         aria-label="Format text as bold"
                         active={isBold}
+                        color={backgroundColor}
                     >
                         <FormatBoldIcon fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
@@ -202,6 +206,7 @@ function TextFormatFloatingToolbar({
                         }}
                         aria-label="Format text as italics"
                         active={isItalic}
+                        color={backgroundColor}
                     >
                         <FormatItalic fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>
@@ -209,6 +214,7 @@ function TextFormatFloatingToolbar({
                         onClick={insertLink}
                         aria-label="Insert link"
                         active={isLink}
+                        color={backgroundColor}
                     >
                         <InsertLink fontSize={"small"} color={"inherit"}/>
                     </ToolbarButton>

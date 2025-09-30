@@ -1,4 +1,4 @@
-import {useDonationHistory} from "@/queries/useFunding";
+import {useDonationHistory} from "@/queries/getters/useFunding";
 import {formatIsoDate} from "@/utils/dates";
 
 type Donation = {

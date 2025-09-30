@@ -12,7 +12,7 @@ const DescriptionOnClick = ({children, description, moreInfoHref}: {
             onClick={e => {
                 e.stopPropagation()
             }}
-            className={"max-w-[300px] panel px-2 py-1 text-sm"}
+            className={"max-w-[300px] panel-dark px-2 py-1 text-sm"}
         >
             {description} {moreInfoHref && <Link
             href={moreInfoHref}
