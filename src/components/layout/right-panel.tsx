@@ -14,6 +14,29 @@ import UserSearchResultsOnRightPanel from "@/components/buscar/user-search-resul
 import {useSession} from "@/queries/getters/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {createPortal} from "react-dom";
+import {useAPI} from "@/queries/utils";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+
+type ServerStatus = {
+    worker: boolean
+    mirror: boolean
+}
+
+function useServerStatus() {
+    return useAPI<{ status: ServerStatus }>("/status", ["status"], 60*1000)
+}
+
+
+const ServerStatus = () => {
+    const {data, isLoading} = useServerStatus()
+
+    if(isLoading) return <LoadingSpinner size={"10px"}/>
+
+    return <div className={"flex justify-center space-x-1"}>
+        <div className={"rounded-full w-2 h-2 " + (data.status.worker ? "bg-green-500" : "bg-red-500")} title={"worker"}/>
+        <div className={"rounded-full w-2 h-2 " + (data.status.mirror ? "bg-green-500": "bg-red-500")} title={"mirror"}/>
+    </div>
+}
 
 
 const NextMeetingOnRightPanel = () => {
@@ -105,6 +128,8 @@ export const RightPanel = () => {
         <div className={"flex justify-center mt-4"}>
             <Logo width={32} height={32}/>
         </div>
+
+        {user.platformAdmin && <ServerStatus/>}
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
 

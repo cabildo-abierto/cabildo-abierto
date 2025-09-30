@@ -1,22 +1,15 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import React from "react";
-import {get} from "@/utils/fetch";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import UserSearchResult from "@/components/buscar/user-search-result";
 import {useQuery} from "@tanstack/react-query";
-import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import { useDebounce } from "@/utils/debounce";
-
-async function searchUsers(query: string) {
-    if(encodeURIComponent(query).trim().length > 0){
-        return (await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
-    } else {
-        return []
-    }
-}
+import {searchUsers} from "@/components/writing/query-mentions";
 
 
-export const useSearchUsers = (searchState: {value: string, searching: boolean}) => {
+export const useSearchUsers = (
+    searchState: {value: string, searching: boolean},
+    limit: number) => {
     const debouncedQuery = useDebounce(searchState.value, 300)
 
     const {
@@ -26,7 +19,7 @@ export const useSearchUsers = (searchState: {value: string, searching: boolean})
         error,
     } = useQuery({
         queryKey: ["user-search", debouncedQuery],
-        queryFn: () => searchUsers(debouncedQuery),
+        queryFn: () => searchUsers(debouncedQuery, limit),
         enabled: debouncedQuery.length > 0,
         select: (data) => data,
     })
@@ -52,7 +45,7 @@ const UserSearchResults = ({
     splitBluesky?: boolean
     goToProfile?: boolean
 }) => {
-    const {results, isLoading, isError} = useSearchUsers(searchState)
+    const {results, isLoading, isError} = useSearchUsers(searchState, showSearchButton ? 6 : 25)
 
     if (searchState.value.length == 0) {
         return (

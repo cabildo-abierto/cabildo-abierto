@@ -6,7 +6,6 @@ import {getFeed} from "@/components/feed/feed/get-feed";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {useSession} from "@/queries/getters/useSession";
 import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilterOption, Session} from "@/lib/types";
-import Link from "next/link";
 import {stringToEnum} from "@/utils/strings";
 import {
     defaultEnDiscusionFormat,
@@ -20,6 +19,7 @@ import {
     searchParamToMainFeedOption
 } from "@/components/config/defaults";
 import {LoginRequiredPage} from "@/components/layout/page-requires-login-checker";
+import { Button } from "../../../modules/ui-utils/src/button";
 
 
 export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
@@ -59,9 +59,14 @@ export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, met
 }
 
 
-const followingFeedNoResultsText = <span className={"link"}>
-    No se encontraron contenidos. <Link href={"/buscar?s=Usuarios"}>Buscá usuarios para seguir</Link>.
-</span>
+const followingFeedNoResultsText = <div className={"flex flex-col items-center space-y-8 text-base text-[var(--text-light)]"}>
+    <div>
+        No se encontraron contenidos.
+    </div>
+    <Button href={"/buscar?s=Usuarios"} size={"small"}>
+        Buscar usuarios
+    </Button>
+</div>
 
 
 export function useMainPageSelected(user: Session) {
