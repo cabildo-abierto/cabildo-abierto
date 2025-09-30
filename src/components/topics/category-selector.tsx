@@ -1,4 +1,4 @@
-import {useCategories} from "@/queries/useTopics";
+import {useCategories} from "@/queries/getters/useTopics";
 import {emptyChar} from "@/utils/utils";
 import React, {useEffect, useMemo, useState} from "react";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";

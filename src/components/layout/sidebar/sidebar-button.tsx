@@ -4,7 +4,7 @@ import { Button } from "../../../../modules/ui-utils/src/button"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {Color} from "../../../../modules/ui-utils/src/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 type SidebarButtonProps = {

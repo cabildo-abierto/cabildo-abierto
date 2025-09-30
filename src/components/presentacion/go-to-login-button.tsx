@@ -1,7 +1,7 @@
 "use client"
 import {Button} from "../../../modules/ui-utils/src/button";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useMediaQuery} from "@mui/system";
 import { Color } from "../../../modules/ui-utils/src/color";

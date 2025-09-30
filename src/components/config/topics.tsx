@@ -1,4 +1,4 @@
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {stringToEnum} from "@/utils/strings";
 import {enDiscusionTimeOptions} from "@/components/config/defaults";
 import {useSearchParams} from "next/navigation";

@@ -7,7 +7,7 @@ import {ATProtoStrongRef} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter, updateTopicHistories} from "@/queries/updates";
+import {contentQueriesFilter, updateTopicHistories} from "@/queries/mutations/updates";
 import {produce} from "immer";
 import { TextField } from '../../../../../modules/ui-utils/src/text-field';
 

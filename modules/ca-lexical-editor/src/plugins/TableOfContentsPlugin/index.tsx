@@ -164,7 +164,7 @@ function TableOfContentsList({
 
   return (
     <div className="table-of-contents font-light">
-      <ul className="headings">
+      <ul className="headings pr-2 ">
         <div className="normal-heading-wrapper" key="title">
           <div
             className="first-heading"

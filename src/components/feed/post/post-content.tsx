@@ -25,7 +25,7 @@ export const PostContent = ({
     return <div className={"flex flex-col space-y-2"}>
         <BskyRichTextContent
             post={postView.record as AppBskyFeedPost.Record}
-            fontSize={isMainPost ? "18px" : "16px"}
+            fontSize={isMainPost ? "18px" : hideQuote ? "14px" : "16px"}
             className={"no-margin-top article-content not-article-content exclude-links"}
             namespace={postView.uri}
         />

@@ -1,4 +1,4 @@
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {useFollowingParams} from "@/components/inicio/main-page";
 import {FeedFormatOption, FollowingFeedFilterOption} from "@/lib/types";
 import {updateSearchParam} from "@/utils/fetch";

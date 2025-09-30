@@ -19,17 +19,17 @@ export function useTopbarTitle() {
     } else if (pathname.startsWith("/tema") && !pathname.startsWith("/temas")) {
         return {title: "Tema"}
     } else if (pathname.startsWith("/c")) {
-        if(pathname.includes("quoted-by")){
+        if(pathname.endsWith("/citas")){
             return {title: "Citas"}
-        } else if(pathname.includes("liked-by")) {
+        } else if(pathname.endsWith("/me-gustas")) {
             return {title: "Le gusta a"}
-        } else if(pathname.includes("reposted-by")) {
+        } else if(pathname.endsWith("/republicaciones")) {
             return {title: "Republicado por"}
-        } else if(pathname.includes("article")){
+        } else if(pathname.includes("/article/")){
             return {title: "Artículo"}
-        } else if(pathname.includes("post")){
+        } else if(pathname.includes("/post/")){
             return {title: "Publicación"}
-        } else if(pathname.includes("dataset")){
+        } else if(pathname.includes("/dataset/")){
             return {title: "Conjunto de datos"}
         }
     } else if(pathname.startsWith("/aportar")){

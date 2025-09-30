@@ -12,12 +12,14 @@ import {OptionsDropdownButton} from "./options-dropdown-button";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useState} from "react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {ViewsIcon} from "@/components/layout/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
 import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api/index"
+import {QueryClient, useQueryClient} from "@tanstack/react-query";
+import {QueryContentUpdater, updateContentInQueries} from "@/queries/mutations/updates";
 
 
 export function canBeEnDiscusion(c: string) {
@@ -34,6 +36,13 @@ const addToEnDiscusion = async (uri: string) => {
 const removeFromEnDiscusion = async (uri: string) => {
     const {collection, rkey} = splitUri(uri)
     return await post(`/unset-en-discusion/${collection}/${rkey}`)
+}
+
+
+
+function optimisticRemoveContentFromEnDiscusion(uri: string, qc: QueryClient) {
+    const updater: QueryContentUpdater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]> = p => null
+    updateContentInQueries(qc, uri, updater, qc => qc[0] == "main-feed" && qc[1] == "discusion")
 }
 
 
@@ -61,6 +70,7 @@ export const ContentOptions = ({
     const collection = getCollectionFromUri(record.uri)
     const authorDid = getDidFromUri(record.uri)
     const inBluesky = collection == "app.bsky.feed.post"
+    const qc = useQueryClient()
 
     const isOptimistic = getRkeyFromUri(record.uri).startsWith("optimistic")
 
@@ -78,6 +88,7 @@ export const ContentOptions = ({
                         return {error}
                     }
                 } else {
+                    optimisticRemoveContentFromEnDiscusion(record.uri, qc)
                     const {error} = await removeFromEnDiscusion(record.uri)
                     if(!error){
                         setAddedToEnDiscusion(false)
@@ -85,7 +96,6 @@ export const ContentOptions = ({
                         return {error}
                     }
                 }
-                // TO DO mutate("/api/feed/EnDiscusion")
                 return {}
             }}
             startIcon={<Newspaper/>}

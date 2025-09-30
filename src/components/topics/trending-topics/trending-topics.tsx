@@ -1,11 +1,11 @@
-import {TimePeriod, useTrendingTopics} from "@/queries/useTrendingTopics";
+import {TimePeriod, useTrendingTopics} from "@/queries/getters/useTrendingTopics";
 import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
 
 import dynamic from "next/dynamic";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import {useState} from "react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import Link from "next/link";
 import { Session } from "@/lib/types";
 
@@ -90,7 +90,7 @@ export const TrendingTopicsPanel = () => {
     const [time, setTime] = useState<string>(ttInitialConfig(user))
     const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
-    return <div className="w-full space-y-2 right-panel-panel">
+    return <div className="w-full space-y-2 panel">
         <div className="flex justify-between h-10 px-3 items-center w-full">
             <Link
                 href={"/temas"}

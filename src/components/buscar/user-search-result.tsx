@@ -3,7 +3,6 @@ import {profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/follow-button";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import {emptyChar} from "@/utils/utils";
 import React from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from "next/dynamic";
@@ -13,6 +12,7 @@ import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import ValidationIcon from "../profile/validation-icon";
 
 
 const ReadOnlyEditor = dynamic(() => import('@/components/writing/read-only-editor'), {
@@ -81,6 +81,7 @@ const UserSearchResult = ({
     const {isMobile} = useLayoutConfig()
 
     return <Link
+        key={user.did}
         tag={"div"}
         href={profileUrl(user.handle)}
         onClick={e => {
@@ -97,8 +98,14 @@ const UserSearchResult = ({
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>
         </div>
         <div className={"space-y-[-3px] " + (isSuggestion ? "w-[55%]" : "w-[60%]")}>
-            <div className={"truncate"}>
-                {user.displayName ? user.displayName : <>@{user.handle}</>}
+            <div className={"flex items-center space-x-1"}>
+                <div className={"truncate"}>
+                    {user.displayName ? user.displayName : <>@{user.handle}</>}
+                </div>
+                {user.caProfile && <div className={"pb-[2px]"}>
+                    <ValidationIcon fontSize={18} handle={user.handle} verification={user.verification}/>
+                </div>}
+                {!user.caProfile && <BlueskyLogo className={"w-[12px] h-auto"}/>}
             </div>
             {user.displayName &&
                 <div className="text-[var(--text-light)] text-sm truncate text-ellipsis">@{user.handle}</div>}
@@ -112,7 +119,6 @@ const UserSearchResult = ({
                               profile={user}/>
                 {isSuggestion && <NotInterestedButton subject={user.did}/>}
             </div>}
-            {!user.caProfile ? <BlueskyLogo className={"w-5 h-auto"}/> : <>{emptyChar}</>}
         </div>
     </Link>
 }

@@ -4,7 +4,7 @@ import {useSearchParams} from "next/navigation";
 import React from "react";
 import {getFeed} from "@/components/feed/feed/get-feed";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilterOption, Session} from "@/lib/types";
 import Link from "next/link";
 import {stringToEnum} from "@/utils/strings";

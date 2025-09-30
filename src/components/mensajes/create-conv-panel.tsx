@@ -1,4 +1,4 @@
-import {useConversations} from "@/queries/useConversations";
+import {useConversations} from "@/queries/getters/useConversations";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {chatUrl} from "@/utils/uri";
 import {Button} from "../../../modules/ui-utils/src/button";

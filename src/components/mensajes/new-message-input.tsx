@@ -10,7 +10,7 @@ import {
 } from "@/components/mensajes/create-message";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export default function NewMessageInput({

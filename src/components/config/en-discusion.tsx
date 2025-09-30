@@ -3,7 +3,7 @@ import {
     useEnDiscusionParams
 } from "@/components/inicio/main-page";
 import {updateSearchParam} from "@/utils/fetch";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {configOptionNodes} from "@/components/config/config-option-nodes";
 
 

@@ -2,7 +2,7 @@ import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import Image from "next/image";
 import React, {ReactNode, useState} from "react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {Menu} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
@@ -12,7 +12,7 @@ import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {useQueryClient} from "@tanstack/react-query";
 import FullscreenImageViewer from "@/components/layout/images/fullscreen-image-viewer";
-import {useProfile} from "@/queries/useProfile";
+import {useProfile} from "@/queries/getters/useProfile";
 import EditImageModal from "@/components/profile/edit-image-modal";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";
 import {AppBskyActorProfile} from "@atproto/api"
@@ -111,25 +111,25 @@ function validDescription(d: string){
 const EditProfileModal = ({open, onClose}: Props) => {
     const {user} = useSession()
     const {data: profile} = useProfile(user.handle)
-    const [displayName, setDisplayName] = useState(profile.bsky.displayName ?? "")
-    const [description, setDescription] = useState(profile.bsky.description ?? "")
+    const [displayName, setDisplayName] = useState(profile.displayName ?? "")
+    const [description, setDescription] = useState(profile.description ?? "")
     const [viewingProfilePic, setViewingProfilePic] = useState<null | number>(null)
-    const [banner, setBanner] = useState<ImagePayload | undefined>(profile.bsky.banner ? {
+    const [banner, setBanner] = useState<ImagePayload | undefined>(profile.banner ? {
         $type: "url",
-        src: profile.bsky.banner
+        src: profile.banner
     } : undefined)
-    const [profilePic, setProfilePic] = useState<ImagePayload | undefined>(profile.bsky.avatar ? {
+    const [profilePic, setProfilePic] = useState<ImagePayload | undefined>(profile.avatar ? {
         $type: "url",
-        src: profile.bsky.avatar
+        src: profile.avatar
     } : undefined)
     const qc = useQueryClient()
 
     async function onSubmit() {
         const {error} = await post<UpdateProfileProps, {}>("/profile", {
-            displayName: displayName != profile.bsky.displayName ? displayName : undefined,
+            displayName: displayName != profile.displayName ? displayName : undefined,
             banner: banner && banner.$type == "file" ? banner.base64 : undefined,
             profilePic: profilePic && profilePic.$type == "file" ? profilePic.base64 : undefined,
-            description: description != profile.bsky.description ? description : undefined
+            description: description != profile.description ? description : undefined
         })
         if(error) return {error}
         qc.invalidateQueries({queryKey: ["profile", user.handle]})
@@ -172,7 +172,7 @@ const EditProfileModal = ({open, onClose}: Props) => {
                         src={banner.src}
                         width={800}
                         height={300}
-                        alt={profile.bsky.handle + " banner"}
+                        alt={profile.handle + " banner"}
                         className="h-[150px] object-cover max-w-[600px] cursor-pointer"
                     /> :
                     <div
@@ -194,7 +194,7 @@ const EditProfileModal = ({open, onClose}: Props) => {
                         src={profilePic.src}
                         width={400}
                         height={400}
-                        alt={profile.bsky.handle + " avatar"}
+                        alt={profile.handle + " avatar"}
                         className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
                     />
                     <FullscreenImageViewer

@@ -1,7 +1,7 @@
 "use client"
 
 import {useParams} from "next/navigation";
-import {PrivateMessage} from "@/queries/useConversations";
+import {PrivateMessage} from "@/queries/getters/useConversations";
 import {ChatBskyConvoDefs} from "@atproto/api"
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {useEffect, useLayoutEffect, useRef} from "react";
@@ -15,7 +15,7 @@ import {
 } from "@/components/mensajes/create-message";
 import dynamic from "next/dynamic";
 import NewMessageInput from "@/components/mensajes/new-message-input";
-import {useConversation} from "@/queries/conversation";
+import {useConversation} from "@/queries/getters/conversation";
 
 
 const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), {

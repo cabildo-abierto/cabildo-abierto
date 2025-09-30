@@ -10,7 +10,7 @@ import {emptyChar} from "@/utils/utils";
 import {post} from "@/utils/fetch";
 import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {useDatasets} from "@/queries/useDataset";
+import {useDatasets} from "@/queries/getters/useDataset";
 import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
 import {$Typed} from "@/lex-api/util";
 

@@ -1,5 +1,7 @@
 import {HeartIcon} from "@phosphor-icons/react";
+import { Color } from "../../../../modules/ui-utils/src/color";
 
-export const ActiveLikeIcon = ({fontSize}: {fontSize?: string | number}) => {
-    return <HeartIcon fontSize={fontSize} weight={"fill"}/>
+export const ActiveLikeIcon = ({color, fontSize}: {
+    color?: Color, fontSize?: string | number}) => {
+    return <HeartIcon color={`var(--${color})`} fontSize={fontSize} weight={"fill"}/>
 }

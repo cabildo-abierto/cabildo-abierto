@@ -2,7 +2,7 @@ import React from 'react';
 import InfoPanel from '../../../modules/ui-utils/src/info-panel';
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {topicUrl} from "@/utils/uri";
-import {useFundingState, useMonthlyValue} from "@/queries/useFunding";
+import {useFundingState, useMonthlyValue} from "@/queries/getters/useFunding";
 
 const FundingProgress = () => {
     let {data: progress, isLoading: isLoadingFundingState} = useFundingState()

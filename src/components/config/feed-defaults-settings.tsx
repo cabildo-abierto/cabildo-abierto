@@ -8,7 +8,7 @@ import {
     EnDiscusionMetric,
     EnDiscusionTime, FeedFormatOption,
 } from "@/lib/types"
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";

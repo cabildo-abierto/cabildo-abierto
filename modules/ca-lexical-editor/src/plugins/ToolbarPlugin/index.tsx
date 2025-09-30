@@ -190,7 +190,7 @@ function BlockFormatDropDown({
                     onClick={() => {blockTypeToAction[key](); onClose()}}
                 >
                     <div className={"flex items-center space-x-1 justify-start w-full uppercase"}>
-                        <div className={"text-[var(--text-light)] flex items-center h-7"}>{blockTypeToIcon[key]}</div>
+                        <div className={"text-[var(--text)] flex items-center h-7"}>{blockTypeToIcon[key]}</div>
                         <div className={"whitespace-nowrap text-[14px] text-center w-full px-1"}>{blockTypeToBlockName[key]}</div>
                     </div>
                 </Button>
@@ -205,10 +205,10 @@ function BlockFormatDropDown({
             sx={{borderRadius, paddingY: "4px"}}
         >
             <div className={"flex items-center space-x-1 justify-start"}>
-                <div className={"text-[var(--text-light)] flex items-center h-7"}>
+                <div className={"text-[var(--text)] flex items-center h-7"}>
                     {blockTypeToIcon[blockType]}
                 </div>
-                <div className={"whitespace-nowrap text-[var(--text-light)] w-full px-1"}>{blockTypeToBlockName[blockType]}</div>
+                <div className={"whitespace-nowrap text-[var(--text)] w-full px-1"}>{blockTypeToBlockName[blockType]}</div>
                 <KeyboardArrowDownIcon fontSize={"small"}/>
             </div>
         </Button>

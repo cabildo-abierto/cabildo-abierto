@@ -3,7 +3,7 @@ import {Box, FormHelperText} from "@mui/material"
 import {useEffect, useState} from "react"
 import {FormControl} from '@mui/material';
 import {isValidHandle} from "@atproto/syntax"
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {Button} from "../../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 import {AtIcon} from "@phosphor-icons/react";

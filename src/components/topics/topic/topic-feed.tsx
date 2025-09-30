@@ -12,7 +12,7 @@ import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-
 import {useMemo, useRef} from "react";
 import {ClickableModalOnClick} from "../../../../modules/ui-utils/src/popover";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {stringToEnum} from "@/utils/strings";
 import {
     defaultTopicMentionsFormat,
@@ -123,7 +123,7 @@ const TopicFeedConfig = ({selected}: { selected: TopicFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)
 
     const modal = (close: () => void) => (
-        <div className={"p-3 space-y-2 bg-[var(--background)] w-56"}>
+        <div className={"p-3 space-y-2 w-56"}>
             <div className={"w-full flex justify-between items-end"}>
                 <div className={"text-[13px] text-[var(--text)] uppercase"}>
                     Configurar <span className={"font-semibold text-[var(--text-light)]"}

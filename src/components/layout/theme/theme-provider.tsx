@@ -17,6 +17,8 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
         root.style.setProperty('--red', palette.red)
         root.style.setProperty('--red-dark', palette.redDark)
         root.style.setProperty('--red-dark2', palette.redDark2)
+        root.style.setProperty('--like', palette.like)
+        root.style.setProperty('--repost', palette.repost)
 
         root.style.setProperty('--primary', palette.primary)
         root.style.setProperty('--primary-light', palette.primaryLight)
@@ -28,6 +30,7 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
         root.style.setProperty('--bold-text', palette.boldText);
         root.style.setProperty('--button-text', palette.buttonText);
         root.style.setProperty('--text-light', palette.textLight);
+        root.style.setProperty('--white-text', palette.whiteText);
 
         root.style.setProperty('--accent', palette.accent);
         root.style.setProperty('--accent-dark', palette.accentDark);

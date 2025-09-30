@@ -1,7 +1,7 @@
 "use client"
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import Link from "next/link";
 import {getBlueskyUrl, profileUrl} from "@/utils/uri";
 

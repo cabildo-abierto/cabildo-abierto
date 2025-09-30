@@ -1,7 +1,7 @@
 import React from "react";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {topicUrl} from "@/utils/uri";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export const RightPanelButtons = () => {

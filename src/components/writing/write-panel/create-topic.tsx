@@ -6,7 +6,7 @@ import {ErrorMsg} from "@/utils/utils";
 import TickButton from "../../../../modules/ui-utils/src/tick-button";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {getTopicTitle, validEntityName} from "@/components/topics/topic/utils";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {post} from "@/utils/fetch";
 import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
@@ -138,7 +138,7 @@ const CreateTopicButtons = ({
 
 
 export const CreateTopicResults = ({results, topicName}: {results: CreateTopicSearchResults, topicName: string}) => {
-    return <div className={"text-[var(--text-light)] text-sm"}>
+    return <div className={"text-[var(--text)] text-sm"}>
         {results != "loading" && results && results.length > 0 && <div className={"space-y-1"}>
                 <span className={"text-xs font-light"}>
                     Los siguientes temas mencionan <span className={"font-semibold"}>{`"${topicName}"`}</span> en su título.
@@ -197,8 +197,8 @@ const CreateTopicInput = ({
             ticked={goToArticle}
             setTicked={setGoToArticle}
             size={20}
-            color="var(--background-dark5)"
-            text={<div className="text-sm text-[var(--text-light)]">
+            color="var(--text-light)"
+            text={<div className="text-sm">
                 Ir a la página del tema después de crearlo
             </div>}
         />

@@ -101,6 +101,8 @@ function Feed<T>({
 
     const feedList = feed?.pages.reduce((acc, page) => [...acc, ...page.data], []) || []
 
+    const loading = isFetchingNextPage || (isFetching && feedList.length == 0)
+
     return (
         <div className="w-full flex flex-col items-center">
             {feedList.map((c, i) => {
@@ -109,7 +111,7 @@ function Feed<T>({
                     <FeedElement content={c} index={i}/>
                 </div>
             })}
-            {(isFetchingNextPage || isFetching) &&
+            {loading &&
                 <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
             }
             {feed && !hasNextPage && (endText || noResultsText) && <div className={"text-center font-light py-16 text-[var(--text-light)] text-sm"}>

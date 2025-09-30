@@ -1,13 +1,12 @@
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import {useSession} from "@/queries/useSession";
-import {Profile} from "@/lib/types";
+import {useSession} from "@/queries/getters/useSession";
+import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {darker} from "../../../modules/ui-utils/src/button";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {AppBskyActorDefs} from "@atproto/api"
-import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import {Color} from "../../../modules/ui-utils/src/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {CheckIcon, PlusIcon} from "@phosphor-icons/react";
@@ -33,12 +32,10 @@ function optimisticFollow(qc: QueryClient, handle: string) {
 
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
-                    return produce(old as Profile, draft => {
-                        draft.bsky.viewer.following = "optimistic-follow"
-                        draft.bsky.followersCount++
-                        if(draft.ca){
-                            draft.ca.followersCount++
-                        }
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
+                        draft.viewer.following = "optimistic-follow"
+                        draft.bskyFollowersCount++
+                        draft.followersCount++
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
@@ -83,12 +80,10 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
 
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
-                    return produce(old as Profile, draft => {
-                        draft.bsky.viewer.following = undefined
-                        draft.bsky.followersCount--
-                        if(draft.ca){
-                            draft.ca.followersCount--
-                        }
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
+                        draft.viewer.following = undefined
+                        draft.bskyFollowersCount--
+                        draft.followersCount--
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
@@ -133,8 +128,8 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
 
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
-                    return produce(old as Profile, draft => {
-                        draft.bsky.viewer.following = followUri
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
+                        draft.viewer.following = followUri
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
@@ -169,9 +164,15 @@ const isQueryRelatedToFollow = (query: Query) => {
 }
 
 
-export function FollowButton({handle, profile, backgroundColor="background", textClassName, dense=false}: {
+export function FollowButton({
+                                 handle,
+                                 profile,
+                                 backgroundColor="background",
+                                 textClassName,
+                                 dense=false
+}: {
     handle: string,
-    profile: AppBskyActorDefs.ProfileViewDetailed | AppBskyActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewBasic
+    profile: AppBskyActorDefs.ProfileViewDetailed | AppBskyActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewDetailed
     backgroundColor?: Color
     textClassName?: string
     dense?: boolean

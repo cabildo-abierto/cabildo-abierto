@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import type { ReactNode } from "react";
-import { Color } from "../../../../modules/ui-utils/src/color";
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import React, {useState} from "react";
+import type {ReactNode} from "react";
+import {Color} from "../../../../modules/ui-utils/src/color";
+import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
 
 type ReactionButtonProps = {
     onClick: () => void
@@ -13,6 +13,7 @@ type ReactionButtonProps = {
     title?: string
     stopPropagation?: boolean
     hoverColor?: Color
+    textClassName?: string
 }
 
 export const ReactionButton = ({
@@ -23,8 +24,9 @@ export const ReactionButton = ({
                                    active = true,
                                    disabled = false,
                                    title,
-    hoverColor,
-                                   stopPropagation = true
+                                   hoverColor,
+                                   stopPropagation = true,
+                                   textClassName,
                                }: ReactionButtonProps) => {
     const [shake, setShake] = useState(false);
 
@@ -53,9 +55,9 @@ export const ReactionButton = ({
                 size={"small"}
                 sx={{borderRadius: 0}}
             >
-                <div className="flex items-end space-x-1 text-[var(--text-light)]">
+                <div className="flex items-start space-x-1 text-[var(--text-light)]">
                     {active ? <div>{iconActive}</div> : <div>{iconInactive}</div>}
-                    <div className="text-sm">
+                    <div className={textClassName}>
                         {count}
                     </div>
                 </div>

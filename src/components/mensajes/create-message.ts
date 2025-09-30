@@ -1,4 +1,4 @@
-import {Conversation} from "@/queries/useConversations";
+import {Conversation} from "@/queries/getters/useConversations";
 import {ChatBskyConvoDefs} from "@atproto/api"
 import {QueryClient} from "@tanstack/react-query";
 import {produce} from "immer";

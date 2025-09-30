@@ -6,18 +6,18 @@ import {TitleInput} from "./title-input"
 import {getEditorSettings} from "@/components/writing/settings";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
-import {Draft, useDraft} from "@/queries/useDrafts"
+import {Draft, useDraft} from "@/queries/getters/useDrafts"
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {robotoSerif} from "@/components/writing/article-font";
-import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {LayoutConfigProps, useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ArticleEditorTopbar} from "@/components/writing/article/article-editor-topbar";
 import ArticleEditorAuthor from "@/components/writing/article/article-editor-author-line";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
-const articleEditorSettings = (smallScreen: boolean, isMobile?: boolean, draft?: Draft) => getEditorSettings({
+const articleEditorSettings = (smallScreen: boolean, isMobile: boolean, draft: Draft, layoutConfig: LayoutConfigProps) => getEditorSettings({
     charLimit: 1200000,
     allowImages: true,
     allowVisualizations: true,
@@ -28,7 +28,7 @@ const articleEditorSettings = (smallScreen: boolean, isMobile?: boolean, draft?:
     initialTextFormat: draft ? "markdown" : "plain-text",
     embeds: draft ? draft.embeds : null,
 
-    tableOfContents: true,
+    tableOfContents: layoutConfig.spaceForRightSide,
     showToolbar: true,
 
     isDraggableBlock: !smallScreen,
@@ -72,9 +72,14 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
         setTitle
     } = useTopicsMentioned(draft?.title)
     const smallScreen = window.innerWidth < 700
-    const {isMobile} = useLayoutConfig()
+    const {isMobile, layoutConfig} = useLayoutConfig()
 
-    const settings = articleEditorSettings(smallScreen, isMobile, draft)
+    const settings = articleEditorSettings(
+        smallScreen,
+        isMobile,
+        draft,
+        layoutConfig
+    )
 
     useEffect(() => {
         setLastTextChange(new Date())

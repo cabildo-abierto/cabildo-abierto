@@ -2,10 +2,10 @@ import {ReplyButton} from "@/components/thread/reply-button";
 import {isPostView, isThreadViewContent, PostView, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import Post from "./post";
 import {useMemo, useState} from "react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import ThreadReplies from "../thread-replies";
-import {useThreadWithNormalizedContent} from "@/queries/useThread";
+import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import dynamic from "next/dynamic";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
@@ -26,7 +26,7 @@ const PostThreadPage = ({content, thread}: {
             <ThreadReplies
                 replies={thread.replies}
             />
-            {query.isFetching && <div className={"py-16"}>
+            {query.isFetching && !thread.replies && <div className={"py-16"}>
                 <LoadingSpinner/>
             </div>}
         </div>

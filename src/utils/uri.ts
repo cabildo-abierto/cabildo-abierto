@@ -1,6 +1,6 @@
 import {WikiEditorState} from "@/lib/types";
 
-export const backendUrl = "https://api.cabildoabierto.ar"
+export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://0.0.0.0:8080"
 
 export function getUri(did: string, collection: string, rkey: string) {
     return "at://" + did + "/" + collection + "/" + rkey

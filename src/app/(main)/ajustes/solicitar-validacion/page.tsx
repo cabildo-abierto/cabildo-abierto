@@ -11,7 +11,7 @@ import {file2base64, FilePayload} from "@/utils/files";
 import {ConfettiIcon, FileIcon, TrashIcon} from "@phosphor-icons/react";
 import StateButton from "../../../../../modules/ui-utils/src/state-button";
 import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
-import {useCurrentValidationRequest} from "@/queries/useValidation";
+import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useQueryClient} from "@tanstack/react-query";

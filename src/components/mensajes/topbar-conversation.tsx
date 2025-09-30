@@ -3,8 +3,8 @@ import Link from "next/link";
 import React from "react";
 import { profileUrl } from "@/utils/uri";
 import {useParams} from "next/navigation";
-import {useConversation} from "@/queries/conversation";
-import {useSession} from "@/queries/useSession";
+import {useConversation} from "@/queries/getters/conversation";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export const TopbarConversation = () => {

@@ -5,7 +5,7 @@ import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 import {MainFeedOption} from "@/lib/types";
 import {updateSearchParam} from "@/utils/fetch";
 import {useMainPageSelected} from "@/components/inicio/main-page";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export const MainFeedHeader = () => {

@@ -1,7 +1,7 @@
 import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
 import {ChatBskyConvoDefs} from "@atproto/api";
 import {formatIsoDate} from "@/utils/dates";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export default function MessageCard({

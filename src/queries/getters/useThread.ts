@@ -3,7 +3,7 @@ import {threadApiUrl} from "@/utils/uri";
 import {splitUri} from "@/utils/uri";
 import {decompress} from "@/utils/compression";
 import {useEffect, useState} from "react";
-import { useAPI } from "./utils";
+import { useAPI } from "../utils";
 
 
 function uriToKey(uri: string) {
@@ -35,7 +35,7 @@ export const useThreadWithNormalizedContent = (uri: string) => {
                     setNewContent(content)
                 }
 
-                const { markdownToEditorState, normalizeMarkdown, editorStateToMarkdown } = await import("../../modules/ca-lexical-editor/src/markdown-transforms")
+                const { markdownToEditorState, normalizeMarkdown, editorStateToMarkdown } = await import("../../../modules/ca-lexical-editor/src/markdown-transforms")
 
                 const state = markdownToEditorState(
                     newText, true, true, content.content.embeds)

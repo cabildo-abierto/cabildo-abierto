@@ -1,5 +1,5 @@
 import {LexicalEditor} from "lexical";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button"
 import {PostContent} from "@/components/feed/post/post-content";
 import {SidenoteReplyPreviewFrame} from "@/components/thread/article/sidenote-reply-preview-frame";
@@ -29,7 +29,6 @@ export const ShowQuoteReplyButton = ({
     const [open, setOpen] = useState(false)
     const pinned = pinnedReplies.includes(reply.cid)
 
-    const containerRef = useRef<HTMLDivElement | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
     useEffect(() => {
@@ -56,7 +55,7 @@ export const ShowQuoteReplyButton = ({
 
                 const rangeSelection = markdownSelection.getLexicalRangeSelection(editor)
 
-                if(rangeSelection){
+                if (rangeSelection) {
                     $wrapSelectionInMarkNode(rangeSelection, false, id, $createCustomMarkNode)
                 }
             })
@@ -135,7 +134,7 @@ export const ShowQuoteReplyButton = ({
         </SidenoteReplyPreviewFrame>
     )
 
-    return <div ref={containerRef} id={"selection:" + reply.cid}>
+    return <div id={"selection:" + reply.cid}>
         <ModalOnClickControlled
             modal={modal}
             open={open}
@@ -145,19 +144,17 @@ export const ShowQuoteReplyButton = ({
                 setAnchorEl(e.currentTarget)
             }}
             handleClickAway={handleClickAway}
-            className={"mt-2"}
+            className={"py-2"}
         >
-            <div className={"" + (open ? "text-[var(--text-light)]" : "")}>
-                <IconButton
-                    color={"background"}
-                    size={"small"}
-                    onMouseLeave={onMouseLeave}
-                    onMouseEnter={onMouseEnter}
-                    onClick={onClick}
-                >
-                    <InactiveCommentIcon fontSize={"inherit"}/>
-                </IconButton>
-            </div>
+            <IconButton
+                color={open ? "background-dark" : "transparent"}
+                size={"small"}
+                onMouseLeave={onMouseLeave}
+                onMouseEnter={onMouseEnter}
+                onClick={onClick}
+            >
+                <InactiveCommentIcon color={"var(--text)"} fontSize={20}/>
+            </IconButton>
         </ModalOnClickControlled>
     </div>
 }

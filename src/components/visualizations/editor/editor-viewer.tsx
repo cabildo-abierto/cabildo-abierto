@@ -2,7 +2,7 @@ import {PlotConfigProps} from "@/lib/types";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {DatasetFullView} from "@/components/visualizations/datasets/dataset-full-view";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {useDataset, useDatasets} from "@/queries/useDataset";
+import {useDataset, useDatasets} from "@/queries/getters/useDataset";
 import {
     readyToPlot,
     useTopicsDataset,

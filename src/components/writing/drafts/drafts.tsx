@@ -1,4 +1,4 @@
-import {useDrafts} from "@/queries/useDrafts";
+import {useDrafts} from "@/queries/getters/useDrafts";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import dynamic from "next/dynamic";
 

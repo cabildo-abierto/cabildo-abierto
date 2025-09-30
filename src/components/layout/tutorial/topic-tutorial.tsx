@@ -3,7 +3,7 @@
 import React, {ReactNode, useEffect, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session, WikiEditorState} from "@/lib/types";

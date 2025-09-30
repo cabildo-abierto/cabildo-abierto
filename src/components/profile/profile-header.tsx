@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import Image from 'next/image'
 import Link from "next/link";
-import {Profile} from "@/lib/types";
+import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "../../../modules/ui-utils/src/button";
@@ -11,7 +11,7 @@ import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/follow-button";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import ValidationIcon from "@/components/profile/validation-icon";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
@@ -25,30 +25,31 @@ const FullscreenImageViewer = dynamic(() => import('@/components/layout/images/f
 const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-modal'))
 
 
-const ProfileTODOs = ({profile, onEdit}: { profile: Profile, onEdit: () => void }) => {
+const ProfileTODOs = ({profile, onEdit}: { profile: ArCabildoabiertoActorDefs.ProfileViewDetailed, onEdit: () => void }) => {
 
     const todos: string[] = []
 
-    if (!profile.bsky.displayName) {
+    if (!profile.displayName) {
         todos.push("Agregá un nombre")
     }
 
-    if (!profile.bsky.avatar) {
+    if (!profile.avatar) {
         todos.push("Agregá una foto de perfil")
     }
 
-    if (!profile.bsky.description || profile.bsky.description.length == 0) {
+    if (!profile.description || profile.description.length == 0) {
         todos.push("Agregá una descripción")
     }
 
-    if (!profile.bsky.banner) {
+    if (!profile.banner) {
         todos.push("Agregá una foto de portada")
     }
 
     return <div className={"space-y-1 w-full"}>
         {todos.map((t, i) => {
             return <div key={i} onClick={onEdit}
-                        className={"hover:bg-[var(--background-dark2)] cursor-pointer flex py-1 px-2 rounded-full w-full items-center space-x-2 bg-[var(--background-dark)]"}>
+                        className={"hover:bg-[var(--background-dark2)] cursor-pointer flex py-1 px-2 border border-[var(--accent-dark)] w-full items-center space-x-2 bg-[var(--background-dark)]"}
+            >
                 <div>
                     <CheckSquareIcon/>
                 </div>
@@ -62,7 +63,7 @@ const ProfileTODOs = ({profile, onEdit}: { profile: Profile, onEdit: () => void 
 
 
 type ProfileHeaderProps = {
-    profile: Profile
+    profile: ArCabildoabiertoActorDefs.ProfileViewDetailed
     user?: { id: string, following: { id: string }[] }
     selected: string
     setSelected: any
@@ -79,16 +80,16 @@ function ProfileHeader({
     const [editingProfile, setEditingProfile] = useState(false)
     const {isMobile} = useLayoutConfig()
     const {user} = useSession()
-    const inCA = profile && profile.ca && profile.ca.inCA
+    const inCA = profile && profile.caProfile != null
 
-    const isOwner = user && profile.bsky.handle == user.handle
+    const isOwner = user && profile.handle == user.handle
 
     return <div className="flex flex-col border-b border-[var(--accent-dark)] mt-2">
         <div className={"flex flex-col relative w-full"}>
-            {profile.bsky.banner ?
+            {profile.banner ?
                 <div className={""}>
                     <FullscreenImageViewer
-                        images={[profile.bsky.banner]}
+                        images={[profile.banner]}
                         viewing={viewingBanner}
                         setViewing={setViewingBanner}
                         maxHeight={isMobile ? "100vw" : "80vh"}
@@ -96,10 +97,10 @@ function ProfileHeader({
                         className={"h-full object-contain"}
                     />
                     <Image
-                        src={profile.bsky.banner}
+                        src={profile.banner}
                         width={800}
                         height={300}
-                        alt={profile.bsky.handle + " banner"}
+                        alt={profile.handle + " banner"}
                         className="max-[500px]:w-screen border-t border-b border-r border-l border-[var(--accent-dark)] max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
                         onClick={() => {
                             setViewingBanner(0)
@@ -111,9 +112,9 @@ function ProfileHeader({
                 </div>
             }
             <div className={"flex justify-between pr-1"}>
-                {profile.bsky.avatar ? <>
+                {profile.avatar ? <>
                     <FullscreenImageViewer
-                        images={[profile.bsky.avatar]}
+                        images={[profile.avatar]}
                         viewing={viewingProfilePic}
                         setViewing={setViewingProfilePic}
                         maxHeight={isMobile ? "95vw" : "70vh"}
@@ -121,16 +122,18 @@ function ProfileHeader({
                         className={"rounded-full h-full object-contain"}
                     />
                     <Image
-                        src={profile.bsky.avatar}
+                        src={profile.avatar}
                         width={400}
                         height={400}
-                        alt={profile.bsky.handle + " avatar"}
+                        alt={profile.handle + " avatar"}
                         className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border-2 border-[var(--background)] cursor-pointer"
                         onClick={() => {
                             setViewingProfilePic(0)
                         }}
                     />
-                </> : <div className={"w-24 h-24 bg-[var(--background-dark)] rounded-full border-2 border-[var(--background)] ml-6 mt-[-48px]"}/>}
+                </> : <div
+                    className={"w-24 h-24 bg-[var(--background-dark)] rounded-full border-2 border-[var(--background)] ml-6 mt-[-48px]"}
+                />}
 
                 {isOwner && <div className={"pt-2 pr-1"}>
                     <Button
@@ -145,32 +148,32 @@ function ProfileHeader({
                             setEditingProfile(true)
                         }}
                     >
-                        <span className={"font-semibold text-[var(--text-light)]"}>Editar perfil</span>
+                        <span className={"text-[var(--text-light)]"}>Editar perfil</span>
                     </Button>
                 </div>}
-                <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
+                <FollowButton handle={profile.handle} profile={profile}/>
             </div>
         </div>
         <div className="flex justify-between pr-1 space-x-2">
             <div className="ml-2 py-2">
                 <div className={"flex space-x-1 items-center"}>
                     <div className={"min-[500px]:text-2xl text-lg font-bold break-all"}>
-                        {profile.bsky.displayName && profile.bsky.displayName.length > 0 ? profile.bsky.displayName : profile.bsky.handle}
+                        {profile.displayName && profile.displayName.length > 0 ? profile.displayName : profile.handle}
                     </div>
-                    {isOwner && <VerifyAccountButton verification={profile.ca?.validation}/>}
+                    {isOwner && <VerifyAccountButton verification={profile.verification}/>}
                     <ValidationIcon
-                        validation={profile.ca?.validation}
-                        handle={profile.bsky.handle}
+                        verification={profile.verification}
+                        handle={profile.handle}
                     />
                 </div>
                 <div className="text-[var(--text-light)]">
-                    @{profile.bsky.handle}
+                    @{profile.handle}
                 </div>
             </div>
         </div>
 
-        {profile.bsky.description && profile.bsky.description.length > 0 && <div className="ml-2 mb-2">
-            <ProfileDescription description={profile.bsky.description}/>
+        {profile.description && profile.description.length > 0 && <div className="ml-2 mb-2">
+            <ProfileDescription description={profile.description}/>
         </div>}
 
         <div className="flex flex-col items-start px-2 space-y-2 mb-1">
@@ -183,34 +186,37 @@ function ProfileHeader({
 
             <div className="flex text-sm sm:text-base">
                 {inCA ? <DescriptionOnHover
-                        description={"Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor."}>
+                        description={"Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor."}
+                    >
                         <div
-                            className="text-sm rounded-lg px-2 flex items-center justify-center py-1 bg-[var(--background-dark)] cursor-default space-x-1"
+                            className="text-sm bg-[var(--background-dark)] px-1 flex items-center justify-center cursor-default space-x-1"
                         >
-                    <span className="text-[var(--text-light)]">
-                        <ArticleIcon color={"inherit"}/>
-                    </span>
-                            <PermissionLevel
-                                level={profile.ca.editorStatus}
-                                className="text-[var(--text-light)] font-semibold text-xs"
-                            />
+                            <div className="text-[var(--text-light)]">
+                                <ArticleIcon color={"inherit"}/>
+                            </div>
+                            <div>
+                                <PermissionLevel
+                                    level={profile.editorStatus ?? "Editor principiante"}
+                                    className="text-[var(--text-light)] text-xs"
+                                />
+                            </div>
                         </div>
                     </DescriptionOnHover> :
                     <span className={"text-[var(--text-light)] text-sm"}>
-                        <span>
-                            Este usuario todavía no está en Cabildo Abierto.
-                        </span> <Link
+                    <span>
+                        Este usuario todavía no está en Cabildo Abierto.
+                    </span> <Link
                         target={"_blank"}
                         rel="noopener noreferrer"
                         onClick={() => {
-                            window.open(bskyProfileUrl(profile.bsky.handle), '_blank', 'noopener,noreferrer')
+                            window.open(bskyProfileUrl(profile.handle), '_blank', 'noopener,noreferrer')
                         }}
-                        href={"https://bsky.app/profile/" + profile.bsky.handle}
+                        href={"https://bsky.app/profile/" + profile.handle}
                         className="hover:underline text-[var(--accent-dark)]"
                     >
-                            Ver perfil en Bluesky.
-                        </Link>
-                    </span>}
+                        Ver perfil en Bluesky.
+                    </Link>
+                </span>}
             </div>
             {isOwner && <div>
                 <ProfileTODOs profile={profile} onEdit={() => {

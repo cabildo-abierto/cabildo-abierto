@@ -1,5 +1,5 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {usePendingValidationRequests} from "@/queries/admin";
+import {usePendingValidationRequests} from "@/queries/getters/admin";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";

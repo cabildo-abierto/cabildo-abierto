@@ -4,7 +4,7 @@ import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
 import CloseIcon from "@mui/icons-material/Close";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
-import {useCategories} from "@/queries/useTopics";
+import {useCategories} from "@/queries/getters/useTopics";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";

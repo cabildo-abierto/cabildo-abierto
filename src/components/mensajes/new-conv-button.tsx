@@ -3,7 +3,7 @@ import {Button} from "../../../modules/ui-utils/src/button";
 import AddIcon from "@mui/icons-material/Add";
 import dynamic from "next/dynamic";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 const CreateConvPanel = dynamic(() => import("@/components/mensajes/create-conv-panel"), {
     ssr: false

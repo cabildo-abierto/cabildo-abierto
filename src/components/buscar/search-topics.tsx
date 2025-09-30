@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import {categoriesSearchParam} from "@/queries/utils";
 import { Button } from "../../../modules/ui-utils/src/button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import { useDebounce } from "@/utils/debounce";
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
 const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), {ssr: false});
@@ -22,15 +23,7 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
     searchState: {searching: boolean, value: string}
 }) => {
     const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([]);
-    const [debouncedValue, setDebouncedValue] = useState(searchState.value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(searchState.value)
-        }, 300)
-
-        return () => clearTimeout(handler)
-    }, [searchState.value])
+    const debouncedValue = useDebounce(searchState.value, 300)
 
     useEffect(() => {
         async function search() {

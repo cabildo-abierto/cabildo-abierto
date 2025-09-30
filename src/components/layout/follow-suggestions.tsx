@@ -1,4 +1,4 @@
-import {useFollowSuggestions} from "@/queries/suggestions";
+import {useFollowSuggestions} from "@/queries/getters/suggestions";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {CustomLink, CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {FollowButton} from "@/components/profile/follow-button";
