@@ -6,9 +6,9 @@ import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-
 
 export const FollowCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.ProfileViewDetailed }) => {
     const followersCountCA = profile.followersCount
-    const followersCountAT = profile.followersCount
+    const followersCountAT = profile.bskyFollowersCount
     const followingCountCA = profile.followsCount
-    const followingCountAT = profile.followsCount
+    const followingCountAT = profile.bskyFollowsCount
     const [hovered, setHovered] = useState(false)
 
     const showBsky = hovered || !profile.caProfile

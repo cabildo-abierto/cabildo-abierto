@@ -51,6 +51,8 @@ export const PostPreviewFrame = ({
 
     const enDiscusion = hasEnDiscusionLabel(postView)
     const author = postView.author
+
+    console.log("indexed at", postView.indexedAt, typeof postView.indexedAt, postView.uri)
     const createdAt = new Date(postView.indexedAt)
 
     const isOptimistic = postView.uri.includes("optimistic")

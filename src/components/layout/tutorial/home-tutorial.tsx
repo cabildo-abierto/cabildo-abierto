@@ -56,7 +56,7 @@ const FirstFollowsMessage = ({open, onClose}: {
     const {data: caProfile} = useProfile("cabildoabierto.ar")
     const {data: bskyProfile} = useProfile("bsky.app")
     const [searchState, setSearchState] = useState({searching: false, value: ""})
-    const {results, isLoading} = useSearchUsers(searchState)
+    const {results, isLoading} = useSearchUsers(searchState, 25)
 
     const resultsWithSuggestions = useMemo(() => {
         if (!results && caProfile && bskyProfile) {

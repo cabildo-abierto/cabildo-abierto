@@ -61,7 +61,7 @@ export const getFormattedTimeSince = (date: Date) => {
 
 
 export function DateSince({ date, title=true }: { date: Date | string, title?: boolean}) {
-    date = new Date()
+    date = new Date(date)
 
     const timeSince = useMemo(() => {
         return getFormattedTimeSince(date)

@@ -14,10 +14,17 @@ function profileViewBasicToMentionProps(p: ArCabildoabiertoActorDefs.ProfileView
     }
 }
 
+export async function searchUsers(query: string, limit: number) {
+    if(encodeURIComponent(query).trim().length > 0){
+        const {data} = await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query) + `?limit=${limit}`)
+        return data ?? []
+    } else {
+        return []
+    }
+}
+
+
 export const queryMentions: QueryMentionsProps = async (trigger, query) => {
-    const encodedQuery = encodeURIComponent(query)
-    if(encodedQuery.trim().length == 0) return []
-    const {error, data} = await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>(`/search-users/${encodedQuery}`)
-    if(error || !data) return []
+    const data = await searchUsers(query, 5)
     return data.map(profileViewBasicToMentionProps)
 }
