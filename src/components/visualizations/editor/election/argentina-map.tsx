@@ -84,13 +84,14 @@ export const ArgentinaMap = ({
                         <div className="absolute bottom-2 right-2 z-10 flex space-x-2">
                             <IconButton
                                 size={"small"}
-                                className="bg-gray-200 p-2 rounded hover:bg-gray-300"
+                                className="text-[var(--text)] p-2 rounded hover:text-[var(--text-light)]"
                                 onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}
                             >
                                 <PlusCircleIcon/>
                             </IconButton>
                             <IconButton
                                 size={"small"}
+                                className="text-[var(--text)] p-2 rounded hover:text-[var(--text-light)]"
                                 onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}
                             >
                                 <MinusCircleIcon/>

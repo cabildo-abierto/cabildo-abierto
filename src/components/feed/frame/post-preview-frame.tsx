@@ -1,5 +1,4 @@
 import {DateSince} from '../../../../modules/ui-utils/src/date'
-import {ContentTopRowAuthor} from '@/components/feed/frame/content-top-row-author'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
@@ -12,10 +11,16 @@ import {$Typed} from "@/lex-api/util";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/getters/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
-import { CustomLink } from '../../../../modules/ui-utils/src/custom-link'
+import {CustomLink} from '../../../../modules/ui-utils/src/custom-link'
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import ValidationIcon from "@/components/profile/validation-icon";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
+import dynamic from "next/dynamic";
 
-
+const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
+    ssr: false,
+    loading: () => <></>
+});
 export const hasEnDiscusionLabel = (postView: ArCabildoabiertoFeedDefs.PostView | ArCabildoabiertoFeedDefs.ArticleView | ArCabildoabiertoFeedDefs.FullArticleView) => {
     const labels = postView.labels
     return labels && labels.some((x) => x.val == "ca:en discusión")
@@ -57,9 +62,9 @@ export const PostPreviewFrame = ({
     const isOptimistic = postView.uri.includes("optimistic")
 
     async function onClick() {
-        if(isPost(getCollectionFromUri(postView.uri)) && !isOptimistic){
+        if (isPost(getCollectionFromUri(postView.uri)) && !isOptimistic) {
             qc.setQueryData(threadQueryKey(postView.uri), old => {
-                if(old) return old
+                if (old) return old
                 const t: ArCabildoabiertoFeedDefs.ThreadViewContent = {
                     $type: "ar.cabildoabierto.feed.defs#threadViewContent",
                     content: postView,
@@ -78,7 +83,8 @@ export const PostPreviewFrame = ({
         onClick={!isOptimistic ? onClick : undefined}
         href={!isOptimistic ? url : undefined}
     >
-        {ArCabildoabiertoFeedDefs.isPostView(postView) && <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
+        {ArCabildoabiertoFeedDefs.isPostView(postView) &&
+            <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full"}>
             <div className="flex flex-col items-center pr-2 pl-4">
@@ -98,15 +104,35 @@ export const PostPreviewFrame = ({
             </div>
 
             <div className="py-2 flex w-full flex-col pr-2">
-                <div className="flex justify-between items-center gap-x-1 max-w-[calc(100vw-80px)]">
-                    <div className={"flex gap-x-1"}>
-                        <div className="truncate">
-                            <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
-                        </div>
-                        <div className="text-[var(--text-light)]">·</div>
-                        <div className="text-[var(--text-light)] flex-shrink-0" >
-                            <DateSince date={createdAt}/>
-                        </div>
+                <div className="flex items-center gap-x-1 w-full">
+                    <CustomLink
+                        tag={"span"}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
+                        href={profileUrl(author.handle)}
+                        className={""}
+                    >
+                        <UserSummaryOnHover handle={author.handle}>
+                            <div className={"flex justify-between items-center space-x-1"}>
+                                <div className={"flex space-x-1 items-center"}>
+                                    <div className={"hover:underline font-bold truncate " + (isMobile ? "max-w-[36vw]": "max-w-[300px]")}>
+                                        {author.displayName ? author.displayName : author.handle}
+                                    </div>
+                                    <ValidationIcon fontSize={15} handle={author.handle}
+                                                    verification={author.verification}/>
+                                    <div className={"text-[var(--text-light)] truncate " + (isMobile ? "max-w-[20vw]": "max-w-[150px]")}>
+                                        @{author.handle}
+                                    </div>
+                                </div>
+                                {!author.caProfile &&
+                                    <div className={"pb-[2px]"}><BlueskyLogo className={"w-auto h-[10px]"}/></div>}
+                            </div>
+                        </UserSummaryOnHover>
+                    </CustomLink>
+                    <div className="text-[var(--text-light)]">·</div>
+                    <div className="text-[var(--text-light)] flex-shrink-0">
+                        <DateSince date={createdAt}/>
                     </div>
                 </div>
 

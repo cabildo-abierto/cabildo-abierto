@@ -9,7 +9,6 @@ import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {useSession} from "@/queries/getters/useSession";
 import {WikiEditorState} from "@/lib/types";
-import {TopicOptionsButton} from "@/components/topics/topic/topic-options-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 
@@ -176,7 +175,6 @@ export const TopicContentExpandedViewHeader = ({
     return <div className={"flex justify-between items-end border-b border-[var(--accent-dark)]"}>
         {buttons}
         {!wikiEditorState.startsWith("editing") && wikiEditorState != "minimized" && <div className={"flex items-center space-x-1"}>
-            {user && user.platformAdmin && <TopicOptionsButton topic={topic}/>}
             <div className={"pb-1 text-[var(--text-light)]"}>
                 <IconButton
                     size="small"

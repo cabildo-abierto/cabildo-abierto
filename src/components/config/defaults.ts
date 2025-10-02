@@ -7,7 +7,7 @@ import {
 } from "@/lib/types";
 
 
-export const defaultTopicMentionsMetric: EnDiscusionMetric = "Interacciones"
+export const defaultTopicMentionsMetric: EnDiscusionMetric = "Recientes"
 export const defaultTopicMentionsTime: EnDiscusionTime = "Último mes"
 export const defaultTopicMentionsFormat: FeedFormatOption = "Todos"
 

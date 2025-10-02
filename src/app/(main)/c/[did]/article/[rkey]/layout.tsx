@@ -1,5 +1,5 @@
 import {Metadata} from "next";
-import {mainMetadata} from "@/utils/metadata";
+import {iconUrl, mainMetadata} from "@/utils/metadata";
 import {shortCollectionToCollection} from "@/utils/uri";
 import { get } from "@/utils/fetch";
 import {produce} from "immer";
@@ -17,7 +17,7 @@ function createMetadata(m: MetadataParams){
     return produce(mainMetadata, draft => {
         draft.title = m.title
         draft.description = m.description
-        draft.icons.icon = m.thumbnail
+        draft.icons.icon = iconUrl
         draft.openGraph.title = m.title
         draft.openGraph.description = m.description
         draft.twitter.title = m.title

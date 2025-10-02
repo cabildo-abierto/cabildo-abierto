@@ -14,4 +14,4 @@ export type Color = "text-light" |
     "red" |
     "red-dark" |
     "red-dark2" |
-    "like" | "repost"
+    "like" | "repost" | "white-text"

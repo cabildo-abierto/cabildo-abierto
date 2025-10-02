@@ -32,10 +32,10 @@ const ServerStatus = () => {
 
     if(isLoading) return <LoadingSpinner size={"10px"}/>
 
-    return <div className={"flex justify-center space-x-1"}>
-        <div className={"rounded-full w-2 h-2 " + (data.status.worker ? "bg-green-500" : "bg-red-500")} title={"worker"}/>
-        <div className={"rounded-full w-2 h-2 " + (data.status.mirror ? "bg-green-500": "bg-red-500")} title={"mirror"}/>
-    </div>
+    return <Link className={"fixed bottom-2 right-2 space-x-1 flex"} href={"/admin"}>
+        <div className={"rounded-full w-1 h-1 " + (data.status.worker ? "bg-green-500" : "bg-red-500")} title={"worker"}/>
+        <div className={"rounded-full w-1 h-1 " + (data.status.mirror ? "bg-green-500": "bg-red-500")} title={"mirror"}/>
+    </Link>
 }
 
 
@@ -117,6 +117,7 @@ export const RightPanel = () => {
     }
 
     return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
+        {user && user.platformAdmin && <ServerStatus/>}
 
         {searching && !inSearchPage && <div className={"w-[272px]"}>
             <UserSearchResultsOnRightPanel
@@ -128,8 +129,6 @@ export const RightPanel = () => {
         <div className={"flex justify-center mt-4"}>
             <Logo width={32} height={32}/>
         </div>
-
-        {user && user.platformAdmin && <ServerStatus/>}
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
 

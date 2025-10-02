@@ -57,7 +57,6 @@ export const LikeCounter = ({content, showBsky, hoverColor, iconFontSize, textCl
         iconInactive={<InactiveLikeIcon color={"text"} fontSize={iconFontSize}/>}
         disabled={disabled}
         count={count}
-        title={"Cantidad de me gustas."}
         textClassName={textClassName}
     />
 }

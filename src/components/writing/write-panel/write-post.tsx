@@ -108,7 +108,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
                 const {data, error} = await get<{
                     title: string | null,
                     description: string | null,
-                    thumb: string | null
+                    thumbnail: string | null
                 }>("/metadata?url=" + encodeURIComponent(url))
 
                 if (error) {
@@ -116,7 +116,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
                     return
                 }
 
-                const {title, description, thumb} = data
+                const {title, description, thumbnail} = data
                 const embed: $Typed<AppBskyEmbedExternal.View> = {
                     $type: "app.bsky.embed.external#view",
                     external: {
@@ -124,7 +124,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
                         uri: url,
                         title,
                         description,
-                        thumb
+                        thumb: thumbnail
                     }
                 }
                 setExternalEmbedView(embed)
@@ -213,7 +213,7 @@ function getLinksFromEditor(editorState: EditorState) {
 const settings: SettingsProps = getEditorSettings({
     placeholder: "¿Qué está pasando?",
     placeholderClassName: "text-[var(--text-light)] absolute top-0",
-    editorClassName: "link relative h-full",
+    editorClassName: "link relative h-full text-base",
     isReadOnly: false,
     isRichText: false,
     markdownShortcuts: false,

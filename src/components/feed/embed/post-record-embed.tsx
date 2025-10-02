@@ -1,6 +1,5 @@
 "use client"
 
-import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useRouter} from "next/navigation";
 import {contentUrl, getBlueskyUrl, profileUrl} from "@/utils/uri";
@@ -13,6 +12,7 @@ import {AppBskyEmbedRecord} from "@atproto/api"
 import {AppBskyFeedPost} from "@atproto/api"
 
 import dynamic from "next/dynamic";
+import { EmbedAuthor } from "./ca-post-record-embed";
 const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
     ssr: false,
     loading: () => <></>,
@@ -56,15 +56,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
                         className={"rounded-full w-4 h-4"}
                     />
                 </Link>
-                <span className="truncate text-sm">
-                    <ContentTopRowAuthor
-                        author={{
-                            ...author,
-                            $type: "ar.cabildoabierto.actor.defs#profileViewBasic",
-                            verification: null,
-                        }}
-                    />
-                </span>
+                <EmbedAuthor url={profileUrl(author.handle)} author={{$type: "app.bsky.actor.defs#profileViewBasic", ...author}}/>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
                     <DateSince date={createdAt}/>

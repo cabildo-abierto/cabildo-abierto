@@ -102,7 +102,6 @@ export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textCla
                 hoverColor={hoverColor}
                 disabled={disabled}
                 count={showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)}
-                title="Cantidad de republicaciones y citas."
             />
         </ModalOnClick>
         {user && writingQuotePost && (ArCabildoabiertoFeedDefs.isPostView(content) || ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) && <WritePanel

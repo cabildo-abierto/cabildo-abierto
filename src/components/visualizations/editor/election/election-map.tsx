@@ -175,16 +175,13 @@ const Distrito = ({distrito, plotter, onSelectAlianza}: {
     const idDistrito = plotter.getDistrictTopicId(distrito)
 
     function optionsNodes(o: Cargo, isSelected: boolean) {
-        return <div className="text-[var(--text)]">
-            <Button
-                size={"small"}
-                sx={{height: "20px"}}
-                variant={"outlined"}
-                color={isSelected ? "background-dark" : "background"}
-            >
-                <span className={"text-xs"}>{o}</span>
-            </Button>
-        </div>
+        return <Button
+            size={"small"}
+            variant={"outlined"}
+            color={isSelected ? "background-dark" : "background"}
+        >
+            <span className={"text-xs text-[var(--text)] pt-[2px]"}>{o}</span>
+        </Button>
     }
 
     return <div className={"border border-[var(--accent-dark)] p-2 mt-2"}>
@@ -501,10 +498,12 @@ const ElectionMapSidepanel = ({
             slotProps={{
                 input: {
                     startAdornment: <span className={"text-[var(--text-light)] mr-1 text-sm"}>
-                        <SearchIcon fontSize="inherit" color={"inherit"}/></span>,
+                        <SearchIcon fontSize="inherit" color={"inherit"}/>
+                    </span>,
                 }
             }}
             paddingY={0.5}
+            paddingX={"8px"}
             fontSize={13}
             fullWidth={true}
             placeholder={"buscar candidatos o alianzas..."}

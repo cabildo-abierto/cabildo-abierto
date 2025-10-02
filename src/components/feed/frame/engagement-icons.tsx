@@ -70,7 +70,6 @@ export const EngagementIcons = ({
                 {content.replyCount != undefined && <div className={"flex-1"}><ReplyCounter
                     count={content.replyCount}
                     icon={<InactiveCommentIcon color="var(--text)" fontSize={iconFontSize}/>}
-                    title="Cantidad de respuestas."
                     onClick={onClickRepliesButton}
                     disabled={content.uri.includes("optimistic")}
                     hoverColor={iconHoverColor}

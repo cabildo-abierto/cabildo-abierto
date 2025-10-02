@@ -8,6 +8,7 @@ import { Button } from '../../../../modules/ui-utils/src/button';
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {SignInIcon} from "@phosphor-icons/react";
 import { SidebarProfilePic } from "./sidebar-profile-pic";
+import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 
 
 
@@ -40,16 +41,29 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 </div>
                             </div>
                         </div>}
-                        {!user.user && <div className={"ml-2 " + (isMobile ? "py-4 pr-4" : "w-36 pb-8")}>
-                            <Button
+                        {!user.user && <div className={"ml-[14px] pr-5"}>
+                            {showText && <Button
                                 startIcon={<SignInIcon/>}
                                 variant="outlined"
                                 size={isMobile ? "medium" : "small"}
                                 fullWidth={true}
+                                style={{height: "32px"}}
                                 onClick={() => {setLoginModalOpen(true)}}
                             >
                                 Iniciar sesión
-                            </Button>
+                            </Button>}
+                            {!showText && <IconButton
+                                color={"background-dark"}
+                                sx={{
+                                    borderRadius: 0,
+                                    border: "1px solid var(--accent-dark)",
+                                    height: "32px"
+                                }}
+                                size={isMobile ? "medium" : "small"}
+                                onClick={() => {setLoginModalOpen(true)}}
+                            >
+                                <SignInIcon/>
+                            </IconButton>}
                         </div>}
                         <SidebarButtons
                             showText={showText}

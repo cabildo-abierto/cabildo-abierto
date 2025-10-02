@@ -6,7 +6,8 @@ export function useAPI<T>(
     route: string,
     key: readonly unknown[],
     staleTime: number = Infinity,
-    enabled: boolean = true
+    enabled: boolean = true,
+    refetchInterval?: number
 ) {
     return useQuery<T>({
         queryKey: key,
@@ -17,7 +18,8 @@ export function useAPI<T>(
             return data
         },
         staleTime,
-        enabled
+        enabled,
+        refetchInterval
     })
 }
 
