@@ -17,8 +17,8 @@ export const AddVisualizationButton = ({
         sx={{
             borderRadius: 0
         }}
-        title="Nueva visualización"
-        aria-label="Nueva visualización"
+        title="Agregar visualización"
+        aria-label="Agregar visualización"
     >
         <VisualizationsIcon fontSize={"small"} color={"inherit"}/>
     </IconButton>

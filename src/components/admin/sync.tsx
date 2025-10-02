@@ -84,9 +84,9 @@ export const AdminSync = () => {
                 <StateButton
                     handleClick={async () => {
                         if(collections.length == 1) {
-                            const {error} = await post("/job/reprocess-collection", {
+                            const {error} = await post("/job/reprocess-collection", {jobData: {
                                 collection: collections[0]
-                            })
+                            }})
                             return {error}
                         } else {
                             return {error: "Seleccioná una collection"}

@@ -6,17 +6,16 @@ import {SearchTopics} from "./search-topics";
 import {useSearch} from "./search-context";
 import UserSearchResults from "@/components/buscar/user-search-results";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {usePathname, useSearchParams} from "next/navigation";
 
 
-type RouteContentProps = {
-    paramsSelected?: string
-    showRoute?: boolean
-}
 
-
-const SearchContent = ({paramsSelected}: RouteContentProps) => {
+const SearchContent = () => {
+    const params = useSearchParams()
+    const paramsSelected = params.get("s")
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
-    const {searchState, setSearchState} = useSearch("main")
+    const pathname = usePathname()
+    const {searchState, setSearchState} = useSearch(`${pathname}::main`)
 
 
     function onClickResult(did: string) {

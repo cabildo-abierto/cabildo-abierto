@@ -13,6 +13,8 @@ echo_blue "deploying frontend env ${ENV}"
 echo_blue "creating directory..."
 ssh $SERVER_USER@$SERVER_IP "mkdir -p $APP_PATH"
 
+export NEXT_PUBLIC_BACKEND_URL="https://api.cabildoabierto.ar"
+
 echo_blue "building locally..."
 npm run build
 

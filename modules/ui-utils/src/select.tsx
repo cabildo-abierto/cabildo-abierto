@@ -13,9 +13,8 @@ export const Select = ({
                            options,
                            value,
                            onChange,
-    width,
-    optionLabels,
-    optionNodes,
+                           optionLabels,
+                           optionNodes,
                            label,
                            paddingX,
                            paddingY,
@@ -32,7 +31,6 @@ export const Select = ({
     optionLabels?: (o: string) => string
     value: string;
     label?: string;
-    width?: string | number
     fontSize?: string;
     labelShrinkFontSize?: string;
     textClassName?: string;
@@ -116,6 +114,7 @@ export const Select = ({
                     />
                 }
                 MenuProps={{
+                    transitionDuration: 0,
                     disableScrollLock: true,
                     PaperProps: {
                         sx: {

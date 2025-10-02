@@ -27,7 +27,7 @@ const ListItem = ({children, href}: { href: string, children: ReactNode }) => {
 
 export default function Aportar() {
     return <div
-        className={"space-y-2 flex flex-col items-center pb-8 font-light pt-16 bg-[var(--background-dark)] rounded-lg mt-4 mb-4"}>
+        className={"space-y-2 flex flex-col items-center pb-8 font-light pt-16 bg-[var(--background-dark)] mt-4 mb-4"}>
         <div className={"mx-2 px-5 flex flex-col space-y-16"}>
             <div className={"font-light text-base text-[var(--text-light)]"}>
                 Con tu aporte se financia el equipo que trabaja en la plataforma y los autores de los contenidos que

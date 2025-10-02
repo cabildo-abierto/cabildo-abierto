@@ -20,7 +20,7 @@ export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
                     quotedText={replyTo.text}
                     quotedTextFormat={replyTo.format}
                     quotedContentEmbeds={(ArCabildoabiertoFeedDefs.isFullArticleView(replyTo) || ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)) ? replyTo.embeds : []}
-                    quotedContentAuthor={replyTo.author}
+                    quotedContentAuthor={(ArCabildoabiertoFeedDefs.isArticleView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo) || ArCabildoabiertoFeedDefs.isPostView(replyTo)) ? replyTo.author : undefined}
                     selection={selection}
                 />
             </div>

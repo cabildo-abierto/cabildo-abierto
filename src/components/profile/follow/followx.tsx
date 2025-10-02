@@ -16,6 +16,8 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
         <LoadingSpinner/>
     </div>
 
+    const bskyCount = kind == "seguidores" ? profile.bskyFollowersCount : profile.bskyFollowsCount
+
     return <div>
         {profile && <div className={"w-full flex p-2 sm:text-base text-sm border-b space-x-1 text-[var(--text-light)] items-baseline"}>
             <div className={"flex space-x-1"}>
@@ -25,7 +27,7 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
                 </div>
             </div>
             <div className={"flex space-x-1"}>
-                <FollowCount count={kind == "seguidores" ? profile.bskyFollowersCount : profile.bskyFollowsCount} kind={kind}/>
+                <FollowCount count={bskyCount} kind={kind}/>
                 <div className={""}>
                     en Bluesky
                 </div>
@@ -36,5 +38,8 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
                 <UserSearchResult user={user}/>
             </div>
         })}
+        {bskyCount > 50 && <div className={"py-8 text-sm text-center text-[var(--text-light)] font-light"}>
+            Se muestran hasta 50 resultados de Bluesky.
+        </div>}
     </div>
 }

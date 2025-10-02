@@ -24,7 +24,7 @@ function StaticFeed<T>({
                     <FeedElement content={c} index={i}/>
                 </div>
             })}
-            {initialContents && (endText || noResultsText) && <div className={"font-light text-center py-16 text-[var(--text-light)]"}>
+            {initialContents && (endText || noResultsText) && <div className={"text-sm font-light text-center py-16 text-[var(--text-light)]"}>
                 {initialContents.length > 0 && endText}
                 {initialContents.length == 0 && noResultsText}
             </div>}

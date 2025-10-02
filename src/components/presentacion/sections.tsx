@@ -209,9 +209,9 @@ export const PresentacionAbierto = () => {
                 width={400}
                 height={300}
                 alt="Red"
-                className="w-full max-w-screen"
+                className="w-full max-w-screen opacity-80"
             />
-            <div className="absolute z-2 left-3/4 -translate-x-1/2 -translate-y-1/2 top-1/2 w-24 md:w-32 h-24 md:h-32 ">
+            <div className="absolute z-2 left-3/4 -translate-x-1/2 -translate-y-1/2 top-1/2 w-24 md:w-32 h-24 md:h-32">
                 <Logo className={"w-full h-full object-contain"}/>
             </div>
             <div className="absolute z-2 left-1/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
@@ -220,9 +220,9 @@ export const PresentacionAbierto = () => {
                 </Link>
             </div>
             <div
-                className="absolute z-2 left-1/2 bottom-1/4 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
-                <Link href="https://atproto.com" className={"font-semibold tracking-tighter"}>
-                    <span className="text-[#0481f7]">@AT</span><span className={"text-[#1a1a1a]"}>Protocol</span>
+                className="absolute z-2 left-1/2 bottom-8 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
+                <Link href="https://atproto.com" className={"font-bold tracking-tighter"}>
+                    <span className="text-[#0481f7]">@AT</span><span className={"text-[var(--accent-dark)]"}>Protocol</span>
                 </Link>
             </div>
         </div>

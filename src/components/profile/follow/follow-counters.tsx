@@ -12,7 +12,7 @@ export const FollowCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.P
     const [hovered, setHovered] = useState(false)
 
     const showBsky = hovered || !profile.caProfile
-    const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
+    const className = "flex space-x-2 text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
 
     return <div
         className={className}
@@ -35,7 +35,7 @@ export const FollowCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.P
             <FollowCount count={followingCountAT} kind={"siguiendo"}
                          url={"/perfil/" + profile.handle + "/siguiendo"}/>
             <DescriptionOnHover description={"Cantidad de seguidores y seguidos en Bluesky."}>
-                <BlueskyLogo className={"h-4 w-auto"}/>
+                <BlueskyLogo className={"h-[14px] pb-[2px] w-auto"}/>
             </DescriptionOnHover>
         </>}
     </div>

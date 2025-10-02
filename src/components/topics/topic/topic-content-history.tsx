@@ -6,7 +6,5 @@ export const TopicContentHistory = ({
 }: {
     topic: ArCabildoabiertoWikiTopicVersion.TopicView
 }) => {
-    return <div className={"w-full"}>
-        <EditHistory topic={topic}/>
-    </div>
+    return <EditHistory topic={topic}/>
 }

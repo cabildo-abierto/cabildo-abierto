@@ -3,8 +3,8 @@ import dynamic from "next/dynamic";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {$Typed} from "@/lex-api/util";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
-import {AppBskyActorDefs} from "@atproto/api"
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
     ssr: false,
@@ -12,7 +12,7 @@ const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summa
 });
 
 type ContentTopRowAuthorProps = {
-    author: $Typed<AppBskyActorDefs.ProfileViewDetailed> | $Typed<AppBskyActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic>
+    author: $Typed<ArCabildoabiertoActorDefs.ProfileViewDetailed> | $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoActorDefs.ProfileView>
 }
 
 export const ContentTopRowAuthor = ({author}: ContentTopRowAuthorProps) => {
@@ -28,6 +28,7 @@ export const ContentTopRowAuthor = ({author}: ContentTopRowAuthorProps) => {
         href={url}
     >
         <UserSummaryOnHover handle={author.handle}>
+            <div className={"flex justify-between items-center space-x-1"}>
             <div className={"flex space-x-1 items-center"}>
                 <div className="hover:underline font-bold">
                 {author.displayName ? author.displayName : author.handle}
@@ -36,6 +37,8 @@ export const ContentTopRowAuthor = ({author}: ContentTopRowAuthorProps) => {
                 <div className="text-[var(--text-light)] truncate">
                     @{author.handle}
                 </div>
+            </div>
+            {!author.caProfile && <div className={"pb-[2px]"}><BlueskyLogo className={"w-auto h-[10px]"}/></div>}
             </div>
         </UserSummaryOnHover>
     </CustomLink>

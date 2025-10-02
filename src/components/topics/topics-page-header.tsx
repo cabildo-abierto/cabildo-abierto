@@ -1,4 +1,4 @@
-import {useRouter, useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {Button} from "../../../modules/ui-utils/src/button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
@@ -28,8 +28,8 @@ export const TopicsPageHeader = () => {
     const view = searchParams.get("view")
 
     const currentView: TopicsViewOption = view && (view == "lista" || view == "mapa") ? view : "lista"
-
-    const {searchState, setSearchState} = useSearch("topics")
+    const pathname = usePathname()
+    const {searchState, setSearchState} = useSearch(`${pathname}::topics`)
 
     function optionsNodes(o: TopicsViewOption, isSelected: boolean) {
         let icon: ReactNode

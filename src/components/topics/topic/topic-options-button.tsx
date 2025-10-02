@@ -11,12 +11,12 @@ import {post} from "@/utils/fetch";
 export const TopicOptionsButton = ({topic}: {topic: ArCabildoabiertoWikiTopicVersion.TopicView}) => {
 
     async function onUpdateMentions() {
-        const {error} = await post("/job/update-topic-mentions", {id: topic.id})
+        const {error} = await post("/job/update-topic-mentions", {jobData: [topic.id]})
         return {error}
     }
 
     async function onUpdateContributions() {
-        const {error} = await post("/job/update-topic-contributions", {topicIds: [topic.id]})
+        const {error} = await post("/job/update-topic-contributions", {jobData: [topic.id]})
         return {error}
     }
 

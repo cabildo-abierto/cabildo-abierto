@@ -56,6 +56,7 @@ export default function NewMessageInput({
             fullWidth={true}
             onChange={e => setNewMessage(e.target.value)}
             minRows={1}
+            paddingX={"8px"}
             maxRows={6}
             placeholder={"Escribí un mensaje..."}
             borderWidth={0}

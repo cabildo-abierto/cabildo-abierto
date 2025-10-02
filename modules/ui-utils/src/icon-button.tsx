@@ -2,6 +2,7 @@ import MUIIconButton from "@mui/material/IconButton";
 import type { IconButtonProps as MUIIconButtonProps } from "@mui/material/IconButton";
 import { darker } from "./button";
 import {Color} from "./color";
+import DescriptionOnHover from "./description-on-hover";
 
 type ExtendedSize = MUIIconButtonProps["size"] | "extra-small";
 
@@ -19,6 +20,7 @@ export const IconButton = ({
     hoverColor,
     textColor,
     size,
+    title,
     ...props
 }: IconButtonProps) => {
     if (!textColor) textColor = color === "primary" ? "button-text" : "text";
@@ -34,7 +36,8 @@ export const IconButton = ({
             : {};
 
     return (
-        <MUIIconButton
+        <DescriptionOnHover description={title}>
+            <MUIIconButton
             {...props}
             size={size !== "extra-small" ? size : undefined}
             sx={{
@@ -50,5 +53,6 @@ export const IconButton = ({
         >
             {children}
         </MUIIconButton>
+        </DescriptionOnHover>
     );
 };
