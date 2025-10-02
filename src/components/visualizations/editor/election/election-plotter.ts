@@ -50,7 +50,7 @@ const provincias: {
 
 
 function strictCleanText(s: string): string {
-    return s.toLowerCase().replace(/[^a-z]|[aeiou]/g, "")
+    return s?.toLowerCase().replace(/[^a-z]|[aeiou]/g, "")
 }
 
 
@@ -167,8 +167,10 @@ export class ElectionPlotter extends Plotter {
             return {error: "Este tipo de elección todavía no está soportado."}
         }
 
-        if(this.electionSpec.region != "Nacional"){
+        if(this.electionSpec.region && this.electionSpec.region != "Nacional"){
             return {error: "Por ahora solo está soportada la región Nacional."}
+        } else if(!this.electionSpec.region){
+            return {error: "Elegí una región."}
         }
 
         const candidateCol = this.electionSpec.columnaNombreCandidato
@@ -259,13 +261,13 @@ export class ElectionPlotter extends Plotter {
 
         const results: SearchResult[] = []
         this.candidates.forEach(r => {
-            if(cleanText(r.nombre).includes(s)){
+            if(cleanText(r.nombre)?.includes(s)){
                 results.push({
                     type: "candidato",
                     candidato: r
                 })
             }
-            if(cleanText(r.alianza).includes(s)){
+            if(cleanText(r.alianza)?.includes(s)){
                 results.push({
                     type: "alianza",
                     nombre: r.alianza,

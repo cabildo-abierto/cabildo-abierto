@@ -16,7 +16,7 @@ export const SidebarProfilePic = ({showText}) => {
     return <div className={"flex w-full"}>
         <div className={(!showText ? "pl-4 min-h-12 justify-end " : " relative ") + (isMobile ? "flex space-x-2 items-end" : "flex flex-col space-y-1 h-16 items-center")}>
             {showText && user.mirrorStatus != "Sync" && <div className={"absolute top-0 right-0 "}>
-                {user.mirrorStatus == "InProcess" && <DescriptionOnHover description={"Estamos cargando los datos de tu cuenta. Puede que algunas funcionalidades no funcionen hasta que esto termine. Si tarda demasiado, contactanos."}>
+                {user.mirrorStatus == "InProcess" && <DescriptionOnHover description={"Estamos cargando los datos de tu cuenta. Puede que algunas funcionalidades no funcionen hasta que esto termine. Si tarda demasiado, escribinos."}>
                     <HourglassIcon className={"cursor-pointer"} fontSize={"12"} color={"var(--text-light)"}/>
                 </DescriptionOnHover>}
                 {(user.mirrorStatus == "Failed" || user.mirrorStatus == "Failed - Too Large") && <DescriptionOnHover description={"Falló la carga de los datos de tu cuenta."}>

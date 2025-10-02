@@ -11,7 +11,7 @@ export const ExternalEmbedInEditor = ({embed, onRemove}: {
             <CloseButton
                 onClose={onRemove}
                 size={"small"}
-                color={"accent"}
+                color={"background-dark"}
             />
         </div>
         <PostExternalEmbed embed={embed}/>

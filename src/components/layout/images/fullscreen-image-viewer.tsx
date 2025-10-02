@@ -99,7 +99,7 @@ const FullscreenImageViewer = ({
                     setViewing(null)
                     }}
                     hoverColor={"transparent"}
-                    iconColor={"background-dark2"}
+                    iconColor={"white-text"}
                 />
             </div>
         </div>

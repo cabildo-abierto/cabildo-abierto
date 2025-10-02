@@ -43,13 +43,6 @@ export const RightPanelButtons = () => {
                   href={topicUrl("Cabildo Abierto: Política de privacidad", undefined, "normal")}>
                 Política de privacidad
             </Link>
-            {user.platformAdmin && <><div>
-                •
-            </div>
-            <Link className="hover:text-[var(--text)]"
-                  href={"/admin"}>
-                Admin
-            </Link></>}
         </div>
     </div>
 }
