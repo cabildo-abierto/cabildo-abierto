@@ -52,8 +52,8 @@ const TrendingTopicsConfig = ({time, setTime}: { time: string, setTime: (v: stri
             paddingX={1}
             textClassName={"text-[11px] text-[var(--text-light)] uppercase"}
             backgroundColor={"background"}
-            borderColor={"text-light"}
-            outlineColor={"text-light"}
+            borderColor={"accent-dark"}
+            outlineColor={"accent-dark"}
         />
     </div>
 }

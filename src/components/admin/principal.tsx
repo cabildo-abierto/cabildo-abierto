@@ -6,35 +6,22 @@ import {useState} from "react";
 import {post} from "@/utils/fetch";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import { TextField } from "../../../modules/ui-utils/src/text-field";
+import {useAPI} from "@/queries/utils";
+
+function useRegisteredJobs() {
+    return useAPI<string[]>("/registered-jobs", ["registered-jobs"])
+}
 
 export const AdminPrincipal = () => {
     const [route, setRoute] = useState("")
+    const {data} = useRegisteredJobs()
 
     async function onSendPost(){
         await post<{}, {}>(route)
         return {}
     }
 
-    const suggestions = [
-        "job/create-payment-promises",
-        "job/required-update-topic-contributions",
-        "job/update-contents-text",
-        "job/update-topics-categories",
-        "job/update-topics-popularity",
-        "job/update-categories-graph",
-        "job/update-references",
-        "job/update-topic-contributions",
-        "job/create-user-months",
-        "job/batch-jobs",
-        "job/update-bsky-followers",
-        "job/restart-interactions-last-update",
-        "job/restart-references-last-update",
-        "job/restart-interactions-last-update",
-        "job/sync-all-users",
-        "job/assign-invite-codes"
-    ]
-
-    return <div className={"pt-16 space-y-8"}>
+    return <div className={"pt-16 space-y-8 pb-16"}>
         <AdminSection title="Enviar POST">
             <div className={"flex space-x-4 justify-center"}>
                 <TextField
@@ -46,17 +33,14 @@ export const AdminPrincipal = () => {
                 <StateButton variant="outlined" handleClick={onSendPost} text1={"Enviar"}/>
             </div>
             <div className={"space-y-2"}>
-                <div className={"text-[var(--text-light)]"}>
-                    Sugerencias
-                </div>
                 <div className={"space-y-2 flex flex-col pb-2 font-mono"}>
-                    {suggestions.map((s, i) => {
+                    {data && data.map((s, i) => {
                         return <div
                             key={i}
-                            className={"p-2 bg-[var(--background-dark)] hover:bg-[var(--background-dark2)] rounded cursor-pointer"}
-                            onClick={() => {setRoute(`/${s}`)}}
+                            className={"px-2 py-1 panel hover:bg-[var(--background-dark)] text-sm cursor-pointer"}
+                            onClick={() => {setRoute(`/job/${s}`)}}
                         >
-                            {s}
+                            {`/job/${s}`}
                         </div>
                     })}
                 </div>

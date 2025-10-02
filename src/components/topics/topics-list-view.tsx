@@ -3,6 +3,7 @@ import {useSearch} from "@/components/buscar/search-context";
 import {SearchTopics} from "@/components/buscar/search-topics";
 import {useEffect, useState} from "react";
 import {TTOption} from "@/lib/types";
+import {usePathname} from "next/navigation";
 
 
 
@@ -11,7 +12,8 @@ export const TopicsListView = ({sortedBy, categories, setCategories}: {
     categories: string[]
     setCategories: (c: string[]) => void
 }) => {
-    const {searchState} = useSearch("topics")
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::topics`)
     const [activeSearch, setActiveSearch] = useState(searchState.searching && searchState.value.length > 0)
 
     // solo para evitar re-render

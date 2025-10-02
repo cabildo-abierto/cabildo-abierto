@@ -12,7 +12,7 @@ import {profileUrl} from "@/utils/uri";
 
 export const EmptyMentionResults = () => (
     <div
-        className="mt-4 min-w-[10rem] text-[var(--text-light)] overflow-hidden border rounded-lg bg-[var(--background-dark)] p-2 ...">
+        className="mt-4 min-w-[10rem] text-sm text-[var(--text-light)] overflow-hidden border rounded-lg bg-[var(--background-dark)] p-2 ...">
         No se encontraron resultados.
     </div>
 );

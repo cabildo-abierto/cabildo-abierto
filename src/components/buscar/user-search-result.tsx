@@ -92,7 +92,7 @@ const UserSearchResult = ({
                 onClick(user.did)
             }
         }}
-        className={"w-full flex hover:bg-[var(--background-dark2)] border-b py-3"}
+        className={"w-full flex hover:bg-[var(--background-dark)] border-b py-3"}
     >
         <div className={"px-3"}>
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>

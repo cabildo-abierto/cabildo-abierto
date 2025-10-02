@@ -131,6 +131,7 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
                         <ContentOptionsButton
+                            iconHoverColor={"background-dark2"}
                             record={{...topicVersion, $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory"}}
                         />
                     </div>
@@ -320,7 +321,7 @@ export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.T
     }
 
     return <>
-        <div className={"flex justify-end py-1"}>
+        <div className={"flex justify-end py-1 px-1"}>
             <TopicVersionAuthors topicVersionAuthors={contributors}/>
         </div>
         <div className="border-t">

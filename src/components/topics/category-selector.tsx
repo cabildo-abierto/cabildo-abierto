@@ -86,7 +86,7 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
         {filteredCategories && filteredCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}
-                className={(categories.includes(c) ? "font-light bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]")}
+                className={"px-1 " + (categories.includes(c) ? "bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]")}
                 onClick={() => {
                     onClick(c)
                 }}
@@ -98,7 +98,7 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
             <button onClick={() => {
                 setMaxCount(maxCount + 10)
             }}
-                    className={"font-light hover:bg-[var(--background-dark)]"}>
+                    className={"hover:bg-[var(--background-dark)]"}>
                 Ver más
             </button>
         </div>}

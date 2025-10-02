@@ -41,7 +41,7 @@ const FundingProgress = () => {
             <div className="mt-2">
                 {state == "good" && (
                     <div className="text-xs sm:text-sm text-center text-[var(--text-light)]">
-                        ¡Vamos bien! Aportá para que Cabildo Abierto crezca.
+                        ¡Vamos bien! Aportá para ayudar a que Cabildo Abierto crezca.
                     </div>
                 )}
                 {(state == "medium" || state == "bad") && (

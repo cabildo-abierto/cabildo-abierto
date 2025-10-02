@@ -2,6 +2,7 @@ import {Button} from "../../../modules/ui-utils/src/button";
 import React from "react";
 import { useSearch } from "./search-context";
 import UserSearchResults from "@/components/buscar/user-search-results";
+import {usePathname} from "next/navigation";
 
 
 type Props = {
@@ -10,7 +11,8 @@ type Props = {
 }
 
 const UserSearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
-    const {searchState, setSearchState} = useSearch("main")
+    const pathname = usePathname()
+    const {searchState, setSearchState} = useSearch(`${pathname}::main`)
 
     function onClickResult(did: string) {
         setSearchState({value: "", searching: false})

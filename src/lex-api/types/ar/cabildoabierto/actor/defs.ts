@@ -47,6 +47,37 @@ export function validateProfileViewBasic<V>(v: V) {
   return validate<ProfileViewBasic & V>(v, id, hashProfileViewBasic)
 }
 
+export interface ProfileView {
+  $type?: 'ar.cabildoabierto.actor.defs#profileView'
+  did: string
+  handle: string
+  displayName?: string
+  description?: string
+  avatar?: string
+  associated?: AppBskyActorDefs.ProfileAssociated
+  indexedAt?: string
+  createdAt?: string
+  viewer?: AppBskyActorDefs.ViewerState
+  labels?: ComAtprotoLabelDefs.Label[]
+  caProfile?: string
+  verification?: 'person' | 'org' | (string & {})
+  editorStatus?:
+    | 'Editor principiante'
+    | 'Editor'
+    | 'Administrador'
+    | (string & {})
+}
+
+const hashProfileView = 'profileView'
+
+export function isProfileView<V>(v: V) {
+  return is$typed(v, id, hashProfileView)
+}
+
+export function validateProfileView<V>(v: V) {
+  return validate<ProfileView & V>(v, id, hashProfileView)
+}
+
 export interface ProfileViewDetailed {
   $type?: 'ar.cabildoabierto.actor.defs#profileViewDetailed'
   did: string

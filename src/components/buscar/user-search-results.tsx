@@ -51,7 +51,7 @@ const UserSearchResults = ({
         return (
             <div
                 className={
-                    "my-8 text-center text-[var(--text-light)] font-light " +
+                    "my-16 text-center text-[var(--text-light)] font-light " +
                     (showSearchButton ? " border-b " : "")
                 }
             >
@@ -78,7 +78,7 @@ const UserSearchResults = ({
             <div
                 className={
                     showSearchButton
-                        ? "flex items-center border-b border-l border-r h-full w-full"
+                        ? "flex items-center border-[var(--accent-dark)] border-b border-l border-r h-full w-full"
                         : "my-8"
                 }
             >
@@ -91,11 +91,11 @@ const UserSearchResults = ({
         return (
             <div
                 className={
-                    "text-[var(--text-light)] font-light text-center " +
+                    "text-[var(--text-light)] text-sm font-light text-center " +
                     (showSearchButton ? "py-4 border-b text-sm border-l border-r border-[var(--accent-dark)]" : "py-16")
                 }
             >
-                No se encontraron usuarios
+                No se encontraron usuarios.
             </div>
         );
     }

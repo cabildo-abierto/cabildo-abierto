@@ -52,7 +52,6 @@ export const PostPreviewFrame = ({
     const enDiscusion = hasEnDiscusionLabel(postView)
     const author = postView.author
 
-    console.log("indexed at", postView.indexedAt, typeof postView.indexedAt, postView.uri)
     const createdAt = new Date(postView.indexedAt)
 
     const isOptimistic = postView.uri.includes("optimistic")
@@ -99,13 +98,15 @@ export const PostPreviewFrame = ({
             </div>
 
             <div className="py-2 flex w-full flex-col pr-2">
-                <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
-                    <div className="truncate">
-                        <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
-                    </div>
-                    <div className="text-[var(--text-light)]">·</div>
-                    <div className="text-[var(--text-light)] flex-shrink-0" >
-                        <DateSince date={createdAt}/>
+                <div className="flex justify-between items-center gap-x-1 max-w-[calc(100vw-80px)]">
+                    <div className={"flex gap-x-1"}>
+                        <div className="truncate">
+                            <ContentTopRowAuthor author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
+                        </div>
+                        <div className="text-[var(--text-light)]">·</div>
+                        <div className="text-[var(--text-light)] flex-shrink-0" >
+                            <DateSince date={createdAt}/>
+                        </div>
                     </div>
                 </div>
 

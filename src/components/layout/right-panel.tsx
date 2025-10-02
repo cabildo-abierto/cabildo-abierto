@@ -88,10 +88,10 @@ function useInSearchPage() {
 
 
 export const RightPanel = () => {
-    const pathname = usePathname();
     const {user} = useSession()
     const router = useRouter()
-    const {searchState} = useSearch("main")
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::main`)
     const {inSearchPage} = useInSearchPage()
     const {layoutConfig} = useLayoutConfig()
     const {isFollowSuggestionsPath, isTrendingTopicsPath, isDonatePath} = useRightPanelConfig()
@@ -129,7 +129,7 @@ export const RightPanel = () => {
             <Logo width={32} height={32}/>
         </div>
 
-        {user.platformAdmin && <ServerStatus/>}
+        {user && user.platformAdmin && <ServerStatus/>}
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
 

@@ -1,4 +1,4 @@
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useCategoriesGraph} from "@/queries/getters/useTopics";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
@@ -13,7 +13,8 @@ const Graph = dynamic(() => import("./graph-view"));
 export const CategoriesMap = () => {
     const {data: graph, isLoading, error} = useCategoriesGraph()
     const router = useRouter()
-    const {searchState} = useSearch("topics")
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::topics`)
 
     function onClickNode(nodeId: string){
         router.push("/temas?c="+nodeId+"&view=mapa")

@@ -56,7 +56,7 @@ export default function Page() {
             <div className={"flex justify-center mx-2"}>
                 <div className={"flex flex-col items-center space-y-4 p-4 mt-8 sm:w-full sm:max-w-[400px] w-screen"}>
                     <div className={"text-center font-light space-y-2"}>
-                        <p className={"text-lg"}>
+                        <p className={""}>
                             Elegí un valor para tu aporte
                         </p>
                         <p className={"text-[var(--text-light)]"}>

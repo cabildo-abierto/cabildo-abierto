@@ -41,7 +41,7 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
 
     if (searchState.value.length === 0 && searchState.searching) {
         return (
-            <div className="mt-8 text-[var(--text-light)] text-center">
+            <div className="mt-16 text-[var(--text-light)] font-light text-center">
                 Buscá un tema
             </div>
         );
@@ -57,9 +57,9 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
         </div>
     }
 
-    const noResultsText = <div className={"space-y-2 text-center text-[var(--text-light)]"}>
-        <div>
-            No se encontró ningún tema.
+    const noResultsText = <div className={"space-y-4 text-center text-[var(--text-light)]"}>
+        <div className={"text-sm"}>
+            No se encontraron temas.
         </div>
         {categories && categories.length > 0 && setCategories && <Button size={"small"} color={"background-dark"} onClick={() => setCategories([])}>
             <span className={"text-xs hover:text-[var(--text)] font-semibold text-[var(--text-light)]"}>Buscar en todas las categorías</span>

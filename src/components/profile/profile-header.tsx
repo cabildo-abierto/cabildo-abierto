@@ -212,7 +212,7 @@ function ProfileHeader({
                             window.open(bskyProfileUrl(profile.handle), '_blank', 'noopener,noreferrer')
                         }}
                         href={"https://bsky.app/profile/" + profile.handle}
-                        className="hover:underline text-[var(--accent-dark)]"
+                        className="hover:underline text-[var(--text-light)]"
                     >
                         Ver perfil en Bluesky.
                     </Link>

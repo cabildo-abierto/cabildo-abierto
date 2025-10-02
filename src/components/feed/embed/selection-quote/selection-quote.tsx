@@ -51,7 +51,7 @@ type SelectionQuoteProps = {
     quotedContent: string
     quotedText: string
     quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
+    quotedContentAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string
     selection: MarkdownSelection | LexicalSelection

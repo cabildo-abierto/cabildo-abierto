@@ -1,6 +1,7 @@
 import {useSearch} from "@/components/buscar/search-context";
 import React from "react";
 import SearchBar from "@/components/buscar/search-bar";
+import {usePathname} from "next/navigation";
 
 
 type MainSearchBarProps = {
@@ -19,7 +20,8 @@ const MainSearchBar = ({
     kind = "main",
     placeholder = "buscar"
 }: MainSearchBarProps) => {
-    const {searchState, setSearchState} = useSearch(kind)
+    const pathname = usePathname()
+    const {searchState, setSearchState} = useSearch(`${pathname}::${kind}`)
 
     return <SearchBar
         searchValue={searchState.value}

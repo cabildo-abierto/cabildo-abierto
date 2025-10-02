@@ -34,7 +34,7 @@ const UserSummary = ({handle}: UserSummaryProps) => {
         <div className="panel-dark p-4 w-90  hidden md:flex flex-col space-y-2 ">
             <div className="flex justify-between items-center">
                 <ProfilePic user={profile} descriptionOnHover={false} className={className}/>
-                <FollowButton handle={profile.handle} profile={profile}/>
+                <FollowButton backgroundColor={"background-dark"} handle={profile.handle} profile={profile}/>
             </div>
 
             <div className="flex flex-col items-start">

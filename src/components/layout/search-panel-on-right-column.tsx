@@ -1,12 +1,13 @@
 import React from "react";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useSearch} from "@/components/buscar/search-context";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 
 
 export const SearchPanelOnRightColumn = () => {
-    const {searchState} = useSearch("main")
-    const router = useRouter();
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::main`)
+    const router = useRouter()
 
     const handleSubmit = () => {
         if (searchState.value.length > 0) {
@@ -21,5 +22,5 @@ export const SearchPanelOnRightColumn = () => {
         >
             <MainSearchBar paddingY={"5px"} kind={"main"}/>
         </form>
-    );
-};
+    )
+}

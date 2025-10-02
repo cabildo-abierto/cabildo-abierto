@@ -88,6 +88,69 @@ export const schemaDict = {
           },
         },
       },
+      profileView: {
+        type: 'object',
+        required: ['did', 'handle'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          handle: {
+            type: 'string',
+            format: 'handle',
+          },
+          displayName: {
+            type: 'string',
+            maxGraphemes: 64,
+            maxLength: 640,
+          },
+          description: {
+            type: 'string',
+            maxGraphemes: 256,
+            maxLength: 2560,
+          },
+          avatar: {
+            type: 'string',
+            format: 'uri',
+          },
+          associated: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileAssociated',
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#viewerState',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+          caProfile: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          verification: {
+            type: 'string',
+            knownValues: ['person', 'org'],
+          },
+          editorStatus: {
+            type: 'string',
+            knownValues: ['Editor principiante', 'Editor', 'Administrador'],
+          },
+        },
+      },
       profileViewDetailed: {
         type: 'object',
         required: ['did', 'handle'],
@@ -1304,15 +1367,7 @@ export const schemaDict = {
       },
       topicView: {
         type: 'object',
-        required: [
-          'text',
-          'id',
-          'createdAt',
-          'lastEdit',
-          'uri',
-          'cid',
-          'author',
-        ],
+        required: ['text', 'id', 'createdAt', 'lastEdit', 'uri', 'cid'],
         properties: {
           id: {
             type: 'string',
@@ -1356,10 +1411,6 @@ export const schemaDict = {
           createdAt: {
             type: 'string',
             format: 'datetime',
-          },
-          author: {
-            type: 'ref',
-            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           embeds: {
             type: 'array',

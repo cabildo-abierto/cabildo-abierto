@@ -244,7 +244,7 @@ export function FollowButton({
         {profile.viewer?.following ?
             <StateButton
                 handleClick={onUnfollow}
-                color={darker(darker(backgroundColor))}
+                color={darker(backgroundColor)}
                 size="small"
                 variant="outlined"
                 startIcon={!dense && <CheckIcon size={14}/>}
@@ -257,6 +257,7 @@ export function FollowButton({
             /> :
             <StateButton
                 handleClick={onFollow}
+                color={darker(backgroundColor)}
                 size="small"
                 variant="outlined"
                 startIcon={!dense && <PlusIcon size={14}/>}
