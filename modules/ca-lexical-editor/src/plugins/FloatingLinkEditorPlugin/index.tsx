@@ -9,9 +9,6 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
-import EditIcon from '@mui/icons-material/Edit';
 import {$createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {
     $getSelection,
@@ -41,7 +38,7 @@ import {get} from '@/utils/fetch';
 import LoadingSpinner from "../../../../ui-utils/src/loading-spinner";
 import {IconButton} from '../../../../ui-utils/src/icon-button';
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
-import { TrashIcon } from '@phosphor-icons/react';
+import {CheckIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { WriteButtonIcon } from '@/components/layout/icons/write-button-icon';
 
 
@@ -350,7 +347,7 @@ function FloatingLinkEditor({
                     size={"small"}
                     color={"background-dark"}
                 >
-                    <CheckIcon fontSize="small"/>
+                    <CheckIcon/>
                 </IconButton>
                 <IconButton
                     onMouseDown={(event) => event.preventDefault()}
@@ -360,7 +357,7 @@ function FloatingLinkEditor({
                     color={"background-dark"}
                     size={"small"}
                 >
-                    <CloseIcon fontSize="small"/>
+                    <XIcon/>
                 </IconButton>
             </div>
         </div>
@@ -369,7 +366,7 @@ function FloatingLinkEditor({
 
     const linkViewComp = linkUrl.startsWith("/tema") ? (
 
-        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
+        <div className="p-1 w-64 sm:w-96 panel-dark">
             <div className="flex items-center">
                 <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1 mr-1">
                     <TopicMentionComp url={linkUrl}/>
@@ -400,9 +397,9 @@ function FloatingLinkEditor({
             </div>
         </div>
     ) : (
-        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
-            <div className="flex items-center">
-                <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
+        <div className="p-1 w-64 sm:w-96 panel-dark">
+            <div className="flex items-center justify-between w-full">
+                <div className="w-full overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
                     <Link
                         tag={"link"}
                         href={sanitizeUrl(linkUrl)}
@@ -413,7 +410,7 @@ function FloatingLinkEditor({
                         {linkUrl}
                     </Link>
                 </div>
-                <div className="flex space-x-1 mr-1 w-full">
+                <div className="flex space-x-1 mr-1">
                     <IconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
@@ -423,7 +420,7 @@ function FloatingLinkEditor({
                         size={"small"}
                         color={"background-dark"}
                     >
-                        <EditIcon fontSize="small"/>
+                        <WriteButtonIcon/>
                     </IconButton>
                     <IconButton
                         onMouseDown={(event) => event.preventDefault()}

@@ -84,7 +84,7 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
                 Hace <DateSince date={dataset.createdAt}/>
             </div>
         </div>}
-        {ArCabildoabiertoEmbedVisualization.isTopicsDataSource(dataset) && <div
+        {ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <div
             className={"py-2 space-y-1 rounded-lg px-2 text-sm text-[var(--text-light)] cursor-pointer bg-[var(--background-dark)]"}
         >
             <div className={"font-semibold text-[var(--text)]"}>
@@ -110,7 +110,9 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
             style={{height: 28}}
             startIcon={<TableIcon color="var(--text)" fontSize={12}/>}
         >
-            <span className={"text-xs"}>Datos</span>
+            <span className={"text-xs"}>
+                Datos
+            </span>
         </Button>
     </ClickableModalOnClick>
 }

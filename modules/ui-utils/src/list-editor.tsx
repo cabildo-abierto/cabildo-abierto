@@ -137,7 +137,7 @@ export const ListEditor = ({
         }
     }
 
-    return <div className={"flex flex-wrap gap-x-2 items-center"}>
+    return <div className={"flex flex-wrap gap-1 items-center"}>
         {items.map((c, i) => {
             return <div key={i} className={""}>
                 <ListEditorItem

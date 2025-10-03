@@ -1,5 +1,4 @@
 import LoadingPage from "@/components/layout/auth/loading-page";
-import {PageLeaveProvider} from "../../../modules/ui-utils/src/prevent-leave";
 import {LayoutConfigProvider} from "@/components/layout/layout-config-context";
 import React, {ReactNode} from "react";
 import PopupMessage from "@/components/layout/popup-message";
@@ -11,19 +10,17 @@ import {PageRequiresLoginChecker} from "@/components/layout/page-requires-login-
 export default async function RootLayout({children}: { children: ReactNode }) {
     return (
         <LoadingPage>
-            <PageLeaveProvider>
-                <LayoutConfigProvider>
-                    <PopupMessage>
-                        <SearchProvider>
-                            <MainLayoutContent>
-                                <PageRequiresLoginChecker>
-                                    {children}
-                                </PageRequiresLoginChecker>
-                            </MainLayoutContent>
-                        </SearchProvider>
-                    </PopupMessage>
-                </LayoutConfigProvider>
-            </PageLeaveProvider>
+            <LayoutConfigProvider>
+                <PopupMessage>
+                    <SearchProvider>
+                        <MainLayoutContent>
+                            <PageRequiresLoginChecker>
+                                {children}
+                            </PageRequiresLoginChecker>
+                        </MainLayoutContent>
+                    </SearchProvider>
+                </PopupMessage>
+            </LayoutConfigProvider>
         </LoadingPage>
     )
 }

@@ -55,7 +55,6 @@ import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
 import EmbedPlugin from "./plugins/EmbedPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
-import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {EmbedContext} from "./nodes/EmbedNode";
@@ -200,8 +199,6 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                 className={`relative ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
             >
                 <DragDropPaste/>
-
-                {preventLeave && !isReadOnly && <PreventLeavePlugin uniqueId={uniqueId}/>}
 
                 {isAutofocus && <AutoFocusPlugin defaultSelection={"rootStart"}/>}
 
