@@ -21,6 +21,7 @@ export const ArticleHeader = ({article}: {article: ArCabildoabiertoFeedDefs.Full
                     author={article.author}
                     onlyAuthor={true}
                     className={"font-medium hover:underline truncate max-w-[70vw]"}
+                    iconFontSize={16}
                 />
             </div>
             <div className={"max-[500px]:text-sm text-[var(--text-light)]"}>

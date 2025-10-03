@@ -117,8 +117,6 @@ export const RightPanel = () => {
     }
 
     return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
-        {user && user.platformAdmin && <ServerStatus/>}
-
         {searching && !inSearchPage && <div className={"w-[272px]"}>
             <UserSearchResultsOnRightPanel
                 showSearchButton={showSearchButton}
@@ -158,5 +156,7 @@ export const RightPanel = () => {
         <div className={"text-sm mt-4 pb-8"}>
             <RightPanelButtons/>
         </div>
+
+        {user && user.platformAdmin && <ServerStatus/>}
     </div>
 }

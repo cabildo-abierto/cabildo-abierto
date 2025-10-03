@@ -9,12 +9,10 @@ import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {getEditorSettings} from "@/components/writing/settings";
 import {EditorWithQuoteComments, getEditorKey} from "@/components/writing/editor-with-quote-comments";
-import dynamic from "next/dynamic";
 import {post} from "@/utils/fetch";
 import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
 import {TopicPropsView} from "@/components/topics/topic/props/topic-props-view";
 
-const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-to-quote-post";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/mutations/updates";
@@ -27,6 +25,7 @@ import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedArticle, ArCabildo
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {useSession} from "@/queries/getters/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {TopicEditor} from "@/components/topics/topic/topic-editor";
 
 export type CreateTopicVersionProps = {
     id: string
@@ -138,24 +137,9 @@ const TopicContentExpandedViewContent = ({
                     className={containerClassName}
                     ref={contentRef}
                 >
-                    {wikiEditorState.startsWith("editing") && <MyLexicalEditor
-                        settings={getEditorSettings({
-                            isReadOnly: false,
-                            initialText: topic.text,
-                            initialTextFormat: topic.format,
-                            embeds: topic.embeds ?? [],
-                            allowComments: false,
-                            tableOfContents: false,
-                            showToolbar: true,
-                            isDraggableBlock: true,
-                            editorClassName: "relative article-content not-article-content mt-8 min-h-[300px]",
-                            placeholderClassName: "text-[var(--text-light)] absolute top-0",
-                            placeholder: "Agregá información sobre el tema...",
-                            topicMentions: false
-                        })}
+                    {wikiEditorState.startsWith("editing") && <TopicEditor
+                        topic={topic}
                         setEditor={setEditor}
-                        setEditorState={() => {
-                        }}
                     />}
                     {!wikiEditorState.startsWith("editing") && emptyTopic(topic) && topic.currentVersion == topic.uri &&
                         <div className={"text-[var(--text-light)] " + (wikiEditorState == "minimized" ? "pt-4" : "")}>

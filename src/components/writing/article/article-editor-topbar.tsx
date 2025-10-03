@@ -11,36 +11,37 @@ import {Draft} from "@/queries/getters/useDrafts"
 
 export const ArticleEditorTopbar = ({
                                         draft,
+    unsavedChanges,
                                         editorState,
                                         settings,
                                         title,
                                         topicsMentioned,
-                                        lastTextChange
+    setInitialEditorState,
                                     }: {
+    unsavedChanges: boolean
     editorState: EditorState
     settings: SettingsProps
     title?: string
     topicsMentioned: ArCabildoabiertoFeedDefs.TopicMention[]
-    lastTextChange: Date
     draft?: Draft
+    setInitialEditorState: (s: string) => void
 }) => {
     const [draftId, setDraftId] = useState<string | null>(draft?.id)
     const [modalOpen, setModalOpen] = useState(false)
-    const [lastSavedChanges, setLastSavedChanges] = useState<Date | null>(null)
     const {isMobile} = useLayoutConfig()
-    const {valid, empty} = validArticle(editorState, settings.charLimit, title)
-    const unsavedChanges = !empty && (!lastSavedChanges || lastSavedChanges.getTime() < lastTextChange.getTime())
+    const {valid} = validArticle(editorState, settings.charLimit, title)
 
     return <div
-        className={"flex justify-end w-full pt-3 pb-2 text-[var(--text-light)] space-x-2 items-center " + (isMobile ? "px-3" : "")}>
+        className={"flex justify-end w-full pt-3 pb-2 text-[var(--text-light)] space-x-2 items-center " + (isMobile ? "px-3" : "")}
+    >
         <SaveDraftArticleButton
             disabled={!unsavedChanges || editorState == null}
             title={title}
             editorState={editorState}
             draftId={draftId}
-            onSavedChanges={(time, draftId) => {
-                setLastSavedChanges(time)
+            onSavedChanges={(time, draftId, state: string) => {
                 setDraftId(draftId)
+                setInitialEditorState(state)
             }}
         />
         <PublishArticleButton

@@ -13,6 +13,8 @@ import {robotoSerif} from "@/components/writing/article-font";
 import {LayoutConfigProps, useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ArticleEditorTopbar} from "@/components/writing/article/article-editor-topbar";
 import ArticleEditorAuthor from "@/components/writing/article/article-editor-author-line";
+import {useNavigationGuard} from "next-navigation-guard"
+import {PreventLeavePopup} from "@/components/layout/prevent-leave-popup";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -65,7 +67,6 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const {
         topicsMentioned,
-        lastTextChange,
         setLastTextChange,
         setEditor,
         title,
@@ -73,6 +74,9 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
     } = useTopicsMentioned(draft?.title)
     const smallScreen = window.innerWidth < 700
     const {isMobile, layoutConfig} = useLayoutConfig()
+    const [guardEnabled, setGuardEnabled] = useState(false)
+    const navGuard = useNavigationGuard({enabled: guardEnabled})
+    const [initialEditorState, setInitialEditorState] = useState(null)
 
     const settings = articleEditorSettings(
         smallScreen,
@@ -82,18 +86,29 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
     )
 
     useEffect(() => {
+        if(editorState){
+            const state = JSON.stringify(editorState.toJSON())+`::${title}`
+            if(!initialEditorState) {
+                setInitialEditorState(state)
+            } else if(state != initialEditorState) {
+                if(!guardEnabled) setGuardEnabled(true)
+            } else {
+                if(guardEnabled) setGuardEnabled(false)
+            }
+        }
         setLastTextChange(new Date())
-    }, [editorState, setLastTextChange])
+    }, [editorState, title, setLastTextChange, initialEditorState])
 
 
     return <div className={"mb-32"}>
         <ArticleEditorTopbar
-            lastTextChange={lastTextChange}
+            unsavedChanges={guardEnabled}
             title={title}
             draft={draft}
             settings={settings}
             editorState={editorState}
             topicsMentioned={topicsMentioned}
+            setInitialEditorState={setInitialEditorState}
         />
         <div className={"mt-8 space-y-4 " + (isMobile ? "px-5" : "")}>
             <div className={"mb-2"}>
@@ -109,6 +124,7 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
                 setEditorState={setEditorState}
             />
         </div>
+        <PreventLeavePopup navGuard={navGuard}/>
     </div>
 }
 

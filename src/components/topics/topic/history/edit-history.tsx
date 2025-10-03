@@ -16,10 +16,8 @@ import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import {useSession} from "@/queries/getters/useSession";
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
-import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {VoteEditButtons} from "@/components/topics/topic/history/vote-edit-buttons";
-import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
-import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
+import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {TopicContributor} from "@/lib/types";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -28,8 +26,12 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {ListDashesIcon} from "@phosphor-icons/react";
 import DescriptionOnHover from "../../../../../modules/ui-utils/src/description-on-hover";
+import {TopicPropView} from "../props/topic-props-view";
 
-const EditDetails = ({topicHistory, index}: { topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory, index: number }) => {
+const EditDetails = ({topicHistory, index}: {
+    topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory,
+    index: number
+}) => {
     const v = topicHistory.versions[index]
 
     return <ChangesCounter
@@ -49,20 +51,29 @@ const EditMessage = ({msg}: { msg?: string }) => {
 }
 
 
-export const TopicProperties = ({topicVersion, topic}: { topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory, topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
-    const props = topicVersion.props != null ? topicVersion.props.filter(
-        p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)
-    ) : []
+export const TopicPropertiesInHistory = ({topicVersion, topic}: {
+    topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory,
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+}) => {
+    const props = addDefaults(topic.props, topic)
 
-    const description = <div className={"text-[var(--text-light)] p-2 text-sm"}>
-        {props.length > 0 && props.map((p, index) => {
-            return <div key={index}><TopicProperty p={p}/></div>
+    const description = <div className={"space-y-2 text-xs max-w-[300px]"}>
+        {props.map((p, index) => {
+            return <div key={index}>
+                <TopicPropView p={p} />
+            </div>
         })}
-        {props.length == 0 && <div>Ninguna propiedad asignada.</div>}
     </div>
 
-    return <DescriptionOnHover description={description}>
-        <div className={"text-[var(--text-light)]"} onClick={e => {e.stopPropagation()}}>
+    return <DescriptionOnHover
+        description={description}
+    >
+        <div
+            className={"text-[var(--text-light)]"}
+            onClick={e => {
+                e.stopPropagation()
+            }}
+        >
             <IconButton
                 size={"small"}
                 textColor={"text-light"}
@@ -126,7 +137,8 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                                 {topicVersion.contribution ? (parseFloat(topicVersion.contribution.all ?? "0") * 100).toFixed(1).toString() + "%" : null}
                             </div>
                         </div>
-                        <TopicProperties topicVersion={topicVersion} topic={topic}/>
+
+                        <TopicPropertiesInHistory topicVersion={topicVersion} topic={topic}/>
                         <div className={"text-[var(--text-light)]"}>
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
@@ -158,9 +170,12 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        {claimsAuthorship && <span className={"text-[var(--text-light)] text-xl"} title={"El usuario es autor del contenido agregado."}>
+                        {claimsAuthorship &&
+                            <DescriptionOnHover description={"El usuario es autor del contenido agregado."}>
+                            <span className={"text-[var(--text-light)] text-xl"}>
                             <HistoryEduIcon fontSize={"inherit"} fontWeight={300}/>
-                        </span>}
+                            </span>
+                            </DescriptionOnHover>}
                         <VoteEditButtons
                             topicId={topic.id}
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
@@ -249,7 +264,7 @@ function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHis
             const cur = authors.get(profile.did)
             const all = parseFloat((contribution.all ?? 0).toString())
             const monetized = parseFloat((contribution.monetized ?? 0).toString())
-            if(cur){
+            if (cur) {
                 authors.set(profile.did, {
                     profile,
                     all: all + cur.all,
@@ -278,8 +293,10 @@ const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: Topic
                 Contribuciones
             </div>
             <div className={"text-base"}>
-                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {setOpen(!open)}} color="transparent" textColor={"text"}>
-                    {!open ? <ArrowDropDownIcon fontSize={"inherit"} /> : <ArrowDropUpIcon fontSize={"inherit"}/>}
+                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {
+                    setOpen(!open)
+                }} color="transparent" textColor={"text"}>
+                    {!open ? <ArrowDropDownIcon fontSize={"inherit"}/> : <ArrowDropUpIcon fontSize={"inherit"}/>}
                 </IconButton>
             </div>
         </div>
