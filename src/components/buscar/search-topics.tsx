@@ -48,7 +48,7 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
     }
 
     if (results == "loading") {
-        return <div className={"pt-8"}><LoadingSpinner/></div>
+        return <div className={"pt-32"}><LoadingSpinner/></div>
     }
 
     if(!searchState.searching) {

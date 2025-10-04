@@ -57,6 +57,7 @@ const FirstFollowsMessage = ({open, onClose}: {
     const {data: bskyProfile} = useProfile("bsky.app")
     const [searchState, setSearchState] = useState({searching: false, value: ""})
     const {results, isLoading} = useSearchUsers(searchState, 25)
+    const qc = useQueryClient()
 
     const resultsWithSuggestions = useMemo(() => {
         if (!results && caProfile && bskyProfile) {
@@ -72,10 +73,20 @@ const FirstFollowsMessage = ({open, onClose}: {
         return null
     }
 
+    function onFinishIntro() {
+        qc.refetchQueries({predicate: query => {
+            const k = query.queryKey
+            const res = Array.isArray(k) && k.length >= 2 && k[0] == "main-feed" && k[1] == "siguiendo"
+            if(res) console.log("refetching query", k); else console.log("not refetching query", k)
+            return res
+        }})
+        onClose()
+    }
+
     return <AcceptButtonPanel
         open={open}
         buttonText={"Terminar intro"}
-        onClose={onClose}
+        onClose={onFinishIntro}
         className={"py-4 flex flex-col items-center px-4 sm:px-8"}
     >
         <div className={"flex flex-col items-center min-[500px]:w-[400px] h-[70vh]"}>
@@ -108,7 +119,7 @@ const FirstFollowsMessage = ({open, onClose}: {
                         className="w-1/2 min-[400px]:w-1/3 p-1 box-border"
                     >
                         <div
-                            className="rounded bg-[var(--background-dark2)] py-2 w-full aspect-[0.82] flex flex-col items-center justify-center space-y-1 text-center overflow-hidden"
+                            className="panel py-2 w-full aspect-[0.82] flex flex-col items-center justify-center space-y-1 text-center overflow-hidden"
                         >
                             <div className={"pointer-events-none"}>
                                 <ProfilePic user={r} className="w-14 h-14 rounded-full" descriptionOnHover={false}/>
@@ -124,7 +135,7 @@ const FirstFollowsMessage = ({open, onClose}: {
                                     handle={r.handle}
                                     profile={r}
                                     dense={false}
-                                    backgroundColor={"background-dark2"}
+                                    backgroundColor={"background-dark"}
                                     textClassName={"text-xs"}
                                 />
                             </div>
@@ -157,12 +168,6 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             qc.prefetchQuery({queryKey: ["profile", "bsky.app"]})
         }
     }, [user, runStatus])
-
-    useEffect(() => {
-        if (profile && profile.bskyFollowsCount == 1) {
-            post<{}, {}>("/clear-follows")
-        }
-    }, [profile]);
 
     const [steps, setSteps] = useState<Step[]>([
         {

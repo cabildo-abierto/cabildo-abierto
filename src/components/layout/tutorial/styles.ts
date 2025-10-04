@@ -5,7 +5,7 @@ export const tutorialStyles = {
     options: {
         zIndex: 10000,
         arrowColor: "var(--background-dark)",
-        overlayColor: 'rgba(0, 0, 0, 0)',
+        overlayColor: 'rgba(0, 0, 0, 0.5)',
         spotlightShadow: "none"
     }
 }
