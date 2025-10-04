@@ -1,7 +1,7 @@
 import {EditorState} from "lexical";
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import dynamic from "next/dynamic";
@@ -26,7 +26,7 @@ const createArticle = async (props: CreateArticleProps) => {
 }
 
 
-export const PublishArticleButton = ({editorState, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
+export const PublishArticleButton = ({editorState, guardEnabled, setGuardEnabled, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
     editorState: EditorState
     disabled: boolean
     title?: string
@@ -34,12 +34,22 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
     setModalOpen: (o: boolean) => void
     mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
     draftId?: string
+    guardEnabled: boolean
+    setGuardEnabled: (s: boolean) => void
 }) => {
     const [mdText, setMdText] = useState("")
     const router = useRouter()
     const qc = useQueryClient()
+    const [saved, setSaved] = useState(false)
+
+    useEffect(() => {
+        if(saved && !guardEnabled){
+            router.push("/inicio?f=siguiendo")
+        }
+    }, [guardEnabled, saved])
 
     const handleSubmit = (enDiscusion: boolean) => async () => {
+
         const editorStateStr = JSON.stringify(editorState.toJSON())
         const { editorStateToMarkdown } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
         const {embeds, markdown, embedContexts} = editorStateToMarkdown(editorStateStr)
@@ -63,7 +73,8 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
             }
         })
 
-        router.push("/inicio?f=siguiendo")
+        setGuardEnabled(false)
+        setSaved(true)
         return {stopResubmit: true}
     }
 

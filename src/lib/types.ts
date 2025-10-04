@@ -88,8 +88,8 @@ export type TopicVersionChangesProps = {
     prevFormat: string | undefined
     curText: string
     curFormat: string | undefined
-    curAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
-    prevAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
+    curAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
+    prevAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
     diff: MatchesType
 }
 

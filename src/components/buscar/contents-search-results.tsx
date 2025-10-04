@@ -55,7 +55,7 @@ export const ContentsSearchResults = () => {
     }
 
     if(results == "loading"){
-        return <div className={"pt-8"}>
+        return <div className={"pt-32"}>
             <LoadingSpinner/>
         </div>
     }

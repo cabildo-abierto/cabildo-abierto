@@ -11,25 +11,29 @@ import {Draft} from "@/queries/getters/useDrafts"
 
 export const ArticleEditorTopbar = ({
                                         draft,
-    unsavedChanges,
                                         editorState,
                                         settings,
                                         title,
                                         topicsMentioned,
     setInitialEditorState,
+    guardEnabled,
+    setGuardEnabled
                                     }: {
-    unsavedChanges: boolean
     editorState: EditorState
     settings: SettingsProps
     title?: string
     topicsMentioned: ArCabildoabiertoFeedDefs.TopicMention[]
     draft?: Draft
     setInitialEditorState: (s: string) => void
+    guardEnabled: boolean
+    setGuardEnabled: (s: boolean) => void
 }) => {
     const [draftId, setDraftId] = useState<string | null>(draft?.id)
     const [modalOpen, setModalOpen] = useState(false)
     const {isMobile} = useLayoutConfig()
     const {valid} = validArticle(editorState, settings.charLimit, title)
+
+    const unsavedChanges = guardEnabled
 
     return <div
         className={"flex justify-end w-full pt-3 pb-2 text-[var(--text-light)] space-x-2 items-center " + (isMobile ? "px-3" : "")}
@@ -52,6 +56,8 @@ export const ArticleEditorTopbar = ({
             editorState={editorState}
             mentions={topicsMentioned}
             draftId={draftId}
+            guardEnabled={guardEnabled}
+            setGuardEnabled={setGuardEnabled}
         />
     </div>
 }

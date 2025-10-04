@@ -137,7 +137,11 @@ const CreateTopicButtons = ({
 }
 
 
-export const CreateTopicResults = ({results, topicName}: {results: CreateTopicSearchResults, topicName: string}) => {
+export const CreateTopicResults = ({results, topicName, onClickTopic}: {
+    results: CreateTopicSearchResults
+    topicName: string
+    onClickTopic?: () => void
+}) => {
     return <div className={"text-[var(--text)] text-sm"}>
         {results != "loading" && results && results.length > 0 && <div className={"space-y-1"}>
                 <span className={"text-xs font-light"}>
@@ -145,8 +149,12 @@ export const CreateTopicResults = ({results, topicName}: {results: CreateTopicSe
                 </span>
             <div className={"space-y-1 flex flex-col max-h-[250px] custom-scrollbar overflow-y-scroll pb-2"}>
                 {results.map(r => {
-                    return <Link href={topicUrl(r.id, undefined, "normal")} key={r.id}
-                                 className={"border border-[var(--accent-dark)] hover:bg-[var(--background-dark)] px-2 py-1"}>
+                    return <Link
+                        href={topicUrl(r.id, undefined, "normal")}
+                        key={r.id}
+                        onClick={onClickTopic}
+                        className={"border border-[var(--accent-dark)] hover:bg-[var(--background-dark)] px-2 py-1"}
+                    >
                         {getTopicTitle(r)}
                     </Link>
                 })}
@@ -164,6 +172,7 @@ const CreateTopicInput = ({
     disabled,
     goToArticle,
     setGoToArticle,
+    onClose
                           }: {
     topicName: string
     setTopicName: (t: string) => void
@@ -172,6 +181,7 @@ const CreateTopicInput = ({
     disabled: boolean
     goToArticle: boolean
     setGoToArticle: (v: boolean) => void
+    onClose: () => void
 }) => {
     return <div className={"h-full space-y-3"}>
         <div className={"w-full"}>
@@ -191,6 +201,7 @@ const CreateTopicInput = ({
         {!disabled && <CreateTopicResults
             topicName={topicName}
             results={results}
+            onClickTopic={onClose}
         />}
 
         <TickButton
@@ -275,6 +286,7 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
             setTopicName={setTopicName}
             goToArticle={goToArticle}
             setGoToArticle={setGoToArticle}
+            onClose={onClose}
         />
         <CreateTopicButtons
             results={results}

@@ -79,7 +79,7 @@ const UserSearchResults = ({
                 className={
                     showSearchButton
                         ? "flex items-center border-[var(--accent-dark)] border-b border-l border-r h-full w-full"
-                        : "my-8"
+                        : "mt-32"
                 }
             >
                 <LoadingSpinner/>

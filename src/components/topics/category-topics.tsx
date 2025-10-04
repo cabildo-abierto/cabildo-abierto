@@ -30,6 +30,13 @@ function ttOptionToTimePeriod(sortedBy: TTOption): TimePeriod {
 }
 
 
+const LoadingCategoryTopics = () => {
+    return <div className={"py-32"}>
+        <LoadingSpinner/>
+    </div>
+}
+
+
 export const CategoryTopics = ({sortedBy, categories}: {
     sortedBy: TTOption
     categories: string[]
@@ -42,7 +49,7 @@ export const CategoryTopics = ({sortedBy, categories}: {
         time
     )
 
-    if (isLoading) return <LoadingSpinner/>
+    if (isLoading) return <LoadingCategoryTopics/>
     if (!topics) return <ErrorPage>{error?.message ?? "Ocurrió un error al cargar los temas."}</ErrorPage>
 
     const endText = topics.length == 50 ? <div className={"text-sm text-[var(--text-light)] link px-4"}>

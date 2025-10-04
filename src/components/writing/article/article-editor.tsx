@@ -102,13 +102,14 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
 
     return <div className={"mb-32"}>
         <ArticleEditorTopbar
-            unsavedChanges={guardEnabled}
             title={title}
             draft={draft}
             settings={settings}
             editorState={editorState}
             topicsMentioned={topicsMentioned}
             setInitialEditorState={setInitialEditorState}
+            guardEnabled={guardEnabled}
+            setGuardEnabled={setGuardEnabled}
         />
         <div className={"mt-8 space-y-4 " + (isMobile ? "px-5" : "")}>
             <div className={"mb-2"}>
