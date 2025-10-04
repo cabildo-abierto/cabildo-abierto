@@ -33,7 +33,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
-                        draft.viewer.following = "optimistic-follow"
+                        if(draft.viewer) draft.viewer.following = "optimistic-follow"
                         draft.bskyFollowersCount++
                         draft.followersCount++
                     })
@@ -42,7 +42,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
                         const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            draft[index].viewer.following = "optimistic-follow"
+                            if(draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if(k[0] == "follow-suggestions"){
@@ -50,7 +50,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            draft.profiles[index].viewer.following = "optimistic-follow"
+                            if(draft.profiles[index].viewer) draft.profiles[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
@@ -184,7 +184,11 @@ export function FollowButton({
     const followMutation = useMutation({
         mutationFn: follow,
         onMutate: () => {
-            optimisticFollow(qc, handle)
+            try {
+                optimisticFollow(qc, handle)
+            } catch (err) {
+                console.log("follow failed", err)
+            }
         },
         onSuccess: (data) => {
             if (data.data.followUri) {

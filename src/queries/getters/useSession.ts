@@ -1,14 +1,31 @@
-import {useAPI} from "@/queries/utils";
+import {RefetchInterval, useAPI} from "@/queries/utils";
 import {Session} from "@/lib/types";
+import {useEffect} from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
+export const useSession = (
+    inviteCode?: string,
+    key: string = "session",
+    refetchInterval: RefetchInterval<Session> = false) => {
+    const qc = useQueryClient()
 
-export const useSession = (inviteCode?: string) => {
     const res = useAPI<Session>(
         "/session" + (inviteCode ? "/" + inviteCode : ""),
-        ["session"],
+        [key],
         undefined,
         undefined,
-        10000
+        refetchInterval
     )
+
+    useEffect(() => {
+        if(res.data){
+            if(key == "session"){
+                qc.setQueryData(["sidebar-session"], old => {
+                    return res.data
+                })
+            }
+        }
+    }, [res]);
+
     return {...res, user: res.data}
 }

@@ -22,7 +22,7 @@ pre {
 
 .tree-view-output {
   display: block;
-  color: white;
+  color: var(--text);
   padding: 0;
   font-size: 12px;
   margin: 1px auto 10px auto;

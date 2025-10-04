@@ -1,29 +1,8 @@
 import {Metadata} from "next";
-import {iconUrl, mainMetadata} from "@/utils/metadata";
+import {createMetadata, mainMetadata, MetadataParams} from "@/utils/metadata";
 import {shortCollectionToCollection} from "@/utils/uri";
 import { get } from "@/utils/fetch";
-import {produce} from "immer";
 import {ReactNode} from "react";
-
-
-type MetadataParams = {
-    title: string
-    description: string
-    thumbnail: string
-}
-
-
-function createMetadata(m: MetadataParams){
-    return produce(mainMetadata, draft => {
-        draft.title = m.title
-        draft.description = m.description
-        draft.icons.icon = iconUrl
-        draft.openGraph.title = m.title
-        draft.openGraph.description = m.description
-        draft.twitter.title = m.title
-        draft.twitter.description = m.description
-    })
-}
 
 
 export async function generateMetadata(
