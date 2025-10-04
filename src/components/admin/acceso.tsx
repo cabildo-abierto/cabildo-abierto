@@ -28,7 +28,8 @@ export const collectionsList = [
     "ar.com.cabildoabierto.visualization",
     "ar.com.cabildoabierto.profile",
     "ar.cabildoabierto.wiki.topicVersion",
-    "ar.cabildoabierto.feed.article"
+    "ar.cabildoabierto.feed.article",
+    "ar.cabildoabierto.data.dataset"
 ]
 
 const deleteUser = async (handle: string) => {

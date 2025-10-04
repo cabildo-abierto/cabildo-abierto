@@ -11,7 +11,19 @@ import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-
 
 export const SidebarProfilePic = ({showText}) => {
     const {isMobile} = useLayoutConfig()
-    const {user} = useSession()
+    const {user} = useSession(
+        undefined,
+        "sidebar-session",
+            q => {
+        const data = q.state.data
+        if(data && data.mirrorStatus == "Sync"){
+            return false
+        } else {
+            return 10000
+        }
+    })
+
+    if(!user) return null
 
     return <div className={"flex w-full"}>
         <div className={(!showText ? "pl-4 min-h-12 justify-end " : " relative ") + (isMobile ? "flex space-x-2 items-end" : "flex flex-col space-y-1 h-16 items-center")}>
@@ -35,10 +47,9 @@ export const SidebarProfilePic = ({showText}) => {
                 />
             </Link>
             {(showText && !isVerified(user.validation) ?
-                <div className={"h-4"}>
-                    <VerifyAccountButton verification={user.validation}/></div> :
-                <div className={"h-4"}/>
-        )}
+            <div className={"h-4"}>
+                <VerifyAccountButton verification={user.validation}/></div> :
+            <div className={"h-4"}/>)}
         </div>
     </div>
 }

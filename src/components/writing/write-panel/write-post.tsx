@@ -212,7 +212,7 @@ function getLinksFromEditor(editorState: EditorState) {
 
 const settings: SettingsProps = getEditorSettings({
     placeholder: "¿Qué está pasando?",
-    placeholderClassName: "text-[var(--text-light)] absolute top-0",
+    placeholderClassName: "text-[var(--text-light)] absolute text-base top-0",
     editorClassName: "link relative h-full text-base",
     isReadOnly: false,
     isRichText: false,

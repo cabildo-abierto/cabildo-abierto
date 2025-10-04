@@ -16,6 +16,7 @@ import {useUsersSyncStatus} from "@/queries/getters/admin";
 export const AdminSync = () => {
     const [collections, setCollections] = useState<string[]>([])
     const {data: syncData, refetch, isLoading} = useUsersSyncStatus()
+    const [onlyRecords, setOnlyRecords] = useState(false)
 
     async function syncAllUsers(collections: string[]) {
         await post("/sync-all-users?" + categoriesSearchParam(collections))
@@ -80,12 +81,14 @@ export const AdminSync = () => {
         </AdminSection>
 
         <AdminSection title={"Collections"}>
-            <div>
+            <div className={"space-y-4 flex flex-col items-center"}>
+                <Button onClick={() => {setOnlyRecords(!onlyRecords)}}>{onlyRecords ? "Solo records" : "Completo"}</Button>
                 <StateButton
                     handleClick={async () => {
                         if(collections.length == 1) {
                             const {error} = await post("/job/reprocess-collection", {jobData: {
-                                collection: collections[0]
+                                collection: collections[0],
+                                onlyRecords
                             }})
                             return {error}
                         } else {
