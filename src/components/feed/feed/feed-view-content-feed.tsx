@@ -3,8 +3,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import LoadingFeedViewContent from "@/components/feed/feed/loading-feed-view-content"
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {GetFeedProps} from "@/lib/types";
-import dynamic from "next/dynamic";
-const FeedElement = dynamic(() => import("@/components/feed/feed/feed-element"), {ssr: false})
+import FeedElement from "./feed-element";
 
 
 

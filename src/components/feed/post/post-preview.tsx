@@ -12,8 +12,8 @@ import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
-const ShowThreadButton = ({uri}: { uri: string }) => {
-    const url = contentUrl(uri)
+const ShowThreadButton = ({uri, handle}: { uri: string, handle?: string }) => {
+    const url = contentUrl(uri, handle)
     const {isMobile} = useLayoutConfig()
     return (
         <Link href={url}
@@ -96,7 +96,7 @@ const PostPreviewParentAndRoot = ({root, parent, grandparentAuthor, feedViewCont
         />}
 
         {showThreadButton && postOrArticle(feedViewContent.reply.root) &&
-            <ShowThreadButton uri={feedViewContent.reply.root.uri}/>
+            <ShowThreadButton uri={feedViewContent.reply.root.uri} handle={feedViewContent.reply.root.author.handle}/>
         }
 
         {parent &&

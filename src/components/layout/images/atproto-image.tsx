@@ -43,9 +43,8 @@ export const ATProtoImage = ({
         <Image
             src={src}
             alt={alt}
-            width={1500}
-            height={1500}
-            quality={100}
+            width={800}
+            height={800}
             style={{
                 maxWidth,
                 maxHeight

@@ -64,6 +64,6 @@ export const ContentsSearchResults = () => {
         queryKey={["search-contents", resultsValue]}
         initialContents={results}
         noResultsText={"No se encontraron resultados."}
-        endText={""}
+        endText={"No tenemos más resultados para mostrarte."}
     />
 }

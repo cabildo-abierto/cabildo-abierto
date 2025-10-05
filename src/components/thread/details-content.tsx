@@ -28,6 +28,7 @@ export const DetailsContent = ({detail, uri}: {detail: DetailType, uri:string}) 
         getFeed={getDetails}
         noResultsText={"La publicación no recibió " + text + "."}
         endText={undefined}
+        estimateSize={100}
     />
 }
 

@@ -15,6 +15,7 @@ type ThreadRepliesProps = {
 
 export default function ThreadReplies({replies, setPinnedReplies}: ThreadRepliesProps) {
     if (!replies) return null
+    console.log("replies in trhead replies", replies.length)
     return (
         <StaticFeed<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<AppBskyFeedDefs.BlockedPost> | {
             $type: string

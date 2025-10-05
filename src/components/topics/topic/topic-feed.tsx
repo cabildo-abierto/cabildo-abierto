@@ -250,6 +250,7 @@ export const TopicFeed = ({
             })}
             endText={""}
             getFeedElementKey={e => e.id}
+            estimateSize={500}
         />
     }, [metric, time, format, topicId])
 

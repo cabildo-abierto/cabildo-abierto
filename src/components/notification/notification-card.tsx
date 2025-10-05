@@ -81,14 +81,15 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
 }
 
 
-const ContentMention = ({uri, article, topicId}: {
+const ContentMention = ({uri, article, topicId, handle}: {
     uri: string
     article: ArticleKind
     topicId?: string
+    handle?: string
 }) => {
     if (!uri) return "[contenido no encontrado]"
     return <Link
-        href={contentUrl(uri)}
+        href={contentUrl(uri, handle)}
         className={"font-semibold hover:underline"}
         onClick={(e) => {
             e.stopPropagation()
@@ -116,8 +117,10 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
             reasonIcon={<HeartIcon size={24}/>}
             href={contentUrl(notification.reasonSubject)}
         >
-            A <Username user={notification.author}/> le gustó <ContentMention uri={notification.reasonSubject}
-                                                                              article={"author"}/>.
+            A <Username user={notification.author}/> le gustó <ContentMention
+                uri={notification.reasonSubject}
+                article={"author"}
+            />.
         </UserNotificationCard>
     } else if (notification.reason == "quote") {
         return <UserNotificationCard

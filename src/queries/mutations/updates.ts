@@ -37,11 +37,33 @@ import {areArraysEqual} from "@/utils/arrays";
 //   [TO DO] si tiene quote: se reduce el contador de quotes del quoteado en todas las queries de threads y muros
 //   [ok] si tiene quote: se lo elimina de quoted-by del quoteado
 
+
+export async function refetchQueries(qc: QueryClient, queries: string[][]) {
+    await qc.refetchQueries({
+        predicate: query => {
+            const res = queries.some(q => areArraysEqual(q, query.queryKey as string[]))
+            if(res) console.log("refetching", query.queryKey)
+            return res
+        }})
+}
+
+
+
+export async function cancelQueries(qc: QueryClient, queries: string[][]) {
+    await qc.cancelQueries({
+        predicate: query => {
+            const res = queries.some(q => areArraysEqual(q, query.queryKey as string[]))
+            if(res) console.log("cancelling", query.queryKey)
+            return res
+        }})
+}
+
+
 export async function invalidateQueries(qc: QueryClient, queries: string[][]) {
     await qc.invalidateQueries({
         predicate: query => {
             const res = queries.some(q => areArraysEqual(q, query.queryKey as string[]))
-            if(res) console.log("invalidating", query.queryKey)
+            if(res) console.log("invalidatin!!g", query.queryKey)
             return res
         }})
 }

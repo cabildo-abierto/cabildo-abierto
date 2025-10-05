@@ -1,7 +1,7 @@
 "use client"
 import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import {use} from "react";
-import {getUri, shortCollectionToCollection} from "@/utils/uri";
+import {getUri} from "@/utils/uri";
 import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
 import dynamic from "next/dynamic";
@@ -17,10 +17,13 @@ const Page = ({params}: {
         did: string, rkey: string
     }>
 }) => {
-    const {did, rkey} = use(params)
-    const collection = "app.bsky.feed.post"
-    const uri = getUri(decodeURIComponent(did), shortCollectionToCollection(collection), rkey)
-    const {thread} = useThreadWithNormalizedContent(uri)
+    const {did: handleOrDid, rkey} = use(params)
+    const niceUri = getUri(
+        decodeURIComponent(handleOrDid),
+        "app.bsky.feed.post",
+        rkey
+    )
+    const {thread} = useThreadWithNormalizedContent(niceUri)
 
     if (thread == "loading") {
         return <LoadingThread collection={"app.bsky.feed.post"}/>

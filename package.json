@@ -45,6 +45,7 @@
     "@mui/x-date-pickers": "^8.4.0",
     "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-query": "^5.74.4",
+    "@tanstack/react-virtual": "^3.13.12",
     "@turf/turf": "^7.2.0",
     "@visx/tooltip": "^3.13.1-alpha.0",
     "@visx/visx": "^3.13.2-alpha.0",

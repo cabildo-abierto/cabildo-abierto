@@ -3,7 +3,7 @@ import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../profile/profile-pic";
-import {urlFromRecord, profileUrl, getCollectionFromUri, isPost} from "@/utils/uri";
+import {profileUrl, getCollectionFromUri, isPost, contentUrl} from "@/utils/uri";
 import {emptyChar} from "@/utils/utils";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AppBskyFeedDefs} from "@atproto/api"
@@ -50,7 +50,7 @@ export const PostPreviewFrame = ({
                                      reason,
                                      pageRootUri,
                                  }: FastPostPreviewFrameProps) => {
-    const url = urlFromRecord(postView.uri)
+    const url = contentUrl(postView.uri, postView.author.handle)
     const qc = useQueryClient()
     const {isMobile} = useLayoutConfig()
 

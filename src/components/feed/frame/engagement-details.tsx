@@ -15,6 +15,8 @@ export const EngagementDetails = ({
                                       showBsky
                                   }: EngagementDetailsProps) => {
 
+    const handle = content.author.handle
+
     return <div
         className={"flex items-center exclude-links w-full space-x-3 border-[var(--accent-dark)] px-2"}
     >
@@ -24,7 +26,7 @@ export const EngagementDetails = ({
             label={"republicaciones"}
             labelSing={"republicación"}
             showBsky={showBsky}
-            url={contentUrl(content.uri) + "/republicaciones"}
+            url={contentUrl(content.uri, handle) + "/republicaciones"}
         />
 
         <Details
@@ -33,7 +35,7 @@ export const EngagementDetails = ({
             label={"me gustas"}
             labelSing={"me gusta"}
             showBsky={showBsky}
-            url={contentUrl(content.uri) + "/me-gustas"}
+            url={contentUrl(content.uri, handle) + "/me-gustas"}
         />
 
         <Details
@@ -42,7 +44,7 @@ export const EngagementDetails = ({
             label={"citas"}
             labelSing={"cita"}
             showBsky={showBsky}
-            url={contentUrl(content.uri) + "/citas"}
+            url={contentUrl(content.uri, handle) + "/citas"}
         />
     </div>
 }

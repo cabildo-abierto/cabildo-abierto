@@ -118,6 +118,6 @@ export const ContentOptions = ({
                 startIcon={!showBluesky ? <ViewsIcon/> : <VisibilityOff/>}
             />
         }
-        <ShareContentButton uri={record.uri}/>
+        <ShareContentButton uri={record.uri} handle={record.author.handle}/>
     </div>
 }
