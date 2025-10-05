@@ -48,7 +48,7 @@ export const EngagementIcons = ({
 
     const onClickRepliesButton = () => {
         if (ArCabildoabiertoFeedDefs.isArticleView(content)) {
-            router.push(contentUrl(content.uri))
+            router.push(contentUrl(content.uri, content.author.handle))
         } else {
             if(user){
                 setWritingReply(true)

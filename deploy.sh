@@ -36,7 +36,7 @@ rsync -avz \
   --exclude 'node_modules' \
   --exclude '.git' \
   --exclude '.env' \
-  ./.next ./public ./next.config.js ./ecosystem.config.prod.js ./ecosystem.config.test.js ./package*.json \
+  ./.next ./public ./next.config.js ./ecosystem.config.prod.js ./package*.json \
   $SERVER_USER@$SERVER_IP:$REMOTE_RELEASE_PATH
 
 # 6. Prepare the release on the server (Install dependencies, set up configs)

@@ -13,7 +13,7 @@ type SelectionQuoteContextProps = {
 
 export const SelectionQuoteContext = ({quotedContent, quotedContentTitle, quotedContentAuthor}: SelectionQuoteContextProps) => {
     const title = quotedContentTitle
-    const href = contentUrl(quotedContent)
+    const href = contentUrl(quotedContent, quotedContentAuthor?.handle)
 
     const collection = getCollectionFromUri(quotedContent)
 

@@ -12,6 +12,7 @@ import {WarningIcon} from "@phosphor-icons/react";
 import ValidationIcon from "@/components/profile/validation-icon";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {useSession} from "@/queries/getters/useSession";
 
 
 type ArticleStats = {
@@ -130,8 +131,9 @@ const CardStat = ({label, value, info, moreInfoHref}: {
 
 
 const ArticleStatsCard = ({article}: { article: ArticleStats }) => {
+    const {user} = useSession()
     return <Link
-        href={contentUrl(article.uri)}
+        href={contentUrl(article.uri, user?.handle)}
         className={"hover:bg-[var(--background-dark)] border border-[var(--accent-dark)] p-4 mx-2 flex flex-col sm:flex-row sm:justify-between"}
     >
         <div className={"sm:w-[50%]"}>

@@ -77,7 +77,7 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
         const title = record.title
         const author = record.author
         const createdAt = record.indexedAt
-        const url = contentUrl(record.uri)
+        const url = contentUrl(record.uri, author.handle)
 
         return <div
             className={"p-3 embed-panel"}
@@ -116,8 +116,8 @@ export const CAPostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
             </div>
         </div>
     } else if(ArCabildoabiertoFeedDefs.isPostView(record)) {
-        const url = contentUrl(record.uri)
         const author = record.author
+        const url = contentUrl(record.uri, author.handle)
         const createdAt = new Date(record.indexedAt)
 
         return <div

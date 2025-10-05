@@ -10,7 +10,7 @@ import FollowSuggestions from "@/components/layout/follow-suggestions";
 import {Button} from "../../../modules/ui-utils/src/button";
 import DonateIcon from "@/components/layout/icons/donate-icon";
 import {useSearch} from "@/components/buscar/search-context";
-import UserSearchResultsOnRightPanel from "@/components/buscar/user-search-results-on-right-panel";
+import SearchResultsOnRightPanel from "@/components/buscar/search-results-on-right-panel";
 import {useSession} from "@/queries/getters/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {createPortal} from "react-dom";
@@ -108,7 +108,7 @@ export const RightPanel = () => {
     if (!layoutConfig.openRightPanel) {
         return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-7 top-14"}>
             <div className={"w-[272px]"}>
-                <UserSearchResultsOnRightPanel
+                <SearchResultsOnRightPanel
                     showSearchButton={showSearchButton}
                     handleSubmit={handleSubmit}
                 />
@@ -118,7 +118,7 @@ export const RightPanel = () => {
 
     return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
         {searching && !inSearchPage && <div className={"w-[272px]"}>
-            <UserSearchResultsOnRightPanel
+            <SearchResultsOnRightPanel
                 showSearchButton={showSearchButton}
                 handleSubmit={handleSubmit}
             />

@@ -5,8 +5,10 @@ import {useMemo, useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import ThreadReplies from "../thread-replies";
-import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
+import {threadQueryKey} from "@/queries/getters/useThread";
 import dynamic from "next/dynamic";
+import {useAPI} from "@/queries/utils";
+import {threadApiUrl} from "@/utils/uri";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
@@ -19,7 +21,7 @@ const PostThreadPage = ({content, thread}: {
 }) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const {user} = useSession()
-    const {query} = useThreadWithNormalizedContent(content.uri)
+    const query = useAPI<ThreadViewContent>(threadApiUrl(content.uri), threadQueryKey(content.uri))
 
     const replies = useMemo(() => {
         return <div>

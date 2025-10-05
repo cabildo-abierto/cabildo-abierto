@@ -81,7 +81,7 @@ export const SelectionQuote = ({
             }, 0);
         } else {
             if (mainPostRef) {
-                router.push(contentUrl(quotedContent) + "&s=normal" + "#" + mainPostRef.cid)
+                router.push(contentUrl(quotedContent, quotedContentAuthor?.handle) + "&s=normal" + "#" + mainPostRef.cid)
             }
         }
     }

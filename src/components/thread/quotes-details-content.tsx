@@ -25,5 +25,6 @@ export const QuotesDetailsContent = ({uri}: { uri: string }) => {
         getFeed={getQuotesDetails}
         noResultsText={"La publicación no recibió citas."}
         endText={undefined}
+        estimateSize={500}
     />
 }

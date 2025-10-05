@@ -61,7 +61,7 @@ export const ResponsivePlot = ({
 const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisualization.View }) => {
     const dataset = visualization.dataset
 
-    const href = ArCabildoabiertoDataDataset.isDatasetView(dataset) ? contentUrl(dataset.uri) : null
+    const href = ArCabildoabiertoDataDataset.isDatasetView(dataset) ? contentUrl(dataset.uri, dataset.author.handle) : null
 
     const modal = (onClose: () => void) => <div className={""}>
         {ArCabildoabiertoDataDataset.isDatasetView(dataset) && <div

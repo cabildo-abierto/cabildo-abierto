@@ -28,8 +28,8 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
     const router = useRouter()
 
     if (AppBskyEmbedRecord.isViewRecord(record)) {
-        const url = contentUrl(record.uri)
         const author = record.author
+        const url = contentUrl(record.uri, author.handle)
         const createdAt = new Date(record.indexedAt)
 
         return <div

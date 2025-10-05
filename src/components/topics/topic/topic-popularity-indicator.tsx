@@ -24,6 +24,8 @@ export default function TopicPopularityIndicator({counts, selected}: {
         return null
     }
 
+    if(count == 0) return null
+
     return <DescriptionOnHover
         description={`${count} persona${count == 1 ? " participó" : "s participaron"} en la discusión sobre el tema en ${periodText}.`}
         moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas")}

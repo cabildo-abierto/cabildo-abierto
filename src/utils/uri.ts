@@ -57,7 +57,9 @@ export function profileUrl(handleOrDid: string) {
     return "/perfil/" + handleOrDid
 }
 
-export function contentUrl(uri: string) {
+
+// TO DO: Usar el handle, pero arreglar las queries...
+export function contentUrl(uri: string, handle?: string) {
     const {did, collection, rkey} = splitUri(uri)
 
     if(isTopicVersion(collection)){
@@ -90,16 +92,6 @@ export function topicUrl(id?: string, version?: {did: string, rkey: string}, s?:
     }
 
     return `/${base}?` + params.join("&")
-}
-
-export function urlFromRecord(uri: string) {
-    const {did, collection, rkey} = splitUri(uri)
-    if (collection == "ar.com.cabildoabierto.visualization") {
-        return "/c/" + did + "/" + collection + "/" + rkey
-    } else if (collection == "ar.com.cabildoabierto.dataset") {
-        return "/c/" + did + "/" + collection + "/" + rkey
-    }
-    return contentUrl(uri)
 }
 
 export function bskyProfileUrl(handle: string){

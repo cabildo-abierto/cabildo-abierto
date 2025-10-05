@@ -2,7 +2,6 @@ import React from "react";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {profileUrl} from "@/utils/uri";
 import Image from "next/image";
-import {emptyChar} from "@/utils/utils";
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
@@ -28,7 +27,7 @@ const SmallUserSearchResult: React.FC<{
                 width={100}
                 height={100}
                 className="rounded-full h-10 w-10"
-            /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
+            /> : <div className={"h-10 w-10"}/>}
             <div className="flex flex-col w-full">
                 <div className={"flex space-x-1 items-center justify-between w-full"}>
                     <div className={"truncate whitespace-nowrap text-sm max-w-[180px]"}>

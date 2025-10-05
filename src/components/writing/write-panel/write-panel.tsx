@@ -4,8 +4,11 @@ import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {getUri, splitUri} from "@/utils/uri";
-import {contentQueriesFilter, invalidateQueries, updateContentInQueries} from "@/queries/mutations/updates";
+import {splitUri} from "@/utils/uri";
+import {
+    invalidateQueries,
+    updateContentInQueries
+} from "@/queries/mutations/updates";
 import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {produce} from "immer";
 import {post} from "@/utils/fetch";
@@ -109,9 +112,9 @@ const WritePanel = ({
         mutationFn: createPost,
         onMutate: (post) => {
             try {
-                const optimisticUri = getUri("", "app.bsky.feed.post", "")
-                if(replyTo) qc.cancelQueries(contentQueriesFilter(replyTo.uri))
-                qc.cancelQueries(contentQueriesFilter(optimisticUri))
+                //const optimisticUri = getUri("", "app.bsky.feed.post", "")
+                //if(replyTo) qc.cancelQueries(contentQueriesFilter(replyTo.uri))
+                //qc.cancelQueries(contentQueriesFilter(optimisticUri))
                 optimisticCreatePost(qc, post.body, author, replyTo)
                 onClose()
             } catch (err) {

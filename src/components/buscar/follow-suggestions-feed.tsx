@@ -24,5 +24,6 @@ export const FollowSuggestionsFeed = () => {
         getFeed={getFollowSuggestions}
         noResultsText={"No se pudieron obtener sugerencias."}
         endText={"No tenemos más sugerencias por ahora."}
+        estimateSize={100}
     />
 }
