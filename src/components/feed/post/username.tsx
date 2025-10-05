@@ -9,8 +9,7 @@ const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summa
 export const Username = ({user}: { user: { displayName?: string, handle: string, did: string } }) => {
     const session = useSession()
 
-    if (session.isLoading) return <></>
-    if (!user) return <span>No user</span>
+    if (session.isLoading || !user) return null
 
     return <UserSummaryOnHover handle={user.handle}>
         <Link
@@ -18,7 +17,7 @@ export const Username = ({user}: { user: { displayName?: string, handle: string,
             href={profileUrl(user.handle)}
             onClick={e => {e.stopPropagation()}}
         >
-            {session.user.handle == user.handle ? "vos" : getUsername(user)}
+            {session.user && session.user.handle == user.handle ? "vos" : getUsername(user)}
         </Link>
     </UserSummaryOnHover>
 }

@@ -1,6 +1,6 @@
 import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
 import {$Typed} from "@/lex-api/util";
-import {AppBskyFeedDefs, AppBskyEmbedRecord} from "@atproto/api"
+import {AppBskyEmbedRecord} from "@atproto/api"
 import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
 import {ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
@@ -24,7 +24,7 @@ export function postViewToRecordEmbedView(post: $Typed<ArCabildoabiertoFeedDefs.
 
 
 export const WritePanelQuotedPost = ({quotedPost}: { quotedPost:  $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> }) => {
-    if(AppBskyFeedDefs.isPostView(quotedPost)){
+    if(ArCabildoabiertoFeedDefs.isPostView(quotedPost)){
         const embed: AppBskyEmbedRecord.View = postViewToRecordEmbedView(quotedPost)
         return <div className={"pointer-events-none"}>
             <PostRecordEmbed

@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {FullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
@@ -19,6 +20,7 @@ export type CreateArticleProps = {
     embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
     draftId?: string
+    uri?: string
 }
 
 const createArticle = async (props: CreateArticleProps) => {
@@ -26,7 +28,7 @@ const createArticle = async (props: CreateArticleProps) => {
 }
 
 
-export const PublishArticleButton = ({editorState, guardEnabled, setGuardEnabled, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
+export const PublishArticleButton = ({editorState, article, guardEnabled, setGuardEnabled, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
     editorState: EditorState
     disabled: boolean
     title?: string
@@ -35,7 +37,8 @@ export const PublishArticleButton = ({editorState, guardEnabled, setGuardEnabled
     mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
     draftId?: string
     guardEnabled: boolean
-    setGuardEnabled: (s: boolean) => void
+    setGuardEnabled: (s: boolean) => void,
+    article?: FullArticleView
 }) => {
     const [mdText, setMdText] = useState("")
     const router = useRouter()
@@ -61,7 +64,8 @@ export const PublishArticleButton = ({editorState, guardEnabled, setGuardEnabled
             enDiscusion,
             embeds,
             embedContexts,
-            draftId
+            draftId,
+            uri: article?.uri
         })
         if (error) return {error}
 
@@ -99,7 +103,7 @@ export const PublishArticleButton = ({editorState, guardEnabled, setGuardEnabled
                     setModalOpen(true)
                     return {}
                 }}
-                text1={"Publicar"}
+                text1={!article ? "Publicar" : "Guardar edición"}
                 textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
                 disabled={disabled}
                 color={"background"}
@@ -116,6 +120,7 @@ export const PublishArticleButton = ({editorState, guardEnabled, setGuardEnabled
             mdText={mdText}
             title={title}
             mentions={mentions}
+            article={article}
         />}
     </>
 }

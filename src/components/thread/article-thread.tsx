@@ -10,8 +10,7 @@ import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"), {
-    ssr: false,
-    loading: () => <div/>
+    ssr: false
 })
 
 function hasSelectionQuote(p: ArCabildoabiertoFeedDefs.PostView) {

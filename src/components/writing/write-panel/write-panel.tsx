@@ -21,13 +21,14 @@ import {postOrArticle} from "@/utils/type-utils";
 
 
 function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: ArCabildoabiertoActorDefs.ProfileViewDetailed, replyTo: ReplyToContent) {
-    if(post.reply){
+    if (post.reply) {
         function parentUpdater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
             return produce(content, draft => {
                 if (!postOrArticle(draft)) return
-                draft.replyCount ++
+                draft.replyCount++
             })
         }
+
         updateContentInQueries(qc, post.reply.parent.uri, parentUpdater)
     }
 }
@@ -42,7 +43,7 @@ function invalidateQueriesAfterPostCreationSuccess(
 ) {
     const queriesToInvalidate: string[][] = []
 
-    if(replyTo){
+    if (replyTo) {
         const {did, rkey} = splitUri(replyTo.uri)
 
         queriesToInvalidate.push(
@@ -54,12 +55,12 @@ function invalidateQueriesAfterPostCreationSuccess(
             threadQueryKey(replyTo.uri)
         )
 
-        if(ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)) {
+        if (ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)) {
             const topicId = replyTo.id
             queriesToInvalidate.push(["topic-feed", topicId, "replies"])
             queriesToInvalidate.push(["topic-quote-replies", did, rkey])
         }
-    } else if(quotedPost) {
+    } else if (quotedPost) {
         queriesToInvalidate.push(
             ["profile-feed", author.handle, "main"]
         )
@@ -86,21 +87,23 @@ type WritePanelProps = {
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
     quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    postView?: ArCabildoabiertoFeedDefs.PostView
 }
 
 
 const WritePanel = ({
-                               replyTo,
-                               open,
-                               onClose,
-                               selection,
-                               quotedPost
-                           }: WritePanelProps) => {
+                        replyTo,
+                        open,
+                        onClose,
+                        selection,
+                        quotedPost,
+                        postView
+                    }: WritePanelProps) => {
     const qc = useQueryClient()
     const {user} = useSession()
     const {data: author} = useProfile(user.handle)
 
-    async function createPost({body}: {body: CreatePostProps}) {
+    async function createPost({body}: { body: CreatePostProps }) {
         return await post<CreatePostProps, { uri: string }>("/post", body)
     }
 
@@ -112,9 +115,6 @@ const WritePanel = ({
         mutationFn: createPost,
         onMutate: (post) => {
             try {
-                //const optimisticUri = getUri("", "app.bsky.feed.post", "")
-                //if(replyTo) qc.cancelQueries(contentQueriesFilter(replyTo.uri))
-                //qc.cancelQueries(contentQueriesFilter(optimisticUri))
                 optimisticCreatePost(qc, post.body, author, replyTo)
                 onClose()
             } catch (err) {
@@ -133,6 +133,7 @@ const WritePanel = ({
         selection={selection}
         quotedPost={quotedPost}
         handleSubmit={handleSubmit}
+        postView={postView}
     />
 };
 

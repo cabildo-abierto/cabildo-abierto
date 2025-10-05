@@ -158,7 +158,7 @@ h4 {
 }
 
 .link a {
-  color: var(--primary);
+  color: var(--text-light);
   text-decoration: none;
 }
 
