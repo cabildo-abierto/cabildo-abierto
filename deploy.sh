@@ -36,6 +36,7 @@ rsync -avz \
   --exclude 'node_modules' \
   --exclude '.git' \
   --exclude '.env' \
+  --exclude '.next/cache' \
   ./.next ./public ./next.config.js ./ecosystem.config.prod.js ./package*.json \
   $SERVER_USER@$SERVER_IP:$REMOTE_RELEASE_PATH
 

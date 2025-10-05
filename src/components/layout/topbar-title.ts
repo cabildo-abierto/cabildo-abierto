@@ -1,7 +1,8 @@
-import {usePathname} from "next/navigation";
+import {usePathname, useSearchParams} from "next/navigation";
 
 export function useTopbarTitle() {
     const pathname = usePathname()
+    const params = useSearchParams()
     if(pathname.startsWith("/ajustes")){
         return {title: "Ajustes"}
     } else if(pathname.startsWith("/buscar")){
@@ -35,7 +36,11 @@ export function useTopbarTitle() {
     } else if(pathname.startsWith("/aportar")){
         return {title: "Aportar"}
     } else if(pathname.startsWith("/escribir/articulo")){
-        return {title: "Nuevo artículo"}
+        if(params.get("r")){
+            return {title: "Editar artículo"}
+        } else {
+            return {title: "Nuevo artículo"}
+        }
     } else if(pathname.includes("/admin")){
         return {title: "Admin"}
     }

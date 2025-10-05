@@ -13,6 +13,7 @@ import {AppBskyFeedPost} from "@atproto/api"
 
 import dynamic from "next/dynamic";
 import { EmbedAuthor } from "./ca-post-record-embed";
+
 const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
     ssr: false,
     loading: () => <></>,

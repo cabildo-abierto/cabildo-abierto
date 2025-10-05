@@ -55,18 +55,17 @@ export const TopicsMentioned = ({
         {mentionsMemo
         .slice(maxCount)
             .map(x => {
-                return <div key={x.id}>
-                    <Link
-                        className="text-[var(--text-light)] font-light hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"
-                        href={topicUrl(x.id)}
-                    >
-                        {x.title}
-                    </Link>
-                </div>
+                return <Link
+                    key={x.id}
+                    className="text-[var(--text-light)] truncate font-light hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"
+                    href={topicUrl(x.id)}
+                >
+                    {x.title}
+                </Link>
             })}
     </div> : null
 
-    return <div className={"w-full flex text-light space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
+    return <div className={"w-full flex text-light  space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
         <div className={"text-sm text-[var(--text-light)] pt-[1px]"} title={"Temas mencionados"}>
             <TopicsIcon fontSize={15} weight={"light"}/>
         </div>
@@ -82,9 +81,9 @@ export const TopicsMentioned = ({
         })}
         {mentionsMemo.length > maxCount && <DescriptionOnHover description={hoverDescription}>
             <div
-            className={"text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"}
-        >
-            {mentionsMemo.length - maxCount}+
+            className={"text-[var(--text-light)] font-light hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"}
+            >
+                {mentionsMemo.length - maxCount}+
             </div>
         </DescriptionOnHover>}
     </div>

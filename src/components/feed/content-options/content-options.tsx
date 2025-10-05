@@ -20,7 +20,11 @@ import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api/index"
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {QueryContentUpdater, updateContentInQueries} from "@/queries/mutations/updates";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
+import {useRouter} from "next/navigation";
+import dynamic from "next/dynamic";
 
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
 
 export function canBeEnDiscusion(c: string) {
     return isPost(c) || isArticle(c)
@@ -71,10 +75,21 @@ export const ContentOptions = ({
     const authorDid = getDidFromUri(record.uri)
     const inBluesky = collection == "app.bsky.feed.post"
     const qc = useQueryClient()
+    const router = useRouter()
+    const [editingPost, setEditingPost] = useState(false)
 
     const isOptimistic = getRkeyFromUri(record.uri).startsWith("optimistic")
 
     const isAuthor = user && user.did == authorDid
+
+    async function onClickEdit() {
+        if(isArticle(collection)){
+            router.push(`/escribir/articulo?r=${getRkeyFromUri(record.uri)}`)
+        } else if(isPost(collection)) {
+            if(!editingPost) setEditingPost(true)
+        }
+        return {}
+    }
 
     return <div className={"flex flex-col space-y-1"}>
         {isAuthor && <DeleteButton uri={record.uri} onClose={onClose}/>}
@@ -102,6 +117,11 @@ export const ContentOptions = ({
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
             disabled={isOptimistic}
         />}
+        {false && isAuthor && (isArticle(collection) || isPost(collection)) && <OptionsDropdownButton
+            text1={"Editar"}
+            startIcon={<WriteButtonIcon/>}
+            handleClick={onClickEdit}
+        />}
         {inBluesky && <OptionsDropdownButton
             text1={"Abrir en Bluesky"}
             startIcon={<BlueskyLogo className={"w-5 h-auto"}/>}
@@ -119,5 +139,10 @@ export const ContentOptions = ({
             />
         }
         <ShareContentButton uri={record.uri} handle={record.author.handle}/>
+        {editingPost && ArCabildoabiertoFeedDefs.isPostView(record) && <WritePanel
+            open={editingPost}
+            onClose={() => {setEditingPost(false)}}
+            postView={record}
+        />}
     </div>
 }

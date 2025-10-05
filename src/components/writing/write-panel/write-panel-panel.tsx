@@ -10,7 +10,7 @@ import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import { Button } from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../../../modules/ui-utils/src/button";
 
 
 export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
@@ -27,6 +27,7 @@ type WritePanelProps = {
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     handleSubmit: (_: CreatePostProps) => Promise<void>
+    postView?: ArCabildoabiertoFeedDefs.PostView
 }
 
 
@@ -36,7 +37,8 @@ const WritePanelPanel = ({
                              onClose,
                              selection,
                              quotedPost,
-                             handleSubmit
+                             handleSubmit,
+                             postView
                          }: WritePanelProps) => {
     const [selected, setSelected] = useState("Publicación")
     const router = useRouter()
@@ -60,7 +62,9 @@ const WritePanelPanel = ({
                 }}
             >
                 <div className={"px-2"}>
-                    <div className={"uppercase text-[11px] font-semibold " + (isSelected ? "border-b-2 border-[var(--text-light)]" : "")}>
+                    <div
+                        className={"uppercase text-[11px] font-semibold " + (isSelected ? "border-b-2 border-[var(--text-light)]" : "")}
+                    >
                         {o}
                     </div>
                 </div>
@@ -85,7 +89,8 @@ const WritePanelPanel = ({
             disableScrollLock={true}
             color={"background"}
         >
-            <div className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto custom-scrollbar">
+            <div
+                className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {!isReply && !quotedPost ? <SelectionComponent
                         onSelection={onSelection}
@@ -102,9 +107,10 @@ const WritePanelPanel = ({
                     onClose={onClose}
                     replyTo={replyTo}
                     selection={selection}
-                    quotedPost={quotedPost}
+                    quotedContent={quotedPost}
                     setHidden={setHidden}
                     handleSubmit={handleSubmit}
+                    postView={postView}
                 />}
                 {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>

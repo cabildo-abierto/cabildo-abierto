@@ -7,7 +7,7 @@ import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import dynamic from "next/dynamic";
 import {getRkeyFromUri} from "@/utils/uri";
-const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";

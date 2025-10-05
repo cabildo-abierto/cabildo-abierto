@@ -15,6 +15,7 @@ type PublishArticleModalProps = {
     mdText?: string
     title?: string
     mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
+    article?: ArCabildoabiertoFeedDefs.FullArticleView
 }
 
 
@@ -30,7 +31,15 @@ export function getArticleSummary(md: string){
 }
 
 
-const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}: PublishArticleModalProps) => {
+const PublishArticleModal = ({
+                                 onSubmit,
+                                 open,
+                                 onClose,
+                                 mdText,
+                                 title,
+                                 mentions,
+    article
+}: PublishArticleModalProps) => {
     const [enDiscusion, setEnDiscusion] = useState(true)
 
     const summary = useMemo(() => getArticleSummary(mdText), [mdText])
@@ -38,7 +47,7 @@ const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}:
     return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
         <div className={"pb-8 sm:w-[500px] min-h-[300px] px-6 flex flex-col justify-between space-y-8"}>
             <h3 className={"text-center normal-case"}>
-                ¿Listo para publicar?
+                {!article ? "¿Listo para publicar?" : "Revisá que esté todo bien..."}
             </h3>
 
             <div className={"space-y-2"}>
@@ -77,7 +86,7 @@ const PublishArticleModal = ({onSubmit, open, onClose, mdText, title, mentions}:
             <div className={"flex justify-between w-full"}>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
-                    text1={"Publicar"}
+                    text1={article ? "Confirmar edición" : "Publicar"}
                     handleClick={onSubmit(enDiscusion)}
                     variant={"outlined"}
                     textClassName={"text-sm"}

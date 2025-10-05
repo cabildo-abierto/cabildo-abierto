@@ -15,19 +15,26 @@ import {ArticleEditorTopbar} from "@/components/writing/article/article-editor-t
 import ArticleEditorAuthor from "@/components/writing/article/article-editor-author-line";
 import {useNavigationGuard} from "next-navigation-guard"
 import {PreventLeavePopup} from "@/components/layout/prevent-leave-popup";
+import { ArCabildoabiertoFeedDefs } from "@/lex-api";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
-const articleEditorSettings = (smallScreen: boolean, isMobile: boolean, draft: Draft, layoutConfig: LayoutConfigProps) => getEditorSettings({
+const articleEditorSettings = (
+    smallScreen: boolean,
+    isMobile: boolean,
+    layoutConfig: LayoutConfigProps,
+    draft?: Draft,
+    article?: ArCabildoabiertoFeedDefs.FullArticleView,
+) => getEditorSettings({
     charLimit: 1200000,
     allowImages: true,
     allowVisualizations: true,
     allowTables: true,
     markdownShortcuts: true,
 
-    initialText: draft ? draft.text : "",
-    initialTextFormat: draft ? "markdown" : "plain-text",
+    initialText: draft ? draft.text : article ? article.text : undefined,
+    initialTextFormat: draft ? "markdown" : article ? article.format : "plain-text",
     embeds: draft ? draft.embeds : null,
 
     tableOfContents: layoutConfig.spaceForRightSide,
@@ -63,15 +70,19 @@ export const ArticleEditorFromDraft = ({id}: { id: string }) => {
 }
 
 
-const ArticleEditor = ({draft}: { draft?: Draft }) => {
+const ArticleEditor = ({draft, article}: {
+    draft?: Draft
+    article?: ArCabildoabiertoFeedDefs.FullArticleView
+}) => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const initialTitle = draft?.title ?? article?.title
     const {
         topicsMentioned,
         setLastTextChange,
         setEditor,
         title,
         setTitle
-    } = useTopicsMentioned(draft?.title)
+    } = useTopicsMentioned(initialTitle)
     const smallScreen = window.innerWidth < 700
     const {isMobile, layoutConfig} = useLayoutConfig()
     const [guardEnabled, setGuardEnabled] = useState(false)
@@ -81,8 +92,9 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
     const settings = articleEditorSettings(
         smallScreen,
         isMobile,
+        layoutConfig,
         draft,
-        layoutConfig
+        article,
     )
 
     useEffect(() => {
@@ -110,6 +122,7 @@ const ArticleEditor = ({draft}: { draft?: Draft }) => {
             setInitialEditorState={setInitialEditorState}
             guardEnabled={guardEnabled}
             setGuardEnabled={setGuardEnabled}
+            article={article}
         />
         <div className={"mt-8 space-y-4 " + (isMobile ? "px-5" : "")}>
             <div className={"mb-2"}>
