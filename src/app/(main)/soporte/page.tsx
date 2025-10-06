@@ -40,30 +40,40 @@ const Page = () => {
     }
 
     const content = (
-        <div className={"mt-3"}>
+        <div className={"mt-3 font-light"}>
             Por cualquier consulta, problema o sugerencia podés:
             <ul className={"ml-6 mt-3"}>
                 <li>Escribirnos por mensaje privado a <Link
                     href={profileUrl("cabildoabierto.ar")}
                 >
-                    @cabildoabierto
-                </Link> (hacé click <button className={"hover:underline text-[var(--primary)]"} onClick={startConversation}>acá</button> para empezar una conversación).
+                    <span className={"text-[var(--text)]"}>
+                        @cabildoabierto
+                    </span>
+                </Link> (hacé click <button className={"hover:underline text-[var(--text)]"} onClick={startConversation}>acá</button> para empezar una conversación).
                 </li>
                 <li>
                     Mencionar a <Link
                     href={profileUrl("cabildoabierto.ar")}
                 >
-                    @cabildoabierto
-                </Link> en un post.
+                    <span className={"text-[var(--text)]"}>
+                        @cabildoabierto
+                    </span>
+                </Link> en una publicación.
                 </li>
                 <li>
-                    Escribirnos por mail a <Link href={"mailto:soporte@cabildoabierto.ar"}>soporte@cabildoabierto.ar</Link>.
+                    Escribirnos por mail a <Link href={"mailto:soporte@cabildoabierto.ar"}>
+                    <span className={"text-[var(--text)]"}>
+                        soporte@cabildoabierto.ar
+                    </span>
+                </Link>.
                 </li>
                 <li>
                     Comentar los <Link
                     href={categoryUrl("Cabildo Abierto", "lista")}
                 >
-                    temas de Cabildo Abierto
+                    <span className={"text-[var(--text)]"}>
+                        temas de Cabildo Abierto
+                    </span>
                 </Link>.
                 </li>
             </ul>
@@ -71,7 +81,7 @@ const Page = () => {
     )
 
     return <PageCardMessage
-        title={"Vías de contacto"}
+        title={"Escribinos"}
         content={content}
     />
 }

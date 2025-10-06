@@ -1,6 +1,6 @@
 "use client"
 import React, {ReactNode, useEffect, useMemo} from "react";
-import {range} from "@/utils/arrays";
+import {range, unique} from "@/utils/arrays";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {GetFeedProps} from "@/lib/types";
 import {useInfiniteQuery} from "@tanstack/react-query";
@@ -79,7 +79,8 @@ function Feed<T>({
     })
 
     const feedList = useMemo(() => {
-        return feed?.pages.reduce((acc, page) => [...acc, ...page.data], []) || []
+        const elements = feed?.pages.reduce((acc, page) => [...acc, ...page.data], []) || []
+        return unique(elements, getFeedElementKey) // TO DO (!): No debería hacer falta
     }, [feed?.pages])
 
     const loading = isFetchingNextPage || (isFetching && feedList.length == 0)

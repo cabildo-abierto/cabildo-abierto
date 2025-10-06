@@ -12,6 +12,8 @@ import { $Typed } from "@atproto/api";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import TopicsIcon from "@/components/layout/icons/topics-icon";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
+import Link from "next/link";
+import {topicUrl} from "@/utils/uri";
 
 
 type UserOrTopic = $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
@@ -57,7 +59,7 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
     const {searchState, setSearchState} = useSearch(`${pathname}::main`)
     const {results, isLoading} = useSearchUsersAndTopics(searchState, 6)
 
-    function onClickResult(did: string) {
+    function onClickResult() {
         setSearchState({value: "", searching: false})
     }
 
@@ -92,7 +94,14 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
             </div>}
             {!isLoading && results && <div className={"border-l border-r border-b border-[var(--accent-dark)]"}>{results.map(r => {
                 if(ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(r)){
-                    return <div key={r.id} className={"p-2 h-[60px] flex items-center space-x-2 hover:bg-[var(--background-dark)] cursor-pointer"}>
+                    return <Link
+                        href={topicUrl(r.id)}
+                        onClick={() => {
+                            onClickResult()
+                        }}
+                        key={r.id}
+                        className={"p-2 h-[60px] flex items-center space-x-2 hover:bg-[var(--background-dark)] cursor-pointer"}
+                    >
                         <div className={"min-w-12 flex justify-center items-center"}>
                             <TopicsIcon fontSize={16}/>
                         </div>
@@ -104,10 +113,13 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
                                 <TopicPopularityIndicator counts={r.popularity} selected={"week"}/>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 } else if(ArCabildoabiertoActorDefs.isProfileViewBasic(r)){
                     return <div key={r.did} className={"h-[60px]"}>
-                        <SmallUserSearchResult onClick={() => {onClickResult(r.did)}} user={r}/>
+                        <SmallUserSearchResult
+                            onClick={() => {onClickResult()}}
+                            user={r}
+                        />
                     </div>
                 }
             })}</div>}
