@@ -16,6 +16,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {createPortal} from "react-dom";
 import {useAPI} from "@/queries/utils";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import ShareIcon from "@mui/icons-material/Share";
 
 type ServerStatus = {
     worker: boolean
@@ -138,7 +139,7 @@ export const RightPanel = () => {
             <FollowSuggestions/>
         </div>}
 
-        {isDonatePath && <div className={"flex"}>
+        {isDonatePath && <div className={"flex space-x-2"}>
             <Link href={"/aportar"}>
                 <Button
                     fullWidth={false}
@@ -148,6 +149,18 @@ export const RightPanel = () => {
                 >
                     <span className={"font-semibold uppercase"}>
                         Aportar
+                    </span>
+                </Button>
+            </Link>
+            <Link href={"/ajustes/compartir"}>
+                <Button
+                    fullWidth={false}
+                    startIcon={<ShareIcon/>}
+                    size="small"
+                    variant={"outlined"}
+                >
+                    <span className={"font-semibold uppercase"}>
+                        Invitar
                     </span>
                 </Button>
             </Link>
