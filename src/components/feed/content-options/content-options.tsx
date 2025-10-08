@@ -9,16 +9,22 @@ import {
     splitUri
 } from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
-import BlueskyLogo from "../../icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useState} from "react";
-import {useSession} from "@/queries/useSession";
-import {ViewsIcon} from "@/components/icons/views-icon";
+import {useSession} from "@/queries/getters/useSession";
+import {ViewsIcon} from "@/components/layout/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
 import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api/index"
+import {QueryClient, useQueryClient} from "@tanstack/react-query";
+import {QueryContentUpdater, updateContentInQueries} from "@/queries/mutations/updates";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
+import {useRouter} from "next/navigation";
+import dynamic from "next/dynamic";
 
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
 
 export function canBeEnDiscusion(c: string) {
     return isPost(c) || isArticle(c)
@@ -34,6 +40,13 @@ const addToEnDiscusion = async (uri: string) => {
 const removeFromEnDiscusion = async (uri: string) => {
     const {collection, rkey} = splitUri(uri)
     return await post(`/unset-en-discusion/${collection}/${rkey}`)
+}
+
+
+
+function optimisticRemoveContentFromEnDiscusion(uri: string, qc: QueryClient) {
+    const updater: QueryContentUpdater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]> = p => null
+    updateContentInQueries(qc, uri, updater, qc => qc[0] == "main-feed" && qc[1] == "discusion")
 }
 
 
@@ -61,12 +74,37 @@ export const ContentOptions = ({
     const collection = getCollectionFromUri(record.uri)
     const authorDid = getDidFromUri(record.uri)
     const inBluesky = collection == "app.bsky.feed.post"
+    const qc = useQueryClient()
+    const router = useRouter()
+    const [editingPost, setEditingPost] = useState(false)
 
     const isOptimistic = getRkeyFromUri(record.uri).startsWith("optimistic")
 
+    const isAuthor = user && user.did == authorDid
+
+    async function onClickEdit() {
+        if(isArticle(collection)){
+            router.push(`/escribir/articulo?r=${getRkeyFromUri(record.uri)}`)
+        } else if(isPost(collection)) {
+            if(!editingPost) setEditingPost(true)
+        }
+        return {}
+    }
+
+    let canBeEdited = false
+
+    if(ArCabildoabiertoFeedDefs.isPostView(record) ||
+        ArCabildoabiertoFeedDefs.isFullArticleView(record) ||
+        ArCabildoabiertoFeedDefs.isArticleView(record)
+    ) {
+        canBeEdited = !(record.bskyRepostCount || record.repostCount || record.quoteCount || record.bskyQuoteCount || record.bskyLikeCount || record.likeCount || record.replyCount);
+    }
+
+    canBeEdited = true
+
     return <div className={"flex flex-col space-y-1"}>
-        {user.did == authorDid && <DeleteButton uri={record.uri} onClose={onClose}/>}
-        {user.did == authorDid && canBeEnDiscusion(collection) && <OptionsDropdownButton
+        {isAuthor && <DeleteButton uri={record.uri} onClose={onClose}/>}
+        {isAuthor && canBeEnDiscusion(collection) && <OptionsDropdownButton
             handleClick={async () => {
                 if (!addedToEnDiscusion) {
                     const {error} = await addToEnDiscusion(record.uri)
@@ -76,6 +114,7 @@ export const ContentOptions = ({
                         return {error}
                     }
                 } else {
+                    optimisticRemoveContentFromEnDiscusion(record.uri, qc)
                     const {error} = await removeFromEnDiscusion(record.uri)
                     if(!error){
                         setAddedToEnDiscusion(false)
@@ -83,12 +122,16 @@ export const ContentOptions = ({
                         return {error}
                     }
                 }
-                // TO DO mutate("/api/feed/EnDiscusion")
                 return {}
             }}
             startIcon={<Newspaper/>}
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
             disabled={isOptimistic}
+        />}
+        {isAuthor && canBeEdited && <OptionsDropdownButton
+            text1={"Editar"}
+            startIcon={<WriteButtonIcon/>}
+            handleClick={onClickEdit}
         />}
         {inBluesky && <OptionsDropdownButton
             text1={"Abrir en Bluesky"}
@@ -106,6 +149,11 @@ export const ContentOptions = ({
                 startIcon={!showBluesky ? <ViewsIcon/> : <VisibilityOff/>}
             />
         }
-        <ShareContentButton uri={record.uri}/>
+        <ShareContentButton uri={record.uri} handle={record.author.handle}/>
+        {editingPost && ArCabildoabiertoFeedDefs.isPostView(record) && <WritePanel
+            open={editingPost}
+            onClose={() => {setEditingPost(false)}}
+            postView={record}
+        />}
     </div>
 }

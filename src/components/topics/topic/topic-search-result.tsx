@@ -3,7 +3,7 @@ import {getTopicCategories, getTopicTitle} from "./utils";
 import TopicCategories from "./topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
-import {TimePeriod} from "@/queries/useTrendingTopics";
+import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {rounder} from "@/utils/strings";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
@@ -11,6 +11,8 @@ import {formatIsoDate} from "@/utils/dates";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import { Session } from "@/lib/types";
+import {useSession} from "@/queries/getters/useSession";
 
 
 const TopicNumWords = ({numWords}: {numWords: number}) => {
@@ -20,8 +22,8 @@ const TopicNumWords = ({numWords}: {numWords: number}) => {
 }
 
 
-export function hasUnseenUpdate(topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic){
-    return topic.currentVersionCreatedAt && (
+export function hasUnseenUpdate(user: Session | null, topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic){
+    return user && topic.currentVersionCreatedAt && (
         !topic.lastSeen || new Date(topic.lastSeen) < new Date(topic.currentVersionCreatedAt)
     )
 }
@@ -33,10 +35,11 @@ const TopicSearchResult = ({topic, index, time}: {
     time?: TimePeriod
 }) => {
     const {isMobile} = useLayoutConfig()
+    const {user} = useSession()
 
     const categories = getTopicCategories(topic.props)
 
-    const unseenUpdate = hasUnseenUpdate(topic)
+    const unseenUpdate = hasUnseenUpdate(user, topic)
 
     return (
         <CustomLink

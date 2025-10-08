@@ -1,16 +1,13 @@
 import React from "react";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useSearch} from "@/components/buscar/search-context";
-import dynamic from "next/dynamic";
 import MainSearchBar from "@/components/buscar/main-search-bar";
-const UserSearchResultsOnRightPanel = dynamic(() => import('@/components/buscar/user-search-results-on-right-panel'));
 
 
 export const SearchPanelOnRightColumn = () => {
-    const {searchState} = useSearch();
-    const router = useRouter();
-
-    const showSearchButton = searchState.value.length > 0;
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::main`)
+    const router = useRouter()
 
     const handleSubmit = () => {
         if (searchState.value.length > 0) {
@@ -19,18 +16,11 @@ export const SearchPanelOnRightColumn = () => {
     }
 
     return (
-        <div className={"w-full"}>
-            <form
-                onSubmit={(e) => {e.preventDefault(); handleSubmit()}}
-                className={"w-full"}
-            >
-                <MainSearchBar/>
-            </form>
-            {searchState.searching && searchState.value.length > 0 && <UserSearchResultsOnRightPanel
-                showSearchButton={showSearchButton}
-                handleSubmit={handleSubmit}
-            />
-            }
-        </div>
-    );
-};
+        <form
+            onSubmit={(e) => {e.preventDefault(); handleSubmit()}}
+            className={"w-full"}
+        >
+            <MainSearchBar paddingY={"5px"} kind={"main"}/>
+        </form>
+    )
+}

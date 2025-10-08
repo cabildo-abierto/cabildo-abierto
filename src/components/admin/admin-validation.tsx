@@ -1,5 +1,5 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {usePendingValidationRequests} from "@/queries/admin";
+import {usePendingValidationRequests} from "@/queries/getters/admin";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";
@@ -7,7 +7,6 @@ import {DateSince} from "../../../modules/ui-utils/src/date";
 import {useState} from "react";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import {TextField} from "@mui/material";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {FilePayload} from "@/utils/files";
 import {DownloadIcon} from "@phosphor-icons/react";
@@ -15,6 +14,7 @@ import Image from "next/image"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {post} from "@/utils/fetch";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import { TextField } from "../../../modules/ui-utils/src/text-field";
 
 
 export type ValidationRequestView = { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date } & ({
@@ -83,7 +83,6 @@ const FileViewer = ({file}: { file: FilePayload }) => {
                     alt={file.fileName}
                     width={600}
                     height={600}
-                    className={"rounded-lg"}
                 />
             </div>
         );
@@ -124,8 +123,8 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
                 setOpen(!open)
             }}
         >
-            <div className={"flex gap-x-1 bg-[var(--background-dark)] p-4 rounded-lg  pointer-events-none"}>
-            <span className={"font-bold rounded bg-[var(--primary)] px-2 mr-2"}>
+            <div className={"flex gap-x-1 bg-[var(--background-dark)] p-4  pointer-events-none"}>
+            <span className={"font-bold bg-[var(--background-dark2)] px-2 mr-2"}>
                 {request.tipo}
             </span>
                 <ProfilePic
@@ -144,7 +143,7 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
             </div>
         </div>
 
-        {open && <div className={"space-y-4 rounded-lg bg-[var(--background-dark)] p-4"}>
+        {open && <div className={"space-y-4 bg-[var(--background-dark)] p-4"}>
             {request.tipo == "persona" && <div className={"space-y-2"}>
                 <FileViewer file={request.dniFrente}/>
                 <FileViewer file={request.dniDorso}/>
@@ -196,7 +195,7 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
                     selected={result}
                     optionsNodes={(o, isSelected) => {
                         return <button
-                            className={"rounded-lg py-1 px-2 " + (isSelected ? o == "accept" ? "bg-[var(--primary)]" : "bg-[var(--red)]" : "")}>
+                            className={"py-1 px-2 " + (isSelected ? o == "accept" ? "bg-[var(--background-dark2)]" : "bg-[var(--red)]" : "")}>
                             {o == "accept" ? "Aceptar" : "Rechazar"}
                         </button>
                     }}
@@ -234,6 +233,7 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
                     text1={"Enviar"}
                     textClassName={"font-semibold"}
                     handleClick={onSubmit}
+                    color={"background-dark2"}
                 />
             </div>
         </div>}

@@ -1,5 +1,5 @@
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {DatasetTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetTableView} from "@/components/visualizations/datasets/dataset-table-view";
 import {isDatasetView, isTopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 

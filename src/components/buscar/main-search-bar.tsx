@@ -1,17 +1,27 @@
 import {useSearch} from "@/components/buscar/search-context";
 import React from "react";
 import SearchBar from "@/components/buscar/search-bar";
+import {usePathname} from "next/navigation";
+
 
 type MainSearchBarProps = {
     autoFocus?: boolean
     paddingY?: string
     fullWidth?: boolean
     placeholder?: string
+    kind?: string
 }
 
 
-const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true, placeholder = "buscar"}: MainSearchBarProps) => {
-    const {searchState, setSearchState} = useSearch()
+const MainSearchBar = ({
+    autoFocus = false,
+    paddingY,
+    fullWidth = true,
+    kind = "main",
+    placeholder = "buscar"
+}: MainSearchBarProps) => {
+    const pathname = usePathname()
+    const {searchState, setSearchState} = useSearch(`${pathname}::${kind}`)
 
     return <SearchBar
         searchValue={searchState.value}
@@ -21,6 +31,12 @@ const MainSearchBar = ({autoFocus = false, paddingY, fullWidth = true, placehold
         setSearching={(v: boolean) => {
             setSearchState({value: v ? searchState.value : "", searching: v})
         }}
+        searching={searchState.searching}
+        color={"transparent"}
+        borderRadius={"0"}
+        borderWidth={"1px"}
+        borderWidthNoFocus={"1px"}
+        borderColor={"accent-dark"}
         autoFocus={autoFocus}
         paddingY={paddingY}
         fullWidth={fullWidth}

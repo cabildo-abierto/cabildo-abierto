@@ -36,7 +36,7 @@ export const ChangesCounterWithText = ({charsAdded, charsDeleted}: {
 }) => {
     if(charsAdded == null || charsDeleted == null) return null
 
-    return <div className={"text-[var(--text-light)]"}>
+    return <div className={"text-[var(--text-light)] font-light text-sm"}>
         <span>{charsAdded}</span> {charsAdded == 1 ? "caracter agregado" : "caracteres agregados"}, <span>{charsDeleted}</span> {charsDeleted == 1 ? "caracter borrado" : "caracteres borrados"}.
     </div>
 }

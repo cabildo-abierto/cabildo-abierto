@@ -20,7 +20,7 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
     title: string
     editorState: EditorState
     draftId: string | null
-    onSavedChanges: (time: Date, draftId: string) => void
+    onSavedChanges: (time: Date, draftId: string, state: string) => void
 }) => {
     const qc = useQueryClient()
 
@@ -39,7 +39,8 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
             title: title
         })
         if(data && data.id && !error){
-            onSavedChanges(saveTime, data.id)
+            const state = JSON.stringify(editorState.toJSON())+`::${title}`
+            onSavedChanges(saveTime, data.id, state)
             updateSearchParam("i", data.id)
             await qc.cancelQueries({ queryKey: ["drafts"] })
             await qc.cancelQueries({ queryKey: ["draft", data.id] })
@@ -52,11 +53,10 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
     return <StateButton
         handleClick={onSaveDraft}
         text1={"Guardar borrador"}
-        textClassName="whitespace-nowrap px-2 font-semibold"
+        textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
         disabled={disabled}
         color={"background"}
         size="medium"
         variant={"text"}
-        sx={{borderRadius: 20}}
     />
 }

@@ -10,7 +10,7 @@ export const BaseFullscreenPopup = ({
     onClose,
     open,
     className="sm:w-auto",
-    color="background-dark",
+    color="background",
     allowClose = false,
     hidden=false,
     disableScrollLock=true,
@@ -40,8 +40,8 @@ export const BaseFullscreenPopup = ({
             slotProps={{
                 root: {
                     style: {
-                        overflow: 'visible', // 👈 allow dropdowns to show
-                        zIndex: 1300,        // 👈 match default MUI modal layering
+                        overflow: 'visible',
+                        zIndex: 1300,
                     }
                 }
             }}
@@ -52,7 +52,7 @@ export const BaseFullscreenPopup = ({
                 }
             }}
         >
-            <Box className={"w-screen sm:min-w-[300px] shadow-lg sm:rounded-lg sm:border " + className} sx={{backgroundColor: `var(--${color})`}}>
+            <Box className={"w-screen sm:min-w-[300px] shadow-lg sm:border border-[var(--accent-dark)] " + className} sx={{backgroundColor: `var(--${color})`}}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
                         <CloseButton

@@ -1,106 +1,33 @@
-import {ActiveLikeIcon} from "@/components/icons/active-like-icon";
-import {InactiveLikeIcon} from "@/components/icons/inactive-like-icon";
-import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import React from "react";
-import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {ATProtoStrongRef} from "@/lib/types";
-import {post} from "@/utils/fetch";
 import {getRkeyFromUri} from "@/utils/uri";
 import {$Typed} from "@/lex-api/util";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
-import {postOrArticle} from "@/utils/type-utils";
-import {produce} from "immer";
-import {contentQueriesFilter, updateContentInQueries, updateTopicFeedQueries} from "@/queries/updates";
+import {ActiveLikeIcon} from "@/components/layout/icons/active-like-icon";
+import {InactiveLikeIcon} from "@/components/layout/icons/inactive-like-icon";
+import {useSession} from "@/queries/getters/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
+import { useLikeMutation } from "@/queries/mutations/like";
+import {ReactionButton} from "@/components/feed/frame/reaction-button";
+import { Color } from "../../../../modules/ui-utils/src/color";
 
 
-async function addLike(ref: ATProtoStrongRef) {
-    return await post<ATProtoStrongRef, { uri: string }>("/like", ref)
-}
-
-
-async function removeLike(likeUri: string) {
-    const rkey = getRkeyFromUri(likeUri)
-    return await post<{}, { uri: string }>(`/remove-like/${rkey}`)
-}
-
-
-async function optimisticAddLike(qc: QueryClient, uri: string) {
-    function updater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
-        return produce(content, draft => {
-            if (!postOrArticle(draft)) return
-            draft.viewer.like = "optimistic-like-uri"
-            draft.likeCount++
-            draft.bskyLikeCount++
-        })
-    }
-
-    await updateContentInQueries(qc, uri, updater)
-    await updateTopicFeedQueries(qc, uri, updater)
-}
-
-
-async function setCreatedLike(qc: QueryClient, uri: string, likeUri: string) {
-    function updater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
-        return produce(content, draft => {
-            if (!postOrArticle(draft)) return
-            draft.viewer.like = likeUri
-        })
-    }
-
-    await updateContentInQueries(qc, uri, updater)
-    await updateTopicFeedQueries(qc, uri, updater)
-}
-
-
-async function optimisticRemoveLike(qc: QueryClient, uri: string) {
-    function updater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
-        return produce(content, draft => {
-            if (!postOrArticle(draft)) return
-            draft.viewer.like = undefined
-            draft.likeCount--
-            draft.bskyLikeCount--
-        })
-    }
-
-    await updateContentInQueries(qc, uri, updater)
-    await updateTopicFeedQueries(qc, uri, updater)
-}
-
-export const LikeCounter = ({content, showBsky}: {
+export const LikeCounter = ({content, showBsky, hoverColor, iconFontSize, textClassName}: {
     content: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     showBsky: boolean
+    iconFontSize: number
+    textClassName?: string
+    hoverColor?: Color
 }) => {
-    const qc = useQueryClient()
-
-    const addLikeMutation = useMutation({
-        mutationFn: addLike,
-        onMutate: (likedContent) => {
-            qc.cancelQueries(contentQueriesFilter(content.uri))
-            optimisticAddLike(qc, likedContent.uri)
-        },
-        onSuccess: (data, variables, context) => {
-            if (data.data.uri) {
-                setCreatedLike(qc, content.uri, data.data.uri)
-            }
-        },
-        onSettled: async () => {
-            qc.invalidateQueries(contentQueriesFilter(content.uri))
-        },
-    })
-
-    const removeLikeMutation = useMutation({
-        mutationFn: removeLike,
-        onMutate: (likeUri) => {
-            qc.cancelQueries(contentQueriesFilter(content.uri))
-            optimisticRemoveLike(qc, content.uri)
-        },
-        onSettled: () => {
-            qc.invalidateQueries(contentQueriesFilter(content.uri))
-        }
-    })
+    const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
+    const {addLikeMutation, removeLikeMutation} = useLikeMutation(content.uri)
 
     const onClickLike = async () => {
-        addLikeMutation.mutate({uri: content.uri, cid: content.cid})
+        if(user){
+            addLikeMutation.mutate({uri: content.uri, cid: content.cid})
+        } else {
+            setLoginModalOpen(true)
+        }
     }
 
     const onClickRemoveLike = async () => {
@@ -109,14 +36,27 @@ export const LikeCounter = ({content, showBsky}: {
         }
     }
 
-    return <ReactionCounter
-        iconActive={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
-        iconInactive={<InactiveLikeIcon fontSize={"small"}/>}
-        onAdd={onClickLike}
-        onRemove={onClickRemoveLike}
-        title="Cantidad de me gustas."
-        active={content.viewer?.like != undefined}
-        disabled={content.viewer && content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri).startsWith("optimistic")}
-        count={showBsky ? (content.bskyLikeCount ?? content.likeCount) : content.likeCount}
+    const active = content.viewer?.like != undefined
+
+    const onClick = async () => {
+        if (!active) {
+            await onClickLike()
+        } else {
+            await onClickRemoveLike()
+        }
+    }
+
+    const count = showBsky ? (content.bskyLikeCount ?? content.likeCount) : content.likeCount
+    const disabled = content.viewer && content.viewer.like == "optimistic-like-uri" || getRkeyFromUri(content.uri).startsWith("optimistic")
+
+    return <ReactionButton
+        onClick={onClick}
+        active={active}
+        hoverColor={hoverColor}
+        iconActive={<ActiveLikeIcon color={"like"} fontSize={iconFontSize}/>}
+        iconInactive={<InactiveLikeIcon color={"text"} fontSize={iconFontSize}/>}
+        disabled={disabled}
+        count={count}
+        textClassName={textClassName}
     />
 }

@@ -1,4 +1,4 @@
-import {RepostIcon} from "../../icons/reposts-icon";
+import {RepostIcon} from "@/components/layout/icons/reposts-icon";
 import {Username} from "./username";
 
 

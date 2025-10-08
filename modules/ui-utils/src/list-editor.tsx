@@ -90,7 +90,9 @@ const NewItem = ({
                 }}
                 size={"small"}
             >
-                Agregar
+                <span className={"text-xs"}>
+                    Agregar
+                </span>
             </Button>
         }
     }
@@ -102,7 +104,7 @@ export const ListEditorItem = ({item, removeItem}: {
 }) => {
     const [hovering, setHovering] = useState(false)
     return <button
-        className={"px-2 py-1 border rounded-lg bg-[var(--accent)] flex space-x-1 items-center " + (removeItem ? "" : "cursor-default")}
+        className={"px-2 py-[2px] bg-[var(--background-dark)] border text-sm flex space-x-1 items-center " + (removeItem ? "" : "cursor-default")}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         onClick={removeItem}
@@ -135,16 +137,16 @@ export const ListEditor = ({
         }
     }
 
-    return <div className={"flex flex-wrap gap-x-2 items-center"}>
+    return <div className={"flex flex-wrap gap-1 items-center"}>
         {items.map((c, i) => {
-            return <div key={i} className={"h-10"}>
+            return <div key={i} className={""}>
                 <ListEditorItem
                     item={c}
                     removeItem={setItems ? removeItem(i) : undefined}
                 />
             </div>
         })}
-        {setItems && <div className={"h-10"}>
+        {setItems && <div className={""}>
             <NewItem
                 addItem={(c: string) => {
                     setItems([...items, c])

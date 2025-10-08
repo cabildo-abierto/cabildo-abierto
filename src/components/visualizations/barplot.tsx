@@ -3,6 +3,7 @@ import {Bar} from "@visx/shape";
 import {localPoint} from "@visx/event";
 import {ScaleBand} from "d3-scale";
 import {ScaleLinear} from "d3-scale";
+import { palette } from "./palette";
 
 
 export function BarplotContent<X>({data, xScale, yScale, innerHeight, hideTooltip, showTooltip}: {
@@ -30,7 +31,7 @@ export function BarplotContent<X>({data, xScale, yScale, innerHeight, hideToolti
                     y={barY}
                     width={barWidth}
                     height={barHeight}
-                    fill="var(--primary)"
+                    fill={palette(0)}
                     onMouseLeave={() => hideTooltip()}
                     onMouseMove={(event) => {
                         const eventSvgCoords = localPoint(event);

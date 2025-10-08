@@ -9,6 +9,7 @@ import {AdminPDS} from "@/components/admin/admin-pds";
 import {AdminValidation} from "@/components/admin/admin-validation";
 import {AdminRemuneraciones} from "@/components/admin/admin-remuneraciones";
 import {AdminStats} from "@/components/admin/stats";
+import {AdminWiki} from "@/components/admin/admin-wiki";
 
 
 export default function Page() {
@@ -30,6 +31,8 @@ export default function Page() {
         return <AdminRemuneraciones/>
     } else if(s == "Stats") {
         return <AdminStats/>
+    } else if(s == "Wiki") {
+        return <AdminWiki/>
     } else {
         return <NotFoundPage/>
     }

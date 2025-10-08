@@ -1,25 +1,26 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
 import AddIcon from "@mui/icons-material/Add";
-import {DatasetPreviewOnEditor} from "../../datasets/dataset-preview-on-editor";
+import {DatasetPreviewOnEditor} from "@/components/visualizations/datasets/dataset-preview-on-editor";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {NewDatasetPanel} from "../../datasets/new-dataset-panel";
 import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import SearchBar from "@/components/buscar/search-bar";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import TopicsIcon from "@/components/icons/topics-icon";
+import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {TopicsDataSourceConfig} from "@/components/visualizations/editor/topics-data-source-config";
-import {ReactNode} from "react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import DatasetIcon from "@/components/icons/dataset-icon";
+import DatasetIcon from "@/components/layout/icons/dataset-icon";
 import {FunnelIcon} from "@phosphor-icons/react";
 import {FilterConfig} from "@/components/visualizations/editor/filter-config";
 import CachedIcon from "@mui/icons-material/Cached";
 import StateButton, {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import dynamic from "next/dynamic";
 
+const NewDatasetPanel = dynamic(() => import("@/components/visualizations/datasets/new-dataset-panel"));
 
 const DatasetsSearch = ({datasets, config, setConfig}: {
     config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void, datasets: DatasetViewBasic[]
@@ -42,7 +43,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             fullWidth={true}
-            color={"background-dark2"}
+            color={"background-dark"}
         />
         <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-250px)]"}>
             {filteredDatasets ? filteredDatasets.map((d, i) => {
@@ -89,11 +90,10 @@ const ChooseDatasetPanelDatasetSelection = ({
             <Button
                 startIcon={<TopicsIcon/>}
                 variant={"text"}
-                color={creatingTopicsBased ? "background-dark4" : "background-dark2"}
+                color={creatingTopicsBased ? "background-dark2" : "background-dark"}
                 size={"small"}
                 sx={{
                     paddingX: "12px",
-                    borderRadius: "20px",
                     ":hover": {backgroundColor: "var(--background-dark3)"}
                 }}
                 onClick={() => {
@@ -111,23 +111,23 @@ const ChooseDatasetPanelDatasetSelection = ({
                     }))
                 }}
             >
-                Usar temas
+                <span className={"text-xs"}>
+                    Usar temas
+                </span>
             </Button>
             <Button
                 startIcon={<AddIcon/>}
                 variant={"text"}
-                color={"background-dark2"}
+                color={"background-dark"}
                 size={"small"}
                 sx={{
-                    paddingX: "12px",
-                    borderRadius: "20px",
-                    ":hover": {backgroundColor: "var(--background-dark3)"}
+                    paddingX: "12px"
                 }}
                 onClick={() => {
                     setNewDatasetPanelOpen(true)
                 }}
             >
-                Conjunto de datos
+                <span className={"text-xs"}>Conjunto de datos</span>
             </Button>
         </div>
         <div className={"px-2 pb-2"}>
@@ -235,44 +235,21 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
         }
     }, [datasets, config, setConfig])
 
-
-    function optionsNodes(o: string, isSelected: boolean) {
-        let icon: ReactNode
+    function optionLabels(o: string){
         if (o == "Conjuntos de datos") {
-            icon = <DatasetIcon size={20}/>
+            return <DatasetIcon size={20}/>
         } else if (o == "Filtros") {
-            icon = <FunnelIcon size={20}/>
+            return <FunnelIcon size={20}/>
         }
-        return <div className="text-[var(--text)]">
-            <Button
-                onClick={() => {
-                }}
-                variant="text"
-                color={"background-dark"}
-                fullWidth={true}
-                size={"small"}
-                disableElevation={true}
-                sx={{
-                    textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0,
-                }}
-            >
-                <div
-                    className={"pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
-                    {icon}
-                </div>
-            </Button>
-        </div>
     }
 
 
     return <>
         <div className={"rounded-lg flex flex-col space-y-2 h-full"}>
-            <div className={"flex border-b w-full mt-2"}>
+            <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
                 <SelectionComponent
                     options={["Conjuntos de datos", "Filtros"]}
-                    optionsNodes={optionsNodes}
+                    optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}
                     selected={selectedMenu}
                     onSelection={(v: string) => {
                         setSelectedMenu(v as "Conjuntos de datos" | "Filtros")

@@ -1,6 +1,8 @@
 import * as React from "react";
 import {ReactNode} from "react";
 import {IconButton} from "../../../../ui-utils/src/icon-button";
+import { Color } from "../../../../ui-utils/src/color";
+import {darker} from "../../../../ui-utils/src/button";
 
 type ToolbarButtonProps = {
     active?: boolean
@@ -9,15 +11,22 @@ type ToolbarButtonProps = {
     disabled?: boolean
     children: ReactNode
     "aria-label": string
+    borderRadius?: number | string
+    color?: Color
 }
 
-export const ToolbarButton = ({active=false, children, ...props}: ToolbarButtonProps) => {
+export const ToolbarButton = ({
+                                  active=false,
+                                  children,
+    color= "transparent",
+    borderRadius=0,
+                                  ...props}: ToolbarButtonProps) => {
     return <IconButton
-        color={active ? "background-dark2" : "background-dark"}
-        sx={{borderRadius: "8px", width: "36px", height: "36px"}}
+        color={active ? darker(color) : color}
+        sx={{borderRadius, width: "36px", height: "36px"}}
         {...props}
     >
-        <div className={active ? "" : (props.disabled ? "text-[var(--text-lighter)]" : "text-[var(--text-light)]")}>
+        <div className={"flex items-center " + (active ? "" : (props.disabled ? "text-[var(--accent-dark)]" : "text-[var(--text)]"))}>
             {children}
         </div>
     </IconButton>

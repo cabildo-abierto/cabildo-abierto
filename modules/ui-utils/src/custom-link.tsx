@@ -1,5 +1,4 @@
 import {useRouter} from "next/navigation";
-import {usePageLeave} from "./prevent-leave";
 import Link from "next/link";
 
 type LinkEvent = React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLSpanElement>
@@ -35,7 +34,6 @@ export function CustomLink({
                                title,
                                tag = "link",
                            }: CustomLinkProps) {
-    const {leaveStoppers} = usePageLeave()
     const router = useRouter()
 
     function redirect(e: LinkEvent) {
@@ -50,13 +48,7 @@ export function CustomLink({
     function handleClick(e: LinkEvent) {
         e.stopPropagation()
         e.preventDefault()
-        if (leaveStoppers.length > 0) {
-            if (window.confirm("Hay cambios sin guardar. ¿Deseas salir de todas formas?")) {
-                redirect(e)
-            }
-        } else {
-            redirect(e)
-        }
+        redirect(e)
         onClick?.(e)
     }
 

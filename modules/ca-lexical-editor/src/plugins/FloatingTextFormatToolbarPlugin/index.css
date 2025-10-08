@@ -8,15 +8,12 @@
 
 .floating-text-format-popup {
   display: flex;
-  padding: 4px;
   vertical-align: middle;
   position: absolute;
   top: 0px;
   left: 0;
   z-index: 100000;
   opacity: 0;
-  border-width: 1px;
-  border-radius: 8px;
 }
 
 .floating-text-format-popup button.popup-item {

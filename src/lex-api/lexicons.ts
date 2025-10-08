@@ -137,6 +137,135 @@ export const schemaDict = {
               ref: 'lex:com.atproto.label.defs#label',
             },
           },
+          caProfile: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          verification: {
+            type: 'string',
+            knownValues: ['person', 'org'],
+          },
+          editorStatus: {
+            type: 'string',
+            knownValues: ['Editor principiante', 'Editor', 'Administrador'],
+          },
+        },
+      },
+      profileViewDetailed: {
+        type: 'object',
+        required: ['did', 'handle'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          handle: {
+            type: 'string',
+            format: 'handle',
+          },
+          displayName: {
+            type: 'string',
+            maxGraphemes: 64,
+            maxLength: 640,
+          },
+          description: {
+            type: 'string',
+            maxGraphemes: 256,
+            maxLength: 2560,
+          },
+          avatar: {
+            type: 'string',
+            format: 'uri',
+          },
+          banner: {
+            type: 'string',
+            format: 'uri',
+          },
+          followersCount: {
+            type: 'integer',
+          },
+          followsCount: {
+            type: 'integer',
+          },
+          bskyFollowersCount: {
+            type: 'integer',
+          },
+          bskyFollowsCount: {
+            type: 'integer',
+          },
+          postsCount: {
+            type: 'integer',
+          },
+          articlesCount: {
+            type: 'integer',
+          },
+          editsCount: {
+            type: 'integer',
+          },
+          associated: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileAssociated',
+          },
+          joinedViaStarterPack: {
+            type: 'ref',
+            ref: 'lex:app.bsky.graph.defs#starterPackViewBasic',
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#viewerState',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+          pinnedPost: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+          },
+          caProfile: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          verification: {
+            type: 'string',
+            knownValues: ['person', 'org'],
+          },
+          editorStatus: {
+            type: 'string',
+            knownValues: ['Editor principiante', 'Editor', 'Administrador'],
+          },
+        },
+      },
+      profileAssociated: {
+        type: 'object',
+        properties: {
+          lists: {
+            type: 'integer',
+          },
+          feedgens: {
+            type: 'integer',
+          },
+          starterPacks: {
+            type: 'integer',
+          },
+          labeler: {
+            type: 'boolean',
+          },
+          chat: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileAssociatedChat',
+          },
         },
       },
     },
@@ -1238,15 +1367,7 @@ export const schemaDict = {
       },
       topicView: {
         type: 'object',
-        required: [
-          'text',
-          'id',
-          'createdAt',
-          'lastEdit',
-          'uri',
-          'cid',
-          'author',
-        ],
+        required: ['text', 'id', 'createdAt', 'lastEdit', 'uri', 'cid'],
         properties: {
           id: {
             type: 'string',
@@ -1290,10 +1411,6 @@ export const schemaDict = {
           createdAt: {
             type: 'string',
             format: 'datetime',
-          },
-          author: {
-            type: 'ref',
-            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           embeds: {
             type: 'array',
@@ -1748,7 +1865,7 @@ export const schemaDict = {
           },
           author: {
             type: 'ref',
-            ref: 'lex:ar.cabildoabierto.actor.defs#profileView',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
           },
           reason: {
             type: 'string',
@@ -2305,6 +2422,95 @@ export const schemaDict = {
       },
     },
   },
+  ComAtprotoRepoPutRecord: {
+    lexicon: 1,
+    id: 'com.atproto.repo.putRecord',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Write a repository record, creating or updating it as needed. Requires auth, implemented by PDS.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['repo', 'collection', 'rkey', 'record'],
+            nullable: ['swapRecord'],
+            properties: {
+              repo: {
+                type: 'string',
+                format: 'at-identifier',
+                description:
+                  'The handle or DID of the repo (aka, current account).',
+              },
+              collection: {
+                type: 'string',
+                format: 'nsid',
+                description: 'The NSID of the record collection.',
+              },
+              rkey: {
+                type: 'string',
+                format: 'record-key',
+                description: 'The Record Key.',
+                maxLength: 512,
+              },
+              validate: {
+                type: 'boolean',
+                description:
+                  "Can be set to 'false' to skip Lexicon schema validation of record data, 'true' to require it, or leave unset to validate only for known Lexicons.",
+              },
+              record: {
+                type: 'unknown',
+                description: 'The record to write.',
+              },
+              swapRecord: {
+                type: 'string',
+                format: 'cid',
+                description:
+                  'Compare and swap with the previous record by CID. WARNING: nullable and optional field; may cause problems with golang implementation',
+              },
+              swapCommit: {
+                type: 'string',
+                format: 'cid',
+                description:
+                  'Compare and swap with the previous commit by CID.',
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['uri', 'cid'],
+            properties: {
+              uri: {
+                type: 'string',
+                format: 'at-uri',
+              },
+              cid: {
+                type: 'string',
+                format: 'cid',
+              },
+              commit: {
+                type: 'ref',
+                ref: 'lex:com.atproto.repo.defs#commitMeta',
+              },
+              validationStatus: {
+                type: 'string',
+                knownValues: ['valid', 'unknown'],
+              },
+            },
+          },
+        },
+        errors: [
+          {
+            name: 'InvalidSwap',
+          },
+        ],
+      },
+    },
+  },
   ComAtprotoRepoStrongRef: {
     lexicon: 1,
     id: 'com.atproto.repo.strongRef',
@@ -2816,6 +3022,144 @@ export const schemaDict = {
       interactionShare: {
         type: 'token',
         description: 'User shared the feed item',
+      },
+    },
+  },
+  AppBskyFeedPost: {
+    lexicon: 1,
+    id: 'app.bsky.feed.post',
+    defs: {
+      main: {
+        type: 'record',
+        description: 'Record containing a Bluesky post.',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['text', 'createdAt'],
+          properties: {
+            text: {
+              type: 'string',
+              maxLength: 3000,
+              maxGraphemes: 300,
+              description:
+                'The primary post content. May be an empty string, if there are embeds.',
+            },
+            entities: {
+              type: 'array',
+              description: 'DEPRECATED: replaced by app.bsky.richtext.facet.',
+              items: {
+                type: 'ref',
+                ref: 'lex:app.bsky.feed.post#entity',
+              },
+            },
+            facets: {
+              type: 'array',
+              description:
+                'Annotations of text (mentions, URLs, hashtags, etc)',
+              items: {
+                type: 'ref',
+                ref: 'lex:app.bsky.richtext.facet',
+              },
+            },
+            reply: {
+              type: 'ref',
+              ref: 'lex:app.bsky.feed.post#replyRef',
+            },
+            embed: {
+              type: 'union',
+              refs: [
+                'lex:app.bsky.embed.images',
+                'lex:app.bsky.embed.video',
+                'lex:app.bsky.embed.external',
+                'lex:app.bsky.embed.record',
+                'lex:app.bsky.embed.recordWithMedia',
+                'lex:ar.cabildoabierto.embed.selectionQuote',
+                'lex:ar.cabildoabierto.embed.visualization',
+              ],
+            },
+            langs: {
+              type: 'array',
+              description:
+                'Indicates human language of post primary text content.',
+              maxLength: 3,
+              items: {
+                type: 'string',
+                format: 'language',
+              },
+            },
+            labels: {
+              type: 'union',
+              description:
+                'Self-label values for this post. Effectively content warnings.',
+              refs: ['lex:com.atproto.label.defs#selfLabels'],
+            },
+            tags: {
+              type: 'array',
+              description:
+                'Additional hashtags, in addition to any included in post text and facets.',
+              maxLength: 8,
+              items: {
+                type: 'string',
+                maxLength: 640,
+                maxGraphemes: 64,
+              },
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description:
+                'Client-declared timestamp when this post was originally created.',
+            },
+          },
+        },
+      },
+      replyRef: {
+        type: 'object',
+        required: ['root', 'parent'],
+        properties: {
+          root: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+          },
+          parent: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+      entity: {
+        type: 'object',
+        description: 'Deprecated: use facets instead.',
+        required: ['index', 'type', 'value'],
+        properties: {
+          index: {
+            type: 'ref',
+            ref: 'lex:app.bsky.feed.post#textSlice',
+          },
+          type: {
+            type: 'string',
+            description: "Expected values are 'mention' and 'link'.",
+          },
+          value: {
+            type: 'string',
+          },
+        },
+      },
+      textSlice: {
+        type: 'object',
+        description:
+          'Deprecated. Use app.bsky.richtext instead -- A text segment. Start is inclusive, end is exclusive. Indices are for utf16-encoded strings.',
+        required: ['start', 'end'],
+        properties: {
+          start: {
+            type: 'integer',
+            minimum: 0,
+          },
+          end: {
+            type: 'integer',
+            minimum: 0,
+          },
+        },
       },
     },
   },
@@ -3936,8 +4280,10 @@ export const ids = {
   ComAtprotoRepoDeleteRecord: 'com.atproto.repo.deleteRecord',
   ComAtprotoRepoGetRecord: 'com.atproto.repo.getRecord',
   ComAtprotoRepoListRecords: 'com.atproto.repo.listRecords',
+  ComAtprotoRepoPutRecord: 'com.atproto.repo.putRecord',
   ComAtprotoRepoStrongRef: 'com.atproto.repo.strongRef',
   AppBskyFeedDefs: 'app.bsky.feed.defs',
+  AppBskyFeedPost: 'app.bsky.feed.post',
   AppBskyGraphDefs: 'app.bsky.graph.defs',
   AppBskyActorDefs: 'app.bsky.actor.defs',
   AppBskyEmbedDefs: 'app.bsky.embed.defs',

@@ -14,7 +14,7 @@ export const ReplyToVersion = ({postView, pageRootUri}: {postView: ArCabildoabie
                 const {did, rkey} = splitUri(rootUri)
                 const url = topicUrl(undefined, {did, rkey}, "normal")
                 return <div className={"text-sm text-[var(--text-light)] px-4 py-2"}>
-                    Respuesta a una versión del tema publicada hace <DateSince date={postView.rootCreationDate}/>. <Link
+                    Respuesta a una versión del tema publicada hace <DateSince date={new Date(postView.rootCreationDate)}/>. <Link
                         href={url}
                         className={"hover:underline font-semibold"}
                         onClick={(e) => {e.stopPropagation()}}

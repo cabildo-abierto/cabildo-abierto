@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import {useTopicTitle} from "@/queries/useTopic";
+import {useTopicTitle} from "@/queries/getters/useTopic";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 
 function getSearchParam(url: string, param: string): string | null {

@@ -1,21 +1,25 @@
 import {useEffect, useState} from "react";
-import {Box, IconButton, TextField} from "@mui/material";
+import {Box} from "@mui/material";
 import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import {Button} from "../../../../modules/ui-utils/src/button";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {Select, MenuItem, FormControl, InputLabel} from "@mui/material";
 import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
-import {useCategories} from "@/queries/useTopics";
+import {useCategories} from "@/queries/getters/useTopics";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
-import Link from "next/link";
-import {topicUrl} from "@/utils/uri";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
+import dynamic from "next/dynamic";
+import {TextField} from "../../../../modules/ui-utils/src/text-field";
+import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
+import {TrashIcon, XIcon} from "@phosphor-icons/react";
+import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+
+const NewPropModal = dynamic(
+    () => import("@/components/topics/topic/new-prop-modal"),
+    {ssr: false})
 
 function getDescriptionForProp(propName: string) {
     if (propName == "Categorías") {
@@ -40,9 +44,13 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
     const info: string | null = getDescriptionForProp(p.name)
 
     return <div className={"flex space-x-2 w-full items-center justify-between"}>
-        <div className={"flex items-center"}>
+        <div className={"flex items-center space-x-4"}>
             {info ?
-                <div className={"w-8"}><InfoPanel text={info} iconClassName={"text-[var(--text-lighter)]"}/></div> :
+                <div className={"w-8"}>
+                    <InfoPanel
+                        text={info}
+                    />
+                </div> :
                 <div className={"w-8"}/>
             }
             <Button
@@ -53,6 +61,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 onClick={deleteProp}
                 disabled={isDefault}
                 sx={{
+                    textTransform: "none",
                     width: 120,
                     justifyContent: "flex-start",
                     color: "var(--text)",
@@ -70,9 +79,10 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                         alignItems: "center",
                     }}
                 >
-                <span style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
-                  {p.name}
-                </span>
+                    <span className="text-sm"
+                          style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
+                      {p.name}
+                    </span>
                     <span className={"text-[var(--text-light)]"}>
                     {!isDefault && hovered && <CloseIcon color={"inherit"}/>}
                 </span>
@@ -80,6 +90,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             </Button>
             {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
                 items={p.value.value}
+                color={"background"}
                 setItems={(values: string[]) => {
                     setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
                 }}
@@ -88,6 +99,9 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
                 value={p.value.value}
                 size={"small"}
+                fontSize={13}
+                paddingX={"0px"}
+                paddingY={"6px"}
                 onChange={(e) => {
                     setProp({
                         ...p,
@@ -99,47 +113,72 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                     })
                 }}
             />}
-            {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) && <TextField // TO DO: Marcar rojo si no es un número.
-                value={isNaN(p.value.value) ? 0 : p.value.value}
-                size={"small"}
-                onChange={(e) => {
-                    const v = parseInt(e.target.value)
-                    setProp({
-                        ...p,
-                        value: {
-                            $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
-                            value: v && !isNaN(v) ? v : 0
-                        }
-                    })
-                }}
-            />}
-            {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                <DatePicker
-                    label={"Fecha"}
-                    value={dayjs(p.value.value).locale('es')}
-                    onChange={(newValue) => {
-                        if (newValue?.isValid()) {
+            {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) &&
+                <TextField // TO DO: Marcar rojo si no es un número.
+                    value={isNaN(p.value.value) ? 0 : p.value.value}
+                    size={"small"}
+                    fontSize={12}
+                    onChange={(e) => {
+                        const v = parseInt(e.target.value)
+                        setProp({
+                            ...p,
+                            value: {
+                                $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
+                                value: v && !isNaN(v) ? v : 0
+                            }
+                        })
+                    }}
+                />}
+            {/*TO DO: Achicar el icono del date picker*/}
+            {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) &&
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                    <DatePicker
+                        value={p.value.value ? dayjs(p.value.value) : dayjs()}
+                        onChange={(d) => {
+                            console.log("date", d, d.startOf("day").toISOString())
                             setProp({
                                 ...p,
                                 value: {
                                     $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-                                    value: newValue.startOf("day").toISOString(),
-                                },
-                            });
-                        }
-                    }}
-                    minDate={dayjs("1000-01-01")}
-                    format="DD/MM/YYYY"
-                    slotProps={{
-                        textField: {size: 'small'},
-                        openPickerButton: {
-                            sx: {
-                                padding: '4px'
+                                    value: d.startOf("day").toISOString(),
+                                }
+                            })
+                        }}
+                        label={"Fecha"}
+                        minDate={dayjs("1000-01-01")}
+                        format="DD/MM/YYYY"
+                        sx={{
+                            "& .MuiInputLabel-root": {
+                                color: `var(--text)`,
                             },
-                        },
-                    }}
-                />
-            </LocalizationProvider>}
+                            "& .MuiPickersInputBase-root": {
+                                borderRadius: 0,
+                                fontSize: "13px",
+                                "&:hover fieldset": {
+                                    borderColor: `var(--accent-dark)`,
+                                },
+                                "& fieldset": {
+                                    borderRadius: 0,
+                                    borderColor: `var(--accent-dark)`,
+                                    borderWidth: 1,
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderWidth: 1,
+                                    borderRadius: 0,
+                                    color: `var(--text)`,
+                                    "&.MuiPickersOutlinedInput-notchedOutline": {
+                                        borderColor: `var(--accent-dark)`
+                                    }
+                                },
+                            }
+                        }}
+                        slotProps={{
+                            textField: {
+                                size: "small",
+                            },
+                        }}
+                    />
+                </LocalizationProvider>}
         </div>
     </div>
 }
@@ -239,67 +278,6 @@ export function isDefaultProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
 }
 
 
-function NewPropModal({open, onClose, onAddProp}: {
-    open: boolean,
-    onClose: () => void,
-    onAddProp: (name: string, type: PropValueType) => void
-}) {
-    const [name, setName] = useState("")
-    const [dataType, setDataType] = useState<PropValueType>("ar.cabildoabierto.wiki.topicVersion#stringProp")
-
-    function cleanAndClose() {
-        setName("")
-        setDataType("ar.cabildoabierto.wiki.topicVersion#stringProp")
-        onClose()
-    }
-
-    return <BaseFullscreenPopup open={open} onClose={cleanAndClose} closeButton={true}>
-        <div className={"px-6 pb-6 space-y-4 flex flex-col items-center"}>
-            <div className={"font-semibold"}>
-                Nueva propiedad
-            </div>
-            <div className={"text-sm text-[var(--text-light)] max-w-[300px]"}>
-                Agregá una característica del tema.
-                Si muchos temas tienen la misma propiedad, se puede hacer una visualización con ellos. <Link
-                    href={topicUrl("Cabildo Abierto: Wiki (Temas)", undefined, "normal")}
-                    target={"_blank"}
-                    className={"hover:underline font-semibold"}
-                >
-                Más información.
-            </Link>
-            </div>
-            <TextField
-                size={"small"}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                label={"Nombre de la propiedad"}
-                fullWidth
-            />
-            <FormControl fullWidth size="small">
-                <InputLabel>Tipo de propiedad</InputLabel>
-                <Select
-                    value={dataType}
-                    onChange={(e) => setDataType(e.target.value as PropValueType)}
-                    label="Tipo de propiedad"
-                >
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringProp"}>Texto</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#stringListProp"}>Lista de textos</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#dateProp"}>Fecha</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#numberProp"}>Número</MenuItem>
-                    <MenuItem value={"ar.cabildoabierto.wiki.topicVersion#booleanProp"}>Sí/No</MenuItem>
-                </Select>
-            </FormControl>
-            <Button size={"small"} onClick={() => {
-                cleanAndClose();
-                onAddProp(name, dataType)
-            }} disabled={name.length == 0}>
-                Aceptar
-            </Button>
-        </div>
-    </BaseFullscreenPopup>
-}
-
-
 function validProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
     return props.filter(p => {
         const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
@@ -350,9 +328,9 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
 
     const vProps = validProps(props)
 
-    return <div className={"border rounded p-4 space-y-6 my-4 mx-2 bg-[var(--background-dark)]"}>
+    return <div className={"border p-4 space-y-6 my-4 mx-2"}>
         <div className={"font-semibold flex items-center space-x-2"}>
-            <div>Propiedades</div>
+            <div className={"uppercase text-sm"}>Propiedades</div>
         </div>
         <div className={"space-y-6"}>
             {vProps.map((p, index) => {
@@ -363,30 +341,45 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
                 </div>
             })}
         </div>
-        <div className={"flex justify-between"}>
-            <Button style={{width: 120}} onClick={() => {
-                setCreatingProp(true)
-            }} size={"small"} variant={"contained"}>
-                Nueva propiedad
+        <div className={"flex justify-between items-center"}>
+            <Button
+                color={"transparent"}
+                onClick={() => {
+                    setCreatingProp(true)
+                }}
+                size={"small"}
+                variant={"text"}
+            >
+                <span className={"text-[11px] font-normal uppercase"}>Nueva propiedad</span>
             </Button>
-            <div className={"text-[var(--text-light)] space-x-2"}>
-                <IconButton size={"small"} onClick={resetProps} color={"inherit"}>
-                    <DeleteOutlineIcon color={"inherit"}/>
-                </IconButton>
-                <IconButton size={"small"} onClick={() => {
-                    resetProps();
-                    onClose()
-                }} color={"inherit"}>
-                    <CloseIcon color={"inherit"}/>
+            <div className={"text-[var(--text-light)] flex space-x-2 items-center"}>
+                <DescriptionOnHover description={"Cancelar cambios"}>
+                    <IconButton
+                        size={"small"}
+                        onClick={resetProps}
+                        color={"transparent"}
+                    >
+                        <TrashIcon color="var(--text)" fontSize="20"/>
+                    </IconButton>
+                </DescriptionOnHover>
+                <IconButton
+                    size={"small"}
+                    onClick={() => {
+                        resetProps();
+                        onClose()
+                    }}
+                    color={"transparent"}
+                >
+                    <XIcon color={"var(--text)"} fontSize={"20"}/>
                 </IconButton>
             </div>
         </div>
-        <NewPropModal
+        {creatingProp && <NewPropModal
             open={creatingProp}
             onClose={() => {
                 setCreatingProp(false)
             }}
             onAddProp={addProp}
-        />
+        />}
     </div>
 }

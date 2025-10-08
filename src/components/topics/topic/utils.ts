@@ -93,16 +93,6 @@ export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100 && !name.includes("/");
 }
 
-export const permissionToPrintable = (level: string) => {
-    if (level == "Administrator") {
-        return "Administrador"
-    } else if (level == "Beginner") {
-        return "Editor aprendiz"
-    } else if (level == "Editor") {
-        return "Editor"
-    }
-}
-
 export const permissionToNumber = (level: string) => {
     if (level == "Administrator") {
         return 2

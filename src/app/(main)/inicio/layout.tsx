@@ -1,6 +1,6 @@
 import {Metadata} from "next";
 import {ReactNode} from "react";
-import {HomeTutorial} from "@/components/tutorial/home-tutorial";
+import {HomeTutorial} from "@/components/layout/tutorial/home-tutorial";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',

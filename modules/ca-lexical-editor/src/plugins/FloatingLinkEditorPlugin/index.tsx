@@ -9,10 +9,6 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import EditIcon from '@mui/icons-material/Edit';
 import {$createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {
     $getSelection,
@@ -42,6 +38,8 @@ import {get} from '@/utils/fetch';
 import LoadingSpinner from "../../../../ui-utils/src/loading-spinner";
 import {IconButton} from '../../../../ui-utils/src/icon-button';
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
+import {CheckIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
+import { WriteButtonIcon } from '@/components/layout/icons/write-button-icon';
 
 
 export async function searchTopics(query: string) {
@@ -68,11 +66,11 @@ const SearchResults = ({results, setValue}: {
     }
 
     if (results.length == 0) return <></>
-    return <div className="mb-1 px-1 space-y-1">
+    return <div className="mb-1 space-y-1">
         {results.slice(0, 5).map((topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {
             return <button
                 key={topic.id}
-                className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
+                className={"text-left text-sm text-[var(--text)] hover:bg-[var(--background-dark3)] bg-[var(--background-dark2)] py-2 px-2 w-full"}
                 onClick={() => {
                     setValue(topic.id)
                 }}
@@ -326,12 +324,12 @@ function FloatingLinkEditor({
         handleLinkSubmission(encodeParentheses(topicUrl(t)))
     }
 
-    const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-[var(--background-dark)] space-y-1">
+    const linkEditComp = <div className="w-64 sm:w-96 p-1 panel-dark space-y-1">
         <div className="flex items-center justify-between">
             <input
                 ref={inputRef}
-                className="py-1 px-2 outline-none w-full bg-[var(--background)] rounded mr-2 ml-1"
-                placeholder="Ingresá un link o un tema a referenciar"
+                className="py-1 px-2 outline-none w-full bg-[var(--background-dark2)] placeholder:text-[var(--text-light)] mr-2"
+                placeholder="Ingresá un enlace o un tema a referenciar"
                 value={editedLinkUrl}
                 onChange={async (event) => {
                     setEditedLinkUrl(event.target.value)
@@ -349,7 +347,7 @@ function FloatingLinkEditor({
                     size={"small"}
                     color={"background-dark"}
                 >
-                    <CheckIcon fontSize="small"/>
+                    <CheckIcon/>
                 </IconButton>
                 <IconButton
                     onMouseDown={(event) => event.preventDefault()}
@@ -359,7 +357,7 @@ function FloatingLinkEditor({
                     color={"background-dark"}
                     size={"small"}
                 >
-                    <CloseIcon fontSize="small"/>
+                    <XIcon/>
                 </IconButton>
             </div>
         </div>
@@ -368,7 +366,7 @@ function FloatingLinkEditor({
 
     const linkViewComp = linkUrl.startsWith("/tema") ? (
 
-        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
+        <div className="p-1 w-64 sm:w-96 panel-dark">
             <div className="flex items-center">
                 <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1 mr-1">
                     <TopicMentionComp url={linkUrl}/>
@@ -383,7 +381,7 @@ function FloatingLinkEditor({
                         size={"small"}
                         color={"background-dark"}
                     >
-                        <EditIcon fontSize="small"/>
+                        <WriteButtonIcon/>
                     </IconButton>
                     <IconButton
                         onMouseDown={(event) => event.preventDefault()}
@@ -393,15 +391,15 @@ function FloatingLinkEditor({
                         size={"small"}
                         color={"background-dark"}
                     >
-                        <DeleteOutlineIcon fontSize="small"/>
+                        <TrashIcon/>
                     </IconButton>
                 </div>
             </div>
         </div>
     ) : (
-        <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background-dark)]">
-            <div className="flex items-center">
-                <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
+        <div className="p-1 w-64 sm:w-96 panel-dark">
+            <div className="flex items-center justify-between w-full">
+                <div className="w-full overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
                     <Link
                         tag={"link"}
                         href={sanitizeUrl(linkUrl)}
@@ -422,7 +420,7 @@ function FloatingLinkEditor({
                         size={"small"}
                         color={"background-dark"}
                     >
-                        <EditIcon fontSize="small"/>
+                        <WriteButtonIcon/>
                     </IconButton>
                     <IconButton
                         onMouseDown={(event) => event.preventDefault()}
@@ -432,7 +430,7 @@ function FloatingLinkEditor({
                         size={"small"}
                         color={"background-dark"}
                     >
-                        <DeleteOutlineIcon fontSize="small"/>
+                        <TrashIcon/>
                     </IconButton>
                 </div>
             </div>

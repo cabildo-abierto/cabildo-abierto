@@ -35,7 +35,7 @@ export async function post<Body, Output>(route: string, body?: Body): Promise<Po
         const json = await res.json()
         if(json.error && (json.error == "No session" || json.error == "Unauthorized")){
             console.log("sin sesion!")
-            window.location.href = "/login"
+            // window.location.href = "/login"
             return {error: "Iniciá sesión"}
         }
         return json
@@ -55,7 +55,7 @@ export async function get<Output>(route: string): Promise<PostOutput<Output>> {
         const json = await res.json()
         if(json.error && (json.error == "No session" || json.error == "Unauthorized")){
             console.log("sin sesion!")
-            window.location.href = "/login"
+            // window.location.href = "/login"
             return {error: "Iniciá sesión"}
         }
         return json

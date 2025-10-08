@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {FullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
@@ -19,6 +20,7 @@ export type CreateArticleProps = {
     embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
     draftId?: string
+    uri?: string
 }
 
 const createArticle = async (props: CreateArticleProps) => {
@@ -26,7 +28,7 @@ const createArticle = async (props: CreateArticleProps) => {
 }
 
 
-export const PublishArticleButton = ({editorState, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
+export const PublishArticleButton = ({editorState, article, guardEnabled, setGuardEnabled, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
     editorState: EditorState
     disabled: boolean
     title?: string
@@ -34,24 +36,23 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
     setModalOpen: (o: boolean) => void
     mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
     draftId?: string
+    guardEnabled: boolean
+    setGuardEnabled: (s: boolean) => void,
+    article?: FullArticleView
 }) => {
     const [mdText, setMdText] = useState("")
     const router = useRouter()
     const qc = useQueryClient()
+    const [saved, setSaved] = useState(false)
 
     useEffect(() => {
-        async function process() {
-            const { editorStateToMarkdownNoEmbeds } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
-            const editorStateStr = JSON.stringify(editorState.toJSON())
-            setMdText(editorStateToMarkdownNoEmbeds(editorStateStr))
+        if(saved && !guardEnabled){
+            router.push("/inicio?f=siguiendo")
         }
-
-        if (editorState && modalOpen) {
-            process()
-        }
-    }, [editorState, modalOpen])
+    }, [guardEnabled, saved])
 
     const handleSubmit = (enDiscusion: boolean) => async () => {
+
         const editorStateStr = JSON.stringify(editorState.toJSON())
         const { editorStateToMarkdown } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
         const {embeds, markdown, embedContexts} = editorStateToMarkdown(editorStateStr)
@@ -63,14 +64,21 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
             enDiscusion,
             embeds,
             embedContexts,
-            draftId
+            draftId,
+            uri: article?.uri
         })
         if (error) return {error}
 
         qc.invalidateQueries({queryKey: ["session"]})
         qc.invalidateQueries({queryKey: ["drafts"]})
+        qc.invalidateQueries({
+            predicate: query => {
+                return query.queryKey.length == 3 && query.queryKey[0] == "profile-feed" && query.queryKey[2] == "articles"
+            }
+        })
 
-        router.push("/inicio?f=siguiendo")
+        setGuardEnabled(false)
+        setSaved(true)
         return {stopResubmit: true}
     }
 
@@ -88,27 +96,31 @@ export const PublishArticleButton = ({editorState, draftId, title, disabled, mod
         <DescriptionOnHover description={helpMsg}>
             <StateButton
                 handleClick={async () => {
+                    const { editorStateToMarkdownNoEmbeds } = await import("../../../../modules/ca-lexical-editor/src/markdown-transforms");
+                    const editorStateStr = JSON.stringify(editorState.toJSON())
+                    const mdText = editorStateToMarkdownNoEmbeds(editorStateStr)
+                    setMdText(mdText)
                     setModalOpen(true)
                     return {}
                 }}
-                text1={"Publicar"}
-                textClassName="whitespace-nowrap px-2 font-semibold"
+                text1={!article ? "Publicar" : "Guardar edición"}
+                textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
                 disabled={disabled}
                 color={"background"}
                 size="medium"
                 variant={"text"}
-                sx={{borderRadius: 20}}
             />
         </DescriptionOnHover>
         {modalOpen && <PublishArticleModal
             onSubmit={handleSubmit}
-            onClose={() => {
+            onClose={async () => {
                 setModalOpen(false)
             }}
             open={modalOpen}
             mdText={mdText}
             title={title}
             mentions={mentions}
+            article={article}
         />}
     </>
 }

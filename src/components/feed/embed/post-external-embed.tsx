@@ -29,20 +29,17 @@ export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
             e.stopPropagation();
             window.open(embed.external.uri, '_blank')
         }}
-        className={"border rounded-lg cursor-pointer mt-1 hover:bg-[var(--background-dark2)]"}
+        className={"cursor-pointer mt-1 embed-panel"}
     >
-        {embed.external.thumb && embed.external.thumb.length > 0 ?
+        {embed.external.thumb && embed.external.thumb.length > 0 &&
         <div>
             <Image
                 src={embed.external.thumb}
                 alt={""}
-                className="w-full max-h-[240px] object-cover rounded-t-lg"
+                className="w-full max-h-[240px] object-cover"
                 width={400}
                 height={300}
             />
-        </div> :
-        <div className="font-semibold px-2 text-[15px] pt-2 break-all">
-            {embed.external.uri}
         </div>}
         <div className={embed.external.thumb ? "border-t p-2" : "p-2"}>
             <div className={"text-[15px] font-semibold mb-1"}>{embed.external.title}</div>

@@ -1,14 +1,19 @@
 "use client"
-import {useProfile} from "@/queries/useProfile";
+import {useProfile} from "@/queries/getters/useProfile";
 import {useSearchParams} from "next/navigation";
 import {LoadingProfile} from "@/components/profile/loading-profile";
 import {getUsername} from "@/utils/utils";
 import {getFeed} from "@/components/feed/feed/get-feed";
 import {updateSearchParam} from "@/utils/fetch";
-import ProfileHeader from "@/components/profile/profile-header";
 import {useQueryClient} from "@tanstack/react-query";
 import {useEffect} from "react";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
+import dynamic from "next/dynamic";
+
+
+const ProfileHeader = dynamic(() => import("@/components/profile/profile-header"), {
+    ssr: false
+})
 
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones" | "articulos"
@@ -63,33 +68,33 @@ export const ProfilePage = ({
                 setSelected={setSelected}
             />
         }
-        <div className={!profile ? "hidden" : ""}>
+        <div className={"min-h-screen " + (!profile ? "hidden" : "")}>
             {selected == "publicaciones" &&
                 <FeedViewContentFeed
                     queryKey={["profile-feed", handle, "main"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
-                    noResultsText={profile && getUsername(profile.bsky) + " todavía no publicó nada."}
+                    noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
                     endText={"Fin del feed."}
                 />}
             {selected == "respuestas" &&
                 <FeedViewContentFeed
                     queryKey={["profile-feed", handle, "replies"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
-                    noResultsText={profile && getUsername(profile.bsky) + " todavía no publicó nada."}
+                    noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
                     endText={"Fin del feed."}
                 />}
             {selected == "ediciones" &&
                 <FeedViewContentFeed
                     queryKey={["profile-feed", handle, "edits"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
-                    noResultsText={profile && getUsername(profile.bsky) + " todavía no hizo ninguna edición en la wiki."}
+                    noResultsText={profile && getUsername(profile) + " todavía no hizo ninguna edición en la wiki."}
                     endText={"Fin del feed."}
                 />}
             {selected == "articulos" &&
                 <FeedViewContentFeed
                     queryKey={["profile-feed", handle, "articles"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
-                    noResultsText={profile && getUsername(profile.bsky) + " todavía no publicó ningún artículo."}
+                    noResultsText={profile && getUsername(profile) + " todavía no publicó ningún artículo."}
                     endText={"Fin del feed."}
                 />}
         </div>

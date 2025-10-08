@@ -1,7 +1,7 @@
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {topicUrl} from "@/utils/uri";
 import ValidationIcon from "@/components/profile/validation-icon";
-import {TimePeriod} from "@/queries/useTrendingTopics";
+import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 
@@ -24,6 +24,8 @@ export default function TopicPopularityIndicator({counts, selected}: {
         return null
     }
 
+    if(count == 0) return null
+
     return <DescriptionOnHover
         description={`${count} persona${count == 1 ? " participó" : "s participaron"} en la discusión sobre el tema en ${periodText}.`}
         moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas")}
@@ -33,7 +35,7 @@ export default function TopicPopularityIndicator({counts, selected}: {
             <div>
                 <ValidationIcon
                     fontSize={10}
-                    validation={"person"}
+                    verification={"person"}
                     handle={null}
                     iconColor={"text"}
                     color={"background-dark"}

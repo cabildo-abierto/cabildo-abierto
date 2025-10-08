@@ -1,18 +1,18 @@
-import {Profile} from "@/lib/types";
+import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {useState} from "react";
 import {FollowCount} from "@/components/profile/follow/follow-counter";
-import BlueskyLogo from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 
-export const FollowCounters = ({profile}: { profile: Profile }) => {
-    const followersCountCA = profile.ca ? profile.ca.followersCount : undefined
-    const followersCountAT = profile.bsky.followersCount
-    const followingCountCA = profile.ca ? profile.ca.followsCount : undefined
-    const followingCountAT = profile.bsky.followsCount
+export const FollowCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.ProfileViewDetailed }) => {
+    const followersCountCA = profile.followersCount
+    const followersCountAT = profile.bskyFollowersCount
+    const followingCountCA = profile.followsCount
+    const followingCountAT = profile.bskyFollowsCount
     const [hovered, setHovered] = useState(false)
 
-    const showBsky = hovered || !profile.ca || !profile.ca.inCA
-    const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
+    const showBsky = hovered || !profile.caProfile
+    const className = "flex space-x-2 text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
 
     return <div
         className={className}
@@ -25,17 +25,17 @@ export const FollowCounters = ({profile}: { profile: Profile }) => {
     >
         {!showBsky && <>
             <FollowCount count={followersCountCA} kind={"seguidores"}
-                         url={"/perfil/" + profile.bsky.handle + "/seguidores"}/>
+                         url={"/perfil/" + profile.handle + "/seguidores"}/>
             <FollowCount count={followingCountCA} kind={"siguiendo"}
-                         url={"/perfil/" + profile.bsky.handle + "/siguiendo"}/>
+                         url={"/perfil/" + profile.handle + "/siguiendo"}/>
         </>}
         {showBsky && <>
             <FollowCount count={followersCountAT} kind={"seguidores"}
-                         url={"/perfil/" + profile.bsky.handle + "/seguidores"}/>
+                         url={"/perfil/" + profile.handle + "/seguidores"}/>
             <FollowCount count={followingCountAT} kind={"siguiendo"}
-                         url={"/perfil/" + profile.bsky.handle + "/siguiendo"}/>
+                         url={"/perfil/" + profile.handle + "/siguiendo"}/>
             <DescriptionOnHover description={"Cantidad de seguidores y seguidos en Bluesky."}>
-                <BlueskyLogo className={"h-4 w-auto"}/>
+                <BlueskyLogo className={"h-[14px] pb-[2px] w-auto"}/>
             </DescriptionOnHover>
         </>}
     </div>

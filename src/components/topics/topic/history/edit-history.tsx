@@ -10,26 +10,28 @@ import {ProfilePic} from "../../../profile/profile-pic";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {getAcceptCount, getRejectCount} from "../utils";
 import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
-import {useTopicHistory} from "@/queries/useTopic";
+import {useTopicHistory} from "@/queries/getters/useTopic";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
-import {useSession} from "@/queries/useSession";
-import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
-import ListAltIcon from '@mui/icons-material/ListAlt';
+import {useSession} from "@/queries/getters/useSession";
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
-import {TopicProperty} from "@/components/topics/topic/history/topic-property";
 import {VoteEditButtons} from "@/components/topics/topic/history/vote-edit-buttons";
-import {defaultPropValue} from "@/components/topics/topic/topic-props-editor";
-import {isKnownProp, propsEqualValue} from "@/components/topics/topic/utils";
+import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {TopicContributor} from "@/lib/types";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {ListDashesIcon} from "@phosphor-icons/react";
+import DescriptionOnHover from "../../../../../modules/ui-utils/src/description-on-hover";
+import {TopicPropView} from "../props/topic-props-view";
 
-const EditDetails = ({topicHistory, index}: { topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory, index: number }) => {
+const EditDetails = ({topicHistory, index}: {
+    topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory,
+    index: number
+}) => {
     const v = topicHistory.versions[index]
 
     return <ChangesCounter
@@ -49,30 +51,39 @@ const EditMessage = ({msg}: { msg?: string }) => {
 }
 
 
-export const TopicProperties = ({topicVersion, topic}: { topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory, topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
-    const props = topicVersion.props != null ? topicVersion.props.filter(
-        p => isKnownProp(p.value) && !propsEqualValue(defaultPropValue(p.name, p.value.$type, topic), p.value)
-    ) : []
+export const TopicPropertiesInHistory = ({topicVersion, topic}: {
+    topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory,
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+}) => {
+    const props = addDefaults(topic.props, topic)
 
-    const modal = <div className={"border rounded bg-[var(--background-dark)] text-[var(--text-light)] p-2 text-sm"}>
-        {props.length > 0 && props.map((p, index) => {
-            return <div key={index}><TopicProperty p={p}/></div>
+    const description = <div className={"space-y-2 text-xs max-w-[300px]"}>
+        {props.map((p, index) => {
+            return <div key={index}>
+                <TopicPropView p={p} />
+            </div>
         })}
-        {props.length == 0 && <div>Ninguna propiedad asignada.</div>}
     </div>
 
-    return <ModalOnHover modal={modal}>
-        <div className={"text-[var(--text-light)]"} onClick={e => {e.stopPropagation()}}>
+    return <DescriptionOnHover
+        description={description}
+    >
+        <div
+            className={"text-[var(--text-light)]"}
+            onClick={e => {
+                e.stopPropagation()
+            }}
+        >
             <IconButton
                 size={"small"}
                 textColor={"text-light"}
                 color={"transparent"}
                 hoverColor={"background-dark2"}
             >
-                <ListAltIcon color={"inherit"}/>
+                <ListDashesIcon color={"var(--text-light)"} weight={"regular"}/>
             </IconButton>
         </div>
-    </ModalOnHover>
+    </DescriptionOnHover>
 }
 
 
@@ -109,8 +120,11 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
                     <div className="flex space-x-1">
-                        {isCurrent && <div title="Último contenido aceptado" className={"flex"}>
-                            <StarIcon color="primary" fontSize={"inherit"}/>
+                        {isCurrent && <div
+                            title="Último contenido aceptado"
+                            className={"flex text-[var(--accent-dark)]"}
+                        >
+                            <StarIcon color="inherit" fontSize={"inherit"}/>
                         </div>}
                         <EditDetails topicHistory={topicHistory} index={index}/>
                         {obsolete && <div className={"text-red-400 pl-2"}>
@@ -123,11 +137,13 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                                 {topicVersion.contribution ? (parseFloat(topicVersion.contribution.all ?? "0") * 100).toFixed(1).toString() + "%" : null}
                             </div>
                         </div>
-                        <TopicProperties topicVersion={topicVersion} topic={topic}/>
+
+                        <TopicPropertiesInHistory topicVersion={topicVersion} topic={topic}/>
                         <div className={"text-[var(--text-light)]"}>
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
                         <ContentOptionsButton
+                            iconHoverColor={"background-dark2"}
                             record={{...topicVersion, $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory"}}
                         />
                     </div>
@@ -154,9 +170,12 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        {claimsAuthorship && <span className={"text-[var(--text-light)] text-xl"} title={"El usuario es autor del contenido agregado."}>
-                            <HistoryEduIcon fontSize={"inherit"}/>
-                        </span>}
+                        {claimsAuthorship &&
+                            <DescriptionOnHover description={"El usuario es autor del contenido agregado."}>
+                            <span className={"text-[var(--text-light)] text-xl"}>
+                            <HistoryEduIcon fontSize={"inherit"} fontWeight={300}/>
+                            </span>
+                            </DescriptionOnHover>}
                         <VoteEditButtons
                             topicId={topic.id}
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
@@ -210,9 +229,7 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
                 <div className="px-6 pb-4">
                     <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                     <div className="mb-8">
-                        {user.did == topicVersion.author.did ? <>Estás por remover la autoría de la
-                            modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de
-                            @{topicVersion.author.did}.</>}
+                        Estás por remover la autoría de tu edición.
                     </div>
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <button
@@ -247,7 +264,7 @@ function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHis
             const cur = authors.get(profile.did)
             const all = parseFloat((contribution.all ?? 0).toString())
             const monetized = parseFloat((contribution.monetized ?? 0).toString())
-            if(cur){
+            if (cur) {
                 authors.set(profile.did, {
                     profile,
                     all: all + cur.all,
@@ -270,14 +287,16 @@ function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHis
 const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: TopicContributor[] }) => {
     const [open, setOpen] = useState(false)
 
-    return <div className={"border px-2 py-1 rounded-lg"}>
+    return <div className={"border px-2 py-1"}>
         <div className={"flex justify-between items-baseline space-x-2"}>
             <div className={"text-sm text-[var(--text-light)]"}>
                 Contribuciones
             </div>
             <div className={"text-base"}>
-                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {setOpen(!open)}} color="transparent" textColor={"text"}>
-                    {!open ? <ArrowDropDownIcon fontSize={"inherit"} /> : <ArrowDropUpIcon fontSize={"inherit"}/>}
+                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {
+                    setOpen(!open)
+                }} color="transparent" textColor={"text"}>
+                    {!open ? <ArrowDropDownIcon fontSize={"inherit"}/> : <ArrowDropUpIcon fontSize={"inherit"}/>}
                 </IconButton>
             </div>
         </div>
@@ -305,7 +324,7 @@ export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.T
     }, [topicHistory])
 
     if (isLoading) {
-        return <div className={"py-4"}>
+        return <div className={"py-16"}>
             <LoadingSpinner/>
         </div>
     }
@@ -319,7 +338,7 @@ export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.T
     }
 
     return <>
-        <div className={"flex justify-end py-1"}>
+        <div className={"flex justify-end py-1 px-1"}>
             <TopicVersionAuthors topicVersionAuthors={contributors}/>
         </div>
         <div className="border-t">

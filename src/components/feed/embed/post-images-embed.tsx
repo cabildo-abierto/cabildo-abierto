@@ -1,13 +1,13 @@
 "use client"
 import {ReactNode, useState} from "react";
-import {ATProtoImage} from "@/components/images/atproto-image";
+import {ATProtoImage} from "@/components/layout/images/atproto-image";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
 import {AppBskyEmbedImages} from "@atproto/api"
 
 
-const FullscreenImageViewer = dynamic(() => import('@/components/images/fullscreen-image-viewer'), {
+const FullscreenImageViewer = dynamic(() => import('@/components/layout/images/fullscreen-image-viewer'), {
     ssr: false,
     loading: () => <></>
 });
@@ -38,7 +38,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                         }}
                         maxWidth={pxToNumber(layoutConfig.maxWidthCenter)}
                         maxHeight={400}
-                        className={"cursor-pointer rounded-lg bg-[var(--background-dark)] flex w-full h-full object-contain"}
+                        className={"border cursor-pointer bg-[var(--background-dark)] flex w-full h-full object-contain"}
                     />
                 </div> :
                 <div className={"w-full"}>
@@ -48,6 +48,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                             setViewing(0)
                         }}
                         maxHeight={500}
+                        className={"border cursor-pointer object-cover"}
                     />
                 </div>
         } else if (images.length === 2) {
@@ -61,7 +62,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                                     setViewing(index)
                                 }}
                                 cover={true}
-                                className={"border rounded-lg object-cover h-full w-full"}
+                                className={"border object-cover h-full w-full"}
                             />
                         </div>
                     ))}
@@ -77,7 +78,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                                 setViewing(0)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-full w-full"}
+                            className={"border object-cover h-full w-full"}
                         />
                     </div>
                     <div className="w-1/2 space-y-1 flex flex-col justify-between h-[268px]">
@@ -87,7 +88,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                                 setViewing(1)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-[132px] w-full"}
+                            className={"border object-cover h-[132px] w-full"}
                         />
                         <ATProtoImage
                             img={images[2]}
@@ -95,7 +96,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                                 setViewing(2)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-[132px] w-full"}
+                            className={"border object-cover h-[132px] w-full"}
                         />
                     </div>
                 </div>
@@ -111,7 +112,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                                 setViewing(index)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-[160px] w-full"}
+                            className={"border object-cover h-[160px] w-full"}
                         />
                     ))}
                 </div>

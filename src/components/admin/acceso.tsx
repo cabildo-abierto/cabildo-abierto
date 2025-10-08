@@ -9,9 +9,9 @@ import {WarningButton} from "../../../modules/ui-utils/src/warning-button";
 import {formatIsoDate} from "@/utils/dates";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {listOrder, sortByKey} from "@/utils/arrays";
-import {useAccessRequests} from "@/queries/admin";
+import {useAccessRequests} from "@/queries/getters/admin";
 import {categoriesSearchParam} from "@/queries/utils";
-import {DatasetTableView, RawDatasetView} from "@/components/datasets/dataset-table-view";
+import {DatasetTableView, RawDatasetView} from "@/components/visualizations/datasets/dataset-table-view";
 
 
 export const collectionsList = [
@@ -28,7 +28,8 @@ export const collectionsList = [
     "ar.com.cabildoabierto.visualization",
     "ar.com.cabildoabierto.profile",
     "ar.cabildoabierto.wiki.topicVersion",
-    "ar.cabildoabierto.feed.article"
+    "ar.cabildoabierto.feed.article",
+    "ar.cabildoabierto.data.dataset"
 ]
 
 const deleteUser = async (handle: string) => {
@@ -224,7 +225,7 @@ export const AdminAcceso = () => {
                     <div className={"font-bold"}>
                         {a.email}
                     </div>
-                    {a.comment && <div className={"bg-[var(--background-dark4)] rounded p-1"}>
+                    {a.comment && <div className={"bg-[var(--background-dark3)] rounded p-1"}>
                         {a.comment}
                     </div>}
                     <div>

@@ -42,7 +42,7 @@ export const ModalOnClickControlled = ({
                     >
                         {({TransitionProps}) => (
                             <Fade {...TransitionProps}
-                                  timeout={{enter: 350, exit: 0}} // Only fade on open
+                                  timeout={{enter: 0, exit: 0}} // Only fade on open
                             >
                                 <div className={className}>
                                     <div>

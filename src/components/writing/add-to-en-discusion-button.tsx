@@ -10,8 +10,10 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
 }) => {
 
     const description = <div>
-        {'Agregar al muro "En discusión".'} <Link href={topicUrl("Cabildo Abierto: Muros")} target="_blank"
-                                                  className={"hover:underline text-[var(--text-light)]"}>Más
+        {'Agregar al muro "En discusión".'} <Link
+        href={topicUrl("Cabildo Abierto: Muros")}
+        target="_blank"
+        className={"hover:underline text-[var(--text-light)]"}>Más
         información.</Link>
     </div>
 
@@ -22,8 +24,11 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
                 setEnDiscusion(!enDiscusion)
             }}
             size={"small"}
-            color={enDiscusion ? "background-dark3" : "background-dark"}
-            textColor={enDiscusion ? "text" : "text-lighter"}
+            color={enDiscusion ? "background-dark2" : "transparent"}
+            textColor={enDiscusion ? "text" : "accent-dark"}
+            sx={{
+                borderRadius: 0
+            }}
         >
             <Newspaper color={"inherit"}/>
         </IconButton>

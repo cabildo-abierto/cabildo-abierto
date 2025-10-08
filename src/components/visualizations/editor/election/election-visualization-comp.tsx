@@ -11,7 +11,7 @@ type Props = {
     maxHeight: number | undefined
 }
 
-export const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
+const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
     const title = visualization.visualization.title;
     const dataset = visualization.dataset;
 
@@ -52,3 +52,6 @@ export const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
         </div>
     );
 };
+
+
+export default ElectionVisualizationComp

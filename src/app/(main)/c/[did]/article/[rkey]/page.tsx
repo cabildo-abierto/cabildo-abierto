@@ -1,11 +1,12 @@
 "use client"
-import {useThreadWithNormalizedContent} from "@/queries/useThread";
-import {ErrorPage} from "../../../../../../../modules/ui-utils/src/error-page";
+import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
-import ArticleThread from "@/components/thread/article-thread";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
+import dynamic from "next/dynamic";
+import { ContentNotFoundPage } from "@/components/thread/content-not-found-page";
 
+const ArticleThread = dynamic(() => import("@/components/thread/article-thread"), {ssr: false})
 
 
 const Page = ({params}: {
@@ -20,7 +21,7 @@ const Page = ({params}: {
 
     if (threadQuery.isLoading || thread == "loading") return <LoadingThread collection={collection}/>
 
-    if (threadQuery.error || !thread) return <ErrorPage>No se encontró el contenido.</ErrorPage>
+    if (threadQuery.error || !thread) return <ContentNotFoundPage/>
 
     return <ArticleThread thread={thread}/>
 }

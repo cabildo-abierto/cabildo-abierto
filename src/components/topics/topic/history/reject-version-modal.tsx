@@ -3,13 +3,13 @@ import TickButton from '../../../../../modules/ui-utils/src/tick-button';
 import StateButton from '../../../../../modules/ui-utils/src/state-button';
 import InfoPanel from '../../../../../modules/ui-utils/src/info-panel';
 import { BaseFullscreenPopup } from '../../../../../modules/ui-utils/src/base-fullscreen-popup';
-import {TextField} from "@mui/material";
 import {ATProtoStrongRef} from "@/lib/types";
 import {post} from "@/utils/fetch";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter, updateTopicHistories} from "@/queries/updates";
+import {contentQueriesFilter, updateTopicHistories} from "@/queries/mutations/updates";
 import {produce} from "immer";
+import { TextField } from '../../../../../modules/ui-utils/src/text-field';
 
 
 export function validExplanation(text: string) {
@@ -31,7 +31,7 @@ async function rejectEdit({ref, message, labels}: {ref: ATProtoStrongRef, messag
 const RejectLabelTick = ({label, info, labels, title, setLabels}: {label: string, info: string, labels: string[], setLabels: (v: string[]) => void, title: string}) => {
     const text = <div className="flex space-x-2 text-sm text-[var(--text-light)]">
         <div>{title}</div>
-        <InfoPanel text={info} className="w-72"/>
+        <InfoPanel text={info}/>
     </div>
 
     return <TickButton
@@ -97,7 +97,7 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
 
     return <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
         <div className="space-y-6 px-6 pt-2 mb-4 flex flex-col items-center min-w-96">
-            <h3>
+            <h3 className={"normal-case"}>
                 Rechazar versión
             </h3>
             <div className="w-full">
@@ -105,6 +105,7 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
                     size={"small"}
                     label={"Motivo"}
                     minRows={4}
+                    paddingX={"12px"}
                     multiline={true}
                     fullWidth={true}
                     value={message}

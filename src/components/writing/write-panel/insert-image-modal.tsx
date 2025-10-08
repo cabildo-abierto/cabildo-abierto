@@ -1,6 +1,6 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {useState} from "react";
-import {LinkIcon} from "../../icons/link-icon";
+import {LinkIcon} from "@/components/layout/icons/link-icon";
 import {UploadImageButton} from "./upload-image-button";
 import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
@@ -12,7 +12,7 @@ export type InsertImageModalProps = {
     onSubmit: (i: ImagePayload) => void;
 }
 
-export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
+const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
     return <BaseFullscreenPopup
@@ -25,13 +25,13 @@ export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProp
             {!mode &&
                 <div className={"w-48 space-y-4"}>
                     <Button
-                        variant="contained"
-                        sx={{textTransform: "none"}}
+                        variant="outlined"
                         disableElevation={true}
                         startIcon={<LinkIcon/>}
                         fullWidth={true}
-                        onClick={() => setMode('url')}>
-                        Desde un URL
+                        onClick={() => setMode('url')}
+                    >
+                        <span className={"text-sm"}>Desde un URL</span>
                     </Button>
                     <UploadImageButton
                         onSubmit={onSubmit}
@@ -40,7 +40,7 @@ export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProp
             }
             {mode === 'url' &&
                 <div className={"w-72 space-y-4 flex flex-col items-center"}>
-                    <div className={"text-[var(--text-light)]"}>
+                    <div className={"text-[var(--text-light)] text-sm"}>
                         Pegá el URL de una imágen.
                     </div>
                     <InsertImageUriDialogBody
@@ -51,3 +51,6 @@ export const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProp
         </div>
     </BaseFullscreenPopup>
 }
+
+
+export default InsertImageModal

@@ -31,7 +31,7 @@ export const Authorship = ({
         {showIcon && <ValidationIcon
             fontSize={iconFontSize}
             handle={author.handle}
-            validation={author.verification}
+            verification={author.verification}
         />}
     </div>
 }

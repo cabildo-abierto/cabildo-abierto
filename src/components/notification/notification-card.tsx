@@ -4,7 +4,7 @@ import {ProfilePic} from "@/components/profile/profile-pic";
 import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
 import {HeartIcon} from "@phosphor-icons/react";
 import {QuotesIcon} from "@phosphor-icons/react";
-import {RepeatIcon, ChatTextIcon} from "@phosphor-icons/react";
+import {ChatTextIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {
     ArticleKind,
@@ -16,12 +16,12 @@ import {
 } from "@/utils/uri";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import TopicsIcon from "@/components/icons/topics-icon";
-import {ProfileView} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {ArCabildoabiertoNotificationListNotifications} from "@/lex-api/index"
+import { RepostIcon } from "../layout/icons/reposts-icon";
 
 
-const Username = ({user}: { user: ProfileView }) => {
+const Username = ({user}: { user: {displayName?: string, handle: string, did: string} }) => {
     return <span className={"font-bold hover:underline"}>
         {getUsername(user)}
     </span>
@@ -81,14 +81,15 @@ const UserNotificationCard = ({notification, children, reasonIcon, href}: {
 }
 
 
-const ContentMention = ({uri, article, topicId}: {
+const ContentMention = ({uri, article, topicId, handle}: {
     uri: string
     article: ArticleKind
     topicId?: string
+    handle?: string
 }) => {
     if (!uri) return "[contenido no encontrado]"
     return <Link
-        href={contentUrl(uri)}
+        href={contentUrl(uri, handle)}
         className={"font-semibold hover:underline"}
         onClick={(e) => {
             e.stopPropagation()
@@ -116,8 +117,10 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
             reasonIcon={<HeartIcon size={24}/>}
             href={contentUrl(notification.reasonSubject)}
         >
-            A <Username user={notification.author}/> le gustó <ContentMention uri={notification.reasonSubject}
-                                                                              article={"author"}/>.
+            A <Username user={notification.author}/> le gustó <ContentMention
+                uri={notification.reasonSubject}
+                article={"author"}
+            />.
         </UserNotificationCard>
     } else if (notification.reason == "quote") {
         return <UserNotificationCard
@@ -131,7 +134,7 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
     } else if (notification.reason == "repost") {
         return <UserNotificationCard
             notification={notification}
-            reasonIcon={<RepeatIcon size={24}/>}
+            reasonIcon={<RepostIcon fontSize={24} color={"text"}/>}
             href={contentUrl(notification.reasonSubject)}
         >
             <Username user={notification.author}/> republicó <ContentMention uri={notification.reasonSubject}

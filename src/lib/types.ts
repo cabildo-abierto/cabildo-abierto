@@ -1,25 +1,10 @@
 import {PostOutput} from "@/utils/fetch";
 import {ArCabildoabiertoActorDefs, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {AppBskyActorDefs} from "@atproto/api"
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
-export type Profile = {
-    bsky: AppBskyActorDefs.ProfileViewDetailed
-    ca: CAProfile | null
-}
-
 export type ValidationState = "org" | "persona" | string | null
 
-export type CAProfile = {
-    inCA: boolean
-    followersCount: number
-    followsCount: number
-    articlesCount: number
-    editsCount: number
-    editorStatus: EditorStatus
-    validation: ValidationState
-}
 
 export type FollowingFeedFilterOption = "Todos" | "Solo Cabildo Abierto"
 export type FeedFormatOption = "Todos" | "Artículos"
@@ -55,6 +40,9 @@ export type AuthorStatus = {
 }
 
 
+export type MirrorStatus = "Sync" | "Dirty" | "InProcess" | "Failed" | "Failed - Too Large"
+
+
 export type Session = {
     platformAdmin: boolean
     authorStatus: AuthorStatus | null
@@ -72,6 +60,7 @@ export type Session = {
     hasAccess: boolean
     validation: ValidationState
     algorithmConfig: AlgorithmConfig
+    mirrorStatus: MirrorStatus
 }
 
 
@@ -99,8 +88,8 @@ export type TopicVersionChangesProps = {
     prevFormat: string | undefined
     curText: string
     curFormat: string | undefined
-    curAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
-    prevAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
+    curAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
+    prevAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
     diff: MatchesType
 }
 
@@ -110,15 +99,6 @@ export type TopicsGraph = {
     edges: {x: string, y: string}[]
     data?: {id: string, categorySize?: number}[]
 }
-
-
-export type BothContributionsProps = {
-    monetized: [string, number][]
-    all: [string, number][]
-}
-
-
-export type ContributionsProps = [string, number][]
 
 
 export type MatchesType = {
@@ -150,3 +130,4 @@ export type GetFeedOutput<T> = {
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
     "editing" | "editing-props" | "history" | "minimized" | "props"
+export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir" | "Artículos"

@@ -7,14 +7,14 @@ export const TwoImages = ({url1, url2, alt1, alt2}: { url1: string, alt1: string
             width={300}
             height={300}
             alt={alt1}
-            className="rounded-2xl border border-[var(--text)] w-2/3 transform translate-x-[25%]"
+            className="border border-[var(--text)] w-2/3 transform translate-x-[25%]"
         />
         <Image
             src={url2}
             width={300}
             height={300}
             alt={alt2}
-            className="rounded-2xl border border-[var(--text)] w-2/3 transform translate-x-[-25%] translate-y-[25%]"
+            className="border border-[var(--text)] w-2/3 transform translate-x-[-25%] translate-y-[25%]"
         />
     </div>
 }

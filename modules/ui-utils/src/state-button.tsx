@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from 'react';
-import { AcceptButtonPanel } from './accept-button-panel';
 import {Button, ButtonProps} from "./button";
+import {useErrors} from "@/components/layout/error-context";
 
 export type StateButtonProps = Omit<ButtonProps, "onClick"> & {
     handleClick?: StateButtonClickHandler
@@ -17,7 +17,7 @@ export type StateButtonClickHandler = (e: MouseEvent) => Promise<{ error?: strin
 
 const StateButton = ({
     handleClick=async () => {return {}},
-    color = "primary",
+    color = "background-dark",
     textClassName = "",
     startIcon,
     text1,
@@ -30,14 +30,14 @@ const StateButton = ({
     ...props
 }: StateButtonProps) => {
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(undefined)
     const [mouseEvent, setMouseEvent] = useState<any>(null)
+    const {addError} = useErrors()
 
     useEffect(() => {
         async function submit(){
             const result = await handleClick(mouseEvent)
             if(result.error){
-                setError(result.error)
+                addError(result.error)
             }
             if(!result.stopResubmit){
               setLoading(false)
@@ -73,14 +73,6 @@ const StateButton = ({
                 {text1}
             </div>
         </Button>
-        <AcceptButtonPanel
-            open={Boolean(error)}
-            onClose={() => {setError(undefined)}}
-        >
-            <div className={"text-[var(--text-light)]"}>
-                {error}
-            </div>
-        </AcceptButtonPanel>
     </>
 };
 

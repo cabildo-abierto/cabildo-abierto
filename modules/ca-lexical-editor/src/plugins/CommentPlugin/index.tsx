@@ -3,9 +3,8 @@ import {
     $isRangeSelection,
     COMMAND_PRIORITY_EDITOR,
     createCommand,
-    EditorState,
     LexicalCommand,
-    NodeKey, SerializedEditorState
+    NodeKey
 } from 'lexical';
 
 import './index.css';
@@ -16,12 +15,10 @@ import {mergeRegister} from '@lexical/utils';
 import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
-import {AddCommentButton} from './add-comment-button';
+import {AddSelectionReplyButton} from './add-selection-reply-button';
 import {LexicalSelection} from '../../selection/lexical-selection';
 import {MarkdownSelection} from "../../selection/markdown-selection";
-import {ProcessedLexicalState} from "../../selection/processed-lexical-state";
-import {SettingsProps} from "../../lexical-editor";
-import {anyEditorStateToMarkdown, markdownToEditorState} from "../../markdown-transforms";
+
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
     'INSERT_INLINE_COMMAND',
@@ -90,7 +87,7 @@ export default function CommentPlugin({onAddComment}: CommentPluginProps) {
             activeAnchorKey !== undefined &&
             !showCommentInput &&
             createPortal(
-                <AddCommentButton
+                <AddSelectionReplyButton
                     anchorKey={activeAnchorKey}
                     editor={editor}
                     onAddComment={() => {

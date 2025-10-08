@@ -38,7 +38,7 @@ async function validSelectionForComment(text: string, embeds: ArCabildoabiertoFe
         } else {
             return null
         }
-    } catch (err) {
+    } catch {
         //console.log("Error: ", err)
         return null
     }
@@ -51,7 +51,7 @@ type SelectionQuoteProps = {
     quotedContent: string
     quotedText: string
     quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    quotedContentAuthor: ArCabildoabiertoActorDefs.ProfileViewBasic
+    quotedContentAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string
     selection: MarkdownSelection | LexicalSelection
@@ -81,7 +81,7 @@ export const SelectionQuote = ({
             }, 0);
         } else {
             if (mainPostRef) {
-                router.push(contentUrl(quotedContent) + "&s=normal" + "#" + mainPostRef.cid)
+                router.push(contentUrl(quotedContent, quotedContentAuthor?.handle) + "&s=normal" + "#" + mainPostRef.cid)
             }
         }
     }

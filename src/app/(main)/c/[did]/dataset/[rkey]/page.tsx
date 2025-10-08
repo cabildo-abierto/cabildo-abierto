@@ -1,11 +1,14 @@
 "use client"
-import {useThreadWithNormalizedContent} from "@/queries/useThread";
-import {ErrorPage} from "../../../../../../../modules/ui-utils/src/error-page";
+import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
 import {isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {LoadingThread} from "@/components/thread/post/loading-thread";
-import DatasetPage from "@/components/datasets/dataset-page";
+import dynamic from "next/dynamic";
+import { ContentNotFoundPage } from "@/components/thread/content-not-found-page";
+const DatasetPage = dynamic(() => import("@/components/visualizations/datasets/dataset-page"), {
+    ssr: false
+})
 
 
 const ContentPage = ({params}: {
@@ -20,7 +23,7 @@ const ContentPage = ({params}: {
 
     if (threadQuery.isLoading || thread == "loading") return <LoadingThread collection={collection}/>
 
-    if (threadQuery.error || !thread || !isDatasetView(thread.content)) return <ErrorPage>No se encontró el contenido.</ErrorPage>
+    if (threadQuery.error || !thread || !isDatasetView(thread.content)) return <ContentNotFoundPage/>
 
     return <DatasetPage
         dataset={thread.content}

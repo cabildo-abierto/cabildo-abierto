@@ -1,12 +1,12 @@
-import {ReplyButton} from "../../thread/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent} from "../../writing/write-panel/write-panel";
 import dynamic from "next/dynamic";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {WikiEditorState} from "@/lib/types";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'));
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 const TopicDiscussion = ({
@@ -19,23 +19,29 @@ const TopicDiscussion = ({
     wikiEditorState: WikiEditorState
 }) => {
     const [writingReply, setWritingReply] = useState(false)
+    const {setLoginModalOpen} = useLoginModal()
     const {user} = useSession()
 
-    return <div className={"w-full flex flex-col items-center mb-16" + (wikiEditorState == "minimized" ? "" : "pt-16")}>
-        <div className={"w-full max-w-[600px]"}>
-            {replyToContent != null && <div className={"w-full"}>
-                <ReplyButton
-                    text={"Responder"}
-                    onClick={() => {setWritingReply(true)}}
-                />
-            </div>}
-            {user && <div className={"w-full border-t " + (wikiEditorState == "normal" ? "" : "")}>
+    function onSetWritingReply(v) {
+        if(!v || user) {
+            setWritingReply(v)
+        } else {
+            setLoginModalOpen(true)
+        }
+    }
+
+    return <div className={"w-full flex flex-col items-center mb-16 " + (wikiEditorState == "minimized" ? "" : "")}>
+        <div className={"w-full"}>
+            <div className={"w-full " + (wikiEditorState == "normal" ? "" : "")}>
                 <TopicFeed
                     topic={topic}
                     onClickQuote={onClickQuote}
                     topicVersionUri={topicVersionUri}
+                    wikiEditorState={wikiEditorState}
+                    setWritingReply={onSetWritingReply}
+                    replyToContent={replyToContent}
                 />
-            </div>}
+            </div>
         </div>
         {user && replyToContent && <WritePanel
             open={writingReply}

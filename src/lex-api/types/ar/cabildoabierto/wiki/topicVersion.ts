@@ -51,7 +51,6 @@ export interface TopicView {
   props?: TopicProp[]
   lastEdit: string
   createdAt: string
-  author: ArCabildoabiertoActorDefs.ProfileViewBasic
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
 }
 
