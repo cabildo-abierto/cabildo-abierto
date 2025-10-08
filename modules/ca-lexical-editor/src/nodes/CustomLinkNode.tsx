@@ -22,7 +22,6 @@ import {
     Spread,
 } from 'lexical';
 import {LinkAttributes, LinkNode, SerializedAutoLinkNode} from "@lexical/link";
-import {useRouter} from "next/navigation";
 
 export type SerializedCustomLinkNode = Spread<
     {

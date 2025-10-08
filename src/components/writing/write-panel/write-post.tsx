@@ -12,12 +12,10 @@ import {
 import {ProfilePic} from "../../profile/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
-import {AddVisualizationButton} from "./add-visualization-button";
-import {InsertImageModal} from "./insert-image-modal";
 import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {get} from "@/utils/fetch";
+import {post} from "@/utils/fetch";
 import {WritePanelReplyPreview} from "@/components/writing/write-panel/write-panel-reply-preview";
 import {ExternalEmbedInEditor} from "@/components/writing/write-panel/external-embed-in-editor";
 import {
@@ -27,7 +25,7 @@ import {$Typed} from "@/lex-api/util";
 import {EditorState} from "lexical";
 import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
-import {getEditorSettings} from "@/components/editor/settings";
+import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {$dfs} from "@lexical/utils";
 import {$isLinkNode} from "@lexical/link";
@@ -35,16 +33,26 @@ import {areSetsEqual} from "@/utils/arrays";
 import {TopicsMentionedSmall} from "@/components/thread/article/topics-mentioned";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
-import {PlotFromVisualizationMain} from "@/components/visualizations/plot";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import Link from "next/link";
 import {getTextLength} from "@/components/writing/write-panel/rich-text"
-import {AppBskyFeedPost} from "@atproto/api"
+import {AppBskyEmbedImages, AppBskyFeedPost} from "@atproto/api"
 import {AppBskyEmbedExternal} from "@atproto/api";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {AddVisualizationButton} from "./add-visualization-button";
+import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
+import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
+
+
+const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
+
+const PlotFromVisualizationMain = dynamic(
+    () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
+        ssr: false
+    })
 
 
 const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-editor/src/lexical-editor'), {
@@ -87,9 +95,15 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
     }
 }
 
-function useExternalEmbed(editorState: EditorState, disabled: boolean) {
-    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<AppBskyEmbedExternal.View> | null>(null)
-    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(null)
+function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?: ArCabildoabiertoFeedDefs.PostView) {
+    let initialState: $Typed<AppBskyEmbedExternal.View> | null = null
+    let initialUrl: string | null = null
+    if (postView && AppBskyEmbedExternal.isView(postView.embed)) {
+        initialState = postView.embed
+        initialUrl = postView.embed.external.uri
+    }
+    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<AppBskyEmbedExternal.View> | null>(initialState)
+    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(initialUrl)
     const [links, setLinks] = useState<string[]>([])
 
     useEffect(() => {
@@ -100,29 +114,38 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean) {
 
         const handler = setTimeout(() => {
             async function onNewExternalEmbed(url: string) {
-                const {data, error} = await get<{
+                const {data, error} = await post<{ url: string }, {
                     title: string | null,
                     description: string | null,
-                    thumb: string | null
-                }>("/metadata?url=" + encodeURIComponent(url))
+                    thumbnail: string | null
+                }>("/metadata", {url})
 
                 if (error) {
-                    setExternalEmbedView(null)
-                    return
-                }
-
-                const {title, description, thumb} = data
-                const embed: $Typed<AppBskyEmbedExternal.View> = {
-                    $type: "app.bsky.embed.external#view",
-                    external: {
-                        $type: 'app.bsky.embed.external#viewExternal',
-                        uri: url,
-                        title,
-                        description,
-                        thumb
+                    const embed: $Typed<AppBskyEmbedExternal.View> = {
+                        $type: "app.bsky.embed.external#view",
+                        external: {
+                            $type: 'app.bsky.embed.external#viewExternal',
+                            uri: url,
+                            title: url,
+                            description: undefined,
+                            thumb: undefined
+                        }
                     }
+                    setExternalEmbedView(embed)
+                } else {
+                    const {title, description, thumbnail} = data
+                    const embed: $Typed<AppBskyEmbedExternal.View> = {
+                        $type: "app.bsky.embed.external#view",
+                        external: {
+                            $type: 'app.bsky.embed.external#viewExternal',
+                            uri: url,
+                            title,
+                            description,
+                            thumb: thumbnail
+                        }
+                    }
+                    setExternalEmbedView(embed)
                 }
-                setExternalEmbedView(embed)
             }
 
             if (!disabled) {
@@ -171,22 +194,26 @@ export type CreatePostProps = {
     externalEmbedView?: $Typed<AppBskyEmbedExternal.View>
     quotedPost?: ATProtoStrongRef
     visualization?: ArCabildoabiertoEmbedVisualization.Main
+    uri?: string
 }
 
 
-function getPlaceholder(replyToCollection?: string) {
-    if (!replyToCollection) {
+function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
+    if (!replyToCollection && !quotedCollection) {
         return "¿Qué está pasando?"
-    } else if (isPost(replyToCollection)) {
-        return "Escribí una respuesta"
-    } else if (isArticle(replyToCollection)) {
-        return "Respondé al artículo"
-    } else if (isTopicVersion(replyToCollection)) {
-        return "Responder en la discusión del tema"
-    } else if (isVisualization(replyToCollection)) {
-        return "Respondé a la visualización"
-    } else if (isDataset(replyToCollection)) {
-        return "Respondé al conjunto de datos"
+    } else {
+        const collection = replyToCollection ?? quotedCollection
+        if (isPost(collection)) {
+            return "Escribí una respuesta"
+        } else if (isArticle(collection)) {
+            return "Respondé al artículo"
+        } else if (isTopicVersion(collection)) {
+            return "Responder en la discusión del tema"
+        } else if (isVisualization(collection)) {
+            return "Respondé a la visualización"
+        } else if (isDataset(collection)) {
+            return "Respondé al conjunto de datos"
+        }
     }
 }
 
@@ -205,15 +232,63 @@ function getLinksFromEditor(editorState: EditorState) {
 }
 
 
-const settings: SettingsProps = getEditorSettings({
-    placeholder: "¿Qué está pasando?",
-    placeholderClassName: "text-[var(--text-light)] absolute top-0",
-    editorClassName: "link relative",
-    isReadOnly: false,
-    isRichText: false,
-    markdownShortcuts: false,
-    topicMentions: true
-})
+function usePostEditorSettings(replyToCollection?: string, quoteCollection?: string, postView?: ArCabildoabiertoFeedDefs.PostView): SettingsProps {
+    const p = postView?.record as AppBskyFeedPost.Record | undefined
+    const {markdown} = useMarkdownFromBsky(p)
+
+    return getEditorSettings({
+        placeholder: getPlaceholder(replyToCollection, quoteCollection),
+        placeholderClassName: "text-[var(--text-light)] absolute text-base top-0",
+        editorClassName: "link relative h-full text-base",
+        isReadOnly: false,
+        isRichText: false,
+        markdownShortcuts: false,
+        topicMentions: true,
+        initialText: markdown,
+        initialTextFormat: "markdown"
+    })
+}
+
+
+function useImagesInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
+    const postImages = useMemo(() => {
+        if (postView && AppBskyEmbedImages.isView(postView.embed)) {
+            const images: ImagePayload[] = postView.embed.images.map(i => ({
+                $type: "url",
+                src: i.thumb
+            }))
+            return images
+        } else {
+            return []
+        }
+    }, [postView])
+
+    const [images, setImages] = useState<ImagePayload[]>(postImages)
+
+    return {images, setImages}
+}
+
+
+function useEnDiscusionForWritePost(replyTo: ReplyToContent, postView?: ArCabildoabiertoFeedDefs.PostView) {
+    const initialState = postView ? hasEnDiscusionLabel(postView) : !replyTo
+    const [enDiscusion, setEnDiscusion] = useState(initialState)
+
+    return {enDiscusion, setEnDiscusion}
+}
+
+
+function useVisualizationInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
+    let initialState: ArCabildoabiertoEmbedVisualization.Main | null = null
+    if (postView) {
+        if (ArCabildoabiertoEmbedVisualization.isView(postView.embed)) {
+            initialState = visualizationViewToMain(postView.embed)
+        }
+    }
+
+    const [visualization, setVisualization] = useState<ArCabildoabiertoEmbedVisualization.Main>(initialState)
+
+    return {visualization, setVisualization}
+}
 
 
 export function visualizationViewToMain(v: ArCabildoabiertoEmbedVisualization.View): ArCabildoabiertoEmbedVisualization.Main {
@@ -221,28 +296,51 @@ export function visualizationViewToMain(v: ArCabildoabiertoEmbedVisualization.Vi
 }
 
 
-export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose}: {
+export const WritePost = ({
+                              replyTo,
+                              selection,
+                              quotedContent,
+                              handleSubmit,
+                              onClose,
+                              postView
+                          }: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (_: boolean) => void
-    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedContent?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     handleSubmit: (_: CreatePostProps) => Promise<void>
+    postView?: ArCabildoabiertoFeedDefs.PostView
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
-    const [images, setImages] = useState<ImagePayload[]>([])
+
     const [text, setText] = useState("")
-    const [visualization, setVisualization] = useState<ArCabildoabiertoEmbedVisualization.Main>(null)
-    const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
-    const [imageModalOpen, setImageModalOpen] = useState(false)
-    const [enDiscusion, setEnDiscusion] = useState(!replyTo)
+
+    // editor state
+    const {images, setImages} = useImagesInPostEditor(postView)
+    const {visualization, setVisualization} = useVisualizationInPostEditor(postView)
+    const {enDiscusion, setEnDiscusion} = useEnDiscusionForWritePost(replyTo, postView)
     const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {
         externalEmbedView,
         onRemove
-    } = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null)
+    } = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null, postView)
+
+    // modals
+    const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
+    const [imageModalOpen, setImageModalOpen] = useState(false)
+
     const {topicsMentioned, setLastTextChange, setEditor} = useTopicsMentioned()
+
+    const isReply = replyTo != undefined
+    const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
+    const quoteCollection = quotedContent ? getCollectionFromUri(quotedContent.uri) : null
+    const settings = usePostEditorSettings(
+        replyToCollection,
+        quoteCollection,
+        postView
+    )
 
     async function handleClickSubmit() {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
@@ -261,7 +359,8 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
             enDiscusion,
             externalEmbedView,
             visualization,
-            quotedPost: quotedPost ? {uri: quotedPost.uri, cid: quotedPost.cid} : undefined
+            quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined,
+            uri: postView?.uri
         }
 
         await handleSubmit(post)
@@ -282,14 +381,11 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
 
     const valid = (text.length > 0 && text.length <= 300) || (images && images.length > 0) || visualization != null
 
-    const isReply = replyTo != undefined
-    const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
-
     useEffect(() => {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
 
-    const hasEmbed: boolean = quotedPost != null || selection != null || visualization != null || (images && images.length > 0) || (externalEmbedView != null)
+    const hasEmbed: boolean = quotedContent != null || selection != null || visualization != null || (images && images.length > 0) || (externalEmbedView != null)
     const canAddImage = !hasEmbed ||
         images.length > 0 && images.length != 4 ||
         !visualization && !externalEmbedView && (!images || images.length == 0)
@@ -312,9 +408,10 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
         return null
     }, [visualization])
 
-    return <div className={"flex flex-col justify-between"}>
+    return <div className={"flex flex-col flex-grow justify-between"}>
         <div
-            className={"px-2 w-full pb-2 flex flex-col space-y-2 justify-between " + (!hasEmbed ? "min-h-64" : "")}>
+            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-2 justify-between min-h-64"}
+        >
             <div className="flex justify-between space-x-2 w-full my-2">
                 <Link
                     href={profileUrl(user.handle)}
@@ -333,7 +430,7 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
                     <MyLexicalEditor
                         setEditor={setEditor}
                         setEditorState={setEditorState}
-                        settings={{...settings, placeholder: getPlaceholder(replyToCollection)}}
+                        settings={settings}
                     />
                     {charLimit && <ExtraChars charLimit={charLimit} count={getTextLength(text)}/>}
                 </div>
@@ -348,9 +445,9 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
                 embed={externalEmbedView}
                 onRemove={onRemove}
             />}
-            {quotedPost && <WritePanelQuotedPost quotedPost={quotedPost}/>}
+            {quotedContent && <WritePanelQuotedPost quotedPost={quotedContent}/>}
         </div>
-        <div className="flex justify-between p-1 border-t items-center">
+        <div className="flex justify-between py-1 px-2 border-t items-center">
             <div className={"flex space-x-2 items-center"}>
                 <AddImageButton
                     disabled={!canAddImage}
@@ -361,17 +458,16 @@ export const WritePost = ({replyTo, selection, quotedPost, handleSubmit, onClose
                     setModalOpen={setVisualizationModalOpen}
                 />
             </div>
-            <div className={"flex space-x-2 text-[var(--text-light)] items-center px-1"}>
+            <div className={"flex space-x-2 text-[var(--text-light)] items-center"}>
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
-                    color={"primary"}
-                    text1={isReply ? "Responder" : "Publicar"}
+                    variant={"outlined"}
+                    text1={postView ? "Confirmar cambios" : isReply ? "Responder" : "Publicar"}
                     handleClick={handleClickSubmit}
                     disabled={!valid}
-                    textClassName="font-semibold"
+                    textClassName="font-semibold text-xs py-[2px] uppercase"
                     size="medium"
-                    sx={{borderRadius: 20}}
                 />
             </div>
         </div>

@@ -1,7 +1,7 @@
 import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
 import {ChatBskyConvoDefs} from "@atproto/api";
 import {formatIsoDate} from "@/utils/dates";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export default function MessageCard({
@@ -25,7 +25,7 @@ export default function MessageCard({
             }
         >
             <div className={
-                "max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark2)] rounded-t-[16px] rounded-l-[16px]" : "bg-[var(--background-dark)] rounded-t-[16px] rounded-r-[16px]"))
+                "border border-[var(--accent-dark)] max-w-[80%] " + (isMobile ? "p-2 " : "p-3 ") + (isOptimistic ? "bg-[var(--background-dark3)]" : (isAuthor ? "bg-[var(--background-dark2)] rounded-t-[16px] rounded-l-[16px]" : "bg-[var(--background-dark)] rounded-t-[16px] rounded-r-[16px]"))
             }>
                 <BskyRichTextContent
                     post={{text: message.text, facets: message.facets}}

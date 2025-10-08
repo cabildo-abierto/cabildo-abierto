@@ -1,4 +1,4 @@
-import {DatasetForTableView, DatasetSortOrder} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView, DatasetSortOrder} from "@/components/visualizations/datasets/dataset-table-view";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {cleanText} from "@/utils/strings";
 import {DataRow, Plotter} from "@/components/visualizations/editor/plotter/plotter";
@@ -36,7 +36,6 @@ export class TablePlotter extends Plotter {
             })
         }
         //const t3 = Date.now()
-
         this.dataForPlot = this.data
         if (this.searchValue && this.searchValue.length > 0) {
             const searchKey = cleanText(this.searchValue)

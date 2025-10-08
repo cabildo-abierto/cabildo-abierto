@@ -40,6 +40,8 @@ import * as React from 'react';
 import {ReactNode, ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import invariant from '../../shared/invariant';
+import { IconButton } from '../../../../ui-utils/src/icon-button';
+import { CaretDownIcon } from '@phosphor-icons/react';
 
 function computeSelectionCount(selection: TableSelection): {
     columns: number;
@@ -368,12 +370,12 @@ function TableActionMenu({
         }
     }, [contextRef, dropDownRef, editor]);
 
-    const buttonClassName = "hover:bg-[var(--background-dark3)] text-left rounded p-1 text-[var(--text-light)]"
+    const buttonClassName = "hover:bg-[var(--background-dark2)] text-left p-1 text-[var(--text-light)]"
 
     return createPortal(
         // eslint-disable-next-line jsx-a11y/no-static-element-interactions
         <div
-            className="absolute z-[1350] border rounded-lg shadow-md p-2 space-y-1 bg-[var(--background-dark)] flex flex-col"
+            className="absolute z-[1350] font-light panel-dark shadow-md p-2 space-y-1 flex flex-col"
             ref={dropDownRef}
             onClick={(e) => {
                 e.stopPropagation();
@@ -383,19 +385,20 @@ function TableActionMenu({
                 type="button"
                 className={buttonClassName}
                 onClick={() => insertTableRowAtSelection(false)}
-                data-test-id="table-insert-row-above">
-        <span className="text">
-          Insertar{' '}
-            {selectionCounts.rows === 1 ? 'fila' : `${selectionCounts.rows} filas`}{' '}
-            arriba
-        </span>
+                data-test-id="table-insert-row-above"
+            >
+                <span className="text">
+                  Insertar{' '}
+                    {selectionCounts.rows === 1 ? 'fila' : `${selectionCounts.rows} filas`}{' '}
+                    arriba
+                </span>
             </button>
             <button
                 type="button"
                 className={buttonClassName}
                 onClick={() => insertTableRowAtSelection(true)}
                 data-test-id="table-insert-row-below">
-        <span className="text">
+            <span className="text">
           Insertar{' '}
             {selectionCounts.rows === 1 ? 'fila' : `${selectionCounts.rows} filas`}{' '}
             debajo
@@ -561,16 +564,22 @@ function TableCellActionMenuContainer({
         <div className="absolute top-0 left-0 will-change-transform" ref={menuButtonRef}>
             {tableCellNode != null && (
                 <>
-                    <button
-                        className={"rounded-full bg-[var(--background-dark3)] flex items-center justify-center hover:bg-[var(--background-dark4)] w-4 h-4"}
+                    <IconButton
+                        color={"background-dark"}
+                        sx={{
+                            width: 20,
+                            height: 20,
+                            padding: "2px"
+                        }}
+                        size={"small"}
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsMenuOpen(!isMenuOpen);
                         }}
                         ref={menuRootRef}
                     >
-                        <i className="chevron-down"/>
-                    </button>
+                        <CaretDownIcon fontSize={12} color={"var(--text)"}/>
+                    </IconButton>
                     {isMenuOpen && <div className="relative">
                         <TableActionMenu
                             contextRef={menuRootRef}

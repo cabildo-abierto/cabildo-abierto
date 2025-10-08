@@ -10,7 +10,7 @@ import {
 } from "@/components/mensajes/create-message";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export default function NewMessageInput({
@@ -48,7 +48,7 @@ export default function NewMessageInput({
         sendMessageMutation.mutate(msg)
     }
 
-    return <div className="m-2 border rounded-lg flex justify-between items-end bg-[var(--background-dark)]">
+    return <div className="m-2 border border-[var(--accent-dark)] flex justify-between items-end bg-[var(--background-dark)]">
         <TextField
             value={newMessage}
             size="small"
@@ -56,24 +56,20 @@ export default function NewMessageInput({
             fullWidth={true}
             onChange={e => setNewMessage(e.target.value)}
             minRows={1}
+            paddingX={"8px"}
             maxRows={6}
             placeholder={"Escribí un mensaje..."}
-            sx={{
-                backgroundColor: "transparent",
-                "& fieldset": {border: "none"},
-                "&:hover fieldset": {border: "none"},
-                "&.Mui-focused fieldset": {border: "none"},
-                "& .MuiOutlinedInput-root": {
-                    "& fieldset": {border: "none"},
-                    "&:hover fieldset": {border: "none"},
-                    "&.Mui-focused fieldset": {border: "none"},
-                },
-            }}
+            borderWidth={0}
+            borderColor={"transparent"}
+            color="transparent"
+            borderWidthNoFocus={0}
         />
         <IconButton
             size={"small"}
-            color={"primary"}
+            color={"background-dark2"}
             sx={{
+                borderRadius: 0,
+                border: "1px solid var(--accent-dark)",
                 height: "32px",
                 margin: "4px",
                 paddingTop: '0px',

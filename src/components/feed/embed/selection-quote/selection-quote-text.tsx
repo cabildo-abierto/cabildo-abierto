@@ -4,11 +4,11 @@ import {
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {MarkdownSelection} from "../../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {decompress} from "@/utils/compression";
-import {getEditorSettings} from "@/components/editor/settings";
+import {getEditorSettings} from "@/components/writing/settings";
 import {isArticle} from "@/utils/uri";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 import MyLexicalEditor from '../../../../../modules/ca-lexical-editor/src/lexical-editor'
-import {robotoSerif} from "@/components/editor/article-font";
+import {robotoSerif} from "@/components/writing/article-font";
 
 
 type QuoteTextProps = {

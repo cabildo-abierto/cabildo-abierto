@@ -1,6 +1,6 @@
-import {InactiveCommentIcon} from "@/components/icons/inactive-comment-icon";
-import {RepostIcon} from "@/components/icons/reposts-icon";
-import {InactiveLikeIcon} from "@/components/icons/inactive-like-icon";
+import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";
+import {RepostIcon} from "@/components/layout/icons/reposts-icon";
+import {InactiveLikeIcon} from "@/components/layout/icons/inactive-like-icon";
 import React from "react";
 
 const LoadingFeedViewContent = () => {
@@ -13,9 +13,9 @@ const LoadingFeedViewContent = () => {
             <div className={"w-full h-3 rounded-lg bg-[var(--background-dark)]"}/>
             <div className={"w-full h-3 rounded-lg bg-[var(--background-dark)]"}/>
             <div className={"pt-2 flex space-x-12 text-[var(--background-dark3)]"}>
-                <InactiveCommentIcon fontSize={"small"}/>
-                <RepostIcon fontSize={"small"}/>
-                <InactiveLikeIcon fontSize={"small"}/>
+                <InactiveCommentIcon fontSize={"20"} color={"var(--background-dark)"}/>
+                <RepostIcon fontSize={20} color={"background-dark"}/>
+                <InactiveLikeIcon fontSize={"20"} color={"background-dark"}/>
             </div>
         </div>
     </div>

@@ -48,14 +48,13 @@ import {
 } from './ui/custom-mention-component';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
-import {TableContext} from './plugins/TablePlugin';
+import {TableContext} from './plugins/TablePlugin/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import {v4 as uuidv4} from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
 import EmbedPlugin from "./plugins/EmbedPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
-import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {EmbedContext} from "./nodes/EmbedNode";
@@ -197,11 +196,9 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}/>}
             <div
                 ref={editorContainerRef}
-                className={`${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+                className={`relative ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
             >
                 <DragDropPaste/>
-
-                {preventLeave && !isReadOnly && <PreventLeavePlugin uniqueId={uniqueId}/>}
 
                 {isAutofocus && <AutoFocusPlugin defaultSelection={"rootStart"}/>}
 

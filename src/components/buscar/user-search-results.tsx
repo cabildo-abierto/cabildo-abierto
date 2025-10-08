@@ -1,32 +1,16 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import React, {useEffect, useState} from "react";
-import {get} from "@/utils/fetch";
+import React from "react";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import UserSearchResult from "@/components/buscar/user-search-result";
 import {useQuery} from "@tanstack/react-query";
-import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
-
-async function searchUsers(query: string) {
-    if(encodeURIComponent(query).trim().length > 0){
-        return (await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query))).data
-    } else {
-        return []
-    }
-}
+import { useDebounce } from "@/utils/debounce";
+import {searchUsers} from "@/components/writing/query-mentions";
 
 
-export const useSearchUsers = (searchState: {value: string, searching: boolean}) => {
-    const [debouncedQuery, setDebouncedQuery] = useState("");
-
-    useEffect(() => {
-        const debounceTimeout = setTimeout(() => {
-            setDebouncedQuery(searchState.value);
-        }, 300);
-
-        return () => {
-            clearTimeout(debounceTimeout);
-        };
-    }, [searchState.value]);
+export const useSearchUsers = (
+    searchState: {value: string, searching: boolean},
+    limit: number) => {
+    const debouncedQuery = useDebounce(searchState.value, 300)
 
     const {
         data: results,
@@ -35,12 +19,12 @@ export const useSearchUsers = (searchState: {value: string, searching: boolean})
         error,
     } = useQuery({
         queryKey: ["user-search", debouncedQuery],
-        queryFn: () => searchUsers(debouncedQuery),
+        queryFn: () => searchUsers(debouncedQuery, limit),
         enabled: debouncedQuery.length > 0,
         select: (data) => data,
     })
 
-    return {results, isLoading, isError, error}
+    return {results, isLoading: isLoading || debouncedQuery != searchState.value, isError, error}
 }
 
 
@@ -61,13 +45,13 @@ const UserSearchResults = ({
     splitBluesky?: boolean
     goToProfile?: boolean
 }) => {
-    const {results, isLoading, isError} = useSearchUsers(searchState)
+    const {results, isLoading, isError} = useSearchUsers(searchState, showSearchButton ? 6 : 25)
 
     if (searchState.value.length == 0) {
         return (
             <div
                 className={
-                    "my-8 text-center text-[var(--text-light)] " +
+                    "my-16 text-center text-[var(--text-light)] font-light " +
                     (showSearchButton ? " border-b " : "")
                 }
             >
@@ -89,13 +73,13 @@ const UserSearchResults = ({
         );
     }
 
-    if (isLoading && !results) {
+    if (isLoading) {
         return (
             <div
                 className={
                     showSearchButton
-                        ? "flex items-center bg-[var(--background-dark)] rounded-b-lg h-full w-full"
-                        : "my-8"
+                        ? "flex items-center border-[var(--accent-dark)] border-b border-l border-r h-full w-full"
+                        : "mt-32"
                 }
             >
                 <LoadingSpinner/>
@@ -107,11 +91,11 @@ const UserSearchResults = ({
         return (
             <div
                 className={
-                    "text-[var(--text-light)] text-center " +
-                    (showSearchButton ? "py-4 border-b" : "py-16")
+                    "text-[var(--text-light)] text-sm font-light text-center " +
+                    (showSearchButton ? "py-4 border-b text-sm border-l border-r border-[var(--accent-dark)]" : "py-16")
                 }
             >
-                No se encontraron resultados
+                No se encontraron usuarios.
             </div>
         );
     }
@@ -122,14 +106,14 @@ const UserSearchResults = ({
     const bskyResults = results?.filter((r) => !r.caProfile) || [];
 
     return (
-        <div className="flex flex-col items-center">
-            <div className="flex flex-col justify-center w-full">
+        <div className="flex flex-col items-center bg-[var(--backgound)]">
+            <div className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--accent-dark)]" : "")}>
                 {showSearchButton &&
                     results?.slice(0, rightIndex).map((user, index) => (
                         <div key={index} className="">
                             {showSearchButton ? (
                                 <SmallUserSearchResult
-                                    result={user}
+                                    user={user}
                                     className={index == rightIndex - 1 ? " rounded-b-lg " : ""}
                                     onClick={onClickResult}
                                 />
@@ -150,7 +134,7 @@ const UserSearchResults = ({
                             <div key={index} className="">
                                 {showSearchButton ? (
                                     <SmallUserSearchResult
-                                        result={user}
+                                        user={user}
                                         onClick={onClickResult}
                                     />
                                 ) : (
@@ -165,19 +149,19 @@ const UserSearchResults = ({
                         ))}
 
                         {caResults.length == 0 && splitBluesky && (
-                            <div className={"py-16 text-center text-[var(--text-light)]"}>
+                            <div className={"py-16 text-center text-[var(--text-light)] font-light"}>
                                 No se encontró el usuario en Cabildo Abierto.
                             </div>
                         )}
 
-                        {splitBluesky && <div className={"py-4 text-center text-[var(--text-light)] border-b"}>
+                        {splitBluesky && <div className={"uppercase text-[13px] py-4 text-center text-[var(--text-light)] border-b"}>
                             Usuarios de Bluesky
                         </div>}
                         {bskyResults.map((user, index) => (
                             <div key={index} className="">
                                 {showSearchButton ? (
                                     <SmallUserSearchResult
-                                        result={user}
+                                        user={user}
                                         onClick={onClickResult}
                                     />
                                 ) : (

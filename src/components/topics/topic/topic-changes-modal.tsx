@@ -1,7 +1,7 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {splitUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {getEditorSettings} from "@/components/editor/settings";
+import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {MatchesType, TopicVersionChangesProps} from "@/lib/types";
 import {SerializedDiffNode} from "../../../../modules/ca-lexical-editor/src/nodes/DiffNode";
@@ -13,10 +13,11 @@ import {
     markdownToEditorState
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import React, {useMemo, useState} from "react";
-import {FormControl, InputLabel, MenuItem, Select as MUISelect} from "@mui/material";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useAPI} from "@/queries/utils";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import { Select } from "../../../../modules/ui-utils/src/select";
+import { range } from "@/utils/arrays";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -135,7 +136,7 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
             try {
                 lexicalPrev = anyEditorStateToLexical(data.prevText, data.prevFormat);
                 lexicalCur = anyEditorStateToLexical(data.curText, data.curFormat);
-            } catch (err) {
+            } catch {
                 return null
             }
 
@@ -154,9 +155,10 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
     }
 
     let settings = getEditorSettings({
+        topicMentions: false,
         initialText: JSON.stringify(contentWithChanges),
         initialTextFormat: "lexical",
-        tableOfContents: true,
+        tableOfContents: false,
         editorClassName: "relative article-content not-article-content min-h-[300px]",
     })
 
@@ -174,74 +176,40 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
 }
 
 
-const VersionSelector = ({selected, setSelected, history, label}: {
-    label: string, selected: number, setSelected: (v: number) => void, history: ArCabildoabiertoWikiTopicVersion.TopicHistory
+const VersionSelector = ({
+                             selected,
+                             setSelected,
+                             history,
+                             label
+}: {
+    label: string
+    selected: number
+    setSelected: (v: number) => void
+    history: ArCabildoabiertoWikiTopicVersion.TopicHistory
 }) => {
 
-    const selectId = label
-    return <FormControl fullWidth variant="outlined" size="small">
-        <InputLabel
-            id={selectId}
-            sx={{
-                fontSize: 14,
-                "&.MuiInputLabel-shrink": {fontSize: 13}
-            }}
-        >
-            {label}
-        </InputLabel>
-        <MUISelect
-            value={selected}
-            onChange={(e) => setSelected(Number(e.target.value))}
-            label={label}
-            labelId={selectId}
-            fullWidth
-            sx={{
-                fontSize: 13,
-                backgroundColor: "var(--background-dark)"
-            }}
-            MenuProps={{
-                PaperProps: {
-                    sx: {
-                        backgroundColor: "var(--background-dark)",
-                        paddingTop: 0,
-                        marginTop: "2px",
-                        paddingBottom: 0,
-                        boxShadow: "none", // Removes the shadow
-                        borderWidth: "1px"
-                    },
-                    elevation: 0 // Also ensures no elevation shadow
-                }
-            }}
-        >
-            {history.versions.map((v, i) => (
-                <MenuItem
-                    key={i}
-                    value={i}
-                    sx={{
-                        backgroundColor: "var(--background-dark)",
-                        '&.Mui-selected': {
-                            backgroundColor: "var(--background-dark)",
-                        },
-                        '&.Mui-selected:hover': {
-                            backgroundColor: "var(--background-dark2)",
-                        },
-                        '&:hover': {
-                            backgroundColor: "var(--background-dark2)",
-                        }
-                    }}
-                >
-                    <div className={"text-[14px] flex items-center space-x-2"}>
-                        <div className={""}>
-                            Versión {i+1}
-                        </div>
-                        <div className={"text-[var(--text-light)]"}>
-                            @{v.author.handle} hace <DateSince date={v.createdAt}/>
-                        </div>
-                    </div>
-                </MenuItem>
-            ))}
-        </MUISelect>
-    </FormControl>
+    const options = (o: string) => {
+        const i = Number(o)
+        const v = history.versions[i]
+        return <div key={i} className={"text-[14px] flex items-center space-x-2"}>
+            <div className={""}>
+                Versión {i+1}
+            </div>
+            <div className={"text-[var(--text-light)]"}>
+                @{v.author.handle} hace <DateSince date={v.createdAt}/>
+            </div>
+        </div>
+    }
+
+    return <Select
+        backgroundColor={"background"}
+        options={range(0, history.versions.length).map(x => x.toString())}
+        optionNodes={options}
+        label={label}
+        value={selected.toString()}
+        fontSize={"12px"}
+        onChange={v => setSelected(Number(v))}
+    />
 }
 
 
@@ -260,8 +228,8 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
         onClose={onClose}
         closeButton={true}
     >
-        <div className={"flex flex-col items-center space-y-2"}>
-            <h3>Cambios entre versiones</h3>
+        <div className={"flex flex-col items-center space-y-2 uppercase"}>
+            <h3 className={"text-base"}>Cambios</h3>
         </div>
         <div className={"flex justify-between space-x-8 px-4 pt-6"}>
             <VersionSelector
@@ -278,8 +246,10 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
             />
         </div>
         <div className="text-sm text-center block lg:hidden content-container p-1 w-full">
-            <p>Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo
-                una computadora).</p>
+            <p>
+                Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo
+                una computadora).
+            </p>
         </div>
         {newVersionIdx != prevVersionIdx && <div className="p-4 max-w-[800px] max-h-[500px] overflow-y-scroll my-2">
             <TopicChanges

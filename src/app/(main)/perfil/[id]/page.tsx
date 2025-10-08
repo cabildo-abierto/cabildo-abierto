@@ -16,7 +16,7 @@ export async function generateMetadata({params}){
 }
 
 
-const UserProfile = async ({ params }) => {
+const Page = async ({ params }) => {
     const {id} = await params
 
     return <ProfilePage
@@ -24,4 +24,4 @@ const UserProfile = async ({ params }) => {
     />
 }
 
-export default UserProfile
+export default Page

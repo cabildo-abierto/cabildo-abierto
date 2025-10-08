@@ -1,5 +1,5 @@
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
 import {count, unique} from "@/utils/arrays";
 import {Axis, Plotter, ValueType} from "@/components/visualizations/editor/plotter/plotter";
 import {AxesPlotter} from "@/components/visualizations/editor/plotter/axes-plotter";

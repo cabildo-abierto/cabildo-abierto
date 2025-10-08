@@ -2,24 +2,27 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
-import {Button} from "../../../../modules/ui-utils/src/button";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import Link from "next/link"
 import {get, updateSearchParam} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
-import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session} from "@/lib/types";
+import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session, WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {useRef} from "react";
+import {useMemo, useRef} from "react";
 import {ClickableModalOnClick} from "../../../../modules/ui-utils/src/popover";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {stringToEnum} from "@/utils/strings";
 import {
     defaultTopicMentionsFormat,
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime
 } from "@/components/config/defaults";
+import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {ReplyButton} from "@/components/thread/reply-button";
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
+import {configOptionNodes} from "@/components/config/config-option-nodes";
 
 type TopicFeedOption = "Menciones" | "Respuestas" | "Otros temas"
 
@@ -40,9 +43,9 @@ export const useTopicFeedParams = (user: Session) => {
     const s = params.get("s")
     const minimized = !s || s == "minimized"
 
-    const defaultMetric = user.algorithmConfig.topicMentions?.metric ?? defaultTopicMentionsMetric
-    const defaultTime = user.algorithmConfig.topicMentions?.time ?? defaultTopicMentionsTime
-    const defaultFormat = user.algorithmConfig.topicMentions?.format ?? defaultTopicMentionsFormat
+    const defaultMetric = user?.algorithmConfig.topicMentions?.metric ?? defaultTopicMentionsMetric
+    const defaultTime = user?.algorithmConfig.topicMentions?.time ?? defaultTopicMentionsTime
+    const defaultFormat = user?.algorithmConfig.topicMentions?.format ?? defaultTopicMentionsFormat
     const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
     const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
     const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)
@@ -72,14 +75,6 @@ const TopicMentionsFeedConfig = () => {
         updateSearchParam("formato", v)
     }
 
-    function optionsNodes(o: string, selected: boolean) {
-        return <button
-            className={"text-sm rounded-lg px-2 cursor-pointer " + (selected ? "bg-[var(--primary)] text-[var(--button-text)]" : "bg-[var(--background-dark2)] text-[var(--text)]")}
-        >
-            {o}
-        </button>
-    }
-
     return <div className={"space-y-4 pt-2"}>
         <div>
             <div className={"text-xs text-[var(--text-light)]"}>
@@ -88,7 +83,7 @@ const TopicMentionsFeedConfig = () => {
             <SelectionComponent
                 onSelection={setMetric}
                 options={["Interacciones", "Recientes", "Me gustas", "Popularidad relativa"]}
-                optionsNodes={optionsNodes}
+                optionsNodes={configOptionNodes}
                 selected={metric}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
@@ -101,7 +96,7 @@ const TopicMentionsFeedConfig = () => {
             <SelectionComponent
                 onSelection={setTime}
                 options={["Último día", "Última semana", "Último mes"]}
-                optionsNodes={optionsNodes}
+                optionsNodes={configOptionNodes}
                 selected={time}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
@@ -114,7 +109,7 @@ const TopicMentionsFeedConfig = () => {
             <SelectionComponent
                 onSelection={setFormat}
                 options={["Todos", "Artículos"]}
-                optionsNodes={optionsNodes}
+                optionsNodes={configOptionNodes}
                 selected={format}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
@@ -124,13 +119,13 @@ const TopicMentionsFeedConfig = () => {
 }
 
 
-const FeedConfig = ({selected}: { selected: TopicFeedOption }) => {
+const TopicFeedConfig = ({selected}: { selected: TopicFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)
 
     const modal = (close: () => void) => (
-        <div className={"p-3 space-y-2 bg-[var(--background-dark)] w-56"}>
+        <div className={"p-3 space-y-2 w-56"}>
             <div className={"w-full flex justify-between items-end"}>
-                <div className={"text-sm text-[var(--text)]"}>
+                <div className={"text-[13px] text-[var(--text)] uppercase"}>
                     Configurar <span className={"font-semibold text-[var(--text-light)]"}
                 >
                     {selected}
@@ -151,16 +146,26 @@ const FeedConfig = ({selected}: { selected: TopicFeedOption }) => {
         id={"feed-config"}
     >
         <button id="feed-config-button" ref={buttonRef} className={"hover:bg-[var(--background-dark)] rounded p-1"}>
-            <SlidersHorizontalIcon size={22}/>
+            <SlidersHorizontalIcon size={22} weight={"light"}/>
         </button>
     </ClickableModalOnClick>
 }
 
 
-export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
+export const TopicFeed = ({
+                              topic,
+                              topicVersionUri,
+                              onClickQuote,
+                              replyToContent,
+                              setWritingReply,
+                              wikiEditorState
+                          }: {
     topicVersionUri: string,
     topic: ArCabildoabiertoWikiTopicVersion.TopicView,
     onClickQuote: (cid: string) => void
+    wikiEditorState: WikiEditorState
+    replyToContent?: ReplyToContent
+    setWritingReply: (v: boolean) => void
 }) => {
     const {user} = useSession()
     const {selected, metric, time, format} = useTopicFeedParams(user)
@@ -169,7 +174,7 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
 
     async function getMentionsFeed(cursor: string) {
         return await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(
-            `/topic-feed/mentions?i=${topicId}&metric=${metric}&time=${time}&format=${format}${cursor ? `&cursor=${cursor}` : ""}`
+            `/topic-feed/mentions?i=${encodeURIComponent(topicId)}&metric=${metric}&time=${time}&format=${format}${cursor ? `&cursor=${cursor}` : ""}`
         )
     }
 
@@ -186,28 +191,6 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
 
     function setSelected(v: TopicFeedOption) {
         updateSearchParam("f", v == "Respuestas" ? "discusion" : v == "Menciones" ? "menciones" : "temas")
-    }
-
-    function optionsNodes(o: TopicFeedOption, isSelected: boolean) {
-
-        return <div className="text-[var(--text)] h-10 ">
-            <Button
-                variant="text"
-                color="transparent"
-                fullWidth={true}
-                disableElevation={true}
-                sx={{
-                    textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0
-                }}
-            >
-                <div
-                    className={"px-4 whitespace-nowrap font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
-                    {o}
-                </div>
-            </Button>
-        </div>
     }
 
     const info = <div>
@@ -229,69 +212,92 @@ export const TopicFeed = ({topic, topicVersionUri, onClickQuote}: {
         </div>
     </div>
 
+    const mentionsFeed = useMemo(() => {
+        return <FeedViewContentFeed
+            queryKey={["topic-feed", topicId, "mentions", metric, time, format]}
+            getFeed={getMentionsFeed}
+            onClickQuote={onClickQuote}
+            noResultsText={"El tema todavía no fue mencionado."}
+            endText={"Fin del feed."}
+        />
+    }, [metric, time, format, topicId])
+
+    const repliesFeed = useMemo(() => {
+        return <FeedViewContentFeed
+            queryKey={["topic-feed", topicId, "replies"]}
+            getFeed={getDiscussionFeed}
+            onClickQuote={onClickQuote}
+            noResultsText={"Todavía no hay respuestas."}
+            endText={""}
+            pageRootUri={topicVersionUri}
+        />
+    }, [metric, time, format, topicVersionUri])
+
+    const topicsFeed = useMemo(() => {
+        return <Feed<{ id: string, title: string }>
+            queryKey={["topic-feed", topicId, "mentions-in-topics"]}
+            getFeed={getMentionsInTopicsFeed}
+            noResultsText={"Este tema no recibió menciones en otros temas."}
+            FeedElement={(({content, index}) => {
+                return <CustomLink
+                    tag={"div"}
+                    href={topicUrl(content.id)}
+                    key={index}
+                    className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
+                >
+                    {content.title}
+                </CustomLink>
+            })}
+            endText={""}
+            getFeedElementKey={e => e.id}
+            estimateSize={500}
+        />
+    }, [metric, time, format, topicId])
+
     return <div className={"mb-96 flex flex-col items-center"}>
         <div
-            className={"max-w-[600px] flex justify-between items-center pr-2 border-b w-full max-w-screen overflow-scroll no-scrollbar"}>
-            <SelectionComponent<TopicFeedOption>
-                onSelection={setSelected}
-                selected={selected}
-                optionsNodes={optionsNodes}
-                options={["Menciones", "Respuestas", "Otros temas"]}
-                className={"flex"}
-            />
-
-            <div className={"flex space-x-2 items-start"}>
-                <InfoPanel
-                    text={info}
+            className={"border-b border-[var(--accent-dark)] flex justify-center w-full " + (wikiEditorState == "minimized" ? "" : "")}>
+            <div
+                className={"max-w-[600px] flex justify-between items-center pr-2 w-full max-w-screen overflow-scroll no-scrollbar"}
+            >
+                <SelectionComponent<TopicFeedOption>
+                    onSelection={setSelected}
+                    selected={selected}
+                    optionsNodes={feedOptionNodes(40, undefined, "sm:text-[12px] text-[13px]")}
+                    options={["Menciones", "Respuestas", "Otros temas"]}
+                    className={"flex"}
                 />
-                <FeedConfig selected={"Menciones"}/>
+
+                <div className={"flex space-x-2 items-center"}>
+                    <div className={"pb-1"}>
+                        <InfoPanel
+                            text={info}
+                        />
+                    </div>
+                    <TopicFeedConfig selected={"Menciones"}/>
+                </div>
             </div>
         </div>
         {/*TO DO: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
         <div className={"flex justify-center w-full"}>
             <div className={"max-w-[600px] w-full"}>
-                {selected == "Menciones" &&
-                    <FeedViewContentFeed
-                        queryKey={["topic-feed", topicId, "mentions", metric, time, format]}
-                        getFeed={getMentionsFeed}
-                        onClickQuote={onClickQuote}
-                        noResultsText={"Todavía no fue mencionado."}
-                        endText={"Fin del feed."}
-                    />
-                }
+                {selected == "Menciones" && mentionsFeed}
 
                 {selected == "Respuestas" &&
-                    <div className={"pt-10"}>
-                        <FeedViewContentFeed
-                            queryKey={["topic-feed", topicId, "replies"]}
-                            getFeed={getDiscussionFeed}
-                            onClickQuote={onClickQuote}
-                            noResultsText={"Sé la primera persona en responder."}
-                            endText={""}
-                            pageRootUri={topicVersionUri}
-                        />
+                    <div className={""}>
+                        {replyToContent != null && <div className={"w-full"}>
+                            <ReplyButton
+                                text={"Responder"}
+                                onClick={() => {
+                                    setWritingReply(true)
+                                }}
+                            />
+                        </div>}
+                        {repliesFeed}
                     </div>
                 }
 
-                {selected == "Otros temas" &&
-                    <Feed<{ id: string, title: string }>
-                        queryKey={["topic-feed", topicId, "mentions-in-topics"]}
-                        getFeed={getMentionsInTopicsFeed}
-                        noResultsText={"Este tema no recibió menciones en otros temas."}
-                        FeedElement={(({content, index}) => {
-                            return <CustomLink
-                                tag={"div"}
-                                href={topicUrl(content.id)}
-                                key={index}
-                                className={"w-full border-b p-4 font-medium hover:bg-[var(--background-dark)]"}
-                            >
-                                {content.title}
-                            </CustomLink>
-                        })}
-                        endText={""}
-                        getFeedElementKey={e => e.id}
-                    />
-                }
+                {selected == "Otros temas" && topicsFeed}
             </div>
         </div>
     </div>

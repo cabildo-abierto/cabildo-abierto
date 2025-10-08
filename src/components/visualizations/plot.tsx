@@ -1,26 +1,26 @@
-import {useDataset} from "@/queries/useDataset";
+import {useDataset} from "@/queries/getters/useDataset";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@/lex-api/util";
 import {pxToNumber} from "@/utils/strings";
-import TableVisualizationComp from "@/components/visualizations/table-visualization-comp";
 import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
-import {ElectionVisualizationComp} from "@/components/visualizations/editor/election/election-visualization-comp";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoDataDataset} from "@/lex-api"
-
+import { Button } from "../../../modules/ui-utils/src/button";
+import {TableIcon, TrashIcon} from "@phosphor-icons/react";
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
+const TableVisualizationComp = dynamic(() => import("@/components/visualizations/table-visualization-comp"))
+const ElectionVisualizationComp = dynamic(() => import("@/components/visualizations/editor/election/election-visualization-comp"))
 
 export const ResponsivePlot = ({
                                    visualization,
@@ -55,13 +55,13 @@ export const ResponsivePlot = ({
     return <div className={"text-[var(--text-light)]"}>
         Esta configuración por ahora no está soportada.
     </div>
-};
+}
 
 
 const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisualization.View }) => {
     const dataset = visualization.dataset
 
-    const href = ArCabildoabiertoDataDataset.isDatasetView(dataset) ? contentUrl(dataset.uri) : null
+    const href = ArCabildoabiertoDataDataset.isDatasetView(dataset) ? contentUrl(dataset.uri, dataset.author.handle) : null
 
     const modal = (onClose: () => void) => <div className={""}>
         {ArCabildoabiertoDataDataset.isDatasetView(dataset) && <div
@@ -84,7 +84,7 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
                 Hace <DateSince date={dataset.createdAt}/>
             </div>
         </div>}
-        {ArCabildoabiertoEmbedVisualization.isTopicsDataSource(dataset) && <div
+        {ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <div
             className={"py-2 space-y-1 rounded-lg px-2 text-sm text-[var(--text-light)] cursor-pointer bg-[var(--background-dark)]"}
         >
             <div className={"font-semibold text-[var(--text)]"}>
@@ -102,10 +102,18 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
     </div>
 
     return <ClickableModalOnClick id="datos" modal={modal}>
-        <div className={"cursor-pointer text-[var(--text-light)] sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
+        <Button
+            variant={"outlined"}
+            color={"background-dark2"}
+            size={"small"}
+            paddingY={"0px"}
+            style={{height: 28}}
+            startIcon={<TableIcon color="var(--text)" fontSize={12}/>}
         >
-            Datos
-        </div>
+            <span className={"text-xs"}>
+                Datos
+            </span>
+        </Button>
     </ClickableModalOnClick>
 }
 
@@ -127,30 +135,35 @@ export default function Plot ({
 
     return <div style={{height, width}} className={"relative not-article-content"}>
         <div
-            className={"absolute top-2 left-2 z-[20]"}
+            className={"absolute top-0 left-2 z-[20] h-7"}
         >
             {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
         </div>
-        {(onEdit || onDelete) && <div className={"absolute top-2 right-2 z-[20] flex space-x-2"}>
-            {onEdit && <div
+        {(onEdit || onDelete) && <div className={"absolute h-7 top-2 right-2 z-[20] flex space-x-2"}>
+            {onEdit && <Button
                 onClick={() => {
                     setEditing(true)
                 }}
-                className={"flex items-center space-x-1 text-[var(--text-light)] cursor-pointer sm:text-lg text-base font-semibold bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] rounded-xl px-2"}
+                variant={"outlined"}
+                color={"background-dark2"}
+                size={"small"}
+                paddingY={"0px"}
+                startIcon={<WriteButtonIcon color="var(--text)" fontSize={12}/>}
             >
-                <WriteButtonIcon fontSize={"inherit"}/>
-                <div>
-                    Editar
-                </div>
-            </div>}
+                <span className={"text-xs"}>Editar</span>
+            </Button>}
             {onDelete && <IconButton
                 size={"small"}
                 color={"background-dark2"}
                 onClick={() => {
                     onDelete()
                 }}
+                style={{
+                    borderRadius: 0,
+                    border: "1px solid var(--accent-dark)",
+                }}
             >
-                <DeleteOutlineIcon fontSize={"inherit"}/>
+                <TrashIcon color="var(--text)" fontSize={16}/>
             </IconButton>}
         </div>}
         <ResponsivePlot
@@ -181,7 +194,7 @@ function getDatasetVisualizationView(
 }
 
 
-const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
+export const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
     visualization: ArCabildoabiertoEmbedVisualization.Main
     dataSource: ArCabildoabiertoEmbedVisualization.DatasetDataSource
     width?: number | string
@@ -204,7 +217,7 @@ const DatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, 
 }
 
 
-const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
+export const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
     visualization: ArCabildoabiertoEmbedVisualization.Main
     dataSource: ArCabildoabiertoEmbedVisualization.TopicsDataSource
     width?: number | string
@@ -226,33 +239,4 @@ const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, on
     })
 
     return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
-}
-
-
-export const PlotFromVisualizationMain = ({visualization, height, width, onEdit, onDelete}: {
-    visualization: ArCabildoabiertoEmbedVisualization.Main
-    height?: number | string
-    width?: number | string
-    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
-    onDelete?: () => void
-}) => {
-    if (ArCabildoabiertoEmbedVisualization.isDatasetDataSource(visualization.dataSource)) {
-        return <DatasetPlotFromMain
-            visualization={visualization}
-            dataSource={visualization.dataSource}
-            height={height}
-            width={width}
-            onEdit={onEdit}
-            onDelete={onDelete}
-        />
-    } else if (ArCabildoabiertoEmbedVisualization.isTopicsDataSource(visualization.dataSource)) {
-        return <TopicsDatasetPlotFromMain
-            visualization={visualization}
-            dataSource={visualization.dataSource}
-            height={height}
-            width={width}
-            onEdit={onEdit}
-            onDelete={onDelete}
-        />
-    }
 }

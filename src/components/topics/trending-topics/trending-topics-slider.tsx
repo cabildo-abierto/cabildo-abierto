@@ -5,33 +5,35 @@ import {useRouter} from "next/navigation";
 import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
-import {TimePeriod} from "@/queries/useTrendingTopics";
+import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {hasUnseenUpdate} from "@/components/topics/topic/topic-search-result";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useSession} from "@/queries/getters/useSession";
 
 
 const TrendingTopicsSlider = ({selected, trendingArticles}: {
     trendingArticles: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
     selected: TimePeriod
 }) => {
+    const {user} = useSession()
     const [hovering, setHovering] = useState<number>(undefined)
     const router = useRouter()
 
     return (
-        <div className={"flex flex-col bg-[var(--background-ldark2)] rounded-lg"}>
+        <div className={"flex flex-col"}>
             <div
-                className="bg-[var(--background-dark)] flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
+                className="flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
             >
                 {trendingArticles.map((topic, index) => {
                     const title = getTopicTitle(topic)
-                    const unseenUpdate = hasUnseenUpdate(topic)
+                    const unseenUpdate = hasUnseenUpdate(user, topic)
                     return <div
                         onClick={() => {
                             router.push(topicUrl(topic.id))
                         }} draggable={false}
-                        className="cursor-pointer flex flex-col items-start py-4 w-full px-5 sm:text-sm text-xs hover:bg-[var(--background-dark2)]"
+                        className="cursor-pointer flex flex-col items-start py-4 w-full px-5 sm:text-sm text-xs hover:bg-[var(--background-dark)]"
                         key={topic.id}
                         onMouseLeave={() => {
                             setHovering(undefined)
@@ -70,7 +72,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
             </div>
             <Link
                 href={"/temas"}
-                className={"flex hover:bg-[var(--background-dark2)] w-full p-3 font-semibold rounded-b-lg text-xs"}
+                className={"uppercase flex hover:bg-[var(--background-dark)] w-full p-3 font-semibold text-xs"}
             >
                 Ver más
             </Link>

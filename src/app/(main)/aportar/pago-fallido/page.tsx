@@ -5,9 +5,19 @@ import {Button} from "../../../../../modules/ui-utils/src/button";
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 
 
-export default function Page(){
+export default function Page() {
     return <PageCardMessage
-        title={"Ocurrió un error al procesar tu aporte"}
-        content={<Link href="/aportar"><Button>Volver a intentar</Button></Link>}
+        className={"pb-6 pt-8 px-12"}
+        title={"Error en el pago"}
+        content={<div className={"space-y-6 flex flex-col items-center"}>
+            <div className={"font-light text-center"}>
+                Ocurrió un error al procesar tu aporte. Volvé a intentar o escribinos si sigue fallando.
+            </div>
+            <div>
+                <Link href="/aportar">
+                    <Button size="small" variant={"outlined"} color={"background-dark2"}>Volver a intentar</Button>
+                </Link>
+            </div>
+        </div>}
     />
 }

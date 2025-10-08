@@ -2,7 +2,7 @@ import {emptyChar} from "@/utils/utils";
 
 
 export const LoadingProfile = () => {
-    return <div className="flex flex-col pb-64">
+    return <div className="flex flex-col pb-64 mt-2">
         <div className={"flex flex-col"}>
             <div className="w-full h-[150px] bg-[var(--background-dark)]">
                 {emptyChar}

@@ -22,8 +22,7 @@ const SelectionQuoteEmbed = dynamic(() => import("@/components/feed/embed/select
 })
 
 const Plot = dynamic(() => import("@/components/visualizations/plot"), {
-    ssr: false,
-    loading: () => <div className={"w-full h-[500px] bg-[var(--background-dark)] rounded-lg"}/>
+    ssr: false
 })
 
 type PostEmbedProps = {

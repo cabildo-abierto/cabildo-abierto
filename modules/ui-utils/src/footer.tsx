@@ -3,7 +3,7 @@ import {Logo} from './logo';
 import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
-import BlueskyLogo from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {GithubLogoIcon, XLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {Color} from "./color";
@@ -48,9 +48,9 @@ const FooterLink = ({children, href}: {href: string, children: ReactNode}) => {
 
 
 export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
-    return <div className="flex flex-wrap gap-x-12 gap-y-4">
-        {showCA && <div className="flex flex-col space-y-1">
-            <h4>Cabildo Abierto</h4>
+    return <div className="flex flex-wrap gap-x-12 text-sm gap-y-4">
+        {showCA && <div className="flex flex-col space-y-1 uppercase">
+            <div className={"font-extrabol"}>Cabildo Abierto</div>
             <FooterLink href={topicUrl("Cabildo Abierto", undefined, "normal")}>
                 FAQ
             </FooterLink>
@@ -61,12 +61,12 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
                 Política de privacidad
             </FooterLink>
             <FooterLink href={"/equipo"}>
-                ¿Quiénes somos?
+                Nosotros
             </FooterLink>
         </div>}
 
-        <div className="flex flex-col space-y-1 text-sm md:text-base">
-            <h4 className={"font-extrabold"}>Contacto</h4>
+        <div className="flex flex-col space-y-1">
+            <div className={"font-extrabol uppercase"}>Contacto</div>
             <FooterLink href="mailto:soporte@cabildoabierto.ar">
                 soporte@cabildoabierto.ar
             </FooterLink>

@@ -2,7 +2,7 @@ import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-drop
 import {PlotConfigProps} from "@/lib/types"
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer"
-import {useDatasets} from "@/queries/useDataset"
+import {useDatasets} from "@/queries/getters/useDataset"
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner"
 import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config"
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor"

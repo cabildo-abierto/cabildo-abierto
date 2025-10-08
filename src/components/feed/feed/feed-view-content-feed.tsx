@@ -3,7 +3,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import LoadingFeedViewContent from "@/components/feed/feed/loading-feed-view-content"
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {GetFeedProps} from "@/lib/types";
-import FeedElement from "@/components/feed/feed/feed-element";
+import FeedElement from "./feed-element";
 
 
 

@@ -1,9 +1,7 @@
 "use client"
 
 import {useParams} from "next/navigation";
-import PageHeader from "../../../../../modules/ui-utils/src/page-header";
-import {Conversation, PrivateMessage} from "@/queries/useConversations";
-import {useSession} from "@/queries/useSession";
+import {PrivateMessage} from "@/queries/getters/useConversations";
 import {ChatBskyConvoDefs} from "@atproto/api"
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {useEffect, useLayoutEffect, useRef} from "react";
@@ -11,15 +9,13 @@ import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import {useMediaQuery, useTheme} from "@mui/system";
-import {useAPI} from "@/queries/utils";
-import Link from "next/link";
-import {profileUrl} from "@/utils/uri";
 import {
     conversationsQueriesFilter,
     optimisticMarkRead
 } from "@/components/mensajes/create-message";
 import dynamic from "next/dynamic";
 import NewMessageInput from "@/components/mensajes/new-message-input";
+import {useConversation} from "@/queries/getters/conversation";
 
 
 const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), {
@@ -28,16 +24,10 @@ const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), 
 });
 
 
-function useConversation(convoId: string) {
-    return useAPI<Conversation>(`/conversation/${convoId}`, ["conversation", convoId])
-}
-
-
 export default function Page() {
     const params = useParams()
     const convoId = params.id instanceof Array ? params.id[0] : params.id
     const {data, isLoading} = useConversation(convoId)
-    const {user} = useSession()
     const qc = useQueryClient()
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -89,14 +79,9 @@ export default function Page() {
         .filter(m => ChatBskyConvoDefs.isMessageView(m))
         .toSorted(cmp) : null
 
-    const other = data.conversation ? data.conversation.members.filter(m => m.did != user.did)[0] : undefined
-
-    const title = other.displayName && other.displayName.length > 0 ? other.displayName : ("@" + other.handle)
 
     return (
-        <div className={"flex flex-col border-l border-r " + (isMobile ? "h-[calc(100vh-56px)]" : "h-screen")}>
-            <PageHeader title={<Link href={profileUrl(other.handle)}>{title}</Link>} defaultBackHref={"/mensajes"}/>
-
+        <div className={"flex flex-col border-l border-r border-[var(--accent-dark)] " + (isMobile ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-48px)]")}>
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2" ref={scrollRef}>
                     <div className="mt-2 pb-2">

@@ -1,4 +1,4 @@
-import {useRouter, useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {Button} from "../../../modules/ui-utils/src/button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
@@ -11,28 +11,25 @@ import TopicsSortSelector from "@/components/topics/topic-sort-selector";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {TTOption} from "@/lib/types";
+import {useTopicsPageParams} from "@/components/config/topics";
+import {updateSearchParam} from "@/utils/fetch";
 
 const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
 
 type TopicsViewOption = "mapa" | "lista"
 
-export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMultipleEnabled}: {
-    sortedBy: TTOption
-    setSortedBy: (v: TTOption) => void
-    multipleEnabled: boolean
-    setMultipleEnabled: (v: boolean) => void
-}) => {
+export const TopicsPageHeader = () => {
+    const {sortedBy, multipleEnabled} = useTopicsPageParams()
     const [newTopicOpen, setNewTopicOpen] = useState(false)
     const searchParams = useSearchParams()
+    const {isMobile} = useLayoutConfig()
     const router = useRouter()
     const c = searchParams.get("c")
     const view = searchParams.get("view")
 
     const currentView: TopicsViewOption = view && (view == "lista" || view == "mapa") ? view : "lista"
-
-    const {searchState, setSearchState} = useSearch()
-    const {isMobile} = useLayoutConfig()
+    const pathname = usePathname()
+    const {searchState, setSearchState} = useSearch(`${pathname}::topics`)
 
     function optionsNodes(o: TopicsViewOption, isSelected: boolean) {
         let icon: ReactNode
@@ -50,12 +47,20 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
             <DescriptionOnHover description={description}>
                 <button
                     id={o}
-                    className={"flex items-center p-1 hover:bg-[var(--background-dark)] rounded " + (isSelected ? "bg-[var(--background-dark2)]" : "")}
+                    className={"flex items-center p-1 hover:bg-[var(--background-dark)] " + (isSelected ? "bg-[var(--background-dark2)]" : "")}
                 >
                     {icon}
                 </button>
             </DescriptionOnHover>
         )
+    }
+
+    function setSortedBy(v: string) {
+        updateSearchParam("s", v)
+    }
+
+    function setMultipleEnabled(v: boolean) {
+        updateSearchParam("m", v ? "true" : "false")
     }
 
     const searching = searchState.searching
@@ -64,11 +69,14 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
     const searchBar = <MainSearchBar
         autoFocus={false}
         paddingY={"5px"}
+        kind={"topics"}
         placeholder={"buscar"}
     />
 
-    return <div className="flex justify-between px-2 items-center space-x-1">
-        {!onlySearchBar && <div className={"flex space-x-2 flex-1"}>
+    return <div
+        className={"h-full flex w-full justify-between items-center space-x-1 " + (onlySearchBar ? "" : "px-2")}
+    >
+        {!onlySearchBar && <div className={"flex flex-1 " + (isMobile ? "space-x-1" : "space-x-2")}>
             <SelectionComponent<TopicsViewOption>
                 onSelection={(s: TopicsViewOption) => {
                     router.push("/temas?view=" + s + (c ? "&c=" + c : ""));
@@ -77,7 +85,7 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
                 options={["lista", "mapa"]}
                 selected={currentView}
                 optionsNodes={optionsNodes}
-                className="flex space-x-2"
+                className={"flex " + (isMobile ? "space-x-1" : "space-x-2")}
             />
             <TopicsSortSelector
                 sortedBy={sortedBy}
@@ -88,34 +96,36 @@ export const TopicsPageHeader = ({sortedBy, setSortedBy, multipleEnabled, setMul
                 <IconButton
                     size={"small"}
                     onClick={() => setMultipleEnabled(!multipleEnabled)}
-                    color={!multipleEnabled ? "transparent" : "background-dark3"}>
+                    color={!multipleEnabled ? "transparent" : "background-dark3"}
+                    sx={{
+                        borderRadius: 0
+                    }}
+                >
                     <StackIcon/>
                 </IconButton>
             </DescriptionOnHover>
         </div>}
 
-        <div className={"flex py-1"} style={{width: onlySearchBar ? "100%" : 256}}>
+        <div className={"flex items-center"} style={{width: onlySearchBar ? "100%" : 256}}>
             {searchBar}
         </div>
 
         {!onlySearchBar && <div className={"py-1 flex-1 flex justify-end"}>
-            <DescriptionOnHover description={"Crear un tema"}>
-                <Button
-                    color="background"
-                    variant="text"
-                    disableElevation={true}
-                    startIcon={<AddIcon/>}
-                    size={"small"}
-                    sx={{textTransform: "none", height: "32px", borderRadius: 20, padding: "0 10px"}}
-                    onClick={() => {
-                        setNewTopicOpen(true)
-                    }}
-                    id={"new-topic-button"}
-                >
-                    <span className={"hidden min-[600px]:block"}>Tema</span>
-                    <span className={"block min-[600px]:hidden"}>Tema</span>
-                </Button>
-            </DescriptionOnHover>
+            <Button
+                color="background"
+                variant="text"
+                disableElevation={true}
+                startIcon={<AddIcon/>}
+                size={"small"}
+                sx={{height: "32px", padding: "0 10px"}}
+                onClick={() => {
+                    setNewTopicOpen(true)
+                }}
+                id={"new-topic-button"}
+            >
+                <span className={"hidden min-[600px]:block"}>Tema</span>
+                <span className={"block min-[600px]:hidden"}>Tema</span>
+            </Button>
         </div>}
 
         {!onlySearchBar && newTopicOpen &&

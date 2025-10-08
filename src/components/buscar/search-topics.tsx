@@ -1,4 +1,3 @@
-import {useSearch} from "./search-context"
 import React, {useEffect, useState} from "react"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {get} from "@/utils/fetch";
@@ -6,6 +5,7 @@ import dynamic from "next/dynamic";
 import {categoriesSearchParam} from "@/queries/utils";
 import { Button } from "../../../modules/ui-utils/src/button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import { useDebounce } from "@/utils/debounce";
 
 const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
 const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), {ssr: false});
@@ -17,18 +17,13 @@ async function searchTopics(q: string, categories?: string[]) {
 }
 
 
-export const SearchTopics = ({categories, setCategories}: { categories?: string[], setCategories?: (c: string[]) => void }) => {
-    const {searchState} = useSearch();
+export const SearchTopics = ({searchState, categories, setCategories}: {
+    categories?: string[]
+    setCategories?: (c: string[]) => void
+    searchState: {searching: boolean, value: string}
+}) => {
     const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([]);
-    const [debouncedValue, setDebouncedValue] = useState(searchState.value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(searchState.value)
-        }, 300)
-
-        return () => clearTimeout(handler)
-    }, [searchState.value])
+    const debouncedValue = useDebounce(searchState.value, 300)
 
     useEffect(() => {
         async function search() {
@@ -46,14 +41,14 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
 
     if (searchState.value.length === 0 && searchState.searching) {
         return (
-            <div className="mt-8 text-[var(--text-light)] text-center">
+            <div className="mt-16 text-[var(--text-light)] font-light text-center">
                 Buscá un tema
             </div>
         );
     }
 
     if (results == "loading") {
-        return <div className={"pt-8"}><LoadingSpinner/></div>
+        return <div className={"pt-32"}><LoadingSpinner/></div>
     }
 
     if(!searchState.searching) {
@@ -62,9 +57,9 @@ export const SearchTopics = ({categories, setCategories}: { categories?: string[
         </div>
     }
 
-    const noResultsText = <div className={"space-y-2 text-center text-[var(--text-light)]"}>
-        <div>
-            No se encontró ningún tema.
+    const noResultsText = <div className={"space-y-4 text-center text-[var(--text-light)]"}>
+        <div className={"text-sm"}>
+            No se encontraron temas.
         </div>
         {categories && categories.length > 0 && setCategories && <Button size={"small"} color={"background-dark"} onClick={() => setCategories([])}>
             <span className={"text-xs hover:text-[var(--text)] font-semibold text-[var(--text-light)]"}>Buscar en todas las categorías</span>

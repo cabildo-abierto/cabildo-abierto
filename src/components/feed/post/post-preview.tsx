@@ -3,28 +3,31 @@ import {PostContent} from "./post-content";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import {AppBskyFeedDefs, AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import FeedElement from "@/components/feed/feed/feed-element";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
-const ShowThreadButton = ({uri}: { uri: string }) => {
-    const url = contentUrl(uri)
+const ShowThreadButton = ({uri, handle}: { uri: string, handle?: string }) => {
+    const url = contentUrl(uri, handle)
+    const {isMobile} = useLayoutConfig()
     return (
         <Link href={url}
-              className="relative hover:bg-[var(--background-dark)] transition duration-200 flex h-full items-center">
-            <div className={"w-full max-w-[13%] flex flex-col items-center justify-stretch"}>
+              className="relative hover:bg-[var(--background-dark)] flex h-full items-center"
+        >
+            <div className={"pl-4 pr-2 flex flex-col items-center justify-stretch"}>
                 <ReplyVerticalLine className="h-2"/>
-                <div className="text-xl text-[var(--accent)] leading-none py-1">
-                    <div>⋮</div>
+                <div className={"text-xl align-middle text-[var(--accent)] text-center leading-none py-1 " + (isMobile ? "w-9" : "w-11")}>
+                    ⋮
                 </div>
                 <ReplyVerticalLine className="h-2"/>
             </div>
             <div
-                className={"absolute left-1/2 font-semibold -translate-x-1/2 text-center text-sm text-[var(--primary)]"}>
+                className={"absolute left-1/2 -translate-x-1/2 text-center text-sm text-[var(--text-light)]"}>
                 Ver hilo completo
             </div>
         </Link>
@@ -33,7 +36,7 @@ const ShowThreadButton = ({uri}: { uri: string }) => {
 
 
 export type FastPostPreviewProps = {
-    postView: ArCabildoabiertoFeedDefs.PostView
+    postView: ArCabildoabiertoFeedDefs.PostView | null
     feedViewContent?: ArCabildoabiertoFeedDefs.FeedViewContent
     threadViewContent?: ArCabildoabiertoFeedDefs.ThreadViewContent
     showingChildren?: boolean
@@ -93,7 +96,7 @@ const PostPreviewParentAndRoot = ({root, parent, grandparentAuthor, feedViewCont
         />}
 
         {showThreadButton && postOrArticle(feedViewContent.reply.root) &&
-            <ShowThreadButton uri={feedViewContent.reply.root.uri}/>
+            <ShowThreadButton uri={feedViewContent.reply.root.uri} handle={feedViewContent.reply.root.author.handle}/>
         }
 
         {parent &&
@@ -146,21 +149,18 @@ export const PostPreview = ({
                                 showReplyMessage = false,
                                 onClickQuote,
                                 threadViewContent,
-                                pageRootUri
+                                pageRootUri,
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
+    const {layoutConfig} = useLayoutConfig()
 
     const {parent, root} = getParentAndRoot(feedViewContent)
-
     const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
-
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
-
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
-
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px]"}>
+    return <div style={{maxWidth: layoutConfig.maxWidthCenter}} className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px] " + (!postView && feedViewContent && (root || parent) ? "border-b" : "")}>
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}
@@ -168,7 +168,7 @@ export const PostPreview = ({
             grandparentAuthor={grandparentAuthor}
         />}
 
-        <PostPreviewFrame
+        {postView && <PostPreviewFrame
             reason={reason}
             postView={{$type: "ar.cabildoabierto.feed.defs#postView", ...postView}}
             showingChildren={showingChildren}
@@ -184,7 +184,7 @@ export const PostPreview = ({
                 postView={postView}
                 onClickQuote={onClickQuote}
             />
-        </PostPreviewFrame>
+        </PostPreviewFrame>}
 
         {threadViewContent && <ThreadChildren
             threadChildren={children}

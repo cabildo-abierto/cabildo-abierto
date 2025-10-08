@@ -21,7 +21,7 @@ import ContentEditable from './ui/ContentEditable';
 import {InitialConfigType, LexicalComposer} from '@lexical/react/LexicalComposer';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {TableContext} from './plugins/TablePlugin';
+import {TableContext} from './plugins/TablePlugin/TablePlugin';
 import {getInitialData} from "./get-initial-data";
 import {LINK, MarkdownTransformer} from "./ca-transformers";
 import {LexicalEditorProps} from "./lexical-editor";

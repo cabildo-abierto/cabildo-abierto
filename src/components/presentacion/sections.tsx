@@ -1,7 +1,7 @@
 import {GoToLoginButton} from "@/components/presentacion/go-to-login-button";
 import Link from "next/link";
 import Image from 'next/image'
-import BlueskyLogo from "@/components/icons/bluesky-logo";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {Logo} from "../../../modules/ui-utils/src/logo";
 import {ArrowDownIcon, CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {FeatureSection} from "@/components/presentacion/feature-section";
@@ -46,14 +46,14 @@ export const PresentacionFormato = () => {
                 width={2000}
                 height={600}
                 alt="Publicación rápida"
-                className="rounded-tl-xl border border-[var(--text)] w-full h-auto"
+                className="border border-[var(--text)] w-full h-auto"
             />
             <Image
                 src="/presentacion/light/editor.png"
                 width={700}
                 height={700}
                 alt="Publicación"
-                className="rounded-bl-xl border border-[var(--text)] w-full h-auto mt-10"
+                className="border border-[var(--text)] w-full h-auto mt-10"
             />
         </div>
         <div className={"flex flex-col space-y-2 justify-center w-2/5"}>
@@ -62,14 +62,14 @@ export const PresentacionFormato = () => {
                 width={700}
                 height={700}
                 alt="Publicación"
-                className="rounded-tr-2xl border border-[var(--text)] w-full h-auto"
+                className="border border-[var(--text)] w-full h-auto"
             />
             <Image
                 src="/presentacion/light/comentarios-texto.png"
                 width={700}
                 height={700}
                 alt="Publicación"
-                className="rounded-br-2xl border border-[var(--text)] w-full h-auto mt-10"
+                className="border border-[var(--text)] w-full h-auto mt-10"
             />
         </div>
     </div>
@@ -79,7 +79,7 @@ export const PresentacionFormato = () => {
         description={description}
         image={image}
         inverted={true}
-        background={"background-ldark"}
+        background={"background-dark"}
     />
 }
 
@@ -143,7 +143,7 @@ export const PresentacionCalidadDeLaInformacion = () => {
         description={description}
         image={null}
         inverted={true}
-        background={"background-ldark"}
+        background={"background-dark"}
     />
 }
 
@@ -202,19 +202,17 @@ export const PresentacionAbierto = () => {
         </ul>
     </div>
 
-    const image = <div className={"rounded-lg p-2"}>
-        <div className="relative border p-2 rounded-2xl border-[var(--text)] bg-[#fffff0]">
+    const image = <div className={"p-2"}>
+        <div className="relative p-2">
             <Image
                 src="/presentacion/connected.png"
                 width={400}
                 height={300}
                 alt="Red"
-                className="w-full max-w-screen"
+                className="w-full max-w-screen opacity-80"
             />
-            <div className="absolute z-2 left-3/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
-                <div className={"md:w-32 md:h-32 h-24 w-24"}>
-                    <Logo width={400} height={400}/>
-                </div>
+            <div className="absolute z-2 left-3/4 -translate-x-1/2 -translate-y-1/2 top-1/2 w-24 md:w-32 h-24 md:h-32">
+                <Logo className={"w-full h-full object-contain"}/>
             </div>
             <div className="absolute z-2 left-1/4 -translate-x-1/2 top-1/2 -translate-y-1/2">
                 <Link href="https://bsky.social">
@@ -222,9 +220,9 @@ export const PresentacionAbierto = () => {
                 </Link>
             </div>
             <div
-                className="absolute z-2 left-1/2 bottom-1/4 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
-                <Link href="https://atproto.com" className={"font-semibold tracking-tighter"}>
-                    <span className="text-[#0481f7]">@AT</span><span className={"text-[#1a1a1a]"}>Protocol</span>
+                className="absolute z-2 left-1/2 bottom-8 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
+                <Link href="https://atproto.com" className={"font-bold tracking-tighter"}>
+                    <span className="text-[#0481f7]">@AT</span><span className={"text-[var(--accent-dark)]"}>Protocol</span>
                 </Link>
             </div>
         </div>
@@ -235,7 +233,7 @@ export const PresentacionAbierto = () => {
         description={description}
         image={image}
         inverted={true}
-        background={"background-ldark"}
+        background={"background-dark"}
     />
 }
 
@@ -243,29 +241,33 @@ export const PresentacionAbierto = () => {
 export const PresentacionInicio = () => {
 
     return <>
-        <div className="absolute top-4 right-4 w-36 z-10 md:hidden">
+        <div className="absolute top-4 right-4 w-48 z-10 md:hidden">
             <GoToLoginButton fontSize={12}/>
         </div>
         <div className="absolute top-10 right-10 z-10 hidden md:block">
-            <GoToLoginButton fontSize={13}/>
+            <GoToLoginButton fontSize={12}/>
         </div>
         <div className={"relative flex flex-col h-[500px] justify-center space-y-12 items-center"}>
-            <div className="flex items-center flex-col">
-                <div className="">
+            <div className="flex items-center flex-col space-y-12">
+                <div className="flex flex-col items-center">
                     <Logo
                         width={80}
                         height={80}
                     />
+                    {/*<div className={"uppercase text-center w-[80px] font-[400] leading-[1]"}>
+                        <div>Cabildo</div>
+                        <div className={"tracking-[0.026em]"}>Abierto</div>
+                    </div>*/}
                 </div>
-                <div className="flex justify-center flex-col items-center mt-8">
-                    <h1 className="lg:text-[46px] sm:text-[38px] text-[26px] tracking-tight">
-                        Cabildo Abierto
-                    </h1>
+                <h1 className={"text-xl text-center sm:text-2xl md:text-2xl font-bold uppercase"}>
+                    Cabildo Abierto
+                </h1>
+                <div className="flex justify-center flex-col items-center">
                     <div
-                        className="lg:text-[28px] sm:text-[22px] text-[16px] font-light tracking-tight  text-[var(--text-lighter)] text-center leading-tight"
+                        className="lg:text-[20px] px-6 border-t-[2px] border-b-[2px] border-[var(--text)] py-4 sm:text-[22px] text-[16px] font-light tracking-tight text-center leading-tight"
                     >
                         <div>Una plataforma para discutir en serio,</div>
-                        <div>
+                        <div className={"font-extrabold"}>
                             hecha en Argentina.
                         </div>
                     </div>

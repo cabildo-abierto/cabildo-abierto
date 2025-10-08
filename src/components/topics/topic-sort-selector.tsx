@@ -24,6 +24,9 @@ const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
                 disabled={disabled}
                 size={"small"}
                 color={"background"}
+                sx={{
+                    borderRadius: 0
+                }}
             >
                 <SwapVertIcon fontSize={"small"}/>
             </IconButton>

@@ -18,8 +18,8 @@ const config= {
         '192': '48rem'
       },
       fontFamily: {
-        flex: ['var(--font-roboto-flex)'],
-        serif: ['var(--font-roboto-serif)'],
+        flex: ['var(--font-flex)'],
+        serif: ['var(--font-serif)'],
       },
     },
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import InfoPanel from '../../../modules/ui-utils/src/info-panel';
 import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
 import {topicUrl} from "@/utils/uri";
-import {useFundingState, useMonthlyValue} from "@/queries/useFunding";
+import {useFundingState, useMonthlyValue} from "@/queries/getters/useFunding";
 
 const FundingProgress = () => {
     let {data: progress, isLoading: isLoadingFundingState} = useFundingState()
@@ -11,10 +11,11 @@ const FundingProgress = () => {
     const state = isLoadingFundingState ? "loading" : (progress === 100 ? 'good' : progress >= 80 ? 'medium' : 'bad')
     const progressColor = state === "good" ? 'bg-green-500' : state === "medium" ? 'bg-yellow-500' : state == "bad" ? 'bg-red-500' : "bg-[var(--background-dark3)]";
 
+
     return (
-        <div className={"space-y-2 w-full bg-[var(--background-dark2)] rounded-lg p-4 mx-2"}>
+        <div className={"space-y-4 w-full p-4 rounded-panel-dark2"}>
             <div className={"flex justify-between items-baseline"}>
-                <div className={"text-xs sm:text-sm text-[var(--text-light)]"}>
+                <div className={"text-xs font-light sm:text-sm text-[var(--text-light)]"}>
                     Objetivo de financiamiento
                 </div>
                 <InfoPanel
@@ -27,9 +28,9 @@ const FundingProgress = () => {
                 />
             </div>
             <div className="flex items-center w-full space-x-1">
-                <div className="w-full bg-[var(--background-dark3)] rounded-full h-8 overflow-hidden shadow-inner relative">
+                <div className="w-full bg-[var(--background-dark3)] rounded-2xl h-8 overflow-hidden shadow-inner relative">
                     <div
-                        className={`h-full ${progressColor}  text-center font-bold flex items-center justify-center`}
+                        className={`h-full ${progressColor} text-center font-bold flex items-center justify-center`}
                         style={{width: `${state == "loading" ? 0 : progress}%`}}
                     />
                     {state != "loading" && <div className="absolute inset-0 flex items-center justify-center text-[var(--text)] font-semibold">
@@ -40,7 +41,7 @@ const FundingProgress = () => {
             <div className="mt-2">
                 {state == "good" && (
                     <div className="text-xs sm:text-sm text-center text-[var(--text-light)]">
-                        ¡Vamos bien! Aportá para que Cabildo Abierto crezca.
+                        ¡Vamos bien! Aportá para ayudar a que Cabildo Abierto crezca.
                     </div>
                 )}
                 {(state == "medium" || state == "bad") && (

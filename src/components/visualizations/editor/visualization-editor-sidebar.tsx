@@ -5,8 +5,8 @@ import {Button} from "../../../../modules/ui-utils/src/button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ChooseDatasetPanel} from "@/components/visualizations/editor/choose-dataset";
 import {ConfigPanel} from "@/components/visualizations/editor/config-panel";
-import VisualizationIcon from "@/components/icons/visualization-icon";
-import DatasetIcon from "@/components/icons/dataset-icon";
+import VisualizationIcon from "@/components/layout/icons/visualization-icon";
+import DatasetIcon from "@/components/layout/icons/dataset-icon";
 import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
 
 const VisualizationEditorSidebar = ({
@@ -64,7 +64,12 @@ const VisualizationEditorSidebar = ({
 
     function optionsNodes(o: string, isSelected: boolean) {
         const icon = o == "Datos" ? <DatasetIcon/> : <VisualizationIcon/>
-        return <Button color={isSelected ? "primary" : "background-dark2"} startIcon={icon}>
+        return <Button
+            color={isSelected ? "background-dark2" : "background-dark"}
+            startIcon={icon}
+            variant={"outlined"}
+            borderColor={"accent-dark"}
+        >
             {o}
         </Button>
     }

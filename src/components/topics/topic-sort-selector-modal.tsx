@@ -23,7 +23,7 @@ function ttLabelToOption(label: string): TTOption {
 
 const TopicSortSelectorModal = ({setSortedBy, sortedBy, onClose}: Props) => {
     return (
-        <div className={"p-1 space-y-1 border rounded bg-[var(--background-dark)]"}>
+        <div className={"p-1 space-y-1 border rounded bg-[var(--background)]"}>
             {["Populares último día", "Populares última semana", "Populares último mes", "Ediciones recientes"].map((s, index) => {
                 return <div key={index}>
                     <OptionsDropdownButton
@@ -32,7 +32,7 @@ const TopicSortSelectorModal = ({setSortedBy, sortedBy, onClose}: Props) => {
                             onClose()
                             return {}
                         }}
-                        color={"background-dark"}
+                        color={"background"}
                         fullWidth={true}
                         size={"small"}
                         text1={<span className={ttLabelToOption(s) == sortedBy ? "font-bold" : ""}>{s}</span>}

@@ -1,7 +1,7 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {useDataset} from "@/queries/useDataset";
+import {useDataset} from "@/queries/getters/useDataset";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Switch} from "@mui/material";
@@ -47,15 +47,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     }
 
     if (!columns) {
-        if(ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)){
-            return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
-                Cargá los datos primero.
-            </div>
-        } else {
-            return <div className={"text-center text-sm text-[var(--text-light)] py-8"}>
-                Ocurrió un error al cargar los datos.
-            </div>
-        }
+        return null
     }
 
     if (!ArCabildoabiertoEmbedVisualization.isTable(config.spec)) {
@@ -90,7 +82,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
         }))
     }
 
-    return <div className={"space-y-1"}>
+    return <div className={"space-y-1 px-1"}>
         <div className={"text-[var(--text-light)] text-sm"}>
             Columnas
         </div>
@@ -107,13 +99,14 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                 }
                 const configIndex = config.spec.columns ? config.spec.columns.findIndex(colConfig => colConfig.columnName == c.name) : -1
 
-                return <div key={i} className={"flex justify-between space-x-2 items-center"}>
+                return <div key={i} className={"flex justify-between space-x-2 h-7 items-center"}>
                     <div className={"text-sm flex-1 max-w-[1/3] truncate"}>
                         {c.name}
                     </div>
                     {value && <div className={"flex-1"}>
                         <TextField
-                            dense={true}
+                            paddingX={"0px"}
+                            paddingY={"6px"}
                             label={"Alias"}
                             fontSize={"12px"}
                             size={"small"}
@@ -128,6 +121,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                             onChange={e => {
                                 setShowColumn(c.name, e.target.checked)
                             }}
+                            color={"default"}
                         />
                     </div>
                 </div>

@@ -1,18 +1,19 @@
-import {TimePeriod, useTrendingTopics} from "@/queries/useTrendingTopics";
+import {TimePeriod, useTrendingTopics} from "@/queries/getters/useTrendingTopics";
 import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
 
 import dynamic from "next/dynamic";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import {useState} from "react";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 import Link from "next/link";
+import { Session } from "@/lib/types";
 
 const TrendingTopicsSlider = dynamic(() => import('./trending-topics-slider'));
 
 
 const LoadingTrendingTopicsSlider = ({count = 10}: { count?: number }) => {
-    return <div className={"flex flex-col bg-[var(--background-dark)] overflow-y-scroll max-h-[300px] no-scrollbar"}>
+    return <div className={"flex flex-col overflow-y-scroll max-h-[300px] no-scrollbar"}>
         {range(count).map(i => {
             return <div key={i}
                         className={"cursor-pointer space-y-1 flex flex-col py-4 w-full px-5 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark2)]"}>
@@ -45,14 +46,14 @@ const TrendingTopicsConfig = ({time, setTime}: { time: string, setTime: (v: stri
             options={["día", "semana", "mes"]}
             onChange={setTime}
             value={time}
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-            paddingY={0.3}
+            fontSize={"13px"}
+            labelShrinkFontSize={"13px"}
+            paddingY={0.05}
             paddingX={1}
-            textClassName={"text-sm text-[var(--text)]"}
-            backgroundColor={"background-dark2"}
-            borderColor={"background-dark"}
-            outlineColor={"background-dark3"}
+            textClassName={"text-[11px] text-[var(--text-light)] uppercase"}
+            backgroundColor={"background"}
+            borderColor={"accent-dark"}
+            outlineColor={"accent-dark"}
         />
     </div>
 }
@@ -71,7 +72,8 @@ function selectedToTimePeriod(selected: string): TimePeriod {
     return "all"
 }
 
-function configLabelToSelected(label: string): string {
+function ttInitialConfig(user: Session | null): string {
+    const label = user?.algorithmConfig?.tt?.time ?? "Última semana"
     if(label == "Última semana"){
         return "semana"
     } else if(label == "Último día"){
@@ -85,14 +87,14 @@ function configLabelToSelected(label: string): string {
 
 export const TrendingTopicsPanel = () => {
     const {user} = useSession()
-    const [time, setTime] = useState<string>(configLabelToSelected(user.algorithmConfig?.tt?.time ?? "Última semana"))
+    const [time, setTime] = useState<string>(ttInitialConfig(user))
     const {data: topics, isLoading} = useTrendingTopics(timeLabelToTimePeriod(time))
 
-    return <div className="w-full space-y-2 bg-[var(--background-ldark2)] rounded-lg ">
-        <div className="flex justify-between pt-3 px-3 items-center w-full">
+    return <div className="w-full space-y-2 panel">
+        <div className="flex justify-between h-10 px-3 items-center w-full">
             <Link
                 href={"/temas"}
-                className={"text-xs font-bold flex items-center w-full space-x-1"}
+                className={"text-xs uppercase font-bold flex items-center w-full space-x-1"}
                 id={"trending-topics"}
             >
                 Tendencias

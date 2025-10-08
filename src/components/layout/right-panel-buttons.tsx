@@ -1,7 +1,7 @@
 import React from "react";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {topicUrl} from "@/utils/uri";
-import {useSession} from "@/queries/useSession";
+import {useSession} from "@/queries/getters/useSession";
 
 
 export const RightPanelButtons = () => {
@@ -10,7 +10,7 @@ export const RightPanelButtons = () => {
     if (!user) return null
 
     return <div className={"w-full flex flex-wrap gap-1"}>
-        <div className={"flex gap-x-1 flex-wrap text-xs text-[11px] text-[var(--text-light)]"}>
+        <div className={"uppercase flex gap-x-1 flex-wrap leading-[16px] text-[0.598rem] text-[var(--text-light)]"}>
             <Link href={"/soporte"} className={"hover:text-[var(--text)]"}>
                 Soporte
             </Link>
@@ -43,13 +43,6 @@ export const RightPanelButtons = () => {
                   href={topicUrl("Cabildo Abierto: Política de privacidad", undefined, "normal")}>
                 Política de privacidad
             </Link>
-            {user.platformAdmin && <><div>
-                •
-            </div>
-            <Link className="hover:text-[var(--text)]"
-                  href={"/admin"}>
-                Admin
-            </Link></>}
         </div>
     </div>
 }

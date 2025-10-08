@@ -5,7 +5,7 @@ import {AxisScaleOutput} from "@visx/axis";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {DataParser} from "@/components/visualizations/editor/plotter/data-parser";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
 
 export type DataRow = Record<string, any>
 export type DataPoint<X=ValueType, Y=ValueType> = {
@@ -59,8 +59,7 @@ export class Plotter {
     }
 
     validRow(x: DataRow): boolean {
-        const keys = Object.keys(x)
-        return keys.length == this.columnNames.length
+        return true
     }
 
     checkFilter(f: ArCabildoabiertoEmbedVisualization.ColumnFilter){
@@ -138,7 +137,6 @@ export class Plotter {
         } else if(type == "date"){
             if(v instanceof Date){
                 const formater = this.parser.getDateFormater(v)
-                console.log(v, formater(v))
                 return formater(v)
             } else {
                 return `Fecha inválida: ${v.toString()}`

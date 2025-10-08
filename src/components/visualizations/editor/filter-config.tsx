@@ -5,13 +5,13 @@ import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer";
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
-import {useCategories} from "@/queries/useTopics";
+import {useCategories} from "@/queries/getters/useTopics";
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {useState} from "react";
 import {Button, darker} from "../../../../modules/ui-utils/src/button";
 import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
 import {Box, IconButton} from "@mui/material";
-import {WriteButtonIcon} from "@/components/icons/write-button-icon";
+import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {Color} from "../../../../modules/ui-utils/src/color";
 
 

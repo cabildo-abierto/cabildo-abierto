@@ -85,8 +85,9 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
             maxWidthCenter: "800px"
         }
     } else if(pathname.startsWith("/tema")) {
-        const s = params.get("s")
-        config = s && s != "minimized" ? maximizedTopicConfig : feedConfig
+        config = maximizedTopicConfig
+        //const s = params.get("s")
+        //config = s && s != "minimized" ? maximizedTopicConfig : feedConfig
     } else if(pathname.startsWith("/panel")){
         config = maximizedTopicConfig
     } else if(pathname.startsWith("/c")){

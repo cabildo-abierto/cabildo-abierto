@@ -5,6 +5,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {get} from "@/utils/fetch";
 import {GetFeedOutput} from "@/lib/types";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
+import {usePathname} from "next/navigation";
 
 
 async function searchContents(q: string) {
@@ -12,9 +13,10 @@ async function searchContents(q: string) {
 }
 
 
-// TO DO: Que cargue más resultados a medida que scrolleás
+// TO DO: Feed infinito
 export const ContentsSearchResults = () => {
-    const { searchState } = useSearch();
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::main`)
     const [results, setResults] = useState<ArCabildoabiertoFeedDefs.FeedViewContent[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
     const [resultsValue, setResultsValue] = useState<string | undefined>()
@@ -47,13 +49,13 @@ export const ContentsSearchResults = () => {
     }, [debouncedValue]);
 
     if(searchState.value.length == 0){
-        return <div className={"mt-8 text-[var(--text-light)] text-center"}>
-            Buscá posts, respuestas o artículos
+        return <div className={"mt-16 text-[var(--text-light)] font-light text-center"}>
+            Buscá publicaciones o artículos
         </div>
     }
 
     if(results == "loading"){
-        return <div className={"pt-8"}>
+        return <div className={"pt-32"}>
             <LoadingSpinner/>
         </div>
     }
@@ -62,6 +64,6 @@ export const ContentsSearchResults = () => {
         queryKey={["search-contents", resultsValue]}
         initialContents={results}
         noResultsText={"No se encontraron resultados."}
-        endText={""}
+        endText={"No tenemos más resultados para mostrarte."}
     />
 }

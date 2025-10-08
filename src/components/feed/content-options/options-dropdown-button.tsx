@@ -8,11 +8,11 @@ export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
         variant={"text"}
         sx={{
             paddingX: "8px",
-            borderRadius: "4px"
+            paddingY: "8px"
         }}
         fullWidth={true}
         stopPropagation={true}
-        textClassName={"whitespace-nowrap w-full px-1"}
+        textClassName={"whitespace-nowrap w-full px-1 uppercase text-xs"}
         {...props}
     />
 }

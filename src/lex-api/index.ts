@@ -29,8 +29,10 @@ import * as ComAtprotoRepoDefs from './types/com/atproto/repo/defs'
 import * as ComAtprotoRepoDeleteRecord from './types/com/atproto/repo/deleteRecord'
 import * as ComAtprotoRepoGetRecord from './types/com/atproto/repo/getRecord'
 import * as ComAtprotoRepoListRecords from './types/com/atproto/repo/listRecords'
+import * as ComAtprotoRepoPutRecord from './types/com/atproto/repo/putRecord'
 import * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef'
 import * as AppBskyFeedDefs from './types/app/bsky/feed/defs'
+import * as AppBskyFeedPost from './types/app/bsky/feed/post'
 import * as AppBskyGraphDefs from './types/app/bsky/graph/defs'
 import * as AppBskyActorDefs from './types/app/bsky/actor/defs'
 import * as AppBskyEmbedDefs from './types/app/bsky/embed/defs'
@@ -62,8 +64,10 @@ export * as ComAtprotoRepoDefs from './types/com/atproto/repo/defs'
 export * as ComAtprotoRepoDeleteRecord from './types/com/atproto/repo/deleteRecord'
 export * as ComAtprotoRepoGetRecord from './types/com/atproto/repo/getRecord'
 export * as ComAtprotoRepoListRecords from './types/com/atproto/repo/listRecords'
+export * as ComAtprotoRepoPutRecord from './types/com/atproto/repo/putRecord'
 export * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef'
 export * as AppBskyFeedDefs from './types/app/bsky/feed/defs'
+export * as AppBskyFeedPost from './types/app/bsky/feed/post'
 export * as AppBskyGraphDefs from './types/app/bsky/graph/defs'
 export * as AppBskyActorDefs from './types/app/bsky/actor/defs'
 export * as AppBskyEmbedDefs from './types/app/bsky/embed/defs'
@@ -147,15 +151,15 @@ export class ArCabildoabiertoNS {
 
 export class ArCabildoabiertoActorNS {
   _client: XrpcClient
-  caProfile: CaProfileRecord
+  caProfile: ArCabildoabiertoActorCaProfileRecord
 
   constructor(client: XrpcClient) {
     this._client = client
-    this.caProfile = new CaProfileRecord(client)
+    this.caProfile = new ArCabildoabiertoActorCaProfileRecord(client)
   }
 }
 
-export class CaProfileRecord {
+export class ArCabildoabiertoActorCaProfileRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -212,6 +216,24 @@ export class CaProfileRecord {
     return res.data
   }
 
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoActorCaProfile.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.actor.caProfile'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
   async delete(
     params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
     headers?: Record<string, string>,
@@ -227,15 +249,15 @@ export class CaProfileRecord {
 
 export class ArCabildoabiertoDataNS {
   _client: XrpcClient
-  dataset: DatasetRecord
+  dataset: ArCabildoabiertoDataDatasetRecord
 
   constructor(client: XrpcClient) {
     this._client = client
-    this.dataset = new DatasetRecord(client)
+    this.dataset = new ArCabildoabiertoDataDatasetRecord(client)
   }
 }
 
-export class DatasetRecord {
+export class ArCabildoabiertoDataDatasetRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -287,6 +309,24 @@ export class DatasetRecord {
     return res.data
   }
 
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoDataDataset.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.data.dataset'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
   async delete(
     params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
     headers?: Record<string, string>,
@@ -310,15 +350,15 @@ export class ArCabildoabiertoEmbedNS {
 
 export class ArCabildoabiertoFeedNS {
   _client: XrpcClient
-  article: ArticleRecord
+  article: ArCabildoabiertoFeedArticleRecord
 
   constructor(client: XrpcClient) {
     this._client = client
-    this.article = new ArticleRecord(client)
+    this.article = new ArCabildoabiertoFeedArticleRecord(client)
   }
 }
 
-export class ArticleRecord {
+export class ArCabildoabiertoFeedArticleRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -370,6 +410,24 @@ export class ArticleRecord {
     return res.data
   }
 
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoFeedArticle.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.feed.article'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
   async delete(
     params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
     headers?: Record<string, string>,
@@ -385,19 +443,19 @@ export class ArticleRecord {
 
 export class ArCabildoabiertoWikiNS {
   _client: XrpcClient
-  topicVersion: TopicVersionRecord
-  voteAccept: VoteAcceptRecord
-  voteReject: VoteRejectRecord
+  topicVersion: ArCabildoabiertoWikiTopicVersionRecord
+  voteAccept: ArCabildoabiertoWikiVoteAcceptRecord
+  voteReject: ArCabildoabiertoWikiVoteRejectRecord
 
   constructor(client: XrpcClient) {
     this._client = client
-    this.topicVersion = new TopicVersionRecord(client)
-    this.voteAccept = new VoteAcceptRecord(client)
-    this.voteReject = new VoteRejectRecord(client)
+    this.topicVersion = new ArCabildoabiertoWikiTopicVersionRecord(client)
+    this.voteAccept = new ArCabildoabiertoWikiVoteAcceptRecord(client)
+    this.voteReject = new ArCabildoabiertoWikiVoteRejectRecord(client)
   }
 }
 
-export class TopicVersionRecord {
+export class ArCabildoabiertoWikiTopicVersionRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -449,6 +507,24 @@ export class TopicVersionRecord {
     return res.data
   }
 
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoWikiTopicVersion.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.wiki.topicVersion'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
   async delete(
     params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
     headers?: Record<string, string>,
@@ -462,7 +538,7 @@ export class TopicVersionRecord {
   }
 }
 
-export class VoteAcceptRecord {
+export class ArCabildoabiertoWikiVoteAcceptRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -514,6 +590,24 @@ export class VoteAcceptRecord {
     return res.data
   }
 
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoWikiVoteAccept.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.wiki.voteAccept'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
   async delete(
     params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
     headers?: Record<string, string>,
@@ -527,7 +621,7 @@ export class VoteAcceptRecord {
   }
 }
 
-export class VoteRejectRecord {
+export class ArCabildoabiertoWikiVoteRejectRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -572,6 +666,24 @@ export class VoteRejectRecord {
     const collection = 'ar.cabildoabierto.wiki.voteReject'
     const res = await this._client.call(
       'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoWikiVoteReject.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.wiki.voteReject'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
       { encoding: 'application/json', headers },
@@ -707,6 +819,17 @@ export class ComAtprotoRepoNS {
       opts,
     )
   }
+
+  putRecord(
+    data?: ComAtprotoRepoPutRecord.InputSchema,
+    opts?: ComAtprotoRepoPutRecord.CallOptions,
+  ): Promise<ComAtprotoRepoPutRecord.Response> {
+    return this._client
+      .call('com.atproto.repo.putRecord', opts?.qp, data, opts)
+      .catch((e) => {
+        throw ComAtprotoRepoPutRecord.toKnownErr(e)
+      })
+  }
 }
 
 export class AppNS {
@@ -721,13 +844,104 @@ export class AppNS {
 
 export class AppBskyNS {
   _client: XrpcClient
+  feed: AppBskyFeedNS
   embed: AppBskyEmbedNS
   richtext: AppBskyRichtextNS
 
   constructor(client: XrpcClient) {
     this._client = client
+    this.feed = new AppBskyFeedNS(client)
     this.embed = new AppBskyEmbedNS(client)
     this.richtext = new AppBskyRichtextNS(client)
+  }
+}
+
+export class AppBskyFeedNS {
+  _client: XrpcClient
+  post: AppBskyFeedPostRecord
+
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.post = new AppBskyFeedPostRecord(client)
+  }
+}
+
+export class AppBskyFeedPostRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: AppBskyFeedPost.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.bsky.feed.post',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{ uri: string; cid: string; value: AppBskyFeedPost.Record }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.bsky.feed.post',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<AppBskyFeedPost.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'app.bsky.feed.post'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<AppBskyFeedPost.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'app.bsky.feed.post'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'app.bsky.feed.post', ...params },
+      { headers },
+    )
   }
 }
 

@@ -15,22 +15,33 @@ const SearchBar = ({
     searchValue,
     setSearchValue,
     setSearching=() => {},
-    color="background-dark",
-    borderColor="accent",
+    color="background",
+    borderColor="accent-dark",
     placeholder="buscar",
-    size="small"
+    size="small",
+    borderRadius="0",
+    borderWidth="1px",
+    borderWidthNoFocus="1px",
+    searching
 }: {
     autoFocus?: boolean
     paddingY?: string
     fullWidth?: boolean
     searchValue: string
+    searching?: boolean
     setSearchValue: (arg: string) => void
     setSearching?: (v: boolean) => void
     color?: Color
     borderColor?: Color
+    borderRadius?: string
+    borderWidth?: string
+    borderWidthNoFocus?: string
     placeholder?: string
     size?: TextFieldProps["size"]
 }) => {
+
+    const showCloseButton = searching && searchValue && searchValue.length > 0
+
     return <TextField
         size={size}
         autoFocus={autoFocus}
@@ -43,27 +54,30 @@ const SearchBar = ({
         slotProps={{
             input: {
                 startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
-                endAdornment: searchValue && searchValue.length > 0 ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
+                endAdornment: showCloseButton ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}
         autoComplete={"off"}
         sx={{
             "& .MuiOutlinedInput-root": {
                 backgroundColor: `var(--${color})`,
-                borderRadius: "8px",
+                borderRadius,
+                borderColor: `var(--${borderColor})`,
+                paddingRight: "4px",
+                paddingLeft: "8px",
                 "& input": {
-                    paddingY: paddingY,
+                    paddingY: paddingY
                 },
                 "& fieldset": {
-                    borderRadius: "8px",
+                    borderRadius,
                     borderColor: `var(--${borderColor})`,
-                    borderWidth: "0px"
+                    borderWidth: borderWidthNoFocus
                 },
                 "&:hover fieldset": {
                     borderColor: `var(--${borderColor})`,
                 },
                 "&.Mui-focused fieldset": {
-                    borderWidth: "2px",
+                    borderWidth,
                     borderColor: `var(--${borderColor})`,
                 },
             }

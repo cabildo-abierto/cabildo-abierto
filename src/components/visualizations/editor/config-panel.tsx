@@ -3,14 +3,14 @@ import {Select} from "../../../../modules/ui-utils/src/select";
 import {PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
 import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {ReactNode, useState} from "react";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {useState} from "react";
 import { TextField } from "../../../../modules/ui-utils/src/text-field";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
-import VisualizationIcon from "@/components/icons/visualization-icon";
+import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import SquareFootIcon from '@mui/icons-material/SquareFoot';
+import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 
 export function kindToLexicon(kind: string): ArCabildoabiertoEmbedVisualization.Main["spec"] {
     if(kind == "Histograma") {
@@ -100,6 +100,7 @@ const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConf
             label={"Epígrafe"}
             multiline
             size={"small"}
+            paddingX={"12px"}
             value={config.caption ?? ""}
             onChange={e => {
                 setConfig(produce(config, draft => {
@@ -177,43 +178,21 @@ export const ConfigPanel = ({config, setConfig}: {
 }) => {
     const [selectedMenu, setSelectedMenu] = useState<string>("Visualización")
 
-    function optionsNodes(o: string, isSelected: boolean) {
-        let icon: ReactNode
+    function optionLabels(o: string) {
         if(o == "Visualización"){
-            icon = <VisualizationIcon fontSize={"small"}/>
+            return <VisualizationIcon fontSize={"small"}/>
         } else if(o == "Texto"){
-            icon = <TextFieldsIcon fontSize={"small"}/>
+            return <TextFieldsIcon fontSize={"small"}/>
         } else if(o == "Dimensiones"){
-            icon = <SquareFootIcon fontSize={"small"}/>
+            return <SquareFootIcon fontSize={"small"}/>
         }
-        return <div className="text-[var(--text)]">
-            <Button
-                onClick={() => {
-                }}
-                variant="text"
-                color={"background-dark"}
-                fullWidth={true}
-                size={"small"}
-                disableElevation={true}
-                sx={{
-                    textTransform: "none",
-                    paddingY: 0,
-                    borderRadius: 0,
-                }}
-            >
-                <div
-                    className={"pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
-                    {icon}
-                </div>
-            </Button>
-        </div>
     }
 
     return <>
-        <div className={"flex border-b w-full mt-2"}>
+        <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
             <SelectionComponent
                 options={["Visualización", "Texto", "Dimensiones"]}
-                optionsNodes={optionsNodes}
+                optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}
                 selected={selectedMenu}
                 onSelection={(v: string) => {
                     setSelectedMenu(v)
@@ -222,14 +201,14 @@ export const ConfigPanel = ({config, setConfig}: {
             />
         </div>
 
-        <div className={"flex flex-col justify-between mt-2 space-y-4 px-2 mb-2 pt-2 overflow-y-scroll h-full"}>
+        <div className={"flex flex-col justify-between mt-2 space-y-4 px-2 mb-2 pt-2 custom-scrollbar overflow-y-scroll h-full"}>
             <div className={"flex flex-col space-y-4"}>
                 {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
                 {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
                 {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
             </div>
 
-            <div className={"p-2 text-[var(--text-light)] text-sm"}>
+            <div className={"p-2 text-[var(--text-light)] text-sm font-light"}>
                 El editor de visualizaciones está en fase experimental. Si ves algo raro o querés que le agreguemos una funcionalidad, escribinos.
             </div>
         </div>

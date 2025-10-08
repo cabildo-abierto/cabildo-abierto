@@ -1,16 +1,16 @@
 import {ReplyButton} from "./reply-button"
-import {useEffect, useMemo, useState} from "react";
-import {ThreadHeader} from "@/components/thread/thread-header";
+import {useMemo, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 import ThreadReplies from "./thread-replies";
 import Article from "./article/article";
+import {useSession} from "@/queries/getters/useSession";
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"), {
-    ssr: false,
-    loading: () => <div/>
+    ssr: false
 })
 
 function hasSelectionQuote(p: ArCabildoabiertoFeedDefs.PostView) {
@@ -29,13 +29,12 @@ function getThreadQuoteReplies(t: ArCabildoabiertoFeedDefs.ThreadViewContent) {
 const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewContent }) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
-    const [quoteReplies, setQuoteReplies] = useState<ArCabildoabiertoFeedDefs.PostView[]>([])
+    const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
-    useEffect(() => {
-        if (ArCabildoabiertoFeedDefs.isFullArticleView(thread.content) && thread.replies) {
-            setQuoteReplies(getThreadQuoteReplies(thread))
-        }
-    }, [thread, thread.replies, thread.content])
+    const quoteReplies = useMemo(() => {
+        return getThreadQuoteReplies(thread)
+    }, [thread])
 
     const replies = useMemo(() => {
         if(thread.replies && ArCabildoabiertoFeedDefs.isFullArticleView(thread.content)) {
@@ -50,8 +49,6 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
     if(!ArCabildoabiertoFeedDefs.isFullArticleView(thread.content)) return null
 
     return <div className={"flex flex-col items-center"}>
-        <ThreadHeader c={"ar.cabildoabierto.feed.article"}/>
-
         <Article
             article={thread.content}
             pinnedReplies={pinnedReplies}
@@ -59,9 +56,13 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             quoteReplies={quoteReplies}
         />
 
-        <div className={"w-full border-b"}>
+        <div className={"w-full border-b border-[var(--accent-dark)]"}>
             <ReplyButton onClick={() => {
-                setOpenReplyPanel(true)
+                if(user) {
+                    setOpenReplyPanel(true)
+                } else {
+                    setLoginModalOpen(true)
+                }
             }}/>
         </div>
 
@@ -73,13 +74,13 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             </div>}
         </div>
 
-        <WritePanel
+        {openReplyPanel && user && <WritePanel
             replyTo={thread.content}
             open={openReplyPanel}
             onClose={() => {
                 setOpenReplyPanel(false)
             }}
-        />
+        />}
     </div>
 }
 

@@ -1,4 +1,4 @@
-import {useDrafts} from "@/queries/useDrafts";
+import {useDrafts} from "@/queries/getters/useDrafts";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import dynamic from "next/dynamic";
 
@@ -24,7 +24,7 @@ export default function Drafts() {
             <LoadingSpinner/>
         </div>}
         {drafts && drafts.length == 0 && <div className={"text-sm text-center text-[var(--text-light)] mt-16"}>
-            No se encontró ningún borrador.
+            No se encontraron borradores.
         </div>}
     </div>
 }

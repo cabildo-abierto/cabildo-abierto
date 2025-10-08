@@ -7,11 +7,10 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
-import {useSession} from "@/queries/useSession";
-import {useLoginRequiredModal} from "@/components/auth/login-required-modal";
+import {useSession} from "@/queries/getters/useSession";
 import {WikiEditorState} from "@/lib/types";
-import {TopicOptionsButton} from "@/components/topics/topic/topic-options-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
 export const TopicContentExpandedViewHeader = ({
@@ -30,8 +29,8 @@ export const TopicContentExpandedViewHeader = ({
     saveEnabled: boolean
 }) => {
     const searchParams = useSearchParams()
-    const {setShowLoginRequiredModal, modal} = useLoginRequiredModal("Iniciá sesión para usar esa funcionalidad.")
     const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
     const paramsVersion = searchParams.get("v") ? Number(searchParams.get("v")) : undefined
 
@@ -44,7 +43,7 @@ export const TopicContentExpandedViewHeader = ({
             else if (o == "editing") name = "Editar"
             else if (o == "props") name = "Propiedades"
             return <div
-                className="text-[var(--text)] h-10"
+                className="text-[var(--text)]"
                 title={user != undefined ? undefined : "Iniciá sesión."}
                 id={`topic-header-button-${o}`}
             >
@@ -60,7 +59,8 @@ export const TopicContentExpandedViewHeader = ({
                     }}
                 >
                     <div
-                        className={"whitespace-nowrap mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
+                        className={"uppercase text-xs whitespace-nowrap mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}
+                    >
                         {name}
                     </div>
                 </Button>
@@ -68,8 +68,8 @@ export const TopicContentExpandedViewHeader = ({
         }
 
         function onSelection(v: string) {
-            if (!user) {
-                setShowLoginRequiredModal(true)
+            if((v == "editing" || v == "edit-props") && !user){
+                setLoginModalOpen(true)
             } else {
                 if (wikiEditorState != v) {
                     setWikiEditorState(v as WikiEditorState)
@@ -95,8 +95,8 @@ export const TopicContentExpandedViewHeader = ({
             />
         </div>
     } else if (!paramsVersion && wikiEditorState.startsWith("editing")) {
-        buttons = <div className={"w-full flex justify-between"}>
-            <div className="text-[var(--text)] h-10 ">
+        buttons = <div className={"w-full flex justify-between items-end"}>
+            <div className="text-[var(--text)]">
                 <Button
                     variant="text"
                     color="background"
@@ -112,15 +112,15 @@ export const TopicContentExpandedViewHeader = ({
                     }}
                 >
                     <div
-                        className={"whitespace-nowrap mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (wikiEditorState == "editing-props" ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
+                        className={"whitespace-nowrap uppercase text-xs mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (wikiEditorState == "editing-props" ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
                         Propiedades
                     </div>
                 </Button>
             </div>
-            <div className={"flex items-center"}>
+            <div className={"flex items-end"}>
                 <Link
                     target={"_blank"}
-                    className={"mr-2 rounded-lg text-sm hover:bg-[var(--background-dark2)] py-1 px-2 bg-[var(--background-dark)] font-semibold"}
+                    className={"mb-1 mr-2 text-xs text-[13px] hover:bg-[var(--background-dark2)] uppercase py-1 px-2 border bg-[var(--background-dark)] font-semibold"}
                     href={topicUrl("Cabildo Abierto: Wiki", undefined, "normal")}
                 >
                     Guía de edición
@@ -133,18 +133,24 @@ export const TopicContentExpandedViewHeader = ({
                     sx={{borderRadius: 0}}
                     color={"background"}
                 >
-                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar</div>
+                    <div className={"uppercase text-xs px-2 pt-1 font-semibold text-[var(--text-light)]"}>
+                        Cancelar
+                    </div>
                 </Button>
                 <Button
                     onClick={() => {
-                        setShowingSaveEditPopup(true);
+                        if(!user) {
+                            setLoginModalOpen(true)
+                        } else {
+                            setShowingSaveEditPopup(true)
+                        }
                     }}
                     variant={"text"}
                     sx={{borderRadius: 0}}
                     disabled={!saveEnabled}
                     color={"background"}
                 >
-                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>
+                    <div className={"uppercase text-xs px-2 pt-1 font-semibold text-[var(--text-light)]"}>
                         Guardar
                     </div>
                 </Button>
@@ -166,10 +172,9 @@ export const TopicContentExpandedViewHeader = ({
         </div>
     }
 
-    return <div className={"flex justify-between items-end border-b"}>
+    return <div className={"flex justify-between items-end border-b border-[var(--accent-dark)]"}>
         {buttons}
         {!wikiEditorState.startsWith("editing") && wikiEditorState != "minimized" && <div className={"flex items-center space-x-1"}>
-            {user && user.platformAdmin && <TopicOptionsButton topic={topic}/>}
             <div className={"pb-1 text-[var(--text-light)]"}>
                 <IconButton
                     size="small"
@@ -178,11 +183,11 @@ export const TopicContentExpandedViewHeader = ({
                         setWikiEditorState("minimized")
                     }}
                     color={"background"}
+                    sx={{borderRadius: 0}}
                 >
                     <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
                 </IconButton>
             </div>
         </div>}
-        {modal}
     </div>
 }

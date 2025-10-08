@@ -1,46 +1,52 @@
 "use client"
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 import {formatIsoDate} from "@/utils/dates";
+import { useMemo } from "react";
 
 
-export function localeDate(date: Date, includeCurrentYear: boolean=false, includeSeconds: boolean=false) {
-    let dateFormat = date.getFullYear() !== 2025 || includeCurrentYear
-        ? "d 'de' MMMM 'de' yyyy"
-        : "d 'de' MMMM"
+export function localeDate(date: Date, includeCurrentYear: boolean=false, includeSeconds: boolean=false, includeHours: boolean=false, includeMinutes: boolean=false) {
+    let dateFormat = dayjs(date).year() !== 2025 || includeCurrentYear
+        ? "D [de] MMMM [de] YYYY"
+        : "D [de] MMMM"
 
     if(includeSeconds){
-        dateFormat = `${format}, HH:mm:ss`
+        dateFormat = `${dateFormat}, HH:mm:ss`
+    } else if(includeHours) {
+        dateFormat = `${dateFormat}, h a`
+    } else if(includeMinutes) {
+        dateFormat = `${dateFormat}, HH:mm`
     }
 
-    return format(date, dateFormat, { locale: es })
+    return dayjs(date).locale('es').format(dateFormat)
 }
 
-export const getFormattedTimeSince = (date: Date) => {
-    const now = new Date();
 
-    const seconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
+export const getFormattedTimeSince = (date: Date) => {
+    const now = new Date()
+
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
     if (seconds < 60) {
         return `${seconds} s`
     }
 
-    const minutes = Math.floor(seconds / 60);
+    const minutes = Math.floor(seconds / 60)
     if (minutes < 60) {
         return `${minutes} m`
     }
 
-    const hours = Math.floor(minutes / 60);
+    const hours = Math.floor(minutes / 60)
     if (hours < 24) {
         return `${hours} h`
     }
 
-    const days = Math.floor(hours / 24);
+    const days = Math.floor(hours / 24)
     if (days < 30) {
         return `${days} d`
     }
 
-    const months = Math.floor(days / 30);
+    const months = Math.floor(days / 30)
     if (months == 1){
         return `${months} mes`
     }
@@ -49,13 +55,21 @@ export const getFormattedTimeSince = (date: Date) => {
         return `${months} meses`
     }
 
-    const years = Math.floor(days / 365);
+    const years = Math.floor(days / 365)
     return `${years} a`
 };
 
-export function DateSince({ date, title=true }: { date: string | Date, title?: boolean}) {
 
-    return <span title={title ? formatIsoDate(new Date(date), true) : undefined}>
-        {getFormattedTimeSince(new Date(date))}
-    </span>;
+export function DateSince({ date, title=true }: { date: Date | string, title?: boolean}) {
+    date = new Date(date)
+
+    const timeSince = useMemo(() => {
+        return getFormattedTimeSince(date)
+    }, [])
+
+    return <span
+        title={title ? formatIsoDate(new Date(date), true) : undefined}
+    >
+        {timeSince}
+    </span>
 }

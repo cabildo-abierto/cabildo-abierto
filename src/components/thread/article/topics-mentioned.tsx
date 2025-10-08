@@ -6,6 +6,7 @@ import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
 import {useMemo} from "react";
 import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import TopicsIcon from "@/components/layout/icons/topics-icon";
 
 type TopicsMentionedProps = {mentions: ArCabildoabiertoFeedDefs.TopicMention[]}
 
@@ -32,7 +33,9 @@ export const TopicsMentionedSmall = ({mentions}: TopicsMentionedProps) => {
 }
 
 
-export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
+export const TopicsMentioned = ({
+                                    mentions
+}: TopicsMentionedProps) => {
 
     function cmp(a: {count: number}, b: {count: number}) {
         return b.count - a.count
@@ -52,26 +55,25 @@ export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
         {mentionsMemo
         .slice(maxCount)
             .map(x => {
-                return <div key={x.id}>
-                    <Link
-                        className="text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"
-                        href={topicUrl(x.id)}
-                    >
-                        {x.title}
-                    </Link>
-                </div>
+                return <Link
+                    key={x.id}
+                    className="text-[var(--text-light)] truncate font-light hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"
+                    href={topicUrl(x.id)}
+                >
+                    {x.title}
+                </Link>
             })}
     </div> : null
 
-    return <div className={"w-full flex space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
-        <div className={"text-sm text-[var(--text-light)]"} title={"Temas mencionados"}>
-            #
+    return <div className={"w-full flex text-light  space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
+        <div className={"text-sm text-[var(--text-light)] pt-[1px]"} title={"Temas mencionados"}>
+            <TopicsIcon fontSize={15} weight={"light"}/>
         </div>
         {mentionsMemo.toSorted(cmp).slice(0, maxCount).map((r, index) => {
             return <a // TO DO: Prevent leave
                 href={topicUrl(r.id)}
                 key={index}
-                className={"text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap"}
+                className={"text-[var(--text-light)] font-light hover:text-[var(--text)] text-sm whitespace-nowrap"}
                 title={"Tema mencionado en el artículo."}
             >
                 {r.title}
@@ -79,9 +81,9 @@ export const TopicsMentioned = ({mentions}: TopicsMentionedProps) => {
         })}
         {mentionsMemo.length > maxCount && <DescriptionOnHover description={hoverDescription}>
             <div
-            className={"text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"}
-        >
-            {mentionsMemo.length - maxCount}+
+            className={"text-[var(--text-light)] font-light hover:text-[var(--text)] text-sm whitespace-nowrap cursor-pointer"}
+            >
+                {mentionsMemo.length - maxCount}+
             </div>
         </DescriptionOnHover>}
     </div>

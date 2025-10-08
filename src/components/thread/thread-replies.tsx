@@ -14,46 +14,47 @@ type ThreadRepliesProps = {
 
 
 export default function ThreadReplies({replies, setPinnedReplies}: ThreadRepliesProps) {
-    if(!replies) return null
+    if (!replies) return null
+    console.log("replies in trhead replies", replies.length)
     return (
-        <div className={"w-full"}>
-            <StaticFeed<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<AppBskyFeedDefs.BlockedPost> | {$type: string}>
-                initialContents={replies}
-                noResultsText={"Sé la primera persona en responder."}
-                endText={""}
-                FeedElement={({content: r}) => {
-                    if ((!ArCabildoabiertoFeedDefs.isThreadViewContent(r) && !ArCabildoabiertoFeedDefs.isFeedViewContent(r)) || !ArCabildoabiertoFeedDefs.isPostView(r.content)) {
-                        return null
-                    }
-
-                    function onClickQuote() {
-                        if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
-                            setPinnedReplies([r.content.cid])
-                            const elem = document.getElementById("selection:" + r.content.cid)
-                            if(elem) {
-                                smoothScrollTo(elem)
-                            }
-                        }
-                    }
-
-                    return <PostPreview
-                        postView={r.content}
-                        parentIsMainPost={true}
-                        onClickQuote={onClickQuote}
-                        threadViewContent={r}
-                    />
-                }}
-                getFeedElementKey={e => {
-                    if(ArCabildoabiertoFeedDefs.isThreadViewContent(e)) {
-                        if (ArCabildoabiertoFeedDefs.isPostView(e.content) || ArCabildoabiertoFeedDefs.isArticleView(e.content)) {
-                            return e.content.uri
-                        }
-                    } else if(AppBskyFeedDefs.isBlockedPost(e) || AppBskyFeedDefs.isNotFoundPost(e)) {
-                        return e.uri
-                    }
+        <StaticFeed<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<AppBskyFeedDefs.BlockedPost> | {
+            $type: string
+        }>
+            initialContents={replies}
+            noResultsText={"Todavía no hay respuestas."}
+            endText={""}
+            FeedElement={({content: r}) => {
+                if ((!ArCabildoabiertoFeedDefs.isThreadViewContent(r) && !ArCabildoabiertoFeedDefs.isFeedViewContent(r)) || !ArCabildoabiertoFeedDefs.isPostView(r.content)) {
                     return null
-                }}
-            />
-        </div>
+                }
+
+                function onClickQuote() {
+                    if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
+                        setPinnedReplies([r.content.cid])
+                        const elem = document.getElementById("selection:" + r.content.cid)
+                        if (elem) {
+                            smoothScrollTo(elem)
+                        }
+                    }
+                }
+
+                return <PostPreview
+                    postView={r.content}
+                    parentIsMainPost={true}
+                    onClickQuote={onClickQuote}
+                    threadViewContent={r}
+                />
+            }}
+            getFeedElementKey={e => {
+                if (ArCabildoabiertoFeedDefs.isThreadViewContent(e)) {
+                    if (ArCabildoabiertoFeedDefs.isPostView(e.content) || ArCabildoabiertoFeedDefs.isArticleView(e.content)) {
+                        return e.content.uri
+                    }
+                } else if (AppBskyFeedDefs.isBlockedPost(e) || AppBskyFeedDefs.isNotFoundPost(e)) {
+                    return e.uri
+                }
+                return null
+            }}
+        />
     )
 }

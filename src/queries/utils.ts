@@ -1,12 +1,16 @@
-import {useQuery} from "@tanstack/react-query";
+import {Query, useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
+
+
+export type RefetchInterval<T = any> = number | undefined | false | ((q: Query<T>) => number | undefined | false)
 
 
 export function useAPI<T>(
     route: string,
     key: readonly unknown[],
     staleTime: number = Infinity,
-    enabled: boolean = true
+    enabled: boolean = true,
+    refetchInterval: RefetchInterval<T> = false
 ) {
     return useQuery<T>({
         queryKey: key,
@@ -17,7 +21,8 @@ export function useAPI<T>(
             return data
         },
         staleTime,
-        enabled
+        enabled,
+        refetchInterval
     })
 }
 

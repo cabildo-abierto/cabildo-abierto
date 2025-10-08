@@ -1,6 +1,5 @@
 "use client"
 
-import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useRouter} from "next/navigation";
 import {contentUrl, getBlueskyUrl, profileUrl} from "@/utils/uri";
@@ -13,6 +12,8 @@ import {AppBskyEmbedRecord} from "@atproto/api"
 import {AppBskyFeedPost} from "@atproto/api"
 
 import dynamic from "next/dynamic";
+import { EmbedAuthor } from "./ca-post-record-embed";
+
 const BskyRichTextContent = dynamic(() => import('@/components/feed/post/bsky-rich-text-content'), {
     ssr: false,
     loading: () => <></>,
@@ -28,12 +29,12 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
     const router = useRouter()
 
     if (AppBskyEmbedRecord.isViewRecord(record)) {
-        const url = contentUrl(record.uri)
         const author = record.author
+        const url = contentUrl(record.uri, author.handle)
         const createdAt = new Date(record.indexedAt)
 
         return <div
-            className={"rounded-lg border p-3 hover:bg-[var(--background-dark2)]"}
+            className={"embed-panel p-3"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -56,15 +57,7 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
                         className={"rounded-full w-4 h-4"}
                     />
                 </Link>
-                <span className="truncate text-sm">
-                    <ContentTopRowAuthor
-                        author={{
-                            ...author,
-                            $type: "ar.cabildoabierto.actor.defs#profileViewBasic",
-                            verification: null,
-                        }}
-                    />
-                </span>
+                <EmbedAuthor url={profileUrl(author.handle)} author={{$type: "app.bsky.actor.defs#profileViewBasic", ...author}}/>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
                     <DateSince date={createdAt}/>
@@ -93,12 +86,12 @@ export const PostRecordEmbedRecord = ({record, mainPostRef, navigateOnClick=true
         </div>
     } else {
         /* TO DO: Dar un poco más de info */
-        return <div className={"p-3 mt-2 border rounded-lg"}>
+        return <div className={"p-3 mt-2 border"}>
             <span>
                 No sabemos cómo mostrarte este contenido,
             </span>
             <span
-                className={"text-[var(--primary)] hover:underline ml-1 cursor-pointer"}
+                className={"text-[var(--text-light)] hover:underline ml-1 cursor-pointer"}
                 onClick={(e) => {e.stopPropagation(); window.open(getBlueskyUrl(mainPostRef.uri), "_blank")}}>
                 miralo en Bluesky
             </span>

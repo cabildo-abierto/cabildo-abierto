@@ -9,7 +9,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 export const ArticleHeader = ({article}: {article: ArCabildoabiertoFeedDefs.FullArticleView}) => {
     return <>
         <TopicsMentioned mentions={article.topicsMentioned}/>
-        <h1 className="text-4xl mt-8 mb-8">
+        <h1 className="text-4xl mt-8 mb-8 normal-case">
             {article.title}
         </h1>
         <div className="gap-x-4 flex flex-wrap items-baseline">
@@ -21,6 +21,7 @@ export const ArticleHeader = ({article}: {article: ArCabildoabiertoFeedDefs.Full
                     author={article.author}
                     onlyAuthor={true}
                     className={"font-medium hover:underline truncate max-w-[70vw]"}
+                    iconFontSize={16}
                 />
             </div>
             <div className={"max-[500px]:text-sm text-[var(--text-light)]"}>

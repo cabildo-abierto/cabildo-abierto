@@ -1,5 +1,5 @@
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {DatasetForTableView} from "@/components/datasets/dataset-table-view";
+import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale";
 import {scaleBand, scaleLinear, scaleTime} from "@visx/scale";
 import {orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@/utils/arrays";
