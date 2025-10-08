@@ -44,7 +44,8 @@ import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} fr
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
 import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
-import { hasEnDiscusionLabel } from "@/components/feed/frame/post-preview-frame";
+import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
+
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
 
@@ -97,7 +98,7 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?: ArCabildoabiertoFeedDefs.PostView) {
     let initialState: $Typed<AppBskyEmbedExternal.View> | null = null
     let initialUrl: string | null = null
-    if(postView && AppBskyEmbedExternal.isView(postView.embed)){
+    if (postView && AppBskyEmbedExternal.isView(postView.embed)) {
         initialState = postView.embed
         initialUrl = postView.embed.external.uri
     }
@@ -113,13 +114,13 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
 
         const handler = setTimeout(() => {
             async function onNewExternalEmbed(url: string) {
-                const {data, error} = await post<{url: string}, {
+                const {data, error} = await post<{ url: string }, {
                     title: string | null,
                     description: string | null,
                     thumbnail: string | null
                 }>("/metadata", {url})
 
-                if(error) {
+                if (error) {
                     const embed: $Typed<AppBskyEmbedExternal.View> = {
                         $type: "app.bsky.embed.external#view",
                         external: {
@@ -193,6 +194,7 @@ export type CreatePostProps = {
     externalEmbedView?: $Typed<AppBskyEmbedExternal.View>
     quotedPost?: ATProtoStrongRef
     visualization?: ArCabildoabiertoEmbedVisualization.Main
+    uri?: string
 }
 
 
@@ -250,7 +252,7 @@ function usePostEditorSettings(replyToCollection?: string, quoteCollection?: str
 
 function useImagesInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
     const postImages = useMemo(() => {
-        if(postView && AppBskyEmbedImages.isView(postView.embed)){
+        if (postView && AppBskyEmbedImages.isView(postView.embed)) {
             const images: ImagePayload[] = postView.embed.images.map(i => ({
                 $type: "url",
                 src: i.thumb
@@ -277,8 +279,8 @@ function useEnDiscusionForWritePost(replyTo: ReplyToContent, postView?: ArCabild
 
 function useVisualizationInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
     let initialState: ArCabildoabiertoEmbedVisualization.Main | null = null
-    if(postView) {
-        if(ArCabildoabiertoEmbedVisualization.isView(postView.embed)) {
+    if (postView) {
+        if (ArCabildoabiertoEmbedVisualization.isView(postView.embed)) {
             initialState = visualizationViewToMain(postView.embed)
         }
     }
@@ -357,7 +359,8 @@ export const WritePost = ({
             enDiscusion,
             externalEmbedView,
             visualization,
-            quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined
+            quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined,
+            uri: postView?.uri
         }
 
         await handleSubmit(post)

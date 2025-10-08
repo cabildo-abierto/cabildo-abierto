@@ -38,7 +38,7 @@ const WritePanelPanel = ({
                              selection,
                              quotedPost,
                              handleSubmit,
-                             postView
+                             postView,
                          }: WritePanelProps) => {
     const [selected, setSelected] = useState("Publicación")
     const router = useRouter()

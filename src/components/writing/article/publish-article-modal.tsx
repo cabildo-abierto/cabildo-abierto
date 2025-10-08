@@ -7,6 +7,7 @@ import {topicUrl} from "@/utils/uri";
 import removeMarkdown from "remove-markdown";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 
 type PublishArticleModalProps = {
     open: boolean
@@ -40,11 +41,15 @@ const PublishArticleModal = ({
                                  mentions,
     article
 }: PublishArticleModalProps) => {
-    const [enDiscusion, setEnDiscusion] = useState(true)
-
+    const [enDiscusion, setEnDiscusion] = useState(article ? hasEnDiscusionLabel(article) : true)
     const summary = useMemo(() => getArticleSummary(mdText), [mdText])
 
-    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
+
+    return <BaseFullscreenPopup
+        open={open}
+        onClose={onClose}
+        closeButton={true}
+    >
         <div className={"pb-8 sm:w-[500px] min-h-[300px] px-6 flex flex-col justify-between space-y-8"}>
             <h3 className={"text-center normal-case"}>
                 {!article ? "¿Listo para publicar?" : "Revisá que esté todo bien..."}
@@ -84,7 +89,10 @@ const PublishArticleModal = ({
             </div>}
 
             <div className={"flex justify-between w-full"}>
-                <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
+                <AddToEnDiscusionButton
+                    enDiscusion={enDiscusion}
+                    setEnDiscusion={setEnDiscusion}
+                />
                 <StateButton
                     text1={article ? "Confirmar edición" : "Publicar"}
                     handleClick={onSubmit(enDiscusion)}

@@ -91,6 +91,17 @@ export const ContentOptions = ({
         return {}
     }
 
+    let canBeEdited = false
+
+    if(ArCabildoabiertoFeedDefs.isPostView(record) ||
+        ArCabildoabiertoFeedDefs.isFullArticleView(record) ||
+        ArCabildoabiertoFeedDefs.isArticleView(record)
+    ) {
+        canBeEdited = !(record.bskyRepostCount || record.repostCount || record.quoteCount || record.bskyQuoteCount || record.bskyLikeCount || record.likeCount || record.replyCount);
+    }
+
+    canBeEdited = true
+
     return <div className={"flex flex-col space-y-1"}>
         {isAuthor && <DeleteButton uri={record.uri} onClose={onClose}/>}
         {isAuthor && canBeEnDiscusion(collection) && <OptionsDropdownButton
@@ -117,7 +128,7 @@ export const ContentOptions = ({
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
             disabled={isOptimistic}
         />}
-        {false && isAuthor && (isArticle(collection) || isPost(collection)) && <OptionsDropdownButton
+        {isAuthor && canBeEdited && <OptionsDropdownButton
             text1={"Editar"}
             startIcon={<WriteButtonIcon/>}
             handleClick={onClickEdit}

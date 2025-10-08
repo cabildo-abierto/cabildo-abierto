@@ -5,8 +5,10 @@ export function useTopbarTitle() {
     const params = useSearchParams()
     if(pathname.startsWith("/ajustes")){
         return {title: "Ajustes"}
-    } else if(pathname.startsWith("/buscar")){
+    } else if(pathname.startsWith("/buscar")) {
         return {title: "Buscar"}
+    } else if(pathname.startsWith("/perfil")){
+        return {title: "Perfil"}
     } else if(pathname.startsWith("/notificaciones")){
         return {title: "Notificaciones"}
     } else if(pathname.startsWith("/mensajes")){
