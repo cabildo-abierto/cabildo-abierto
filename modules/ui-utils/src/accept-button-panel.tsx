@@ -29,6 +29,7 @@ export const AcceptButtonPanel = ({
                 <Button
                     variant={"outlined"}
                     onClick={onClose}
+                    size={"small"}
                 >
                     <span className="px-4 text-[13px]">{buttonText}</span>
                 </Button>

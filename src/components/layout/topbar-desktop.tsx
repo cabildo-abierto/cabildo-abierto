@@ -26,7 +26,8 @@ export default function TopbarDesktop() {
     const backButton = pathname.startsWith("/c/") ||
         pathname.startsWith("/tema") && !pathname.startsWith("/temas") ||
         pathname.startsWith("/aportar") ||
-        pathname.startsWith("/escribir/articulo")
+        pathname.startsWith("/escribir/articulo") ||
+        pathname.startsWith("/perfil")
 
     return <div
         className={"fixed top-0 left-0 items-center bg-[var(--background)] w-full border-b border-[var(--accent-dark)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}

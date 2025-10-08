@@ -18,6 +18,7 @@ import {threadQueryKey} from "@/queries/getters/useThread";
 import {useSession} from "@/queries/getters/useSession";
 import {useProfile} from "@/queries/getters/useProfile";
 import {postOrArticle} from "@/utils/type-utils";
+import {useErrors} from "@/components/layout/error-context";
 
 
 function optimisticCreatePost(qc: QueryClient, post: CreatePostProps, author: ArCabildoabiertoActorDefs.ProfileViewDetailed, replyTo: ReplyToContent) {
@@ -102,13 +103,10 @@ const WritePanel = ({
     const qc = useQueryClient()
     const {user} = useSession()
     const {data: author} = useProfile(user.handle)
+    const {addError} = useErrors()
 
     async function createPost({body}: { body: CreatePostProps }) {
         return await post<CreatePostProps, { uri: string }>("/post", body)
-    }
-
-    async function handleSubmit(body: CreatePostProps) {
-        createPostMutation.mutate({body})
     }
 
     const createPostMutation = useMutation({
@@ -121,20 +119,30 @@ const WritePanel = ({
                 console.log("error on mutation", err)
             }
         },
-        onSuccess: ({data}) => {
-            invalidateQueriesAfterPostCreationSuccess(data.uri, replyTo, quotedPost, author, qc)
+        onSuccess: ({data, error}) => {
+            if (error) {
+                addError(error)
+            } else {
+                invalidateQueriesAfterPostCreationSuccess(data.uri, replyTo, quotedPost, author, qc)
+            }
         }
     })
 
-    return <WritePanelPanel
-        replyTo={replyTo}
-        open={open}
-        onClose={onClose}
-        selection={selection}
-        quotedPost={quotedPost}
-        handleSubmit={handleSubmit}
-        postView={postView}
-    />
+    async function handleSubmit(body: CreatePostProps) {
+        createPostMutation.mutate({body})
+    }
+
+    return <>
+        <WritePanelPanel
+            replyTo={replyTo}
+            open={open}
+            onClose={onClose}
+            selection={selection}
+            quotedPost={quotedPost}
+            handleSubmit={handleSubmit}
+            postView={postView}
+        />
+    </>
 };
 
 
