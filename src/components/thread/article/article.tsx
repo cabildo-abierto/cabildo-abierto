@@ -35,7 +35,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                 <ArticleHeader article={article}/>
                 <div
                     className={"mt-8 mb-16"}
-                    key={getEditorKey(article.uri, quoteReplies)}
+                    key={getEditorKey(article.uri, quoteReplies, article.editedAt)}
                 >
                     <EditorWithQuoteComments
                         uri={article.uri}

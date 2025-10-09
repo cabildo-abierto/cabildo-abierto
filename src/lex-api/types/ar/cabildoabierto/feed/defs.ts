@@ -110,6 +110,7 @@ export interface PostView {
   labels?: ComAtprotoLabelDefs.Label[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
   rootCreationDate?: string
+  editedAt?: string
 }
 
 const hashPostView = 'postView'
@@ -181,6 +182,7 @@ export interface FullArticleView {
   topicsMentioned?: TopicMention[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+  editedAt?: string
 }
 
 const hashFullArticleView = 'fullArticleView'

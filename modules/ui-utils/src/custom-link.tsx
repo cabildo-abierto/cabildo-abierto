@@ -52,7 +52,9 @@ export function CustomLink({
         onClick?.(e)
     }
 
-    className += " cursor-pointer"
+    if(onClick || href){
+        className += " cursor-pointer"
+    }
 
     if (tag == "span") {
         return <span
