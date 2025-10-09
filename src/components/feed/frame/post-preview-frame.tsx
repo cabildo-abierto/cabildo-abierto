@@ -39,6 +39,7 @@ type FastPostPreviewFrameProps = {
     showingChildren?: boolean
     reason?: AppBskyFeedDefs.ReasonRepost
     pageRootUri?: string
+    engagementIcons?: boolean
 }
 
 export const PostPreviewFrame = ({
@@ -49,6 +50,7 @@ export const PostPreviewFrame = ({
                                      showingChildren = false,
                                      reason,
                                      pageRootUri,
+    engagementIcons = true
                                  }: FastPostPreviewFrameProps) => {
     const url = contentUrl(postView.uri, postView.author.handle)
     const qc = useQueryClient()
@@ -79,15 +81,16 @@ export const PostPreviewFrame = ({
     return <CustomLink
         tag={"div"}
         id={"discussion:" + postView.uri}
-        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? "border-b" : "")}
-        onClick={!isOptimistic ? onClick : undefined}
-        href={!isOptimistic ? url : undefined}
+        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] " + (borderBelow ? "border-b" : "") + (engagementIcons ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
+        onClick={!isOptimistic && engagementIcons ? onClick : undefined}
+        href={!isOptimistic && engagementIcons ? url : undefined}
+
     >
         {ArCabildoabiertoFeedDefs.isPostView(postView) &&
             <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full"}>
-            <div className="flex flex-col items-center pr-2 pl-4">
+            <div className={"flex flex-col items-center pr-2 " + (engagementIcons ? "pl-4" : "")}>
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <CustomLink
                     tag={"span"}
@@ -140,7 +143,7 @@ export const PostPreviewFrame = ({
                     {children}
                 </div>
 
-                <div className={"mt-1 text-sm"}>
+                {engagementIcons && <div className={"mt-1 text-sm"}>
                     <EngagementIcons
                         content={postView}
                         className={"px-2"}
@@ -149,7 +152,7 @@ export const PostPreviewFrame = ({
                         textClassName={"font-light text-[var(--text)] text-sm"}
                         iconHoverColor={"background-dark2"}
                     />
-                </div>
+                </div>}
             </div>
         </div>
     </CustomLink>

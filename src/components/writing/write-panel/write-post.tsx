@@ -45,6 +45,8 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
 import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
+import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {Button} from "../../../../modules/ui-utils/src/button";
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -195,6 +197,7 @@ export type CreatePostProps = {
     quotedPost?: ATProtoStrongRef
     visualization?: ArCabildoabiertoEmbedVisualization.Main
     uri?: string
+    forceEdit?: boolean
 }
 
 
@@ -309,13 +312,14 @@ export const WritePost = ({
     onClose: () => void
     setHidden: (_: boolean) => void
     quotedContent?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
-    handleSubmit: (_: CreatePostProps) => Promise<void>
+    handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
 
     const [text, setText] = useState("")
+    const [forceEditModalOpen, setForceEditModalOpen] = useState(false)
 
     // editor state
     const {images, setImages} = useImagesInPostEditor(postView)
@@ -342,7 +346,7 @@ export const WritePost = ({
         postView
     )
 
-    async function handleClickSubmit() {
+    async function handleClickSubmit(force: boolean = false) {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
 
         let selectionForPost: [number, number]
@@ -360,11 +364,20 @@ export const WritePost = ({
             externalEmbedView,
             visualization,
             quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined,
-            uri: postView?.uri
+            uri: postView?.uri,
+            forceEdit: force
         }
 
-        await handleSubmit(post)
-        setEditorKey(editorKey + 1);
+        const {error} = await handleSubmit(post)
+        if (error) {
+            if (error.includes("La publicación ya fue referenciada")) {
+                setForceEditModalOpen(true)
+                return {}
+            } else {
+                return {error}
+            }
+        }
+        setEditorKey(editorKey + 1)
         onClose()
         return {}
     }
@@ -410,8 +423,14 @@ export const WritePost = ({
 
     return <div className={"flex flex-col flex-grow justify-between"}>
         <div
-            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-2 justify-between min-h-64"}
+            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
         >
+            {replyTo != undefined && <div className={""}>
+                <WritePanelReplyPreview
+                    replyTo={replyTo}
+                    selection={selection}
+                />
+            </div>}
             <div className="flex justify-between space-x-2 w-full my-2">
                 <Link
                     href={profileUrl(user.handle)}
@@ -435,10 +454,6 @@ export const WritePost = ({
                     {charLimit && <ExtraChars charLimit={charLimit} count={getTextLength(text)}/>}
                 </div>
             </div>
-            {replyTo != undefined && <WritePanelReplyPreview
-                replyTo={replyTo}
-                selection={selection}
-            />}
             {visualizationComp}
             {images && images.length > 0 && <PostImagesEditor images={images} setImages={setImages}/>}
             {externalEmbedView && <ExternalEmbedInEditor
@@ -464,7 +479,7 @@ export const WritePost = ({
                 <StateButton
                     variant={"outlined"}
                     text1={postView ? "Confirmar cambios" : isReply ? "Responder" : "Publicar"}
-                    handleClick={handleClickSubmit}
+                    handleClick={async () => {return await handleClickSubmit()}}
                     disabled={!valid}
                     textClassName="font-semibold text-xs py-[2px] uppercase"
                     size="medium"
@@ -492,5 +507,34 @@ export const WritePost = ({
                 setImageModalOpen(false)
             }}
         />}
+        {forceEditModalOpen && <BaseFullscreenPopup open={true}>
+            <div className={"pb-4 pt-8 space-y-8"}>
+            <div className={"font-light text-[var(--text-light)] text-sm max-w-[400px] px-8"}>
+                La publicación ya fue referenciada. Si la editás ahora el cambio se va a ver reflejado en Cabildo
+                Abierto pero no en Bluesky.
+            </div>
+            <div className={"flex space-x-2 justify-center"}>
+                <Button
+                    variant={"outlined"}
+                    size={"small"}
+                    onClick={() => {setForceEditModalOpen(false)}}
+                >
+                    Cancelar
+                </Button>
+                <StateButton
+                    variant={"outlined"}
+                    size={"small"}
+                    handleClick={async () => {
+                        const {error} = await handleClickSubmit(true)
+                        if(!error) {
+                            setForceEditModalOpen(false)
+                        }
+                        return {error}
+                    }}
+                    text1={"Editar igualmente"}
+                />
+            </div>
+            </div>
+        </BaseFullscreenPopup>}
     </div>
 }

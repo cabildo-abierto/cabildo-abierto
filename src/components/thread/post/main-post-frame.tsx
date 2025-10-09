@@ -44,15 +44,17 @@ export const MainPostFrame = ({
                     {/* TO DO <FollowButtonInContent/>*/}
                 </div>
 
-                <div className="w-full flex flex-col">
-                    <div className="py-2">
+                <div className="w-full flex flex-col py-2 space-y-4">
+                    <div>
                         {children}
                     </div>
 
-                    <div className="py-2">
-                        <div className="text-sm text-[var(--text-light)] font-light" title={localeDate(new Date(postView.indexedAt), false, false, false, true)}>
-                            {localeDate(new Date(postView.indexedAt), false, false, true)}
-                        </div>
+                    <div className={"text-sm text-[var(--text-light)] font-light"}>
+                    <span title={localeDate(new Date(postView.indexedAt), false, false, false, true)}>
+                        {localeDate(new Date(postView.indexedAt), false, false, true)}
+                    </span>{postView.editedAt && <span title={localeDate(new Date(postView.editedAt), false, false, false, true)}>
+                        . Editado ({localeDate(new Date(postView.editedAt), false, false, true)}).
+                    </span>}
                     </div>
                 </div>
             </div>

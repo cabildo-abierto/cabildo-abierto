@@ -69,8 +69,8 @@ export const ReadHeatmap: React.FC<HeatmapProps> = ({ readChunks, totalChunks })
 };*/
 
 
-export function getEditorKey(uri: string, quoteReplies: ArCabildoabiertoFeedDefs.PostView[]){
-    return [uri, ...(quoteReplies?.map(q => q.uri) ?? [])].join(":")
+export function getEditorKey(uri: string, quoteReplies: ArCabildoabiertoFeedDefs.PostView[], editedAt?: string){
+    return [uri, editedAt, ...(quoteReplies?.map(q => q.uri) ?? [])].join(":")
 }
 
 

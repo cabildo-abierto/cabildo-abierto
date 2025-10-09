@@ -8,6 +8,7 @@ type BskyRichTextContentProps = {
     post: {text: string, facets?: AppBskyFeedPost.Record["facets"]}
     fontSize?: string
     namespace?: string
+    editedAt?: string
 }
 
 
@@ -15,11 +16,12 @@ const BskyRichTextContent = ({
     post,
     fontSize = "16px",
     className = "no-margin-top article-content exclude-links not-article-content",
-    namespace="namespace"
+    namespace="namespace",
+    editedAt
 }: BskyRichTextContentProps) => {
     const {markdown} = useMarkdownFromBsky(post)
 
-    return <div style={{fontSize: fontSize}} className={className}>
+    return <div style={{fontSize: fontSize}} className={className} key={editedAt}>
         <ReadOnlyEditor
             text={markdown.replaceAll("\n", "\n\n")}
             format={"markdown"}

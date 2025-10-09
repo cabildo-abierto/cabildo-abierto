@@ -26,7 +26,7 @@ type WritePanelProps = {
     quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
-    handleSubmit: (_: CreatePostProps) => Promise<void>
+    handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
 }
 

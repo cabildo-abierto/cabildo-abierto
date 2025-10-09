@@ -28,6 +28,7 @@ export const PostContent = ({
             fontSize={isMainPost ? "18px" : hideQuote ? "14px" : "16px"}
             className={"no-margin-top article-content not-article-content exclude-links"}
             namespace={postView.uri}
+            editedAt={postView.editedAt}
         />
         {embed && <PostEmbed
             embed={embed}
