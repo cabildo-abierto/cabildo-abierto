@@ -8,4 +8,4 @@ package-lock.json
 coverage/
 /public/dev/
 
-ecosystem.config.prod.js
+ecosystem.config.*.js
