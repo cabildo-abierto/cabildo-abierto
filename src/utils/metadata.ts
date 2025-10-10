@@ -4,7 +4,7 @@ import { produce } from "immer"
 export type MetadataParams = {
     title: string
     description: string
-    thumbnail: string
+    thumbnail?: string
 }
 
 

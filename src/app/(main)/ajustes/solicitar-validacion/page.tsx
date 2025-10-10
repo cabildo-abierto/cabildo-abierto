@@ -1,8 +1,6 @@
 "use client"
-import {styled, ToggleButton, ToggleButtonGroup} from "@mui/material";
+import {ToggleButton, ToggleButtonGroup} from "@mui/material";
 import {ReactNode, useState} from "react";
-import {Button} from "../../../../../modules/ui-utils/src/button";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {post} from "@/utils/fetch";
@@ -19,18 +17,9 @@ import CheckIcon from "@mui/icons-material/Check";
 import {TextField} from "../../../../../modules/ui-utils/src/text-field";
 import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
 import {Select} from "../../../../../modules/ui-utils/src/select";
+import {UploadFileButton} from "../../../../../modules/ui-utils/src/upload-file-button";
 
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
+
 
 
 const FormItemWithNote = ({note, ...props}: Omit<FormItemProps, "contentBelow"> & { note?: string }) => {
@@ -97,31 +86,6 @@ const FormItemWithFiles = ({fileNames, onRemove, ...props}: Omit<FormItemProps, 
         {...props}
         contentBelow={contentBelow}
     />
-}
-
-
-const UploadFileButton = ({children, onUpload, multiple = false}: {
-    children: ReactNode,
-    onUpload: (_: FileList) => void,
-    multiple?: boolean
-}) => {
-    return <Button
-        component="label"
-        role={undefined}
-        variant="outlined"
-        tabIndex={-1}
-        startIcon={<CloudUploadIcon/>}
-        color={"background-dark2"}
-    >
-        {children}
-        <VisuallyHiddenInput
-            type="file"
-            onChange={(e) => {
-                onUpload(e.target.files)
-            }}
-            multiple={multiple}
-        />
-    </Button>
 }
 
 

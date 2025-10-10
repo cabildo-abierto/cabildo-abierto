@@ -17,10 +17,10 @@ const Username = ({handle}: { handle: string }) => {
 
 export default function Page() {
     return <div className={"flex flex-col items-center pb-16 pt-4"}>
-        <div className={"w-screen px-2 sm:w-[600px] space-y-4"}>
+        <div className={"w-screen px-4 font-light sm:w-[600px] space-y-4"}>
             <BackButton behavior={"ca-back"}/>
             <div
-                className={"space-y-4 bg-[var(--background-dark)] rounded-lg px-4 py-6 text-sm sm:text-base text-justify sm:p-8"}
+                className={"space-y-4 pt-4 pb-6 text-sm sm:text-base text-justify"}
             >
                 <h2 className={"text-left py-2"}>
                     ¿Quiénes somos?
@@ -28,13 +28,11 @@ export default function Page() {
                 <div className={"space-y-1"}>
                     <h3>El equipo</h3>
                     <div>
-                        Cabildo Abierto es desarrollada y mantenida por un equipo de dos personas: Tomás Delgado
-                        (<Username
-                        handle={"tomasdelgado.ar"}/>) y Luca Zanela (<Username handle={"lucardino.bsky.ar"}/>).
-                        Tomás estudió Cs. de la Computación en la Facultad de Ciencias Exactas y Naturales de la UBA y
-                        Luca
-                        es estudiante avanzado de Cs. Matemáticas en la misma facultad.
-                        Los dos tenemos otros trabajos además de la plataforma y esperamos eventualmente poder dedicar más tiempo al desarrollo.
+                        El equipo de Cabildo Abierto está compuesto actualmente por tres personas: dos desarrolladores (<Username
+                        handle={"tomasdelgado.ar"}/> y <Username handle={"lucardino.bsky.social"}/>) y
+                        una diseñadora gráfica (<Username handle={"julidecicco.bsky.social"}/>). Los tres somos de Buenos Aires
+                        y nos formamos en la UBA. Tomás empezó a trabajar en la idea en mayo de 2024, Luca se sumó a principios de este año y Juli
+                        es la incorporación más reciente.
                     </div>
                 </div>
                 <div className={"space-y-1"}>
@@ -42,25 +40,24 @@ export default function Page() {
                     <div>
                         Porque vemos deficiencias importantes en cómo se está dando la discusión pública a través de
                         internet y
-                        creemos que, aunque no todo pase por la tecnología, hay mucho que se puede hacer mejor.
-                        Cabildo Abierto es una plataforma independiente construída para mejorar colectivamente la calidad de la
-                        información a la que accedemos y
-                        facilitar discusiones genuinas eliminando filtros artificiales.
+                        creemos que, aunque no todo pase por la tecnología, hay mucho que se podría estar haciendo mejor en ese sentido.
+                        Cabildo Abierto es una plataforma independiente construída con el objetivo de mejorar colectivamente la calidad de la
+                        información a la que accedemos, eliminar filtros artificiales y facilitar discusiones genuinas.
                     </div>
                 </div>
                 <div className={"space-y-1"}>
                     <h3>¡Sumate!</h3>
                     <div>
                         Si te interesa aportar a la discusión pública contruyendo mejores herramientas y espacios de
-                        discusión y no te importa que por ahora no tengamos financiamiento para pagar salarios,
-                        escribinos y hacemos una reunión. Estamos buscando especialistas en comunicación, pero escuchamos cualquier propuesta.
-                        Si programás podés pasar por nuestro <Link
+                        discusión, escribinos. Tenemos una <Link className="text-[var(--text-light)] hover:underline" href={"/sumate/comunicacion"}>búsqueda activa</Link> de alguien
+                        que se especialice en comunicación, pero escuchamos cualquier propuesta.
+                        Si programás también podés pasar por nuestro <Link
                         className="text-[var(--text-light)] hover:underline"
                         href={"https://github.com/cabildo-abierto"}>github</Link>.
                     </div>
                 </div>
-                <div className={"w-full flex justify-center"}>
-                    <Logo width={48} height={48}/>
+                <div className={"w-full flex justify-center pt-6"}>
+                    <Logo width={32} height={32}/>
                 </div>
             </div>
         </div>

@@ -229,7 +229,7 @@ export const PresentacionAbierto = () => {
     </div>
 
     return <FeatureSection
-        title={"Porque los datos son tuyos."}
+        title={"Porque los datos tienen que ser tuyos."}
         description={description}
         image={image}
         inverted={true}
