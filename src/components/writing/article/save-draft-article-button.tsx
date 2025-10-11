@@ -1,4 +1,4 @@
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import StateButton from "../../layout/utils/state-button";
 import {EditorState} from "lexical";
 import {post, updateSearchParam} from "@/utils/fetch";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";

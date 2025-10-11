@@ -1,8 +1,8 @@
 import {PlotConfigProps} from "@/lib/types";
-import SearchableDropdown from "../../../../../modules/ui-utils/src/searchable-dropdown";
+import SearchableDropdown from "../../../layout/utils/searchable-dropdown";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {Select} from "../../../../../modules/ui-utils/src/select";
+import {Select} from "../../../layout/utils/select";
 
 type ElectionVisualizationConfigProps = {
     config: PlotConfigProps

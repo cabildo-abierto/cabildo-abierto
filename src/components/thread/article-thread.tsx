@@ -1,6 +1,6 @@
 import {ReplyButton} from "./reply-button"
 import {useMemo, useState} from "react";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api/index"
 import ThreadReplies from "./thread-replies";

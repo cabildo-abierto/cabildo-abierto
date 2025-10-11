@@ -1,4 +1,4 @@
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import { IconButton } from "../../layout/utils/icon-button";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 
 

@@ -1,10 +1,10 @@
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {useState} from "react";
 import {LinkIcon} from "@/components/layout/icons/link-icon";
 import {UploadImageButton} from "./upload-image-button";
 import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import { Button } from "../../layout/utils/button";
 
 export type InsertImageModalProps = {
     open: boolean

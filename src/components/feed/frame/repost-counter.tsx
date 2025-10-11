@@ -1,8 +1,8 @@
 import {RepostIcon} from "@/components/layout/icons/reposts-icon";
 import React from "react";
 import {$Typed} from "@/lex-api/util";
-import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
-import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
+import {ModalOnClick} from "../../layout/utils/modal-on-click";
+import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import dynamic from "next/dynamic";
@@ -12,7 +12,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useRepostMutation} from "@/queries/mutations/repost";
-import { Color } from "../../../../modules/ui-utils/src/color";
+import { Color } from "../../layout/utils/color";
 
 
 export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textClassName, iconFontSize}: {

@@ -1,8 +1,8 @@
 import { ReactNode } from "react"
-import { CustomLink } from "../../../../modules/ui-utils/src/custom-link"
-import { Button } from "../../../../modules/ui-utils/src/button"
+import { CustomLink } from "../utils/custom-link"
+import { Button } from "../utils/button"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {Color} from "../../../../modules/ui-utils/src/color";
+import {Color} from "../utils/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useSession} from "@/queries/getters/useSession";
 

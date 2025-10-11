@@ -3,7 +3,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import {contentUrl, getRkeyFromUri} from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
 
-export const ShareContentButton = ({uri, handle}: {uri: string, handle?: string}) => {
+export const OptionsShareButton = ({uri, handle}: {uri: string, handle?: string}) => {
     const [onClipboard, setOnClipboard] = useState(false);
 
     const onShare = async () => {

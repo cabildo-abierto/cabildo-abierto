@@ -1,5 +1,5 @@
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import {IconButton} from "../layout/utils/icon-button";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
 import EnDiscusionIcon from "@/components/layout/icons/en-discusion-icon";

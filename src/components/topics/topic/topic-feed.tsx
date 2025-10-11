@@ -1,16 +1,16 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink} from "../../layout/utils/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
-import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../../layout/utils/info-panel";
 import Link from "next/link"
 import {get, updateSearchParam} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
 import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session, WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useMemo, useRef} from "react";
-import {ClickableModalOnClick} from "../../../../modules/ui-utils/src/popover";
+import {ClickableModalOnClick} from "../../layout/utils/popover";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
 import {useSession} from "@/queries/getters/useSession";
 import {stringToEnum} from "@/utils/strings";
@@ -248,9 +248,10 @@ export const TopicFeed = ({
                     {content.title}
                 </CustomLink>
             })}
-            endText={""}
+            endText={"Fin del feed."}
             getFeedElementKey={e => e.id}
-            estimateSize={500}
+            estimateSize={100}
+            overscan={10}
         />
     }, [metric, time, format, topicId])
 

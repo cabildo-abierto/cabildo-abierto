@@ -3,18 +3,18 @@ import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import {ErrorMsg} from "@/utils/utils";
-import TickButton from "../../../../modules/ui-utils/src/tick-button";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import TickButton from "../../layout/utils/tick-button";
+import StateButton from "../../layout/utils/state-button";
 import {getTopicTitle, validEntityName} from "@/components/topics/topic/utils";
 import {useSession} from "@/queries/getters/useSession";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../layout/utils/button";
 import {post} from "@/utils/fetch";
 import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
-import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../../layout/utils/icon-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export const createTopic = async (id: string) => {

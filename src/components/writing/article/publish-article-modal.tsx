@@ -1,6 +1,6 @@
-import StateButton, {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import StateButton, {StateButtonClickHandler} from "../../layout/utils/state-button";
 import {useMemo, useState} from "react";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";

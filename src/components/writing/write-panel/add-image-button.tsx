@@ -1,4 +1,4 @@
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import { IconButton } from "../../layout/utils/icon-button";
 import InsertImageIcon from "@/components/layout/icons/insert-image-icon";
 
 export const AddImageButton = ({

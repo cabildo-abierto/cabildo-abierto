@@ -1,4 +1,4 @@
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../layout/utils/date";
 import Link from "next/link";
 import {splitUri, topicUrl} from "@/utils/uri";
 import {AppBskyFeedPost} from "@atproto/api";

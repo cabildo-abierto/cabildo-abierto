@@ -1,11 +1,11 @@
 "use client"
 
 import React from "react";
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../layout/utils/close-button";
 import {TextField, TextFieldProps} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-import {Color} from "../../../modules/ui-utils/src/color";
+import {Color} from "../layout/utils/color";
 
 
 const SearchBar = ({

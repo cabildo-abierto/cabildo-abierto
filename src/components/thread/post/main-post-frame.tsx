@@ -8,7 +8,7 @@ import {profileUrl} from "@/utils/uri";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {$Typed} from "@/lex-api/util";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {localeDate} from "../../../../modules/ui-utils/src/date";
+import {localeDate} from "../../layout/utils/date";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 

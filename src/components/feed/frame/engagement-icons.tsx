@@ -1,4 +1,4 @@
-import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button"
+import {ContentOptionsButton} from "@/components/layout/options/content-options-button"
 import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon"
 import {ReplyCounter} from "./reply-counter"
 import {contentUrl, getCollectionFromUri} from "@/utils/uri";
@@ -16,7 +16,7 @@ const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-
     ssr: false
 })
 import {EngagementDetails} from "@/components/feed/frame/engagement-details";
-import { Color } from "../../../../modules/ui-utils/src/color";
+import { Color } from "../../layout/utils/color";
 
 
 type EngagementIconsProps = {

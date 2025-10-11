@@ -5,11 +5,11 @@ import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {rounder} from "@/utils/strings";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
+import {DateSince} from "../../layout/utils/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink} from "../../layout/utils/custom-link";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import { Session } from "@/lib/types";
 import {useSession} from "@/queries/getters/useSession";

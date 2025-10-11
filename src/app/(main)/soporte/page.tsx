@@ -4,7 +4,7 @@ import {categoryUrl, chatUrl, profileUrl} from "@/utils/uri";
 import Link from "next/link"
 import {post} from "@/utils/fetch";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../components/layout/utils/loading-spinner";
 import {useState} from "react";
 import {useConversations} from "@/queries/getters/useConversations";
 

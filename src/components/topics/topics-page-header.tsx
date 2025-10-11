@@ -1,6 +1,6 @@
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {GraphIcon, ListBulletsIcon, StackIcon} from "@phosphor-icons/react"
 import dynamic from "next/dynamic";
@@ -8,8 +8,8 @@ import MainSearchBar from "@/components/buscar/main-search-bar";
 import AddIcon from "@mui/icons-material/Add";
 import {useSearch} from "@/components/buscar/search-context";
 import TopicsSortSelector from "@/components/topics/topic-sort-selector";
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import {IconButton} from "../layout/utils/icon-button";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useTopicsPageParams} from "@/components/config/topics";
 import {updateSearchParam} from "@/utils/fetch";

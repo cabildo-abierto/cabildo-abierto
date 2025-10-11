@@ -1,5 +1,5 @@
 import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
-import {localeDate} from "../../../../modules/ui-utils/src/date";
+import {localeDate} from "../../layout/utils/date";
 import {ReadingTime} from "@/components/thread/article/reading-time";
 import {getNumWords} from "../../../../modules/ca-lexical-editor/src/get-num-words";
 import {Authorship} from "@/components/feed/frame/authorship";

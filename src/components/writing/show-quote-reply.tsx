@@ -1,6 +1,6 @@
 import {LexicalEditor} from "lexical";
 import {useEffect, useState} from "react";
-import {IconButton} from "../../../modules/ui-utils/src/icon-button"
+import {IconButton} from "../layout/utils/icon-button"
 import {PostContent} from "@/components/feed/post/post-content";
 import {SidenoteReplyPreviewFrame} from "@/components/thread/article/sidenote-reply-preview-frame";
 import {
@@ -11,7 +11,7 @@ import {
     $isCustomMarkNode
 } from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api"
-import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
+import {ModalOnClickControlled} from "../layout/utils/modal-on-click-controlled";
 import {$dfs} from "@lexical/utils";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";

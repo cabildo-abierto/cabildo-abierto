@@ -1,21 +1,21 @@
-import {DateSince} from "../../../../../modules/ui-utils/src/date"
-import {CustomLink as Link} from '../../../../../modules/ui-utils/src/custom-link';
+import {DateSince} from "../../../layout/utils/date"
+import {CustomLink as Link} from '../../../layout/utils/custom-link';
 import {useRouter, useSearchParams} from "next/navigation"
 import React, {useMemo, useState} from "react"
-import StateButton from "../../../../../modules/ui-utils/src/state-button"
-import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel"
+import StateButton from "../../../layout/utils/state-button"
+import {AcceptButtonPanel} from "../../../layout/utils/accept-button-panel"
 import {ChangesCounter} from "../changes-counter"
-import {BaseFullscreenPopup} from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
+import {BaseFullscreenPopup} from "../../../layout/utils/base-fullscreen-popup"
 import {ProfilePic} from "../../../profile/profile-pic";
-import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
+import {ContentOptionsButton} from "@/components/layout/options/content-options-button";
 import {getAcceptCount, getRejectCount} from "../utils";
 import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
 import {useTopicHistory} from "@/queries/getters/useTopic";
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
-import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
+import LoadingSpinner from "../../../layout/utils/loading-spinner";
+import {ErrorPage} from "../../../layout/utils/error-page";
 import StarIcon from '@mui/icons-material/Star';
 import {useSession} from "@/queries/getters/useSession";
-import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../../../layout/utils/icon-button";
 import {VoteEditButtons} from "@/components/topics/topic/history/vote-edit-buttons";
 import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {Authorship} from "@/components/feed/frame/authorship";
@@ -25,7 +25,7 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {ListDashesIcon} from "@phosphor-icons/react";
-import DescriptionOnHover from "../../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../../layout/utils/description-on-hover";
 import {TopicPropView} from "../props/topic-props-view";
 
 const EditDetails = ({topicHistory, index}: {

@@ -1,6 +1,6 @@
 import React from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import { IconButton } from "../../../modules/ui-utils/src/icon-button";
+import { IconButton } from "./utils/icon-button";
 
 
 export const OpenSidebarButton = () => {

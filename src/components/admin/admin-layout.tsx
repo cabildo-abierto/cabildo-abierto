@@ -2,7 +2,7 @@
 import {ReactNode} from "react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter, useSearchParams} from "next/navigation";
-import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
+import {NotFoundPage} from "../layout/utils/not-found-page";
 import {useSession} from "@/queries/getters/useSession";
 import {configOptionNodes} from "@/components/config/config-option-nodes";
 

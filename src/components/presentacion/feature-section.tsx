@@ -1,5 +1,5 @@
 import {ReactNode} from "react";
-import {Color} from "../../../modules/ui-utils/src/color";
+import {Color} from "../layout/utils/color";
 
 export const FeatureSection = ({title, subtitle, description, image, inverted, background = "background"}: {
     title: string, subtitle?: string, description: ReactNode, image: ReactNode, inverted: boolean, background?: Color

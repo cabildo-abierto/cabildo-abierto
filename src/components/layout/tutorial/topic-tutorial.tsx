@@ -8,7 +8,7 @@ import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session, WikiEditorState} from "@/lib/types";
 import {produce} from "immer";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../utils/scroll";
 import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
 import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 

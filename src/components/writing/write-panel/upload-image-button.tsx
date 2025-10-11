@@ -1,9 +1,9 @@
 import {styled} from "@mui/material";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import { Button } from "../../layout/utils/button";
 import {file2base64} from "@/utils/files";
 import imageCompression from "browser-image-compression"
-import { CloudArrowUpIcon } from "@phosphor-icons/react";
+import UploadFileIcon from "@/components/layout/icons/upload-file-icon";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -51,7 +51,7 @@ export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: stri
         variant="outlined"
         tabIndex={-1}
         disableElevation={true}
-        startIcon={<CloudArrowUpIcon weight={"light"} />}
+        startIcon={<UploadFileIcon weight={"light"} />}
         fullWidth={true}
     >
         <span className={"text-[13px]"}>

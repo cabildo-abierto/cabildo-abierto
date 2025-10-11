@@ -3,7 +3,7 @@ import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
 
 import dynamic from "next/dynamic";
-import {Select} from "../../../../modules/ui-utils/src/select";
+import {Select} from "../../layout/utils/select";
 import {useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
 import Link from "next/link";

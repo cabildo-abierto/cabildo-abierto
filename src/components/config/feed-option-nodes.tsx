@@ -1,6 +1,6 @@
-import { Button } from "../../../modules/ui-utils/src/button";
+import { Button } from "../layout/utils/button";
 import {ReactNode} from "react";
-import { Color } from "../../../modules/ui-utils/src/color";
+import { Color } from "../layout/utils/color";
 
 export function feedOptionNodes(
     height: number = 47,

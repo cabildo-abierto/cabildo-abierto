@@ -1,8 +1,8 @@
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import React from "react";
 import { useSearch } from "./search-context";
 import {usePathname} from "next/navigation";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import {useDebounce} from "@/utils/debounce";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";

@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {IconButton} from "@/components/layout/utils/icon-button"
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";

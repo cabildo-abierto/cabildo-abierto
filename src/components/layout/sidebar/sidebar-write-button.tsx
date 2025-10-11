@@ -1,5 +1,5 @@
-import {Button} from "../../../../modules/ui-utils/src/button";
-import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
+import {Button} from "../utils/button";
+import {IconButton} from "../utils/icon-button";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import React from "react";
 

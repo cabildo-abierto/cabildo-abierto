@@ -1,13 +1,13 @@
 import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "@/components/topics/topic/utils";
-import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink as Link} from "../../layout/utils/custom-link";
 import {useRouter} from "next/navigation";
 import TopicCategories from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {hasUnseenUpdate} from "@/components/topics/topic/topic-search-result";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useSession} from "@/queries/getters/useSession";

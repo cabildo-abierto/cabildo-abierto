@@ -52,13 +52,13 @@ import {INSERT_EMBED_COMMAND} from "../EmbedPlugin";
 import {ToolbarButton} from "./toolbar-button";
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
-import {ModalOnClick} from "../../../../ui-utils/src/modal-on-click";
-import { Button } from '../../../../ui-utils/src/button';
+import {ModalOnClick} from "@/components/layout/utils/modal-on-click";
+import { Button } from '@/components/layout/utils/button';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
 import {AppBskyEmbedImages} from "@atproto/api"
-import { Color } from '../../../../ui-utils/src/color';
+import { Color } from '@/components/layout/utils/color';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from 'next/dynamic';
 import InsertImageIcon from "@/components/layout/icons/insert-image-icon";

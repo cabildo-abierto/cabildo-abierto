@@ -1,5 +1,5 @@
 import { ClockIcon } from "@phosphor-icons/react";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 
 
 export const ReadingTime = ({numWords}: { numWords?: number }) => {

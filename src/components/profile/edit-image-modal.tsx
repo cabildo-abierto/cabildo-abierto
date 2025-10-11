@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import Slider from "@mui/material/Slider";
-import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
-import { Button } from "../../../modules/ui-utils/src/button";
+import {BaseFullscreenPopup} from "../layout/utils/base-fullscreen-popup";
+import { Button } from "../layout/utils/button";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 
 const getCroppedImg = (

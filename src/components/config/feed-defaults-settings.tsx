@@ -1,7 +1,7 @@
 "use client"
 
 import React, {ReactNode, useState} from "react";
-import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
+import {CustomLink as Link} from '../layout/utils/custom-link';
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {
     AlgorithmConfig,
@@ -11,7 +11,7 @@ import {
 import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
-import InfoPanel from "../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../layout/utils/info-panel";
 import {topicUrl} from "@/utils/uri";
 import {
     defaultEnDiscusionFormat,

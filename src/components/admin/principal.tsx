@@ -4,8 +4,8 @@
 import {AdminSection} from "@/components/admin/admin-section";
 import {useState} from "react";
 import {post} from "@/utils/fetch";
-import StateButton from "../../../modules/ui-utils/src/state-button";
-import { TextField } from "../../../modules/ui-utils/src/text-field";
+import StateButton from "../layout/utils/state-button";
+import { TextField } from "../layout/utils/text-field";
 import {useAPI} from "@/queries/utils";
 
 function useRegisteredJobs() {

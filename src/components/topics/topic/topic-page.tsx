@@ -3,12 +3,12 @@ import {useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {updateSearchParams} from "@/utils/fetch";
 import TopicTutorial from "@/components/layout/tutorial/topic-tutorial";
 import {getUri} from "@/utils/uri";
 import {WikiEditorState} from "@/lib/types";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../layout/utils/scroll";
 import TopicNotFoundPage from "@/components/topics/topic/topic-not-found-page";
 import TopicCategories from "@/components/topics/topic/topic-categories";
 import dynamic from "next/dynamic";

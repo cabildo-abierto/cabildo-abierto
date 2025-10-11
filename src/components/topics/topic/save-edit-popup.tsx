@@ -1,24 +1,24 @@
 import {LexicalEditor} from "lexical";
-import {CustomLink as Link} from '../../../../modules/ui-utils/src/custom-link';
+import {CustomLink as Link} from '../../layout/utils/custom-link';
 import React, {useEffect, useMemo, useState} from "react";
-import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../../layout/utils/info-panel";
 import {NotEnoughPermissionsWarning} from "./permissions-warning";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
-import TickButton from "../../../../modules/ui-utils/src/tick-button";
+import StateButton from "../../layout/utils/state-button";
+import TickButton from "../../layout/utils/tick-button";
 import {ChangesCounterWithText} from "./changes-counter";
-import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
+import {AcceptButtonPanel} from "../../layout/utils/accept-button-panel";
 import {topicUrl} from "@/utils/uri";
 import {getTopicProtection, hasEditPermission} from "./utils";
 import {useSession} from "@/queries/getters/useSession";
-import {Button} from "@/../modules/ui-utils/src/button"
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {Button} from "@/components/layout/utils/button"
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {post} from "@/utils/fetch";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {decompress} from "@/utils/compression";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import { TextField } from "../../layout/utils/text-field";
 
 
 const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: string) => void }) => {

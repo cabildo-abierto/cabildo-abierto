@@ -1,6 +1,6 @@
 import {useFollowx} from "@/queries/getters/useFollowx";
 import {FollowKind} from "@/components/profile/follow/followx-page";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import dynamic from "next/dynamic";
 import {useProfile} from "@/queries/getters/useProfile";
 import {FollowCount} from "@/components/profile/follow/follow-counter";

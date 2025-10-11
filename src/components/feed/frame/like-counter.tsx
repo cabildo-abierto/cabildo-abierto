@@ -8,7 +8,7 @@ import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import { useLikeMutation } from "@/queries/mutations/like";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
-import { Color } from "../../../../modules/ui-utils/src/color";
+import { Color } from "../../layout/utils/color";
 
 
 export const LikeCounter = ({content, showBsky, hoverColor, iconFontSize, textClassName}: {

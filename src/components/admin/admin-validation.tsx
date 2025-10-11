@@ -1,20 +1,20 @@
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import {usePendingValidationRequests} from "@/queries/getters/admin";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../layout/utils/date";
 import {useState} from "react";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import StateButton from "../../../modules/ui-utils/src/state-button";
-import {Button} from "../../../modules/ui-utils/src/button";
+import StateButton from "../layout/utils/state-button";
+import {Button} from "../layout/utils/button";
 import {FilePayload} from "@/utils/files";
 import {DownloadIcon} from "@phosphor-icons/react";
 import Image from "next/image"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {post} from "@/utils/fetch";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
-import { TextField } from "../../../modules/ui-utils/src/text-field";
+import { TextField } from "../layout/utils/text-field";
 
 
 export type ValidationRequestView = { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date } & ({

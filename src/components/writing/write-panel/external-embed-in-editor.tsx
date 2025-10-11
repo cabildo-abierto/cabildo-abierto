@@ -1,5 +1,5 @@
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../layout/utils/close-button";
 import {AppBskyEmbedExternal} from "@atproto/api";
 
 export const ExternalEmbedInEditor = ({embed, onRemove}: {

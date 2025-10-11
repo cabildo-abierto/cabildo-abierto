@@ -1,5 +1,5 @@
 import {TooltipRenderProps} from "react-joyride";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../utils/button";
 
 export function CustomJoyrideTooltip(props: TooltipRenderProps) {
     const {primaryProps, step, tooltipProps, isLastStep} = props
