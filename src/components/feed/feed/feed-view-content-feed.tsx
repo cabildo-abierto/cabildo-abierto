@@ -1,5 +1,5 @@
 import Feed, {FeedProps} from "@/components/feed/feed/feed";
-import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import LoadingFeedViewContent from "@/components/feed/feed/loading-feed-view-content"
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {GetFeedProps} from "@/lib/types";
@@ -27,8 +27,12 @@ const FeedViewContentFeed = ({
                              }: FeedViewContentFeedProps) => {
 
     const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) => {
-        if (ArCabildoabiertoFeedDefs.isPostView(e.content) || ArCabildoabiertoFeedDefs.isArticleView(e.content)) {
+        if (ArCabildoabiertoFeedDefs.isPostView(e.content) ||
+            ArCabildoabiertoFeedDefs.isArticleView(e.content)
+        ) {
             return e.content.uri
+        } else if(ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
+            return e.content.id
         } else {
             return null
         }

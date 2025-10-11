@@ -92,7 +92,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             name="username"
                             autoFocus
                             variant="outlined"
-                            autoComplete="off"
+                            autoComplete="username"
                             value={handleStart}
                             onChange={(e) => {
                                 setHandleStart(e.target.value);

@@ -33,6 +33,7 @@ export type FeedProps<T> = {
     getFeedElementKey: (e: T) => string | null
     enabled?: boolean
     estimateSize?: number
+    overscan?: number
 }
 
 
@@ -55,7 +56,8 @@ function Feed<T>({
     LoadingFeedContent,
     FeedElement,
     enabled=true,
-    estimateSize=500
+    estimateSize=500,
+    overscan=4
 }: FeedProps<T>) {
     const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching} = useInfiniteQuery({
         queryKey,
@@ -88,7 +90,7 @@ function Feed<T>({
     const virtualizer = useWindowVirtualizer({
         count: feedList.length+1,
         estimateSize: () => estimateSize,
-        overscan: 4
+        overscan
     })
 
     const items = virtualizer.getVirtualItems()

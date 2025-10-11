@@ -10,7 +10,6 @@ import {useEffect} from "react";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import dynamic from "next/dynamic";
 
-
 const ProfileHeader = dynamic(() => import("@/components/profile/profile-header"), {
     ssr: false
 })
@@ -89,6 +88,8 @@ export const ProfilePage = ({
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no hizo ninguna edición en la wiki."}
                     endText={"Fin del feed."}
+                    estimateSize={100}
+                    overscan={10}
                 />}
             {selected == "articulos" &&
                 <FeedViewContentFeed

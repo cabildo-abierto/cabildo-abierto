@@ -1,11 +1,11 @@
-import CabildoIcon from "@/components/layout/icons/home-icon";
+import HomeIcon from "@/components/layout/icons/home-icon";
 import React from "react";
 import {usePathname, useRouter} from "next/navigation";
-import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@/components/layout/icons/notifications-icon";
 import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {BottomNavigation, BottomNavigationAction, Box, Paper} from "@mui/material";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {MagnifyingGlassIcon} from "@phosphor-icons/react";
 
 const BottomBarMobile = () => {
     const pathname = usePathname()
@@ -15,6 +15,8 @@ const BottomBarMobile = () => {
 
     const notificationsSelected = pathname.startsWith("/notificaciones")
     const topicsSelected = pathname.startsWith("/temas")
+    const searchSelected = pathname.startsWith("/buscar")
+    const homeSelected = pathname.startsWith("/inicio")
 
     const values = ["inicio", "temas", "buscar", "notificaciones"]
     const value: string = values.find(v => pathname.startsWith(`/${v}`)) ?? null
@@ -56,22 +58,28 @@ const BottomBarMobile = () => {
                 <BottomNavigationAction
                     value="inicio"
                     label="Inicio"
-                    icon={<CabildoIcon/>}
+                    icon={<HomeIcon
+                        fontSize={23}
+                        weight={homeSelected ? "fill" : "light"}
+                    />}
                 />
                 <BottomNavigationAction
                     value="temas"
                     label="Temas"
-                    icon={<TopicsIcon color={topicsSelected ? "text" : undefined}/>}
+                    icon={<TopicsIcon color={topicsSelected ? "text" : "text-light"}/>}
                 />
                 <BottomNavigationAction
                     value="buscar"
                     label="Buscar"
-                    icon={<SearchIcon/>}
+                    icon={<MagnifyingGlassIcon fontSize={23} weight={searchSelected ? "bold" : "light"}/>}
                 />
                 <BottomNavigationAction
                     value="notificaciones"
                     label="Notificaciones"
-                    icon={<div><NotificationsIcon color={notificationsSelected ? "text" : undefined}/></div>}
+                    icon={<NotificationsIcon
+                        fontSize={23}
+                        color={notificationsSelected ? "text" : "text-light"}
+                    />}
                 />
             </BottomNavigation>
         </Paper>

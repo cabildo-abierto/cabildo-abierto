@@ -42,7 +42,7 @@ export default function Page() {
 
     const content = <div className={"space-y-2"}>
         <div className={"pb-2 font-light"}>
-            Hacé click en un enlace para copiarlo y enviáselo a alguien. Vamos a ir disponibilizando más enlaces a medida que la plataforma esté lista.
+            Hacé click en un enlace para copiarlo. Vamos a ir disponibilizando más enlaces a medida que la plataforma esté lista.
         </div>
         {data && data.map(c => {
             return <div key={c.code}>
@@ -65,7 +65,6 @@ export default function Page() {
     </div>
     return <div>
         <PageCardMessage
-            title={`Compartir Cabildo Abierto`}
             content={content}
         />
         {copied && <AcceptButtonPanel open={copied} onClose={() => setCopied(false)}>

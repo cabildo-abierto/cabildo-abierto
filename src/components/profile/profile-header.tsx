@@ -230,7 +230,7 @@ function ProfileHeader({
                 onSelection={(v) => {
                     setSelected(v)
                 }}
-                options={["Publicaciones", "Respuestas", ...(inCA ? ["Ediciones", "Artículos"] : [])]}
+                options={["Publicaciones", "Respuestas", ...(inCA ? ["Artículos", "Ediciones"] : [])]}
                 optionsNodes={feedOptionNodes(40, o => o, "sm:text-[12px] text-[13px]")}
                 className="flex"
             />

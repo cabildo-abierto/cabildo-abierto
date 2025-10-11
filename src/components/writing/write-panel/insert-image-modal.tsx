@@ -27,11 +27,13 @@ const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
                     <Button
                         variant="outlined"
                         disableElevation={true}
-                        startIcon={<LinkIcon/>}
+                        startIcon={<LinkIcon weight={"light"}/>}
                         fullWidth={true}
                         onClick={() => setMode('url')}
                     >
-                        <span className={"text-sm"}>Desde un URL</span>
+                        <span className={"text-[13px]"}>
+                            Usar un URL
+                        </span>
                     </Button>
                     <UploadImageButton
                         onSubmit={onSubmit}

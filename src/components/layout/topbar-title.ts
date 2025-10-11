@@ -4,7 +4,11 @@ export function useTopbarTitle() {
     const pathname = usePathname()
     const params = useSearchParams()
     if(pathname.startsWith("/ajustes")){
-        return {title: "Ajustes"}
+        if(pathname.includes("compartir")){
+            return {title: "Compartir"}
+        } else {
+            return {title: "Ajustes"}
+        }
     } else if(pathname.startsWith("/buscar")) {
         return {title: "Buscar"}
     } else if(pathname.startsWith("/perfil")){
@@ -45,6 +49,8 @@ export function useTopbarTitle() {
         }
     } else if(pathname.includes("/admin")){
         return {title: "Admin"}
+    } else if(pathname.startsWith("/soporte")) {
+        return {title: "Soporte"}
     }
     return {}
 }

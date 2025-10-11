@@ -1,5 +1,5 @@
-import {ImageOutlined} from "@mui/icons-material";
 import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import InsertImageIcon from "@/components/layout/icons/insert-image-icon";
 
 export const AddImageButton = ({
     disabled,
@@ -12,12 +12,13 @@ export const AddImageButton = ({
         onClick={() => {setModalOpen(true)}}
         disabled={disabled}
         type="button"
+        size={"small"}
         title="Insertar imágen"
         aria-label="Insertar imágen"
         sx={{
             borderRadius: 0
         }}
     >
-        <ImageOutlined fontSize={"small"} color={"inherit"}/>
+        <InsertImageIcon fontSize={20}/>
     </IconButton>
 }

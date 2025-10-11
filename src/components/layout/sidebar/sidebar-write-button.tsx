@@ -17,7 +17,7 @@ export const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onC
                     }}
                     id={"write-button"}
                 >
-                    <span className={"font-bold text-[16px] sm:text-[14px]"}>
+                    <span className={"font-semibold text-[16px] sm:text-[14px]"}>
                         Escribir
                     </span>
                 </Button> :
