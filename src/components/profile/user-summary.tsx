@@ -31,7 +31,7 @@ const UserSummary = ({handle}: UserSummaryProps) => {
     const className: string = 'w-12 h-12 rounded-full';
 
     return (
-        <div className="panel-dark p-4 w-90  hidden md:flex flex-col space-y-2 ">
+        <div className="panel-dark p-4 w-90  hidden md:flex flex-col space-y-2" onClick={e => {e.stopPropagation()}}>
             <div className="flex justify-between items-center">
                 <ProfilePic user={profile} descriptionOnHover={false} className={className}/>
                 <FollowButton backgroundColor={"background-dark"} handle={profile.handle} profile={profile}/>

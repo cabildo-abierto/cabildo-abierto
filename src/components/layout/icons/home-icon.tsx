@@ -1,8 +1,13 @@
-import HomeIcon from '@mui/icons-material/Home';
+import { HouseLineIcon } from '@phosphor-icons/react';
+import { Color } from '../../../../modules/ui-utils/src/color';
 
-const CabildoIcon = ({fontSize}: {className?: string, fontSize?: "small" | "inherit"}) => {
-    return <HomeIcon fontSize={fontSize} color={"inherit"}/>
+const HomeIcon = ({fontSize=24, color, weight="light"}: {
+    fontSize?: number
+    color?: Color
+    weight: "fill" | "light"
+}) => {
+    return <HouseLineIcon weight={weight} fontSize={fontSize} color={color}/>
 }
 
 
-export default CabildoIcon;
+export default HomeIcon;

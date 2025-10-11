@@ -1,5 +1,5 @@
-import VisualizationsIcon from "@mui/icons-material/AutoGraph";
 import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 
 
 export const AddVisualizationButton = ({
@@ -14,12 +14,13 @@ export const AddVisualizationButton = ({
             setModalOpen(true)
         }}
         disabled={disabled}
+        size={"small"}
         sx={{
             borderRadius: 0
         }}
         title="Agregar visualización"
         aria-label="Agregar visualización"
     >
-        <VisualizationsIcon fontSize={"small"} color={"inherit"}/>
+        <VisualizationIcon fontSize={20}/>
     </IconButton>
 }

@@ -76,6 +76,7 @@ export default function InsertTableModal({
                         variant={"outlined"}
                         disabled={isDisabled}
                         onClick={onClick}
+                        size={"small"}
                     >
                         Insertar
                     </Button>

@@ -10,10 +10,9 @@ import {
 } from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
-import {ViewsIcon} from "@/components/layout/icons/views-icon";
+import ViewsIcon from "@/components/layout/icons/views-icon";
 import {post} from "@/utils/fetch";
 import DeleteButton from "@/components/feed/content-options/delete-button";
 import {$Typed} from "@/lex-api/util";
@@ -23,6 +22,8 @@ import {QueryContentUpdater, updateContentInQueries} from "@/queries/mutations/u
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useRouter} from "next/navigation";
 import dynamic from "next/dynamic";
+import EnDiscusionIcon from "@/components/layout/icons/en-discusion-icon";
+import ViewsDisabledIcon from "@/components/layout/icons/views-disabled-icon";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
 
@@ -124,7 +125,7 @@ export const ContentOptions = ({
                 }
                 return {}
             }}
-            startIcon={<Newspaper/>}
+            startIcon={<EnDiscusionIcon/>}
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
             disabled={isOptimistic}
         />}
@@ -146,7 +147,7 @@ export const ContentOptions = ({
             <OptionsDropdownButton
                 text1={"Reacciones en Bluesky"}
                 handleClick={async () => {setShowBluesky(!showBluesky); return {}}}
-                startIcon={!showBluesky ? <ViewsIcon/> : <VisibilityOff/>}
+                startIcon={!showBluesky ? <ViewsIcon/> : <ViewsDisabledIcon/>}
             />
         }
         <ShareContentButton uri={record.uri} handle={record.author.handle}/>

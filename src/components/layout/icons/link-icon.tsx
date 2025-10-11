@@ -1,6 +1,9 @@
 
-import MuiLinkIcon from '@mui/icons-material/Link';
+import {LinkSimpleIcon} from "@phosphor-icons/react";
 
-export const LinkIcon = () => {
-    return <MuiLinkIcon fontSize="small"/>
+export const LinkIcon = ({fontSize, weight="light"}: {
+    fontSize?: number
+    weight?: "light" | "fill" | "regular" | "bold"
+}) => {
+    return <LinkSimpleIcon fontSize={fontSize} weight={weight}/>
 }

@@ -122,19 +122,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
                     thumbnail: string | null
                 }>("/metadata", {url})
 
-                if (error) {
-                    const embed: $Typed<AppBskyEmbedExternal.View> = {
-                        $type: "app.bsky.embed.external#view",
-                        external: {
-                            $type: 'app.bsky.embed.external#viewExternal',
-                            uri: url,
-                            title: url,
-                            description: undefined,
-                            thumb: undefined
-                        }
-                    }
-                    setExternalEmbedView(embed)
-                } else {
+                if (!error) {
                     const {title, description, thumbnail} = data
                     const embed: $Typed<AppBskyEmbedExternal.View> = {
                         $type: "app.bsky.embed.external#view",
@@ -423,7 +411,7 @@ export const WritePost = ({
 
     return <div className={"flex flex-col flex-grow justify-between"}>
         <div
-            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
+            className={"px-2 w-full pb-2 flex-grow justify-between flex flex-col space-y-4 min-h-64"}
         >
             {replyTo != undefined && <div className={""}>
                 <WritePanelReplyPreview

@@ -12,7 +12,6 @@ const SmallUserSearchResult: React.FC<{
     className?: string
     onClick?: (handle: string) => void
 }> = ({user, className = "", onClick}) => {
-
     return <Link
         href={profileUrl(user.handle)}
         onClick={() => {

@@ -2663,6 +2663,7 @@ export const schemaDict = {
             refs: [
               'lex:ar.cabildoabierto.feed.defs#postView',
               'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
             ],
           },
           reply: {

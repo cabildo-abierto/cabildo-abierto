@@ -1,9 +1,9 @@
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {styled} from "@mui/material";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import { Button } from "../../../../modules/ui-utils/src/button";
 import {file2base64} from "@/utils/files";
 import imageCompression from "browser-image-compression"
+import { CloudArrowUpIcon } from "@phosphor-icons/react";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -51,10 +51,12 @@ export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: stri
         variant="outlined"
         tabIndex={-1}
         disableElevation={true}
-        startIcon={<CloudUploadIcon />}
+        startIcon={<CloudArrowUpIcon weight={"light"} />}
         fullWidth={true}
     >
-        {text}
+        <span className={"text-[13px]"}>
+            {text}
+        </span>
         <VisuallyHiddenInput
             type="file"
             accept={"image/*"}

@@ -16,8 +16,6 @@ function StaticFeed<T>({
     getFeedElementKey
 }: StaticFeedProps<T>) {
 
-    console.log("rendering static feed with contents", initialContents.length)
-
     return (
         <div className="w-full flex flex-col items-center">
             {initialContents.map((c, i) => {
