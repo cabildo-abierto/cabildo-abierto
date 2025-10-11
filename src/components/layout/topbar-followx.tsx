@@ -1,4 +1,4 @@
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import {BackButton} from "./utils/back-button";
 import React from "react";
 import {useParams} from "next/navigation";
 

@@ -33,7 +33,7 @@ export const getFormattedTimeSince = (date: Date) => {
 
     const minutes = Math.floor(seconds / 60)
     if (minutes < 60) {
-        return `${minutes} m`
+        return `${minutes} mins`
     }
 
     const hours = Math.floor(minutes / 60)

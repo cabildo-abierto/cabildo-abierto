@@ -2066,6 +2066,10 @@ export const schemaDict = {
             },
             minLength: 1,
           },
+          editedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
         },
       },
       datasetView: {
@@ -2119,6 +2123,10 @@ export const schemaDict = {
           },
           dataFormat: {
             type: 'string',
+          },
+          editedAt: {
+            type: 'string',
+            format: 'datetime',
           },
         },
       },

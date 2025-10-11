@@ -1,5 +1,5 @@
 import {MinusIcon, PlusIcon } from "@phosphor-icons/react";
-import { IconButton } from "../../../modules/ui-utils/src/icon-button";
+import { IconButton } from "../layout/utils/icon-button";
 
 
 export const IntegerInputPlusMinus = ({value, onChange, delta}: {value: number, delta: number, onChange: (v: number) => void}) => {

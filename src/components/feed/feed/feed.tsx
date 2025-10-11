@@ -1,7 +1,7 @@
 "use client"
 import React, {ReactNode, useEffect, useMemo} from "react";
 import {range, unique} from "@/utils/arrays";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {GetFeedProps} from "@/lib/types";
 import {useInfiniteQuery} from "@tanstack/react-query";
 import { useWindowVirtualizer } from '@tanstack/react-virtual';

@@ -35,12 +35,10 @@ const TableRow = ({values, plotter, columns, href}: {
     href?: string
     columnsConfig?: ArCabildoabiertoEmbedVisualization.Table["columns"]
 }) => {
-    //console.log("values", values)
     return columns.map(([col, header], colIndex) => {
         const value = values.find(v => v[0] == col)
         if (value) {
             const content = plotter.columnValueToString(value[1], col)
-            //console.log({col, value, content})
             if (href) {
                 return <td
                     className="overflow-hidden text-ellipsis whitespace-nowrap border-none text-[var(--text-light)] exclude-links px-4 py-2"
@@ -61,13 +59,17 @@ const TableRow = ({values, plotter, columns, href}: {
             } else {
                 return <td
                     className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"
-                    title={content} key={colIndex}>
+                    title={content}
+                    key={colIndex}
+                >
                     {content}
                 </td>
             }
         } else {
-            return <td key={colIndex}
-                       className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"/>
+            return <td
+                key={colIndex}
+                className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"
+            />
         }
     })
 }
@@ -204,10 +206,10 @@ export const DatasetTableView = ({
                 {searchValue == "" ? "Sin datos." : "Sin resultados."}
             </div>}
         {showingRowsCount < plotter.dataForPlot.length &&
-            <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
+            <div className={"text-sm pl-2 text-[var(--text-light)] py-2"}>
                 Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {
                 setShowingRowsCount(showingRowsCount + 20)
-            }} className={"text-[var(--primary)] hover:underline"}>Ver más</button>.
+            }} className={"text-[var(--text-light)] underline hover:text-[var(--text)]"}>Ver más</button>.
             </div>}
     </div>
 }

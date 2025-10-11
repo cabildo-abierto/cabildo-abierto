@@ -5,14 +5,14 @@ import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-
 import React, {useMemo, useState} from "react";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "../../../../../modules/ui-utils/src/button";
+import {Button} from "../../../layout/utils/button";
 import SearchIcon from "@mui/icons-material/Search";
-import {CloseButton} from "../../../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../../layout/utils/close-button";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
 import {capitalize} from "@/utils/strings";
 import {MemoizedArgentinaMap} from "@/components/visualizations/editor/election/argentina-map";
-import { TextField } from "../../../../../modules/ui-utils/src/text-field";
+import { TextField } from "../../../layout/utils/text-field";
 import {useDebounce} from "@/utils/debounce";
 
 

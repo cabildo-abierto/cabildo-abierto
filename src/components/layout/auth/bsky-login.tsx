@@ -4,10 +4,10 @@ import {useEffect, useState} from "react"
 import {FormControl} from '@mui/material';
 import {isValidHandle} from "@atproto/syntax"
 import {useSession} from "@/queries/getters/useSession";
-import {Button} from "../../../../modules/ui-utils/src/button"
+import {Button} from "../utils/button"
 import {backendUrl} from "@/utils/uri";
 import {AtIcon} from "@phosphor-icons/react";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import { TextField } from "../utils/text-field";
 import {usePathname, useRouter} from "next/navigation";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 

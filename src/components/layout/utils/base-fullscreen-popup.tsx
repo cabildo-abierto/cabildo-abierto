@@ -45,7 +45,6 @@ export const BaseFullscreenPopup = ({
                     }
                 }
             }}
-            onClick={e => {e.stopPropagation()}}
             BackdropProps={{
                 style: {
                     backgroundColor: backgroundShadow ? "rgba(0, 0, 0, 0.5)" : "transparent",

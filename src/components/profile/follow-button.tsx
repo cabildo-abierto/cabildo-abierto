@@ -1,13 +1,13 @@
-import StateButton from "../../../modules/ui-utils/src/state-button";
+import StateButton from "../layout/utils/state-button";
 import {useSession} from "@/queries/getters/useSession";
 import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {darker} from "../../../modules/ui-utils/src/button";
+import {darker} from "../layout/utils/button";
 import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {AppBskyActorDefs} from "@atproto/api"
-import {Color} from "../../../modules/ui-utils/src/color";
+import {Color} from "../layout/utils/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {CheckIcon, PlusIcon} from "@phosphor-icons/react";
 

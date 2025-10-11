@@ -1,5 +1,5 @@
 import { HouseLineIcon } from '@phosphor-icons/react';
-import { Color } from '../../../../modules/ui-utils/src/color';
+import { Color } from '../utils/color';
 
 const HomeIcon = ({fontSize=24, color, weight="light"}: {
     fontSize?: number

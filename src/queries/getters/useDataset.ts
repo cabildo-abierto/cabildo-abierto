@@ -13,7 +13,7 @@ export function useDataset(uri: string | null) {
     if(uri){
         const {did, collection, rkey} = splitUri(uri)
         route = `/dataset/${did}/${collection}/${rkey}`
-        key = ["dataset", did, collection, rkey]
+        key = ["dataset", uri]
     }
     return useAPI<DatasetView>(route, key, Infinity, uri != null)
 }

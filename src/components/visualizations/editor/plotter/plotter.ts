@@ -59,7 +59,10 @@ export class Plotter {
     }
 
     validRow(x: DataRow): boolean {
-        return true
+        for(const k of Object.keys(x)) {
+            if(x[k]) return true
+        }
+        return false
     }
 
     checkFilter(f: ArCabildoabiertoEmbedVisualization.ColumnFilter){
@@ -105,6 +108,10 @@ export class Plotter {
                 }
             }
         }
+    }
+
+    public rows() {
+        return this.data.length
     }
 
     public prepareForPlot(prev?: Plotter): {error?: string} {

@@ -7,8 +7,8 @@ import {getEditorSettings} from "@/components/writing/settings";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
 import {Draft, useDraft} from "@/queries/getters/useDrafts"
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
+import {ErrorPage} from "../../layout/utils/error-page";
 import {robotoSerif} from "@/components/writing/article-font";
 import {LayoutConfigProps, useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ArticleEditorTopbar} from "@/components/writing/article/article-editor-topbar";

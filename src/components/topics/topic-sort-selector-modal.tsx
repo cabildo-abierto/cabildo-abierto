@@ -1,4 +1,4 @@
-import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
+import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
 import {TTOption} from "@/lib/types";
 
 type Props = {

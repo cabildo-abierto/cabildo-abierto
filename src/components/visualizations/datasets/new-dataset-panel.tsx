@@ -1,53 +1,14 @@
-import {styled} from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import {useEffect, useState} from "react";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import {ReactNode, useEffect, useState} from "react";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
+import StateButton from "../../layout/utils/state-button";
 import {UploadFile} from "@mui/icons-material";
 import {DatasetForTableView, DatasetTableView} from "./dataset-table-view";
 import Papa from 'papaparse';
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../layout/utils/close-button";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import { Button } from "../../../../modules/ui-utils/src/button";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
-
-
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
-
-
-export const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename: string) => void}) => {
-    const loadImage = async (e) => {
-        if (e.target.files !== null) {
-            const file = e.target.files[0]
-            onSubmit(new Blob([file], { type: file.type }), file.name)
-        }
-    }
-    return <Button
-        component="label"
-        variant="outlined"
-        tabIndex={-1}
-        disableElevation={true}
-        startIcon={<CloudUploadIcon />}
-    >
-        Subir archivo (.csv)
-        <VisuallyHiddenInput
-            type="file"
-            onChange={loadImage}
-            multiple={false}
-        />
-    </Button>
-}
+import { TextField } from "../../layout/utils/text-field";
+import {UploadDatasetButton} from "@/components/visualizations/datasets/upload-dataset-button";
 
 
 type CreateDatasetProps = {
@@ -138,14 +99,14 @@ const NewDatasetPanel = ({open, onClose}: {
         data: JSON.stringify(rows)
     }
 
-    let center
+    let center: ReactNode
     if(!columns){
         center = <div className={""}>
             <div className={"flex justify-end mt-2 mr-2"}>
                 <CloseButton onClose={onClickClose} size={"small"}/>
             </div>
             <div className={"flex flex-col items-center space-y-8 py-4 px-16"}>
-                <h3>Nuevo conjunto de datos</h3>
+                <div>Nuevo conjunto de datos</div>
                 <UploadDatasetButton onSubmit={onSubmit}/>
             </div>
         </div>

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import AddIcon from "@mui/icons-material/Add";
 import dynamic from "next/dynamic";
 import {useLoginModal} from "@/components/layout/login-modal-provider";

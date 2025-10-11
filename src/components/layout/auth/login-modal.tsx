@@ -1,18 +1,18 @@
 "use client"
 import Link from "next/link"
 import {BlueskyLogin} from "./bsky-login"
-import {Logo} from "../../../../modules/ui-utils/src/logo"
+import {Logo} from "../utils/logo"
 import {useRouter, useSearchParams} from "next/navigation";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../utils/button";
 import {ReactNode, useState} from "react";
-import {TextField} from "../../../../modules/ui-utils/src/text-field";
+import {TextField} from "../utils/text-field";
 import {post} from "@/utils/fetch";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
-import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
+import StateButton from "../utils/state-button";
+import {AcceptButtonPanel} from "../utils/accept-button-panel";
 import {topicUrl} from "@/utils/uri";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {BackButton} from "../../../../modules/ui-utils/src/back-button";
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {BaseFullscreenPopup} from "../utils/base-fullscreen-popup";
+import {BackButton} from "../utils/back-button";
+import {CloseButton} from "../utils/close-button";
 
 
 const LoginPanel = ({children, onClickBack, onClose}: {

@@ -1,4 +1,4 @@
-import {DateSince} from '../../../../modules/ui-utils/src/date'
+import {DateSince} from '../../layout/utils/date'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
@@ -11,7 +11,7 @@ import {$Typed} from "@/lex-api/util";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/getters/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
-import {CustomLink} from '../../../../modules/ui-utils/src/custom-link'
+import {CustomLink} from '../../layout/utils/custom-link'
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";

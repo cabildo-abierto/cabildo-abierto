@@ -1,4 +1,4 @@
-import {ListEditor} from "../../../../../modules/ui-utils/src/list-editor";
+import {ListEditor} from "../../../layout/utils/list-editor";
 import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"

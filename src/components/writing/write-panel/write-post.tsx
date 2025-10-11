@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import StateButton from "../../layout/utils/state-button";
 import {ExtraChars} from "./extra-chars";
 import {
     getCollectionFromUri,
@@ -45,8 +45,8 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
 import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
+import {Button} from "../../layout/utils/button";
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -65,7 +65,7 @@ const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-edi
 
 const InsertVisualizationModal = dynamic(() => import(
     './insert-visualization-modal'
-    ))
+    ), {ssr: false})
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -467,7 +467,9 @@ export const WritePost = ({
                 <StateButton
                     variant={"outlined"}
                     text1={postView ? "Confirmar cambios" : isReply ? "Responder" : "Publicar"}
-                    handleClick={async () => {return await handleClickSubmit()}}
+                    handleClick={async () => {
+                        return await handleClickSubmit()
+                    }}
                     disabled={!valid}
                     textClassName="font-semibold text-xs py-[2px] uppercase"
                     size="medium"
@@ -497,31 +499,33 @@ export const WritePost = ({
         />}
         {forceEditModalOpen && <BaseFullscreenPopup open={true}>
             <div className={"pb-4 pt-8 space-y-8"}>
-            <div className={"font-light text-[var(--text-light)] text-sm max-w-[400px] px-8"}>
-                La publicación ya fue referenciada. Si la editás ahora el cambio se va a ver reflejado en Cabildo
-                Abierto pero no en Bluesky.
-            </div>
-            <div className={"flex space-x-2 justify-center"}>
-                <Button
-                    variant={"outlined"}
-                    size={"small"}
-                    onClick={() => {setForceEditModalOpen(false)}}
-                >
-                    Cancelar
-                </Button>
-                <StateButton
-                    variant={"outlined"}
-                    size={"small"}
-                    handleClick={async () => {
-                        const {error} = await handleClickSubmit(true)
-                        if(!error) {
+                <div className={"font-light text-[var(--text-light)] text-sm max-w-[400px] px-8"}>
+                    La publicación ya fue referenciada. Si la editás ahora el cambio se va a ver reflejado en Cabildo
+                    Abierto pero no en Bluesky.
+                </div>
+                <div className={"flex space-x-2 justify-center"}>
+                    <Button
+                        variant={"outlined"}
+                        size={"small"}
+                        onClick={() => {
                             setForceEditModalOpen(false)
-                        }
-                        return {error}
-                    }}
-                    text1={"Editar igualmente"}
-                />
-            </div>
+                        }}
+                    >
+                        Cancelar
+                    </Button>
+                    <StateButton
+                        variant={"outlined"}
+                        size={"small"}
+                        handleClick={async () => {
+                            const {error} = await handleClickSubmit(true)
+                            if (!error) {
+                                setForceEditModalOpen(false)
+                            }
+                            return {error}
+                        }}
+                        text1={"Editar igualmente"}
+                    />
+                </div>
             </div>
         </BaseFullscreenPopup>}
     </div>

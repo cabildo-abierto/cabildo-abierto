@@ -39,7 +39,7 @@ export class TablePlotter extends Plotter {
         this.dataForPlot = this.data
         if (this.searchValue && this.searchValue.length > 0) {
             const searchKey = cleanText(this.searchValue)
-            this.dataForPlot = this.dataForPlot.filter(((row, index) => {
+            this.dataForPlot = this.data.filter(((row, index) => {
                 return this.strRows[index].some(x => x.includes(searchKey))
             }))
         }

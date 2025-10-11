@@ -1,13 +1,13 @@
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useRef, useState} from "react";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../layout/utils/button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ChooseDatasetPanel} from "@/components/visualizations/editor/choose-dataset";
 import {ConfigPanel} from "@/components/visualizations/editor/config-panel";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 import DatasetIcon from "@/components/layout/icons/dataset-icon";
-import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import {StateButtonClickHandler} from "../../layout/utils/state-button";
 
 const VisualizationEditorSidebar = ({
                                         datasets,
@@ -18,6 +18,8 @@ const VisualizationEditorSidebar = ({
                                         maxWidth,
                                         baseWidth,
                                         onReloadData,
+                                        onNewDataset,
+    creatingNewDataset
                                     }: {
     datasets: DatasetViewBasic[],
     config: PlotConfigProps,
@@ -27,6 +29,8 @@ const VisualizationEditorSidebar = ({
     baseWidth: number
     maxWidth: number
     onReloadData?: StateButtonClickHandler
+    onNewDataset?: () => void
+    creatingNewDataset: boolean
 }) => {
     const [width, setWidth] = useState<number>(baseWidth);
     const isResizing = useRef(false);
@@ -96,6 +100,8 @@ const VisualizationEditorSidebar = ({
                     config={config}
                     setConfig={setConfig}
                     onReloadData={onReloadData}
+                    onNewDataset={onNewDataset}
+                    creatingNewDataset={creatingNewDataset}
                 />}
                 {selected == "Visualización" && <ConfigPanel config={config} setConfig={setConfig}/>}
             </div>

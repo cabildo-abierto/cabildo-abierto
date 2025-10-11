@@ -1,7 +1,7 @@
 import {Metadata} from "next"
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 import Link from "next/link";
-import {Button} from "../../../../../modules/ui-utils/src/button";
+import {Button} from "../../../../components/layout/utils/button";
 
 export const metadata: Metadata = {
     title: 'Error en el pago'

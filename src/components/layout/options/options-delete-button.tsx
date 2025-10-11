@@ -1,8 +1,6 @@
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import {post} from "@/utils/fetch";
 import {
-    getCollectionFromUri,
-    getRkeyFromUri,
     isArticle,
     isDataset,
     isPost,
@@ -17,10 +15,12 @@ import {
     updateTopicHistories
 } from "@/queries/mutations/updates";
 import {useState} from "react";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import { Button } from "../../../../modules/ui-utils/src/button";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import {BaseFullscreenPopup} from "../utils/base-fullscreen-popup";
+import { Button } from "../utils/button";
+import StateButton from "../utils/state-button";
 import { TrashIcon } from "@phosphor-icons/react";
+import {useSession} from "@/queries/getters/useSession";
+
 
 
 const collection2displayText = {
@@ -141,9 +141,12 @@ function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient) {
 }
 
 
-const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
+const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
     const qc = useQueryClient()
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+    const {user} = useSession()
+    const {did: authorDid, collection, rkey} = splitUri(uri)
+    const isAuthor = user && user.did == authorDid
 
     const deleteMutation = useMutation({
         mutationFn: deleteRecord,
@@ -170,9 +173,10 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
         return {}
     }
 
-    const isOptimistic = getRkeyFromUri(uri).startsWith("optimistic")
+    if(!isAuthor) return
 
-    const collection = getCollectionFromUri(uri)
+    const isOptimistic = rkey.startsWith("optimistic")
+
     return <>
         <OptionsDropdownButton
             text1={"Borrar " + collection2displayText[collection]}
@@ -214,4 +218,4 @@ const DeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
 }
 
 
-export default DeleteButton
+export default OptionsDeleteButton

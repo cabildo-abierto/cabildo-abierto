@@ -1,7 +1,7 @@
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {IconButton} from "@/components/layout/utils/icon-button"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import dynamic from "next/dynamic";
-import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
+import {ClickableModalOnClick} from "../layout/utils/popover";
 import {TTOption} from "@/lib/types";
 const TopicSortSelectorModal = dynamic(() => import("@/components/topics/topic-sort-selector-modal"))
 

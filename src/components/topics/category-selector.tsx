@@ -1,11 +1,11 @@
 import {useCategories} from "@/queries/getters/useTopics";
 import {emptyChar} from "@/utils/utils";
 import React, {useEffect, useMemo, useState} from "react";
-import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import {ErrorPage} from "../layout/utils/error-page";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import SearchIcon from "@mui/icons-material/Search";
 import {cleanText} from "@/utils/strings";
-import {TextField} from "../../../modules/ui-utils/src/text-field";
+import {TextField} from "../layout/utils/text-field";
 
 
 export const CategorySelector = ({categories, setCategories, multipleEnabled}: {

@@ -2,7 +2,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {PostPreview} from "@/components/feed/post/post-preview";
 import {Dispatch, SetStateAction} from "react";
 import StaticFeed from "@/components/feed/feed/static-feed";
-import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../layout/utils/scroll";
 import {$Typed} from "@atproto/api";
 import {AppBskyFeedDefs} from "@atproto/api"
 

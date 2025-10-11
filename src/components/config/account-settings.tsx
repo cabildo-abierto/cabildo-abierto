@@ -1,9 +1,9 @@
 import {useSession} from "@/queries/getters/useSession";
 import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
+import LoadingSpinner from "../layout/utils/loading-spinner";
+import {CustomLink as Link} from "../layout/utils/custom-link";
 import {PermissionLevel} from "@/components/topics/topic/permission-level";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import {CloseSessionButton} from "@/components/layout/auth/close-session-button";
 import React from "react";
 import {DeleteAccountButton} from "@/components/config/delete-account-button";

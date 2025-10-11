@@ -1,5 +1,5 @@
 "use client"
-import StateButton, { StateButtonProps} from "../../../../modules/ui-utils/src/state-button";
+import StateButton, { StateButtonProps} from "../utils/state-button";
 
 
 export const OptionsDropdownButton = ({...props}: StateButtonProps) => {

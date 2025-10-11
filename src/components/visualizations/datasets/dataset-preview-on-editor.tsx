@@ -1,4 +1,4 @@
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../layout/utils/date";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {ArCabildoabiertoDataDataset} from "@/lex-api"
 
@@ -25,7 +25,12 @@ export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
             <Authorship author={dataset.author} onlyAuthor={true}/>
         </div>
         <div className={"text-[var(--text-light)] text-sm"}>
-            Hace <DateSince date={dataset.createdAt}/>
+            {dataset.editedAt ? <span>
+                Últ. actualización hace <DateSince date={dataset.editedAt}/>
+            </span> : <span>
+                Hace <DateSince date={dataset.createdAt}/>
+            </span>}
+
         </div>
     </div>
 }

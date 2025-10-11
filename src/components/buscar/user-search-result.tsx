@@ -1,4 +1,4 @@
-import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
+import {CustomLink as Link} from "../layout/utils/custom-link";
 import {profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/follow-button";
@@ -6,7 +6,7 @@ import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import React from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from "next/dynamic";
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../layout/utils/close-button";
 import {post} from "@/utils/fetch";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";

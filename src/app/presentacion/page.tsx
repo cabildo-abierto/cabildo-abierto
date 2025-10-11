@@ -7,7 +7,7 @@ import {
     PresentacionWiki
 } from "@/components/presentacion/sections";
 import {Suspense} from "react";
-import Footer from "../../../modules/ui-utils/src/footer";
+import Footer from "../../components/layout/utils/footer";
 
 
 export default function Page() {

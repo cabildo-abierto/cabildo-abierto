@@ -1,7 +1,7 @@
 "use client"
 
 import React, {ReactNode} from 'react';
-import { LoadingScreen } from '../../../../modules/ui-utils/src/loading-screen';
+import { LoadingScreen } from '../utils/loading-screen';
 import {useSession} from "@/queries/getters/useSession";
 
 

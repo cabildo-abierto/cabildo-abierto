@@ -1,5 +1,5 @@
 import {getUsername} from "@/utils/utils";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../layout/utils/date";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
 import {HeartIcon} from "@phosphor-icons/react";

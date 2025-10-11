@@ -1,5 +1,5 @@
 import {HashIcon} from "@phosphor-icons/react";
-import { Color } from "../../../../modules/ui-utils/src/color";
+import { Color } from "../utils/color";
 
 
 export default function TopicsIcon({fontSize=22, weight, color="text"}: {

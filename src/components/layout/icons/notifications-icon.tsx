@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {BellIcon} from "@phosphor-icons/react";
-import {Color} from '../../../../modules/ui-utils/src/color';
+import {Color} from '../utils/color';
 
 const NotificationsIcon = ({
                                count,

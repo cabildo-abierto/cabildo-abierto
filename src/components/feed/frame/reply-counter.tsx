@@ -1,6 +1,6 @@
 import React, {MouseEventHandler, ReactNode, useState} from "react"
-import {Color} from "../../../../modules/ui-utils/src/color";
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import {Color} from "../../layout/utils/color";
+import { IconButton } from "../../layout/utils/icon-button";
 
 
 export const ReplyCounter = ({

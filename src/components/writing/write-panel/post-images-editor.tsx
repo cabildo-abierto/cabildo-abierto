@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import {CloseButton} from '../../../../modules/ui-utils/src/close-button'
+import {CloseButton} from '../../layout/utils/close-button'
 import {useState} from "react";
 import {ImagePayload} from './write-post';
 import dynamic from "next/dynamic";

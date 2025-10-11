@@ -1,4 +1,4 @@
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {VisualizationEditor} from "@/components/visualizations/editor/visualization-editor";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 

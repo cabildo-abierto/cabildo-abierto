@@ -3,11 +3,11 @@
 import {useParams} from "next/navigation";
 import {PrivateMessage} from "@/queries/getters/useConversations";
 import {ChatBskyConvoDefs} from "@atproto/api"
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../../components/layout/utils/loading-spinner";
 import {useEffect, useLayoutEffect, useRef} from "react";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
+import {ErrorPage} from "../../../../components/layout/utils/error-page";
 import {useMediaQuery, useTheme} from "@mui/system";
 import {
     conversationsQueriesFilter,

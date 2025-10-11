@@ -1,12 +1,12 @@
 import {useState} from "react";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../layout/utils/button";
 import {PropValueType} from "@/components/topics/topic/utils";
 import 'dayjs/locale/es';
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
-import { Select } from "../../../../modules/ui-utils/src/select";
+import { TextField } from "../../layout/utils/text-field";
+import { Select } from "../../layout/utils/select";
 
 
 const propLexicons = [

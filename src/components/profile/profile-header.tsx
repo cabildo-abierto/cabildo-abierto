@@ -4,7 +4,7 @@ import Link from "next/link";
 import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import {ArticleIcon} from "@/components/layout/icons/article-icon"
 import {emptyChar} from "@/utils/utils";
 import ProfileDescription from "@/components/profile/profile-description";
@@ -13,7 +13,7 @@ import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/getters/useSession";
 import ValidationIcon from "@/components/profile/validation-icon";
-import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ContentCounters} from "./content-counters";
 import {bskyProfileUrl} from "@/utils/uri";

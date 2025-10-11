@@ -2,8 +2,8 @@
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 import {useState} from "react";
 import {CheckIcon, LinkIcon} from "@phosphor-icons/react";
-import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import {AcceptButtonPanel} from "../../../../components/layout/utils/accept-button-panel";
+import LoadingSpinner from "../../../../components/layout/utils/loading-spinner";
 import {useAPI} from "@/queries/utils";
 
 

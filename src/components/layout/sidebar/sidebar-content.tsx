@@ -4,11 +4,11 @@ import { useLayoutConfig } from '../layout-config-context';
 import {useSession} from "@/queries/getters/useSession";
 import {SidebarButtons} from "@/components/layout/sidebar/sidebar-buttons";
 import NextMeetingInvite from "@/components/layout/next-meeting-invite";
-import { Button } from '../../../../modules/ui-utils/src/button';
+import { Button } from '../utils/button';
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {SignInIcon} from "@phosphor-icons/react";
 import { SidebarProfilePic } from "./sidebar-profile-pic";
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import { IconButton } from "../utils/icon-button";
 
 
 

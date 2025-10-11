@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {IconButton} from "@/components/layout/utils/icon-button"
 import {useRouter} from "next/navigation";
 
 import {Color} from "./color";

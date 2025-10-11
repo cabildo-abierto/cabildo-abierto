@@ -1,8 +1,8 @@
 import * as React from "react";
 import {ReactNode} from "react";
-import {IconButton} from "../../../../ui-utils/src/icon-button";
-import { Color } from "../../../../ui-utils/src/color";
-import {darker} from "../../../../ui-utils/src/button";
+import {IconButton} from "@/components/layout/utils/icon-button";
+import { Color } from "@/components/layout/utils/color";
+import {darker} from "@/components/layout/utils/button";
 
 type ToolbarButtonProps = {
     active?: boolean

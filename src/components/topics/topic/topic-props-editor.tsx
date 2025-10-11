@@ -1,21 +1,21 @@
 import {useEffect, useState} from "react";
 import {Box} from "@mui/material";
-import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
+import {ListEditor} from "../../layout/utils/list-editor";
 import CloseIcon from "@mui/icons-material/Close";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../layout/utils/button";
 import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
 import {useCategories} from "@/queries/getters/useTopics";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
-import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../../layout/utils/info-panel";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 import dynamic from "next/dynamic";
-import {TextField} from "../../../../modules/ui-utils/src/text-field";
-import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
+import {TextField} from "../../layout/utils/text-field";
+import {IconButton} from "../../layout/utils/icon-button";
 import {TrashIcon, XIcon} from "@phosphor-icons/react";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 
 const NewPropModal = dynamic(
     () => import("@/components/topics/topic/new-prop-modal"),

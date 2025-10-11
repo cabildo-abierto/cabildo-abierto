@@ -10,7 +10,7 @@ import {TopbarConversation} from "@/components/mensajes/topbar-conversation";
 import {TopbarFollowx} from "@/components/layout/topbar-followx";
 import { InfoPanelUserSuggestions } from "../profile/info-panel-user-suggestions";
 import {useDefaultBackURL, useTopbarTitle} from "@/components/layout/topbar-title";
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import {BackButton} from "./utils/back-button";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 
 
