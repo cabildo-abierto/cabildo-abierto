@@ -43,7 +43,7 @@ export default function TopbarDesktop() {
                     className={`flex-grow flex items-center w-full justify-between`}
                     style={{
                         minWidth: 0,
-                        maxWidth: layoutConfig.maxWidthCenter,
+                        maxWidth: layoutConfig.centerWidth,
                     }}
                 >
                     {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && <div className={"font-bold uppercase flex space-x-2 items-center"}>

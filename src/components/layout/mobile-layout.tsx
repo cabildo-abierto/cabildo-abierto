@@ -14,12 +14,10 @@ export default function MobileLayout({children, setWritePanelOpen}: {
     const pathname = usePathname()
     const topbarHeight = useTopbarHeight()
 
-    return <div>
+    return <div className={""}>
         <TopbarMobile/>
 
-        <div>
-            <SidebarMobile setWritePanelOpen={setWritePanelOpen}/>
-        </div>
+        <SidebarMobile setWritePanelOpen={setWritePanelOpen}/>
 
         <div className={"w-screen"} style={{marginTop: topbarHeight}}>
             {children}

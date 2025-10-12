@@ -24,20 +24,19 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
     return (
         <>
             <div
-                className={"pt-4 px-2 overflow-scroll no-scrollbar h-full " + (showText ? "" : "hidden min-[500px]:block")}
+                className={"pt-4 px-2 h-full " + (showText ? "" : "hidden min-[500px]:block")}
             >
                 <div className={"h-full flex flex-col justify-between"}>
                     <div
-                        className={"flex pb-8 h-full flex-col" + (isMobile ? " space-y-2" : " space-y-2")}
+                        className={"flex pb-8 h-full flex-col [@media(min-height:600px)]:space-y-2 [@media(min-height:520px)]:space-y-1 space-y-[2px]"}
                     >
-                        {user.user && <div className={"mt-4 mb-2 space-y-2 " + (showText ? "px-4" : "")}>
+                        {user.user && <div className={"space-y-2 " + (showText ? "px-4" : "")}>
                             <SidebarProfilePic showText={showText}/>
                             <div className={isMobile && showText ? "" : "hidden"}>
-                                <div className={"font-bold text-xl"}>
+                                <div className={"font-bold [@media(min-height:600px)]:text-xl [@media(min-height:520px)]:text-lg text-base"}>
                                     {user.user.displayName ?? "@" + user.user.handle}
                                 </div>
-                                <div className={"text-[var(--text-light)] text-lg"}>
-                                    {"@" + user.user.handle}
+                                <div className={"text-[var(--text-light)] [@media(min-height:600px)]:text-lg [@media(min-height:520px)]:text-base text-sm"}>                                    {"@" + user.user.handle}
                                 </div>
                             </div>
                         </div>}
