@@ -78,7 +78,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
 
 
     return <div className={"max-w-96 w-full"}>
-        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-4"}>
+        <Box component={"form"} autoComplete={"on"} action="/login" onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-4"}>
             <FormControl error={error} sx={{width: "100%"}}>
                 <div>
                     <div className={"flex space-x-2 items-center"}>
@@ -86,13 +86,13 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             margin="normal"
                             fullWidth={true}
                             size={"small"}
-                            id="username"
+                            name="ca_username"
+                            id="ca_username"
+                            autoComplete="username"
                             paddingX={"8px"}
                             label="Nombre de usuario"
-                            name="username"
                             autoFocus
                             variant="outlined"
-                            autoComplete="username"
                             value={handleStart}
                             onChange={(e) => {
                                 setHandleStart(e.target.value);
@@ -109,7 +109,6 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             fullWidth={false}
                             id="domain"
                             label="Dominio"
-                            name="username"
                             placeholder=".bsky.social"
                             autoFocus={false}
                             autoComplete="off"

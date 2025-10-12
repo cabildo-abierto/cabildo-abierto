@@ -65,12 +65,13 @@ export const SidebarButton = ({
                     paddingLeft: showText ? 2 : 0,
                     paddingRight: showText ? 2 : 0,
                     minWidth: showText ? undefined : "40px",
+                    paddingY: "0px"
                 }}
                 onClick={onClick}
                 fullWidth={showText && isMobile}
                 disabled={disabled}
             >
-                <div className={"uppercase flex items-center space-x-2 " + (isMobile ? "text-lg" : "text-sm")}>
+                <div className={"uppercase flex items-center space-x-2 [@media(min-height:600px)]:py-2 [@media(min-height:520px)]:py-[6px] [@media(min-height:440px)]:py-[2px] py-0" + (isMobile ? "text-lg" : "text-sm")}>
                     {selected || !iconInactive ? icon : iconInactive}
                     {showText && <div
                     className={selected ? "font-bold" : "font-light"}>
