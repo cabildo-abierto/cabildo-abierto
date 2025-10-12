@@ -9,7 +9,7 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
-import {$createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+import {$createLinkNode, $isAutoLinkNode, $isLinkNode, LinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {
     $getSelection,
     $isLineBreakNode,
@@ -513,6 +513,11 @@ function useFloatingLinkEditorToolbar(
                 },
                 COMMAND_PRIORITY_CRITICAL,
             ),
+            editor.registerNodeTransform(LinkNode, (node: LinkNode) => {
+                if(activeEditor.isEditable()){
+                    node.__target = "_blank"
+                }
+            }),
             editor.registerCommand(
                 CLICK_COMMAND,
                 (payload) => {
@@ -521,14 +526,13 @@ function useFloatingLinkEditorToolbar(
                         const node = getSelectedNode(selection);
                         const linkNode = $findMatchingParent(node, $isLinkNode);
                         if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
-
                             window.open(linkNode.getURL(), '_blank');
                             return true;
                         }
                     }
                     return false;
                 },
-                COMMAND_PRIORITY_LOW,
+                COMMAND_PRIORITY_CRITICAL,
             )
         );
     }, [editor]);

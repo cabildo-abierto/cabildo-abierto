@@ -1,10 +1,10 @@
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {useEffect} from "react";
 import {mergeRegister} from "@lexical/utils";
-import {$createCustomLinkNode} from "../../nodes/CustomLinkNode";
 import {profileUrl} from "@/utils/uri";
 import {CustomBeautifulMentionNode} from "lexical-beautiful-mentions";
 import {$createTextNode} from "lexical";
+import {$createLinkNode} from "@lexical/link";
 
 
 export default function MentionsToLinksPlugin() {
@@ -18,7 +18,7 @@ export default function MentionsToLinksPlugin() {
             const name = node.__value
             const url = profileUrl(name)
 
-            const newNode = $createCustomLinkNode(url)
+            const newNode = $createLinkNode(url)
             newNode.append($createTextNode(`@${name}`))
             node.replace(newNode)
             newNode.selectEnd()
