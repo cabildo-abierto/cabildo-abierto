@@ -14,14 +14,13 @@ import {$createTextNode, $isParagraphNode, ElementNode, ParagraphNode} from "lex
 import {IMAGE} from "./plugins/MarkdownTransformers/image-transformer";
 import {HR} from "./plugins/MarkdownTransformers/hr-transformer";
 import {TABLE} from "./plugins/MarkdownTransformers/table-transformer";
-import {$createCustomLinkNode, CustomLinkNode} from "./nodes/CustomLinkNode";
-import {$isLinkNode} from "@lexical/link";
+import {$createLinkNode, $isLinkNode, LinkNode} from "@lexical/link";
 import {$createHeadingNode, $isHeadingNode, HeadingNode, HeadingTagType} from "@lexical/rich-text";
 import {encodeParentheses} from "./plugins/FloatingLinkEditorPlugin";
 
 
 export const LINK: TextMatchTransformer = {
-    dependencies: [CustomLinkNode],
+    dependencies: [LinkNode],
     export: (node, exportChildren, exportFormat) => {
         if (!$isLinkNode(node)) {
             return null;
@@ -47,7 +46,7 @@ export const LINK: TextMatchTransformer = {
         const cabildo = linkUrl.startsWith("https://www.cabildoabierto.com.ar") || linkUrl.startsWith("https://cabildoabierto.com.ar")
         const isExternal = http && !cabildo
 
-        const linkNode = $createCustomLinkNode(linkUrl, {
+        const linkNode = $createLinkNode(linkUrl, {
             title: linkTitle,
             ...(isExternal && { target: "_blank" }),
         })
