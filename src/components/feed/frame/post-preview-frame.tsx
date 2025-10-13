@@ -40,6 +40,7 @@ type FastPostPreviewFrameProps = {
     reason?: AppBskyFeedDefs.ReasonRepost
     pageRootUri?: string
     engagementIcons?: boolean
+    onWritePost?: boolean
 }
 
 export const PostPreviewFrame = ({
@@ -50,6 +51,7 @@ export const PostPreviewFrame = ({
                                      showingChildren = false,
                                      reason,
                                      pageRootUri,
+    onWritePost=false,
     engagementIcons = true
                                  }: FastPostPreviewFrameProps) => {
     const url = contentUrl(postView.uri, postView.author.handle)
@@ -107,7 +109,7 @@ export const PostPreviewFrame = ({
             </div>
 
             <div className="py-2 flex w-full flex-col pr-2">
-                <div className="flex items-center gap-x-1 w-full">
+                <div className="flex items-center gap-x-1">
                     <CustomLink
                         tag={"span"}
                         onClick={(e) => {
@@ -119,12 +121,12 @@ export const PostPreviewFrame = ({
                         <UserSummaryOnHover handle={author.handle}>
                             <div className={"flex justify-between items-center space-x-1"}>
                                 <div className={"flex space-x-1 items-center"}>
-                                    <div className={"hover:underline font-bold truncate " + (isMobile ? "max-w-[36vw]": "max-w-[300px]")}>
+                                    <div className={"hover:underline font-bold truncate " + (isMobile ? "max-w-[36vw]" : onWritePost ? "max-w-[200px]": "max-w-[300px]")}>
                                         {author.displayName ? author.displayName : author.handle}
                                     </div>
                                     <ValidationIcon fontSize={15} handle={author.handle}
                                                     verification={author.verification}/>
-                                    <div className={"text-[var(--text-light)] truncate " + (isMobile ? "max-w-[20vw]": "max-w-[150px]")}>
+                                    <div className={"text-[var(--text-light)] truncate " + (isMobile ? "max-w-[20vw]" : onWritePost ? "max-w-[100px]": "max-w-[150px]")}>
                                         @{author.handle}
                                     </div>
                                 </div>

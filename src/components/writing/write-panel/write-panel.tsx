@@ -20,7 +20,13 @@ import {
 } from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {produce} from "immer";
 import {postOrArticle} from "@/utils/type-utils";
-import {contentUrl, getUri, shortCollectionToCollection} from "@/utils/uri";
+import {
+    contentUrl,
+    getDidFromUri,
+    getRkeyFromUri,
+    getUri,
+    shortCollectionToCollection
+} from "@/utils/uri";
 import {usePathname, useRouter} from "next/navigation";
 
 
@@ -103,7 +109,13 @@ function invalidateQueriesAfterPostCreationSuccess(
             queriesToInvalidate.push(k)
         }
     })
+
     if (replyTo) {
+        if(ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)){
+            queriesToInvalidate.push(["topic-quote-replies", getDidFromUri(replyTo.uri), getRkeyFromUri(replyTo.uri)])
+            queriesToInvalidate.push(["topic-feed", replyTo.id, "replies"])
+        }
+
         function parentUpdater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
             return produce(content, draft => {
                 if (!postOrArticle(draft)) return

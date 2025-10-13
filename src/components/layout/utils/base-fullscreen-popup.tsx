@@ -15,6 +15,7 @@ export const BaseFullscreenPopup = ({
     hidden=false,
     disableScrollLock=true,
     backgroundShadow=true,
+    zIndex=1300
 }: {
     open: boolean
     children: ReactNode;
@@ -26,6 +27,7 @@ export const BaseFullscreenPopup = ({
     hidden?: boolean
     disableScrollLock?: boolean
     backgroundShadow?: boolean
+    zIndex?: number
 }) => {
     if(hidden) return <div className={"hidden"}>{children}</div>
     return (
@@ -34,6 +36,9 @@ export const BaseFullscreenPopup = ({
             onClose={() => {
                 if (allowClose && onClose) onClose();
             }}
+            onClick={e => {
+                e.stopPropagation()
+            }}
             disableEnforceFocus={true}
             disableScrollLock={disableScrollLock}
             className={"flex justify-center items-center"}
@@ -41,7 +46,7 @@ export const BaseFullscreenPopup = ({
                 root: {
                     style: {
                         overflow: 'visible',
-                        zIndex: 1300,
+                        zIndex,
                     }
                 }
             }}

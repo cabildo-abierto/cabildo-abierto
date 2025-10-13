@@ -74,8 +74,6 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
         })
         if(error) return {error}
 
-
-
         onCreated(data.uri)
         return {}
     }

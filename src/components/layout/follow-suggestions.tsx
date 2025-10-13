@@ -53,7 +53,7 @@ export default function FollowSuggestions() {
                         </div>
                         <div className={"space-y-[-2px] text-ellipsis"}>
                             <div className={"text-sm font-semibold truncate w-32"}>
-                                {u.displayName ?? `@${u.handle}`}
+                                {u.displayName ? u.displayName : `@${u.handle}`}
                             </div>
                             <div className={"text-xs text-[var(--text-light)] truncate w-32"}>
                                 @{u.handle}

@@ -68,7 +68,9 @@ export const ArgentinaMap = ({
     }
 
     return (
-        <div className="">
+        <div className=""
+            onWheel={(e) => {e.stopPropagation()}}
+        >
             <Zoom<SVGSVGElement>
                 width={width}
                 height={height}
