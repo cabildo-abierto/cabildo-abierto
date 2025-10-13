@@ -25,9 +25,13 @@ export const ModalOnClickControlled = ({
                                        }: ModalOnClickControlledProps) => {
 
     return (
-        <ClickAwayListener onClickAway={(e) => {
-            handleClickAway()
-        }}>
+        <ClickAwayListener
+            mouseEvent="onMouseDown"
+            touchEvent="onTouchStart"
+            onClickAway={(e) => {
+                handleClickAway()
+            }}
+        >
             <div>
                 <div onClick={handleClick}>
                     {children}
@@ -41,7 +45,7 @@ export const ModalOnClickControlled = ({
                 >
                     {({TransitionProps}) => (
                         <Fade {...TransitionProps}
-                              timeout={{enter: 0, exit: 0}} // Only fade on open
+                              timeout={{enter: 0, exit: 0}}
                         >
                             <div className={className}>
                                 <div>

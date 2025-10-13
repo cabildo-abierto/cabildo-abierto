@@ -411,14 +411,12 @@ export const WritePost = ({
 
     return <div className={"flex flex-col flex-grow justify-between"}>
         <div
-            className={"px-2 w-full pb-2 flex-grow justify-between flex flex-col space-y-4 min-h-64"}
+            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
         >
-            {replyTo != undefined && <div className={""}>
-                <WritePanelReplyPreview
-                    replyTo={replyTo}
-                    selection={selection}
-                />
-            </div>}
+            {replyTo != undefined && <WritePanelReplyPreview
+                replyTo={replyTo}
+                selection={selection}
+            />}
             <div className="flex justify-between space-x-2 w-full my-2">
                 <Link
                     href={profileUrl(user.handle)}

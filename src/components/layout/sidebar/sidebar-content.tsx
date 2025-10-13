@@ -30,7 +30,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                     <div
                         className={"flex pb-8 h-full flex-col [@media(min-height:600px)]:space-y-2 [@media(min-height:520px)]:space-y-1 space-y-[2px]"}
                     >
-                        {user.user && <div className={"space-y-2 " + (showText ? "px-4" : "")}>
+                        {user.user && <div className={"space-y-2 mb-3 " + (showText ? "px-4" : "")}>
                             <SidebarProfilePic showText={showText}/>
                             <div className={isMobile && showText ? "" : "hidden"}>
                                 <div className={"font-bold [@media(min-height:600px)]:text-xl [@media(min-height:520px)]:text-lg text-base"}>
