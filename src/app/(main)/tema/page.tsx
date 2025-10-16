@@ -1,7 +1,6 @@
 import { TopicPage } from "@/components/topics/topic/topic-page"
 import {Metadata} from "next";
-import {produce} from "immer";
-import {mainMetadata} from "@/utils/metadata";
+import {createMetadata, mainMetadata} from "@/utils/metadata";
 import {get} from "@/utils/fetch";
 import {encodeParentheses} from "@/utils/uri";
 
@@ -17,12 +16,14 @@ export async function generateMetadata(
     const enc = encodeParentheses(encodeURIComponent(i))
     const topicTitle = await get<{title: string}>(`/topic-title/${enc}`)
     if(topicTitle.data){
-        return produce(mainMetadata, draft => {
-            draft.title = `${topicTitle.data.title} - Tema en Cabildo Abierto`
+        return createMetadata({
+            title: topicTitle.data.title,
+            description: "Tema de discusión en Cabildo Abierto."
         })
     } else if(i){
-        return produce(mainMetadata, draft => {
-            draft.title = `${i} - Tema en Cabildo Abierto`
+        return createMetadata({
+            title: i,
+            description: "Tema de discusión en Cabildo Abierto."
         })
     } else {
         return mainMetadata

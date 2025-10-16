@@ -55,7 +55,7 @@ export const TopicPropertiesInHistory = ({topicVersion, topic}: {
     topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory,
     topic: ArCabildoabiertoWikiTopicVersion.TopicView
 }) => {
-    const props = addDefaults(topic.props, topic)
+    const props = addDefaults(topicVersion.props, topic.id)
 
     const description = <div className={"space-y-2 text-xs max-w-[300px]"}>
         {props.map((p, index) => {
@@ -137,8 +137,10 @@ export const HistoryElement = ({topic, topicHistory, index, viewing}: {
                                 {topicVersion.contribution ? (parseFloat(topicVersion.contribution.all ?? "0") * 100).toFixed(1).toString() + "%" : null}
                             </div>
                         </div>
-
-                        <TopicPropertiesInHistory topicVersion={topicVersion} topic={topic}/>
+                        <TopicPropertiesInHistory
+                            topicVersion={topicVersion}
+                            topic={topic}
+                        />
                         <div className={"text-[var(--text-light)]"}>
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>

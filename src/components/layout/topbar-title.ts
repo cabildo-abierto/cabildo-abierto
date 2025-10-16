@@ -1,6 +1,6 @@
 import {usePathname, useSearchParams} from "next/navigation";
 
-export function useTopbarTitle() {
+export function useTopbarTitle(): {title?: string, className?: string} {
     const pathname = usePathname()
     const params = useSearchParams()
     if(pathname.startsWith("/ajustes")){
@@ -12,6 +12,10 @@ export function useTopbarTitle() {
     } else if(pathname.startsWith("/buscar")) {
         return {title: "Buscar"}
     } else if(pathname.startsWith("/perfil")){
+        if(pathname.endsWith("/seguidores") || pathname.endsWith("/siguiendo")){
+            const handle = pathname.split("/perfil/")[1].split("/")[0]
+            return {title: `@${handle}`, className: "normal-case font-bold"}
+        }
         return {title: "Perfil"}
     } else if(pathname.startsWith("/notificaciones")){
         return {title: "Notificaciones"}

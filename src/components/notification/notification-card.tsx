@@ -22,9 +22,9 @@ import { RepostIcon } from "../layout/icons/reposts-icon";
 
 
 const Username = ({user}: { user: {displayName?: string, handle: string, did: string} }) => {
-    return <span className={"font-bold hover:underline"}>
+    return <Link onClick={e => e.stopPropagation()} href={profileUrl(user.handle)} className={"font-bold hover:underline"}>
         {getUsername(user)}
-    </span>
+    </Link>
 }
 
 

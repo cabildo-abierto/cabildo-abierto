@@ -12,6 +12,14 @@ import {usePathname, useRouter} from "next/navigation";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
+function getHandleFromInputs(handleStart: string, domain: string) {
+    if(!domain.startsWith(".")) {
+        domain = `.${domain}`
+    }
+    return (handleStart.trim() + domain.trim()).replaceAll("@", "")
+}
+
+
 export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
     const [error, setError] = useState(undefined)
     const [isLoading, setIsLoading] = useState(false)
@@ -40,7 +48,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
         e.preventDefault();
         setError(null);
 
-        const handle = (handleStart.trim() + domain.trim()).replaceAll("@", "");
+        const handle = getHandleFromInputs(handleStart, domain);
         if (!isValidHandle(handle)) {
             setError('Nombre de usuario inválido.');
             return;
