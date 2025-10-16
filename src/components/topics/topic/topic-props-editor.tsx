@@ -184,7 +184,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
 }
 
 
-export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], topic: ArCabildoabiertoWikiTopicVersion.TopicView): ArCabildoabiertoWikiTopicVersion.TopicProp[] {
+export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], topicId: string): ArCabildoabiertoWikiTopicVersion.TopicProp[] {
     if (!props) props = []
     const newProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
     for (let i = 0; i < props.length; i++) {
@@ -194,7 +194,7 @@ export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[],
             if (isKnownProp(p.value)) {
                 newProps.push({
                     ...p,
-                    value: defaultPropValue(p.name, p.value.$type, topic)
+                    value: defaultPropValue(p.name, p.value.$type, topicId)
                 })
             }
         } else {
@@ -204,7 +204,7 @@ export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[],
     if (!props.some(p => p.name == "Título")) {
         newProps.push({
             name: "Título",
-            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: topic.id}
+            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: topicId}
         })
     }
     if (!props.some(p => p.name == "Categorías")) {
@@ -236,11 +236,11 @@ export function propsEqual(props1: ArCabildoabiertoWikiTopicVersion.TopicProp[],
 }
 
 
-export function defaultPropValue(name: string, type: PropValueType, topic: ArCabildoabiertoWikiTopicVersion.TopicView): PropValue {
+export function defaultPropValue(name: string, type: PropValueType, topicId: string): PropValue {
     if (name == "Título") {
         return {
             $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
-            value: topic.id
+            value: topicId
         }
     } else if (type == "ar.cabildoabierto.wiki.topicVersion#stringProp") {
         return {
@@ -295,7 +295,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
     const [creatingProp, setCreatingProp] = useState(false)
 
     useEffect(() => {
-        const newProps = addDefaults(props, topic)
+        const newProps = addDefaults(props, topic.id)
         if (!propsEqual(newProps, props)) {
             setProps(newProps)
         }
@@ -317,13 +317,13 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
             ...props,
             {
                 name,
-                value: defaultPropValue(name, type, topic),
+                value: defaultPropValue(name, type, topic.id),
             }
         ])
     }
 
     function resetProps() {
-        setProps(addDefaults(topic.props, topic))
+        setProps(addDefaults(topic.props, topic.id))
     }
 
     const vProps = validProps(props)

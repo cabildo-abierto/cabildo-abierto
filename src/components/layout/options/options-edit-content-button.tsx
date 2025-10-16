@@ -26,7 +26,7 @@ export const OptionsEditContentButton = ({record}: { record: $Typed<ArCabildoabi
 
     async function onClickEdit() {
         if (isArticle(collection)) {
-            router.push(`/escribir/articulo?r=${getRkeyFromUri(record.uri)}}`)
+            router.push(`/escribir/articulo?r=${getRkeyFromUri(record.uri)}`)
         } else if (isPost(collection)) {
             if (!editingPost) setEditingPost(true)
         }

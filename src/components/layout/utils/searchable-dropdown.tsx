@@ -62,7 +62,8 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             />
             {showDropdown && filteredOptions != null && (!filteredOptions || (filteredOptions && filteredOptions.length > 0)) && (
                 <Paper
-                    className="absolute z-10 mt-1 min-w-full max-w-max"
+                    onWheel={(e) => e.stopPropagation()}
+                    className="absolute z-10 mt-1 min-w-full max-w-max max-h-[300px] overflow-y-auto custom-scrollbar"
                     sx={{
                         backgroundColor: "var(--background-dark)",
                         borderRadius: 0,
