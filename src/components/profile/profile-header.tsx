@@ -9,6 +9,7 @@ import {ArticleIcon} from "@/components/layout/icons/article-icon"
 import {emptyChar} from "@/utils/utils";
 import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/follow-button";
+import {MessageButton} from "@/components/profile/message-button";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import dynamic from "next/dynamic";
 import {useSession} from "@/queries/getters/useSession";
@@ -151,7 +152,10 @@ function ProfileHeader({
                         <span className={"text-[var(--text-light)]"}>Editar perfil</span>
                     </Button>
                 </div>}
-                <FollowButton handle={profile.handle} profile={profile}/>
+                <div className={"pt-2 pr-1 flex justify-end space-x-2"}>
+                    <MessageButton handle={profile.handle} profile={profile}/>
+                    <FollowButton handle={profile.handle} profile={profile}/>
+                </div>
             </div>
         </div>
         <div className="flex justify-between pr-1 space-x-2">
