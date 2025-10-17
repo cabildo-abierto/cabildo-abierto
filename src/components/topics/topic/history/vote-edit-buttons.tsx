@@ -5,9 +5,12 @@ import {RejectVersionModal} from "./reject-version-modal";
 import {post} from "@/utils/fetch";
 import {getDidFromUri, getRkeyFromUri, splitUri} from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {contentQueriesFilter, updateTopicHistories} from "@/queries/mutations/updates";
+import {contentQueriesFilter, invalidateQueries, updateTopicHistories} from "@/queries/mutations/updates";
 import {produce} from "immer";
 import {CheckIcon, XIcon} from "@phosphor-icons/react";
+import { ArCabildoabiertoWikiTopicVersion } from "@/lex-api";
+import { Color } from "@/components/layout/utils/color";
+import {darker} from "@/components/layout/utils/button";
 
 
 // TO DO: Si votó reject advertir que lo va a eliminar
@@ -24,11 +27,27 @@ async function cancelVote(voteUri: string){
 
 function optimisticAcceptVote(qc: QueryClient, uri: string) {
     updateTopicHistories(qc, uri, e => {
+        if(!e) return
         return produce(e, draft => {
+            if(!draft.viewer) {
+                draft.viewer = {}
+            }
             draft.viewer.accept = "optimistic-accept-uri"
             draft.status.voteCounts[0].accepts ++
         })
     })
+    qc.getQueryCache().getAll()
+        .filter(q => Array.isArray(q.queryKey) && q.queryKey[0] == "topic" || q.queryKey[0] == "topic-version")
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+                const topic = old as ArCabildoabiertoWikiTopicVersion.TopicView
+                return produce(topic, draft => {
+                    draft.viewer.accept = "optimistic-accept-uri"
+                    draft.status.voteCounts[0].accepts ++
+                })
+            })
+        })
 }
 
 
@@ -47,6 +66,19 @@ function optimisticCancelAcceptVote(qc: QueryClient, uri: string) {
             draft.status.voteCounts[0].accepts--
         })
     })
+
+    qc.getQueryCache().getAll()
+        .filter(q => Array.isArray(q.queryKey) && q.queryKey[0] == "topic" || q.queryKey[0] == "topic-version")
+        .forEach(q => {
+            qc.setQueryData(q.queryKey, old => {
+                if (!old) return old
+                const topic = old as ArCabildoabiertoWikiTopicVersion.TopicView
+                return produce(topic, draft => {
+                    draft.viewer.accept = undefined
+                    draft.status.voteCounts[0].accepts --
+                })
+            })
+        })
 }
 
 function optimisticCancelRejectVote(qc: QueryClient, uri: string) {
@@ -58,13 +90,38 @@ function optimisticCancelRejectVote(qc: QueryClient, uri: string) {
     })
 }
 
-export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
+
+function invalidateQueriesAfterVoteUpdate(qc: QueryClient, subjectId: string, topicId: string){
+    const queriesToInvalidate: string[][] = []
+
+    const {did, rkey} = splitUri(subjectId)
+
+    queriesToInvalidate.push(["topic", topicId])
+    queriesToInvalidate.push(["topic", did, rkey])
+    queriesToInvalidate.push(["topic-version", did, rkey])
+    queriesToInvalidate.push(["topic-history", topicId])
+    queriesToInvalidate.push(["votes", subjectId])
+
+    invalidateQueries(qc, queriesToInvalidate)
+}
+
+
+export const VoteEditButtons = ({
+                                    topicId,
+                                    versionRef,
+                                    acceptUri,
+                                    rejectUri,
+                                    acceptCount,
+                                    rejectCount,
+    backgroundColor="background"
+}: {
     topicId: string
     versionRef: ATProtoStrongRef
     acceptUri?: string
     rejectUri?: string
     acceptCount: number
     rejectCount: number
+    backgroundColor?: Color
 }) => {
     const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
     const qc = useQueryClient()
@@ -81,7 +138,7 @@ export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acce
             }
         },
         onSettled: async () => {
-            qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
+            invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
         },
     })
 
@@ -92,7 +149,7 @@ export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acce
             optimisticCancelAcceptVote(qc, versionRef.uri)
         },
         onSettled: async () => {
-            qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
+            invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
         },
     })
 
@@ -130,7 +187,7 @@ export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acce
             iconActive={<span className={"text-green-400"}><CheckIcon fontSize={iconFontSize}/></span>}
             iconInactive={<CheckIcon fontSize={iconFontSize}/>}
             count={acceptCount}
-            hoverColor={"background-dark2"}
+            hoverColor={darker(darker(backgroundColor))}
             title={"Aceptar versión."}
             textClassName={"text-sm"}
             disabled={acceptUri == "optimistic-accept-uri"}
@@ -141,7 +198,7 @@ export const VoteEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acce
             iconActive={<span className={"text-red-400"}><XIcon fontSize={iconFontSize}/></span>}
             iconInactive={<XIcon fontSize={iconFontSize}/>}
             count={rejectCount}
-            hoverColor={"background-dark2"}
+            hoverColor={darker(darker(backgroundColor))}
             textClassName={"text-sm"}
             title={"Rechazar versión."}
             disabled={rejectUri == "optimistic-reject-uri"}

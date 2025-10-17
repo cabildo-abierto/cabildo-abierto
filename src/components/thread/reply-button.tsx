@@ -2,7 +2,13 @@ import {Button} from "../layout/utils/button";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 
 
-export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void, text?: string }) => {
+export const ReplyButton = ({
+                                onClick,
+                                text = "Responder",
+    fullWidth = true
+}: {
+    onClick: () => void, text?: string, fullWidth?: boolean
+}) => {
     return <Button
         color={"background"}
         onClick={onClick}
@@ -14,7 +20,7 @@ export const ReplyButton = ({onClick, text = "Responder"}: { onClick: () => void
             borderRight: 0
         }}
         paddingX={"22px"}
-        fullWidth
+        fullWidth={fullWidth}
         startIcon={<WriteButtonIcon/>}
         borderColor={"accent-dark"}
     >

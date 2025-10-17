@@ -10,9 +10,7 @@ const contentRedirectMap: Record<string, string> = {
 export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
 
-    // Split path segments
-    const segments = url.pathname.split("/").filter(Boolean);
-    // Example: /c/abc/p/xyz → ["c", "abc", "p", "xyz"]
+    const segments = url.pathname.split("/").filter(Boolean)
 
     if (segments.length == 4 && segments[0] == "c") {
         const did = segments[1];
@@ -22,6 +20,17 @@ export async function middleware(request: NextRequest) {
         if (contentRedirectMap[collection]) {
             url.pathname = `/c/${did}/${contentRedirectMap[collection]}/${rkey}`;
             return NextResponse.redirect(url);
+        }
+    }
+
+    if(url.pathname.startsWith("/tema") && !url.pathname.startsWith("/temas")) {
+        const searchParams = url.searchParams
+        const did = searchParams.get("did")
+        const rkey = searchParams.get("rkey")
+        const topicId = searchParams.get("i")
+        if(!topicId && (!did || !rkey)) {
+            url.pathname = "/temas"
+            return NextResponse.redirect(url)
         }
     }
 

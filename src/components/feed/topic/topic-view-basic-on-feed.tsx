@@ -16,7 +16,7 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
     const {selected} = useTopicFeedParams(user)
     const pathname = usePathname()
 
-    if(pathname.startsWith("/tema") && selected == "Respuestas"){
+    if(pathname.startsWith("/tema") && selected == "Discusión"){
         return null
     }
 

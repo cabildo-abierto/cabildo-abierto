@@ -208,6 +208,10 @@ export const TopicContentExpandedViewWithVersion = ({
     const qc = useQueryClient()
     const {user} = useSession()
 
+    useEffect(() => {
+        setTopicProps(Array.from(topic.props))
+    }, [topic])
+
     const saveEditMutation = useMutation({
         mutationFn: createTopicVersion,
         onMutate: () => {

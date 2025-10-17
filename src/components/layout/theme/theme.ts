@@ -27,6 +27,10 @@ export const darkThemePalette = {
   redDark: "#c12f2f",
   redDark2: "#8f1919",
 
+  green: "#66ff66",
+  greenDark: "#4dc04d",
+  greenDark2: "#358435",
+
   like: "#EC4899",
   repost: "#5CEFAA"
 }
@@ -53,9 +57,13 @@ export const lightThemePalette = {
   backgroundDark2: 'rgb(229,229,221)',
   backgroundDark3: 'rgb(212,212,205)',
 
-  red: "#ff6666",
-  redDark: "#c12f2f",
-  redDark2: "#8f1919",
+  red: "#ff9999",
+  redDark: "#ff6666",
+  redDark2: "#c12f2f",
+
+  green: "#66ff66",
+  greenDark: "#4dc04d",
+  greenDark2: "#358435",
 
   like: "#EC4899",
   repost: "#13C371"

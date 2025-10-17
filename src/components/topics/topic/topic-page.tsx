@@ -1,5 +1,5 @@
 "use client"
-import {useEffect, useState} from "react"
+import {useCallback, useEffect, useState} from "react"
 import {useSearchParams} from "next/navigation";
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import {getTopicCategories, getTopicTitle} from "./utils";
@@ -42,17 +42,33 @@ export function isWikiEditorState(s: string): s is WikiEditorState {
     return ["changes", "authors", "normal", "editing", "editing-props", "props", "minimized", "history"].includes(s)
 }
 
-export const TopicPage = ({topicId, did, rkey}: {
-    topicId?: string
-    did?: string
-    rkey?: string
-}) => {
-    const {query: topicQuery, topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+export function useTopicPageParams() {
     const searchParams = useSearchParams()
-    const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
+    const did = searchParams.get("did")
+    const rkey = searchParams.get("rkey")
+    const topicId = searchParams.get("i")
     const s = searchParams.get("s")
-    const wikiEditorState = (s && isWikiEditorState(s) ? s : "minimized")
+
+    return {did, rkey, topicId, s: s && isWikiEditorState(s) ? s : "minimized"}
+}
+
+export const TopicPage = () => {
+    const {did, rkey, topicId, s} = useTopicPageParams()
+    const {query: topicQuery, topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
+    const wikiEditorState = (s)
     const {setShouldGoTo} = useShouldGoTo(wikiEditorState)
+
+    const setWikiEditorStateAndRouterPush = useCallback((s: WikiEditorState) => {
+        const params = {
+            s,
+            i: topic && topic != "loading" ? topic.id : undefined,
+            did: did ?? undefined,
+            rkey: rkey ?? undefined
+        }
+        console.log("updating search params", params)
+        updateSearchParams(params)
+    }, [did, rkey, topic])
 
     if (topicQuery.isLoading || topic == "loading") {
         return <div className={"py-64"}>
@@ -62,16 +78,6 @@ export const TopicPage = ({topicId, did, rkey}: {
 
     if (!topic) {
         return <TopicNotFoundPage id={topicId}/>
-    }
-
-    function setWikiEditorStateAndRouterPush(s: WikiEditorState) {
-        const params = {
-            s,
-            i: topic && topic != "loading" ? topic.id : undefined,
-            did: did ?? undefined,
-            rkey: rkey ?? undefined
-        }
-        updateSearchParams(params)
     }
 
     const onClickQuote = (cid: string) => {
@@ -89,7 +95,7 @@ export const TopicPage = ({topicId, did, rkey}: {
         }
     }
 
-    const topicVersionUri = topicId ? topic.uri : getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
+    const topicVersionUri = did && rkey ? getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey) : topic.uri
 
     return <TopicTutorial wikiState={wikiEditorState}>
         <div className="flex flex-col items-center w-full min-[500px]:pt-4 mt-8">
