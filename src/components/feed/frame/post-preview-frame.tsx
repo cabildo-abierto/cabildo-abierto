@@ -116,7 +116,6 @@ export const PostPreviewFrame = ({
                             e.stopPropagation()
                         }}
                         href={profileUrl(author.handle)}
-                        className={""}
                     >
                         <UserSummaryOnHover handle={author.handle}>
                             <div className={"flex justify-between items-center space-x-1"}>

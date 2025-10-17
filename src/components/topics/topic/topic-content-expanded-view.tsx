@@ -202,11 +202,15 @@ export const TopicContentExpandedViewWithVersion = ({
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [topicProps, setTopicProps] = useState<ArCabildoabiertoWikiTopicVersion.TopicProp[]>(Array.from(topic.props) ?? [])
+    const [topicProps, setTopicProps] = useState<ArCabildoabiertoWikiTopicVersion.TopicProp[]>(Array.from(topic.props ?? []))
     const {data: quoteReplies} = useTopicVersionQuoteReplies(topic.uri)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const qc = useQueryClient()
     const {user} = useSession()
+
+    useEffect(() => {
+        setTopicProps(Array.from(topic.props ?? []))
+    }, [topic])
 
     const saveEditMutation = useMutation({
         mutationFn: createTopicVersion,
