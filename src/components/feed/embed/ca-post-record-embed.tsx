@@ -2,7 +2,7 @@ import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
 import Link from "next/link";
 import {contentUrl, profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../layout/utils/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useRouter} from "next/navigation";
 import {ATProtoStrongRef} from "@/lib/types";
@@ -12,7 +12,7 @@ import {$Typed, AppBskyFeedPost} from "@atproto/api";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord, ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink} from "../../layout/utils/custom-link";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {AppBskyActorDefs} from "@atproto/api"

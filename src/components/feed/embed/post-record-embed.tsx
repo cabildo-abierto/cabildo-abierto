@@ -1,6 +1,6 @@
 "use client"
 
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../layout/utils/date";
 import {useRouter} from "next/navigation";
 import {contentUrl, getBlueskyUrl, profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";

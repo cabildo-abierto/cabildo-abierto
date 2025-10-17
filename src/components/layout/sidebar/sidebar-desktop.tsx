@@ -9,7 +9,7 @@ export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
 }) => {
     const {layoutConfig} = useLayoutConfig()
 
-    return <div className={"fixed z-[1199] h-screen bg-[var(--background)] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--accent-dark)]" : "")}>
+    return <div className={"fixed z-[1199] max-w-56 overflow-auto custom-scrollbar h-[calc(100vh-48px)] bg-[var(--background)] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--accent-dark)] overflow-y-scroll custom-scrollbar" : "")}>
         <SidebarContent
             onClose={onClose}
             setWritePanelOpen={setWritePanelOpen}

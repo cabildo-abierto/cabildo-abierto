@@ -1,21 +1,22 @@
 import {useDataset} from "@/queries/getters/useDataset";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../layout/utils/icon-button";
 import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@/lex-api/util";
 import {pxToNumber} from "@/utils/strings";
-import {ClickableModalOnClick} from "../../../modules/ui-utils/src/popover";
+import {ClickableModalOnClick} from "../layout/utils/popover";
 import {Authorship} from "@/components/feed/frame/authorship";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../layout/utils/date";
 import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoDataDataset} from "@/lex-api"
-import { Button } from "../../../modules/ui-utils/src/button";
+import { Button } from "../layout/utils/button";
 import {TableIcon, TrashIcon} from "@phosphor-icons/react";
+import {DatasetDescription} from "@/components/visualizations/datasets/dataset-description";
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
@@ -74,14 +75,14 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
                 </div>
             </div>
             <div className={"max-w-[400px] text-sm line-clamp-5"}>
-                {dataset.description}
+                <DatasetDescription description={dataset.description}/>
             </div>
             <div className={"text-sm text-[var(--text-light)] truncate flex space-x-1"}>
                 <div>Publicado por</div>
                 <Authorship author={dataset.author} onlyAuthor={true}/>
             </div>
             <div className={"text-[var(--text-light)] text-sm"}>
-                Hace <DateSince date={dataset.createdAt}/>
+                Últ. actualización hace <DateSince date={dataset.editedAt ?? dataset.createdAt}/>
             </div>
         </div>}
         {ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <div

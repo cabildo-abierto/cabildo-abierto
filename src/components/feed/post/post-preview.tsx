@@ -47,6 +47,7 @@ export type FastPostPreviewProps = {
     showReplyMessage?: boolean
     repostedBy?: { handle: string, displayName?: string }
     pageRootUri?: string
+    onFeed?: boolean
 }
 
 function getParentAndRoot(f: ArCabildoabiertoFeedDefs.FeedViewContent): { parent?: ReplyRefContent, root?: ReplyRefContent } {
@@ -150,6 +151,7 @@ export const PostPreview = ({
                                 onClickQuote,
                                 threadViewContent,
                                 pageRootUri,
+    onFeed = true
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
     const {layoutConfig} = useLayoutConfig()
@@ -160,7 +162,7 @@ export const PostPreview = ({
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div style={{maxWidth: layoutConfig.maxWidthCenter}} className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px] " + (!postView && feedViewContent && (root || parent) ? "border-b" : "")}>
+    return <div style={{maxWidth: layoutConfig.centerWidth}} className={"flex flex-col w-full text-[15px] " + (onFeed ? "min-[680px]:min-w-[600px]" : "") + (!postView && feedViewContent && (root || parent) ? " border-b" : "")}>
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}
@@ -175,6 +177,8 @@ export const PostPreview = ({
             showingParent={(parent != null && postOrArticle(parent)) || showingParent}
             borderBelow={!showingChildren}
             pageRootUri={pageRootUri}
+            engagementIcons={onFeed}
+            onWritePost={!onFeed}
         >
             {parent && showReplyMessage && grandparentAuthor && <IsReplyMessage
                 author={grandparentAuthor}

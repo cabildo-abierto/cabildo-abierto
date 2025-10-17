@@ -9,7 +9,7 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
-import {$createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+import {$createLinkNode, $isAutoLinkNode, $isLinkNode, LinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {
     $getSelection,
     $isLineBreakNode,
@@ -30,13 +30,13 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, validateUrl} from '../../utils/url';
-import {CustomLink as Link} from '../../../../ui-utils/src/custom-link';
+import {CustomLink as Link} from '@/components/layout/utils/custom-link';
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {get} from '@/utils/fetch';
-import LoadingSpinner from "../../../../ui-utils/src/loading-spinner";
-import {IconButton} from '../../../../ui-utils/src/icon-button';
+import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import {IconButton} from '@/components/layout/utils/icon-button';
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
 import {CheckIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { WriteButtonIcon } from '@/components/layout/icons/write-button-icon';
@@ -513,6 +513,11 @@ function useFloatingLinkEditorToolbar(
                 },
                 COMMAND_PRIORITY_CRITICAL,
             ),
+            editor.registerNodeTransform(LinkNode, (node: LinkNode) => {
+                if(activeEditor.isEditable()){
+                    node.__target = "_blank"
+                }
+            }),
             editor.registerCommand(
                 CLICK_COMMAND,
                 (payload) => {
@@ -521,14 +526,13 @@ function useFloatingLinkEditorToolbar(
                         const node = getSelectedNode(selection);
                         const linkNode = $findMatchingParent(node, $isLinkNode);
                         if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
-
                             window.open(linkNode.getURL(), '_blank');
                             return true;
                         }
                     }
                     return false;
                 },
-                COMMAND_PRIORITY_LOW,
+                COMMAND_PRIORITY_CRITICAL,
             )
         );
     }, [editor]);

@@ -19,7 +19,7 @@ import {
     searchParamToMainFeedOption
 } from "@/components/config/defaults";
 import {LoginRequiredPage} from "@/components/layout/page-requires-login-checker";
-import { Button } from "../../../modules/ui-utils/src/button";
+import { Button } from "../layout/utils/button";
 
 
 export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {

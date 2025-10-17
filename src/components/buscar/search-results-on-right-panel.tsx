@@ -1,8 +1,8 @@
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import React from "react";
 import { useSearch } from "./search-context";
 import {usePathname} from "next/navigation";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import {useDebounce} from "@/utils/debounce";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
@@ -67,32 +67,30 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
         className={"w-full z-[20000]"}
     >
         {showSearchButton && (
-            <div className={""}>
-                <Button
-                    onClick={handleSubmit}
-                    variant={"outlined"}
-                    color={"background-dark"}
-                    sx={{
-                        textTransform: "none",
-                        width: "100%",
-                        borderRadius: "0px"
-                    }}
-                    borderColor={"accent-dark"}
-                >
-                    <div className={"space-x-1 w-full"}>
-                        <span>Buscar</span>
-                        <span className={"text-[var(--text-light)]"}>
-                            {searchState.value}
-                        </span>
-                    </div>
-                </Button>
-            </div>
+            <Button
+                onClick={handleSubmit}
+                variant={"outlined"}
+                color={"background-dark"}
+                sx={{
+                    textTransform: "none",
+                    width: "100%",
+                    borderRadius: "0px"
+                }}
+                borderColor={"accent-dark"}
+            >
+                <div className={"space-x-1 w-full"}>
+                    <span>Buscar</span>
+                    <span className={"text-[var(--text-light)]"}>
+                        {searchState.value}
+                    </span>
+                </div>
+            </Button>
         )}
         <div className={""}>
             {isLoading && <div className={"py-8 border-l border-b border-r border-[var(--accent-dark)]"}>
                 <LoadingSpinner/>
             </div>}
-            {!isLoading && results && <div className={"border-l border-r border-b border-[var(--accent-dark)]"}>{results.map(r => {
+            {!isLoading && results != null && results.length > 0 && <div className={"border-l border-r border-b border-[var(--accent-dark)]"}>{results.map(r => {
                 if(ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(r)){
                     return <Link
                         href={topicUrl(r.id)}
@@ -123,6 +121,9 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
                     </div>
                 }
             })}</div>}
+            {!isLoading && results != null && results.length == 0 && <div className={"text-sm font-light text-[var(--text-light)] border-[var(--accent-dark)] border-b border-r border-l text-center py-4"}>
+                No se encontraron resultados
+            </div>}
         </div>
     </div>
 }

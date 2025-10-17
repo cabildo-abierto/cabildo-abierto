@@ -12,11 +12,6 @@ export function useTopicVersionQuoteReplies(uri: string){
 }
 
 
-export function useTopic(id?: string, did?: string, rkey?: string) {
-    return useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
-}
-
-
 export function useTopicTitle(id: string) {
     return useAPI<{title: string}>(`/topic-title/${encodeURIComponent(id)}`, ["topic-title", id])
 }

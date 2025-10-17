@@ -40,7 +40,7 @@ import * as React from 'react';
 import {ReactNode, ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import invariant from '../../shared/invariant';
-import { IconButton } from '../../../../ui-utils/src/icon-button';
+import { IconButton } from '@/components/layout/utils/icon-button';
 import { CaretDownIcon } from '@phosphor-icons/react';
 
 function computeSelectionCount(selection: TableSelection): {

@@ -5,7 +5,7 @@ import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
 import {useTopicVersion, useTopicVersionQuoteReplies} from "@/queries/getters/useTopic";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {useRouter, useSearchParams} from "next/navigation";
 import {getEditorSettings} from "@/components/writing/settings";
 import {EditorWithQuoteComments, getEditorKey} from "@/components/writing/editor-with-quote-comments";

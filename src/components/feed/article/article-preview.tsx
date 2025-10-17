@@ -2,12 +2,12 @@
 import {PostPreviewFrame} from '../frame/post-preview-frame'
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index";
 import {$Typed} from "@/lex-api/util";
-import {darker} from "@/../modules/ui-utils/src/button"
+import {darker} from "@/components/layout/utils/button"
 import {Box} from "@mui/material";
 import {AppBskyFeedDefs} from "@atproto/api";
 import ReadOnlyEditor from "@/components/writing/read-only-editor";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
-import {Color} from "../../../../modules/ui-utils/src/color";
+import {Color} from "../../layout/utils/color";
 
 
 export type ArticlePreviewProps = {

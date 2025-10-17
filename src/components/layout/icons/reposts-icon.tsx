@@ -1,5 +1,5 @@
 import RepeatIcon from '@mui/icons-material/Repeat';
-import { Color } from '../../../../modules/ui-utils/src/color';
+import { Color } from '../utils/color';
 
 export const RepostIcon = ({fontSize, color = "text-light"}: {
     fontSize?: string | number

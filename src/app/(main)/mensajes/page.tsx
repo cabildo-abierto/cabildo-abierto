@@ -1,6 +1,6 @@
 "use client"
 import {useConversations} from "@/queries/getters/useConversations";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../components/layout/utils/loading-spinner";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {chatUrl} from "@/utils/uri";
 import Link from "next/link";

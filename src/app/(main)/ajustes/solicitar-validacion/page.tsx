@@ -1,7 +1,7 @@
 "use client"
 import {styled, ToggleButton, ToggleButtonGroup} from "@mui/material";
 import {ReactNode, useState} from "react";
-import {Button} from "../../../../../modules/ui-utils/src/button";
+import {Button} from "../../../../components/layout/utils/button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -9,16 +9,16 @@ import {post} from "@/utils/fetch";
 import {produce} from "immer";
 import {file2base64, FilePayload} from "@/utils/files";
 import {ConfettiIcon, FileIcon, TrashIcon} from "@phosphor-icons/react";
-import StateButton from "../../../../../modules/ui-utils/src/state-button";
-import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
+import StateButton from "../../../../components/layout/utils/state-button";
+import {AcceptButtonPanel} from "../../../../components/layout/utils/accept-button-panel";
 import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../../components/layout/utils/loading-spinner";
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {useQueryClient} from "@tanstack/react-query";
 import CheckIcon from "@mui/icons-material/Check";
-import {TextField} from "../../../../../modules/ui-utils/src/text-field";
-import {IconButton} from "../../../../../modules/ui-utils/src/icon-button";
-import {Select} from "../../../../../modules/ui-utils/src/select";
+import {TextField} from "../../../../components/layout/utils/text-field";
+import {IconButton} from "../../../../components/layout/utils/icon-button";
+import {Select} from "../../../../components/layout/utils/select";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',

@@ -1,10 +1,10 @@
 "use client"
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useSession} from "@/queries/getters/useSession";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useMediaQuery} from "@mui/system";
-import { Color } from "../../../modules/ui-utils/src/color";
+import { Color } from "../layout/utils/color";
 
 
 export const GoToLoginButton = ({fontSize = 13, color="background-dark", className = "font-bold", text = "Crear una cuenta o iniciar sesión"}: {

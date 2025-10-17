@@ -1,10 +1,10 @@
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {useState} from "react";
 import {LinkIcon} from "@/components/layout/icons/link-icon";
 import {UploadImageButton} from "./upload-image-button";
 import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import { Button } from "../../layout/utils/button";
 
 export type InsertImageModalProps = {
     open: boolean
@@ -27,11 +27,13 @@ const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
                     <Button
                         variant="outlined"
                         disableElevation={true}
-                        startIcon={<LinkIcon/>}
+                        startIcon={<LinkIcon weight={"light"}/>}
                         fullWidth={true}
                         onClick={() => setMode('url')}
                     >
-                        <span className={"text-sm"}>Desde un URL</span>
+                        <span className={"text-[13px]"}>
+                            Usar un URL
+                        </span>
                     </Button>
                     <UploadImageButton
                         onSubmit={onSubmit}

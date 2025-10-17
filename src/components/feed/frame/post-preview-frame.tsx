@@ -1,4 +1,4 @@
-import {DateSince} from '../../../../modules/ui-utils/src/date'
+import {DateSince} from '../../layout/utils/date'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
@@ -11,7 +11,7 @@ import {$Typed} from "@/lex-api/util";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/getters/useThread";
 import {ReplyToVersion} from "@/components/feed/frame/reply-to-version";
-import {CustomLink} from '../../../../modules/ui-utils/src/custom-link'
+import {CustomLink} from '../../layout/utils/custom-link'
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
@@ -39,6 +39,8 @@ type FastPostPreviewFrameProps = {
     showingChildren?: boolean
     reason?: AppBskyFeedDefs.ReasonRepost
     pageRootUri?: string
+    engagementIcons?: boolean
+    onWritePost?: boolean
 }
 
 export const PostPreviewFrame = ({
@@ -49,6 +51,8 @@ export const PostPreviewFrame = ({
                                      showingChildren = false,
                                      reason,
                                      pageRootUri,
+    onWritePost=false,
+    engagementIcons = true
                                  }: FastPostPreviewFrameProps) => {
     const url = contentUrl(postView.uri, postView.author.handle)
     const qc = useQueryClient()
@@ -79,15 +83,16 @@ export const PostPreviewFrame = ({
     return <CustomLink
         tag={"div"}
         id={"discussion:" + postView.uri}
-        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? "border-b" : "")}
-        onClick={!isOptimistic ? onClick : undefined}
-        href={!isOptimistic ? url : undefined}
+        className={"flex flex-col " + (borderBelow ? "border-b" : "") + (engagementIcons ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
+        onClick={!isOptimistic && engagementIcons ? onClick : undefined}
+        href={!isOptimistic && engagementIcons ? url : undefined}
+
     >
         {ArCabildoabiertoFeedDefs.isPostView(postView) &&
             <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full"}>
-            <div className="flex flex-col items-center pr-2 pl-4">
+            <div className={"flex flex-col items-center pr-2 " + (engagementIcons ? "pl-4" : "")}>
                 {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <CustomLink
                     tag={"span"}
@@ -104,7 +109,7 @@ export const PostPreviewFrame = ({
             </div>
 
             <div className="py-2 flex w-full flex-col pr-2">
-                <div className="flex items-center gap-x-1 w-full">
+                <div className="flex items-center gap-x-1">
                     <CustomLink
                         tag={"span"}
                         onClick={(e) => {
@@ -116,12 +121,12 @@ export const PostPreviewFrame = ({
                         <UserSummaryOnHover handle={author.handle}>
                             <div className={"flex justify-between items-center space-x-1"}>
                                 <div className={"flex space-x-1 items-center"}>
-                                    <div className={"hover:underline font-bold truncate " + (isMobile ? "max-w-[36vw]": "max-w-[300px]")}>
+                                    <div className={"hover:underline font-bold truncate " + (isMobile ? "max-w-[36vw]" : onWritePost ? "max-w-[200px]": "max-w-[300px]")}>
                                         {author.displayName ? author.displayName : author.handle}
                                     </div>
                                     <ValidationIcon fontSize={15} handle={author.handle}
                                                     verification={author.verification}/>
-                                    <div className={"text-[var(--text-light)] truncate " + (isMobile ? "max-w-[20vw]": "max-w-[150px]")}>
+                                    <div className={"text-[var(--text-light)] truncate " + (isMobile ? "max-w-[20vw]" : onWritePost ? "max-w-[100px]": "max-w-[150px]")}>
                                         @{author.handle}
                                     </div>
                                 </div>
@@ -140,7 +145,7 @@ export const PostPreviewFrame = ({
                     {children}
                 </div>
 
-                <div className={"mt-1 text-sm"}>
+                {engagementIcons && <div className={"mt-1 text-sm"}>
                     <EngagementIcons
                         content={postView}
                         className={"px-2"}
@@ -149,7 +154,7 @@ export const PostPreviewFrame = ({
                         textClassName={"font-light text-[var(--text)] text-sm"}
                         iconHoverColor={"background-dark2"}
                     />
-                </div>
+                </div>}
             </div>
         </div>
     </CustomLink>

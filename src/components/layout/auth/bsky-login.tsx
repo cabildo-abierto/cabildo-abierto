@@ -4,12 +4,20 @@ import {useEffect, useState} from "react"
 import {FormControl} from '@mui/material';
 import {isValidHandle} from "@atproto/syntax"
 import {useSession} from "@/queries/getters/useSession";
-import {Button} from "../../../../modules/ui-utils/src/button"
+import {Button} from "../utils/button"
 import {backendUrl} from "@/utils/uri";
 import {AtIcon} from "@phosphor-icons/react";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import { TextField } from "../utils/text-field";
 import {usePathname, useRouter} from "next/navigation";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
+
+
+function getHandleFromInputs(handleStart: string, domain: string) {
+    if(!domain.startsWith(".")) {
+        domain = `.${domain}`
+    }
+    return (handleStart.trim() + domain.trim()).replaceAll("@", "")
+}
 
 
 export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
@@ -40,7 +48,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
         e.preventDefault();
         setError(null);
 
-        const handle = (handleStart.trim() + domain.trim()).replaceAll("@", "");
+        const handle = getHandleFromInputs(handleStart, domain);
         if (!isValidHandle(handle)) {
             setError('Nombre de usuario inválido.');
             return;
@@ -78,7 +86,7 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
 
 
     return <div className={"max-w-96 w-full"}>
-        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-4"}>
+        <Box component={"form"} autoComplete={"on"} action="/login" onSubmit={handleSubmit} sx={{width: "100%"}} className={"space-y-4"}>
             <FormControl error={error} sx={{width: "100%"}}>
                 <div>
                     <div className={"flex space-x-2 items-center"}>
@@ -86,13 +94,13 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             margin="normal"
                             fullWidth={true}
                             size={"small"}
-                            id="username"
+                            name="ca_username"
+                            id="ca_username"
+                            autoComplete="username"
                             paddingX={"8px"}
                             label="Nombre de usuario"
-                            name="username"
                             autoFocus
                             variant="outlined"
-                            autoComplete="off"
                             value={handleStart}
                             onChange={(e) => {
                                 setHandleStart(e.target.value);
@@ -109,7 +117,6 @@ export const BlueskyLogin = ({inviteCode}: { inviteCode?: string }) => {
                             fullWidth={false}
                             id="domain"
                             label="Dominio"
-                            name="username"
                             placeholder=".bsky.social"
                             autoFocus={false}
                             autoComplete="off"

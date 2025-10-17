@@ -47,31 +47,27 @@ import * as React from 'react';
 import {IS_APPLE} from '../../shared/environment';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
-import VisualizationsIcon from '@/components/layout/icons/visualization-icon';
+import VisualizationIcon from '@/components/layout/icons/visualization-icon';
 import {INSERT_EMBED_COMMAND} from "../EmbedPlugin";
-import {
-    FormatBold,
-    FormatItalic,
-    ImageOutlined,
-    InsertLink,
-    TableChartOutlined
-} from "@mui/icons-material";
 import {ToolbarButton} from "./toolbar-button";
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
-import {ModalOnClick} from "../../../../ui-utils/src/modal-on-click";
-import { Button } from '../../../../ui-utils/src/button';
-import SubjectIcon from '@mui/icons-material/Subject';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import {ModalOnClick} from "@/components/layout/utils/modal-on-click";
+import { Button } from '@/components/layout/utils/button';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
 import {AppBskyEmbedImages} from "@atproto/api"
-import { Color } from '../../../../ui-utils/src/color';
+import { Color } from '@/components/layout/utils/color';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from 'next/dynamic';
+import InsertImageIcon from "@/components/layout/icons/insert-image-icon";
+import BoldIcon from '@/components/layout/icons/bold-icon';
+import {LinkIcon} from "@/components/layout/icons/link-icon";
+import ItalicIcon from '@/components/layout/icons/italic-icon';
+import {ListBulletsIcon, TableIcon, TextAlignLeftIcon} from "@phosphor-icons/react";
+import ListNumbersIcon from "@/components/layout/icons/list-numbers-icon";
+import QuotesIcon from "@/components/layout/icons/quotes-icon";
 
 const InsertVisualizationDialog = dynamic(() => import("../EmbedPlugin/insert-visualization-dialog"), {ssr: false})
 const InsertImageModal = dynamic(() => import("@/components/writing/write-panel/insert-image-modal"), {ssr: false})
@@ -92,16 +88,16 @@ const blockTypeToBlockName = {
 };
 
 const blockTypeToIcon = {
-    h1: <div className={"font-semibold text-[16px]"}>H1</div>,
-    h2: <div className={"font-semibold text-[16px]"}>H2</div>,
-    h3: <div className={"font-semibold text-[16px]"}>H3</div>,
-    h4: <div className={"font-semibold text-[16px]"}>H4</div>,
-    h5: <div className={"font-semibold text-[16px]"}>H5</div>,
-    h6: <div className={"font-semibold text-[16px]"}>H6</div>,
-    paragraph: <SubjectIcon/>,
-    bullet: <FormatListBulletedIcon/>,
-    number: <FormatListNumberedIcon/>,
-    quote: <FormatQuoteIcon/>,
+    h1: <div className={"font-medium text-[13px]"}>H1</div>,
+    h2: <div className={"font-medium text-[13px]"}>H2</div>,
+    h3: <div className={"font-medium text-[13px]"}>H3</div>,
+    h4: <div className={"font-medium text-[13px]"}>H4</div>,
+    h5: <div className={"font-medium text-[13px]"}>H5</div>,
+    h6: <div className={"font-medium text-[13px]"}>H6</div>,
+    paragraph: <TextAlignLeftIcon fontSize={20}/>,
+    bullet: <ListBulletsIcon fontSize={20}/>,
+    number: <ListNumbersIcon fontSize={20}/>,
+    quote: <QuotesIcon fontSize={20}/>,
 }
 
 const rootTypeToRootName = {
@@ -191,7 +187,7 @@ function BlockFormatDropDown({
                 >
                     <div className={"flex items-center space-x-1 justify-start w-full uppercase"}>
                         <div className={"text-[var(--text)] flex items-center h-7"}>{blockTypeToIcon[key]}</div>
-                        <div className={"whitespace-nowrap text-[14px] text-center w-full px-1"}>{blockTypeToBlockName[key]}</div>
+                        <div className={"normal-case whitespace-nowrap text-[13px] text-center w-full px-1"}>{blockTypeToBlockName[key]}</div>
                     </div>
                 </Button>
             </div>
@@ -435,7 +431,7 @@ export default function ToolbarPlugin({
                         active={isBold}
                         color={backgroundColor}
                     >
-                        <FormatBold fontSize={"small"} color={"inherit"}/>
+                        <BoldIcon fontSize={20} weight={isBold ? "bold" : "regular"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         disabled={!isEditable}
@@ -449,7 +445,7 @@ export default function ToolbarPlugin({
                         active={isItalic}
                         color={backgroundColor}
                     >
-                        <FormatItalic fontSize={"small"} color={"inherit"}/>
+                        <ItalicIcon fontSize={20} weight={isItalic ? "bold" : "regular"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         disabled={!isEditable}
@@ -459,7 +455,7 @@ export default function ToolbarPlugin({
                         active={isLink}
                         color={backgroundColor}
                     >
-                        <InsertLink fontSize={"small"} color={"inherit"}/>
+                        <LinkIcon fontSize={20} weight={isLink ? "bold" : "regular"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={() => {
@@ -470,7 +466,7 @@ export default function ToolbarPlugin({
                         aria-label="Insertar tabla"
                         color={backgroundColor}
                     >
-                        <TableChartOutlined fontSize={"small"} color={"inherit"}/>
+                        <TableIcon fontSize={20}/>
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={() => {
@@ -480,7 +476,7 @@ export default function ToolbarPlugin({
                         aria-label="Insertar imágen"
                         color={backgroundColor}
                     >
-                        <ImageOutlined fontSize={"small"} color={"inherit"}/>
+                        <InsertImageIcon fontSize={20}/>
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={() => {
@@ -490,7 +486,7 @@ export default function ToolbarPlugin({
                         aria-label="Insertar visualización"
                         color={backgroundColor}
                     >
-                        <VisualizationsIcon color={"inherit"}/>
+                        <VisualizationIcon fontSize={20}/>
                     </ToolbarButton>
 
                     {insertTableModalOpen && <InsertTableModal

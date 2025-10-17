@@ -1,11 +1,11 @@
 import {LexicalEditor} from "lexical";
 import {useEffect, useState} from "react";
-import {BaseFullscreenPopup} from "../../../../ui-utils/src/base-fullscreen-popup";
-import {Button} from "../../../../ui-utils/src/button";
+import {BaseFullscreenPopup} from "@/components/layout/utils/base-fullscreen-popup";
+import {Button} from "@/components/layout/utils/button";
 import {
     INSERT_TABLE_COMMAND,
 } from '@lexical/table';
-import {TextField} from "../../../../ui-utils/src/text-field";
+import {TextField} from "@/components/layout/utils/text-field";
 
 
 export default function InsertTableModal({
@@ -76,6 +76,7 @@ export default function InsertTableModal({
                         variant={"outlined"}
                         disabled={isDisabled}
                         onClick={onClick}
+                        size={"small"}
                     >
                         Insertar
                     </Button>

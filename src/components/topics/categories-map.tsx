@@ -1,7 +1,7 @@
 import {usePathname, useRouter} from "next/navigation";
 import {useCategoriesGraph} from "@/queries/getters/useTopics";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import LoadingSpinner from "../layout/utils/loading-spinner";
+import {ErrorPage} from "../layout/utils/error-page";
 import dynamic from "next/dynamic";
 import {useSearch} from "@/components/buscar/search-context";
 import {useMemo} from "react";

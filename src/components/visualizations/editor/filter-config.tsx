@@ -1,18 +1,18 @@
 import {PlotConfigProps} from "@/lib/types";
-import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
-import {Select} from "../../../../modules/ui-utils/src/select";
+import SearchableDropdown from "../../layout/utils/searchable-dropdown";
+import {Select} from "../../layout/utils/select";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer";
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../layout/utils/close-button";
 import {useCategories} from "@/queries/getters/useTopics";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {useState} from "react";
-import {Button, darker} from "../../../../modules/ui-utils/src/button";
-import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
+import {Button, darker} from "../../layout/utils/button";
+import {ListEditor} from "../../layout/utils/list-editor";
 import {Box, IconButton} from "@mui/material";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
-import {Color} from "../../../../modules/ui-utils/src/color";
+import {Color} from "../../layout/utils/color";
 
 
 function operatorViewToValue(op: string) {

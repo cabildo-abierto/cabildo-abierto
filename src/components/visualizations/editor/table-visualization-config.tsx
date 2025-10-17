@@ -2,11 +2,11 @@ import {PlotConfigProps} from "@/lib/types";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset} from "@/queries/getters/useDataset";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {Switch} from "@mui/material";
 import {produce} from "immer";
-import {TextField} from "../../../../modules/ui-utils/src/text-field";
+import {TextField} from "../../layout/utils/text-field";
 import {useEffect} from "react";
 
 type TableVisualizationConfigProps = {

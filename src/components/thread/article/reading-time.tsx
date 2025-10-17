@@ -1,5 +1,5 @@
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import { ClockIcon } from "@phosphor-icons/react";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 
 
 export const ReadingTime = ({numWords}: { numWords?: number }) => {
@@ -8,10 +8,8 @@ export const ReadingTime = ({numWords}: { numWords?: number }) => {
         const wordsPerMinute = 200;
         const minutes = Math.ceil(numWords / wordsPerMinute);
         return <DescriptionOnHover description={"Tiempo de lectura estimado."}>
-            <div className="space-x-1 flex items-baseline">
-                <div className={"mt-1"}>
-                    <AccessTimeIcon fontSize="inherit"/>
-                </div>
+            <div className="space-x-1 flex items-center">
+                <ClockIcon weight={"light"}/>
                 <div className="text-sm">{minutes}min.</div>
             </div>
         </DescriptionOnHover>

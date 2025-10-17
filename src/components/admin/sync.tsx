@@ -1,15 +1,15 @@
 "use client"
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
-import StateButton from "../../../modules/ui-utils/src/state-button";
-import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
+import StateButton from "../layout/utils/state-button";
+import {ListEditor} from "../layout/utils/list-editor";
 import {collectionsList} from "@/components/admin/acceso";
 import {post} from "@/utils/fetch";
 import {categoriesSearchParam} from "@/queries/utils";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import LoadingSpinner from "../layout/utils/loading-spinner";
+import {DateSince} from "../layout/utils/date";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
-import { Button } from "../../../modules/ui-utils/src/button";
+import { Button } from "../layout/utils/button";
 import {useUsersSyncStatus} from "@/queries/getters/admin";
 
 

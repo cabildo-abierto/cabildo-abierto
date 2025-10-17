@@ -2,7 +2,7 @@ import {GoToLoginButton} from "@/components/presentacion/go-to-login-button";
 import Link from "next/link";
 import Image from 'next/image'
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import {Logo} from "../../../modules/ui-utils/src/logo";
+import {Logo} from "../layout/utils/logo";
 import {ArrowDownIcon, CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {FeatureSection} from "@/components/presentacion/feature-section";
 import {TwoImages} from "@/components/presentacion/two-images";

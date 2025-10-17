@@ -1,9 +1,9 @@
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import {useStatsDashboard} from "@/queries/getters/admin";
 import Plot from "@/components/visualizations/plot";
 import {$Typed} from "@/lex-api/util";
 import {listOrderDesc, sortByKey} from "@/utils/arrays";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../layout/utils/date";
 import {useProfile} from "@/queries/getters/useProfile";
 import {ArCabildoabiertoActorDefs, ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 

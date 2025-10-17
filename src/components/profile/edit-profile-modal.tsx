@@ -1,22 +1,22 @@
-import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {BaseFullscreenPopup} from "../layout/utils/base-fullscreen-popup";
+import {CloseButton} from "../layout/utils/close-button";
 import Image from "next/image";
 import React, {ReactNode, useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
 import {Menu} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
+import {IconButton} from "../layout/utils/icon-button";
 import {UploadImageButton} from "@/components/writing/write-panel/upload-image-button";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
 import {post} from "@/utils/fetch";
-import StateButton from "../../../modules/ui-utils/src/state-button";
+import StateButton from "../layout/utils/state-button";
 import {useQueryClient} from "@tanstack/react-query";
 import FullscreenImageViewer from "@/components/layout/images/fullscreen-image-viewer";
 import {useProfile} from "@/queries/getters/useProfile";
 import EditImageModal from "@/components/profile/edit-image-modal";
-import InfoPanel from "../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../layout/utils/info-panel";
 import {AppBskyActorProfile} from "@atproto/api"
-import {TextField} from "../../../modules/ui-utils/src/text-field"
+import {TextField} from "../layout/utils/text-field"
 
 type Props = {
     open: boolean,

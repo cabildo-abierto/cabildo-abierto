@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react"
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/utils/loading-spinner";
 import {get} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {categoriesSearchParam} from "@/queries/utils";
-import { Button } from "../../../modules/ui-utils/src/button";
+import { Button } from "../layout/utils/button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import { useDebounce } from "@/utils/debounce";
 

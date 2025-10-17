@@ -36,7 +36,7 @@ export const PostImagesEmbed = ({embed, did, onArticle = false}: PostImageEmbedP
                         onClick={() => {
                             setViewing(0)
                         }}
-                        maxWidth={pxToNumber(layoutConfig.maxWidthCenter)}
+                        maxWidth={pxToNumber(layoutConfig.centerWidth)}
                         maxHeight={400}
                         className={"border cursor-pointer bg-[var(--background-dark)] flex w-full h-full object-contain"}
                     />

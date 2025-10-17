@@ -2,6 +2,7 @@ import React from "react";
 import {useLayoutConfig} from "../layout-config-context";
 import {SwipeableDrawer} from "@mui/material";
 import {SidebarContent} from "@/components/layout/sidebar/sidebar-content";
+import {pxToNumber} from "@/utils/strings";
 
 
 
@@ -14,7 +15,7 @@ export const SidebarMobile = ({
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
 
     const drawerState = layoutConfig.openSidebar ? "expanded" : (isMobile ? "closed" : "collapsed")
-    const drawerWidth = drawerState === 'expanded' ? ("80vw") : drawerState === 'collapsed' ? 80 : 0
+    const drawerWidth = drawerState === 'expanded' ? Math.min(pxToNumber(layoutConfig.centerWidth) * 0.8, 300) : drawerState === 'collapsed' ? 80 : 0
     const hideBackdrop = false
 
     return <SwipeableDrawer
@@ -32,22 +33,21 @@ export const SidebarMobile = ({
         }}
         sx={{
             width: drawerWidth,
+            flexShrink: 0,
             transition: 'width 0.3s',
             '& .MuiDrawer-paper': {
                 boxShadow: "none",
                 width: drawerWidth,
                 boxSizing: 'border-box',
-                overflowY: 'auto',
-                scrollbarWidth: 'none',
-                '&::-webkit-scrollbar': {
-                    display: 'none'
-                },
-                border: 'none'
+                border: 'none',
             },
         }}
     >
-        <div className={"bg-[var(--background)] min-h-screen h-full"}>
-            <SidebarContent onClose={() => {}} setWritePanelOpen={setWritePanelOpen}/>
+        <div className={"bg-[var(--background)] h-screen overflow-y-scroll"}>
+            <SidebarContent
+                onClose={() => {}}
+                setWritePanelOpen={setWritePanelOpen}
+            />
         </div>
     </SwipeableDrawer>
 }

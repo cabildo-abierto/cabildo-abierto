@@ -11,6 +11,7 @@ type TextFieldProps = Omit<MUITextFieldProps, "fontSize" | "color"> & {
     paddingY?: number | string
     borderWidthNoFocus?: number | string
     borderWidth?: number | string
+    autoComplete?: string
 }
 
 export const TextField = ({
@@ -23,6 +24,7 @@ export const TextField = ({
                               paddingX = "0px",
                               borderWidthNoFocus = "1px",
                               borderWidth = "1px",
+                              autoComplete="off",
                               ...props
                           }: TextFieldProps) => {
     return (
@@ -57,7 +59,7 @@ export const TextField = ({
             }}
 
             InputProps={{
-                autoComplete: "off",
+                autoComplete,
                 sx: {
                     fontSize,
                     borderRadius: 0

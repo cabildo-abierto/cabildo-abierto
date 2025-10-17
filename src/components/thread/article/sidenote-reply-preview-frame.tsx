@@ -1,16 +1,16 @@
 import Image from 'next/image'
-import {DateSince} from '../../../../modules/ui-utils/src/date'
+import {DateSince} from '../../layout/utils/date'
 import Link from 'next/link'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../layout/utils/scroll";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink} from "../../layout/utils/custom-link";
 import dynamic from "next/dynamic";
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
     ssr: false,

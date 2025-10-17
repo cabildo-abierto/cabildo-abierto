@@ -1,7 +1,7 @@
 "use client"
 
 import FundingProgress from "@/components/aportar/funding-progress";
-import {Button} from "@/../modules/ui-utils/src/button"
+import {Button} from "@/components/layout/utils/button"
 import DonateIcon from "@/components/layout/icons/donate-icon";
 import {DonationHistory} from "@/components/aportar/donation-history";
 import Link from "next/link";

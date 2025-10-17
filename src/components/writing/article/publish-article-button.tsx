@@ -2,13 +2,15 @@ import {EditorState} from "lexical";
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
 import {useEffect, useState} from "react";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import StateButton from "../../layout/utils/state-button";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import dynamic from "next/dynamic";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {FullArticleView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {threadQueryKey} from "@/queries/getters/useThread";
+import {contentUrl} from "@/utils/uri";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
@@ -47,7 +49,11 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
 
     useEffect(() => {
         if(saved && !guardEnabled){
-            router.push("/inicio?f=siguiendo")
+            if(!article) {
+                router.push("/inicio?f=siguiendo")
+            } else {
+                router.push(contentUrl(article.uri))
+            }
         }
     }, [guardEnabled, saved])
 
@@ -76,6 +82,9 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
                 return query.queryKey.length == 3 && query.queryKey[0] == "profile-feed" && query.queryKey[2] == "articles"
             }
         })
+        if(article) {
+            qc.invalidateQueries({queryKey: threadQueryKey(article.uri)})
+        }
 
         setGuardEnabled(false)
         setSaved(true)

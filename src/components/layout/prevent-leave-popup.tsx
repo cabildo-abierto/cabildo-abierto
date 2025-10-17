@@ -1,6 +1,6 @@
 import { WarningCircleIcon } from "@phosphor-icons/react"
-import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup"
-import { Button } from "../../../modules/ui-utils/src/button"
+import { BaseFullscreenPopup } from "./utils/base-fullscreen-popup"
+import { Button } from "./utils/button"
 
 
 

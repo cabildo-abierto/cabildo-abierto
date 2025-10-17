@@ -1,11 +1,11 @@
-import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
-import StateButton from "../../../modules/ui-utils/src/state-button";
+import {BaseFullscreenPopup} from "../layout/utils/base-fullscreen-popup";
+import StateButton from "../layout/utils/state-button";
 import {useState} from "react";
 import {post} from "@/utils/fetch";
 import {logout} from "@/components/layout/auth/close-session-button";
 import {useQueryClient} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
-import { TextField } from "../../../modules/ui-utils/src/text-field";
+import { TextField } from "../layout/utils/text-field";
 
 
 const DeleteAccountModal = ({

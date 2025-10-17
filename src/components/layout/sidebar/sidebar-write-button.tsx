@@ -1,5 +1,5 @@
-import {Button} from "../../../../modules/ui-utils/src/button";
-import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
+import {Button} from "../utils/button";
+import {IconButton} from "../utils/icon-button";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import React from "react";
 
@@ -17,7 +17,7 @@ export const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onC
                     }}
                     id={"write-button"}
                 >
-                    <span className={"font-bold text-[16px] sm:text-[14px]"}>
+                    <span className={"font-semibold text-[16px] sm:text-[14px]"}>
                         Escribir
                     </span>
                 </Button> :

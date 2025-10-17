@@ -1,7 +1,7 @@
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
-import { ModalOnClick } from "../../../../modules/ui-utils/src/modal-on-click"
+import { IconButton } from "../../layout/utils/icon-button";
+import { ModalOnClick } from "../../layout/utils/modal-on-click"
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
+import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
 import {ArrowsClockwiseIcon} from "@phosphor-icons/react";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {post} from "@/utils/fetch";

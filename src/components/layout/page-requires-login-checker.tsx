@@ -2,7 +2,7 @@
 import {ReactNode} from "react";
 import {useSession} from "@/queries/getters/useSession";
 import {usePathname} from "next/navigation";
-import { Button } from "../../../modules/ui-utils/src/button";
+import { Button } from "./utils/button";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 

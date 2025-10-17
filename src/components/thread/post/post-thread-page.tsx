@@ -3,7 +3,7 @@ import {isPostView, isThreadViewContent, PostView, ThreadViewContent} from "@/le
 import Post from "./post";
 import {useMemo, useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import ThreadReplies from "../thread-replies";
 import {threadQueryKey} from "@/queries/getters/useThread";
 import dynamic from "next/dynamic";

@@ -1,6 +1,6 @@
 import {Dispatch, ReactNode, SetStateAction, useEffect, useState} from "react";
 
-import {smoothScrollTo} from "../../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../../layout/utils/scroll";
 
 type ScrollToQuotePostProps = {
     children: ReactNode

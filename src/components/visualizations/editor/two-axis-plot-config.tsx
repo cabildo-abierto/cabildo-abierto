@@ -1,10 +1,10 @@
-import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
+import SearchableDropdown from "../../layout/utils/searchable-dropdown";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {PlotConfigProps} from "@/lib/types";
 import {useState} from "react";
 import {Switch} from "@mui/material";
-import {ListEditor} from "../../../../modules/ui-utils/src/list-editor";
+import {ListEditor} from "../../layout/utils/list-editor";
 
 type Props = {
     config: PlotConfigProps

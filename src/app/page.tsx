@@ -1,7 +1,7 @@
 "use client"
 import {useSession} from "@/queries/getters/useSession";
 import {useRouter} from "next/navigation";
-import {LoadingScreen} from "../../modules/ui-utils/src/loading-screen";
+import {LoadingScreen} from "../components/layout/utils/loading-screen";
 import {useEffect} from "react";
 
 
