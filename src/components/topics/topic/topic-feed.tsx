@@ -1,7 +1,7 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {CustomLink} from "../../layout/utils/custom-link";
 import {useSearchParams} from "next/navigation";
-import {topicUrl} from "@/utils/uri";
+import {getDidFromUri, getRkeyFromUri, topicUrl} from "@/utils/uri";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../layout/utils/info-panel";
 import Link from "next/link"
@@ -20,15 +20,18 @@ import {
     defaultTopicMentionsTime
 } from "@/components/config/defaults";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
-import {ReplyButton} from "@/components/thread/reply-button";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {TopicVotesOnFeed} from "@/components/topics/topic/history/topic-votes-on-feed";
+import {useTopicVersion} from "@/queries/getters/useTopic";
+import {getDid} from "@atproto/common-web";
+import LoadingSpinner from "@/components/layout/utils/loading-spinner";
 
-type TopicFeedOption = "Menciones" | "Respuestas" | "Otros temas"
+type TopicFeedOption = "Menciones" | "Discusión" | "Otros temas"
 
 function topicFeedParamToTopicFeedOption(v: string | undefined, minimized: boolean): TopicFeedOption {
     if (v) {
-        return v == "discusion" ? "Respuestas" : v == "menciones" ? "Menciones" : "Otros temas"
+        return v == "discusion" ? "Discusión" : v == "menciones" ? "Menciones" : "Otros temas"
     } else {
         return "Menciones"
     }
@@ -169,6 +172,8 @@ export const TopicFeed = ({
 }) => {
     const {user} = useSession()
     const {selected, metric, time, format} = useTopicFeedParams(user)
+    console.log("topic version uri", topicVersionUri)
+    const {data: topicVersion, isLoading: topicVersionLoading} = useTopicVersion(getDidFromUri(topicVersionUri), getRkeyFromUri(topicVersionUri))
 
     const topicId = topic.id
 
@@ -190,7 +195,7 @@ export const TopicFeed = ({
     }
 
     function setSelected(v: TopicFeedOption) {
-        updateSearchParam("f", v == "Respuestas" ? "discusion" : v == "Menciones" ? "menciones" : "temas")
+        updateSearchParam("f", v == "Discusión" ? "discusion" : v == "Menciones" ? "menciones" : "temas")
     }
 
     const info = <div>
@@ -265,7 +270,7 @@ export const TopicFeed = ({
                     onSelection={setSelected}
                     selected={selected}
                     optionsNodes={feedOptionNodes(40, undefined, "sm:text-[12px] text-[13px]")}
-                    options={["Menciones", "Respuestas", "Otros temas"]}
+                    options={["Menciones", "Discusión", "Otros temas"]}
                     className={"flex"}
                 />
 
@@ -284,19 +289,19 @@ export const TopicFeed = ({
             <div className={"max-w-[600px] w-full"}>
                 {selected == "Menciones" && mentionsFeed}
 
-                {selected == "Respuestas" &&
+                {selected == "Discusión" && topicVersion &&
                     <div className={""}>
-                        {replyToContent != null && <div className={"w-full"}>
-                            <ReplyButton
-                                text={"Responder"}
-                                onClick={() => {
-                                    setWritingReply(true)
-                                }}
-                            />
-                        </div>}
+                        <TopicVotesOnFeed
+                            topic={topicVersion}
+                            setWritingReply={setWritingReply}
+                        />
                         {repliesFeed}
                     </div>
                 }
+
+                {selected == "Discusión" && topicVersionLoading && <div className={"py-8"}>
+                    <LoadingSpinner/>
+                </div>}
 
                 {selected == "Otros temas" && topicsFeed}
             </div>

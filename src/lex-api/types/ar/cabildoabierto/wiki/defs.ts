@@ -9,27 +9,27 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef'
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'ar.cabildoabierto.wiki.voteReject'
+const id = 'ar.cabildoabierto.wiki.defs'
 
-export interface Record {
-  $type: 'ar.cabildoabierto.wiki.voteReject'
+export interface VoteView {
+  $type?: 'ar.cabildoabierto.wiki.defs#voteView'
+  uri: string
+  cid: string
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
   subject: ComAtprotoRepoStrongRef.Main
-  createdAt: string
-  reason?: ComAtprotoRepoStrongRef.Main
-  labels?: string[]
-  [k: string]: unknown
 }
 
-const hashRecord = 'main'
+const hashVoteView = 'voteView'
 
-export function isRecord<V>(v: V) {
-  return is$typed(v, id, hashRecord)
+export function isVoteView<V>(v: V) {
+  return is$typed(v, id, hashVoteView)
 }
 
-export function validateRecord<V>(v: V) {
-  return validate<Record & V>(v, id, hashRecord, true)
+export function validateVoteView<V>(v: V) {
+  return validate<VoteView & V>(v, id, hashVoteView)
 }
