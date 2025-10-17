@@ -1,10 +1,9 @@
-import StateButton from "../../../modules/ui-utils/src/state-button";
 import {useSession} from "@/queries/getters/useSession";
 import {ArCabildoabiertoActorDefs} from "@/lex-api"
-import {Button, darker} from "../../../modules/ui-utils/src/button";
 import {AppBskyActorDefs} from "@atproto/api"
-import {Color} from "../../../modules/ui-utils/src/color";
 import MessagesIcon from "@/components/layout/icons/messages-icon";
+import {Color} from "@/components/layout/utils/color";
+import {Button, darker} from "@/components/layout/utils/button";
 
 export function MessageButton({
                                  handle,
@@ -19,13 +18,21 @@ export function MessageButton({
     textClassName?: string
     dense?: boolean
 }) {
-    //const qc = useQueryClient()
-    const {user} = useSession()
-    //const {setLoginModalOpen} = useLoginModal()
 
-    if (user && user.handle == handle) {
+    const {user} = useSession()
+    const profileAllowIncoming = profile.associated.chat? profile.associated.chat.allowIncoming : 'none';
+
+    // Condiciones para que no se muestre el botón de msj:
+    const notDisplayButton = !profileAllowIncoming ||                    // no tiene definido si recibir mensajes,
+        !['all', 'following'].includes(profileAllowIncoming) ||                  // no tiene definido recibir mensajes de todos ni de sus seguidores,
+        user && user.handle == handle ||                                         // el usuario de la session está mirando su propio perfil,
+        profileAllowIncoming == 'following' && !profile.viewer?.following        // solo recibir mensajes de seguidores pero el usuario de la session no lo sigue.
+
+    if (notDisplayButton) {
         return null
     }
+
+
 
     return <div className="flex items-center">
         {
