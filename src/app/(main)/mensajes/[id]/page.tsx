@@ -26,8 +26,8 @@ const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), 
 
 export default function Page() {
     const params = useParams()
-    const convoId = params.id instanceof Array ? params.id[0] : params.id
-    const {data, isLoading} = useConversation(convoId)
+    const convoIdOrHandle = params.id instanceof Array ? params.id[0] : params.id
+    const {data, isLoading} = useConversation(convoIdOrHandle)
     const qc = useQueryClient()
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -37,7 +37,7 @@ export default function Page() {
         mutationFn: markRead,
         onMutate: (msg) => {
             qc.cancelQueries(conversationsQueriesFilter())
-            optimisticMarkRead(qc, convoId)
+            optimisticMarkRead(qc, convoIdOrHandle)
         },
         onSettled: async () => {
             qc.invalidateQueries(conversationsQueriesFilter())
@@ -50,7 +50,7 @@ export default function Page() {
 
     useEffect(() => {
         if(data && data.conversation.unreadCount) {
-            readMutation.mutate(convoId)
+            readMutation.mutate(data.conversation.id)
         }
     }, [data])
 
@@ -79,6 +79,7 @@ export default function Page() {
         .filter(m => ChatBskyConvoDefs.isMessageView(m))
         .toSorted(cmp) : null
 
+    console.log("ConvoId", data.conversation.id)
 
     return (
         <div className={"flex flex-col border-l border-r border-[var(--accent-dark)] " + (isMobile ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-48px)]")}>
@@ -98,8 +99,7 @@ export default function Page() {
                         })}
                     </div>
                 </div>
-
-                <NewMessageInput convoId={convoId}/>
+                <NewMessageInput convoId={data.conversation.id}/>
             </div>
         </div>
     )
