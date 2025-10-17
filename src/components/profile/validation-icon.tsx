@@ -1,7 +1,7 @@
 import {ValidationState} from "@/lib/types";
-import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {topicUrl} from "@/utils/uri";
-import {Color} from "../../../modules/ui-utils/src/color";
+import {Color} from "../layout/utils/color";
 import {CheckCircleIcon, UserCircleIcon} from "@phosphor-icons/react";
 
 

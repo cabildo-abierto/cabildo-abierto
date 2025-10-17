@@ -2,12 +2,12 @@ import React from "react";
 import {TrendingTopicsPanel} from "@/components/topics/trending-topics/trending-topics";
 import {usePathname, useRouter} from "next/navigation";
 import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
-import {Logo} from "../../../modules/ui-utils/src/logo";
+import {Logo} from "./utils/logo";
 import Link from "next/link";
 import {useNextMeeting} from "@/queries/getters/useNextMeeting";
 import {formatIsoDate} from "@/utils/dates";
 import FollowSuggestions from "@/components/layout/follow-suggestions";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "./utils/button";
 import DonateIcon from "@/components/layout/icons/donate-icon";
 import {useSearch} from "@/components/buscar/search-context";
 import SearchResultsOnRightPanel from "@/components/buscar/search-results-on-right-panel";
@@ -15,7 +15,7 @@ import {useSession} from "@/queries/getters/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {createPortal} from "react-dom";
 import {useAPI} from "@/queries/utils";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "./utils/loading-spinner";
 import ShareIcon from "@mui/icons-material/Share";
 
 type ServerStatus = {

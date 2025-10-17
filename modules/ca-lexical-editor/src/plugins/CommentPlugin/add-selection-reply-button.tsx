@@ -2,7 +2,7 @@ import type { LexicalEditor, NodeKey } from 'lexical';
 import { useRef, useLayoutEffect, useCallback, useEffect } from 'react';
 import * as React from 'react';
 import './index.css';
-import { Button } from "@/../modules/ui-utils/src/button"
+import { Button } from "@/components/layout/utils/button"
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 
 

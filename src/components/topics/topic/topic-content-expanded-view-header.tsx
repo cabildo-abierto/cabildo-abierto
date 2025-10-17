@@ -2,11 +2,11 @@ import React, {Dispatch, ReactNode, SetStateAction} from "react";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import {useSearchParams} from "next/navigation";
 import Link from "next/link";
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../layout/utils/date";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {splitUri, topicUrl} from "@/utils/uri";
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
-import {Button} from "@/../modules/ui-utils/src/button"
+import {IconButton} from "@/components/layout/utils/icon-button"
+import {Button} from "@/components/layout/utils/button"
 import {useSession} from "@/queries/getters/useSession";
 import {WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"

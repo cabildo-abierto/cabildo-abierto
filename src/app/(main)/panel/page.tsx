@@ -1,16 +1,16 @@
 "use client"
 import {rounder, valueToPercentage} from "@/utils/strings";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../components/layout/utils/loading-spinner";
 import {useAPI} from "@/queries/utils";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ReactNode, useEffect, useState} from "react";
 import {formatIsoDate} from "@/utils/dates";
 import {contentUrl, topicUrl} from "@/utils/uri";
 import Link from "next/link";
-import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../../../components/layout/utils/info-panel";
 import {WarningIcon} from "@phosphor-icons/react";
 import ValidationIcon from "@/components/profile/validation-icon";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../../components/layout/utils/description-on-hover";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 import {useSession} from "@/queries/getters/useSession";
 

@@ -10,7 +10,7 @@ import {
     markdownToEditorState
 } from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/src/selection/processed-lexical-state";
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../layout/utils/loading-spinner";
 import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoActorDefs} from "@/lex-api/index"
 

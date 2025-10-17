@@ -1,10 +1,10 @@
 import {topicUrl} from "@/utils/uri";
-import { ModalOnHover } from "../../../../modules/ui-utils/src/modal-on-hover";
+import { ModalOnHover } from "../../layout/utils/modal-on-hover";
 import TagIcon from '@mui/icons-material/Tag';
 import Link from "next/link";
-import { IconButton } from "../../../../modules/ui-utils/src/icon-button";
+import { IconButton } from "../../layout/utils/icon-button";
 import {useMemo} from "react";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import TopicsIcon from "@/components/layout/icons/topics-icon";
 

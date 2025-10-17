@@ -1,5 +1,5 @@
 import {PlotConfigProps} from "@/lib/types";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {DatasetFullView} from "@/components/visualizations/datasets/dataset-full-view";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset, useDatasets} from "@/queries/getters/useDataset";
@@ -10,10 +10,13 @@ import {
 } from "@/components/visualizations/editor/visualization-editor";
 
 import dynamic from "next/dynamic";
+import {EditableDatasetFullView} from "@/components/visualizations/datasets/editable-dataset-full-view";
+import {useState} from "react";
+
 const PlotFromVisualizationMain = dynamic(
     () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
-    ssr: false
-})
+        ssr: false
+    })
 
 function NextStep({config}: { config: PlotConfigProps }) {
     if (!config.dataSource) {
@@ -54,7 +57,7 @@ const EditorViewerViewVisualization = ({
                     height={500}
                 />
             </div> :
-            <div className={"w-full h-full flex justify-center items-center text-[var(--text-light)]"}>
+            <div className={"w-full h-full flex justify-center items-center font-light text-[var(--text-light)]"}>
                 <NextStep config={config}/>
             </div>}
     </div>
@@ -67,6 +70,7 @@ const EditorViewerViewDataForDataset = ({datasetUri, config}: {
 }) => {
     const {data: dataset, isLoading} = useDataset(datasetUri)
     const {data: datasets} = useDatasets()
+    const [editing, setEditing] = useState(false)
 
     if (!dataset && !datasets) {
         return <div className={"py-8 h-full flex"}>
@@ -91,23 +95,25 @@ const EditorViewerViewDataForDataset = ({datasetUri, config}: {
 
     const filters = config.filters ? validateColumnFilters(config.filters) : undefined
 
-    return <DatasetFullView
+    return <EditableDatasetFullView
         dataset={{
-            $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
-            ...dataset
+            ...dataset,
+            $type: "ar.cabildoabierto.data.dataset#datasetView",
         }}
         filters={filters}
+        editing={editing}
+        setEditing={setEditing}
     />
 }
 
 
-const EditorViewerViewDataForTopicsDataset = ({config}: {config: PlotConfigProps}) => {
+const EditorViewerViewDataForTopicsDataset = ({config}: { config: PlotConfigProps }) => {
     const {data, isLoading} = useTopicsDataset(config.filters)
-    if(isLoading) {
+    if (isLoading) {
         return <div>
             <LoadingSpinner/>
         </div>
-    } else if(data && data.data) {
+    } else if (data && data.data) {
         const filters = config.filters ? validateColumnFilters(config.filters) : undefined
         return <DatasetFullView
             dataset={{
@@ -117,35 +123,50 @@ const EditorViewerViewDataForTopicsDataset = ({config}: {config: PlotConfigProps
             filters={filters}
         />
     } else {
-        return <div className={"h-full flex justify-center items-center text-[var(--text-light)]"}>
+        return <div className={"h-full flex justify-center items-center font-light text-[var(--text-light)]"}>
             <NextStep config={config}/>
         </div>
     }
 }
 
 
-const EditorViewerViewData = ({config}: {
+const EditorViewerViewData = ({
+                                  config,
+                                  creatingNewDataset,
+                                  setCreatingNewDataset
+                              }: {
     config: PlotConfigProps
+    creatingNewDataset: boolean
+    setCreatingNewDataset: (v: boolean) => void
 }) => {
-    if(config.dataSource && ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)) {
-        return <EditorViewerViewDataForTopicsDataset config={config}/>
+    if(creatingNewDataset) {
+        return <EditableDatasetFullView
+            editing={true}
+            setEditing={setCreatingNewDataset}
+        />
+    } else if (config.dataSource && ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)) {
+        return <EditorViewerViewDataForTopicsDataset
+            config={config}
+        />
     } else if (config.dataSource && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) && config.dataSource.dataset) {
         return <EditorViewerViewDataForDataset
             datasetUri={config.dataSource.dataset}
             config={config}
         />
     } else {
-        return <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
+        return <div className={"h-full flex items-center justify-center font-light text-[var(--text-light)]"}>
             <NextStep config={config}/>
         </div>
     }
 }
 
 
-export const EditorViewer = ({config, selected, onSave}: {
+export const EditorViewer = ({config, selected, onSave, setCreatingNewDataset, creatingNewDataset}: {
     config: PlotConfigProps
     selected: string
     onSave: (v: ArCabildoabiertoEmbedVisualization.Main) => void
+    creatingNewDataset: boolean
+    setCreatingNewDataset: (v: boolean) => void
 }) => {
 
     return <div className={"h-full w-full pt-12 px-16"}>
@@ -155,6 +176,8 @@ export const EditorViewer = ({config, selected, onSave}: {
         />}
         {selected == "Datos" && <EditorViewerViewData
             config={config}
+            creatingNewDataset={creatingNewDataset}
+            setCreatingNewDataset={setCreatingNewDataset}
         />}
     </div>
 }

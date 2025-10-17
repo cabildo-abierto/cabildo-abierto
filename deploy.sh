@@ -3,20 +3,34 @@ set -e # Si algo falla cortamos.
 
 SERVER_USER="root"
 SERVER_IP="216.238.122.145"
-SYMLINK_PATH="/var/www/cabildo-abierto"
-RELEASES_PATH="/var/www/releases/cabildo-abierto"
 RELEASES_TO_KEEP=4
-ENV="${1:-prod}"
+ENV="${1:-prod}" # Default to 'prod' if no argument is given
+
+# --- Environment-Specific Variables ---
+if [ "$ENV" = "prod" ]; then
+  SYMLINK_PATH="/var/www/cabildo-abierto"
+  RELEASES_PATH="/var/www/releases/cabildo-abierto"
+  NEXT_PUBLIC_BACKEND_URL="https://api.cabildoabierto.ar"
+  ECOSYSTEM_CONFIG_FILE="ecosystem.config.prod.js"
+else
+  # Assuming 'test' environment for anything else
+  SYMLINK_PATH="/var/www/test-cabildo-abierto"
+  RELEASES_PATH="/var/www/releases/test-cabildo-abierto"
+  NEXT_PUBLIC_BACKEND_URL="https://test-api.cabildoabierto.ar"
+  ECOSYSTEM_CONFIG_FILE="ecosystem.config.test.js"
+fi
+# --- End of Variables ---
 
 echo_blue() {
     echo -e "\e[34m$1\e[0m"
 }
 
-echo_blue "Deploying frontend to ${ENV} environment"
+echo_blue "🚀 Deploying frontend to ${ENV} environment"
 
-echo_blue "Building locally..."
+echo_blue "Building locally for ${ENV}..."
 
-export NEXT_PUBLIC_BACKEND_URL="https://api.cabildoabierto.ar"
+# Set the backend URL for the build process
+export NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 npm run build
 
 echo_blue "Running tests..."
@@ -37,28 +51,21 @@ rsync -avz \
   --exclude '.git' \
   --exclude '.env' \
   --exclude '.next/cache' \
-  ./.next ./public ./next.config.js ./ecosystem.config.prod.js ./package*.json \
+  ./.next ./public ./next.config.js ./ecosystem.config.*.js ./package*.json \
   $SERVER_USER@$SERVER_IP:$REMOTE_RELEASE_PATH
 
-# 6. Prepare the release on the server (Install dependencies, set up configs)
+# 6. Prepare the release on the server
 echo_blue "Preparing release on server..."
 ssh $SERVER_USER@$SERVER_IP "
   set -e
-  # Make sure Node/NPM are in the PATH
   export PATH=/root/.nvm/versions/node/v22.19.0/bin:\$PATH
-
-  # Navigate to the new release directory
   cd $REMOTE_RELEASE_PATH
 
   echo '>>> Installing dependencies...'
   npm ci --omit=dev --legacy-peer-deps
 
-  echo '>>> Setting up ecosystem config...'
-  if [ "$ENV" = "prod" ]; then
-    cp ./ecosystem.config.prod.js ./ecosystem.config.js
-  else
-    cp ./ecosystem.config.test.js ./ecosystem.config.js
-  fi
+  echo '>>> Setting up ecosystem config for ${ENV}...'
+  cp ./${ECOSYSTEM_CONFIG_FILE} ./ecosystem.config.js # Use the correct config file
 
   echo '>>> New release is ready!'
 "
@@ -66,15 +73,15 @@ ssh $SERVER_USER@$SERVER_IP "
 echo_blue "Activating new release..."
 ssh $SERVER_USER@$SERVER_IP "ln -sfn $REMOTE_RELEASE_PATH $SYMLINK_PATH"
 
-echo_blue "Reloading PM2..."
+echo_blue "Reloading PM2 for ${ENV}..."
 ssh $SERVER_USER@$SERVER_IP "
   export PATH=/root/.nvm/versions/node/v22.19.0/bin:\$PATH
-  # cd into the symlinked directory to ensure PM2 uses the correct path context
+  # cd into the correct symlinked directory for this environment
   cd $SYMLINK_PATH
   pm2 reload ecosystem.config.js --env production
 "
 
-echo_blue "Cleaning up old releases..."
+echo_blue "Cleaning up old releases for ${ENV}..."
 ssh $SERVER_USER@$SERVER_IP "
   cd $RELEASES_PATH && \
   ls -t | \
@@ -82,4 +89,4 @@ ssh $SERVER_USER@$SERVER_IP "
   xargs -r rm -rf
 "
 
-echo_blue "✅ Deployment successful!"
+echo_blue "✅ Deployment successful for ${ENV}!"

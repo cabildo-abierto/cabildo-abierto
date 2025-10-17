@@ -1,5 +1,5 @@
 import {HeartIcon} from "@phosphor-icons/react";
-import { Color } from "../../../../modules/ui-utils/src/color";
+import { Color } from "../utils/color";
 
 export const InactiveLikeIcon = ({fontSize, color="text-light"}: {
     fontSize?: string | number, color?: Color}) => {

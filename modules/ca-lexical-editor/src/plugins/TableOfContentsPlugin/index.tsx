@@ -15,7 +15,7 @@ import './index.css';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useEffect, useRef, useState} from 'react';
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {smoothScrollTo} from "../../../../ui-utils/src/scroll";
+import {smoothScrollTo} from "@/components/layout/utils/scroll";
 
 
 const HEADING_WIDTH = 30;

@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import { TextField } from "../../layout/utils/text-field";
+import { Button } from "../../layout/utils/button";
 
 export function InsertImageUriDialogBody ({
     onClick,

@@ -3,8 +3,8 @@ import {useState} from "react";
 import {useMonthlyValue} from "@/queries/getters/useFunding";
 import { post } from "@/utils/fetch";
 import { IntegerInputPlusMinus } from "@/components/aportar/integer-input-plus-minus";
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
-import StateButton from "../../../../../modules/ui-utils/src/state-button";
+import LoadingSpinner from "../../../../components/layout/utils/loading-spinner";
+import StateButton from "../../../../components/layout/utils/state-button";
 import {MPWallet} from "@/components/aportar/mp-wallet";
 
 

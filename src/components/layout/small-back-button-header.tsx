@@ -1,5 +1,5 @@
 "use client"
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {IconButton} from "@/components/layout/utils/icon-button"
 import MenuIcon from "@mui/icons-material/Menu";
 import { useLayoutConfig } from "./layout-config-context";
 

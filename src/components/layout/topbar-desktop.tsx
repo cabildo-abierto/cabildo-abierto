@@ -7,10 +7,9 @@ import {MainFeedHeader} from "@/components/inicio/main-feed-header";
 import NewConvButton from "@/components/mensajes/new-conv-button";
 import {TopicsPageHeader} from "@/components/topics/topics-page-header";
 import {TopbarConversation} from "@/components/mensajes/topbar-conversation";
-import {TopbarFollowx} from "@/components/layout/topbar-followx";
 import { InfoPanelUserSuggestions } from "../profile/info-panel-user-suggestions";
 import {useDefaultBackURL, useTopbarTitle} from "@/components/layout/topbar-title";
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import {BackButton} from "./utils/back-button";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 
 
@@ -20,7 +19,7 @@ export default function TopbarDesktop() {
     const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas")
 
     const {layoutConfig} = useLayoutConfig()
-    const {title} = useTopbarTitle()
+    const {title, className: titleClassName} = useTopbarTitle()
     const {defaultURL} = useDefaultBackURL()
 
     const backButton = pathname.startsWith("/c/") ||
@@ -32,7 +31,6 @@ export default function TopbarDesktop() {
     return <div
         className={"fixed top-0 left-0 items-center bg-[var(--background)] w-full border-b border-[var(--accent-dark)] z-[1100] flex " + (isMobile ? "flex-col h-24" : "justify-between h-12")}
     >
-
         <div className="flex justify-between h-full w-full">
             <div className={"flex-shrink-0 px-3 h-full flex items-center " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20")}>
                 <OpenSidebarButton/>
@@ -43,7 +41,7 @@ export default function TopbarDesktop() {
                     className={`flex-grow flex items-center w-full justify-between`}
                     style={{
                         minWidth: 0,
-                        maxWidth: layoutConfig.maxWidthCenter,
+                        maxWidth: layoutConfig.centerWidth,
                     }}
                 >
                     {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && <div className={"font-bold uppercase flex space-x-2 items-center"}>
@@ -52,14 +50,10 @@ export default function TopbarDesktop() {
                             size={"medium"}
                             defaultURL={defaultURL}
                         />}
-                        <div>
-                        {title}
+                        <div className={titleClassName}>
+                            {title}
                         </div>
                     </div>}
-
-                    {pathname.startsWith("/perfil/") && (pathname.endsWith("/siguiendo") || pathname.endsWith("/seguidores")) &&
-                        <TopbarFollowx/>
-                    }
 
                     {pathname.startsWith("/inicio") && <MainFeedHeader/>}
 

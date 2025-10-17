@@ -1,6 +1,6 @@
 import React, {useState} from "react"
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup"
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button"
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup"
+import {CloseButton} from "../../layout/utils/close-button"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
@@ -10,7 +10,7 @@ import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../layout/utils/button";
 
 
 export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
@@ -26,7 +26,7 @@ type WritePanelProps = {
     quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
-    handleSubmit: (_: CreatePostProps) => Promise<void>
+    handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
 }
 

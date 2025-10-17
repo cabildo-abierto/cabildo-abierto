@@ -28,19 +28,19 @@ function getFeedRoute(type: string, handleOrDid?: string, cursor?: string, param
 }
 
 
-export const getFeed = ({handleOrDid, type, params}: {
+export function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>({handleOrDid, type, params}: {
     handleOrDid?: string
     type: string
     params?: {metric?: string, time?: string, filter?: FollowingFeedFilterOption, format?: FeedFormatOption}
-}): GetFeedProps<ArCabildoabiertoFeedDefs.FeedViewContent> =>
-    async (cursor) => {
+}): GetFeedProps<T> {
+    return async (cursor) => {
         const {
             error,
             data
-        } = await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(getFeedRoute(type, handleOrDid, cursor, params))
-
+        } = await get<GetFeedOutput<T>>(getFeedRoute(type, handleOrDid, cursor, params))
         if (error) return {error}
         return {
             data: data
         }
     }
+}

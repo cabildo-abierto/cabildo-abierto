@@ -5,14 +5,14 @@ import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-
 import React, {useMemo, useState} from "react";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "../../../../../modules/ui-utils/src/button";
+import {Button} from "../../../layout/utils/button";
 import SearchIcon from "@mui/icons-material/Search";
-import {CloseButton} from "../../../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../../layout/utils/close-button";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
 import {capitalize} from "@/utils/strings";
 import {MemoizedArgentinaMap} from "@/components/visualizations/editor/election/argentina-map";
-import { TextField } from "../../../../../modules/ui-utils/src/text-field";
+import { TextField } from "../../../layout/utils/text-field";
 import {useDebounce} from "@/utils/debounce";
 
 
@@ -198,7 +198,10 @@ const Distrito = ({distrito, plotter, onSelectAlianza}: {
                 className={"flex space-x-1"}
             />
         </div>
-        <div className={"overflow-y-auto pt-2 custom-scrollbar"}>
+        <div
+            className={"overflow-y-auto pt-2 custom-scrollbar"}
+            onWheel={(e) => {e.stopPropagation()}}
+        >
             <div className={"space-y-1"}>
                 {candidatos && candidatos.size == 0 && <div className={"text-[var(--text-light)] text-xs"}>
                     No se eligen {cargo} en esta provincia.
@@ -304,7 +307,10 @@ const SearchResults = ({searchValue, plotter, onSelectCandidate, onSelectAlianza
                 Sin resultados
             </div>}
         {searchResults != null && <div>
-            {searchResults.length > 0 && <div className={"space-y-1 pt-2 overflow-y-auto custom-scrollbar"}>
+            {searchResults.length > 0 && <div
+                className={"space-y-1 pt-2 overflow-y-auto custom-scrollbar"}
+                onWheel={(e) => {e.stopPropagation()}}
+            >
                 {searchResults.slice(0, 10).map((r, i) => {
                     return <div
                         key={i}
@@ -487,6 +493,7 @@ const ElectionMapSidepanel = ({
 
     return useMemo(() => <div
         style={{width, height}}
+        onWheel={(e) => {e.stopPropagation()}}
         className={"overflow-y-auto custom-scrollbar border border-[var(--accent-dark)] p-2"}
     >
         <TextField

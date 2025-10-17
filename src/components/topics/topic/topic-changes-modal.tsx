@@ -1,6 +1,6 @@
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {splitUri} from "@/utils/uri";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {MatchesType, TopicVersionChangesProps} from "@/lib/types";
@@ -13,10 +13,10 @@ import {
     markdownToEditorState
 } from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import React, {useMemo, useState} from "react";
-import {DateSince} from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../layout/utils/date";
 import {useAPI} from "@/queries/utils";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import { Select } from "../../../../modules/ui-utils/src/select";
+import { Select } from "../../layout/utils/select";
 import { range } from "@/utils/arrays";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});

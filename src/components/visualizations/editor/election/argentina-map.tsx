@@ -4,7 +4,7 @@ import {IconButton} from "@mui/material";
 import {MinusCircleIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import {Mercator} from '@visx/geo';
 import {Zoom} from '@visx/zoom';
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../layout/utils/loading-spinner";
 import * as turf from '@turf/turf';
 import {TransformMatrix} from "@visx/zoom/lib/types";
 import {Group} from "@visx/group";
@@ -68,7 +68,9 @@ export const ArgentinaMap = ({
     }
 
     return (
-        <div className="">
+        <div className=""
+            onWheel={(e) => {e.stopPropagation()}}
+        >
             <Zoom<SVGSVGElement>
                 width={width}
                 height={height}

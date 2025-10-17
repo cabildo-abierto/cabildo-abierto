@@ -1,7 +1,7 @@
 "use client";
 import Hls from "hls.js";
 import { useEffect, useRef, useState } from "react";
-import { PrettyJSON } from "../../../../modules/ui-utils/src/pretty-json";
+import { PrettyJSON } from "../../layout/utils/pretty-json";
 import Image from "next/image";
 import {AppBskyEmbedVideo} from "@atproto/api"
 

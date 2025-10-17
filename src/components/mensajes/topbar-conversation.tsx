@@ -1,4 +1,4 @@
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import {BackButton} from "../layout/utils/back-button";
 import Link from "next/link";
 import React from "react";
 import { profileUrl } from "@/utils/uri";

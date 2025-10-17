@@ -1,13 +1,13 @@
 import {useTopics} from "@/queries/getters/useTopics"
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
+import LoadingSpinner from "../layout/utils/loading-spinner"
 import React from "react"
-import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import {ErrorPage} from "../layout/utils/error-page";
 import dynamic from "next/dynamic";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {TTOption} from "@/lib/types";
 import Link from "next/link";
 
-import {smoothScrollTo} from "../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../layout/utils/scroll";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 

@@ -4,8 +4,7 @@ import {categoryUrl, chatUrl, profileUrl} from "@/utils/uri";
 import Link from "next/link"
 import {post} from "@/utils/fetch";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {PageCardMessage} from "@/components/aportar/page-card-message";
+import LoadingSpinner from "../../../components/layout/utils/loading-spinner";
 import {useState} from "react";
 import {useConversations} from "@/queries/getters/useConversations";
 
@@ -39,51 +38,45 @@ const Page = () => {
         return <LoadingSpinner/>
     }
 
-    const content = (
-        <div className={"mt-3 font-light"}>
-            Por cualquier consulta, problema o sugerencia podés:
-            <ul className={"ml-6 mt-3"}>
-                <li>Escribirnos por mensaje privado a <Link
-                    href={profileUrl("cabildoabierto.ar")}
-                >
+
+    return <div className={"font-light p-6"}>
+        Por cualquier consulta, problema o sugerencia podés:
+        <ul className={"ml-6 mt-3"}>
+            <li>Escribirnos por mensaje privado a <Link
+                href={profileUrl("cabildoabierto.ar")}
+            >
                     <span className={"text-[var(--text)]"}>
                         @cabildoabierto
                     </span>
-                </Link> (hacé click <button className={"hover:underline text-[var(--text)]"} onClick={startConversation}>acá</button> para empezar una conversación).
-                </li>
-                <li>
-                    Mencionar a <Link
-                    href={profileUrl("cabildoabierto.ar")}
-                >
+            </Link> (hacé click <button className={"hover:underline text-[var(--text)]"} onClick={startConversation}>acá</button> para empezar una conversación).
+            </li>
+            <li>
+                Mencionar a <Link
+                href={profileUrl("cabildoabierto.ar")}
+            >
                     <span className={"text-[var(--text)]"}>
                         @cabildoabierto
                     </span>
-                </Link> en una publicación.
-                </li>
-                <li>
-                    Escribirnos por mail a <Link href={"mailto:soporte@cabildoabierto.ar"}>
+            </Link> en una publicación.
+            </li>
+            <li>
+                Escribirnos por mail a <Link href={"mailto:soporte@cabildoabierto.ar"}>
                     <span className={"text-[var(--text)]"}>
                         soporte@cabildoabierto.ar
                     </span>
-                </Link>.
-                </li>
-                <li>
-                    Comentar los <Link
-                    href={categoryUrl("Cabildo Abierto", "lista")}
-                >
+            </Link>.
+            </li>
+            <li>
+                Comentar los <Link
+                href={categoryUrl("Cabildo Abierto", "lista")}
+            >
                     <span className={"text-[var(--text)]"}>
                         temas de Cabildo Abierto
                     </span>
-                </Link>.
-                </li>
-            </ul>
-        </div>
-    )
-
-    return <PageCardMessage
-        title={"Escribinos"}
-        content={content}
-    />
+            </Link>.
+            </li>
+        </ul>
+    </div>
 }
 
 export default Page

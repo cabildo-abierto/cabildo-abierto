@@ -1,30 +1,32 @@
 import {ArCabildoabiertoActorDefs} from "@/lex-api"
+import Link from "next/link"
+import {profileUrl} from "@/utils/uri";
 
 
 export const ContentCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.ProfileViewDetailed }) => {
     return <div className={"text-sm flex space-x-2"}>
-        <div>
+        <Link href={profileUrl(profile.handle, "publicaciones")}>
             <span className={"font-semibold"}>
                 {profile.postsCount}
-            </span> <span className={"text-[var(--text-light)]"}>
+            </span> <span className={"text-[var(--text-light)] hover:underline"}>
                 {profile.postsCount != 1 ? "publicaciones" : "publicación"}
             </span>
-        </div>
+        </Link>
         {profile.caProfile && <>
-            <div>
+            <Link href={profileUrl(profile.handle, "articulos")}>
                 <span className={"font-semibold"}>
                     {profile.articlesCount}
-                </span> <span className={"text-[var(--text-light)]"}>
+                </span> <span className={"text-[var(--text-light)] hover:underline"}>
                     {profile.articlesCount != 1 ? "artículos" : "artículo"}
                 </span>
-            </div>
-            <div>
+            </Link>
+            <Link href={profileUrl(profile.handle, "ediciones")}>
                 <span className={"font-semibold"}>
                     {profile.editsCount}
-                </span> <span className={"text-[var(--text-light)]"}>
+                </span> <span className={"text-[var(--text-light)] hover:underline"}>
                     {profile.editsCount != 1 ? "ediciones" : "edición"}
                 </span>
-            </div>
+            </Link>
         </>}
     </div>
 }

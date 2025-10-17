@@ -275,7 +275,7 @@ export class ElectionPlotter extends Plotter {
                 })
             }
         })
-        return Array.from(results.values())
+        return unique(Array.from(results.values()), x => JSON.stringify(x))
     }
 
     getAlianza(alianza: string, distrito: string): [Candidato[], Candidato[]] {

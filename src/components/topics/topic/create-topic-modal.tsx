@@ -1,4 +1,4 @@
-import { BaseFullscreenPopup } from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import { BaseFullscreenPopup } from "../../layout/utils/base-fullscreen-popup";
 import {CreateTopic} from "../../writing/write-panel/create-topic";
 
 

@@ -1,18 +1,19 @@
 import {useEffect, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
 import {EditorViewer} from "./editor-viewer";
-import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {AcceptButtonPanel} from "../../layout/utils/accept-button-panel";
+import {CloseButton} from "../../layout/utils/close-button";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import VisualizationEditorSidebar from "@/components/visualizations/editor/visualization-editor-sidebar";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {Button} from "../../layout/utils/button";
 import {emptyChar} from "@/utils/utils";
 import {post} from "@/utils/fetch";
 import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {useDatasets} from "@/queries/getters/useDataset";
-import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import {StateButtonClickHandler} from "../../layout/utils/state-button";
 import {$Typed} from "@/lex-api/util";
+import { produce } from "immer";
 
 
 const ErrorPanel = ({msg}: { msg?: string }) => {
@@ -99,7 +100,12 @@ export const useTopicsDataset = (filters: PlotConfigProps["filters"], load: bool
 }
 
 
-export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: VisualizationEditorProps) => {
+export const VisualizationEditor = ({
+                                        initialConfig,
+                                        msg,
+                                        onClose,
+                                        onSave
+}: VisualizationEditorProps) => {
     const {data: datasets} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
@@ -109,8 +115,15 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
     const [height, setHeight] = useState(window.innerHeight-50)
     const {refetch} = useTopicsDataset(config.filters)
     const qc = useQueryClient()
+    const [creatingNewDataset, setCreatingNewDataset] = useState(false)
 
     const baseSidebarWidth = Math.max(width / 4, 350)
+
+    useEffect(() => {
+        if(config.dataSource) {
+            setCreatingNewDataset(false)
+        }
+    }, [config]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -173,10 +186,22 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
                 config={config}
                 setConfig={setConfig}
                 selected={selected}
-                setSelected={setSelected}
+                setSelected={(v: string) => {
+                    setCreatingNewDataset(false)
+                    setSelected(v)
+                }}
                 baseWidth={baseSidebarWidth}
                 maxWidth={width / 2}
                 onReloadData={onReloadData}
+                onNewDataset={() => {
+                    if(config.dataSource) {
+                        setConfig(produce(config, draft => {
+                            draft.dataSource = null
+                        }))
+                    }
+                    setCreatingNewDataset(true);
+                }}
+                creatingNewDataset={creatingNewDataset}
             />
         </div>
 
@@ -186,6 +211,17 @@ export const VisualizationEditor = ({initialConfig, msg, onClose, onSave}: Visua
                     config={config}
                     selected={selected}
                     onSave={onSave}
+                    creatingNewDataset={creatingNewDataset}
+                    setCreatingNewDataset={(v: boolean) => {
+                        if(v) {
+                            if(config.dataSource) {
+                                setConfig(produce(config, draft => {
+                                    draft.dataSource = null
+                                }))
+                            }
+                        }
+                        setCreatingNewDataset(v)
+                    }}
                 />
             </div>
         </div>

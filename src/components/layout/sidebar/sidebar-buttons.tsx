@@ -1,8 +1,11 @@
 
 import {SidebarWriteButton} from "@/components/layout/sidebar/sidebar-write-button";
 import {
-    GearIcon, HouseLineIcon, MagnifyingGlassIcon,
-    ProjectorScreenChartIcon, TrayIcon, UserIcon
+    GearIcon,
+    HouseLineIcon,
+    MagnifyingGlassIcon,
+    ProjectorScreenChartIcon,
+    TrayIcon
 } from "@phosphor-icons/react";
 import {SidebarButton} from "./sidebar-button";
 import NotificationsIcon from "@/components/layout/icons/notifications-icon";
@@ -15,7 +18,6 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {usePathname} from "next/navigation";
 import {useAPI} from "@/queries/utils";
 import {useConversations} from "@/queries/getters/useConversations";
-import {profileUrl} from "@/utils/uri";
 
 
 function useUnreadNotificationsCount() {
@@ -107,16 +109,6 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             text="Panel de autor"
             href="/panel"
             selected={pathname.startsWith("/panel")}
-            showText={showText}
-            requiresAuth={true}
-        />}
-        {user.user && <SidebarButton
-            icon={<UserIcon fontSize={iconFontSize} weight={"fill"}/>}
-            iconInactive={<UserIcon fontSize={iconFontSize} weight={iconWeight}/>}
-            onClick={onClose}
-            text="Perfil"
-            href={profileUrl(user.user.handle)}
-            selected={pathname == profileUrl(user.user.handle)}
             showText={showText}
             requiresAuth={true}
         />}

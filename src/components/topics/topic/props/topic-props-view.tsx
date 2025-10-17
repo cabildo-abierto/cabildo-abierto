@@ -1,4 +1,4 @@
-import {ListEditor} from "../../../../../modules/ui-utils/src/list-editor";
+import {ListEditor} from "../../../layout/utils/list-editor";
 import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
@@ -45,7 +45,7 @@ export const TopicPropView = ({p}: { p: ArCabildoabiertoWikiTopicVersion.TopicPr
 
 
 export const TopicPropsView = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
-    const props = addDefaults(topic.props, topic)
+    const props = addDefaults(topic.props, topic.id)
 
     return <div className={"border p-4 space-y-6 mx-2 my-4"}>
         <div className={"font-semibold flex items-center space-x-2"}>

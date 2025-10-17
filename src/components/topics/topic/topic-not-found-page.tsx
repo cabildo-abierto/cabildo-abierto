@@ -1,9 +1,9 @@
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import StateButton from "../../layout/utils/state-button";
 import React, {useEffect, useState} from "react";
 import {createTopic, CreateTopicResults, CreateTopicSearchResults} from "@/components/writing/write-panel/create-topic";
 import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/utils/loading-spinner";
 
 
 export default function TopicNotFoundPage({id}: { id: string }) {

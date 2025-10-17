@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import type {ReactNode} from "react";
-import {Color} from "../../../../modules/ui-utils/src/color";
-import {IconButton} from "../../../../modules/ui-utils/src/icon-button";
+import {Color} from "../../layout/utils/color";
+import {IconButton} from "../../layout/utils/icon-button";
 
 type ReactionButtonProps = {
     onClick: () => void

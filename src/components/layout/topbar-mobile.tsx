@@ -3,19 +3,18 @@ import {usePathname} from "next/navigation";
 import {OpenSidebarButton} from "@/components/layout/open-sidebar-button";
 import {MainFeedHeader} from "@/components/inicio/main-feed-header";
 import MainSearchBar from "@/components/buscar/main-search-bar";
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
-import {Logo} from "../../../modules/ui-utils/src/logo";
+import {BackButton} from "./utils/back-button";
+import {Logo} from "./utils/logo";
 import {useTopbarHeight} from "@/components/layout/topbar-height";
 import {TopicsPageHeader} from "@/components/topics/topics-page-header";
 import {TopbarConversation} from "@/components/mensajes/topbar-conversation";
-import {TopbarFollowx} from "@/components/layout/topbar-followx";
 import {useTopbarTitle} from "@/components/layout/topbar-title";
 import {InfoPanelUserSuggestions} from "@/components/profile/info-panel-user-suggestions";
 
 
 export default function TopbarMobile() {
     const pathname = usePathname()
-    const {title} = useTopbarTitle()
+    const {title, className: titleClassName} = useTopbarTitle()
     const height = useTopbarHeight()
 
     const backButton = ["notificaciones", "panel", "ajustes", "perfil", "mensajes", "escribir/articulo"]
@@ -35,7 +34,7 @@ export default function TopbarMobile() {
             />}
             {openSidebarButton && !pathname.startsWith("/inicio") && !pathname.startsWith("/buscar") && !pathname.startsWith("/temas") && <OpenSidebarButton/>}
 
-            {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes") && <div className={"font-bold uppercase"}>
+            {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes") && <div className={titleClassName ?? " font-bold uppercase"}>
                 {title}
             </div>}
 
@@ -56,7 +55,6 @@ export default function TopbarMobile() {
                     Mensajes
                 </div>
             </div>}
-            {pathname.startsWith("/perfil/") && (pathname.endsWith("/siguiendo") || pathname.endsWith("/seguidores")) && <TopbarFollowx/>}
             {pathname.startsWith("/perfil/cuentas-sugeridas") && <div className={"flex flex-1 justify-end"}>
                 <InfoPanelUserSuggestions/>
             </div>}

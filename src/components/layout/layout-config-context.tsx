@@ -86,8 +86,6 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         }
     } else if(pathname.startsWith("/tema")) {
         config = maximizedTopicConfig
-        //const s = params.get("s")
-        //config = s && s != "minimized" ? maximizedTopicConfig : feedConfig
     } else if(pathname.startsWith("/panel")){
         config = maximizedTopicConfig
     } else if(pathname.startsWith("/c")){

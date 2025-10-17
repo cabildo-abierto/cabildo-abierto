@@ -26,7 +26,6 @@ import {getInitialData} from "./get-initial-data";
 import {LINK, MarkdownTransformer} from "./ca-transformers";
 import {LexicalEditorProps} from "./lexical-editor";
 import {KlassConstructor, LexicalNode, LexicalNodeReplacement} from "lexical";
-import {CustomLinkNode} from "./nodes/CustomLinkNode";
 import {AutoLinkNode, LinkNode} from "@lexical/link";
 import {TopicMentionNode} from "./nodes/TopicMentionNode";
 
@@ -35,16 +34,8 @@ function getEditorNodes(settings: { allowImages: boolean, topicMentions: boolean
 
     return [
         ...(topicMentions ? [TopicMentionNode] : []),
-        CustomLinkNode,
-        AutoLinkNode,
-        {
-            replace: LinkNode,
-            with: (node: LinkNode) => {
-                return new CustomLinkNode(node.getURL(), {
-                    rel: node.getRel(), target: node.getTarget(), title: node.getTitle()
-                })
-            }
-        }
+        LinkNode,
+        AutoLinkNode
     ]
 }
 

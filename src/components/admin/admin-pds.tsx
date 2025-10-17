@@ -1,6 +1,6 @@
 import {AdminSection} from "@/components/admin/admin-section";
 import {TextField} from "@mui/material";
-import StateButton from "../../../modules/ui-utils/src/state-button";
+import StateButton from "../layout/utils/state-button";
 import {get, post} from "@/utils/fetch";
 import React, {useState} from "react";
 

@@ -1,4 +1,4 @@
-import {Button} from "../../../modules/ui-utils/src/button";
+import {Button} from "../layout/utils/button";
 
 
 export const ContentNotFoundPage = () => {

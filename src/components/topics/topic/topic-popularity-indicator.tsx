@@ -1,4 +1,4 @@
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import {topicUrl} from "@/utils/uri";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";

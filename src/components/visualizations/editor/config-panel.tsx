@@ -1,16 +1,15 @@
 import {DeepPartial, PlotConfigProps} from "@/lib/types";
-import {Select} from "../../../../modules/ui-utils/src/select";
+import {Select} from "../../layout/utils/select";
 import {PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
 import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import { TextField } from "../../layout/utils/text-field";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-import SquareFootIcon from '@mui/icons-material/SquareFoot';
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {CompassToolIcon, TextTIcon} from "@phosphor-icons/react";
 
 export function kindToLexicon(kind: string): ArCabildoabiertoEmbedVisualization.Main["spec"] {
     if(kind == "Histograma") {
@@ -180,11 +179,11 @@ export const ConfigPanel = ({config, setConfig}: {
 
     function optionLabels(o: string) {
         if(o == "Visualización"){
-            return <VisualizationIcon fontSize={"small"}/>
+            return <VisualizationIcon fontSize={20}/>
         } else if(o == "Texto"){
-            return <TextFieldsIcon fontSize={"small"}/>
+            return <TextTIcon fontSize={20}/>
         } else if(o == "Dimensiones"){
-            return <SquareFootIcon fontSize={"small"}/>
+            return <CompassToolIcon fontSize={20}/>
         }
     }
 
