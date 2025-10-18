@@ -5,7 +5,7 @@ import PopupMessage from "@/components/layout/popup-message";
 import {MainLayoutContent} from "@/components/layout/main-layout-content";
 import {SearchProvider} from "@/components/buscar/search-context";
 import {PageRequiresLoginChecker} from "@/components/layout/page-requires-login-checker";
-import {ErrorProvider} from "@/components/layout/error-context";
+
 
 
 export default async function RootLayout({children}: { children: ReactNode }) {
@@ -14,13 +14,11 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <LayoutConfigProvider>
                 <PopupMessage>
                     <SearchProvider>
-                        <ErrorProvider>
-                            <MainLayoutContent>
-                                <PageRequiresLoginChecker>
-                                    {children}
-                                </PageRequiresLoginChecker>
-                            </MainLayoutContent>
-                        </ErrorProvider>
+                        <MainLayoutContent>
+                            <PageRequiresLoginChecker>
+                                {children}
+                            </PageRequiresLoginChecker>
+                        </MainLayoutContent>
                     </SearchProvider>
                 </PopupMessage>
             </LayoutConfigProvider>

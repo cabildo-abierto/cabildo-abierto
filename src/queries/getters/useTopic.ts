@@ -19,7 +19,7 @@ export function useTopicTitle(id: string) {
 export function useTopicWithNormalizedContent(id?: string, did?: string, rkey?: string){
     const res = useAPI<TopicView>(topicUrl(id, {did, rkey}, undefined, "topic"), ["topic", id, did, rkey].filter(x => x != undefined))
     const [newTopic, setNewTopic] = useState<TopicView | null | "loading">("loading")
-
+    console.log("new topic", newTopic)
     useEffect(() => {
         async function process() {
             const topic = res.data

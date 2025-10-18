@@ -1,9 +1,10 @@
-import Feed, {FeedProps} from "@/components/feed/feed/feed";
+import Feed from "@/components/feed/feed/feed";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import LoadingFeedViewContent from "@/components/feed/feed/loading-feed-view-content"
 import StaticFeed from "@/components/feed/feed/static-feed";
 import {GetFeedProps} from "@/lib/types";
 import FeedElement from "./feed-element";
+import {FeedProps} from "@/components/feed/feed/types";
 
 
 

@@ -47,6 +47,7 @@ import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {Button} from "../../layout/utils/button";
+import {ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -299,7 +300,7 @@ export const WritePost = ({
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (_: boolean) => void
-    quotedContent?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedContent?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
 }) => {
@@ -327,7 +328,7 @@ export const WritePost = ({
 
     const isReply = replyTo != undefined
     const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
-    const quoteCollection = quotedContent ? getCollectionFromUri(quotedContent.uri) : null
+    const quoteCollection = quotedContent && "uri" in quotedContent ? getCollectionFromUri(quotedContent.uri) : null
     const settings = usePostEditorSettings(
         replyToCollection,
         quoteCollection,
@@ -351,7 +352,10 @@ export const WritePost = ({
             enDiscusion,
             externalEmbedView,
             visualization,
-            quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined,
+            quotedPost: quotedContent && "uri" in quotedContent && "cid" in quotedContent ? {
+                uri: quotedContent.uri,
+                cid: quotedContent.cid
+            } : undefined,
             uri: postView?.uri,
             forceEdit: force
         }

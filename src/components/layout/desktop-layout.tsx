@@ -3,13 +3,17 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import TopbarDesktop from "@/components/layout/topbar-desktop";
 import {SidebarDesktop} from "@/components/layout/sidebar/sidebar-desktop";
 import {RightPanel} from "@/components/layout/right-panel";
+import {useSearch} from "@/components/buscar/search-context";
+import {usePathname} from "next/navigation";
 
 export default function DesktopLayout({children, setWritePanelOpen}: {
     children: ReactNode
     setWritePanelOpen: (open: boolean) => void
 }) {
     const {layoutConfig} = useLayoutConfig();
-    const rightPanelRef = useRef<HTMLDivElement>(null);
+    const rightPanelRef = useRef<HTMLDivElement>(null)
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::main`)
 
     useEffect(() => {
         const rightEl = rightPanelRef.current;
@@ -31,6 +35,10 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
             window.removeEventListener('wheel', handleWheel);
         };
     }, [layoutConfig])
+
+    useEffect(() => {
+        rightPanelRef.current.scrollTo(0, 0)
+    }, [searchState])
 
     return <div>
         <TopbarDesktop/>
@@ -57,9 +65,7 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
 
             {layoutConfig.spaceForRightSide &&
                 <div
-                    // 2. Attach the ref to the right panel.
                     ref={rightPanelRef}
-                    // This panel remains sticky and internally scrollable.
                     className="top-12 flex-shrink-0 sticky no-scrollbar mt-12 overflow-y-auto max-h-[calc(100vh-48px)]"
                     style={{width: layoutConfig.rightMinWidth}}
                 >
