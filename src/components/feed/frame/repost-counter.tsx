@@ -1,5 +1,5 @@
 import {RepostIcon} from "@/components/layout/icons/reposts-icon";
-import React from "react";
+import React, {useMemo} from "react";
 import {$Typed} from "@/lex-api/util";
 import {ModalOnClick} from "../../layout/utils/modal-on-click";
 import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
@@ -8,7 +8,7 @@ import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import dynamic from "next/dynamic";
 import {getRkeyFromUri} from "@/utils/uri";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
-import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useRepostMutation} from "@/queries/mutations/repost";
@@ -89,11 +89,27 @@ export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textCla
 
     const disabled = content.viewer && content.viewer.repost == "optimistic-repost-uri" || getRkeyFromUri(content.uri).startsWith("optimistic")
 
+    const quotedPost: ArCabildoabiertoEmbedRecord.View["record"] | null = useMemo(() => {
+        if(ArCabildoabiertoFeedDefs.isPostView(content)) {
+            return {
+                ...content,
+                value: content.record,
+                $type: "ar.cabildoabierto.embed.record#viewRecord",
+            }
+        } else if(ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)){
+            return {
+                ...content,
+                value: content.record,
+                $type: "ar.cabildoabierto.embed.record#viewArticleRecord"
+            }
+        }
+        return null
+    }, [content])
+
     return <>
         <ModalOnClick modal={modal} disabled={disabled}>
             <ReactionButton
-                onClick={() => {
-                }}
+                onClick={() => {}}
                 textClassName={textClassName}
                 stopPropagation={false}
                 active={reposted}
@@ -104,10 +120,10 @@ export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textCla
                 count={showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)}
             />
         </ModalOnClick>
-        {user && writingQuotePost && (ArCabildoabiertoFeedDefs.isPostView(content) || ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) && <WritePanel
+        {user && writingQuotePost && quotedPost && <WritePanel
             open={writingQuotePost}
             onClose={() => {setWritingQuotePost(false)}}
-            quotedPost={content}
+            quotedPost={quotedPost}
         />}
     </>
 }

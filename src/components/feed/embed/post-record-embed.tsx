@@ -17,6 +17,7 @@ import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import dynamic from "next/dynamic";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
+import {PrettyJSON} from "@/components/layout/utils/pretty-json";
 
 
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
@@ -218,14 +219,14 @@ export const PostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
             </div>
         </div>
     } else if(ArCabildoabiertoEmbedRecord.isViewRecord(record)) {
-        console.log("record", record)
         return <PostRecordEmbedRecord
             record={record}
             mainPostRef={mainPostRef}
             navigateOnClick={navigateOnClick}
         />
     } else {
-        return <div className={"p-3 border rounded-lg"}>
+        return <div className={"p-3 border font-light"}>
+            <PrettyJSON data={record}/>
             Ocurrió un error al mostrar el contenido
         </div>
     }

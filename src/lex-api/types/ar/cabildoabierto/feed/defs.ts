@@ -261,3 +261,53 @@ export function isTopicMention<V>(v: V) {
 export function validateTopicMention<V>(v: V) {
   return validate<TopicMention & V>(v, id, hashTopicMention)
 }
+
+export interface SkeletonFeedPost {
+  $type?: 'ar.cabildoabierto.feed.defs#skeletonFeedPost'
+  post: string
+  reason?:
+    | $Typed<SkeletonReasonRepost>
+    | $Typed<SkeletonReasonPin>
+    | { $type: string }
+  /** Context that will be passed through to client and may be passed to feed generator back alongside interactions. */
+  feedContext?: string
+}
+
+const hashSkeletonFeedPost = 'skeletonFeedPost'
+
+export function isSkeletonFeedPost<V>(v: V) {
+  return is$typed(v, id, hashSkeletonFeedPost)
+}
+
+export function validateSkeletonFeedPost<V>(v: V) {
+  return validate<SkeletonFeedPost & V>(v, id, hashSkeletonFeedPost)
+}
+
+export interface SkeletonReasonRepost {
+  $type?: 'ar.cabildoabierto.feed.defs#skeletonReasonRepost'
+  repost: string
+}
+
+const hashSkeletonReasonRepost = 'skeletonReasonRepost'
+
+export function isSkeletonReasonRepost<V>(v: V) {
+  return is$typed(v, id, hashSkeletonReasonRepost)
+}
+
+export function validateSkeletonReasonRepost<V>(v: V) {
+  return validate<SkeletonReasonRepost & V>(v, id, hashSkeletonReasonRepost)
+}
+
+export interface SkeletonReasonPin {
+  $type?: 'ar.cabildoabierto.feed.defs#skeletonReasonPin'
+}
+
+const hashSkeletonReasonPin = 'skeletonReasonPin'
+
+export function isSkeletonReasonPin<V>(v: V) {
+  return is$typed(v, id, hashSkeletonReasonPin)
+}
+
+export function validateSkeletonReasonPin<V>(v: V) {
+  return validate<SkeletonReasonPin & V>(v, id, hashSkeletonReasonPin)
+}
