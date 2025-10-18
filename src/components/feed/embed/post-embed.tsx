@@ -1,12 +1,11 @@
 import {PostImagesEmbed} from "@/components/feed/embed/post-images-embed";
 import {PostRecordWithMediaEmbed} from "@/components/feed/embed/post-record-with-media-embed";
-import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";
 import {ATProtoStrongRef} from "@/lib/types";
-import {CAPostRecordEmbed} from "@/components/feed/embed/ca-post-record-embed";
 import dynamic from "next/dynamic";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote, ArCabildoabiertoEmbedRecord, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {AppBskyEmbedExternal, AppBskyEmbedRecordWithMedia, AppBskyEmbedImages, AppBskyEmbedVideo, AppBskyEmbedRecord} from "@atproto/api"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecordWithMedia, ArCabildoabiertoEmbedSelectionQuote, ArCabildoabiertoEmbedRecord, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
+import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyEmbedVideo} from "@atproto/api"
+import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
 
 
 const PostVideoEmbed = dynamic(() => import("@/components/feed/embed/post-video-embed"), {
@@ -41,20 +40,16 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
             embed={embed}
             onArticle={onArticle}
         />}
-        {AppBskyEmbedRecordWithMedia.isView(embed) && <PostRecordWithMediaEmbed
+        {ArCabildoabiertoEmbedRecordWithMedia.isView(embed) && <PostRecordWithMediaEmbed
+            embed={embed}
+            mainPostRef={mainPostRef}
+        />}
+        {ArCabildoabiertoEmbedRecord.isView(embed) && <PostRecordEmbed
             embed={embed}
             mainPostRef={mainPostRef}
         />}
         {AppBskyEmbedVideo.isView(embed) && <PostVideoEmbed
             embed={embed}
-        />}
-        {AppBskyEmbedRecord.isView(embed) && <PostRecordEmbed
-            embed={embed}
-            mainPostRef={mainPostRef}
-        />}
-        {ArCabildoabiertoEmbedRecord.isView(embed) && <CAPostRecordEmbed
-            embed={embed}
-            mainPostRef={mainPostRef}
         />}
         {AppBskyEmbedExternal.isView(embed) && <PostExternalEmbed
             embed={embed}

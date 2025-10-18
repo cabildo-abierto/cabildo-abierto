@@ -10,53 +10,13 @@ import {
   type OmitKey,
 } from '../../../../util'
 import type * as AppBskyActorDefs from '../actor/defs'
-import type * as AppBskyEmbedImages from '../embed/images'
-import type * as AppBskyEmbedVideo from '../embed/video'
-import type * as AppBskyEmbedExternal from '../embed/external'
-import type * as AppBskyEmbedRecord from '../embed/record'
-import type * as AppBskyEmbedRecordWithMedia from '../embed/recordWithMedia'
-import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
-import type * as ArCabildoabiertoFeedDefs from '../../../ar/cabildoabierto/feed/defs'
-import type * as ArCabildoabiertoWikiTopicVersion from '../../../ar/cabildoabierto/wiki/topicVersion'
 import type * as AppBskyRichtextFacet from '../richtext/facet'
+import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
 import type * as AppBskyGraphDefs from '../graph/defs'
 
 const is$typed = _is$typed,
   validate = _validate
 const id = 'app.bsky.feed.defs'
-
-export interface PostView {
-  $type?: 'app.bsky.feed.defs#postView'
-  uri: string
-  cid: string
-  author: AppBskyActorDefs.ProfileViewBasic
-  record: { [_ in string]: unknown }
-  embed?:
-    | $Typed<AppBskyEmbedImages.View>
-    | $Typed<AppBskyEmbedVideo.View>
-    | $Typed<AppBskyEmbedExternal.View>
-    | $Typed<AppBskyEmbedRecord.View>
-    | $Typed<AppBskyEmbedRecordWithMedia.View>
-    | { $type: string }
-  replyCount?: number
-  repostCount?: number
-  likeCount?: number
-  quoteCount?: number
-  indexedAt: string
-  viewer?: ViewerState
-  labels?: ComAtprotoLabelDefs.Label[]
-  threadgate?: ThreadgateView
-}
-
-const hashPostView = 'postView'
-
-export function isPostView<V>(v: V) {
-  return is$typed(v, id, hashPostView)
-}
-
-export function validatePostView<V>(v: V) {
-  return validate<PostView & V>(v, id, hashPostView)
-}
 
 /** Metadata about the requesting account's relationship with the subject content. Only has meaningful content for authed requests. */
 export interface ViewerState {
@@ -95,70 +55,6 @@ export function validateThreadContext<V>(v: V) {
   return validate<ThreadContext & V>(v, id, hashThreadContext)
 }
 
-export interface FeedViewPost {
-  $type?: 'app.bsky.feed.defs#feedViewPost'
-  post: PostView
-  reply?: ReplyRef
-  reason?: $Typed<ReasonRepost> | $Typed<ReasonPin> | { $type: string }
-  /** Context provided by feed generator that may be passed back alongside interactions. */
-  feedContext?: string
-}
-
-const hashFeedViewPost = 'feedViewPost'
-
-export function isFeedViewPost<V>(v: V) {
-  return is$typed(v, id, hashFeedViewPost)
-}
-
-export function validateFeedViewPost<V>(v: V) {
-  return validate<FeedViewPost & V>(v, id, hashFeedViewPost)
-}
-
-export interface ReplyRef {
-  $type?: 'app.bsky.feed.defs#replyRef'
-  root:
-    | $Typed<ArCabildoabiertoFeedDefs.PostView>
-    | $Typed<ArCabildoabiertoFeedDefs.ArticleView>
-    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
-    | $Typed<NotFoundPost>
-    | $Typed<BlockedPost>
-    | { $type: string }
-  parent:
-    | $Typed<ArCabildoabiertoFeedDefs.PostView>
-    | $Typed<ArCabildoabiertoFeedDefs.ArticleView>
-    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
-    | $Typed<NotFoundPost>
-    | $Typed<BlockedPost>
-    | { $type: string }
-  grandparentAuthor?: AppBskyActorDefs.ProfileViewBasic
-}
-
-const hashReplyRef = 'replyRef'
-
-export function isReplyRef<V>(v: V) {
-  return is$typed(v, id, hashReplyRef)
-}
-
-export function validateReplyRef<V>(v: V) {
-  return validate<ReplyRef & V>(v, id, hashReplyRef)
-}
-
-export interface ReasonRepost {
-  $type?: 'app.bsky.feed.defs#reasonRepost'
-  by: AppBskyActorDefs.ProfileViewBasic
-  indexedAt: string
-}
-
-const hashReasonRepost = 'reasonRepost'
-
-export function isReasonRepost<V>(v: V) {
-  return is$typed(v, id, hashReasonRepost)
-}
-
-export function validateReasonRepost<V>(v: V) {
-  return validate<ReasonRepost & V>(v, id, hashReasonRepost)
-}
-
 export interface ReasonPin {
   $type?: 'app.bsky.feed.defs#reasonPin'
 }
@@ -171,33 +67,6 @@ export function isReasonPin<V>(v: V) {
 
 export function validateReasonPin<V>(v: V) {
   return validate<ReasonPin & V>(v, id, hashReasonPin)
-}
-
-export interface ThreadViewPost {
-  $type?: 'app.bsky.feed.defs#threadViewPost'
-  post: PostView
-  parent?:
-    | $Typed<ThreadViewPost>
-    | $Typed<NotFoundPost>
-    | $Typed<BlockedPost>
-    | { $type: string }
-  replies?: (
-    | $Typed<ThreadViewPost>
-    | $Typed<NotFoundPost>
-    | $Typed<BlockedPost>
-    | { $type: string }
-  )[]
-  threadContext?: ThreadContext
-}
-
-const hashThreadViewPost = 'threadViewPost'
-
-export function isThreadViewPost<V>(v: V) {
-  return is$typed(v, id, hashThreadViewPost)
-}
-
-export function validateThreadViewPost<V>(v: V) {
-  return validate<ThreadViewPost & V>(v, id, hashThreadViewPost)
 }
 
 export interface NotFoundPost {

@@ -9,7 +9,7 @@ import {$Typed} from "@/lex-api/util";
 import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {Button} from "../../layout/utils/button";
 
 
@@ -23,9 +23,7 @@ type WritePanelProps = {
     open: boolean
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
-    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> |
-        $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
-        $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedPost?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
 }

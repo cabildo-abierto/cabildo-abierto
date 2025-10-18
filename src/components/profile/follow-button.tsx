@@ -5,11 +5,11 @@ import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {darker} from "../layout/utils/button";
-import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {AppBskyActorDefs} from "@atproto/api"
 import {Color} from "../layout/utils/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {CheckIcon, PlusIcon} from "@phosphor-icons/react";
+import {InfiniteFeed} from "@/components/feed/feed/types";
 
 const follow = async ({did}: { did: string }) => {
     return await post<{ followedDid: string }, { followUri: string }>("/follow", {followedDid: did})
