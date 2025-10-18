@@ -9,33 +9,26 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef'
-import type * as ArCabildoabiertoFeedDefs from '../feed/defs'
+import type * as AppBskyEmbedRecord from '../../../app/bsky/embed/record'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs'
+import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images'
+import type * as AppBskyEmbedVideo from '../../../app/bsky/embed/video'
+import type * as AppBskyEmbedExternal from '../../../app/bsky/embed/external'
+import type * as ArCabildoabiertoEmbedRecordWithMedia from './recordWithMedia'
 
 const is$typed = _is$typed,
   validate = _validate
 const id = 'ar.cabildoabierto.embed.record'
 
-export interface Main {
-  $type?: 'ar.cabildoabierto.embed.record'
-  record: ComAtprotoRepoStrongRef.Main
-}
-
-const hashMain = 'main'
-
-export function isMain<V>(v: V) {
-  return is$typed(v, id, hashMain)
-}
-
-export function validateMain<V>(v: V) {
-  return validate<Main & V>(v, id, hashMain)
-}
-
 export interface View {
   $type?: 'ar.cabildoabierto.embed.record#view'
   record:
-    | $Typed<ArCabildoabiertoFeedDefs.PostView>
-    | $Typed<ArCabildoabiertoFeedDefs.ArticleView>
+    | $Typed<ViewRecord>
+    | $Typed<ViewArticleRecord>
+    | $Typed<AppBskyEmbedRecord.ViewNotFound>
+    | $Typed<AppBskyEmbedRecord.ViewBlocked>
+    | $Typed<AppBskyEmbedRecord.ViewDetached>
     | { $type: string }
 }
 
@@ -47,4 +40,72 @@ export function isView<V>(v: V) {
 
 export function validateView<V>(v: V) {
   return validate<View & V>(v, id, hashView)
+}
+
+export interface ViewRecord {
+  $type?: 'ar.cabildoabierto.embed.record#viewRecord'
+  uri: string
+  cid: string
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
+  /** The record data itself. */
+  value: { [_ in string]: unknown }
+  labels?: ComAtprotoLabelDefs.Label[]
+  replyCount?: number
+  repostCount?: number
+  likeCount?: number
+  quoteCount?: number
+  embeds?: (
+    | $Typed<AppBskyEmbedImages.View>
+    | $Typed<AppBskyEmbedVideo.View>
+    | $Typed<AppBskyEmbedExternal.View>
+    | $Typed<View>
+    | $Typed<ArCabildoabiertoEmbedRecordWithMedia.View>
+    | { $type: string }
+  )[]
+  indexedAt: string
+}
+
+const hashViewRecord = 'viewRecord'
+
+export function isViewRecord<V>(v: V) {
+  return is$typed(v, id, hashViewRecord)
+}
+
+export function validateViewRecord<V>(v: V) {
+  return validate<ViewRecord & V>(v, id, hashViewRecord)
+}
+
+export interface ViewArticleRecord {
+  $type?: 'ar.cabildoabierto.embed.record#viewArticleRecord'
+  uri: string
+  cid: string
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
+  /** The record data itself. */
+  value: { [_ in string]: unknown }
+  labels?: ComAtprotoLabelDefs.Label[]
+  replyCount?: number
+  repostCount?: number
+  likeCount?: number
+  quoteCount?: number
+  embeds?: (
+    | $Typed<AppBskyEmbedImages.View>
+    | $Typed<AppBskyEmbedVideo.View>
+    | $Typed<AppBskyEmbedExternal.View>
+    | $Typed<View>
+    | $Typed<ArCabildoabiertoEmbedRecordWithMedia.View>
+    | { $type: string }
+  )[]
+  indexedAt: string
+  /** El resumen del artículo que se muestra en el muro. */
+  summary?: string
+}
+
+const hashViewArticleRecord = 'viewArticleRecord'
+
+export function isViewArticleRecord<V>(v: V) {
+  return is$typed(v, id, hashViewArticleRecord)
+}
+
+export function validateViewArticleRecord<V>(v: V) {
+  return validate<ViewArticleRecord & V>(v, id, hashViewArticleRecord)
 }

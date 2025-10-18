@@ -163,8 +163,8 @@ function TableOfContentsList({
   }, [tableOfContents, editor, lastClickedIndex]);
 
   return (
-    <div className="table-of-contents font-light">
-      <ul className="headings pr-2 ">
+    <div className="table-of-contents font-light" onWheel={(e) => {e.stopPropagation()}}>
+      <ul className="headings pr-3">
         <div className="normal-heading-wrapper" key="title">
           <div
             className="first-heading"

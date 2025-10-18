@@ -1,7 +1,7 @@
 import React from "react"
 import {CreatePostProps} from "./write-post";
 import {$Typed} from "@/lex-api/util";
-import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
 import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {
@@ -28,29 +28,7 @@ import {
     shortCollectionToCollection
 } from "@/utils/uri";
 import {usePathname, useRouter} from "next/navigation";
-
-
-
-/*function searchInFeedQuery(feed: InfiniteFeed<FeedViewContent>, cond: (uri: string) => boolean) {
-    for (const p of feed.pages) {
-        for (const e of p.data) {
-            if(isPostView(e.content)){
-                if(cond(e.content.uri)) {
-                    return true
-                } else if((e.reply && (isPostView(e.reply.parent) || isArticleView(e.reply.parent))) && cond(e.reply.parent.uri)){
-                    return true
-                } else if((e.reply && (isPostView(e.reply.root) || isArticleView(e.reply.root))) && cond(e.reply.root.uri)){
-                    return true
-                }
-            } else if(isArticleView(e.content)){
-                if(cond(e.content.uri)) {
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}*/
+import {InfiniteFeed} from "@/components/feed/feed/types";
 
 
 function searchInThreadQuery(thread: $Typed<ThreadViewContent>, cond: (uri: string) => boolean) {
@@ -81,10 +59,10 @@ function searchInThreadQuery(thread: $Typed<ThreadViewContent>, cond: (uri: stri
 function invalidateQueriesAfterPostCreationSuccess(
     uri: string,
     replyTo: ReplyToContent,
-    quotedPost: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>,
     author: ArCabildoabiertoActorDefs.ProfileViewDetailed,
     qc: QueryClient,
-    originalUri?: string
+    originalUri?: string,
+    quotedPost?: ArCabildoabiertoEmbedRecord.View["record"]
 ) {
     const queriesToInvalidate: string[][] = []
 
@@ -100,9 +78,14 @@ function invalidateQueriesAfterPostCreationSuccess(
             if(searchInThreadQuery(thread, isRelevantUri)) {
                 queriesToInvalidate.push(k)
             }
-        } else if(k[0] == "topic-quote-replies" || k[0] == "details-content" && k[1] == "quotes"){
+        } else if(k[0] == "topic-quote-replies") {
             const posts = data as PostView[]
-            if(posts.some(p => isRelevantUri(p.uri))){
+            if (posts && posts.some(p => isRelevantUri(p.uri))) {
+                queriesToInvalidate.push(k)
+            }
+        } else if(k[0] == "details-content" && k[1] == "quotes") {
+            const posts = data as InfiniteFeed<PostView>
+            if(posts && posts.pages.some(page => page.data.some(d => isRelevantUri(d.uri)))){
                 queriesToInvalidate.push(k)
             }
         } else if(k[0] == "profile-feed" && k[1] == author.handle) {
@@ -125,6 +108,17 @@ function invalidateQueriesAfterPostCreationSuccess(
 
         updateContentInQueries(qc, replyTo.uri, parentUpdater)
     }
+    if(quotedPost && (ArCabildoabiertoEmbedRecord.isViewRecord(quotedPost) || ArCabildoabiertoEmbedRecord.isViewArticleRecord(quotedPost))) {
+        function quotedUpdater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
+            return produce(content, draft => {
+                if (!postOrArticle(draft)) return
+                draft.quoteCount++
+                draft.bskyQuoteCount++
+            })
+        }
+
+        updateContentInQueries(qc, quotedPost.uri, quotedUpdater)
+    }
     invalidateQueries(qc, queriesToInvalidate)
 }
 
@@ -140,7 +134,7 @@ type WritePanelProps = {
     open: boolean
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
-    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedPost?: ArCabildoabiertoEmbedRecord.View["record"]
     postView?: ArCabildoabiertoFeedDefs.PostView
 }
 
@@ -166,7 +160,14 @@ const WritePanel = ({
     async function handleSubmit(body: CreatePostProps) {
         const res = await createPost({body})
         if(res.data) {
-            invalidateQueriesAfterPostCreationSuccess(res.data.uri, replyTo, quotedPost, author, qc, body.uri)
+            invalidateQueriesAfterPostCreationSuccess(
+                res.data.uri,
+                replyTo,
+                author,
+                qc,
+                body.uri,
+                quotedPost
+            )
             if(pathname.startsWith("/c/")){
                 const params = pathname.split("/c/")[1]
                 let [did, collection, rkey] = params.split("/")
@@ -191,7 +192,7 @@ const WritePanel = ({
         handleSubmit={handleSubmit}
         postView={postView}
     />
-};
+}
 
 
 export default WritePanel;
