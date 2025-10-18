@@ -37,7 +37,9 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
     }, [layoutConfig])
 
     useEffect(() => {
-        rightPanelRef.current.scrollTo(0, 0)
+        if(rightPanelRef && rightPanelRef.current && searchState && searchState.searching && searchState.value && searchState.value.length > 0){
+            rightPanelRef.current.scrollTo(0, 0)
+        }
     }, [searchState])
 
     return <div>
