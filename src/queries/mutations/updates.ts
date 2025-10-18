@@ -1,7 +1,6 @@
 import {QueryClient} from "@tanstack/react-query";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api"
 import {postOrArticle} from "@/utils/type-utils";
-import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
 import {QueryFilters} from "@tanstack/query-core";
@@ -9,6 +8,7 @@ import {$Typed} from "@atproto/api";
 import {AppBskyFeedDefs} from "@/lex-api"
 import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {areArraysEqual} from "@/utils/arrays";
+import {InfiniteFeed} from "@/components/feed/feed/types";
 
 
 // ¿En qué casos tenemos que actualizar?

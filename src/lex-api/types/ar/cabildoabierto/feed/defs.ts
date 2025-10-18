@@ -11,13 +11,14 @@ import {
 } from '../../../../util'
 import type * as ArCabildoabiertoWikiTopicVersion from '../wiki/topicVersion'
 import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs'
-import type * as ArCabildoabiertoDataDataset from '../data/dataset'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
+import type * as ArCabildoabiertoDataDataset from '../data/dataset'
+import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
 import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images'
 import type * as AppBskyEmbedVideo from '../../../app/bsky/embed/video'
 import type * as AppBskyEmbedExternal from '../../../app/bsky/embed/external'
-import type * as AppBskyEmbedRecord from '../../../app/bsky/embed/record'
-import type * as AppBskyEmbedRecordWithMedia from '../../../app/bsky/embed/recordWithMedia'
+import type * as ArCabildoabiertoEmbedRecord from '../embed/record'
+import type * as ArCabildoabiertoEmbedRecordWithMedia from '../embed/recordWithMedia'
 import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
@@ -35,9 +36,9 @@ export interface FeedViewContent {
     | $Typed<ArticleView>
     | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
     | { $type: string }
-  reply?: AppBskyFeedDefs.ReplyRef
+  reply?: ReplyRef
   reason?:
-    | $Typed<AppBskyFeedDefs.ReasonRepost>
+    | $Typed<ReasonRepost>
     | $Typed<AppBskyFeedDefs.ReasonPin>
     | { $type: string }
   /** Context provided by feed generator that may be passed back alongside interactions. */
@@ -52,6 +53,22 @@ export function isFeedViewContent<V>(v: V) {
 
 export function validateFeedViewContent<V>(v: V) {
   return validate<FeedViewContent & V>(v, id, hashFeedViewContent)
+}
+
+export interface ReasonRepost {
+  $type?: 'ar.cabildoabierto.feed.defs#reasonRepost'
+  by: ArCabildoabiertoActorDefs.ProfileViewBasic
+  indexedAt: string
+}
+
+const hashReasonRepost = 'reasonRepost'
+
+export function isReasonRepost<V>(v: V) {
+  return is$typed(v, id, hashReasonRepost)
+}
+
+export function validateReasonRepost<V>(v: V) {
+  return validate<ReasonRepost & V>(v, id, hashReasonRepost)
 }
 
 export interface ThreadViewContent {
@@ -87,6 +104,35 @@ export function validateThreadViewContent<V>(v: V) {
   return validate<ThreadViewContent & V>(v, id, hashThreadViewContent)
 }
 
+export interface ReplyRef {
+  $type?: 'ar.cabildoabierto.feed.defs#replyRef'
+  root:
+    | $Typed<PostView>
+    | $Typed<ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  parent:
+    | $Typed<PostView>
+    | $Typed<ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  grandparentAuthor?: AppBskyActorDefs.ProfileViewBasic
+}
+
+const hashReplyRef = 'replyRef'
+
+export function isReplyRef<V>(v: V) {
+  return is$typed(v, id, hashReplyRef)
+}
+
+export function validateReplyRef<V>(v: V) {
+  return validate<ReplyRef & V>(v, id, hashReplyRef)
+}
+
 export interface PostView {
   $type?: 'ar.cabildoabierto.feed.defs#postView'
   uri: string
@@ -97,8 +143,8 @@ export interface PostView {
     | $Typed<AppBskyEmbedImages.View>
     | $Typed<AppBskyEmbedVideo.View>
     | $Typed<AppBskyEmbedExternal.View>
-    | $Typed<AppBskyEmbedRecord.View>
-    | $Typed<AppBskyEmbedRecordWithMedia.View>
+    | $Typed<ArCabildoabiertoEmbedRecord.View>
+    | $Typed<ArCabildoabiertoEmbedRecordWithMedia.View>
     | $Typed<ArCabildoabiertoEmbedSelectionQuote.View>
     | $Typed<ArCabildoabiertoEmbedVisualization.View>
     | { $type: string }

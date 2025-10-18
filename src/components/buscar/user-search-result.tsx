@@ -10,9 +10,9 @@ import {CloseButton} from "../layout/utils/close-button";
 import {post} from "@/utils/fetch";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import ValidationIcon from "../profile/validation-icon";
+import {InfiniteFeed} from "@/components/feed/feed/types";
 
 
 const ReadOnlyEditor = dynamic(() => import('@/components/writing/read-only-editor'), {

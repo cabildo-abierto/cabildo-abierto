@@ -1,34 +1,39 @@
 "use client"
 import React from "react";
-import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {FeedProps} from "@/components/feed/feed/types";
 import {useFeed, useFetchNextPage} from "./use-feed";
 import {LoadingFeed} from "@/components/feed/feed/loading-feed";
 
 
+type ContainedFeedProps<T> = FeedProps<T> & {
+    parentContainer: HTMLElement
+}
 
-function Feed<T>({
-                             getFeed,
-                             queryKey,
-                             noResultsText,
-                             endText,
-                             getFeedElementKey,
-                             LoadingFeedContent,
-                             FeedElement,
-                             enabled=true,
-                             estimateSize=500,
-                             overscan=4,
-                             startContent
-                         }: FeedProps<T>) {
+
+function ContainedFeed<T>({
+                     getFeed,
+                     queryKey,
+                     noResultsText,
+                     endText,
+                     getFeedElementKey,
+                     LoadingFeedContent,
+                     FeedElement,
+                     enabled=true,
+                     estimateSize=500,
+                     overscan=4,
+    parentContainer
+                 }: ContainedFeedProps<T>) {
     const {data: feed, fetchNextPage, loading, hasNextPage, isFetchingNextPage, feedList} = useFeed(
         getFeed, queryKey, enabled, getFeedElementKey,)
 
-    const count = feedList.length + 1 + (startContent ? 1 : 0)
-
-    const virtualizer = useWindowVirtualizer({
-        count,
+    const virtualizer = useVirtualizer({
+        count: feedList.length+1,
         estimateSize: () => estimateSize,
-        overscan
+        overscan,
+        getScrollElement: () => {
+            return parentContainer
+        }
     })
 
     const items = virtualizer.getVirtualItems()
@@ -54,19 +59,16 @@ function Feed<T>({
                     transform: `translateY(${items[0]?.start ?? 0}px)`,
                 }}
             >
-
                 {items.map((c) => {
-                    const isEnd = c.index == count-1
-                    const isStart = c.index == 0 && startContent != null
-                    const feedListIndex = c.index-(startContent ? 1 : 0)
+                    const isEnd = c.index > feedList.length - 1
                     return <div
-                        key={isEnd ? "end" : isStart ? "start" : getFeedElementKey(feedList[feedListIndex])}
+                        key={isEnd ? "end" : getFeedElementKey(feedList[c.index])}
                         data-index={c.index}
                         ref={virtualizer.measureElement}
                     >
-                        {!isEnd && !isStart ?
-                            <FeedElement content={feedList[feedListIndex]} index={feedListIndex}/> :
-                            isEnd ? <div>
+                        {!isEnd ?
+                            <FeedElement content={feedList[c.index]} index={c.index}/> :
+                            <div>
                                 {loading &&
                                     <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
                                 }
@@ -74,7 +76,7 @@ function Feed<T>({
                                     {!hasNextPage && feedList.length > 0 && endText}
                                     {!hasNextPage && feedList.length == 0 && noResultsText}
                                 </div>}
-                            </div> : startContent}
+                            </div>}
                     </div>
 
                 })}
@@ -84,4 +86,4 @@ function Feed<T>({
 }
 
 
-export default Feed
+export default ContainedFeed

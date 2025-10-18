@@ -1,10 +1,10 @@
 import { ReactNode } from "react"
-import { CustomLink } from "../utils/custom-link"
 import { Button } from "../utils/button"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {Color} from "../utils/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useSession} from "@/queries/getters/useSession";
+import Link from "next/link";
 
 
 type SidebarButtonProps = {
@@ -54,8 +54,13 @@ export const SidebarButton = ({
         }
     }
 
-    return <>
-        <CustomLink tag="link" href={!requiresAuth || user ? href : undefined} className={className + (showText ? "" : " pl-2")} id={id} onClick={handleClick}>
+    return <div
+        id={id}
+        className={className + "  "  + (showText ? "" : " pl-2")}
+    >
+        <Link
+            href={!requiresAuth || user ? href : undefined}
+        >
             <Button
                 variant="text"
                 color={color}
@@ -67,7 +72,7 @@ export const SidebarButton = ({
                     minWidth: showText ? undefined : "40px",
                     paddingY: "0px"
                 }}
-                onClick={onClick}
+                onClick={handleClick}
                 fullWidth={showText && isMobile}
                 disabled={disabled}
             >
@@ -79,6 +84,6 @@ export const SidebarButton = ({
                     </div>}
                 </div>
             </Button>
-        </CustomLink>
-    </>
+        </Link>
+    </div>
 }

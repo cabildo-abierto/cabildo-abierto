@@ -4,7 +4,8 @@ import {getRkeyFromUri, isArticle, isPost, splitUri} from "@/utils/uri";
 import {useSession} from "@/queries/getters/useSession";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
-import {ArCabildoabiertoDataDataset, ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
+import {ArCabildoabiertoDataDataset,
+    ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
 import dynamic from "next/dynamic";
 import {$Typed} from "@/lex-api/util";
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
@@ -46,6 +47,9 @@ export const OptionsEditContentButton = ({record}: { record: $Typed<ArCabildoabi
                 setEditingPost(false)
             }}
             postView={record}
+            quotedPost={
+                ArCabildoabiertoEmbedRecord.isView(record.embed) ? record.embed.record : undefined
+            }
         />}
     </>
 }
