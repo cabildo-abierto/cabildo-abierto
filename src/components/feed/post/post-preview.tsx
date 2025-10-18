@@ -4,7 +4,7 @@ import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
 import {useSession} from "@/queries/getters/useSession";
-import {AppBskyFeedDefs, AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
+import {AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import FeedElement from "@/components/feed/feed/feed-element";
@@ -157,7 +157,7 @@ export const PostPreview = ({
     const {layoutConfig} = useLayoutConfig()
 
     const {parent, root} = getParentAndRoot(feedViewContent)
-    const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
+    const reason = feedViewContent && feedViewContent.reason && ArCabildoabiertoFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
     showingChildren = showingChildren || children && children.length > 0

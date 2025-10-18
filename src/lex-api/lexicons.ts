@@ -783,43 +783,6 @@ export const schemaDict = {
           },
         },
       },
-      skeletonFeedPost: {
-        type: 'object',
-        required: ['post'],
-        properties: {
-          post: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          reason: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.feed.defs#skeletonReasonRepost',
-              'lex:app.bsky.feed.defs#skeletonReasonPin',
-            ],
-          },
-          feedContext: {
-            type: 'string',
-            description:
-              'Context that will be passed through to client and may be passed to feed generator back alongside interactions.',
-            maxLength: 2000,
-          },
-        },
-      },
-      skeletonReasonRepost: {
-        type: 'object',
-        required: ['repost'],
-        properties: {
-          repost: {
-            type: 'string',
-            format: 'at-uri',
-          },
-        },
-      },
-      skeletonReasonPin: {
-        type: 'object',
-        properties: {},
-      },
       threadgateView: {
         type: 'object',
         properties: {
@@ -2940,6 +2903,43 @@ export const schemaDict = {
             type: 'integer',
           },
         },
+      },
+      skeletonFeedPost: {
+        type: 'object',
+        required: ['post'],
+        properties: {
+          post: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          reason: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.feed.defs#skeletonReasonRepost',
+              'lex:ar.cabildoabierto.feed.defs#skeletonReasonPin',
+            ],
+          },
+          feedContext: {
+            type: 'string',
+            description:
+              'Context that will be passed through to client and may be passed to feed generator back alongside interactions.',
+            maxLength: 2000,
+          },
+        },
+      },
+      skeletonReasonRepost: {
+        type: 'object',
+        required: ['repost'],
+        properties: {
+          repost: {
+            type: 'string',
+            format: 'at-uri',
+          },
+        },
+      },
+      skeletonReasonPin: {
+        type: 'object',
+        properties: {},
       },
     },
   },

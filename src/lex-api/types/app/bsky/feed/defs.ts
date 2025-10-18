@@ -164,56 +164,6 @@ export function validateGeneratorViewerState<V>(v: V) {
   return validate<GeneratorViewerState & V>(v, id, hashGeneratorViewerState)
 }
 
-export interface SkeletonFeedPost {
-  $type?: 'app.bsky.feed.defs#skeletonFeedPost'
-  post: string
-  reason?:
-    | $Typed<SkeletonReasonRepost>
-    | $Typed<SkeletonReasonPin>
-    | { $type: string }
-  /** Context that will be passed through to client and may be passed to feed generator back alongside interactions. */
-  feedContext?: string
-}
-
-const hashSkeletonFeedPost = 'skeletonFeedPost'
-
-export function isSkeletonFeedPost<V>(v: V) {
-  return is$typed(v, id, hashSkeletonFeedPost)
-}
-
-export function validateSkeletonFeedPost<V>(v: V) {
-  return validate<SkeletonFeedPost & V>(v, id, hashSkeletonFeedPost)
-}
-
-export interface SkeletonReasonRepost {
-  $type?: 'app.bsky.feed.defs#skeletonReasonRepost'
-  repost: string
-}
-
-const hashSkeletonReasonRepost = 'skeletonReasonRepost'
-
-export function isSkeletonReasonRepost<V>(v: V) {
-  return is$typed(v, id, hashSkeletonReasonRepost)
-}
-
-export function validateSkeletonReasonRepost<V>(v: V) {
-  return validate<SkeletonReasonRepost & V>(v, id, hashSkeletonReasonRepost)
-}
-
-export interface SkeletonReasonPin {
-  $type?: 'app.bsky.feed.defs#skeletonReasonPin'
-}
-
-const hashSkeletonReasonPin = 'skeletonReasonPin'
-
-export function isSkeletonReasonPin<V>(v: V) {
-  return is$typed(v, id, hashSkeletonReasonPin)
-}
-
-export function validateSkeletonReasonPin<V>(v: V) {
-  return validate<SkeletonReasonPin & V>(v, id, hashSkeletonReasonPin)
-}
-
 export interface ThreadgateView {
   $type?: 'app.bsky.feed.defs#threadgateView'
   uri?: string

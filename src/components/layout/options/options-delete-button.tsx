@@ -197,7 +197,7 @@ const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void})
                         size={"small"}
                         onClick={() => {setDeleteModalOpen(false)}}
                     >
-                        <span className={"font-semibold"}>
+                        <span className={""}>
                             Cancelar
                         </span>
                     </Button>
@@ -209,7 +209,7 @@ const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void})
                         size={"small"}
                         color={"red-dark"}
                         text1={"Borrar"}
-                        textClassName={"font-semibold text-[var(--white-text)]"}
+                        textClassName={"text-[var(--white-text)]"}
                     />
                 </div>
             </div>

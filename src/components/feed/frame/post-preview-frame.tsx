@@ -6,7 +6,6 @@ import {ProfilePic} from "../../profile/profile-pic";
 import {profileUrl, getCollectionFromUri, isPost, contentUrl} from "@/utils/uri";
 import {emptyChar} from "@/utils/utils";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
-import {AppBskyFeedDefs} from "@atproto/api"
 import {$Typed} from "@/lex-api/util";
 import {useQueryClient} from "@tanstack/react-query";
 import {threadQueryKey} from "@/queries/getters/useThread";
@@ -37,7 +36,7 @@ type FastPostPreviewFrameProps = {
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
-    reason?: AppBskyFeedDefs.ReasonRepost
+    reason?: ArCabildoabiertoFeedDefs.ReasonRepost
     pageRootUri?: string
     engagementIcons?: boolean
     onWritePost?: boolean
