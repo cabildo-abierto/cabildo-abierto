@@ -59,7 +59,12 @@ export const SidebarButton = ({
         className={className + "  "  + (showText ? "" : " pl-2")}
     >
         <Link
-            href={!requiresAuth || user ? href : undefined}
+            href={href}
+            onClick={e => {
+                if(requiresAuth && !user) {
+                    e.preventDefault()
+                }
+            }}
         >
             <Button
                 variant="text"
