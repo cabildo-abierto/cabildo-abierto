@@ -1,0 +1,25 @@
+import {BaseFullscreenPopup} from "@/components/layout/utils/base-fullscreen-popup";
+import {CloseButton} from "@/components/layout/utils/close-button";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {EditHistory} from "@/components/topics/topic/history/edit-history";
+
+
+export const TopicHistoryPanel = ({onClose, topic}: {
+    onClose: () => void
+    topic: TopicView
+}) => {
+    const {isMobile} = useLayoutConfig()
+    return <BaseFullscreenPopup open={true}>
+        <div className={(!isMobile ? "w-[600px] pb-2" : "")}>
+            <div className={"flex justify-between items-center p-2"}>
+                <div className={"font-semibold uppercase text-sm"}>
+                    Historial de versiones
+                </div>
+                <CloseButton onClose={onClose} size={"small"}/>
+            </div>
+            <EditHistory topic={topic} className={"max-h-[70vh] overflow-y-auto custom-scrollbar"} onClose={onClose}/>
+        </div>
+    </BaseFullscreenPopup>
+
+}

@@ -320,7 +320,7 @@ td {
 .custom-scrollbar {
   /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: var(--accent-dark) var(--background);
+  scrollbar-color: var(--accent-dark) transparent;
 }
 
 /* Chrome, Edge, Safari */
@@ -353,7 +353,7 @@ td {
   color: var(--text-light);
   position: fixed;
   top: 20vh;
-  right: 20px;
+  left: 5px;
   max-width: 240px;
   display: flex;
   flex-direction: row;
@@ -365,7 +365,7 @@ td {
 .headings {
   list-style: none;
   margin-top: 0;
-  margin-left: -5px;
+  margin-left: 0px;
   overflow: scroll;
   width: 100%;
   height: 60vh;
@@ -380,7 +380,7 @@ td {
   position: absolute;
   height: 60vh;
   width: 4px;
-  right: 10px;
+  left: 5px;
   margin-top: 5px;
   background-color: var(--accent);
   border-radius: 2px;
@@ -390,7 +390,7 @@ td {
 .selected-heading-wrapper::before {
   content: ' ';
   position: absolute;
-  right: -12px;
+  left: -0px;
   top: 4px;
   height: 4px;
   width: 4px;
@@ -425,18 +425,20 @@ td {
 .selected-heading {
   color: var(--primary);
   position: relative;
+  padding-left: 18px;
 }
 
 .normal-heading {
   cursor: pointer;
   line-height: 20px;
   font-size: 16px;
+  padding-left: 18px;
 }
 
 .first-heading {
-  color: black;
-  font-weight: bold;
+  font-weight: 400;
   cursor: pointer;
+  padding-left: 18px;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

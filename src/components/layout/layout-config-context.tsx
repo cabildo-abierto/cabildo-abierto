@@ -16,6 +16,8 @@ export type LayoutConfigProps = {
     centerWidth?: string
     spaceForRightSide?: boolean
     spaceForLeftSide?: boolean
+    sidebarKind: "floating" | "background"
+    rightDisappearsFirst?: boolean
 }
 
 
@@ -41,7 +43,8 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         rightMinWidth: "300px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
-        defaultSidebarState: true
+        defaultSidebarState: true,
+        sidebarKind: "background"
     }
     const datasetConfig: LayoutConfigProps = {
         maxWidthCenter: "800px",
@@ -49,7 +52,8 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         rightMinWidth: "300px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
-        defaultSidebarState: true
+        defaultSidebarState: true,
+        sidebarKind: "background"
     }
     const articleConfig: LayoutConfigProps = {
         maxWidthCenter: "682px",
@@ -57,15 +61,18 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         rightMinWidth: "300px",
         openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
-        openRightPanel: false
+        openRightPanel: false,
+        sidebarKind: "floating"
     }
     const maximizedTopicConfig: LayoutConfigProps = {
         maxWidthCenter: "800px",
-        leftMinWidth: "80px",
+        leftMinWidth: "150px",
         rightMinWidth: "300px",
         openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
-        openRightPanel: false
+        openRightPanel: false,
+        sidebarKind: "floating",
+        rightDisappearsFirst: true
     }
     const mobileConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
@@ -73,7 +80,8 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         rightMinWidth: "0px",
         defaultSidebarState: false,
         openSidebar: false,
-        openRightPanel: false
+        openRightPanel: false,
+        sidebarKind: "floating"
     }
 
     let config: LayoutConfigProps
@@ -116,16 +124,17 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
 
 
 function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
-    const reqWidth = 224 +
-        pxToNumber(curLayoutConfig.rightMinWidth) +
+    const reqWidthLeftSide = 224 +
+        (!curLayoutConfig.rightDisappearsFirst ? pxToNumber(curLayoutConfig.rightMinWidth) : 0) +
         pxToNumber(curLayoutConfig.maxWidthCenter);
 
     const reqWidthRightSide = 80 + pxToNumber(curLayoutConfig.rightMinWidth) +
+        (curLayoutConfig.rightDisappearsFirst ? pxToNumber(curLayoutConfig.leftMinWidth) : 0) +
         pxToNumber(curLayoutConfig.maxWidthCenter);
 
     const width = window.innerWidth
 
-    const spaceForLeftSide = width >= reqWidth
+    const spaceForLeftSide = width >= reqWidthLeftSide
     const spaceForRightSide = width >= reqWidthRightSide
     const centerWidth = Math.min(
         pxToNumber(curLayoutConfig.maxWidthCenter),

@@ -33,7 +33,7 @@ const minimizedSteps: Step[] = [
         content: <TourContent>
             Este es el contenido actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar las ediciones.
         </TourContent>,
-        placement: 'bottom',
+        placement: 'top',
         disableBeacon: true,
         hideBackButton: true
     },

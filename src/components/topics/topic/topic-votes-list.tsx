@@ -20,7 +20,7 @@ export const TopicVotesList = ({uri}: {
         <LoadingSpinner/>
     </div>
 
-    return <div className={"bg-[var(--background-dark)] px-4 pb-4"}>
+    return <div className={"mx-3 my-1 p-2"}>
         {data && data.length > 0 && <div className={"gap-2 flex flex-wrap"}>
             {data.map((v, i) => {
                 const accept = getCollectionFromUri(v.uri) == "ar.cabildoabierto.wiki.voteAccept"

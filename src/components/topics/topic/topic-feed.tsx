@@ -5,7 +5,7 @@ import {getDidFromUri, getRkeyFromUri, topicUrl} from "@/utils/uri";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../layout/utils/info-panel";
 import Link from "next/link"
-import {get, updateSearchParam} from "@/utils/fetch";
+import {get} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
 import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session, WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
@@ -24,135 +24,16 @@ import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {configOptionNodes} from "@/components/config/config-option-nodes";
 import {TopicVotesOnFeed} from "@/components/topics/topic/history/topic-votes-on-feed";
 import {useTopicVersion} from "@/queries/getters/useTopic";
-import {getDid} from "@atproto/common-web";
 import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import {useUpdateSearchParams} from "@/components/layout/utils/update-search-params";
 
 type TopicFeedOption = "Menciones" | "Discusión" | "Otros temas"
 
-function topicFeedParamToTopicFeedOption(v: string | undefined, minimized: boolean): TopicFeedOption {
-    if (v) {
-        return v == "discusion" ? "Discusión" : v == "menciones" ? "Menciones" : "Otros temas"
-    } else {
-        return "Menciones"
-    }
-}
-
-const enDiscusionMetricOptions: EnDiscusionMetric[] = ["Me gustas", "Interacciones", "Popularidad relativa", "Recientes"]
-const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Último mes", "Última semana"]
 
 
-export const useTopicFeedParams = (user: Session) => {
-    const params = useSearchParams()
-    const s = params.get("s")
-    const minimized = !s || s == "minimized"
-
-    const defaultMetric = user?.algorithmConfig.topicMentions?.metric ?? defaultTopicMentionsMetric
-    const defaultTime = user?.algorithmConfig.topicMentions?.time ?? defaultTopicMentionsTime
-    const defaultFormat = user?.algorithmConfig.topicMentions?.format ?? defaultTopicMentionsFormat
-    const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
-    const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
-    const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)
-
-    return {
-        metric,
-        time,
-        format,
-        selected: topicFeedParamToTopicFeedOption(params.get("f"), minimized)
-    }
-}
 
 
-const TopicMentionsFeedConfig = () => {
-    const {user} = useSession()
-    const {metric, time, format} = useTopicFeedParams(user)
 
-    function setMetric(v: string) {
-        updateSearchParam("m", v)
-    }
-
-    function setTime(v: string) {
-        updateSearchParam("p", v)
-    }
-
-    function setFormat(v: string) {
-        updateSearchParam("formato", v)
-    }
-
-    return <div className={"space-y-4 pt-2"}>
-        <div>
-            <div className={"text-xs text-[var(--text-light)]"}>
-                Métrica
-            </div>
-            <SelectionComponent
-                onSelection={setMetric}
-                options={["Interacciones", "Recientes", "Me gustas", "Popularidad relativa"]}
-                optionsNodes={configOptionNodes}
-                selected={metric}
-                className={"flex gap-x-2 gap-y-1 flex-wrap"}
-                optionContainerClassName={""}
-            />
-        </div>
-        {metric != "Recientes" && <div>
-            <div className={"text-xs text-[var(--text-light)]"}>
-                Período
-            </div>
-            <SelectionComponent
-                onSelection={setTime}
-                options={["Último día", "Última semana", "Último mes"]}
-                optionsNodes={configOptionNodes}
-                selected={time}
-                className={"flex gap-x-2 gap-y-1 flex-wrap"}
-                optionContainerClassName={""}
-            />
-        </div>}
-        <div>
-            <div className={"text-xs text-[var(--text-light)]"}>
-                Formato
-            </div>
-            <SelectionComponent
-                onSelection={setFormat}
-                options={["Todos", "Artículos"]}
-                optionsNodes={configOptionNodes}
-                selected={format}
-                className={"flex gap-x-2 gap-y-1 flex-wrap"}
-                optionContainerClassName={""}
-            />
-        </div>
-    </div>
-}
-
-
-const TopicFeedConfig = ({selected}: { selected: TopicFeedOption }) => {
-    const buttonRef = useRef<HTMLButtonElement>(null)
-
-    const modal = (close: () => void) => (
-        <div className={"p-3 space-y-2 w-56"}>
-            <div className={"w-full flex justify-between items-end"}>
-                <div className={"text-[13px] text-[var(--text)] uppercase"}>
-                    Configurar <span className={"font-semibold text-[var(--text-light)]"}
-                >
-                    {selected}
-                </span>
-                </div>
-                <InfoPanel onClick={() => {
-                    window.open(topicUrl("Cabildo Abierto: Muros"), "_blank")
-                }}/>
-            </div>
-            <div>
-                <TopicMentionsFeedConfig/>
-            </div>
-        </div>
-    )
-
-    return <ClickableModalOnClick
-        modal={modal}
-        id={"feed-config"}
-    >
-        <button id="feed-config-button" ref={buttonRef} className={"hover:bg-[var(--background-dark)] rounded p-1"}>
-            <SlidersHorizontalIcon size={22} weight={"light"}/>
-        </button>
-    </ClickableModalOnClick>
-}
 
 
 export const TopicFeed = ({
@@ -172,9 +53,8 @@ export const TopicFeed = ({
 }) => {
     const {user} = useSession()
     const {selected, metric, time, format} = useTopicFeedParams(user)
-    console.log("topic version uri", topicVersionUri)
     const {data: topicVersion, isLoading: topicVersionLoading} = useTopicVersion(getDidFromUri(topicVersionUri), getRkeyFromUri(topicVersionUri))
-
+    const {updateSearchParam} = useUpdateSearchParams()
     const topicId = topic.id
 
     async function getMentionsFeed(cursor: string) {
@@ -235,6 +115,7 @@ export const TopicFeed = ({
             noResultsText={"Todavía no hay respuestas."}
             endText={""}
             pageRootUri={topicVersionUri}
+
         />
     }, [metric, time, format, topicVersionUri])
 
@@ -285,19 +166,19 @@ export const TopicFeed = ({
             </div>
         </div>
         {/*TO DO: Cuando una respuesta es una mención no debería aparecer línea vertical arriba de la foto de perfil*/}
-        <div className={"flex justify-center w-full"}>
+        <div className={"flex w-full flex-col items-center"}>
+            {selected == "Discusión" && topicVersion && repliesFeed && <div
+                className={"bg-[var(--background-dark)] w-full flex justify-center mb-2"}
+            >
+                <TopicVotesOnFeed
+                    topic={topicVersion}
+                    setWritingReply={setWritingReply}
+                />
+            </div>}
             <div className={"max-w-[600px] w-full"}>
                 {selected == "Menciones" && mentionsFeed}
 
-                {selected == "Discusión" && topicVersion &&
-                    <div className={""}>
-                        <TopicVotesOnFeed
-                            topic={topicVersion}
-                            setWritingReply={setWritingReply}
-                        />
-                        {repliesFeed}
-                    </div>
-                }
+                {selected == "Discusión" && topicVersion && repliesFeed}
 
                 {selected == "Discusión" && topicVersionLoading && <div className={"py-8"}>
                     <LoadingSpinner/>

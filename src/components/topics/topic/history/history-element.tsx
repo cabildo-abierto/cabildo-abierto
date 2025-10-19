@@ -40,10 +40,11 @@ const EditMessage = ({msg}: { msg?: string }) => {
 
 
 
-export const HistoryElement = ({topic, topicHistory, index}: {
+export const HistoryElement = ({topic, topicHistory, index, onClose}: {
     topic: ArCabildoabiertoWikiTopicVersion.TopicView,
     topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory
     index: number
+    onClose?: () => void
 }) => {
     const router = useRouter()
     const topicVersion = topicHistory.versions[index]
@@ -52,7 +53,7 @@ export const HistoryElement = ({topic, topicHistory, index}: {
 
     const claimsAuthorship = topicVersion.addedChars > 0 && topicVersion.claimsAuthorship
 
-    let className = "w-full py-1 px-4 flex items-center border-b "
+    let className = "w-full py-1 px-4 flex items-center  "
 
     className = className + " cursor-pointer"
 
@@ -65,6 +66,7 @@ export const HistoryElement = ({topic, topicHistory, index}: {
             className={className}
             onClick={() => {
                 router.push(topicUrl(topic.id, splitUri(topicHistory.versions[index].uri), "normal"))
+                if(onClose) onClose()
             }}
         >
             <div className={"flex flex-col w-full"}>
@@ -100,12 +102,12 @@ export const HistoryElement = ({topic, topicHistory, index}: {
                         />
                     </div>
                 </div>
-                {topicVersion.message &&
-                    <div className={"text-[var(--text-light)] flex items-baseline"}>
+                {topicVersion.message ?
+                    <div className={"text-[var(--text-light)] h-5 flex items-baseline"}>
                         <EditMessage
                             msg={topicVersion.message}
                         />
-                    </div>
+                    </div> : <div className={"h-5"}/>
                 }
                 <div className={"flex justify-between w-full space-y-1"}>
                     <div className="flex flex-col w-full mt-2">

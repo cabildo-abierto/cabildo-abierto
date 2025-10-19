@@ -129,26 +129,22 @@ export const VoteEditButtons = ({
     const acceptEditMutation = useMutation({
         mutationFn: acceptEdit,
         onMutate: (likedContent) => {
-            qc.cancelQueries(contentQueriesFilter(versionRef.uri))
             optimisticAcceptVote(qc, versionRef.uri)
         },
         onSuccess: (data, variables, context) => {
             if (data.data.uri) {
                 setCreatedAcceptVote(qc, versionRef.uri, data.data.uri)
+                invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
             }
-        },
-        onSettled: async () => {
-            invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
-        },
+        }
     })
 
     const cancelAcceptEditMutation = useMutation({
         mutationFn: cancelVote,
         onMutate: (likedContent) => {
-            qc.cancelQueries(contentQueriesFilter(versionRef.uri))
             optimisticCancelAcceptVote(qc, versionRef.uri)
         },
-        onSettled: async () => {
+        onSuccess: async () => {
             invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
         },
     })
@@ -159,7 +155,7 @@ export const VoteEditButtons = ({
             qc.cancelQueries(contentQueriesFilter(versionRef.uri))
             optimisticCancelRejectVote(qc, versionRef.uri)
         },
-        onSettled: async () => {
+        onSuccess: async () => {
             qc.invalidateQueries(contentQueriesFilter(versionRef.uri))
         },
     })

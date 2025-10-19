@@ -45,24 +45,15 @@ function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHis
 
 
 const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: TopicContributor[] }) => {
-    const [open, setOpen] = useState(false)
 
-    return <div className={"border px-2 py-1"}>
-        <div className={"flex justify-between items-baseline space-x-2"}>
-            <div className={"text-sm text-[var(--text-light)]"}>
-                Contribuciones
-            </div>
-            <div className={"text-base"}>
-                <IconButton sx={{padding: 0.25}} size="small" onClick={() => {
-                    setOpen(!open)
-                }} color="transparent" textColor={"text"}>
-                    {!open ? <ArrowDropDownIcon fontSize={"inherit"}/> : <ArrowDropUpIcon fontSize={"inherit"}/>}
-                </IconButton>
-            </div>
-        </div>
-        {open && <div className={"text-[var(--text-light)]"}>
+    function cmp(a: TopicContributor, b: TopicContributor) {
+        return b.all - a.all
+    }
+
+    return <div className={"px-2 py-1"}>
+        <div className={"text-[var(--text-light)]"}>
             <div className="flex flex-wrap space-x-2 text-sm">
-                {topicVersionAuthors.map((c, index) => {
+                {topicVersionAuthors.toSorted(cmp).map((c, index) => {
                     return <div key={index}
                                 className={"flex space-x-1 items-center rounded-lg"}>
                         <ProfilePic user={c.profile} className={"rounded-full w-4 h-4"}/>
@@ -70,12 +61,16 @@ const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: Topic
                     </div>
                 })}
             </div>
-        </div>}
+        </div>
     </div>
 }
 
 
-export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
+export const EditHistory = ({topic, className, onClose}: {
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    className?: string
+    onClose?: () => void
+}) => {
     const {data: topicHistory, isLoading} = useTopicHistory(topic.id)
 
     const contributors = useMemo(() => {
@@ -100,7 +95,7 @@ export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.T
         <div className={"flex justify-end py-1 px-1"}>
             <TopicVersionAuthors topicVersionAuthors={contributors}/>
         </div>
-        <div className="border-t">
+        <div className={"space-y-1 px-1 " + className}>
             {topicHistory.versions.map((_, index) => {
                 const versionIndex = topicHistory.versions.length - 1 - index
                 return <div key={topicHistory.versions[versionIndex].uri} className="w-full">
@@ -108,6 +103,7 @@ export const EditHistory = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.T
                         topic={topic}
                         topicHistory={topicHistory}
                         index={versionIndex}
+                        onClose={onClose}
                     />
                 </div>
             })}

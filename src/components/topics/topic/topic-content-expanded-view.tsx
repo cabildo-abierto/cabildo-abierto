@@ -146,7 +146,7 @@ const TopicContentExpandedViewContent = ({
                             ¡Este tema no tiene contenido! Editalo para crear una primera versión.
                         </div>
                     }
-                    {!wikiEditorState.startsWith("editing") && <div>
+                    {!wikiEditorState.startsWith("editing") && <div className={""}>
                         {topic.uri != topic.currentVersion && <div className={"text-sm text-[var(--text-light)]"}>
                             Esta actualmente no es la versión oficial del tema. <Link
                             className={"font-semibold hover:underline"}
