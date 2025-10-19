@@ -96,7 +96,7 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
     }
 
     return <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
-        <div className="space-y-6 px-6 pt-2 mb-4 flex flex-col items-center min-w-96">
+        <div className="space-y-6 px-6 mb-4 flex flex-col items-center min-w-96">
             <h3 className={"normal-case"}>
                 Rechazar versión
             </h3>
@@ -110,7 +110,7 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
                     fullWidth={true}
                     value={message}
                     onChange={(e) => {setMessage(e.target.value)}}
-                    placeholder="Explicá por qué te parece necesario deshacer este cambio."
+                    placeholder="Explicá por qué te parece necesario invalidar esta edición."
                 />
             </div>
             <div className="w-full flex flex-col space-y-2">

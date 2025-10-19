@@ -4,7 +4,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
-import {Button} from "./button";
+import {Button, darker} from "./button";
 import {Color} from "./color";
 
 const NewItem = ({
@@ -80,8 +80,11 @@ const NewItem = ({
                 onClick={() => {
                     setWritingItem(true)
                 }}
+                size={"small"}
             >
-                {newItemText}
+                <span className={"text-xs"}>
+                    {newItemText}
+                </span>
             </Button>
         } else {
             return <Button
@@ -99,21 +102,23 @@ const NewItem = ({
 }
 
 
-export const ListEditorItem = ({item, removeItem}: {
-    item: string, removeItem?: () => void
+export const ListEditorItem = ({item, removeItem, color}: {
+    item: string, removeItem?: () => void, color: Color
 }) => {
     const [hovering, setHovering] = useState(false)
-    return <button
-        className={"px-2 py-[2px] bg-[var(--background-dark)] border text-sm flex space-x-1 items-center " + (removeItem ? "" : "cursor-default")}
+    return <Button
+        size={"small"}
+        variant={"outlined"}
+        color={darker(color)}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         onClick={removeItem}
     >
-        <div>
+        <div className={"text-xs"}>
             {item}
         </div>
         {hovering && removeItem != null ? <CloseIcon fontSize={"small"}/> : null}
-    </button>
+    </Button>
 }
 
 
@@ -141,6 +146,7 @@ export const ListEditor = ({
         {items.map((c, i) => {
             return <div key={i} className={""}>
                 <ListEditorItem
+                    color={color}
                     item={c}
                     removeItem={setItems ? removeItem(i) : undefined}
                 />

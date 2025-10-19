@@ -2,21 +2,17 @@ import {getTopicTitle} from "@/components/topics/topic/utils"
 import {topicUrl} from "@/utils/uri"
 import Link from "next/link"
 import ReplyIcon from "@mui/icons-material/Reply"
-import {useTopicFeedParams} from "@/components/topics/topic/topic-feed"
 import {usePathname} from "next/navigation";
 import {CustomLink} from "../../layout/utils/custom-link";
-import {useSession} from "@/queries/getters/useSession";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
     topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic
     showingChildren: boolean
 }) => {
-    const {user} = useSession()
-    const {selected} = useTopicFeedParams(user)
     const pathname = usePathname()
 
-    if(pathname.startsWith("/tema") && selected == "Discusión"){
+    if(pathname.startsWith("/tema")){
         return null
     }
 

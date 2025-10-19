@@ -37,14 +37,16 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
     }, [layoutConfig])
 
     useEffect(() => {
-        rightPanelRef.current.scrollTo(0, 0)
+        if(rightPanelRef && rightPanelRef.current && searchState && searchState.searching && searchState.value && searchState.value.length > 0){
+            rightPanelRef.current.scrollTo(0, 0)
+        }
     }, [searchState])
 
     return <div>
         <TopbarDesktop/>
 
         <div className="flex justify-between w-full">
-            <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20")}>
+            <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : (layoutConfig.sidebarKind == "background" ? "w-20" : ""))}>
                 <SidebarDesktop
                     onClose={() => {}}
                     setWritePanelOpen={setWritePanelOpen}

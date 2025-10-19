@@ -182,6 +182,7 @@ export const SaveEditPopup = ({
                 {diff.isLoading == false && diff.diff && diff.diff.charsAdded > 0 &&
                     <div className="flex justify-center">
                         <TickButton
+                            size={18}
                             ticked={claimsAuthorship}
                             setTicked={setClaimsAuthorship}
                             text={
