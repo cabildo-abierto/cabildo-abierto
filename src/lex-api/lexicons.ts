@@ -3284,6 +3284,9 @@ export const schemaDict = {
           protection: {
             type: 'string',
           },
+          replyCount: {
+            type: 'integer',
+          },
         },
       },
       topicHistory: {

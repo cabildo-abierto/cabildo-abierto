@@ -1,7 +1,6 @@
 import React from "react";
 import {SidebarContent} from "@/components/layout/sidebar/sidebar-content";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {SidebarMobile} from "@/components/layout/sidebar/sidebar-mobile";
 
 
 export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
@@ -10,19 +9,15 @@ export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
 }) => {
     const {layoutConfig} = useLayoutConfig()
 
-    if(layoutConfig.sidebarKind == "background") {
-        return <div className={"fixed z-[1199] max-w-56 overflow-auto custom-scrollbar h-[calc(100vh-48px)] bg-[var(--background)] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--accent-dark)] overflow-y-scroll custom-scrollbar" : "")}>
-            <SidebarContent
-                onClose={onClose}
-                setWritePanelOpen={setWritePanelOpen}
-            />
-        </div>
-    } else {
-        if(layoutConfig.openSidebar) {
-            return <SidebarMobile setWritePanelOpen={setWritePanelOpen}/>
-        } else {
-            return null
-        }
+    if(layoutConfig.sidebarKind == "floating" && !layoutConfig.openSidebar) {
+        return null
     }
+
+    return <div className={"fixed z-[1199] max-w-56 overflow-auto custom-scrollbar h-[calc(100vh-48px)] bg-[var(--background)] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--accent-dark)] overflow-y-scroll custom-scrollbar" : "")}>
+        <SidebarContent
+            onClose={onClose}
+            setWritePanelOpen={setWritePanelOpen}
+        />
+    </div>
 
 }

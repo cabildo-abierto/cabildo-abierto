@@ -56,6 +56,7 @@ export interface TopicView {
   author?: ArCabildoabiertoActorDefs.ProfileViewBasic
   viewer?: TopicVersionViewerState
   protection?: string
+  replyCount?: number
 }
 
 const hashTopicView = 'topicView'

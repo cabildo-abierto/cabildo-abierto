@@ -5,6 +5,7 @@ import {SidebarDesktop} from "@/components/layout/sidebar/sidebar-desktop";
 import {RightPanel} from "@/components/layout/right-panel";
 import {useSearch} from "@/components/buscar/search-context";
 import {usePathname} from "next/navigation";
+import {pxToNumber} from "@/utils/strings";
 
 export default function DesktopLayout({children, setWritePanelOpen}: {
     children: ReactNode
@@ -46,7 +47,7 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
         <TopbarDesktop/>
 
         <div className="flex justify-between w-full">
-            <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : (layoutConfig.sidebarKind == "background" ? "w-20" : ""))}>
+            <div className={(!layoutConfig.readingLayout ? "flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20") : "")}>
                 <SidebarDesktop
                     onClose={() => {}}
                     setWritePanelOpen={setWritePanelOpen}
@@ -68,8 +69,8 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
             {layoutConfig.spaceForRightSide &&
                 <div
                     ref={rightPanelRef}
-                    className="top-12 flex-shrink-0 sticky no-scrollbar mt-12 overflow-y-auto max-h-[calc(100vh-48px)]"
-                    style={{width: layoutConfig.rightMinWidth}}
+                    className={"top-12 mt-12 flex-shrink-0 no-scrollbar overflow-y-auto max-h-[calc(100vh-48px)] " + (layoutConfig.readingLayout ? "right-0 fixed" : "sticky")}
+                    style={{width: pxToNumber(layoutConfig.rightMinWidth)-20}}
                 >
                     <RightPanel/>
                 </div>

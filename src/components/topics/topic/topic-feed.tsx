@@ -1,38 +1,23 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {CustomLink} from "../../layout/utils/custom-link";
-import {useSearchParams} from "next/navigation";
 import {getDidFromUri, getRkeyFromUri, topicUrl} from "@/utils/uri";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import InfoPanel from "../../layout/utils/info-panel";
 import Link from "next/link"
 import {get} from "@/utils/fetch";
 import Feed from "@/components/feed/feed/feed";
-import {EnDiscusionMetric, EnDiscusionTime, GetFeedOutput, Session, WikiEditorState} from "@/lib/types";
+import {GetFeedOutput, WikiEditorState} from "@/lib/types";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {useMemo, useRef} from "react";
-import {ClickableModalOnClick} from "../../layout/utils/popover";
-import {SlidersHorizontalIcon} from "@phosphor-icons/react";
+import {useMemo} from "react";
 import {useSession} from "@/queries/getters/useSession";
-import {stringToEnum} from "@/utils/strings";
-import {
-    defaultTopicMentionsFormat,
-    defaultTopicMentionsMetric,
-    defaultTopicMentionsTime
-} from "@/components/config/defaults";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-import {configOptionNodes} from "@/components/config/config-option-nodes";
 import {TopicVotesOnFeed} from "@/components/topics/topic/history/topic-votes-on-feed";
 import {useTopicVersion} from "@/queries/getters/useTopic";
 import LoadingSpinner from "@/components/layout/utils/loading-spinner";
 import {useUpdateSearchParams} from "@/components/layout/utils/update-search-params";
-
-type TopicFeedOption = "Menciones" | "Discusión" | "Otros temas"
-
-
-
-
-
+import {useTopicFeedParams} from "@/components/topics/topic/use-topic-feed-params";
+import {TopicFeedConfig, TopicFeedOption} from "./topic-feed-config";
 
 
 

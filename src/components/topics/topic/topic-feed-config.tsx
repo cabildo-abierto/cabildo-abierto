@@ -3,8 +3,9 @@ import InfoPanel from "../../layout/utils/info-panel";
 import {useRef} from "react";
 import {ClickableModalOnClick} from "../../layout/utils/popover";
 import {SlidersHorizontalIcon} from "@phosphor-icons/react";
-import {TopicFeedOption} from "@/components/topics/topic2/topic-page";
 import {TopicMentionsFeedConfig} from "@/components/topics/topic/topic-mentions-feed-config";
+
+export type TopicFeedOption = "Menciones" | "Discusión" | "Otros temas"
 
 export const TopicFeedConfig = ({selected}: { selected: TopicFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)

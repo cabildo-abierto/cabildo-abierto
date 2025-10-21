@@ -436,7 +436,8 @@ td {
 }
 
 .first-heading {
-  font-weight: 400;
+  font-weight: 300;
+  color: var(--text);
   cursor: pointer;
   padding-left: 18px;
 }

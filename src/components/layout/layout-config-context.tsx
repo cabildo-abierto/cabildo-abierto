@@ -16,8 +16,9 @@ export type LayoutConfigProps = {
     centerWidth?: string
     spaceForRightSide?: boolean
     spaceForLeftSide?: boolean
-    sidebarKind: "floating" | "background"
+    readingLayout: boolean
     rightDisappearsFirst?: boolean
+    sidebarKind: "floating" | "background"
 }
 
 
@@ -40,39 +41,43 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
         leftMinWidth: "80px",
-        rightMinWidth: "300px",
+        rightMinWidth: "320px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true,
-        sidebarKind: "background"
+        sidebarKind: "background",
+        readingLayout: false
     }
     const datasetConfig: LayoutConfigProps = {
         maxWidthCenter: "800px",
         leftMinWidth: "80px",
-        rightMinWidth: "300px",
+        rightMinWidth: "320px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true,
-        sidebarKind: "background"
+        sidebarKind: "background",
+        readingLayout: false
     }
     const articleConfig: LayoutConfigProps = {
         maxWidthCenter: "682px",
         leftMinWidth: "80px",
-        rightMinWidth: "300px",
-        openSidebar: currentConfig?.openSidebar ?? false,
-        defaultSidebarState: false,
-        openRightPanel: false,
-        sidebarKind: "floating"
-    }
-    const maximizedTopicConfig: LayoutConfigProps = {
-        maxWidthCenter: "800px",
-        leftMinWidth: "150px",
-        rightMinWidth: "300px",
+        rightMinWidth: "320px",
         openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
         openRightPanel: false,
         sidebarKind: "floating",
-        rightDisappearsFirst: true
+        readingLayout: true
+    }
+    const maximizedTopicConfig: LayoutConfigProps = {
+        maxWidthCenter: "800px",
+        leftMinWidth: "80px",
+        rightMinWidth: "320px",
+        openSidebar: false,
+        defaultSidebarState: false,
+        openRightPanel: false,
+        rightDisappearsFirst: true,
+        sidebarKind: "floating",
+        readingLayout: false
     }
     const mobileConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
@@ -81,7 +86,8 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         defaultSidebarState: false,
         openSidebar: false,
         openRightPanel: false,
-        sidebarKind: "floating"
+        sidebarKind: "floating",
+        readingLayout: false
     }
 
     let config: LayoutConfigProps
@@ -92,7 +98,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
             ...feedConfig,
             maxWidthCenter: "800px"
         }
-    } else if(pathname.startsWith("/tema")) {
+    } else if(pathname.startsWith("/tema") && !pathname.startsWith("/tema/menciones")) {
         config = maximizedTopicConfig
     } else if(pathname.startsWith("/panel")){
         config = maximizedTopicConfig

@@ -1,5 +1,5 @@
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
-import {Dispatch, SetStateAction, useState} from "react";
+import React, {Dispatch, SetStateAction, useState} from "react";
 import {ArticleHeader} from "@/components/thread/article/article-header";
 import {EditorWithQuoteComments, getEditorKey} from "@/components/writing/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/writing/settings";
@@ -10,6 +10,9 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {robotoSerif} from "@/components/writing/article-font";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {smoothScrollTo} from "@/components/layout/utils/scroll";
+import {Button} from "@/components/layout/utils/button";
+import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";
 
 
 type ArticleCompProps = {
@@ -45,6 +48,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                             initialText: text,
                             initialTextFormat: format,
                             allowComments: true,
+                            title: article.title,
                             tableOfContents: layoutConfig.spaceForRightSide,
                             editorClassName: `article-content ${robotoSerif.variable}`,
                             embeds: article.embeds,
@@ -62,7 +66,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
                     />
                 </div>
             </div>
-            <div className={"py-2 px-1 border-b border-[var(--accent-dark)]"}>
+            <div className={"py-2 px-1 border-b border-[var(--accent-dark)]"} id={"discusion"}>
                 <EngagementIcons
                     content={article}
                     className={"flex px-[2px] w-full"}

@@ -70,7 +70,9 @@ function useRightPanelConfig() {
     const pathname = usePathname()
     const isFollowSuggestionsPath = (pathname.startsWith("/inicio")
             || pathname.startsWith("/perfil")
-            || pathname.startsWith("/buscar"))
+            || pathname.startsWith("/buscar")
+            || pathname.startsWith("/tema/menciones")
+        )
         && !pathname.startsWith("/perfil/cuentas-sugeridas")
 
     const isDonatePath = !pathname.startsWith("/aportar")
@@ -107,8 +109,8 @@ export const RightPanel = () => {
     }
 
     if (!layoutConfig.openRightPanel) {
-        return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-7 top-14"}>
-            <div className={"w-[272px]"}>
+        return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-2 top-14"}>
+            <div className={"w-[292px]"}>
                 <SearchResultsOnRightPanel
                     showSearchButton={showSearchButton}
                     handleSubmit={handleSubmit}
@@ -117,8 +119,8 @@ export const RightPanel = () => {
         </div>, document.body)
     }
 
-    return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
-        {searching && !inSearchPage && <div className={"w-[272px]"}>
+    return <div className={"flex flex-col pr-2 space-y-6 pt-2"}>
+        {searching && !inSearchPage && <div className={"w-[292px]"}>
             <SearchResultsOnRightPanel
                 showSearchButton={showSearchButton}
                 handleSubmit={handleSubmit}
@@ -131,11 +133,11 @@ export const RightPanel = () => {
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
 
-        {isTrendingTopicsPath && <div className={"w-[272px]"}>
+        {isTrendingTopicsPath && <div className={"w-[292px]"}>
             <TrendingTopicsPanel/>
         </div>}
 
-        {isFollowSuggestionsPath && user && <div className={"w-[272px]"}>
+        {isFollowSuggestionsPath && user && <div className={"w-[292px]"}>
             <FollowSuggestions/>
         </div>}
 
