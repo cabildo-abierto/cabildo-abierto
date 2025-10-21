@@ -3,10 +3,10 @@ import {addDefaults} from "@/components/topics/topic/topic-props-editor";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
 import Image from "next/image"
-import { ListEditor } from "@/components/layout/utils/list-editor";
+import {ListEditor} from "@/components/layout/utils/list-editor";
 import {CaretDoubleLeftIcon, CaretDoubleRightIcon} from "@phosphor-icons/react";
 import {IconButton} from "@/components/layout/utils/icon-button";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/layout/utils/button";
 
 
@@ -26,7 +26,7 @@ const TopicStringPropViewValue = ({name, value}: { name: string, value: string }
 
 
 const TopicPropView = ({p}: { p: ArCabildoabiertoWikiTopicVersion.TopicProp }) => {
-    if(p.name == "Título" || p.name == "Categorías") return null
+    if (p.name == "Título" || p.name == "Categorías") return null
     return <div className={"flex space-x-3 w-full"}>
         <div className={"w-1/3 text-sm text-[var(--text-light)]"}>
             {p.name}
@@ -53,22 +53,28 @@ function propsStartOpen(props: TopicProp[]) {
     return props.some(p => !["Título", "Categorías", "Sinónimos"].includes(p.name))
 }
 
-export const TopicPropsPanel = ({topic}: {topic: TopicView}) => {
-    const props = addDefaults(topic.props, topic.id)
+export const TopicPropsPanel = ({topic}: { topic: TopicView }) => {
+    const props = useMemo(() => {
+        return addDefaults(topic.props, topic.id)
+    }, [topic])
     const [open, setOpen] = useState(propsStartOpen(props))
 
-    if(!open) {
-        return <div className={"absolute top-16 right-7"}>
-            <Button
-                size={"small"}
-                variant={"outlined"}
-                color={"background-dark"}
-                onClick={() => {if(!open) setOpen(true)}}
-                startIcon={<CaretDoubleLeftIcon/>}
-            >
-                <div className={"uppercase text-sm"}>Ficha</div>
-            </Button>
-        </div>
+    useEffect(() => {
+        setOpen(propsStartOpen(props))
+    }, [topic])
+
+    if (!open) {
+        return <Button
+            size={"small"}
+            variant={"outlined"}
+            color={"background-dark"}
+            onClick={() => {
+                if (!open) setOpen(true)
+            }}
+            startIcon={<CaretDoubleLeftIcon/>}
+        >
+            <div className={"uppercase text-sm"}>Ficha</div>
+        </Button>
     }
 
     function cmp(a: TopicProp, b: TopicProp) {
@@ -80,12 +86,14 @@ export const TopicPropsPanel = ({topic}: {topic: TopicView}) => {
     }
 
     return <div
-        className={"bg-[var(--background-dark)] absolute top-16 right-7 space-y-4 border border-[var(--accent-dark)] z-[200] w-[272px] px-2 pt-2 pb-4"}
+        className={"bg-[var(--background-dark)] space-y-4 border border-[var(--accent-dark)] w-[292px] px-2 pt-2 pb-4"}
     >
         <div className={"font-semibold flex items-center space-x-2"}>
             <IconButton
                 size={"small"}
-                onClick={() => {setOpen(false)}}
+                onClick={() => {
+                    setOpen(false)
+                }}
                 color={"background-dark"}
             >
                 <CaretDoubleRightIcon/>

@@ -1,5 +1,5 @@
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {Dispatch, SetStateAction, useMemo, useState} from "react";
+import React, {Dispatch, SetStateAction, useMemo, useState} from "react";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {useTopicFeedParams} from "@/components/topics/topic/use-topic-feed-params";
 import {useSession} from "@/queries/getters/useSession";
@@ -10,6 +10,7 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api";
 import {TopicVotesOnFeed} from "@/components/topics/topic/history/topic-votes-on-feed";
 import {ReplyButton} from "@/components/thread/reply-button";
 import WritePanel, {ReplyToContent} from "@/components/writing/write-panel/write-panel";
+import {DiscussionButton} from "@/components/topics/topic2/view/discussion-button";
 
 
 export const TopicDiscussion = ({
@@ -55,7 +56,7 @@ export const TopicDiscussion = ({
         ...topic
     }
 
-    return <div className={"flex flex-col items-center"}>
+    return <div className={"flex flex-col items-center"} id={"discusion"}>
         {repliesFeed && <div
             className={"w-full flex justify-end"}
         >
@@ -82,5 +83,6 @@ export const TopicDiscussion = ({
             onClose={() => {setWritingReply(false)}}
             replyTo={replyToContent}
         />}
+        <DiscussionButton replyCount={topic.replyCount}/>
     </div>
 }

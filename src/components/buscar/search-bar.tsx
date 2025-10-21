@@ -22,7 +22,8 @@ const SearchBar = ({
     borderRadius="0",
     borderWidth="1px",
     borderWidthNoFocus="1px",
-    searching
+    searching,
+    allowCloseWithNoText=false
 }: {
     autoFocus?: boolean
     paddingY?: string
@@ -38,9 +39,10 @@ const SearchBar = ({
     borderWidthNoFocus?: string
     placeholder?: string
     size?: TextFieldProps["size"]
+    allowCloseWithNoText?: boolean
 }) => {
 
-    const showCloseButton = searching && searchValue && searchValue.length > 0
+    const showCloseButton = searching && searchValue != null && (allowCloseWithNoText || searchValue.length > 0)
 
     return <TextField
         size={size}

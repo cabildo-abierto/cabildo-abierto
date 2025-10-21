@@ -23,31 +23,57 @@ const HEADING_WIDTH = 30;
 
 function indent(tagName: HeadingTagType) {
     if (tagName === 'h2') {
-        return 'heading2';
+        return 'pl-3';
     } else if (tagName === 'h3') {
-        return 'heading3';
+        return 'pl-6';
     } else if (tagName === 'h4') {
-        return 'heading4'
+        return 'pl-9'
     } else if (tagName === 'h5') {
-        return 'heading5'
+        return 'pl-12'
     } else if (tagName === 'h6') {
-        return 'heading6'
+        return 'pl-15'
     }
 }
 
+
 function TableOfContentsList({
-                                 tableOfContents,
-                                 title,
-                                 marginAboveEditor
-                             }: {
+                                                tableOfContents,
+                                                title,
+                                                marginAboveEditor
+                                            }: {
     tableOfContents: Array<TableOfContentsEntry>
     title?: string
     marginAboveEditor: number
 }) {
+    const {layoutConfig} = useLayoutConfig()
     const [selectedKey, setSelectedKey] = useState('');
     const selectedIndex = useRef(0);
-    const [lastClickedIndex, setLastClickedIndex] = useState(undefined)
-    const [editor] = useLexicalComposerContext();
+    const [editor] = useLexicalComposerContext()
+    const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+    const itemRefs = useRef<{[key: string]: HTMLDivElement | null}>({})
+    const [hovered, setHovered] = useState(false)
+
+    const open = hovered && !layoutConfig.openSidebar
+
+    useEffect(() => {
+        if (selectedKey && scrollContainerRef.current && itemRefs.current[selectedKey]) {
+            const container = scrollContainerRef.current
+            const selectedItem = itemRefs.current[selectedKey]!
+            const containerHeight = container.clientHeight
+            const itemTop = selectedItem.offsetTop
+            const itemHeight = selectedItem.clientHeight
+
+            const newScrollTop = itemTop - (containerHeight / 2) + (itemHeight / 2)
+
+            const maxScrollTop = container.scrollHeight - containerHeight
+            const clampedScrollTop = Math.max(0, Math.min(newScrollTop, maxScrollTop))
+
+            container.scrollTo({
+                top: clampedScrollTop,
+                behavior: 'smooth'
+            })
+        }
+    }, [selectedKey])
 
     function isHeadingAtTheTopOfThePage(element: HTMLElement): boolean {
         const elementYPosition = element?.getClientRects()[0].y;
@@ -77,13 +103,14 @@ function TableOfContentsList({
         });
     }
 
-    function scrollToTop() {
-        smoothScrollTo(0);
-    }
-
 
     useEffect(() => {
         function scrollCallback() {
+            if(window.scrollY == 0) {
+                selectedIndex.current = 0
+                setSelectedKey(null)
+                return
+            }
             if (
                 tableOfContents.length !== 0 &&
                 selectedIndex.current < tableOfContents.length - 1
@@ -138,14 +165,6 @@ function TableOfContentsList({
             } else {
                 selectedIndex.current = 0;
             }
-            if (lastClickedIndex != undefined && lastClickedIndex != selectedIndex) {
-                const heading = editor.getElementByKey(
-                    tableOfContents[lastClickedIndex][0],
-                )
-                if (!isHeadingBelowTheTopOfThePage(heading) && !isHeadingAtTheTopOfThePage(heading)) {
-                    setSelectedKey(tableOfContents[lastClickedIndex][0])
-                }
-            }
         }
 
         let timerId: ReturnType<typeof setTimeout>;
@@ -161,66 +180,51 @@ function TableOfContentsList({
 
         document.addEventListener('scroll', onScroll)
         return () => document.removeEventListener('scroll', onScroll)
-    }, [tableOfContents, editor, lastClickedIndex]);
+    }, [tableOfContents, editor])
 
-    return (
-            <div className="table-of-contents font-light" onWheel={(e) => {
-                e.stopPropagation()
-            }}>
-                <div className={"flex flex-col"}>
-                    <ul className="headings">
-                        <div className="normal-heading-wrapper" key="title">
-                            <div
-                                className="first-heading"
-                                onClick={() => {
-                                    setLastClickedIndex(undefined);
-                                    scrollToTop();
-                                }}
-                                role="button"
-                                tabIndex={0}
-                            >
-                                {('' + title).length > 40
-                                    ? title.substring(0, 40) + '...'
-                                    : title}
-                            </div>
-                            <br/>
+    return <div
+        onMouseEnter={() => {setHovered(true)}}
+        onMouseLeave={() => {setHovered(false)}}
+        className={"fixed top-16 left-2 w-60 flex z-[999] text-sm transition-all duration-300 ease-in-out"}
+    >
+        <div className={"relative w-full"}>
+            <div className={"absolute left-0 top-0 w-[3px] z-0 bg-[var(--accent)] h-[calc(100vh-115px)]"}/>
+            <div className={"absolute left-0 top-0 flex flex-col justify-between font-light z-1 h-[calc(100vh-115px)]"}>
+                <div
+                    ref={scrollContainerRef}
+                    className={"overflow-y-auto no-scrollbar flex flex-col"}
+                    onWheel={(e) => {e.stopPropagation()}}
+                >
+                    <div className={"flex space-x-2"}>
+                        <div className={"w-[3px] " + (selectedIndex.current == 0 && selectedKey == null ? "bg-[var(--text-light)]": "bg-[var(--accent)]")}/>
+
+                        <div className={"cursor-pointer py-[6px] hover:text-[var(--text-light)] transition-opacity " + (open ? "" : "opacity-0")} onClick={() => {smoothScrollTo(0)}}>
+                            {title}
                         </div>
-                        {tableOfContents.map(([key, text, tag], index) => {
-                            return (
-                                <div
-                                    className={`normal-heading-wrapper ${
-                                        selectedKey === key ? 'selected-heading-wrapper' : ''
-                                    }`}
-                                    key={key}
-                                >
-                                    <div
-                                        onClick={() => {
-                                            setLastClickedIndex(index);
-                                            scrollToNode(key, index)
-                                        }}
-                                        role="button"
-                                        className={indent(tag)}
-                                        tabIndex={0}>
-                                        <li
-                                            className={`normal-heading ${
-                                                selectedKey === key ? 'selected-heading' : ''
-                                            }
-                  `}>
-                                            {('' + text).length > 40
-                                                ? text.substring(0, 40) + '...'
-                                                : text}
-                                        </li>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </ul>
-                    {!editor.isEditable() && <div className={"pl-6"}>
-                        Discusión
-                    </div>}
+                    </div>
+                    {tableOfContents.map(([key, text, tag], i) => {
+                        return <div
+                            key={key}
+                            ref={el => { itemRefs.current[key] = el }}
+                            className={"flex space-x-2"}
+                        >
+                            <div className={"w-[3px] " + (selectedKey == key ? "bg-[var(--text-light)]" : "bg-[var(--accent)]")}/>
+                            <div
+                                className={"w-full py-[6px] cursor-pointer text-[var(--text-light)] hover:text-[var(--accent-dark)] transition-opacity " + indent(tag) + (!open ? " opacity-0" : "")}
+                                onClick={() => {
+                                    scrollToNode(key, i)
+                                }}
+                            >
+                                {"" + (text.length > 40
+                                    ? text.substring(0, 40) + '...'
+                                    : text)}
+                            </div>
+                        </div>
+                    })}
                 </div>
             </div>
-    )
+        </div>
+    </div>
 }
 
 
