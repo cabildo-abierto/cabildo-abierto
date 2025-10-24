@@ -21,6 +21,7 @@ const FeedElement = ({
 }) => {
 
     return useMemo(() => {
+        if(!elem) return null
         if (ArCabildoabiertoFeedDefs.isArticleView(elem.content)) {
             return <ArticlePreview
                 articleView={elem.content}

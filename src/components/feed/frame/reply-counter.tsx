@@ -23,7 +23,8 @@ export const ReplyCounter = ({
                                  content,
                                  textClassName,
                                  iconFontSize,
-    iconColor="text"
+                                 iconColor="text",
+    stopPropagation=true
                              }: {
     count: number
     title?: string
@@ -36,6 +37,7 @@ export const ReplyCounter = ({
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
         $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory>
+    stopPropagation?: boolean
 }) => {
     const [writingReply, setWritingReply] = useState<boolean>(false)
     const [shake, setShake] = useState(false)
@@ -44,8 +46,10 @@ export const ReplyCounter = ({
     const {user} = useSession()
 
     const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-        e.stopPropagation()
-        e.preventDefault()
+        if(stopPropagation) {
+            e.stopPropagation()
+            e.preventDefault()
+        }
 
         if (disabled) {
             setShake(true)
@@ -82,7 +86,7 @@ export const ReplyCounter = ({
                         color={`var(--${iconColor})`}
                         fontSize={iconFontSize}
                     />
-                    <div className={textClassName}>{count}</div>
+                    {count > 0 && <div className={textClassName}>{count}</div>}
                 </div>
             </IconButton>
         </div>

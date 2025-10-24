@@ -161,6 +161,7 @@ export interface PostView {
   threadgate?: AppBskyFeedDefs.ThreadgateView
   rootCreationDate?: string
   editedAt?: string
+  voteContext?: VoteContext
 }
 
 const hashPostView = 'postView'
@@ -171,6 +172,39 @@ export function isPostView<V>(v: V) {
 
 export function validatePostView<V>(v: V) {
   return validate<PostView & V>(v, id, hashPostView)
+}
+
+export interface VoteContext {
+  $type?: 'ar.cabildoabierto.feed.defs#voteContext'
+  authorVotingState: 'accept' | 'reject' | 'none' | (string & {})
+  vote?: VoteInContext
+}
+
+const hashVoteContext = 'voteContext'
+
+export function isVoteContext<V>(v: V) {
+  return is$typed(v, id, hashVoteContext)
+}
+
+export function validateVoteContext<V>(v: V) {
+  return validate<VoteContext & V>(v, id, hashVoteContext)
+}
+
+export interface VoteInContext {
+  $type?: 'ar.cabildoabierto.feed.defs#voteInContext'
+  uri: string
+  subject: string
+  subjectCreatedAt: string
+}
+
+const hashVoteInContext = 'voteInContext'
+
+export function isVoteInContext<V>(v: V) {
+  return is$typed(v, id, hashVoteInContext)
+}
+
+export function validateVoteInContext<V>(v: V) {
+  return validate<VoteInContext & V>(v, id, hashVoteInContext)
 }
 
 export interface ArticleView {

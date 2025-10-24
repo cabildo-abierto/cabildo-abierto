@@ -8,14 +8,16 @@ import {useMediaQuery} from "@mui/system";
 
 export type LayoutConfigProps = {
     maxWidthCenter: string
-    leftMinWidth: string
-    rightMinWidth: string
+    widthLeftSide: string
+    widthRightSide: string
     defaultSidebarState: boolean
     openSidebar: boolean
+    widthLeftSideSmall: string,
     openRightPanel: boolean
     centerWidth?: string
     spaceForRightSide?: boolean
     spaceForLeftSide?: boolean
+    spaceForMinimizedLeftSide?: boolean
     readingLayout: boolean
     rightDisappearsFirst?: boolean
     sidebarKind: "floating" | "background"
@@ -33,15 +35,16 @@ export const useLayoutConfig = () => {
     if (!context) {
         throw new Error("useLayout must be used within a LayoutConfigContext");
     }
-    return context;
-};
+    return context
+}
 
 
 function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps, isMobile: boolean = false): LayoutConfigProps {
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
-        leftMinWidth: "80px",
-        rightMinWidth: "320px",
+        widthLeftSide: "220px",
+        widthRightSide: "320px",
+        widthLeftSideSmall: "80px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true,
@@ -50,8 +53,9 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
     const datasetConfig: LayoutConfigProps = {
         maxWidthCenter: "800px",
-        leftMinWidth: "80px",
-        rightMinWidth: "320px",
+        widthLeftSide: "80px",
+        widthRightSide: "320px",
+        widthLeftSideSmall: "80px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true,
@@ -60,8 +64,9 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
     const articleConfig: LayoutConfigProps = {
         maxWidthCenter: "682px",
-        leftMinWidth: "80px",
-        rightMinWidth: "320px",
+        widthLeftSide: "80px",
+        widthRightSide: "320px",
+        widthLeftSideSmall: "80px",
         openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
         openRightPanel: false,
@@ -70,8 +75,9 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
     const maximizedTopicConfig: LayoutConfigProps = {
         maxWidthCenter: "800px",
-        leftMinWidth: "80px",
-        rightMinWidth: "320px",
+        widthLeftSide: "240px",
+        widthRightSide: "300px",
+        widthLeftSideSmall: "80px",
         openSidebar: false,
         defaultSidebarState: false,
         openRightPanel: false,
@@ -81,8 +87,9 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
     const mobileConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
-        leftMinWidth: "0px",
-        rightMinWidth: "0px",
+        widthLeftSide: "0px",
+        widthRightSide: "0px",
+        widthLeftSideSmall: "80px",
         defaultSidebarState: false,
         openSidebar: false,
         openRightPanel: false,
@@ -118,44 +125,49 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         config = feedConfig
     }
 
-    const {spaceForLeftSide, spaceForRightSide, centerWidth} = getSpaceAvailable(config)
+    const {spaceForLeftSide, spaceForRightSide, centerWidth, spaceForMinimizedLeftSide} = getSpaceAvailable(config)
 
     return {
         ...config,
         spaceForLeftSide,
         spaceForRightSide,
-        centerWidth
+        spaceForMinimizedLeftSide,
+        centerWidth,
     }
 }
 
 
 function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
-    const reqWidthLeftSide = 224 +
-        (!curLayoutConfig.rightDisappearsFirst ? pxToNumber(curLayoutConfig.rightMinWidth) : 0) +
-        pxToNumber(curLayoutConfig.maxWidthCenter);
+    const reqWidthLeftSide = pxToNumber(curLayoutConfig.widthLeftSide) +
+        pxToNumber(curLayoutConfig.widthRightSide) +
+        pxToNumber(curLayoutConfig.maxWidthCenter)
 
-    const reqWidthRightSide = 80 + pxToNumber(curLayoutConfig.rightMinWidth) +
-        (curLayoutConfig.rightDisappearsFirst ? pxToNumber(curLayoutConfig.leftMinWidth) : 0) +
-        pxToNumber(curLayoutConfig.maxWidthCenter);
+    const reqWidthMinimizedLeftSideSide = pxToNumber(curLayoutConfig.widthLeftSideSmall) +
+        pxToNumber(curLayoutConfig.maxWidthCenter)
+
+    const reqWidthRightSide = pxToNumber(curLayoutConfig.widthLeftSideSmall) +
+        pxToNumber(curLayoutConfig.widthRightSide) +
+        pxToNumber(curLayoutConfig.maxWidthCenter)
 
     const width = window.innerWidth
 
     const spaceForLeftSide = width >= reqWidthLeftSide
     const spaceForRightSide = width >= reqWidthRightSide
+    const spaceForMinimizedLeftSide = width >= reqWidthMinimizedLeftSideSide
     const centerWidth = Math.min(
         pxToNumber(curLayoutConfig.maxWidthCenter),
-        width - (spaceForRightSide ? pxToNumber(curLayoutConfig.rightMinWidth) : 0) - pxToNumber(curLayoutConfig.leftMinWidth)
+        width - (spaceForRightSide ? pxToNumber(curLayoutConfig.widthRightSide) : (spaceForMinimizedLeftSide ? pxToNumber(curLayoutConfig.widthLeftSideSmall) : 0)) - pxToNumber(curLayoutConfig.widthLeftSide)
     )
 
-    return {spaceForLeftSide, spaceForRightSide, centerWidth: `${centerWidth}px`}
+    return {spaceForLeftSide, spaceForRightSide, centerWidth: `${centerWidth}px`, spaceForMinimizedLeftSide}
 }
 
 
 function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
     return a.maxWidthCenter == b.maxWidthCenter &&
         a.defaultSidebarState == b.defaultSidebarState &&
-        a.leftMinWidth == b.leftMinWidth &&
-        a.rightMinWidth == b.rightMinWidth &&
+        a.widthLeftSide == b.widthLeftSide &&
+        a.widthRightSide == b.widthRightSide &&
         a.spaceForLeftSide == b.spaceForLeftSide &&
         a.spaceForRightSide == b.spaceForRightSide
 }
@@ -164,9 +176,12 @@ function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
 export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const params = useSearchParams()
     const pathname = usePathname()
-    const isMobile = useMediaQuery('(max-width:600px)')
+    const isMobileQuery = useMediaQuery('(max-width:600px)')
 
-    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobile))
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobileQuery))
+
+
+    const isMobile = isMobileQuery || layoutConfig && !layoutConfig.spaceForMinimizedLeftSide
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {

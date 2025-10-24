@@ -10,9 +10,6 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {robotoSerif} from "@/components/writing/article-font";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {smoothScrollTo} from "@/components/layout/utils/scroll";
-import {Button} from "@/components/layout/utils/button";
-import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";
 
 
 type ArticleCompProps = {

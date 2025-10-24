@@ -1,4 +1,4 @@
-import { TopicPage } from "@/components/topics/topic2/topic-page"
+import { TopicPage } from "@/components/topics/topic/topic-page"
 import {Metadata} from "next";
 import {createMetadata, mainMetadata} from "@/utils/metadata";
 import {get} from "@/utils/fetch";

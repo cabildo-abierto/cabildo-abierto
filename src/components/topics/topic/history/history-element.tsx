@@ -6,30 +6,17 @@ import React from "react"
 import {ChangesCounter} from "../changes-counter"
 import {ProfilePic} from "../../../profile/profile-pic";
 import {getCollectionFromUri, splitUri, topicUrl} from "@/utils/uri";
-import StarIcon from '@mui/icons-material/Star';
-import {VoteEditButtons} from "@/components/topics/topic/history/vote-edit-buttons";
+import {VoteEditButtons} from "@/components/topics/topic/votes/vote-edit-buttons";
 import {Authorship} from "@/components/feed/frame/authorship";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import DescriptionOnHover from "../../../layout/utils/description-on-hover";
-import {TopicPropsInHistory} from "@/components/topics/topic/history/topic-props-in-history";
+import {TopicPropsInHistory} from "@/components/topics/topic/props/topic-props-in-history";
 import {ReplyCounter} from "@/components/feed/frame/reply-counter";
+import { darker } from "@/components/layout/utils/button";
+import {StarIcon, XIcon} from "@phosphor-icons/react";
 
 
-const EditDetails = ({topicHistory, index}: {
-    topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory,
-    index: number
-}) => {
-    const v = topicHistory.versions[index]
-
-    return <ChangesCounter
-        charsAdded={v.addedChars ?? 0}
-        charsDeleted={v.removedChars ?? 0}
-        uri={v.uri}
-        prevUri={v.prevAccepted}
-        history={topicHistory}
-    />
-}
 
 
 const EditMessage = ({msg}: { msg?: string }) => {
@@ -48,12 +35,12 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
 }) => {
     const router = useRouter()
     const topicVersion = topicHistory.versions[index]
-    const isCurrent = topic.currentVersion == topicVersion.uri
+    const isCurrent = topic.currentVersion == topicVersion.uri && topicVersion.status.accepted
     const isInView = topicVersion.uri == topic.uri
 
     const claimsAuthorship = topicVersion.addedChars > 0 && topicVersion.claimsAuthorship
 
-    let className = "w-full py-1 px-4 flex items-center  "
+    let className = "w-full py-1 px-2 flex items-center  "
 
     className = className + " cursor-pointer"
 
@@ -72,13 +59,27 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
                     <div className="flex space-x-1">
-                        {isCurrent && <div
-                            title="Último contenido aceptado"
-                            className={"flex text-[var(--accent-dark)]"}
+                        {isCurrent && <DescriptionOnHover
+                            description="Último contenido aceptado"
                         >
-                            <StarIcon color="inherit" fontSize={"inherit"}/>
-                        </div>}
-                        <EditDetails topicHistory={topicHistory} index={index}/>
+                            <StarIcon color="var(--text-light)" weight="fill"/>
+                        </DescriptionOnHover>}
+                        {!topicVersion.status.accepted && <DescriptionOnHover
+                            description="Versión rechazada"
+                        >
+                            <XIcon
+                                color={"var(--red-dark2)"}
+                                weight="fill"
+                            />
+                        </DescriptionOnHover>}
+                        <ChangesCounter
+                            charsAdded={topicVersion.addedChars ?? 0}
+                            charsDeleted={topicVersion.removedChars ?? 0}
+                            uri={topicVersion.uri}
+                            prevUri={topicVersion.prevAccepted}
+                            history={topicHistory}
+                            backgroundColor={isCurrent ? "background-dark2" : "background-dark"}
+                        />
                         {obsolete && <div className={"text-red-400 pl-2"}>
                             Formato obsoleto
                         </div>}
@@ -97,7 +98,7 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
                             hace <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
                         <ContentOptionsButton
-                            iconHoverColor={"background-dark2"}
+                            iconHoverColor={"background-dark3"}
                             record={{...topicVersion, $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory"}}
                         />
                     </div>
@@ -124,14 +125,22 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <ReplyCounter
-                            hoverColor={"background-dark2"}
-                            count={topicVersion.replyCount}
-                            iconFontSize={18}
-                            iconColor={"text-light"}
-                            content={{...topicVersion, $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory"}}
-                            textClassName={"text-sm text-[var(--text-light)] font-light"}
-                        />
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                router.push(topicUrl(topic.id, splitUri(topicHistory.versions[index].uri), "normal")+"#discusion")
+                                if(onClose) onClose()
+                        }}>
+                            <ReplyCounter
+                                hoverColor={isInView ? "background-dark3" : "background-dark2"}
+                                count={topicVersion.replyCount}
+                                iconFontSize={18}
+                                iconColor={"text-light"}
+                                content={{...topicVersion, $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory"}}
+                                textClassName={"text-sm text-[var(--text-light)] font-light"}
+                                stopPropagation={false}
+                            />
+                        </div>
                         {claimsAuthorship &&
                             <DescriptionOnHover description={"El usuario es autor del contenido agregado."}>
                                 <span className={"text-[var(--text-light)] text-xl"}>
@@ -140,7 +149,7 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
                             </DescriptionOnHover>
                         }
                         <VoteEditButtons
-                            backgroundColor={isCurrent ? "background-dark" : "background"}
+                            backgroundColor={darker("background", (isCurrent ? 1 : 0) + (isInView ? 1 : 0))}
                             topicId={topic.id}
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
                             acceptCount={getAcceptCount(topicVersion.status)}

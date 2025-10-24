@@ -80,9 +80,10 @@ function ProfileHeader({
     const [editingProfile, setEditingProfile] = useState(false)
     const {isMobile} = useLayoutConfig()
     const {user} = useSession()
+    if(!profile) return null
     const inCA = profile && profile.caProfile != null
-
     const isOwner = user && profile.handle == user.handle
+
 
     return <div className="flex flex-col border-b border-[var(--accent-dark)] mt-2">
         <div className={"flex flex-col relative w-full"}>

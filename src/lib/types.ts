@@ -128,6 +128,5 @@ export type GetFeedOutput<T> = {
 }
 
 
-export type WikiEditorState = "changes" | "authors" | "normal" |
-    "editing" | "editing-props" | "history" | "minimized" | "props"
+export type WikiEditorState = "editing" | "normal"
 export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir" | "Artículos"

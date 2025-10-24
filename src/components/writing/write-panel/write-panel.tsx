@@ -29,7 +29,7 @@ import {
 } from "@/utils/uri";
 import {usePathname, useRouter} from "next/navigation";
 import {InfiniteFeed} from "@/components/feed/feed/types";
-
+import {ComAtprotoRepoStrongRef} from "@atproto/api"
 
 function searchInThreadQuery(thread: $Typed<ThreadViewContent>, cond: (uri: string) => boolean) {
     if(!thread) return false
@@ -96,7 +96,8 @@ function invalidateQueriesAfterPostCreationSuccess(
     if (replyTo) {
         if(ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)){
             queriesToInvalidate.push(["topic-quote-replies", getDidFromUri(replyTo.uri), getRkeyFromUri(replyTo.uri)])
-            queriesToInvalidate.push(["topic-feed", replyTo.id, "replies"])
+            queriesToInvalidate.push(["topic-discussion", replyTo.uri])
+            queriesToInvalidate.push(["topic-history", replyTo.id])
         }
 
         function parentUpdater(content: ArCabildoabiertoFeedDefs.FeedViewContent["content"]) {
@@ -126,7 +127,7 @@ function invalidateQueriesAfterPostCreationSuccess(
 export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
     $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
     $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView>
+    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView> | $Typed<ComAtprotoRepoStrongRef.Main>
 
 
 type WritePanelProps = {

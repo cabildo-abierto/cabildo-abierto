@@ -17,7 +17,7 @@ export const ReplyButton = ({
     fullWidth?: boolean
     variant?: "text" | "outlined" | "contained"
     color?: Color
-    size?: "small"
+    size?: "small" | "medium" | "large"
     borderLeftAndRight?: number
 }) => {
     return <Button

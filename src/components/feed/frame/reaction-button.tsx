@@ -5,7 +5,7 @@ import {IconButton} from "../../layout/utils/icon-button";
 
 type ReactionButtonProps = {
     onClick: () => void
-    count: ReactNode
+    count: number
     iconActive: ReactNode
     iconInactive?: ReactNode
     active?: boolean
@@ -14,6 +14,7 @@ type ReactionButtonProps = {
     stopPropagation?: boolean
     hoverColor?: Color
     textClassName?: string
+    hideZero?: boolean
 }
 
 export const ReactionButton = ({
@@ -27,6 +28,7 @@ export const ReactionButton = ({
                                    hoverColor,
                                    stopPropagation = true,
                                    textClassName,
+                                   hideZero=false
                                }: ReactionButtonProps) => {
     const [shake, setShake] = useState(false);
 
@@ -57,9 +59,9 @@ export const ReactionButton = ({
             >
                 <div className="flex items-start space-x-1 text-[var(--text-light)]">
                     {active ? <div>{iconActive}</div> : <div>{iconInactive}</div>}
-                    <div className={textClassName}>
+                    {(count > 0 || !hideZero) && <div className={textClassName}>
                         {count}
-                    </div>
+                    </div>}
                 </div>
             </IconButton>
         </div>

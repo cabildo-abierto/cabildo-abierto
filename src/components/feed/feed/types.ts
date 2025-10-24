@@ -13,6 +13,8 @@ export interface FeedPage<T> {
 
 export type FeedProps<T> = {
     startContent?: ReactNode
+    isLoadingStartContent?: boolean
+    loadingStartContent?: ReactNode
     loadWhenRemaining?: number
     noResultsText: ReactNode
     endText: ReactNode

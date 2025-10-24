@@ -1,11 +1,10 @@
 import {useState} from "react"
 import {IconButton} from "@/components/layout/utils/icon-button"
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
 import {Button, darker} from "./button";
 import {Color} from "./color";
+import {CheckIcon, PlusIcon, XIcon} from "@phosphor-icons/react";
 
 const NewItem = ({
                      addItem,
@@ -52,24 +51,35 @@ const NewItem = ({
                     setWritingItem(false)
                 }}
                 disabled={value.length == 0}
+                sx={{borderRadius: 0}}
             >
-                <CheckIcon fontSize="small"/>
+                <CheckIcon fontSize={16}/>
             </IconButton>
-            <IconButton size="small" color={color} onClick={() => {
-                setValue("");
-                setWritingItem(false)
-            }}>
-                <CloseIcon fontSize="small"/>
+            <IconButton
+                size="small"
+                color={color}
+                sx={{borderRadius: 0}}
+                onClick={() => {
+                    setValue("");
+                    setWritingItem(false)
+                }}
+            >
+                <XIcon fontSize={16}/>
             </IconButton>
         </div>
     }
 
     if (currentItems.length > 0) {
-        return <IconButton size="small" color={color} onClick={() => {
-            setWritingItem(true);
-            setValue("")
-        }}>
-            <AddIcon fontSize={"small"}/>
+        return <IconButton
+            sx={{borderRadius: 0}}
+            size="small"
+            color={color}
+            onClick={() => {
+                setWritingItem(true);
+                setValue("")
+            }}
+        >
+            <PlusIcon fontSize={14}/>
         </IconButton>
     } else {
         if (newItemText != null) {
@@ -110,14 +120,17 @@ export const ListEditorItem = ({item, removeItem, color}: {
         size={"small"}
         variant={"outlined"}
         color={darker(color)}
+        hoverColor={darker(color)}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         onClick={removeItem}
     >
-        <div className={"text-xs"}>
-            {item}
+        <div className={"flex justify-between"}>
+            <div className={"text-xs"}>
+                {item}
+            </div>
+            {hovering && removeItem != null ? <XIcon fontSize={14}/> : null}
         </div>
-        {hovering && removeItem != null ? <CloseIcon fontSize={"small"}/> : null}
     </Button>
 }
 

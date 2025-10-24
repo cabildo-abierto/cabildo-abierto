@@ -4,14 +4,12 @@ import {useSearch} from "@/components/buscar/search-context";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 import {MagnifyingGlassIcon} from "@phosphor-icons/react";
 import {IconButton} from "@/components/layout/utils/icon-button";
-import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 export const SearchPanelOnRightColumn = () => {
     const pathname = usePathname()
     const {searchState, setSearchState} = useSearch(`${pathname}::main`)
     const router = useRouter()
-    const {layoutConfig} = useLayoutConfig()
 
     const handleSubmit = () => {
         if (searchState.value.length > 0) {
@@ -19,7 +17,7 @@ export const SearchPanelOnRightColumn = () => {
         }
     }
 
-    const minimize = layoutConfig.sidebarKind == "floating"
+    const minimize = false; //layoutConfig.sidebarKind == "floating"
 
     if(!searchState.searching && minimize) {
         return <div className={"w-full flex justify-end pr-2"}>
