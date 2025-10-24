@@ -11,6 +11,7 @@ import {TopbarConversation} from "@/components/mensajes/topbar-conversation";
 import {useTopbarTitle} from "@/components/layout/topbar-title";
 import {InfoPanelUserSuggestions} from "@/components/profile/info-panel-user-suggestions";
 import {TopicTopbarRight} from "@/components/topics/topic/topic-topbar-right";
+import {TopbarTopicFeed} from "@/components/topics/mentions-feed/topbar-topic-feed";
 
 
 export default function TopbarMobile() {
@@ -22,6 +23,9 @@ export default function TopbarMobile() {
         .some(p => pathname.startsWith(`/${p}`))
     const defaultBackHref = ""
     const openSidebarButton = !backButton
+
+    const isTopicFeed = pathname.startsWith("/tema/menciones")
+    const showTitle = !isTopicFeed
 
     return <div
         style={{height}}
@@ -36,8 +40,12 @@ export default function TopbarMobile() {
                 />}
                 {openSidebarButton && !pathname.startsWith("/inicio") && !pathname.startsWith("/buscar") && !pathname.startsWith("/temas") && <OpenSidebarButton/>}
 
-                {title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes") && <div className={titleClassName ?? " font-bold uppercase"}>
+                {showTitle && title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes") && <div className={titleClassName ?? " font-bold uppercase"}>
                     {title}
+                </div>}
+
+                {isTopicFeed && <div className={"max-w-[calc(100vw-175px)]"}>
+                    <TopbarTopicFeed/>
                 </div>}
 
                 {(pathname.startsWith("/inicio") || pathname.startsWith("/buscar") || pathname.startsWith("/temas")) && <div className={"flex justify-between items-center w-full"}>

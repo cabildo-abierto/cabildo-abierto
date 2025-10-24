@@ -28,7 +28,7 @@ export const TopicTopbarRight = () => {
                 color={"transparent"}
                 onClick={() => {router.push(`/tema?i=${topicId}`)}}
             >
-                <span className={""}>Ir al tema</span>
+                <span className={"w-20"}>Ir al tema</span>
             </Button>
         </div>}
     </div>
