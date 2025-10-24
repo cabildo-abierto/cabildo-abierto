@@ -15,7 +15,7 @@ import {TopbarTopicFeed} from "@/components/topics/mentions-feed/topbar-topic-fe
 import ThreeColumnsLayout from "@/components/layout/three-columns-layout";
 
 
-const MobileTopbarCenter = () => {
+const TopbarCenter = () => {
     const {defaultURL} = useDefaultBackURL()
     const {title, className: titleClassName} = useTopbarTitle()
     const pathname = usePathname()
@@ -28,7 +28,7 @@ const MobileTopbarCenter = () => {
 
     const showTitle = !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && !pathname.startsWith("/tema/menciones")
 
-    return <div className={"h-12 flex justify-between items-center"}>
+    return <div className={"h-12 flex justify-between space-x-2 items-center"}>
         {title && showTitle && <div className={"font-bold uppercase flex space-x-2 items-center"}>
             {backButton && <BackButton
                 behavior={"ca-back"}
@@ -65,7 +65,9 @@ const MobileTopbarCenter = () => {
         {pathname.startsWith("/tema/menciones") && <TopbarTopicFeed/>}
 
         {pathname.startsWith("/tema") && !pathname.startsWith("/temas") &&
-            <div className={"pr-2"}><TopicTopbarRight/></div>}
+            <div className={"pr-2"}>
+                <TopicTopbarRight/>
+            </div>}
     </div>
 }
 
@@ -87,7 +89,7 @@ export default function TopbarDesktop() {
             leftPanel={leftPanel}
             rightPanel={rightPanel}
         >
-            <MobileTopbarCenter/>
+            <TopbarCenter/>
         </ThreeColumnsLayout>
     </div>
 }

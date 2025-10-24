@@ -37,7 +37,7 @@ export const SidebarMobile = ({
             },
         }}
     >
-        <div className={"bg-[var(--background)] h-screen w-[calc(min(80vw, 360px))] custom-scrollbar overflow-y-auto"}>
+        <div className={"bg-[var(--background)] h-screen w-[360px] max-w-[80vw] custom-scrollbar overflow-y-auto"}>
             <SidebarContent
                 onClose={() => {}}
                 setWritePanelOpen={setWritePanelOpen}
