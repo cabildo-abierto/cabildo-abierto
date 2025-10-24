@@ -117,6 +117,7 @@ export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textCla
                 iconInactive={<RepostIcon color="text" fontSize={iconFontSize}/>}
                 hoverColor={hoverColor}
                 disabled={disabled}
+                hideZero={true}
                 count={showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)}
             />
         </ModalOnClick>

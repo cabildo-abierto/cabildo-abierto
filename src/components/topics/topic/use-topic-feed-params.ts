@@ -6,7 +6,7 @@ import {
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime
 } from "@/components/config/defaults";
-import {TopicFeedOption} from "@/components/topics/topic/topic-feed-config";
+import {TopicFeedOption} from "@/components/topics/topic/feed/topic-feed-config";
 
 
 const enDiscusionMetricOptions: EnDiscusionMetric[] = ["Me gustas", "Interacciones", "Popularidad relativa", "Recientes"]

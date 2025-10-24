@@ -185,7 +185,7 @@ function TableOfContentsList({
     return <div
         onMouseEnter={() => {setHovered(true)}}
         onMouseLeave={() => {setHovered(false)}}
-        className={"fixed top-16 left-2 w-60 flex z-[999] text-sm transition-all duration-300 ease-in-out"}
+        className={"fixed top-16 left-2 w-56 flex z-[999] text-sm transition-all duration-300 ease-in-out"}
     >
         <div className={"relative w-full"}>
             <div className={"absolute left-0 top-0 w-[3px] z-0 bg-[var(--accent)] h-[calc(100vh-115px)]"}/>

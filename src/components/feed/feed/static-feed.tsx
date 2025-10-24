@@ -21,7 +21,10 @@ function StaticFeed<T>({
             {initialContents.map((c, i) => {
                 const key = getFeedElementKey(c)
                 return <div className={"w-full"} key={key+":"+i}>
-                    <FeedElement content={c} index={i}/>
+                    <FeedElement
+                        content={c}
+                        index={i}
+                    />
                 </div>
             })}
             {initialContents && (endText || noResultsText) && <div className={"text-sm font-light text-center py-16 text-[var(--text-light)]"}>

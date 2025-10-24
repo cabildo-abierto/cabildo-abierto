@@ -58,5 +58,6 @@ export const LikeCounter = ({content, showBsky, hoverColor, iconFontSize, textCl
         disabled={disabled}
         count={count}
         textClassName={textClassName}
+        hideZero={true}
     />
 }

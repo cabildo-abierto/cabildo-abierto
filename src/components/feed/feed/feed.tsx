@@ -4,6 +4,7 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {FeedProps} from "@/components/feed/feed/types";
 import {useFeed, useFetchNextPage} from "./use-feed";
 import {LoadingFeed} from "@/components/feed/feed/loading-feed";
+import {FeedEndText} from "@/components/feed/feed/feed-end-text";
 
 
 
@@ -18,7 +19,9 @@ function Feed<T>({
                              enabled=true,
                              estimateSize=500,
                              overscan=4,
-                             startContent
+                             startContent,
+    isLoadingStartContent,
+    loadingStartContent
                          }: FeedProps<T>) {
     const {data: feed, fetchNextPage, loading, hasNextPage, isFetchingNextPage, feedList} = useFeed(
         getFeed, queryKey, enabled, getFeedElementKey,)
@@ -27,7 +30,7 @@ function Feed<T>({
 
     const virtualizer = useWindowVirtualizer({
         count,
-        estimateSize: () => estimateSize,
+        estimateSize: (i) => estimateSize,
         overscan
     })
 
@@ -64,17 +67,16 @@ function Feed<T>({
                         data-index={c.index}
                         ref={virtualizer.measureElement}
                     >
-                        {!isEnd && !isStart ?
-                            <FeedElement content={feedList[feedListIndex]} index={feedListIndex}/> :
-                            isEnd ? <div>
-                                {loading &&
-                                    <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
-                                }
-                                {feed && !hasNextPage && (endText || noResultsText) && <div className={"text-center font-light py-16 text-[var(--text-light)] text-sm"}>
-                                    {!hasNextPage && feedList.length > 0 && endText}
-                                    {!hasNextPage && feedList.length == 0 && noResultsText}
-                                </div>}
-                            </div> : startContent}
+                        {isStart && (isLoadingStartContent ? loadingStartContent : startContent)}
+                        {!isStart && !isLoadingStartContent && (!isEnd ?
+                        <FeedElement content={feedList[feedListIndex]} index={feedListIndex}/> :
+                        <div>
+                            {loading &&
+                                <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
+                            }
+                            {feed && !hasNextPage && (endText || noResultsText) && !hasNextPage &&
+                                <FeedEndText text={feedList.length > 0 ? endText : noResultsText}/>}
+                        </div>)}
                     </div>
 
                 })}

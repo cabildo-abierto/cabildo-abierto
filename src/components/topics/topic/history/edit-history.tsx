@@ -1,14 +1,9 @@
-import {useSearchParams} from "next/navigation"
-import React, {useMemo, useState} from "react"
+import React, {useMemo} from "react"
 import {ProfilePic} from "../../../profile/profile-pic";
-import {getUri} from "@/utils/uri";
 import {useTopicHistory} from "@/queries/getters/useTopic";
 import LoadingSpinner from "../../../layout/utils/loading-spinner";
 import {ErrorPage} from "../../../layout/utils/error-page";
-import {IconButton} from "../../../layout/utils/icon-button";
 import {TopicContributor} from "@/lib/types";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 import {HistoryElement} from "@/components/topics/topic/history/history-element";
 
@@ -92,8 +87,13 @@ export const EditHistory = ({topic, className, onClose}: {
     }
 
     return <>
-        <div className={"flex justify-end py-1 px-1"}>
-            <TopicVersionAuthors topicVersionAuthors={contributors}/>
+        <div className={"p-1"}>
+            <div className={"flex justify-end"}>
+                <TopicVersionAuthors topicVersionAuthors={contributors}/>
+            </div>
+            <div className={"flex justify-end text-sm font-light text-[var(--text-light)] pr-1"}>
+                {topicHistory.versions.length} {topicHistory.versions.length != 1 ? "versiones" : "versión"}.
+            </div>
         </div>
         <div className={"space-y-1 px-1 " + className}>
             {topicHistory.versions.map((_, index) => {

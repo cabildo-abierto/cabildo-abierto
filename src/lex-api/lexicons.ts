@@ -2696,6 +2696,44 @@ export const schemaDict = {
             type: 'string',
             format: 'datetime',
           },
+          voteContext: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#voteContext',
+            description:
+              'Si el usuario votó a favor o encontra de esta versión y si es una justificación de voto',
+          },
+        },
+      },
+      voteContext: {
+        type: 'object',
+        required: ['authorVotingState'],
+        properties: {
+          authorVotingState: {
+            type: 'string',
+            knownValues: ['accept', 'reject', 'none'],
+          },
+          vote: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#voteInContext',
+          },
+        },
+      },
+      voteInContext: {
+        type: 'object',
+        required: ['uri', 'subject', 'subjectCreatedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          subject: {
+            type: 'string',
+            format: 'uri',
+          },
+          subjectCreatedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
         },
       },
       articleView: {

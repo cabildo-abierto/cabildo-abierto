@@ -1,7 +1,7 @@
-import {useTopicPageParams} from "@/components/topics/topic/topic-page";
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import {BackButton} from "@/components/layout/utils/back-button";
+import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
 
 
 export const TopbarTopicFeed = () => {

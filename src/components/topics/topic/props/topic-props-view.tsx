@@ -1,5 +1,5 @@
 import {ListEditor} from "../../../layout/utils/list-editor";
-import {addDefaults} from "@/components/topics/topic/topic-props-editor";
+import {addDefaults} from "@/components/topics/topic/props/topic-prop-editor";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import Image from "next/image"

@@ -24,7 +24,7 @@ export const PreventLeavePopup = ({navGuard}: {
                     Volver a editar
                 </Button>
                 <Button variant={"outlined"} size={"small"} color={"red-dark"} onClick={navGuard.accept}>
-                    <span className={"text-[var(--white-text)]"}>Salir igualmente</span>
+                    Salir igualmente
                 </Button>
             </div>
         </div>

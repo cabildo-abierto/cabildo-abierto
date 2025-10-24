@@ -1,4 +1,3 @@
-import {useTopicPageParams} from "@/components/topics/topic/topic-page";
 import {get} from "@/utils/fetch";
 import {GetFeedOutput} from "@/lib/types";
 import {useMemo} from "react";
@@ -6,6 +5,7 @@ import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api";
 import {useTopicFeedParams} from "@/components/topics/topic/use-topic-feed-params";
 import {useSession} from "@/queries/getters/useSession";
+import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
 
 
 export const MentionsFeedPage = () => {

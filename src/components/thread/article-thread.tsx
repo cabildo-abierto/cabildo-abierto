@@ -7,8 +7,7 @@ import ThreadReplies from "./thread-replies";
 import Article from "./article/article";
 import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
-import {smoothScrollTo} from "@/components/layout/utils/scroll";
-import {DiscussionButton} from "@/components/topics/topic2/view/discussion-button";
+import {DiscussionButton} from "@/components/topics/topic/view/discussion-button";
 
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"), {
