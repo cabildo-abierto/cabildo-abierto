@@ -7,6 +7,7 @@ import ThreadReplies from "./thread-replies";
 import Article from "./article/article";
 import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
+import {DiscussionButton} from "@/components/topics/topic/view/discussion-button";
 
 
 const WritePanel = dynamic(() => import("@/components/writing/write-panel/write-panel"), {
@@ -73,6 +74,8 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
                 <LoadingSpinner/>
             </div>}
         </div>
+
+        <DiscussionButton replyCount={thread.replies?.length ?? 0}/>
 
         {openReplyPanel && user && <WritePanel
             replyTo={thread.content}

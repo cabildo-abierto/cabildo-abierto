@@ -5,18 +5,13 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
 import {CreatePostProps, WritePost} from "./write-post";
-import {$Typed} from "@/lex-api/util";
 import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
 import {Button} from "../../layout/utils/button";
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 
-
-export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
-    $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
-    $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView>
 
 type WritePanelProps = {
     replyTo?: ReplyToContent

@@ -9,13 +9,26 @@ import {FeedProps} from "@/components/feed/feed/types";
 
 
 type FeedViewContentFeedProps =
-    Omit<FeedProps<ArCabildoabiertoFeedDefs.FeedViewContent>, "initialContents" | "FeedElement" | "LoadingFeedContent" | "getFeed" | "getFeedElementKey">
+    Omit<FeedProps<ArCabildoabiertoFeedDefs.FeedViewContent>, "queryKey" | "initialContents" | "FeedElement" | "LoadingFeedContent" | "getFeed" | "getFeedElementKey">
     & {
     initialContents?: ArCabildoabiertoFeedDefs.FeedViewContent[]
     onClickQuote?: (cid: string) => void
-    queryKey: string[]
+    queryKey?: string[]
     getFeed?: GetFeedProps<ArCabildoabiertoFeedDefs.FeedViewContent>
     pageRootUri?: string
+}
+
+export const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) => {
+    if(!e) return null
+    if (ArCabildoabiertoFeedDefs.isPostView(e.content) ||
+        ArCabildoabiertoFeedDefs.isArticleView(e.content)
+    ) {
+        return e.content.uri
+    } else if(ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
+        return e.content.id
+    } else {
+        return null
+    }
 }
 
 const FeedViewContentFeed = ({
@@ -26,19 +39,6 @@ const FeedViewContentFeed = ({
                                  pageRootUri,
                                  ...props
                              }: FeedViewContentFeedProps) => {
-
-    const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) => {
-        if (ArCabildoabiertoFeedDefs.isPostView(e.content) ||
-            ArCabildoabiertoFeedDefs.isArticleView(e.content)
-        ) {
-            return e.content.uri
-        } else if(ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
-            return e.content.id
-        } else {
-            return null
-        }
-    }
-
     if (initialContents) {
         return <StaticFeed
             initialContents={initialContents}

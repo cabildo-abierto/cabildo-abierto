@@ -1,6 +1,6 @@
 import {localeDate} from "../../layout/utils/date";
 import {ReadingTime} from "@/components/thread/article/reading-time";
-import {getAllText} from "@/components/topics/topic/diff";
+import {getAllText} from "@/components/topics/topic/history/get-all-text";
 import {getUsername} from "@/utils/utils";
 import {useSession} from "@/queries/getters/useSession";
 import {EditorState} from "lexical";

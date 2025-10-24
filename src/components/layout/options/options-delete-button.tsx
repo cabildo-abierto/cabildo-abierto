@@ -1,6 +1,7 @@
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import {post} from "@/utils/fetch";
 import {
+    getCollectionFromUri,
     isArticle,
     isDataset,
     isPost,
@@ -9,17 +10,17 @@ import {
 } from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
-    contentQueriesFilter,
+    contentQueriesFilter, invalidateQueries,
     updateContentInQueries,
     updateDatasets,
     updateTopicHistories
 } from "@/queries/mutations/updates";
 import {useState} from "react";
-import {BaseFullscreenPopup} from "../utils/base-fullscreen-popup";
-import { Button } from "../utils/button";
-import StateButton from "../utils/state-button";
 import { TrashIcon } from "@phosphor-icons/react";
 import {useSession} from "@/queries/getters/useSession";
+import {ConfirmModal} from "@/components/layout/confirm-modal";
+import {useErrors} from "@/components/layout/error-context";
+import {AppBskyFeedPost} from "@atproto/api";
 
 
 
@@ -135,18 +136,48 @@ function getCollectionWithArticle(collection: string){
 }
 
 
-function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient) {
-    //const queries = queriesWithContent(qc, uri)
-    //invalidateQueries(qc, queries)
+function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient, reply?: AppBskyFeedPost.ReplyRef) {
+    const queriesToInvalidate: string[][] = []
+    if(reply) {
+        const parentCollection = getCollectionFromUri(reply.parent.uri)
+        const rootCollection = getCollectionFromUri(reply.root.uri)
+
+        if(isTopicVersion(rootCollection)){
+            const tvUri = reply.root.uri
+            const {did, rkey} = splitUri(tvUri)
+
+            queriesToInvalidate.push(["topic"])
+            queriesToInvalidate.push(["topic-history"])
+            queriesToInvalidate.push(["topic", did, rkey])
+            queriesToInvalidate.push(["topic-version", did, rkey])
+            queriesToInvalidate.push(["votes", tvUri])
+            queriesToInvalidate.push(["topic-discussion", tvUri])
+        }
+
+        if(isArticle(parentCollection) || isPost(parentCollection)){
+            queriesToInvalidate.push(["thread", reply.parent.uri])
+        }
+    }
+
+    invalidateQueries(qc, queriesToInvalidate)
 }
 
 
-const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
+const OptionsDeleteButton = ({
+                                 uri,
+                                 onClose,
+    reply
+}: {
+    uri: string
+    onClose: () => void
+    reply?: AppBskyFeedPost.ReplyRef
+}) => {
     const qc = useQueryClient()
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const {user} = useSession()
     const {did: authorDid, collection, rkey} = splitUri(uri)
     const isAuthor = user && user.did == authorDid
+    const {addError} = useErrors()
 
     const deleteMutation = useMutation({
         mutationFn: deleteRecord,
@@ -164,7 +195,10 @@ const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void})
             if(res.error){
                 console.error(res.error)
             }
-            invalidateQueriesAfterDeleteSuccess(uri, qc)
+            invalidateQueriesAfterDeleteSuccess(uri, qc, reply)
+        },
+        onError: () => {
+            addError("Algo salió mal")
         }
     })
 
@@ -184,36 +218,17 @@ const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void})
             handleClick={onClickDelete}
             disabled={isOptimistic}
         />
-        <BaseFullscreenPopup open={deleteModalOpen} closeButton={true} onClose={() => {setDeleteModalOpen(false)}}>
-            <div className={"px-8 pb-4 space-y-4"}>
-                <h3 className={"normal-case"}>
-                    ¿Querés borrar {getCollectionWithArticle(collection)}?
-                </h3>
-                <div className={"font-light text-[var(--text-light)] max-w-[300px]"}>
-                    {getDeleteContentMessage(collection)}
-                </div>
-                <div className={"flex justify-end space-x-2 mr-2"}>
-                    <Button
-                        size={"small"}
-                        onClick={() => {setDeleteModalOpen(false)}}
-                    >
-                        <span className={""}>
-                            Cancelar
-                        </span>
-                    </Button>
-                    <StateButton
-                        handleClick={async (e) => {
-                            deleteMutation.mutate({uri})
-                            return {}
-                        }}
-                        size={"small"}
-                        color={"red-dark"}
-                        text1={"Borrar"}
-                        textClassName={"text-[var(--white-text)]"}
-                    />
-                </div>
-            </div>
-        </BaseFullscreenPopup>
+        <ConfirmModal
+            title={`¿Querés borrar ${getCollectionWithArticle(collection)}?`}
+            text={getDeleteContentMessage(collection)}
+            open={deleteModalOpen}
+            onConfirm={async () => {
+                deleteMutation.mutate({uri})
+                return {}
+            }}
+            onClose={() => {setDeleteModalOpen(false)}}
+            confirmButtonText={"Borrar"}
+        />
     </>
 }
 

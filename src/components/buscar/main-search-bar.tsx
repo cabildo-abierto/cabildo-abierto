@@ -10,6 +10,7 @@ type MainSearchBarProps = {
     fullWidth?: boolean
     placeholder?: string
     kind?: string
+    allowCloseWithNoText?: boolean
 }
 
 
@@ -18,7 +19,8 @@ const MainSearchBar = ({
     paddingY,
     fullWidth = true,
     kind = "main",
-    placeholder = "buscar"
+    placeholder = "buscar",
+    allowCloseWithNoText
 }: MainSearchBarProps) => {
     const pathname = usePathname()
     const {searchState, setSearchState} = useSearch(`${pathname}::${kind}`)
@@ -31,6 +33,7 @@ const MainSearchBar = ({
         setSearching={(v: boolean) => {
             setSearchState({value: v ? searchState.value : "", searching: v})
         }}
+        allowCloseWithNoText={allowCloseWithNoText}
         searching={searchState.searching}
         color={"transparent"}
         borderRadius={"0"}

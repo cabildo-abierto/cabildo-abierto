@@ -2696,6 +2696,44 @@ export const schemaDict = {
             type: 'string',
             format: 'datetime',
           },
+          voteContext: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#voteContext',
+            description:
+              'Si el usuario votó a favor o encontra de esta versión y si es una justificación de voto',
+          },
+        },
+      },
+      voteContext: {
+        type: 'object',
+        required: ['authorVotingState'],
+        properties: {
+          authorVotingState: {
+            type: 'string',
+            knownValues: ['accept', 'reject', 'none'],
+          },
+          vote: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#voteInContext',
+          },
+        },
+      },
+      voteInContext: {
+        type: 'object',
+        required: ['uri', 'subject', 'subjectCreatedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          subject: {
+            type: 'string',
+            format: 'uri',
+          },
+          subjectCreatedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
         },
       },
       articleView: {
@@ -3134,6 +3172,34 @@ export const schemaDict = {
       },
     },
   },
+  ArCabildoabiertoWikiDefs: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.wiki.defs',
+    defs: {
+      voteView: {
+        type: 'object',
+        required: ['uri', 'cid', 'author', 'subject'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          subject: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+    },
+  },
   ArCabildoabiertoWikiTopicVersion: {
     lexicon: 1,
     id: 'ar.cabildoabierto.wiki.topicVersion',
@@ -3241,6 +3307,24 @@ export const schemaDict = {
               ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
             },
           },
+          status: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionStatus',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionViewerState',
+          },
+          protection: {
+            type: 'string',
+          },
+          replyCount: {
+            type: 'integer',
+          },
         },
       },
       topicHistory: {
@@ -3266,7 +3350,7 @@ export const schemaDict = {
       },
       versionInHistory: {
         type: 'object',
-        required: ['uri', 'cid', 'createdAt', 'author'],
+        required: ['uri', 'cid', 'createdAt', 'author', 'status'],
         properties: {
           uri: {
             type: 'string',
@@ -3319,6 +3403,9 @@ export const schemaDict = {
           claimsAuthorship: {
             type: 'boolean',
           },
+          replyCount: {
+            type: 'integer',
+          },
         },
       },
       topicVersionViewerState: {
@@ -3337,7 +3424,7 @@ export const schemaDict = {
       },
       topicVersionStatus: {
         type: 'object',
-        required: ['voteCounts'],
+        required: ['voteCounts', 'accepted'],
         properties: {
           voteCounts: {
             type: 'array',
@@ -3345,6 +3432,13 @@ export const schemaDict = {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.wiki.topicVersion#categoryVotes',
             },
+          },
+          accepted: {
+            type: 'boolean',
+          },
+          protection: {
+            type: 'string',
+            description: '',
           },
         },
       },
@@ -3549,10 +3643,10 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
-            message: {
-              type: 'string',
-              maxGraphemes: 600,
-              maxLength: 6000,
+            reason: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
+              description: 'referencia a un post que justifique el voto',
             },
             labels: {
               type: 'array',
@@ -4224,6 +4318,7 @@ export const ids = {
     'ar.cabildoabierto.notification.listNotifications',
   ArCabildoabiertoNotificationUpdateSeen:
     'ar.cabildoabierto.notification.updateSeen',
+  ArCabildoabiertoWikiDefs: 'ar.cabildoabierto.wiki.defs',
   ArCabildoabiertoWikiTopicVersion: 'ar.cabildoabierto.wiki.topicVersion',
   ArCabildoabiertoWikiVoteAccept: 'ar.cabildoabierto.wiki.voteAccept',
   ArCabildoabiertoWikiVoteReject: 'ar.cabildoabierto.wiki.voteReject',

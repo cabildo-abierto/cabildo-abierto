@@ -3,9 +3,8 @@
 import React from "react";
 import {CloseButton} from "../layout/utils/close-button";
 import {TextField, TextFieldProps} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-
 import {Color} from "../layout/utils/color";
+import SearchIcon from "@/components/layout/icons/search-icon";
 
 
 const SearchBar = ({
@@ -22,7 +21,8 @@ const SearchBar = ({
     borderRadius="0",
     borderWidth="1px",
     borderWidthNoFocus="1px",
-    searching
+    searching,
+    allowCloseWithNoText=false
 }: {
     autoFocus?: boolean
     paddingY?: string
@@ -38,9 +38,10 @@ const SearchBar = ({
     borderWidthNoFocus?: string
     placeholder?: string
     size?: TextFieldProps["size"]
+    allowCloseWithNoText?: boolean
 }) => {
 
-    const showCloseButton = searching && searchValue && searchValue.length > 0
+    const showCloseButton = searching && searchValue != null && (allowCloseWithNoText || searchValue.length > 0)
 
     return <TextField
         size={size}
@@ -53,7 +54,7 @@ const SearchBar = ({
         onChange={(e) => {setSearchValue(e.target.value)}}
         slotProps={{
             input: {
-                startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
+                startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon/></span>,
                 endAdornment: showCloseButton ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}

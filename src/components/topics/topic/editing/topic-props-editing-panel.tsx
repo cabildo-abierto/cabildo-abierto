@@ -1,35 +1,44 @@
 import {useEffect, useState} from "react";
 import {Box} from "@mui/material";
-import {ListEditor} from "../../layout/utils/list-editor";
-import CloseIcon from "@mui/icons-material/Close";
-import {Button} from "../../layout/utils/button";
+import {ListEditor} from "@/components/layout/utils/list-editor";
+import {Button} from "@/components/layout/utils/button";
 import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
 import {useCategories} from "@/queries/getters/useTopics";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
-import InfoPanel from "../../layout/utils/info-panel";
-import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api";
 import dynamic from "next/dynamic";
-import {TextField} from "../../layout/utils/text-field";
-import {IconButton} from "../../layout/utils/icon-button";
-import {TrashIcon, XIcon} from "@phosphor-icons/react";
-import DescriptionOnHover from "../../layout/utils/description-on-hover";
+import {TextField} from "@/components/layout/utils/text-field";
+import {IconButton} from "@/components/layout/utils/icon-button";
+import {CaretDoubleLeftIcon, CaretDoubleRightIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
+import DescriptionOnHover from "@/components/layout/utils/description-on-hover";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {topicUrl} from "@/utils/uri";
 
 const NewPropModal = dynamic(
-    () => import("@/components/topics/topic/new-prop-modal"),
+    () => import("@/components/topics/topic/props/new-prop-modal"),
     {ssr: false})
 
-function getDescriptionForProp(propName: string) {
+export function getDescriptionForProp(propName: string) {
     if (propName == "Categorías") {
-        return "Las categorías del tema. Si elegís una que no existe se crea automáticamente una nueva categoría."
+        return {
+            moreInfoHref: topicUrl("Cabildo Abierto: Wiki"),
+            info: "Las categorías del tema. Al elegir una que no existe se crea automáticamente una nueva categoría."
+        }
     } else if (propName == "Sinónimos") {
-        return "Sinónimos del título del tema. Se considera que un tema fue mencionado en alguna publicación o artículo si alguno de sus sinónimos (o su título) aparece en el contenido. Esto afecta la popularidad del tema y el muro de menciones de la página del tema."
+        return {
+            info: "Palabras clave que se usan para detectar menciones al tema.",
+            moreInfoHref: topicUrl("Cabildo Abierto: Wiki")
+        }
     } else if (propName == "Título") {
-        return "El título del tema. Usá esta propiedad para cambiar su título."
+        return {
+            info: "El título del tema. Usá esta propiedad para cambiar su título.",
+            moreInfoHref: topicUrl("Cabildo Abierto: Wiki")
+        }
     }
-    return null
+    return {}
 }
 
 export const TopicPropEditor = ({p, setProp, deleteProp}: {
@@ -41,18 +50,12 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
     const [hovered, setHovered] = useState(false)
     const {data: categories} = useCategories()
 
-    const info: string | null = getDescriptionForProp(p.name)
+    if (p.name == "Categorías" || p.name == "Título") return
 
-    return <div className={"flex space-x-2 w-full items-center justify-between"}>
-        <div className={"flex items-center space-x-4"}>
-            {info ?
-                <div className={"w-8"}>
-                    <InfoPanel
-                        text={info}
-                    />
-                </div> :
-                <div className={"w-8"}/>
-            }
+    const {info, moreInfoHref} = getDescriptionForProp(p.name)
+
+    return <div className={"flex space-x-3 w-full justify-between"}>
+        <DescriptionOnHover description={info} moreInfoHref={moreInfoHref}>
             <Button
                 color={"transparent"}
                 variant="text"
@@ -62,13 +65,13 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 disabled={isDefault}
                 sx={{
                     textTransform: "none",
-                    width: 120,
+                    width: 140,
                     justifyContent: "flex-start",
                     color: "var(--text)",
                     '&.Mui-disabled': {
                         color: "var(--text)",
                     },
-                    padding: '6px 8px', // optional: tighter control over padding
+                    padding: '6px 8px',
                 }}
             >
                 <Box
@@ -79,107 +82,111 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                         alignItems: "center",
                     }}
                 >
-                    <span className="text-sm"
-                          style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
+                    <span
+                        className="text-sm text-[var(--text-light)] font-normal"
+                        style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}
+                    >
                       {p.name}
                     </span>
                     <span className={"text-[var(--text-light)]"}>
-                    {!isDefault && hovered && <CloseIcon color={"inherit"}/>}
-                </span>
+                        {!isDefault && hovered && <XIcon/>}
+                    </span>
                 </Box>
             </Button>
-            {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
-                items={p.value.value}
-                color={"background"}
-                setItems={(values: string[]) => {
-                    setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
-                }}
-                options={p.name == "Categorías" && categories ? categories : []}
-            />}
-            {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
-                value={p.value.value}
+        </DescriptionOnHover>
+        {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
+            items={p.value.value}
+            color={"background-dark"}
+            setItems={(values: string[]) => {
+                setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
+            }}
+            options={p.name == "Categorías" && categories ? categories : []}
+        />}
+        {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
+            value={p.value.value}
+            size={"small"}
+            fontSize={13}
+            paddingX={"12px"}
+            paddingY={"6px"}
+            fullWidth={true}
+            multiline={true}
+            onChange={(e) => {
+                setProp({
+                    ...p,
+                    $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
+                    value: {
+                        $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
+                        value: e.target.value
+                    },
+                })
+            }}
+        />}
+        {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) &&
+            <TextField // TO DO: Marcar rojo si no es un número.
+                value={isNaN(p.value.value) ? 0 : p.value.value}
                 size={"small"}
-                fontSize={13}
-                paddingX={"0px"}
-                paddingY={"6px"}
+                fontSize={12}
                 onChange={(e) => {
+                    const v = parseInt(e.target.value)
                     setProp({
                         ...p,
-                        $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
                         value: {
-                            $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
-                            value: e.target.value
-                        },
+                            $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
+                            value: v && !isNaN(v) ? v : 0
+                        }
                     })
                 }}
             />}
-            {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) &&
-                <TextField // TO DO: Marcar rojo si no es un número.
-                    value={isNaN(p.value.value) ? 0 : p.value.value}
-                    size={"small"}
-                    fontSize={12}
-                    onChange={(e) => {
-                        const v = parseInt(e.target.value)
+        {/*TO DO: Achicar el icono del date picker*/}
+        {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) &&
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                <DatePicker
+                    value={p.value.value ? dayjs(p.value.value) : dayjs()}
+                    onChange={(d) => {
+                        console.log("date", d, d.startOf("day").toISOString())
                         setProp({
                             ...p,
                             value: {
-                                $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
-                                value: v && !isNaN(v) ? v : 0
+                                $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
+                                value: d.startOf("day").toISOString(),
                             }
                         })
                     }}
-                />}
-            {/*TO DO: Achicar el icono del date picker*/}
-            {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) &&
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                    <DatePicker
-                        value={p.value.value ? dayjs(p.value.value) : dayjs()}
-                        onChange={(d) => {
-                            console.log("date", d, d.startOf("day").toISOString())
-                            setProp({
-                                ...p,
-                                value: {
-                                    $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-                                    value: d.startOf("day").toISOString(),
-                                }
-                            })
-                        }}
-                        label={"Fecha"}
-                        minDate={dayjs("1000-01-01")}
-                        format="DD/MM/YYYY"
-                        sx={{
-                            "& .MuiInputLabel-root": {
-                                color: `var(--text)`,
+                    label={"Fecha"}
+                    minDate={dayjs("1000-01-01")}
+                    format="DD/MM/YYYY"
+                    sx={{
+                        "& .MuiInputLabel-root": {
+                            color: `var(--text)`,
+                        },
+                        "& .MuiPickersInputBase-root": {
+                            borderRadius: 0,
+                            fontSize: "13px",
+                            "&:hover fieldset": {
+                                borderColor: `var(--accent-dark)`,
                             },
-                            "& .MuiPickersInputBase-root": {
+                            "& fieldset": {
                                 borderRadius: 0,
-                                fontSize: "13px",
-                                "&:hover fieldset": {
-                                    borderColor: `var(--accent-dark)`,
-                                },
-                                "& fieldset": {
-                                    borderRadius: 0,
-                                    borderColor: `var(--accent-dark)`,
-                                    borderWidth: 1,
-                                },
-                                "&.Mui-focused fieldset": {
-                                    borderWidth: 1,
-                                    borderRadius: 0,
-                                    color: `var(--text)`,
-                                    "&.MuiPickersOutlinedInput-notchedOutline": {
-                                        borderColor: `var(--accent-dark)`
-                                    }
-                                },
-                            }
-                        }}
-                        slotProps={{
-                            textField: {
-                                size: "small",
+                                borderColor: `var(--accent-dark)`,
+                                borderWidth: 1,
                             },
-                        }}
-                    />
-                </LocalizationProvider>}
-        </div>
+                            "&.Mui-focused fieldset": {
+                                borderWidth: 1,
+                                borderRadius: 0,
+                                color: `var(--text)`,
+                                "&.MuiPickersOutlinedInput-notchedOutline": {
+                                    borderColor: `var(--accent-dark)`
+                                }
+                            },
+                        }
+                    }}
+                    slotProps={{
+                        textField: {
+                            size: "small",
+                        },
+                    }}
+                />
+            </LocalizationProvider>}
     </div>
 }
 
@@ -286,13 +293,14 @@ function validProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
 }
 
 
-export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
+export const TopicPropsEditingPanel = ({props, setProps, topic}: {
     props: ArCabildoabiertoWikiTopicVersion.TopicProp[],
     setProps: (props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) => void,
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView,
-    onClose: () => void
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
 }) => {
+    const [open, setOpen] = useState(false)
     const [creatingProp, setCreatingProp] = useState(false)
+    const {isMobile} = useLayoutConfig()
 
     useEffect(() => {
         const newProps = addDefaults(props, topic.id)
@@ -300,6 +308,20 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
             setProps(newProps)
         }
     }, [])
+
+    if (!open) {
+        return <Button
+            size={"small"}
+            variant={"outlined"}
+            color={"background-dark"}
+            onClick={() => {
+                if (!open) setOpen(true)
+            }}
+            startIcon={<CaretDoubleLeftIcon/>}
+        >
+            <div className={"uppercase text-sm"}>Ficha</div>
+        </Button>
+    }
 
     function setProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
         if (props.some(p2 => p2.name == p.name)) {
@@ -328,9 +350,21 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
 
     const vProps = validProps(props)
 
-    return <div className={"border p-4 space-y-6 my-4 mx-2"}>
+    return <div
+        className={"bg-[var(--background-dark)] px-2 pt-2 pb-2 border space-y-4 " + (isMobile ? "w-screen" : "w-[400px]")}
+    >
         <div className={"font-semibold flex items-center space-x-2"}>
-            <div className={"uppercase text-sm"}>Propiedades</div>
+            <IconButton
+                size={"small"}
+                onClick={() => {
+                    setOpen(false)
+                }}
+                color={"background-dark"}
+                sx={{borderRadius: 0}}
+            >
+                <CaretDoubleRightIcon/>
+            </IconButton>
+            <div className={"uppercase text-sm"}>Ficha</div>
         </div>
         <div className={"space-y-6"}>
             {vProps.map((p, index) => {
@@ -343,7 +377,7 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
         </div>
         <div className={"flex justify-between items-center"}>
             <Button
-                color={"transparent"}
+                color={"background-dark"}
                 onClick={() => {
                     setCreatingProp(true)
                 }}
@@ -357,20 +391,22 @@ export const TopicPropsEditor = ({props, setProps, topic, onClose}: {
                     <IconButton
                         size={"small"}
                         onClick={resetProps}
-                        color={"transparent"}
+                        color={"background-dark"}
+                        sx={{borderRadius: 0}}
                     >
-                        <TrashIcon color="var(--text)" fontSize="20"/>
+                        <TrashIcon color="var(--text)" fontSize={18}/>
                     </IconButton>
                 </DescriptionOnHover>
                 <IconButton
+                    sx={{borderRadius: 0}}
                     size={"small"}
                     onClick={() => {
                         resetProps();
-                        onClose()
+                        setOpen(false)
                     }}
-                    color={"transparent"}
+                    color={"background-dark"}
                 >
-                    <XIcon color={"var(--text)"} fontSize={"20"}/>
+                    <XIcon color={"var(--text)"} fontSize={18}/>
                 </IconButton>
             </div>
         </div>

@@ -23,7 +23,6 @@ import {
 } from "@/components/writing/write-panel/write-panel-quoted-post";
 import {$Typed} from "@/lex-api/util";
 import {EditorState} from "lexical";
-import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
@@ -48,6 +47,7 @@ import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
 import {Button} from "../../layout/utils/button";
 import {ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
+import {getAllText} from "@/components/topics/topic/history/get-all-text";
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -190,7 +190,7 @@ export type CreatePostProps = {
 }
 
 
-function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
+function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {
     if (!replyToCollection && !quotedCollection) {
         return "¿Qué está pasando?"
     } else {
@@ -200,7 +200,7 @@ function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
         } else if (isArticle(collection)) {
             return "Respondé al artículo"
         } else if (isTopicVersion(collection)) {
-            return "Responder en la discusión del tema"
+            return !isVoteReject ? "Responder en la discusión del tema" : "Justificá el rechazo"
         } else if (isVisualization(collection)) {
             return "Respondé a la visualización"
         } else if (isDataset(collection)) {
@@ -224,12 +224,17 @@ function getLinksFromEditor(editorState: EditorState) {
 }
 
 
-function usePostEditorSettings(replyToCollection?: string, quoteCollection?: string, postView?: ArCabildoabiertoFeedDefs.PostView): SettingsProps {
+function usePostEditorSettings(
+    replyToCollection: string | undefined,
+    quoteCollection: string | undefined,
+    postView: ArCabildoabiertoFeedDefs.PostView | undefined,
+    isVoteReject: boolean
+): SettingsProps {
     const p = postView?.record as AppBskyFeedPost.Record | undefined
     const {markdown} = useMarkdownFromBsky(p)
 
     return getEditorSettings({
-        placeholder: getPlaceholder(replyToCollection, quoteCollection),
+        placeholder: getPlaceholder(replyToCollection, quoteCollection, isVoteReject),
         placeholderClassName: "text-[var(--text-light)] absolute text-base top-0",
         editorClassName: "link relative h-full text-base",
         isReadOnly: false,
@@ -294,7 +299,8 @@ export const WritePost = ({
                               quotedContent,
                               handleSubmit,
                               onClose,
-                              postView
+                              postView,
+    isVoteReject
                           }: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
@@ -303,6 +309,7 @@ export const WritePost = ({
     quotedContent?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
+    isVoteReject?: boolean
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
@@ -332,7 +339,8 @@ export const WritePost = ({
     const settings = usePostEditorSettings(
         replyToCollection,
         quoteCollection,
-        postView
+        postView,
+        isVoteReject
     )
 
     async function handleClickSubmit(force: boolean = false) {
@@ -376,7 +384,7 @@ export const WritePost = ({
 
     useEffect(() => {
         if (editorState) {
-            let text = getPlainText(editorState.toJSON().root)
+            let text = getAllText(editorState.toJSON().root)
             if (text.endsWith("\n")) text = text.slice(0, text.length - 1)
             setText(text)
         }
@@ -468,7 +476,7 @@ export const WritePost = ({
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
                     variant={"outlined"}
-                    text1={postView ? "Confirmar cambios" : isReply ? "Responder" : "Publicar"}
+                    text1={postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
                     handleClick={async () => {
                         return await handleClickSubmit()
                     }}

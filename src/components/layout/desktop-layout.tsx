@@ -5,6 +5,8 @@ import {SidebarDesktop} from "@/components/layout/sidebar/sidebar-desktop";
 import {RightPanel} from "@/components/layout/right-panel";
 import {useSearch} from "@/components/buscar/search-context";
 import {usePathname} from "next/navigation";
+import ThreeColumnsLayout from "@/components/layout/three-columns-layout";
+import {pxToNumber} from "@/utils/strings";
 
 export default function DesktopLayout({children, setWritePanelOpen}: {
     children: ReactNode
@@ -42,38 +44,26 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
         }
     }, [searchState])
 
-    return <div>
+    const rightPanel = <div
+        ref={rightPanelRef}
+        className={"flex-shrink-0 no-scrollbar overflow-y-auto max-h-[calc(100vh-48px)] " + (layoutConfig.readingLayout ? "right-0 fixed" : "sticky top-12")}
+        style={{width: pxToNumber(layoutConfig.widthRightSide)}}
+    >
+        <RightPanel/>
+    </div>
+
+    const leftPanel = <SidebarDesktop
+        onClose={() => {}}
+        setWritePanelOpen={setWritePanelOpen}
+    />
+
+    return <div className={"mt-12"}>
         <TopbarDesktop/>
-
-        <div className="flex justify-between w-full">
-            <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20")}>
-                <SidebarDesktop
-                    onClose={() => {}}
-                    setWritePanelOpen={setWritePanelOpen}
-                />
-            </div>
-
-            <div className={"w-full flex justify-center mt-12"}>
-                <div
-                    className={`flex-grow`}
-                    style={{
-                        minWidth: 0,
-                        maxWidth: layoutConfig.maxWidthCenter,
-                    }}
-                >
-                    {children}
-                </div>
-            </div>
-
-            {layoutConfig.spaceForRightSide &&
-                <div
-                    ref={rightPanelRef}
-                    className="top-12 flex-shrink-0 sticky no-scrollbar mt-12 overflow-y-auto max-h-[calc(100vh-48px)]"
-                    style={{width: layoutConfig.rightMinWidth}}
-                >
-                    <RightPanel/>
-                </div>
-            }
-        </div>
+        <ThreeColumnsLayout
+            leftPanel={leftPanel}
+            rightPanel={rightPanel}
+        >
+            {children}
+        </ThreeColumnsLayout>
     </div>
 }

@@ -1,16 +1,16 @@
 "use client"
-import {getTopicCategories, getTopicTitle} from "./utils";
-import TopicCategories from "./topic-categories";
+import {getTopicCategories, getTopicTitle} from "../topics/topic/utils";
+import TopicCategories from "../topics/topic/view/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {rounder} from "@/utils/strings";
-import DescriptionOnHover from "../../layout/utils/description-on-hover";
-import {DateSince} from "../../layout/utils/date";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
+import {DateSince} from "../layout/utils/date";
 import {formatIsoDate} from "@/utils/dates";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {CustomLink} from "../../layout/utils/custom-link";
-import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {CustomLink} from "../layout/utils/custom-link";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
 import { Session } from "@/lib/types";
 import {useSession} from "@/queries/getters/useSession";
 

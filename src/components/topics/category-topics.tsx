@@ -11,7 +11,7 @@ import {smoothScrollTo} from "../layout/utils/scroll";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 
-const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
+const TopicSearchResult = dynamic(() => import("@/components/buscar/topic-search-result"))
 const StaticFeed = dynamic(() => import("../feed/feed/static-feed"))
 
 

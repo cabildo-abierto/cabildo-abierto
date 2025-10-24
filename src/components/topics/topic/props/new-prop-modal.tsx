@@ -1,12 +1,12 @@
 import {useState} from "react";
-import {Button} from "../../layout/utils/button";
+import {Button} from "../../../layout/utils/button";
 import {PropValueType} from "@/components/topics/topic/utils";
 import 'dayjs/locale/es';
-import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../../layout/utils/base-fullscreen-popup";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import { TextField } from "../../layout/utils/text-field";
-import { Select } from "../../layout/utils/select";
+import { TextField } from "../../../layout/utils/text-field";
+import { Select } from "../../../layout/utils/select";
 
 
 const propLexicons = [
@@ -49,7 +49,7 @@ export default function NewPropModal({open, onClose, onAddProp}: {
             <div className={"text-sm text-[var(--text-light)] max-w-[300px]"}>
                 Agregá una característica del tema.
                 Si muchos temas tienen la misma propiedad, se puede hacer una visualización con ellos. <Link
-                href={topicUrl("Cabildo Abierto: Wiki (Temas)", undefined, "normal")}
+                href={topicUrl("Cabildo Abierto: Wiki", undefined, "normal")}
                 target={"_blank"}
                 className={"hover:underline font-semibold"}
             >

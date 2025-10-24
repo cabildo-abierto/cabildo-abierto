@@ -19,7 +19,7 @@ export interface Record {
   $type: 'ar.cabildoabierto.wiki.voteReject'
   subject: ComAtprotoRepoStrongRef.Main
   createdAt: string
-  message?: string
+  reason?: ComAtprotoRepoStrongRef.Main
   labels?: string[]
   [k: string]: unknown
 }

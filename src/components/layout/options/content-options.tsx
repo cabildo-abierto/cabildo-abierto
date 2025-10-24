@@ -6,6 +6,7 @@ import OptionsBlueskyReactionsButton from "@/components/layout/options/options-b
 import OptionsOpenInBlueskyButton from "@/components/layout/options/options-open-in-bluesky-button";
 import {OptionsEnDiscusionButton} from "@/components/layout/options/options-en-discusion-button";
 import {OptionsEditContentButton} from "@/components/layout/options/options-edit-content-button";
+import {AppBskyFeedPost} from "@atproto/api";
 
 
 export const ContentOptions = ({
@@ -29,7 +30,11 @@ export const ContentOptions = ({
 
 
     return <>
-        <OptionsDeleteButton uri={record.uri} onClose={onClose}/>
+        <OptionsDeleteButton
+            uri={record.uri}
+            onClose={onClose}
+            reply={ArCabildoabiertoFeedDefs.isPostView(record) ? (record.record as AppBskyFeedPost.Record).reply : undefined}
+        />
         <OptionsEnDiscusionButton
             uri={record.uri}
             enDiscusion={enDiscusion}
