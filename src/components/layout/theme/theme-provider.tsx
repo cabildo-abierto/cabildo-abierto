@@ -17,6 +17,11 @@ const ThemeVariables = ({ children }: { children: ReactNode }) => {
         root.style.setProperty('--red', palette.red)
         root.style.setProperty('--red-dark', palette.redDark)
         root.style.setProperty('--red-dark2', palette.redDark2)
+
+        root.style.setProperty('--green', palette.green)
+        root.style.setProperty('--green-dark', palette.greenDark)
+        root.style.setProperty('--green-dark2', palette.greenDark2)
+
         root.style.setProperty('--like', palette.like)
         root.style.setProperty('--repost', palette.repost)
 

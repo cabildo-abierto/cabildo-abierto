@@ -1,25 +1,25 @@
-import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../../layout/utils/base-fullscreen-popup";
 import {splitUri} from "@/utils/uri";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../../layout/utils/loading-spinner";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {MatchesType, TopicVersionChangesProps} from "@/lib/types";
-import {SerializedDiffNode} from "../../../../modules/ca-lexical-editor/src/nodes/DiffNode";
+import {SerializedDiffNode} from "../../../../../modules/ca-lexical-editor/src/nodes/DiffNode";
 import {SerializedEditorState} from "lexical";
 import {produce} from "immer";
 import {decompress} from "@/utils/compression";
 import {
     editorStateToMarkdown,
     markdownToEditorState
-} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+} from "../../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import React, {useMemo, useState} from "react";
-import {DateSince} from "../../layout/utils/date";
+import {DateSince} from "../../../layout/utils/date";
 import {useAPI} from "@/queries/utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import { Select } from "../../layout/utils/select";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
+import { Select } from "../../../layout/utils/select";
 import { range } from "@/utils/arrays";
 
-const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
+const MyLexicalEditor = dynamic(() => import( '../../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
 
 function getChanges(prevText: SerializedEditorState, newText: SerializedEditorState, diff: MatchesType): SerializedEditorState {

@@ -88,6 +88,8 @@ function LazyImage({
     useSuspenseImage(src);
     const [fullScreen, setFullScreen] = useState<boolean>(false)
 
+    const validSrcFormat = src && (src.startsWith('/') || src.startsWith('http'))
+
     return (
         <>
             <FullscreenImageViewer
@@ -104,7 +106,7 @@ function LazyImage({
                     }}
                     className={"w-full h-auto flex justify-center"}
                 >
-                    <NextImage
+                    {validSrcFormat ? <NextImage
                         onClick={() => {
                             setFullScreen(true)
                         }}
@@ -113,7 +115,9 @@ function LazyImage({
                         alt={altText ?? ""}
                         width={300}
                         height={300}
-                    />
+                    /> : <div className={"border font-light w-full p-4"}>
+                        Imagen inválida ({src}).
+                    </div>}
                 </div>
             </div>
         </>

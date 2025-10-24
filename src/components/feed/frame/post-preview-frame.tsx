@@ -15,6 +15,9 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import dynamic from "next/dynamic";
+import {CheckIcon, XIcon} from '@phosphor-icons/react';
+import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import DescriptionOnHover from "@/components/layout/utils/description-on-hover";
 
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
     ssr: false,
@@ -87,8 +90,11 @@ export const PostPreviewFrame = ({
         href={!isOptimistic && engagementIcons ? url : undefined}
 
     >
-        {ArCabildoabiertoFeedDefs.isPostView(postView) &&
-            <ReplyToVersion pageRootUri={pageRootUri} postView={postView}/>}
+        {ArCabildoabiertoFeedDefs.isPostView(postView) && pageRootUri &&
+        <ReplyToVersion
+            pageRootUri={pageRootUri}
+            postView={postView}
+        />}
         {reason && <RepostedBy user={reason.by}/>}
         <div className={"flex h-full"}>
             <div className={"flex flex-col items-center pr-2 " + (engagementIcons ? "pl-4" : "")}>
@@ -96,8 +102,18 @@ export const PostPreviewFrame = ({
                 <CustomLink
                     tag={"span"}
                     href={profileUrl(author.handle)}
-                    className={"flex items-center justify-center " + (isMobile ? "w-9" : "w-11")}
+                    className={"relative flex items-center justify-center " + (isMobile ? "w-9" : "w-11")}
                 >
+                    {isPostView(postView) && postView.voteContext?.authorVotingState == "accept" && <DescriptionOnHover description={`@${postView.author.handle} votó a favor de esta versión del tema.`}>
+                        <div className={"absolute top-0 right-0 bg-[var(--green-dark2)] text-[var(--text-light)] rounded-full items-center p-[2px]"}>
+                            <CheckIcon fontSize={12}/>
+                        </div>
+                    </DescriptionOnHover>}
+                    {isPostView(postView) && postView.voteContext?.authorVotingState == "reject" && <DescriptionOnHover description={`@${postView.author.handle} votó en contra de esta versión del tema.`}>
+                        <div className={"absolute top-0 right-0 bg-[var(--red-dark2)] text-[var(--text-light)] rounded-full items-center p-[2px]"}>
+                            <XIcon fontSize={12}/>
+                        </div>
+                    </DescriptionOnHover>}
                     <ProfilePic
                         user={author}
                         clickable={false}

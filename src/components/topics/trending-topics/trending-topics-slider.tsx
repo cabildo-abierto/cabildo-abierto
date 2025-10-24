@@ -2,11 +2,11 @@ import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "@/components/topics/topic/utils";
 import {CustomLink as Link} from "../../layout/utils/custom-link";
 import {useRouter} from "next/navigation";
-import TopicCategories from "@/components/topics/topic/topic-categories";
+import TopicCategories from "@/components/topics/topic/view/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
-import {hasUnseenUpdate} from "@/components/topics/topic/topic-search-result";
+import {hasUnseenUpdate} from "@/components/buscar/topic-search-result";
 import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"

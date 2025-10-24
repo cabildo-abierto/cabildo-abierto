@@ -30,22 +30,6 @@ export async function generateMetadata(
     }
 }
 
-export default async function Page(
-    { searchParams }: Props
-) {
-    const p = await searchParams
-    const i = p?.i
-    if(!i || typeof i != "string") {
-        const did = p?.did
-        const rkey = p?.rkey
-        if(typeof did == "string" && typeof rkey == "string"){
-            return <TopicPage did={did} rkey={rkey}/>
-        } else {
-            return null
-        }
-    }
-
-    return <TopicPage
-        topicId={i}
-    />
+export default async function Page() {
+    return <TopicPage/>
 }

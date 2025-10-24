@@ -9,13 +9,13 @@ import {getTopicTitle, validEntityName} from "@/components/topics/topic/utils";
 import {useSession} from "@/queries/getters/useSession";
 import {Button} from "../../layout/utils/button";
 import {post} from "@/utils/fetch";
-import {CreateTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
 import LoadingSpinner from "../../layout/utils/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
 import {IconButton} from "../../layout/utils/icon-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
+import {CreateTopicVersionProps} from "@/components/topics/topic/editing/save-edit-button";
 
 export const createTopic = async (id: string) => {
     id = id.trim()

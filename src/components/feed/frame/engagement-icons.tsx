@@ -1,5 +1,4 @@
 import {ContentOptionsButton} from "@/components/layout/options/content-options-button"
-import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon"
 import {ReplyCounter} from "./reply-counter"
 import {getCollectionFromUri} from "@/utils/uri";
 import React, {useState} from "react";
@@ -46,11 +45,11 @@ export const EngagementIcons = ({
                 {content.replyCount != undefined && <div className={"flex-1"}>
                     <ReplyCounter
                         count={content.replyCount}
-                        icon={<InactiveCommentIcon color="var(--text)" fontSize={iconFontSize}/>}
                         disabled={content.uri.includes("optimistic")}
                         hoverColor={iconHoverColor}
                         textClassName={textClassName}
                         content={content}
+                        iconFontSize={iconFontSize}
                     />
                 </div>}
                 {content.repostCount != undefined && <div className={"flex-1"}><RepostCounter

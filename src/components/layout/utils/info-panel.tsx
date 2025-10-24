@@ -9,7 +9,8 @@ export const InfoPanel = ({
                               text,
                               onClick,
                               moreInfoHref,
-                              color = "text-light"
+                              color = "text-light",
+    iconFontSize=20
                           }: {
     text?: ReactNode,
     iconClassName?: string,
@@ -17,19 +18,20 @@ export const InfoPanel = ({
     onClick?: () => void
     moreInfoHref?: string
     color?: Color
+    iconFontSize?: number
 }) => {
     const {isMobile} = useLayoutConfig()
 
     if (isMobile) {
         return <DescriptionOnClick description={text} moreInfoHref={moreInfoHref}>
             <div className={"cursor-pointer"} onClick={onClick}>
-                <InfoIcon fontSize="20" color={`var(--${color}`} weight={"regular"}/>
+                <InfoIcon fontSize={iconFontSize} color={`var(--${color}`} weight={"regular"}/>
             </div>
         </DescriptionOnClick>
     } else {
         return <DescriptionOnHover description={text} moreInfoHref={moreInfoHref}>
             <div className={"cursor-pointer"} onClick={onClick}>
-                <InfoIcon fontSize="20" color={`var(--${color}`} weight={"regular"}/>
+                <InfoIcon fontSize={iconFontSize} color={`var(--${color}`} weight={"regular"}/>
             </div>
         </DescriptionOnHover>
     }

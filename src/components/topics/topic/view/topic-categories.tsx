@@ -1,4 +1,4 @@
-import {CustomLink} from "../../layout/utils/custom-link";
+import {CustomLink} from "../../../layout/utils/custom-link";
 
 
 function categoryUrl(c: string) {

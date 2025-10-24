@@ -7,7 +7,7 @@ import { Button } from "../layout/utils/button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import { useDebounce } from "@/utils/debounce";
 
-const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
+const TopicSearchResult = dynamic(() => import("@/components/buscar/topic-search-result"))
 const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), {ssr: false});
 
 

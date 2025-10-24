@@ -52,6 +52,11 @@ export interface TopicView {
   lastEdit: string
   createdAt: string
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+  status?: TopicVersionStatus
+  author?: ArCabildoabiertoActorDefs.ProfileViewBasic
+  viewer?: TopicVersionViewerState
+  protection?: string
+  replyCount?: number
 }
 
 const hashTopicView = 'topicView'
@@ -89,13 +94,14 @@ export interface VersionInHistory {
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
   message?: string
   viewer?: TopicVersionViewerState
-  status?: TopicVersionStatus
+  status: TopicVersionStatus
   addedChars?: number
   removedChars?: number
   prevAccepted?: string
   contribution?: TopicVersionContribution
   props?: TopicProp[]
   claimsAuthorship?: boolean
+  replyCount?: number
 }
 
 const hashVersionInHistory = 'versionInHistory'
@@ -131,6 +137,8 @@ export function validateTopicVersionViewerState<V>(v: V) {
 export interface TopicVersionStatus {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicVersionStatus'
   voteCounts: CategoryVotes[]
+  accepted: boolean
+  protection?: string
 }
 
 const hashTopicVersionStatus = 'topicVersionStatus'

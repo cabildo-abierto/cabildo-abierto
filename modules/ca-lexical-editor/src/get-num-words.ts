@@ -1,4 +1,4 @@
-import {getAllText} from "@/components/topics/topic/diff";
+import {getAllText} from "@/components/topics/topic/history/get-all-text";
 import {decompress} from "@/utils/compression";
 
 
