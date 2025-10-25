@@ -33,7 +33,7 @@ export const ArgentinaMap = ({
                              }: GeoMercatorProps) => {
     const [world, setWorld] = useState<{ type: 'FeatureCollection'; features: FeatureShape[] } | null>(null);
     const [hoveredProvince, setHoveredProvince] = useState(null)
-    const initialScale = 550;
+    const initialScale = 600;
     const centerLong = -64.0;
     const centerLat = -40.0;
 
@@ -102,7 +102,7 @@ export const ArgentinaMap = ({
                         <svg
                             width={width}
                             height={height}
-                            className="border border-[var(--accent-dark)] touch-none"
+                            className="touch-none"
                             ref={zoom.containerRef}
                             style={{cursor: zoom.isDragging ? 'grabbing' : ''}}
                         >

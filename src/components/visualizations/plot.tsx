@@ -103,7 +103,8 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
     </div>
 
     return <ClickableModalOnClick id="datos" modal={modal}>
-        <Button
+        <div className={"mt-1"}>
+            <Button
             variant={"outlined"}
             color={"background-dark2"}
             size={"small"}
@@ -115,6 +116,7 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
                 Datos
             </span>
         </Button>
+        </div>
     </ClickableModalOnClick>
 }
 

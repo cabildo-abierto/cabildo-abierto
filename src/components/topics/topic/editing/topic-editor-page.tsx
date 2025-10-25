@@ -6,7 +6,7 @@ import {LexicalEditor} from "lexical";
 import {TopicHeaderEditor} from "@/components/topics/topic/editing/topic-header-editor";
 import {SaveEditButton} from "@/components/topics/topic/editing/save-edit-button";
 import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
-import {TopicPropsEditingPanel} from "@/components/topics/topic/editing/topic-props-editing-panel";
+import {TopicPropsEditingPanel} from "@/components/topics/topic/props/topic-props-editing-panel";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
 import {addDefaults} from "@/components/topics/topic/props/topic-prop-editor";

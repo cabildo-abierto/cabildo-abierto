@@ -1,5 +1,4 @@
 import {ListEditor} from "../../../layout/utils/list-editor";
-import {addDefaults} from "@/components/topics/topic/props/topic-prop-editor";
 import {formatIsoDate} from "@/utils/dates";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import Image from "next/image"
@@ -39,24 +38,6 @@ export const TopicPropView = ({p}: { p: ArCabildoabiertoWikiTopicVersion.TopicPr
             {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <div className={""}>
                 {formatIsoDate(p.value.value, false)}
             </div>}
-        </div>
-    </div>
-}
-
-
-export const TopicPropsView = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
-    const props = addDefaults(topic.props, topic.id)
-
-    return <div className={"border p-4 space-y-6 mx-2 my-4"}>
-        <div className={"font-semibold flex items-center space-x-2"}>
-            <div className={"uppercase text-sm"}>Propiedades</div>
-        </div>
-        <div className={"space-y-6"}>
-            {props.map((p, index) => {
-                return <div key={index}>
-                    <TopicPropView p={p}/>
-                </div>
-            })}
         </div>
     </div>
 }

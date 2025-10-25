@@ -5,6 +5,7 @@ import SearchableDropdown from "./searchable-dropdown";
 import {Button, darker} from "./button";
 import {Color} from "./color";
 import {CheckIcon, PlusIcon, XIcon} from "@phosphor-icons/react";
+import {Box} from "@mui/material";
 
 const NewItem = ({
                      addItem,
@@ -116,6 +117,17 @@ export const ListEditorItem = ({item, removeItem, color}: {
     item: string, removeItem?: () => void, color: Color
 }) => {
     const [hovering, setHovering] = useState(false)
+
+    if(!removeItem) {
+        return <Box style={{
+            backgroundColor: `var(--${darker(color)})`
+        }}>
+            <div className={"text-xs normal-case border p-1 break-all"}>
+                {item}
+            </div>
+        </Box>
+    }
+
     return <Button
         size={"small"}
         variant={"outlined"}
@@ -126,10 +138,10 @@ export const ListEditorItem = ({item, removeItem, color}: {
         onClick={removeItem}
     >
         <div className={"flex justify-between"}>
-            <div className={"text-xs"}>
+            <div className={"text-xs normal-case break-all"}>
                 {item}
             </div>
-            {hovering && removeItem != null ? <XIcon fontSize={14}/> : null}
+            {hovering ? <XIcon fontSize={14}/> : null}
         </div>
     </Button>
 }

@@ -2,14 +2,16 @@
 
 import React from "react";
 import {CloseButton} from "../layout/utils/close-button";
-import {TextField, TextFieldProps} from "@mui/material";
+import {TextFieldProps} from "@mui/material";
 import {Color} from "../layout/utils/color";
 import SearchIcon from "@/components/layout/icons/search-icon";
+import {TextField} from "@/components/layout/utils/text-field";
 
 
 const SearchBar = ({
     autoFocus=false,
     paddingY,
+    paddingX,
     fullWidth=true,
     searchValue,
     setSearchValue,
@@ -22,10 +24,12 @@ const SearchBar = ({
     borderWidth="1px",
     borderWidthNoFocus="1px",
     searching,
-    allowCloseWithNoText=false
+    allowCloseWithNoText=false,
+    fontSize
 }: {
     autoFocus?: boolean
     paddingY?: string
+    paddingX?: string
     fullWidth?: boolean
     searchValue: string
     searching?: boolean
@@ -39,6 +43,7 @@ const SearchBar = ({
     placeholder?: string
     size?: TextFieldProps["size"]
     allowCloseWithNoText?: boolean
+    fontSize?: number
 }) => {
 
     const showCloseButton = searching && searchValue != null && (allowCloseWithNoText || searchValue.length > 0)
@@ -52,13 +57,16 @@ const SearchBar = ({
         placeholder={placeholder}
         onFocus={() => {setSearching(true)}}
         onChange={(e) => {setSearchValue(e.target.value)}}
+        paddingY={paddingY}
         slotProps={{
             input: {
                 startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon/></span>,
                 endAdornment: showCloseButton ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
             }
         }}
+        paddingX={paddingX}
         autoComplete={"off"}
+        fontSize={fontSize}
         sx={{
             "& .MuiOutlinedInput-root": {
                 backgroundColor: `var(--${color})`,
@@ -66,9 +74,6 @@ const SearchBar = ({
                 borderColor: `var(--${borderColor})`,
                 paddingRight: "4px",
                 paddingLeft: "8px",
-                "& input": {
-                    paddingY: paddingY
-                },
                 "& fieldset": {
                     borderRadius,
                     borderColor: `var(--${borderColor})`,

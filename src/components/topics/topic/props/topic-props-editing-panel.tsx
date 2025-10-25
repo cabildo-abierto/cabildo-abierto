@@ -65,7 +65,7 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                 disabled={isDefault}
                 sx={{
                     textTransform: "none",
-                    width: 140,
+                    minWidth: 140,
                     justifyContent: "flex-start",
                     color: "var(--text)",
                     '&.Mui-disabled': {
@@ -351,7 +351,8 @@ export const TopicPropsEditingPanel = ({props, setProps, topic}: {
     const vProps = validProps(props)
 
     return <div
-        className={"bg-[var(--background-dark)] px-2 pt-2 pb-2 border space-y-4 " + (isMobile ? "w-screen" : "w-[400px]")}
+        onWheel={e => e.stopPropagation()}
+        className={"bg-[var(--background-dark)] px-2 pt-2 pb-2 border space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar " + (isMobile ? "w-screen" : "w-[400px]")}
     >
         <div className={"font-semibold flex items-center space-x-2"}>
             <IconButton

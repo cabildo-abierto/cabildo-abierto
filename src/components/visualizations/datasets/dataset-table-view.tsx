@@ -139,6 +139,7 @@ export const DatasetTableView = ({
                     setSearchValue={setSearchValue}
                     size={"small"}
                     paddingY={"4px"}
+                    paddingX={"8px"}
                     color={"background"}
                     borderColor={"accent-dark"}
                 />

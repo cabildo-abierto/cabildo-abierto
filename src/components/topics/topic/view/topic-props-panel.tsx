@@ -9,7 +9,7 @@ import {IconButton} from "@/components/layout/utils/icon-button";
 import {useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/layout/utils/button";
 import {LayoutConfigProps, useLayoutConfig} from "@/components/layout/layout-config-context";
-import {getDescriptionForProp} from "@/components/topics/topic/editing/topic-props-editing-panel";
+import {getDescriptionForProp} from "@/components/topics/topic/props/topic-props-editing-panel";
 import DescriptionOnHover from "@/components/layout/utils/description-on-hover";
 
 
@@ -94,7 +94,8 @@ export const TopicPropsPanel = ({topic}: { topic: TopicView }) => {
     }
 
     return <div
-        className={"bg-[var(--background-dark)] space-y-4 border border-[var(--accent-dark)] w-[292px] px-2 pt-2 pb-4"}
+        onWheel={e => {e.stopPropagation()}}
+        className={"bg-[var(--background-dark)] space-y-4 border border-[var(--accent-dark)] w-[292px] max-h-[80vh] overflow-y-auto custom-scrollbar px-2 pt-2 pb-4"}
     >
         <div className={"font-semibold flex items-center space-x-2"}>
             <IconButton

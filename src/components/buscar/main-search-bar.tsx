@@ -42,6 +42,7 @@ const MainSearchBar = ({
         borderColor={"accent-dark"}
         autoFocus={autoFocus}
         paddingY={paddingY}
+        paddingX={"8px"}
         fullWidth={fullWidth}
         placeholder={placeholder}
     />
