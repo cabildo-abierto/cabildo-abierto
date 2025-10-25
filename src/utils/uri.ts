@@ -74,6 +74,10 @@ export function chatUrl(convoId: string) {
     return `/mensajes/${convoId}`
 }
 
+export function topicMentionsUrl(id: string) {
+    return `/tema/menciones?i=${encodeParentheses(encodeURIComponent(id))}`
+}
+
 export function topicUrl(id?: string, version?: {did: string, rkey: string}, s?: WikiEditorState, base: string = "tema") {
     const params: string[] = []
 

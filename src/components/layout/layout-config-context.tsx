@@ -176,12 +176,9 @@ function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
 export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const params = useSearchParams()
     const pathname = usePathname()
-    const isMobileQuery = useMediaQuery('(max-width:600px)')
+    const isMobile = useMediaQuery('(max-width:900px)')
 
-    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobileQuery))
-
-
-    const isMobile = isMobileQuery || layoutConfig && !layoutConfig.spaceForMinimizedLeftSide
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobile))
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {

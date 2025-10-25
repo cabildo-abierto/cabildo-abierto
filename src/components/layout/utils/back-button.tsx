@@ -21,6 +21,7 @@ export const BackButton = ({onClick, defaultURL, behavior="ca-back", size="mediu
     const handleClick = () => {
         if(onClick) {
             onClick()
+            return
         }
 
         if(behavior == "true-back"){

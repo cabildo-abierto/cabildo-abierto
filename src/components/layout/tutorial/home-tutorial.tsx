@@ -99,6 +99,8 @@ const FirstFollowsMessage = ({open, onClose}: {
             <div className={"mt-4 w-full"}>
                 <SearchBar
                     fullWidth={true}
+                    paddingX={"8px"}
+                    paddingY={"4px"}
                     color={"background-dark"}
                     searchValue={searchState.value}
                     setSearchValue={v => {

@@ -1,23 +1,28 @@
 import StateButton from "../../layout/utils/state-button";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {createTopic, CreateTopicResults, CreateTopicSearchResults} from "@/components/writing/write-panel/create-topic";
 import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
 import LoadingSpinner from "../../layout/utils/loading-spinner";
+import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
+import Link from "next/link";
+import {topicUrl} from "@/utils/uri";
+import {Button} from "@/components/layout/utils/button";
 
 
-export default function TopicNotFoundPage({id}: { id: string }) {
+export default function TopicNotFoundPage() {
+    const {did, rkey, topicId: id} = useTopicPageParams()
     const name = decodeURIComponent(id).replaceAll("_", " ")
     const qc = useQueryClient()
     const [results, setResults] = useState<CreateTopicSearchResults>(null)
 
-    async function onSubmit() {
+    const onSubmit = useCallback(async () => {
         const {error} = await createTopic(id)
-        if(error) return {error}
+        if (error) return {error}
         qc.refetchQueries({queryKey: ["topic", id]})
 
         return {}
-    }
+    }, [id])
 
     async function search(v: string) {
         setResults("loading")
@@ -26,13 +31,43 @@ export default function TopicNotFoundPage({id}: { id: string }) {
     }
 
     useEffect(() => {
-        if(results == null){
+        if (results == null && id) {
             search(id)
         }
-    }, [results])
+    }, [results, id])
 
 
-    return <div className={"flex flex-col items-center space-y-3"}>
+    if (did && rkey && id) {
+        return <div className={"flex flex-col items-center space-y-6"}>
+            <div className="flex justify-center space-y-3 mt-32 px-6 flex-col items-center text-center">
+                <h2 className={"uppercase text-lg"}>No se encontró esta versión del tema</h2>
+                <h2 className={"text-lg text-[var(--text-light)]"}>{'"' + id + '"'}</h2>
+            </div>
+            <div>
+                <Link href={topicUrl(id)}>
+                    <Button size={"small"} variant={"outlined"}>
+                        Ir a la versión actual
+                    </Button>
+                </Link>
+            </div>
+        </div>
+    } else if(!id) {
+        return <div className={"flex flex-col items-center space-y-6"}>
+            <div className="flex justify-center space-y-3 mt-32 px-6 flex-col items-center text-center">
+                <h2 className={"uppercase text-lg"}>No se encontró esta versión del tema</h2>
+            </div>
+            <div>
+                <Link href={"/inicio"}>
+                    <Button size={"small"} variant={"outlined"}>
+                        Ir al inicio
+                    </Button>
+                </Link>
+            </div>
+        </div>
+    }
+
+
+    return <div className={"flex flex-col items-center space-y-6"}>
         <div className="flex justify-center space-y-3 mt-32 px-6 flex-col items-center text-center">
             <h2 className={"uppercase text-lg"}>No se encontró el tema</h2>
             <h2 className={"text-lg text-[var(--text-light)]"}>{'"' + name + '"'}</h2>
@@ -42,7 +77,7 @@ export default function TopicNotFoundPage({id}: { id: string }) {
             <LoadingSpinner/>
         </div>}
 
-        <CreateTopicResults results={results} topicName={id}/>
+        {results != null && results.length > 0 && <CreateTopicResults results={results} topicName={id}/>}
 
         <StateButton
             handleClick={onSubmit}

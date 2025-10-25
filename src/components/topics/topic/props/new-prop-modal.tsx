@@ -5,8 +5,10 @@ import 'dayjs/locale/es';
 import {BaseFullscreenPopup} from "../../../layout/utils/base-fullscreen-popup";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import { TextField } from "../../../layout/utils/text-field";
 import { Select } from "../../../layout/utils/select";
+import SearchableDropdown from "@/components/layout/utils/searchable-dropdown";
+import {useAPI} from "@/queries/utils";
+import LoadingSpinner from "@/components/layout/utils/loading-spinner";
 
 
 const propLexicons = [
@@ -27,6 +29,16 @@ function getTopicPropDisplayName(o: string) {
     throw Error(`Propiedad desconocida: ${o}`)
 }
 
+type KnownProp = {
+    name: string
+    type: PropValueType
+}
+
+function useKnownProps() {
+    return useAPI<KnownProp[]>("/known-props", ["known-props"])
+}
+
+
 export default function NewPropModal({open, onClose, onAddProp}: {
     open: boolean,
     onClose: () => void,
@@ -34,6 +46,7 @@ export default function NewPropModal({open, onClose, onAddProp}: {
 }) {
     const [name, setName] = useState("")
     const [dataType, setDataType] = useState<PropValueType>("ar.cabildoabierto.wiki.topicVersion#stringProp")
+    const {data: knownProps, isLoading} = useKnownProps()
 
     function cleanAndClose() {
         setName("")
@@ -42,7 +55,8 @@ export default function NewPropModal({open, onClose, onAddProp}: {
     }
 
     return <BaseFullscreenPopup open={open} onClose={cleanAndClose} closeButton={true}>
-        <div className={"px-6 pb-6 space-y-4 flex flex-col items-center"}>
+        {isLoading && <LoadingSpinner/>}
+        {!isLoading && <div className={"px-6 pb-6 space-y-4 flex flex-col items-center"}>
             <div className={"font-semibold"}>
                 Nueva propiedad
             </div>
@@ -56,14 +70,23 @@ export default function NewPropModal({open, onClose, onAddProp}: {
                 Más información.
             </Link>
             </div>
-            <TextField
+            <SearchableDropdown
                 size={"small"}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                options={knownProps.map(c => c.name)}
+                selected={name}
+                onChange={(e) => {
+                    if(knownProps) {
+                        const known = knownProps.find(p => p.name == e)
+                        if(known != null) {
+                            setDataType(known.type)
+                        }
+                    }
+                    setName(e)
+                }}
                 label={"Nombre de la propiedad"}
-                fullWidth
             />
             <Select
+                fontSize={"14px"}
                 options={propLexicons}
                 optionLabels={(o: string) => {
                     return getTopicPropDisplayName(o)
@@ -79,6 +102,6 @@ export default function NewPropModal({open, onClose, onAddProp}: {
             }} disabled={name.length == 0}>
                 Aceptar
             </Button>
-        </div>
+        </div>}
     </BaseFullscreenPopup>
 }

@@ -55,6 +55,8 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
                             searchValue={searchValue}
                             setSearchValue={setSearchValue}
                             color={"background"}
+                            paddingX={"8px"}
+                            paddingY={"6px"}
                         />
                     </div>
                     <div className={"h-[440px] overflow-y-scroll no-scrollbar"}>
