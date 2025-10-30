@@ -44,8 +44,8 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
 import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
-import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
-import {Button} from "../../layout/utils/button";
+import {BaseFullscreenPopup} from "../../layout/base/base-fullscreen-popup";
+import {BaseButton} from "../../layout/base/baseButton";
 import {ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
 import {getAllText} from "@/components/topics/topic/history/get-all-text";
 
@@ -440,7 +440,6 @@ export const WritePost = ({
                         user={user}
                         className="w-8 h-8 rounded-full"
                         descriptionOnHover={false}
-                        clickable={false}
                     />
                 </Link>
                 <div className="sm:text-lg flex-1" key={editorKey}>
@@ -471,19 +470,18 @@ export const WritePost = ({
                     setModalOpen={setVisualizationModalOpen}
                 />
             </div>
-            <div className={"flex space-x-2 text-[var(--text-light)] items-center"}>
+            <div className={"flex space-x-2 items-center"}>
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
                     variant={"outlined"}
-                    text1={postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
                     handleClick={async () => {
                         return await handleClickSubmit()
                     }}
                     disabled={!valid}
-                    textClassName="font-semibold text-xs py-[2px] uppercase"
-                    size="medium"
-                />
+                >
+                    {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
+                </StateButton>
             </div>
         </div>
         {visualizationModalOpen && <InsertVisualizationModal
@@ -514,7 +512,7 @@ export const WritePost = ({
                     Abierto pero no en Bluesky.
                 </div>
                 <div className={"flex space-x-2 justify-center"}>
-                    <Button
+                    <BaseButton
                         variant={"outlined"}
                         size={"small"}
                         onClick={() => {
@@ -522,7 +520,7 @@ export const WritePost = ({
                         }}
                     >
                         Cancelar
-                    </Button>
+                    </BaseButton>
                     <StateButton
                         variant={"outlined"}
                         size={"small"}
@@ -533,8 +531,9 @@ export const WritePost = ({
                             }
                             return {error}
                         }}
-                        text1={"Editar igualmente"}
-                    />
+                    >
+                        Editar igualmente
+                    </StateButton>
                 </div>
             </div>
         </BaseFullscreenPopup>}

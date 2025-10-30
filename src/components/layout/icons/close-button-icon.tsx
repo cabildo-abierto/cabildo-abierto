@@ -1,8 +1,4 @@
 
-import CloseIcon from '@mui/icons-material/Close';
-import {SvgIconProps} from "@mui/material";
+import {XIcon} from "@phosphor-icons/react";
 
-
-export const CloseButtonIcon = ({fontSize="medium", ...props}: SvgIconProps) => {
-    return <CloseIcon fontSize={fontSize} {...props}/>
-}
+export const CloseButtonIcon = XIcon

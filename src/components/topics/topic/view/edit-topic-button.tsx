@@ -1,4 +1,4 @@
-import { Button } from "@/components/layout/utils/button"
+import { BaseButton } from "@/components/layout/base/baseButton"
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {topicUrl} from "@/utils/uri";
 import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
@@ -9,11 +9,12 @@ import {useRouter} from "next/navigation";
 export const EditTopicButton = () => {
     const router = useRouter()
     const {did, rkey, topicId} = useTopicPageParams()
-    return <Button
+    return <BaseButton
         startIcon={<WriteButtonIcon/>}
         variant={"outlined"}
-        size={"small"}
-        onClick={() => {router.push(topicUrl(topicId, {did, rkey}, "editing"))}}>
+        className={"[&_svg]:size-4"}
+        onClick={() => {router.push(topicUrl(topicId, {did, rkey}, "editing"))}}
+    >
         Editar
-    </Button>
+    </BaseButton>
 }

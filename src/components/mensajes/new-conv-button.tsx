@@ -1,9 +1,9 @@
 import React, {useState} from "react";
-import {Button} from "../layout/utils/button";
-import AddIcon from "@mui/icons-material/Add";
+import {BaseButton} from "../layout/base/baseButton";
 import dynamic from "next/dynamic";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useSession} from "@/queries/getters/useSession";
+import {PlusIcon} from "@phosphor-icons/react";
 
 const CreateConvPanel = dynamic(() => import("@/components/mensajes/create-conv-panel"), {
     ssr: false
@@ -14,8 +14,8 @@ export default function NewConvButton() {
     const {setLoginModalOpen} = useLoginModal()
     const {user} = useSession()
     return <>
-        <Button
-            startIcon={<AddIcon/>}
+        <BaseButton
+            startIcon={<PlusIcon/>}
             size={"small"}
             onClick={() => {
                 if(user) {
@@ -24,17 +24,12 @@ export default function NewConvButton() {
                     setLoginModalOpen(true)
                 }
             }}
-            borderColor={"text-light"}
             variant={"outlined"}
-            color={"transparent"}
-            sx={{
-                borderRadius: 0,
-            }}
         >
             <span className={"uppercase text-[11px] py-[2px] font-semibold"}>
                 Nueva conversación
             </span>
-        </Button>
+        </BaseButton>
 
         {creatingConv && <CreateConvPanel open={creatingConv} onClose={() => {
             setCreatingConv(false)

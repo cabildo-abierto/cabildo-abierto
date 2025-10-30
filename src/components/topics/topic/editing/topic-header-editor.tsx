@@ -53,7 +53,6 @@ export const TopicHeaderEditor = ({
             items={cats.value.value}
             setItems={setProp}
             newItemText={"Agregar categoría"}
-            color={"transparent"}
             options={data}
         />}
     </div>

@@ -1,41 +1,41 @@
 import React, {ReactNode, useState} from 'react';
-import {ModalOnClickControlled} from "./modal-on-click-controlled";
+import DescriptionOnHover from "./description-on-hover";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import {cn} from "@/lib/utils";
 
-type ModalOnClickProps = {
+
+type ClickableModalOnClickProps = {
     children: ReactNode
     modal: (close: () => void) => ReactNode
-    disabled?: boolean
     className?: string
+    description?: string
 }
 
 export const ModalOnClick = ({
-                                 children, modal, disabled=false, className}: ModalOnClickProps) => {
-    const [open, setOpen] = useState(false)
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+                                 children,
+                                 modal,
+                                 description,
+    className
+                             }: ClickableModalOnClickProps) => {
+    const [open, setOpen] = useState(false);
 
-    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-        e.stopPropagation()
-        e.preventDefault()
-        if(!disabled){
-            setAnchorEl(e.currentTarget)
-            setOpen(true)
-        }
-    }
-
-    const handleClickAway = () => {
+    function onClose() {
         setOpen(false)
     }
 
-    return <ModalOnClickControlled
-        open={open}
-        setOpen={setOpen}
-        modal={modal}
-        anchorEl={anchorEl}
-        handleClick={handleClick}
-        handleClickAway={handleClickAway}
-        className={className}
-    >
-        {children}
-    </ModalOnClickControlled>
+    return <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger>
+            <DescriptionOnHover description={!open ? description : undefined}>
+                {children}
+            </DescriptionOnHover>
+        </PopoverTrigger>
+        <PopoverContent className={cn("z-[1002]", className)}>
+            {modal(onClose)}
+        </PopoverContent>
+    </Popover>
 }
 

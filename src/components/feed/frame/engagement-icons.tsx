@@ -7,7 +7,7 @@ import {RepostCounter} from "@/components/feed/frame/repost-counter";
 import {LikeCounter} from "@/components/feed/frame/like-counter";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {EngagementDetails} from "@/components/feed/frame/engagement-details";
-import {Color} from "../../layout/utils/color";
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
 
 
 type EngagementIconsProps = {
@@ -16,20 +16,18 @@ type EngagementIconsProps = {
     small?: boolean
     enDiscusion?: boolean
     showDetails?: boolean
-    iconFontSize?: number
+    iconSize?: BaseButtonProps["size"]
     textClassName?: string
-    iconHoverColor?: Color
 }
 
 
 export const EngagementIcons = ({
                                     content,
                                     className = "space-x-16",
-                                    iconFontSize = 22,
+                                    iconSize="default",
                                     enDiscusion,
                                     showDetails = false,
-                                    textClassName,
-                                    iconHoverColor = "background-dark"
+                                    textClassName
                                 }: EngagementIconsProps) => {
     const [showBsky, setShowBsky] = useState(false)
 
@@ -40,33 +38,36 @@ export const EngagementIcons = ({
             small={true}
         />}
 
-        <div className={"flex items-center justify-between exclude-links w-full pt-1 " + className}>
+        <div
+            className={"portal group flex items-center justify-between exclude-links w-full pt-1 " + className}
+        >
             {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
                 {content.replyCount != undefined && <div className={"flex-1"}>
                     <ReplyCounter
                         count={content.replyCount}
                         disabled={content.uri.includes("optimistic")}
-                        hoverColor={iconHoverColor}
                         textClassName={textClassName}
                         content={content}
-                        iconFontSize={iconFontSize}
+                        iconSize={iconSize}
                     />
                 </div>}
-                {content.repostCount != undefined && <div className={"flex-1"}><RepostCounter
-                    content={content}
-                    showBsky={showBsky}
-                    repostUri={content.viewer ? content.viewer.repost : undefined}
-                    iconFontSize={iconFontSize}
-                    textClassName={textClassName}
-                    hoverColor={iconHoverColor}
-                /></div>}
-                {content.likeCount != undefined && <div className={"flex-1"}><LikeCounter
-                    content={content}
-                    showBsky={showBsky}
-                    iconFontSize={iconFontSize}
-                    textClassName={textClassName}
-                    hoverColor={iconHoverColor}
-                /></div>}
+                {content.repostCount != undefined && <div className={"flex-1"}>
+                    <RepostCounter
+                        content={content}
+                        showBsky={showBsky}
+                        repostUri={content.viewer ? content.viewer.repost : undefined}
+                        iconSize={iconSize}
+                        textClassName={textClassName}
+                    />
+                </div>}
+                {content.likeCount != undefined && <div className={"flex-1"}>
+                    <LikeCounter
+                        content={content}
+                        showBsky={showBsky}
+                        iconSize={iconSize}
+                        textClassName={textClassName}
+                    />
+                </div>}
             </>}
 
             <ContentOptionsButton
@@ -74,8 +75,7 @@ export const EngagementIcons = ({
                 enDiscusion={enDiscusion}
                 showBluesky={showBsky}
                 setShowBluesky={setShowBsky}
-                iconFontSize={iconFontSize}
-                iconHoverColor={iconHoverColor}
+                iconSize={iconSize}
             />
         </div>
     </div>

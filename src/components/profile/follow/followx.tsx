@@ -1,6 +1,6 @@
 import {useFollowx} from "@/queries/getters/useFollowx";
 import {FollowKind} from "@/components/profile/follow/followx-page";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import dynamic from "next/dynamic";
 import {useProfile} from "@/queries/getters/useProfile";
 import {FollowCount} from "@/components/profile/follow/follow-counter";
@@ -19,19 +19,12 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
     const bskyCount = kind == "seguidores" ? profile.bskyFollowersCount : profile.bskyFollowsCount
 
     return <div>
-        {profile && <div className={"w-full flex p-2 sm:text-base text-sm border-b space-x-1 text-[var(--text-light)] items-baseline"}>
-            <div className={"flex space-x-1"}>
-                <FollowCount count={kind == "seguidores" ? profile.followersCount : profile.followsCount} kind={kind}/>
-                <div className={""}>
-                    en Cabildo Abierto,
-                </div>
-            </div>
-            <div className={"flex space-x-1"}>
-                <FollowCount count={bskyCount} kind={kind}/>
-                <div className={""}>
-                    en Bluesky
-                </div>
-            </div>
+        {profile && <div className={"w-full p-2 sm:text-base text-sm border-b text-[var(--text-light)]"}>
+            <FollowCount count={kind == "seguidores" ? profile.followersCount : profile.followsCount} kind={kind}/> <span>
+                en Cabildo Abierto,
+            </span> <FollowCount count={bskyCount} kind={kind}/> <span>
+                en Bluesky
+            </span>.
         </div>}
         {data.map((user) => {
             return <div key={user.did}>

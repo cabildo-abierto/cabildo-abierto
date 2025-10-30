@@ -1,14 +1,14 @@
 import {useState} from "react";
-import {Button} from "../../../layout/utils/button";
+import {BaseButton} from "../../../layout/base/baseButton";
 import {PropValueType} from "@/components/topics/topic/utils";
 import 'dayjs/locale/es';
-import {BaseFullscreenPopup} from "../../../layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../../layout/base/base-fullscreen-popup";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import { Select } from "../../../layout/utils/select";
-import SearchableDropdown from "@/components/layout/utils/searchable-dropdown";
+import BaseTextFieldWithSuggestions from "@/components/layout/base/base-text-field-with-suggestions";
 import {useAPI} from "@/queries/utils";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
+import BaseSelect from "@/components/layout/base/base-select";
 
 
 const propLexicons = [
@@ -70,10 +70,9 @@ export default function NewPropModal({open, onClose, onAddProp}: {
                 Más información.
             </Link>
             </div>
-            <SearchableDropdown
-                size={"small"}
+            <BaseTextFieldWithSuggestions
                 options={knownProps.map(c => c.name)}
-                selected={name}
+                value={name}
                 onChange={(e) => {
                     if(knownProps) {
                         const known = knownProps.find(p => p.name == e)
@@ -85,23 +84,25 @@ export default function NewPropModal({open, onClose, onAddProp}: {
                 }}
                 label={"Nombre de la propiedad"}
             />
-            <Select
-                fontSize={"14px"}
+            <BaseSelect
+                itemClassName={""}
                 options={propLexicons}
                 optionLabels={(o: string) => {
                     return getTopicPropDisplayName(o)
                 }}
                 label={"Tipo de propiedad"}
-                backgroundColor={"background"}
                 value={dataType}
                 onChange={(e) => {setDataType(e as PropValueType)}}
             />
-            <Button size={"small"} onClick={() => {
+            <div className={"text-xs font-light text-[var(--text-light)]"}>
+                Para agregar una imagen, elegí tipo texto y usá el URL.
+            </div>
+            <BaseButton size={"small"} onClick={() => {
                 cleanAndClose();
                 onAddProp(name, dataType)
             }} disabled={name.length == 0}>
                 Aceptar
-            </Button>
+            </BaseButton>
         </div>}
     </BaseFullscreenPopup>
 }

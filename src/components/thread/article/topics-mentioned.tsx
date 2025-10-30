@@ -1,8 +1,7 @@
 import {topicUrl} from "@/utils/uri";
 import { ModalOnHover } from "../../layout/utils/modal-on-hover";
-import TagIcon from '@mui/icons-material/Tag';
 import Link from "next/link";
-import { IconButton } from "../../layout/utils/icon-button";
+import { BaseIconButton } from "../../layout/base/base-icon-button";
 import {useMemo} from "react";
 import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
@@ -26,9 +25,11 @@ export const TopicsMentionedSmall = ({mentions}: TopicsMentionedProps) => {
     </div>
 
     return <ModalOnHover modal={modal}>
-        <IconButton size={"small"} color={"background-dark"} textColor={"text-light"}>
-            <TagIcon/>
-        </IconButton>
+        <BaseIconButton
+            size={"small"}
+        >
+            <TopicsIcon/>
+        </BaseIconButton>
     </ModalOnHover>
 }
 

@@ -1,5 +1,5 @@
+import { CopyIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 export const CopyUrlButton = () => {
   const [isCopied, setIsCopied] = useState(false);
@@ -18,7 +18,7 @@ export const CopyUrlButton = () => {
   return (
     <button onClick={copyToClipboard} className="gray-btn w-64">
         <div className="py-1 flex items-center space-x-2 justify-center">
-            <ContentCopyIcon fontSize="inherit"/> <div>{isCopied ? '¡Copiado!' : 'Copiar link'}</div>
+            <CopyIcon/> <div>{isCopied ? '¡Copiado!' : 'Copiar link'}</div>
         </div>
     </button>
   );

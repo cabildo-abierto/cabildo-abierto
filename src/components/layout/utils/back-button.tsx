@@ -1,15 +1,13 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {IconButton} from "@/components/layout/utils/icon-button"
+import {BaseIconButton} from "@/components/layout/base/base-icon-button"
 import {useRouter} from "next/navigation";
+import {ArrowLeftIcon} from "@phosphor-icons/react";
 
-import {Color} from "./color";
-
-export const BackButton = ({onClick, defaultURL, behavior="ca-back", size="medium", color="background"}: {
-    behavior?: "ca-back" | "true-back" | "fixed",
-    size?: "small" | "medium" | "large"
+export const BackButton = ({onClick, defaultURL, behavior="ca-back", size="default", className}: {
+    behavior?: "ca-back" | "true-back" | "fixed"
+    size?: "small" | "default" | "large"
     defaultURL?: string
     onClick?: () => void
-    color?: Color
+    className?: string
 }) => {
     const router = useRouter()
 
@@ -39,8 +37,12 @@ export const BackButton = ({onClick, defaultURL, behavior="ca-back", size="mediu
     }
 
     return (
-        <IconButton sx={{borderRadius: 0}} size={size} color={color} onClick={handleClick}>
-            <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
-        </IconButton>
+        <BaseIconButton
+            size={size}
+            className={className}
+            onClick={handleClick}
+        >
+            <ArrowLeftIcon/>
+        </BaseIconButton>
     )
 }

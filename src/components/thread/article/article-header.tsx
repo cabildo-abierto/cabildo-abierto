@@ -32,7 +32,7 @@ export const ArticleHeader = ({article}: {article: ArCabildoabiertoFeedDefs.Full
                 />
             </div>
         </div>
-        {article.editedAt != null && <div className={"text-xs flex justify-end font-light text-[var(--text-light)]"}>
+        {article.editedAt != null && <div className={"pr-4 text-xs flex justify-end font-light text-[var(--text-light)]"}>
             Editado {localeDate(new Date(article.editedAt), false, false, false, true)}.
         </div>}
     </>

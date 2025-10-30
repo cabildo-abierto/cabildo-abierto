@@ -1,10 +1,8 @@
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
-import {CheckIcon, XIcon} from "@phosphor-icons/react";
+import {CaretDownIcon, CaretUpIcon, CheckIcon, XIcon} from "@phosphor-icons/react";
 import {VoteEditButtons} from "@/components/topics/topic/votes/vote-edit-buttons";
-import {Button} from "@/components/layout/utils/button";
+import {BaseButton} from "@/components/layout/base/baseButton";
 import {useEffect, useState} from "react";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import {TopicVotesList} from "@/components/topics/topic/votes/topic-votes-list";
 import {TopicHistoryPanel} from "@/components/topics/topic/view/topic-history-panel";
 import { sum } from "@/utils/arrays";
@@ -55,11 +53,9 @@ export const TopicVotesOnFeed = ({topic, setWritingReply}: {
                 </div>}
             </div>
             <div className={"flex justify-between"}>
-
-                <Button
+                <BaseButton
                     size={"small"}
-                    variant={"text"}
-                    color={"transparent"}
+                    variant={"default"}
                     onClick={() => {
                         setOpenHistory(true)
                     }}
@@ -67,22 +63,21 @@ export const TopicVotesOnFeed = ({topic, setWritingReply}: {
                     <div className={"text-xs"}>
                         Historial de versiones
                     </div>
-                </Button>
+                </BaseButton>
                 <div className={"flex space-x-2 justify-between items-center border-[var(--accent-dark)]"}>
                     <div className={"flex space-x-2 items-center"}>
                         {accepts + rejects > 0 && <div>
-                            <Button
+                            <BaseButton
                                 onClick={() => {
                                     setVotesPanelOpen(!votesPanelOpen)
                                 }}
                                 size={"small"}
-                                color={"transparent"}
-                                startIcon={!votesPanelOpen ? <KeyboardArrowDownIcon/> : <KeyboardArrowUpIcon/>}
+                                startIcon={!votesPanelOpen ? <CaretDownIcon/> : <CaretUpIcon/>}
                             >
                                 <div className={"text-xs"}>
                                     Ver votos
                                 </div>
-                            </Button>
+                            </BaseButton>
                         </div>}
                         <VoteEditButtons
                             topicId={topic.id}

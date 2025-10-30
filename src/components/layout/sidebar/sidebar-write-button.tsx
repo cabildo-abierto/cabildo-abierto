@@ -1,5 +1,5 @@
-import {Button} from "../utils/button";
-import {IconButton} from "../utils/icon-button";
+import {BaseButton} from "../base/baseButton";
+import {BaseIconButton} from "../base/base-icon-button";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import React from "react";
 
@@ -7,34 +7,31 @@ export const SidebarWriteButton = ({onClick, showText}: { showText: boolean, onC
 
     return <>
         <div className={"my-2 h-12 pl-2 " + (showText ? "pr-4 sm:w-[180px] w-full max-w-[300px]" : "")}>
-            {showText ? <Button
+            {showText ? <BaseButton
                     startIcon={<WriteButtonIcon/>}
                     size={"large"}
                     variant={"outlined"}
-                    fullWidth={true}
                     onClick={() => {
                         onClick()
                     }}
                     id={"write-button"}
+                    fontWeight={500}
+                    letterSpacing={"0.02em"}
                 >
-                    <span className={"font-semibold text-[16px] sm:text-[14px]"}>
+                    <span className={"text-[16px] sm:text-[14px]"}>
                         Escribir
                     </span>
-                </Button> :
-                <IconButton
-                    color={"background-dark"}
+                </BaseButton> :
+                <BaseIconButton
+                    variant={"outlined"}
+                    size={"large"}
                     onClick={() => {
                         onClick()
                     }}
-                    sx={{
-                        borderRadius: "0",
-                        border: "1px solid var(--accent-dark)"
-                    }}
-                    size={"medium"}
                     id={"write-button"}
                 >
                     <WriteButtonIcon/>
-                </IconButton>
+                </BaseIconButton>
             }
         </div>
     </>

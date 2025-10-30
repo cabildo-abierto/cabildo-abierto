@@ -1,4 +1,4 @@
-import { IconButton } from "../../layout/utils/icon-button";
+import { BaseIconButton } from "../../layout/base/base-icon-button";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 
 
@@ -9,18 +9,16 @@ export const AddVisualizationButton = ({
     disabled: boolean
     setModalOpen: (open: boolean) => void
 }) => {
-    return <IconButton
+
+    return <BaseIconButton
         onClick={() => {
             setModalOpen(true)
         }}
         disabled={disabled}
-        size={"small"}
-        sx={{
-            borderRadius: 0
-        }}
+        size={"default"}
         title="Agregar visualización"
         aria-label="Agregar visualización"
     >
         <VisualizationIcon fontSize={20}/>
-    </IconButton>
+    </BaseIconButton>
 }

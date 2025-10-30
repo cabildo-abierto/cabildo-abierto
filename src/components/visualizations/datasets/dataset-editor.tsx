@@ -3,7 +3,7 @@ import {ColumnFilter} from "@/lex-api/types/ar/cabildoabierto/embed/visualizatio
 import {DatasetTableView} from "./dataset-table-view";
 import {ArCabildoabiertoDataDataset} from "@/lex-api"
 import {useMemo, useState} from "react";
-import {TextField} from "@/components/layout/utils/text-field";
+import {BaseTextField} from "@/components/layout/base/base-text-field";
 import {produce} from "immer";
 import Papa from "papaparse";
 import StateButton from "@/components/layout/utils/state-button";
@@ -11,6 +11,7 @@ import {UploadDatasetButton} from "@/components/visualizations/datasets/upload-d
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {post} from "@/utils/fetch";
 import {DatasetSize} from "@/components/visualizations/datasets/dataset-size";
+import {BaseTextArea} from "@/components/layout/base/base-text-area";
 
 
 export type DatasetEditState = Omit<ArCabildoabiertoDataDataset.DatasetView, "$type" | "data" | "uri" | "cid" | "author" | "createdAt"> & {
@@ -112,18 +113,16 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
                 {dataset ? "Editar conjunto de datos" : "Nuevo conjunto de datos"}
             </h2>
             <StateButton
-                size="medium"
                 variant="outlined"
-                text1={dataset ? "Guardar cambios" : "Publicar"}
                 handleClick={onPublish}
                 disabled={!validDataset}
-            />
+            >
+                {dataset ? "Guardar cambios" : "Publicar"}
+            </StateButton>
         </div>
         <div className={"flex flex-col space-y-4"}>
-            <TextField
-                size={"small"}
+            <BaseTextField
                 value={newDataset.name}
-                fullWidth={true}
                 label={"Nombre"}
                 onChange={e => {
                     setNewDataset(produce(newDataset, draft => {
@@ -131,14 +130,10 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
                     }))
                 }}
             />
-            <TextField
-                size={"small"}
-                paddingX={"12px"}
+            <BaseTextArea
                 value={newDataset.description}
-                fullWidth={true}
                 label={"Descripción"}
-                minRows={3}
-                multiline={true}
+                rows={3}
                 onChange={e => {
                     setNewDataset(produce(newDataset, draft => {
                         draft.description = e.target.value

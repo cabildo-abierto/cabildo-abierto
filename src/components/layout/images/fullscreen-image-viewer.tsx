@@ -1,12 +1,11 @@
 import {useEffect} from "react";
-import {IconButton} from "../utils/icon-button";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import {BaseIconButton} from "../base/base-icon-button";
 import {CloseButton} from "../utils/close-button";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {ATProtoImage} from "@/components/layout/images/atproto-image";
 import {createPortal} from "react-dom";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {AppBskyEmbedImages} from "@atproto/api"
+import {ArrowLeftIcon, ArrowRightIcon} from "@phosphor-icons/react";
 
 const FullscreenImageViewer = ({
                                    images,
@@ -70,36 +69,35 @@ const FullscreenImageViewer = ({
             <div className="absolute z-[3001] left-2 top-1/2">
                 {viewing > 0 ? (
                     <div className={""}>
-                        <IconButton onClick={(e) => {
+                        <BaseIconButton onClick={(e) => {
                             e.stopPropagation();
                             setViewing(viewing - 1);
                         }}>
-                            <ArrowBackIosNewIcon/>
-                        </IconButton>
+                            <ArrowLeftIcon/>
+                        </BaseIconButton>
                     </div>
                 ) : null}
             </div>
             <div className="absolute z-[3001] right-2 top-1/2">
                 {viewing < images.length - 1 && (
                     <div className={""}>
-                        <IconButton
+                        <BaseIconButton
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setViewing(viewing + 1);
                             }}
                         >
-                            <ArrowForwardIosIcon/>
-                        </IconButton>
+                            <ArrowRightIcon/>
+                        </BaseIconButton>
                     </div>
                 )}
             </div>
             <div className="absolute z-[3001] right-2 top-2">
                 <CloseButton
                     onClose={() => {
-                    setViewing(null)
+                        setViewing(null)
                     }}
-                    hoverColor={"transparent"}
-                    iconColor={"white-text"}
+                    className={"hover:bg-transparent"}
                 />
             </div>
         </div>

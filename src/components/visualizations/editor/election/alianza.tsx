@@ -8,7 +8,6 @@ import {
 import React, {useMemo, useState} from "react";
 import {TopicLinkButton} from "@/components/visualizations/editor/election/topic-link-button";
 import {CandidatePreview} from "@/components/visualizations/editor/election/distrito-comp";
-import {Color} from "@/components/layout/utils/color";
 import {ListCandidateAttr} from "@/components/visualizations/editor/election/candidate";
 import {CaretCircleRightIcon} from "@phosphor-icons/react";
 
@@ -66,11 +65,12 @@ const Lista = ({cargo, subcargos, onSelect}: {
 }
 
 
-export const Propuestas = ({propuestas, preview=false}: {
+export const Propuestas = ({propuestas, preview = false}: {
     propuestas: string[]
     preview?: boolean
 }) => {
-    return <div className={"custom-scrollbar " + (preview ? "overflow-y-clip max-h-[80px]" : "max-h-[300px] overflow-y-auto custom-scrollbar")}>
+    return <div
+        className={"custom-scrollbar " + (preview ? "overflow-y-clip max-h-[80px]" : "max-h-[300px] overflow-y-auto custom-scrollbar")}>
         {propuestas ? propuestas.map((p, i) => {
             return <div
                 key={i}
@@ -118,13 +118,11 @@ export const AlianzaComp = ({
                                 plotter,
                                 onSelect,
                                 height,
-                                backgroundColor = "background",
-    width
+                                width
                             }: {
     alianza: Alianza
     height: number
     plotter: ElectionPlotter
-    backgroundColor?: Color
     onSelect: (e: ElectionElement) => void
     width: number
 }) => {
@@ -137,13 +135,13 @@ export const AlianzaComp = ({
         style={{height}}
     >
         <div className={"flex justify-between"}>
-            <div>
-                <div className={"py-1 text-lg"}>
-                    {alianza.nombre}
-                </div>
+            <div className={"py-1 text-lg"}>
+                {alianza.nombre}
             </div>
             {alianza.idTema && <div className={"flex justify-end mt-2 text-sm font-extralight"}>
-                <TopicLinkButton id={alianza.idTema} backgroundColor={backgroundColor}/>
+                <TopicLinkButton
+                    id={alianza.idTema}
+                />
             </div>}
         </div>
         <div className={"space-y-2"}>
@@ -172,7 +170,7 @@ export const AlianzaComp = ({
                 setSelectedDistrict(d)
             }}
         />
-        <div className={"gap-2 grid grid-cols-2 mt-2 " + (width >= 800 ? "grid-cols-2" : "grid-cols-1")}>
+        <div className={"gap-2 grid mt-2 " + (width >= 800 ? "grid-cols-2" : "grid-cols-1")}>
             {["Diputados", "Senadores"].map((cargo: Cargo) => {
                 return <div
                     key={cargo}

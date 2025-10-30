@@ -7,15 +7,16 @@ import TickButton from "../../layout/utils/tick-button";
 import StateButton from "../../layout/utils/state-button";
 import {getTopicTitle, validEntityName} from "@/components/topics/topic/utils";
 import {useSession} from "@/queries/getters/useSession";
-import {Button} from "../../layout/utils/button";
+import {BaseButton} from "../../layout/base/baseButton";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
-import {IconButton} from "../../layout/utils/icon-button";
+import {BaseIconButton} from "../../layout/base/base-icon-button";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {CreateTopicVersionProps} from "@/components/topics/topic/editing/save-edit-button";
+import {BaseTextField} from "@/components/layout/base/base-text-field";
 
 export const createTopic = async (id: string) => {
     id = id.trim()
@@ -46,10 +47,8 @@ const CreateTopicButtons = ({
     goToArticle,
     onClose,
     results,
-    onBack,
     disabled
 }: {
-    onBack: () => void
     topicName: string
     goToArticle: boolean
     onClose: () => void
@@ -86,17 +85,16 @@ const CreateTopicButtons = ({
 
     return <div className="space-x-2 text-[var(--text-light)] w-full flex justify-between items-center">
         <div className={"flex space-x-1 items-center"}>
-            {results != "loading" && topicName.length > 0 && <IconButton
+            {results != "loading" && topicName.length > 0 && <BaseIconButton
                 onClick={() => {
                     search(topicName)
                 }}
                 size={"small"}
-                color={"background-dark2"}
             >
                 <MagnifyingGlassIcon weight={"bold"} color={"var(--text-light)"}/>
-            </IconButton>}
+            </BaseIconButton>}
             {results == "loading" && <div>
-                <LoadingSpinner size={"16px"}/>
+                <LoadingSpinner className={"w-4 h-4"}/>
             </div>}
             {results != "loading" && results && results.length == 0 && <div
                 className={"flex space-x-1 text-center"}
@@ -108,30 +106,14 @@ const CreateTopicButtons = ({
             </div>}
         </div>
         <div className={"space-x-2"}>
-            {onBack && <Button
-                onClick={onBack}
-                variant={"text"}
-                color={"transparent"}
-                size={"small"}
-                sx={{
-                    ":hover": {
-                        backgroundColor: "var(--background-dark3)"
-                    }
-                }}
-            >
-                <span className={"text-[var(--text-light)]"}>
-                    Volver
-                </span>
-            </Button>}
             <StateButton
                 handleClick={onSubmit}
                 disabled={disabled}
-                size={"small"}
-                textClassName="px-4"
+                size={"default"}
                 variant={"outlined"}
-                color={"background-dark"}
-                text1="Crear tema"
-            />
+            >
+                Crear tema
+            </StateButton>
         </div>
     </div>
 }
@@ -185,7 +167,7 @@ const CreateTopicInput = ({
 }) => {
     return <div className={"h-full space-y-3"}>
         <div className={"w-full"}>
-            <input
+            <BaseTextField
                 value={topicName}
                 onChange={(e) => {
                     setTopicName(e.target.value);
@@ -193,7 +175,8 @@ const CreateTopicInput = ({
                 }}
                 placeholder="Título del tema..."
                 autoFocus={true}
-                className={"border-[var(--accent-dark)] border w-full bg-[var(--background)] py-1 px-2 text-base outline-none"}
+                inputClassName={"text-base py-1.5 px-3"}
+                inputGroupClassName={"bg-[var(--background-dark)]"}
             />
         </div>
         {topicName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
@@ -226,30 +209,24 @@ const CreateTopicOptions = ({
     setSelected: (v: string) => void
 }) => {
     return <div className={"flex justify-center items-center min-h-64 flex-grow "}>
-        <div className={"flex space-x-8 h-full"}>
+        <div className={"flex space-x-8 h-full items-center"}>
             <Link href={"/temas?view=lista"} onClick={onClose}>
-                <Button
+                <BaseButton
                     variant={"outlined"}
-                    sx={{
-                        width: "150px",
-                        borderRadius: 0
-                    }}
+                    className={"w-[150px]"}
                 >
-                    <span>Editar un tema</span>
-                </Button>
+                    Editar un tema
+                </BaseButton>
             </Link>
-            <Button
+            <BaseButton
                 variant={"outlined"}
                 onClick={() => {
                     setSelected("new")
                 }}
-                sx={{
-                    width: "150px",
-                    borderRadius: 0
-                }}
+                className={"w-[150px]"}
             >
-                <span className={""}>Nuevo tema</span>
-            </Button>
+                Nuevo tema
+            </BaseButton>
         </div>
     </div>
 }
@@ -258,10 +235,12 @@ const CreateTopicOptions = ({
 type CreateTopicProps = {
     onClose: () => void
     initialSelected?: string
-    backButton?: boolean
 }
 
-export const CreateTopic = ({onClose, initialSelected = "none", backButton = true}: CreateTopicProps) => {
+export const CreateTopic = ({
+                                onClose,
+                                initialSelected = "none"
+}: CreateTopicProps) => {
     const user = useSession();
     const [topicName, setTopicName] = useState("");
     const [goToArticle, setGoToArticle] = useState(true)
@@ -277,7 +256,7 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
 
     const disabled = !user.user || !validEntityName(topicName)
 
-    return <div className="space-y-3 p-4 flex-grow flex flex-col justify-between">
+    return <div className="space-y-3 p-4 flex-grow flex flex-col justify-between min-h-[250px]">
         <CreateTopicInput
             disabled={disabled}
             topicName={topicName}
@@ -295,7 +274,6 @@ export const CreateTopic = ({onClose, initialSelected = "none", backButton = tru
             goToArticle={goToArticle}
             disabled={disabled}
             setResults={setResults}
-            onBack={backButton ? () => {setSelected("none")} : undefined}
         />
     </div>
 }

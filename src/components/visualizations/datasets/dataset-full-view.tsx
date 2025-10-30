@@ -4,14 +4,10 @@ import {DateSince} from "../../layout/utils/date";
 import {ArCabildoabiertoDataDataset} from "@/lex-api"
 import {Authorship} from "@/components/feed/frame/authorship";
 import {$Typed} from "@/lex-api/util";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api"
-import {OptionsButton} from "../../layout/options/options-button";
-import {OptionsShareButton} from "@/components/layout/options/options-share-button";
-import OptionsDeleteButton from "@/components/layout/options/options-delete-button";
-import {OptionsEditDatasetButton} from "@/components/layout/options/options-edit-dataset-button";
 import {DatasetSize} from "@/components/visualizations/datasets/dataset-size";
-import {OptionsDownloadDatasetButton} from "@/components/layout/options/options-download-dataset-button";
+import {DatasetOptionsButton} from "@/components/layout/options/dataset-options-button";
 
 
 export type AnyDatasetView = $Typed<ArCabildoabiertoDataDataset.DatasetView> | $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic> | $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView>
@@ -29,20 +25,7 @@ export const DatasetFullView = ({dataset, maxWidth, filters, onClickEdit}: {
         <div className={"flex flex-col space-y-1"}>
             <div className={"flex justify-between items-start space-x-2"}>
                 <h2>{name}</h2>
-                <OptionsButton>
-                    {(onClose) => <>
-                        {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <OptionsShareButton uri={dataset.uri}/>}
-                        {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && onClickEdit && <OptionsEditDatasetButton
-                            dataset={dataset}
-                            onClickEdit={onClickEdit}
-                        />}
-                        {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <OptionsDeleteButton uri={dataset.uri} onClose={onClose}/>}
-                        {!ArCabildoabiertoDataDataset.isDatasetViewBasic(dataset) && <OptionsDownloadDatasetButton
-                            dataset={dataset}
-                            name={ArCabildoabiertoDataDataset.isDatasetView(dataset) ? dataset.name : undefined}
-                        />}
-                    </>}
-                </OptionsButton>
+                <DatasetOptionsButton dataset={dataset} onClickEdit={onClickEdit}/>
             </div>
             {!ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) &&
                 <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>

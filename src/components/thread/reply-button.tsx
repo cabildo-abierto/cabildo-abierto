@@ -1,41 +1,25 @@
-import {Button} from "../layout/utils/button";
+import {BaseButton, BaseButtonProps} from "../layout/base/baseButton";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
-import { Color } from "../layout/utils/color";
 
 
 export const ReplyButton = ({
                                 onClick,
                                 text = "Responder",
-                                fullWidth = true,
-    variant="text",
-    color="background",
-    size,
-    borderLeftAndRight = 0
+                                variant = "default",
+                                size
                             }: {
     onClick: () => void
     text?: string
-    fullWidth?: boolean
-    variant?: "text" | "outlined" | "contained"
-    color?: Color
-    size?: "small" | "medium" | "large"
-    borderLeftAndRight?: number
+    variant?: BaseButtonProps["variant"]
+    size?: BaseButtonProps["size"]
 }) => {
-    return <Button
-        color={color}
+    return <BaseButton
         onClick={onClick}
         variant={variant}
-        sx={{
-            flexDirection: "row",
-            justifyContent: "left",
-            borderLeft: borderLeftAndRight,
-            borderRight: borderLeftAndRight
-        }}
+        className={"flex w-full text-xs border-[var(--accent-dark)] border-t border-b justify-start px-[22px]"}
         size={size}
-        paddingX={"22px"}
-        fullWidth={fullWidth}
         startIcon={<WriteButtonIcon/>}
-        borderColor={"accent-dark"}
     >
-        <span className="uppercase text-xs py-1">{text}</span>
-    </Button>
+        {text}
+    </BaseButton>
 }

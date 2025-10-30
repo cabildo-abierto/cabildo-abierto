@@ -1,11 +1,11 @@
 import {LexicalEditor} from "lexical";
 import {useEffect, useState} from "react";
-import {BaseFullscreenPopup} from "@/components/layout/utils/base-fullscreen-popup";
-import {Button} from "@/components/layout/utils/button";
+import {BaseFullscreenPopup} from "@/components/layout/base/base-fullscreen-popup";
+import {BaseButton} from "@/components/layout/base/baseButton";
 import {
     INSERT_TABLE_COMMAND,
 } from '@lexical/table';
-import {TextField} from "@/components/layout/utils/text-field";
+import {BaseTextField} from "@/components/layout/base/base-text-field";
 
 
 export default function InsertTableModal({
@@ -41,11 +41,11 @@ export default function InsertTableModal({
     };
 
     return (
-        <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} backgroundShadow={false}>
+        <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} backgroundShadow={false} className={"sm:w-auto bg-[var(--background-dark)] portal group"}>
             <div className={"flex flex-col space-y-8 p-4 items-center"}>
                 <div className={"flex space-x-4 pt-4"}>
                     <div className={"w-24"}>
-                        <TextField
+                        <BaseTextField
                             placeholder={'1 a 500'}
                             label="Filas"
                             onChange={(e) => {
@@ -53,12 +53,10 @@ export default function InsertTableModal({
                             }}
                             value={rows}
                             type="number"
-                            size={"small"}
-                            sx={{backgroundColor: "var(--background-dark2)"}}
                         />
                     </div>
                     <div className={"w-24"}>
-                        <TextField
+                        <BaseTextField
                             placeholder={'1 a 50'}
                             label="Columnas"
                             onChange={(e) => {
@@ -66,20 +64,18 @@ export default function InsertTableModal({
                             }}
                             value={columns}
                             type="number"
-                            size={"small"}
-                            sx={{backgroundColor: "var(--background-dark2)"}}
                         />
                     </div>
                 </div>
                 <div className={"flex space-x-4"}>
-                    <Button
+                    <BaseButton
                         variant={"outlined"}
                         disabled={isDisabled}
                         onClick={onClick}
                         size={"small"}
                     >
                         Insertar
-                    </Button>
+                    </BaseButton>
                 </div>
             </div>
         </BaseFullscreenPopup>

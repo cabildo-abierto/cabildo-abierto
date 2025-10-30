@@ -63,8 +63,6 @@ const NotInterestedButton = ({subject}: { subject: string }) => {
     }
 
     return <CloseButton
-        color={"transparent"}
-        hoverColor={"background-dark2"}
         size={"small"}
         onClose={onClose}
     />
@@ -92,7 +90,7 @@ const UserSearchResult = ({
                 onClick(user.did)
             }
         }}
-        className={"w-full flex hover:bg-[var(--background-dark)] border-b py-3"}
+        className={"w-full portal group flex hover:bg-[var(--background-dark)] border-b py-3"}
     >
         <div className={"px-3"}>
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>
@@ -115,8 +113,11 @@ const UserSearchResult = ({
         </div>
         <div className={"px-2 w-[200px] flex flex-col items-end justify-between space-y-4"}>
             {showFollowButton && <div className={"flex space-x-2 items-center"}>
-                <FollowButton textClassName={"text-[12px] sm:text-[12px]"} dense={isMobile} handle={user.handle}
-                              profile={user}/>
+                <FollowButton
+                    dense={isMobile} // TO DO: Esto no debería hacer falta
+                    handle={user.handle}
+                    profile={user}
+                />
                 {isSuggestion && <NotInterestedButton subject={user.did}/>}
             </div>}
         </div>

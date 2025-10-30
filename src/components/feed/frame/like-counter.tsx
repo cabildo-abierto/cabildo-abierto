@@ -8,15 +8,19 @@ import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import { useLikeMutation } from "@/queries/mutations/like";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
-import { Color } from "../../layout/utils/color";
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
 
 
-export const LikeCounter = ({content, showBsky, hoverColor, iconFontSize, textClassName}: {
+export const LikeCounter = ({
+                                content,
+                                showBsky,
+                                iconSize="default",
+                                textClassName
+}: {
     content: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     showBsky: boolean
-    iconFontSize: number
+    iconSize: BaseButtonProps["size"]
     textClassName?: string
-    hoverColor?: Color
 }) => {
     const {user} = useSession()
     const {setLoginModalOpen} = useLoginModal()
@@ -52,9 +56,9 @@ export const LikeCounter = ({content, showBsky, hoverColor, iconFontSize, textCl
     return <ReactionButton
         onClick={onClick}
         active={active}
-        hoverColor={hoverColor}
-        iconActive={<ActiveLikeIcon color={"like"} fontSize={iconFontSize}/>}
-        iconInactive={<InactiveLikeIcon color={"text"} fontSize={iconFontSize}/>}
+        iconSize={iconSize}
+        iconActive={<ActiveLikeIcon color="var(--like)"/>}
+        iconInactive={<InactiveLikeIcon color="var(--text)"/>}
         disabled={disabled}
         count={count}
         textClassName={textClassName}

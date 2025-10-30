@@ -1,3 +1,3 @@
-import SettingsIcon from '@mui/icons-material/Settings';
+import {GearIcon} from "@phosphor-icons/react";
 
-export default SettingsIcon;
+export default GearIcon;

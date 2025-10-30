@@ -1,14 +1,12 @@
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
-import {Button} from "../layout/utils/button";
+import {BaseButton} from "../layout/base/baseButton";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {GraphIcon, ListBulletsIcon, StackIcon} from "@phosphor-icons/react"
+import {GraphIcon, ListBulletsIcon, PlusIcon} from "@phosphor-icons/react"
 import dynamic from "next/dynamic";
 import MainSearchBar from "@/components/buscar/main-search-bar";
-import AddIcon from "@mui/icons-material/Add";
 import {useSearch} from "@/components/buscar/search-context";
 import TopicsSortSelector from "@/components/topics/topic-sort-selector";
-import {IconButton} from "../layout/utils/icon-button";
 import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useTopicsPageParams} from "@/components/config/topics";
@@ -19,7 +17,7 @@ const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-
 type TopicsViewOption = "mapa" | "lista"
 
 export const TopicsPageHeader = () => {
-    const {sortedBy, multipleEnabled} = useTopicsPageParams()
+    const {sortedBy} = useTopicsPageParams()
     const [newTopicOpen, setNewTopicOpen] = useState(false)
     const searchParams = useSearchParams()
     const {isMobile} = useLayoutConfig()
@@ -59,19 +57,14 @@ export const TopicsPageHeader = () => {
         updateSearchParam("s", v)
     }
 
-    function setMultipleEnabled(v: boolean) {
-        updateSearchParam("m", v ? "true" : "false")
-    }
-
     const searching = searchState.searching
     const onlySearchBar = searching && isMobile
 
     const searchBar = <MainSearchBar
         autoFocus={false}
         allowCloseWithNoText={true}
-        paddingY={"5px"}
         kind={"topics"}
-        placeholder={"buscar"}
+        placeholder={"Buscar"}
     />
 
     return <div
@@ -93,18 +86,6 @@ export const TopicsPageHeader = () => {
                 setSortedBy={setSortedBy}
                 disabled={currentView == "mapa"}
             />
-            <DescriptionOnHover description={"Habilitar la selección múltiple de categorías."}>
-                <IconButton
-                    size={"small"}
-                    onClick={() => setMultipleEnabled(!multipleEnabled)}
-                    color={!multipleEnabled ? "transparent" : "background-dark3"}
-                    sx={{
-                        borderRadius: 0
-                    }}
-                >
-                    <StackIcon/>
-                </IconButton>
-            </DescriptionOnHover>
         </div>}
 
         <div className={"flex items-center"} style={{width: onlySearchBar ? "100%" : 256}}>
@@ -112,13 +93,10 @@ export const TopicsPageHeader = () => {
         </div>
 
         {!onlySearchBar && <div className={"py-1 flex-1 flex justify-end"}>
-            <Button
-                color="background"
-                variant="text"
-                disableElevation={true}
-                startIcon={<AddIcon/>}
+            <BaseButton
+                startIcon={<PlusIcon/>}
+                className={"py-2 px-1"}
                 size={"small"}
-                sx={{height: "32px", padding: "0 10px"}}
                 onClick={() => {
                     setNewTopicOpen(true)
                 }}
@@ -126,7 +104,7 @@ export const TopicsPageHeader = () => {
             >
                 <span className={"hidden min-[600px]:block"}>Tema</span>
                 <span className={"block min-[600px]:hidden"}>Tema</span>
-            </Button>
+            </BaseButton>
         </div>}
 
         {!onlySearchBar && newTopicOpen &&

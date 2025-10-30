@@ -1,5 +1,5 @@
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {TopicEditor} from "@/components/topics/topic/editing/topic-editor";
 import {useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";

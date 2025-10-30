@@ -36,7 +36,6 @@ export default function TopbarMobile() {
                 {backButton && !pathname.startsWith("/mensajes") && <BackButton
                     defaultURL={defaultBackHref}
                     behavior={"ca-back"}
-                    size={"medium"}
                 />}
                 {openSidebarButton && !pathname.startsWith("/inicio") && !pathname.startsWith("/buscar") && !pathname.startsWith("/temas") && <OpenSidebarButton/>}
 
@@ -59,7 +58,6 @@ export default function TopbarMobile() {
                     <BackButton
                         defaultURL={defaultBackHref}
                         behavior={"ca-back"}
-                        size={"medium"}
                     />
                     <div className={"font-bold uppercase"}>
                         Mensajes
@@ -72,14 +70,16 @@ export default function TopbarMobile() {
         {pathname.startsWith("/perfil/cuentas-sugeridas") && <div className={"flex flex-1 justify-end"}>
             <InfoPanelUserSuggestions/>
         </div>}
-        {pathname.startsWith("/inicio") && <div className={"h-12 w-full"}>
+        {pathname.startsWith("/inicio") && <div
+            className={"h-12 w-full"}
+        >
             <MainFeedHeader/>
         </div>}
-        {pathname.startsWith("/buscar") && <div className={"h-12 w-full flex items-center"}>
+        {pathname.startsWith("/buscar") && <div
+            className={"h-12 w-full flex items-center"}
+        >
             <MainSearchBar
                 autoFocus={true}
-                fullWidth={true}
-                paddingY={"6px"}
             />
         </div>}
         {pathname.startsWith("/temas") && <div className={"h-12 w-full"}>

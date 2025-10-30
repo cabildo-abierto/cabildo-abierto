@@ -6,35 +6,28 @@ import {NotEnoughPermissionsWarning} from "./permissions-warning";
 import StateButton from "../../layout/utils/state-button";
 import TickButton from "../../layout/utils/tick-button";
 import {ChangesCounterWithText} from "./changes-counter";
-import {AcceptButtonPanel} from "../../layout/utils/accept-button-panel";
+import {AcceptButtonPanel} from "../../layout/dialogs/accept-button-panel";
 import {topicUrl} from "@/utils/uri";
 import {getTopicProtection, hasEditPermission} from "./utils";
 import {useSession} from "@/queries/getters/useSession";
-import {Button} from "@/components/layout/utils/button"
-import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
+import {BaseButton} from "@/components/layout/base/baseButton"
+import {BaseFullscreenPopup} from "../../layout/base/base-fullscreen-popup";
 import {post} from "@/utils/fetch";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {decompress} from "@/utils/compression";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
-import { TextField } from "../../layout/utils/text-field";
+import { BaseTextField } from "../../layout/base/base-text-field";
 
 
 const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: string) => void }) => {
-    return <TextField
+    return <BaseTextField
         value={value}
         size="small"
-        fullWidth
         onChange={(e) => setValue(e.target.value)}
         placeholder="Una descripción de lo que cambiaste"
-        fontSize={"14px"}
-        paddingX={"0px"}
-        sx={{
-            '& .MuiInputBase-input::placeholder': {fontSize: '14px'} // Set placeholder size
-        }}
     />
-
 }
 
 
@@ -196,28 +189,25 @@ export const SaveEditPopup = ({
                     </div>
                 }
                 <div className="flex justify-center items-center space-x-4 mt-4">
-                    <Button
-                        color="transparent"
-                        variant="text"
+                    <BaseButton
                         onClick={async () => {
                             onClose()
                         }}
                         size={"small"}
-                        sx={{":hover": {backgroundColor: "var(--background-dark3)"}}}
                     >
                         Cancelar
-                    </Button>
+                    </BaseButton>
                     <StateButton
                         handleClick={async () => {
                             return await onSave(claimsAuthorship, editMsg)
                         }}
                         size={"small"}
                         variant={"outlined"}
-                        text1="Confirmar"
                         disabled={(diff.isLoading == false && !diff.diff) || diff.isLoading == true}
-                        disableElevation={true}
                         textClassName={"font-semibold"}
-                    />
+                    >
+                        Confirmar
+                    </StateButton>
                 </div>
             </div>
         </BaseFullscreenPopup>

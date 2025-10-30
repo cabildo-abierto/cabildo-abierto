@@ -1,6 +1,6 @@
 import { WarningCircleIcon } from "@phosphor-icons/react"
-import { BaseFullscreenPopup } from "./utils/base-fullscreen-popup"
-import { Button } from "./utils/button"
+import { BaseFullscreenPopup } from "./base/base-fullscreen-popup"
+import { BaseButton } from "./base/baseButton"
 
 
 
@@ -20,12 +20,12 @@ export const PreventLeavePopup = ({navGuard}: {
                 </div>
             </div>
             <div className={"flex justify-center space-x-2"}>
-                <Button variant={"outlined"} size={"small"} onClick={navGuard.reject}>
+                <BaseButton variant={"outlined"} size={"small"} onClick={navGuard.reject}>
                     Volver a editar
-                </Button>
-                <Button variant={"outlined"} size={"small"} color={"red-dark"} onClick={navGuard.accept}>
+                </BaseButton>
+                <BaseButton variant={"error"} size={"small"} onClick={navGuard.accept}>
                     Salir igualmente
-                </Button>
+                </BaseButton>
             </div>
         </div>
     </BaseFullscreenPopup>

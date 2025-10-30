@@ -1,149 +1,91 @@
 import {useState} from "react"
-import {IconButton} from "@/components/layout/utils/icon-button"
-import AddIcon from "@mui/icons-material/Add";
-import SearchableDropdown from "./searchable-dropdown";
-import {Button, darker} from "./button";
-import {Color} from "./color";
-import {CheckIcon, PlusIcon, XIcon} from "@phosphor-icons/react";
-import {Box} from "@mui/material";
+import {BaseIconButton} from "@/components/layout/base/base-icon-button"
+import BaseTextFieldWithSuggestions from "../base/base-text-field-with-suggestions";
+import {BaseButton} from "../base/baseButton";
+import {CheckIcon, PlusIcon, TrashIcon} from "@phosphor-icons/react";
+import {produce} from "immer";
 
-const NewItem = ({
-                     addItem,
-                     availableOptions,
-                     currentItems,
-                     newItemText,
-                     color
-                 }: {
+const ListEditorNewItem = ({
+                               addItem,
+                               currentItems,
+                           }: {
     addItem: (c: string) => void
-    availableOptions?: string[]
     currentItems: string[]
-    newItemText?: string
-    color?: Color
 }) => {
-    const [value, setValue] = useState("")
-    const [writingItem, setWritingItem] = useState(false)
-
-    let options: string[] = undefined
-    if (availableOptions) {
-        options = availableOptions.filter((c) => (!currentItems.includes(c)))
-    }
-
-    if (writingItem) {
-        return <div className={"space-x-2 flex items-center"}>
-            <div className={"flex flex-col items-start"}>
-                <SearchableDropdown
-                    options={availableOptions !== null ? options : null}
-                    size={"small"}
-                    selected={value}
-                    onChange={setValue}
-                    onSelect={(v: string) => {
-                        addItem(v);
-                        setValue("");
-                        setWritingItem(false)
-                    }}
-                />
-            </div>
-            <IconButton
-                size={"small"}
-                color={color}
-                onClick={() => {
-                    addItem(value);
-                    setValue("");
-                    setWritingItem(false)
-                }}
-                disabled={value.length == 0}
-                sx={{borderRadius: 0}}
-            >
-                <CheckIcon fontSize={16}/>
-            </IconButton>
-            <IconButton
-                size="small"
-                color={color}
-                sx={{borderRadius: 0}}
-                onClick={() => {
-                    setValue("");
-                    setWritingItem(false)
-                }}
-            >
-                <XIcon fontSize={16}/>
-            </IconButton>
-        </div>
-    }
-
     if (currentItems.length > 0) {
-        return <IconButton
-            sx={{borderRadius: 0}}
+        return <BaseIconButton
             size="small"
-            color={color}
             onClick={() => {
-                setWritingItem(true);
-                setValue("")
+                addItem("")
             }}
         >
             <PlusIcon fontSize={14}/>
-        </IconButton>
+        </BaseIconButton>
     } else {
-        if (newItemText != null) {
-            return <Button
-                variant={"text"}
-                startIcon={<AddIcon/>}
-                color={"background"}
-                onClick={() => {
-                    setWritingItem(true)
-                }}
-                size={"small"}
-            >
-                <span className={"text-xs"}>
-                    {newItemText}
-                </span>
-            </Button>
-        } else {
-            return <Button
-                onClick={() => {
-                    setWritingItem(true)
-                }}
-                size={"small"}
-            >
-                <span className={"text-xs"}>
-                    Agregar
-                </span>
-            </Button>
-        }
+        return <BaseButton
+            onClick={() => {
+                addItem("")
+            }}
+            size={"small"}
+        >
+            Agregar
+        </BaseButton>
     }
 }
 
 
-export const ListEditorItem = ({item, removeItem, color}: {
-    item: string, removeItem?: () => void, color: Color
+export const ListEditorItem = ({
+                                   item,
+                                   removeItem,
+                                   options,
+                                   onChange,
+                                   editing,
+                                   setEditing
+                               }: {
+    editing: boolean
+    item: string
+    removeItem: () => void
+    onChange: (v: string) => void
+    setEditing: (v: boolean) => void
+    options?: string[]
 }) => {
-    const [hovering, setHovering] = useState(false)
 
-    if(!removeItem) {
-        return <Box style={{
-            backgroundColor: `var(--${darker(color)})`
-        }}>
-            <div className={"text-xs normal-case border p-1 break-all"}>
-                {item}
-            </div>
-        </Box>
+    if (!editing) {
+        return <div
+            onClick={() => {
+                setEditing(true)
+            }}
+            className={"group-[.portal]:bg-[var(--background-dark2)] bg-[var(--background-dark)] border-[var(--accent-dark)] cursor-pointer text-sm normal-case group-[.portal]:hover:bg-[var(--background-dark3)] hover:bg-[var(--background-dark2)] border p-1 break-all"}
+        >
+            {item}
+        </div>
     }
 
-    return <Button
-        size={"small"}
-        variant={"outlined"}
-        color={darker(color)}
-        hoverColor={darker(color)}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
-        onClick={removeItem}
-    >
-        <div className={"flex justify-between"}>
-            <div className={"text-xs normal-case break-all"}>
-                {item}
-            </div>
-            {hovering ? <XIcon fontSize={14}/> : null}
-        </div>
-    </Button>
+    return <BaseTextFieldWithSuggestions
+        value={item}
+        options={options}
+        onChange={onChange}
+        inputClassName={"py-1"}
+        endIconClassName={"pr-1"}
+        className={"w-48"}
+        endIcon={<div className={"flex space-x-1"}>
+            <BaseIconButton
+                disabled={item.length == 0}
+                size={"small"}
+                onClick={() => {
+                    setEditing(false)
+                }}
+            >
+                <CheckIcon/>
+            </BaseIconButton>
+            <BaseIconButton
+                size={"small"}
+                onClick={removeItem}
+            >
+                <TrashIcon/>
+            </BaseIconButton>
+        </div>}
+    />
 }
 
 
@@ -151,15 +93,14 @@ export const ListEditor = ({
                                newItemText,
                                options = [],
                                items,
-                               setItems,
-                               color = "background-dark"
+                               setItems
                            }: {
     newItemText?: string
     options?: string[]
     items: string[]
-    setItems?: (v: string[]) => void
-    color?: Color
+    setItems: (v: string[]) => void
 }) => {
+    const [editing, setEditing] = useState<number | null>(null)
 
     function removeItem(i: number) {
         return () => {
@@ -169,27 +110,45 @@ export const ListEditor = ({
 
     return <div className={"flex flex-wrap gap-1 items-center"}>
         {items.map((c, i) => {
-            return <div key={i} className={""}>
+            return <div key={i}>
                 <ListEditorItem
-                    color={color}
+                    editing={i == editing}
+                    setEditing={(v: boolean) => {
+                        setEditing(v ? i : null)
+                    }}
+                    options={options}
                     item={c}
                     removeItem={setItems ? removeItem(i) : undefined}
+                    onChange={(v: string) => {
+                        setItems(produce(items, draft => {
+                            draft[i] = v
+                        }))
+                    }}
                 />
             </div>
         })}
-        {setItems && <div className={""}>
-            <NewItem
-                addItem={(c: string) => {
-                    setItems([...items, c])
-                }}
-                availableOptions={options}
-                currentItems={items}
-                newItemText={newItemText}
-                color={color}
-            />
-        </div>}
+        {setItems && editing != items.length - 1 && <ListEditorNewItem
+            addItem={(c: string) => {
+                setItems([...items, c])
+                setEditing(items.length)
+            }}
+            currentItems={items}
+        />}
         {!setItems && items.length == 0 && <div>
             ---
         </div>}
+    </div>
+}
+
+
+export const ListView = ({items}: {
+    items: string[]
+}) => {
+    return <div className={"flex flex-wrap gap-1 items-center"}>
+        {items.map((c, i) => {
+            return <div key={i} className={"text-sm normal-case border border-[var(--accent-dark)] group-[.portal]:bg-[var(--background-dark2)] p-1 break-all"}>
+                {c}
+            </div>
+        })}
     </div>
 }

@@ -1,4 +1,4 @@
-import { ATProtoStrongRef, Session } from "@/lib/types"
+import {ATProtoStrongRef, Session} from "@/lib/types"
 import React, {useState} from "react";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import {RejectVersionModal} from "./reject-version-modal";
@@ -8,39 +8,40 @@ import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {invalidateQueries, updateTopicHistories} from "@/queries/mutations/updates";
 import {produce} from "immer";
 import {CheckIcon, XIcon} from "@phosphor-icons/react";
-import { ArCabildoabiertoWikiTopicVersion } from "@/lex-api";
-import { Color } from "@/components/layout/utils/color";
-import {darker} from "@/components/layout/utils/button";
+import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api";
 import {useSession} from "@/queries/getters/useSession";
 import {areArraysEqual} from "@/utils/arrays";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useErrors} from "@/components/layout/error-context";
 import {ConfirmDeleteVoteModal} from "@/components/topics/topic/votes/confirm-delete-vote-modal";
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
 
 
 // TO DO: Si votó reject advertir que lo va a eliminar
-async function acceptEdit(ref: ATProtoStrongRef){
-    return await post<{}, {uri: string}>(`/vote-edit/accept/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`)
+async function acceptEdit(ref: ATProtoStrongRef) {
+    return await post<{}, {
+        uri: string
+    }>(`/vote-edit/accept/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`)
 }
 
 
-async function cancelVote({voteUri, force}: {voteUri: string, force: boolean}){
+async function cancelVote({voteUri, force}: { voteUri: string, force: boolean }) {
     const {collection, rkey} = splitUri(voteUri)
-    return await post<{force: boolean}, {}>(`/cancel-edit-vote/${collection}/${rkey}`, {force})
+    return await post<{ force: boolean }, {}>(`/cancel-edit-vote/${collection}/${rkey}`, {force})
 }
 
 
 export function addVoteToStatus(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"], user: Session, kind: "accept" | "reject") {
     return produce(status, draft => {
         const cat = draft.voteCounts.find(c => c.category == user.editorStatus)
-        if(!cat) {
+        if (!cat) {
             draft.voteCounts.push({
                 category: user.editorStatus,
                 accepts: kind == "accept" ? 1 : 0,
                 rejects: kind == "reject" ? 1 : 0,
             })
         } else {
-            if(kind == "accept") cat.accepts ++; else cat.rejects ++;
+            if (kind == "accept") cat.accepts++; else cat.rejects++;
         }
     })
 }
@@ -49,11 +50,11 @@ export function addVoteToStatus(status: ArCabildoabiertoWikiTopicVersion.TopicVi
 export function removeVoteFromStatus(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"], user: Session, kind: "accept" | "reject") {
     return produce(status, draft => {
         const cat = draft.voteCounts.find(c => c.category == user.editorStatus)
-        if(cat) {
-            if(kind == "accept") {
-                if(cat.accepts > 0) cat.accepts --;
+        if (cat) {
+            if (kind == "accept") {
+                if (cat.accepts > 0) cat.accepts--;
             } else {
-                if(cat.rejects > 0) cat.rejects --;
+                if (cat.rejects > 0) cat.rejects--;
             }
         }
     })
@@ -82,9 +83,9 @@ function updateTopicViewAndVersion(qc: QueryClient, topicId: string, topicVersio
 
 function optimisticAcceptVote(qc: QueryClient, topicId: string, uri: string, user: Session) {
     updateTopicHistories(qc, uri, e => {
-        if(!e) return
+        if (!e) return
         return produce(e, draft => {
-            if(!draft.viewer) {
+            if (!draft.viewer) {
                 draft.viewer = {}
             }
             draft.status = addVoteToStatus(draft.status, user, "accept")
@@ -195,7 +196,7 @@ function optimisticCancelRejectVote(qc: QueryClient, topicId: string, uri: strin
 }
 
 
-export function invalidateQueriesAfterVoteUpdate(qc: QueryClient, subjectId: string, topicId: string){
+export function invalidateQueriesAfterVoteUpdate(qc: QueryClient, subjectId: string, topicId: string) {
     const queriesToInvalidate: string[][] = []
 
     const {did, rkey} = splitUri(subjectId)
@@ -218,15 +219,15 @@ export const VoteEditButtons = ({
                                     rejectUri,
                                     acceptCount,
                                     rejectCount,
-    backgroundColor="background"
-}: {
+                                    iconSize
+                                }: {
     topicId: string
     versionRef: ATProtoStrongRef
     acceptUri?: string
     rejectUri?: string
     acceptCount: number
     rejectCount: number
-    backgroundColor?: Color
+    iconSize?: BaseButtonProps["size"]
 }) => {
     const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
     const qc = useQueryClient()
@@ -263,8 +264,8 @@ export const VoteEditButtons = ({
         onMutate: () => {
         },
         onSuccess: async (data) => {
-            if(data.error) {
-                if(data.error.includes("borraría la justificación")){
+            if (data.error) {
+                if (data.error.includes("borraría la justificación")) {
                     setOpenConfirmDeleteVote(true)
                 } else {
                     addError(data.error)
@@ -276,8 +277,8 @@ export const VoteEditButtons = ({
         }
     })
 
-    async function onAcceptEdit(){
-        if(!user) {
+    async function onAcceptEdit() {
+        if (!user) {
             setLoginModalOpen(true)
         } else {
             acceptEditMutation.mutate(versionRef)
@@ -285,44 +286,51 @@ export const VoteEditButtons = ({
         return {}
     }
 
-    function onCancelAcceptEdit(){
+    function onCancelAcceptEdit() {
         cancelAcceptEditMutation.mutate({voteUri: acceptUri, force: false})
         return {}
     }
 
-    function onCancelRejectEdit(){
+    function onCancelRejectEdit() {
         cancelRejectEditMutation.mutate({voteUri: rejectUri, force: false})
     }
 
     const isAuthor = user && getDidFromUri(versionRef.uri) == user.did
 
-    const iconFontSize = 20
-
-    return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
+    return <div className="flex space-x-2" onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation()
+    }}>
         <ReactionButton
             onClick={acceptUri ? onCancelAcceptEdit : onAcceptEdit}
             active={acceptUri != null}
-            iconActive={<span className={"text-green-400"}><CheckIcon fontSize={iconFontSize}/></span>}
-            iconInactive={<CheckIcon fontSize={iconFontSize}/>}
+            iconActive={<span className={"text-green-400"}><CheckIcon/></span>}
+            iconInactive={<CheckIcon/>}
             count={acceptCount}
-            hoverColor={darker(darker(backgroundColor))}
             title={isAuthor ? "Vos escribiste esta versión." : "Aceptar versión."}
-            textClassName={"text-sm"}
+            textClassName={"text-[13px] font-light"}
+            iconSize={iconSize}
             disabled={acceptUri == "optimistic-accept-uri" || isAuthor}
         />
         <ReactionButton
-            onClick={rejectUri ? () => {onCancelRejectEdit()} : () => {if(user) setOpenRejectModal(true); else setLoginModalOpen(true);}}
+            onClick={rejectUri ? () => {
+                onCancelRejectEdit()
+            } : () => {
+                if (user) setOpenRejectModal(true); else setLoginModalOpen(true);
+            }}
             active={rejectUri != null}
-            iconActive={<span className={"text-red-400"}><XIcon fontSize={iconFontSize}/></span>}
-            iconInactive={<XIcon fontSize={iconFontSize}/>}
+            iconActive={<span className={"text-red-400"}><XIcon/></span>}
+            iconInactive={<XIcon/>}
+            iconSize={iconSize}
             count={rejectCount}
-            hoverColor={darker(darker(backgroundColor))}
-            textClassName={"text-sm"}
+            textClassName={"text-[13px] font-light"}
             title={isAuthor ? "Vos escribiste esta versión." : "Rechazar versión."}
             disabled={rejectUri == "optimistic-reject-uri" || isAuthor}
         />
         {user && <RejectVersionModal
-            onClose={() => {setOpenRejectModal(false)}}
+            onClose={() => {
+                setOpenRejectModal(false)
+            }}
             open={openRejectModal}
             topicId={topicId}
             versionRef={versionRef}
@@ -332,7 +340,9 @@ export const VoteEditButtons = ({
                 const res = await cancelRejectEditMutation.mutateAsync({voteUri: rejectUri, force: true})
                 return {error: res.error}
             }}
-            onClose={() => {setOpenConfirmDeleteVote(false)}}
+            onClose={() => {
+                setOpenConfirmDeleteVote(false)
+            }}
         />}
     </div>
 }

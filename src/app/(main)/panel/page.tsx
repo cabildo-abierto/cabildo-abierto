@@ -1,6 +1,6 @@
 "use client"
 import {rounder, valueToPercentage} from "@/utils/strings";
-import LoadingSpinner from "../../../components/layout/utils/loading-spinner";
+import LoadingSpinner from "../../../components/layout/base/loading-spinner";
 import {useAPI} from "@/queries/utils";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ReactNode, useEffect, useState} from "react";
@@ -96,8 +96,6 @@ const StatSquare = ({
                     </div>
                     <div className={"pb-[2px]"}>
                         <ValidationIcon
-                            color={"background-dark"}
-                            iconColor={"text-light"}
                             handle={undefined}
                             verification={"persona"}
                             fontSize={12}

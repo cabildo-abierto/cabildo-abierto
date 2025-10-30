@@ -1,9 +1,9 @@
-import SearchableDropdown from "../../layout/utils/searchable-dropdown"
+import BaseTextFieldWithSuggestions from "../../layout/base/base-text-field-with-suggestions"
 import {PlotConfigProps} from "@/lib/types"
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer"
 import {useDatasets} from "@/queries/getters/useDataset"
-import LoadingSpinner from "../../layout/utils/loading-spinner"
+import LoadingSpinner from "../../layout/base/loading-spinner"
 import {TableVisualizationConfig} from "@/components/visualizations/editor/table-visualization-config"
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor"
 import {useMemo} from "react"
@@ -49,11 +49,10 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
     }
     if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) {
         return <div>
-            <SearchableDropdown
+            <BaseTextFieldWithSuggestions
                 options={columnOptions}
                 label={"Eje x"}
-                size={"small"}
-                selected={config.spec.xAxis ?? ""}
+                value={config.spec.xAxis ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)){

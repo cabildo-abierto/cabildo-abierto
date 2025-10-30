@@ -5,7 +5,7 @@ import {getEditorSettings} from "@/components/writing/settings";
 import {PreventLeavePopup} from "@/components/layout/prevent-leave-popup";
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import dynamic from "next/dynamic";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";

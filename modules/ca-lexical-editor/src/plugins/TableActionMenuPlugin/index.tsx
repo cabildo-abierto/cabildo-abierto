@@ -40,7 +40,7 @@ import * as React from 'react';
 import {ReactNode, ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import invariant from '../../shared/invariant';
-import { IconButton } from '@/components/layout/utils/icon-button';
+import { BaseIconButton } from '@/components/layout/base/base-icon-button';
 import { CaretDownIcon } from '@phosphor-icons/react';
 
 function computeSelectionCount(selection: TableSelection): {
@@ -522,9 +522,9 @@ function TableCellActionMenuContainer({
         return editor.registerUpdateListener(() => {
             editor.getEditorState().read(() => {
                 $moveMenu();
-            });
-        });
-    });
+            })
+        })
+    })
 
     useEffect(() => {
         const menuButtonDOM = menuButtonRef.current as HTMLButtonElement | null;
@@ -548,7 +548,7 @@ function TableCellActionMenuContainer({
                 menuButtonDOM.style.transform = 'translate(-10000px, -10000px)';
             }
         }
-    }, [menuButtonRef, tableCellNode, editor, anchorElem]);
+    }, [menuButtonRef, tableCellNode, editor, anchorElem])
 
     const prevTableCellDOM = useRef(tableCellNode);
 
@@ -564,13 +564,8 @@ function TableCellActionMenuContainer({
         <div className="absolute top-0 left-0 will-change-transform" ref={menuButtonRef}>
             {tableCellNode != null && (
                 <>
-                    <IconButton
-                        color={"background-dark"}
-                        sx={{
-                            width: 20,
-                            height: 20,
-                            padding: "2px"
-                        }}
+                    <BaseIconButton
+                        className={"w-5 h-5 p-[2px]"}
                         size={"small"}
                         onClick={(e) => {
                             e.stopPropagation();
@@ -579,7 +574,7 @@ function TableCellActionMenuContainer({
                         ref={menuRootRef}
                     >
                         <CaretDownIcon fontSize={12} color={"var(--text)"}/>
-                    </IconButton>
+                    </BaseIconButton>
                     {isMenuOpen && <div className="relative">
                         <TableActionMenu
                             contextRef={menuRootRef}

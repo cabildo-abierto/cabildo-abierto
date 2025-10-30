@@ -1,4 +1,4 @@
-import { Button } from "@/components/layout/utils/button"
+import { BaseButton } from "@/components/layout/base/baseButton"
 import { smoothScrollTo } from "@/components/layout/utils/scroll"
 import { InactiveCommentIcon } from "@/components/layout/icons/inactive-comment-icon"
 import { useState, useEffect } from 'react'
@@ -40,8 +40,7 @@ export const DiscussionButton = ({ replyCount }: { replyCount: number }) => {
             if (target) smoothScrollTo(target)
         }}
     >
-        <Button
-            color={"background-dark"}
+        <BaseButton
             size={"small"}
             variant={"outlined"}
             startIcon={<div className={"pb-1"}><InactiveCommentIcon fontSize={18} /></div>}
@@ -49,6 +48,6 @@ export const DiscussionButton = ({ replyCount }: { replyCount: number }) => {
             <div className={"flex items-center space-x-2 font-light"}>
                 Discusión ({replyCount})
             </div>
-        </Button>
+        </BaseButton>
     </div>
 }

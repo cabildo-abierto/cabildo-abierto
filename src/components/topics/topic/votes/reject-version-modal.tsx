@@ -1,6 +1,6 @@
 import React from 'react';
 import InfoPanel from '../../../layout/utils/info-panel';
-import {BaseFullscreenPopup} from '../../../layout/utils/base-fullscreen-popup';
+import {BaseFullscreenPopup} from '../../../layout/base/base-fullscreen-popup';
 import {ATProtoStrongRef} from "@/lib/types";
 import {CreatePostProps, WritePost} from "@/components/writing/write-panel/write-post";
 import {CloseButton} from "@/components/layout/utils/close-button";

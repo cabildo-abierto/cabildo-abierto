@@ -2,12 +2,12 @@ import {PlotConfigProps} from "@/lib/types";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset} from "@/queries/getters/useDataset";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {Column} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
-import {Switch} from "@mui/material";
 import {produce} from "immer";
-import {TextField} from "../../layout/utils/text-field";
+import {BaseTextField} from "../../layout/base/base-text-field";
 import {useEffect} from "react";
+import {Switch} from "@/components/ui/switch";
 
 type TableVisualizationConfigProps = {
     config: PlotConfigProps
@@ -27,9 +27,9 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
     let columns: Column[] = data && data.data ? data.data.columns : (dataset ? dataset.columns : null)
 
     useEffect(() => {
-        if(ArCabildoabiertoEmbedVisualization.isTable(config.spec) && config.spec.columns == null && columns){
+        if (ArCabildoabiertoEmbedVisualization.isTable(config.spec) && config.spec.columns == null && columns) {
             setConfig(produce(config, draft => {
-                if(ArCabildoabiertoEmbedVisualization.isTable(draft.spec)){
+                if (ArCabildoabiertoEmbedVisualization.isTable(draft.spec)) {
                     draft.spec.columns = columns.map(c => ({
                         $type: "ar.cabildoabierto.embed.visualization#tableVisualizationColumn",
                         columnName: c.name,
@@ -104,26 +104,19 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
                         {c.name}
                     </div>
                     {value && <div className={"flex-1"}>
-                        <TextField
-                            paddingX={"0px"}
-                            paddingY={"6px"}
-                            label={"Alias"}
-                            fontSize={"12px"}
+                        <BaseTextField
                             size={"small"}
+                            label={"Alias"}
                             value={configIndex != -1 && config.spec.columns[configIndex].alias != null ? config.spec.columns[configIndex].alias : config.spec.columns[configIndex].columnName}
                             onChange={e => setShowColumn(c.name, true, e.target.value)}
                         />
                     </div>}
-                    <div>
-                        <Switch
-                            size={"small"}
-                            checked={value}
-                            onChange={e => {
-                                setShowColumn(c.name, e.target.checked)
-                            }}
-                            color={"default"}
-                        />
-                    </div>
+                    <Switch
+                        checked={value}
+                        onCheckedChange={e => {
+                            setShowColumn(c.name, e)
+                        }}
+                    />
                 </div>
             })}
         </div>

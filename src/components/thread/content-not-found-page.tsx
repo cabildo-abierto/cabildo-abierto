@@ -1,4 +1,5 @@
-import {Button} from "../layout/utils/button";
+import {BaseButton} from "../layout/base/baseButton";
+import Link from "next/link";
 
 
 export const ContentNotFoundPage = () => {
@@ -6,8 +7,10 @@ export const ContentNotFoundPage = () => {
         <div className={"text-center font-light"}>
             No se encontró el contenido
         </div>
-        <Button size={"small"} href={"/inicio"}>
-            Ir al inicio
-        </Button>
+        <Link href={"/inicio"}>
+            <BaseButton variant={"outlined"}>
+                Ir al inicio
+            </BaseButton>
+        </Link>
     </div>
 }
