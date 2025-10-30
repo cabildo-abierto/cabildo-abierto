@@ -17,6 +17,10 @@ const Temas = () => {
         updateSearchParam("c", newCats)
     }
 
+    function setMultipleEnabled(enabled: boolean) {
+        updateSearchParam("m", enabled ? "true" : "false")
+    }
+
     const view = searchParams.get("view")
     return <TopicsPageTutorial>
         <div className={"w-full flex justify-between items-center pt-1 pb-2 px-2"}>
@@ -25,6 +29,7 @@ const Temas = () => {
                     categories={categories}
                     setCategories={setCategories}
                     multipleEnabled={multipleEnabled}
+                    setMultipleEnabled={setMultipleEnabled}
                 />
             </div>
         </div>

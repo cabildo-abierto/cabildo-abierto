@@ -1,5 +1,5 @@
 import {PlotConfigProps} from "@/lib/types";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {DatasetFullView} from "@/components/visualizations/datasets/dataset-full-view";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset, useDatasets} from "@/queries/getters/useDataset";

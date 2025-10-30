@@ -214,7 +214,8 @@ export const PostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
             </div>
             <div className={"mt-1"}>
                 <ArticlePreviewContent
-                    title={title} summary={summary} color={"transparent"} clickable={false}
+                    title={title}
+                    summary={summary}
                 />
             </div>
         </div>

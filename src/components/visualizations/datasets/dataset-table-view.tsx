@@ -135,13 +135,9 @@ export const DatasetTableView = ({
         <div className={"flex justify-start"}>
             <div className={"w-64 p-1"}>
                 <SearchBar
+                    size={"small"}
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
-                    size={"small"}
-                    paddingY={"4px"}
-                    paddingX={"8px"}
-                    color={"background"}
-                    borderColor={"accent-dark"}
                 />
             </div>
         </div>

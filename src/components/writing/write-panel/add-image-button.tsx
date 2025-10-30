@@ -1,4 +1,4 @@
-import { IconButton } from "../../layout/utils/icon-button";
+import { BaseIconButton } from "../../layout/base/base-icon-button";
 import InsertImageIcon from "@/components/layout/icons/insert-image-icon";
 
 export const AddImageButton = ({
@@ -8,17 +8,14 @@ export const AddImageButton = ({
     disabled: boolean
     setModalOpen: (open: boolean) => void
 }) => {
-    return <IconButton
+    return <BaseIconButton
         onClick={() => {setModalOpen(true)}}
         disabled={disabled}
         type="button"
-        size={"small"}
+        size={"default"}
         title="Insertar imágen"
         aria-label="Insertar imágen"
-        sx={{
-            borderRadius: 0
-        }}
     >
         <InsertImageIcon fontSize={20}/>
-    </IconButton>
+    </BaseIconButton>
 }

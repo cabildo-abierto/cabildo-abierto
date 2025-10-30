@@ -1,14 +1,17 @@
-import RepeatIcon from '@mui/icons-material/Repeat';
-import { Color } from '../utils/color';
+import {Repeat2Icon} from "lucide-react";
 
-export const RepostIcon = ({fontSize, color = "text-light"}: {
+export const RepostIcon = ({
+                               fontSize,
+                               weight = "light",
+                               color = "var(--text-light)"
+                           }: {
     fontSize?: string | number
-    color?: Color
+    weight?: "light" | "bold"
+    color?: string
 }) => {
-    return <span style={{fontSize, color: `var(--${color})`}} className={"flex items-center pb-[1px]"}>
-        <RepeatIcon
-            fontSize={"inherit"}
-            color={"inherit"}
-        />
-    </span>
+    return <Repeat2Icon
+        strokeWidth={weight == "light" ? 1 : 1.5}
+        size={fontSize}
+        color={color}
+    />
 }

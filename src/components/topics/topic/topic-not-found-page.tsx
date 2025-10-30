@@ -3,11 +3,11 @@ import React, {useCallback, useEffect, useState} from "react";
 import {createTopic, CreateTopicResults, CreateTopicSearchResults} from "@/components/writing/write-panel/create-topic";
 import {useQueryClient} from "@tanstack/react-query";
 import {searchTopics} from "../../../../modules/ca-lexical-editor/src/plugins/FloatingLinkEditorPlugin";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import {Button} from "@/components/layout/utils/button";
+import {BaseButton} from "@/components/layout/base/baseButton";
 
 
 export default function TopicNotFoundPage() {
@@ -45,9 +45,9 @@ export default function TopicNotFoundPage() {
             </div>
             <div>
                 <Link href={topicUrl(id)}>
-                    <Button size={"small"} variant={"outlined"}>
+                    <BaseButton size={"small"} variant={"outlined"}>
                         Ir a la versión actual
-                    </Button>
+                    </BaseButton>
                 </Link>
             </div>
         </div>
@@ -58,9 +58,9 @@ export default function TopicNotFoundPage() {
             </div>
             <div>
                 <Link href={"/inicio"}>
-                    <Button size={"small"} variant={"outlined"}>
+                    <BaseButton size={"small"} variant={"outlined"}>
                         Ir al inicio
-                    </Button>
+                    </BaseButton>
                 </Link>
             </div>
         </div>
@@ -84,8 +84,8 @@ export default function TopicNotFoundPage() {
             size={"small"}
             textClassName="px-4"
             variant={"outlined"}
-            color={"background-dark"}
-            text1="Crear tema"
-        />
+        >
+            Crear tema
+        </StateButton>
     </div>
 }

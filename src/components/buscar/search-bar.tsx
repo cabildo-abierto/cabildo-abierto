@@ -2,92 +2,52 @@
 
 import React from "react";
 import {CloseButton} from "../layout/utils/close-button";
-import {TextFieldProps} from "@mui/material";
-import {Color} from "../layout/utils/color";
 import SearchIcon from "@/components/layout/icons/search-icon";
-import {TextField} from "@/components/layout/utils/text-field";
+import {BaseTextField, BaseTextFieldProps} from "@/components/layout/base/base-text-field";
 
-
-const SearchBar = ({
-    autoFocus=false,
-    paddingY,
-    paddingX,
-    fullWidth=true,
-    searchValue,
-    setSearchValue,
-    setSearching=() => {},
-    color="background",
-    borderColor="accent-dark",
-    placeholder="buscar",
-    size="small",
-    borderRadius="0",
-    borderWidth="1px",
-    borderWidthNoFocus="1px",
-    searching,
-    allowCloseWithNoText=false,
-    fontSize
-}: {
-    autoFocus?: boolean
-    paddingY?: string
-    paddingX?: string
-    fullWidth?: boolean
+type Props = BaseTextFieldProps & {
     searchValue: string
     searching?: boolean
     setSearchValue: (arg: string) => void
     setSearching?: (v: boolean) => void
-    color?: Color
-    borderColor?: Color
-    borderRadius?: string
-    borderWidth?: string
-    borderWidthNoFocus?: string
-    placeholder?: string
-    size?: TextFieldProps["size"]
     allowCloseWithNoText?: boolean
-    fontSize?: number
-}) => {
+}
+
+const SearchBar = ({
+                       autoFocus = false,
+                       searchValue,
+                       setSearchValue,
+                       setSearching = () => {
+                       },
+                       placeholder = "buscar",
+                       searching,
+                       allowCloseWithNoText = false,
+                       ...props
+                   }: Props) => {
 
     const showCloseButton = searching && searchValue != null && (allowCloseWithNoText || searchValue.length > 0)
 
-    return <TextField
-        size={size}
-        autoFocus={autoFocus}
-        fullWidth={fullWidth}
-        value={searchValue}
-        variant={"outlined"}
+    const endIcon = showCloseButton ? <CloseButton
+        size="small"
+        onClose={() => {
+        setSearchValue("");
+        setSearching(false)
+        }}
+        className={"text-[var(--text)]"}
+    /> : undefined
+
+    return <BaseTextField
+        {...props}
         placeholder={placeholder}
-        onFocus={() => {setSearching(true)}}
-        onChange={(e) => {setSearchValue(e.target.value)}}
-        paddingY={paddingY}
-        slotProps={{
-            input: {
-                startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon/></span>,
-                endAdornment: showCloseButton ? <CloseButton color={color} size="small" onClose={() => {setSearchValue(""); setSearching(false)}}/> : undefined
-            }
+        value={searchValue}
+        onFocus={() => {
+            setSearching(true)
         }}
-        paddingX={paddingX}
-        autoComplete={"off"}
-        fontSize={fontSize}
-        sx={{
-            "& .MuiOutlinedInput-root": {
-                backgroundColor: `var(--${color})`,
-                borderRadius,
-                borderColor: `var(--${borderColor})`,
-                paddingRight: "4px",
-                paddingLeft: "8px",
-                "& fieldset": {
-                    borderRadius,
-                    borderColor: `var(--${borderColor})`,
-                    borderWidth: borderWidthNoFocus
-                },
-                "&:hover fieldset": {
-                    borderColor: `var(--${borderColor})`,
-                },
-                "&.Mui-focused fieldset": {
-                    borderWidth,
-                    borderColor: `var(--${borderColor})`,
-                },
-            }
+        onChange={(e) => {
+            setSearchValue(e.target.value)
         }}
+        startIcon={<span className={"text-[var(--text-light)]"}><SearchIcon/></span>}
+        endIcon={endIcon}
     />
 }
 

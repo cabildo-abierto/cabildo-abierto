@@ -40,7 +40,6 @@ export const SidebarProfilePic = ({showText}) => {
             </div>}
             <Link href={profileUrl(user.handle)} id={"sidebar-profile-pic"}>
                 <ProfilePic
-                    clickable={false}
                     user={user}
                     className={"rounded-full " + dimOnHoverClassName + (isMobile ? " w-14 h-14" : showText ? " w-12 h-12" : " w-7 h-7")}
                     descriptionOnHover={false}

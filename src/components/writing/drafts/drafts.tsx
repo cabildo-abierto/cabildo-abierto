@@ -1,5 +1,5 @@
 import {useDrafts} from "@/queries/getters/useDrafts";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import dynamic from "next/dynamic";
 
 const DraftPreviewComp = dynamic(() => import("@/components/writing/drafts/draft-preview"));

@@ -1,36 +1,41 @@
 import Link from "next/link";
 import {topicMentionsUrl, topicUrl} from "@/utils/uri";
 import React from "react";
-import {Button, darker} from "@/components/layout/utils/button";
-import { Color } from "@/components/layout/utils/color";
+import {BaseButton} from "@/components/layout/base/baseButton";
 
 
-export const TopicLinkButton = ({id, backgroundColor="background"}: {
+export const TopicLinkButton = ({id}: {
     id: string
-    backgroundColor?: Color
 }) => {
     return <Link
         target={"_blank"}
         href={topicUrl(id, undefined, "normal")}
     >
-        <Button size={"small"} variant={"outlined"} color={darker(backgroundColor)} paddingX={0} paddingY={"2px"}>
-            <span className={"text-xs"}>Tema</span>
-        </Button>
+        <BaseButton
+            size={"small"}
+            variant={"outlined"}
+            className="px-1 py-[2px]"
+        >
+            Tema
+        </BaseButton>
     </Link>
 }
 
 
-export const TopicMentionsLinkButton = ({id, backgroundColor="background"}: {
+export const TopicMentionsLinkButton = ({id}: {
     id: string
-    backgroundColor?: Color
 }) => {
 
     return <Link
         target={"_blank"}
         href={topicMentionsUrl(id)}
     >
-        <Button size={"small"} variant={"outlined"} color={darker(backgroundColor)} paddingX={0} paddingY={"2px"}>
-            <span className={"text-xs px-2"}>Menciones</span>
-        </Button>
+        <BaseButton
+            size={"small"}
+            variant={"outlined"}
+            className="px-2 py-[2px]"
+        >
+            Menciones
+        </BaseButton>
     </Link>
 }

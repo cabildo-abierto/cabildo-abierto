@@ -35,8 +35,8 @@ import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {get} from '@/utils/fetch';
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
-import {IconButton} from '@/components/layout/utils/icon-button';
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
+import {BaseIconButton} from '@/components/layout/base/base-icon-button';
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
 import {CheckIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { WriteButtonIcon } from '@/components/layout/icons/write-button-icon';
@@ -339,26 +339,24 @@ function FloatingLinkEditor({
                 }}
             />
             <div className="flex space-x-1 mr-1">
-                <IconButton
+                <BaseIconButton
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => {
                         handleLinkSubmission(editedLinkUrl)
                     }}
                     size={"small"}
-                    color={"background-dark"}
                 >
                     <CheckIcon/>
-                </IconButton>
-                <IconButton
+                </BaseIconButton>
+                <BaseIconButton
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => {
                         setIsLinkEditMode(false);
                     }}
-                    color={"background-dark"}
                     size={"small"}
                 >
                     <XIcon/>
-                </IconButton>
+                </BaseIconButton>
             </div>
         </div>
         <SearchResults results={results} setValue={onSelectTopic}/>
@@ -372,27 +370,25 @@ function FloatingLinkEditor({
                     <TopicMentionComp url={linkUrl}/>
                 </div>
                 <div className="flex space-x-1 mr-1">
-                    <IconButton
+                    <BaseIconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                             setEditedLinkUrl(linkUrl);
                             setIsLinkEditMode(true);
                         }}
                         size={"small"}
-                        color={"background-dark"}
                     >
                         <WriteButtonIcon/>
-                    </IconButton>
-                    <IconButton
+                    </BaseIconButton>
+                    <BaseIconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                             editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
                         }}
                         size={"small"}
-                        color={"background-dark"}
                     >
                         <TrashIcon/>
-                    </IconButton>
+                    </BaseIconButton>
                 </div>
             </div>
         </div>
@@ -411,27 +407,25 @@ function FloatingLinkEditor({
                     </Link>
                 </div>
                 <div className="flex space-x-1 mr-1">
-                    <IconButton
+                    <BaseIconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                             setEditedLinkUrl(linkUrl);
                             setIsLinkEditMode(true);
                         }}
                         size={"small"}
-                        color={"background-dark"}
                     >
                         <WriteButtonIcon/>
-                    </IconButton>
-                    <IconButton
+                    </BaseIconButton>
+                    <BaseIconButton
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                             editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
                         }}
                         size={"small"}
-                        color={"background-dark"}
                     >
                         <TrashIcon/>
-                    </IconButton>
+                    </BaseIconButton>
                 </div>
             </div>
         </div>

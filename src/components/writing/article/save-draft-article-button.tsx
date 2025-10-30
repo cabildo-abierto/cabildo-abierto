@@ -52,11 +52,8 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
 
     return <StateButton
         handleClick={onSaveDraft}
-        text1={"Guardar borrador"}
-        textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
         disabled={disabled}
-        color={"background"}
-        size="medium"
-        variant={"text"}
-    />
+    >
+        Guardar borrador
+    </StateButton>
 }

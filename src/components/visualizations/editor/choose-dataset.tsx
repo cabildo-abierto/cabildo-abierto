@@ -1,10 +1,9 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
-import AddIcon from "@mui/icons-material/Add";
 import {DatasetPreviewOnEditor} from "@/components/visualizations/datasets/dataset-preview-on-editor";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {cleanText} from "@/utils/strings";
-import {Button} from "../../layout/utils/button";
+import {BaseButton} from "../../layout/base/baseButton";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import SearchBar from "@/components/buscar/search-bar";
 import {produce} from "immer";
@@ -13,11 +12,11 @@ import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {TopicsDataSourceConfig} from "@/components/visualizations/editor/topics-data-source-config";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import DatasetIcon from "@/components/layout/icons/dataset-icon";
-import {FunnelIcon} from "@phosphor-icons/react";
+import {ArrowsClockwiseIcon, FunnelIcon, PlusIcon} from "@phosphor-icons/react";
 import {FilterConfig} from "@/components/visualizations/editor/filter-config";
-import CachedIcon from "@mui/icons-material/Cached";
 import StateButton, {StateButtonClickHandler} from "../../layout/utils/state-button";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {Note} from "@/components/layout/utils/note";
 
 
 const DatasetsSearch = ({datasets, config, setConfig}: {
@@ -40,8 +39,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
         <SearchBar
             searchValue={searchValue}
             setSearchValue={setSearchValue}
-            fullWidth={true}
-            color={"background-dark"}
+            placeholder={"Buscar"}
         />
         <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-250px)]"}>
             {filteredDatasets ? filteredDatasets.map((d, i) => {
@@ -76,7 +74,7 @@ const ChooseDatasetPanelDatasetSelection = ({
                                                 onNewDataset,
                                                 setSelectedMenu,
                                                 datasets,
-    creatingNewDataset
+                                                creatingNewDataset
                                             }: {
     config: PlotConfigProps
     setConfig: (c: PlotConfigProps) => void
@@ -89,15 +87,10 @@ const ChooseDatasetPanelDatasetSelection = ({
     const creatingTopicsBased = ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)
     return <>
         <div className={"flex space-x-1 px-2"}>
-            <Button
+            <BaseButton
                 startIcon={<TopicsIcon/>}
-                variant={"text"}
-                color={creatingTopicsBased ? "background-dark2" : "background-dark"}
+                className={creatingTopicsBased ? "bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)] " : ""}
                 size={"small"}
-                sx={{
-                    paddingX: "12px",
-                    ":hover": {backgroundColor: "var(--background-dark3)"}
-                }}
                 onClick={() => {
                     setConfig(produce(config, draft => {
                         if (!draft.dataSource) draft.dataSource = {}
@@ -113,24 +106,18 @@ const ChooseDatasetPanelDatasetSelection = ({
                     }))
                 }}
             >
-                <span className={"text-xs"}>
-                    Usar temas
-                </span>
-            </Button>
-            <Button
-                startIcon={<AddIcon/>}
-                variant={"contained"}
-                color={creatingNewDataset ? "background-dark2" : "background-dark"}
+                Usar temas
+            </BaseButton>
+            <BaseButton
+                startIcon={<PlusIcon fontSize={18}/>}
+                className={creatingNewDataset ? "bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)] " : ""}
                 size={"small"}
-                sx={{
-                    paddingX: "12px"
-                }}
                 onClick={() => {
                     onNewDataset()
                 }}
             >
-                <span className={"text-xs items-center"}>Conjunto de datos</span>
-            </Button>
+                Conjunto de datos
+            </BaseButton>
         </div>
         <div className={"px-2 pb-2"}>
             {!creatingTopicsBased && <DatasetsSearch
@@ -154,7 +141,7 @@ export const ChooseDatasetPanelFiltersConfig = ({
                                                     setSelectedMenu,
                                                     datasets,
                                                     onReloadData,
-    onNewDataset
+                                                    onNewDataset
                                                 }: {
     config: PlotConfigProps
     setConfig?: (c: PlotConfigProps) => void
@@ -180,9 +167,9 @@ export const ChooseDatasetPanelFiltersConfig = ({
     }
 
     if (!config.dataSource || !config.dataSource.$type) {
-        return <div className={"text-sm text-[var(--text-light)] p-4 text-center"}>
+        return <Note padding={16}>
             Elegí una fuente de datos primero.
-        </div>
+        </Note>
     }
 
     const datasetUri = ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : undefined
@@ -204,19 +191,23 @@ export const ChooseDatasetPanelFiltersConfig = ({
                 </div>
             })}
             {setConfig &&
-                <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
-                    Nuevo filtro
-                </Button>}
+            <BaseButton
+                startIcon={<PlusIcon/>}
+                size={"small"}
+                onClick={onAddFilter}
+            >
+                Nuevo filtro
+            </BaseButton>}
         </div>
 
         {onReloadData && <div className={"flex justify-end w-full"}>
             <StateButton
-                color={"background-dark3"}
-                startIcon={<CachedIcon/>}
-                text1="Cargar datos"
+                startIcon={<ArrowsClockwiseIcon/>}
                 size={"small"}
                 handleClick={onReloadData}
-            />
+            >
+                Cargar datos
+            </StateButton>
         </div>}
     </div>
 }
@@ -244,7 +235,7 @@ export const ChooseDatasetPanel = ({datasets, creatingNewDataset, config, setCon
         }
     }, [datasets, config, setConfig])
 
-    function optionLabels(o: string){
+    function optionLabels(o: string) {
         if (o == "Conjuntos de datos") {
             return <DatasetIcon size={20}/>
         } else if (o == "Filtros") {
@@ -257,7 +248,7 @@ export const ChooseDatasetPanel = ({datasets, creatingNewDataset, config, setCon
             <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
                 <SelectionComponent
                     options={["Conjuntos de datos", "Filtros"]}
-                    optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}
+                    optionsNodes={feedOptionNodes(40, undefined, undefined, optionLabels)}
                     selected={selectedMenu}
                     onSelection={(v: string) => {
                         setSelectedMenu(v as "Conjuntos de datos" | "Filtros")

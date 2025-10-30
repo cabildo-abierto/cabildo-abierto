@@ -88,7 +88,7 @@ const PostPreviewParentAndRoot = ({root, parent, grandparentAuthor, feedViewCont
     grandparentAuthor: AppBskyActorDefs.ProfileViewBasic
     feedViewContent: ArCabildoabiertoFeedDefs.FeedViewContent
 }) => {
-    const showThreadButton = root != null && ArCabildoabiertoFeedDefs.isPostView(parent) && ("uri" in root && (parent.record as AppBskyFeedPost.Record).reply.parent.uri != root.uri)
+    const showThreadButton = root != null && ArCabildoabiertoFeedDefs.isPostView(parent) && ("uri" in root && parent.record && (parent.record as AppBskyFeedPost.Record).reply.parent.uri != root.uri)
 
     return <>
         {root && <FeedElement

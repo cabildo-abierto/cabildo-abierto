@@ -24,6 +24,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
     return (
         <div className={"flex flex-col"}>
             <div
+                onWheel={e => {e.stopPropagation()}}
                 className="flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
             >
                 {trendingArticles.map((topic, index) => {
@@ -39,14 +40,13 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
                             setHovering(undefined)
                         }}
                         onMouseEnter={() => {
-                            /*preload("/api/entity/"+entity.id, fetcher);*/ // TO DO
                             setHovering(index)
                         }}
                     >
                         <div className={"flex justify-between w-full"}>
                             <TopicCategories
                                 categories={getTopicCategories(topic.props)}
-                                className={"text-xs text-[var(--text-light)]"}
+                                className={"text-xs font-light text-[var(--text-light)]"}
                                 maxCount={1}
                             />
                             <DescriptionOnHover
@@ -58,7 +58,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
 
                         <div className={"flex space-x-1"}>
                             <div
-                                className={"font-semibold w-full max-w-[225px] text-[15px] " + (hovering == index ? "" : "truncate")}>
+                                className={"font-medium w-full max-w-[225px] text-[15px] " + (hovering == index ? "" : "truncate")}>
                                 {title}
                             </div>
                         </div>

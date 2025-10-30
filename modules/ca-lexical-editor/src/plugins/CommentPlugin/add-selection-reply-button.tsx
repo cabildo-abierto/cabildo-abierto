@@ -2,7 +2,7 @@ import type {LexicalEditor, NodeKey} from 'lexical';
 import {useRef, useLayoutEffect, useCallback, useEffect} from 'react';
 import * as React from 'react';
 import './index.css';
-import {Button} from "@/components/layout/utils/button"
+import {BaseButton} from "@/components/layout/base/baseButton"
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 
 
@@ -57,12 +57,12 @@ export function AddSelectionReplyButton({
     }, [anchorKey, editor, updatePosition])
 
     return <div ref={boxRef} className={"z-[2000]"}>
-        <Button
+        <BaseButton
             onClick={onAddComment}
             variant={"outlined"}
             startIcon={<WriteButtonIcon/>}
         >
             <span className={"text-xs"}>Responder</span>
-        </Button>
+        </BaseButton>
     </div>
 }

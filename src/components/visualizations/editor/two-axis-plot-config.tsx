@@ -1,10 +1,10 @@
-import SearchableDropdown from "../../layout/utils/searchable-dropdown";
+import BaseTextFieldWithSuggestions from "../../layout/base/base-text-field-with-suggestions";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {PlotConfigProps} from "@/lib/types";
 import {useState} from "react";
-import {Switch} from "@mui/material";
 import {ListEditor} from "../../layout/utils/list-editor";
+import {Switch} from "@/components/ui/switch";
 
 type Props = {
     config: PlotConfigProps
@@ -20,11 +20,10 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
     }
 
     return <div className={"flex flex-col space-y-4 w-full"}>
-        <SearchableDropdown
+        <BaseTextFieldWithSuggestions
             options={columnOptions}
             label={"Eje x"}
-            size={"small"}
-            selected={config.spec.xAxis ?? ""}
+            value={config.spec.xAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
                     if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
@@ -33,11 +32,10 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 }))
             }}
         />
-        {!multipleYAxis && <SearchableDropdown
+        {!multipleYAxis && <BaseTextFieldWithSuggestions
             options={columnOptions}
             label={"Eje y"}
-            size={"small"}
-            selected={config.spec.yAxis ?? ""}
+            value={config.spec.yAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
                     if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
@@ -66,11 +64,10 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 options={columnOptions}
             />
         </div>}
-        <SearchableDropdown
+        <BaseTextFieldWithSuggestions
             options={columnOptions}
             label={"Color"}
-            size={"small"}
-            selected={config.spec.colors && config.spec.colors.length > 0 ? config.spec.colors[0].column : ""}
+            value={config.spec.colors && config.spec.colors.length > 0 ? config.spec.colors[0].column : ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
                     if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
@@ -91,10 +88,9 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 Eje y múltiple
             </div>
             <Switch
-                size={"small"}
-                value={multipleYAxis}
+                checked={multipleYAxis}
                 defaultChecked={multipleYAxis}
-                onChange={(e, v) => {
+                onCheckedChange={(v) => {
                     setMultipleYAxis(v)
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {

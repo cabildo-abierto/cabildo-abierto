@@ -32,7 +32,7 @@ const TopbarCenter = () => {
         {title && showTitle && <div className={"font-bold uppercase flex space-x-2 items-center"}>
             {backButton && <BackButton
                 behavior={"ca-back"}
-                size={"medium"}
+                size={"default"}
                 defaultURL={defaultURL}
             />}
             <div className={titleClassName}>
@@ -45,8 +45,6 @@ const TopbarCenter = () => {
         {pathname.startsWith("/buscar") && <div className={"w-full px-2"}>
             <MainSearchBar
                 autoFocus={true}
-                fullWidth={true}
-                paddingY={"6px"}
             />
         </div>}
 
@@ -84,7 +82,7 @@ export default function TopbarDesktop() {
         <SearchPanelOnRightColumn/>
     </div> : null
 
-    return <div className={"w-full h-12 z-[1100] bg-[var(--background)] fixed top-0 left-0 border-b"}>
+    return <div className={"w-full h-12 z-[1000] bg-[var(--background)] fixed top-0 left-0 border-b border-[var(--accent-dark)]"}>
         <ThreeColumnsLayout
             leftPanel={leftPanel}
             rightPanel={rightPanel}

@@ -2,7 +2,7 @@ import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {Plotter} from "@/components/visualizations/editor/plotter/plotter";
 import {cleanText} from "@/utils/strings";
-import { unique } from "@/utils/arrays";
+import {count, unique} from "@/utils/arrays";
 import {TopicData} from "@/components/visualizations/editor/election/election-visualization-comp";
 import {getTopicProp} from "@/components/topics/topic/utils";
 import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
@@ -474,5 +474,37 @@ export class ElectionPlotter extends Plotter {
     getDistrict(province: string) {
         const name = getProvinceName(province)
         return this.districts.get(name)
+    }
+
+    countDataAvailable(nombre: string): number {
+        const a = this.candidates.find(x => x.alianza.nombre == nombre)?.alianza
+        if(!a) return 0
+        const candidatos = this.getCandidatosAlianza(a)
+
+        let res = count([
+            a.partidos,
+            a.foto,
+            a.propuestas,
+            a.otrosDatos,
+            a.replyCount
+        ], x => x != null)
+
+        candidatos.forEach(r => {
+            r.forEach(c => {
+                res += count([
+                    c.espaciosPoliticosAnt,
+                    c.replyCount,
+                    c.antecedentesProf,
+                    c.antecedentesEstado,
+                    c.antecedentesAcad,
+                    c.foto,
+                    c.patrimonio,
+                    c.controversias,
+                    c.otrosDatos
+                ], x => x != null)
+            })
+        })
+
+        return res
     }
 }

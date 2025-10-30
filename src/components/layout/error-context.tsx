@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, ReactNode, useContext, useState } from "react";
-import {AcceptButtonPanel} from "./utils/accept-button-panel";
+import {AcceptButtonPanel} from "./dialogs/accept-button-panel";
 
 
 const ErrorContext = createContext<{

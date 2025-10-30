@@ -1,5 +1,5 @@
 import {useTopics} from "@/queries/getters/useTopics"
-import LoadingSpinner from "../layout/utils/loading-spinner"
+import LoadingSpinner from "../layout/base/loading-spinner"
 import React from "react"
 import {ErrorPage} from "../layout/utils/error-page";
 import dynamic from "next/dynamic";

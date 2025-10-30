@@ -1,21 +1,17 @@
-import {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import {FollowButton} from "@/components/profile/follow-button";
 import Link from "next/link";
 import {profileUrl} from "@/utils/uri";
 import {FollowCounters} from "@/components/profile/follow/follow-counters";
 import ProfileDescription from "@/components/profile/profile-description";
-import {ModalOnHover} from "../layout/utils/modal-on-hover";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {useProfile} from "@/queries/getters/useProfile";
-import { ContentCounters } from "./content-counters";
-
-type UserSummaryProps = {
-    handle: string
-}
+import {ContentCounters} from "./content-counters";
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 
 
-const UserSummary = ({handle}: UserSummaryProps) => {
+const UserSummaryOnHover = ({children, handle}: { children: ReactNode, handle: string }) => {
     const {data: profile, isLoading} = useProfile(handle);
     const [show, setShow] = useState(false);
 
@@ -26,20 +22,35 @@ const UserSummary = ({handle}: UserSummaryProps) => {
         return () => clearTimeout(timeout)
     }, [])
 
-    if (isLoading || !show || !profile) return null;
-
     const className: string = 'w-12 h-12 rounded-full';
 
-    return (
-        <div className="panel-dark p-4 w-90  hidden md:flex flex-col space-y-2" onClick={e => {e.stopPropagation()}}>
-            <div className="flex justify-between items-center">
-                <ProfilePic user={profile} descriptionOnHover={false} className={className}/>
-                <FollowButton backgroundColor={"background-dark"} handle={profile.handle} profile={profile}/>
+    return <HoverCard openDelay={300} closeDelay={0}>
+        <HoverCardTrigger asChild>
+            {children}
+        </HoverCardTrigger>
+        {!isLoading && show && profile && <HoverCardContent
+            className={"max-w-[360px] cursor-default portal group p-4 hidden md:flex flex-col space-y-2"}
+            align={"start"}
+            onClick={e => e.stopPropagation()}
+        >
+            <div className="flex justify-between items-start">
+                <ProfilePic
+                    user={profile}
+                    descriptionOnHover={false}
+                    className={className}
+                />
+                <FollowButton
+                    handle={profile.handle}
+                    profile={profile}
+                />
             </div>
 
             <div className="flex flex-col items-start">
                 <div className={"flex space-x-1 items-center"}>
-                    <Link className="font-semibold text-base" href={profileUrl(profile.handle)}>
+                    <Link
+                        className="font-semibold  text-base"
+                        href={profileUrl(profile.handle)}
+                    >
                         {profile.displayName}
                     </Link>
                     <ValidationIcon
@@ -48,7 +59,10 @@ const UserSummary = ({handle}: UserSummaryProps) => {
                         verification={profile.verification}
                     />
                 </div>
-                <Link className="text-[var(--text-light)]" href={profileUrl(profile.handle)}>
+                <Link
+                    className="text-[var(--text-light)]"
+                    href={profileUrl(profile.handle)}
+                >
                     @{profile.handle}
                 </Link>
             </div>
@@ -63,19 +77,9 @@ const UserSummary = ({handle}: UserSummaryProps) => {
             {!profile.caProfile && <div className={"text-sm text-[var(--text-light)]"}>
                 Este usuario todavía no está en Cabildo Abierto.
             </div>}
-        </div>
-    );
-};
+        </HoverCardContent>}
+    </HoverCard>
 
-
-const UserSummaryOnHover = ({children, handle}: {children: ReactNode, handle: string}) => {
-    const modal = <UserSummary handle={handle}/>
-
-    return <ModalOnHover
-        modal={modal}
-    >
-        {children}
-    </ModalOnHover>
 }
 
 

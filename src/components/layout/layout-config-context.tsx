@@ -4,7 +4,7 @@ import React, {createContext, useContext, useState, ReactNode, useEffect} from "
 import {isArticle, isDataset, shortCollectionToCollection} from "@/utils/uri";
 import {usePathname, useSearchParams} from "next/navigation";
 import {pxToNumber} from "@/utils/strings";
-import {useMediaQuery} from "@mui/system";
+import {useMediaQuery} from "usehooks-ts";
 
 export type LayoutConfigProps = {
     maxWidthCenter: string
@@ -43,7 +43,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
         widthLeftSide: "220px",
-        widthRightSide: "320px",
+        widthRightSide: "300px",
         widthLeftSideSmall: "80px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
@@ -54,7 +54,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     const datasetConfig: LayoutConfigProps = {
         maxWidthCenter: "800px",
         widthLeftSide: "80px",
-        widthRightSide: "320px",
+        widthRightSide: "300px",
         widthLeftSideSmall: "80px",
         openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
@@ -64,8 +64,8 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
     const articleConfig: LayoutConfigProps = {
         maxWidthCenter: "682px",
-        widthLeftSide: "80px",
-        widthRightSide: "320px",
+        widthLeftSide: "220px",
+        widthRightSide: "300px",
         widthLeftSideSmall: "80px",
         openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
@@ -108,7 +108,10 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     } else if(pathname.startsWith("/tema") && !pathname.startsWith("/tema/menciones")) {
         config = maximizedTopicConfig
     } else if(pathname.startsWith("/panel")){
-        config = maximizedTopicConfig
+        config = {
+            ...maximizedTopicConfig,
+            defaultSidebarState: true
+        }
     } else if(pathname.startsWith("/c")){
         const shortCollection = pathname.split("/")[3]
         const collection = shortCollectionToCollection(shortCollection)

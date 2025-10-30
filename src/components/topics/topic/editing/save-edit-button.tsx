@@ -1,4 +1,4 @@
-import { Button } from "@/components/layout/utils/button"
+import { BaseButton } from "@/components/layout/base/baseButton"
 import {topicUrl} from "@/utils/uri";
 import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
 import {useRouter} from "next/navigation";
@@ -101,22 +101,22 @@ export const SaveEditButton = ({
         return {}
     }, [props, editor, topic])
 
-    return <div className={"space-x-2"}>
-        <Button
+    return <div className={"flex space-x-2 items-start"}>
+        <BaseButton
             variant={"outlined"}
             size={"small"}
             onClick={() => {router.push(topicUrl(topicId, {did, rkey}))}}
         >
             Cancelar
-        </Button>
-        <Button
+        </BaseButton>
+        <BaseButton
             startIcon={<FloppyDiskIcon/>}
             variant={"outlined"}
             size={"small"}
             onClick={() => {setSavingChanges(true)}}
         >
             Guardar
-        </Button>
+        </BaseButton>
         {savingChanges && <SaveEditPopup
             open={true}
             editor={editor}

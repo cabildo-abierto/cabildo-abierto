@@ -1,12 +1,11 @@
 import {Logo} from './logo';
-
 import {ScrollToButton} from "./scroll-to-button";
 import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import {GithubLogoIcon, XLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
-import {Color} from "./color";
+import {cn} from "@/lib/utils";
 
 
 const FooterLeftSide = () => {
@@ -78,10 +77,12 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
 }
 
 
-export default function Footer({showCA = true, color="background"}: { showCA?: boolean, color?: Color }) {
+export default function Footer({showCA = true, className}: {
+    showCA?: boolean
+    className?: string
+}) {
     return <div
-        className="flex justify-between px-4 md:px-16 space-x-4 sm:space-x-12 py-12"
-        style={{backgroundColor: `var(--${color})`}}
+        className={cn("flex justify-between px-4 md:px-16 space-x-4 sm:space-x-12 py-12 ", className)}
     >
         <FooterLeftSide/>
         <FooterRightSide showCA={showCA}/>

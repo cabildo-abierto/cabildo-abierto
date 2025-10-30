@@ -50,6 +50,14 @@ export const CandidateComp = ({c, height}: {
         </div>
         <div className={"text-sm"}>
             <div className={"font-light text-[var(--text-light)]"}>
+                Candidato a
+            </div>
+            <div>
+                {c.cargo == "Senadores" ? "Senador" : "Diputado"}.
+            </div>
+        </div>
+        <div className={"text-sm"}>
+            <div className={"font-light text-[var(--text-light)]"}>
                 Alianza
             </div>
             <div>
@@ -63,6 +71,12 @@ export const CandidateComp = ({c, height}: {
             <div>
                 {c.alianza.distrito.nombre}.
             </div>
+        </div>
+        <div className={"text-sm"}>
+            <div className={"font-light text-[var(--text-light)]"}>
+                Posición en la lista
+            </div>
+            <SingleCandidateAttr value={c.posicion.toString()+"° "+(c.subcargo.toLowerCase())}/>
         </div>
         <div className={"text-sm"}>
             <div className={"font-light text-[var(--text-light)]"}>

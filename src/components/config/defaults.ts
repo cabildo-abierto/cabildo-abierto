@@ -12,7 +12,7 @@ export const defaultTopicMentionsTime: EnDiscusionTime = "Último mes"
 export const defaultTopicMentionsFormat: FeedFormatOption = "Todos"
 
 export const defaultEnDiscusionMetric: EnDiscusionMetric = "Interacciones"
-export const defaultEnDiscusionTime: EnDiscusionTime = "Último mes"
+export const defaultEnDiscusionTime: EnDiscusionTime = "Última semana"
 export const defaultEnDiscusionFormat: FeedFormatOption = "Todos"
 
 export function mainFeedOptionToSearchParam(v: MainFeedOption) {

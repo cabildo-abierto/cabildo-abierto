@@ -6,13 +6,12 @@ import {
 } from "@/components/visualizations/editor/election/election-plotter";
 import Image from "next/image"
 import React from "react";
-import {Button, darker} from "@/components/layout/utils/button";
+import {BaseButton} from "@/components/layout/base/baseButton";
 import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";
-import {IconButton} from "@/components/layout/utils/icon-button";
+import {BaseIconButton} from "@/components/layout/base/base-icon-button";
 import {TopicLinkButton, TopicMentionsLinkButton} from "@/components/visualizations/editor/election/topic-link-button";
 import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
-import {Color} from "@/components/layout/utils/color";
 import {Propuestas} from "@/components/visualizations/editor/election/alianza";
 
 
@@ -81,28 +80,24 @@ export const CandidatePreview = ({c, onSelect}: {
 }
 
 
-const ViewMoreButton = ({onClick, color}: {
+const ViewMoreButton = ({onClick}: {
     onClick: () => void
-    color: Color
 }) => {
-    return <Button color={color} size={"small"} variant={"outlined"} onClick={onClick}>
-        <span className={"text-xs"}>
-            Ver más
-        </span>
-    </Button>
+    return <BaseButton
+        size={"small"}
+        variant={"outlined"}
+        onClick={onClick}
+    >
+        Ver más
+    </BaseButton>
 }
 
 
 export const TopicRepliesCount = ({elem}: {
     elem: ElectionElement
 }) => {
-    return elem.value.replyCount != null && <IconButton
+    return elem.value.replyCount != null && <BaseIconButton
         size={"small"}
-        sx={{
-            borderRadius: 0
-        }}
-        color={"transparent"}
-        hoverColor={"background-dark2"}
     >
         <Link className={"flex"} href={topicUrl(elem.value.idTema) + "#discusion"}>
             <InactiveCommentIcon
@@ -113,7 +108,7 @@ export const TopicRepliesCount = ({elem}: {
                 {elem.value.replyCount}
             </div>
         </Link>
-    </IconButton>
+    </BaseIconButton>
 }
 
 
@@ -122,15 +117,13 @@ const CardAlianza = ({
                          diputados,
                          senadores,
                          plotter,
-                         onSelect,
-                         backgroundColor
+                         onSelect
                      }: {
     alianza: Alianza
     diputados: [Candidato[], Candidato[]]
     senadores?: [Candidato[], Candidato[]]
     plotter: ElectionPlotter
     onSelect: (e: ElectionElement) => void
-    backgroundColor: Color
 }) => {
     const districts = plotter.getDistrictsForAlianza(alianza.nombre)
 
@@ -141,7 +134,7 @@ const CardAlianza = ({
         })
     }
 
-    return <div className={"bg-[var(--background-dark)] border border-[var(--accent-dark)] p-2 h-full"}>
+    return <div className={"panel-dark portal group p-2 h-full"}>
         <div className={"flex justify-between pb-2"}>
             {alianza.foto ? <Image
                 width={64}
@@ -156,27 +149,25 @@ const CardAlianza = ({
             <div className={"space-y-1 flex flex-col"}>
                 <div className={"flex space-x-2 justify-end items-center"}>
                     <TopicRepliesCount elem={{type: "alianza", value: alianza}}/>
-                    <TopicLinkButton id={alianza.idTema} backgroundColor={backgroundColor}/>
+                    <TopicLinkButton id={alianza.idTema}/>
                 </div>
-                <div className={"flex space-x-1 justify-end"}>
-                    {districts.length > 1 && <Button
+                <div className={"flex flex-wrap gap-1 justify-end"}>
+                    {districts.length > 1 && <BaseButton
                         onClick={onSelectAlianza}
                         size={"small"}
                         variant={"outlined"}
-                        color={darker(backgroundColor)}
                     >
                     <span className={"text-xs"}>
                         {districts.length} distritos
                     </span>
-                    </Button>}
-                    {alianza.partidos && <Button
+                    </BaseButton>}
+                    {alianza.partidos && <BaseButton
                         onClick={onSelectAlianza}
-                        color={darker(backgroundColor)}
                         size={"small"}
                         variant={"outlined"}
                     >
-                        <span className={"text-xs"}>{alianza.partidos.length} partidos</span>
-                    </Button>}
+                        {alianza.partidos.length} partidos
+                    </BaseButton>}
                 </div>
             </div>
         </div>
@@ -191,10 +182,9 @@ const CardAlianza = ({
                 <Propuestas propuestas={alianza.propuestas} preview={true}/>
                 {alianza.propuestas && alianza.propuestas.length > 3 && <ViewMoreButton
                     onClick={onSelectAlianza}
-                    color={darker(backgroundColor)}
                 />}
             </div>
-            <div className={"flex space-x-4"}>
+            <div className={"flex flex-wrap gap-4"}>
                 <div className={"space-y-2"}>
                     <div className={"font-semibold"}>
                         Diputados
@@ -209,10 +199,6 @@ const CardAlianza = ({
                             onSelect={onSelect}
                         />
                     </div>
-                    <ViewMoreButton
-                        onClick={onSelectAlianza}
-                        color={darker(backgroundColor)}
-                    />
                 </div>
                 {senadores && <div className={"space-y-2"}>
                     <div className={"font-semibold"}>
@@ -230,6 +216,9 @@ const CardAlianza = ({
                     </div>
                 </div>}
             </div>
+            <ViewMoreButton
+                onClick={onSelectAlianza}
+            />
         </div>
     </div>
 }
@@ -240,21 +229,19 @@ export const DistritoComp = ({
                                  plotter,
                                  onSelect,
                                  width,
-                                 height,
-                                 backgroundColor
+                                 height
                              }: {
     district: Distrito
     plotter: ElectionPlotter
     onSelect: (v: ElectionElement) => void
     width: number
     height: number
-    backgroundColor: Color
 }) => {
     const diputados = plotter.getCandidatesForDistrict(district.nombre, "Diputados")
     const senadores = plotter.getCandidatesForDistrict(district.nombre, "Senadores")
 
     function orderAlianzas(a: [string, [Candidato[], Candidato[]]], b: [string, [Candidato[], Candidato[]]]) {
-        return plotter.getDistrictsForAlianza(b[0]).length - plotter.getDistrictsForAlianza(a[0]).length
+        return plotter.countDataAvailable(b[0]) - plotter.countDataAvailable(a[0])
     }
 
     const alianzas = Array.from(diputados.entries())
@@ -284,7 +271,6 @@ export const DistritoComp = ({
                         diputados={candidates}
                         senadores={senadores.get(alianza.nombre)}
                         onSelect={onSelect}
-                        backgroundColor={backgroundColor}
                     />
                 </div>
             })}

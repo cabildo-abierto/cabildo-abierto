@@ -11,7 +11,7 @@ const DescriptionOnHover = ({children, description, moreInfoHref}: {
         onClick={e => {
             e.stopPropagation()
         }}
-        className={"hidden sm:block max-w-[300px] panel-dark text-xs p-2"}
+        className={""}
     >
         {description} {moreInfoHref && <Link
         href={moreInfoHref}

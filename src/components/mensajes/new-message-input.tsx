@@ -1,7 +1,4 @@
-
-import {TextField} from "../layout/utils/text-field";
-import SendIcon from '@mui/icons-material/Send';
-import {IconButton} from "../layout/utils/icon-button";
+import {BaseIconButton} from "../layout/base/base-icon-button";
 import {useState} from "react";
 import {
     conversationQueriesFilter,
@@ -11,10 +8,12 @@ import {
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useSession} from "@/queries/getters/useSession";
+import SendIcon from "@/components/layout/icons/send-icon";
+import {BaseTextArea} from "@/components/layout/base/base-text-area";
 
 
 export default function NewMessageInput({
-    convoId
+                                            convoId
                                         }: {
     convoId: string
 }) {
@@ -38,7 +37,7 @@ export default function NewMessageInput({
         }
     })
 
-    async function onSendMessage(){
+    async function onSendMessage() {
         const msg: SendMessageParams = {
             message: {
                 text: newMessage
@@ -48,51 +47,22 @@ export default function NewMessageInput({
         sendMessageMutation.mutate(msg)
     }
 
-    return <div className="m-2 border border-[var(--accent-dark)] flex justify-between items-end bg-[var(--background-dark)]">
-        <TextField
+    return <div className={"p-1"}>
+        <BaseTextArea
             value={newMessage}
-            size="small"
-            multiline={true}
-            fullWidth={true}
             onChange={e => setNewMessage(e.target.value)}
-            minRows={1}
-            paddingX={"8px"}
-            maxRows={6}
+            rows={2}
             placeholder={"Escribí un mensaje..."}
-            borderWidth={0}
-            borderColor={"transparent"}
-            color="transparent"
-            borderWidthNoFocus={0}
+            endIconClassName={"pl-2 pr-3 pt-1.5"}
+            inputGroupClassName={"items-start min-h-[64px]"}
+            endIcon={<BaseIconButton
+                size={"default"}
+                className={"px-3"}
+                variant={"outlined"}
+                onClick={onSendMessage}
+            >
+                <SendIcon/>
+            </BaseIconButton>}
         />
-        <IconButton
-            size={"small"}
-            color={"background-dark2"}
-            sx={{
-                borderRadius: 0,
-                border: "1px solid var(--accent-dark)",
-                height: "32px",
-                margin: "4px",
-                paddingTop: '0px',
-                paddingBottom: '0px',
-                paddingLeft: '0px',
-                paddingRight: '0px',
-                '& .MuiOutlinedInput-input': {
-                    padding: '0px 0px'
-                },
-                '& .MuiFilledInput-input': {
-                    paddingTop: '0px',
-                    paddingBottom: '0px'
-                },
-                '& .MuiInput-input': {
-                    paddingTop: '0px',
-                    paddingBottom: '0px'
-                }
-            }}
-            onClick={onSendMessage}
-        >
-            <div className={"px-4 flex justify-center"}>
-                <SendIcon fontSize={"inherit"}/>
-            </div>
-        </IconButton>
     </div>
 }

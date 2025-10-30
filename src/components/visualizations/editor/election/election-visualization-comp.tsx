@@ -7,7 +7,7 @@ import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
 import {useQuery} from "@tanstack/react-query";
 import {post} from "@/utils/fetch";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 
 type Props = {

@@ -1,19 +1,27 @@
-import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
 import ViewsIcon from "@/components/layout/icons/views-icon";
 import ViewsDisabledIcon from "@/components/layout/icons/views-disabled-icon";
+import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
 
 
 export default function OptionsBlueskyReactionsButton({
-    showBluesky,
-    setShowBluesky
+                                                          showBluesky,
+                                                          setShowBluesky
                                                       }: {
     showBluesky: boolean;
     setShowBluesky?: (showBluesky: boolean) => void;
 }) {
-    return setShowBluesky &&
-    <OptionsDropdownButton
-        text1={"Reacciones en Bluesky"}
-        handleClick={async () => {setShowBluesky(!showBluesky); return {}}}
-        startIcon={!showBluesky ? <ViewsIcon/> : <ViewsDisabledIcon/>}
-    />
+    if (!setShowBluesky) return null
+
+    return <DropdownMenuItem
+        onSelect={() => {
+            setShowBluesky(!showBluesky)
+        }}
+    >
+        <div>
+            {!showBluesky ? <ViewsIcon fontSize={20}/> : <ViewsDisabledIcon fontSize={20}/>}
+        </div>
+        <div>
+            Reacciones en Bluesky
+        </div>
+    </DropdownMenuItem>
 }

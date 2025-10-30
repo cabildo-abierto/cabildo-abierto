@@ -66,7 +66,6 @@ export const TopicDiscussion = ({
         <div className={"flex w-full"}>
             <ReplyButton
                 text={"Responder"}
-                variant={"outlined"}
                 size={"large"}
                 onClick={() => {
                     setWritingReply(true)

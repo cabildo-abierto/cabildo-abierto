@@ -1,13 +1,13 @@
 import {getProvinceName} from "./election-plotter";
 import React, {useEffect, useMemo, useState} from "react";
-import {IconButton} from "@mui/material";
 import {MinusCircleIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import {Mercator} from '@visx/geo';
 import {Zoom} from '@visx/zoom';
-import LoadingSpinner from "../../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../../layout/base/loading-spinner";
 import * as turf from '@turf/turf';
 import {TransformMatrix} from "@visx/zoom/lib/types";
 import {Group} from "@visx/group";
+import {BaseIconButton} from "@/components/layout/base/base-icon-button";
 
 interface FeatureShape {
     type: 'Feature'
@@ -84,20 +84,16 @@ export const ArgentinaMap = ({
 
                     return <div className="relative w-full h-full">
                         <div className="absolute bottom-2 right-2 z-10 flex space-x-2">
-                            <IconButton
-                                size={"small"}
-                                className="text-[var(--text)] p-2 rounded hover:text-[var(--text-light)]"
+                            <BaseIconButton
                                 onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}
                             >
                                 <PlusCircleIcon/>
-                            </IconButton>
-                            <IconButton
-                                size={"small"}
-                                className="text-[var(--text)] p-2 rounded hover:text-[var(--text-light)]"
+                            </BaseIconButton>
+                            <BaseIconButton
                                 onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}
                             >
                                 <MinusCircleIcon/>
-                            </IconButton>
+                            </BaseIconButton>
                         </div>
                         <svg
                             width={width}

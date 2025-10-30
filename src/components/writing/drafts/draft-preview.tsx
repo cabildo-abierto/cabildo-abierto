@@ -16,8 +16,7 @@ const DraftPreviewComp = ({draft}: { draft: DraftPreview }) => {
             <ArticlePreviewContent
                 title={draft.title && draft.title.trim().length > 0 ? draft.title : "Sin título"}
                 summary={draft.summary ?? "Sin contenido"}
-                color={"transparent"}
-                clickable={true}
+                className={"hover:bg-[var(--background-dark)]"}
             />
         </div>
     } else {

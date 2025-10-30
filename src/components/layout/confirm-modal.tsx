@@ -1,6 +1,6 @@
-import {Button} from "@/components/layout/utils/button";
+import {BaseButton, BaseButtonProps} from "@/components/layout/base/baseButton";
 import StateButton, {StateButtonClickHandler} from "@/components/layout/utils/state-button";
-import {BaseFullscreenPopup} from "@/components/layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "@/components/layout/base/base-fullscreen-popup";
 
 
 export const ConfirmModal = ({
@@ -9,7 +9,9 @@ export const ConfirmModal = ({
     text,
     onConfirm,
     onClose,
-    confirmButtonText="Confirmar"
+    confirmButtonText,
+    confirmButtonClassName,
+    confirmButtonVariant
 }: {
     title: string,
     text: string,
@@ -17,11 +19,14 @@ export const ConfirmModal = ({
     onConfirm: StateButtonClickHandler
     onClose: () => void
     confirmButtonText?: string
+    confirmButtonClassName?: string
+    confirmButtonVariant?: BaseButtonProps["variant"]
 }) => {
     return <BaseFullscreenPopup
         open={open}
         closeButton={true}
         onClose={() => {onClose()}}
+        className={"z-[1600] sm:w-auto"}
     >
         <div className={"px-8 pb-4 space-y-4"}>
             <h3 className={"normal-case"}>
@@ -31,14 +36,13 @@ export const ConfirmModal = ({
                 {text}
             </div>
             <div className={"flex justify-end space-x-2 mr-2"}>
-                <Button
+                <BaseButton
                     size={"small"}
                     onClick={onClose}
+                    variant={"outlined"}
                 >
-                    <span>
-                        Cancelar
-                    </span>
-                </Button>
+                    Cancelar
+                </BaseButton>
                 <StateButton
                     handleClick={async (e) => {
                         const res = await onConfirm(e)
@@ -48,10 +52,11 @@ export const ConfirmModal = ({
                         return res
                     }}
                     size={"small"}
-                    color={"red-dark"}
-                    text1={confirmButtonText}
-                    textClassName={"text-[var(--white-text)]"}
-                />
+                    className={confirmButtonClassName}
+                    variant={confirmButtonVariant}
+                >
+                    {confirmButtonText}
+                </StateButton>
             </div>
         </div>
     </BaseFullscreenPopup>

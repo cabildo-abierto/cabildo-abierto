@@ -1,115 +1,67 @@
 import {useEffect, useState} from "react";
-import {Box} from "@mui/material";
 import {ListEditor} from "@/components/layout/utils/list-editor";
-import {Button} from "@/components/layout/utils/button";
+import {BaseButton} from "@/components/layout/base/baseButton";
 import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "@/components/topics/topic/utils";
 import {useCategories} from "@/queries/getters/useTopics";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api";
 import dynamic from "next/dynamic";
-import {TextField} from "@/components/layout/utils/text-field";
-import {IconButton} from "@/components/layout/utils/icon-button";
+import {BaseTextField} from "@/components/layout/base/base-text-field";
+import {BaseIconButton} from "@/components/layout/base/base-icon-button";
 import {CaretDoubleLeftIcon, CaretDoubleRightIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
 import DescriptionOnHover from "@/components/layout/utils/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {topicUrl} from "@/utils/uri";
+import {cn} from "@/lib/utils";
+import {BaseTextArea} from "@/components/layout/base/base-text-area";
+import {DatePropEditor} from "@/components/topics/topic/props/date-prop-editor";
+import InfoPanel from "@/components/layout/utils/info-panel";
+import {getDescriptionForProp} from "@/components/topics/topic/props/topic-prop-view";
 
 const NewPropModal = dynamic(
     () => import("@/components/topics/topic/props/new-prop-modal"),
     {ssr: false})
 
-export function getDescriptionForProp(propName: string) {
-    if (propName == "Categorías") {
-        return {
-            moreInfoHref: topicUrl("Cabildo Abierto: Wiki"),
-            info: "Las categorías del tema. Al elegir una que no existe se crea automáticamente una nueva categoría."
-        }
-    } else if (propName == "Sinónimos") {
-        return {
-            info: "Palabras clave que se usan para detectar menciones al tema.",
-            moreInfoHref: topicUrl("Cabildo Abierto: Wiki")
-        }
-    } else if (propName == "Título") {
-        return {
-            info: "El título del tema. Usá esta propiedad para cambiar su título.",
-            moreInfoHref: topicUrl("Cabildo Abierto: Wiki")
-        }
-    }
-    return {}
-}
-
-export const TopicPropEditor = ({p, setProp, deleteProp}: {
+export const TopicPropEditor = ({
+                                    p,
+                                    setProp,
+                                    deleteProp
+}: {
     p: ArCabildoabiertoWikiTopicVersion.TopicProp,
     setProp: (p: ArCabildoabiertoWikiTopicVersion.TopicProp) => void,
     deleteProp: () => void
 }) => {
     const isDefault = isDefaultProp(p)
-    const [hovered, setHovered] = useState(false)
     const {data: categories} = useCategories()
 
     if (p.name == "Categorías" || p.name == "Título") return
 
     const {info, moreInfoHref} = getDescriptionForProp(p.name)
 
-    return <div className={"flex space-x-3 w-full justify-between"}>
-        <DescriptionOnHover description={info} moreInfoHref={moreInfoHref}>
-            <Button
-                color={"transparent"}
-                variant="text"
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-                onClick={deleteProp}
-                disabled={isDefault}
-                sx={{
-                    textTransform: "none",
-                    minWidth: 140,
-                    justifyContent: "flex-start",
-                    color: "var(--text)",
-                    '&.Mui-disabled': {
-                        color: "var(--text)",
-                    },
-                    padding: '6px 8px',
-                }}
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        width: "100%",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
-                >
-                    <span
-                        className="text-sm text-[var(--text-light)] font-normal"
-                        style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}
-                    >
-                      {p.name}
-                    </span>
-                    <span className={"text-[var(--text-light)]"}>
-                        {!isDefault && hovered && <XIcon/>}
-                    </span>
-                </Box>
-            </Button>
-        </DescriptionOnHover>
+    return <div className={"flex flex-col space-y-1"}>
+        <div className={"flex justify-between items-center w-full"}>
+            <div className={"flex space-x-1 items-center"}>
+                <DescriptionOnHover description={info} moreInfoHref={moreInfoHref}>
+                    <div className={"text-sm text-[var(--text-light)]"}>
+                        {p.name}
+                    </div>
+                </DescriptionOnHover>
+                {info && <InfoPanel text={info} moreInfoHref={moreInfoHref} iconFontSize={16}/>}
+            </div>
+            {!isDefault && <BaseIconButton variant={"default"} size={"small"}>
+                <TrashIcon/>
+            </BaseIconButton>}
+        </div>
         {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
             items={p.value.value}
-            color={"background-dark"}
             setItems={(values: string[]) => {
                 setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
             }}
             options={p.name == "Categorías" && categories ? categories : []}
         />}
-        {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TextField
+        {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <BaseTextArea
+            inputClassName={"resize min-h-[35px]"}
             value={p.value.value}
-            size={"small"}
-            fontSize={13}
-            paddingX={"12px"}
-            paddingY={"6px"}
-            fullWidth={true}
-            multiline={true}
+            rows={1}
             onChange={(e) => {
                 setProp({
                     ...p,
@@ -122,10 +74,8 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
             }}
         />}
         {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) &&
-            <TextField // TO DO: Marcar rojo si no es un número.
+            <BaseTextField // TO DO: Marcar rojo si no es un número.
                 value={isNaN(p.value.value) ? 0 : p.value.value}
-                size={"small"}
-                fontSize={12}
                 onChange={(e) => {
                     const v = parseInt(e.target.value)
                     setProp({
@@ -137,56 +87,12 @@ export const TopicPropEditor = ({p, setProp, deleteProp}: {
                     })
                 }}
             />}
-        {/*TO DO: Achicar el icono del date picker*/}
         {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) &&
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                <DatePicker
-                    value={p.value.value ? dayjs(p.value.value) : dayjs()}
-                    onChange={(d) => {
-                        console.log("date", d, d.startOf("day").toISOString())
-                        setProp({
-                            ...p,
-                            value: {
-                                $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-                                value: d.startOf("day").toISOString(),
-                            }
-                        })
-                    }}
-                    label={"Fecha"}
-                    minDate={dayjs("1000-01-01")}
-                    format="DD/MM/YYYY"
-                    sx={{
-                        "& .MuiInputLabel-root": {
-                            color: `var(--text)`,
-                        },
-                        "& .MuiPickersInputBase-root": {
-                            borderRadius: 0,
-                            fontSize: "13px",
-                            "&:hover fieldset": {
-                                borderColor: `var(--accent-dark)`,
-                            },
-                            "& fieldset": {
-                                borderRadius: 0,
-                                borderColor: `var(--accent-dark)`,
-                                borderWidth: 1,
-                            },
-                            "&.Mui-focused fieldset": {
-                                borderWidth: 1,
-                                borderRadius: 0,
-                                color: `var(--text)`,
-                                "&.MuiPickersOutlinedInput-notchedOutline": {
-                                    borderColor: `var(--accent-dark)`
-                                }
-                            },
-                        }
-                    }}
-                    slotProps={{
-                        textField: {
-                            size: "small",
-                        },
-                    }}
-                />
-            </LocalizationProvider>}
+            <DatePropEditor
+                propName={p.name}
+                date={p.value.value ? new Date(p.value.value) : new Date(0)}
+                setProp={setProp}
+            />}
     </div>
 }
 
@@ -310,17 +216,16 @@ export const TopicPropsEditingPanel = ({props, setProps, topic}: {
     }, [])
 
     if (!open) {
-        return <Button
-            size={"small"}
+        return <BaseButton
             variant={"outlined"}
-            color={"background-dark"}
+            size={"default"}
             onClick={() => {
                 if (!open) setOpen(true)
             }}
             startIcon={<CaretDoubleLeftIcon/>}
         >
-            <div className={"uppercase text-sm"}>Ficha</div>
-        </Button>
+            Ficha
+        </BaseButton>
     }
 
     function setProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
@@ -352,63 +257,60 @@ export const TopicPropsEditingPanel = ({props, setProps, topic}: {
 
     return <div
         onWheel={e => e.stopPropagation()}
-        className={"bg-[var(--background-dark)] px-2 pt-2 pb-2 border space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar " + (isMobile ? "w-screen" : "w-[400px]")}
+        className={cn("bg-[var(--background-dark)] portal group px-2 pt-2 pb-2 border space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar", isMobile ? "w-screen" : "w-[400px]")}
     >
         <div className={"font-semibold flex items-center space-x-2"}>
-            <IconButton
+            <BaseIconButton
                 size={"small"}
                 onClick={() => {
                     setOpen(false)
                 }}
-                color={"background-dark"}
-                sx={{borderRadius: 0}}
             >
                 <CaretDoubleRightIcon/>
-            </IconButton>
+            </BaseIconButton>
             <div className={"uppercase text-sm"}>Ficha</div>
         </div>
         <div className={"space-y-6"}>
             {vProps.map((p, index) => {
                 return <div key={index}>
-                    <TopicPropEditor p={p} setProp={setProp} deleteProp={() => {
-                        setProps(vProps.filter(p2 => p2.name != p.name))
-                    }}/>
+                    <TopicPropEditor
+                        p={p}
+                        setProp={setProp}
+                        deleteProp={() => {
+                            setProps(vProps.filter(p2 => p2.name != p.name))
+                        }}
+                    />
                 </div>
             })}
         </div>
         <div className={"flex justify-between items-center"}>
-            <Button
-                color={"background-dark"}
+            <BaseButton
                 onClick={() => {
                     setCreatingProp(true)
                 }}
                 size={"small"}
-                variant={"text"}
+                className={"text-[11px]"}
             >
-                <span className={"text-[11px] font-normal uppercase"}>Nueva propiedad</span>
-            </Button>
+                Nueva propiedad
+            </BaseButton>
             <div className={"text-[var(--text-light)] flex space-x-2 items-center"}>
                 <DescriptionOnHover description={"Cancelar cambios"}>
-                    <IconButton
+                    <BaseIconButton
                         size={"small"}
                         onClick={resetProps}
-                        color={"background-dark"}
-                        sx={{borderRadius: 0}}
                     >
                         <TrashIcon color="var(--text)" fontSize={18}/>
-                    </IconButton>
+                    </BaseIconButton>
                 </DescriptionOnHover>
-                <IconButton
-                    sx={{borderRadius: 0}}
+                <BaseIconButton
                     size={"small"}
                     onClick={() => {
                         resetProps();
                         setOpen(false)
                     }}
-                    color={"background-dark"}
                 >
                     <XIcon color={"var(--text)"} fontSize={18}/>
-                </IconButton>
+                </BaseIconButton>
             </div>
         </div>
         {creatingProp && <NewPropModal

@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic'
 import { initMercadoPago } from '@mercadopago/sdk-react';
 import { useState } from 'react';
-import LoadingSpinner from '../layout/utils/loading-spinner';
+import LoadingSpinner from '../layout/base/loading-spinner';
 
 
 const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });

@@ -1,5 +1,5 @@
 import {MinusIcon, PlusIcon } from "@phosphor-icons/react";
-import { IconButton } from "../layout/utils/icon-button";
+import { BaseIconButton } from "../layout/base/base-icon-button";
 
 
 export const IntegerInputPlusMinus = ({value, onChange, delta}: {value: number, delta: number, onChange: (v: number) => void}) => {
@@ -21,14 +21,13 @@ export const IntegerInputPlusMinus = ({value, onChange, delta}: {value: number, 
 
     return (
         <div className="flex items-center space-x-2">
-            <IconButton
+            <BaseIconButton
                 onClick={handleDecrement}
-                color="background-dark"
                 size="small"
                 disabled={value <= 1}
             >
                 <MinusIcon/>
-            </IconButton>
+            </BaseIconButton>
 
             <input
                 id="integer-input"
@@ -39,13 +38,12 @@ export const IntegerInputPlusMinus = ({value, onChange, delta}: {value: number, 
                 className="px-4 py-2 text-lg bg-[var(--background-dark3)] rounded-md focus:outline-none w-32 text-center "
             />
 
-            <IconButton
+            <BaseIconButton
                 onClick={handleIncrement}
-                color="background-dark"
                 size="small"
             >
                 <PlusIcon/>
-            </IconButton>
+            </BaseIconButton>
         </div>
     );
 };

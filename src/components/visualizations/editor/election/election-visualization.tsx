@@ -67,8 +67,6 @@ export const ElectionVisualization = ({
         setSelectionStack(newStack)
     }
 
-    const backgroundColor = "background-dark"
-
     return <div
         className={"not-article-content relative exclude-links"}
         style={{width, height}}
@@ -78,11 +76,7 @@ export const ElectionVisualization = ({
                 searchValue={searchValue}
                 setSearchValue={setSearchValue}
                 placeholder={"Buscar..."}
-                size={"small"}
-                paddingY={"4px"}
-                paddingX={"8px"}
-                fontSize={13}
-                fullWidth={true}
+                inputClassName={"py-1.5"}
             />
         </div>
         <div className={"flex space-x-2 items-start pt-2 w-full px-2 h-12"}>
@@ -120,7 +114,6 @@ export const ElectionVisualization = ({
             onSelect={setSelected}
             width={width}
             height={height - 48}
-            backgroundColor={backgroundColor}
         />}
         {!searchValue && selected && selected.type == "candidato" && <CandidateComp
             c={selected.value}
@@ -131,7 +124,6 @@ export const ElectionVisualization = ({
             height={height - 48}
             onSelect={setSelected}
             plotter={plotter}
-            backgroundColor={backgroundColor}
             width={width}
         />}
     </div>

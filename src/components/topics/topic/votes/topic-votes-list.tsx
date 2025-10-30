@@ -1,6 +1,6 @@
 import {useAPI} from "@/queries/utils";
 import {getCollectionFromUri, splitUri} from "@/utils/uri";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {VoteView} from "@/lex-api/types/ar/cabildoabierto/wiki/defs";
 

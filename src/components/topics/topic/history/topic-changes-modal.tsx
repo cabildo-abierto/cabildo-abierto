@@ -1,6 +1,6 @@
-import {BaseFullscreenPopup} from "../../../layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../../layout/base/base-fullscreen-popup";
 import {splitUri} from "@/utils/uri";
-import LoadingSpinner from "../../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../../layout/base/loading-spinner";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
 import {MatchesType, TopicVersionChangesProps} from "@/lib/types";
@@ -16,7 +16,7 @@ import React, {useMemo, useState} from "react";
 import {DateSince} from "../../../layout/utils/date";
 import {useAPI} from "@/queries/utils";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api"
-import { Select } from "../../../layout/utils/select";
+import BaseSelect from "../../../layout/base/base-select";
 import { range } from "@/utils/arrays";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
@@ -201,13 +201,12 @@ const VersionSelector = ({
         </div>
     }
 
-    return <Select
-        backgroundColor={"background"}
+    return <BaseSelect
         options={range(0, history.versions.length).map(x => x.toString())}
         optionNodes={options}
         label={label}
         value={selected.toString()}
-        fontSize={"12px"}
+        itemClassName={"text-[12px]"}
         onChange={v => setSelected(Number(v))}
     />
 }

@@ -7,7 +7,7 @@ import {getEditorSettings} from "@/components/writing/settings";
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
 import {Draft, useDraft} from "@/queries/getters/useDrafts"
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {ErrorPage} from "../../layout/utils/error-page";
 import {robotoSerif} from "@/components/writing/article-font";
 import {LayoutConfigProps, useLayoutConfig} from "@/components/layout/layout-config-context";
@@ -21,6 +21,7 @@ const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-ed
 
 
 const articleEditorSettings = (
+    title: string,
     smallScreen: boolean,
     isMobile: boolean,
     layoutConfig: LayoutConfigProps,
@@ -38,6 +39,7 @@ const articleEditorSettings = (
     embeds: draft ? draft.embeds : null,
 
     tableOfContents: layoutConfig.spaceForRightSide,
+    title,
     showToolbar: true,
 
     isDraggableBlock: !smallScreen,
@@ -90,6 +92,7 @@ const ArticleEditor = ({draft, article}: {
     const [initialEditorState, setInitialEditorState] = useState(null)
 
     const settings = articleEditorSettings(
+        title,
         smallScreen,
         isMobile,
         layoutConfig,

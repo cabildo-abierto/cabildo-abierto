@@ -12,9 +12,9 @@ import {TopicsGraph} from "@/lib/types";
 import {bboxCollide} from "d3-bboxCollide"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {pxToNumber} from "@/utils/strings";
-import {IconButton} from "@mui/material";
 import {MinusCircleIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import { inRange } from '@/utils/math';
+import {BaseIconButton} from "@/components/layout/base/base-icon-button";
 
 
 type GraphNode = {
@@ -349,19 +349,19 @@ export default function GraphView({
                             </g>
                         </svg>
                         <div className="absolute bottom-2 right-2 z-10 flex space-x-2">
-                            <IconButton
+                            <BaseIconButton
                                 size={"small"}
                                 className="bg-gray-200 p-2 rounded hover:bg-gray-300"
                                 onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}
                             >
                                 <PlusCircleIcon/>
-                            </IconButton>
-                            <IconButton
+                            </BaseIconButton>
+                            <BaseIconButton
                                 size={"small"}
                                 onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}
                             >
                                 <MinusCircleIcon/>
-                            </IconButton>
+                            </BaseIconButton>
                         </div>
                     </>
                 }}

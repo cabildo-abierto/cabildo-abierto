@@ -1,5 +1,5 @@
 import React, {ReactNode} from "react";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {range} from "@/utils/arrays";
 
 export const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) => {

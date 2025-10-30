@@ -1,5 +1,5 @@
 "use client"
-import LoadingSpinner from "../../../components/layout/utils/loading-spinner";
+import LoadingSpinner from "../../../components/layout/base/loading-spinner";
 import {NotificationCard} from "@/components/notification/notification-card";
 import {useEffect} from "react";
 import {useQueryClient} from "@tanstack/react-query";

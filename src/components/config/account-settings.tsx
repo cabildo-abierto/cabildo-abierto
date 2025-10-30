@@ -1,11 +1,10 @@
 import {useSession} from "@/queries/getters/useSession";
 import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
-import LoadingSpinner from "../layout/utils/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {CustomLink as Link} from "../layout/utils/custom-link";
 import {PermissionLevel} from "@/components/topics/topic/permission-level";
-import {Button} from "../layout/utils/button";
-import {CloseSessionButton} from "@/components/layout/auth/close-session-button";
-import React from "react";
+import {CloseSessionButton} from "@/components/auth/close-session-button";
+import React, {ReactNode} from "react";
 import {DeleteAccountButton} from "@/components/config/delete-account-button";
 import {useAPI} from "@/queries/utils";
 import {Account} from "@/lib/types";
@@ -15,6 +14,29 @@ const useAccount = () => {
     const res = useAPI<Account>("/account", ["account"])
     return {...res, account: res.data}
 }
+
+
+const SettingsElement = ({label, children}: {
+    children: ReactNode,
+    label: string
+}) => {
+    return <div className="space-y-[2px]">
+        <div className="text-[var(--text-light)] text-sm">{label}</div>
+        <div className="text-base">{children}</div>
+    </div>
+}
+
+
+const ChangeFromBluesky = ({add = false}: { add?: boolean }) => {
+    return <Link
+        className="text-sm text-[var(--text)] hover:text-[var(--text-light)] underline"
+        target="_blank"
+        href={"https://bsky.app/settings/account"}
+    >
+        {add ? "Agregar" : "Cambiar"} desde Bluesky
+    </Link>
+}
+
 
 export const AccountSettings = () => {
     const {user} = useSession()
@@ -27,53 +49,33 @@ export const AccountSettings = () => {
         </div>
     }
 
-    return <div className={"p-4"}>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Nombre de usuario</div>
-            <div className="text-lg ">@{user.handle}</div>
-        </div>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Nombre visible</div>
-            <div className="text-lg ">{user.displayName ? user.displayName : "Sin definir."}</div>
-        </div>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Contraseña</div>
-            <Link
-                className="text-[var(--primary)] hover:underline"
-                target="_blank"
-                href={"https://bsky.app/settings/account"}
-            >
-                Cambiar desde Bluesky.
-            </Link>
-        </div>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Mail</div>
+    return <div className={"py-4 space-y-4"}>
+        <SettingsElement label={"Nombre de usuario"}>
+            @{user.handle}
+        </SettingsElement>
+        <SettingsElement label={"Nombre visible"}>
+            {user.displayName ? user.displayName : "Sin definir."}
+        </SettingsElement>
+        <SettingsElement label={"Contraseña"}>
+            <ChangeFromBluesky/>
+        </SettingsElement>
+        <SettingsElement label={"Correo"}>
             {account.email ? <div className="text-lg ">{account.email}</div> :
                 <div className="text-lg ">Pendiente</div>}
-            <Link
-                className="text-[var(--primary)] hover:underline"
-                target="_blank"
-                href={"https://bsky.app/settings/account"}
+            <ChangeFromBluesky add={account.email == null}/>
+        </SettingsElement>
+        <SettingsElement label={"Permisos de edición"}>
+            <PermissionLevel level={user.editorStatus}/>
+        </SettingsElement>
+        <SettingsElement label={"Verificación de la cuenta"}>
+            {!request || request.result != "Aceptada" ? "Sin verificar." : (request.type == "persona" ? "Cuenta de persona verificada." : "Cuenta de organización verificada.")} {(!request.result || request.result != "Aceptada") && <Link
+                className="underline hover:text-[var(--text-light)]"
+                href={"/ajustes/solicitar-validacion"}
             >
-                {account.email ? "Cambiar" : "Agregar"} desde Bluesky.
-            </Link>
-        </div>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Permisos de edición en la wiki</div>
-            <div className="text-lg">
-                <PermissionLevel level={user.editorStatus} className={""}/>
-            </div>
-        </div>
-        <div className="mb-4">
-            <div className="text-[var(--text-light)] font-medium text-sm">Verificación de la cuenta</div>
-            <div className="text-lg">
-                {!request || request.result != "Aceptada" ? "Sin verificar." : (request.type == "persona" ? "Cuenta de persona verificada." : "Cuenta de organización verificada.")}
-            </div>
-        </div>
-        {(!request.result || request.result != "Aceptada") &&
-            <Button variant="outlined" size={"small"} href={"/ajustes/solicitar-validacion"}>
-                <span className={"text-sm py-1"}>Verificar cuenta</span>
-            </Button>}
+                Verificar cuenta
+            </Link>}
+        </SettingsElement>
+
         <div className={"mt-4 flex justify-start"}>
             <CloseSessionButton/>
         </div>

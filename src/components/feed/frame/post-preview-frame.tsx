@@ -116,7 +116,6 @@ export const PostPreviewFrame = ({
                     </DescriptionOnHover>}
                     <ProfilePic
                         user={author}
-                        clickable={false}
                         className={"rounded-full w-full"}
                     />
                 </CustomLink>
@@ -164,9 +163,8 @@ export const PostPreviewFrame = ({
                         content={postView}
                         className={"px-2"}
                         enDiscusion={enDiscusion}
-                        iconFontSize={18}
+                        iconSize={"default"}
                         textClassName={"font-light text-[var(--text)] text-sm"}
-                        iconHoverColor={"background-dark2"}
                     />
                 </div>}
             </div>

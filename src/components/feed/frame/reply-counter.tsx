@@ -1,6 +1,5 @@
 import React, {MouseEventHandler, useState} from "react"
-import {Color} from "../../layout/utils/color";
-import {IconButton} from "../../layout/utils/icon-button";
+import {BaseIconButton} from "../../layout/base/base-icon-button";
 import {contentUrl, splitUri, topicUrl} from "@/utils/uri";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useRouter} from "next/navigation";
@@ -9,6 +8,8 @@ import {$Typed} from "@/lex-api/util";
 import {useSession} from "@/queries/getters/useSession";
 import dynamic from "next/dynamic";
 import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon"
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
+import {EngagementIconWithCounter} from "@/components/layout/utils/engagement-icon-with-counter";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
@@ -19,20 +20,16 @@ export const ReplyCounter = ({
                                  count,
                                  title,
                                  disabled = false,
-                                 hoverColor,
                                  content,
                                  textClassName,
-                                 iconFontSize,
-                                 iconColor="text",
+                                 iconSize,
     stopPropagation=true
                              }: {
     count: number
     title?: string
     disabled?: boolean
-    hoverColor?: Color
     textClassName?: string
-    iconFontSize?: number
-    iconColor?: Color
+    iconSize?: BaseButtonProps["size"]
     content: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
@@ -71,24 +68,20 @@ export const ReplyCounter = ({
 
     return <>
         <div className={shake ? "animate-shake" : ""}>
-            <IconButton
-                hoverColor={hoverColor}
+            <BaseIconButton
                 onClick={handleClick}
                 title={title}
-                size={"small"}
-                sx={{borderRadius: 0}}
-                color={"transparent"}
+                size={iconSize}
             >
-                <div
-                    className={"text-[var(--text-light)] flex items-start space-x-1"}
-                >
-                    <InactiveCommentIcon
-                        color={`var(--${iconColor})`}
-                        fontSize={iconFontSize}
-                    />
-                    {count > 0 && <div className={textClassName}>{count}</div>}
-                </div>
-            </IconButton>
+                <EngagementIconWithCounter
+                    hideZero={true}
+                    iconActive={<InactiveCommentIcon/>}
+                    iconInactive={<InactiveCommentIcon/>}
+                    count={count}
+                    active={false}
+                    textClassName={textClassName}
+                />
+            </BaseIconButton>
         </div>
         {writingReply && user && !ArCabildoabiertoWikiTopicVersion.isVersionInHistory(content) && <WritePanel
             open={writingReply}

@@ -11,11 +11,18 @@ export type DonationHistory = Donation[]
 
 export const DonationHistory = () => {
     let {data, isLoading} = useDonationHistory()
+    data = [{date: new Date(), amount: 500}]
 
     if (!data || data.length == 0) return null
 
-    return <div className={"w-full flex justify-center max-w-[500px]"}>
-        <div className={"space-y-4 w-full flex flex-col items-center bg-[var(--background-dark2)] rounded p-4 mx-2"}>
+
+    return <>
+        <div className={"px-8 w-full"}>
+            <hr className={"bg-[var(--accent-dark)] w-full"}/>
+        </div>
+        <div
+            className={"space-y-4 w-full justify-center px-8 flex flex-col items-center rounded p-4"}
+        >
             <h3 className={"w-full uppercase text-base"}>Tus aportes</h3>
             <div className={"w-full"}>
                 {data && <div className={"flex flex-col w-full space-y-4 text-[var(--text-light)]"}>
@@ -35,10 +42,12 @@ export const DonationHistory = () => {
                 {isLoading && <div className={"text-sm text-[var(--text-light)] text-center"}>
                     Cargando aportes...
                 </div>}
-                {data && data.length == 0 && <div className={"text-sm text-[var(--text-light)] text-center"}>
+                {data && data.length == 0 && <div
+                    className={"text-sm text-[var(--text-light)] text-center"}
+                >
                     Acá va a aparecer tu primer aporte.
                 </div>}
             </div>
         </div>
-    </div>
+    </>
 }

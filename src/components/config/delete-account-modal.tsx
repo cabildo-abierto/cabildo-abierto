@@ -1,11 +1,11 @@
-import {BaseFullscreenPopup} from "../layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../layout/base/base-fullscreen-popup";
 import StateButton from "../layout/utils/state-button";
 import {useState} from "react";
 import {post} from "@/utils/fetch";
-import {logout} from "@/components/layout/auth/close-session-button";
+import {logout} from "@/components/auth/close-session-button";
 import {useQueryClient} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
-import { TextField } from "../layout/utils/text-field";
+import { BaseTextField } from "../layout/base/base-text-field";
 
 
 const DeleteAccountModal = ({
@@ -44,9 +44,7 @@ const DeleteAccountModal = ({
                 </p>
             </div>
             <div className={"w-full"}>
-                <TextField
-                    fullWidth
-                    size={"small"}
+                <BaseTextField
                     value={text}
                     onChange={(e) => {
                         setText(e.target.value)
@@ -55,13 +53,13 @@ const DeleteAccountModal = ({
             </div>
             <div className={"flex justify-end w-full"}>
                 <StateButton
-                    variant={"contained"}
-                    color={"red-dark"}
+                    variant={"error"}
                     handleClick={onClick}
                     disabled={text != "borrarcuenta"}
-                    text1={"Confirmar"}
                     textClassName={text == "borrarcuenta" ? "text-[var(--background)]" : ""}
-                />
+                >
+                    Confirmar
+                </StateButton>
             </div>
         </div>
     </BaseFullscreenPopup>

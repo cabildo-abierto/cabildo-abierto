@@ -1,36 +1,28 @@
 "use client"
-import {styled, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import {ReactNode, useState} from "react";
-import {Button} from "../../../../components/layout/utils/button";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import {ReactNode, useRef, useState} from "react";
+import {BaseButton} from "@/components/layout/base/baseButton";
 import {post} from "@/utils/fetch";
 import {produce} from "immer";
 import {file2base64, FilePayload} from "@/utils/files";
-import {ConfettiIcon, FileIcon, TrashIcon} from "@phosphor-icons/react";
+import {
+    CaretDownIcon,
+    CaretUpIcon,
+    CheckIcon,
+    CloudArrowUpIcon,
+    ConfettiIcon,
+    FileIcon,
+    HourglassIcon,
+    TrashIcon
+} from "@phosphor-icons/react";
 import StateButton from "../../../../components/layout/utils/state-button";
-import {AcceptButtonPanel} from "../../../../components/layout/utils/accept-button-panel";
+import {AcceptButtonPanel} from "@/components/layout/dialogs/accept-button-panel";
 import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
-import LoadingSpinner from "../../../../components/layout/utils/loading-spinner";
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import LoadingSpinner from "../../../../components/layout/base/loading-spinner";
 import {useQueryClient} from "@tanstack/react-query";
-import CheckIcon from "@mui/icons-material/Check";
-import {TextField} from "../../../../components/layout/utils/text-field";
-import {IconButton} from "../../../../components/layout/utils/icon-button";
-import {Select} from "../../../../components/layout/utils/select";
-
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
+import {BaseTextField} from "@/components/layout/base/base-text-field";
+import {BaseIconButton} from "@/components/layout/base/base-icon-button";
+import BaseSelect from "@/components/layout/base/base-select";
+import {BaseTextArea} from "@/components/layout/base/base-text-area";
 
 
 const FormItemWithNote = ({note, ...props}: Omit<FormItemProps, "contentBelow"> & { note?: string }) => {
@@ -51,13 +43,15 @@ type FormItemProps = {
 
 const FormItem = ({label, children, below = false, contentBelow}: FormItemProps) => {
 
-    return <div className={"bg-[var(--background-dark2)] p-4 space-y-4"}>
+    return <div className={"border-[var(--accent-dark)] p-4 space-y-4"}>
         <div
             className={below ? " space-y-4" : " flex justify-between items-center"}>
             <div className={"sm:text-base text-sm"}>
                 {label}
             </div>
-            {children}
+            <div>
+                {children}
+            </div>
         </div>
         {contentBelow}
     </div>
@@ -68,11 +62,13 @@ const FormItemWithFiles = ({fileNames, onRemove, ...props}: Omit<FormItemProps, 
     fileNames: string[],
     onRemove: (_: number) => void
 }) => {
-    const contentBelow = fileNames && fileNames.length > 0 ? <div className={"flex space-y-2 flex-col"}>
+    const contentBelow = fileNames && fileNames.length > 0 ? <div
+        className={"flex space-y-2 flex-col"}
+    >
         {fileNames.map((fileName, i) => {
             return <div
                 key={i}
-                className={"flex justify-between items-center space-x-2 bg-[var(--background-dark3)] p-2"}
+                className={"flex justify-between items-center space-x-2 border border-[var(--accent-dark)] p-2"}
             >
                 <div className={"flex items-center space-x-2"}>
                     <FileIcon/>
@@ -80,15 +76,14 @@ const FormItemWithFiles = ({fileNames, onRemove, ...props}: Omit<FormItemProps, 
                         {fileName}
                     </div>
                 </div>
-                <IconButton
+                <BaseIconButton
                     onClick={() => {
                         onRemove(i)
                     }}
                     size={"small"}
-                    color={"background-dark3"}
                 >
                     <TrashIcon/>
-                </IconButton>
+                </BaseIconButton>
             </div>
         })}
     </div> : undefined
@@ -105,23 +100,32 @@ const UploadFileButton = ({children, onUpload, multiple = false}: {
     onUpload: (_: FileList) => void,
     multiple?: boolean
 }) => {
-    return <Button
-        component="label"
+    const inputRef = useRef<HTMLInputElement>(null)
+
+    const handleButtonClick = () => {
+        if (inputRef.current) {
+            inputRef.current.click()
+        }
+    }
+
+    return <BaseButton
+        onClick={handleButtonClick}
         role={undefined}
         variant="outlined"
         tabIndex={-1}
-        startIcon={<CloudUploadIcon/>}
-        color={"background-dark2"}
+        startIcon={<CloudArrowUpIcon/>}
     >
         {children}
-        <VisuallyHiddenInput
-            type="file"
+        <input
+            ref={inputRef}
+            className={"hidden"}
+            type={"file"}
             onChange={(e) => {
                 onUpload(e.target.files)
             }}
             multiple={multiple}
         />
-    </Button>
+    </BaseButton>
 }
 
 
@@ -187,14 +191,12 @@ const ValidacionOrg = ({request, setRequest}: {
     if (request.tipo != "org") return
 
     return <div className={"space-y-6"}>
-        <div className={"text-[var(--text-light)] px-2 text-sm"}>
+        <div className={"text-[var(--text-light)] px-4 text-sm"}>
             Adjuntá la documentación necesaria para identificar a tu organización y validar que sos su representante.
         </div>
         <FormItem label={"Tipo de organización"}>
-            <div className={"w-48"}>
-                <Select
-                    fontSize={"13px"}
-                    backgroundColor={"background-dark2"}
+            <div className={"w-50"}>
+                <BaseSelect
                     optionLabels={o => {
                         if (o == "creador-individual") return "Creador de contenidos"
                         else if (o == "empresa") return "Empresa"
@@ -218,9 +220,7 @@ const ValidacionOrg = ({request, setRequest}: {
             label={"Sitio web"}
             note={"Si el dominio de tu @ y el de tu sitio web coinciden, no hace falta que nos envíes ningún otro dato o documentación."}
         >
-            <TextField
-                size={"small"}
-                fontSize={"13px"}
+            <BaseTextField
                 value={request.sitioWeb ?? ""}
                 placeholder={"https://ejemplo.com"}
                 onChange={(e) => {
@@ -231,9 +231,7 @@ const ValidacionOrg = ({request, setRequest}: {
             />
         </FormItemWithNote>
         <FormItem label={"Mail de contacto"}>
-            <TextField
-                size={"small"}
-                fontSize={"13px"}
+            <BaseTextField
                 value={request.email ?? ""}
                 placeholder={"contacto@ejemplo.com"}
                 onChange={(e) => {
@@ -268,12 +266,8 @@ const ValidacionOrg = ({request, setRequest}: {
             </UploadFileButton>
         </FormItemWithFiles>
         <FormItem label={"Comentarios"} below={true}>
-            <TextField
-                size={"small"}
-                fullWidth={true}
-                minRows={2}
-                paddingX={"12px"}
-                multiline={true}
+            <BaseTextArea
+                rows={2}
                 value={request.comentarios ?? ""}
                 placeholder={"Otros datos útiles."}
                 onChange={(e) => {
@@ -290,19 +284,21 @@ const ValidacionOrg = ({request, setRequest}: {
 const Desplegable = ({children, text}: { children: ReactNode, text: string }) => {
     const [open, setOpen] = useState(false)
 
-    return <div className={"w-full bg-[var(--background-dark)] p-4"}>
+    return <div className={"w-full panel-dark portal group"}>
         <button
             onClick={() => {
                 setOpen(!open)
             }}
-            className={"flex space-x-1 items-center"}
+            className={"flex space-x-1 items-center p-4"}
         >
             <span className={"text-base"}>
                 {text}
             </span>
-            {open ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
+            {open ? <CaretUpIcon/> : <CaretDownIcon/>}
         </button>
-        {open && children}
+        {open && <div className={"px-4 pb-4"}>
+            {children}
+        </div>}
     </div>
 }
 
@@ -409,7 +405,7 @@ const Page = () => {
             <div className={"flex flex-col items-center space-y-4 p-8 bg-[var(--background-dark)] rounded-lg"}>
                 <div
                     className={"h-16 w-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center text-green-400"}>
-                    <CheckIcon fontSize={"large"}/>
+                    <CheckIcon fontSize={24}/>
                 </div>
                 <div className={"text-lg text-[var(--text-light)] font-semibold"}>
                     Tu cuenta ya está verificada
@@ -418,7 +414,7 @@ const Page = () => {
         {curRequest && curRequest.type && curRequest.result == "Pendiente" && <div>
             <div className={"bg-[var(--background-dark)] p-4 w-full space-y-8 flex flex-col items-center"}>
                 <div>
-                    <HourglassEmptyIcon/>
+                    <HourglassIcon/>
                 </div>
                 <h2 className={"normal-case"}>
                     Estamos procesando tu solicitud
@@ -434,42 +430,46 @@ const Page = () => {
                 <div className={"flex justify-end w-full"}>
                     <StateButton
                         endIcon={<TrashIcon/>}
-                        text1="Cancelar solicitud"
-                        color={"background-dark2"}
                         size={"small"}
                         handleClick={onCancel}
-                    />
+                    >
+                        Cancelar solicitud
+                    </StateButton>
                 </div>
             </div>
         </div>}
-        {(!curRequest || !curRequest.type) && <div className={"rounded-panel-dark p-4 space-y-6"}>
+        {(!curRequest || !curRequest.type) && <div className={"portal group panel-dark p-4 space-y-6"}>
             <h2 className={"normal-case"}>
                 Solicitá la verificación de tu cuenta
             </h2>
             <FormItem label={"Tipo de cuenta"}>
-                <ToggleButtonGroup
-                    color="primary"
-                    value={request.tipo}
-                    exclusive
-                    onChange={(e, value) => {
-                        setRequest({tipo: value, tipoOrg: value == "org" ? "creador-individual" : undefined})
-                    }}
-                    size={"small"}
-                    aria-label="Tipo de cuenta"
-                >
-                    <ToggleButton sx={{borderRadius: 0, textTransform: "none"}} value="persona">Persona</ToggleButton>
-                    <ToggleButton sx={{borderRadius: 0, textTransform: "none"}} value="org">Organización</ToggleButton>
-                </ToggleButtonGroup>
+                <div className={"flex justify-end"}>
+                    <BaseSelect
+                        triggerClassName={"w-[140px]"}
+                        value={request.tipo}
+                        options={["persona", "org"]}
+                        optionLabels={(o) => {
+                            if (o == "persona") return "Persona"
+                            else return "Organización"
+                        }}
+                        label={"Tipo de cuenta"}
+                        onChange={(value) => {
+                            if (value == "org" || value == "persona") {
+                                setRequest({tipo: value, tipoOrg: value == "org" ? "creador-individual" : undefined})
+                            }
+                        }}
+                    />
+                </div>
             </FormItem>
             {request.tipo == "persona" && <ValidacionPersona request={request} setRequest={setRequest}/>}
             {request.tipo == "org" && <ValidacionOrg request={request} setRequest={setRequest}/>}
             <div className={"flex justify-end"}>
                 <StateButton
                     handleClick={onSubmit}
-                    text1={"Enviar"}
                     variant={"outlined"}
-                    color={"background-dark"}
-                />
+                >
+                    Enviar
+                </StateButton>
             </div>
         </div>}
 

@@ -1,89 +1,105 @@
 import HomeIcon from "@/components/layout/icons/home-icon";
-import React from "react";
+import React, {ReactNode} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import NotificationsIcon from "@/components/layout/icons/notifications-icon";
 import TopicsIcon from "@/components/layout/icons/topics-icon";
-import {BottomNavigation, BottomNavigationAction, Box, Paper} from "@mui/material";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {MagnifyingGlassIcon} from "@phosphor-icons/react";
+import {BaseIconButton} from "@/components/layout/base/base-icon-button";
+import {cn} from "@/lib/utils"
+import SearchIcon from "@/components/layout/icons/search-icon";
+
+
+const BottomBarMobileIcon = ({
+                                 href,
+                                 label,
+                                 isSelected,
+                                 children
+                             }: {
+    label: string
+    href: string
+    isSelected: boolean
+    children: ReactNode
+}) => {
+    const router = useRouter()
+
+    return <BaseIconButton
+        key={label}
+        onClick={() => router.push(href)}
+        className={cn(
+            "group flex h-full w-full flex-col items-center justify-center space-y-0.5 rounded-none p-0 text-[var(--text-light)] transition-all hover:text-[var(--text)]",
+            {
+                "text-[var(--text)]": isSelected,
+            }
+        )}
+    >
+        {children}
+
+        <span
+            className={cn(
+                "text-xs leading-4 transition-all",
+                {
+                    "font-bold": isSelected,
+                }
+            )}
+        >
+            {label}
+        </span>
+    </BaseIconButton>
+}
+
 
 const BottomBarMobile = () => {
     const pathname = usePathname()
-    const router = useRouter()
     const {isMobile} = useLayoutConfig()
-    if(!isMobile) return null
+    if (!isMobile) return null
 
     const notificationsSelected = pathname.startsWith("/notificaciones")
     const topicsSelected = pathname.startsWith("/temas")
     const searchSelected = pathname.startsWith("/buscar")
     const homeSelected = pathname.startsWith("/inicio")
 
-    const values = ["inicio", "temas", "buscar", "notificaciones"]
-    const value: string = values.find(v => pathname.startsWith(`/${v}`)) ?? null
-
-    return <Box>
-        <Paper
-            sx={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: "white"
-            }}
-            elevation={3}
+    return <div
+        className={"fixed bottom-0 left-0 right-0"}
+    >
+        <div
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--accent-dark)] bg-[var(--background-dark)] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:hidden"
         >
-            <BottomNavigation
-                showLabels
-                value={value}
-                onChange={(event, newValue: string) => {
-                    router.push(`/${newValue}`)
-                }}
-                sx={{
-                    bgcolor: 'var(--background)',
-                    borderTop: '1px solid var(--accent-dark)',
-                    '& .Mui-selected': {
-                        '& .MuiBottomNavigationAction-label': {
-                            fontSize: theme => theme.typography.caption,
-                            transition: 'none',
-                            fontWeight: 'bold',
-                            lineHeight: '20px'
-                        },
-                        '& .MuiSvgIcon-root, & .MuiBottomNavigationAction-label': {
-                            color: 'var(--text)',
-                            fill: 'var(--text)'
-                        }
-                    }
-                }}
-            >
-                <BottomNavigationAction
-                    value="inicio"
-                    label="Inicio"
-                    icon={<HomeIcon
+            <nav className="flex h-14 w-full items-center justify-around">
+                <BottomBarMobileIcon
+                    label={"Inicio"}
+                    href={"/inicio"}
+                    isSelected={homeSelected}
+                >
+                    <HomeIcon fontSize={23} weight={homeSelected ? "fill" : "light"}/>
+                </BottomBarMobileIcon>
+                <BottomBarMobileIcon
+                    label={"Temas"}
+                    href={"/temas"}
+                    isSelected={topicsSelected}
+                >
+                    <TopicsIcon fontSize={23} weight={topicsSelected ? "bold" : "light"}/>
+                </BottomBarMobileIcon>
+                <BottomBarMobileIcon
+                    label={"Buscar"}
+                    href={"/buscar"}
+                    isSelected={searchSelected}
+                >
+                    <SearchIcon color="var(--text)" fontSize={23} weight={searchSelected ? "bold" : "light"}/>
+                </BottomBarMobileIcon>
+                <BottomBarMobileIcon
+                    label={"Notificaciones"}
+                    href={"/notificaciones"}
+                    isSelected={notificationsSelected}
+                >
+                    <NotificationsIcon
                         fontSize={23}
-                        weight={homeSelected ? "fill" : "light"}
-                    />}
-                />
-                <BottomNavigationAction
-                    value="temas"
-                    label="Temas"
-                    icon={<TopicsIcon color={topicsSelected ? "text" : "text-light"}/>}
-                />
-                <BottomNavigationAction
-                    value="buscar"
-                    label="Buscar"
-                    icon={<MagnifyingGlassIcon fontSize={23} weight={searchSelected ? "bold" : "light"}/>}
-                />
-                <BottomNavigationAction
-                    value="notificaciones"
-                    label="Notificaciones"
-                    icon={<NotificationsIcon
-                        fontSize={23}
-                        color={notificationsSelected ? "text" : "text-light"}
-                    />}
-                />
-            </BottomNavigation>
-        </Paper>
-    </Box>
+                        weight={notificationsSelected ? "fill" : "light"}
+                    />
+                </BottomBarMobileIcon>
+            </nav>
+        </div>
+
+    </div>
 }
 
 export default BottomBarMobile

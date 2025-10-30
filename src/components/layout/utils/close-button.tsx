@@ -1,29 +1,29 @@
-import {IconButton} from "./icon-button"
+import {BaseIconButton} from "../base/base-icon-button"
 import {CloseButtonIcon} from "@/components/layout/icons/close-button-icon"
 import {stopPropagation} from "@/utils/utils";
-
-import {Color} from "./color";
+import {ButtonProps} from "@/components/ui/button";
 
 
 export const CloseButton = ({
                                 onClose,
-                                iconColor,
-                                size,
-                                color="transparent",
-                                hoverColor}: {
+                                className,
+                                size = "default",
+                                variant = "default",
+                                disabled = false
+                            }: {
     onClose: () => void
-    size?: "small" | "medium" | "large"
-    iconColor?: Color
-    color?: Color
-    hoverColor?: Color
+    size?: "small" | "default" | "large"
+    className?: string
+    variant?: ButtonProps["variant"]
+    disabled?: boolean
 }) => {
-    return <IconButton
+    return <BaseIconButton
+        variant={variant}
         onClick={stopPropagation(onClose)}
-        color={color}
-        hoverColor={hoverColor}
         size={size}
-        sx={{borderRadius: 0, color: `var(--${iconColor})`}}
+        className={className}
+        disabled={disabled}
     >
-        <CloseButtonIcon color="inherit" fontSize="inherit"/>
-    </IconButton>
+        <CloseButtonIcon/>
+    </BaseIconButton>
 }
