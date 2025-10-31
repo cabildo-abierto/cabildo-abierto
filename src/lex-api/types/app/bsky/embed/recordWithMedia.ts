@@ -37,23 +37,3 @@ export function isMain<V>(v: V) {
 export function validateMain<V>(v: V) {
   return validate<Main & V>(v, id, hashMain)
 }
-
-export interface View {
-  $type?: 'app.bsky.embed.recordWithMedia#view'
-  record: AppBskyEmbedRecord.View
-  media:
-    | $Typed<AppBskyEmbedImages.View>
-    | $Typed<AppBskyEmbedVideo.View>
-    | $Typed<AppBskyEmbedExternal.View>
-    | { $type: string }
-}
-
-const hashView = 'view'
-
-export function isView<V>(v: V) {
-  return is$typed(v, id, hashView)
-}
-
-export function validateView<V>(v: V) {
-  return validate<View & V>(v, id, hashView)
-}

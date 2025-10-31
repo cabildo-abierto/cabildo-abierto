@@ -1,14 +1,19 @@
 import {QueryClient} from "@tanstack/react-query";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api"
+import {
+    AppBskyFeedDefs,
+    ArCabildoabiertoDataDataset,
+    ArCabildoabiertoFeedDefs,
+    ArCabildoabiertoWikiTopicVersion
+} from "@/lex-api"
 import {postOrArticle} from "@/utils/type-utils";
-import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {produce} from "immer";
 import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@/utils/uri";
 import {QueryFilters} from "@tanstack/query-core";
 import {$Typed} from "@atproto/api";
-import {AppBskyFeedDefs} from "@/lex-api"
-import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isArticleView, isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {areArraysEqual} from "@/utils/arrays";
+import {InfiniteFeed} from "@/components/feed/feed/types";
+import {GetFeedOutput} from "@/lib/types";
 
 
 // ¿En qué casos tenemos que actualizar?
@@ -47,14 +52,14 @@ export async function refetchQueries(qc: QueryClient, queries: string[][]) {
         }})
 }
 
-
+function isPrefix(a: string[], b: string[]) {
+    return b.length >= a.length && areArraysEqual(a, b.slice(0, a.length))
+}
 
 export async function cancelQueries(qc: QueryClient, queries: string[][]) {
     await qc.cancelQueries({
         predicate: query => {
-            const res = queries.some(q => areArraysEqual(q, query.queryKey as string[]))
-            if(res) console.log("cancelling", query.queryKey)
-            return res
+            return queries.some(q => isPrefix(q, query.queryKey as string[]))
         }})
 }
 
@@ -62,9 +67,7 @@ export async function cancelQueries(qc: QueryClient, queries: string[][]) {
 export async function invalidateQueries(qc: QueryClient, queries: string[][]) {
     await qc.invalidateQueries({
         predicate: query => {
-            const res = queries.some(q => areArraysEqual(q, query.queryKey as string[]))
-            if(res) console.log("invalidatin!!g", query.queryKey)
-            return res
+            return queries.some(q => isPrefix(q, query.queryKey as string[]))
         }})
 }
 
@@ -95,6 +98,7 @@ export function isQueryRelatedToUri(queryKey: readonly unknown[], uri: string) {
             || queryKey[0] == "profile-feed"
             || queryKey[0] == "thread"
             || queryKey[0] == "topic-feed"
+            || queryKey[0] == "topic-discussion"
     } else if (isTopicVersion(collection)) {
         return queryKey[0] == "topic"
             || queryKey[0] == "topic-history"
@@ -197,6 +201,26 @@ export function updateThreadViewContentQuery(uri: string, t: MaybeThreadViewCont
 export type QueryContentUpdater<T> = (_: T) => T | null
 
 
+function updateElementInGetFeedOutput(f: GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, uri: string, updater: QueryContentUpdater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]>) {
+    return produce(f, draft => {
+        for(let i = 0; i < f.feed.length; i++){
+            const e = draft.feed[i]
+            if(!e) continue
+            if(isPostView(e.content) || isArticleView(e.content)){
+                if(e.content.uri == uri) {
+                    const newElement = updater(e.content)
+                    if(newElement) {
+                        draft.feed[i].content = newElement
+                    } else {
+                        draft.feed[i] = null
+                    }
+                }
+            }
+        }
+    })
+}
+
+
 export function updateContentInQuery(queryKey: string[], qc: QueryClient, uri: string, updater: QueryContentUpdater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]>) {
     const k = queryKey
     if(k[0] == "thread"){
@@ -205,10 +229,16 @@ export function updateContentInQuery(queryKey: string[], qc: QueryClient, uri: s
             const t = old as MaybeThreadViewContent
             return updateThreadViewContentQuery(uri, t, updater)
         })
-    } else if(k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "topic-feed"){
+    } else if(k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "topic-feed") {
         qc.setQueryData(k, old => {
-            if(!old) return old
+            if (!old) return old
             return updateFeedElement(old as InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>, uri, updater)
+        })
+    } else if(k[0] == "topic-discussion") {
+        qc.setQueryData(k, old => {
+            if (!old) return old
+            const f = old as GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>
+            return updateElementInGetFeedOutput(f, uri, updater)
         })
     } else if(k[0] == "topic-quote-replies") {
         qc.setQueryData(k, old => {

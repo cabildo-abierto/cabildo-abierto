@@ -1,9 +1,14 @@
 import {ReplyButton} from "@/components/thread/reply-button";
-import {isPostView, isThreadViewContent, PostView, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {
+    isPostView,
+    isThreadViewContent,
+    PostView,
+    ThreadViewContent
+} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import Post from "./post";
 import {useMemo, useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import ThreadReplies from "../thread-replies";
 import {threadQueryKey} from "@/queries/getters/useThread";
 import dynamic from "next/dynamic";
@@ -40,10 +45,13 @@ const PostThreadPage = ({content, thread}: {
             threadViewContent={thread}
         />
 
-        {thread && <div className={"w-full border-b border-[var(--accent-dark)]"}>
-            <ReplyButton onClick={() => {
-                setOpenReplyPanel(true)
-            }}/>
+        {thread && <div className={"w-full"}>
+            <ReplyButton
+                size={"large"}
+                onClick={() => {
+                    setOpenReplyPanel(true)
+                }}
+            />
         </div>}
 
         {openReplyPanel && <div/>}

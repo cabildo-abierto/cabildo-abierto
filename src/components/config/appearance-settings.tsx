@@ -2,7 +2,8 @@ import {ThemeMode, useTheme} from "@/components/layout/theme/theme-context";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import React from "react";
 
-export const AppearanceSettings = () => {
+
+export const ThemePicker = () => {
     const {mode, setMode} = useTheme();
 
     function onSelection(v: ThemeMode) {
@@ -27,19 +28,25 @@ export const AppearanceSettings = () => {
         </button>
     }
 
+
+    return <SelectionComponent<ThemeMode>
+        onSelection={onSelection}
+        options={["system", "light", "dark"]}
+        optionsNodes={optionsNodes}
+        selected={mode}
+        className={"flex space-x-2"}
+        optionContainerClassName={"flex"}
+    />
+}
+
+
+export const AppearanceSettings = () => {
     return <>
-        <div className="mb-4 p-4 space-y-4">
-            <div className={"uppercase text-[var(--text-light)] font-semibold"}>
+        <div className="mb-4 pt-4 space-y-4">
+            <div className={"uppercase text-[var(--text-light)] font-medium"}>
                 Tema
             </div>
-            <SelectionComponent<ThemeMode>
-                onSelection={onSelection}
-                options={["system", "light", "dark"]}
-                optionsNodes={optionsNodes}
-                selected={mode}
-                className={"flex space-x-2"}
-                optionContainerClassName={"flex"}
-            />
+            <ThemePicker/>
         </div>
     </>
 }

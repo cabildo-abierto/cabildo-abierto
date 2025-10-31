@@ -1,48 +1,59 @@
 import React from "react";
 import {CustomLink as Link} from "./utils/custom-link";
 import {topicUrl} from "@/utils/uri";
-import {useSession} from "@/queries/getters/useSession";
+
+
+const RightPanelButtonsItem = ({children, href}: {
+    href: string
+    children: string
+}) => {
+    return <Link
+        href={href}
+        className={"hover:text-[var(--text-light)]"}
+    >
+        {children}
+    </Link>
+}
 
 
 export const RightPanelButtons = () => {
-    const {user} = useSession()
-
-    if (!user) return null
-
     return <div className={"w-full flex flex-wrap gap-1"}>
-        <div className={"uppercase flex gap-x-1 flex-wrap leading-[16px] text-[0.598rem] text-[var(--text-light)]"}>
-            <Link href={"/soporte"} className={"hover:text-[var(--text)]"}>
+        <div className={"uppercase flex gap-x-1 flex-wrap leading-[16px] text-[0.598rem]"}>
+            <RightPanelButtonsItem href={"/soporte"}>
                 Soporte
-            </Link>
+            </RightPanelButtonsItem>
             <div>
                 •
             </div>
-            <Link
-                className="hover:text-[var(--text)]"
-                href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}
+            <RightPanelButtonsItem
+                href={topicUrl("Cabildo Abierto: Solicitudes de usuarios")}
             >
                 Sugerencias
-            </Link>
+            </RightPanelButtonsItem>
             <div>
                 •
             </div>
-            <Link className="hover:text-[var(--text)]" href={topicUrl("Cabildo Abierto", undefined, "normal")}>
+            <RightPanelButtonsItem
+                href={topicUrl("Cabildo Abierto")}
+            >
                 Preguntas frecuentes
-            </Link>
+            </RightPanelButtonsItem>
             <div>
                 •
             </div>
-            <Link className="hover:text-[var(--text)]"
-                  href={topicUrl("Cabildo Abierto: Términos y condiciones", undefined, "normal")}>
+            <RightPanelButtonsItem
+                  href={topicUrl("Cabildo Abierto: Términos y condiciones")}
+            >
                 Términos y condiciones
-            </Link>
+            </RightPanelButtonsItem>
             <div>
                 •
             </div>
-            <Link className="hover:text-[var(--text)]"
-                  href={topicUrl("Cabildo Abierto: Política de privacidad", undefined, "normal")}>
+            <RightPanelButtonsItem
+                  href={topicUrl("Cabildo Abierto: Política de privacidad")}
+            >
                 Política de privacidad
-            </Link>
+            </RightPanelButtonsItem>
         </div>
     </div>
 }

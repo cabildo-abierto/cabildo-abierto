@@ -1,4 +1,4 @@
-import ReplyIcon from '@mui/icons-material/Reply';
+import { ArrowBendUpLeftIcon } from "@phosphor-icons/react";
 
 
-export default ReplyIcon
+export default ArrowBendUpLeftIcon

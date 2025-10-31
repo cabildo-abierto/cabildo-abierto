@@ -2,7 +2,7 @@
 import {ReactNode} from "react";
 import {useSession} from "@/queries/getters/useSession";
 import {usePathname} from "next/navigation";
-import { Button } from "./utils/button";
+import { BaseButton } from "./base/baseButton";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 
 
@@ -12,11 +12,12 @@ export const LoginRequiredPage = ({text}: {text?: string}) => {
         {text && <div className={"font-light text-[var(--text-light)] px-6"}>
             {text}
         </div>}
-        <Button variant={"outlined"} onClick={() => {setLoginModalOpen(true)}}>
-            <span className={"text-xs p-1"}>
-                Crear una cuenta o iniciar sesión
-            </span>
-        </Button>
+        <BaseButton
+            variant={"outlined"}
+            onClick={() => {setLoginModalOpen(true)}}
+        >
+            Crear una cuenta o iniciar sesión
+        </BaseButton>
     </div>
 }
 

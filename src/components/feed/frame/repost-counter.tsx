@@ -1,50 +1,56 @@
 import {RepostIcon} from "@/components/layout/icons/reposts-icon";
-import React from "react";
+import React, {useCallback, useMemo} from "react";
 import {$Typed} from "@/lex-api/util";
-import {ModalOnClick} from "../../layout/utils/modal-on-click";
-import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import dynamic from "next/dynamic";
 import {getRkeyFromUri} from "@/utils/uri";
+
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
-import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import {ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useSession} from "@/queries/getters/useSession";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useRepostMutation} from "@/queries/mutations/repost";
-import { Color } from "../../layout/utils/color";
+import {QuotesIcon} from "@phosphor-icons/react";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {EngagementIconWithCounter} from "@/components/layout/utils/engagement-icon-with-counter";
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
+import {BaseNotIconButton} from "@/components/layout/base/base-not-icon-button";
 
 
-export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textClassName, iconFontSize}: {
+export const RepostCounter = ({
+                                  content,
+                                  showBsky,
+                                  repostUri,
+                                  textClassName,
+                                  iconSize
+}: {
     content: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     showBsky: boolean
     repostUri?: string
-    iconFontSize: number
+    iconSize: BaseButtonProps["size"]
     textClassName?: string
-    hoverColor?: Color
 }) => {
     const [writingQuotePost, setWritingQuotePost] = React.useState(false)
     const {user} = useSession()
     const {setLoginModalOpen} = useLoginModal()
     const {addRepostMutation, removeRepostMutation} = useRepostMutation(content.uri)
 
-    const onClickRepost = async (e) => {
+    const onClickRepost = useCallback(async (e) => {
         e.stopPropagation()
         e.preventDefault()
 
-        if(user){
+        if (user) {
             addRepostMutation.mutate({uri: content.uri, cid: content.cid})
         } else {
             setLoginModalOpen(true)
         }
-    }
+    }, [content])
 
     const onClickRemoveRepost = async (e) => {
         e.stopPropagation()
         e.preventDefault()
-        if(user){
+        if (user) {
             if (content.viewer && content.viewer.repost) {
                 removeRepostMutation.mutate(content.viewer.repost)
             }
@@ -55,59 +61,98 @@ export const RepostCounter = ({hoverColor, content, showBsky, repostUri, textCla
 
     const reposted = repostUri != null
 
-    const modal = (close: () => void) => {
-        return <div className="text-base border border-[var(--accent-dark)] p-1 space-y-1" onClick={(e) => {e.stopPropagation()}}>
-            {!reposted && <OptionsDropdownButton
-                text1={"Republicar"}
-                startIcon={<RepostIcon color="text" fontSize={20}/>}
-                handleClick={async (e) => {close(); await onClickRepost(e); return {}}}
-                disabled={getRkeyFromUri(content.uri) == "optimistic"}
-            />}
-            {reposted && <OptionsDropdownButton
-                text1={"Eliminar republicación"}
-                startIcon={<RepostIcon color="text" fontSize={20}/>}
-                handleClick={async (e) => {close(); await onClickRemoveRepost(e); return {}}}
-                disabled={content.viewer.repost == "optimistic-repost-uri"}
-            />}
-            <OptionsDropdownButton
-                text1={"Citar"}
-                startIcon={<FormatQuoteIcon/>}
-                handleClick={async (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if(user) {
-                        setWritingQuotePost(true)
-                    } else {
-                        setLoginModalOpen(true)
-                    }
-                    close()
-                    return {}
-                }}
-            />
-        </div>
-    }
+    const quotedPost: ArCabildoabiertoEmbedRecord.View["record"] | null = useMemo(() => {
+        if (ArCabildoabiertoFeedDefs.isPostView(content)) {
+            return {
+                ...content,
+                value: content.record,
+                $type: "ar.cabildoabierto.embed.record#viewRecord",
+            }
+        } else if (ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) {
+            return {
+                ...content,
+                value: content.record,
+                $type: "ar.cabildoabierto.embed.record#viewArticleRecord"
+            }
+        }
+        return null
+    }, [content])
 
-    const disabled = content.viewer && content.viewer.repost == "optimistic-repost-uri" || getRkeyFromUri(content.uri).startsWith("optimistic")
+    const count = showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)
 
     return <>
-        <ModalOnClick modal={modal} disabled={disabled}>
-            <ReactionButton
-                onClick={() => {
-                }}
-                textClassName={textClassName}
-                stopPropagation={false}
-                active={reposted}
-                iconActive={<RepostIcon fontSize={iconFontSize} color={"repost"}/>}
-                iconInactive={<RepostIcon color="text" fontSize={iconFontSize}/>}
-                hoverColor={hoverColor}
-                disabled={disabled}
-                count={showBsky ? (content.bskyRepostCount + content.bskyQuoteCount) : (content.repostCount + content.quoteCount)}
-            />
-        </ModalOnClick>
-        {user && writingQuotePost && (ArCabildoabiertoFeedDefs.isPostView(content) || ArCabildoabiertoFeedDefs.isFullArticleView(content) || ArCabildoabiertoFeedDefs.isArticleView(content)) && <WritePanel
+        <DropdownMenu>
+            <DropdownMenuTrigger>
+                <BaseNotIconButton
+                    size={iconSize}
+                >
+                    <EngagementIconWithCounter
+                        iconActive={<RepostIcon
+                            color={"var(--repost)"}
+                        />}
+                        iconInactive={<RepostIcon color="var(--text)"/>}
+                        count={count}
+                        active={reposted}
+                        textClassName={textClassName}
+                        hideZero={true}
+                    />
+                </BaseNotIconButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={"start"}>
+                {!reposted && <DropdownMenuItem
+                    onClick={async (e) => {
+                        close();
+                        await onClickRepost(e);
+                        return {}
+                    }}
+                    disabled={getRkeyFromUri(content.uri) == "optimistic"}
+                >
+                    <RepostIcon color="text" fontSize={20}/>
+                    <div>
+                        Republicar
+                    </div>
+                </DropdownMenuItem>}
+                {reposted && <DropdownMenuItem
+                    onClick={async (e) => {
+                        close()
+                        await onClickRemoveRepost(e)
+                        return {}
+                    }}
+                    disabled={content.viewer.repost == "optimistic-repost-uri"}
+                >
+                    <RepostIcon color="text" fontSize={20}/>
+                    <div>
+                        Eliminar republicación
+                    </div>
+                </DropdownMenuItem>}
+                <DropdownMenuItem
+                    onClick={async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (user) {
+                            setWritingQuotePost(true)
+                        } else {
+                            setLoginModalOpen(true)
+                        }
+                        close()
+                        return {}
+                    }}
+                    disabled={content.viewer.repost == "optimistic-repost-uri"}
+                >
+                    <QuotesIcon fontSize={20}/>
+                    <div>
+                        Citar
+                    </div>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
+        {user && writingQuotePost && quotedPost && <WritePanel
             open={writingQuotePost}
-            onClose={() => {setWritingQuotePost(false)}}
-            quotedPost={content}
+            onClose={() => {
+                setWritingQuotePost(false)
+            }}
+            quotedPost={quotedPost}
         />}
     </>
 }

@@ -21,7 +21,6 @@ export const TopbarConversation = () => {
             <BackButton
                 defaultURL={"/mensajes"}
                 behavior={"fixed"}
-                size={"medium"}
             />
             <div className={"truncate text-ellipsis max-w-[80vw] font-bold text-lg"}>
                 {data && <Link

@@ -59,6 +59,7 @@ import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {EmbedContext} from "./nodes/EmbedNode";
 import MentionsToLinksPlugin from "./plugins/MentionsToLinksPlugin";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -130,6 +131,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
     const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
     const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
     const [uniqueId, setUniqueId] = useState(undefined)
+    const {layoutConfig} = useLayoutConfig()
 
     useEffect(() => {
         if (setEditor) {
@@ -293,7 +295,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                         <HistoryPlugin externalHistoryState={historyState}/>
                     </>
                 )}
-                <div className="hidden lg:block">
+                <div className={layoutConfig.spaceForLeftSide ? "" : "hidden"}>
                     {tableOfContents &&
                         <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor}/>}
                 </div>

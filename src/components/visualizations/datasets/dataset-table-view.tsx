@@ -6,6 +6,7 @@ import Link from "next/link";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import {TablePlotter} from "@/components/visualizations/editor/plotter/table-plotter";
 import {useDebounce} from "@/utils/debounce";
+import {DatasetSize} from "@/components/visualizations/datasets/dataset-size";
 
 
 export type RawDatasetView = {
@@ -24,6 +25,7 @@ type DatasetTableViewProps = {
     columnsConfig?: ArCabildoabiertoEmbedVisualization.Table["columns"]
     sort?: boolean
     filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]
+    showSize?: boolean
 }
 
 
@@ -84,7 +86,8 @@ export const DatasetTableView = ({
                                      columnsConfig,
                                      maxHeight,
                                      maxWidth,
-                                     filters
+                                     filters,
+                                     showSize=true
                                  }: DatasetTableViewProps) => {
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
@@ -102,12 +105,13 @@ export const DatasetTableView = ({
             dataset,
             filters,
             sortingBy,
-            searchValue
+            searchValue,
+            showingRowsCount
         )
         plotter.prepareForPlot(prev)
         plotterRef.current = plotter
         return plotter
-    }, [dataset, sortingBy, debouncedSearchValue])
+    }, [dataset, sortingBy, debouncedSearchValue, showingRowsCount])
 
     const columns = plotter.getKeysToHeadersMap()
 
@@ -132,17 +136,17 @@ export const DatasetTableView = ({
         className={"border border-[var(--accent-dark)] mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
         style={{maxHeight, maxWidth}}
     >
-        <div className={"flex justify-start"}>
+        <div className={"flex justify-between pr-2 space-x-2 items-center"}>
             <div className={"w-64 p-1"}>
                 <SearchBar
+                    size={"small"}
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
-                    size={"small"}
-                    paddingY={"4px"}
-                    color={"background"}
-                    borderColor={"accent-dark"}
                 />
             </div>
+            {showSize && <div>
+                <DatasetSize plotter={plotter}/>
+            </div>}
         </div>
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)] border-b border-t border-[var(--accent-dark)]">

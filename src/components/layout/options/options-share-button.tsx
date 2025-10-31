@@ -1,19 +1,17 @@
-import { useState } from "react";
-import ShareIcon from '@mui/icons-material/Share';
 import {contentUrl, getRkeyFromUri} from "@/utils/uri";
-import {OptionsDropdownButton} from "./options-dropdown-button";
+import ShareIcon from "../icons/share-icon";
+import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import {toast} from "sonner";
 
 export const OptionsShareButton = ({uri, handle}: {uri: string, handle?: string}) => {
-    const [onClipboard, setOnClipboard] = useState(false);
 
-    const onShare = async () => {
+    const onShare = () => {
         try {
             const url = "https://www.cabildoabierto.ar" + contentUrl(uri, handle)
 
             navigator.clipboard.writeText(url).then(
                 () => {
-                    setOnClipboard(true);
-                    setTimeout(() => setOnClipboard(false), 2000);
+                    toast.success("¡Enlace copiado!")
                 }
             )
             return {}
@@ -22,10 +20,15 @@ export const OptionsShareButton = ({uri, handle}: {uri: string, handle?: string}
         }
     };
 
-    return <OptionsDropdownButton
-        handleClick={async () => {await onShare(); return {}}}
-        startIcon={<ShareIcon/>}
-        text1={<div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Enlace copiado"}</div>}
+    return <DropdownMenuItem
+        onSelect={() => {onShare()}}
         disabled={getRkeyFromUri(uri) == "optimistic"}
-    />
+    >
+        <div>
+            <ShareIcon fontSize={20}/>
+        </div>
+        <div className="whitespace-nowrap">
+            Compartir
+        </div>
+    </DropdownMenuItem>
 };

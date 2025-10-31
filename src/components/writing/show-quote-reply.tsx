@@ -1,6 +1,5 @@
 import {LexicalEditor} from "lexical";
-import {useEffect, useState} from "react";
-import {IconButton} from "../layout/utils/icon-button"
+import React, {useEffect, useState} from "react";
 import {PostContent} from "@/components/feed/post/post-content";
 import {SidenoteReplyPreviewFrame} from "@/components/thread/article/sidenote-reply-preview-frame";
 import {
@@ -11,10 +10,11 @@ import {
     $isCustomMarkNode
 } from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api"
-import {ModalOnClickControlled} from "../layout/utils/modal-on-click-controlled";
 import {$dfs} from "@lexical/utils";
 import {MarkdownSelection} from "../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {BaseNotIconButton} from "@/components/layout/base/base-not-icon-button";
 
 
 export const ShowQuoteReplyButton = ({
@@ -28,8 +28,6 @@ export const ShowQuoteReplyButton = ({
     const [hovered, setHovered] = useState(false)
     const [open, setOpen] = useState(false)
     const pinned = pinnedReplies.includes(reply.cid)
-
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
     useEffect(() => {
         if (open) {
@@ -85,13 +83,6 @@ export const ShowQuoteReplyButton = ({
 
 
     useEffect(() => {
-        const el = document.getElementById("selection:" + reply.cid)
-        if (el) {
-            setAnchorEl(el)
-        }
-    }, [])
-
-    useEffect(() => {
         if (pinned && !open) {
             setOpen(true)
         } else if (hovered && !open) {
@@ -105,11 +96,11 @@ export const ShowQuoteReplyButton = ({
         setPinned(!pinned)
     }
 
-    function handleClickAway() {
-        if (pinned) {
+    useEffect(() => {
+        if(!open && pinned) {
             setPinned(false)
         }
-    }
+    }, [open])
 
     const onMouseEnter = (e) => {
         if (!hovered) setHovered(true)
@@ -121,40 +112,34 @@ export const ShowQuoteReplyButton = ({
 
     if (!editor) return null
 
-    const modal = () => (
-        <SidenoteReplyPreviewFrame
-            post={reply}
-            showingParent={false}
-            showingChildren={false}
-        >
-            <PostContent
-                postView={reply}
-                hideQuote={true}
-            />
-        </SidenoteReplyPreviewFrame>
-    )
-
     return <div id={"selection:" + reply.cid}>
-        <ModalOnClickControlled
-            modal={modal}
-            open={open}
-            setOpen={setOpen}
-            anchorEl={anchorEl}
-            handleClick={(e) => {
-                setAnchorEl(e.currentTarget)
-            }}
-            handleClickAway={handleClickAway}
-            className={"py-2"}
-        >
-            <IconButton
-                color={open ? "background-dark" : "transparent"}
-                size={"small"}
-                onMouseLeave={onMouseLeave}
-                onMouseEnter={onMouseEnter}
-                onClick={onClick}
-            >
-                <InactiveCommentIcon color={"var(--text)"} fontSize={20}/>
-            </IconButton>
-        </ModalOnClickControlled>
+        <Popover open={open}>
+            <PopoverTrigger>
+                <BaseNotIconButton
+                    variant={pinned ? "outlined" : "default"}
+                    size={"default"}
+                    onMouseLeave={onMouseLeave}
+                    onMouseEnter={onMouseEnter}
+                    onClick={onClick}
+                >
+                    <InactiveCommentIcon
+                        color={"var(--text)"}
+                        fontSize={20}
+                    />
+                </BaseNotIconButton>
+            </PopoverTrigger>
+            <PopoverContent className={"z-[1000] p-0"}>
+                <SidenoteReplyPreviewFrame
+                    post={reply}
+                    showingParent={false}
+                    showingChildren={false}
+                >
+                    <PostContent
+                        postView={reply}
+                        hideQuote={true}
+                    />
+                </SidenoteReplyPreviewFrame>
+            </PopoverContent>
+        </Popover>
     </div>
 }

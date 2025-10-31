@@ -7,7 +7,7 @@ import Link from "next/link";
 import {useNextMeeting} from "@/queries/getters/useNextMeeting";
 import {formatIsoDate} from "@/utils/dates";
 import FollowSuggestions from "@/components/layout/follow-suggestions";
-import {Button} from "./utils/button";
+import {BaseButton} from "./base/baseButton";
 import DonateIcon from "@/components/layout/icons/donate-icon";
 import {useSearch} from "@/components/buscar/search-context";
 import SearchResultsOnRightPanel from "@/components/buscar/search-results-on-right-panel";
@@ -15,8 +15,8 @@ import {useSession} from "@/queries/getters/useSession";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {createPortal} from "react-dom";
 import {useAPI} from "@/queries/utils";
-import LoadingSpinner from "./utils/loading-spinner";
-import ShareIcon from "@mui/icons-material/Share";
+import LoadingSpinner from "./base/loading-spinner";
+import ShareIcon from "./icons/share-icon";
 
 type ServerStatus = {
     worker: boolean
@@ -31,7 +31,9 @@ function useServerStatus() {
 const ServerStatus = () => {
     const {data, isLoading} = useServerStatus()
 
-    if(isLoading) return <LoadingSpinner size={"10px"}/>
+    if(isLoading) return <LoadingSpinner className={"h-[10px] w-[10px]"}/>
+
+    if(!data) return null
 
     return <Link className={"fixed bottom-2 right-2 space-x-1 flex"} href={"/admin"}>
         <div className={"rounded-full w-1 h-1 " + (data.status.worker ? "bg-green-500" : "bg-red-500")} title={"worker"}/>
@@ -70,7 +72,9 @@ function useRightPanelConfig() {
     const pathname = usePathname()
     const isFollowSuggestionsPath = (pathname.startsWith("/inicio")
             || pathname.startsWith("/perfil")
-            || pathname.startsWith("/buscar"))
+            || pathname.startsWith("/buscar")
+            || pathname.startsWith("/tema/menciones")
+        )
         && !pathname.startsWith("/perfil/cuentas-sugeridas")
 
     const isDonatePath = !pathname.startsWith("/aportar")
@@ -107,8 +111,8 @@ export const RightPanel = () => {
     }
 
     if (!layoutConfig.openRightPanel) {
-        return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-7 top-14"}>
-            <div className={"w-[272px]"}>
+        return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-2 top-14"}>
+            <div className={"w-[292px]"}>
                 <SearchResultsOnRightPanel
                     showSearchButton={showSearchButton}
                     handleSubmit={handleSubmit}
@@ -117,8 +121,8 @@ export const RightPanel = () => {
         </div>, document.body)
     }
 
-    return <div className={"flex flex-col pr-6 space-y-6 pt-2"}>
-        {searching && !inSearchPage && <div className={"w-[272px]"}>
+    return <div className={"flex flex-col pr-2 space-y-6 pt-2"}>
+        {searching && !inSearchPage && <div className={"w-[292px]"}>
             <SearchResultsOnRightPanel
                 showSearchButton={showSearchButton}
                 handleSubmit={handleSubmit}
@@ -131,38 +135,32 @@ export const RightPanel = () => {
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
 
-        {isTrendingTopicsPath && <div className={"w-[272px]"}>
+        {isTrendingTopicsPath && <div className={"w-[292px]"}>
             <TrendingTopicsPanel/>
         </div>}
 
-        {isFollowSuggestionsPath && user && <div className={"w-[272px]"}>
+        {isFollowSuggestionsPath && user && <div className={"w-[292px]"}>
             <FollowSuggestions/>
         </div>}
 
         {isDonatePath && <div className={"flex space-x-2"}>
             <Link href={"/aportar"}>
-                <Button
-                    fullWidth={false}
+                <BaseButton
                     startIcon={<DonateIcon/>}
                     size="small"
                     variant={"outlined"}
                 >
-                    <span className={"font-semibold uppercase"}>
-                        Aportar
-                    </span>
-                </Button>
+                    Aportar
+                </BaseButton>
             </Link>
             <Link href={"/ajustes/compartir"}>
-                <Button
-                    fullWidth={false}
+                <BaseButton
                     startIcon={<ShareIcon/>}
                     size="small"
                     variant={"outlined"}
                 >
-                    <span className={"font-semibold uppercase"}>
-                        Invitar
-                    </span>
-                </Button>
+                    Invitar
+                </BaseButton>
             </Link>
         </div>}
 

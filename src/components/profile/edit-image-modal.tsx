@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import {useState, useCallback} from "react";
 import Cropper from "react-easy-crop";
-import Slider from "@mui/material/Slider";
-import {BaseFullscreenPopup} from "../layout/utils/base-fullscreen-popup";
-import { Button } from "../layout/utils/button";
+import {BaseFullscreenPopup} from "../layout/base/base-fullscreen-popup";
+import {BaseButton} from "../layout/base/baseButton";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
+import {Slider} from "@/components/ui/slider";
 
 const getCroppedImg = (
     imageSrc: string,
@@ -85,7 +85,7 @@ const EditImageModal = ({
     crop: "circle" | "rectangle";
     editingImage: ImagePayload;
 }) => {
-    const [cropPos, setCropPos] = useState({ x: 0, y: 0 });
+    const [cropPos, setCropPos] = useState({x: 0, y: 0});
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
@@ -105,9 +105,9 @@ const EditImageModal = ({
     }, [croppedAreaPixels, editingImage, crop, setImage, onClose]);
 
     return (
-        <BaseFullscreenPopup onClose={onClose} closeButton={true} open={true}>
-            <div className="flex flex-col px-8 w-[400px]">
-                <h2 className="text-xl font-bold mb-4">Editar imagen</h2>
+        <BaseFullscreenPopup onClose={onClose} closeButton={true} open={true} className={"z-[1600]"}>
+            <div className="flex flex-col px-4 w-[400px]">
+                <h3 className="text-base uppercase font-bold mb-4">Recortar imagen</h3>
 
                 <div className="relative h-[400px]">
                     <Cropper
@@ -123,27 +123,27 @@ const EditImageModal = ({
                     />
                 </div>
 
-                <div className="py-4 flex flex-col gap-4 items-center">
-                    <div className={"flex space-x-4 items-center"}>
-                        <div className={"text-[var(--text-light)] text-sm"}>
+                <div className="pb-4 pt-8 flex flex-col space-y-8 items-center">
+                    <div className={"w-full px-8 space-y-[6px]"}>
+                        <div className={"text-center text-xs text-[var(--text-light)]"}>
                             Zoom
                         </div>
                         <Slider
-                            value={zoom}
+                            value={[zoom]}
                             min={1}
                             max={3}
                             step={0.1}
-                            onChange={(_, z) => setZoom(z as number)}
-                            sx={{ width: 200 }}
+                            onValueChange={(v) => setZoom(v[0])}
+                            className={"w-full"}
                         />
                     </div>
                     <div className="flex gap-2 justify-end w-full">
-                        <Button onClick={onClose} color={"red-dark"}>
+                        <BaseButton onClick={onClose} size={"small"} variant={"outlined"}>
                             Cancelar
-                        </Button>
-                        <Button onClick={handleSave}>
+                        </BaseButton>
+                        <BaseButton onClick={handleSave} variant={"outlined"} size={"small"}>
                             Guardar
-                        </Button>
+                        </BaseButton>
                     </div>
                 </div>
             </div>

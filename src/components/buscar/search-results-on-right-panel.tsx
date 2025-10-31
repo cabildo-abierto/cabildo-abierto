@@ -1,8 +1,8 @@
-import {Button} from "../layout/utils/button";
+import {BaseButton} from "../layout/base/baseButton";
 import React from "react";
 import { useSearch } from "./search-context";
 import {usePathname} from "next/navigation";
-import LoadingSpinner from "../layout/utils/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {useDebounce} from "@/utils/debounce";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
@@ -67,16 +67,10 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
         className={"w-full z-[20000]"}
     >
         {showSearchButton && (
-            <Button
+            <BaseButton
                 onClick={handleSubmit}
                 variant={"outlined"}
-                color={"background-dark"}
-                sx={{
-                    textTransform: "none",
-                    width: "100%",
-                    borderRadius: "0px"
-                }}
-                borderColor={"accent-dark"}
+                className={"normal-case w-full"}
             >
                 <div className={"space-x-1 w-full"}>
                     <span>Buscar</span>
@@ -84,10 +78,10 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
                         {searchState.value}
                     </span>
                 </div>
-            </Button>
+            </BaseButton>
         )}
         <div className={""}>
-            {isLoading && <div className={"py-8 border-l border-b border-r border-[var(--accent-dark)]"}>
+            {isLoading && <div className={"py-8 bg-[var(--background)] border-l border-b border-r border-[var(--accent-dark)]"}>
                 <LoadingSpinner/>
             </div>}
             {!isLoading && results != null && results.length > 0 && <div className={"border-l border-r border-b border-[var(--accent-dark)]"}>{results.map(r => {
@@ -98,7 +92,7 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
                             onClickResult()
                         }}
                         key={r.id}
-                        className={"p-2 h-[60px] flex items-center space-x-2 hover:bg-[var(--background-dark)] cursor-pointer"}
+                        className={"p-2 h-[60px] bg-[var(--background)] flex items-center space-x-2 hover:bg-[var(--background-dark)] cursor-pointer"}
                     >
                         <div className={"min-w-12 flex justify-center items-center"}>
                             <TopicsIcon fontSize={16}/>
@@ -121,7 +115,7 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
                     </div>
                 }
             })}</div>}
-            {!isLoading && results != null && results.length == 0 && <div className={"text-sm font-light text-[var(--text-light)] border-[var(--accent-dark)] border-b border-r border-l text-center py-4"}>
+            {!isLoading && results != null && results.length == 0 && <div className={"text-sm bg-[var(--background)] font-light text-[var(--text-light)] border-[var(--accent-dark)] border-b border-r border-l text-center py-4"}>
                 No se encontraron resultados
             </div>}
         </div>

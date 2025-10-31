@@ -1,6 +1,6 @@
-import {OptionsDropdownButton} from "./options-dropdown-button";
 import {post} from "@/utils/fetch";
 import {
+    getCollectionFromUri,
     isArticle,
     isDataset,
     isPost,
@@ -9,18 +9,17 @@ import {
 } from "@/utils/uri";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
-    contentQueriesFilter,
+    contentQueriesFilter, invalidateQueries,
     updateContentInQueries,
     updateDatasets,
     updateTopicHistories
 } from "@/queries/mutations/updates";
-import {useState} from "react";
-import {BaseFullscreenPopup} from "../utils/base-fullscreen-popup";
-import { Button } from "../utils/button";
-import StateButton from "../utils/state-button";
-import { TrashIcon } from "@phosphor-icons/react";
+import {TrashIcon} from "@phosphor-icons/react";
 import {useSession} from "@/queries/getters/useSession";
-
+import {ConfirmModal} from "@/components/layout/confirm-modal";
+import {useErrors} from "@/components/layout/error-context";
+import {AppBskyFeedPost} from "@atproto/api";
+import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
 
 
 const collection2displayText = {
@@ -97,7 +96,7 @@ function queriesWithContent(qc: QueryClient, uri: string) {
 function optimisticDelete(qc: QueryClient, uri: string) {
     updateContentInQueries(qc, uri, c => null)
     updateTopicHistories(qc, uri, e => null)
-    updateDatasets(qc,  uri, e => null)
+    updateDatasets(qc, uri, e => null)
 }
 
 const deleteRecord = async ({uri}: { uri: string }) => {
@@ -106,28 +105,28 @@ const deleteRecord = async ({uri}: { uri: string }) => {
 }
 
 
-function getDeleteContentMessage(collection: string){
-    if(isPost(collection)){
+function getDeleteContentMessage(collection: string) {
+    if (isPost(collection)) {
         return "Si eliminás la publicación, no vas a poder recuperarla."
-    } else if(isArticle(collection)){
+    } else if (isArticle(collection)) {
         return "Si eliminás el artículo, no vas a poder recuperarlo."
-    } else if(isTopicVersion(collection)){
+    } else if (isTopicVersion(collection)) {
         return "Si eliminás la edición, no vas a poder recuperarla."
-    } else if(isDataset(collection)){
+    } else if (isDataset(collection)) {
         return "Si eliminás el conjunto de datos, no vas a poder recuperarlo."
     } else {
         return "Si eliminás el contenido, no vas a poder recuperarlo."
     }
 }
 
-function getCollectionWithArticle(collection: string){
-    if(isPost(collection)){
+export function getCollectionWithArticle(collection: string) {
+    if (isPost(collection)) {
         return "la publicación"
-    } else if(isArticle(collection)){
+    } else if (isArticle(collection)) {
         return "el artículo"
-    } else if(isTopicVersion(collection)){
+    } else if (isTopicVersion(collection)) {
         return "la edición"
-    } else if(isDataset(collection)){
+    } else if (isDataset(collection)) {
         return "el conjunto de datos"
     } else {
         return "el contenido"
@@ -135,18 +134,47 @@ function getCollectionWithArticle(collection: string){
 }
 
 
-function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient) {
-    //const queries = queriesWithContent(qc, uri)
-    //invalidateQueries(qc, queries)
+function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient, reply?: AppBskyFeedPost.ReplyRef) {
+    const queriesToInvalidate: string[][] = []
+    if (reply) {
+        const parentCollection = getCollectionFromUri(reply.parent.uri)
+        const rootCollection = getCollectionFromUri(reply.root.uri)
+
+        if (isTopicVersion(rootCollection)) {
+            const tvUri = reply.root.uri
+            const {did, rkey} = splitUri(tvUri)
+
+            queriesToInvalidate.push(["topic"])
+            queriesToInvalidate.push(["topic-history"])
+            queriesToInvalidate.push(["topic", did, rkey])
+            queriesToInvalidate.push(["topic-version", did, rkey])
+            queriesToInvalidate.push(["votes", tvUri])
+            queriesToInvalidate.push(["topic-discussion", tvUri])
+        }
+
+        if (isArticle(parentCollection) || isPost(parentCollection)) {
+            queriesToInvalidate.push(["thread", reply.parent.uri])
+        }
+    }
+
+    invalidateQueries(qc, queriesToInvalidate)
 }
 
 
-const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void}) => {
+export const ConfirmDeleteModal = ({
+                                       uri,
+                                       reply,
+                                       onClose,
+                                       open
+                                   }: {
+    uri: string
+    reply?: AppBskyFeedPost.ReplyRef
+    onClose: () => void
+    open: boolean
+}) => {
     const qc = useQueryClient()
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-    const {user} = useSession()
-    const {did: authorDid, collection, rkey} = splitUri(uri)
-    const isAuthor = user && user.did == authorDid
+    const collection = getCollectionFromUri(uri)
+    const {addError} = useErrors()
 
     const deleteMutation = useMutation({
         mutationFn: deleteRecord,
@@ -154,67 +182,60 @@ const OptionsDeleteButton = ({uri, onClose}: {uri: string, onClose: () => void})
             try {
                 optimisticDelete(qc, likedContent.uri)
                 qc.cancelQueries(contentQueriesFilter(uri))
-                onClose()
             } catch (err) {
                 console.log("Error on mutate", uri)
                 console.log(err)
             }
         },
         onSuccess: async (res) => {
-            if(res.error){
+            if (res.error) {
                 console.error(res.error)
             }
-            invalidateQueriesAfterDeleteSuccess(uri, qc)
+            invalidateQueriesAfterDeleteSuccess(uri, qc, reply)
+        },
+        onError: () => {
+            addError("Algo salió mal")
         }
     })
 
-    async function onClickDelete() {
-        setDeleteModalOpen(true)
-        return {}
-    }
+    return <ConfirmModal
+        title={`¿Querés borrar ${getCollectionWithArticle(collection)}?`}
+        text={getDeleteContentMessage(collection)}
+        open={open}
+        onConfirm={async () => {
+            deleteMutation.mutate({uri})
+            return {}
+        }}
+        onClose={onClose}
+        confirmButtonVariant={"error"}
+        confirmButtonText={"Borrar"}
+    />
+}
 
-    if(!isAuthor) return
+
+const OptionsDeleteButton = ({
+                                 uri,
+                                 reply,
+    onClick
+                             }: {
+    uri: string
+    reply?: AppBskyFeedPost.ReplyRef
+    onClick: () => void
+}) => {
+    const {user} = useSession()
+    const {did: authorDid, collection, rkey} = splitUri(uri)
+    const isAuthor = user && user.did == authorDid
+
+    if (!isAuthor) return
 
     const isOptimistic = rkey.startsWith("optimistic")
 
-    return <>
-        <OptionsDropdownButton
-            text1={"Borrar " + collection2displayText[collection]}
-            startIcon={<TrashIcon/>}
-            handleClick={onClickDelete}
-            disabled={isOptimistic}
-        />
-        <BaseFullscreenPopup open={deleteModalOpen} closeButton={true} onClose={() => {setDeleteModalOpen(false)}}>
-            <div className={"px-8 pb-4 space-y-4"}>
-                <h3 className={"normal-case"}>
-                    ¿Querés borrar {getCollectionWithArticle(collection)}?
-                </h3>
-                <div className={"font-light text-[var(--text-light)] max-w-[300px]"}>
-                    {getDeleteContentMessage(collection)}
-                </div>
-                <div className={"flex justify-end space-x-2 mr-2"}>
-                    <Button
-                        size={"small"}
-                        onClick={() => {setDeleteModalOpen(false)}}
-                    >
-                        <span className={"font-semibold"}>
-                            Cancelar
-                        </span>
-                    </Button>
-                    <StateButton
-                        handleClick={async (e) => {
-                            deleteMutation.mutate({uri})
-                            return {}
-                        }}
-                        size={"small"}
-                        color={"red-dark"}
-                        text1={"Borrar"}
-                        textClassName={"font-semibold text-[var(--white-text)]"}
-                    />
-                </div>
-            </div>
-        </BaseFullscreenPopup>
-    </>
+    return <DropdownMenuItem onClick={onClick} disabled={isOptimistic}>
+        <div>
+            <TrashIcon fontSize={20}/>
+        </div>
+        <div>Borrar {collection2displayText[collection]}</div>
+    </DropdownMenuItem>
 }
 
 

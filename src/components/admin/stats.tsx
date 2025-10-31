@@ -1,4 +1,4 @@
-import LoadingSpinner from "../layout/utils/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {useStatsDashboard} from "@/queries/getters/admin";
 import Plot from "@/components/visualizations/plot";
 import {$Typed} from "@/lex-api/util";

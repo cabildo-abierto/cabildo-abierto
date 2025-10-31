@@ -12,15 +12,13 @@ export const FollowCount = ({count, kind, url}: FollowCountProps) => {
 
 
 export const ProfileCount = ({count, label, url}: {count: number, label: string, url?: string}) => {
-    return <div className="sm:text-base text-sm flex space-x-1">
+    return <span className="sm:text-base text-sm">
         <span className="font-bold">
             {count != undefined ? rounder(count) : "?"}
-        </span>
-        {url && <Link className={"text-[var(--text-light)] hover:underline"} href={url}>
+        </span> {url && <Link className={"text-[var(--text-light)] hover:underline"} href={url}>
             {label}
-        </Link>}
-        {!url && <span className={"text-[var(--text-light)]"}>
+        </Link>} {!url && <span className={"text-[var(--text-light)]"}>
             {label}
         </span>}
-    </div>
+    </span>
 }

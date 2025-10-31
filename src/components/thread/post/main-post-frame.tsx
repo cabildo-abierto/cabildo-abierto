@@ -24,7 +24,7 @@ export const MainPostFrame = ({
     const enDiscusion = hasEnDiscusionLabel(postView)
 
     return (
-        <div className="w-full bg-[var(--background)] border-[var(--accent-dark)] border-b">
+        <div className="w-full bg-[var(--background)]">
             <div className={"pl-4 pr-2"}>
                 <div className="flex justify-between items-center">
                     <div className="flex space-x-2">
@@ -65,6 +65,7 @@ export const MainPostFrame = ({
                     className={"px-1"}
                     textClassName={"text-sm font-light text-[var(--text)]"}
                     showDetails={true}
+                    iconSize={"large"}
                 />
             </div>
         </div>

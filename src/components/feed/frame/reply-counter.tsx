@@ -1,13 +1,15 @@
-import React, {MouseEventHandler, ReactNode, useState} from "react"
-import {Color} from "../../layout/utils/color";
-import {IconButton} from "../../layout/utils/icon-button";
-import {contentUrl} from "@/utils/uri";
-import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import React, {MouseEventHandler, useState} from "react"
+import {BaseIconButton} from "../../layout/base/base-icon-button";
+import {contentUrl, splitUri, topicUrl} from "@/utils/uri";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {useRouter} from "next/navigation";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {$Typed} from "@/lex-api/util";
 import {useSession} from "@/queries/getters/useSession";
 import dynamic from "next/dynamic";
+import {InactiveCommentIcon} from "@/components/layout/icons/inactive-comment-icon"
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
+import {EngagementIconWithCounter} from "@/components/layout/utils/engagement-icon-with-counter";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
@@ -16,20 +18,23 @@ const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-
 
 export const ReplyCounter = ({
                                  count,
-                                 icon,
                                  title,
                                  disabled = false,
-                                 hoverColor,
                                  content,
-                                 textClassName
+                                 textClassName,
+                                 iconSize,
+    stopPropagation=true
                              }: {
     count: number
-    icon: ReactNode
     title?: string
     disabled?: boolean
-    hoverColor?: Color
     textClassName?: string
-    content: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    iconSize?: BaseButtonProps["size"]
+    content: $Typed<ArCabildoabiertoFeedDefs.PostView> |
+        $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
+        $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
+        $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory>
+    stopPropagation?: boolean
 }) => {
     const [writingReply, setWritingReply] = useState<boolean>(false)
     const [shake, setShake] = useState(false)
@@ -38,16 +43,19 @@ export const ReplyCounter = ({
     const {user} = useSession()
 
     const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-        e.stopPropagation()
-        e.preventDefault()
+        if(stopPropagation) {
+            e.stopPropagation()
+            e.preventDefault()
+        }
 
         if (disabled) {
-            // Trigger shake animation
             setShake(true)
             setTimeout(() => setShake(false), 500)
         } else {
-            if (ArCabildoabiertoFeedDefs.isArticleView(content)) {
+            if (content && ArCabildoabiertoFeedDefs.isArticleView(content)) {
                 router.push(contentUrl(content.uri, content.author.handle))
+            } else if(content && ArCabildoabiertoWikiTopicVersion.isVersionInHistory(content)) {
+                router.push(topicUrl(undefined, splitUri(content.uri), "normal"))
             } else {
                 if (user) {
                     setWritingReply(true)
@@ -60,23 +68,22 @@ export const ReplyCounter = ({
 
     return <>
         <div className={shake ? "animate-shake" : ""}>
-            <IconButton
-                hoverColor={hoverColor}
+            <BaseIconButton
                 onClick={handleClick}
                 title={title}
-                size={"small"}
-                sx={{borderRadius: 0}}
-                color={"transparent"}
+                size={iconSize}
             >
-                <div
-                    className={"text-[var(--text-light)] flex items-start space-x-1"}
-                >
-                    <div>{icon}</div>
-                    <div className={textClassName}>{count}</div>
-                </div>
-            </IconButton>
+                <EngagementIconWithCounter
+                    hideZero={true}
+                    iconActive={<InactiveCommentIcon/>}
+                    iconInactive={<InactiveCommentIcon/>}
+                    count={count}
+                    active={false}
+                    textClassName={textClassName}
+                />
+            </BaseIconButton>
         </div>
-        {writingReply && user && <WritePanel
+        {writingReply && user && !ArCabildoabiertoWikiTopicVersion.isVersionInHistory(content) && <WritePanel
             open={writingReply}
             onClose={() => {
                 setWritingReply(false)

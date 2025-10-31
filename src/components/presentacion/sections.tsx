@@ -79,7 +79,7 @@ export const PresentacionFormato = () => {
         description={description}
         image={image}
         inverted={true}
-        background={"background-dark"}
+        className={"bg-[var(--background-dark)]"}
     />
 }
 
@@ -143,7 +143,7 @@ export const PresentacionCalidadDeLaInformacion = () => {
         description={description}
         image={null}
         inverted={true}
-        background={"background-dark"}
+        className={"bg-[var(--background-dark)]"}
     />
 }
 
@@ -233,7 +233,7 @@ export const PresentacionAbierto = () => {
         description={description}
         image={image}
         inverted={true}
-        background={"background-dark"}
+        className={"bg-[var(--background-dark)]"}
     />
 }
 

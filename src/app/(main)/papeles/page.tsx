@@ -17,13 +17,13 @@ const Page = () => {
     }
 
     return <div className={"mb-32"}>
-        <div className={"border-b border-[var(--accent-dark)]"}>
+        <div className={"border-b flex border-[var(--accent-dark)]"}>
             <SelectionComponent<YourPapersOptions>
                 onSelection={onSelection}
                 selected={selected}
                 options={["borradores", "guardados"]}
                 optionsNodes={feedOptionNodes(40)}
-                className={"flex justify-start w-32"}
+                className={"flex justify-start"}
             />
         </div>
         {selected == "guardados" && <div className={"text-center text-[var(--text-light)] mt-16 text-sm"}>

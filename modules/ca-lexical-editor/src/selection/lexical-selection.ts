@@ -18,7 +18,7 @@ import {
     SerializedTextNode
 } from "lexical";
 import {MarkdownSelection} from "./markdown-selection";
-import {getAllText} from "@/components/topics/topic/diff";
+import {getAllText} from "@/components/topics/topic/history/get-all-text";
 import {ProcessedLexicalState} from "./processed-lexical-state";
 import {produce} from "immer";
 

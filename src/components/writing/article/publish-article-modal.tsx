@@ -1,6 +1,6 @@
 import StateButton, {StateButtonClickHandler} from "../../layout/utils/state-button";
 import {useMemo, useState} from "react";
-import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
+import {BaseFullscreenPopup} from "../../layout/base/base-fullscreen-popup";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
@@ -61,11 +61,8 @@ const PublishArticleModal = ({
                         La previsualización en el muro se va a ver así:
                     </div>
                     <ArticlePreviewContent
-                        color="transparent"
-                        clickable={false}
                         title={title}
                         summary={summary}
-                        mentions={mentions}
                     />
                 </div>
 
@@ -88,17 +85,19 @@ const PublishArticleModal = ({
                 </div>
             </div>}
 
-            <div className={"flex justify-between w-full"}>
+            <div className={"flex justify-between space-x-2 w-full items-end"}>
                 <AddToEnDiscusionButton
                     enDiscusion={enDiscusion}
                     setEnDiscusion={setEnDiscusion}
+                    size={"default"}
                 />
                 <StateButton
-                    text1={article ? "Confirmar edición" : "Publicar"}
                     handleClick={onSubmit(enDiscusion)}
                     variant={"outlined"}
                     textClassName={"text-sm"}
-                />
+                >
+                    {article ? "Confirmar edición" : "Publicar"}
+                </StateButton>
             </div>
         </div>
     </BaseFullscreenPopup>

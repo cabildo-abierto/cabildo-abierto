@@ -54,7 +54,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             id={"inicio"}
         />
         <SidebarButton
-            icon={<TopicsIcon fontSize={iconFontSize}/>}
+            icon={<TopicsIcon fontSize={iconFontSize} weight={"bold"}/>}
             iconInactive={<TopicsIcon fontSize={iconFontSize} weight={iconWeight}/>}
             onClick={onClose}
             text="Temas"
@@ -75,8 +75,8 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
         <SidebarButton
             showText={showText}
             onClick={onClose}
-            icon={<NotificationsIcon count={unreadNotificationsCount}/>}
-            iconInactive={<NotificationsIcon count={unreadNotificationsCount} active={false} weight={iconWeight}/>}
+            icon={<NotificationsIcon count={unreadNotificationsCount} weight={"fill"}/>}
+            iconInactive={<NotificationsIcon count={unreadNotificationsCount} weight={iconWeight}/>}
             text="Notificaciones"
             href="/notificaciones"
             requiresAuth={true}

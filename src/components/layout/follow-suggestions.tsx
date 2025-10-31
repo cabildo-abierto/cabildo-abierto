@@ -61,7 +61,6 @@ export default function FollowSuggestions() {
                         </div>
                     </div>
                     <FollowButton
-                        textClassName={"text-xs py-[2px]"}
                         dense={true}
                         handle={u.handle}
                         profile={u}

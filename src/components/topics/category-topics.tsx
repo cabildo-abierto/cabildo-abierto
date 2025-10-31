@@ -1,5 +1,5 @@
 import {useTopics} from "@/queries/getters/useTopics"
-import LoadingSpinner from "../layout/utils/loading-spinner"
+import LoadingSpinner from "../layout/base/loading-spinner"
 import React from "react"
 import {ErrorPage} from "../layout/utils/error-page";
 import dynamic from "next/dynamic";
@@ -11,7 +11,7 @@ import {smoothScrollTo} from "../layout/utils/scroll";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index";
 
 
-const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
+const TopicSearchResult = dynamic(() => import("@/components/buscar/topic-search-result"))
 const StaticFeed = dynamic(() => import("../feed/feed/static-feed"))
 
 
