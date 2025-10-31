@@ -102,7 +102,7 @@ function ProfileHeader({
                     <EditProfileButton/>
                 </div>}
                 <div className={"pt-2 pr-1 flex justify-end space-x-2"}>
-                    <MessageButton handle={profile.handle} profile={profile}/>
+                    <MessageButton handle={profile.handle}/>
                     <FollowButton handle={profile.handle} profile={profile}/>
                 </div>
             </div>
