@@ -6,6 +6,7 @@ import Link from "next/link";
 import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
 import {TablePlotter} from "@/components/visualizations/editor/plotter/table-plotter";
 import {useDebounce} from "@/utils/debounce";
+import {DatasetSize} from "@/components/visualizations/datasets/dataset-size";
 
 
 export type RawDatasetView = {
@@ -24,6 +25,7 @@ type DatasetTableViewProps = {
     columnsConfig?: ArCabildoabiertoEmbedVisualization.Table["columns"]
     sort?: boolean
     filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]
+    showSize?: boolean
 }
 
 
@@ -35,12 +37,10 @@ const TableRow = ({values, plotter, columns, href}: {
     href?: string
     columnsConfig?: ArCabildoabiertoEmbedVisualization.Table["columns"]
 }) => {
-    //console.log("values", values)
     return columns.map(([col, header], colIndex) => {
         const value = values.find(v => v[0] == col)
         if (value) {
             const content = plotter.columnValueToString(value[1], col)
-            //console.log({col, value, content})
             if (href) {
                 return <td
                     className="overflow-hidden text-ellipsis whitespace-nowrap border-none text-[var(--text-light)] exclude-links px-4 py-2"
@@ -61,13 +61,17 @@ const TableRow = ({values, plotter, columns, href}: {
             } else {
                 return <td
                     className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"
-                    title={content} key={colIndex}>
+                    title={content}
+                    key={colIndex}
+                >
                     {content}
                 </td>
             }
         } else {
-            return <td key={colIndex}
-                       className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"/>
+            return <td
+                key={colIndex}
+                className="min-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap border-none px-4 py-2"
+            />
         }
     })
 }
@@ -82,7 +86,8 @@ export const DatasetTableView = ({
                                      columnsConfig,
                                      maxHeight,
                                      maxWidth,
-                                     filters
+                                     filters,
+                                     showSize=true
                                  }: DatasetTableViewProps) => {
     const [showingRowsCount, setShowingRowsCount] = useState(20)
     const [searchValue, setSearchValue] = useState("")
@@ -100,12 +105,13 @@ export const DatasetTableView = ({
             dataset,
             filters,
             sortingBy,
-            searchValue
+            searchValue,
+            showingRowsCount
         )
         plotter.prepareForPlot(prev)
         plotterRef.current = plotter
         return plotter
-    }, [dataset, sortingBy, debouncedSearchValue])
+    }, [dataset, sortingBy, debouncedSearchValue, showingRowsCount])
 
     const columns = plotter.getKeysToHeadersMap()
 
@@ -130,17 +136,17 @@ export const DatasetTableView = ({
         className={"border border-[var(--accent-dark)] mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
         style={{maxHeight, maxWidth}}
     >
-        <div className={"flex justify-start"}>
+        <div className={"flex justify-between pr-2 space-x-2 items-center"}>
             <div className={"w-64 p-1"}>
                 <SearchBar
+                    size={"small"}
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
-                    size={"small"}
-                    paddingY={"4px"}
-                    color={"background"}
-                    borderColor={"accent-dark"}
                 />
             </div>
+            {showSize && <div>
+                <DatasetSize plotter={plotter}/>
+            </div>}
         </div>
         <table className="table-auto w-full border-collapse max-[1080px]:text-xs">
             <thead className="bg-[var(--background-dark)] border-b border-t border-[var(--accent-dark)]">
@@ -204,10 +210,10 @@ export const DatasetTableView = ({
                 {searchValue == "" ? "Sin datos." : "Sin resultados."}
             </div>}
         {showingRowsCount < plotter.dataForPlot.length &&
-            <div className={"text-base text-[var(--text-light)] py-2 ml-1"}>
+            <div className={"text-sm pl-2 text-[var(--text-light)] py-2"}>
                 Se muestran las primeras {showingRowsCount} filas. <button onClick={() => {
                 setShowingRowsCount(showingRowsCount + 20)
-            }} className={"text-[var(--primary)] hover:underline"}>Ver más</button>.
+            }} className={"text-[var(--text-light)] underline hover:text-[var(--text)]"}>Ver más</button>.
             </div>}
     </div>
 }

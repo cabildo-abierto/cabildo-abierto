@@ -9,10 +9,10 @@ import './index.css';
 
 import {DraggableBlockPlugin_EXPERIMENTAL} from '@lexical/react/LexicalDraggableBlockPlugin';
 import {useRef} from 'react';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 
 import {emptyChar} from "@/utils/utils";
+import {DotsSixVerticalIcon} from "@phosphor-icons/react";
 
 const DRAGGABLE_BLOCK_MENU_CLASSNAME = 'draggable-block-menu';
 
@@ -36,7 +36,7 @@ export default function DraggableBlockPlugin({
       menuComponent={
         <div ref={menuRef} className={"flex items-center draggable-block-menu"}>
             <div className="hover:bg-[var(--background-dark)] py-1 rounded flex items-center cursor-grab">
-                <DragIndicatorIcon fontSize={"small"}/>
+                <DotsSixVerticalIcon fontSize={20} weight={"bold"}/>
             </div>
             <div className={"w-3"}>{emptyChar}</div>
         </div>

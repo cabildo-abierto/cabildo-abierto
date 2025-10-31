@@ -2,7 +2,7 @@ import {profileUrl} from "@/utils/uri";
 import dynamic from "next/dynamic";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {$Typed} from "@/lex-api/util";
-import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink} from "../../layout/utils/custom-link";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 

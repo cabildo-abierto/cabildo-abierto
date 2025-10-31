@@ -2,7 +2,7 @@ import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {useState} from "react";
 import {FollowCount} from "@/components/profile/follow/follow-counter";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 
 export const FollowCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.ProfileViewDetailed }) => {
     const followersCountCA = profile.followersCount

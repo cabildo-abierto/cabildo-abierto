@@ -1,5 +1,8 @@
 import { produce } from "immer"
 
+export const mainDescription = "Una plataforma para discutir en serio, hecha en Argentina."
+const banner = 'https://www.cabildoabierto.ar/banners/99.jpg'
+
 
 export type MetadataParams = {
     title: string
@@ -8,20 +11,24 @@ export type MetadataParams = {
 }
 
 
-export function createMetadata(m: MetadataParams){
+export function createMetadata({title, description, thumbnail=banner}: MetadataParams){
     return produce(mainMetadata, draft => {
-        draft.title = m.title
-        draft.description = m.description
+        draft.title = title
+        draft.description = description
         draft.icons.icon = iconUrl
-        draft.openGraph.title = m.title
-        draft.openGraph.description = m.description
-        draft.twitter.title = m.title
-        draft.twitter.description = m.description
+        draft.openGraph.title = title
+        draft.openGraph.description = description
+        draft.twitter.title = title
+        draft.twitter.description = description
+        draft.twitter.images = [thumbnail]
+        draft.openGraph.images = [{
+            url: banner,
+            width: 1200,
+            height: 630,
+            alt: "Cabildo Abierto"
+        }]
     })
 }
-
-export const mainDescription = "Una plataforma para discutir en serio, hecha en Argentina."
-const banner = 'https://www.cabildoabierto.ar/banners/99.jpg'
 
 export const openGraphMetadata = {
     title: 'Cabildo Abierto',

@@ -1,8 +1,11 @@
 
 import {SidebarWriteButton} from "@/components/layout/sidebar/sidebar-write-button";
 import {
-    GearIcon, HouseLineIcon, MagnifyingGlassIcon,
-    ProjectorScreenChartIcon, TrayIcon, UserIcon
+    GearIcon,
+    HouseLineIcon,
+    MagnifyingGlassIcon,
+    ProjectorScreenChartIcon,
+    TrayIcon
 } from "@phosphor-icons/react";
 import {SidebarButton} from "./sidebar-button";
 import NotificationsIcon from "@/components/layout/icons/notifications-icon";
@@ -15,7 +18,6 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {usePathname} from "next/navigation";
 import {useAPI} from "@/queries/utils";
 import {useConversations} from "@/queries/getters/useConversations";
-import {profileUrl} from "@/utils/uri";
 
 
 function useUnreadNotificationsCount() {
@@ -52,7 +54,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             id={"inicio"}
         />
         <SidebarButton
-            icon={<TopicsIcon fontSize={iconFontSize}/>}
+            icon={<TopicsIcon fontSize={iconFontSize} weight={"bold"}/>}
             iconInactive={<TopicsIcon fontSize={iconFontSize} weight={iconWeight}/>}
             onClick={onClose}
             text="Temas"
@@ -73,8 +75,8 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
         <SidebarButton
             showText={showText}
             onClick={onClose}
-            icon={<NotificationsIcon count={unreadNotificationsCount}/>}
-            iconInactive={<NotificationsIcon count={unreadNotificationsCount} active={false} weight={iconWeight}/>}
+            icon={<NotificationsIcon count={unreadNotificationsCount} weight={"fill"}/>}
+            iconInactive={<NotificationsIcon count={unreadNotificationsCount} weight={iconWeight}/>}
             text="Notificaciones"
             href="/notificaciones"
             requiresAuth={true}
@@ -110,16 +112,6 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
             showText={showText}
             requiresAuth={true}
         />}
-        {user.user && <SidebarButton
-            icon={<UserIcon fontSize={iconFontSize} weight={"fill"}/>}
-            iconInactive={<UserIcon fontSize={iconFontSize} weight={iconWeight}/>}
-            onClick={onClose}
-            text="Perfil"
-            href={profileUrl(user.user.handle)}
-            selected={pathname == profileUrl(user.user.handle)}
-            showText={showText}
-            requiresAuth={true}
-        />}
         <SidebarButton
             icon={<GearIcon fontSize={iconFontSize} weight={"fill"}/>}
             iconInactive={<GearIcon fontSize={iconFontSize} weight={iconWeight}/>}
@@ -133,9 +125,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
         <div>
             <SidebarWriteButton
                 showText={showText}
-                onClick={() => {
-                    setWritePanelOpen(true)
-                }}
+                setWritePanelOpen={setWritePanelOpen}
             />
         </div>
     </>

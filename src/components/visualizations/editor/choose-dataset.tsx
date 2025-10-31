@@ -1,10 +1,9 @@
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
-import AddIcon from "@mui/icons-material/Add";
 import {DatasetPreviewOnEditor} from "@/components/visualizations/datasets/dataset-preview-on-editor";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {cleanText} from "@/utils/strings";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {BaseButton} from "../../layout/base/baseButton";
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import SearchBar from "@/components/buscar/search-bar";
 import {produce} from "immer";
@@ -13,14 +12,12 @@ import TopicsIcon from "@/components/layout/icons/topics-icon";
 import {TopicsDataSourceConfig} from "@/components/visualizations/editor/topics-data-source-config";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import DatasetIcon from "@/components/layout/icons/dataset-icon";
-import {FunnelIcon} from "@phosphor-icons/react";
+import {ArrowsClockwiseIcon, FunnelIcon, PlusIcon} from "@phosphor-icons/react";
 import {FilterConfig} from "@/components/visualizations/editor/filter-config";
-import CachedIcon from "@mui/icons-material/Cached";
-import StateButton, {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import StateButton, {StateButtonClickHandler} from "../../layout/utils/state-button";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
-import dynamic from "next/dynamic";
+import {Note} from "@/components/layout/utils/note";
 
-const NewDatasetPanel = dynamic(() => import("@/components/visualizations/datasets/new-dataset-panel"));
 
 const DatasetsSearch = ({datasets, config, setConfig}: {
     config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void, datasets: DatasetViewBasic[]
@@ -42,8 +39,7 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
         <SearchBar
             searchValue={searchValue}
             setSearchValue={setSearchValue}
-            fullWidth={true}
-            color={"background-dark"}
+            placeholder={"Buscar"}
         />
         <div className={"space-y-1 mt-2 overflow-y-auto custom-scrollbar h-[calc(100vh-250px)]"}>
             {filteredDatasets ? filteredDatasets.map((d, i) => {
@@ -64,7 +60,9 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
                         />
                     </div>
                 }) :
-                <div className={"mt-8"}><LoadingSpinner/></div>}
+                <div className={"mt-8"}>
+                    <LoadingSpinner/>
+                </div>}
         </div>
     </>
 }
@@ -73,29 +71,26 @@ const DatasetsSearch = ({datasets, config, setConfig}: {
 const ChooseDatasetPanelDatasetSelection = ({
                                                 config,
                                                 setConfig,
-                                                setNewDatasetPanelOpen,
+                                                onNewDataset,
                                                 setSelectedMenu,
-                                                datasets
+                                                datasets,
+                                                creatingNewDataset
                                             }: {
     config: PlotConfigProps
     setConfig: (c: PlotConfigProps) => void
-    setNewDatasetPanelOpen: (v: boolean) => void
+    onNewDataset: () => void
     setSelectedMenu: (v: "Conjuntos de datos" | "Filtros") => void
     datasets?: DatasetViewBasic[]
+    creatingNewDataset: boolean
 }) => {
 
     const creatingTopicsBased = ArCabildoabiertoEmbedVisualization.isTopicsDataSource(config.dataSource)
     return <>
         <div className={"flex space-x-1 px-2"}>
-            <Button
+            <BaseButton
                 startIcon={<TopicsIcon/>}
-                variant={"text"}
-                color={creatingTopicsBased ? "background-dark2" : "background-dark"}
+                className={creatingTopicsBased ? "bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)] " : ""}
                 size={"small"}
-                sx={{
-                    paddingX: "12px",
-                    ":hover": {backgroundColor: "var(--background-dark3)"}
-                }}
                 onClick={() => {
                     setConfig(produce(config, draft => {
                         if (!draft.dataSource) draft.dataSource = {}
@@ -111,27 +106,25 @@ const ChooseDatasetPanelDatasetSelection = ({
                     }))
                 }}
             >
-                <span className={"text-xs"}>
-                    Usar temas
-                </span>
-            </Button>
-            <Button
-                startIcon={<AddIcon/>}
-                variant={"text"}
-                color={"background-dark"}
+                Usar temas
+            </BaseButton>
+            <BaseButton
+                startIcon={<PlusIcon fontSize={18}/>}
+                className={creatingNewDataset ? "bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)] " : ""}
                 size={"small"}
-                sx={{
-                    paddingX: "12px"
-                }}
                 onClick={() => {
-                    setNewDatasetPanelOpen(true)
+                    onNewDataset()
                 }}
             >
-                <span className={"text-xs"}>Conjunto de datos</span>
-            </Button>
+                Conjunto de datos
+            </BaseButton>
         </div>
         <div className={"px-2 pb-2"}>
-            {!creatingTopicsBased && <DatasetsSearch datasets={datasets} setConfig={setConfig} config={config}/>}
+            {!creatingTopicsBased && <DatasetsSearch
+                datasets={datasets}
+                setConfig={setConfig}
+                config={config}
+            />}
             {creatingTopicsBased && <TopicsDataSourceConfig
                 onGoToFilters={() => {
                     setSelectedMenu("Filtros")
@@ -147,13 +140,15 @@ export const ChooseDatasetPanelFiltersConfig = ({
                                                     setConfig,
                                                     setSelectedMenu,
                                                     datasets,
-                                                    onReloadData
+                                                    onReloadData,
+                                                    onNewDataset
                                                 }: {
     config: PlotConfigProps
     setConfig?: (c: PlotConfigProps) => void
     setSelectedMenu?: (v: "Conjuntos de datos" | "Filtros") => void
     datasets?: DatasetViewBasic[]
     onReloadData?: StateButtonClickHandler
+    onNewDataset?: () => void
 }) => {
     function onAddFilter() {
         setConfig(produce(config, draft => {
@@ -172,9 +167,9 @@ export const ChooseDatasetPanelFiltersConfig = ({
     }
 
     if (!config.dataSource || !config.dataSource.$type) {
-        return <div className={"text-sm text-[var(--text-light)] p-4 text-center"}>
+        return <Note className={"p-4"}>
             Elegí una fuente de datos primero.
-        </div>
+        </Note>
     }
 
     const datasetUri = ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) ? config.dataSource.dataset : undefined
@@ -196,32 +191,37 @@ export const ChooseDatasetPanelFiltersConfig = ({
                 </div>
             })}
             {setConfig &&
-                <Button startIcon={<AddIcon/>} size={"small"} onClick={onAddFilter} color={"background-dark3"}>
-                    Nuevo filtro
-                </Button>}
+            <BaseButton
+                startIcon={<PlusIcon/>}
+                size={"small"}
+                onClick={onAddFilter}
+            >
+                Agregar filtro
+            </BaseButton>}
         </div>
 
         {onReloadData && <div className={"flex justify-end w-full"}>
             <StateButton
-                color={"background-dark3"}
-                startIcon={<CachedIcon/>}
-                text1="Cargar datos"
+                startIcon={<ArrowsClockwiseIcon/>}
                 size={"small"}
                 handleClick={onReloadData}
-            />
+            >
+                Cargar datos
+            </StateButton>
         </div>}
     </div>
 }
 
 
-export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: {
+export const ChooseDatasetPanel = ({datasets, creatingNewDataset, config, setConfig, onReloadData, onNewDataset}: {
     datasets?: DatasetViewBasic[],
     config: PlotConfigProps,
     setConfig: (config: PlotConfigProps) => void
     onReloadData?: StateButtonClickHandler
+    onNewDataset: () => void
+    creatingNewDataset: boolean
 }) => {
     const [selectedMenu, setSelectedMenu] = useState<"Conjuntos de datos" | "Filtros">("Conjuntos de datos")
-    const [newDatasetPanelOpen, setNewDatasetPanelOpen] = useState(false)
 
     useEffect(() => {
         if (config.dataSource && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(config.dataSource) && config.dataSource.dataset && datasets) {
@@ -235,21 +235,20 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
         }
     }, [datasets, config, setConfig])
 
-    function optionLabels(o: string){
+    function optionLabels(o: string) {
         if (o == "Conjuntos de datos") {
             return <DatasetIcon size={20}/>
         } else if (o == "Filtros") {
-            return <FunnelIcon size={20}/>
+            return <FunnelIcon size={20} weight={"light"}/>
         }
     }
-
 
     return <>
         <div className={"rounded-lg flex flex-col space-y-2 h-full"}>
             <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
                 <SelectionComponent
                     options={["Conjuntos de datos", "Filtros"]}
-                    optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}
+                    optionsNodes={feedOptionNodes(40, undefined, undefined, optionLabels)}
                     selected={selectedMenu}
                     onSelection={(v: string) => {
                         setSelectedMenu(v as "Conjuntos de datos" | "Filtros")
@@ -260,9 +259,10 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
             {selectedMenu == "Conjuntos de datos" && <ChooseDatasetPanelDatasetSelection
                 config={config}
                 setConfig={setConfig}
-                setNewDatasetPanelOpen={setNewDatasetPanelOpen}
+                onNewDataset={onNewDataset}
                 setSelectedMenu={setSelectedMenu}
                 datasets={datasets}
+                creatingNewDataset={creatingNewDataset}
             />}
             {selectedMenu == "Filtros" && <ChooseDatasetPanelFiltersConfig
                 config={config}
@@ -272,8 +272,5 @@ export const ChooseDatasetPanel = ({datasets, config, setConfig, onReloadData}: 
                 onReloadData={onReloadData}
             />}
         </div>
-        <NewDatasetPanel open={newDatasetPanelOpen} onClose={() => {
-            setNewDatasetPanelOpen(false)
-        }}/>
     </>
 }

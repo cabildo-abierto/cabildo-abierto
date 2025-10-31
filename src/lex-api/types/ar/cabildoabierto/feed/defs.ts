@@ -9,15 +9,16 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs'
 import type * as ArCabildoabiertoWikiTopicVersion from '../wiki/topicVersion'
-import type * as ArCabildoabiertoDataDataset from '../data/dataset'
+import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs'
+import type * as ArCabildoabiertoDataDataset from '../data/dataset'
+import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
 import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images'
 import type * as AppBskyEmbedVideo from '../../../app/bsky/embed/video'
 import type * as AppBskyEmbedExternal from '../../../app/bsky/embed/external'
-import type * as AppBskyEmbedRecord from '../../../app/bsky/embed/record'
-import type * as AppBskyEmbedRecordWithMedia from '../../../app/bsky/embed/recordWithMedia'
+import type * as ArCabildoabiertoEmbedRecord from '../embed/record'
+import type * as ArCabildoabiertoEmbedRecordWithMedia from '../embed/recordWithMedia'
 import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
@@ -30,10 +31,14 @@ const id = 'ar.cabildoabierto.feed.defs'
 /** a feed is always a list of feedViewContents */
 export interface FeedViewContent {
   $type?: 'ar.cabildoabierto.feed.defs#feedViewContent'
-  content: $Typed<PostView> | $Typed<ArticleView> | { $type: string }
-  reply?: AppBskyFeedDefs.ReplyRef
+  content:
+    | $Typed<PostView>
+    | $Typed<ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+    | { $type: string }
+  reply?: ReplyRef
   reason?:
-    | $Typed<AppBskyFeedDefs.ReasonRepost>
+    | $Typed<ReasonRepost>
     | $Typed<AppBskyFeedDefs.ReasonPin>
     | { $type: string }
   /** Context provided by feed generator that may be passed back alongside interactions. */
@@ -48,6 +53,22 @@ export function isFeedViewContent<V>(v: V) {
 
 export function validateFeedViewContent<V>(v: V) {
   return validate<FeedViewContent & V>(v, id, hashFeedViewContent)
+}
+
+export interface ReasonRepost {
+  $type?: 'ar.cabildoabierto.feed.defs#reasonRepost'
+  by: ArCabildoabiertoActorDefs.ProfileViewBasic
+  indexedAt: string
+}
+
+const hashReasonRepost = 'reasonRepost'
+
+export function isReasonRepost<V>(v: V) {
+  return is$typed(v, id, hashReasonRepost)
+}
+
+export function validateReasonRepost<V>(v: V) {
+  return validate<ReasonRepost & V>(v, id, hashReasonRepost)
 }
 
 export interface ThreadViewContent {
@@ -83,6 +104,35 @@ export function validateThreadViewContent<V>(v: V) {
   return validate<ThreadViewContent & V>(v, id, hashThreadViewContent)
 }
 
+export interface ReplyRef {
+  $type?: 'ar.cabildoabierto.feed.defs#replyRef'
+  root:
+    | $Typed<PostView>
+    | $Typed<ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  parent:
+    | $Typed<PostView>
+    | $Typed<ArticleView>
+    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  grandparentAuthor?: AppBskyActorDefs.ProfileViewBasic
+}
+
+const hashReplyRef = 'replyRef'
+
+export function isReplyRef<V>(v: V) {
+  return is$typed(v, id, hashReplyRef)
+}
+
+export function validateReplyRef<V>(v: V) {
+  return validate<ReplyRef & V>(v, id, hashReplyRef)
+}
+
 export interface PostView {
   $type?: 'ar.cabildoabierto.feed.defs#postView'
   uri: string
@@ -93,8 +143,8 @@ export interface PostView {
     | $Typed<AppBskyEmbedImages.View>
     | $Typed<AppBskyEmbedVideo.View>
     | $Typed<AppBskyEmbedExternal.View>
-    | $Typed<AppBskyEmbedRecord.View>
-    | $Typed<AppBskyEmbedRecordWithMedia.View>
+    | $Typed<ArCabildoabiertoEmbedRecord.View>
+    | $Typed<ArCabildoabiertoEmbedRecordWithMedia.View>
     | $Typed<ArCabildoabiertoEmbedSelectionQuote.View>
     | $Typed<ArCabildoabiertoEmbedVisualization.View>
     | { $type: string }
@@ -111,6 +161,7 @@ export interface PostView {
   threadgate?: AppBskyFeedDefs.ThreadgateView
   rootCreationDate?: string
   editedAt?: string
+  voteContext?: VoteContext
 }
 
 const hashPostView = 'postView'
@@ -121,6 +172,39 @@ export function isPostView<V>(v: V) {
 
 export function validatePostView<V>(v: V) {
   return validate<PostView & V>(v, id, hashPostView)
+}
+
+export interface VoteContext {
+  $type?: 'ar.cabildoabierto.feed.defs#voteContext'
+  authorVotingState: 'accept' | 'reject' | 'none' | (string & {})
+  vote?: VoteInContext
+}
+
+const hashVoteContext = 'voteContext'
+
+export function isVoteContext<V>(v: V) {
+  return is$typed(v, id, hashVoteContext)
+}
+
+export function validateVoteContext<V>(v: V) {
+  return validate<VoteContext & V>(v, id, hashVoteContext)
+}
+
+export interface VoteInContext {
+  $type?: 'ar.cabildoabierto.feed.defs#voteInContext'
+  uri: string
+  subject: string
+  subjectCreatedAt: string
+}
+
+const hashVoteInContext = 'voteInContext'
+
+export function isVoteInContext<V>(v: V) {
+  return is$typed(v, id, hashVoteInContext)
+}
+
+export function validateVoteInContext<V>(v: V) {
+  return validate<VoteInContext & V>(v, id, hashVoteInContext)
 }
 
 export interface ArticleView {
@@ -210,4 +294,54 @@ export function isTopicMention<V>(v: V) {
 
 export function validateTopicMention<V>(v: V) {
   return validate<TopicMention & V>(v, id, hashTopicMention)
+}
+
+export interface SkeletonFeedPost {
+  $type?: 'ar.cabildoabierto.feed.defs#skeletonFeedPost'
+  post: string
+  reason?:
+    | $Typed<SkeletonReasonRepost>
+    | $Typed<SkeletonReasonPin>
+    | { $type: string }
+  /** Context that will be passed through to client and may be passed to feed generator back alongside interactions. */
+  feedContext?: string
+}
+
+const hashSkeletonFeedPost = 'skeletonFeedPost'
+
+export function isSkeletonFeedPost<V>(v: V) {
+  return is$typed(v, id, hashSkeletonFeedPost)
+}
+
+export function validateSkeletonFeedPost<V>(v: V) {
+  return validate<SkeletonFeedPost & V>(v, id, hashSkeletonFeedPost)
+}
+
+export interface SkeletonReasonRepost {
+  $type?: 'ar.cabildoabierto.feed.defs#skeletonReasonRepost'
+  repost: string
+}
+
+const hashSkeletonReasonRepost = 'skeletonReasonRepost'
+
+export function isSkeletonReasonRepost<V>(v: V) {
+  return is$typed(v, id, hashSkeletonReasonRepost)
+}
+
+export function validateSkeletonReasonRepost<V>(v: V) {
+  return validate<SkeletonReasonRepost & V>(v, id, hashSkeletonReasonRepost)
+}
+
+export interface SkeletonReasonPin {
+  $type?: 'ar.cabildoabierto.feed.defs#skeletonReasonPin'
+}
+
+const hashSkeletonReasonPin = 'skeletonReasonPin'
+
+export function isSkeletonReasonPin<V>(v: V) {
+  return is$typed(v, id, hashSkeletonReasonPin)
+}
+
+export function validateSkeletonReasonPin<V>(v: V) {
+  return validate<SkeletonReasonPin & V>(v, id, hashSkeletonReasonPin)
 }

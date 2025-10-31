@@ -1,6 +1,6 @@
 import React from 'react';
-import InfoPanel from '../../../modules/ui-utils/src/info-panel';
-import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
+import InfoPanel from '../layout/utils/info-panel';
+import {CustomLink as Link} from '../layout/utils/custom-link';
 import {topicUrl} from "@/utils/uri";
 import {useFundingState, useMonthlyValue} from "@/queries/getters/useFunding";
 

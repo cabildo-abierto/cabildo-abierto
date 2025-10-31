@@ -23,15 +23,15 @@ import {
 import {Dispatch, useCallback, useEffect, useRef, useState} from 'react';
 import * as React from 'react';
 import {createPortal} from 'react-dom';
-
 import {getDOMRangeRect} from '../../utils/getDOMRangeRect';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPosition} from '../../utils/setFloatingElemPosition';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
-import FormatBoldIcon from '@mui/icons-material/FormatBold';
-import {FormatItalic, InsertLink} from "@mui/icons-material";
 import {ToolbarButton} from "../ToolbarPlugin/toolbar-button";
+import {LinkIcon} from "@/components/layout/icons/link-icon";
+import ItalicIcon from "@/components/layout/icons/italic-icon";
+import BoldIcon from "@/components/layout/icons/bold-icon";
 
 function TextFormatFloatingToolbar({
                                        editor,
@@ -182,11 +182,9 @@ function TextFormatFloatingToolbar({
         );
     }, [editor, $updateTextFormatFloatingToolbar]);
 
-    const backgroundColor = "background-dark"
-
     return (
         <div ref={popupCharStylesEditorRef}
-             className="floating-text-format-popup panel-dark"
+             className="floating-text-format-popup portal group panel-dark"
         >
             {editor.isEditable() && (
                 <>
@@ -196,9 +194,8 @@ function TextFormatFloatingToolbar({
                         }}
                         aria-label="Format text as bold"
                         active={isBold}
-                        color={backgroundColor}
                     >
-                        <FormatBoldIcon fontSize={"small"} color={"inherit"}/>
+                        <BoldIcon fontSize={20} weight={isBold ? "bold" : "regular"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={() => {
@@ -206,17 +203,15 @@ function TextFormatFloatingToolbar({
                         }}
                         aria-label="Format text as italics"
                         active={isItalic}
-                        color={backgroundColor}
                     >
-                        <FormatItalic fontSize={"small"} color={"inherit"}/>
+                        <ItalicIcon fontSize={20} weight={isItalic ? "bold" : "regular"}/>
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={insertLink}
                         aria-label="Insert link"
                         active={isLink}
-                        color={backgroundColor}
                     >
-                        <InsertLink fontSize={"small"} color={"inherit"}/>
+                        <LinkIcon fontSize={20} weight={isLink ? "bold" : "regular"}/>
                     </ToolbarButton>
                 </>
             )}

@@ -3,28 +3,32 @@ import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {cleanText} from "@/utils/strings";
 import {DataRow, Plotter} from "@/components/visualizations/editor/plotter/plotter";
 
+
 export class TablePlotter extends Plotter {
     private sortingBy: DatasetSortOrder | null
     private searchValue: string
     public dataForPlot: DataRow[]
     public strRows: string[][]
     private columnsMap: Map<string, ArCabildoabiertoEmbedVisualization.TableVisualizationColumn> = new Map()
+    private rowsToShow: number | undefined
 
-    constructor(spec: ArCabildoabiertoEmbedVisualization.Main["spec"], dataset: DatasetForTableView, filters: ArCabildoabiertoEmbedVisualization.Main["filters"] | null, sortingBy: DatasetSortOrder | null, searchValue?: string) {
+    constructor(spec: ArCabildoabiertoEmbedVisualization.Main["spec"], dataset: DatasetForTableView, filters: ArCabildoabiertoEmbedVisualization.Main["filters"] | null, sortingBy: DatasetSortOrder | null, searchValue?: string, rowsToShow?: number) {
         super(spec, dataset, filters ?? undefined)
         this.sortingBy = sortingBy
         this.searchValue = searchValue
+        this.rowsToShow = rowsToShow
         if (ArCabildoabiertoEmbedVisualization.isTable(this.spec) && this.spec.columns) {
             this.columnsMap = new Map(
                 Array.from(this.spec.columns.map(c => ([c.columnName, c])))
             )
         }
+        if(!this.searchValue && !this.sortingBy && this.rowsToShow != null) {
+            this.data = this.data.slice(0, this.rowsToShow)
+        }
     }
 
     prepareForPlot(prev?: TablePlotter) {
-        //const t1 = Date.now()
         super.prepareForPlot(prev)
-        //const t2 = Date.now()
 
         if (prev) {
             this.strRows = prev.strRows
@@ -35,11 +39,10 @@ export class TablePlotter extends Plotter {
                 })
             })
         }
-        //const t3 = Date.now()
         this.dataForPlot = this.data
         if (this.searchValue && this.searchValue.length > 0) {
             const searchKey = cleanText(this.searchValue)
-            this.dataForPlot = this.dataForPlot.filter(((row, index) => {
+            this.dataForPlot = this.data.filter(((row, index) => {
                 return this.strRows[index].some(x => x.includes(searchKey))
             }))
         }
@@ -49,8 +52,6 @@ export class TablePlotter extends Plotter {
                 return (this.sortingBy.order == "desc" ? -1 : 1) * this.cmpValues(col, a[col], b[col])
             })
         }
-        //const t4 = Date.now()
-        //logTimes("prepare for plot", [t1, t2, t3, t4])
         return {}
     }
 

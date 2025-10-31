@@ -1,22 +1,20 @@
 import React from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import { IconButton } from "../../../modules/ui-utils/src/icon-button";
+import { BaseIconButton } from "./base/base-icon-button";
 
 
 export const OpenSidebarButton = () => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
-    return <IconButton
-        size={"small"}
-        sx={{
-            borderRadius: 0
-        }}
+    return <BaseIconButton
+        size={"large"}
         onClick={() => {
             setLayoutConfig({
                 ...layoutConfig,
                 openSidebar: !layoutConfig.openSidebar
             })
         }}
+        className={"p-[5px]"}
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -32,5 +30,5 @@ export const OpenSidebarButton = () => {
             <line x1="3" y1="12" x2="21" y2="12"/>
             <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
-    </IconButton>
+    </BaseIconButton>
 }

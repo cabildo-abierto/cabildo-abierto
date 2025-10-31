@@ -1,7 +1,7 @@
 "use client"
 
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
-import LoginModal from "@/components/layout/auth/login-modal";
+import LoginModal from "@/components/auth/login-modal";
 import {usePathname} from "next/navigation";
 
 

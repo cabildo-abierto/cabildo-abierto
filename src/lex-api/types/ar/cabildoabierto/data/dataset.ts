@@ -77,6 +77,7 @@ export interface DatasetViewBasic {
   createdAt: string
   description?: string
   columns: Column[]
+  editedAt?: string
 }
 
 const hashDatasetViewBasic = 'datasetViewBasic'
@@ -101,6 +102,7 @@ export interface DatasetView {
   columns: Column[]
   data: string
   dataFormat?: string
+  editedAt?: string
 }
 
 const hashDatasetView = 'datasetView'

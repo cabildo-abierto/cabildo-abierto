@@ -3,7 +3,7 @@
 import React, {ReactNode, useEffect, useMemo, useState} from "react";
 import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
-import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
+import {AcceptButtonPanel} from "../dialogs/accept-button-panel";
 import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
@@ -13,16 +13,22 @@ import {useSearchUsers} from "@/components/buscar/user-search-results";
 import SearchBar from "@/components/buscar/search-bar";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/follow-button";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../base/loading-spinner";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useProfile} from "@/queries/getters/useProfile";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../utils/scroll";
 import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
-    return <AcceptButtonPanel color="background-dark" backgroundShadow={false} open={open} buttonText={"Empezar"} onClose={onClose} className={"py-4 px-8"}>
+    return <AcceptButtonPanel
+        open={open}
+        buttonText={"Empezar"}
+        onClose={onClose}
+        className={"py-4 px-8"}
+        backgroundShadow={true}
+    >
         <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
             <h2 className={"mb-4 py-2"}>¡Te damos la bienvenida!</h2>
 
@@ -39,7 +45,8 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                     en cualquier contenido de la plataforma.
                 </div>
                 <div className={"sm:hidden border border-[var(--accent-dark)] p-2"}>
-                    <span className={"font-semibold"}>Nota.</span> Algunas funcionalidades no están disponibles desde el celular.
+                    <span className={"font-semibold"}>Nota.</span> Algunas funcionalidades no están disponibles desde el
+                    celular.
                 </div>
             </div>
         </div>
@@ -74,18 +81,20 @@ const FirstFollowsMessage = ({open, onClose}: {
     }
 
     function onFinishIntro() {
-        qc.refetchQueries({predicate: query => {
-            const k = query.queryKey
-            const res = Array.isArray(k) && k.length >= 2 && k[0] == "main-feed" && k[1] == "siguiendo"
-            if(res) console.log("refetching query", k); else console.log("not refetching query", k)
-            return res
-        }})
+        qc.refetchQueries({
+            predicate: query => {
+                const k = query.queryKey
+                const res = Array.isArray(k) && k.length >= 2 && k[0] == "main-feed" && k[1] == "siguiendo"
+                if (res) console.log("refetching query", k); else console.log("not refetching query", k)
+                return res
+            }
+        })
         onClose()
     }
 
     return <AcceptButtonPanel
         open={open}
-        buttonText={"Terminar intro"}
+        buttonText={"Terminar introducción"}
         onClose={onFinishIntro}
         className={"py-4 flex flex-col items-center px-4 sm:px-8"}
     >
@@ -98,8 +107,6 @@ const FirstFollowsMessage = ({open, onClose}: {
 
             <div className={"mt-4 w-full"}>
                 <SearchBar
-                    fullWidth={true}
-                    color={"background-dark"}
                     searchValue={searchState.value}
                     setSearchValue={v => {
                         setSearchState({value: v, searching: searchState.searching})
@@ -119,26 +126,23 @@ const FirstFollowsMessage = ({open, onClose}: {
                         className="w-1/2 min-[400px]:w-1/3 p-1 box-border"
                     >
                         <div
-                            className="panel py-2 w-full aspect-[0.82] flex flex-col items-center justify-center space-y-1 text-center overflow-hidden"
+                            className="panel p-2 w-full aspect-[0.82] flex flex-col items-center justify-between space-y-1 text-center overflow-hidden"
                         >
-                            <div className={"pointer-events-none"}>
+                            <div className={"pointer-events-none mb-2"}>
                                 <ProfilePic user={r} className="w-14 h-14 rounded-full" descriptionOnHover={false}/>
                             </div>
                             <div className="text-sm px-1 truncate max-w-full whitespace-nowrap">
                                 {r.displayName}
                             </div>
-                            <div className="text-xs px-1 truncate max-w-full whitespace-nowrap text-[var(--text-light)]">
+                            <div
+                                className="text-xs px-1 truncate max-w-full whitespace-nowrap text-[var(--text-light)]">
                                 @{r.handle}
                             </div>
-                            <div className={""}>
-                                <FollowButton
-                                    handle={r.handle}
-                                    profile={r}
-                                    dense={false}
-                                    backgroundColor={"background-dark"}
-                                    textClassName={"text-xs"}
-                                />
-                            </div>
+                            <FollowButton
+                                handle={r.handle}
+                                profile={r}
+                                dense={true}
+                            />
                         </div>
                     </div>
                 ))}
@@ -148,7 +152,7 @@ const FirstFollowsMessage = ({open, onClose}: {
 }
 
 
-const TourContent = ({children}: {children: ReactNode}) => {
+const TourContent = ({children}: { children: ReactNode }) => {
     return <span className={"text-[var(--text-light)] sm:text-base text-sm"}>{children}</span>
 }
 
@@ -199,7 +203,8 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#feed-config-button',
             content: <TourContent>
-                Ambos muros se pueden configurar. Podés filtrarlos para ver solo artículos, solo usuarios de Cabildo Abierto o cambiar el criterio con el que se ordenan los contenidos.
+                Ambos muros se pueden configurar. Podés filtrarlos para ver solo artículos, solo usuarios de Cabildo
+                Abierto o cambiar el criterio con el que se ordenan los contenidos.
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true
@@ -207,7 +212,8 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         {
             target: '#temas',
             content: <TourContent>
-                Una wiki (como Wikipedia) sobre los temas en discusión, con información recopilada por los usuarios, visualizaciones y más.
+                Una wiki (como Wikipedia) sobre los temas en discusión, con información recopilada por los usuarios,
+                visualizaciones y más.
             </TourContent>,
             placement: 'bottom',
             hideBackButton: true
@@ -240,10 +246,10 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
     ])
 
     useEffect(() => {
-        if(!layoutConfig.openRightPanel || !layoutConfig.spaceForRightSide){
+        if (!layoutConfig.openRightPanel || !layoutConfig.spaceForRightSide) {
             const i = steps
                 .findIndex(x => x.target == "#trending-topics")
-            if(i != -1){
+            if (i != -1) {
                 setSteps(steps.toSpliced(i))
             }
         }
@@ -265,11 +271,11 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
     }, [runStatus])
 
     useEffect(() => {
-        async function waitForSidebarRender(){
-            for(let i = 0; i < 3; i++){
+        async function waitForSidebarRender() {
+            for (let i = 0; i < 3; i++) {
                 const element = document.getElementById("temas")
                 await new Promise(resolve => setTimeout(resolve, 100))
-                if(element){
+                if (element) {
                     setRunStatus("running")
                     setStepIndex(4)
                     break
@@ -277,8 +283,8 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             }
         }
 
-        if(runStatus == "waiting sidebar") {
-            if(layoutConfig.openSidebar){
+        if (runStatus == "waiting sidebar") {
+            if (layoutConfig.openSidebar) {
                 waitForSidebarRender()
             }
         }
@@ -297,11 +303,11 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
                 openSidebar: true
             })
         } else if (data.type == "step:after") {
-            setStepIndex(data.index+1)
+            setStepIndex(data.index + 1)
         } else if (finishedStatuses.includes(status)) {
             if (profile && profile.bskyFollowsCount <= 1 || searchParams.get("tutorial")) {
                 setRunStatus("follows")
-                if(!layoutConfig.spaceForRightSide){
+                if (!layoutConfig.spaceForRightSide) {
                     setLayoutConfig({
                         ...layoutConfig,
                         openSidebar: false
@@ -349,7 +355,7 @@ export const HomeTutorial = ({children}: { children: ReactNode }) => {
     const params = useSearchParams()
     const {user} = useSession()
 
-    if (user && (params.get("tutorial") || !user.seenTutorial.home)){
+    if (user && (params.get("tutorial") || !user.seenTutorial.home)) {
         return (
             <RunTutorial>
                 {children}

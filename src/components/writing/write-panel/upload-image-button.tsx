@@ -1,26 +1,16 @@
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import {styled} from "@mui/material";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import { Button } from "../../../../modules/ui-utils/src/button";
 import {file2base64} from "@/utils/files";
 import imageCompression from "browser-image-compression"
+import UploadFileIcon from "@/components/layout/icons/upload-file-icon";
+import {ChangeEvent, useRef} from "react";
+import {BaseButton} from "@/components/layout/base/baseButton";
 
 
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-})
+type SubmitImage = (i: ImagePayload) => void
 
 
-export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: string, onSubmit: (i: ImagePayload) => void}) => {
-    const loadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+export function useLoadImage(onSubmit: SubmitImage) {
+    return async (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files !== null) {
             const file = e.target.files[0];
             if (file) {
@@ -42,24 +32,39 @@ export const UploadImageButton = ({onSubmit, text="Subir archivo"}: {text?: stri
                 }
             }
         }
-    };
+    }
+}
 
+export const UploadImageButton = ({
+                                      onSubmit,
+                                      text = "Subir archivo"
+                                  }: {
+    text?: string,
+    onSubmit: SubmitImage
+}) => {
+    const inputRef = useRef<HTMLInputElement>(null)
+    const loadImage = useLoadImage(onSubmit)
 
-    return <Button
-        component="label"
-        role={undefined}
+    const handleButtonClick = () => {
+        if (inputRef.current) {
+            inputRef.current.click()
+        }
+    }
+
+    return <BaseButton
         variant="outlined"
         tabIndex={-1}
-        disableElevation={true}
-        startIcon={<CloudUploadIcon />}
-        fullWidth={true}
+        startIcon={<UploadFileIcon weight={"light"}/>}
+        onClick={handleButtonClick}
     >
         {text}
-        <VisuallyHiddenInput
-            type="file"
+        <input
+            ref={inputRef}
+            className={"hidden"}
+            type={"file"}
             accept={"image/*"}
             onChange={loadImage}
             multiple={false}
         />
-    </Button>
+    </BaseButton>
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
+import {CustomLink as Link} from "../layout/utils/custom-link";
 import {profileUrl} from "@/utils/uri";
 import Image from "next/image";
 import ValidationIcon from "@/components/profile/validation-icon";
@@ -12,7 +12,6 @@ const SmallUserSearchResult: React.FC<{
     className?: string
     onClick?: (handle: string) => void
 }> = ({user, className = "", onClick}) => {
-
     return <Link
         href={profileUrl(user.handle)}
         onClick={() => {

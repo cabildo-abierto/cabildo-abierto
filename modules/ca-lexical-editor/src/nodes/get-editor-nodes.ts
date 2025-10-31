@@ -17,7 +17,6 @@ import {OverflowNode} from "@lexical/overflow";
 import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
 import {LayoutContainerNode} from "./LayoutContainerNode";
 import {LayoutItemNode} from "./LayoutItemNode";
-import {CustomLinkNode} from "./CustomLinkNode";
 import {AutoLinkNode, LinkNode} from "@lexical/link";
 import {TopicMentionNode} from "./TopicMentionNode";
 
@@ -43,16 +42,8 @@ export function getEditorNodes(settings: { allowImages: boolean, topicMentions: 
         EmbedNode,
         CustomMarkNode,
         SidenoteNode,
-        CustomLinkNode,
+        LinkNode,
         AutoLinkNode,
-        {
-            replace: LinkNode,
-            with: (node: LinkNode) => {
-                return new CustomLinkNode(node.getURL(), {
-                    rel: node.getRel(), target: node.getTarget(), title: node.getTitle()
-                })
-            }
-        },
         {
             replace: MarkNode,
             with: (node: MarkNode) => {

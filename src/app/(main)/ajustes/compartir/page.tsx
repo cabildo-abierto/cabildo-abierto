@@ -2,8 +2,8 @@
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 import {useState} from "react";
 import {CheckIcon, LinkIcon} from "@phosphor-icons/react";
-import {AcceptButtonPanel} from "../../../../../modules/ui-utils/src/accept-button-panel";
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import {AcceptButtonPanel} from "../../../../components/layout/dialogs/accept-button-panel";
+import LoadingSpinner from "../../../../components/layout/base/loading-spinner";
 import {useAPI} from "@/queries/utils";
 
 
@@ -41,8 +41,8 @@ export default function Page() {
     }
 
     const content = <div className={"space-y-2"}>
-        <div className={"pb-2 font-light"}>
-            Hacé click en un enlace para copiarlo y enviáselo a alguien. Vamos a ir disponibilizando más enlaces a medida que la plataforma esté lista.
+        <div className={"pb-2 font-light text-[var(--text)]"}>
+            Hacé click en un enlace para copiarlo. Vamos a ir disponibilizando más enlaces a medida que la plataforma esté lista.
         </div>
         {data && data.map(c => {
             return <div key={c.code}>
@@ -65,7 +65,6 @@ export default function Page() {
     </div>
     return <div>
         <PageCardMessage
-            title={`Compartir Cabildo Abierto`}
             content={content}
         />
         {copied && <AcceptButtonPanel open={copied} onClose={() => setCopied(false)}>

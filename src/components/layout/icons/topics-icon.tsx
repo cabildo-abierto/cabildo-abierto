@@ -1,12 +1,11 @@
-import {HashIcon} from "@phosphor-icons/react";
-import { Color } from "../../../../modules/ui-utils/src/color";
+import {HashStraightIcon} from "@phosphor-icons/react";
 
 
-export default function TopicsIcon({fontSize=22, weight, color}: {
+export default function TopicsIcon({fontSize=22, weight, color="var(--text)"}: {
     outlined?: boolean
     fontSize?: number
-    weight?: "light" | "fill" | "regular"
-    color?: Color
+    weight?: "light" | "fill" | "regular" | "bold"
+    color?: string
 }) {
-    return <HashIcon weight={weight} fontSize={fontSize} color={color}/>
+    return <HashStraightIcon weight={weight} fontSize={fontSize} color={color}/>
 }

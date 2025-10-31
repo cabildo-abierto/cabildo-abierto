@@ -1,5 +1,5 @@
 import {getUsername} from "@/utils/utils";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../layout/utils/date";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {AtIcon, CheckIcon, UserPlusIcon, XIcon} from "@phosphor-icons/react";
 import {HeartIcon} from "@phosphor-icons/react";
@@ -22,9 +22,9 @@ import { RepostIcon } from "../layout/icons/reposts-icon";
 
 
 const Username = ({user}: { user: {displayName?: string, handle: string, did: string} }) => {
-    return <span className={"font-bold hover:underline"}>
+    return <Link onClick={e => e.stopPropagation()} href={profileUrl(user.handle)} className={"font-bold hover:underline"}>
         {getUsername(user)}
-    </span>
+    </Link>
 }
 
 
@@ -134,7 +134,7 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
     } else if (notification.reason == "repost") {
         return <UserNotificationCard
             notification={notification}
-            reasonIcon={<RepostIcon fontSize={24} color={"text"}/>}
+            reasonIcon={<RepostIcon fontSize={24} color={"var(--text)"}/>}
             href={contentUrl(notification.reasonSubject)}
         >
             <Username user={notification.author}/> republicó <ContentMention uri={notification.reasonSubject}

@@ -8,7 +8,7 @@ import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session, WikiEditorState} from "@/lib/types";
 import {produce} from "immer";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../utils/scroll";
 import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
 import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 
@@ -33,7 +33,7 @@ const minimizedSteps: Step[] = [
         content: <TourContent>
             Este es el contenido actual sobre el tema. Cualquiera lo puede editar. El resto de los usuarios pueden validar o rechazar las ediciones.
         </TourContent>,
-        placement: 'bottom',
+        placement: 'top',
         disableBeacon: true,
         hideBackButton: true
     },

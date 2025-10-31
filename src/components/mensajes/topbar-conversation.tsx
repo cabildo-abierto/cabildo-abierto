@@ -1,4 +1,4 @@
-import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import {BackButton} from "../layout/utils/back-button";
 import Link from "next/link";
 import React from "react";
 import { profileUrl } from "@/utils/uri";
@@ -21,7 +21,6 @@ export const TopbarConversation = () => {
             <BackButton
                 defaultURL={"/mensajes"}
                 behavior={"fixed"}
-                size={"medium"}
             />
             <div className={"truncate text-ellipsis max-w-[80vw] font-bold text-lg"}>
                 {data && <Link

@@ -6,20 +6,18 @@ import {usePathname} from "next/navigation";
 
 type MainSearchBarProps = {
     autoFocus?: boolean
-    paddingY?: string
-    fullWidth?: boolean
     placeholder?: string
     kind?: string
+    allowCloseWithNoText?: boolean
 }
 
 
 const MainSearchBar = ({
-    autoFocus = false,
-    paddingY,
-    fullWidth = true,
-    kind = "main",
-    placeholder = "buscar"
-}: MainSearchBarProps) => {
+                           autoFocus = false,
+                           kind = "main",
+                           placeholder = "Buscar",
+                           allowCloseWithNoText
+                       }: MainSearchBarProps) => {
     const pathname = usePathname()
     const {searchState, setSearchState} = useSearch(`${pathname}::${kind}`)
 
@@ -31,15 +29,10 @@ const MainSearchBar = ({
         setSearching={(v: boolean) => {
             setSearchState({value: v ? searchState.value : "", searching: v})
         }}
+        allowCloseWithNoText={allowCloseWithNoText}
+        inputClassName={"py-1.5"}
         searching={searchState.searching}
-        color={"transparent"}
-        borderRadius={"0"}
-        borderWidth={"1px"}
-        borderWidthNoFocus={"1px"}
-        borderColor={"accent-dark"}
         autoFocus={autoFocus}
-        paddingY={paddingY}
-        fullWidth={fullWidth}
         placeholder={placeholder}
     />
 }

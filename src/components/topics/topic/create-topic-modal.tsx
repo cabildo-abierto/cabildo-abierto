@@ -1,4 +1,4 @@
-import { BaseFullscreenPopup } from "../../../../modules/ui-utils/src/base-fullscreen-popup";
+import { BaseFullscreenPopup } from "../../layout/base/base-fullscreen-popup";
 import {CreateTopic} from "../../writing/write-panel/create-topic";
 
 
@@ -9,10 +9,10 @@ const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: () => voi
         open={open}
         closeButton={true}
         onClose={onClose}
-        backgroundShadow={false}
-        color={"background"}
+        backgroundShadow={true}
+        className={"z-[1100] sm:w-auto"}
     >
-        <CreateTopic onClose={onClose} initialSelected={""} backButton={false}/>
+        <CreateTopic onClose={onClose} initialSelected={""}/>
     </BaseFullscreenPopup>
 };
 

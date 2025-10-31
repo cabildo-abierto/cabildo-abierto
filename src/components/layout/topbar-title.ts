@@ -1,13 +1,23 @@
 import {usePathname, useSearchParams} from "next/navigation";
 
-export function useTopbarTitle() {
+export function useTopbarTitle(): {title?: string, className?: string} {
     const pathname = usePathname()
     const params = useSearchParams()
     if(pathname.startsWith("/ajustes")){
-        return {title: "Ajustes"}
+        if(pathname.includes("compartir")){
+            return {title: "Compartir"}
+        } else {
+            return {title: "Ajustes"}
+        }
     } else if(pathname.startsWith("/buscar")) {
         return {title: "Buscar"}
     } else if(pathname.startsWith("/perfil")){
+        if(pathname.endsWith("/seguidores") || pathname.endsWith("/siguiendo")){
+            const handle = pathname.split("/perfil/")[1].split("/")[0]
+            return {title: `@${handle}`, className: "normal-case font-bold"}
+        } else if(pathname.endsWith("/cuentas-sugeridas")) {
+            return {title: "Cuentas sugeridas"}
+        }
         return {title: "Perfil"}
     } else if(pathname.startsWith("/notificaciones")){
         return {title: "Notificaciones"}
@@ -17,8 +27,6 @@ export function useTopbarTitle() {
         return {title: "Tus papeles"}
     } else if(pathname.startsWith("/panel")){
         return {title: "Panel de autor"}
-    } else if(pathname.startsWith("/perfil/cuentas-sugeridas")){
-        return {title: "Cuentas sugeridas"}
     } else if (pathname.startsWith("/tema") && !pathname.startsWith("/temas")) {
         return {title: "Tema"}
     } else if (pathname.startsWith("/c")) {
@@ -45,6 +53,8 @@ export function useTopbarTitle() {
         }
     } else if(pathname.includes("/admin")){
         return {title: "Admin"}
+    } else if(pathname.startsWith("/soporte")) {
+        return {title: "Soporte"}
     }
     return {}
 }

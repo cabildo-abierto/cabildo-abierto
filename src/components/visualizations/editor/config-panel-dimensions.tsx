@@ -1,6 +1,6 @@
 import {PlotConfigProps} from "@/lib/types";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {SliderWithInput} from "../../../../modules/ui-utils/src/slider-with-input";
+import {SliderWithInput} from "../../layout/utils/slider-with-input";
 import {produce} from "immer";
 import {ReactNode} from "react";
 
