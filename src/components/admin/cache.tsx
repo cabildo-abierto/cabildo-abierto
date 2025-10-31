@@ -1,8 +1,7 @@
 "use client"
 
-import StateButton from "../../../modules/ui-utils/src/state-button";
-import {TextField} from "@mui/material";
 import {useState} from "react";
+import {BaseTextField} from "@/components/layout/base/base-text-field";
 
 export const AdminCache = () => {
     const [tag, setTag] = useState("");
@@ -11,43 +10,13 @@ export const AdminCache = () => {
 
         <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
 
-            <StateButton
-                handleClick={async () => {
-                    //await revalidateEverything()
-                    return {}
-                }}
-                text1={"Revalidar todo"}
-            />
-
-            <StateButton
-                handleClick={async () => {
-                    //await revalidateTags(["topics"])
-                    return {}
-                }}
-                text1={"Revalidar temas"}
-            />
-
             <div className={"flex items-center space-x-2 w-90"}>
                 <div className={"w-48"}>
-                    <TextField
-                        size={"small"}
+                    <BaseTextField
                         placeholder={"tag"}
                         value={tag}
                         onChange={(e) => {
                             setTag(e.target.value)
-                        }}
-                        fullWidth={true}
-                    />
-                </div>
-
-                <div>
-                    <StateButton
-                        size={"small"}
-                        fullWidth={true}
-                        text1={"Revalidar"}
-                        handleClick={async () => {
-                            //await revalidateTags([tag])
-                            return {}
                         }}
                     />
                 </div>

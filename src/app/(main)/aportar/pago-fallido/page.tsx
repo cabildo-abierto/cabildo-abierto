@@ -1,7 +1,7 @@
 "use client"
 import Link from 'next/link';
 
-import {Button} from "../../../../../modules/ui-utils/src/button";
+import {BaseButton} from "@/components/layout/base/baseButton";
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 
 
@@ -15,7 +15,12 @@ export default function Page() {
             </div>
             <div>
                 <Link href="/aportar">
-                    <Button size="small" variant={"outlined"} color={"background-dark2"}>Volver a intentar</Button>
+                    <BaseButton
+                        size="small"
+                        variant={"outlined"}
+                    >
+                        Volver a intentar
+                    </BaseButton>
                 </Link>
             </div>
         </div>}

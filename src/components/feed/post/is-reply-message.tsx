@@ -18,6 +18,6 @@ export const IsReplyMessage = ({collection=null, did, author}: {did: string, col
     }
 
     return <div className="text-sm text-[var(--text-light)]">
-        <ReplyIcon fontSize="inherit"/> {text}
+        <ReplyIcon/> {text}
     </div>
 }

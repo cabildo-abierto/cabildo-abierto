@@ -1,4 +1,6 @@
-import VisualizationsIcon from '@mui/icons-material/AutoGraph';
+import {ChartLineIcon} from "@phosphor-icons/react";
 
 
-export default VisualizationsIcon
+export default ChartLineIcon
+
+

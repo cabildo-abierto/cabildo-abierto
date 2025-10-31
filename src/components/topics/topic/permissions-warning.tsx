@@ -1,5 +1,5 @@
 "use client"
-import InfoPanel from "../../../../modules/ui-utils/src/info-panel"
+import InfoPanel from "../../layout/utils/info-panel"
 import { PermissionLevel } from "./permission-level"
 import {useSession} from "@/queries/getters/useSession";
 import {getTopicProtection} from "@/components/topics/topic/utils";

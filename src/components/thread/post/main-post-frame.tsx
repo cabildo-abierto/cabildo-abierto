@@ -8,7 +8,7 @@ import {profileUrl} from "@/utils/uri";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 import {$Typed} from "@/lex-api/util";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import {localeDate} from "../../../../modules/ui-utils/src/date";
+import {localeDate} from "../../layout/utils/date";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 
@@ -24,7 +24,7 @@ export const MainPostFrame = ({
     const enDiscusion = hasEnDiscusionLabel(postView)
 
     return (
-        <div className="w-full bg-[var(--background)] border-[var(--accent-dark)] border-b">
+        <div className="w-full bg-[var(--background)]">
             <div className={"pl-4 pr-2"}>
                 <div className="flex justify-between items-center">
                     <div className="flex space-x-2">
@@ -65,6 +65,7 @@ export const MainPostFrame = ({
                     className={"px-1"}
                     textClassName={"text-sm font-light text-[var(--text)]"}
                     showDetails={true}
+                    iconSize={"large"}
                 />
             </div>
         </div>

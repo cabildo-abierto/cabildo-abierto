@@ -1,5 +1,5 @@
 import {TopicsMentioned} from "@/components/thread/article/topics-mentioned";
-import {localeDate} from "../../../../modules/ui-utils/src/date";
+import {localeDate} from "../../layout/utils/date";
 import {ReadingTime} from "@/components/thread/article/reading-time";
 import {getNumWords} from "../../../../modules/ca-lexical-editor/src/get-num-words";
 import {Authorship} from "@/components/feed/frame/authorship";
@@ -32,7 +32,7 @@ export const ArticleHeader = ({article}: {article: ArCabildoabiertoFeedDefs.Full
                 />
             </div>
         </div>
-        {article.editedAt != null && <div className={"text-xs flex justify-end font-light text-[var(--text-light)]"}>
+        {article.editedAt != null && <div className={"pr-4 text-xs flex justify-end font-light text-[var(--text-light)]"}>
             Editado {localeDate(new Date(article.editedAt), false, false, false, true)}.
         </div>}
     </>

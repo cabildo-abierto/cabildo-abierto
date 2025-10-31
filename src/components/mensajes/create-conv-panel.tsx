@@ -1,10 +1,10 @@
 import {useConversations} from "@/queries/getters/useConversations";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {chatUrl} from "@/utils/uri";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {BaseButton} from "../layout/base/baseButton";
 import {useState} from "react";
-import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {BaseFullscreenPopup} from "../layout/base/base-fullscreen-popup";
+import {CloseButton} from "../layout/utils/close-button";
 import SearchBar from "@/components/buscar/search-bar";
 import UserSearchResults from "@/components/buscar/user-search-results";
 import {post} from "@/utils/fetch";
@@ -40,7 +40,11 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
         }
     }
 
-    return <BaseFullscreenPopup open={open} backgroundShadow={true}>
+    return <BaseFullscreenPopup
+        className="z-[1500] sm:w-auto"
+        open={open}
+        backgroundShadow={false} // TO DO: Si ponemos true por algún motivo la sidebar queda arriba
+    >
         <div className={"min-[500px]:w-[500px]"}>
             <div className={"flex justify-between items-center px-2"}>
                 <div className={"p-2 uppercase font-semibold"}>
@@ -54,10 +58,9 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
                         <SearchBar
                             searchValue={searchValue}
                             setSearchValue={setSearchValue}
-                            color={"background"}
                         />
                     </div>
-                    <div className={"h-[440px] overflow-y-scroll no-scrollbar"}>
+                    <div className={"h-[440px] overflow-y-scroll custom-scrollbar"}>
                         <UserSearchResults
                             searchState={{searching: true, value: searchValue}}
                             maxCount={20}
@@ -76,11 +79,11 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
                     <div className={"text-center"}>
                         {creationError}
                     </div>
-                    <Button size={"small"} onClick={() => {
+                    <BaseButton size={"small"} onClick={() => {
                         setCreationError(null)
                     }}>
                         <span className={"font-semibold text-sm"}>Aceptar</span>
-                    </Button>
+                    </BaseButton>
                 </div>}
             </div>
         </div>

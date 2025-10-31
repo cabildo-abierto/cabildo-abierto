@@ -1,4 +1,4 @@
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import React from "react";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import UserSearchResult from "@/components/buscar/user-search-result";

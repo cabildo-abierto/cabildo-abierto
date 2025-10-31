@@ -9,7 +9,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
 import {useTopics} from "@/queries/getters/useTopics";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../utils/scroll";
 import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
 import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
 

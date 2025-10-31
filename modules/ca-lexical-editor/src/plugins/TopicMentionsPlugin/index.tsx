@@ -1,9 +1,8 @@
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {useEffect} from "react";
 import {mergeRegister} from "@lexical/utils";
-import {CustomLinkNode} from "../../nodes/CustomLinkNode";
 import {$createTopicMentionNode, TopicMentionNode} from "../../nodes/TopicMentionNode";
-import {AutoLinkNode} from "@lexical/link";
+import {AutoLinkNode, LinkNode} from "@lexical/link";
 import {
     $getSelection, $isElementNode, $isRangeSelection, $isTextNode,
     COMMAND_PRIORITY_HIGH,
@@ -89,7 +88,7 @@ export default function TopicMentionsPlugin() {
 
 
         return mergeRegister(
-            editor.registerNodeTransform(CustomLinkNode, (node) => {
+            editor.registerNodeTransform(LinkNode, (node) => {
                 if(editor.isEditable()){
                     const url = node.getURL()
 

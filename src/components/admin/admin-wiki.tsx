@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { TextField } from "../../../modules/ui-utils/src/text-field"
-import { Button } from "../../../modules/ui-utils/src/button"
+import { BaseTextField } from "../layout/base/base-text-field"
+import { BaseButton } from "../layout/base/baseButton"
 import {post} from "@/utils/fetch";
 
 
@@ -19,20 +19,19 @@ export const AdminWiki = () => {
     }
 
     return <div className={"flex flex-col space-y-4 items-center mt-8"}>
-        <TextField
-            size={"small"}
+        <BaseTextField
             label={"Id del tema"}
             value={topicId}
             onChange={e => setTopicId(e.target.value)}
         />
 
-        <Button onClick={onUpdateMentions} variant={"outlined"} size={"small"}>
+        <BaseButton onClick={onUpdateMentions} variant={"outlined"} size={"small"}>
             Actualizar popularidad
-        </Button>
+        </BaseButton>
 
-        <Button onClick={onUpdateContributions} variant={"outlined"} size={"small"}>
+        <BaseButton onClick={onUpdateContributions} variant={"outlined"} size={"small"}>
             Actualizar contribuciones
-        </Button>
+        </BaseButton>
 
     </div>
 

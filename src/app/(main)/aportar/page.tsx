@@ -1,7 +1,7 @@
 "use client"
 
 import FundingProgress from "@/components/aportar/funding-progress";
-import {Button} from "@/../modules/ui-utils/src/button"
+import {BaseButton} from "@/components/layout/base/baseButton"
 import DonateIcon from "@/components/layout/icons/donate-icon";
 import {DonationHistory} from "@/components/aportar/donation-history";
 import Link from "next/link";
@@ -27,28 +27,26 @@ const ListItem = ({children, href}: { href: string, children: ReactNode }) => {
 
 export default function Aportar() {
     return <div
-        className={"space-y-2 flex flex-col items-center pb-8 font-light pt-16 bg-[var(--background-dark)] mt-4 mb-4"}>
-        <div className={"mx-2 px-5 flex flex-col space-y-16"}>
+        className={"space-y-2 flex flex-col items-center pb-8 font-light pt-16 panel-dark group portal mt-4 mb-4"}
+    >
+        <div className={"mx-2 px-5 flex flex-col space-y-8"}>
             <div className={"font-light text-base text-[var(--text-light)]"}>
-                Con tu aporte se financia el equipo que trabaja en la plataforma y los autores de los contenidos que
-                leés.
+                Con tu aporte se financian los servidores, el equipo que trabaja en la plataforma y los autores de
+                artículos y ediciones de la wiki.
             </div>
             <div className={"w-full flex justify-center"}>
                 <FundingProgress/>
             </div>
             <div className={"w-full flex justify-center"}>
                 <Link href={"/aportar/elegir-aporte"}>
-                    <Button
+                    <BaseButton
                         variant="outlined"
-                        paddingX={"24px"}
-                        paddingY={"12px"}
-                        sx={{borderRadius: "4px"}}
-                        color={"background-dark2"}
+                        className={"px-6 py-3 rounded-[4px] font-semibold"}
                         size={"large"}
                         startIcon={<DonateIcon/>}
                     >
-                        <span className={"font-semibold"}>Aportar</span>
-                    </Button>
+                        Aportar
+                    </BaseButton>
                 </Link>
             </div>
             <div className={"flex space-y-2 flex-col text-[var(--text-light)] max-w-[400px]"}>
@@ -64,7 +62,7 @@ export default function Aportar() {
                     </ListItem>
                 </ul>
             </div>
-            <DonationHistory/>
         </div>
+        <DonationHistory/>
     </div>
 }

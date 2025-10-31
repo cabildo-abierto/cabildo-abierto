@@ -36,7 +36,7 @@ export const ArticleEditorTopbar = ({
     const {valid} = validArticle(editorState, settings.charLimit, title)
 
     return <div
-        className={"flex justify-end w-full pt-3 pb-2 text-[var(--text-light)] space-x-2 items-center " + (isMobile ? "px-3" : "")}
+        className={"flex justify-end w-full pt-3 pb-2 space-x-2 items-center " + (isMobile ? "px-3" : "")}
     >
         {!article && <SaveDraftArticleButton
             disabled={!guardEnabled || editorState == null}

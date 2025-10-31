@@ -4,7 +4,7 @@ import { useSession } from "@/queries/getters/useSession"
 import { getUri } from "@/utils/uri"
 import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import ArticleEditor from "@/components/writing/article/article-editor";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import { ArCabildoabiertoFeedDefs } from "@/lex-api";
 
 

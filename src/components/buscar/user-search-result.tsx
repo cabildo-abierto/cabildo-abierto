@@ -1,4 +1,4 @@
-import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
+import {CustomLink as Link} from "../layout/utils/custom-link";
 import {profileUrl} from "@/utils/uri";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/follow-button";
@@ -6,13 +6,13 @@ import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import React from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import dynamic from "next/dynamic";
-import {CloseButton} from "../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../layout/utils/close-button";
 import {post} from "@/utils/fetch";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import ValidationIcon from "../profile/validation-icon";
+import {InfiniteFeed} from "@/components/feed/feed/types";
 
 
 const ReadOnlyEditor = dynamic(() => import('@/components/writing/read-only-editor'), {
@@ -63,8 +63,6 @@ const NotInterestedButton = ({subject}: { subject: string }) => {
     }
 
     return <CloseButton
-        color={"transparent"}
-        hoverColor={"background-dark2"}
         size={"small"}
         onClose={onClose}
     />
@@ -92,7 +90,7 @@ const UserSearchResult = ({
                 onClick(user.did)
             }
         }}
-        className={"w-full flex hover:bg-[var(--background-dark)] border-b py-3"}
+        className={"w-full portal group flex hover:bg-[var(--background-dark)] border-b py-3"}
     >
         <div className={"px-3"}>
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>
@@ -115,8 +113,11 @@ const UserSearchResult = ({
         </div>
         <div className={"px-2 w-[200px] flex flex-col items-end justify-between space-y-4"}>
             {showFollowButton && <div className={"flex space-x-2 items-center"}>
-                <FollowButton textClassName={"text-[12px] sm:text-[12px]"} dense={isMobile} handle={user.handle}
-                              profile={user}/>
+                <FollowButton
+                    dense={isMobile} // TO DO: Esto no debería hacer falta
+                    handle={user.handle}
+                    profile={user}
+                />
                 {isSuggestion && <NotInterestedButton subject={user.did}/>}
             </div>}
         </div>

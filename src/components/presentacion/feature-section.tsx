@@ -1,10 +1,16 @@
 import {ReactNode} from "react";
-import {Color} from "../../../modules/ui-utils/src/color";
+import {cn} from "@/lib/utils";
 
-export const FeatureSection = ({title, subtitle, description, image, inverted, background = "background"}: {
-    title: string, subtitle?: string, description: ReactNode, image: ReactNode, inverted: boolean, background?: Color
+
+export const FeatureSection = ({title, subtitle, description, image, inverted, className}: {
+    title: string
+    subtitle?: string
+    description: ReactNode
+    image: ReactNode
+    inverted: boolean
+    className?: string
 }) => {
-    return <div style={{background: `var(--${background})`}} className={"w-full flex justify-center"}>
+    return <div className={cn("w-full flex justify-center", className)}>
         <div className={"sm:hidden"}>
             <div className={"flex-col space-y-20 py-20 items-center justify-center flex"}>
                 <div className={"w-screen px-8 flex justify-center items-center"}>

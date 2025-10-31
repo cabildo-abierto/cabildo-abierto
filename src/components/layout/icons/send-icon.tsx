@@ -1,5 +1,4 @@
-import SendIconMui from '@mui/icons-material/Send';
+import {PaperPlaneRightIcon} from "@phosphor-icons/react";
 
-export const SendIcon = () => {
-    return <SendIconMui/>
-}
+
+export default PaperPlaneRightIcon

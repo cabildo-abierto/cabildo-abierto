@@ -2,12 +2,10 @@
 import {PostPreviewFrame} from '../frame/post-preview-frame'
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index";
 import {$Typed} from "@/lex-api/util";
-import {darker} from "@/../modules/ui-utils/src/button"
-import {Box} from "@mui/material";
 import {AppBskyFeedDefs} from "@atproto/api";
 import ReadOnlyEditor from "@/components/writing/read-only-editor";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
-import {Color} from "../../../../modules/ui-utils/src/color";
+import {cn} from "@/lib/utils";
 
 
 export type ArticlePreviewProps = {
@@ -19,26 +17,16 @@ export type ArticlePreviewProps = {
 
 
 export const ArticlePreviewContent = ({
-                                          color = "background",
                                           title,
                                           summary,
-                                          mentions,
-                                          clickable = true
+                                          className
                                       }: {
-    color?: Color
-    clickable?: boolean,
     title: string,
     summary: string
-    mentions?: ArCabildoabiertoFeedDefs.TopicMention[]
+    className?: string
 }) => {
-    return <Box
-        className={"border p-2"}
-        sx={{
-            backgroundColor: `var(--${color})`,
-            "&:hover": {
-                backgroundColor: clickable ? `var(--${darker(color)})` : undefined
-            }
-        }}
+    return <div
+        className={cn("border p-2", className)}
     >
         <div className={"flex justify-between w-full"}>
             <div className={"text-[11px] text-[var(--text-light)] uppercase"}>
@@ -51,7 +39,7 @@ export const ArticlePreviewContent = ({
         <div className={"border-t pt-1 text-sm text-[var(--text-light)] article-preview-content line-clamp-2"}>
             <ReadOnlyEditor text={summary} format={"plain-text"}/>
         </div>
-    </Box>
+    </div>
 }
 
 
@@ -70,7 +58,7 @@ export const ArticlePreview = (
         reason={reason}
     >
         <div className={"mt-2"}>
-            <ArticlePreviewContent title={title} summary={summary} color={"transparent"}/>
+            <ArticlePreviewContent title={title} summary={summary}/>
         </div>
     </PostPreviewFrame>
 }

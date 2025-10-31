@@ -1,5 +1,5 @@
 import React from "react";
-import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
+import {CustomLink as Link} from './utils/custom-link';
 import {useNextMeeting} from "@/queries/getters/useNextMeeting";
 import {useLayoutConfig} from "./layout-config-context";
 import {formatIsoDate} from "@/utils/dates";

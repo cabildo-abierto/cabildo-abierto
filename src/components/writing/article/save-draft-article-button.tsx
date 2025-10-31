@@ -1,4 +1,4 @@
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import StateButton from "../../layout/utils/state-button";
 import {EditorState} from "lexical";
 import {post, updateSearchParam} from "@/utils/fetch";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
@@ -52,11 +52,8 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
 
     return <StateButton
         handleClick={onSaveDraft}
-        text1={"Guardar borrador"}
-        textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
         disabled={disabled}
-        color={"background"}
-        size="medium"
-        variant={"text"}
-    />
+    >
+        Guardar borrador
+    </StateButton>
 }

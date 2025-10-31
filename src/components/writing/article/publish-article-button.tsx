@@ -2,8 +2,8 @@ import {EditorState} from "lexical";
 import {useRouter} from "next/navigation";
 import {post} from "@/utils/fetch";
 import {useEffect, useState} from "react";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
-import DescriptionOnHover from "../../../../modules/ui-utils/src/description-on-hover";
+import StateButton from "../../layout/utils/state-button";
+import DescriptionOnHover from "../../layout/utils/description-on-hover";
 import dynamic from "next/dynamic";
 import {EmbedContext} from "../../../../modules/ca-lexical-editor/src/nodes/EmbedNode";
 import {useQueryClient} from "@tanstack/react-query";
@@ -112,13 +112,10 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
                     setModalOpen(true)
                     return {}
                 }}
-                text1={!article ? "Publicar" : "Guardar edición"}
-                textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
                 disabled={disabled}
-                color={"background"}
-                size="medium"
-                variant={"text"}
-            />
+            >
+                {!article ? "Publicar" : "Guardar edición"}
+            </StateButton>
         </DescriptionOnHover>
         {modalOpen && <PublishArticleModal
             onSubmit={handleSubmit}

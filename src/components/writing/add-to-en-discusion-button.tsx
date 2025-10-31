@@ -1,12 +1,14 @@
-import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-import Newspaper from "@mui/icons-material/Newspaper";
-import DescriptionOnHover from "../../../modules/ui-utils/src/description-on-hover";
+import {BaseIconButton} from "../layout/base/base-icon-button";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
+import EnDiscusionIcon from "@/components/layout/icons/en-discusion-icon";
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
 
-const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
+const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion, size}: {
     enDiscusion: boolean,
     setEnDiscusion: (e: boolean) => void
+    size?: BaseButtonProps["size"]
 }) => {
 
     const description = <div>
@@ -18,20 +20,16 @@ const AddToEnDiscusionButton = ({enDiscusion, setEnDiscusion}: {
     </div>
 
     return <DescriptionOnHover description={!enDiscusion ? description : null}>
-        <IconButton
+        <BaseIconButton
             onClick={e => {
                 e.stopPropagation()
                 setEnDiscusion(!enDiscusion)
             }}
-            size={"small"}
-            color={enDiscusion ? "background-dark2" : "transparent"}
-            textColor={enDiscusion ? "text" : "accent-dark"}
-            sx={{
-                borderRadius: 0
-            }}
+            size={size}
+            className={enDiscusion ? "bg-[var(--background-dark2)] text-[var(--text)]" : "text-[var(--accent-dark)]"}
         >
-            <Newspaper color={"inherit"}/>
-        </IconButton>
+            <EnDiscusionIcon/>
+        </BaseIconButton>
     </DescriptionOnHover>
 }
 

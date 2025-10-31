@@ -1,16 +1,16 @@
 import Image from 'next/image'
-import {DateSince} from '../../../../modules/ui-utils/src/date'
+import {DateSince} from '../../layout/utils/date'
 import Link from 'next/link'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {profileUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../layout/utils/scroll";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
-import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink} from "../../layout/utils/custom-link";
 import dynamic from "next/dynamic";
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
     ssr: false,
@@ -38,7 +38,7 @@ export const SidenoteReplyPreviewFrame = ({
     const author = post.author
 
     return <div
-        className={"w-64 z-[1000] panel-dark flex flex-col cursor-pointer"}
+        className={"w-64 flex flex-col cursor-pointer"}
         onClick={() => {
             const element = document.getElementById("discussion:"+post.uri)
             smoothScrollTo(element)
@@ -110,9 +110,8 @@ export const SidenoteReplyPreviewFrame = ({
                     <EngagementIcons
                         content={{$type: "ar.cabildoabierto.feed.defs#postView", ...post}}
                         className={"flex w-full px-1"}
-                        iconFontSize={16}
-                        textClassName={"text-sm text-[var(--text)]"}
-                        iconHoverColor={"background-dark2"}
+                        iconSize={"small"}
+                        textClassName={"text-xs font-light text-[var(--text)]"}
                     />
                 </div>
             </div>

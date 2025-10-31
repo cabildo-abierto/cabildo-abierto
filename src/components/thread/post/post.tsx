@@ -5,7 +5,7 @@ import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-
 import {useEffect} from "react";
 import FeedElement from "@/components/feed/feed/feed-element";
 import {$Typed} from "@/lex-api/util";
-import {smoothScrollTo} from "../../../../modules/ui-utils/src/scroll";
+import {smoothScrollTo} from "../../layout/utils/scroll";
 
 
 function getThreadAncestors(t: ArCabildoabiertoFeedDefs.ThreadViewContent): ArCabildoabiertoFeedDefs.ThreadViewContent[] {

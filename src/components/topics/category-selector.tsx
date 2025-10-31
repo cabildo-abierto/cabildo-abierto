@@ -1,17 +1,20 @@
 import {useCategories} from "@/queries/getters/useTopics";
 import {emptyChar} from "@/utils/utils";
 import React, {useEffect, useMemo, useState} from "react";
-import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import {ErrorPage} from "../layout/utils/error-page";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import SearchIcon from "@mui/icons-material/Search";
 import {cleanText} from "@/utils/strings";
-import {TextField} from "../../../modules/ui-utils/src/text-field";
+import SearchBar from "@/components/buscar/search-bar";
+import DescriptionOnHover from "../layout/utils/description-on-hover";
+import {BaseIconButton} from "../layout/base/base-icon-button";
+import {StackIcon} from "@phosphor-icons/react";
 
 
-export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
+export const CategorySelector = ({categories, setMultipleEnabled, setCategories, multipleEnabled}: {
     categories: string[]
     setCategories: (c: string[]) => void
     multipleEnabled: boolean
+    setMultipleEnabled: (enabled: boolean) => void
 }) => {
     let {data: allCategories, isLoading, error} = useCategories()
     const {layoutConfig, isMobile} = useLayoutConfig()
@@ -56,33 +59,35 @@ export const CategorySelector = ({categories, setCategories, multipleEnabled}: {
         }
     }
 
-    return <div id="category-selector"
-                className={"flex flex-wrap items-center gap-x-2 gap-y-1 min-[500px]:text-sm text-[11px]"}>
-        <div className={"w-36"}>
-            <TextField
-                variant={"outlined"}
-                paddingY={"0px"}
-                paddingX={"6px"}
-                size={"small"}
-                fontSize={13}
-                autoComplete={"off"}
-                borderWidth={1}
-                borderColor={"accent"}
-                borderWidthNoFocus={1}
-                value={categorySearch}
-                onChange={(e) => {
-                    setCategorySearch(e.target.value)
-                }}
-                slotProps={{
-                    input: {
-                        startAdornment: <span
-                            className={"text-[var(--text-light)] mr-1 " + (isMobile ? "text-xs" : "text-sm")}>
-                        <SearchIcon fontSize="inherit" color={"inherit"}/></span>,
-                    }
-                }}
-                placeholder={"buscar categoría..."}
-            />
-        </div>
+    return <div
+        id="category-selector"
+        className={"flex flex-wrap items-center gap-x-2 gap-y-1 min-[500px]:text-sm text-[11px]"}
+    >
+        <SearchBar
+            className={"w-[144px]"}
+            inputClassName={"py-[0px] text-[12px]"}
+            inputGroupClassName={""}
+            autoComplete={"off"}
+            searchValue={categorySearch}
+            setSearchValue={(e) => {
+                setCategorySearch(e)
+            }}
+            placeholder={"Buscar categoría..."}
+        />
+        <DescriptionOnHover
+            description={!multipleEnabled && "Activalo para buscar temas que estén en múltiples categorías a la vez."}
+        >
+            <BaseIconButton
+                size="small"
+                className={multipleEnabled && "bg-[var(--background-dark)]"}
+                onClick={() => {setMultipleEnabled(!multipleEnabled)}}
+            >
+                <StackIcon />
+            </BaseIconButton>
+        </DescriptionOnHover>
+        {filteredCategories && filteredCategories.length == 0 && <div className={"text-[var(--text-light)] text-sm"}>
+            No se encontaron categorías...
+        </div>}
         {filteredCategories && filteredCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}

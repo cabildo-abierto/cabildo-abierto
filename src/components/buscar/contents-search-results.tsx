@@ -1,7 +1,7 @@
 import {useSearch} from "./search-context";
 import {useEffect, useState} from "react";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {get} from "@/utils/fetch";
 import {GetFeedOutput} from "@/lib/types";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";

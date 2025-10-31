@@ -1,7 +1,7 @@
 "use client"
 
 import React, {ReactNode, useState} from "react";
-import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
+import {CustomLink as Link} from '../layout/utils/custom-link';
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {
     AlgorithmConfig,
@@ -11,7 +11,7 @@ import {
 import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
-import InfoPanel from "../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../layout/utils/info-panel";
 import {topicUrl} from "@/utils/uri";
 import {
     defaultEnDiscusionFormat,
@@ -22,6 +22,7 @@ import {
     defaultTopicMentionsTime
 } from "@/components/config/defaults";
 import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {Note} from "../layout/utils/note";
 
 
 function followingConfigToSelected(c: AlgorithmConfig["following"]) {
@@ -43,15 +44,18 @@ const ConfigPanel = ({
     infoText: string
     content: ReactNode
 }) => {
-    return <div className={"space-y-2 p-4"}>
-        <div className={"text-[var(--text-light)] font-semibold flex space-x-2 items-center"}>
+    return <div className={"space-y-2"}>
+        <div className={"text-[var(--text-light)] font-medium flex space-x-1 items-center"}>
             <div className={"uppercase"}>
                 {title}
             </div>
-            <InfoPanel
-                moreInfoHref={moreInfoHref}
-                text={infoText}
-            />
+            <div className={"pb-[2px]"}>
+                <InfoPanel
+                    iconFontSize={17}
+                    moreInfoHref={moreInfoHref}
+                    text={infoText}
+                />
+            </div>
         </div>
         {content}
     </div>
@@ -201,7 +205,7 @@ export const FeedDefaultsSettings = () => {
     }
 
 
-    return <div className={"space-y-8 mb-16"}>
+    return <div className={"space-y-8 mb-16 mt-4"}>
         <ConfigPanel
             title={"Siguiendo"}
             moreInfoHref={topicUrl("Cabildo Abierto: Muros", undefined, "normal")}
@@ -320,10 +324,10 @@ export const FeedDefaultsSettings = () => {
                 </div>
             </div>}
         />
-        <div className={"link text-[var(--text-light)] text-sm font-light"}>
+        <Note>
             Todas las configuraciones también se pueden cambiar temporalmente al estar viendo el contenido. Si querés
             una configuración que no ves acá, <Link
             href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}>sugerila</Link>.
-        </div>
+        </Note>
     </div>
 }

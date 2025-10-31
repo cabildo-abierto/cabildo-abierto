@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from "react"
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {get} from "@/utils/fetch";
 import dynamic from "next/dynamic";
 import {categoriesSearchParam} from "@/queries/utils";
-import { Button } from "../../../modules/ui-utils/src/button";
+import { BaseButton } from "../layout/base/baseButton";
 import {ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import { useDebounce } from "@/utils/debounce";
 
-const TopicSearchResult = dynamic(() => import("@/components/topics/topic/topic-search-result"))
+const TopicSearchResult = dynamic(() => import("@/components/buscar/topic-search-result"))
 const StaticFeed = dynamic(() => import('@/components/feed/feed/static-feed'), {ssr: false});
 
 
@@ -61,9 +61,14 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
         <div className={"text-sm"}>
             No se encontraron temas.
         </div>
-        {categories && categories.length > 0 && setCategories && <Button size={"small"} color={"background-dark"} onClick={() => setCategories([])}>
-            <span className={"text-xs hover:text-[var(--text)] font-semibold text-[var(--text-light)]"}>Buscar en todas las categorías</span>
-        </Button>}
+        {categories && categories.length > 0 && setCategories && <BaseButton
+            size={"small"}
+            onClick={() => setCategories([])}
+        >
+            <span className={"text-xs hover:text-[var(--text)] font-semibold text-[var(--text-light)]"}>
+                Buscar en todas las categorías
+            </span>
+        </BaseButton>}
     </div>
 
     return <StaticFeed

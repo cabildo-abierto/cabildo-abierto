@@ -1,31 +1,24 @@
 import React, {useState} from "react"
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup"
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button"
+import {BaseFullscreenPopup} from "../../layout/base/base-fullscreen-popup"
+import {CloseButton} from "../../layout/utils/close-button"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
 import {CreatePostProps, WritePost} from "./write-post";
-import {$Typed} from "@/lex-api/util";
 import {emptyChar} from "@/utils/utils";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
+import {BaseButton} from "../../layout/base/baseButton";
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 
-
-export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
-    $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
-    $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView>
 
 type WritePanelProps = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
     selection?: MarkdownSelection | LexicalSelection
-    quotedPost?: $Typed<ArCabildoabiertoFeedDefs.PostView> |
-        $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
-        $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedPost?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
 }
@@ -48,27 +41,19 @@ const WritePanelPanel = ({
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)] text-sm">
-            <Button
-                onClick={() => {
-                }}
-                variant="text"
-                color="transparent"
+            <BaseButton
                 size={"small"}
-                fullWidth={true}
-                disableElevation={true}
-                sx={{
-                    paddingY: 0,
-                    borderRadius: 0
-                }}
+                variant={"default"}
+                className={"w-full py-0"}
             >
-                <div className={"px-2"}>
+                <div className={"px-2 py-[2px]"}>
                     <div
                         className={"uppercase text-[11px] font-semibold " + (isSelected ? "border-b-2 border-[var(--text-light)]" : "")}
                     >
                         {o}
                     </div>
                 </div>
-            </Button>
+            </BaseButton>
         </div>
     }
 
@@ -87,7 +72,7 @@ const WritePanelPanel = ({
             open={open}
             className="w-full max-w-[512px]"
             disableScrollLock={true}
-            color={"background"}
+            backgroundShadow={true}
         >
             <div
                 className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto custom-scrollbar">
@@ -99,9 +84,12 @@ const WritePanelPanel = ({
                         options={["Publicación", "Artículo", "Tema"]}
                         className={"flex space-x-2"}
                     /> : <div>{emptyChar}</div>}
-                    <CloseButton size="small" color="transparent" onClose={() => {
-                        onClose()
-                    }}/>
+                    <CloseButton
+                        size={"small"}
+                        onClose={() => {
+                            onClose()
+                        }}
+                    />
                 </div>
                 {selected == "Publicación" && <WritePost
                     onClose={onClose}

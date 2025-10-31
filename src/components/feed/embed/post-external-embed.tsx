@@ -1,12 +1,13 @@
 import Image from "next/image";
-import PublicIcon from '@mui/icons-material/Public';
 import {AppBskyEmbedExternal} from "@atproto/api"
+import DomainIcon from "@/components/layout/icons/domain-icon";
+import {cn} from "@/lib/utils";
 
 const Domain = ({url}: { url: string }) => {
     try {
         const parsedUrl = new URL(url);
         return <div className={"flex items-center space-x-1 text-sm"}>
-            <PublicIcon fontSize={"inherit"}/>
+            <DomainIcon/>
             <div>{parsedUrl.hostname}</div>
         </div>
     } catch (error) {
@@ -41,11 +42,15 @@ export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
                 height={300}
             />
         </div>}
-        <div className={embed.external.thumb ? "border-t p-2" : "p-2"}>
-            <div className={"text-[15px] font-semibold mb-1"}>{embed.external.title}</div>
-            <div className={"text-[14px]"}>{embed.external.description}</div>
-            <hr className={"py-1"}/>
-            <div className={"text-sm text-[var(--text-light)]"}>
+        <div className={cn(embed.external.thumb ? "border-t px-2 pt-2 pb-1" : "pb-1 px-2 pt-2")}>
+            <div className="text-[15px] font-semibold break-all">
+                {embed.external.title ? embed.external.title : embed.external.uri}
+            </div>
+            <div className="text-sm line-clamp-2 pb-1">
+                {embed.external.description}
+            </div>
+            <hr/>
+            <div className="text-sm text-[var(--text-light)] pt-[2px]">
                 <Domain url={embed.external.uri}/>
             </div>
         </div>

@@ -1,20 +1,21 @@
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {usePendingValidationRequests} from "@/queries/getters/admin";
 import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";
-import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DateSince} from "../layout/utils/date";
 import {useState} from "react";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import StateButton from "../../../modules/ui-utils/src/state-button";
-import {Button} from "../../../modules/ui-utils/src/button";
+import StateButton from "../layout/utils/state-button";
+import {BaseButton} from "../layout/base/baseButton";
 import {FilePayload} from "@/utils/files";
 import {DownloadIcon} from "@phosphor-icons/react";
 import Image from "next/image"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {post} from "@/utils/fetch";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
-import { TextField } from "../../../modules/ui-utils/src/text-field";
+import { BaseTextField } from "../layout/base/base-text-field";
+import {BaseTextArea} from "@/components/layout/base/base-text-area";
 
 
 export type ValidationRequestView = { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date } & ({
@@ -59,13 +60,13 @@ function DownloadButton({file}: { file: FilePayload }) {
     </div>
 
     return (
-        <Button
+        <BaseButton
             size={"small"}
             onClick={downloadFile}
             endIcon={<DownloadIcon/>}
         >
             {file.fileName}
-        </Button>
+        </BaseButton>
     );
 }
 
@@ -203,11 +204,8 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
                 />
             </div>
             {result == "reject" && <div>
-                <TextField
-                    size={"small"}
-                    multiline={true}
-                    fullWidth={true}
-                    minRows={2}
+                <BaseTextArea
+                    rows={2}
                     value={reason}
                     label={"Motivo"}
                     onChange={(e) => {
@@ -216,9 +214,7 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
                 />
             </div>}
             {result == "accept" && request.tipo == "persona" && <div>
-                <TextField
-                    size={"small"}
-                    minRows={2}
+                <BaseTextField
                     value={dni ?? ""}
                     label={"DNI"}
                     type={"number"}
@@ -230,11 +226,11 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
             </div>}
             <div className={"flex justify-end space-x-2"}>
                 <StateButton
-                    text1={"Enviar"}
                     textClassName={"font-semibold"}
                     handleClick={onSubmit}
-                    color={"background-dark2"}
-                />
+                >
+                    Enviar
+                </StateButton>
             </div>
         </div>}
     </div>

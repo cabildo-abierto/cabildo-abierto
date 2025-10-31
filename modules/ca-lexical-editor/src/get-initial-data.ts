@@ -6,12 +6,12 @@ import {
 } from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
-import {SerializedCustomLinkNode} from "./nodes/CustomLinkNode";
 import {SerializedTopicMentionNode} from "./nodes/TopicMentionNode";
 import {CA_TRANSFORMERS, MarkdownTransformer} from "./ca-transformers";
 import {
     LexicalEditor as OriginalLexicalEditor
 } from 'lexical';
+import {SerializedLinkNode} from "@lexical/link";
 
 export function isTopicUrl(url: string): boolean {
     return url.startsWith("/tema?")
@@ -23,9 +23,8 @@ export function isTopicUrl(url: string): boolean {
 
 
 function createTopicMentionsFromNode(node: any){
-    if(node.type == "custom-link"){
-
-        const linkNode: SerializedCustomLinkNode = node as SerializedCustomLinkNode;
+    if(node.type == "link"){
+        const linkNode = node as SerializedLinkNode;
         const url = linkNode.url
         if(isTopicUrl(url)){
             const topicMention: SerializedTopicMentionNode = {

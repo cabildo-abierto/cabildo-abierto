@@ -1,20 +1,50 @@
 import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
-import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
+import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
 import {Plotter} from "@/components/visualizations/editor/plotter/plotter";
 import {cleanText} from "@/utils/strings";
-import { unique } from "@/utils/arrays";
+import {count, unique} from "@/utils/arrays";
+import {TopicData} from "@/components/visualizations/editor/election/election-visualization-comp";
+import {getTopicProp} from "@/components/topics/topic/utils";
+import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+
+
+export type Alianza = {
+    nombre: string
+    distrito: Distrito
+    partidos?: string[]
+    idTema?: string
+    foto?: string
+    propuestas?: string[]
+    otrosDatos?: string[]
+    replyCount?: number
+}
+
+
+export type Distrito = {
+    nombre: string
+    idTema?: string
+    replyCount?: number
+    cantSenadores?: number
+    cantDiputados?: number
+}
 
 
 export type Candidato = {
     nombre: string
     posicion: number
     subcargo: Subcargo
-    alianza: string
-    distrito: string
+    alianza: Alianza
     cargo: Cargo
+    foto?: string
     idTema?: string
-    idTemaAlianza?: string
-    idTemaDistrito?: string
+    antecedentesAcad?: string[]
+    antecedentesProf?: string[]
+    antecedentesEstado?: string[]
+    espaciosPoliticosAnt?: string[]
+    patrimonio?: number
+    controversias?: string[]
+    otrosDatos?: string[]
+    replyCount?: number
 }
 
 const provincias: {
@@ -104,13 +134,15 @@ const subcargos: {nombre: Subcargo, sinonimos: string[]}[] = [
 ]
 
 
-export type SearchResult = {
+export type ElectionElement = {
     type: "alianza",
-    nombre: string,
-    distrito: string
+    value: Alianza
 } | {
     type: "candidato",
-    candidato: Candidato
+    value: Candidato
+} | {
+    type: "distrito",
+    value: Distrito
 }
 
 
@@ -142,19 +174,56 @@ export function getCargo(p: string | null): Cargo {
 }
 
 
+function getStringListProp(name: string, props: TopicProp[]): string[] | null {
+    const prop = getTopicProp(name, props)
+    if(!prop) return null
+    if(ArCabildoabiertoWikiTopicVersion.isStringListProp(prop.value)) {
+        return prop.value.value
+    }
+    return null
+}
+
+
+function getNumberProp(name: string, props: TopicProp[]): number | null {
+    const prop = getTopicProp(name, props)
+    if(!prop) return null
+    if(ArCabildoabiertoWikiTopicVersion.isNumberProp(prop.value)) {
+        return prop.value.value
+    }
+    return null
+}
+
+
+function getStringProp(name: string, props: TopicProp[]): string | null {
+    const prop = getTopicProp(name, props)
+    if(!prop) return null
+    if(ArCabildoabiertoWikiTopicVersion.isStringProp(prop.value)) {
+        return prop.value.value
+    }
+    return null
+}
+
+
 export class ElectionPlotter extends Plotter {
     searchValue: string | undefined
     electionSpec: ArCabildoabiertoEmbedVisualization.Eleccion
-    candidatesByProvince: Map<string, Map<string, [Candidato[], Candidato[]]>> = new Map()
+    candidatesByDistrict: Map<string, Map<string, [Candidato[], Candidato[]]>> = new Map()
     candidates: Candidato[]
+    topicsData: Map<string, TopicData>
+    nameToTopicId: Map<string, string> = new Map()
+    districts: Map<string, Distrito> = new Map()
+    cargosPorDistrito: Map<string, number> = new Map()
 
     constructor(
         spec: ArCabildoabiertoEmbedVisualization.Main["spec"],
         dataset: DatasetForTableView,
-        searchValue?: string
+        topicsData: TopicData[],
+        searchValue?: string,
     ) {
         super(spec, dataset, undefined)
         this.searchValue = searchValue
+        this.topicsData = new Map<string, TopicData>(topicsData.map(t => ([t.id, t])))
+
         if(ArCabildoabiertoEmbedVisualization.isEleccion(spec)){
             this.electionSpec = spec
         } else {
@@ -162,9 +231,35 @@ export class ElectionPlotter extends Plotter {
         }
     }
 
+    getCargosDistrito(nombre: string, cargo: Cargo): number | null {
+        return this.cargosPorDistrito.get(`${nombre}:${cargo}`)
+    }
+
+    computeCargosPorDistrito() {
+        ["Diputados", "Senadores"].forEach((cargo: Cargo) => {
+            this.districts.forEach(district => {
+                const cands = this.candidates
+                    .filter(c => c.subcargo == "Titular" && c.alianza.distrito.nombre == district.nombre && c.cargo == cargo)
+
+                const countAlianza = new Map<string, number>()
+
+                cands.forEach(c => {
+                    countAlianza.set(c.alianza.nombre, (countAlianza.get(c.alianza.nombre) ?? 0)+1)
+                })
+
+                const count = Math.max(...Array.from(countAlianza.values()), 0)
+                this.cargosPorDistrito.set(`${district.nombre}:${cargo}`, count)
+            })
+        })
+    }
+
     prepareForPlot(prev?: ElectionPlotter): {error?: string} {
         if(this.electionSpec.tipoDeEleccion != "Legislativa") {
-            return {error: "Este tipo de elección todavía no está soportado."}
+            if(this.electionSpec.tipoDeEleccion == "") {
+                return {error: "Elegí un tipo de elección."}
+            } else {
+                return {error: "Este tipo de elección todavía no está soportado."}
+            }
         }
 
         if(this.electionSpec.region && this.electionSpec.region != "Nacional"){
@@ -202,9 +297,19 @@ export class ElectionPlotter extends Plotter {
 
         super.prepareForPlot(prev)
 
+
+
         this.candidates = []
         this.data.forEach(r => {
-            const alianza: string = r[alianzaCol]
+            const distrito = getProvinceName(r[districtCol])
+            const alianza: Alianza = {
+                nombre: r[alianzaCol],
+                idTema: r[idAlianzaCol],
+                distrito: {
+                    nombre: distrito,
+                    idTema: r[idDistritoCol],
+                }
+            }
             const subcargo = getSubcargo(r[titularCol])
             const nombre = r[candidateCol]
             const cargo = getCargo(r[cargoCol])
@@ -213,13 +318,52 @@ export class ElectionPlotter extends Plotter {
                 posicion: r[positionCol] != null ? Number(r[positionCol]) : null,
                 subcargo,
                 alianza,
-                distrito: getProvinceName(r[districtCol]),
                 cargo,
-                idTema: r[idTemaCol],
-                idTemaAlianza: r[idAlianzaCol],
-                idTemaDistrito: r[idDistritoCol],
+                idTema: r[idTemaCol]
             }
             this.candidates.push(candidato)
+            this.nameToTopicId.set(alianza.nombre, alianza.idTema)
+            this.nameToTopicId.set(nombre, candidato.idTema)
+            this.nameToTopicId.set(
+                alianza.distrito.nombre, alianza.distrito.idTema
+            )
+            this.districts.set(alianza.distrito.nombre, alianza.distrito)
+        })
+
+        this.computeCargosPorDistrito()
+
+        this.candidates.forEach(c => {
+            const topic = this.topicsData.get(c.idTema)
+            if(topic) {
+                c.foto = getStringProp("Foto", topic.props)
+                c.antecedentesEstado = getStringListProp("Antecedentes en el Estado", topic.props)
+                c.antecedentesProf = getStringListProp("Antecedentes profesionales", topic.props)
+                c.antecedentesAcad = getStringListProp("Antecedentes académicos", topic.props)
+                c.otrosDatos = getStringListProp("Otros datos", topic.props)
+                c.patrimonio = getNumberProp("Patrimonio declarado USD", topic.props)
+                c.espaciosPoliticosAnt = getStringListProp("Espacios políticos", topic.props)
+                c.controversias = getStringListProp("Controversias", topic.props)
+                c.replyCount = topic.repliesCount
+            }
+            const topicAlianza = this.topicsData.get(c.alianza.idTema)
+            if(topicAlianza) {
+                c.alianza.foto = getStringProp("Foto", topicAlianza.props)
+                c.alianza.propuestas = getStringListProp("Propuestas", topicAlianza.props)
+                c.alianza.partidos = getStringListProp("Partidos", topicAlianza.props)
+                c.alianza.otrosDatos = getStringListProp("Otros datos", topicAlianza.props)
+                c.alianza.replyCount = topicAlianza.repliesCount
+            }
+            const topicDistrito = this.topicsData.get(c.alianza.distrito.idTema)
+            if(topicDistrito) {
+                c.alianza.distrito.replyCount = topicDistrito.repliesCount
+            }
+            c.alianza.distrito = {
+                ...c.alianza.distrito,
+                cantSenadores: this.getCargosDistrito(c.alianza.distrito.nombre, "Senadores"),
+                cantDiputados: this.getCargosDistrito(c.alianza.distrito.nombre, "Diputados")
+            }
+
+            this.districts.set(c.alianza.distrito.nombre, c.alianza.distrito)
         })
 
         return {}
@@ -228,60 +372,64 @@ export class ElectionPlotter extends Plotter {
     getCandidatesForDistrict(p: string | null, cargo: Cargo) {
         if(!p) return null
         const pNorm = getProvinceName(p)
+
         const key = `${pNorm}:${cargo}`
-        const cur = this.candidatesByProvince.get(key)
+        const cur = this.candidatesByDistrict.get(key)
         if(cur) return cur
 
         const m = new Map<string, [Candidato[], Candidato[]]>()
 
-
         this.candidates
             .filter(r => {
-                return r.distrito == pNorm && r.cargo == cargo
+                return r.alianza.distrito.nombre == pNorm && r.cargo == cargo
             })
             .forEach(r => {
-                const cur = m.get(r.alianza)
-
+                const cur = m.get(r.alianza.nombre)
 
                 if(r.subcargo == "Titular"){
-                    if(!cur) m.set(r.alianza, [[r], []])
+                    if(!cur) m.set(r.alianza.nombre, [[r], []])
                     else cur[0].push(r)
                 } else {
-                    if(!cur) m.set(r.alianza, [[], [r]])
+                    if(!cur) m.set(r.alianza.nombre, [[], [r]])
                     else cur[1].push(r)
                 }
             })
 
-        this.candidatesByProvince.set(key, m)
+        this.candidatesByDistrict.set(key, m)
         return m
     }
 
-    getSearchResults(s: string): SearchResult[] {
+    getSearchResults(s: string): ElectionElement[] {
         s = cleanText(s)
 
-        const results: SearchResult[] = []
+        const results: ElectionElement[] = []
         this.candidates.forEach(r => {
             if(cleanText(r.nombre)?.includes(s)){
                 results.push({
                     type: "candidato",
-                    candidato: r
+                    value: r
                 })
             }
-            if(cleanText(r.alianza)?.includes(s)){
+            if(cleanText(r.alianza.nombre)?.includes(s)){
                 results.push({
                     type: "alianza",
-                    nombre: r.alianza,
-                    distrito: r.distrito
+                    value: r.alianza
+                })
+            }
+            if(cleanText(r.alianza.distrito.nombre)?.includes(s)){
+                results.push({
+                    type: "distrito",
+                    value: r.alianza.distrito
                 })
             }
         })
-        return Array.from(results.values())
+        return unique(Array.from(results.values()), x => JSON.stringify(x))
     }
 
-    getAlianza(alianza: string, distrito: string): [Candidato[], Candidato[]] {
+    getCandidatosAlianza(alianza: Alianza): [Candidato[], Candidato[]] {
         const candidatos = this.candidates
             .filter(r => {
-                return r.alianza == alianza && r.distrito == distrito
+                return r.alianza.nombre == alianza.nombre && r.alianza.distrito.nombre == alianza.distrito.nombre
             })
 
         const titulares = candidatos
@@ -301,19 +449,66 @@ export class ElectionPlotter extends Plotter {
         return this.candidates.find(x => x.nombre == nombre)
     }
 
-    getDistrictsForAlianza(nombre: string): string[] {
+    getDistrictsForAlianza(alianza: string): Distrito[] {
         return unique(this.candidates
-            .filter(x => x.alianza == nombre)
-            .map(r => r.distrito)
+            .filter(x => x.alianza.nombre == alianza)
+            .map(r => r.alianza.distrito),
+                x => x.nombre
         )
     }
 
-    getDistrictTopicId(district: string) {
+    getDistrictTopicId(distrito: Distrito) {
         for(const x of this.candidates) {
-            if(x.distrito == district) {
-                return x.idTemaDistrito
+            if(x.alianza.distrito.nombre == distrito.nombre) {
+                return x.alianza.distrito.idTema
             }
         }
         return null
+    }
+
+    getAlianzaTopicId(alianza: Alianza) {
+        for(const x of this.candidates) {
+            if(x.alianza.nombre == alianza.nombre) {
+                return x.alianza.idTema
+            }
+        }
+        return null
+    }
+
+    getDistrict(province: string) {
+        const name = getProvinceName(province)
+        return this.districts.get(name)
+    }
+
+    countDataAvailable(nombre: string): number {
+        const a = this.candidates.find(x => x.alianza.nombre == nombre)?.alianza
+        if(!a) return 0
+        const candidatos = this.getCandidatosAlianza(a)
+
+        let res = count([
+            a.partidos,
+            a.foto,
+            a.propuestas,
+            a.otrosDatos,
+            a.replyCount
+        ], x => x != null)
+
+        candidatos.forEach(r => {
+            r.forEach(c => {
+                res += count([
+                    c.espaciosPoliticosAnt,
+                    c.replyCount,
+                    c.antecedentesProf,
+                    c.antecedentesEstado,
+                    c.antecedentesAcad,
+                    c.foto,
+                    c.patrimonio,
+                    c.controversias,
+                    c.otrosDatos
+                ], x => x != null)
+            })
+        })
+
+        return res
     }
 }

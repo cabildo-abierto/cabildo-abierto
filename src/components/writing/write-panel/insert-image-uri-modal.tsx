@@ -1,50 +1,53 @@
 import {useState} from "react";
 import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
-import { Button } from "../../../../modules/ui-utils/src/button";
+import {BaseTextField} from "../../layout/base/base-text-field";
+import {BaseButton} from "../../layout/base/baseButton";
 
-export function InsertImageUriDialogBody ({
-    onClick,
-}: {
+export function InsertImageUriDialogBody({
+                                             onClick,
+                                             onCancel
+                                         }: {
     onClick: (i: ImagePayload) => void;
+    onCancel: () => void
 }) {
     const [src, setSrc] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     const isDisabled = src === '';
 
-    function onClickAccept(){
+    function onClickAccept() {
         setError(null)
-        if(src.startsWith("https://")){
+        if (src.startsWith("https://")) {
             onClick({src, $type: "url"})
         } else {
             setError("Ingresá un dominio seguro (https://).")
         }
     }
 
-    return <>
-        <TextField
+    return <div className={"px-8 pb-4 space-y-4"}>
+        <BaseTextField
             label="URL"
-            size={"small"}
-            fullWidth={true}
-            variant={"outlined"}
             autoComplete="off"
             placeholder="ej. https://dominio.com/imagen.jpg"
-            onChange={(e) => {setSrc(e.target.value)}}
+            onChange={(e) => {
+                setSrc(e.target.value)
+            }}
             value={src}
             data-test-id="image-modal-url-input"
+            error={error}
         />
-        <Button
-            sx={{textTransform: "none"}}
-            variant="contained"
-            disableElevation={true}
-            disabled={isDisabled}
-            onClick={onClickAccept}
-        >
-            Aceptar
-        </Button>
-        <div className={"text-sm text-red-500 text-center"}>
-            {error}
+        <div className={"flex justify-end space-x-2 items-center"}>
+            <BaseButton size="small" onClick={onCancel}>
+                Volver
+            </BaseButton>
+            <BaseButton
+                variant="outlined"
+                size={"small"}
+                disabled={isDisabled}
+                onClick={onClickAccept}
+            >
+                Aceptar
+            </BaseButton>
         </div>
-    </>
+    </div>
 }

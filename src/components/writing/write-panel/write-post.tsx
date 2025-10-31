@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import StateButton from "../../../../modules/ui-utils/src/state-button";
+import StateButton from "../../layout/utils/state-button";
 import {ExtraChars} from "./extra-chars";
 import {
     getCollectionFromUri,
@@ -23,7 +23,6 @@ import {
 } from "@/components/writing/write-panel/write-panel-quoted-post";
 import {$Typed} from "@/lex-api/util";
 import {EditorState} from "lexical";
-import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
@@ -45,8 +44,10 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
 import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
-import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {BaseFullscreenPopup} from "../../layout/base/base-fullscreen-popup";
+import {BaseButton} from "../../layout/base/baseButton";
+import {ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
+import {getAllText} from "@/components/topics/topic/history/get-all-text";
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -65,7 +66,7 @@ const MyLexicalEditor = dynamic(() => import('../../../../modules/ca-lexical-edi
 
 const InsertVisualizationModal = dynamic(() => import(
     './insert-visualization-modal'
-    ))
+    ), {ssr: false})
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -122,19 +123,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
                     thumbnail: string | null
                 }>("/metadata", {url})
 
-                if (error) {
-                    const embed: $Typed<AppBskyEmbedExternal.View> = {
-                        $type: "app.bsky.embed.external#view",
-                        external: {
-                            $type: 'app.bsky.embed.external#viewExternal',
-                            uri: url,
-                            title: url,
-                            description: undefined,
-                            thumb: undefined
-                        }
-                    }
-                    setExternalEmbedView(embed)
-                } else {
+                if (!error) {
                     const {title, description, thumbnail} = data
                     const embed: $Typed<AppBskyEmbedExternal.View> = {
                         $type: "app.bsky.embed.external#view",
@@ -201,7 +190,7 @@ export type CreatePostProps = {
 }
 
 
-function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
+function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {
     if (!replyToCollection && !quotedCollection) {
         return "¿Qué está pasando?"
     } else {
@@ -211,7 +200,7 @@ function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
         } else if (isArticle(collection)) {
             return "Respondé al artículo"
         } else if (isTopicVersion(collection)) {
-            return "Responder en la discusión del tema"
+            return !isVoteReject ? "Responder en la discusión del tema" : "Justificá el rechazo"
         } else if (isVisualization(collection)) {
             return "Respondé a la visualización"
         } else if (isDataset(collection)) {
@@ -235,12 +224,17 @@ function getLinksFromEditor(editorState: EditorState) {
 }
 
 
-function usePostEditorSettings(replyToCollection?: string, quoteCollection?: string, postView?: ArCabildoabiertoFeedDefs.PostView): SettingsProps {
+function usePostEditorSettings(
+    replyToCollection: string | undefined,
+    quoteCollection: string | undefined,
+    postView: ArCabildoabiertoFeedDefs.PostView | undefined,
+    isVoteReject: boolean
+): SettingsProps {
     const p = postView?.record as AppBskyFeedPost.Record | undefined
     const {markdown} = useMarkdownFromBsky(p)
 
     return getEditorSettings({
-        placeholder: getPlaceholder(replyToCollection, quoteCollection),
+        placeholder: getPlaceholder(replyToCollection, quoteCollection, isVoteReject),
         placeholderClassName: "text-[var(--text-light)] absolute text-base top-0",
         editorClassName: "link relative h-full text-base",
         isReadOnly: false,
@@ -305,15 +299,17 @@ export const WritePost = ({
                               quotedContent,
                               handleSubmit,
                               onClose,
-                              postView
+                              postView,
+    isVoteReject
                           }: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (_: boolean) => void
-    quotedContent?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedContent?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
+    isVoteReject?: boolean
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
@@ -339,11 +335,12 @@ export const WritePost = ({
 
     const isReply = replyTo != undefined
     const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
-    const quoteCollection = quotedContent ? getCollectionFromUri(quotedContent.uri) : null
+    const quoteCollection = quotedContent && "uri" in quotedContent ? getCollectionFromUri(quotedContent.uri) : null
     const settings = usePostEditorSettings(
         replyToCollection,
         quoteCollection,
-        postView
+        postView,
+        isVoteReject
     )
 
     async function handleClickSubmit(force: boolean = false) {
@@ -363,7 +360,10 @@ export const WritePost = ({
             enDiscusion,
             externalEmbedView,
             visualization,
-            quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined,
+            quotedPost: quotedContent && "uri" in quotedContent && "cid" in quotedContent ? {
+                uri: quotedContent.uri,
+                cid: quotedContent.cid
+            } : undefined,
             uri: postView?.uri,
             forceEdit: force
         }
@@ -384,7 +384,7 @@ export const WritePost = ({
 
     useEffect(() => {
         if (editorState) {
-            let text = getPlainText(editorState.toJSON().root)
+            let text = getAllText(editorState.toJSON().root)
             if (text.endsWith("\n")) text = text.slice(0, text.length - 1)
             setText(text)
         }
@@ -425,12 +425,10 @@ export const WritePost = ({
         <div
             className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
         >
-            {replyTo != undefined && <div className={""}>
-                <WritePanelReplyPreview
-                    replyTo={replyTo}
-                    selection={selection}
-                />
-            </div>}
+            {replyTo != undefined && <WritePanelReplyPreview
+                replyTo={replyTo}
+                selection={selection}
+            />}
             <div className="flex justify-between space-x-2 w-full my-2">
                 <Link
                     href={profileUrl(user.handle)}
@@ -442,7 +440,6 @@ export const WritePost = ({
                         user={user}
                         className="w-8 h-8 rounded-full"
                         descriptionOnHover={false}
-                        clickable={false}
                     />
                 </Link>
                 <div className="sm:text-lg flex-1" key={editorKey}>
@@ -473,17 +470,18 @@ export const WritePost = ({
                     setModalOpen={setVisualizationModalOpen}
                 />
             </div>
-            <div className={"flex space-x-2 text-[var(--text-light)] items-center"}>
+            <div className={"flex space-x-2 items-center"}>
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
                     variant={"outlined"}
-                    text1={postView ? "Confirmar cambios" : isReply ? "Responder" : "Publicar"}
-                    handleClick={async () => {return await handleClickSubmit()}}
+                    handleClick={async () => {
+                        return await handleClickSubmit()
+                    }}
                     disabled={!valid}
-                    textClassName="font-semibold text-xs py-[2px] uppercase"
-                    size="medium"
-                />
+                >
+                    {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
+                </StateButton>
             </div>
         </div>
         {visualizationModalOpen && <InsertVisualizationModal
@@ -509,31 +507,34 @@ export const WritePost = ({
         />}
         {forceEditModalOpen && <BaseFullscreenPopup open={true}>
             <div className={"pb-4 pt-8 space-y-8"}>
-            <div className={"font-light text-[var(--text-light)] text-sm max-w-[400px] px-8"}>
-                La publicación ya fue referenciada. Si la editás ahora el cambio se va a ver reflejado en Cabildo
-                Abierto pero no en Bluesky.
-            </div>
-            <div className={"flex space-x-2 justify-center"}>
-                <Button
-                    variant={"outlined"}
-                    size={"small"}
-                    onClick={() => {setForceEditModalOpen(false)}}
-                >
-                    Cancelar
-                </Button>
-                <StateButton
-                    variant={"outlined"}
-                    size={"small"}
-                    handleClick={async () => {
-                        const {error} = await handleClickSubmit(true)
-                        if(!error) {
+                <div className={"font-light text-[var(--text-light)] text-sm max-w-[400px] px-8"}>
+                    La publicación ya fue referenciada. Si la editás ahora el cambio se va a ver reflejado en Cabildo
+                    Abierto pero no en Bluesky.
+                </div>
+                <div className={"flex space-x-2 justify-center"}>
+                    <BaseButton
+                        variant={"outlined"}
+                        size={"small"}
+                        onClick={() => {
                             setForceEditModalOpen(false)
-                        }
-                        return {error}
-                    }}
-                    text1={"Editar igualmente"}
-                />
-            </div>
+                        }}
+                    >
+                        Cancelar
+                    </BaseButton>
+                    <StateButton
+                        variant={"outlined"}
+                        size={"small"}
+                        handleClick={async () => {
+                            const {error} = await handleClickSubmit(true)
+                            if (!error) {
+                                setForceEditModalOpen(false)
+                            }
+                            return {error}
+                        }}
+                    >
+                        Editar igualmente
+                    </StateButton>
+                </div>
             </div>
         </BaseFullscreenPopup>}
     </div>

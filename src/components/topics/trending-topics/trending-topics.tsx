@@ -1,13 +1,12 @@
 import {TimePeriod, useTrendingTopics} from "@/queries/getters/useTrendingTopics";
 import {range} from "@/utils/arrays";
 import {emptyChar} from "@/utils/utils";
-
 import dynamic from "next/dynamic";
-import {Select} from "../../../../modules/ui-utils/src/select";
 import {useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
 import Link from "next/link";
-import { Session } from "@/lib/types";
+import {Session} from "@/lib/types";
+import {TrendingTopicsConfig} from "@/components/topics/trending-topics/trending-topics-config";
 
 const TrendingTopicsSlider = dynamic(() => import('./trending-topics-slider'));
 
@@ -38,26 +37,6 @@ const LoadingTrendingTopicsSlider = ({count = 10}: { count?: number }) => {
     </div>
 }
 
-
-const TrendingTopicsConfig = ({time, setTime}: { time: string, setTime: (v: string) => void }) => {
-
-    return <div className={"w-[140px]"}>
-        <Select
-            options={["día", "semana", "mes"]}
-            onChange={setTime}
-            value={time}
-            fontSize={"13px"}
-            labelShrinkFontSize={"13px"}
-            paddingY={0.05}
-            paddingX={1}
-            textClassName={"text-[11px] text-[var(--text-light)] uppercase"}
-            backgroundColor={"background"}
-            borderColor={"accent-dark"}
-            outlineColor={"accent-dark"}
-        />
-    </div>
-}
-
 function timeLabelToTimePeriod(label: string): TimePeriod {
     if (label == "semana") return "week"
     if (label == "mes") return "month"
@@ -74,11 +53,11 @@ function selectedToTimePeriod(selected: string): TimePeriod {
 
 function ttInitialConfig(user: Session | null): string {
     const label = user?.algorithmConfig?.tt?.time ?? "Última semana"
-    if(label == "Última semana"){
+    if (label == "Última semana") {
         return "semana"
-    } else if(label == "Último día"){
+    } else if (label == "Último día") {
         return "día"
-    } else if(label == "Último mes"){
+    } else if (label == "Último mes") {
         return "mes"
     } else {
         return "semana"
@@ -94,7 +73,7 @@ export const TrendingTopicsPanel = () => {
         <div className="flex justify-between h-10 px-3 items-center w-full">
             <Link
                 href={"/temas"}
-                className={"text-xs uppercase font-bold flex items-center w-full space-x-1"}
+                className={"text-xs uppercase font-bold flex items-center space-x-1"}
                 id={"trending-topics"}
             >
                 Tendencias

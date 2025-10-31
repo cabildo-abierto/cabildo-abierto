@@ -1,6 +1,6 @@
 import {followSuggestionsInfo} from "@/components/layout/follow-suggestions";
 import {topicUrl} from "@/utils/uri";
-import InfoPanel from "../../../modules/ui-utils/src/info-panel";
+import InfoPanel from "../layout/utils/info-panel";
 import React from "react";
 
 

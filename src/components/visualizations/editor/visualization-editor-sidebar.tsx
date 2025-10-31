@@ -1,13 +1,14 @@
 import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useRef, useState} from "react";
-import {Button} from "../../../../modules/ui-utils/src/button";
+import {BaseButton} from "../../layout/base/baseButton";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ChooseDatasetPanel} from "@/components/visualizations/editor/choose-dataset";
 import {ConfigPanel} from "@/components/visualizations/editor/config-panel";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 import DatasetIcon from "@/components/layout/icons/dataset-icon";
-import {StateButtonClickHandler} from "../../../../modules/ui-utils/src/state-button";
+import {StateButtonClickHandler} from "../../layout/utils/state-button";
+import {cn} from "@/lib/utils";
 
 const VisualizationEditorSidebar = ({
                                         datasets,
@@ -18,6 +19,8 @@ const VisualizationEditorSidebar = ({
                                         maxWidth,
                                         baseWidth,
                                         onReloadData,
+                                        onNewDataset,
+    creatingNewDataset
                                     }: {
     datasets: DatasetViewBasic[],
     config: PlotConfigProps,
@@ -27,6 +30,8 @@ const VisualizationEditorSidebar = ({
     baseWidth: number
     maxWidth: number
     onReloadData?: StateButtonClickHandler
+    onNewDataset?: () => void
+    creatingNewDataset: boolean
 }) => {
     const [width, setWidth] = useState<number>(baseWidth);
     const isResizing = useRef(false);
@@ -64,20 +69,19 @@ const VisualizationEditorSidebar = ({
 
     function optionsNodes(o: string, isSelected: boolean) {
         const icon = o == "Datos" ? <DatasetIcon/> : <VisualizationIcon/>
-        return <Button
-            color={isSelected ? "background-dark2" : "background-dark"}
+        return <BaseButton
+            className={isSelected ? "group-[.portal]:bg-[var(--background-dark3)] group-[.portal]:hover:bg-[var(--background-dark4)]" : ""}
             startIcon={icon}
             variant={"outlined"}
-            borderColor={"accent-dark"}
         >
             {o}
-        </Button>
+        </BaseButton>
     }
 
     return (
         <div
             style={{width}}
-            className={"z-[1400] absolute top-0 left-0 bg-[var(--background-dark)] h-full rounded-l-lg flex flex-col " + (isResizing ? "select-none" : "")}
+            className={cn("z-[1400] absolute border-r border-[var(--accent-dark)] top-0 left-0 h-full flex flex-col group portal", isResizing ? "select-none" : "")}
         >
             <div className="flex flex-col h-full">
                 <div className="p-2">
@@ -96,6 +100,8 @@ const VisualizationEditorSidebar = ({
                     config={config}
                     setConfig={setConfig}
                     onReloadData={onReloadData}
+                    onNewDataset={onNewDataset}
+                    creatingNewDataset={creatingNewDataset}
                 />}
                 {selected == "Visualización" && <ConfigPanel config={config} setConfig={setConfig}/>}
             </div>

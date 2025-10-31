@@ -1,5 +1,5 @@
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";
-import {CloseButton} from "../../../../modules/ui-utils/src/close-button";
+import {CloseButton} from "../../layout/utils/close-button";
 import {AppBskyEmbedExternal} from "@atproto/api";
 
 export const ExternalEmbedInEditor = ({embed, onRemove}: {
@@ -7,11 +7,11 @@ export const ExternalEmbedInEditor = ({embed, onRemove}: {
     onRemove: () => void
 }) => {
     return <div className={"relative mt-2"}>
-        <div className={"absolute top-2 right-2"}>
+        <div className={"absolute top-2 right-1"}>
             <CloseButton
                 onClose={onRemove}
                 size={"small"}
-                color={"background-dark"}
+                variant={"outlined"}
             />
         </div>
         <PostExternalEmbed embed={embed}/>

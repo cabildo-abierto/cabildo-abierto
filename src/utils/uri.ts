@@ -1,4 +1,5 @@
 import {WikiEditorState} from "@/lib/types";
+import {ProfileFeedOption} from "@/components/profile/profile-page";
 
 export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://0.0.0.0:8080"
 
@@ -53,8 +54,8 @@ export function collectionToShortCollection(collection: string) {
     return collection
 }
 
-export function profileUrl(handleOrDid: string) {
-    return "/perfil/" + handleOrDid
+export function profileUrl(handleOrDid: string, selected?: ProfileFeedOption) {
+    return "/perfil/" + handleOrDid + (selected ? `?s=${selected}` : "")
 }
 
 
@@ -71,6 +72,10 @@ export function contentUrl(uri: string, handle?: string) {
 
 export function chatUrl(convoId: string) {
     return `/mensajes/${convoId}`
+}
+
+export function topicMentionsUrl(id: string) {
+    return `/tema/menciones?i=${encodeParentheses(encodeURIComponent(id))}`
 }
 
 export function topicUrl(id?: string, version?: {did: string, rkey: string}, s?: WikiEditorState, base: string = "tema") {

@@ -1,5 +1,5 @@
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
+import {CustomLink as Link} from "../utils/custom-link";
 import {topicUrl} from "@/utils/uri";
 import React from "react";
 

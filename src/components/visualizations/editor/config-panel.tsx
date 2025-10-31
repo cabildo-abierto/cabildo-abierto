@@ -1,55 +1,56 @@
 import {DeepPartial, PlotConfigProps} from "@/lib/types";
-import {Select} from "../../../../modules/ui-utils/src/select";
 import {PlotSpecificConfig} from "@/components/visualizations/editor/plot-specific-config";
 import {produce} from "immer";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
-import { TextField } from "../../../../modules/ui-utils/src/text-field";
+import {BaseTextField} from "../../layout/base/base-text-field";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-import SquareFootIcon from '@mui/icons-material/SquareFoot';
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {CompassToolIcon, TextTIcon} from "@phosphor-icons/react";
+import BaseSelect from "@/components/layout/base/base-select";
+import { Note } from "@/components/layout/utils/note";
+
 
 export function kindToLexicon(kind: string): ArCabildoabiertoEmbedVisualization.Main["spec"] {
-    if(kind == "Histograma") {
+    if (kind == "Histograma") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#oneAxisPlot",
             plot: {
                 "$type": "ar.cabildoabierto.embed.visualization#histogram"
             }
         }
-    } else if(kind == "Gráfico de línea") {
+    } else if (kind == "Gráfico de línea") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
             plot: {
                 "$type": "ar.cabildoabierto.embed.visualization#lines"
             }
         }
-    } else if(kind == "Gráfico de barras") {
+    } else if (kind == "Gráfico de barras") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
             plot: {
                 "$type": "ar.cabildoabierto.embed.visualization#barplot"
             }
         }
-    } else if(kind == "Gráfico de dispersión") {
+    } else if (kind == "Gráfico de dispersión") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
             plot: {
                 "$type": "ar.cabildoabierto.embed.visualization#scatterplot"
             }
         }
-    } else if(kind == "Hemiciclo") {
+    } else if (kind == "Hemiciclo") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#hemicycle"
         }
-    } else if(kind == "Tabla") {
+    } else if (kind == "Tabla") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#table"
         }
-    } else if(kind == "Elección"){
+    } else if (kind == "Elección") {
         return {
             $type: "ar.cabildoabierto.embed.visualization#eleccion"
         }
@@ -57,7 +58,7 @@ export function kindToLexicon(kind: string): ArCabildoabiertoEmbedVisualization.
 }
 
 
-function getLexiconHash(l?: string){
+function getLexiconHash(l?: string) {
     if (!l || !l.includes("#")) return ""
     return l.split("#")[1]
 }
@@ -73,9 +74,9 @@ export function lexiconToKind(lexicon: DeepPartial<ArCabildoabiertoEmbedVisualiz
         "table": "Tabla",
         "eleccion": "Elección"
     }
-    if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(lexicon)) {
+    if (ArCabildoabiertoEmbedVisualization.isOneAxisPlot(lexicon)) {
         return "Histograma"
-    } else if(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(lexicon)) {
+    } else if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(lexicon)) {
         return dict[getLexiconHash(lexicon.plot.$type)]
     } else {
         return dict[getLexiconHash(lexicon.$type)]
@@ -85,46 +86,38 @@ export function lexiconToKind(lexicon: DeepPartial<ArCabildoabiertoEmbedVisualiz
 
 const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConfig: (v: PlotConfigProps) => void }) => {
     return <>
-        <TextField
+        <BaseTextField
             label={"Título"}
-            size={"small"}
             value={config.title ?? ""}
             onChange={e => {
                 setConfig(produce(config, draft => {
                     draft.title = e.target.value
                 }))
             }}
-            fontSize={"0.875rem"}
         />
-        <TextField
+        <BaseTextField
             label={"Epígrafe"}
-            multiline
-            size={"small"}
-            paddingX={"12px"}
             value={config.caption ?? ""}
             onChange={e => {
                 setConfig(produce(config, draft => {
                     draft.caption = e.target.value
                 }))
             }}
-            fontSize={"0.875rem"}
         />
-        {(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) && <TextField
-            label={"Etiqueta eje x"}
-            size={"small"}
-            value={config.spec.xLabel ?? config.spec.xAxis}
-            onChange={e => {
-                setConfig(produce(config, draft => {
-                    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
-                        draft.spec.xLabel = e.target.value
-                    }
-                }))
-            }}
-            fontSize={"0.875rem"}
-        />}
-        {ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) && <TextField
+        {(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) &&
+            <BaseTextField
+                label={"Etiqueta eje x"}
+                value={config.spec.xLabel ?? config.spec.xAxis}
+                onChange={e => {
+                    setConfig(produce(config, draft => {
+                        if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec) || ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
+                            draft.spec.xLabel = e.target.value
+                        }
+                    }))
+                }}
+            />}
+        {ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec) && <BaseTextField
             label={"Etiqueta eje y"}
-            size={"small"}
             value={config.spec.yLabel ?? (config.spec.yAxis ?? "")}
             onChange={e => {
                 setConfig(produce(config, draft => {
@@ -133,9 +126,39 @@ const ConfigPanelText = ({config, setConfig}: { config: PlotConfigProps, setConf
                     }
                 }))
             }}
-            fontSize={"0.875rem"}
         />}
     </>
+}
+
+
+export const SelectPlotType = ({
+                                   config,
+                                   setConfig,
+                                   inPortal = true
+                               }: {
+    config: PlotConfigProps,
+    setConfig: (v: PlotConfigProps) => void
+    inPortal?: boolean
+}) => {
+    return <BaseSelect
+        inPortal={inPortal}
+        contentClassName={"z-[1501]"}
+        options={[
+            "Histograma",
+            "Gráfico de línea",
+            "Gráfico de barras",
+            "Gráfico de dispersión",
+            "Tabla",
+            "Elección"
+        ]}
+        value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
+        onChange={(v) => {
+            setConfig(produce(config, draft => {
+                if (!draft.spec) draft.spec = {}
+                draft.spec = kindToLexicon(v)
+            }))
+        }}
+    />
 }
 
 
@@ -143,27 +166,9 @@ const ConfigPanelVisualization = ({config, setConfig}: {
     config: PlotConfigProps,
     setConfig: (v: PlotConfigProps) => void
 }) => {
+
     return <>
-        <Select
-            options={[
-                "Histograma",
-                "Gráfico de línea",
-                "Gráfico de barras",
-                "Gráfico de dispersión",
-                "Tabla",
-                "Elección"
-            ]}
-            value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
-            onChange={(v) => {
-                setConfig(produce(config, draft => {
-                    if (!draft.spec) draft.spec = {}
-                    draft.spec = kindToLexicon(v)
-                }))
-            }}
-            label="Tipo de gráfico"
-            fontSize={"14px"}
-            labelShrinkFontSize={"14px"}
-        />
+        <SelectPlotType config={config} setConfig={setConfig}/>
         <PlotSpecificConfig
             config={config}
             setConfig={setConfig}
@@ -179,12 +184,12 @@ export const ConfigPanel = ({config, setConfig}: {
     const [selectedMenu, setSelectedMenu] = useState<string>("Visualización")
 
     function optionLabels(o: string) {
-        if(o == "Visualización"){
-            return <VisualizationIcon fontSize={"small"}/>
-        } else if(o == "Texto"){
-            return <TextFieldsIcon fontSize={"small"}/>
-        } else if(o == "Dimensiones"){
-            return <SquareFootIcon fontSize={"small"}/>
+        if (o == "Visualización") {
+            return <VisualizationIcon fontSize={20}/>
+        } else if (o == "Texto") {
+            return <TextTIcon fontSize={20}/>
+        } else if (o == "Dimensiones") {
+            return <CompassToolIcon fontSize={20}/>
         }
     }
 
@@ -192,7 +197,7 @@ export const ConfigPanel = ({config, setConfig}: {
         <div className={"flex border-b border-[var(--accent-dark)] w-full mt-2"}>
             <SelectionComponent
                 options={["Visualización", "Texto", "Dimensiones"]}
-                optionsNodes={feedOptionNodes(40, undefined, undefined, "background-dark", optionLabels)}
+                optionsNodes={feedOptionNodes(40, undefined, undefined, optionLabels)}
                 selected={selectedMenu}
                 onSelection={(v: string) => {
                     setSelectedMenu(v)
@@ -201,16 +206,18 @@ export const ConfigPanel = ({config, setConfig}: {
             />
         </div>
 
-        <div className={"flex flex-col justify-between mt-2 space-y-4 px-2 mb-2 pt-2 custom-scrollbar overflow-y-scroll h-full"}>
+        <div
+            className={"flex flex-col justify-between mt-2 space-y-4 px-2 mb-2 pt-2 custom-scrollbar overflow-y-scroll h-full"}>
             <div className={"flex flex-col space-y-4"}>
                 {selectedMenu == "Visualización" && <ConfigPanelVisualization config={config} setConfig={setConfig}/>}
                 {selectedMenu == "Texto" && <ConfigPanelText config={config} setConfig={setConfig}/>}
                 {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
             </div>
 
-            <div className={"p-2 text-[var(--text-light)] text-sm font-light"}>
-                El editor de visualizaciones está en fase experimental. Si ves algo raro o querés que le agreguemos una funcionalidad, escribinos.
-            </div>
+            <Note className={"p-2 text-left"}>
+                El editor de visualizaciones está en fase experimental. Si ves algo raro o querés que le agreguemos una
+                funcionalidad, escribinos.
+            </Note>
         </div>
     </>
 }

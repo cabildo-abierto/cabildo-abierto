@@ -4,7 +4,7 @@ import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
 import {useSession} from "@/queries/getters/useSession";
-import {AppBskyFeedDefs, AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
+import {AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import FeedElement from "@/components/feed/feed/feed-element";
@@ -88,7 +88,7 @@ const PostPreviewParentAndRoot = ({root, parent, grandparentAuthor, feedViewCont
     grandparentAuthor: AppBskyActorDefs.ProfileViewBasic
     feedViewContent: ArCabildoabiertoFeedDefs.FeedViewContent
 }) => {
-    const showThreadButton = root != null && ArCabildoabiertoFeedDefs.isPostView(parent) && ("uri" in root && (parent.record as AppBskyFeedPost.Record).reply.parent.uri != root.uri)
+    const showThreadButton = root != null && ArCabildoabiertoFeedDefs.isPostView(parent) && ("uri" in root && parent.record && (parent.record as AppBskyFeedPost.Record).reply.parent.uri != root.uri)
 
     return <>
         {root && <FeedElement
@@ -157,12 +157,12 @@ export const PostPreview = ({
     const {layoutConfig} = useLayoutConfig()
 
     const {parent, root} = getParentAndRoot(feedViewContent)
-    const reason = feedViewContent && feedViewContent.reason && AppBskyFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
+    const reason = feedViewContent && feedViewContent.reason && ArCabildoabiertoFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div style={{maxWidth: layoutConfig.maxWidthCenter}} className={"flex flex-col w-full text-[15px] " + (onFeed ? "min-[680px]:min-w-[600px]" : "") + (!postView && feedViewContent && (root || parent) ? "border-b" : "")}>
+    return <div style={{maxWidth: layoutConfig.centerWidth}} className={"flex flex-col w-full text-[15px] " + (onFeed ? "min-[680px]:min-w-[600px]" : "") + (!postView && feedViewContent && (root || parent) ? " border-b" : "")}>
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}
@@ -178,6 +178,7 @@ export const PostPreview = ({
             borderBelow={!showingChildren}
             pageRootUri={pageRootUri}
             engagementIcons={onFeed}
+            onWritePost={!onFeed}
         >
             {parent && showReplyMessage && grandparentAuthor && <IsReplyMessage
                 author={grandparentAuthor}

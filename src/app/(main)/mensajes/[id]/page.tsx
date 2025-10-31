@@ -3,12 +3,11 @@
 import {useParams} from "next/navigation";
 import {PrivateMessage} from "@/queries/getters/useConversations";
 import {ChatBskyConvoDefs} from "@atproto/api"
-import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import LoadingSpinner from "../../../../components/layout/base/loading-spinner";
 import {useEffect, useLayoutEffect, useRef} from "react";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
-import {useMediaQuery, useTheme} from "@mui/system";
+import {ErrorPage} from "@/components/layout/utils/error-page";
 import {
     conversationsQueriesFilter,
     optimisticMarkRead
@@ -16,6 +15,8 @@ import {
 import dynamic from "next/dynamic";
 import NewMessageInput from "@/components/mensajes/new-message-input";
 import {useConversation} from "@/queries/getters/conversation";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {cn} from "@/lib/utils";
 
 
 const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), {
@@ -26,18 +27,17 @@ const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), 
 
 export default function Page() {
     const params = useParams()
-    const convoId = params.id instanceof Array ? params.id[0] : params.id
-    const {data, isLoading} = useConversation(convoId)
+    const convoIdOrHandle = params.id instanceof Array ? params.id[0] : params.id
+    const {data, isLoading} = useConversation(convoIdOrHandle)
     const qc = useQueryClient()
-    const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const {isMobile} = useLayoutConfig()
     const scrollRef = useRef<HTMLDivElement>(null)
 
     const readMutation = useMutation({
         mutationFn: markRead,
         onMutate: (msg) => {
             qc.cancelQueries(conversationsQueriesFilter())
-            optimisticMarkRead(qc, convoId)
+            optimisticMarkRead(qc, convoIdOrHandle)
         },
         onSettled: async () => {
             qc.invalidateQueries(conversationsQueriesFilter())
@@ -50,7 +50,7 @@ export default function Page() {
 
     useEffect(() => {
         if(data && data.conversation.unreadCount) {
-            readMutation.mutate(convoId)
+            readMutation.mutate(data.conversation.id)
         }
     }, [data])
 
@@ -79,9 +79,11 @@ export default function Page() {
         .filter(m => ChatBskyConvoDefs.isMessageView(m))
         .toSorted(cmp) : null
 
-
     return (
-        <div className={"flex flex-col border-l border-r border-[var(--accent-dark)] " + (isMobile ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-48px)]")}>
+        <div
+            onWheel={(e) => e.stopPropagation()}
+            className={cn("flex flex-col border-l border-r border-[var(--accent-dark)]", isMobile ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-48px)]")}
+        >
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto px-2" ref={scrollRef}>
                     <div className="mt-2 pb-2">
@@ -98,8 +100,7 @@ export default function Page() {
                         })}
                     </div>
                 </div>
-
-                <NewMessageInput convoId={convoId}/>
+                <NewMessageInput convoId={data.conversation.id}/>
             </div>
         </div>
     )
