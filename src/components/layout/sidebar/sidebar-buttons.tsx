@@ -125,9 +125,7 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
         <div>
             <SidebarWriteButton
                 showText={showText}
-                onClick={() => {
-                    setWritePanelOpen(true)
-                }}
+                setWritePanelOpen={setWritePanelOpen}
             />
         </div>
     </>
