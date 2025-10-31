@@ -19,7 +19,7 @@ export default function TopbarMobile() {
     const {title, className: titleClassName} = useTopbarTitle()
     const height = useTopbarHeight()
 
-    const backButton = ["notificaciones", "panel", "ajustes", "perfil", "mensajes", "escribir/articulo"]
+    const backButton = ["c/", "notificaciones", "panel", "ajustes", "perfil", "mensajes", "escribir/articulo"]
         .some(p => pathname.startsWith(`/${p}`))
     const defaultBackHref = ""
     const openSidebarButton = !backButton

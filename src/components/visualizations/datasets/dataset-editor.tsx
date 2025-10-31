@@ -10,7 +10,6 @@ import StateButton from "@/components/layout/utils/state-button";
 import {UploadDatasetButton} from "@/components/visualizations/datasets/upload-dataset-button";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {post} from "@/utils/fetch";
-import {DatasetSize} from "@/components/visualizations/datasets/dataset-size";
 import {BaseTextArea} from "@/components/layout/base/base-text-area";
 
 
@@ -141,7 +140,6 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
                 }}
             />
             <div className={"flex justify-between items-center"}>
-                <DatasetSize dataset={newDataset} showLoading={false}/>
                 <UploadDatasetButton
                     onSubmit={onSubmit}
                     text={rows ? "Reemplazar datos (.csv)" : "Subir archivo (.csv)"}

@@ -324,7 +324,7 @@ export const FeedDefaultsSettings = () => {
                 </div>
             </div>}
         />
-        <Note center={false}>
+        <Note>
             Todas las configuraciones también se pueden cambiar temporalmente al estar viendo el contenido. Si querés
             una configuración que no ves acá, <Link
             href={topicUrl("Cabildo Abierto: Solicitudes de usuarios", undefined, "normal")}>sugerila</Link>.

@@ -10,6 +10,7 @@ import VisualizationIcon from "@/components/layout/icons/visualization-icon";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
 import {CompassToolIcon, TextTIcon} from "@phosphor-icons/react";
 import BaseSelect from "@/components/layout/base/base-select";
+import { Note } from "@/components/layout/utils/note";
 
 
 export function kindToLexicon(kind: string): ArCabildoabiertoEmbedVisualization.Main["spec"] {
@@ -150,7 +151,7 @@ export const SelectPlotType = ({
             "Tabla",
             "Elección"
         ]}
-        value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : "Histograma"}
+        value={config.spec && config.spec.$type ? lexiconToKind(config.spec) : ""}
         onChange={(v) => {
             setConfig(produce(config, draft => {
                 if (!draft.spec) draft.spec = {}
@@ -213,10 +214,10 @@ export const ConfigPanel = ({config, setConfig}: {
                 {selectedMenu == "Dimensiones" && <ConfigPanelDimensions config={config} setConfig={setConfig}/>}
             </div>
 
-            <div className={"p-2 text-[var(--text-light)] text-sm font-light"}>
+            <Note className={"p-2 text-left"}>
                 El editor de visualizaciones está en fase experimental. Si ves algo raro o querés que le agreguemos una
                 funcionalidad, escribinos.
-            </div>
+            </Note>
         </div>
     </>
 }

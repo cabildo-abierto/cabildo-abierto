@@ -23,6 +23,7 @@ const TableVisualizationComp = ({
                 filters={visualization.visualization.filters}
                 columnsConfig={spec.columns}
                 maxHeight={450}
+                showSize={false}
             />
             <PlotCaption caption={visualization.visualization.caption} fontSize={14}/>
         </div>

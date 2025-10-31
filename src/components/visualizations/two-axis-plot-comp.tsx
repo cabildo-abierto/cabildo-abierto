@@ -135,7 +135,6 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 return {plotter}
             } catch (err) {
                 if (err instanceof Error) {
-                    console.log("error plotting", err)
                     return {error: err.message}
                 } else {
                     return {error: "Ocurrió un error intentando crear el gráfico."}

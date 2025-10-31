@@ -167,7 +167,7 @@ export const ChooseDatasetPanelFiltersConfig = ({
     }
 
     if (!config.dataSource || !config.dataSource.$type) {
-        return <Note padding={16}>
+        return <Note className={"p-4"}>
             Elegí una fuente de datos primero.
         </Note>
     }
@@ -196,7 +196,7 @@ export const ChooseDatasetPanelFiltersConfig = ({
                 size={"small"}
                 onClick={onAddFilter}
             >
-                Nuevo filtro
+                Agregar filtro
             </BaseButton>}
         </div>
 

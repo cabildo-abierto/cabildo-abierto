@@ -1,5 +1,4 @@
 import {PlotConfigProps} from "@/lib/types";
-import BaseTextFieldWithSuggestions from "../../../layout/base/base-text-field-with-suggestions";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import BaseSelect from "@/components/layout/base/base-select";
@@ -13,11 +12,12 @@ type ElectionVisualizationConfigProps = {
 export const ElectionVisualizationConfig = ({
                                                 config,
                                                 setConfig,
-    columnOptions,
-}: ElectionVisualizationConfigProps) => {
-    if(ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)){
+                                                columnOptions,
+                                            }: ElectionVisualizationConfigProps) => {
+    if (ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)) {
         return <div className={"space-y-4"}>
             <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={[
                     "Legislativa",
                     "Ejecutiva"
@@ -34,6 +34,7 @@ export const ElectionVisualizationConfig = ({
                 itemClassName={"text-[14px]"}
             />
             <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={[
                     "Nacional",
                     "Buenos Aires",
@@ -71,7 +72,8 @@ export const ElectionVisualizationConfig = ({
                 label="Región"
                 itemClassName={"text-[14px]"}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna candidato"}
                 value={config.spec.columnaNombreCandidato ?? ""}
@@ -83,7 +85,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna alianza"}
                 value={config.spec.columnaAlianza ?? ""}
@@ -95,7 +98,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna distrito del candidato"}
                 value={config.spec.columnaDistritoCandidato ?? ""}
@@ -107,7 +111,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna cargo al que se postula"}
                 value={config.spec.columnaCargo ?? ""}
@@ -119,7 +124,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna subcargo (titular o suplente)"}
                 value={config.spec.columnaSubcargo ?? ""}
@@ -131,7 +137,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna posición en lista"}
                 value={config.spec.columnaPosicion ?? ""}
@@ -143,7 +150,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna tema de la wiki candidato"}
                 value={config.spec.columnaTopicIdCandidato ?? ""}
@@ -155,7 +163,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna tema de la wiki alianza"}
                 value={config.spec.columnaTopicIdAlianza ?? ""}
@@ -167,7 +176,8 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <BaseTextFieldWithSuggestions
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna tema de la wiki distrito"}
                 value={config.spec.columnaTopicIdDistrito ?? ""}

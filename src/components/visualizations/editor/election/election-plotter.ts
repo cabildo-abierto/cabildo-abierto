@@ -255,7 +255,11 @@ export class ElectionPlotter extends Plotter {
 
     prepareForPlot(prev?: ElectionPlotter): {error?: string} {
         if(this.electionSpec.tipoDeEleccion != "Legislativa") {
-            return {error: "Este tipo de elección todavía no está soportado."}
+            if(this.electionSpec.tipoDeEleccion == "") {
+                return {error: "Elegí un tipo de elección."}
+            } else {
+                return {error: "Este tipo de elección todavía no está soportado."}
+            }
         }
 
         if(this.electionSpec.region && this.electionSpec.region != "Nacional"){

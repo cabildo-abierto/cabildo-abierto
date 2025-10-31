@@ -1,10 +1,10 @@
-import BaseTextFieldWithSuggestions from "../../layout/base/base-text-field-with-suggestions";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {PlotConfigProps} from "@/lib/types";
 import {useState} from "react";
 import {ListEditor} from "../../layout/utils/list-editor";
 import {Switch} from "@/components/ui/switch";
+import BaseSelect from "@/components/layout/base/base-select";
 
 type Props = {
     config: PlotConfigProps
@@ -20,7 +20,8 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
     }
 
     return <div className={"flex flex-col space-y-4 w-full"}>
-        <BaseTextFieldWithSuggestions
+        <BaseSelect
+            contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Eje x"}
             value={config.spec.xAxis ?? ""}
@@ -32,7 +33,8 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 }))
             }}
         />
-        {!multipleYAxis && <BaseTextFieldWithSuggestions
+        {!multipleYAxis && <BaseSelect
+            contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Eje y"}
             value={config.spec.yAxis ?? ""}
@@ -64,7 +66,8 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
                 options={columnOptions}
             />
         </div>}
-        <BaseTextFieldWithSuggestions
+        <BaseSelect
+            contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Color"}
             value={config.spec.colors && config.spec.colors.length > 0 ? config.spec.colors[0].column : ""}
