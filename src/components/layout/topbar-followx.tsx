@@ -11,7 +11,6 @@ export const TopbarFollowx = () => {
         <BackButton
             defaultURL={`/perfil/${id.toString()}`}
             behavior={"fixed"}
-            size={"medium"}
         />
         <div className={"font-bold text-lg"}>
             @{id}

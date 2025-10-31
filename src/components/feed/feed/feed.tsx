@@ -1,118 +1,48 @@
 "use client"
-import React, {ReactNode, useEffect, useMemo} from "react";
-import {range, unique} from "@/utils/arrays";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
-import {GetFeedProps} from "@/lib/types";
-import {useInfiniteQuery} from "@tanstack/react-query";
+import React from "react";
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import {FeedProps} from "@/components/feed/feed/types";
+import {useFeed, useFetchNextPage} from "./use-feed";
+import {LoadingFeed} from "@/components/feed/feed/loading-feed";
+import {FeedEndText} from "@/components/feed/feed/feed-end-text";
 
-const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) => {
-    if (!loadingFeedContent) {
-        return <div className={"py-8"}>
-            <LoadingSpinner/>
-        </div>
-    }
-    return <div className={"flex flex-col space-y-1 w-full"}>
-        {range(10).map(i => {
-            return <div key={i}>
-                {loadingFeedContent}
-            </div>
-        })}
-    </div>
-}
-
-
-export type FeedProps<T> = {
-    loadWhenRemaining?: number
-    noResultsText: ReactNode
-    endText: ReactNode
-    getFeed: GetFeedProps<T>
-    LoadingFeedContent?: ReactNode
-    FeedElement: ({content, index}: { content: T, index?: number }) => ReactNode
-    queryKey: string[]
-    getFeedElementKey: (e: T) => string | null
-    enabled?: boolean
-    estimateSize?: number
-    overscan?: number
-}
-
-
-export type InfiniteFeed<T> = {
-    pages: FeedPage<T>[]
-}
-
-export interface FeedPage<T> {
-    data: T[]
-    nextCursor?: string
-}
 
 
 function Feed<T>({
-    getFeed,
-    queryKey,
-    noResultsText,
-    endText,
-    getFeedElementKey,
-    LoadingFeedContent,
-    FeedElement,
-    enabled=true,
-    estimateSize=500,
-    overscan=4
-}: FeedProps<T>) {
-    const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching} = useInfiniteQuery({
-        queryKey,
-        queryFn: async ({pageParam}) => {
-            const {data, error} = await getFeed(pageParam == "start" ? undefined : pageParam)
-            if (error) {
-                throw new Error("Failed to fetch feed")
-            }
-            const newPage: FeedPage<T> = {
-                data: data.feed,
-                nextCursor: data.cursor
-            }
-            return newPage
-        },
-        getNextPageParam: lastPage => {
-            return lastPage.data.length > 0 ? lastPage.nextCursor : undefined
-        },
-        initialPageParam: "start",
-        staleTime: 1000 * 60 * 5,
-        enabled
-    })
+                             getFeed,
+                             queryKey,
+                             noResultsText,
+                             endText,
+                             getFeedElementKey,
+                             LoadingFeedContent,
+                             FeedElement,
+                             enabled=true,
+                             estimateSize=500,
+                             overscan=4,
+                             startContent,
+    isLoadingStartContent,
+    loadingStartContent
+                         }: FeedProps<T>) {
+    const {data: feed, fetchNextPage, loading, hasNextPage, isFetchingNextPage, feedList} = useFeed(
+        getFeed, queryKey, enabled, getFeedElementKey,)
 
-    const feedList = useMemo(() => {
-        const elements = feed?.pages.reduce((acc, page) => [...acc, ...page.data], []) || []
-        return unique(elements, getFeedElementKey) // TO DO (!): No debería hacer falta
-    }, [feed?.pages])
-
-    const loading = isFetchingNextPage || (isFetching && feedList.length == 0)
+    const count = feedList.length + 1 + (startContent ? 1 : 0)
 
     const virtualizer = useWindowVirtualizer({
-        count: feedList.length+1,
-        estimateSize: () => estimateSize,
+        count,
+        estimateSize: (i) => estimateSize,
         overscan
     })
 
     const items = virtualizer.getVirtualItems()
 
-    useEffect(() => {
-        if(feedList.length == 0 || items.length == 0) return
-        const lastItem = items[items.length - 1]
-
-        if (
-            lastItem.index >= feedList.length - 1 &&
-            hasNextPage &&
-            !isFetchingNextPage
-        ) {
-            fetchNextPage()
-        }
-    }, [
-        hasNextPage,
+    useFetchNextPage(
+        feedList,
+        items,
         fetchNextPage,
-        feedList.length,
         isFetchingNextPage,
-        items
-    ])
+        hasNextPage
+    )
 
     return (
         <div
@@ -127,24 +57,26 @@ function Feed<T>({
                     transform: `translateY(${items[0]?.start ?? 0}px)`,
                 }}
             >
+
                 {items.map((c) => {
-                    const isEnd = c.index > feedList.length - 1
+                    const isEnd = c.index == count-1
+                    const isStart = c.index == 0 && startContent != null
+                    const feedListIndex = c.index-(startContent ? 1 : 0)
                     return <div
-                        key={isEnd ? "end" : getFeedElementKey(feedList[c.index])}
+                        key={isEnd ? "end" : isStart ? "start" : getFeedElementKey(feedList[feedListIndex])}
                         data-index={c.index}
                         ref={virtualizer.measureElement}
                     >
-                        {!isEnd ?
-                        <FeedElement content={feedList[c.index]} index={c.index}/> :
+                        {isStart && (isLoadingStartContent ? loadingStartContent : startContent)}
+                        {!isStart && !isLoadingStartContent && (!isEnd ?
+                        <FeedElement content={feedList[feedListIndex]} index={feedListIndex}/> :
                         <div>
                             {loading &&
                                 <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
                             }
-                            {feed && !hasNextPage && (endText || noResultsText) && <div className={"text-center font-light py-16 text-[var(--text-light)] text-sm"}>
-                                {!hasNextPage && feedList.length > 0 && endText}
-                                {!hasNextPage && feedList.length == 0 && noResultsText}
-                            </div>}
-                        </div>}
+                            {feed && !hasNextPage && (endText || noResultsText) && !hasNextPage &&
+                                <FeedEndText text={feedList.length > 0 ? endText : noResultsText}/>}
+                        </div>)}
                     </div>
 
                 })}

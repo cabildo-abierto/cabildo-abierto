@@ -1,5 +1,5 @@
 import {PlotConfigProps} from "@/lib/types";
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 import {DatasetFullView} from "@/components/visualizations/datasets/dataset-full-view";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {useDataset, useDatasets} from "@/queries/getters/useDataset";
@@ -11,7 +11,7 @@ import {
 
 import dynamic from "next/dynamic";
 import {EditableDatasetFullView} from "@/components/visualizations/datasets/editable-dataset-full-view";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 
 const PlotFromVisualizationMain = dynamic(
     () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
@@ -72,6 +72,10 @@ const EditorViewerViewDataForDataset = ({datasetUri, config}: {
     const {data: datasets} = useDatasets()
     const [editing, setEditing] = useState(false)
 
+    const filters = useMemo(() => {
+        return config.filters ? validateColumnFilters(config.filters) : undefined
+    }, [config])
+
     if (!dataset && !datasets) {
         return <div className={"py-8 h-full flex"}>
             <LoadingSpinner/>
@@ -92,8 +96,6 @@ const EditorViewerViewDataForDataset = ({datasetUri, config}: {
             <LoadingSpinner/>
         </div>
     }
-
-    const filters = config.filters ? validateColumnFilters(config.filters) : undefined
 
     return <EditableDatasetFullView
         dataset={{
@@ -168,7 +170,6 @@ export const EditorViewer = ({config, selected, onSave, setCreatingNewDataset, c
     creatingNewDataset: boolean
     setCreatingNewDataset: (v: boolean) => void
 }) => {
-
     return <div className={"h-full w-full pt-12 px-16"}>
         {selected == "Visualización" && <EditorViewerViewVisualization
             config={config}

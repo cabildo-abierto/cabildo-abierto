@@ -9,6 +9,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {useEffect} from "react";
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import dynamic from "next/dynamic";
+import {ErrorPage} from "@/components/layout/utils/error-page";
 
 const ProfileHeader = dynamic(() => import("@/components/profile/profile-header"), {
     ssr: false
@@ -42,14 +43,20 @@ export const ProfilePage = ({
 }) => {
     const params = useSearchParams()
     const qc = useQueryClient()
-    const {data: profile} = useProfile(handle)
+    const {data: profile, isLoading} = useProfile(handle)
 
     useEffect(() => {
         qc.prefetchInfiniteQuery({
             queryKey: ["profile-feed", handle, "main"],
             initialPageParam: "start"
         })
-    }, []);
+    }, [])
+
+    if(!profile && !isLoading) {
+        return <ErrorPage>
+            No se encontró el perfil @{handle}.
+        </ErrorPage>
+    }
 
     const s = params.get("s")
     let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" || s == "articulos" ? s : "publicaciones"
@@ -58,18 +65,19 @@ export const ProfilePage = ({
         updateSearchParam("s", profileDisplayToOption(v))
     }
 
+    const startContent = <ProfileHeader
+        selected={profileOptionToDisplay(selected)}
+        profile={profile}
+        setSelected={setSelected}
+    />
+
     return <div className={""}>
-        {!profile && <LoadingProfile/>}
-        {profile &&
-            <ProfileHeader
-                selected={profileOptionToDisplay(selected)}
-                profile={profile}
-                setSelected={setSelected}
-            />
-        }
-        <div className={"min-h-screen " + (!profile ? "hidden" : "")}>
+        <div className={"min-h-screen"}>
             {selected == "publicaciones" &&
                 <FeedViewContentFeed
+                    startContent={startContent}
+                    loadingStartContent={<LoadingProfile/>}
+                    isLoadingStartContent={!profile}
                     queryKey={["profile-feed", handle, "main"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
@@ -77,6 +85,9 @@ export const ProfilePage = ({
                 />}
             {selected == "respuestas" &&
                 <FeedViewContentFeed
+                    startContent={startContent}
+                    loadingStartContent={<LoadingProfile/>}
+                    isLoadingStartContent={!profile}
                     queryKey={["profile-feed", handle, "replies"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
@@ -84,6 +95,9 @@ export const ProfilePage = ({
                 />}
             {selected == "ediciones" &&
                 <FeedViewContentFeed
+                    startContent={startContent}
+                    loadingStartContent={<LoadingProfile/>}
+                    isLoadingStartContent={!profile}
                     queryKey={["profile-feed", handle, "edits"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no hizo ninguna edición en la wiki."}
@@ -93,6 +107,7 @@ export const ProfilePage = ({
                 />}
             {selected == "articulos" &&
                 <FeedViewContentFeed
+                    startContent={startContent}
                     queryKey={["profile-feed", handle, "articles"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó ningún artículo."}

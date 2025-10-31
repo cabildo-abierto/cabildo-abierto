@@ -457,83 +457,6 @@ export const schemaDict = {
           },
         },
       },
-      view: {
-        type: 'object',
-        required: ['record'],
-        properties: {
-          record: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.embed.record#viewRecord',
-              'lex:app.bsky.embed.record#viewNotFound',
-              'lex:app.bsky.embed.record#viewBlocked',
-              'lex:app.bsky.embed.record#viewDetached',
-              'lex:app.bsky.feed.defs#generatorView',
-              'lex:app.bsky.graph.defs#listView',
-              'lex:app.bsky.labeler.defs#labelerView',
-              'lex:app.bsky.graph.defs#starterPackViewBasic',
-            ],
-          },
-        },
-      },
-      viewRecord: {
-        type: 'object',
-        required: ['uri', 'cid', 'author', 'value', 'indexedAt'],
-        properties: {
-          uri: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          cid: {
-            type: 'string',
-            format: 'cid',
-          },
-          author: {
-            type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
-          },
-          value: {
-            type: 'unknown',
-            description: 'The record data itself.',
-          },
-          labels: {
-            type: 'array',
-            items: {
-              type: 'ref',
-              ref: 'lex:com.atproto.label.defs#label',
-            },
-          },
-          replyCount: {
-            type: 'integer',
-          },
-          repostCount: {
-            type: 'integer',
-          },
-          likeCount: {
-            type: 'integer',
-          },
-          quoteCount: {
-            type: 'integer',
-          },
-          embeds: {
-            type: 'array',
-            items: {
-              type: 'union',
-              refs: [
-                'lex:app.bsky.embed.images#view',
-                'lex:app.bsky.embed.video#view',
-                'lex:app.bsky.embed.external#view',
-                'lex:app.bsky.embed.record#view',
-                'lex:app.bsky.embed.recordWithMedia#view',
-              ],
-            },
-          },
-          indexedAt: {
-            type: 'string',
-            format: 'datetime',
-          },
-        },
-      },
       viewNotFound: {
         type: 'object',
         required: ['uri', 'notFound'],
@@ -602,24 +525,6 @@ export const schemaDict = {
               'lex:app.bsky.embed.images',
               'lex:app.bsky.embed.video',
               'lex:app.bsky.embed.external',
-            ],
-          },
-        },
-      },
-      view: {
-        type: 'object',
-        required: ['record', 'media'],
-        properties: {
-          record: {
-            type: 'ref',
-            ref: 'lex:app.bsky.embed.record#view',
-          },
-          media: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.embed.images#view',
-              'lex:app.bsky.embed.video#view',
-              'lex:app.bsky.embed.external#view',
             ],
           },
         },
@@ -711,68 +616,6 @@ export const schemaDict = {
     lexicon: 1,
     id: 'app.bsky.feed.defs',
     defs: {
-      postView: {
-        type: 'object',
-        required: ['uri', 'cid', 'author', 'record', 'indexedAt'],
-        properties: {
-          uri: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          cid: {
-            type: 'string',
-            format: 'cid',
-          },
-          author: {
-            type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
-          },
-          record: {
-            type: 'unknown',
-          },
-          embed: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.embed.images#view',
-              'lex:app.bsky.embed.video#view',
-              'lex:app.bsky.embed.external#view',
-              'lex:app.bsky.embed.record#view',
-              'lex:app.bsky.embed.recordWithMedia#view',
-            ],
-          },
-          replyCount: {
-            type: 'integer',
-          },
-          repostCount: {
-            type: 'integer',
-          },
-          likeCount: {
-            type: 'integer',
-          },
-          quoteCount: {
-            type: 'integer',
-          },
-          indexedAt: {
-            type: 'string',
-            format: 'datetime',
-          },
-          viewer: {
-            type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#viewerState',
-          },
-          labels: {
-            type: 'array',
-            items: {
-              type: 'ref',
-              ref: 'lex:com.atproto.label.defs#label',
-            },
-          },
-          threadgate: {
-            type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#threadgateView',
-          },
-        },
-      },
       viewerState: {
         type: 'object',
         description:
@@ -811,115 +654,9 @@ export const schemaDict = {
           },
         },
       },
-      feedViewPost: {
-        type: 'object',
-        required: ['post'],
-        properties: {
-          post: {
-            type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#postView',
-          },
-          reply: {
-            type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#replyRef',
-          },
-          reason: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.feed.defs#reasonRepost',
-              'lex:app.bsky.feed.defs#reasonPin',
-            ],
-          },
-          feedContext: {
-            type: 'string',
-            description:
-              'Context provided by feed generator that may be passed back alongside interactions.',
-            maxLength: 2000,
-          },
-        },
-      },
-      replyRef: {
-        type: 'object',
-        required: ['root', 'parent'],
-        properties: {
-          root: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.feed.defs#postView',
-              'lex:ar.cabildoabierto.feed.defs#articleView',
-              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
-              'lex:app.bsky.feed.defs#notFoundPost',
-              'lex:app.bsky.feed.defs#blockedPost',
-            ],
-          },
-          parent: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.feed.defs#postView',
-              'lex:ar.cabildoabierto.feed.defs#articleView',
-              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
-              'lex:app.bsky.feed.defs#notFoundPost',
-              'lex:app.bsky.feed.defs#blockedPost',
-            ],
-          },
-          grandparentAuthor: {
-            type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
-            description:
-              'When parent is a reply to another post, this is the author of that post.',
-          },
-        },
-      },
-      reasonRepost: {
-        type: 'object',
-        required: ['by', 'indexedAt'],
-        properties: {
-          by: {
-            type: 'ref',
-            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
-          },
-          indexedAt: {
-            type: 'string',
-            format: 'datetime',
-          },
-        },
-      },
       reasonPin: {
         type: 'object',
         properties: {},
-      },
-      threadViewPost: {
-        type: 'object',
-        required: ['post'],
-        properties: {
-          post: {
-            type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#postView',
-          },
-          parent: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.feed.defs#threadViewPost',
-              'lex:app.bsky.feed.defs#notFoundPost',
-              'lex:app.bsky.feed.defs#blockedPost',
-            ],
-          },
-          replies: {
-            type: 'array',
-            items: {
-              type: 'union',
-              refs: [
-                'lex:app.bsky.feed.defs#threadViewPost',
-                'lex:app.bsky.feed.defs#notFoundPost',
-                'lex:app.bsky.feed.defs#blockedPost',
-              ],
-            },
-          },
-          threadContext: {
-            type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#threadContext',
-          },
-        },
       },
       notFoundPost: {
         type: 'object',
@@ -1045,43 +782,6 @@ export const schemaDict = {
             format: 'at-uri',
           },
         },
-      },
-      skeletonFeedPost: {
-        type: 'object',
-        required: ['post'],
-        properties: {
-          post: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          reason: {
-            type: 'union',
-            refs: [
-              'lex:app.bsky.feed.defs#skeletonReasonRepost',
-              'lex:app.bsky.feed.defs#skeletonReasonPin',
-            ],
-          },
-          feedContext: {
-            type: 'string',
-            description:
-              'Context that will be passed through to client and may be passed to feed generator back alongside interactions.',
-            maxLength: 2000,
-          },
-        },
-      },
-      skeletonReasonRepost: {
-        type: 'object',
-        required: ['repost'],
-        properties: {
-          repost: {
-            type: 'string',
-            format: 'at-uri',
-          },
-        },
-      },
-      skeletonReasonPin: {
-        type: 'object',
-        properties: {},
       },
       threadgateView: {
         type: 'object',
@@ -2158,16 +1858,6 @@ export const schemaDict = {
     description:
       'Una representación de un registro embebido (ej. en un post). Se usa para citar posts o artículos completos.',
     defs: {
-      main: {
-        type: 'object',
-        required: ['record'],
-        properties: {
-          record: {
-            type: 'ref',
-            ref: 'lex:com.atproto.repo.strongRef',
-          },
-        },
-      },
       view: {
         type: 'object',
         required: ['record'],
@@ -2175,8 +1865,157 @@ export const schemaDict = {
           record: {
             type: 'union',
             refs: [
-              'lex:ar.cabildoabierto.feed.defs#postView',
-              'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.embed.record#viewRecord',
+              'lex:ar.cabildoabierto.embed.record#viewArticleRecord',
+              'lex:app.bsky.embed.record#viewNotFound',
+              'lex:app.bsky.embed.record#viewBlocked',
+              'lex:app.bsky.embed.record#viewDetached',
+            ],
+          },
+        },
+      },
+      viewRecord: {
+        type: 'object',
+        required: ['uri', 'cid', 'author', 'value', 'indexedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          value: {
+            type: 'unknown',
+            description: 'The record data itself.',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+          replyCount: {
+            type: 'integer',
+          },
+          repostCount: {
+            type: 'integer',
+          },
+          likeCount: {
+            type: 'integer',
+          },
+          quoteCount: {
+            type: 'integer',
+          },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'union',
+              refs: [
+                'lex:app.bsky.embed.images#view',
+                'lex:app.bsky.embed.video#view',
+                'lex:app.bsky.embed.external#view',
+                'lex:ar.cabildoabierto.embed.record#view',
+                'lex:ar.cabildoabierto.embed.recordWithMedia#view',
+              ],
+            },
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+        },
+      },
+      viewArticleRecord: {
+        type: 'object',
+        required: ['uri', 'cid', 'author', 'value', 'indexedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          value: {
+            type: 'unknown',
+            description: 'The record data itself.',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+          replyCount: {
+            type: 'integer',
+          },
+          repostCount: {
+            type: 'integer',
+          },
+          likeCount: {
+            type: 'integer',
+          },
+          quoteCount: {
+            type: 'integer',
+          },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'union',
+              refs: [
+                'lex:app.bsky.embed.images#view',
+                'lex:app.bsky.embed.video#view',
+                'lex:app.bsky.embed.external#view',
+                'lex:ar.cabildoabierto.embed.record#view',
+                'lex:ar.cabildoabierto.embed.recordWithMedia#view',
+              ],
+            },
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          summary: {
+            type: 'string',
+            description: 'El resumen del artículo que se muestra en el muro.',
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoEmbedRecordWithMedia: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.embed.recordWithMedia',
+    description:
+      'A representation of a record embedded in a Bluesky record (eg, a post), alongside other compatible embeds. For example, a quote post and image, or a quote post and external URL card.',
+    defs: {
+      view: {
+        type: 'object',
+        required: ['record', 'media'],
+        properties: {
+          record: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.record#view',
+          },
+          media: {
+            type: 'union',
+            refs: [
+              'lex:app.bsky.embed.images#view',
+              'lex:app.bsky.embed.video#view',
+              'lex:app.bsky.embed.external#view',
             ],
           },
         },
@@ -2676,12 +2515,12 @@ export const schemaDict = {
           },
           reply: {
             type: 'ref',
-            ref: 'lex:app.bsky.feed.defs#replyRef',
+            ref: 'lex:ar.cabildoabierto.feed.defs#replyRef',
           },
           reason: {
             type: 'union',
             refs: [
-              'lex:app.bsky.feed.defs#reasonRepost',
+              'lex:ar.cabildoabierto.feed.defs#reasonRepost',
               'lex:app.bsky.feed.defs#reasonPin',
             ],
           },
@@ -2690,6 +2529,20 @@ export const schemaDict = {
             description:
               'Context provided by feed generator that may be passed back alongside interactions.',
             maxLength: 2000,
+          },
+        },
+      },
+      reasonRepost: {
+        type: 'object',
+        required: ['by', 'indexedAt'],
+        properties: {
+          by: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
           },
         },
       },
@@ -2732,6 +2585,38 @@ export const schemaDict = {
           },
         },
       },
+      replyRef: {
+        type: 'object',
+        required: ['root', 'parent'],
+        properties: {
+          root: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.feed.defs#postView',
+              'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
+              'lex:app.bsky.feed.defs#notFoundPost',
+              'lex:app.bsky.feed.defs#blockedPost',
+            ],
+          },
+          parent: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.feed.defs#postView',
+              'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicViewBasic',
+              'lex:app.bsky.feed.defs#notFoundPost',
+              'lex:app.bsky.feed.defs#blockedPost',
+            ],
+          },
+          grandparentAuthor: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+            description:
+              'When parent is a reply to another post, this is the author of that post.',
+          },
+        },
+      },
       postView: {
         type: 'object',
         required: ['uri', 'cid', 'author', 'record', 'indexedAt'],
@@ -2757,8 +2642,8 @@ export const schemaDict = {
               'lex:app.bsky.embed.images#view',
               'lex:app.bsky.embed.video#view',
               'lex:app.bsky.embed.external#view',
-              'lex:app.bsky.embed.record#view',
-              'lex:app.bsky.embed.recordWithMedia#view',
+              'lex:ar.cabildoabierto.embed.record#view',
+              'lex:ar.cabildoabierto.embed.recordWithMedia#view',
               'lex:ar.cabildoabierto.embed.selectionQuote#view',
               'lex:ar.cabildoabierto.embed.visualization#view',
             ],
@@ -2808,6 +2693,44 @@ export const schemaDict = {
             format: 'datetime',
           },
           editedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          voteContext: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#voteContext',
+            description:
+              'Si el usuario votó a favor o encontra de esta versión y si es una justificación de voto',
+          },
+        },
+      },
+      voteContext: {
+        type: 'object',
+        required: ['authorVotingState'],
+        properties: {
+          authorVotingState: {
+            type: 'string',
+            knownValues: ['accept', 'reject', 'none'],
+          },
+          vote: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#voteInContext',
+          },
+        },
+      },
+      voteInContext: {
+        type: 'object',
+        required: ['uri', 'subject', 'subjectCreatedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          subject: {
+            type: 'string',
+            format: 'uri',
+          },
+          subjectCreatedAt: {
             type: 'string',
             format: 'datetime',
           },
@@ -3019,6 +2942,43 @@ export const schemaDict = {
           },
         },
       },
+      skeletonFeedPost: {
+        type: 'object',
+        required: ['post'],
+        properties: {
+          post: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          reason: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.feed.defs#skeletonReasonRepost',
+              'lex:ar.cabildoabierto.feed.defs#skeletonReasonPin',
+            ],
+          },
+          feedContext: {
+            type: 'string',
+            description:
+              'Context that will be passed through to client and may be passed to feed generator back alongside interactions.',
+            maxLength: 2000,
+          },
+        },
+      },
+      skeletonReasonRepost: {
+        type: 'object',
+        required: ['repost'],
+        properties: {
+          repost: {
+            type: 'string',
+            format: 'at-uri',
+          },
+        },
+      },
+      skeletonReasonPin: {
+        type: 'object',
+        properties: {},
+      },
     },
   },
   ArCabildoabiertoNotificationGetUnreadCount: {
@@ -3212,6 +3172,34 @@ export const schemaDict = {
       },
     },
   },
+  ArCabildoabiertoWikiDefs: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.wiki.defs',
+    defs: {
+      voteView: {
+        type: 'object',
+        required: ['uri', 'cid', 'author', 'subject'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          subject: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+    },
+  },
   ArCabildoabiertoWikiTopicVersion: {
     lexicon: 1,
     id: 'ar.cabildoabierto.wiki.topicVersion',
@@ -3319,6 +3307,24 @@ export const schemaDict = {
               ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
             },
           },
+          status: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionStatus',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionViewerState',
+          },
+          protection: {
+            type: 'string',
+          },
+          replyCount: {
+            type: 'integer',
+          },
         },
       },
       topicHistory: {
@@ -3344,7 +3350,7 @@ export const schemaDict = {
       },
       versionInHistory: {
         type: 'object',
-        required: ['uri', 'cid', 'createdAt', 'author'],
+        required: ['uri', 'cid', 'createdAt', 'author', 'status'],
         properties: {
           uri: {
             type: 'string',
@@ -3397,6 +3403,9 @@ export const schemaDict = {
           claimsAuthorship: {
             type: 'boolean',
           },
+          replyCount: {
+            type: 'integer',
+          },
         },
       },
       topicVersionViewerState: {
@@ -3415,7 +3424,7 @@ export const schemaDict = {
       },
       topicVersionStatus: {
         type: 'object',
-        required: ['voteCounts'],
+        required: ['voteCounts', 'accepted'],
         properties: {
           voteCounts: {
             type: 'array',
@@ -3423,6 +3432,13 @@ export const schemaDict = {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.wiki.topicVersion#categoryVotes',
             },
+          },
+          accepted: {
+            type: 'boolean',
+          },
+          protection: {
+            type: 'string',
+            description: '',
           },
         },
       },
@@ -3627,10 +3643,10 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
-            message: {
-              type: 'string',
-              maxGraphemes: 600,
-              maxLength: 6000,
+            reason: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
+              description: 'referencia a un post que justifique el voto',
             },
             labels: {
               type: 'array',
@@ -4290,6 +4306,8 @@ export const ids = {
   ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
   ArCabildoabiertoEmbedRecord: 'ar.cabildoabierto.embed.record',
+  ArCabildoabiertoEmbedRecordWithMedia:
+    'ar.cabildoabierto.embed.recordWithMedia',
   ArCabildoabiertoEmbedSelectionQuote: 'ar.cabildoabierto.embed.selectionQuote',
   ArCabildoabiertoEmbedVisualization: 'ar.cabildoabierto.embed.visualization',
   ArCabildoabiertoFeedArticle: 'ar.cabildoabierto.feed.article',
@@ -4300,6 +4318,7 @@ export const ids = {
     'ar.cabildoabierto.notification.listNotifications',
   ArCabildoabiertoNotificationUpdateSeen:
     'ar.cabildoabierto.notification.updateSeen',
+  ArCabildoabiertoWikiDefs: 'ar.cabildoabierto.wiki.defs',
   ArCabildoabiertoWikiTopicVersion: 'ar.cabildoabierto.wiki.topicVersion',
   ArCabildoabiertoWikiVoteAccept: 'ar.cabildoabierto.wiki.voteAccept',
   ArCabildoabiertoWikiVoteReject: 'ar.cabildoabierto.wiki.voteReject',

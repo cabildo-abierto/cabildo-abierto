@@ -1,6 +1,7 @@
 import Image from "next/image";
 import {AppBskyEmbedExternal} from "@atproto/api"
 import DomainIcon from "@/components/layout/icons/domain-icon";
+import {cn} from "@/lib/utils";
 
 const Domain = ({url}: { url: string }) => {
     try {
@@ -41,11 +42,15 @@ export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
                 height={300}
             />
         </div>}
-        <div className={"" + (embed.external.thumb ? "border-t px-2 pt-2 pb-1" : "pb-1 px-2 pt-2")}>
-            <div className={"text-[15px] font-semibold break-all"}>{embed.external.title ? embed.external.title : embed.external.uri}</div>
-            <div className={"text-sm pb-1"}>{embed.external.description}</div>
-            <hr className={""}/>
-            <div className={"text-sm text-[var(--text-light)] pt-[2px]"}>
+        <div className={cn(embed.external.thumb ? "border-t px-2 pt-2 pb-1" : "pb-1 px-2 pt-2")}>
+            <div className="text-[15px] font-semibold break-all">
+                {embed.external.title ? embed.external.title : embed.external.uri}
+            </div>
+            <div className="text-sm line-clamp-2 pb-1">
+                {embed.external.description}
+            </div>
+            <hr/>
+            <div className="text-sm text-[var(--text-light)] pt-[2px]">
                 <Domain url={embed.external.uri}/>
             </div>
         </div>

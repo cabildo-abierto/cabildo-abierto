@@ -1,7 +1,7 @@
 
 
 
-export const PermissionLevel = ({level, className="text-[var(--primary)]"}: {level: string, className?: string}) => {
+export const PermissionLevel = ({level, className=""}: {level: string, className?: string}) => {
     return <span className={className}>
         {level}
     </span>

@@ -1,6 +1,6 @@
-import {OptionsDropdownButton} from "@/components/layout/options/options-dropdown-button";
 import {DownloadIcon} from "@phosphor-icons/react";
 import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-table-view";
+import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
 
 const escapeCsvValue = (value: any): string => {
     const stringValue = String(value ?? ''); // Handle null/undefined
@@ -47,9 +47,12 @@ export const OptionsDownloadDatasetButton = ({dataset, name}: {
         return {}
     }
 
-    return <OptionsDropdownButton
-        text1={"Descargar"}
-        startIcon={<DownloadIcon/>}
-        handleClick={onClickDownload}
-    />
+    return <DropdownMenuItem onClick={onClickDownload}>
+        <div>
+            <DownloadIcon fontSize={20}/>
+        </div>
+        <div>
+            Descargar
+        </div>
+    </DropdownMenuItem>
 }

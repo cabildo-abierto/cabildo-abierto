@@ -1,6 +1,6 @@
 import {usePathname, useRouter} from "next/navigation";
 import {useCategoryGraph} from "@/queries/getters/useTopics";
-import LoadingSpinner from "../layout/utils/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {topicUrl} from "@/utils/uri";
 import {ErrorPage} from "../layout/utils/error-page";
 import dynamic from "next/dynamic";

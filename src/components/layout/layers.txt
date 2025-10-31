@@ -1,0 +1,19 @@
+Capas (z-index)
+
+topbar: 1000
+sidebar: 1001
+feed config: 1002
+sort topics config: 1002
+sort tt config: 1002
+toolbar editor: 1003
+
+writepanel overlay: 1050
+create topic overlay: 1050
+
+topic history: 1500
+content options en topic history: 1501
+
+vis editor: 1500
+select en vis editor: 1501
+
+confirm modal: 1600

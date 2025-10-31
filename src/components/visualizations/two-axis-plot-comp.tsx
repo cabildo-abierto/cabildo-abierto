@@ -20,7 +20,7 @@ import {BarplotContent} from "@/components/visualizations/barplot"
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
 import {$Typed} from "@/lex-api/util";
 import {ScatterplotContent} from "@/components/visualizations/scatterplot";
-import LoadingSpinner from "../layout/utils/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 import {createAxesPlotter} from "@/components/visualizations/editor/plotter/plotter-factory";
 import {AxesPlotter} from "@/components/visualizations/editor/plotter/axes-plotter";
@@ -135,7 +135,6 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 return {plotter}
             } catch (err) {
                 if (err instanceof Error) {
-                    console.log("error plotting", err)
                     return {error: err.message}
                 } else {
                     return {error: "Ocurrió un error intentando crear el gráfico."}

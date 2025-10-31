@@ -1,5 +1,5 @@
 import {TooltipRenderProps} from "react-joyride";
-import {Button} from "../utils/button";
+import {BaseButton} from "../base/baseButton";
 
 export function CustomJoyrideTooltip(props: TooltipRenderProps) {
     const {primaryProps, step, tooltipProps, isLastStep} = props
@@ -12,9 +12,13 @@ export function CustomJoyrideTooltip(props: TooltipRenderProps) {
                 {step.content}
             </div>
             <div className="flex w-full justify-end">
-                <Button variant={"outlined"} color="background-dark" size={"small"} {...primaryProps}>
+                <BaseButton
+                    variant={"outlined"}
+                    size={"small"}
+                    {...primaryProps}
+                >
                     {isLastStep ? "Finalizar" : "Siguiente"}
-                </Button>
+                </BaseButton>
             </div>
         </div>
     )

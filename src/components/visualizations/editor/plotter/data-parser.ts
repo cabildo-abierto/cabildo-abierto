@@ -201,7 +201,7 @@ export class DataParser {
     }
 
     rawValueToDetectedType(v: any, type: DataType): ValueType | null {
-        const p = this.parseValue(v)
+        const p = this.parseValue(v, type)
         if(p.success){
             return p.value
         }

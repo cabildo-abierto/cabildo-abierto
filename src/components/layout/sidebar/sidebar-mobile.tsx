@@ -1,53 +1,42 @@
-import React from "react";
-import {useLayoutConfig} from "../layout-config-context";
-import {SwipeableDrawer} from "@mui/material";
-import {SidebarContent} from "@/components/layout/sidebar/sidebar-content";
-import {pxToNumber} from "@/utils/strings";
-
-
-
+import React from "react"
+import { useLayoutConfig } from "../layout-config-context"
+import { SidebarContent } from "@/components/layout/sidebar/sidebar-content"
+import {
+    Sheet,
+    SheetContent,
+} from "@/components/ui/sheet"
 
 export const SidebarMobile = ({
                                   setWritePanelOpen
-}: {
+                              }: {
     setWritePanelOpen: (open: boolean) => void
 }) => {
-    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    const { layoutConfig, setLayoutConfig, isMobile } = useLayoutConfig()
 
-    const drawerState = layoutConfig.openSidebar ? "expanded" : (isMobile ? "closed" : "collapsed")
-    const drawerWidth = drawerState === 'expanded' ? Math.min(pxToNumber(layoutConfig.centerWidth) * 0.8, 300) : drawerState === 'collapsed' ? 80 : 0
-    const hideBackdrop = false
+    const open = layoutConfig.openSidebar
 
-    return <SwipeableDrawer
-        key={JSON.stringify({...layoutConfig, isMobile})}
-        anchor={"left"}
-        hideBackdrop={hideBackdrop}
-        disableEnforceFocus={true}
-        open={drawerState != "closed"}
-        disableScrollLock={drawerState != "expanded" || hideBackdrop}
-        onOpen={() => {
-            setLayoutConfig((prev) => ({...prev, openSidebar: true}))
-        }}
-        onClose={() => {
-            setLayoutConfig((prev) => ({...prev, openSidebar: false}))
-        }}
-        sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            transition: 'width 0.3s',
-            '& .MuiDrawer-paper': {
-                boxShadow: "none",
-                width: drawerWidth,
-                boxSizing: 'border-box',
-                border: 'none',
-            },
+    if (!isMobile) return null
+
+    return <Sheet
+        open={open}
+        onOpenChange={(newOpen) => {
+            setLayoutConfig((prev) => ({ ...prev, openSidebar: newOpen }))
         }}
     >
-        <div className={"bg-[var(--background)] h-screen overflow-y-scroll"}>
-            <SidebarContent
-                onClose={() => {}}
-                setWritePanelOpen={setWritePanelOpen}
-            />
-        </div>
-    </SwipeableDrawer>
+        <SheetContent
+            closeClassName="hidden"
+            side="left"
+            className="w-[360px] z-[1500] max-w-[80vw] bg-[var(--background)] p-0 sm:hidden"
+            style={{ pointerEvents: open ? 'auto' : 'none', overflowY: 'visible' }}
+        >
+            <div className="h-full w-full bg-[var(--background)] custom-scrollbar overflow-y-auto">
+                <SidebarContent
+                    onClose={() => {
+                        setLayoutConfig((prev) => ({ ...prev, openSidebar: false }))
+                    }}
+                    setWritePanelOpen={setWritePanelOpen}
+                />
+            </div>
+        </SheetContent>
+    </Sheet>
 }

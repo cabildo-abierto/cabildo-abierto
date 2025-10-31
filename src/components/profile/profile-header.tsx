@@ -4,8 +4,6 @@ import Link from "next/link";
 import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {Button} from "../layout/utils/button";
-import {ArticleIcon} from "@/components/layout/icons/article-icon"
 import {emptyChar} from "@/utils/utils";
 import ProfileDescription from "@/components/profile/profile-description";
 import {FollowButton} from "@/components/profile/follow-button";
@@ -19,48 +17,12 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ContentCounters} from "./content-counters";
 import {bskyProfileUrl} from "@/utils/uri";
 import VerifyAccountButton from "@/components/profile/verify-account-button";
-import {CheckSquareIcon} from "@phosphor-icons/react";
 import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import ArticleIcon from "@/components/layout/icons/article-icon";
+import {EditProfileButton} from "@/components/profile/edit-profile-button";
+import {ProfileTODOs} from "@/components/profile/profile-todos";
 
 const FullscreenImageViewer = dynamic(() => import('@/components/layout/images/fullscreen-image-viewer'));
-const EditProfileMobile = dynamic(() => import('@/components/profile/edit-profile-modal'))
-
-
-const ProfileTODOs = ({profile, onEdit}: { profile: ArCabildoabiertoActorDefs.ProfileViewDetailed, onEdit: () => void }) => {
-
-    const todos: string[] = []
-
-    if (!profile.displayName) {
-        todos.push("Agregá un nombre")
-    }
-
-    if (!profile.avatar) {
-        todos.push("Agregá una foto de perfil")
-    }
-
-    if (!profile.description || profile.description.length == 0) {
-        todos.push("Agregá una descripción")
-    }
-
-    if (!profile.banner) {
-        todos.push("Agregá una foto de portada")
-    }
-
-    return <div className={"space-y-1 w-full"}>
-        {todos.map((t, i) => {
-            return <div key={i} onClick={onEdit}
-                        className={"hover:bg-[var(--background-dark2)] cursor-pointer flex py-1 px-2 border border-[var(--accent-dark)] w-full items-center space-x-2 bg-[var(--background-dark)]"}
-            >
-                <div>
-                    <CheckSquareIcon/>
-                </div>
-                <div className={"text-sm text-[var(--text-light)]"}>
-                    {t}
-                </div>
-            </div>
-        })}
-    </div>
-}
 
 
 type ProfileHeaderProps = {
@@ -78,12 +40,12 @@ function ProfileHeader({
                        }: ProfileHeaderProps) {
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
-    const [editingProfile, setEditingProfile] = useState(false)
     const {isMobile} = useLayoutConfig()
     const {user} = useSession()
+    if (!profile) return null
     const inCA = profile && profile.caProfile != null
-
     const isOwner = user && profile.handle == user.handle
+
 
     return <div className="flex flex-col border-b border-[var(--accent-dark)] mt-2">
         <div className={"flex flex-col relative w-full"}>
@@ -137,20 +99,7 @@ function ProfileHeader({
                 />}
 
                 {isOwner && <div className={"pt-2 pr-1"}>
-                    <Button
-                        color={"transparent"}
-                        variant={"outlined"}
-                        borderColor={"accent-dark"}
-                        sx={{
-                            borderRadius: 0,
-                        }}
-                        size={"small"}
-                        onClick={() => {
-                            setEditingProfile(true)
-                        }}
-                    >
-                        <span className={"text-[var(--text-light)]"}>Editar perfil</span>
-                    </Button>
+                    <EditProfileButton/>
                 </div>}
                 <div className={"pt-2 pr-1 flex justify-end space-x-2"}>
                     <MessageButton handle={profile.handle} profile={profile}/>
@@ -193,10 +142,10 @@ function ProfileHeader({
                         description={"Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor."}
                     >
                         <div
-                            className="text-sm bg-[var(--background-dark)] px-1 flex items-center justify-center cursor-default space-x-1"
+                            className="text-sm bg-[var(--background-dark)] px-2 py-1 flex items-center justify-center cursor-default space-x-1"
                         >
-                            <div className="text-[var(--text-light)]">
-                                <ArticleIcon color={"inherit"}/>
+                            <div>
+                                <ArticleIcon color={"var(--text-light)"}/>
                             </div>
                             <div>
                                 <PermissionLevel
@@ -223,9 +172,9 @@ function ProfileHeader({
                 </span>}
             </div>
             {isOwner && <div>
-                <ProfileTODOs profile={profile} onEdit={() => {
-                    setEditingProfile(true)
-                }}/>
+                <ProfileTODOs
+                    profile={profile}
+                />
             </div>}
         </div>
         <div className="flex mt-3 overflow-scroll no-scrollbar">
@@ -239,12 +188,6 @@ function ProfileHeader({
                 className="flex"
             />
         </div>
-        {editingProfile && <EditProfileMobile
-            open={editingProfile}
-            onClose={() => {
-                setEditingProfile(false)
-            }}
-        />}
     </div>
 }
 

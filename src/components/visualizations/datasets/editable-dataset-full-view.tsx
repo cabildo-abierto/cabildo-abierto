@@ -3,7 +3,7 @@ import {$Typed} from "@atproto/api";
 import {ColumnFilter} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 import {DatasetEditor} from "@/components/visualizations/datasets/dataset-editor";
 import {ArCabildoabiertoDataDataset} from "@/lex-api";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 
 
 export const EditableDatasetFullView = ({dataset, filters, editing, setEditing}: {

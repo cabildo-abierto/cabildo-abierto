@@ -134,7 +134,7 @@ export const NotificationCard = ({notification}: { notification: ArCabildoabiert
     } else if (notification.reason == "repost") {
         return <UserNotificationCard
             notification={notification}
-            reasonIcon={<RepostIcon fontSize={24} color={"text"}/>}
+            reasonIcon={<RepostIcon fontSize={24} color={"var(--text)"}/>}
             href={contentUrl(notification.reasonSubject)}
         >
             <Username user={notification.author}/> republicó <ContentMention uri={notification.reasonSubject}

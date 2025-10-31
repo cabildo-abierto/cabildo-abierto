@@ -28,7 +28,6 @@ export const PostImagesEditor = ({images, setImages}: PostImagesEditorProps) => 
                                 onClose={() => {
                                     setImages([...images.slice(0, index), ...images.slice(index + 1)])
                                 }}
-                                color={"background-dark"}
                                 size={"small"}
                             />
                         </div>

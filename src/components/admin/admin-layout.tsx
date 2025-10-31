@@ -2,25 +2,20 @@
 import {ReactNode} from "react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter, useSearchParams} from "next/navigation";
-import {NotFoundPage} from "../layout/utils/not-found-page";
-import {useSession} from "@/queries/getters/useSession";
 import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {AdminProtected} from "@/components/layout/admin-protected";
 
 
 export const AdminLayout = ({children}: {children: ReactNode}) => {
     const router = useRouter()
     const params = useSearchParams()
-    const {user} = useSession()
 
     function onSelection(option: string){
         router.push("/admin?s="+option)
     }
 
-    if(!user || !user.platformAdmin){
-        return <NotFoundPage/>
-    }
-
-    return <div className={"w-full"}>
+    return <AdminProtected>
+        <div className={"w-full"}>
         <div className={"w-full py-2"}>
             <SelectionComponent
                 onSelection={onSelection}
@@ -33,4 +28,5 @@ export const AdminLayout = ({children}: {children: ReactNode}) => {
         </div>
         {children}
     </div>
+    </AdminProtected>
 }

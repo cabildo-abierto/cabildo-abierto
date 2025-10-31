@@ -112,13 +112,10 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
                     setModalOpen(true)
                     return {}
                 }}
-                text1={!article ? "Publicar" : "Guardar edición"}
-                textClassName="whitespace-nowrap px-2 font-semibold text-[13px]"
                 disabled={disabled}
-                color={"background"}
-                size="medium"
-                variant={"text"}
-            />
+            >
+                {!article ? "Publicar" : "Guardar edición"}
+            </StateButton>
         </DescriptionOnHover>
         {modalOpen && <PublishArticleModal
             onSubmit={handleSubmit}

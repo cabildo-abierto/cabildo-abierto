@@ -1,11 +1,11 @@
 import {useEffect, useState} from "react";
 import {PlotConfigProps} from "@/lib/types";
 import {EditorViewer} from "./editor-viewer";
-import {AcceptButtonPanel} from "../../layout/utils/accept-button-panel";
+import {AcceptButtonPanel} from "../../layout/dialogs/accept-button-panel";
 import {CloseButton} from "../../layout/utils/close-button";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import VisualizationEditorSidebar from "@/components/visualizations/editor/visualization-editor-sidebar";
-import {Button} from "../../layout/utils/button";
+import {BaseButton} from "../../layout/base/baseButton";
 import {emptyChar} from "@/utils/utils";
 import {post} from "@/utils/fetch";
 import {TopicsDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
@@ -37,10 +37,6 @@ const ErrorPanel = ({msg}: { msg?: string }) => {
 
 export function readyToPlot(config: PlotConfigProps): config is ArCabildoabiertoEmbedVisualization.Main {
     const res = ArCabildoabiertoEmbedVisualization.validateMain(config)
-    if(res.success == false){
-        console.log("invalid vis", res.error)
-        console.log("config", config)
-    }
     return res.success
 }
 
@@ -117,7 +113,7 @@ export const VisualizationEditor = ({
     const qc = useQueryClient()
     const [creatingNewDataset, setCreatingNewDataset] = useState(false)
 
-    const baseSidebarWidth = Math.max(width / 4, 350)
+    const baseSidebarWidth = Math.max(Math.floor(width / 4), 350)
 
     useEffect(() => {
         if(config.dataSource) {
@@ -149,7 +145,10 @@ export const VisualizationEditor = ({
     if (!wideEnough) {
         return <div>
             <div className="absolute top-1 right-1">
-                <CloseButton size="small" onClose={onClose} color={"background"}/>
+                <CloseButton
+                    size="small"
+                    onClose={onClose}
+                />
             </div>
             <div className={"h-screen flex w-screen justify-center text-center items-center text-[var(--text-light)]"}>
                 Abrí el editor en una pantalla más grande
@@ -157,24 +156,25 @@ export const VisualizationEditor = ({
         </div>
     }
 
-    return <div className={"flex relative"} style={{width, height}}>
+    return <div className={"flex relative"}>
         <div className="absolute h-12 top-1 right-1 flex space-x-2 items-start">
-            <CloseButton size="small" onClose={onClose} color={"background"}/>
+            <CloseButton
+                size="small"
+                onClose={onClose}
+            />
         </div>
         {selected == "Visualización" && <div className="absolute bottom-2 right-2 flex space-x-2 items-start">
             {readyToPlot(config) ?
                 <div className={"flex justify-center w-full"}>
-                    <Button
+                    <BaseButton
                         onClick={() => {
                             onSave(config)
                         }}
-                        size={"medium"}
-                        color={"transparent"}
                     >
                     <span className={"font-bold"}>
                         Guardar
                     </span>
-                    </Button>
+                    </BaseButton>
                 </div> :
                 <div className={"h-12"}>{emptyChar}</div>
             }

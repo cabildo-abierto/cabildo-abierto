@@ -1,8 +1,7 @@
 import {PlotConfigProps} from "@/lib/types";
-import SearchableDropdown from "../../../layout/utils/searchable-dropdown";
 import {produce} from "immer";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
-import {Select} from "../../../layout/utils/select";
+import BaseSelect from "@/components/layout/base/base-select";
 
 type ElectionVisualizationConfigProps = {
     config: PlotConfigProps
@@ -13,11 +12,12 @@ type ElectionVisualizationConfigProps = {
 export const ElectionVisualizationConfig = ({
                                                 config,
                                                 setConfig,
-    columnOptions,
-}: ElectionVisualizationConfigProps) => {
-    if(ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)){
+                                                columnOptions,
+                                            }: ElectionVisualizationConfigProps) => {
+    if (ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)) {
         return <div className={"space-y-4"}>
-            <Select
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={[
                     "Legislativa",
                     "Ejecutiva"
@@ -31,10 +31,10 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
                 label="Tipo de elección"
-                fontSize={"14px"}
-                labelShrinkFontSize={"14px"}
+                itemClassName={"text-[14px]"}
             />
-            <Select
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={[
                     "Nacional",
                     "Buenos Aires",
@@ -70,14 +70,13 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
                 label="Región"
-                fontSize={"14px"}
-                labelShrinkFontSize={"14px"}
+                itemClassName={"text-[14px]"}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna candidato"}
-                size={"small"}
-                selected={config.spec.columnaNombreCandidato ?? ""}
+                value={config.spec.columnaNombreCandidato ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -86,11 +85,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna alianza"}
-                size={"small"}
-                selected={config.spec.columnaAlianza ?? ""}
+                value={config.spec.columnaAlianza ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -99,11 +98,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna distrito del candidato"}
-                size={"small"}
-                selected={config.spec.columnaDistritoCandidato ?? ""}
+                value={config.spec.columnaDistritoCandidato ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -112,11 +111,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna cargo al que se postula"}
-                size={"small"}
-                selected={config.spec.columnaCargo ?? ""}
+                value={config.spec.columnaCargo ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -125,11 +124,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna subcargo (titular o suplente)"}
-                size={"small"}
-                selected={config.spec.columnaSubcargo ?? ""}
+                value={config.spec.columnaSubcargo ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -138,11 +137,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna posición en lista"}
-                size={"small"}
-                selected={config.spec.columnaPosicion ?? ""}
+                value={config.spec.columnaPosicion ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -151,11 +150,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna tema de la wiki candidato"}
-                size={"small"}
-                selected={config.spec.columnaTopicIdCandidato ?? ""}
+                value={config.spec.columnaTopicIdCandidato ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -164,11 +163,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna tema de la wiki alianza"}
-                size={"small"}
-                selected={config.spec.columnaTopicIdAlianza ?? ""}
+                value={config.spec.columnaTopicIdAlianza ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {
@@ -177,11 +176,11 @@ export const ElectionVisualizationConfig = ({
                     }))
                 }}
             />
-            <SearchableDropdown
+            <BaseSelect
+                contentClassName={"z-[1501]"}
                 options={columnOptions}
                 label={"Columna tema de la wiki distrito"}
-                size={"small"}
-                selected={config.spec.columnaTopicIdDistrito ?? ""}
+                value={config.spec.columnaTopicIdDistrito ?? ""}
                 onChange={(v: string) => {
                     setConfig(produce(config, draft => {
                         if (ArCabildoabiertoEmbedVisualization.isEleccion(draft.spec)) {

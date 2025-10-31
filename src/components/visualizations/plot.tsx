@@ -1,22 +1,24 @@
 import {useDataset} from "@/queries/getters/useDataset";
-import LoadingSpinner from "../layout/utils/loading-spinner";
+import LoadingSpinner from "../layout/base/loading-spinner";
 import {WriteButtonIcon} from "@/components/layout/icons/write-button-icon";
 import {useState} from "react";
 import {visualizationViewToMain} from "@/components/writing/write-panel/write-post";
-import {IconButton} from "../layout/utils/icon-button";
+import {BaseIconButton} from "../layout/base/base-icon-button";
 import dynamic from "next/dynamic";
 import {useTopicsDataset} from "@/components/visualizations/editor/visualization-editor";
 import {$Typed} from "@/lex-api/util";
 import {pxToNumber} from "@/utils/strings";
-import {ClickableModalOnClick} from "../layout/utils/popover";
+import {ModalOnClick} from "../layout/utils/modal-on-click";
 import {Authorship} from "@/components/feed/frame/authorship";
 import {DateSince} from "../layout/utils/date";
 import {contentUrl} from "@/utils/uri";
 import {ChooseDatasetPanelFiltersConfig} from "@/components/visualizations/editor/choose-dataset";
 import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoDataDataset} from "@/lex-api"
-import { Button } from "../layout/utils/button";
+import {BaseButton} from "../layout/base/baseButton";
 import {TableIcon, TrashIcon} from "@phosphor-icons/react";
 import {DatasetDescription} from "@/components/visualizations/datasets/dataset-description";
+import {BaseNotButton} from "@/components/layout/base/base-not-button";
+import {cn} from "@/lib/utils";
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
@@ -44,7 +46,7 @@ export const ResponsivePlot = ({
             spec={visualization.visualization.spec}
             visualization={visualization}
         />
-    } else if(ArCabildoabiertoEmbedVisualization.isEleccion(visualization.visualization.spec)) {
+    } else if (ArCabildoabiertoEmbedVisualization.isEleccion(visualization.visualization.spec)) {
         return <ElectionVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
@@ -66,8 +68,11 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
 
     const modal = (onClose: () => void) => <div className={""}>
         {ArCabildoabiertoDataDataset.isDatasetView(dataset) && <div
-            className={"py-2 space-y-1 rounded-lg px-2 cursor-pointer bg-[var(--background-dark)]" + (href ? " hover:bg-[var(--background-dark2)]" : "")}
-            onClick={(e) => {e.stopPropagation(); if(href) window.open(href, "_blank")}}
+            className={cn("py-2 space-y-1 px-2 cursor-pointer", href && "hover:bg-[var(--background-dark2)]")}
+            onClick={(e) => {
+                e.stopPropagation();
+                if (href) window.open(href, "_blank")
+            }}
         >
             <div className={"flex justify-between space-x-1"}>
                 <div className={"font-semibold text-[16px] break-all truncate"}>
@@ -86,12 +91,12 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
             </div>
         </div>}
         {ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <div
-            className={"py-2 space-y-1 rounded-lg px-2 text-sm text-[var(--text-light)] cursor-pointer bg-[var(--background-dark)]"}
+            className={"py-2 space-y-1 px-2 text-sm text-[var(--text-light)] cursor-pointer"}
         >
             <div className={"font-semibold text-[var(--text)]"}>
                 Construído en base a propiedades en temas de la wiki.
             </div>
-            <div className={""}>
+            <div>
                 Filtro usado:
             </div>
             <div className={"pointer-events-none"}>
@@ -102,30 +107,26 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
         </div>}
     </div>
 
-    return <ClickableModalOnClick id="datos" modal={modal}>
-        <Button
+    return <ModalOnClick modal={modal} className={"z-[1501]"}>
+        <BaseNotButton
+            className={"mt-1"}
             variant={"outlined"}
-            color={"background-dark2"}
             size={"small"}
-            paddingY={"0px"}
-            style={{height: 28}}
-            startIcon={<TableIcon color="var(--text)" fontSize={12}/>}
+            startIcon={<TableIcon/>}
         >
-            <span className={"text-xs"}>
-                Datos
-            </span>
-        </Button>
-    </ClickableModalOnClick>
+            Datos
+        </BaseNotButton>
+    </ModalOnClick>
 }
 
 
-export default function Plot ({
-                         visualization,
-                         height,
-                         width,
-                         onEdit,
-                         onDelete
-                     }: {
+export default function Plot({
+                                 visualization,
+                                 height,
+                                 width,
+                                 onEdit,
+                                 onDelete
+                             }: {
     visualization: ArCabildoabiertoEmbedVisualization.View
     height?: number | string
     width?: number | string
@@ -134,38 +135,36 @@ export default function Plot ({
 }) {
     const [editing, setEditing] = useState(false)
 
-    return <div style={{height, width}} className={"relative not-article-content"}>
+    return <div
+        style={{height, width}}
+        className={"relative not-article-content"}
+    >
         <div
             className={"absolute top-0 left-2 z-[20] h-7"}
         >
-            {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ? <PlotData visualization={visualization}/> : <div/>}
+            {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ?
+                <PlotData visualization={visualization}/> : <div/>}
         </div>
         {(onEdit || onDelete) && <div className={"absolute h-7 top-2 right-2 z-[20] flex space-x-2"}>
-            {onEdit && <Button
+            {onEdit && <BaseButton
                 onClick={() => {
                     setEditing(true)
                 }}
                 variant={"outlined"}
-                color={"background-dark2"}
                 size={"small"}
-                paddingY={"0px"}
-                startIcon={<WriteButtonIcon color="var(--text)" fontSize={12}/>}
+                startIcon={<WriteButtonIcon/>}
             >
-                <span className={"text-xs"}>Editar</span>
-            </Button>}
-            {onDelete && <IconButton
+                Editar
+            </BaseButton>}
+            {onDelete && <BaseIconButton
                 size={"small"}
-                color={"background-dark2"}
+                variant={"outlined"}
                 onClick={() => {
                     onDelete()
                 }}
-                style={{
-                    borderRadius: 0,
-                    border: "1px solid var(--accent-dark)",
-                }}
             >
-                <TrashIcon color="var(--text)" fontSize={16}/>
-            </IconButton>}
+                <TrashIcon/>
+            </BaseIconButton>}
         </div>}
         <ResponsivePlot
             visualization={visualization}
@@ -214,7 +213,13 @@ export const DatasetPlotFromMain = ({visualization, dataSource, height, width, o
         $type: "ar.cabildoabierto.data.dataset#datasetView"
     })
 
-    return <Plot visualization={view} width={width} height={height} onEdit={onEdit} onDelete={onDelete}/>
+    return <Plot
+        visualization={view}
+        width={width}
+        height={height}
+        onEdit={onEdit}
+        onDelete={onDelete}
+    />
 }
 
 

@@ -1,4 +1,4 @@
-import LoadingSpinner from "../../layout/utils/loading-spinner";
+import LoadingSpinner from "../../layout/base/loading-spinner";
 
 
 export const LoadingThread = ({collection}: {collection: string}) => {

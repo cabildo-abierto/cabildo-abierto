@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button} from "../layout/utils/button";
+import {BaseButton} from "../layout/base/baseButton";
 import { TrashIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 const DeleteAccountModal = dynamic(() => import("./delete-account-modal"))
@@ -10,15 +10,14 @@ export const DeleteAccountButton = () => {
 
 
     return <div>
-        <Button
-            color={"background-dark"}
+        <BaseButton
             startIcon={<TrashIcon/>}
             onClick={() => {setDeletingAccount(true)}}
-            borderColor={"accent-dark"}
             variant={"outlined"}
+            className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]"}
         >
             Borrar cuenta
-        </Button>
+        </BaseButton>
         {deletingAccount && <DeleteAccountModal
             open={deletingAccount}
             onClose={() => {setDeletingAccount(false)}}

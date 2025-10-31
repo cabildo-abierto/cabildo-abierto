@@ -1,67 +1,31 @@
 "use client"
 
-import React, {useState, useRef, ReactNode} from 'react';
-import {Fade, Popper} from '@mui/material';
+import React, {ReactNode} from 'react';
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 
 type ModalOnHoverProps = {
     children: ReactNode
     modal: ReactNode
+    className?: string
 }
 
-export const ModalOnHover = ({children, modal}: ModalOnHoverProps) => {
-    const [open, setOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setAnchorEl(event.currentTarget);
-        setOpen(true);
-    };
-
-    const handleMouseLeave = () => {
-        timeoutRef.current = setTimeout(() => {
-            setOpen(false);
-        }, 150);
-    };
-
-    const handleModalEnter = () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-
-    const handleModalLeave = () => {
-        timeoutRef.current = setTimeout(() => {
-            setOpen(false);
-        }, 150);
-    };
+export const ModalOnHover = ({
+                                 children,
+                                 modal,
+                                 className="max-w-[300px]"
+                             }: ModalOnHoverProps) => {
 
     return (
-        <>
-            <div
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
+        <HoverCard openDelay={300} closeDelay={0}>
+            <HoverCardTrigger asChild>
                 {children}
-            </div>
-
-            <Popper
-                open={open}
-                anchorEl={anchorEl}
-                placement="bottom-start"
-                transition
-                sx={{zIndex: 1400}}
+            </HoverCardTrigger>
+            <HoverCardContent
+                className={className}
+                align={"start"}
             >
-                {({TransitionProps}) => (
-                    <Fade {...TransitionProps} timeout={350}>
-                        <div className={"mt-2"}
-                             onMouseEnter={handleModalEnter}
-                             onMouseLeave={handleModalLeave}
-                        >
-                            {modal}
-                        </div>
-                    </Fade>
-                )}
-            </Popper>
-        </>
-    );
-};
+                {modal}
+            </HoverCardContent>
+        </HoverCard>
+    )
+}

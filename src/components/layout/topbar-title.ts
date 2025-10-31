@@ -15,6 +15,8 @@ export function useTopbarTitle(): {title?: string, className?: string} {
         if(pathname.endsWith("/seguidores") || pathname.endsWith("/siguiendo")){
             const handle = pathname.split("/perfil/")[1].split("/")[0]
             return {title: `@${handle}`, className: "normal-case font-bold"}
+        } else if(pathname.endsWith("/cuentas-sugeridas")) {
+            return {title: "Cuentas sugeridas"}
         }
         return {title: "Perfil"}
     } else if(pathname.startsWith("/notificaciones")){
@@ -25,8 +27,6 @@ export function useTopbarTitle(): {title?: string, className?: string} {
         return {title: "Tus papeles"}
     } else if(pathname.startsWith("/panel")){
         return {title: "Panel de autor"}
-    } else if(pathname.startsWith("/perfil/cuentas-sugeridas")){
-        return {title: "Cuentas sugeridas"}
     } else if (pathname.startsWith("/tema") && !pathname.startsWith("/temas")) {
         return {title: "Tema"}
     } else if (pathname.startsWith("/c")) {

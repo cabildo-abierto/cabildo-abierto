@@ -1,19 +1,21 @@
 import React, {useState} from "react";
 import type {ReactNode} from "react";
-import {Color} from "../../layout/utils/color";
-import {IconButton} from "../../layout/utils/icon-button";
+import {BaseIconButton} from "../../layout/base/base-icon-button";
+import {EngagementIconWithCounter} from "@/components/layout/utils/engagement-icon-with-counter";
+import {BaseButtonProps} from "@/components/layout/base/baseButton";
 
 type ReactionButtonProps = {
     onClick: () => void
-    count: ReactNode
+    count: number
     iconActive: ReactNode
     iconInactive?: ReactNode
     active?: boolean
     disabled?: boolean
     title?: string
     stopPropagation?: boolean
-    hoverColor?: Color
     textClassName?: string
+    hideZero?: boolean
+    iconSize?: BaseButtonProps["size"]
 }
 
 export const ReactionButton = ({
@@ -24,9 +26,10 @@ export const ReactionButton = ({
                                    active = true,
                                    disabled = false,
                                    title,
-                                   hoverColor,
+                                   iconSize,
                                    stopPropagation = true,
                                    textClassName,
+                                   hideZero = false
                                }: ReactionButtonProps) => {
     const [shake, setShake] = useState(false);
 
@@ -47,21 +50,20 @@ export const ReactionButton = ({
 
     return (
         <div className={(shake ? "animate-shake" : "")}>
-            <IconButton
-                hoverColor={hoverColor}
-                color={"transparent"}
+            <BaseIconButton
                 onClick={handleClick}
                 title={title}
-                size={"small"}
-                sx={{borderRadius: 0}}
+                size={iconSize}
             >
-                <div className="flex items-start space-x-1 text-[var(--text-light)]">
-                    {active ? <div>{iconActive}</div> : <div>{iconInactive}</div>}
-                    <div className={textClassName}>
-                        {count}
-                    </div>
-                </div>
-            </IconButton>
+                <EngagementIconWithCounter
+                    iconActive={iconActive}
+                    iconInactive={iconInactive}
+                    count={count}
+                    active={active}
+                    textClassName={textClassName}
+                    hideZero={hideZero}
+                />
+            </BaseIconButton>
         </div>
     );
 };

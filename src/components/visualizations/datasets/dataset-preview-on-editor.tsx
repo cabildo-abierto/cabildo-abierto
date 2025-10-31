@@ -13,18 +13,18 @@ export const DatasetPreviewOnEditor = ({dataset, selected, onClick}: {
         onClick={onClick}
     >
         <div className={"flex justify-between space-x-1"}>
-            <div className={"font-semibold text-[16px] break-all truncate"}>
+            <div className={"font-medium text-[16px] break-all truncate"}>
                 {dataset.name}
             </div>
         </div>
-        <div className={"text-[var(--text-light)] text-sm"}>
+        <div className={"text-[var(--text-light)] text-sm font-light"}>
             <span className={"font-semibold"}>{dataset.columns.length}</span> columnas
         </div>
         <div className={"text-sm text-[var(--text-light)] truncate flex space-x-1"}>
-            <div>Publicado por</div>
+            <div className={"font-light"}>Publicado por</div>
             <Authorship author={dataset.author} onlyAuthor={true}/>
         </div>
-        <div className={"text-[var(--text-light)] text-sm"}>
+        <div className={"text-[var(--text-light)] text-sm font-light"}>
             {dataset.editedAt ? <span>
                 Últ. actualización hace <DateSince date={dataset.editedAt}/>
             </span> : <span>

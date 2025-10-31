@@ -23,7 +23,6 @@ import {
 } from "@/components/writing/write-panel/write-panel-quoted-post";
 import {$Typed} from "@/lex-api/util";
 import {EditorState} from "lexical";
-import {getPlainText} from "@/components/topics/topic/diff";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
@@ -45,8 +44,10 @@ import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {AddVisualizationButton} from "./add-visualization-button";
 import {useMarkdownFromBsky} from "@/components/writing/write-panel/use-markdown-from-bsky";
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
-import {BaseFullscreenPopup} from "../../layout/utils/base-fullscreen-popup";
-import {Button} from "../../layout/utils/button";
+import {BaseFullscreenPopup} from "../../layout/base/base-fullscreen-popup";
+import {BaseButton} from "../../layout/base/baseButton";
+import {ArCabildoabiertoEmbedRecord} from "@/lex-api/index"
+import {getAllText} from "@/components/topics/topic/history/get-all-text";
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -189,7 +190,7 @@ export type CreatePostProps = {
 }
 
 
-function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
+function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {
     if (!replyToCollection && !quotedCollection) {
         return "¿Qué está pasando?"
     } else {
@@ -199,7 +200,7 @@ function getPlaceholder(replyToCollection?: string, quotedCollection?: string) {
         } else if (isArticle(collection)) {
             return "Respondé al artículo"
         } else if (isTopicVersion(collection)) {
-            return "Responder en la discusión del tema"
+            return !isVoteReject ? "Responder en la discusión del tema" : "Justificá el rechazo"
         } else if (isVisualization(collection)) {
             return "Respondé a la visualización"
         } else if (isDataset(collection)) {
@@ -223,12 +224,17 @@ function getLinksFromEditor(editorState: EditorState) {
 }
 
 
-function usePostEditorSettings(replyToCollection?: string, quoteCollection?: string, postView?: ArCabildoabiertoFeedDefs.PostView): SettingsProps {
+function usePostEditorSettings(
+    replyToCollection: string | undefined,
+    quoteCollection: string | undefined,
+    postView: ArCabildoabiertoFeedDefs.PostView | undefined,
+    isVoteReject: boolean
+): SettingsProps {
     const p = postView?.record as AppBskyFeedPost.Record | undefined
     const {markdown} = useMarkdownFromBsky(p)
 
     return getEditorSettings({
-        placeholder: getPlaceholder(replyToCollection, quoteCollection),
+        placeholder: getPlaceholder(replyToCollection, quoteCollection, isVoteReject),
         placeholderClassName: "text-[var(--text-light)] absolute text-base top-0",
         editorClassName: "link relative h-full text-base",
         isReadOnly: false,
@@ -293,15 +299,17 @@ export const WritePost = ({
                               quotedContent,
                               handleSubmit,
                               onClose,
-                              postView
+                              postView,
+    isVoteReject
                           }: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
     onClose: () => void
     setHidden: (_: boolean) => void
-    quotedContent?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
+    quotedContent?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
+    isVoteReject?: boolean
 }) => {
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
@@ -327,11 +335,12 @@ export const WritePost = ({
 
     const isReply = replyTo != undefined
     const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
-    const quoteCollection = quotedContent ? getCollectionFromUri(quotedContent.uri) : null
+    const quoteCollection = quotedContent && "uri" in quotedContent ? getCollectionFromUri(quotedContent.uri) : null
     const settings = usePostEditorSettings(
         replyToCollection,
         quoteCollection,
-        postView
+        postView,
+        isVoteReject
     )
 
     async function handleClickSubmit(force: boolean = false) {
@@ -351,7 +360,10 @@ export const WritePost = ({
             enDiscusion,
             externalEmbedView,
             visualization,
-            quotedPost: quotedContent ? {uri: quotedContent.uri, cid: quotedContent.cid} : undefined,
+            quotedPost: quotedContent && "uri" in quotedContent && "cid" in quotedContent ? {
+                uri: quotedContent.uri,
+                cid: quotedContent.cid
+            } : undefined,
             uri: postView?.uri,
             forceEdit: force
         }
@@ -372,7 +384,7 @@ export const WritePost = ({
 
     useEffect(() => {
         if (editorState) {
-            let text = getPlainText(editorState.toJSON().root)
+            let text = getAllText(editorState.toJSON().root)
             if (text.endsWith("\n")) text = text.slice(0, text.length - 1)
             setText(text)
         }
@@ -428,7 +440,6 @@ export const WritePost = ({
                         user={user}
                         className="w-8 h-8 rounded-full"
                         descriptionOnHover={false}
-                        clickable={false}
                     />
                 </Link>
                 <div className="sm:text-lg flex-1" key={editorKey}>
@@ -459,19 +470,18 @@ export const WritePost = ({
                     setModalOpen={setVisualizationModalOpen}
                 />
             </div>
-            <div className={"flex space-x-2 text-[var(--text-light)] items-center"}>
+            <div className={"flex space-x-2 items-center"}>
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
                     variant={"outlined"}
-                    text1={postView ? "Confirmar cambios" : isReply ? "Responder" : "Publicar"}
                     handleClick={async () => {
                         return await handleClickSubmit()
                     }}
                     disabled={!valid}
-                    textClassName="font-semibold text-xs py-[2px] uppercase"
-                    size="medium"
-                />
+                >
+                    {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
+                </StateButton>
             </div>
         </div>
         {visualizationModalOpen && <InsertVisualizationModal
@@ -502,7 +512,7 @@ export const WritePost = ({
                     Abierto pero no en Bluesky.
                 </div>
                 <div className={"flex space-x-2 justify-center"}>
-                    <Button
+                    <BaseButton
                         variant={"outlined"}
                         size={"small"}
                         onClick={() => {
@@ -510,7 +520,7 @@ export const WritePost = ({
                         }}
                     >
                         Cancelar
-                    </Button>
+                    </BaseButton>
                     <StateButton
                         variant={"outlined"}
                         size={"small"}
@@ -521,8 +531,9 @@ export const WritePost = ({
                             }
                             return {error}
                         }}
-                        text1={"Editar igualmente"}
-                    />
+                    >
+                        Editar igualmente
+                    </StateButton>
                 </div>
             </div>
         </BaseFullscreenPopup>}

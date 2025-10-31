@@ -4,12 +4,11 @@ import {ArCabildoabiertoActorDefs} from "@/lex-api"
 import {post} from "@/utils/fetch";
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {darker} from "../layout/utils/button";
-import {InfiniteFeed} from "@/components/feed/feed/feed";
 import {AppBskyActorDefs} from "@atproto/api"
-import {Color} from "../layout/utils/color";
 import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {CheckIcon, PlusIcon} from "@phosphor-icons/react";
+import {InfiniteFeed} from "@/components/feed/feed/types";
+import {cn} from "@/lib/utils";
 
 const follow = async ({did}: { did: string }) => {
     return await post<{ followedDid: string }, { followUri: string }>("/follow", {followedDid: did})
@@ -167,14 +166,10 @@ const isQueryRelatedToFollow = (query: Query) => {
 export function FollowButton({
                                  handle,
                                  profile,
-                                 backgroundColor="background",
-                                 textClassName,
                                  dense=false
 }: {
-    handle: string,
+    handle: string
     profile: AppBskyActorDefs.ProfileViewDetailed | AppBskyActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewDetailed
-    backgroundColor?: Color
-    textClassName?: string
     dense?: boolean
 }) {
     const qc = useQueryClient()
@@ -248,28 +243,22 @@ export function FollowButton({
         {profile.viewer?.following ?
             <StateButton
                 handleClick={onUnfollow}
-                color={darker(backgroundColor)}
-                size="small"
                 variant="outlined"
-                startIcon={!dense && <CheckIcon size={14}/>}
-                disableElevation={true}
-                paddingX={dense ? "5px" : undefined}
-                paddingY={dense ? 0 : undefined}
-                text1="Siguiendo"
-                textClassName={textClassName + " uppercase"}
+                size={"small"}
+                startIcon={!dense && <CheckIcon/>}
+                className={cn("pressed", dense ? "px-[5px] py-[1px]" : undefined)}
                 disabled={profile.viewer?.following == "optimistic-follow"}
-            /> :
+            >
+                Siguiendo
+            </StateButton> :
             <StateButton
                 handleClick={onFollow}
-                color={darker(backgroundColor)}
-                size="small"
                 variant="outlined"
-                startIcon={!dense && <PlusIcon size={14}/>}
-                disableElevation={true}
-                paddingX={dense ? "5px" : undefined}
-                paddingY={dense ? 0 : undefined}
-                text1={followText}
-                textClassName={textClassName + " uppercase"}
-            />}
+                size={"small"}
+                startIcon={!dense && <PlusIcon/>}
+                className={dense ? "px-[5px] py-[1px]" : undefined}
+            >
+                {followText}
+            </StateButton>}
     </div>
 }

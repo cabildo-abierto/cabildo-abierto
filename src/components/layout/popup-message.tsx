@@ -1,7 +1,7 @@
 "use client"
 import {ReactNode, useEffect, useState} from "react";
 import {useSession} from "@/queries/getters/useSession";
-import {AcceptButtonPanel} from "./utils/accept-button-panel";
+import {AcceptButtonPanel} from "./dialogs/accept-button-panel";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";

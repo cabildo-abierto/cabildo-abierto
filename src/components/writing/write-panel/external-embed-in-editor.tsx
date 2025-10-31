@@ -7,11 +7,11 @@ export const ExternalEmbedInEditor = ({embed, onRemove}: {
     onRemove: () => void
 }) => {
     return <div className={"relative mt-2"}>
-        <div className={"absolute top-2 right-2"}>
+        <div className={"absolute top-2 right-1"}>
             <CloseButton
                 onClose={onRemove}
                 size={"small"}
-                color={"background-dark"}
+                variant={"outlined"}
             />
         </div>
         <PostExternalEmbed embed={embed}/>

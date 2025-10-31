@@ -6,7 +6,7 @@ import {
 import {forwardRef} from "react";
 import Link from "next/link";
 import {ProfilePic} from "@/components/profile/profile-pic";
-import LoadingSpinner from "@/components/layout/utils/loading-spinner";
+import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {profileUrl} from "@/utils/uri";
 
 

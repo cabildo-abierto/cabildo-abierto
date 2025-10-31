@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import {Button} from "./button";
+import {BaseButton} from "../base/baseButton";
 
 
 
@@ -8,12 +8,9 @@ export const NotFoundPage = () => {
       <h2 className="py-16">Error 404</h2>
       <p className="mb-16 text-lg text-[var(--text-light)]">No pudimos encontrar la página.</p>
       <Link href="/inicio">
-          <Button
-              sx={{textTransform: 'none'}}
-              variant={"contained"}
-          >
+          <BaseButton size={"small"} variant={"outlined"}>
               Volver al inicio
-          </Button>
+          </BaseButton>
       </Link>
     </div>
 }
