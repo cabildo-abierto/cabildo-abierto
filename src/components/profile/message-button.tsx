@@ -1,5 +1,3 @@
-import {ArCabildoabiertoActorDefs} from "@/lex-api"
-import {AppBskyActorDefs} from "@atproto/api"
 import MessagesIcon from "@/components/layout/icons/messages-icon";
 import {BaseIconButton} from "@/components/layout/base/base-icon-button";
 import Link from "next/link";

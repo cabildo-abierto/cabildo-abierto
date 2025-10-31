@@ -10,7 +10,7 @@ const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: () => voi
         closeButton={true}
         onClose={onClose}
         backgroundShadow={true}
-        className={"z-[1050] sm:w-auto"}
+        className={"z-[1100] sm:w-auto"}
     >
         <CreateTopic onClose={onClose} initialSelected={""}/>
     </BaseFullscreenPopup>

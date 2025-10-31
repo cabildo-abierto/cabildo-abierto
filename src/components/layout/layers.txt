@@ -10,6 +10,8 @@ toolbar editor: 1003
 writepanel overlay: 1050
 create topic overlay: 1050
 
+create topic modal: 1100
+
 topic history: 1500
 content options en topic history: 1501
 
