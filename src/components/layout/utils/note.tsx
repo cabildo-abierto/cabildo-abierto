@@ -1,16 +1,16 @@
 import {ReactNode} from "react";
+import {cn} from "@/lib/utils";
 
 
-export const Note = ({children, center=true, padding, maxWidth, text="text-sm"}: {
+export const Note = ({children, className, maxWidth, text="text-sm"}: {
     children: ReactNode
-    center?: boolean
     text?: "text-xs" | "text-sm" | "text-base"
     maxWidth?: string | number
-    padding?: string | number
+    className?: string
 }) => {
     return <div
-        style={{maxWidth, padding}}
-        className={"note font-light " + (center ? "text-center " : "") + text}
+        style={{maxWidth}}
+        className={cn("note font-light text-center", text, className)}
     >
         {children}
     </div>

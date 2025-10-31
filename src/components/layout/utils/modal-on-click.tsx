@@ -33,7 +33,7 @@ export const ModalOnClick = ({
                 {children}
             </DescriptionOnHover>
         </PopoverTrigger>
-        <PopoverContent className={cn("z-[1002]", className)}>
+        <PopoverContent className={cn("z-[1002]", className)} align={"start"}>
             {modal(onClose)}
         </PopoverContent>
     </Popover>

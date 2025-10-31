@@ -37,10 +37,6 @@ const ErrorPanel = ({msg}: { msg?: string }) => {
 
 export function readyToPlot(config: PlotConfigProps): config is ArCabildoabiertoEmbedVisualization.Main {
     const res = ArCabildoabiertoEmbedVisualization.validateMain(config)
-    if(res.success == false){
-        console.log("invalid vis", res.error)
-        console.log("config", config)
-    }
     return res.success
 }
 

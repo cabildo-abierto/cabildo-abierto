@@ -1,4 +1,3 @@
-import BaseTextFieldWithSuggestions from "../../layout/base/base-text-field-with-suggestions"
 import {PlotConfigProps} from "@/lib/types"
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {produce} from "immer"
@@ -9,6 +8,7 @@ import {useTopicsDataset} from "@/components/visualizations/editor/visualization
 import {useMemo} from "react"
 import {TwoAxisPlotConfig} from "@/components/visualizations/editor/two-axis-plot-config";
 import {ElectionVisualizationConfig} from "@/components/visualizations/editor/election/election-visualization-config";
+import BaseSelect from "@/components/layout/base/base-select";
 
 
 type PlotSpecificConfigProps = {
@@ -25,53 +25,52 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
     const dataset = datasets && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(dataSource) ? datasets.find(d => d.uri == dataSource.dataset) : undefined
 
     const columnOptions = useMemo(() => {
-        if(dataset){
+        if (dataset) {
             return dataset.columns.map(c => c.name)
-        } else if(topicsDataset && topicsDataset.data){
+        } else if (topicsDataset && topicsDataset.data) {
             return topicsDataset.data.columns.map(c => c.name)
         } else {
             return null
         }
     }, [dataset, topicsDataset])
 
-    if(!config.spec || !config.spec.$type) return null
+    if (!config.spec || !config.spec.$type) return null
 
-    if(!datasets) return <div>
+    if (!datasets) return <div>
         <LoadingSpinner/>
     </div>
 
-    if(ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec)){
+    if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(config.spec)) {
         return <TwoAxisPlotConfig
             columnOptions={columnOptions}
             config={config}
             setConfig={setConfig}
         />
     }
-    if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) {
-        return <div>
-            <BaseTextFieldWithSuggestions
-                options={columnOptions}
-                label={"Eje x"}
-                value={config.spec.xAxis ?? ""}
-                onChange={(v: string) => {
-                    setConfig(produce(config, draft => {
-                        if(ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)){
-                            draft.spec.xAxis = v
-                        }
-                    }))
-                }}
-            />
-        </div>
-    } else if(ArCabildoabiertoEmbedVisualization.isHemicycle(config.spec)){
+    if (ArCabildoabiertoEmbedVisualization.isOneAxisPlot(config.spec)) {
+        return <BaseSelect
+            contentClassName={"z-[1501]"}
+            options={columnOptions}
+            label={"Eje x"}
+            value={config.spec.xAxis ?? ""}
+            onChange={(v: string) => {
+                setConfig(produce(config, draft => {
+                    if (ArCabildoabiertoEmbedVisualization.isOneAxisPlot(draft.spec)) {
+                        draft.spec.xAxis = v
+                    }
+                }))
+            }}
+        />
+    } else if (ArCabildoabiertoEmbedVisualization.isHemicycle(config.spec)) {
         return <div>
             Sin implementar
         </div>
-    } else if(ArCabildoabiertoEmbedVisualization.isTable(config.spec)){
+    } else if (ArCabildoabiertoEmbedVisualization.isTable(config.spec)) {
         return <TableVisualizationConfig
             config={config}
             setConfig={setConfig}
         />
-    } else if(ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)) {
+    } else if (ArCabildoabiertoEmbedVisualization.isEleccion(config.spec)) {
         return <ElectionVisualizationConfig
             config={config}
             setConfig={setConfig}

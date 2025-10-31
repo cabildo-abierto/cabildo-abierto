@@ -3,7 +3,6 @@ import {useLoadImage} from "@/components/writing/write-panel/upload-image-button
 import EditImageModal from "@/components/profile/edit-image-modal";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import UploadFileIcon from "@/components/layout/icons/upload-file-icon";
-import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 
 
 export const UploadImageDropdown = ({
@@ -30,8 +29,8 @@ export const UploadImageDropdown = ({
 
     const handleMenuItemSelect = (e: Event) => {
         e.preventDefault()
-        fileInputRef.current?.click();
-    };
+        fileInputRef.current?.click()
+    }
 
     return (
         <>
@@ -59,15 +58,14 @@ export const UploadImageDropdown = ({
                         <div>
                             Subir imagen
                         </div>
-                        <VisuallyHidden>
-                            <input
-                                ref={fileInputRef}
-                                type={"file"}
-                                accept={"image/*"}
-                                onChange={loadImage}
-                                multiple={false}
-                            />
-                        </VisuallyHidden>
+                        <input
+                            className={"hidden"}
+                            ref={fileInputRef}
+                            type={"file"}
+                            accept={"image/*"}
+                            onChange={loadImage}
+                            multiple={false}
+                        />
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

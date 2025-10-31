@@ -29,6 +29,7 @@ export const UploadDatasetButton = ({text = "Subir archivo (.csv)", onSubmit}: {
     >
         {text}
         <input
+            className={"hidden"}
             ref={inputRef}
             type={"file"}
             onChange={loadDataset}

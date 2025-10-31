@@ -6,7 +6,6 @@ import {Authorship} from "@/components/feed/frame/authorship";
 import {$Typed} from "@/lex-api/util";
 import LoadingSpinner from "../../layout/base/loading-spinner";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api"
-import {DatasetSize} from "@/components/visualizations/datasets/dataset-size";
 import {DatasetOptionsButton} from "@/components/layout/options/dataset-options-button";
 
 
@@ -43,10 +42,10 @@ export const DatasetFullView = ({dataset, maxWidth, filters, onClickEdit}: {
                         description={dataset.description}
                     />
                 </>}
-                <div className={"font-semibold text-[var(--text)] mt-4"}>
+                {/*<div className={"font-semibold text-[var(--text)] mt-4"}>
                     Tamaño
                 </div>
-                <DatasetSize dataset={dataset}/>
+                <DatasetSize dataset={dataset}/>*/}
                 <div className={"font-semibold text-[var(--text)] mt-4"}>
                     Datos
                 </div>
@@ -59,7 +58,6 @@ export const DatasetFullView = ({dataset, maxWidth, filters, onClickEdit}: {
             /> :
             <div className={"py-8"}>
                 <LoadingSpinner/>
-            </div>
-        }
+            </div>}
     </div>
 }

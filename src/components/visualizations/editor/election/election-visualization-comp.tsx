@@ -9,6 +9,8 @@ import {useQuery} from "@tanstack/react-query";
 import {post} from "@/utils/fetch";
 import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
+import {Note} from "@/components/layout/utils/note";
+import {isEleccion} from "@/lex-api/types/ar/cabildoabierto/embed/visualization";
 
 type Props = {
     spec: $Typed<ArCabildoabiertoEmbedVisualization.Eleccion>
@@ -25,7 +27,18 @@ export type TopicData = {
 }
 
 async function getElectionVisualizationTopicsData(v: ArCabildoabiertoEmbedVisualization.Main) {
-    return (await post<{v: ArCabildoabiertoEmbedVisualization.Main}, TopicData[]>("/election", {v})).data
+    const valid = ArCabildoabiertoEmbedVisualization.validateMain(v)
+    if(valid.success && isEleccion(v.spec)){
+        const candidateCol = v.spec
+        const alianzaCol = v.spec.columnaTopicIdAlianza
+        const districtCol = v.spec.columnaTopicIdDistrito
+
+        if(!candidateCol && !alianzaCol && !districtCol) return {data: []}
+
+        return await post<{ v: ArCabildoabiertoEmbedVisualization.Main }, TopicData[]>("/election", {v})
+    } else {
+        return {error: "Visualización inválida."}
+    }
 }
 
 function useElectionVisualizationTopicsData(v: ArCabildoabiertoEmbedVisualization.Main) {
@@ -71,6 +84,18 @@ const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
         </div>
     }
 
+    if(!topicsData.data) {
+        if(topicsData.error == "Visualización inválida.") {
+            return <Note className={"h-full flex items-center justify-center"}>
+                Completá la configuración.
+            </Note>
+        } else {
+            return <Note className={"h-full flex items-center justify-center"}>
+                No se pudieron obtener datos de los temas asociados en la wiki.
+            </Note>
+        }
+    }
+
     return (
         <div className="flex flex-col space-y-2 bg-[var(--background)]" ref={containerRef}>
             {title && <PlotTitle title={title} fontSize={18}/>}
@@ -81,7 +106,7 @@ const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
                     dataset={dataset}
                     width={width}
                     height={500}
-                    topicsData={topicsData}
+                    topicsData={topicsData.data}
                 /> : <div><LoadingSpinner/></div>}
             </div>
             {caption && <PlotCaption caption={caption} />}

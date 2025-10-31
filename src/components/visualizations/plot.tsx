@@ -18,6 +18,7 @@ import {BaseButton} from "../layout/base/baseButton";
 import {TableIcon, TrashIcon} from "@phosphor-icons/react";
 import {DatasetDescription} from "@/components/visualizations/datasets/dataset-description";
 import {BaseNotButton} from "@/components/layout/base/base-not-button";
+import {cn} from "@/lib/utils";
 
 const TwoAxisPlotComp = dynamic(() => import("@/components/visualizations/two-axis-plot-comp"))
 const InsertVisualizationModal = dynamic(() => import("@/components/writing/write-panel/insert-visualization-modal"))
@@ -67,7 +68,7 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
 
     const modal = (onClose: () => void) => <div className={""}>
         {ArCabildoabiertoDataDataset.isDatasetView(dataset) && <div
-            className={"py-2 space-y-1 rounded-lg px-2 cursor-pointer bg-[var(--background-dark)]" + (href ? " hover:bg-[var(--background-dark2)]" : "")}
+            className={cn("py-2 space-y-1 px-2 cursor-pointer", href && "hover:bg-[var(--background-dark2)]")}
             onClick={(e) => {
                 e.stopPropagation();
                 if (href) window.open(href, "_blank")
@@ -90,12 +91,12 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
             </div>
         </div>}
         {ArCabildoabiertoDataDataset.isTopicsDatasetView(dataset) && <div
-            className={"py-2 space-y-1 rounded-lg px-2 text-sm text-[var(--text-light)] cursor-pointer bg-[var(--background-dark)]"}
+            className={"py-2 space-y-1 px-2 text-sm text-[var(--text-light)] cursor-pointer"}
         >
             <div className={"font-semibold text-[var(--text)]"}>
                 Construído en base a propiedades en temas de la wiki.
             </div>
-            <div className={""}>
+            <div>
                 Filtro usado:
             </div>
             <div className={"pointer-events-none"}>
@@ -106,7 +107,7 @@ const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisuali
         </div>}
     </div>
 
-    return <ModalOnClick modal={modal}>
+    return <ModalOnClick modal={modal} className={"z-[1501]"}>
         <BaseNotButton
             className={"mt-1"}
             variant={"outlined"}

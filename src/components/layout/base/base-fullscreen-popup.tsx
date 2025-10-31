@@ -2,7 +2,7 @@ import {ReactNode} from "react";
 import {
     Dialog,
     DialogTitle,
-    DialogContent, DialogOverlay,
+    DialogContent, DialogOverlay, DialogHeader, DialogDescription,
 } from "@/components/ui/dialog"
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 import {CloseButton} from "@/components/layout/utils/close-button";
@@ -19,19 +19,21 @@ export const BaseFullscreenPopup = ({
                                         hidden = false,
                                         disableScrollLock = true,
                                         backgroundShadow = false,
-    overlayClassName
+    overlayClassName,
+    ariaLabelledBy="panel"
                                     }: {
     open: boolean
-    children: ReactNode;
-    closeButton?: boolean;
-    onClose?: () => void;
-    className?: string;
+    children: ReactNode
+    closeButton?: boolean
+    onClose?: () => void
+    className?: string
     allowClose?: boolean
     hidden?: boolean
     disableScrollLock?: boolean
     backgroundShadow?: boolean
     zIndex?: number
     overlayClassName?: string
+    ariaLabelledBy?: string
 }) => {
     if (hidden) return <div className={"hidden"}>{children}</div>
 
@@ -43,10 +45,14 @@ export const BaseFullscreenPopup = ({
         <DialogContent
             className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)]`, className)}
             onClick={e => e.stopPropagation()}
+            aria-labelledby={ariaLabelledBy}
         >
-            <VisuallyHidden>
-                <DialogTitle>Título</DialogTitle>
-            </VisuallyHidden>
+            <DialogHeader>
+                <VisuallyHidden>
+                    <DialogTitle>Título</DialogTitle>
+                    <DialogDescription>Descripción</DialogDescription>
+                </VisuallyHidden>
+            </DialogHeader>
             {closeButton && (
                 <div className="flex justify-end mr-1 mt-1">
                     <CloseButton onClose={onClose} size={"small"}/>

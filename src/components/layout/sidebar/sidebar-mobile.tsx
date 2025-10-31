@@ -24,11 +24,12 @@ export const SidebarMobile = ({
         }}
     >
         <SheetContent
+            closeClassName="hidden"
             side="left"
-            className="w-[360px] max-w-[80vw] bg-background p-0 sm:hidden"
+            className="w-[360px] z-[1500] max-w-[80vw] bg-[var(--background)] p-0 sm:hidden"
             style={{ pointerEvents: open ? 'auto' : 'none', overflowY: 'visible' }}
         >
-            <div className="h-full w-full bg-background custom-scrollbar overflow-y-auto">
+            <div className="h-full w-full bg-[var(--background)] custom-scrollbar overflow-y-auto">
                 <SidebarContent
                     onClose={() => {
                         setLayoutConfig((prev) => ({ ...prev, openSidebar: false }))

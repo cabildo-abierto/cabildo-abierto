@@ -3,6 +3,7 @@ import {DatasetForTableView} from "@/components/visualizations/datasets/dataset-
 import {Plotter, ValueType} from "@/components/visualizations/editor/plotter/plotter";
 import {AxesPlotter} from "@/components/visualizations/editor/plotter/axes-plotter";
 
+
 export class OneAxisPlotter extends AxesPlotter {
 
     constructor(spec: ArCabildoabiertoEmbedVisualization.Main["spec"], dataset: DatasetForTableView, filters?: ArCabildoabiertoEmbedVisualization.Main["filters"]) {
