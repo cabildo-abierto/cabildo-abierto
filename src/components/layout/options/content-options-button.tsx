@@ -1,5 +1,10 @@
 import {$Typed} from "@/lex-api/util";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoDataDataset} from "@/lex-api";
+import {
+    ArCabildoabiertoFeedDefs,
+    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoDataDataset,
+    ArCabildoabiertoEmbedRecord
+} from "@/lex-api";
 import {BaseButtonProps} from "@/components/layout/base/baseButton";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {BaseNotIconButton} from "@/components/layout/base/base-not-icon-button";
@@ -13,7 +18,10 @@ import {OptionsEditContentButton} from "@/components/layout/options/options-edit
 import {AppBskyFeedPost} from "@atproto/api";
 import {useState} from "react";
 import {ConfirmEnDiscusionModal} from "@/components/layout/options/confirm-en-discusion-modal";
+import dynamic from "next/dynamic";
 
+
+const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
 
 export const ContentOptionsButton = ({
                                          record,
@@ -33,6 +41,7 @@ export const ContentOptionsButton = ({
 }) => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [enDiscusionModalOpen, setEnDiscusionModalOpen] = useState(false)
+    const [editingPost, setEditingPost] = useState(false)
 
     const reply = ArCabildoabiertoFeedDefs.isPostView(record) && record.record && "reply" in record.record ? (record.record as AppBskyFeedPost.Record).reply : undefined
 
@@ -68,7 +77,7 @@ export const ContentOptionsButton = ({
                         enDiscusion={enDiscusion}
                         onClick={() => {setEnDiscusionModalOpen(true)}}
                     />
-                    <OptionsEditContentButton record={record}/>
+                    <OptionsEditContentButton record={record} setEditingPost={setEditingPost}/>
                     <OptionsOpenInBlueskyButton uri={record.uri}/>
                     <OptionsBlueskyReactionsButton
                         showBluesky={showBluesky}
@@ -96,6 +105,16 @@ export const ContentOptionsButton = ({
             }}
             enDiscusion={enDiscusion}
             open={true}
+        />}
+        {editingPost && ArCabildoabiertoFeedDefs.isPostView(record) && <WritePanel
+            open={editingPost}
+            onClose={() => {
+                setEditingPost(false)
+            }}
+            postView={record}
+            quotedPost={
+                ArCabildoabiertoEmbedRecord.isView(record.embed) ? record.embed.record : undefined
+            }
         />}
     </>
 };

@@ -13,7 +13,7 @@ type TopicsMentionedProps = {mentions: ArCabildoabiertoFeedDefs.TopicMention[]}
 export const TopicsMentionedSmall = ({mentions}: TopicsMentionedProps) => {
     if(!mentions || mentions.length == 0) return null
 
-    const modal = <div className={"bg-[var(--background-dark)] py-2 px-4 space-y-1 rounded border"}>
+    const modal = <div>
         <div className={"font-semibold text-sm"}>Temas</div>
         {mentions.map((r, index) => {
             return <div key={index}>
@@ -26,7 +26,6 @@ export const TopicsMentionedSmall = ({mentions}: TopicsMentionedProps) => {
 
     return <ModalOnHover modal={modal}>
         <BaseIconButton
-            size={"small"}
         >
             <TopicsIcon/>
         </BaseIconButton>

@@ -60,12 +60,12 @@ export default function Page() {
                     <TeamMember name={"Luca Zanela"} handle={"lucardino.bsky.social"}/>
                 </TeamSection>
                 <TeamSection title={"Diseño gráfico"}>
-                    <TeamMember name={"Julieta de Cicco"} handle={"julidecicco.bsky.social"}/>
+                    <TeamMember name={"Julieta De Cicco"} handle={"julidecicco.bsky.social"}/>
                 </TeamSection>
                 <TeamSection title={"Consultoría"}>
                     <TeamMember name={"Paulina Becerra"} handle={"soypaulina.bsky.ar"}/>
                     <TeamMember
-                        name={"Facundo de Dios"}
+                        name={"Facundo De Dios"}
                         handle={"iknash.bsky.social"}
                     />
                 </TeamSection>

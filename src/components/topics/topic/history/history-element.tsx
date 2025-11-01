@@ -1,4 +1,3 @@
-import {ContentOptionsButton} from "@/components/layout/options/content-options-button";
 import {getAcceptCount, getRejectCount} from "../utils";
 import {DateSince} from "../../../layout/utils/date"
 import {useRouter} from "next/navigation"
@@ -15,6 +14,7 @@ import {ReplyCounter} from "@/components/feed/frame/reply-counter";
 import {StarIcon, XIcon} from "@phosphor-icons/react";
 import AuthorshipIcon from "@/components/layout/icons/authorship-icon";
 import {cn} from "@/lib/utils";
+import {HistoryElementOptionsButton} from "@/components/layout/options/history-element-options-button";
 
 
 const EditMessage = ({msg}: { msg?: string }) => {
@@ -89,7 +89,7 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
                     <div className={"text-[var(--text-light)]"}>
                         hace <DateSince date={new Date(topicVersion.createdAt)}/>
                     </div>
-                    <ContentOptionsButton
+                    <HistoryElementOptionsButton
                         className={"z-[1501]"}
                         iconSize={"small"}
                         record={{
@@ -138,7 +138,7 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
                     {claimsAuthorship &&
                         <DescriptionOnHover description={"El usuario es autor del contenido agregado."}>
                             <span className={"text-[var(--text-light)] text-xl"}>
-                                <AuthorshipIcon weight={"light"}/>
+                                <AuthorshipIcon fontSize={18} weight={"light"}/>
                             </span>
                         </DescriptionOnHover>
                     }
