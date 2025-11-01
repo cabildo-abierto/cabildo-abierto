@@ -10,7 +10,10 @@ export const TopicHistoryPanel = ({onClose, topic}: {
     topic: TopicView
 }) => {
     const {isMobile} = useLayoutConfig()
-    return <BaseFullscreenPopup open={true} className={"z-[1500] sm:w-auto"}>
+    return <BaseFullscreenPopup
+        open={true}
+        className={"z-[1500] sm:w-auto"}
+    >
         <div className={(!isMobile ? "w-[600px] pb-1" : "")}>
             <div className={"flex justify-between items-center p-2"}>
                 <div className={"font-semibold uppercase text-sm"}>
@@ -18,7 +21,11 @@ export const TopicHistoryPanel = ({onClose, topic}: {
                 </div>
                 <CloseButton onClose={onClose} size={"small"}/>
             </div>
-            <EditHistory topic={topic} className={"max-h-[70vh] overflow-y-auto custom-scrollbar"} onClose={onClose}/>
+            <EditHistory
+                topic={topic}
+                className={"max-h-[70vh] overflow-y-auto custom-scrollbar"}
+                onClose={onClose}
+            />
         </div>
     </BaseFullscreenPopup>
 

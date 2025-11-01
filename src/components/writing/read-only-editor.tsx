@@ -8,8 +8,7 @@ const ReadOnlyEditor = ({
     format,
     editorClassName="link",
     shouldPreserveNewLines = false,
-    namespace="namespace",
-    topicMentions=true
+    namespace="namespace"
 }: {
     text: string
     format: string
@@ -25,7 +24,7 @@ const ReadOnlyEditor = ({
         editorClassName,
         shouldPreserveNewLines,
         namespace,
-        topicMentions
+        topicMentions: false
     })
     
     return <LightEditor

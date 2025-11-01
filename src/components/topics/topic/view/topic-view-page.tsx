@@ -26,7 +26,7 @@ export const TopicViewPage = () => {
         return <TopicNotFoundPage/>
     }
 
-    return <div className={"mt-8 space-y-8 pb-32 " + (isMobile ? "pt-6" : "")}>
+    return <div className={" mt-8 space-y-8 pb-32 " + (isMobile ? "pt-6" : "")}>
         <div className={"absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"}>
             <EditTopicButton/>
             <TopicPropsPanel

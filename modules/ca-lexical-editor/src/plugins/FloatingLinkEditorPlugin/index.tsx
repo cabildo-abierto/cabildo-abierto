@@ -38,8 +38,12 @@ import {get} from '@/utils/fetch';
 import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import {BaseIconButton} from '@/components/layout/base/base-icon-button';
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
-import {CheckIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
-import { WriteButtonIcon } from '@/components/layout/icons/write-button-icon';
+import {CheckIcon, TrashIcon, XIcon} from '@phosphor-icons/react';
+import {WriteButtonIcon} from '@/components/layout/icons/write-button-icon';
+import {BaseTextField} from "@/components/layout/base/base-text-field";
+import {useDebounce} from "@/utils/debounce";
+import {dropdownMenuItemClass} from "@/components/ui/dropdown-menu";
+import {cn} from "@/lib/utils";
 
 
 export async function searchTopics(query: string) {
@@ -66,11 +70,11 @@ const SearchResults = ({results, setValue}: {
     }
 
     if (results.length == 0) return <></>
-    return <div className="mb-1 space-y-1">
-        {results.slice(0, 5).map((topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {
+    return <div className="space-y-1 overflow-y-auto custom-scrollbar max-h-[300px]">
+        {results.map((topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {
             return <button
                 key={topic.id}
-                className={"text-left text-sm text-[var(--text)] hover:bg-[var(--background-dark3)] bg-[var(--background-dark2)] py-2 px-2 w-full"}
+                className={cn(dropdownMenuItemClass, "w-full text-left")}
                 onClick={() => {
                     setValue(topic.id)
                 }}
@@ -78,6 +82,229 @@ const SearchResults = ({results, setValue}: {
                 {getTopicTitle(topic)}
             </button>
         })}
+    </div>
+}
+
+
+const FloatingLinkEditorEditing = ({
+                                       editorRef,
+                                       inputRef,
+                                       editedLinkUrl,
+                                       setEditedLinkUrl,
+                                       setIsLinkEditMode,
+                                       linkUrl,
+                                       lastSelection,
+                                       editor
+                                   }: {
+    editorRef: React.Ref<HTMLDivElement>,
+    editedLinkUrl: string,
+    setEditedLinkUrl: (url: string) => void
+    inputRef: React.Ref<HTMLInputElement>
+    setIsLinkEditMode: (v: boolean) => void
+    linkUrl: string
+    lastSelection: any
+    editor: LexicalEditor
+}) => {
+    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([])
+    const debouncedValue = useDebounce(editedLinkUrl, 300)
+
+
+    const handleLinkSubmission = (value: string) => {
+        if (lastSelection !== null) {
+            if (linkUrl !== '') {
+                const sanitized = sanitizeUrl(value)
+                const isInternal = value.startsWith("/")
+                const target = isInternal ? "" : "_blank"
+                editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: sanitized, target: target, rel: ""});
+                editor.update(() => {
+                    const selection = $getSelection();
+                    if ($isRangeSelection(selection)) {
+                        const parent = getSelectedNode(selection).getParent();
+                        if ($isAutoLinkNode(parent)) {
+                            const linkNode = $createLinkNode(parent.getURL(), {
+                                rel: parent.__rel,
+                                target: parent.__target,
+                                title: parent.__title,
+                            });
+                            parent.replace(linkNode, true);
+                        }
+                    }
+                });
+            }
+            setEditedLinkUrl('');
+            setIsLinkEditMode(false);
+        }
+    }
+
+    useEffect(() => {
+        async function search() {
+            if (debouncedValue.length === 0) {
+                setResults([]);
+                return;
+            }
+            setResults("loading")
+            const topics = await searchTopics(debouncedValue);
+            setResults(topics)
+        }
+
+        search();
+    }, [debouncedValue])
+
+
+    function onSelectTopic(t: string) {
+        handleLinkSubmission(encodeParentheses(topicUrl(t)))
+    }
+
+    const monitorInputInteraction = (
+        event: React.KeyboardEvent<HTMLInputElement>,
+    ) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleLinkSubmission(editedLinkUrl);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            setIsLinkEditMode(false);
+        }
+    }
+
+    const linkEditEndIcons = <div className="flex space-x-1 text-[var(--text)]">
+        <BaseIconButton
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+                handleLinkSubmission(editedLinkUrl)
+            }}
+            size={"small"}
+        >
+            <CheckIcon/>
+        </BaseIconButton>
+        <BaseIconButton
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+                setIsLinkEditMode(false);
+            }}
+            size={"small"}
+        >
+            <XIcon/>
+        </BaseIconButton>
+    </div>
+
+    return <div
+        ref={editorRef}
+        className="link-editor"
+    >
+        <div className="w-64 sm:w-96 portal group space-y-1">
+            <BaseTextField
+                ref={inputRef}
+                className="w-full bg-[var(--background-dark)]"
+                size={"large"}
+                placeholder="Ingresá un enlace o un tema a referenciar"
+                value={editedLinkUrl}
+                onChange={async (event) => {
+                    setEditedLinkUrl(event.target.value)
+                }}
+                onKeyDown={(event) => {
+                    monitorInputInteraction(event);
+                }}
+                endIcon={linkEditEndIcons}
+            />
+            {(results == "loading" || results && results.length > 0) && <div className={"panel-dark"}>
+                <SearchResults
+                    results={results}
+                    setValue={onSelectTopic}
+                />
+            </div>}
+        </div>
+    </div>
+}
+
+
+const FloatingLinkEditorView = ({
+                                    linkUrl,
+                                    editorRef,
+                                    setEditedLinkUrl,
+                                    setIsLinkEditMode,
+                                    editor
+                                }: {
+    linkUrl: string
+    editorRef: React.Ref<HTMLDivElement>
+    setEditedLinkUrl: (v: string) => void
+    setIsLinkEditMode: (v: boolean) => void
+    editor: LexicalEditor
+}) => {
+    const linkViewComp = linkUrl.startsWith("/tema") ? (
+
+        <div className="p-1 w-64 sm:w-96 panel-dark portal group">
+            <div className="flex items-center">
+                <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1 mr-1">
+                    <TopicMentionComp url={linkUrl}/>
+                </div>
+                <div className="flex space-x-1 mr-1">
+                    <BaseIconButton
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            setEditedLinkUrl(linkUrl);
+                            setIsLinkEditMode(true);
+                        }}
+                        size={"small"}
+                    >
+                        <WriteButtonIcon/>
+                    </BaseIconButton>
+                    <BaseIconButton
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+                        }}
+                        size={"small"}
+                    >
+                        <TrashIcon/>
+                    </BaseIconButton>
+                </div>
+            </div>
+        </div>
+    ) : (
+        <div className="p-1 w-64 sm:w-96 panel-dark portal group">
+            <div className="flex items-center justify-between w-full">
+                <div className="w-full overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
+                    <Link
+                        tag={"link"}
+                        href={sanitizeUrl(linkUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-ellipsis"
+                    >
+                        {linkUrl}
+                    </Link>
+                </div>
+                <div className="flex space-x-1 mr-1">
+                    <BaseIconButton
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            setEditedLinkUrl(linkUrl);
+                            setIsLinkEditMode(true);
+                        }}
+                        size={"small"}
+                    >
+                        <WriteButtonIcon/>
+                    </BaseIconButton>
+                    <BaseIconButton
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+                        }}
+                        size={"small"}
+                    >
+                        <TrashIcon/>
+                    </BaseIconButton>
+                </div>
+            </div>
+        </div>
+    );
+
+    return <div
+        ref={editorRef}
+        className="link-editor"
+    >
+        {linkViewComp}
     </div>
 }
 
@@ -104,8 +331,6 @@ function FloatingLinkEditor({
     );
     const [linkUrl, setLinkUrl] = useState('')
     const [editedLinkUrl, setEditedLinkUrl] = useState('')
-    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([])
-    const [debouncedValue, setDebouncedValue] = useState(editedLinkUrl)
 
     useEffect(() => {
         if (!isLink) {
@@ -114,28 +339,6 @@ function FloatingLinkEditor({
             setLinkUrl("")
         }
     }, [isLink]);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(editedLinkUrl);
-        }, 300);
-
-        return () => clearTimeout(handler);
-    }, [editedLinkUrl]);
-
-    useEffect(() => {
-        async function search() {
-            if (debouncedValue.length === 0) {
-                setResults([]);
-                return;
-            }
-            setResults("loading")
-            const topics = await searchTopics(debouncedValue);
-            setResults(topics)
-        }
-
-        search();
-    }, [debouncedValue])
 
     const $updateLinkEditor = useCallback(async () => {
         if (!isLink) return
@@ -281,169 +484,29 @@ function FloatingLinkEditor({
         }
     }, [isLinkEditMode, isLink]);
 
-    const monitorInputInteraction = (
-        event: React.KeyboardEvent<HTMLInputElement>,
-    ) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleLinkSubmission(editedLinkUrl);
-        } else if (event.key === 'Escape') {
-            event.preventDefault();
-            setIsLinkEditMode(false);
-        }
-    };
 
-    const handleLinkSubmission = (value: string) => {
-        if (lastSelection !== null) {
-            if (linkUrl !== '') {
-                const sanitized = sanitizeUrl(value)
-                const isInternal = value.startsWith("/")
-                const target = isInternal ? "" : "_blank"
-                editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: sanitized, target: target, rel: ""});
-                editor.update(() => {
-                    const selection = $getSelection();
-                    if ($isRangeSelection(selection)) {
-                        const parent = getSelectedNode(selection).getParent();
-                        if ($isAutoLinkNode(parent)) {
-                            const linkNode = $createLinkNode(parent.getURL(), {
-                                rel: parent.__rel,
-                                target: parent.__target,
-                                title: parent.__title,
-                            });
-                            parent.replace(linkNode, true);
-                        }
-                    }
-                });
-            }
-            setEditedLinkUrl('');
-            setIsLinkEditMode(false);
-        }
+    if (!isLink) return null
+
+    if (isLinkEditMode) {
+        return <FloatingLinkEditorEditing
+            editorRef={editorRef}
+            lastSelection={lastSelection}
+            editedLinkUrl={editedLinkUrl}
+            setEditedLinkUrl={setEditedLinkUrl}
+            editor={editor}
+            linkUrl={linkUrl}
+            setIsLinkEditMode={setIsLinkEditMode}
+            inputRef={inputRef}
+        />
+    } else {
+        return <FloatingLinkEditorView
+            editorRef={editorRef}
+            setEditedLinkUrl={setEditedLinkUrl}
+            editor={editor}
+            linkUrl={linkUrl}
+            setIsLinkEditMode={setIsLinkEditMode}
+        />
     }
-
-    function onSelectTopic(t: string) {
-        handleLinkSubmission(encodeParentheses(topicUrl(t)))
-    }
-
-    const linkEditComp = <div className="w-64 sm:w-96 p-1 panel-dark space-y-1">
-        <div className="flex items-center justify-between">
-            <input
-                ref={inputRef}
-                className="py-1 px-2 outline-none w-full bg-[var(--background-dark2)] placeholder:text-[var(--text-light)] mr-2"
-                placeholder="Ingresá un enlace o un tema a referenciar"
-                value={editedLinkUrl}
-                onChange={async (event) => {
-                    setEditedLinkUrl(event.target.value)
-                }}
-                onKeyDown={(event) => {
-                    monitorInputInteraction(event);
-                }}
-            />
-            <div className="flex space-x-1 mr-1">
-                <BaseIconButton
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => {
-                        handleLinkSubmission(editedLinkUrl)
-                    }}
-                    size={"small"}
-                >
-                    <CheckIcon/>
-                </BaseIconButton>
-                <BaseIconButton
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => {
-                        setIsLinkEditMode(false);
-                    }}
-                    size={"small"}
-                >
-                    <XIcon/>
-                </BaseIconButton>
-            </div>
-        </div>
-        <SearchResults results={results} setValue={onSelectTopic}/>
-    </div>
-
-    const linkViewComp = linkUrl.startsWith("/tema") ? (
-
-        <div className="p-1 w-64 sm:w-96 panel-dark">
-            <div className="flex items-center">
-                <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1 mr-1">
-                    <TopicMentionComp url={linkUrl}/>
-                </div>
-                <div className="flex space-x-1 mr-1">
-                    <BaseIconButton
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                            setEditedLinkUrl(linkUrl);
-                            setIsLinkEditMode(true);
-                        }}
-                        size={"small"}
-                    >
-                        <WriteButtonIcon/>
-                    </BaseIconButton>
-                    <BaseIconButton
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-                        }}
-                        size={"small"}
-                    >
-                        <TrashIcon/>
-                    </BaseIconButton>
-                </div>
-            </div>
-        </div>
-    ) : (
-        <div className="p-1 w-64 sm:w-96 panel-dark">
-            <div className="flex items-center justify-between w-full">
-                <div className="w-full overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
-                    <Link
-                        tag={"link"}
-                        href={sanitizeUrl(linkUrl)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-ellipsis"
-                    >
-                        {linkUrl}
-                    </Link>
-                </div>
-                <div className="flex space-x-1 mr-1">
-                    <BaseIconButton
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                            setEditedLinkUrl(linkUrl);
-                            setIsLinkEditMode(true);
-                        }}
-                        size={"small"}
-                    >
-                        <WriteButtonIcon/>
-                    </BaseIconButton>
-                    <BaseIconButton
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-                        }}
-                        size={"small"}
-                    >
-                        <TrashIcon/>
-                    </BaseIconButton>
-                </div>
-            </div>
-        </div>
-    );
-
-
-    return (
-        <div
-            ref={editorRef}
-            className="link-editor"
-        >
-            {!isLink ? null : isLinkEditMode ? (
-                linkEditComp
-            ) : (
-                linkViewComp
-            )}
-        </div>
-    )
 }
 
 function useFloatingLinkEditorToolbar(
@@ -508,7 +571,7 @@ function useFloatingLinkEditorToolbar(
                 COMMAND_PRIORITY_CRITICAL,
             ),
             editor.registerNodeTransform(LinkNode, (node: LinkNode) => {
-                if(activeEditor.isEditable()){
+                if (activeEditor.isEditable()) {
                     node.__target = "_blank"
                 }
             }),

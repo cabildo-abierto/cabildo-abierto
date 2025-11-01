@@ -240,7 +240,7 @@ function usePostEditorSettings(
         isReadOnly: false,
         isRichText: false,
         markdownShortcuts: false,
-        topicMentions: true,
+        topicMentions: false,
         initialText: markdown,
         initialTextFormat: "markdown"
     })

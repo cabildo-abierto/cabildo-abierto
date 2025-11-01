@@ -57,7 +57,7 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
         setWritePanelOpen={setWritePanelOpen}
     />
 
-    return <div className={"mt-12"}>
+    return <div className={"pt-12"}>
         <TopbarDesktop/>
         <ThreeColumnsLayout
             leftPanel={leftPanel}
