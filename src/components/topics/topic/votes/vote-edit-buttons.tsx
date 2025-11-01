@@ -307,6 +307,7 @@ export const VoteEditButtons = ({
             iconActive={<span className={"text-green-400"}><CheckIcon/></span>}
             iconInactive={<CheckIcon/>}
             count={acceptCount}
+            hideZero={acceptCount + rejectCount == 0}
             title={isAuthor ? "Vos escribiste esta versión." : "Aceptar versión."}
             textClassName={"text-[13px] font-light"}
             iconSize={iconSize}
@@ -323,6 +324,7 @@ export const VoteEditButtons = ({
             iconInactive={<XIcon/>}
             iconSize={iconSize}
             count={rejectCount}
+            hideZero={acceptCount + rejectCount == 0}
             textClassName={"text-[13px] font-light"}
             title={isAuthor ? "Vos escribiste esta versión." : "Rechazar versión."}
             disabled={rejectUri == "optimistic-reject-uri" || isAuthor}

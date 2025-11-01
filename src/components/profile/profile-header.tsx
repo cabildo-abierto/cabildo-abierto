@@ -101,10 +101,10 @@ function ProfileHeader({
                 {isOwner && <div className={"pt-2 pr-1"}>
                     <EditProfileButton/>
                 </div>}
-                <div className={"pt-2 pr-1 flex justify-end space-x-2"}>
+                {!isOwner && <div className={"pt-2 pr-1 flex justify-end space-x-2"}>
                     <MessageButton handle={profile.handle}/>
                     <FollowButton handle={profile.handle} profile={profile}/>
-                </div>
+                </div>}
             </div>
         </div>
         <div className="flex justify-between pr-1 space-x-2">
