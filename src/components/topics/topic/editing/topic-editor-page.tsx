@@ -33,7 +33,7 @@ export const TopicEditorPage = () => {
     }
 
     return <div className={"mt-8 space-y-8 pb-32 " + (isMobile ? "pt-6" : "")}>
-        <div className={"fixed top-14 right-2 z-[1200] space-y-2 flex flex-col items-end"}>
+        <div className={"fixed top-14 right-2 z-[200] space-y-2 flex flex-col items-end"}>
             <SaveEditButton
                 topic={topic}
                 editor={editor}

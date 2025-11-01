@@ -1,5 +1,7 @@
 Capas (z-index)
 
+botones de editar y ficha: 200
+
 topbar: 1000
 sidebar: 1001
 feed config: 1002

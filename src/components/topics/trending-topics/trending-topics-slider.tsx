@@ -1,7 +1,6 @@
 import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "@/components/topics/topic/utils";
-import {CustomLink as Link} from "../../layout/utils/custom-link";
-import {useRouter} from "next/navigation";
+import {CustomLink, CustomLink as Link} from "../../layout/utils/custom-link";
 import TopicCategories from "@/components/topics/topic/view/topic-categories";
 import {topicUrl} from "@/utils/uri";
 import TopicPopularityIndicator from "@/components/topics/topic/topic-popularity-indicator";
@@ -24,13 +23,12 @@ export const TrendingTopicInSlider = ({
     const {user} = useSession()
     const title = getTopicTitle(topic)
     const unseenUpdate = hasUnseenUpdate(user, topic)
-    const router = useRouter()
     const [hovering, setHovering] = useState<boolean>(false)
 
-    return <div
-        onClick={() => {
-            router.push(topicUrl(topic.id))
-        }} draggable={false}
+    return <CustomLink
+        tag={"div"}
+        href={topicUrl(topic.id)}
+        draggable={false}
         className="cursor-pointer flex flex-col items-start py-4 w-full px-5 sm:text-sm text-xs hover:bg-[var(--background-dark)]"
         key={topic.id}
         onMouseLeave={() => {
@@ -65,7 +63,7 @@ export const TrendingTopicInSlider = ({
             selected={selected}
             counts={topic.popularity}
         />}
-    </div>
+    </CustomLink>
 }
 
 

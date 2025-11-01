@@ -82,6 +82,12 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             <div
                 ref={editorContainerRef}
                 className={`${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+                onClick={(e) => {
+                    const target = e.target as HTMLElement
+                    if (target.closest("a")) {
+                        e.stopPropagation()
+                    }
+                }}
             >
                 <AutoLinkPlugin/>
 

@@ -75,6 +75,10 @@ const DropdownMenuContent = React.forwardRef<
 ))
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
 
+
+export const dropdownMenuItemClass = "relative bg-[var(--background)] group-[.portal]:bg-[var(--background-dark)] group-[.portal]:hover:bg-[var(--background-dark2)] uppercase text-xs flex select-none items-center gap-2 cursor-pointer px-2 py-2 outline-none focus:bg-[var(--background-dark)] transition-colors  data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0"
+
+
 const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
@@ -84,7 +88,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative bg-[var(--background)] group-[.portal]:bg-[var(--background-dark)] group-[.portal]:hover:bg-[var(--background-dark2)] uppercase text-xs flex select-none items-center gap-2 cursor-pointer px-2 py-2 outline-none focus:bg-[var(--background-dark)] transition-colors  data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
+      dropdownMenuItemClass,
       inset && "pl-8",
       className
     )}
