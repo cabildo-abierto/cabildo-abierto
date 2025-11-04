@@ -5,8 +5,9 @@ import {AdminSection} from "@/components/admin/admin-section";
 import {useState} from "react";
 import {post} from "@/utils/fetch";
 import StateButton from "../layout/utils/state-button";
-import { BaseTextField } from "../layout/base/base-text-field";
 import {useAPI} from "@/queries/utils";
+import {unique} from "@/utils/arrays";
+import BaseTextFieldWithSuggestions from "@/components/layout/base/base-text-field-with-suggestions";
 
 function useRegisteredJobs() {
     return useAPI<string[]>("/registered-jobs", ["registered-jobs"])
@@ -24,10 +25,12 @@ export const AdminPrincipal = () => {
     return <div className={"pt-16 space-y-8 pb-16"}>
         <AdminSection title="Enviar POST">
             <div className={"flex space-x-4 justify-center"}>
-                <BaseTextField
+                <BaseTextFieldWithSuggestions
+                    className={"w-64"}
                     label={"Ruta"}
                     value={route}
-                    onChange={(e) => {setRoute(e.target.value)}}
+                    options={unique(data).map(d => `/job/${d}`)}
+                    onChange={(e) => {setRoute(e)}}
                 />
                 <StateButton
                     variant="outlined"
