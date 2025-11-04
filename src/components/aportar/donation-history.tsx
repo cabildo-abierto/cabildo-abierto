@@ -11,7 +11,6 @@ export type DonationHistory = Donation[]
 
 export const DonationHistory = () => {
     let {data, isLoading} = useDonationHistory()
-    data = [{date: new Date(), amount: 500}]
 
     if (!data || data.length == 0) return null
 
