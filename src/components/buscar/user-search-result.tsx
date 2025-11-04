@@ -13,6 +13,7 @@ import {produce} from "immer";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import ValidationIcon from "../profile/validation-icon";
 import {InfiniteFeed} from "@/components/feed/feed/types";
+import UserSummaryOnHover from "@/components/profile/user-summary";
 
 
 const ReadOnlyEditor = dynamic(() => import('@/components/writing/read-only-editor'), {
@@ -96,7 +97,8 @@ const UserSearchResult = ({
             <ProfilePic user={user} className={"rounded-full aspect-square w-12"}/>
         </div>
         <div className={"space-y-[-3px] " + (isSuggestion ? "w-[55%]" : "w-[60%]")}>
-            <div className={"flex items-center space-x-1"}>
+            <UserSummaryOnHover handle={user.handle}>
+                <div className={"flex items-center space-x-1"}>
                 <div className={"truncate"}>
                     {user.displayName ? user.displayName : <>@{user.handle}</>}
                 </div>
@@ -105,8 +107,13 @@ const UserSearchResult = ({
                 </div>}
                 {!user.caProfile && <BlueskyLogo className={"w-[12px] h-auto"}/>}
             </div>
+            </UserSummaryOnHover>
             {user.displayName &&
-                <div className="text-[var(--text-light)] text-sm truncate text-ellipsis">@{user.handle}</div>}
+            <UserSummaryOnHover handle={user.handle}>
+                <div className="text-[var(--text-light)] text-sm truncate text-ellipsis">
+                    @{user.handle}
+                </div>
+            </UserSummaryOnHover>}
             {user.description && user.description.length > 0 && <div className={"text-sm pt-1 line-clamp-2"}>
                 <ReadOnlyEditor namespace={user.did} text={user.description} format={"plain-text"}/>
             </div>}

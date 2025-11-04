@@ -66,10 +66,10 @@ export default function TopbarMobile() {
             </div>
             {pathname.startsWith("/tema") && !pathname.startsWith("/temas") &&
                 <TopicTopbarRight/>}
+            {pathname.startsWith("/perfil/cuentas-sugeridas") && <div className={"flex flex-1 justify-end text-[var(--text-light)]"}>
+                <InfoPanelUserSuggestions/>
+            </div>}
         </div>
-        {pathname.startsWith("/perfil/cuentas-sugeridas") && <div className={"flex flex-1 justify-end"}>
-            <InfoPanelUserSuggestions/>
-        </div>}
         {pathname.startsWith("/inicio") && <div
             className={"h-12 w-full"}
         >

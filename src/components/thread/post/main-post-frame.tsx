@@ -11,6 +11,7 @@ import {ProfilePic} from "@/components/profile/profile-pic";
 import {localeDate} from "../../layout/utils/date";
 import ValidationIcon from "@/components/profile/validation-icon";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
+import UserSummaryOnHover from "@/components/profile/user-summary";
 
 type MainPostFrameProps = { children: ReactNode, postView: $Typed<ArCabildoabiertoFeedDefs.PostView> }
 
@@ -29,7 +30,8 @@ export const MainPostFrame = ({
                 <div className="flex justify-between items-center">
                     <div className="flex space-x-2">
                         <ProfilePic user={author} className={"w-11 h-11 rounded-full"}/>
-                        <div className="flex flex-col">
+                        <UserSummaryOnHover handle={author.handle}>
+                            <div className="flex flex-col">
                             <div className={"flex items-center space-x-1"}>
                             <Link href={authorUrl} className="hover:underline font-bold">
                                 {getUsername(author)}
@@ -40,6 +42,7 @@ export const MainPostFrame = ({
                                 @{author?.handle}
                             </Link>
                         </div>
+                        </UserSummaryOnHover>
                     </div>
                     {/* TO DO <FollowButtonInContent/>*/}
                 </div>
