@@ -1,7 +1,6 @@
 "use client"
 
 import React, {ReactNode, useEffect, useState} from "react";
-import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
@@ -9,19 +8,11 @@ import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
 import {useTopics} from "@/queries/getters/useTopics";
-import {smoothScrollTo} from "../utils/scroll";
-import {tutorialLocale, tutorialStyles} from "@/components/layout/tutorial/styles";
-import {CustomJoyrideTooltip} from "@/components/layout/tutorial/custom-tooltip";
-
-
-const TourContent = ({children}: {children: ReactNode}) => {
-    return <span className={"text-[var(--text-light)] sm:text-base text-sm"}>{children}</span>
-}
+import {AcceptButtonPanel} from "@/components/layout/dialogs/accept-button-panel";
 
 
 const RunTutorial = ({children}: { children: ReactNode }) => {
     const [runStatus, setRunStatus] = useState<"not started" | "running" | "finished">("not started")
-    const [stepIndex, setStepIndex] = useState<number>(0)
     const qc = useQueryClient()
     const {data: topics} = useTopics([], "popular", "week")
 
@@ -30,96 +21,6 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             setRunStatus("running")
         }
     }, [topics]);
-
-    const steps: Step[] = [
-        {
-            target: "body",
-            content: <TourContent>
-                Te damos la bienvenida a la wiki de Cabildo Abierto.
-            </TourContent>,
-            placement: 'center',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-search-result',
-            content: <TourContent>
-                Este es un <span className={"font-semibold"}>tema</span>.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-categories',
-            content: <TourContent>
-                Acá aparecen las categorías a las que pertenece.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-popularity',
-            content: <TourContent>
-                Esta es la cantidad de personas que participó en la discusión del tema en la última semana.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topic-search-result',
-            content: <TourContent>
-                Cada tema tiene una página propia, podés entrar haciendo clic cuando termine el tutorial.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#lista',
-            content: <TourContent>
-                En este momento estamos viendo los temas como una lista.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#topics-sort-selector',
-            content: <TourContent>
-                La lista se puede ordenar por distintos criterios.
-            </TourContent>,
-            placement: 'bottom',
-            disableBeacon: true,
-            hideBackButton: true
-        },
-        {
-            target: '#mapa',
-            content: <TourContent>
-                También podés ver los temas como un mapa.
-            </TourContent>,
-            placement: 'bottom',
-            hideBackButton: true
-        },
-        {
-            target: '#category-selector',
-            content: <TourContent>
-                Estas son las categorías que se crearon hasta ahora. Podés usarlas para encontrar más rápido temas que te interesen.
-            </TourContent>,
-            placement: 'bottom',
-            hideBackButton: true
-        },
-        {
-            target: '#new-topic-button',
-            content: <TourContent>
-                ¿Falta algún tema? Crealo con este botón.
-            </TourContent>,
-            placement: 'bottom',
-            hideBackButton: true,
-        }
-    ]
 
     async function setSeenTutorial() {
         qc.setQueryData(["session"], old => {
@@ -136,36 +37,23 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
         }
     }, [runStatus])
 
-    const handleJoyrideCallback = async (data: CallBackProps) => {
-        const {status} = data;
-        const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
-
-        smoothScrollTo(0)
-
-        if (data.type == "step:after") {
-            setStepIndex(data.index+1)
-        } else if (finishedStatuses.includes(status)) {
-            setRunStatus("finished")
-        }
-    };
-
     return (
         <>
-            <Joyride
-                steps={steps}
-                stepIndex={stepIndex}
-                run={runStatus == "running"}
-                continuous
-                scrollToFirstStep={false}
-                disableScrolling={true}
-                showProgress={false}
-                disableOverlayClose={true}
-                spotlightClicks={true}
-                callback={handleJoyrideCallback}
-                locale={tutorialLocale}
-                styles={tutorialStyles}
-                tooltipComponent={CustomJoyrideTooltip}
-            />
+            <AcceptButtonPanel
+                onClose={() => {setRunStatus("finished")}}
+                open={runStatus == "running"}
+                className={"max-w-[400px] font-light space-y-2"}
+            >
+                <p>
+                    Por cada tema de discusión en Cabildo Abierto hay un artículo que cualquier usuario puede editar en el que se reúne información.
+                </p>
+                <p>
+                    Además, cada tema tiene una sección de discusión y un muro en el que se muestran las menciones que recibió.
+                </p>
+                <p>
+                    Hacé click en un tema para ver su contenido.
+                </p>
+            </AcceptButtonPanel>
             {children}
         </>
     )
