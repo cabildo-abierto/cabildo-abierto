@@ -25,7 +25,7 @@ export type StatsDashboard = {
 }
 
 
-const WAUPlot = ({data, title}: {
+export const WAUPlot = ({data, title}: {
     data: StatsDashboard["WAUPlot"]
     title: string
 }) => {

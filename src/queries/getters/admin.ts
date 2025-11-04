@@ -27,20 +27,6 @@ export function useStatsDashboard() {
 }
 
 
-export type ActivityStats = {
-    did: string
-    handle: string
-    articles: number
-    topicVersions: number
-    enDiscusion: number
-    income: number
-}[]
-
-export function useActivityStats() {
-    return useAPI<ActivityStats>("/activity-stats", ["activity-stats"])
-}
-
-
 export type UserSyncStatus = {
     did: string
     handle: string | null

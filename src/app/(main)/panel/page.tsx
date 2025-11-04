@@ -122,7 +122,7 @@ const CardStat = ({label, value, info, moreInfoHref}: {
             {value}
         </span>
         </div>
-        {info && <InfoPanel text={info} moreInfoHref={moreInfoHref}/>}
+        {info && <InfoPanel iconFontSize={16} text={info} moreInfoHref={moreInfoHref}/>}
     </div>
 }
 
