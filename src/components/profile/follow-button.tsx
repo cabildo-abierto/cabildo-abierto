@@ -49,7 +49,10 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if(draft.profiles[index].viewer) draft.profiles[index].viewer.following = "optimistic-follow"
+                            if(!draft.profiles[index].viewer) {
+                                draft.profiles[index].viewer = {}
+                            }
+                            draft.profiles[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
@@ -58,6 +61,9 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                         for(let i = 0; i < draft.pages.length; i++){
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
+                                if(!draft.pages[i].data[index].viewer){
+                                    draft.pages[i].data[index].viewer = {}
+                                }
                                 draft.pages[i].data[index].viewer.following = "optimistic-follow"
                             }
                         }
@@ -80,7 +86,7 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
-                        draft.viewer.following = undefined
+                        if(draft.viewer) draft.viewer.following = undefined
                         draft.bskyFollowersCount--
                         draft.followersCount--
                     })
@@ -89,7 +95,7 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
                         const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            draft[index].viewer.following = undefined
+                            if(draft[index].viewer) draft[index].viewer.following = undefined
                         }
                     })
                 } else if(k[0] == "follow-suggestions"){
@@ -97,7 +103,7 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            draft.profiles[index].viewer.following = undefined
+                            if(draft.profiles[index].viewer) draft.profiles[index].viewer.following = undefined
                         }
                     })
                 } else if(k[0] == "follow-suggestions-feed") {
@@ -106,7 +112,7 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                         for(let i = 0; i < draft.pages.length; i++){
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
-                                draft.pages[i].data[index].viewer.following = undefined
+                                if(draft.pages[i].data[index].viewer) draft.pages[i].data[index].viewer.following = undefined
                             }
                         }
                     })
@@ -202,9 +208,13 @@ export function FollowButton({
     const unfollowMutation = useMutation({
         mutationFn: unfollow,
         onMutate: (f) => {
-            optimisticUnfollow(qc, handle)
+            try {
+                optimisticUnfollow(qc, handle)
+            } catch (err) {
+                console.log("unfollowing failed", err)
+            }
         },
-        onSettled: () => {
+        onSuccess: () => {
             qc.invalidateQueries({
                 predicate: (query: Query) => {
                     return isQueryRelatedToFollow(query)

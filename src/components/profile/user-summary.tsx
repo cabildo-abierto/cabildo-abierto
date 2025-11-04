@@ -24,7 +24,7 @@ const UserSummaryOnHover = ({children, handle}: { children: ReactNode, handle: s
 
     const className: string = 'w-12 h-12 rounded-full';
 
-    return <HoverCard openDelay={300} closeDelay={0}>
+    return <HoverCard openDelay={300} closeDelay={300}>
         <HoverCardTrigger asChild>
             {children}
         </HoverCardTrigger>
@@ -48,7 +48,7 @@ const UserSummaryOnHover = ({children, handle}: { children: ReactNode, handle: s
             <div className="flex flex-col items-start">
                 <div className={"flex space-x-1 items-center"}>
                     <Link
-                        className="font-semibold  text-base"
+                        className="font-semibold text-base"
                         href={profileUrl(profile.handle)}
                     >
                         {profile.displayName}
@@ -60,7 +60,7 @@ const UserSummaryOnHover = ({children, handle}: { children: ReactNode, handle: s
                     />
                 </div>
                 <Link
-                    className="text-[var(--text-light)]"
+                    className="text-[var(--text-light)] text-sm"
                     href={profileUrl(profile.handle)}
                 >
                     @{profile.handle}
