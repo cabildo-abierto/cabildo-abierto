@@ -9,9 +9,9 @@ export const ConfirmModal = ({
     text,
     onConfirm,
     onClose,
-    confirmButtonText,
+    confirmButtonText="Confirmar",
     confirmButtonClassName,
-    confirmButtonVariant
+    confirmButtonVariant="outlined"
 }: {
     title: string,
     text: string,
