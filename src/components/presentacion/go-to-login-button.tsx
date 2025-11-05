@@ -4,15 +4,18 @@ import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {useSession} from "@/queries/getters/useSession";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useMediaQuery} from "usehooks-ts";
+import {cn} from "@/lib/utils";
 
 
 export const GoToLoginButton = ({
-                                    fontSize = 13,
-                                    className = "font-semibold",
-                                    text = "Crear una cuenta o iniciar sesión"
+                                    className,
+                                    textClassName = "font-semibold",
+                                    text = "Crear una cuenta o iniciar sesión",
+    inviteClassName
                                 }: {
+    textClassName?: string
     className?: string
-    fontSize?: number
+    inviteClassName?: string
     text?: string
 }) => {
     const {setLoginModalOpen} = useLoginModal()
@@ -34,18 +37,19 @@ export const GoToLoginButton = ({
             }
         }}
         letterSpacing={"0em"}
+        className={className}
     >
-        <div className={"flex flex-col"}>
+        <div className={"flex flex-col items-center"}>
             {code && <div
-                className={"text-[11px] flex items-center space-x-2 justify-center"}
-                style={{
-                    textTransform: "none",
-                    letterSpacing: "0em",
-                }}
+                className={cn("text-[11px] text-[var(--text-light)] flex items-center space-x-2 justify-center  whitespace-break-spaces normal-case", inviteClassName)}
             >
                 <span>¡Recibiste un código de invitación!</span>
             </div>}
-            <div className={className} style={{fontSize}}>{text}</div>
+            <div
+                className={cn("text-[13px] whitespace-break-spaces", textClassName)}
+            >
+                {text}
+            </div>
         </div>
     </BaseButton>
 }

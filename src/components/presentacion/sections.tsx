@@ -241,11 +241,18 @@ export const PresentacionAbierto = () => {
 export const PresentacionInicio = () => {
 
     return <>
-        <div className="absolute top-4 right-4 w-48 z-10 md:hidden">
-            <GoToLoginButton fontSize={12}/>
+        <div className="absolute top-4 right-4 z-10 md:hidden">
+            <GoToLoginButton
+                className={"max-w-52"}
+                inviteClassName={"text-[10px]"}
+                textClassName={"text-[12px]"}
+            />
         </div>
         <div className="absolute top-10 right-10 z-10 hidden md:block">
-            <GoToLoginButton fontSize={12}/>
+            <GoToLoginButton
+                inviteClassName={"text-[11px] text-[var(--text-light)]"}
+                textClassName={"text-[12px] whitespace-break-spaces"}
+            />
         </div>
         <div className={"relative flex flex-col h-[500px] justify-center space-y-12 items-center"}>
             <div className="flex items-center flex-col space-y-12">

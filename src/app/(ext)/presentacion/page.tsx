@@ -19,8 +19,7 @@ export default function Page() {
         <PresentacionAbierto/>
         <div className="pb-8 z-10 bg-[var(--background-dark)] portal group w-full flex justify-center">
             <GoToLoginButton
-                className="w-36 sm:w-48 font-semibold sm:p-1"
-                fontSize={16}
+                textClassName="w-36 sm:w-48 font-semibold sm:p-1 text-[16px]"
                 text={"Empezar"}
             />
         </div>
