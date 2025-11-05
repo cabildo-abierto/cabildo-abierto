@@ -107,7 +107,7 @@ export const RepostCounter = ({
                     }}
                     disabled={getRkeyFromUri(content.uri) == "optimistic"}
                 >
-                    <RepostIcon color="text" fontSize={20}/>
+                    <RepostIcon color="var(--text)" fontSize={20}/>
                     <div>
                         Republicar
                     </div>
@@ -120,7 +120,7 @@ export const RepostCounter = ({
                     }}
                     disabled={content.viewer.repost == "optimistic-repost-uri"}
                 >
-                    <RepostIcon color="text" fontSize={20}/>
+                    <RepostIcon color="var(--text)" fontSize={20}/>
                     <div>
                         Eliminar republicación
                     </div>
