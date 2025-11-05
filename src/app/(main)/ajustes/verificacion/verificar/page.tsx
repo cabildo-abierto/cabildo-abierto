@@ -1,0 +1,38 @@
+"use client"
+import {BaseButton} from "@/components/layout/base/baseButton";
+import { Note } from "@/components/layout/utils/note";
+import ValidationIcon from "@/components/profile/validation-icon";
+import {useRouter} from "next/navigation";
+
+
+export default function Page() {
+    const router = useRouter()
+
+    return <div className={"py-8 space-y-12"}>
+        <Note>
+            Verificá tu cuenta. Es fácil, gratis y cualquiera lo puede hacer.
+        </Note>
+        <div className={"space-y-4 flex flex-col justify-center items-center"}>
+            <BaseButton
+                className={"w-[300px]"}
+                variant={"outlined"}
+                onClick={() => {
+                    router.push("/ajustes/verificacion/verificar/persona")
+                }}
+                startIcon={<ValidationIcon verification={"persona"}/>}
+            >
+                Es mi cuenta personal
+            </BaseButton>
+            <BaseButton
+                className={"w-[300px]"}
+                variant={"outlined"}
+                onClick={() => {
+                    router.push("/ajustes/verificacion/verificar/org")
+                }}
+                startIcon={<ValidationIcon verification={"org"}/>}
+            >
+                Representa a una organización
+            </BaseButton>
+        </div>
+    </div>
+}

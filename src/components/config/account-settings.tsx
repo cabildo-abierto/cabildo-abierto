@@ -70,7 +70,7 @@ export const AccountSettings = () => {
         <SettingsElement label={"Verificación de la cuenta"}>
             {!request || request.result != "Aceptada" ? "Sin verificar." : (request.type == "persona" ? "Cuenta de persona verificada." : "Cuenta de organización verificada.")} {(!request.result || request.result != "Aceptada") && <Link
                 className="underline hover:text-[var(--text-light)]"
-                href={"/ajustes/solicitar-validacion"}
+                href={"/ajustes/verificacion/verificar"}
             >
                 Verificar cuenta
             </Link>}

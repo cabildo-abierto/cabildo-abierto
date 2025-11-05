@@ -24,7 +24,8 @@ const TopbarCenter = () => {
         pathname.startsWith("/tema") && !pathname.startsWith("/temas") ||
         pathname.startsWith("/aportar") ||
         pathname.startsWith("/escribir/articulo") ||
-        pathname.startsWith("/perfil")
+        pathname.startsWith("/perfil") ||
+        pathname.startsWith("/ajustes")
 
     const showTitle = !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && !pathname.startsWith("/tema/menciones")
 
