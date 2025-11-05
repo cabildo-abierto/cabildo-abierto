@@ -4,8 +4,24 @@ export function useTopbarTitle(): {title?: string, className?: string} {
     const pathname = usePathname()
     const params = useSearchParams()
     if(pathname.startsWith("/ajustes")){
-        if(pathname.includes("compartir")){
+        if(pathname.includes("compartir")) {
             return {title: "Compartir"}
+        } else if(pathname.startsWith("/ajustes/verificacion")) {
+            if(pathname.startsWith("/ajustes/verificacion/verificar/org")) {
+                return {title: "Verificación de organización"}
+            } else if(pathname.startsWith("/ajustes/verificacion/verificar/persona")) {
+                if(pathname.startsWith("/ajustes/verificacion/verificar/persona/dni")) {
+                    return {title: "Verificación con DNI"}
+                } else if(pathname.startsWith("/ajustes/verificacion/verificar/persona/mp")) {
+                    return {title: "Verificación con Mercado Pago"}
+                } else {
+                    return {title: "Verificación de cuenta personal"}
+                }
+            } else if(pathname.startsWith("/ajustes/verificacion/verificar")) {
+                return {title: "Verificar mi cuenta"}
+            } else {
+                return {title: "Verificación de cuentas"}
+            }
         } else {
             return {title: "Ajustes"}
         }

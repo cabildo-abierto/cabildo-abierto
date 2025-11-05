@@ -1,31 +1,28 @@
 import { ReactNode, useState } from "react"
+import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
+import {cn} from "@/lib/utils";
 
-export const Desplegable = ({
-    text,
-    btn,
-    btnOpen
-}: {
-    text: ReactNode;
-    btn: ReactNode;
-    btnOpen: ReactNode;
+export const Desplegable = ({children, text, className}: {
+    children: ReactNode,
+    text: string
+    className?: string
 }) => {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false)
 
-    return (
-        <div className="flex flex-col items-center">
-            <div
-                className="cursor-pointer"
-                onClick={() => setOpen(!open)}
-            >
-                {open ? btnOpen : btn}
-            </div>
-            <div
-                className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                    open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                }`}
-            >
+    return <div className={cn("font-light text-base", className)}>
+        <button
+            onClick={() => {
+                setOpen(!open)
+            }}
+            className={"flex space-x-1 items-center  hover:text-[var(--text-light)]"}
+        >
+            <span>
                 {text}
-            </div>
-        </div>
-    );
-};
+            </span>
+            {open ? <CaretUpIcon/> : <CaretDownIcon/>}
+        </button>
+        {open && <div className={"mt-2 pb-4"}>
+            {children}
+        </div>}
+    </div>
+}
