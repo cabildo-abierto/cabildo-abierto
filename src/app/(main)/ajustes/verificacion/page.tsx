@@ -8,11 +8,14 @@ import {
 import StateButton from "../../../../components/layout/utils/state-button";
 import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
 import {useQueryClient} from "@tanstack/react-query";
+import {cn} from "@/lib/utils";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 const Page = () => {
     const {data: curRequest} = useCurrentValidationRequest()
     const qc = useQueryClient()
+    const {isMobile} = useLayoutConfig()
 
     async function onCancel() {
         const {error} = await post<{}, {}>("/validation-request/cancel", {})
@@ -24,17 +27,17 @@ const Page = () => {
 
     return <>
         {curRequest && curRequest.result == "Aceptada" &&
-            <div className={"flex flex-col items-center space-y-4 p-8 bg-[var(--background-dark)] rounded-lg"}>
-                <div
-                    className={"h-16 w-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center text-green-400"}>
-                    <CheckIcon fontSize={24}/>
-                </div>
-                <div className={"text-lg text-[var(--text-light)] font-semibold"}>
-                    Tu cuenta ya está verificada
-                </div>
-            </div>}
+        <div className={cn("flex flex-col items-center space-y-4 p-8 mt-16 panel-dark", isMobile && "mx-2 w-auto")}>
+            <div
+                className={"h-16 w-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center text-green-400"}>
+                <CheckIcon fontSize={24}/>
+            </div>
+            <div className={"text-lg text-[var(--text-light)] font-semibold"}>
+                Tu cuenta ya está verificada
+            </div>
+        </div>}
         {curRequest && curRequest.type && curRequest.result == "Pendiente" && <div>
-            <div className={"bg-[var(--background-dark)] p-4 w-full space-y-8 flex flex-col items-center"}>
+            <div className={cn("panel-dark portal group mt-4 p-4 w-full space-y-8 flex flex-col items-center", isMobile && "mx-2 w-auto")}>
                 <div>
                     <HourglassIcon/>
                 </div>
@@ -51,6 +54,7 @@ const Page = () => {
                 </div>
                 <div className={"flex justify-end w-full"}>
                     <StateButton
+                        variant={"outlined"}
                         endIcon={<TrashIcon/>}
                         size={"small"}
                         handleClick={onCancel}

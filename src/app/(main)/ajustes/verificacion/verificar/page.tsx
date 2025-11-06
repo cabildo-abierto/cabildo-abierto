@@ -31,7 +31,7 @@ export default function Page() {
                 }}
                 startIcon={<ValidationIcon verification={"org"}/>}
             >
-                Representa a una organización
+                Represento a una organización
             </BaseButton>
         </div>
     </div>

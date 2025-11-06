@@ -3,7 +3,7 @@ import { useLayoutConfig } from "../layout-config-context"
 import { SidebarContent } from "@/components/layout/sidebar/sidebar-content"
 import {
     Sheet,
-    SheetContent,
+    SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet"
 
 export const SidebarMobile = ({
@@ -23,6 +23,11 @@ export const SidebarMobile = ({
             setLayoutConfig((prev) => ({ ...prev, openSidebar: newOpen }))
         }}
     >
+        <SheetHeader>
+            <SheetTitle>
+                Barra lateral
+            </SheetTitle>
+        </SheetHeader>
         <SheetContent
             closeClassName="hidden"
             side="left"

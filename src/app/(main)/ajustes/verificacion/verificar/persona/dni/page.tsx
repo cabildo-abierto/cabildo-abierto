@@ -7,15 +7,15 @@ import {FormItemWithFiles} from "@/components/ajustes/verificar/form-item";
 import {DNIValidationRequestProps} from "@/components/ajustes/verificar/types";
 import {SendButton} from "@/components/ajustes/verificar/send-button";
 import {IdentificationCardIcon} from "@phosphor-icons/react";
-import {Desplegable} from "@/components/layout/utils/desplegable";
 import Link from "next/link";
 import {Note} from "@/components/layout/utils/note";
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 
 
 export default function Page() {
-    const [request, setRequest] = useState<Partial<DNIValidationRequestProps>>({})
+    const [request, setRequest] = useState<Partial<DNIValidationRequestProps>>({tipo: "persona", metodo: "dni"})
 
-    return <>
+    return <div className={"flex flex-col space-y-12"}>
         <div className={"px-4 pt-2 flex justify-center"}>
             <IdentificationCardIcon
                 fontSize={48}
@@ -33,6 +33,7 @@ export default function Page() {
             }}
         >
             <UploadFileButton
+                size={"small"}
                 onUpload={async (files: FileList) => {
                     const file = await file2base64(files[0])
                     setRequest(produce(request, draft => {
@@ -42,7 +43,7 @@ export default function Page() {
                     }))
                 }}
             >
-                <span className={"text-xs w-24"}>Subir archivo</span>
+                Subir archivo
             </UploadFileButton>
         </FormItemWithFiles>
 
@@ -56,6 +57,7 @@ export default function Page() {
             }}
         >
             <UploadFileButton
+                size={"small"}
                 onUpload={async (files) => {
                     const file = await file2base64(files[0])
                     console.log("got file")
@@ -73,68 +75,49 @@ export default function Page() {
             <SendButton request={request}/>
         </div>
 
-        <Desplegable
-            className="text-sm"
-            text={"¿Cómo funciona la verificación con DNI?"}
-        >
-            <div className={"text-[var(--text-light)] space-y-2"}>
-                <p>
-                    El objetivo es verificar que la cuenta se corresponde con una persona real y que es su única cuenta.
-                    El proceso de verificación es manual y funciona así:
-                </p>
-                <ol>
-                    <li>
-                        Solicitás la verificación enviando una foto de tu DNI.
-                    </li>
-                    <li>
-                        Leemos el número de DNI de la foto y lo transformamos en un código único e <Link
-                        href={"https://en.wikipedia.org/wiki/SHA-2"}>irreversible</Link>. Por ejemplo: 41.534.323 se
-                        transforma en <span
-                        className={"font-mono break-all"}>79e4faa73cf68a464982e90e02c94b30bdc58fcf0a09e72d420736b0e5389e20</span>.
-                    </li>
-                    <li>
-                        Si el código no coincide con el código de ningún otro DNI en nuestra base de datos, se acepta la
-                        solicitud y se almacena el código de tu DNI (pero no tu número de DNI).
-                    </li>
-                    <li>
-                        Se borra la foto de tu dni de nuestra base de datos.
-                    </li>
-                </ol>
-            </div>
-        </Desplegable>
+        <div className={"space-y-2 pt-8"}>
+            <Accordion type="single" collapsible>
+                <AccordionItem value="item-1">
+                    <AccordionTrigger className={"font-light"}>
+                        ¿Verificar mi cuenta con DNI implica hacer pública mi identidad?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        No. La verificación es independiente de tu perfil. Solo va a aparecer una marca de verificación. Luego de la verificación Cabildo Abierto no conserva ningún dato personal.
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                    <AccordionTrigger className={"font-light"}>
+                        ¿Cómo funciona la verificación con DNI?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <div className={"space-y-2"}>
+                            <ol>
+                                <li>
+                                    Solicitás la verificación enviando una foto de tu DNI.
+                                </li>
+                                <li>
+                                    Leemos el número de DNI de la foto y lo transformamos en un código único e <Link
+                                    href={"https://en.wikipedia.org/wiki/SHA-2"} className={"underline hover:text-[var(--text)]"}>irreversible</Link>. Por ejemplo: 41.534.323 se
+                                    transforma en <span
+                                    className={"font-mono break-all"}>79e4faa73cf68a464982e90e02c94b30bdc58fcf0a09e72d420736b0e5389e20</span>.
+                                </li>
+                                <li>
+                                    Si el código no coincide con el código de ningún otro DNI en nuestra base de datos, se acepta la
+                                    solicitud y se almacena el código de tu DNI (pero no tu número de DNI).
+                                </li>
+                                <li>
+                                    Se borra la foto de tu dni de nuestra base de datos.
+                                </li>
+                            </ol>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </div>
 
-
-        <Desplegable
-            className="text-sm"
-            text={"¿Se preserva el anonimato después de la verificación con DNI?"}
-        >
-            <div className={"text-[var(--text-light)] space-y-2"}>
-                <p>
-                    Sí. La verificación es independiente y no implica mostrar públicamente tu identidad en tu perfil.
-                </p>
-                <ol>
-                    <li>
-                        Solicitás la verificación enviando una foto de tu DNI.
-                    </li>
-                    <li>
-                        Leemos el número de DNI de la foto y lo transformamos en un código único e <Link
-                        href={"https://en.wikipedia.org/wiki/SHA-2"}>irreversible</Link>. Por ejemplo: 41.534.323 se
-                        transforma en <span
-                        className={"font-mono break-all"}>79e4faa73cf68a464982e90e02c94b30bdc58fcf0a09e72d420736b0e5389e20</span>.
-                    </li>
-                    <li>
-                        Si el código no coincide con el código de ningún otro DNI en nuestra base de datos, se acepta la
-                        solicitud y se almacena el código de tu DNI (pero no tu número de DNI).
-                    </li>
-                    <li>
-                        Se borra la foto de tu dni de nuestra base de datos.
-                    </li>
-                </ol>
-            </div>
-        </Desplegable>
         <Note className={"text-left"}>
-            También podés <Link href={"/verificacion/verificar/persona/mp"}>verificar tu cuenta usando Mercado
-            Pago.</Link>
+            También podés <Link href={"/ajustes/verificacion/verificar/persona/mp"}>verificar tu cuenta usando Mercado
+            Pago</Link>.
         </Note>
         {/*<Desplegable text={"¿Cómo funciona la verificación de organizaciones?"}>
             <div className={"text-[var(--text-light)]"}>
@@ -156,5 +139,5 @@ export default function Page() {
                 </ol>
             </div>
         </Desplegable>*/}
-    </>
+    </div>
 }

@@ -9,17 +9,20 @@ import {BaseTextField} from "@/components/layout/base/base-text-field";
 import {UploadFileButton} from "@/components/layout/utils/upload-file-button";
 import {BaseTextArea} from "@/components/layout/base/base-text-area";
 import {file2base64} from "@/utils/files";
+import { Note } from "@/components/layout/utils/note";
+import {SendButton} from "@/components/ajustes/verificar/send-button";
 
 export default function Page() {
-    const [request, setRequest] = useState<Partial<OrgValidationRequestProps>>()
+    const [request, setRequest] = useState<Partial<OrgValidationRequestProps>>({tipo: "org", tipoOrg: "creador-individual"})
 
-    return <div className={"space-y-6 pt-4"}>
-        <div className={"text-[var(--text-light)] px-4 text-sm"}>
+    return <div className={"space-y-6"}>
+        <Note className={"text-left"}>
             Adjuntá la documentación necesaria para identificar a tu organización y validar que sos su representante.
-        </div>
+        </Note>
         <FormItem label={"Tipo de organización"}>
-            <div className={"w-50"}>
+            <div>
                 <BaseSelect
+                    triggerClassName={"min-w-52"}
                     optionLabels={o => {
                         if (o == "creador-individual") return "Creador de contenidos"
                         else if (o == "empresa") return "Empresa"
@@ -30,7 +33,7 @@ export default function Page() {
                         throw Error("Opción desconocida")
                     }}
                     options={["creador-individual", "empresa", "medio", "fundacion", "consultora", "otro"]}
-                    value={request.tipoOrg ?? "creador-individual"}
+                    value={request.tipoOrg}
                     onChange={(e) => {
                         setRequest(produce(request, draft => {
                             draft.tipoOrg = e as OrgType
@@ -74,6 +77,7 @@ export default function Page() {
             }}
         >
             <UploadFileButton
+                size={"small"}
                 multiple={true}
                 onUpload={async (files) => {
                     const filesBase64 = await Promise.all(Array.from(files).map(file2base64))
@@ -88,7 +92,7 @@ export default function Page() {
                     }))
                 }}
             >
-                <span className={"w-26 text-xs"}>Subir archivos</span>
+                Subir archivos
             </UploadFileButton>
         </FormItemWithFiles>
         <FormItem label={"Comentarios"} below={true}>
@@ -103,5 +107,8 @@ export default function Page() {
                 }}
             />
         </FormItem>
+        <div className={"flex justify-end"}>
+            <SendButton request={request}/>
+        </div>
     </div>
 }

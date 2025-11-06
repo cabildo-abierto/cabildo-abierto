@@ -5,14 +5,14 @@ export type OrgType = "creador-individual" | "empresa" | "medio" | "fundacion" |
 
 export type DNIValidationRequestProps = {
     tipo: "persona"
-    method: "dni"
+    metodo: "dni"
     dniFrente: FilePayload
     dniDorso: FilePayload
 }
 
 export type MPValidationRequestProps = {
     tipo: "persona"
-    method: "mercadopago"
+    metodo: "mercadopago"
 }
 
 export type OrgValidationRequestProps = {

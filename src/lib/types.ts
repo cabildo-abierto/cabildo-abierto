@@ -53,6 +53,7 @@ export type Session = {
         topicMinimized: boolean
         topicMaximized: boolean
     }
+    seenVerifiedNotification: boolean
     handle: string
     displayName: string | null
     avatar: string | null

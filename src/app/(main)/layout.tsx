@@ -5,14 +5,16 @@ import PopupMessage from "@/components/layout/popup-message";
 import {MainLayoutContent} from "@/components/layout/main-layout-content";
 import {SearchProvider} from "@/components/buscar/search-context";
 import {PageRequiresLoginChecker} from "@/components/layout/page-requires-login-checker";
-import { Toaster } from "@/components/ui/sonner";
+import {Toaster} from "@/components/ui/sonner";
+import {VerificationNotification} from "@/components/layout/verification-notification";
 
 
 export default async function RootLayout({children}: { children: ReactNode }) {
     return (
         <LoadingPage>
             <LayoutConfigProvider>
-                    <PopupMessage>
+                <PopupMessage>
+                    <VerificationNotification>
                         <SearchProvider>
                             <Toaster/>
                             <MainLayoutContent>
@@ -21,7 +23,8 @@ export default async function RootLayout({children}: { children: ReactNode }) {
                                 </PageRequiresLoginChecker>
                             </MainLayoutContent>
                         </SearchProvider>
-                    </PopupMessage>
+                    </VerificationNotification>
+                </PopupMessage>
             </LayoutConfigProvider>
         </LoadingPage>
     )

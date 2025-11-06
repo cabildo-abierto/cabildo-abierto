@@ -13,7 +13,7 @@ export type StateButtonProps = Omit<ButtonProps, "onClick"> & {
     stopPropagation?: boolean
 }
 
-export type StateButtonClickHandler = (e: MouseEvent) => Promise<{ error?: string; stopResubmit?: boolean }>
+export type StateButtonClickHandler = (e: MouseEvent) => Promise<{ error?: string; stopResubmit?: boolean}> | void
 
 const StateButton = ({
                          handleClick = async () => {
@@ -35,10 +35,10 @@ const StateButton = ({
     useEffect(() => {
         async function submit() {
             const result = await handleClick(mouseEvent)
-            if (result.error) {
+            if (result && result.error) {
                 addError(result.error)
             }
-            if (!result.stopResubmit) {
+            if (!result || !result.stopResubmit) {
                 setLoading(false)
             }
         }
