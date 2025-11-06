@@ -6,17 +6,29 @@ import {IntegerInputPlusMinus} from "@/components/aportar/integer-input-plus-min
 import LoadingSpinner from "../../../../components/layout/base/loading-spinner";
 import StateButton from "../../../../components/layout/utils/state-button";
 import {MPWallet} from "@/components/aportar/mp-wallet";
+import {useSearchParams} from "next/navigation";
+import {useSession} from "@/queries/getters/useSession";
+import {Note} from "@/components/layout/utils/note";
+import { cn } from "@/lib/utils";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
-async function createPreference(amount: number) {
-    return post<{ amount: number }, { id: string }>("/donate/create-preference", {amount})
+async function createPreference(amount: number, verification: boolean) {
+    return post<{ amount: number, verification: boolean }, { id: string }>(
+        "/donate/create-preference",
+        {amount, verification}
+    )
 }
 
 
 export default function Page() {
     const {data: value, isLoading} = useMonthlyValue()
-    const [amount, setAmount] = useState(0)
     const [preferenceId, setPreferenceId] = useState<undefined | string>()
+    const searchParams = useSearchParams()
+    const {user} = useSession()
+    const verification = searchParams.get("verificacion") != null && (user.validation == null || user.validation == "none")
+    const [amount, setAmount] = useState(verification ? 1 : 0)
+    const {isMobile} = useLayoutConfig()
 
     if (isLoading) {
         return <div className={"py-16"}>
@@ -38,29 +50,29 @@ export default function Page() {
     const validAmount = amount >= minAmount && amount <= maxAmount
 
     async function onClickContinue() {
-        const {data, error} = await createPreference(amount)
+        const {data, error} = await createPreference(amount, verification)
         if (error) return {error}
         setPreferenceId(data.id)
         return {}
     }
 
     if (preferenceId) {
-        return <div className={"p-16 font-light panel-dark mt-4 flex flex-col items-center space-y-8"}>
+        return <div className={cn("p-16 font-light panel-dark mt-4 flex flex-col items-center space-y-8", isMobile && "w-auto mx-2 mt-0")}>
             <div className={"text-center"}>
                 Aportando ${amount}.
             </div>
-            <MPWallet preferenceId={preferenceId}/>
+            <MPWallet preferenceId={preferenceId} verification={verification} />
         </div>
     } else {
-        return <div className={"w-full p-4 panel-dark portal space-y-8 group mt-32"}>
+        return <div className={cn("w-full p-4 panel-dark portal space-y-8 group mt-32 mb-16", isMobile && "w-auto mx-2 mt-0")}>
             <div className={"flex flex-col items-center space-y-8"}>
                 <div className={"text-center font-light space-y-8"}>
                     <p className={"font-medium"}>
                         Elegí un valor para tu aporte
                     </p>
-                    <p className={"text-[var(--text-light)] text-sm"}>
+                    {!verification && <Note>
                         ${value} cubren el uso de la plataforma de un usuario durante un mes.
-                    </p>
+                    </Note>}
                 </div>
                 <div className="flex flex-col items-center w-full space-y-2">
                     <IntegerInputPlusMinus value={amount} onChange={handleAmountChange} delta={value}/>
@@ -69,6 +81,9 @@ export default function Page() {
                     </div>}
                 </div>
             </div>
+            {verification && <Note>
+                El aporte se va a usar para verificar tu cuenta con Mercado Pago, $1 (un peso) es suficiente. Si aportás más, lo que aportes se va a usar para financiar la plataforma y remunerar a los autores.
+            </Note>}
             <div className="flex justify-end w-full">
                 <StateButton
                     disabled={!validAmount}

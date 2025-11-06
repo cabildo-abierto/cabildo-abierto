@@ -1,7 +1,7 @@
 import {useQueryClient} from "@tanstack/react-query";
 import {post} from "@/utils/fetch";
 import { LoadingValidationRequest, ValidationRequestProps } from "./types";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import StateButton from "@/components/layout/utils/state-button";
 import {AcceptButtonPanel} from "@/components/layout/dialogs/accept-button-panel";
 import {ConfettiIcon} from "@phosphor-icons/react";
@@ -14,12 +14,12 @@ function validateSubmission(request: LoadingValidationRequest): { success: true,
     error: string
 } {
     if (request.tipo == "persona") {
-        if (request.method == "dni" && request.dniDorso != undefined && request.dniFrente != undefined) {
+        if (request.metodo == "dni" && request.dniDorso != undefined && request.dniFrente != undefined) {
             return {
                 success: true,
                 request: {
                     tipo: "persona",
-                    method: "dni",
+                    metodo: "dni",
                     dniFrente: request.dniFrente,
                     dniDorso: request.dniDorso
                 }
@@ -60,30 +60,32 @@ export const SendButton = ({request}: {
     const [requestSent, setRequestSent] = useState(false)
     const qc = useQueryClient()
 
-    async function onSubmit() {
-        const res = validateSubmission(request)
+    const res = validateSubmission(request)
+
+    const onSubmit = useCallback(async () => {
         if (res.success == true) {
             const {error} = await post<ValidationRequestProps, {}>("/validation-request", res.request)
             if (!error) {
                 setRequestSent(true)
-                qc.setQueryData(["validation-request"], {type: res.request.tipo, result: "Pendiente"})
             }
             return {error}
         } else {
             return {error: res.error}
         }
-    }
+    }, [res])
 
     return <>
         <StateButton
             handleClick={onSubmit}
             variant={"outlined"}
+            disabled={res?.success != true}
         >
             Enviar
         </StateButton>
-        <AcceptButtonPanel
+        {requestSent && res.success && <AcceptButtonPanel
             onClose={() => {
-                setRequestSent(false)
+                setRequestSent(false);
+                qc.setQueryData(["validation-request"], {type: res.request.tipo, result: "Pendiente"})
             }}
             open={requestSent}
         >
@@ -99,7 +101,6 @@ export const SendButton = ({request}: {
                     resultado.
                 </div>
             </div>
-        </AcceptButtonPanel>
-
+        </AcceptButtonPanel>}
     </>
 }

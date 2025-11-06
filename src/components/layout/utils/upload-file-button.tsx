@@ -1,13 +1,14 @@
 import {ReactNode, useRef} from "react";
-import {BaseButton} from "@/components/layout/base/baseButton";
+import {BaseButton, BaseButtonProps} from "@/components/layout/base/baseButton";
 import {
     CloudArrowUpIcon
 } from "@phosphor-icons/react";
 
-export const UploadFileButton = ({children, onUpload, multiple = false}: {
+export const UploadFileButton = ({children, onUpload, multiple = false, size}: {
     children: ReactNode,
     onUpload: (_: FileList) => void,
     multiple?: boolean
+    size?: BaseButtonProps["size"]
 }) => {
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -23,6 +24,7 @@ export const UploadFileButton = ({children, onUpload, multiple = false}: {
         variant="outlined"
         tabIndex={-1}
         startIcon={<CloudArrowUpIcon/>}
+        size={size}
     >
         {children}
         <input

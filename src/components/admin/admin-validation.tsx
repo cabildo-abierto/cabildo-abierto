@@ -1,6 +1,5 @@
 import LoadingSpinner from "../layout/base/loading-spinner";
 import {usePendingValidationRequests} from "@/queries/getters/admin";
-import {OrgType} from "@/app/(main)/ajustes/solicitar-validacion/page";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {formatIsoDate} from "@/utils/dates";
 import {DateSince} from "../layout/utils/date";
@@ -16,6 +15,7 @@ import {post} from "@/utils/fetch";
 import {ArCabildoabiertoActorDefs} from "@/lex-api/index"
 import { BaseTextField } from "../layout/base/base-text-field";
 import {BaseTextArea} from "@/components/layout/base/base-text-area";
+import {OrgType} from "@/components/ajustes/verificar/types";
 
 
 export type ValidationRequestView = { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date } & ({

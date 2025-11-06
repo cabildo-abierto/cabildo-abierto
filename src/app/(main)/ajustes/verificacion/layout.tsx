@@ -14,8 +14,9 @@ export default function Layout({children}: {
     const [validPath, setValidPath] = useState(false)
 
     useEffect(() => {
-        if(curRequest) {
-            if(pathname.startsWith("/ajustes/verificacion/verificar/") && curRequest.result != "Rechazada"){
+        if(isLoading) return
+        if(curRequest && curRequest.type != null) {
+            if(pathname.startsWith("/ajustes/verificacion/verificar") && curRequest.result != "Rechazada"){
                 router.push("/ajustes/verificacion")
             } else {
                 setValidPath(true)
@@ -27,7 +28,7 @@ export default function Layout({children}: {
                 setValidPath(true)
             }
         }
-    }, [curRequest])
+    }, [curRequest, isLoading, pathname])
 
     if(isLoading || !validPath) {
         return <div className={"pt-32"}>

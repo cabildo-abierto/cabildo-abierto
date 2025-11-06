@@ -60,7 +60,7 @@ export default function Page() {
                 variant={"outlined"}
                 className={"w-[320px]"}
                 onClick={() => {
-                    router.push("/ajustes/verificacion/verificar/persona/mercadopago")
+                    router.push("/ajustes/verificacion/verificar/persona/mp")
                 }}
             >
                 Verificar con Mercado Pago

@@ -1,7 +1,7 @@
 import {ReactNode} from "react";
 import {BaseFullscreenPopup} from "../base/base-fullscreen-popup";
-import {BaseButton} from "../base/baseButton";
 import {cn} from "@/lib/utils";
+import StateButton, {StateButtonClickHandler} from "@/components/layout/utils/state-button";
 
 
 export const AcceptButtonPanel = ({
@@ -15,7 +15,7 @@ export const AcceptButtonPanel = ({
     children: ReactNode,
     className?: string
     buttonText?: string,
-    onClose: () => void,
+    onClose: StateButtonClickHandler,
     open: boolean
     backgroundShadow?: boolean
 }) => {
@@ -23,13 +23,13 @@ export const AcceptButtonPanel = ({
         <div className={cn("bg-[var(--background-dark)] portal group pt-8 px-8 pb-4", className)}>
             {children}
             <div className="flex justify-center pt-4 mb-1">
-                <BaseButton
+                <StateButton
                     variant={"outlined"}
-                    onClick={onClose}
+                    handleClick={onClose}
                     size={"small"}
                 >
                     <span className="px-4 text-[13px]">{buttonText}</span>
-                </BaseButton>
+                </StateButton>
             </div>
         </div>
     </BaseFullscreenPopup>
