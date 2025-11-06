@@ -3,7 +3,6 @@ import React, {useCallback, useMemo} from "react";
 import {$Typed} from "@/lex-api/util";
 import dynamic from "next/dynamic";
 import {getRkeyFromUri} from "@/utils/uri";
-
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
 import {ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useSession} from "@/queries/getters/useSession";
@@ -37,9 +36,6 @@ export const RepostCounter = ({
     const {addRepostMutation, removeRepostMutation} = useRepostMutation(content.uri)
 
     const onClickRepost = useCallback(async (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-
         if (user) {
             addRepostMutation.mutate({uri: content.uri, cid: content.cid})
         } else {
@@ -48,8 +44,6 @@ export const RepostCounter = ({
     }, [content])
 
     const onClickRemoveRepost = async (e) => {
-        e.stopPropagation()
-        e.preventDefault()
         if (user) {
             if (content.viewer && content.viewer.repost) {
                 removeRepostMutation.mutate(content.viewer.repost)
@@ -82,7 +76,7 @@ export const RepostCounter = ({
 
     return <>
         <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger onClick={e => e.stopPropagation()}>
                 <BaseNotIconButton
                     size={iconSize}
                 >
@@ -98,11 +92,10 @@ export const RepostCounter = ({
                     />
                 </BaseNotIconButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={"start"}>
+            <DropdownMenuContent align={"start"} onClick={e => e.stopPropagation()}>
                 {!reposted && <DropdownMenuItem
                     onClick={async (e) => {
-                        close();
-                        await onClickRepost(e);
+                        await onClickRepost(e)
                         return {}
                     }}
                     disabled={getRkeyFromUri(content.uri) == "optimistic"}
@@ -134,7 +127,6 @@ export const RepostCounter = ({
                         } else {
                             setLoginModalOpen(true)
                         }
-                        close()
                         return {}
                     }}
                     disabled={content.viewer.repost == "optimistic-repost-uri"}

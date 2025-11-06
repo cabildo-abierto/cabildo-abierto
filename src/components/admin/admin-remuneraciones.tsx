@@ -155,7 +155,17 @@ export const AdminTopAuthors = () => {
     const {data, isLoading} = useTopAuthors()
 
     if (isLoading) return <LoadingSpinner/>
+
+    const total = data ? sum(data, d => d.accIncome) : undefined
+    const count = data ? sum(data, d => d.accIncome != null ? 1 : 0) : undefined
+
     return <div>
+        <div>
+            Total: {total}
+        </div>
+        <div>
+            Autores: {count}
+        </div>
         {data && data.map((a, i) => {
             return <div key={i} className={"grid grid-cols-2"}>
                 <div>
