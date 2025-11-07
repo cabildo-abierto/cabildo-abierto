@@ -7,6 +7,7 @@ import {BaseButton} from "@/components/layout/base/baseButton";
 import {Paragraph} from "@/components/layout/base/paragraph";
 import StateButton from "@/components/layout/utils/state-button";
 import {post} from "@/utils/fetch";
+import {useSession} from "@/queries/getters/useSession";
 
 
 async function attemptMPVerification() {
@@ -16,6 +17,7 @@ async function attemptMPVerification() {
 
 export default function Page() {
     let {data, isLoading} = useDonationHistory()
+    const {refetch} = useSession()
 
     if (isLoading) return <div>
         <LoadingSpinner/>
@@ -35,7 +37,13 @@ export default function Page() {
                 <StateButton
                     variant={"outlined"}
                     handleClick={async () => {
-                        return await attemptMPVerification()
+                        const res = await attemptMPVerification()
+
+                        if(!res.error) {
+                            refetch()
+                        }
+
+                        return res
                     }}
                 >
                     Verificar mi cuenta personal
