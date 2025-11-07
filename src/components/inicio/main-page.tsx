@@ -67,8 +67,21 @@ const followingFeedNoResultsText = <div
         No se encontraron contenidos.
     </div>
     <Link href={"/buscar?s=Usuarios"}>
-        <BaseButton size={"small"}>
+        <BaseButton variant="outlined" size={"small"}>
             Buscar usuarios
+        </BaseButton>
+    </Link>
+</div>
+
+const discoverFeedNoResultsText = <div
+    className="flex flex-col items-center space-y-8 text-base text-[var(--text-light)]"
+>
+    <div>
+        No se encontraron contenidos.
+    </div>
+    <Link href={"/"}>
+        <BaseButton variant="outlined" size={"small"}>
+            Configurá tus intereses
         </BaseButton>
     </Link>
 </div>
@@ -95,7 +108,17 @@ export const MainPage = () => {
             endText={"Fin del feed."}
             queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
         />}
-        {selected == "Siguiendo" && !user && <LoginRequiredPage text={"Creá una cuenta o iniciá sesión para ver este muro."}/>}
+
+        {selected == "Descubrir" && user &&
+        <FeedViewContentFeed
+            getFeed={getFeed({type: "descubrir", params: {filter, format}})}
+            noResultsText={discoverFeedNoResultsText}
+            endText={"Fin del feed."}
+            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
+        />}
+
+        {(selected == "Siguiendo" || selected == "Descubrir") && !user && <LoginRequiredPage text={"Creá una cuenta o iniciá sesión para ver este muro."}/>}
+
         {selected == "En discusión" &&
         <FeedViewContentFeed
             getFeed={getFeed({type: "discusion", params: {metric, time, format}})}
@@ -103,5 +126,6 @@ export const MainPage = () => {
             endText={"Fin del feed."}
             queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time, format]}
         />}
+
     </div>
 }
