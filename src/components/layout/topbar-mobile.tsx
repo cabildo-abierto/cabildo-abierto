@@ -91,7 +91,7 @@ export default function TopbarMobile({setWritePanelOpen}: {
             </div>
         </div>}
         {pathname.startsWith("/buscar") && <div
-            className={"h-12 w-full flex items-center"}
+            className={"h-12 w-full flex items-center px-2"}
         >
             <MainSearchBar
                 autoFocus={true}
