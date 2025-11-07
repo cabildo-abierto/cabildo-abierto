@@ -19,7 +19,7 @@ export const MainFeedHeader = () => {
     return <div className="flex justify-between items-center h-full w-full pr-2">
         <SelectionComponent<MainFeedOption>
             onSelection={onSelection}
-            options={["Siguiendo", "En discusión"]}
+            options={["Siguiendo", "En discusión", "Descubrir"]}
             selected={selected}
             optionsNodes={feedOptionNodes(47, mainFeedOptionToSearchParam)}
             className="flex"
