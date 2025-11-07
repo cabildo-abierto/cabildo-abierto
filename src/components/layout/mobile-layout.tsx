@@ -18,8 +18,14 @@ export default function MobileLayout({children, setWritePanelOpen}: {
     return <div className={""}>
         <TopbarMobile setWritePanelOpen={setWritePanelOpen}/>
 
-        <div className={"flex justify-center"} style={{marginTop: topbarHeight}}>
-            <div className={"w-full"} style={{maxWidth: layoutConfig.maxWidthCenter}}>
+        <div
+            className={"flex justify-center"}
+            style={{marginTop: topbarHeight}}
+        >
+            <div
+                className={"w-full"}
+                style={{maxWidth: layoutConfig.maxWidthCenter}}
+            >
                 {children}
             </div>
         </div>
