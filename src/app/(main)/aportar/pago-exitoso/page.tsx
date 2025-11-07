@@ -2,10 +2,18 @@
 import Link from 'next/link';
 import {BaseButton} from "@/components/layout/base/baseButton";
 import {PageCardMessage} from "@/components/aportar/page-card-message";
+import {useEffect} from "react";
+import {useSession} from "@/queries/getters/useSession";
 
 
 
 export default function Page(){
+    const {refetch} = useSession()
+
+    useEffect(() => {
+        refetch() // refetcheamos para que aparezca la notificación de verificación si se acaba de verifiar
+    }, [])
+
     return <PageCardMessage
         title={"¡Muchísimas gracias por tu aporte!"}
         className={"pt-12 pb-6"}
