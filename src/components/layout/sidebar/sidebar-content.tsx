@@ -9,6 +9,7 @@ import {useLoginModal} from "@/components/layout/login-modal-provider";
 import {SignInIcon} from "@phosphor-icons/react";
 import { SidebarProfilePic } from "./sidebar-profile-pic";
 import { BaseIconButton } from "../base/base-icon-button";
+import {cn} from "@/lib/utils";
 
 
 
@@ -24,7 +25,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
     return (
         <>
             <div
-                className={"pt-4 px-2 h-full " + (showText ? "" : "hidden min-[500px]:block")}
+                className={cn("pt-4 px-4 h-full", !showText && "hidden min-[500px]:block")}
             >
                 <div className={"h-full flex flex-col justify-between"}>
                     <div

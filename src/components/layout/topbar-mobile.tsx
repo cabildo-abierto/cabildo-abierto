@@ -1,6 +1,5 @@
 import React from "react";
 import {usePathname} from "next/navigation";
-import {OpenSidebarButton} from "@/components/layout/open-sidebar-button";
 import {MainFeedHeader} from "@/components/inicio/main-feed-header";
 import MainSearchBar from "@/components/buscar/main-search-bar";
 import {BackButton} from "./utils/back-button";
@@ -12,9 +11,12 @@ import {useTopbarTitle} from "@/components/layout/topbar-title";
 import {InfoPanelUserSuggestions} from "@/components/profile/info-panel-user-suggestions";
 import {TopicTopbarRight} from "@/components/topics/topic/topic-topbar-right";
 import {TopbarTopicFeed} from "@/components/topics/mentions-feed/topbar-topic-feed";
+import {SidebarMobile} from "@/components/layout/sidebar/sidebar-mobile";
 
 
-export default function TopbarMobile() {
+export default function TopbarMobile({setWritePanelOpen}: {
+    setWritePanelOpen: (v: boolean) => void
+}) {
     const pathname = usePathname()
     const {title, className: titleClassName} = useTopbarTitle()
     const height = useTopbarHeight()
@@ -29,15 +31,17 @@ export default function TopbarMobile() {
 
     return <div
         style={{height}}
-        className={"fixed top-0 left-0 flex flex-col px-2 bg-[var(--background)] w-screen border-[var(--accent-dark)] border-b-[1px] z-[1100]"}
+        className={"fixed top-0 left-0 flex flex-col bg-[var(--background)] w-screen border-[var(--accent-dark)] border-b-[1px] z-[1100]"}
     >
-        <div className={"flex justify-between items-center w-full h-12"}>
+        <div className={"flex justify-between items-center w-full h-12 px-2"}>
             <div className={"flex space-x-2 items-center h-12 w-full"}>
                 {backButton && !pathname.startsWith("/mensajes") && <BackButton
                     defaultURL={defaultBackHref}
                     behavior={"ca-back"}
                 />}
-                {openSidebarButton && !pathname.startsWith("/inicio") && !pathname.startsWith("/buscar") && !pathname.startsWith("/temas") && <OpenSidebarButton/>}
+                {openSidebarButton && !pathname.startsWith("/inicio") && !pathname.startsWith("/buscar") && !pathname.startsWith("/temas") && <SidebarMobile
+                    setWritePanelOpen={setWritePanelOpen}
+                />}
 
                 {showTitle && title && !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes") && <div className={titleClassName ?? " font-bold uppercase"}>
                     {title}
@@ -48,7 +52,9 @@ export default function TopbarMobile() {
                 </div>}
 
                 {(pathname.startsWith("/inicio") || pathname.startsWith("/buscar") || pathname.startsWith("/temas")) && <div className={"flex justify-between items-center w-full"}>
-                    <div className={"flex-1"}><OpenSidebarButton/></div>
+                    <div className={"flex-1"}>
+                        <SidebarMobile setWritePanelOpen={setWritePanelOpen}/>
+                    </div>
                     <Logo width={32} height={32} showLabel={false}/>
                     <div className={"flex-1"}/>
                 </div>}

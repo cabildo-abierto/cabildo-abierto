@@ -2,9 +2,9 @@
 
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import {isArticle, isDataset, shortCollectionToCollection} from "@/utils/uri";
-import {usePathname, useSearchParams} from "next/navigation";
+import {usePathname} from "next/navigation";
 import {pxToNumber} from "@/utils/strings";
-import {useMediaQuery} from "usehooks-ts";
+import {useMediaQuery, useWindowSize} from "usehooks-ts";
 
 export type LayoutConfigProps = {
     maxWidthCenter: string
@@ -39,7 +39,7 @@ export const useLayoutConfig = () => {
 }
 
 
-function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfig?: LayoutConfigProps, isMobile: boolean = false): LayoutConfigProps {
+function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: LayoutConfigProps, isMobile: boolean = false): LayoutConfigProps {
     const feedConfig: LayoutConfigProps = {
         maxWidthCenter: "600px",
         widthLeftSide: "220px",
@@ -67,7 +67,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
         widthLeftSide: "220px",
         widthRightSide: "300px",
         widthLeftSideSmall: "80px",
-        openSidebar: currentConfig?.openSidebar ?? false,
+        openSidebar: false,
         defaultSidebarState: false,
         openRightPanel: false,
         sidebarKind: "floating",
@@ -98,37 +98,42 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
     }
 
     let config: LayoutConfigProps
-    if(isMobile){
+    if (isMobile) {
         config = mobileConfig
-    } else if(pathname.startsWith("/temas")){
+    } else if (pathname.startsWith("/temas")) {
         config = {
             ...feedConfig,
             maxWidthCenter: "800px"
         }
-    } else if(pathname.startsWith("/tema") && !pathname.startsWith("/tema/menciones")) {
+    } else if (pathname.startsWith("/tema") && !pathname.startsWith("/tema/menciones")) {
         config = maximizedTopicConfig
-    } else if(pathname.startsWith("/panel")){
+    } else if (pathname.startsWith("/panel")) {
         config = {
             ...maximizedTopicConfig,
             defaultSidebarState: true
         }
-    } else if(pathname.startsWith("/c")){
+    } else if (pathname.startsWith("/c")) {
         const shortCollection = pathname.split("/")[3]
         const collection = shortCollectionToCollection(shortCollection)
-        if(isArticle(collection)){
+        if (isArticle(collection)) {
             config = articleConfig
-        } else if(isDataset(collection)){
+        } else if (isDataset(collection)) {
             config = datasetConfig
         } else {
             config = feedConfig
         }
-    } else if(pathname.startsWith("/escribir/articulo")){
+    } else if (pathname.startsWith("/escribir/articulo")) {
         config = articleConfig
     } else {
         config = feedConfig
     }
 
-    const {spaceForLeftSide, spaceForRightSide, centerWidth, spaceForMinimizedLeftSide} = getSpaceAvailable(config)
+    const {
+        spaceForLeftSide,
+        spaceForRightSide,
+        centerWidth,
+        spaceForMinimizedLeftSide
+    } = getSpaceAvailable(config, windowWidth)
 
     return {
         ...config,
@@ -140,7 +145,7 @@ function getLayoutConfig(pathname: string, params: URLSearchParams, currentConfi
 }
 
 
-function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
+function getSpaceAvailable(curLayoutConfig: LayoutConfigProps, width: number) {
     const reqWidthLeftSide = pxToNumber(curLayoutConfig.widthLeftSide) +
         pxToNumber(curLayoutConfig.widthRightSide) +
         pxToNumber(curLayoutConfig.maxWidthCenter)
@@ -152,7 +157,6 @@ function getSpaceAvailable(curLayoutConfig: LayoutConfigProps) {
         pxToNumber(curLayoutConfig.widthRightSide) +
         pxToNumber(curLayoutConfig.maxWidthCenter)
 
-    const width = window.innerWidth
 
     const spaceForLeftSide = width >= reqWidthLeftSide
     const spaceForRightSide = width >= reqWidthRightSide
@@ -176,12 +180,12 @@ function baseConfigEqual(a: LayoutConfigProps, b: LayoutConfigProps) {
 }
 
 
-export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const params = useSearchParams()
+export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     const pathname = usePathname()
     const isMobile = useMediaQuery('(max-width:900px)')
+    const size = useWindowSize()
 
-    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, params, undefined, isMobile))
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, size.width, undefined, isMobile))
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
@@ -193,24 +197,14 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, [layoutConfig?.defaultSidebarState, layoutConfig?.spaceForLeftSide])
 
     useEffect(() => {
-        const handleResize = () => {
-            const config = getLayoutConfig(pathname, params, layoutConfig, isMobile)
-            if(!baseConfigEqual(layoutConfig, config)){
-                setLayoutConfig(config)
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-
-        handleResize();
-
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [layoutConfig, params, pathname]);
+        const config = getLayoutConfig(pathname, size.width, layoutConfig, isMobile)
+        if (!baseConfigEqual(layoutConfig, config)) {
+            setLayoutConfig(config)
+        }
+    }, [layoutConfig, pathname, size]);
 
     return (
-        <LayoutConfigContext.Provider value={{ layoutConfig, setLayoutConfig, isMobile }}>
+        <LayoutConfigContext.Provider value={{layoutConfig, setLayoutConfig, isMobile}}>
             {children}
         </LayoutConfigContext.Provider>
     );

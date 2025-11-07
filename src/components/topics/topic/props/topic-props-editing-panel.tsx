@@ -253,13 +253,11 @@ export const TopicPropsEditingPanel = ({props, setProps, topic}: {
         setProps(addDefaults(topic.props, topic.id))
     }
 
-    console.log("props", props)
-
     const vProps = validProps(props)
 
     return <div
         onWheel={e => e.stopPropagation()}
-        className={cn("bg-[var(--background-dark)] portal group px-2 pt-2 pb-2 border space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar", isMobile ? "w-screen" : "w-[400px]")}
+        className={cn("bg-[var(--background-dark)] portal group px-2 pt-2 pb-2 border space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar", isMobile ? "w-[90vw] max-w-[500px]" : "w-[500px]")}
     >
         <div className={"font-semibold flex items-center space-x-2"}>
             <BaseIconButton

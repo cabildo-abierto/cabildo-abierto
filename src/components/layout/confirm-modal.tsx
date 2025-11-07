@@ -46,10 +46,12 @@ export const ConfirmModal = ({
                 <StateButton
                     handleClick={async (e) => {
                         const res = await onConfirm(e)
-                        if(!res.error) {
+                        if(res && !res.error) {
                             onClose()
                         }
-                        return res
+                        if(res) {
+                            return res
+                        }
                     }}
                     size={"small"}
                     className={confirmButtonClassName}

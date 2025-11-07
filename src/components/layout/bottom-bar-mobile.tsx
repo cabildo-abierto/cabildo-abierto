@@ -62,7 +62,7 @@ const BottomBarMobile = () => {
         className={"fixed bottom-0 left-0 right-0"}
     >
         <div
-            className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--accent-dark)] bg-[var(--background-dark)] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:hidden"
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--accent-dark)] bg-[var(--background-dark)] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"
         >
             <nav className="flex h-14 w-full items-center justify-around">
                 <BottomBarMobileIcon

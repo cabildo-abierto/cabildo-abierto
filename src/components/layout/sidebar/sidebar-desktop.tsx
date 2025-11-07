@@ -1,6 +1,7 @@
 import React from "react";
 import {SidebarContent} from "@/components/layout/sidebar/sidebar-content";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {cn} from "@/lib/utils";
 
 
 export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
@@ -13,7 +14,9 @@ export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
         return null
     }
 
-    return <div className={"fixed overflow-auto custom-scrollbar h-[calc(100vh-48px)] bg-[var(--background)] z-[1001] top-12 " + (!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar ? "border-r border-[var(--accent-dark)] custom-scrollbar" : "")}>
+    return <div
+        className={cn("fixed bg-[var(--background)] overflow-auto custom-scrollbar h-[calc(100vh-48px)] z-[1001] top-12", !layoutConfig.spaceForLeftSide && layoutConfig.openSidebar && "border-r border-[var(--accent-dark)] custom-scrollbar")}
+    >
         <SidebarContent
             onClose={onClose}
             setWritePanelOpen={setWritePanelOpen}

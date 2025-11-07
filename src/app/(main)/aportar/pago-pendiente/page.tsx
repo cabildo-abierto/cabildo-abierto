@@ -1,11 +1,8 @@
-import {Metadata} from "next"
+"use client"
 import {PageCardMessage} from "@/components/aportar/page-card-message";
 import Link from "next/link";
-import {BaseButton} from "../../../../components/layout/base/baseButton";
+import {BaseButton} from "@/components/layout/base/baseButton";
 
-export const metadata: Metadata = {
-    title: 'Error en el pago'
-}
 
 export default function Page(){
     return <PageCardMessage

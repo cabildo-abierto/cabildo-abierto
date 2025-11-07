@@ -9,6 +9,7 @@ export default function ThreeColumnsLayout({children, leftPanel, rightPanel}: {
 }) {
     const {layoutConfig} = useLayoutConfig()
 
+
     return <div className="flex justify-between w-full">
         <div
             className={""}
@@ -18,7 +19,7 @@ export default function ThreeColumnsLayout({children, leftPanel, rightPanel}: {
         </div>
 
         <div
-            className={`flex-grow`}
+            className={"flex-grow"}
             style={{
                 minWidth: 0,
                 maxWidth: layoutConfig.maxWidthCenter,
