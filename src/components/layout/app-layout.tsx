@@ -13,13 +13,13 @@ export const AppLayout = ({children}: { children: ReactNode }) => {
     return (
         <QueryClientProvider client={queryClient}>
             <AppThemeProvider>
-                <ErrorProvider>
-                    <LayoutConfigProvider>
+                <LayoutConfigProvider>
+                    <ErrorProvider>
                         <LoginModalProvider>
                             {children}
                         </LoginModalProvider>
-                    </LayoutConfigProvider>
-                </ErrorProvider>
+                    </ErrorProvider>
+                </LayoutConfigProvider>
             </AppThemeProvider>
         </QueryClientProvider>
     )
