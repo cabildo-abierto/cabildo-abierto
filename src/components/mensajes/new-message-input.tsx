@@ -49,6 +49,7 @@ export default function NewMessageInput({
 
     return <div className={"p-1"}>
         <BaseTextArea
+            className={"bg-[var(--background-dark)]"}
             value={newMessage}
             onChange={e => setNewMessage(e.target.value)}
             rows={3}

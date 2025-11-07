@@ -6,15 +6,11 @@ import DonateIcon from "@/components/layout/icons/donate-icon";
 import {DonationHistory} from "@/components/aportar/donation-history";
 import Link from "next/link";
 import {topicUrl} from "@/utils/uri";
-import {ArrowRightIcon} from "@phosphor-icons/react";
-import {ReactNode} from "react";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {cn} from "@/lib/utils";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {useMonthlyValue} from "@/queries/getters/useFunding";
 import { Note } from "@/components/layout/utils/note";
-
-
 
 
 export default function Aportar() {

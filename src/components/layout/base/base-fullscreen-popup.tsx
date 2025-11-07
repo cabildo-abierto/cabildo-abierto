@@ -1,4 +1,4 @@
-import {ReactNode} from "react";
+import {ReactNode, useEffect} from "react";
 import {
     Dialog,
     DialogTitle,
@@ -7,6 +7,8 @@ import {
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 import {CloseButton} from "@/components/layout/utils/close-button";
 import {cn} from "@/lib/utils";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {produce} from "immer";
 
 
 export const BaseFullscreenPopup = ({
@@ -35,7 +37,18 @@ export const BaseFullscreenPopup = ({
     overlayClassName?: string
     ariaLabelledBy?: string
 }) => {
+    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    useEffect(() => {
+        if(layoutConfig.openSidebar && isMobile) {
+            setLayoutConfig(produce(layoutConfig, draft => {
+                draft.openSidebar = false
+            }))
+        }
+    }, [layoutConfig, isMobile])
+
+
     if (hidden) return <div className={"hidden"}>{children}</div>
+
 
     return <Dialog
         open={open}
@@ -44,7 +57,9 @@ export const BaseFullscreenPopup = ({
         {backgroundShadow && <DialogOverlay className={cn("z-[1050]", overlayClassName)}/>}
         <DialogContent
             className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)]`, className)}
-            onClick={e => e.stopPropagation()}
+            onClick={e => {
+                e.stopPropagation()
+            }}
             aria-labelledby={ariaLabelledBy}
         >
             <DialogHeader>

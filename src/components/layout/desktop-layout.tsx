@@ -7,6 +7,7 @@ import {useSearch} from "@/components/buscar/search-context";
 import {usePathname} from "next/navigation";
 import ThreeColumnsLayout from "@/components/layout/three-columns-layout";
 import {pxToNumber} from "@/utils/strings";
+import {cn} from "@/lib/utils";
 
 export default function DesktopLayout({children, setWritePanelOpen}: {
     children: ReactNode
@@ -46,8 +47,8 @@ export default function DesktopLayout({children, setWritePanelOpen}: {
 
     const rightPanel = <div
         ref={rightPanelRef}
-        className={"flex-shrink-0 no-scrollbar overflow-y-auto max-h-[calc(100vh-48px)] " + (layoutConfig.readingLayout ? "right-0 fixed" : "sticky top-12")}
-        style={{width: pxToNumber(layoutConfig.widthRightSide)}}
+        className={cn("no-scrollbar overflow-y-auto max-h-[calc(100vh-48px)]", layoutConfig.readingLayout ? "right-0 fixed" : "sticky top-12")}
+        style={{width: layoutConfig.openRightPanel && layoutConfig.spaceForRightSide ? pxToNumber(layoutConfig.widthRightSide) : 0}}
     >
         <RightPanel/>
     </div>

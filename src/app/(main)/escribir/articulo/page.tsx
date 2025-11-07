@@ -1,23 +1,27 @@
-import {Metadata} from "next"
+"use client"
 import ArticleEditor, {ArticleEditorFromDraft} from "../../../../components/writing/article/article-editor"
 import {ArticleEditorFromPublished} from "@/components/writing/article/article-editor-from-published";
-
-export const metadata: Metadata = {
-    title: 'Escribir publicación',
-    description: 'Escribir una publicación en Cabildo Abierto.'
-}
+import {useSearchParams} from "next/navigation";
+import {NavigationGuardProvider} from "next-navigation-guard";
 
 
-const Page = async ({searchParams}: {searchParams: Promise<{
-    i?: string | string[] | null, r?: string | string[] | null}>}) => {
-    const {i, r} = await searchParams
+const Page = () => {
+    const searchParams = useSearchParams()
+    const i = searchParams.get("i")
+    const r = searchParams.get("r")
 
     if(typeof i == "string"){
-        return <ArticleEditorFromDraft id={i}/>
+        return <NavigationGuardProvider>
+            <ArticleEditorFromDraft id={i}/>
+        </NavigationGuardProvider>
     } else if(typeof r == "string"){
-        return <ArticleEditorFromPublished rkey={r}/>
+        return <NavigationGuardProvider>
+            <ArticleEditorFromPublished rkey={r}/>
+        </NavigationGuardProvider>
     } else {
-        return <ArticleEditor/>
+        return <NavigationGuardProvider>
+            <ArticleEditor/>
+        </NavigationGuardProvider>
     }
 
 }

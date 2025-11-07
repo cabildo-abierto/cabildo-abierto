@@ -1,5 +1,5 @@
+"use client"
 import LoadingPage from "@/components/auth/loading-page";
-import {LayoutConfigProvider} from "@/components/layout/layout-config-context";
 import React, {ReactNode} from "react";
 import PopupMessage from "@/components/layout/popup-message";
 import {MainLayoutContent} from "@/components/layout/main-layout-content";
@@ -9,23 +9,21 @@ import {Toaster} from "@/components/ui/sonner";
 import {VerificationNotification} from "@/components/layout/verification-notification";
 
 
-export default async function RootLayout({children}: { children: ReactNode }) {
+export default function RootLayout({children}: { children: ReactNode }) {
     return (
         <LoadingPage>
-            <LayoutConfigProvider>
-                <PopupMessage>
-                    <VerificationNotification>
-                        <SearchProvider>
-                            <Toaster/>
-                            <MainLayoutContent>
-                                <PageRequiresLoginChecker>
-                                    {children}
-                                </PageRequiresLoginChecker>
-                            </MainLayoutContent>
-                        </SearchProvider>
-                    </VerificationNotification>
-                </PopupMessage>
-            </LayoutConfigProvider>
+            <PopupMessage>
+                <VerificationNotification>
+                    <SearchProvider>
+                        <Toaster/>
+                        <MainLayoutContent>
+                            <PageRequiresLoginChecker>
+                                {children}
+                            </PageRequiresLoginChecker>
+                        </MainLayoutContent>
+                    </SearchProvider>
+                </VerificationNotification>
+            </PopupMessage>
         </LoadingPage>
     )
 }

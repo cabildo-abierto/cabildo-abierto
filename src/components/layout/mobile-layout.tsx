@@ -3,7 +3,6 @@ import {usePathname} from "next/navigation";
 import FloatingWriteButton from "@/components/writing/floating-write-button";
 import BottomBarMobile from "@/components/layout/bottom-bar-mobile";
 import TopbarMobile from "@/components/layout/topbar-mobile";
-import {SidebarMobile} from "@/components/layout/sidebar/sidebar-mobile";
 import {useTopbarHeight} from "@/components/layout/topbar-height";
 
 
@@ -15,9 +14,7 @@ export default function MobileLayout({children, setWritePanelOpen}: {
     const topbarHeight = useTopbarHeight()
 
     return <div className={""}>
-        <TopbarMobile/>
-
-        <SidebarMobile setWritePanelOpen={setWritePanelOpen}/>
+        <TopbarMobile setWritePanelOpen={setWritePanelOpen}/>
 
         <div className={"w-screen"} style={{marginTop: topbarHeight}}>
             {children}

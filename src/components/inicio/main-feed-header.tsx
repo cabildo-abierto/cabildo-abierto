@@ -16,7 +16,7 @@ export const MainFeedHeader = () => {
         updateSearchParam("f", mainFeedOptionToSearchParam(v))
     }
 
-    return <div className="flex justify-between items-center h-full w-full">
+    return <div className="flex justify-between items-center h-full w-full pr-2">
         <SelectionComponent<MainFeedOption>
             onSelection={onSelection}
             options={["Siguiendo", "En discusión"]}

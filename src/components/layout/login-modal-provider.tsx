@@ -3,6 +3,7 @@
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import LoginModal from "@/components/auth/login-modal";
 import {usePathname} from "next/navigation";
+import {createPortal} from "react-dom";
 
 
 
@@ -34,10 +35,10 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
     return (
         <LoginModalContext.Provider value={{ loginModalOpen, setLoginModalOpen }}>
             {children}
-            {loginModalOpen && <LoginModal
+            {loginModalOpen && createPortal(<LoginModal
                 open={loginModalOpen}
                 onClose={() => {setLoginModalOpen(false)}}
-            />}
+            />, document.body)}
         </LoginModalContext.Provider>
     )
 }
