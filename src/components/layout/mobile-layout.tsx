@@ -4,6 +4,7 @@ import FloatingWriteButton from "@/components/writing/floating-write-button";
 import BottomBarMobile from "@/components/layout/bottom-bar-mobile";
 import TopbarMobile from "@/components/layout/topbar-mobile";
 import {useTopbarHeight} from "@/components/layout/topbar-height";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 export default function MobileLayout({children, setWritePanelOpen}: {
@@ -12,12 +13,15 @@ export default function MobileLayout({children, setWritePanelOpen}: {
 }) {
     const pathname = usePathname()
     const topbarHeight = useTopbarHeight()
+    const {layoutConfig} = useLayoutConfig()
 
     return <div className={""}>
         <TopbarMobile setWritePanelOpen={setWritePanelOpen}/>
 
-        <div className={"w-screen"} style={{marginTop: topbarHeight}}>
-            {children}
+        <div className={"flex justify-center"} style={{marginTop: topbarHeight}}>
+            <div className={"w-full"} style={{maxWidth: layoutConfig.maxWidthCenter}}>
+                {children}
+            </div>
         </div>
 
         <BottomBarMobile/>
