@@ -65,12 +65,12 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                             setWritePanelOpen={setWritePanelOpen}
                         />
                         <NextMeetingInvite/>
-                        <div className={"px-4 space-y-4 h-full"}>
-                            <hr className={"sm:hidden border-[1px] border-[var(--text)]"}/>
-                            {showText && <div className={"sm:hidden text-xs h-full"}>
+                        {isMobile && <div className={"px-4 space-y-4 h-full"}>
+                            <hr className={" border-[1px] border-[var(--text)]"}/>
+                            <div className={"text-xs h-full"}>
                                 <SidebarBottom/>
-                            </div>}
-                        </div>
+                            </div>
+                        </div>}
                     </div>
                 </div>
             </div>

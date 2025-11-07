@@ -12,6 +12,7 @@ import {InfoPanelUserSuggestions} from "@/components/profile/info-panel-user-sug
 import {TopicTopbarRight} from "@/components/topics/topic/topic-topbar-right";
 import {TopbarTopicFeed} from "@/components/topics/mentions-feed/topbar-topic-feed";
 import {SidebarMobile} from "@/components/layout/sidebar/sidebar-mobile";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 export default function TopbarMobile({setWritePanelOpen}: {
@@ -20,6 +21,7 @@ export default function TopbarMobile({setWritePanelOpen}: {
     const pathname = usePathname()
     const {title, className: titleClassName} = useTopbarTitle()
     const height = useTopbarHeight()
+    const {layoutConfig} = useLayoutConfig()
 
     const backButton = ["c/", "notificaciones", "panel", "ajustes", "perfil", "mensajes", "escribir/articulo", "aportar"]
         .some(p => pathname.startsWith(`/${p}`))
@@ -72,14 +74,21 @@ export default function TopbarMobile({setWritePanelOpen}: {
             </div>
             {pathname.startsWith("/tema") && !pathname.startsWith("/temas") &&
                 <TopicTopbarRight/>}
-            {pathname.startsWith("/perfil/cuentas-sugeridas") && <div className={"flex flex-1 justify-end text-[var(--text-light)]"}>
+            {pathname.startsWith("/perfil/cuentas-sugeridas") && <div
+                className={"flex flex-1 justify-end text-[var(--text-light)]"}
+            >
                 <InfoPanelUserSuggestions/>
             </div>}
         </div>
         {pathname.startsWith("/inicio") && <div
-            className={"h-12 w-full"}
+            className={"h-12 w-full flex justify-center"}
         >
-            <MainFeedHeader/>
+            <div
+                style={{maxWidth: layoutConfig.maxWidthCenter}}
+                className={"w-full"}
+            >
+                <MainFeedHeader/>
+            </div>
         </div>}
         {pathname.startsWith("/buscar") && <div
             className={"h-12 w-full flex items-center"}
