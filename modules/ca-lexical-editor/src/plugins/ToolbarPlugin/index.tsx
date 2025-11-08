@@ -232,7 +232,7 @@ export default function ToolbarPlugin({
     const [isEditable, setIsEditable] = useState(() => editor.isEditable());
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
-    const {isMobile} = useLayoutConfig()
+    const {isMobile, layoutConfig} = useLayoutConfig()
 
     const onInsertImage = (i: ImagePayload) => {
         const image: AppBskyEmbedImages.ViewImage = {
@@ -382,7 +382,9 @@ export default function ToolbarPlugin({
 
     return (
         <div
-            className={"fixed portal bg-[var(--background-dark)] group border z-[1003] border-[var(--accent-dark)] " + (isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}>
+            className={cn("fixed portal bg-[var(--background-dark)] group border z-[1003] border-[var(--accent-dark)]", isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}
+            style={{maxWidth: layoutConfig.maxWidthCenter}}
+        >
             <div className={"flex w-full"}>
                 <div
                     className="toolbar items-center flex"

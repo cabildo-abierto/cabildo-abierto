@@ -97,8 +97,13 @@ export default function TopbarMobile({setWritePanelOpen}: {
                 autoFocus={true}
             />
         </div>}
-        {pathname.startsWith("/temas") && <div className={"h-12 w-full"}>
-            <TopicsPageHeader/>
+        {pathname.startsWith("/temas") && <div className={"h-12 flex justify-center w-full"}>
+            <div
+                style={{maxWidth: layoutConfig.maxWidthCenter}}
+                className={"w-full h-full items-center"}
+            >
+                <TopicsPageHeader/>
+            </div>
         </div>}
     </div>
 }

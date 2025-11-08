@@ -10,6 +10,8 @@ import {useAPI} from "@/queries/utils";
 import LoadingSpinner from "@/components/layout/base/loading-spinner";
 import BaseSelect from "@/components/layout/base/base-select";
 import {Note} from "@/components/layout/utils/note";
+import {TopicProp} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {FieldError} from "@/components/ui/field";
 
 
 const propLexicons = [
@@ -40,14 +42,17 @@ function useKnownProps() {
 }
 
 
-export default function NewPropModal({open, onClose, onAddProp}: {
+export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
     open: boolean,
     onClose: () => void,
     onAddProp: (name: string, type: PropValueType) => void
+    currentProps: TopicProp[]
 }) {
     const [name, setName] = useState("")
     const [dataType, setDataType] = useState<PropValueType>("ar.cabildoabierto.wiki.topicVersion#stringProp")
-    const {data: knownProps, isLoading} = useKnownProps()
+    let {data: knownProps, isLoading} = useKnownProps()
+
+    knownProps = knownProps?.filter(p => ![...["Categorías", "Título"], ...currentProps.map(p => p.name)].includes(p.name))
 
     function cleanAndClose() {
         setName("")
@@ -55,8 +60,13 @@ export default function NewPropModal({open, onClose, onAddProp}: {
         onClose()
     }
 
+    const isSpecial = ["Categorías", "Título"].includes(name)
+    const alreadyExists = currentProps.map(c => c.name).includes(name)
+
     return <BaseFullscreenPopup open={open} onClose={cleanAndClose} closeButton={true}>
-        {isLoading && <LoadingSpinner/>}
+        {isLoading && <div className={"my-16"}>
+            <LoadingSpinner/>
+        </div>}
         {!isLoading && <div className={"px-6 pb-6 space-y-4 flex flex-col max-w-[360px]"}>
             <h3 className={"font-semibold uppercase text-sm"}>
                 Nueva propiedad
@@ -100,14 +110,20 @@ export default function NewPropModal({open, onClose, onAddProp}: {
             <Note className={"text-left"}>
                 Para agregar una imagen, elegí tipo texto y usá el URL de la imagen.
             </Note>
+            {isSpecial && <FieldError>
+                El título y las categorías se editan directamente desde el editor.
+            </FieldError>}
+            {!isSpecial && alreadyExists && <FieldError>
+                La propiedad que elegiste ya está en la ficha.
+            </FieldError>}
             <div className={"flex justify-end"}>
                 <BaseButton
                     onClick={() => {
-                        cleanAndClose();
+                        cleanAndClose()
                         onAddProp(name, dataType)
                     }}
                     size={"small"}
-                    disabled={name.length == 0}
+                    disabled={name.length == 0 || isSpecial || alreadyExists}
                     variant={"outlined"}
                 >
                     Aceptar
