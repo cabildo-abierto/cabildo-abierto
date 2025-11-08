@@ -12,6 +12,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useTopicsPageParams} from "@/components/config/topics";
 import {updateSearchParam} from "@/utils/fetch";
 import { cn } from "@/lib/utils";
+import {createPortal} from "react-dom";
 
 const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
 
@@ -107,9 +108,9 @@ export const TopicsPageHeader = () => {
             </BaseButton>
         </div>
 
-        {newTopicOpen && <CreateTopicModal
+        {newTopicOpen && createPortal(<CreateTopicModal
             open={newTopicOpen}
             onClose={() => setNewTopicOpen(false)}
-        />}
+        />, document.body)}
     </div>
 }

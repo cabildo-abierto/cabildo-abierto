@@ -144,7 +144,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
             }
         }, 200)
 
-        return () => clearTimeout(handler) // Clean up on dependency change
+        return () => clearTimeout(handler)
     }, [externalEmbedUrl])
 
 
@@ -479,6 +479,7 @@ export const WritePost = ({
                         return await handleClickSubmit()
                     }}
                     disabled={!valid}
+                    size={"small"}
                 >
                     {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
                 </StateButton>

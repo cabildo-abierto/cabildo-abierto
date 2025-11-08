@@ -33,7 +33,7 @@ export default function TopbarMobile({setWritePanelOpen}: {
 
     return <div
         style={{height}}
-        className={"fixed top-0 left-0 flex flex-col bg-[var(--background)] w-screen border-[var(--accent-dark)] border-b-[1px] z-[1100]"}
+        className={"fixed top-0 left-0 flex flex-col bg-[var(--background)] w-screen border-[var(--accent-dark)] border-b-[1px] z-[1000]"}
     >
         <div className={"flex justify-between items-center w-full h-12 px-2"}>
             <div className={"flex space-x-2 items-center h-12 w-full"}>
@@ -91,11 +91,16 @@ export default function TopbarMobile({setWritePanelOpen}: {
             </div>
         </div>}
         {pathname.startsWith("/buscar") && <div
-            className={"h-12 w-full flex items-center px-2"}
+            className={"h-12 w-full flex justify-center items-center"}
         >
-            <MainSearchBar
-                autoFocus={true}
-            />
+            <div
+                style={{maxWidth: layoutConfig.maxWidthCenter}}
+                className={"w-full px-2"}
+            >
+                <MainSearchBar
+                    autoFocus={true}
+                />
+            </div>
         </div>}
         {pathname.startsWith("/temas") && <div className={"h-12 flex justify-center w-full"}>
             <div

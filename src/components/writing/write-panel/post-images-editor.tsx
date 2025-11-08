@@ -29,6 +29,7 @@ export const PostImagesEditor = ({images, setImages}: PostImagesEditorProps) => 
                                     setImages([...images.slice(0, index), ...images.slice(index + 1)])
                                 }}
                                 size={"small"}
+                                variant={"outlined"}
                             />
                         </div>
                         <Image

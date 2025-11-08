@@ -65,9 +65,12 @@ export const TopicsMentioned = ({
             })}
     </div> : null
 
-    return <div className={"w-full flex text-light  space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
-        <div className={"text-sm text-[var(--text-light)] pt-[1px]"} title={"Temas mencionados"}>
-            <TopicsIcon fontSize={15} weight={"light"}/>
+    return <div className={"w-full flex text-light  space-x-4 max-w-screen overflow-scroll no-scrollbar items-center"}>
+        <div
+            className={"text-sm text-[var(--text-light)]"}
+            title={"Temas mencionados"}
+        >
+            <TopicsIcon fontSize={14} weight={"light"}/>
         </div>
         {mentionsMemo.toSorted(cmp).slice(0, maxCount).map((r, index) => {
             return <a // TO DO: Prevent leave

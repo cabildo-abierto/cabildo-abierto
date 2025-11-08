@@ -117,7 +117,7 @@ export const ContentOptionsButton = ({
             onClose={() => {
                 setEditingPost(false)
             }}
-            replyTo={{$type: "com.atproto.repo.strongRef", ...(record.record as AppBskyFeedPost.Record).reply.parent}}
+            replyTo={reply?.parent ? {$type: "com.atproto.repo.strongRef", ...reply.parent} : undefined}
             postView={record}
             quotedPost={
                 ArCabildoabiertoEmbedRecord.isView(record.embed) ? record.embed.record : undefined

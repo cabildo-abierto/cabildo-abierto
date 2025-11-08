@@ -7,12 +7,14 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {MagnifyingGlassIcon} from "@phosphor-icons/react";
 import SearchContent from "@/components/buscar/search-content";
 import { usePathname } from "next/navigation";
+import {useSession} from "@/queries/getters/useSession";
 
 
 const Page = () => {
     const pathname = usePathname()
     const {searchState} = useSearch(`${pathname}::main`)
     const {layoutConfig} = useLayoutConfig()
+    const {user} = useSession()
 
     const searching = searchState.searching && searchState.value && searchState.value.length > 0
 
@@ -25,7 +27,7 @@ const Page = () => {
         </div>}
         {!searching && !layoutConfig.spaceForRightSide &&
         <div className={"flex flex-col items-center gap-2 w-full pt-2 sm:px-0 px-2"}>
-            <FollowSuggestions/>
+            {user && <FollowSuggestions/>}
             <TrendingTopicsPanel/>
         </div>}
     </div>

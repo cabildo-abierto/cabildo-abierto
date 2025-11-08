@@ -13,6 +13,7 @@ import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 import {EngagementIconWithCounter} from "@/components/layout/utils/engagement-icon-with-counter";
 import {BaseButtonProps} from "@/components/layout/base/baseButton";
 import {BaseNotIconButton} from "@/components/layout/base/base-not-icon-button";
+import {createPortal} from "react-dom";
 
 
 export const RepostCounter = ({
@@ -120,8 +121,6 @@ export const RepostCounter = ({
                 </DropdownMenuItem>}
                 <DropdownMenuItem
                     onClick={async (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
                         if (user) {
                             setWritingQuotePost(true)
                         } else {
@@ -139,12 +138,12 @@ export const RepostCounter = ({
             </DropdownMenuContent>
         </DropdownMenu>
 
-        {user && writingQuotePost && quotedPost && <WritePanel
+        {user && writingQuotePost && quotedPost && createPortal(<WritePanel
             open={writingQuotePost}
             onClose={() => {
                 setWritingQuotePost(false)
             }}
             quotedPost={quotedPost}
-        />}
+        />, document.body)}
     </>
 }
