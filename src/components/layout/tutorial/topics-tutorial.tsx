@@ -42,7 +42,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             <AcceptButtonPanel
                 onClose={() => {setRunStatus("finished")}}
                 open={runStatus == "running"}
-                className={"max-w-[400px] font-light space-y-2"}
+                className={"max-w-[400px] font-light space-y-2 sm:text-base text-sm"}
             >
                 <p>
                     Por cada tema de discusión en Cabildo Abierto hay un artículo que cualquier usuario puede editar en el que se reúne información.

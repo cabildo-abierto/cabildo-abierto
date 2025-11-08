@@ -319,6 +319,7 @@ export const TopicPropsEditingPanel = ({props, setProps, topic}: {
                 setCreatingProp(false)
             }}
             onAddProp={addProp}
+            currentProps={props}
         />}
     </div>
 }

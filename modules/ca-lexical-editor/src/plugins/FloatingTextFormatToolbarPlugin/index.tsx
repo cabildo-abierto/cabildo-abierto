@@ -183,8 +183,9 @@ function TextFormatFloatingToolbar({
     }, [editor, $updateTextFormatFloatingToolbar]);
 
     return (
-        <div ref={popupCharStylesEditorRef}
-             className="floating-text-format-popup portal group panel-dark"
+        <div
+            ref={popupCharStylesEditorRef}
+            className="floating-text-format-popup portal group panel-dark"
         >
             {editor.isEditable() && (
                 <>
