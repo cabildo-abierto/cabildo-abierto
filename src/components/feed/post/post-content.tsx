@@ -10,6 +10,7 @@ type PostContentProps = {
     hideQuote?: boolean
     showQuoteContext?: boolean
     onClickQuote?: (cid: string) => void
+    editedParent?: boolean
 }
 
 
@@ -18,7 +19,8 @@ export const PostContent = ({
     isMainPost = false,
     hideQuote = false,
     showQuoteContext = false,
-    onClickQuote
+    onClickQuote,
+    editedParent
 }: PostContentProps) => {
 
     const content = useMemo(() => {
@@ -36,6 +38,7 @@ export const PostContent = ({
             return <PostEmbed
                 embed={postView.embed}
                 mainPostRef={{uri: postView.uri, cid: postView.cid}}
+                editedParent={editedParent}
                 hideSelectionQuote={hideQuote}
                 onClickSelectionQuote={onClickQuote}
                 showContext={showQuoteContext}

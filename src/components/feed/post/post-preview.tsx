@@ -21,7 +21,8 @@ const ShowThreadButton = ({uri, handle}: { uri: string, handle?: string }) => {
         >
             <div className={"pl-4 pr-2 flex flex-col items-center justify-stretch"}>
                 <ReplyVerticalLine className="h-2"/>
-                <div className={"text-xl align-middle text-[var(--accent)] text-center leading-none py-1 " + (isMobile ? "w-9" : "w-11")}>
+                <div
+                    className={"text-xl align-middle text-[var(--accent)] text-center leading-none py-1 " + (isMobile ? "w-9" : "w-11")}>
                     ⋮
                 </div>
                 <ReplyVerticalLine className="h-2"/>
@@ -48,9 +49,13 @@ export type FastPostPreviewProps = {
     repostedBy?: { handle: string, displayName?: string }
     pageRootUri?: string
     onFeed?: boolean
+    editedParent?: boolean
 }
 
-function getParentAndRoot(f: ArCabildoabiertoFeedDefs.FeedViewContent): { parent?: ReplyRefContent, root?: ReplyRefContent } {
+function getParentAndRoot(f: ArCabildoabiertoFeedDefs.FeedViewContent): {
+    parent?: ReplyRefContent,
+    root?: ReplyRefContent
+} {
     if (!f || !f.reply) {
         return {}
     }
@@ -151,7 +156,8 @@ export const PostPreview = ({
                                 onClickQuote,
                                 threadViewContent,
                                 pageRootUri,
-    onFeed = true
+                                onFeed = true,
+                                editedParent
                             }: FastPostPreviewProps) => {
     const {user} = useSession()
     const {layoutConfig} = useLayoutConfig()
@@ -162,7 +168,8 @@ export const PostPreview = ({
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div style={{maxWidth: layoutConfig.centerWidth}} className={"flex flex-col w-full text-[15px] " + (onFeed ? "min-[680px]:min-w-[600px]" : "") + (!postView && feedViewContent && (root || parent) ? " border-b" : "")}>
+    return <div style={{maxWidth: layoutConfig.centerWidth}}
+                className={"flex flex-col w-full text-[15px] " + (onFeed ? "min-[680px]:min-w-[600px]" : "") + (!postView && feedViewContent && (root || parent) ? " border-b" : "")}>
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}
@@ -187,6 +194,7 @@ export const PostPreview = ({
             <PostContent
                 postView={postView}
                 onClickQuote={onClickQuote}
+                editedParent={editedParent}
             />
         </PostPreviewFrame>}
 

@@ -8,10 +8,11 @@ type SelectionQuoteEmbedProps = {
     mainPostRef: ATProtoStrongRef
     onClick?: (cid: string) => void
     showContext?: boolean
+    editedParent?: boolean
 }
 
 
-export default function SelectionQuoteEmbed ({embed, mainPostRef, onClick, showContext = false}: SelectionQuoteEmbedProps) {
+export default function SelectionQuoteEmbed({embed, mainPostRef, onClick, showContext = false, editedParent}: SelectionQuoteEmbedProps) {
 
     return <SelectionQuote
         {...embed}
@@ -19,5 +20,6 @@ export default function SelectionQuoteEmbed ({embed, mainPostRef, onClick, showC
         mainPostRef={mainPostRef}
         showContext={showContext}
         selection={new MarkdownSelection(embed.start, embed.end)}
+        editedParent={editedParent}
     />
 }

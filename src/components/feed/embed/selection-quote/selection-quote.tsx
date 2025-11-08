@@ -55,6 +55,7 @@ type SelectionQuoteProps = {
     quotedTextFormat?: string
     quotedContentTitle?: string
     selection: MarkdownSelection | LexicalSelection
+    editedParent?: boolean
 }
 
 export const SelectionQuote = ({
@@ -67,7 +68,8 @@ export const SelectionQuote = ({
     quotedContent,
     quotedText,
     quotedTextFormat,
-    selection
+    selection,
+    editedParent
 }: SelectionQuoteProps) => {
     const [normalizedSelection, setNormalizedSelection] = useState<"error" | MarkdownSelection | null>(null)
     const router = useRouter()
@@ -109,6 +111,9 @@ export const SelectionQuote = ({
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
         >
+            {editedParent && <div className={"text-xs font-light"}>
+                El contenido principal fue editado después de esta respuesta. Es posible que la cita haya quedado corrida.
+            </div>}
             {showContext && <SelectionQuoteContext
                 quotedContent={quotedContent}
                 quotedContentAuthor={quotedContentAuthor}

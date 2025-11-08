@@ -31,10 +31,11 @@ type PostEmbedProps = {
     onClickSelectionQuote?: (cid: string) => void
     showContext?: boolean
     onArticle?: boolean
+    editedParent?: boolean
 }
 
 
-export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true, onArticle=false}: PostEmbedProps) => {
+export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true, onArticle=false, editedParent}: PostEmbedProps) => {
     return <>
         {AppBskyEmbedImages.isView(embed) && <PostImagesEmbed
             embed={embed}
@@ -59,6 +60,7 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
             mainPostRef={mainPostRef}
             onClick={onClickSelectionQuote}
             showContext={showContext}
+            editedParent={editedParent}
         />}
         {ArCabildoabiertoEmbedVisualization.isView(embed) && <Plot
             visualization={embed}
