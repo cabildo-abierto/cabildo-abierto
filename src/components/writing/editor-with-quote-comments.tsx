@@ -12,7 +12,6 @@ import {LexicalSelection} from "../../../modules/ca-lexical-editor/src/selection
 import {useTrackReading} from "@/components/thread/article/read-tracking/track-reading";
 import {useSession} from "@/queries/getters/useSession";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api"
-import {AppBskyFeedPost} from "@atproto/api"
 import dynamic from "next/dynamic";
 import MyLexicalEditor from "../../../modules/ca-lexical-editor/src/lexical-editor"
 import {ArCabildoabiertoEmbedSelectionQuote} from "@/lex-api"
@@ -134,20 +133,14 @@ export const EditorWithQuoteComments = ({
             return new Map<number, string[]>()
         }
 
-        // por ahora, no mostramos ningún comentario que haya citado una versión anterior del contenido
-        // sí los mostramos en la sección de discusión
-        const filteredReplies = quoteReplies.filter(r => {
-            return r.cid == "optimistic-post-cid" || (r.record as AppBskyFeedPost.Record)?.reply?.parent?.cid == cid
-        })
-
         const m = new Map<number, string[]>()
-        for (let i = 0; i < filteredReplies.length; i++) {
-            const selection = filteredReplies[i].embed
+        for (let i = 0; i < quoteReplies.length; i++) {
+            const selection = quoteReplies[i].embed
             if (ArCabildoabiertoEmbedSelectionQuote.isView(selection)) {
                 const markdownSelection = new MarkdownSelection(selection.start, selection.end)
                 const lexicalSelection = markdownSelection.toLexicalSelection(normalizedEditorState)
                 const key = lexicalSelection.start.node[0]
-                const value = filteredReplies[i].uri
+                const value = quoteReplies[i].uri
                 if (m.has(key)) {
                     m.set(key, [...m.get(key), value])
                 } else {

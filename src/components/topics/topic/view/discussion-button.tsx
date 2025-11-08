@@ -4,7 +4,7 @@ import { InactiveCommentIcon } from "@/components/layout/icons/inactive-comment-
 import { useState, useEffect } from 'react'
 
 export const DiscussionButton = ({ replyCount }: { replyCount: number }) => {
-    const [isDiscussionVisible, setIsDiscussionVisible] = useState(false)
+    const [showButton, setShowButton] = useState(false)
 
     useEffect(() => {
         const target = document.getElementById("discusion")
@@ -12,7 +12,15 @@ export const DiscussionButton = ({ replyCount }: { replyCount: number }) => {
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                setIsDiscussionVisible(entry.isIntersecting)
+                if (entry.isIntersecting) {
+                    setShowButton(false)
+                } else {
+                    if (entry.boundingClientRect.top < 0) {
+                        setShowButton(false)
+                    } else {
+                        setShowButton(true)
+                    }
+                }
             },
             {
                 rootMargin: "0px",
@@ -29,12 +37,8 @@ export const DiscussionButton = ({ replyCount }: { replyCount: number }) => {
         }
     }, [])
 
-    if (isDiscussionVisible) {
-        return null
-    }
-
-    return <div
-        className={"fixed  bottom-2 left-4 text-[var(--text)] cursor-pointer"}
+    return showButton && <div
+        className={"fixed bottom-2 left-4 text-[var(--text)] cursor-pointer"}
         onClick={() => {
             const target = document.getElementById("discusion")
             if (target) smoothScrollTo(target)
