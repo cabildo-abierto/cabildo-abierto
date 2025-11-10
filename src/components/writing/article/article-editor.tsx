@@ -16,6 +16,8 @@ import ArticleEditorAuthor from "@/components/writing/article/article-editor-aut
 import {useNavigationGuard} from "next-navigation-guard"
 import {PreventLeavePopup} from "@/components/layout/prevent-leave-popup";
 import { ArCabildoabiertoFeedDefs } from "@/lex-api";
+import {pxToNumber} from "@/utils/strings";
+import {cn} from "@/lib/utils";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -25,6 +27,7 @@ const articleEditorSettings = (
     smallScreen: boolean,
     isMobile: boolean,
     layoutConfig: LayoutConfigProps,
+    width: number,
     draft?: Draft,
     article?: ArCabildoabiertoFeedDefs.FullArticleView,
 ) => getEditorSettings({
@@ -46,9 +49,9 @@ const articleEditorSettings = (
 
     placeholder: "Escribí tu artículo...",
     isReadOnly: false,
-    editorClassName: `article-content relative ${robotoSerif.variable} ` + (isMobile ? "px-3" : ""),
-    placeholderClassName: "text-[var(--text-light)] absolute top-0 " + (isMobile ? "px-3" : ""),
-
+    editorClassName: cn("article-content relative", robotoSerif.variable, pxToNumber(layoutConfig.maxWidthCenter) + 40 > width && "px-5"),
+    placeholderClassName: cn("text-[var(--text-light)] absolute top-0", pxToNumber(layoutConfig.maxWidthCenter) + 40 > width && "px-5"),
+    editorContainerClassName: cn("article-content relative", robotoSerif.variable),
     topicMentions: false
 })
 
@@ -86,7 +89,7 @@ const ArticleEditor = ({draft, article}: {
         setTitle
     } = useTopicsMentioned(initialTitle)
     const smallScreen = window.innerWidth < 700
-    const {isMobile, layoutConfig} = useLayoutConfig()
+    const {isMobile, layoutConfig, width} = useLayoutConfig()
     const [guardEnabled, setGuardEnabled] = useState(false)
     const navGuard = useNavigationGuard({enabled: guardEnabled})
     const [initialEditorState, setInitialEditorState] = useState(null)
@@ -96,6 +99,7 @@ const ArticleEditor = ({draft, article}: {
         smallScreen,
         isMobile,
         layoutConfig,
+        width,
         draft,
         article,
     )
@@ -127,7 +131,9 @@ const ArticleEditor = ({draft, article}: {
             setGuardEnabled={setGuardEnabled}
             article={article}
         />
-        <div className={"mt-8 space-y-4 " + (isMobile ? "px-5" : "")}>
+        <div
+            className={cn("mt-8 space-y-4", pxToNumber(layoutConfig.maxWidthCenter) + 40 > width && "px-5")}
+        >
             <div className={"mb-2"}>
                 <TopicsMentioned mentions={topicsMentioned}/>
             </div>

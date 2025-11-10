@@ -20,7 +20,7 @@ export default function MobileLayout({children, setWritePanelOpen}: {
 
         <div
             className={"flex justify-center"}
-            style={{marginTop: topbarHeight}}
+            style={{paddingTop: topbarHeight}}
         >
             <div
                 className={"w-full"}

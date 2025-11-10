@@ -4,10 +4,10 @@ import {
     BeautifulMentionsMenuProps
 } from "lexical-beautiful-mentions";
 import {forwardRef} from "react";
-import Link from "next/link";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import LoadingSpinner from "@/components/layout/base/loading-spinner";
-import {profileUrl} from "@/utils/uri";
+import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
+import {cn} from "@/lib/utils";
 
 
 export const EmptyMentionResults = () => (
@@ -23,24 +23,34 @@ export type MentionProps = {
     displayName?: string
     avatar?: string
     value: string
+    inCA: boolean
 }
 
 
 export const CustomMentionComponent = forwardRef<
-    HTMLDivElement,
+    HTMLSpanElement,
     BeautifulMentionComponentProps<MentionProps>
->(({data: myData}, ref) => {
-
-    return <Link className={"text-link"} key={myData.did} href={profileUrl(myData.handle)}>
-        @{myData.handle}
-    </Link>
+>(({ trigger, value, data: myData, className }, ref) => {
+    return (
+        <span
+            ref={ref}
+            title={trigger + value}
+            className={cn("text-[var(--text-light)] hover:underline", className)}
+        >
+            @{myData.handle}
+        </span>
+    )
 })
 
 CustomMentionComponent.displayName = 'CustomMentionComponent';
 
-export function CustomMenuMentions({loading, children, ...props}: BeautifulMentionsMenuProps) {
+export function CustomMenuMentions({loading, children, className, ...props}: BeautifulMentionsMenuProps) {
     return <ul
-        className="absolute p-1 space-y-1 z-[1300] panel-dark w-80 flex flex-col items-center justify-center"
+        className={cn(
+            "absolute top-2 left-0 space-y-1 z-[1600] pointer-events-auto panel-dark w-80 flex flex-col items-center justify-center",
+            loading && "py-4",
+            className
+        )}
         {...props}
     >
         {loading && <LoadingSpinner/>}
@@ -51,18 +61,20 @@ export function CustomMenuMentions({loading, children, ...props}: BeautifulMenti
 export const CustomMenuItemMentions = forwardRef<
     HTMLLIElement,
     BeautifulMentionsMenuItemProps
->(({selected, item}, ref) => {
+>(({selected, item, inCA, displayName, itemValue, label, ...props}, ref) => {
     return (
             <li
                 className="m-0 flex p-2 w-full items-center space-x-2 cursor-pointer hover:bg-[var(--background-dark3)]"
                 ref={ref}
+                {...props}
             >
                 <div className={"flex items-center"}>
                     <ProfilePic user={item.data} className={"w-5 h-5 rounded-full"}/>
                 </div>
-                <div className={"truncate flex items-center"}>
-                    {item.data.handle}
-                </div>
+                <span className={"truncate flex items-center"}>
+                    @{item.data.handle}
+                </span>
+                {!item.data.inCA && <BlueskyLogo className={"h-[10px] w-auto"}/>}
             </li>
         );
     }

@@ -203,7 +203,8 @@ function BlockFormatDropDown({
                     <div className={"flex items-center"}>
                         {blockTypeToIcon[key]}
                     </div>
-                    <div className={cn("whitespace-nowrap text-[12px] text-center w-full px-1", selected ? "font-semibold" : "")}>
+                    <div
+                        className={cn("whitespace-nowrap text-[12px] text-center w-full px-1", selected ? "font-semibold" : "")}>
                         {blockTypeToBlockName[key]}
                     </div>
                 </DropdownMenuItem>
@@ -385,125 +386,123 @@ export default function ToolbarPlugin({
             className={cn("fixed portal bg-[var(--background-dark)] group border z-[1003] border-[var(--accent-dark)]", isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}
             style={{maxWidth: layoutConfig.maxWidthCenter}}
         >
-            <div className={"flex w-full"}>
-                <div
-                    className="toolbar items-center flex"
+            <div
+                className="toolbar items-center flex "
+            >
+                <ToolbarButton
+                    disabled={!canUndo || !isEditable}
+                    onClick={() => {
+                        activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
+                    }}
+                    title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
+                    aria-label="Undo"
+                    active={false}
                 >
-                    <ToolbarButton
-                        disabled={!canUndo || !isEditable}
-                        onClick={() => {
-                            activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
-                        }}
-                        title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
-                        aria-label="Undo"
-                        active={false}
-                    >
-                        <ArrowUUpLeftIcon/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        disabled={!canRedo || !isEditable}
-                        onClick={() => {
-                            activeEditor.dispatchCommand(REDO_COMMAND, undefined);
-                        }}
-                        title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
-                        aria-label="Redo"
-                        active={false}
-                    >
-                        <ArrowUUpRightIcon/>
-                    </ToolbarButton>
-                    {blockType in blockTypeToBlockName && activeEditor === editor && (
-                        <BlockFormatDropDown
-                            blockType={blockType}
-                            rootType={rootType}
-                            editor={activeEditor}
-                        />
-                    )}
-                    <ToolbarButton
-                        disabled={!isEditable}
-                        onClick={() => {
-                            activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-                        }}
-                        title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
-                        aria-label={`Format text as bold. Shortcut: ${
-                            IS_APPLE ? '⌘B' : 'Ctrl+B'
-                        }`}
-                        active={isBold}
-                    >
-                        <BoldIcon fontSize={20} weight={isBold ? "bold" : "regular"}/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        disabled={!isEditable}
-                        onClick={() => {
-                            activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-                        }}
-                        title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
-                        aria-label={`Format text as italics. Shortcut: ${
-                            IS_APPLE ? '⌘I' : 'Ctrl+I'
-                        }`}
-                        active={isItalic}
-                    >
-                        <ItalicIcon fontSize={20} weight={isItalic ? "bold" : "regular"}/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        disabled={!isEditable}
-                        onClick={insertLink}
-                        aria-label="Insertar vínculo"
-                        title="Insertar vínculo"
-                        active={isLink}
-                    >
-                        <LinkIcon fontSize={20} weight={isLink ? "bold" : "regular"}/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        onClick={() => {
-                            setInsertTableModalOpen(true)
-                        }}
-                        title="Insertar tabla"
-                        active={false}
-                        aria-label="Insertar tabla"
-                    >
-                        <TableIcon fontSize={20}/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        onClick={() => {
-                            setImageModalOpen(true)
-                        }}
-                        title="Insertar imágen"
-                        aria-label="Insertar imágen"
-                    >
-                        <InsertImageIcon fontSize={20}/>
-                    </ToolbarButton>
-                    <ToolbarButton
-                        onClick={() => {
-                            setVisualizationModalOpen(true)
-                        }}
-                        title="Insertar visualización"
-                        aria-label="Insertar visualización"
-                    >
-                        <VisualizationIcon fontSize={20}/>
-                    </ToolbarButton>
+                    <ArrowUUpLeftIcon/>
+                </ToolbarButton>
+                <ToolbarButton
+                    disabled={!canRedo || !isEditable}
+                    onClick={() => {
+                        activeEditor.dispatchCommand(REDO_COMMAND, undefined);
+                    }}
+                    title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
+                    aria-label="Redo"
+                    active={false}
+                >
+                    <ArrowUUpRightIcon/>
+                </ToolbarButton>
+                {blockType in blockTypeToBlockName && activeEditor === editor && (
+                    <BlockFormatDropDown
+                        blockType={blockType}
+                        rootType={rootType}
+                        editor={activeEditor}
+                    />
+                )}
+                <ToolbarButton
+                    disabled={!isEditable}
+                    onClick={() => {
+                        activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+                    }}
+                    title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
+                    aria-label={`Format text as bold. Shortcut: ${
+                        IS_APPLE ? '⌘B' : 'Ctrl+B'
+                    }`}
+                    active={isBold}
+                >
+                    <BoldIcon fontSize={20} weight={isBold ? "bold" : "regular"}/>
+                </ToolbarButton>
+                <ToolbarButton
+                    disabled={!isEditable}
+                    onClick={() => {
+                        activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+                    }}
+                    title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
+                    aria-label={`Format text as italics. Shortcut: ${
+                        IS_APPLE ? '⌘I' : 'Ctrl+I'
+                    }`}
+                    active={isItalic}
+                >
+                    <ItalicIcon fontSize={20} weight={isItalic ? "bold" : "regular"}/>
+                </ToolbarButton>
+                <ToolbarButton
+                    disabled={!isEditable}
+                    onClick={insertLink}
+                    aria-label="Insertar vínculo"
+                    title="Insertar vínculo"
+                    active={isLink}
+                >
+                    <LinkIcon fontSize={20} weight={isLink ? "bold" : "regular"}/>
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => {
+                        setInsertTableModalOpen(true)
+                    }}
+                    title="Insertar tabla"
+                    active={false}
+                    aria-label="Insertar tabla"
+                >
+                    <TableIcon fontSize={20}/>
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => {
+                        setImageModalOpen(true)
+                    }}
+                    title="Insertar imágen"
+                    aria-label="Insertar imágen"
+                >
+                    <InsertImageIcon fontSize={20}/>
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => {
+                        setVisualizationModalOpen(true)
+                    }}
+                    title="Insertar visualización"
+                    aria-label="Insertar visualización"
+                >
+                    <VisualizationIcon fontSize={20}/>
+                </ToolbarButton>
 
-                    {insertTableModalOpen && <InsertTableModal
-                        open={insertTableModalOpen}
-                        onClose={() => {
-                            setInsertTableModalOpen(false)
-                        }}
-                        activeEditor={activeEditor}
-                    />}
-                    {imageModalOpen && <InsertImageModal
-                        open={imageModalOpen}
-                        onClose={() => {
-                            setImageModalOpen(false)
-                        }}
-                        onSubmit={onInsertImage}
-                    />}
-                    {visualizationModalOpen && <InsertVisualizationDialog
-                        activeEditor={activeEditor}
-                        open={visualizationModalOpen}
-                        onClose={() => {
-                            setVisualizationModalOpen(false)
-                        }}
-                    />}
-                </div>
+                {insertTableModalOpen && <InsertTableModal
+                    open={insertTableModalOpen}
+                    onClose={() => {
+                        setInsertTableModalOpen(false)
+                    }}
+                    activeEditor={activeEditor}
+                />}
+                {imageModalOpen && <InsertImageModal
+                    open={imageModalOpen}
+                    onClose={() => {
+                        setImageModalOpen(false)
+                    }}
+                    onSubmit={onInsertImage}
+                />}
+                {visualizationModalOpen && <InsertVisualizationDialog
+                    activeEditor={activeEditor}
+                    open={visualizationModalOpen}
+                    onClose={() => {
+                        setVisualizationModalOpen(false)
+                    }}
+                />}
             </div>
         </div>
     );

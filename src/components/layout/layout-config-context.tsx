@@ -28,6 +28,7 @@ const LayoutConfigContext = createContext<{
     layoutConfig: LayoutConfigProps;
     setLayoutConfig: React.Dispatch<React.SetStateAction<LayoutConfigProps>>;
     isMobile: boolean
+    width: number
 } | undefined>(undefined);
 
 export const useLayoutConfig = () => {
@@ -204,7 +205,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({childre
     }, [layoutConfig, pathname, size]);
 
     return (
-        <LayoutConfigContext.Provider value={{layoutConfig, setLayoutConfig, isMobile}}>
+        <LayoutConfigContext.Provider value={{layoutConfig, setLayoutConfig, isMobile, width: size.width}}>
             {children}
         </LayoutConfigContext.Provider>
     );

@@ -75,7 +75,7 @@
     "hls.js": "^1.6.2",
     "immer": "^10.1.1",
     "lexical": "0.27.2",
-    "lexical-beautiful-mentions": "^0.1.47",
+    "lexical-beautiful-mentions": "^0.1.48",
     "lucide-react": "^0.548.0",
     "next": "^15.5.4",
     "next-navigation-guard": "^0.2.0",
