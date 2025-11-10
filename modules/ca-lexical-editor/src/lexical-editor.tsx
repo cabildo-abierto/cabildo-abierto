@@ -58,8 +58,10 @@ import {getInitialData} from "./get-initial-data";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {EmbedContext} from "./nodes/EmbedNode";
-import MentionsToLinksPlugin from "./plugins/MentionsToLinksPlugin";
+import LinksToMentionsPlugin from "./plugins/MentionsToLinksPlugin";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {NoLineBreaksPlugin} from "./plugins/NoLineBreaksPlugin";
+import {cn} from "@/lib/utils";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -90,6 +92,7 @@ export type SettingsProps = {
     showingChanges?: string
 
     editorClassName: string
+    editorContainerClassName: string
     placeholderClassName: string
     imageClassName: string
 
@@ -153,6 +156,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
         isAutofocus,
         editorClassName,
         placeholderClassName,
+        editorContainerClassName,
         preventLeave,
         allowImages,
         allowTables,
@@ -198,7 +202,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}/>}
             <div
                 ref={editorContainerRef}
-                className={`relative ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+                className={cn("relative", showTreeView && 'tree-view', !isRichText && 'plain-text')}
             >
                 <DragDropPaste/>
 
@@ -206,6 +210,9 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 <BeautifulMentionsPlugin
                     triggers={['@']}
+                    allowSpaces={false}
+                    autoSpace={true}
+                    showCurrentMentionsAsSuggestions={false}
                     onSearch={queryMentions}
                     emptyComponent={EmptyMentionResults}
                     menuComponent={CustomMenuMentions}
@@ -235,7 +242,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
                 {markdownShortcuts && <MarkdownShortcutPlugin/>}
 
-                <MentionsToLinksPlugin/>
+                <LinksToMentionsPlugin/>
 
                 <AutoLinkPlugin/>
 
@@ -248,8 +255,8 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                         <HistoryPlugin externalHistoryState={historyState}/>
                         <RichTextPlugin
                             contentEditable={
-                                <div className={'editor-scroller'}>
-                                    <div className={"editor " + editorClassName} ref={onRef}>
+                                <div className={'editor-scroller'} ref={onRef}>
+                                    <div className={editorContainerClassName}>
                                         <ContentEditable
                                             placeholder={placeholder}
                                             placeholderClassName={placeholderClassName}
@@ -277,8 +284,10 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                                 <TableCellActionMenuPlugin
                                     anchorElem={floatingAnchorElem}
                                     cellMerge={true}/>
-                                <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}
-                                                                 settings={settings}/>
+                                <FloatingTextFormatToolbarPlugin
+                                    setIsLinkEditMode={setIsLinkEditMode}
+                                    settings={settings}
+                                />
                             </>
                         )}
                     </>
@@ -293,11 +302,15 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                             ErrorBoundary={LexicalErrorBoundary}
                         />
                         <HistoryPlugin externalHistoryState={historyState}/>
+                        <NoLineBreaksPlugin/>
                     </>
                 )}
                 <div className={layoutConfig.spaceForLeftSide ? "" : "hidden"}>
                     {tableOfContents &&
-                        <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor}/>}
+                        <TableOfContentsPlugin
+                            title={settings.title}
+                            marginAboveEditor={marginAboveEditor}
+                        />}
                 </div>
                 {useContextMenu && <ContextMenuPlugin/>}
             </div>
@@ -310,7 +323,15 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
 
     const initialConfig: InitialConfigType = useMemo(() => {
-        const {topicMentions, isReadOnly, initialText, initialTextFormat, imageClassName, shouldPreserveNewLines, embeds} = settings
+        const {
+            topicMentions,
+            isReadOnly,
+            initialText,
+            initialTextFormat,
+            imageClassName,
+            shouldPreserveNewLines,
+            embeds
+        } = settings
         return {
             namespace: settings.namespace,
             editorState: getInitialData(
@@ -321,7 +342,9 @@ const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps
                 topicMentions
             ),
             nodes: getEditorNodes(settings),
-            onError: (error: Error) => { throw error },
+            onError: (error: Error) => {
+                throw error
+            },
             theme: {
                 ...PlaygroundEditorTheme,
                 image: "editor-image " + imageClassName
@@ -330,7 +353,7 @@ const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps
         };
     }, [settings]);
 
-    if(!initialConfig) return null
+    if (!initialConfig) return null
 
     return (
         <LexicalComposer initialConfig={initialConfig}>

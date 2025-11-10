@@ -41,7 +41,7 @@ const PostThreadPage = ({content, thread}: {
         </div>
     }, [thread, query.isFetching])
 
-    return <div className={"flex flex-col items-center pt-4"}>
+    return <div className={"flex flex-col items-center pt-4 pb-32"}>
         <Post
             postView={{$type: "ar.cabildoabierto.feed.defs#postView", ...content}}
             threadViewContent={thread}
