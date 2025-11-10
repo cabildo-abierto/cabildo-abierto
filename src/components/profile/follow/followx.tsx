@@ -10,19 +10,25 @@ const UserSearchResult = dynamic(() => import("@/components/buscar/user-search-r
 
 export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) => {
     const {data, isLoading} = useFollowx(handle, kind)
-    const {data: profile} = useProfile(handle)
+    const {data: profile, isLoading: loadingProfile} = useProfile(handle)
 
-    if (isLoading) return <div className={"py-4"}>
+    if (isLoading || loadingProfile) return <div className={"py-4"}>
         <LoadingSpinner/>
     </div>
+
+    if(!profile || !data) return <div className={"py-4"}>
+        Ocurrió un error al cargar los datos.
+    </div>
+
+    const caCount = kind == "seguidores" ? profile.followersCount : profile.followsCount
 
     const bskyCount = kind == "seguidores" ? profile.bskyFollowersCount : profile.bskyFollowsCount
 
     return <div>
         {profile && <div className={"w-full p-2 sm:text-base text-sm border-b text-[var(--text-light)]"}>
-            <FollowCount count={kind == "seguidores" ? profile.followersCount : profile.followsCount} kind={kind}/> <span>
+            {caCount != null && <><FollowCount count={caCount} kind={kind}/> <span>
                 en Cabildo Abierto,
-            </span> <FollowCount count={bskyCount} kind={kind}/> <span>
+            </span> </>}<FollowCount count={bskyCount} kind={kind}/> <span>
                 en Bluesky
             </span>.
         </div>}
