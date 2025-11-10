@@ -382,8 +382,6 @@ export const WritePost = ({
 
         const text = getPlainText(editorState.toJSON().root)
 
-        console.log("plain text", text)
-
         const post: CreatePostProps = {
             text,
             reply,

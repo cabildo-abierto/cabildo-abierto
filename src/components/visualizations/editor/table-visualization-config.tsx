@@ -82,7 +82,7 @@ export const TableVisualizationConfig = ({config, setConfig}: TableVisualization
         }))
     }
 
-    return <div className={"px-1"}>
+    return <div className={"px-1 space-y-1"}>
         <div className={"grid grid-cols-[2fr_2fr_1fr] gap-2"}>
             <div className={"text-[var(--text-light)] text-sm"}>
                 Columna

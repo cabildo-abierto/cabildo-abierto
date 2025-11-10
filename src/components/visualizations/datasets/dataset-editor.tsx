@@ -115,6 +115,7 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
                 variant="outlined"
                 handleClick={onPublish}
                 disabled={!validDataset}
+                size={"small"}
             >
                 {dataset ? "Guardar cambios" : "Publicar"}
             </StateButton>

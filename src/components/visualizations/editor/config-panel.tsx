@@ -143,6 +143,7 @@ export const SelectPlotType = ({
     return <BaseSelect
         inPortal={inPortal}
         contentClassName={"z-[1501]"}
+        label={"Tipo de gráfico"}
         options={[
             "Histograma",
             "Gráfico de línea",
