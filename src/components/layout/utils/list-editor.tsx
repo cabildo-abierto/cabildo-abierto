@@ -45,7 +45,7 @@ export const ListEditorItem = ({
     editing: boolean
     item: string
     removeItem: () => void
-    onChange: (v: string) => void
+    onChange: (v: string, selected: boolean) => void
     setEditing: (v: boolean) => void
     options?: string[]
 }) => {
@@ -119,10 +119,13 @@ export const ListEditor = ({
                     options={options}
                     item={c}
                     removeItem={setItems ? removeItem(i) : undefined}
-                    onChange={(v: string) => {
+                    onChange={(v, selected) => {
                         setItems(produce(items, draft => {
                             draft[i] = v
                         }))
+                        if(selected) {
+                            setEditing(null)
+                        }
                     }}
                 />
             </div>

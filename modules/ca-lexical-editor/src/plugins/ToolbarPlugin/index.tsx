@@ -383,7 +383,7 @@ export default function ToolbarPlugin({
 
     return (
         <div
-            className={cn("fixed portal bg-[var(--background-dark)] group border z-[1003] border-[var(--accent-dark)]", isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}
+            className={cn("fixed portal bg-[var(--background-dark)] group border z-[999] border-[var(--accent-dark)]", isMobile ? "overflow-x-scroll w-full bottom-[68px]" : "bottom-5")}
             style={{maxWidth: layoutConfig.maxWidthCenter}}
         >
             <div

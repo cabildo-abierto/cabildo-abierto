@@ -11,6 +11,7 @@ type PostContentProps = {
     showQuoteContext?: boolean
     onClickQuote?: (cid: string) => void
     editedParent?: boolean
+    onWritePost?: boolean
 }
 
 
@@ -20,7 +21,8 @@ export const PostContent = ({
     hideQuote = false,
     showQuoteContext = false,
     onClickQuote,
-    editedParent
+    editedParent,
+    onWritePost=false
 }: PostContentProps) => {
 
     const content = useMemo(() => {
@@ -46,8 +48,17 @@ export const PostContent = ({
         }
     }, [postView.embed, postView.uri, postView.cid, hideQuote, onClickQuote, showQuoteContext])
 
-    return <div className={"flex flex-col space-y-2"}>
+    return <div
+        className={"flex flex-col space-y-2"}
+    >
         {content}
-        {embed}
+        {!onWritePost ? embed : <div className={"border p-2 text-[var(--text-light)] text-sm"}>
+            {postView.embed.$type.includes("visualization") && "Visualización"}
+            {postView.embed.$type.includes("image") && "Imágen"}
+            {postView.embed.$type.includes("video") && "Video"}
+            {postView.embed.$type.includes("external") && "Enlace externo"}
+            {postView.embed.$type.includes("record") && "Contenido citado"}
+            {postView.embed.$type.includes("selectionQuote") && "Cita a una porción del texto"}
+        </div>}
     </div>
 }
