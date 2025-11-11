@@ -82,7 +82,7 @@ const UserSearchResult = ({
     return <Link
         key={user.did}
         tag={"div"}
-        href={profileUrl(user.handle)}
+        href={goToProfile ? profileUrl(user.handle) : undefined}
         onClick={e => {
             if (!goToProfile) {
                 e.preventDefault()
