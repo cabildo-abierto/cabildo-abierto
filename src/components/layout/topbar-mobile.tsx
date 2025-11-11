@@ -13,6 +13,7 @@ import {TopicTopbarRight} from "@/components/topics/topic/topic-topbar-right";
 import {TopbarTopicFeed} from "@/components/topics/mentions-feed/topbar-topic-feed";
 import {SidebarMobile} from "@/components/layout/sidebar/sidebar-mobile";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import NewConvButton from "@/components/mensajes/new-conv-button";
 
 
 export default function TopbarMobile({setWritePanelOpen}: {
@@ -78,6 +79,10 @@ export default function TopbarMobile({setWritePanelOpen}: {
                 className={"flex flex-1 justify-end text-[var(--text-light)]"}
             >
                 <InfoPanelUserSuggestions/>
+            </div>}
+
+            {pathname.startsWith("/mensajes") && !pathname.startsWith("/mensajes/") && <div>
+                <NewConvButton/>
             </div>}
         </div>
         {pathname.startsWith("/inicio") && <div

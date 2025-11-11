@@ -26,9 +26,7 @@ export default function NewConvButton() {
             }}
             variant={"outlined"}
         >
-            <span className={"uppercase text-[11px] py-[2px] font-semibold"}>
-                Nueva conversación
-            </span>
+            Nueva conversación
         </BaseButton>
 
         {creatingConv && <CreateConvPanel open={creatingConv} onClose={() => {
