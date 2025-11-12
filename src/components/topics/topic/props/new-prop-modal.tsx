@@ -63,7 +63,11 @@ export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
     const isSpecial = ["Categorías", "Título"].includes(name)
     const alreadyExists = currentProps.map(c => c.name).includes(name)
 
-    return <BaseFullscreenPopup open={open} onClose={cleanAndClose} closeButton={true}>
+    return <BaseFullscreenPopup
+        open={open}
+        onClose={cleanAndClose}
+        closeButton={true}
+    >
         {isLoading && <div className={"my-16"}>
             <LoadingSpinner/>
         </div>}

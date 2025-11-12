@@ -41,7 +41,13 @@ export default function InsertTableModal({
     };
 
     return (
-        <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} backgroundShadow={false} className={"sm:w-auto bg-[var(--background-dark)] portal group"}>
+        <BaseFullscreenPopup
+            open={open}
+            onClose={onClose}
+            closeButton={true}
+            backgroundShadow={false}
+            className={"bg-[var(--background-dark)] portal group"}
+        >
             <div className={"flex flex-col space-y-8 p-4 items-center"}>
                 <div className={"flex space-x-4 pt-4"}>
                     <div className={"w-24"}>

@@ -16,10 +16,8 @@ export const BaseFullscreenPopup = ({
                                         closeButton = false,
                                         onClose,
                                         open,
-                                        className = "sm:w-auto",
-                                        allowClose = false,
+                                        className,
                                         hidden = false,
-                                        disableScrollLock = true,
                                         backgroundShadow = false,
     overlayClassName,
     ariaLabelledBy="panel"
@@ -29,9 +27,7 @@ export const BaseFullscreenPopup = ({
     closeButton?: boolean
     onClose?: () => void
     className?: string
-    allowClose?: boolean
     hidden?: boolean
-    disableScrollLock?: boolean
     backgroundShadow?: boolean
     zIndex?: number
     overlayClassName?: string
@@ -56,7 +52,7 @@ export const BaseFullscreenPopup = ({
     >
         {backgroundShadow && <DialogOverlay className={cn("z-[1050]", overlayClassName)}/>}
         <DialogContent
-            className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)]`, className)}
+            className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)] sm:w-auto`, className)}
             onClick={e => {
                 e.stopPropagation()
             }}

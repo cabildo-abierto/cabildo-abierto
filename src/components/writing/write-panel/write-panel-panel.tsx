@@ -70,8 +70,7 @@ const WritePanelPanel = ({
         <BaseFullscreenPopup
             hidden={hidden}
             open={open}
-            className="w-full max-w-[512px]"
-            disableScrollLock={true}
+            className="w-full max-w-[512px] sm:w-full"
             backgroundShadow={true}
         >
             <div
