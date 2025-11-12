@@ -13,6 +13,7 @@ import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/sr
 import LoadingSpinner from "../../../layout/base/loading-spinner";
 import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import { Note } from "@/components/layout/utils/note";
 
 async function validSelectionForComment(text: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
     try {
@@ -126,9 +127,9 @@ export const SelectionQuote = ({
                 quotedTextEmbeds={quotedContentEmbeds}
                 quotedCollection={collection}
             />}
-            {normalizedSelection && normalizedSelection == "error" && <div className={"p-2"}>
-                Ocurrió un error al procesar la selección.
-            </div>}
+            {normalizedSelection && normalizedSelection == "error" && <Note className={"p-2 text-left"}>
+                No pudimos procesar la selección. Probá seleccionar menos contenido.
+            </Note>}
             {!normalizedSelection && <LoadingSpinner/>}
         </blockquote>
     </div>
