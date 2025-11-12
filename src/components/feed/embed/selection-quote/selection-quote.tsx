@@ -13,6 +13,7 @@ import {ProcessedLexicalState} from "../../../../../modules/ca-lexical-editor/sr
 import LoadingSpinner from "../../../layout/base/loading-spinner";
 import {LexicalSelection} from "../../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoActorDefs} from "@/lex-api/index"
+import { Note } from "@/components/layout/utils/note";
 
 async function validSelectionForComment(text: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
     try {
@@ -55,6 +56,7 @@ type SelectionQuoteProps = {
     quotedTextFormat?: string
     quotedContentTitle?: string
     selection: MarkdownSelection | LexicalSelection
+    editedParent?: boolean
 }
 
 export const SelectionQuote = ({
@@ -67,7 +69,8 @@ export const SelectionQuote = ({
     quotedContent,
     quotedText,
     quotedTextFormat,
-    selection
+    selection,
+    editedParent
 }: SelectionQuoteProps) => {
     const [normalizedSelection, setNormalizedSelection] = useState<"error" | MarkdownSelection | null>(null)
     const router = useRouter()
@@ -109,6 +112,9 @@ export const SelectionQuote = ({
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
         >
+            {editedParent && <div className={"text-xs font-light"}>
+                El contenido principal fue editado después de esta respuesta. Es posible que la cita haya quedado corrida.
+            </div>}
             {showContext && <SelectionQuoteContext
                 quotedContent={quotedContent}
                 quotedContentAuthor={quotedContentAuthor}
@@ -121,9 +127,9 @@ export const SelectionQuote = ({
                 quotedTextEmbeds={quotedContentEmbeds}
                 quotedCollection={collection}
             />}
-            {normalizedSelection && normalizedSelection == "error" && <div className={"p-2"}>
-                Ocurrió un error al procesar la selección.
-            </div>}
+            {normalizedSelection && normalizedSelection == "error" && <Note className={"p-2 text-left"}>
+                No pudimos procesar la selección. Probá seleccionar menos contenido.
+            </Note>}
             {!normalizedSelection && <LoadingSpinner/>}
         </blockquote>
     </div>

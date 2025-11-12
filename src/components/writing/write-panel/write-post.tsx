@@ -22,7 +22,9 @@ import {
     WritePanelQuotedPost
 } from "@/components/writing/write-panel/write-panel-quoted-post";
 import {$Typed} from "@/lex-api/util";
-import {EditorState} from "lexical";
+import {
+    EditorState
+} from "lexical";
 import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor";
 import {getEditorSettings} from "@/components/writing/settings";
 import dynamic from "next/dynamic";
@@ -34,7 +36,9 @@ import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-but
 import {useTopicsMentioned} from "@/components/writing/use-topics-mentioned";
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
-import {markdownToEditorState} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {
+    markdownToEditorState
+} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 import Link from "next/link";
 import {getTextLength} from "@/components/writing/write-panel/rich-text"
 import {AppBskyEmbedImages, AppBskyFeedPost} from "@atproto/api"
@@ -144,7 +148,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
             }
         }, 200)
 
-        return () => clearTimeout(handler) // Clean up on dependency change
+        return () => clearTimeout(handler)
     }, [externalEmbedUrl])
 
 
@@ -224,7 +228,7 @@ function getLinksFromEditor(editorState: EditorState) {
 }
 
 
-function usePostEditorSettings(
+export function usePostEditorSettings(
     replyToCollection: string | undefined,
     quoteCollection: string | undefined,
     postView: ArCabildoabiertoFeedDefs.PostView | undefined,
@@ -293,6 +297,25 @@ export function visualizationViewToMain(v: ArCabildoabiertoEmbedVisualization.Vi
 }
 
 
+function getPlainText(node: any) {
+    let text = ""
+    if(node.type == "text"){
+        text += node.text
+    }
+    if(node.type == "custom-beautifulMention"){
+        text += "@"+node.value
+    }
+    if(node.children)
+        for(let i = 0; i < node.children.length; i++){
+            text += getPlainText(node.children[i])
+        }
+    if(node.type == "paragraph") {
+        text += "\n"
+    }
+    return text
+}
+
+
 export const WritePost = ({
                               replyTo,
                               selection,
@@ -348,12 +371,19 @@ export const WritePost = ({
 
         let selectionForPost: [number, number]
         if (selection instanceof LexicalSelection && (ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo)) && replyTo.format == "markdown") {
-            const state = markdownToEditorState(replyTo.text, true, true, replyTo.embeds)
+            const state = markdownToEditorState(
+                replyTo.text,
+                true,
+                true,
+                replyTo.embeds
+            )
             selectionForPost = selection.toMarkdownSelection(state).toArray()
         }
 
+        const text = getPlainText(editorState.toJSON().root)
+
         const post: CreatePostProps = {
-            text: text,
+            text,
             reply,
             selection: selectionForPost,
             images,
@@ -479,6 +509,7 @@ export const WritePost = ({
                         return await handleClickSubmit()
                     }}
                     disabled={!valid}
+                    size={"small"}
                 >
                     {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
                 </StateButton>

@@ -61,7 +61,9 @@ export default function Page() {
     }, [data]);
 
     if (isLoading) {
-        return <LoadingSpinner/>
+        return <div className={"py-6"}>
+            <LoadingSpinner/>
+        </div>
     } else if(!data){
         return <ErrorPage>
             Ocurrió un error al cargar las conversaciones.

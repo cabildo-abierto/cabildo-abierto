@@ -7,11 +7,15 @@ import {PlotCaption, PlotTitle} from "@/components/visualizations/title";
 type TableVisualizationComp = {
     spec: ArCabildoabiertoEmbedVisualization.Table
     visualization: ArCabildoabiertoEmbedVisualization.View
+    maxWidth: number
+    maxHeight: number
 }
 
 const TableVisualizationComp = ({
     spec,
-    visualization
+    visualization,
+    maxWidth,
+    maxHeight
 }: TableVisualizationComp) => {
 
     if ((isDatasetView(visualization.dataset) || isTopicsDatasetView(visualization.dataset)) && visualization.dataset) {
@@ -22,7 +26,8 @@ const TableVisualizationComp = ({
                 dataset={visualization.dataset}
                 filters={visualization.visualization.filters}
                 columnsConfig={spec.columns}
-                maxHeight={450}
+                maxHeight={Math.min(450, maxHeight ?? 450)}
+                maxWidth={maxWidth}
                 showSize={false}
             />
             <PlotCaption caption={visualization.visualization.caption} fontSize={14}/>

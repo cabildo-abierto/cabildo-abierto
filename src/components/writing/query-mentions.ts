@@ -10,6 +10,7 @@ function profileViewBasicToMentionProps(p: ArCabildoabiertoActorDefs.ProfileView
         handle: p.handle,
         avatar: p.avatar,
         displayName: p.displayName,
+        inCA: p.caProfile != null,
         value: p.handle
     }
 }

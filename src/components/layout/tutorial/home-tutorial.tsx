@@ -9,7 +9,6 @@ import {useQueryClient} from "@tanstack/react-query";
 import {Session} from "@/lib/types";
 import {produce} from "immer";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {useProfile} from "@/queries/getters/useProfile";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -19,11 +18,11 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
         open={open}
         buttonText={"Aceptar"}
         onClose={onClose}
-        className={"py-4 px-8"}
+        className={"py-4 px-4 sm:px-8"}
         backgroundShadow={true}
     >
         <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
-            <h2 className={"mb-4 py-2"}>¡Te damos la bienvenida!</h2>
+            <h2 className={"mb-4 py-2 text-xl"}>¡Te damos la bienvenida!</h2>
 
             <div className={"text-[var(--text-light)] font-light space-y-3"}>
                 <div>
@@ -31,14 +30,14 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                 </div>
                 <div>
                     Desde el equipo que la desarrolla intentamos que sirva como una herramienta para comunicarnos y
-                    discutir a través de internet de formas más sanas y útiles para todos los que participamos.
+                    discutir a través de internet de formas más sanas y útiles.
                 </div>
                 <div>
                     Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá
                     en cualquier contenido de la plataforma.
                 </div>
                 {isMobile && <div className={""}>
-                    <span className={"font-semibold"}>Nota.</span> Cabildo Abierto funciona un poco mejor desde una
+                    <span className={"font-semibold"}>Tip:</span> Cabildo Abierto funciona un poco mejor desde una
                     computadora.
                 </div>}
             </div>
@@ -49,9 +48,7 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
 const RunTutorial = ({children}: { children: ReactNode }) => {
     const [runStatus, setRunStatus] = useState<"not started" | "welcome" | "guide" | "follows" | "finished">("welcome")
     const {user} = useSession()
-    const {data: profile} = useProfile(user.handle)
     const qc = useQueryClient()
-    const searchParams = useSearchParams()
 
     useEffect(() => {
         if (user) {
@@ -86,14 +83,10 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             />
             {runStatus == "guide" && <AcceptButtonPanel
                 buttonText={"Empezar"}
-                className={"max-w-[400px] font-light"}
+                className={"max-w-[400px] font-light sm:text-base text-sm"}
                 open={true}
                 onClose={() => {
-                    if (profile && profile.bskyFollowsCount <= 1 || searchParams.get("tutorial")) {
-                        setRunStatus("follows")
-                    } else {
-                        setRunStatus("finished")
-                    }
+                    setRunStatus("finished")
                 }}>
                 Para empezar, te recomendamos que busques usuarios para seguir, que explores los muros y sus
                 configuraciones y que recorras la sección de temas.

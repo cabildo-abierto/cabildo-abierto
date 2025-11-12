@@ -25,7 +25,7 @@ export const SelectDonationPage = () => {
     const [preferenceId, setPreferenceId] = useState<undefined | string>()
     const params = useSearchParams()
     const {user} = useSession()
-    const verification = params.get("verification") != null && (user.validation == null || user.validation == "none")
+    const verification = params.get("verificacion") != null && (user.validation == null || user.validation == "none")
     const [amount, setAmount] = useState(verification ? 1 : 0)
     const {isMobile} = useLayoutConfig()
 
@@ -64,7 +64,7 @@ export const SelectDonationPage = () => {
     }
 
     return <div
-        className={cn("w-full p-4 panel-dark portal space-y-8 group mt-32 mb-16", isMobile && "w-auto mx-2 mt-0")}
+        className={cn("w-full p-4 panel-dark portal space-y-8 group mt-16 mb-16", isMobile && "w-auto mx-2 mt-16")}
     >
         <div className={"flex flex-col items-center space-y-8"}>
             <div className={"text-center font-light space-y-8"}>

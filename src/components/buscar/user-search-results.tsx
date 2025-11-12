@@ -3,12 +3,12 @@ import React from "react";
 import SmallUserSearchResult from "@/components/buscar/small-user-search-result";
 import UserSearchResult from "@/components/buscar/user-search-result";
 import {useQuery} from "@tanstack/react-query";
-import { useDebounce } from "@/utils/debounce";
+import {useDebounce} from "@/utils/debounce";
 import {searchUsers} from "@/components/writing/query-mentions";
 
 
 export const useSearchUsers = (
-    searchState: {value: string, searching: boolean},
+    searchState: { value: string, searching: boolean },
     limit: number) => {
     const debouncedQuery = useDebounce(searchState.value, 300)
 
@@ -107,7 +107,8 @@ const UserSearchResults = ({
 
     return (
         <div className="flex flex-col items-center bg-[var(--backgound)]">
-            <div className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--accent-dark)]" : "")}>
+            <div
+                className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--accent-dark)]" : "")}>
                 {showSearchButton &&
                     results?.slice(0, rightIndex).map((user, index) => (
                         <div key={index} className="">
@@ -131,20 +132,13 @@ const UserSearchResults = ({
                 {!showSearchButton && (
                     <>
                         {caResults.map((user, index) => (
-                            <div key={index} className="">
-                                {showSearchButton ? (
-                                    <SmallUserSearchResult
-                                        user={user}
-                                        onClick={onClickResult}
-                                    />
-                                ) : (
-                                    <UserSearchResult
-                                        user={user}
-                                        showFollowButton={showFollowButton}
-                                        goToProfile={goToProfile}
-                                        onClick={onClickResult}
-                                    />
-                                )}
+                            <div key={index}>
+                                <UserSearchResult
+                                    user={user}
+                                    showFollowButton={showFollowButton}
+                                    goToProfile={goToProfile}
+                                    onClick={onClickResult}
+                                />
                             </div>
                         ))}
 
@@ -154,9 +148,10 @@ const UserSearchResults = ({
                             </div>
                         )}
 
-                        {splitBluesky && <div className={"uppercase text-[13px] py-4 text-center text-[var(--text-light)] border-b"}>
-                            Usuarios de Bluesky
-                        </div>}
+                        {splitBluesky &&
+                            <div className={"uppercase text-[13px] py-4 text-center text-[var(--text-light)] border-b"}>
+                                Usuarios de Bluesky
+                            </div>}
                         {bskyResults.map((user, index) => (
                             <div key={index} className="">
                                 {showSearchButton ? (

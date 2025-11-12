@@ -42,6 +42,7 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             return <ThreadReplies
                 setPinnedReplies={setPinnedReplies}
                 replies={thread.replies}
+                parentRef={thread.content}
             />
         }
         return null
@@ -69,7 +70,7 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             />
         </div>
 
-        <div className={"min-h-screen flex flex-col items-center w-full"}>
+        <div className={"min-h-screen flex flex-col items-center w-full pb-32"}>
             {replies}
 
             {!thread.replies && <div className={"py-4"}>

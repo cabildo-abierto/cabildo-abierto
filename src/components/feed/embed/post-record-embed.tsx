@@ -17,7 +17,6 @@ import ValidationIcon from "@/components/profile/validation-icon";
 import BlueskyLogo from "@/components/layout/icons/bluesky-logo";
 import dynamic from "next/dynamic";
 import {ArticlePreviewContent} from "@/components/feed/article/article-preview";
-import {PrettyJSON} from "@/components/layout/utils/pretty-json";
 
 
 const UserSummaryOnHover = dynamic(() => import("@/components/profile/user-summary"), {
@@ -48,6 +47,7 @@ export const PostRecordEmbedRecord = ({
         const author = record.author
         const url = contentUrl(record.uri, author.handle)
         const createdAt = new Date(record.indexedAt)
+        const recordMain = record.value as AppBskyFeedPost.Record
 
         return <div
             className={"embed-panel p-3"}
@@ -88,11 +88,14 @@ export const PostRecordEmbedRecord = ({
             <div>
                 <BskyRichTextContent
                     namespace={record.uri}
-                    post={record.value as AppBskyFeedPost.Record}
+                    post={recordMain}
                 />
             </div>
             {/* TO DO: Entender por qué puede haber más de un embed */}
-            {record.embeds && record.embeds.length > 0 && <PostEmbed embed={record.embeds[0]} mainPostRef={mainPostRef}/>}
+            {record.embeds && record.embeds.length > 0 && <PostEmbed
+                embed={record.embeds[0]}
+                mainPostRef={mainPostRef}
+            />}
         </div>
     } else if(AppBskyEmbedRecord.isViewDetached(record)){
         return <div className={"p-3 mt-2 border rounded-lg text-[var(--text-light)]"}>
@@ -227,7 +230,6 @@ export const PostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
         />
     } else {
         return <div className={"p-3 border font-light"}>
-            <PrettyJSON data={record}/>
             Ocurrió un error al mostrar el contenido
         </div>
     }

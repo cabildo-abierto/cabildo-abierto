@@ -149,7 +149,7 @@ export function collectionToDisplay(c: string, article: ArticleKind = "none", to
     let artStr: string
     if(article == "none") artStr = ""
     else if(article == "author") artStr = "tu "
-    else if(article == "not-author") artStr = masc ? "un" : "una "
+    else if(article == "not-author") artStr = masc ? "un " : "una "
 
     if(isPost(c)){
         return artStr + (artStr ? "publicación" : "Publicación")

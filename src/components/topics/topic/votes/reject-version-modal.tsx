@@ -48,7 +48,11 @@ export const RejectVersionModal = ({open, onClose, topicId, versionRef}: {
         return {}
     }
 
-    return <BaseFullscreenPopup open={open} closeButton={false}>
+    return <BaseFullscreenPopup
+        open={open}
+        closeButton={false}
+        className={"z-[1502]"}
+    >
         <div className={"flex flex-col items-center " + (isMobile ? "w-screen" : "w-[500px]")}>
             <div className={"flex justify-between items-center w-full p-1"}>
                 <div className={"flex space-x-1 items-center pl-1"}>

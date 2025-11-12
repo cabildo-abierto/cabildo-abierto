@@ -139,7 +139,11 @@ export const SaveEditPopup = ({
     }
 
     return (
-        <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
+        <BaseFullscreenPopup
+            open={open}
+            closeButton={true}
+            onClose={onClose}
+        >
             <div className="py-4 lg:px-12 px-2 text-center sm:w-[450px]">
 
                 <h2 className="pb-4 uppercase text-base">

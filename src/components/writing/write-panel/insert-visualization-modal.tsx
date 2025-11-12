@@ -15,7 +15,6 @@ const InsertVisualizationModal = ({open, onClose, onSave, initialConfig}: {
         open={open}
         onClose={onClose}
         closeButton={false}
-        disableScrollLock={false}
     >
         <VisualizationEditor
             onClose={onClose}

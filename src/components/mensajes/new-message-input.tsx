@@ -10,6 +10,7 @@ import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useSession} from "@/queries/getters/useSession";
 import SendIcon from "@/components/layout/icons/send-icon";
 import {BaseTextArea} from "@/components/layout/base/base-text-area";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 
 export default function NewMessageInput({
@@ -20,6 +21,7 @@ export default function NewMessageInput({
     const {user} = useSession()
     const [newMessage, setNewMessage] = useState<string>("")
     const qc = useQueryClient()
+    const {isMobile} = useLayoutConfig()
 
     async function sendMessage(msg: SendMessageParams) {
         await post<SendMessageParams, {}>("/send-message", msg)
@@ -52,11 +54,12 @@ export default function NewMessageInput({
             className={"bg-[var(--background-dark)]"}
             value={newMessage}
             onChange={e => setNewMessage(e.target.value)}
-            rows={3}
+            rows={isMobile ? 3 : 4}
             size={"large"}
             placeholder={"Escribí un mensaje..."}
             endIconClassName={"pl-2 pr-3 pt-1.5"}
-            inputGroupClassName={"items-start min-h-[64px]"}
+            inputGroupClassName={"items-start min-h-[64px] p-1"}
+            inputClassName={"text-base"}
             endIcon={<BaseIconButton
                 size={"default"}
                 className={"px-3"}

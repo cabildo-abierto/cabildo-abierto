@@ -1,33 +1,36 @@
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {useEffect} from "react";
 import {mergeRegister} from "@lexical/utils";
-import {profileUrl} from "@/utils/uri";
-import {CustomBeautifulMentionNode} from "lexical-beautiful-mentions";
-import {$createTextNode} from "lexical";
-import {$createLinkNode} from "@lexical/link";
+import {$createBeautifulMentionNode} from "lexical-beautiful-mentions";
+import {LinkNode} from "@lexical/link";
+import {isValidHandle} from "@atproto/syntax";
 
 
 export default function MentionsToLinksPlugin() {
-  const [editor] = useLexicalComposerContext();
+    const [editor] = useLexicalComposerContext();
 
-  useEffect(() => {
+    useEffect(() => {
 
-    return mergeRegister(
-        editor.registerNodeTransform(CustomBeautifulMentionNode, (node) => {
-          if(editor.isEditable()){
-            const name = node.__value
-            const url = profileUrl(name)
+        return mergeRegister(
+            editor.registerNodeTransform(LinkNode, (node) => {
+                if (editor.isEditable()) {
+                    const url = node.getURL()
+                    if(url.startsWith("/perfil/")) {
+                        const handle = url.replace("/perfil/", "")
+                        if(isValidHandle(handle)) {
+                            const mention = $createBeautifulMentionNode("@", handle, {
+                                handle
+                            })
+                            node.replace(mention)
+                            mention.selectEnd()
+                        }
+                    }
+                }
+            })
+        )
+    }, [editor])
 
-            const newNode = $createLinkNode(url)
-            newNode.append($createTextNode(`@${name}`))
-            node.replace(newNode)
-            newNode.selectEnd()
-          }
-        })
-    )
-  }, [editor])
+    return <>
 
-  return <>
-
-  </>
+    </>
 }

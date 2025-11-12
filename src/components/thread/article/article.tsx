@@ -10,6 +10,8 @@ import {ScrollToQuotePost} from "@/components/feed/embed/selection-quote/scroll-
 import {robotoSerif} from "@/components/writing/article-font";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {cn} from "@/lib/utils";
+import {pxToNumber} from "@/utils/strings";
 
 
 type ArticleCompProps = {
@@ -22,7 +24,7 @@ type ArticleCompProps = {
 
 const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
     const [editor, setEditor] = useState<LexicalEditor>(null)
-    const {layoutConfig} = useLayoutConfig()
+    const {layoutConfig, width} = useLayoutConfig()
 
     const enDiscusion = hasEnDiscusionLabel(article)
 
@@ -31,7 +33,7 @@ const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: Artic
 
     return <ScrollToQuotePost setPinnedReplies={setPinnedReplies}>
         <div className="w-full">
-            <div className={"p-3"}>
+            <div className={cn("py-3", pxToNumber(layoutConfig.maxWidthCenter) + 40 > width && "px-5")}>
                 <ArticleHeader article={article}/>
                 <div
                     className={"mt-8 mb-16"}

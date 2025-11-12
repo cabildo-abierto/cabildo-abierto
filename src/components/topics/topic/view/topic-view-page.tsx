@@ -9,6 +9,7 @@ import {TopicDiscussion} from "@/components/topics/topic/view/topic-discussion";
 import {useTopicPageParams} from "@/components/topics/topic/use-topic-page-params";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import TopicNotFoundPage from "@/components/topics/topic/topic-not-found-page";
+import {cn} from "@/lib/utils";
 
 
 export const TopicViewPage = () => {
@@ -26,15 +27,23 @@ export const TopicViewPage = () => {
         return <TopicNotFoundPage/>
     }
 
-    return <div className={" mt-8 space-y-8 pb-32 " + (isMobile ? "pt-6" : "")}>
-        <div className={"absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"}>
+    return <div
+        className={cn("mt-8 space-y-8 pb-32", isMobile && "pt-6")}
+    >
+        <div
+            className="absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"
+        >
             <EditTopicButton/>
             <TopicPropsPanel
                 topic={topic}
             />
         </div>
 
-        <div className={"space-y-8 " + (isMobile ? "px-4": (!layoutConfig.spaceForRightSide ? "pr-4 " : "") + (!layoutConfig.spaceForLeftSide ? "pl-4" : ""))}>
+        <div
+            className={cn(
+            "space-y-8",
+                isMobile ? "px-4" : (!layoutConfig.spaceForRightSide ? "pr-4 " : ""), !layoutConfig.spaceForLeftSide && "pl-4")}
+        >
             <TopicHeader topic={topic}/>
 
             <div className={"pb-16"}>

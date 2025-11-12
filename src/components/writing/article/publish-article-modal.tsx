@@ -94,7 +94,7 @@ const PublishArticleModal = ({
                 <StateButton
                     handleClick={onSubmit(enDiscusion)}
                     variant={"outlined"}
-                    textClassName={"text-sm"}
+                    size={"small"}
                 >
                     {article ? "Confirmar edición" : "Publicar"}
                 </StateButton>

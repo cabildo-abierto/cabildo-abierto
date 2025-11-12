@@ -41,7 +41,7 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
     }
 
     return <BaseFullscreenPopup
-        className="z-[1500] sm:w-auto"
+        className="z-[1500]"
         open={open}
         backgroundShadow={false} // TO DO: Si ponemos true por algún motivo la sidebar queda arriba
     >

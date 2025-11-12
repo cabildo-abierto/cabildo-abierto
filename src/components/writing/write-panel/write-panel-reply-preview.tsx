@@ -3,7 +3,8 @@ import {SelectionQuote} from "@/components/feed/embed/selection-quote/selection-
 import {MarkdownSelection} from "../../../../modules/ca-lexical-editor/src/selection/markdown-selection";
 import {LexicalSelection} from "../../../../modules/ca-lexical-editor/src/selection/lexical-selection";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@/lex-api/index"
-import {PostPreview} from "@/components/feed/post/post-preview";
+import {PostPreviewFrame} from "@/components/feed/frame/post-preview-frame";
+import {PostContent} from "@/components/feed/post/post-content";
 
 
 type Props = {
@@ -27,10 +28,18 @@ export const WritePanelReplyPreview = ({replyTo, selection}: Props) => {
             </div>
         }
     } else if(ArCabildoabiertoFeedDefs.isPostView(replyTo)) {
-        return <PostPreview
-            onFeed={false}
+        return <PostPreviewFrame
             postView={replyTo}
-        />
+            showingParent={false}
+            borderBelow={true}
+            engagementIcons={false}
+            onWritePost={true}
+        >
+            <PostContent
+                postView={replyTo}
+                onWritePost={true}
+            />
+        </PostPreviewFrame>
     }
     return null
 }

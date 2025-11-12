@@ -26,7 +26,7 @@ export const ConfirmModal = ({
         open={open}
         closeButton={true}
         onClose={() => {onClose()}}
-        className={"z-[1600] sm:w-auto"}
+        className={"z-[1600]"}
     >
         <div className={"px-8 pb-4 space-y-4"}>
             <h3 className={"normal-case"}>
