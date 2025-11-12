@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecordWithMedia, ArCabildoabiertoEmbedSelectionQuote, ArCabildoabiertoEmbedRecord, ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyEmbedVideo} from "@atproto/api"
 import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {pxToNumber} from "@/utils/strings";
 
 
 const PostVideoEmbed = dynamic(() => import("@/components/feed/embed/post-video-embed"), {
@@ -31,11 +33,14 @@ type PostEmbedProps = {
     onClickSelectionQuote?: (cid: string) => void
     showContext?: boolean
     onArticle?: boolean
+    editedParent?: boolean
 }
 
 
-export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true, onArticle=false}: PostEmbedProps) => {
-    return <>
+export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true, onArticle=false, editedParent}: PostEmbedProps) => {
+    const {layoutConfig} = useLayoutConfig()
+
+    return <div onClick={e => {e.stopPropagation()}}>
         {AppBskyEmbedImages.isView(embed) && <PostImagesEmbed
             embed={embed}
             onArticle={onArticle}
@@ -59,9 +64,11 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
             mainPostRef={mainPostRef}
             onClick={onClickSelectionQuote}
             showContext={showContext}
+            editedParent={editedParent}
         />}
         {ArCabildoabiertoEmbedVisualization.isView(embed) && <Plot
             visualization={embed}
+            width={pxToNumber(layoutConfig.centerWidth) * 0.85}
         />}
-    </>
+    </div>
 }

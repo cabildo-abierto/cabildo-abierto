@@ -23,7 +23,7 @@ import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableContext} from './plugins/TablePlugin/TablePlugin';
 import {getInitialData} from "./get-initial-data";
-import {LINK, MarkdownTransformer} from "./ca-transformers";
+import {LINK, MarkdownTransformer, PARAGRAPH} from "./ca-transformers";
 import {LexicalEditorProps} from "./lexical-editor";
 import {KlassConstructor, LexicalNode, LexicalNodeReplacement} from "lexical";
 import {AutoLinkNode, LinkNode} from "@lexical/link";
@@ -109,7 +109,8 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
 
 
 export const LIGHT_MARKDOWN_TRANSFORMERS: MarkdownTransformer[] = [
-    LINK
+    LINK,
+    PARAGRAPH
 ]
 
 

@@ -128,7 +128,7 @@ export const ShowQuoteReplyButton = ({
                     />
                 </BaseNotIconButton>
             </PopoverTrigger>
-            <PopoverContent className={"z-[1000] p-0"}>
+            <PopoverContent className={"z-[1000] p-0"} align={"start"}>
                 <SidenoteReplyPreviewFrame
                     post={reply}
                     showingParent={false}

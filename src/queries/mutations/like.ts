@@ -3,7 +3,6 @@ import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
 import {
-    filterQueriesCancelledByUriUpdate,
     updateContentInQueries
 } from "@/queries/mutations/updates";
 import {ATProtoStrongRef} from "@/lib/types";
@@ -70,7 +69,6 @@ export function useLikeMutation(uri: string) {
     const addLikeMutation = useMutation({
         mutationFn: addLike,
         onMutate: (likedContent) => {
-            qc.cancelQueries(filterQueriesCancelledByUriUpdate(uri))
             optimisticAddLike(qc, likedContent.uri)
         },
         onSuccess: (data, variables, context) => {
@@ -83,7 +81,6 @@ export function useLikeMutation(uri: string) {
     const removeLikeMutation = useMutation({
         mutationFn: removeLike,
         onMutate: () => {
-            qc.cancelQueries(filterQueriesCancelledByUriUpdate(uri))
             optimisticRemoveLike(qc, uri)
         }
     })

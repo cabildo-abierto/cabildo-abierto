@@ -4,7 +4,7 @@ import {CA_TRANSFORMERS, MarkdownTransformer} from "./ca-transformers";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {decompress} from "@/utils/compression";
 import {
-    $createParagraphNode,
+    $createParagraphNode, $createTextNode,
     $getRoot,
     $insertNodes,
     $isParagraphNode,
@@ -21,6 +21,9 @@ import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {LexicalPointer} from "./selection/lexical-selection";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index";
 import {AppBskyEmbedImages} from "@atproto/api"
+import {$isBeautifulMentionNode} from "lexical-beautiful-mentions";
+import {$createLinkNode} from "@lexical/link";
+import {profileUrl} from "@/utils/uri";
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
     state = ProcessedLexicalState.fromMaybeProcessed(state)
@@ -29,13 +32,25 @@ export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | Ser
     const editor = createHeadlessEditor({
         nodes,
         onError: () => {
-        },
+        }
     })
 
     const parsed = editor.parseEditorState(state.state)
 
     editor.update(() => {
         editor.setEditorState(parsed)
+    }, {discrete: true})
+
+    editor.update(() => {
+        // transformamos las menciones en links
+        const mentions = $dfs().map(n => n.node).filter($isBeautifulMentionNode)
+        for (let i = 0; i < mentions.length; i++) {
+            const m = mentions[i]
+            const linkNode = $createLinkNode(profileUrl(m.getValue()))
+            linkNode.append($createTextNode("@"+m.getValue()))
+            m.insertAfter(linkNode)
+            m.remove()
+        }
     }, {discrete: true})
 
     editor.update(() => {
@@ -54,7 +69,11 @@ export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | Ser
 
     let markdown: string
     editor.read(() => {
-        markdown = $convertToMarkdownString(CA_TRANSFORMERS, undefined, true)
+        markdown = $convertToMarkdownString(
+            CA_TRANSFORMERS,
+            undefined,
+            true
+        )
     })
 
     return normalizeMarkdown(markdown)

@@ -12,7 +12,7 @@ export const TopicHistoryPanel = ({onClose, topic}: {
     const {isMobile} = useLayoutConfig()
     return <BaseFullscreenPopup
         open={true}
-        className={"z-[1500] sm:w-auto"}
+        className={"z-[1500]"}
     >
         <div className={(!isMobile ? "w-[600px] pb-1" : "")}>
             <div className={"flex justify-between items-center p-2"}>

@@ -25,7 +25,11 @@ const DeleteAccountModal = ({
         return await logout(qc, router)
     }
 
-    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
+    return <BaseFullscreenPopup
+        open={open}
+        onClose={onClose}
+        closeButton={true}
+    >
         <div className={"pb-4 flex flex-col items-center w-[400px] text-[var(--text-light)] px-8 space-y-4"}>
             <h3>
                 Borrar cuenta

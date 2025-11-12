@@ -51,7 +51,7 @@ export const BaseTextArea = ({
                     {startIcon}
                 </InputGroupAddon>}
                 <InputGroupTextarea
-                    className={cn(inputClassName, "custom-scrollbar", size == "small" ? "py-1" : (size == "large" ? "py-2 text-[15px]" : "text-sm"))}
+                    className={cn("custom-scrollbar", size == "small" ? "py-1" : (size == "large" ? "py-2 text-[15px]" : "text-sm"), inputClassName)}
                     rows={rows}
                     {...props}
                 />

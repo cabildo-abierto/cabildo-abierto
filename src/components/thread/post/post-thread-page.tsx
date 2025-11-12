@@ -14,6 +14,7 @@ import {threadQueryKey} from "@/queries/getters/useThread";
 import dynamic from "next/dynamic";
 import {useAPI} from "@/queries/utils";
 import {threadApiUrl} from "@/utils/uri";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api";
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {
     ssr: false
@@ -31,6 +32,7 @@ const PostThreadPage = ({content, thread}: {
     const replies = useMemo(() => {
         return <div>
             <ThreadReplies
+                parentRef={ArCabildoabiertoFeedDefs.isPostView(thread.content) || ArCabildoabiertoFeedDefs.isFullArticleView(thread.content) ? thread.content : undefined}
                 replies={thread.replies}
             />
             {query.isFetching && !thread.replies && <div className={"py-16"}>
@@ -39,7 +41,7 @@ const PostThreadPage = ({content, thread}: {
         </div>
     }, [thread, query.isFetching])
 
-    return <div className={"flex flex-col items-center pt-4"}>
+    return <div className={"flex flex-col items-center pt-4 pb-32"}>
         <Post
             postView={{$type: "ar.cabildoabierto.feed.defs#postView", ...content}}
             threadViewContent={thread}

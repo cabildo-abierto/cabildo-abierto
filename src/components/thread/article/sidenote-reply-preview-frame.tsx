@@ -79,9 +79,12 @@ export const SidenoteReplyPreviewFrame = ({
                                     <div className={"hover:underline font-bold truncate max-w-[80px]"}>
                                         {author.displayName ? author.displayName : author.handle}
                                     </div>
-                                    <div className={"pb-[2px]"}>
-                                        <ValidationIcon fontSize={12} handle={author.handle}
-                                                    verification={author.verification}/>
+                                    <div>
+                                        <ValidationIcon
+                                            fontSize={12}
+                                            handle={author.handle}
+                                            verification={author.verification}
+                                        />
                                     </div>
                                     <div className={"text-[var(--text-light)] truncate max-w-[60px]"}>
                                         @{author.handle}

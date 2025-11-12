@@ -45,6 +45,8 @@ export const ResponsivePlot = ({
         return <TableVisualizationComp
             spec={visualization.visualization.spec}
             visualization={visualization}
+            maxWidth={maxWidth}
+            maxHeight={maxHeight}
         />
     } else if (ArCabildoabiertoEmbedVisualization.isEleccion(visualization.visualization.spec)) {
         return <ElectionVisualizationComp

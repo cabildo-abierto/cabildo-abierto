@@ -1,4 +1,5 @@
 import {CustomLink} from "../../../layout/utils/custom-link";
+import {cn} from "@/lib/utils";
 
 
 function categoryUrl(c: string) {
@@ -7,18 +8,21 @@ function categoryUrl(c: string) {
 
 
 const TopicCategories = ({
-    categories,
-    maxCount,
-    containerClassName = "text-xs",
-    className = "px-2 bg-[var(--background-dark2)] truncate text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark3)]"
-}: {
+                             categories,
+                             maxCount,
+                             containerClassName = "text-xs",
+                             className = "px-2 bg-[var(--background-dark2)] truncate text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark3)]"
+                         }: {
     categories: string[]
     className?: string
     maxCount?: number
     containerClassName?: string
 }) => {
 
-    return <div className={"flex truncate space-x-2 items-center " + containerClassName} id={"topic-categories"}>
+    return <div
+        className={cn("flex truncate space-x-2 items-center", containerClassName)}
+        id={"topic-categories"}
+    >
         {categories.slice(0, maxCount != null ? maxCount : categories.length).map((c, index) => {
             return <CustomLink
                 tag={"span"}

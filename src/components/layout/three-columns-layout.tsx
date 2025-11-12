@@ -12,7 +12,6 @@ export default function ThreeColumnsLayout({children, leftPanel, rightPanel}: {
 
     return <div className="flex justify-between w-full">
         <div
-            className={""}
             style={{minWidth: layoutConfig.spaceForLeftSide ? layoutConfig.widthLeftSide : (layoutConfig.spaceForMinimizedLeftSide ? layoutConfig.widthLeftSideSmall : 0)}}
         >
             {leftPanel}

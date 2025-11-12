@@ -105,7 +105,12 @@ const EditImageModal = ({
     }, [croppedAreaPixels, editingImage, crop, setImage, onClose]);
 
     return (
-        <BaseFullscreenPopup onClose={onClose} closeButton={true} open={true} className={"z-[1600]"}>
+        <BaseFullscreenPopup
+            onClose={onClose}
+            closeButton={true}
+            open={true}
+            className={"z-[1600]"}
+        >
             <div className="flex flex-col px-4 w-[400px]">
                 <h3 className="text-base uppercase font-bold mb-4">Recortar imagen</h3>
 

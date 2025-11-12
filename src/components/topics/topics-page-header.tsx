@@ -11,6 +11,8 @@ import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {useTopicsPageParams} from "@/components/config/topics";
 import {updateSearchParam} from "@/utils/fetch";
+import { cn } from "@/lib/utils";
+import {createPortal} from "react-dom";
 
 const CreateTopicModal = dynamic(() => import("@/components/topics/topic/create-topic-modal"))
 
@@ -27,7 +29,7 @@ export const TopicsPageHeader = () => {
 
     const currentView: TopicsViewOption = view && (view == "lista" || view == "mapa") ? view : "lista"
     const pathname = usePathname()
-    const {searchState, setSearchState} = useSearch(`${pathname}::topics`)
+    const {setSearchState} = useSearch(`${pathname}::topics`)
 
     function optionsNodes(o: TopicsViewOption, isSelected: boolean) {
         let icon: ReactNode
@@ -57,9 +59,6 @@ export const TopicsPageHeader = () => {
         updateSearchParam("s", v)
     }
 
-    const searching = searchState.searching
-    const onlySearchBar = searching && isMobile
-
     const searchBar = <MainSearchBar
         autoFocus={false}
         allowCloseWithNoText={true}
@@ -68,9 +67,9 @@ export const TopicsPageHeader = () => {
     />
 
     return <div
-        className={"h-full flex w-full justify-between items-center space-x-1 " + (onlySearchBar ? "" : "px-2")}
+        className={cn("h-full flex w-full justify-between items-center space-x-1")}
     >
-        {!onlySearchBar && <div className={"flex flex-1 " + (isMobile ? "space-x-1" : "space-x-2")}>
+        <div className={"flex flex-1 " + (isMobile ? "space-x-1" : "space-x-2")}>
             <SelectionComponent<TopicsViewOption>
                 onSelection={(s: TopicsViewOption) => {
                     router.push("/temas?view=" + s + (c ? "&c=" + c : ""));
@@ -86,13 +85,15 @@ export const TopicsPageHeader = () => {
                 setSortedBy={setSortedBy}
                 disabled={currentView == "mapa"}
             />
-        </div>}
+        </div>
 
-        <div className={"flex items-center"} style={{width: onlySearchBar ? "100%" : 256}}>
+        <div
+            className={"flex items-center w-64"}
+        >
             {searchBar}
         </div>
 
-        {!onlySearchBar && <div className={"py-1 flex-1 flex justify-end"}>
+        <div className={"py-1 flex-1 flex justify-end"}>
             <BaseButton
                 startIcon={<PlusIcon/>}
                 className={"py-2 px-1"}
@@ -105,9 +106,11 @@ export const TopicsPageHeader = () => {
                 <span className={"hidden min-[600px]:block"}>Tema</span>
                 <span className={"block min-[600px]:hidden"}>Tema</span>
             </BaseButton>
-        </div>}
+        </div>
 
-        {!onlySearchBar && newTopicOpen &&
-            <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>}
+        {newTopicOpen && createPortal(<CreateTopicModal
+            open={newTopicOpen}
+            onClose={() => setNewTopicOpen(false)}
+        />, document.body)}
     </div>
 }

@@ -1,59 +1,49 @@
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {PostPreview} from "@/components/feed/post/post-preview";
 import {Dispatch, SetStateAction} from "react";
-import StaticFeed from "@/components/feed/feed/static-feed";
 import {smoothScrollTo} from "../layout/utils/scroll";
-import {$Typed} from "@atproto/api";
-import {AppBskyFeedDefs} from "@atproto/api"
+import {FeedEndText} from "@/components/feed/feed/feed-end-text";
+import {ATProtoStrongRef} from "@/lib/types";
+import {AppBskyFeedPost} from "@atproto/api";
 
 
 type ThreadRepliesProps = {
     replies: ArCabildoabiertoFeedDefs.ThreadViewContent["replies"] | null
     setPinnedReplies?: Dispatch<SetStateAction<string[]>>
+    parentRef?: ATProtoStrongRef
 }
 
 
-export default function ThreadReplies({replies, setPinnedReplies}: ThreadRepliesProps) {
+export default function ThreadReplies({parentRef, replies, setPinnedReplies}: ThreadRepliesProps) {
     if (!replies) return null
-    return (
-        <StaticFeed<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<AppBskyFeedDefs.BlockedPost> | {
-            $type: string
-        }>
-            initialContents={replies}
-            noResultsText={"Todavía no hay respuestas."}
-            endText={""}
-            FeedElement={({content: r}) => {
-                if ((!ArCabildoabiertoFeedDefs.isThreadViewContent(r) && !ArCabildoabiertoFeedDefs.isFeedViewContent(r)) || !ArCabildoabiertoFeedDefs.isPostView(r.content)) {
-                    return null
-                }
 
-                function onClickQuote() {
-                    if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
-                        setPinnedReplies([r.content.cid])
-                        const elem = document.getElementById("selection:" + r.content.cid)
-                        if (elem) {
-                            smoothScrollTo(elem)
-                        }
+    return <>
+        {replies.map(r => {
+            if ((!ArCabildoabiertoFeedDefs.isThreadViewContent(r) && !ArCabildoabiertoFeedDefs.isFeedViewContent(r)) || !ArCabildoabiertoFeedDefs.isPostView(r.content)) {
+                return null
+            }
+
+            function onClickQuote() {
+                if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
+                    setPinnedReplies([r.content.cid])
+                    const elem = document.getElementById("selection:" + r.content.cid)
+                    if (elem) {
+                        smoothScrollTo(elem)
                     }
                 }
+            }
+            const editedParent = parentRef && ArCabildoabiertoFeedDefs.isPostView(r.content) && parentRef.cid != (r.content.record as AppBskyFeedPost.Record)?.reply?.parent.cid
 
-                return <PostPreview
+            return <div key={r.content.uri} className={"w-full"}>
+                <PostPreview
                     postView={r.content}
                     parentIsMainPost={true}
                     onClickQuote={onClickQuote}
                     threadViewContent={r}
+                    editedParent={editedParent}
                 />
-            }}
-            getFeedElementKey={e => {
-                if (ArCabildoabiertoFeedDefs.isThreadViewContent(e)) {
-                    if (ArCabildoabiertoFeedDefs.isPostView(e.content) || ArCabildoabiertoFeedDefs.isArticleView(e.content)) {
-                        return e.content.uri
-                    }
-                } else if (AppBskyFeedDefs.isBlockedPost(e) || AppBskyFeedDefs.isNotFoundPost(e)) {
-                    return e.uri
-                }
-                return null
-            }}
-        />
-    )
+            </div>
+        })}
+        {replies.length == 0 && <FeedEndText text={"Todavía no hay respuestas."}/>}
+    </>
 }

@@ -60,7 +60,10 @@ export const ContentOptionsButton = ({
                     />
                 </BaseNotIconButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={"start"} className={className}>
+            <DropdownMenuContent
+                align={"start"}
+                className={className}
+            >
                 <div
                     onClick={e => e.stopPropagation()}
                     onSelect={e => e.stopPropagation()}
@@ -77,7 +80,10 @@ export const ContentOptionsButton = ({
                         enDiscusion={enDiscusion}
                         onClick={() => {setEnDiscusionModalOpen(true)}}
                     />
-                    <OptionsEditContentButton record={record} setEditingPost={setEditingPost}/>
+                    <OptionsEditContentButton
+                        record={record}
+                        setEditingPost={setEditingPost}
+                    />
                     <OptionsOpenInBlueskyButton uri={record.uri}/>
                     <OptionsBlueskyReactionsButton
                         showBluesky={showBluesky}
@@ -111,6 +117,7 @@ export const ContentOptionsButton = ({
             onClose={() => {
                 setEditingPost(false)
             }}
+            replyTo={reply?.parent ? {$type: "com.atproto.repo.strongRef", ...reply.parent} : undefined}
             postView={record}
             quotedPost={
                 ArCabildoabiertoEmbedRecord.isView(record.embed) ? record.embed.record : undefined
