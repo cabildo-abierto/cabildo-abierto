@@ -15,7 +15,8 @@ import {ArticleEditorTopbar} from "@/components/writing/article/article-editor-t
 import ArticleEditorAuthor from "@/components/writing/article/article-editor-author-line";
 import {useNavigationGuard} from "next-navigation-guard"
 import {PreventLeavePopup} from "@/components/layout/prevent-leave-popup";
-import { ArCabildoabiertoFeedDefs } from "@/lex-api";
+import {ArCabildoabiertoFeedDefs} from "@/lex-api";
+import {DescriptionInput} from "@/components/writing/article/description-input";
 
 const MyLexicalEditor = dynamic(() => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), {ssr: false});
 
@@ -101,14 +102,14 @@ const ArticleEditor = ({draft, article}: {
     )
 
     useEffect(() => {
-        if(editorState){
-            const state = JSON.stringify(editorState.toJSON())+`::${title}`
-            if(!initialEditorState) {
+        if (editorState) {
+            const state = JSON.stringify(editorState.toJSON()) + `::${title}`
+            if (!initialEditorState) {
                 setInitialEditorState(state)
-            } else if(state != initialEditorState) {
-                if(!guardEnabled) setGuardEnabled(true)
+            } else if (state != initialEditorState) {
+                if (!guardEnabled) setGuardEnabled(true)
             } else {
-                if(guardEnabled) setGuardEnabled(false)
+                if (guardEnabled) setGuardEnabled(false)
             }
         }
         setLastTextChange(new Date())
@@ -131,7 +132,9 @@ const ArticleEditor = ({draft, article}: {
             <div className={"mb-2"}>
                 <TopicsMentioned mentions={topicsMentioned}/>
             </div>
-            <TitleInput onChange={setTitle} title={title}/>
+            <div>
+                <TitleInput onChange={setTitle} title={title}/>
+            </div>
             <ArticleEditorAuthor editorState={editorState}/>
         </div>
         <div className={"pt-6"}>

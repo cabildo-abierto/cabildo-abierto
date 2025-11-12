@@ -6,6 +6,8 @@ import {AppBskyFeedDefs} from "@atproto/api";
 import ReadOnlyEditor from "@/components/writing/read-only-editor";
 import {ArCabildoabiertoFeedArticle} from "@/lex-api/index"
 import {cn} from "@/lib/utils";
+import {ImagePayload} from "@/components/writing/write-panel/write-post";
+import Image from "next/image"
 
 
 export type ArticlePreviewProps = {
@@ -17,27 +19,39 @@ export type ArticlePreviewProps = {
 
 
 export const ArticlePreviewContent = ({
+                                          thumbnail,
                                           title,
                                           summary,
                                           className
                                       }: {
+    thumbnail?: ImagePayload
     title: string,
     summary: string
     className?: string
 }) => {
     return <div
-        className={cn("border p-2", className)}
+        className={cn("border", className)}
     >
-        <div className={"flex justify-between w-full"}>
-            <div className={"text-[11px] text-[var(--text-light)] uppercase"}>
-                Artículo
+        {thumbnail && thumbnail.$type == "file" && <div>
+            <Image
+                src={thumbnail.src}
+                alt={""}
+                width={500}
+                height={500}
+            />
+        </div>}
+        <div className={"p-2"}>
+            <div className={"flex justify-between w-full"}>
+                <div className={"text-[11px] text-[var(--text-light)] uppercase"}>
+                    Artículo
+                </div>
             </div>
-        </div>
-        <div className={"font-bold text-lg pb-1"}>
-            {title}
-        </div>
-        <div className={"border-t pt-1 text-sm text-[var(--text-light)] article-preview-content line-clamp-2"}>
-            <ReadOnlyEditor text={summary} format={"plain-text"}/>
+            <div className={"font-bold text-lg pb-1"}>
+                {title}
+            </div>
+            <div className={"border-t pt-1 text-sm text-[var(--text-light)] article-preview-content line-clamp-2"}>
+                <ReadOnlyEditor text={summary} format={"plain-text"}/>
+            </div>
         </div>
     </div>
 }

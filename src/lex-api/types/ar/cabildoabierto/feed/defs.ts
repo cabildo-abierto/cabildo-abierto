@@ -22,6 +22,7 @@ import type * as ArCabildoabiertoEmbedRecordWithMedia from '../embed/recordWithM
 import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization'
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as AppBskyEmbedDefs from '../../../app/bsky/embed/defs'
 import type * as ArCabildoabiertoFeedArticle from './article'
 
 const is$typed = _is$typed,
@@ -215,6 +216,7 @@ export interface ArticleView {
   author: ArCabildoabiertoActorDefs.ProfileViewBasic
   /** A summary of the article to be shown in the feed. */
   summary: string
+  thumbnail?: ArticleThumbnailView
   summaryFormat?: string
   record: { [_ in string]: unknown }
   bskyRepostCount?: number
@@ -238,6 +240,25 @@ export function isArticleView<V>(v: V) {
 
 export function validateArticleView<V>(v: V) {
   return validate<ArticleView & V>(v, id, hashArticleView)
+}
+
+export interface ArticleThumbnailView {
+  $type?: 'ar.cabildoabierto.feed.defs#articleThumbnailView'
+  /** Fully-qualified URL where a thumbnail of the image can be fetched. For example, CDN location provided by the App View. */
+  thumb?: string
+  /** Alt text description of the image, for accessibility. */
+  alt?: string
+  aspectRatio?: AppBskyEmbedDefs.AspectRatio
+}
+
+const hashArticleThumbnailView = 'articleThumbnailView'
+
+export function isArticleThumbnailView<V>(v: V) {
+  return is$typed(v, id, hashArticleThumbnailView)
+}
+
+export function validateArticleThumbnailView<V>(v: V) {
+  return validate<ArticleThumbnailView & V>(v, id, hashArticleThumbnailView)
 }
 
 export interface FullArticleView {

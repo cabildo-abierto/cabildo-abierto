@@ -3,10 +3,10 @@ import {file2base64} from "@/utils/files";
 import imageCompression from "browser-image-compression"
 import UploadFileIcon from "@/components/layout/icons/upload-file-icon";
 import {ChangeEvent, useRef} from "react";
-import {BaseButton} from "@/components/layout/base/baseButton";
+import {BaseButton, BaseButtonProps} from "@/components/layout/base/baseButton";
 
 
-type SubmitImage = (i: ImagePayload) => void
+export type SubmitImage = (i: ImagePayload) => void
 
 
 export function useLoadImage(onSubmit: SubmitImage) {
@@ -37,10 +37,12 @@ export function useLoadImage(onSubmit: SubmitImage) {
 
 export const UploadImageButton = ({
                                       onSubmit,
-                                      text = "Subir archivo"
+                                      text = "Subir archivo",
+    size
                                   }: {
     text?: string,
     onSubmit: SubmitImage
+    size?: BaseButtonProps["size"]
 }) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const loadImage = useLoadImage(onSubmit)
@@ -56,6 +58,7 @@ export const UploadImageButton = ({
         tabIndex={-1}
         startIcon={<UploadFileIcon weight={"light"}/>}
         onClick={handleButtonClick}
+        size={size}
     >
         {text}
         <input

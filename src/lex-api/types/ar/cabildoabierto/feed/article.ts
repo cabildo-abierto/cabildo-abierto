@@ -21,6 +21,8 @@ export interface Record {
   $type: 'ar.cabildoabierto.feed.article'
   text: BlobRef
   format: string
+  description?: string
+  thumbnail?: BlobRef
   title: string
   embeds?: ArticleEmbed[]
   labels?: $Typed<ComAtprotoLabelDefs.SelfLabels> | { $type: string }

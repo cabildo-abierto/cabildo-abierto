@@ -2436,6 +2436,16 @@ export const schemaDict = {
               minLength: 1,
               maxLength: 50,
             },
+            description: {
+              type: 'string',
+              maxLength: 3000,
+              maxGraphemes: 225,
+            },
+            thumbnail: {
+              type: 'blob',
+              accept: ['image/*'],
+              maxSize: 1000000,
+            },
             title: {
               type: 'string',
               minLength: 1,
@@ -2769,6 +2779,10 @@ export const schemaDict = {
             maxGraphemes: 300,
             description: 'A summary of the article to be shown in the feed.',
           },
+          thumbnail: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.feed.defs#articleThumbnailView',
+          },
           summaryFormat: {
             type: 'string',
             maxLength: 50,
@@ -2815,6 +2829,26 @@ export const schemaDict = {
           threadgate: {
             type: 'ref',
             ref: 'lex:app.bsky.feed.defs#threadgateView',
+          },
+        },
+      },
+      articleThumbnailView: {
+        type: 'object',
+        properties: {
+          thumb: {
+            type: 'string',
+            format: 'uri',
+            description:
+              'Fully-qualified URL where a thumbnail of the image can be fetched. For example, CDN location provided by the App View.',
+          },
+          alt: {
+            type: 'string',
+            description:
+              'Alt text description of the image, for accessibility.',
+          },
+          aspectRatio: {
+            type: 'ref',
+            ref: 'lex:app.bsky.embed.defs#aspectRatio',
           },
         },
       },

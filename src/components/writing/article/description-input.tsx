@@ -1,6 +1,12 @@
 import { useRef, useEffect } from 'react';
 
-export const TitleInput = ({ onChange, title }: {title: string, onChange: (t: string) => void}) => {
+export const DescriptionInput = ({
+                                     onChange,
+                                     description
+}: {
+    description: string
+    onChange: (t: string) => void
+}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const maxLength = 100;
 
@@ -24,8 +30,9 @@ export const TitleInput = ({ onChange, title }: {title: string, onChange: (t: st
         <textarea
             ref={textareaRef}
             onChange={handleChange}
-            placeholder="Título"
-            value={title}
+            placeholder="Bajada"
+            className="w-full text-[18px] outline-none bg-[var(--background)] font-light resize-none whitespace-pre-wrap"
+            value={description}
             onInput={() => {
                 if (textareaRef.current) {
                     const value = textareaRef.current.value.replace(/\n/g, '');
@@ -34,7 +41,6 @@ export const TitleInput = ({ onChange, title }: {title: string, onChange: (t: st
                     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
                 }
             }}
-            className="w-full font-bold text-[32px] outline-none bg-[var(--background)] resize-none whitespace-pre-wrap"
             rows={1}
             maxLength={maxLength}
         />

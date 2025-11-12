@@ -16,7 +16,7 @@ export const ModalOnHover = ({
                              }: ModalOnHoverProps) => {
 
     return (
-        <HoverCard openDelay={300} closeDelay={0}>
+        <HoverCard openDelay={300} closeDelay={300}>
             <HoverCardTrigger asChild>
                 {children}
             </HoverCardTrigger>
