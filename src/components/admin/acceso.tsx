@@ -36,7 +36,7 @@ const deleteUser = async (handle: string) => {
 }
 
 const syncUser = async (handle: string, collections: string[]) => {
-    return await post(`/sync-user/${handle}?` + categoriesSearchParam(collections))
+    return await post(`/sync-user/${handle}` + (collections && collections.length > 0  ? ` ${categoriesSearchParam(collections)}` : ""))
 }
 
 const createCodes = async (count: number) => {
@@ -153,7 +153,7 @@ export const AdminAcceso = () => {
                         return {}
                     }}
                 >
-                    Syncronizar
+                    Sincronizar
                 </StateButton>
             </div>
         </div>

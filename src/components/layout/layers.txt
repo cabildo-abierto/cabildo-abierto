@@ -16,6 +16,7 @@ create topic modal: 1100
 
 topic history: 1500
 content options en topic history: 1501
+reject topic version modal: 1502
 
 vis editor: 1500
 select en vis editor: 1501

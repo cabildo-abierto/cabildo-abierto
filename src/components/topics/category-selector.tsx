@@ -8,6 +8,7 @@ import SearchBar from "@/components/buscar/search-bar";
 import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {BaseIconButton} from "../layout/base/base-icon-button";
 import {StackIcon} from "@phosphor-icons/react";
+import {cn} from "@/lib/utils";
 
 
 export const CategorySelector = ({categories, setMultipleEnabled, setCategories, multipleEnabled}: {
@@ -80,18 +81,22 @@ export const CategorySelector = ({categories, setMultipleEnabled, setCategories,
             <BaseIconButton
                 size="small"
                 className={multipleEnabled && "bg-[var(--background-dark)]"}
-                onClick={() => {setMultipleEnabled(!multipleEnabled)}}
+                onClick={() => {
+                    setMultipleEnabled(!multipleEnabled)
+                }}
             >
-                <StackIcon />
+                <StackIcon/>
             </BaseIconButton>
         </DescriptionOnHover>
-        {filteredCategories && filteredCategories.length == 0 && <div className={"text-[var(--text-light)] text-sm"}>
+        {filteredCategories && filteredCategories.length == 0 && <div
+            className={"text-[var(--text-light)] text-sm"}
+        >
             No se encontaron categorías...
         </div>}
         {filteredCategories && filteredCategories.slice(0, maxCount).map((c, index) => {
             return <button
                 key={index}
-                className={"px-1 " + (categories.includes(c) ? "bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]")}
+                className={cn("px-1", (categories.includes(c) ? "bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark)]"))}
                 onClick={() => {
                     onClick(c)
                 }}
@@ -100,10 +105,12 @@ export const CategorySelector = ({categories, setMultipleEnabled, setCategories,
             </button>
         })}
         {filteredCategories && maxCount < filteredCategories.length && <div className={"text-[var(--text-light)]"}>
-            <button onClick={() => {
-                setMaxCount(maxCount + 10)
-            }}
-                    className={"hover:bg-[var(--background-dark)]"}>
+            <button
+                onClick={() => {
+                    setMaxCount(maxCount + 10)
+                }}
+                className={"underline hover:bg-[var(--background-dark)] px-1 text-[var(--text-light)]"}
+            >
                 Ver más
             </button>
         </div>}

@@ -64,7 +64,7 @@ const SearchResults = ({results, setValue}: {
     setValue: (v: string) => void
 }) => {
     if (results == "loading") {
-        return <div>
+        return <div className={"py-4"}>
             <LoadingSpinner/>
         </div>
     }

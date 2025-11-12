@@ -22,7 +22,11 @@ const LoginPanel = ({children, onClickBack, onClose}: {
     onClickBack?: () => void
     onClose: () => void
 }) => {
-    return <BaseFullscreenPopup open={true} closeButton={false} backgroundShadow={true}>
+    return <BaseFullscreenPopup
+        open={true}
+        closeButton={false}
+        backgroundShadow={true}
+    >
         <div
             className={"sm:w-[480px] px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}
         >
