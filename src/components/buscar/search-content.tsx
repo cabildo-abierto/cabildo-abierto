@@ -5,7 +5,7 @@ import {ContentsSearchResults} from "./contents-search-results";
 import {SearchTopics} from "./search-topics";
 import {useSearch} from "./search-context";
 import UserSearchResults from "@/components/buscar/user-search-results";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import {usePathname, useSearchParams} from "next/navigation";
 import {updateSearchParam} from "@/utils/fetch";
 

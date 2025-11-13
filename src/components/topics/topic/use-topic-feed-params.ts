@@ -5,7 +5,7 @@ import {
     defaultTopicMentionsFormat,
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime
-} from "@/components/config/defaults";
+} from "@/components/feed/config/defaults";
 import {TopicFeedOption} from "@/components/topics/topic/feed/topic-feed-config";
 
 

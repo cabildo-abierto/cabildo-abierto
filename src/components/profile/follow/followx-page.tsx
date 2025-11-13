@@ -1,7 +1,7 @@
 import {useParams, useRouter} from "next/navigation";
 import {Followx} from "@/components/profile/follow/followx";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 
 export type FollowKind = "seguidores" | "siguiendo"
 

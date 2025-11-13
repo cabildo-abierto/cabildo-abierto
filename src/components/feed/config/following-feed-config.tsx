@@ -3,7 +3,8 @@ import {useFollowingParams} from "@/components/inicio/main-page";
 import {FeedFormatOption, FollowingFeedFilterOption} from "@/lib/types";
 import {updateSearchParam} from "@/utils/fetch";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {configOptionNodes} from "@/components/feed/config/config-option-nodes";
+import { Note } from "@/components/layout/utils/note";
 
 
 export const FollowingFeedConfig = () => {
@@ -34,6 +35,9 @@ export const FollowingFeedConfig = () => {
     const selected = format == "Artículos" ? "Artículos" : (filter == "Solo Cabildo Abierto" ? "Cabildo Abierto" : "Todos")
 
     return <div className={"space-y-2"}>
+        <Note className={"text-left"}>
+            Elegí qué ver en <span className={"font-medium"}>Siguiendo</span>
+        </Note>
         <SelectionComponent
             onSelection={onSelection}
             options={["Todos", "Cabildo Abierto", "Artículos"]}

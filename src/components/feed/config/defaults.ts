@@ -12,7 +12,7 @@ export const defaultTopicMentionsTime: EnDiscusionTime = "Último mes"
 export const defaultTopicMentionsFormat: FeedFormatOption = "Todos"
 
 export const defaultEnDiscusionMetric: EnDiscusionMetric = "Recientes"
-export const defaultEnDiscusionTime: EnDiscusionTime = "Última semana"
+export const defaultEnDiscusionTime: EnDiscusionTime = "Último año"
 export const defaultEnDiscusionFormat: FeedFormatOption = "Todos"
 
 export function mainFeedOptionToSearchParam(v: MainFeedOption) {
@@ -32,6 +32,6 @@ export function searchParamToMainFeedOption(v: string): MainFeedOption {
 }
 
 export const enDiscusionMetricOptions: EnDiscusionMetric[] = ["Me gustas", "Interacciones", "Popularidad relativa", "Recientes"]
-export const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Último mes", "Última semana"]
+export const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Última semana", "Último mes", "Último año"]
 export const feedFormatOptions: FeedFormatOption[] = ["Todos", "Artículos"]
 export const followingFeedFilterOption: FollowingFeedFilterOption[] = ["Todos", "Solo Cabildo Abierto"]

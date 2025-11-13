@@ -9,7 +9,7 @@ export type ValidationState = "org" | "persona" | string | null
 export type FollowingFeedFilterOption = "Todos" | "Solo Cabildo Abierto"
 export type FeedFormatOption = "Todos" | "Artículos"
 export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad relativa" | "Recientes"
-export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes"
+export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes" | "Último año"
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
 export type TTOption = EnDiscusionTime | "Ediciones recientes"
 

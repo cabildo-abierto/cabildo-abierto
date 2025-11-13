@@ -2,7 +2,7 @@
 import {ReactNode} from "react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useRouter, useSearchParams} from "next/navigation";
-import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {configOptionNodes} from "@/components/feed/config/config-option-nodes";
 import {AdminProtected} from "@/components/layout/admin-protected";
 
 

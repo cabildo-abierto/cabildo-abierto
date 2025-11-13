@@ -3,10 +3,10 @@
 import React, {useState} from "react";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useSession} from "@/queries/getters/useSession";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
-import {AccountSettings} from "@/components/config/account-settings";
-import {AppearanceSettings} from "@/components/config/appearance-settings";
-import {FeedDefaultsSettings} from "@/components/config/feed-defaults-settings";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
+import {AccountSettings} from "@/components/feed/config/account-settings";
+import {AppearanceSettings} from "@/components/feed/config/appearance-settings";
+import {FeedDefaultsSettings} from "@/components/feed/config/feed-defaults-settings";
 
 
 const Ajustes = () => {

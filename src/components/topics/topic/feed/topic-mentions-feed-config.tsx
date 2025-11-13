@@ -1,7 +1,7 @@
 import {useSession} from "@/queries/getters/useSession";
 import {useUpdateSearchParams} from "@/components/layout/utils/update-search-params";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {configOptionNodes} from "@/components/feed/config/config-option-nodes";
 import {useTopicFeedParams} from "@/components/topics/topic/use-topic-feed-params";
 
 export const TopicMentionsFeedConfig = () => {

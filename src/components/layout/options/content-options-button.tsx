@@ -1,8 +1,6 @@
 import {$Typed} from "@/lex-api/util";
 import {
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion,
-    ArCabildoabiertoDataDataset,
     ArCabildoabiertoEmbedRecord
 } from "@/lex-api";
 import {BaseButtonProps} from "@/components/layout/base/baseButton";
@@ -19,6 +17,10 @@ import {AppBskyFeedPost} from "@atproto/api";
 import {useState} from "react";
 import {ConfirmEnDiscusionModal} from "@/components/layout/options/confirm-en-discusion-modal";
 import dynamic from "next/dynamic";
+import {
+    TopicsMentionedModal,
+    TopicsMentionedOptionsButton
+} from "@/components/layout/options/topics-mentioned-options-button";
 
 
 const WritePanel = dynamic(() => import('@/components/writing/write-panel/write-panel'), {ssr: false})
@@ -31,8 +33,7 @@ export const ContentOptionsButton = ({
                                          iconSize,
     className
                                      }: {
-    record?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-        $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory> | $Typed<ArCabildoabiertoDataDataset.DatasetView> | $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic>
+    record?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     enDiscusion?: boolean
     showBluesky?: boolean
     setShowBluesky?: (v: boolean) => void
@@ -42,6 +43,7 @@ export const ContentOptionsButton = ({
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [enDiscusionModalOpen, setEnDiscusionModalOpen] = useState(false)
     const [editingPost, setEditingPost] = useState(false)
+    const [topicsMentionedModalOpen, setTopicsMentionedModalOpen] = useState(false)
 
     const reply = ArCabildoabiertoFeedDefs.isPostView(record) && record.record && "reply" in record.record ? (record.record as AppBskyFeedPost.Record).reply : undefined
 
@@ -93,6 +95,10 @@ export const ContentOptionsButton = ({
                         uri={record.uri}
                         handle={record.author.handle}
                     />
+                    <TopicsMentionedOptionsButton
+                        uri={record.uri}
+                        onClick={() => {setTopicsMentionedModalOpen(true)}}
+                    />
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -122,6 +128,11 @@ export const ContentOptionsButton = ({
             quotedPost={
                 ArCabildoabiertoEmbedRecord.isView(record.embed) ? record.embed.record : undefined
             }
+        />}
+        {topicsMentionedModalOpen && <TopicsMentionedModal
+            uri={record.uri}
+            open={true}
+            onClose={() => {setTopicsMentionedModalOpen(false)}}
         />}
     </>
 };

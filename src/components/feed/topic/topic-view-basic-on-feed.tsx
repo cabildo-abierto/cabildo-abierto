@@ -12,7 +12,7 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
 }) => {
     const pathname = usePathname()
 
-    if(pathname.startsWith("/tema")){
+    if (pathname.startsWith("/tema")) {
         return null
     }
 
@@ -20,20 +20,24 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
         return <CustomLink
             tag={"div"}
             href={topicUrl(topic.id)}
-            className={"w-full hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-4 py-2"}
+            className={"w-full hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-4 py-2 flex space-x-2 items-center"}
         >
-            <ReplyIcon/> <span>
+            <ReplyIcon/>
+            <div>
+                <span>
                 Respuesta al tema
-            </span> <span className={"text-[var(--primary)] hover:underline"}>
-                {getTopicTitle(topic)}
-            </span>
+                </span> <span className={"font-medium"}>
+                    {getTopicTitle(topic)}
+                </span>
+            </div>
         </CustomLink>
     } else {
         const inSearch = pathname.startsWith("/buscar")
 
         return <Link href={topicUrl(topic.id)}>
             <div className={"hover:bg-[var(--background-dark)] w-full text-[var(--text-light)] p-4 border-b"}>
-                <span>{inSearch ? "Tema" : "Edición del tema"}</span> <span className={"text-[var(--primary)]"}>{getTopicTitle(topic)}</span>
+                <span>{inSearch ? "Tema" : "Edición del tema"}</span> <span
+                className={"text-[var(--primary)]"}>{getTopicTitle(topic)}</span>
             </div>
         </Link>
     }
