@@ -3,11 +3,13 @@
 import {usePathname, useSearchParams} from "next/navigation";
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
 
-type SearchState = {
+type SearchStateElement = {
     value: string
     searching: boolean
     kind: string
-}[]
+}
+
+type SearchState = SearchStateElement[]
 
 // Create a context
 const SearchContext = createContext<{
@@ -26,20 +28,22 @@ const useSearchBase = () => {
 
 // BarsProvider component to provide the context
 export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [searchState, setSearchState] = useState([])
+    const [searchState, setSearchState] = useState<SearchState>([])
     const pathname = usePathname()
     const params = useSearchParams()
 
 
     useEffect(() => {
         const q = params.get("q")
+        let newState: SearchState = []
         const mainUpdater = stateUpdater(`${pathname}::main`, structuredClone(searchState))
-        if (q) {
-            setSearchState(mainUpdater({
-                value: q,
-                searching: true
-            }))
-        }
+
+        newState = mainUpdater({
+            value: q,
+            searching: true
+        })
+
+        setSearchState(newState)
     }, [pathname])
 
     return (

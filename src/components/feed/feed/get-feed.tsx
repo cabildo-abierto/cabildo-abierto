@@ -39,6 +39,7 @@ export function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>({handleOrD
             data
         } = await get<GetFeedOutput<T>>(getFeedRoute(type, handleOrDid, cursor, params))
         if (error) return {error}
+
         return {
             data: data
         }

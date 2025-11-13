@@ -24,7 +24,7 @@ function Feed<T>({
     loadingStartContent
                          }: FeedProps<T>) {
     const {data: feed, fetchNextPage, loading, hasNextPage, isFetchingNextPage, feedList} = useFeed(
-        getFeed, queryKey, enabled, getFeedElementKey,)
+        getFeed, queryKey, enabled, getFeedElementKey)
 
     const count = feedList.length + 1 + (startContent ? 1 : 0)
 

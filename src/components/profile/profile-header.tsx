@@ -17,7 +17,7 @@ import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {ContentCounters} from "./content-counters";
 import {bskyProfileUrl} from "@/utils/uri";
 import VerifyAccountButton from "@/components/profile/verify-account-button";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import ArticleIcon from "@/components/layout/icons/article-icon";
 import {EditProfileButton} from "@/components/profile/edit-profile-button";
 import {ProfileTODOs} from "@/components/profile/profile-todos";

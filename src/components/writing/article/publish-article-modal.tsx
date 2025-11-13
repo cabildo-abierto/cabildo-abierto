@@ -8,6 +8,8 @@ import removeMarkdown from "remove-markdown";
 import AddToEnDiscusionButton from "@/components/writing/add-to-en-discusion-button";
 import {ArCabildoabiertoFeedDefs} from "@/lex-api/index"
 import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
+import {TopicMention} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {cn} from "@/lib/utils";
 
 type PublishArticleModalProps = {
     open: boolean
@@ -29,6 +31,25 @@ export function getArticleSummary(md: string){
         .replaceAll("\-\-\-", " ")
         .slice(0, 150)
         .trim()
+}
+
+
+export const TopicMentionsList = ({
+    mentions,
+    linkClassName
+                           }: {
+    mentions: TopicMention[]
+    linkClassName?: string
+}) => {
+    return <div>
+        {
+            mentions.map((m, i) =>
+                <Link
+                    className={cn("hover:text-[var(--text)]", linkClassName)}
+                    key={i}
+                    href={topicUrl(m.id)}
+                >{m.title}{i < mentions.length - 1 ? ", " : ""}</Link>)}.
+    </div>
 }
 
 
@@ -68,14 +89,7 @@ const PublishArticleModal = ({
 
                 {mentions.length > 1 && <div className={"w-full flex flex-col"}>
                     <div className={"text-sm text-[var(--text-light)] px-1"}>
-                        También va a aparecer en los temas: {
-                        mentions.map((m, i) =>
-                            <Link
-                                className={"hover:text-[var(--text)]"}
-                                key={i}
-                                href={topicUrl(m.id)}
-                            >{m.title}{i < mentions.length - 1 ? ", " : ""}
-                            </Link>)}.
+                        También va a aparecer en los temas: <TopicMentionsList mentions={mentions}/>
                     </div>
                 </div>}
             </div>

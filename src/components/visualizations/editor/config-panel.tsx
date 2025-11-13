@@ -7,7 +7,7 @@ import {BaseTextField} from "../../layout/base/base-text-field";
 import {ArCabildoabiertoEmbedVisualization} from "@/lex-api/index"
 import {ConfigPanelDimensions} from "@/components/visualizations/editor/config-panel-dimensions";
 import VisualizationIcon from "@/components/layout/icons/visualization-icon";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import {CompassToolIcon, TextTIcon} from "@phosphor-icons/react";
 import BaseSelect from "@/components/layout/base/base-select";
 import { Note } from "@/components/layout/utils/note";

@@ -5,7 +5,7 @@ import {useSearchParams} from "next/navigation";
 import {CategorySelector} from "@/components/topics/category-selector";
 import {updateSearchParam} from "@/utils/fetch";
 import TopicsPageTutorial from "@/components/layout/tutorial/topics-tutorial";
-import {useTopicsPageParams} from "@/components/config/topics";
+import {useTopicsPageParams} from "@/components/feed/config/topics";
 
 
 

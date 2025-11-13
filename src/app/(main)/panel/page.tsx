@@ -10,7 +10,7 @@ import Link from "next/link";
 import InfoPanel from "../../../components/layout/utils/info-panel";
 import ValidationIcon from "@/components/profile/validation-icon";
 import DescriptionOnHover from "../../../components/layout/utils/description-on-hover";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import {useSession} from "@/queries/getters/useSession";
 
 

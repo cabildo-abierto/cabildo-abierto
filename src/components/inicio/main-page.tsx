@@ -17,13 +17,15 @@ import {
     followingFeedFilterOption,
     mainFeedOptionToSearchParam,
     searchParamToMainFeedOption
-} from "@/components/config/defaults";
+} from "@/components/feed/config/defaults";
 import {LoginRequiredPage} from "@/components/layout/page-requires-login-checker";
-import { BaseButton } from "../layout/base/baseButton";
+import {BaseButton} from "../layout/base/baseButton";
 import Link from "next/link";
+import {Note} from "../layout/utils/note";
+import {CaretDownIcon} from "@phosphor-icons/react";
 
 
-export function useFollowingParams(user: Session): {filter: FollowingFeedFilterOption, format: FeedFormatOption} {
+export function useFollowingParams(user: Session): { filter: FollowingFeedFilterOption, format: FeedFormatOption } {
     const params = useSearchParams()
 
     const config = user ? user.algorithmConfig : undefined
@@ -40,7 +42,11 @@ export function useFollowingParams(user: Session): {filter: FollowingFeedFilterO
 }
 
 
-export function useEnDiscusionParams(user: Session): {time: EnDiscusionTime, metric: EnDiscusionMetric, format: FeedFormatOption} {
+export function useEnDiscusionParams(user: Session): {
+    time: EnDiscusionTime,
+    metric: EnDiscusionMetric,
+    format: FeedFormatOption
+} {
     const params = useSearchParams()
 
     const config = user ? user.algorithmConfig.enDiscusion : undefined
@@ -73,17 +79,14 @@ const followingFeedNoResultsText = <div
     </Link>
 </div>
 
-const discoverFeedNoResultsText = <div
-    className="flex flex-col items-center space-y-8 text-base text-[var(--text-light)]"
->
-    <div>
+const discoverFeedNoResultsText = <div>
+    <Note className={""}>
         No se encontraron contenidos.
-    </div>
-    <Link href={"/"}>
-        <BaseButton variant="outlined" size={"small"}>
-            Configurá tus intereses
-        </BaseButton>
-    </Link>
+    </Note>
+    <Note>
+        Configurá tus intereses tocando la flechita de arriba (<CaretDownIcon
+        className={"inline-block"}/>)
+    </Note>
 </div>
 
 
@@ -102,30 +105,31 @@ export const MainPage = () => {
 
     return <div className="w-full">
         {selected == "Siguiendo" && user &&
-        <FeedViewContentFeed
-            getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
-            noResultsText={followingFeedNoResultsText}
-            endText={"Fin del feed."}
-            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
-        />}
+            <FeedViewContentFeed
+                getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
+                noResultsText={followingFeedNoResultsText}
+                endText={"Fin del feed."}
+                queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
+            />}
 
         {selected == "Descubrir" && user &&
-        <FeedViewContentFeed
-            getFeed={getFeed({type: "descubrir", params: {filter, format}})}
-            noResultsText={discoverFeedNoResultsText}
-            endText={"Fin del feed."}
-            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
-        />}
+            <FeedViewContentFeed
+                getFeed={getFeed({type: "descubrir"})}
+                noResultsText={discoverFeedNoResultsText}
+                endText={"Fin del feed."}
+                queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
+            />}
 
-        {(selected == "Siguiendo" || selected == "Descubrir") && !user && <LoginRequiredPage text={"Creá una cuenta o iniciá sesión para ver este muro."}/>}
+        {(selected == "Siguiendo" || selected == "Descubrir") && !user &&
+            <LoginRequiredPage text={"Creá una cuenta o iniciá sesión para ver este muro."}/>}
 
         {selected == "En discusión" &&
-        <FeedViewContentFeed
-            getFeed={getFeed({type: "discusion", params: {metric, time, format}})}
-            noResultsText={"No hay contenidos en discusión."}
-            endText={"Fin del feed."}
-            queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time, format]}
-        />}
+            <FeedViewContentFeed
+                getFeed={getFeed({type: "discusion", params: {metric, time, format}})}
+                noResultsText={"No hay contenidos en discusión."}
+                endText={"Fin del feed."}
+                queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time, format]}
+            />}
 
     </div>
 }

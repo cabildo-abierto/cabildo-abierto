@@ -4,7 +4,9 @@ import {
 } from "@/components/inicio/main-page";
 import {updateSearchParam} from "@/utils/fetch";
 import {useSession} from "@/queries/getters/useSession";
-import {configOptionNodes} from "@/components/config/config-option-nodes";
+import {configOptionNodes} from "@/components/feed/config/config-option-nodes";
+import {enDiscusionTimeOptions} from "@/components/feed/config/defaults";
+import {Note} from "@/components/layout/utils/note";
 
 
 export const EnDiscusionFeedConfig = () => {
@@ -23,7 +25,10 @@ export const EnDiscusionFeedConfig = () => {
         updateSearchParam("formato", v)
     }
 
-    return <div className={"space-y-4 pt-2"}>
+    return <div className={"space-y-4"}>
+        <Note className={"text-left"}>
+            Configurá <span className={"font-medium"}>En discusión</span>
+        </Note>
         <div>
             <div className={"text-xs text-[var(--text-light)]"}>
                 Métrica
@@ -43,7 +48,7 @@ export const EnDiscusionFeedConfig = () => {
             </div>
             <SelectionComponent
                 onSelection={setTime}
-                options={["Último día", "Última semana", "Último mes"]}
+                options={enDiscusionTimeOptions}
                 optionsNodes={configOptionNodes}
                 selected={time}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}

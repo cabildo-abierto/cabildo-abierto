@@ -1,11 +1,11 @@
 import {useSession} from "@/queries/getters/useSession";
 import {useCurrentValidationRequest} from "@/queries/getters/useValidation";
-import LoadingSpinner from "../layout/base/loading-spinner";
-import {CustomLink as Link} from "../layout/utils/custom-link";
+import LoadingSpinner from "../../layout/base/loading-spinner";
+import {CustomLink as Link} from "../../layout/utils/custom-link";
 import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import React, {ReactNode} from "react";
-import {DeleteAccountButton} from "@/components/config/delete-account-button";
+import {DeleteAccountButton} from "@/components/feed/config/delete-account-button";
 import {useAPI} from "@/queries/utils";
 import {Account} from "@/lib/types";
 

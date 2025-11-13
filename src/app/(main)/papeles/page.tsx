@@ -3,7 +3,7 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useSearchParams} from "next/navigation";
 import {updateSearchParam} from "@/utils/fetch";
 import Drafts from "@/components/writing/drafts/drafts";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 
 export type YourPapersOptions = "borradores" | "guardados"
 

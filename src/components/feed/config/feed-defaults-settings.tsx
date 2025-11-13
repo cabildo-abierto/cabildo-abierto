@@ -1,7 +1,7 @@
 "use client"
 
 import React, {ReactNode, useState} from "react";
-import {CustomLink as Link} from '../layout/utils/custom-link';
+import {CustomLink as Link} from '../../layout/utils/custom-link';
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {
     AlgorithmConfig,
@@ -11,7 +11,7 @@ import {
 import {useSession} from "@/queries/getters/useSession";
 import {post} from "@/utils/fetch";
 import {useQueryClient} from "@tanstack/react-query";
-import InfoPanel from "../layout/utils/info-panel";
+import InfoPanel from "../../layout/utils/info-panel";
 import {topicUrl} from "@/utils/uri";
 import {
     defaultEnDiscusionFormat,
@@ -19,10 +19,10 @@ import {
     defaultEnDiscusionTime,
     defaultTopicMentionsFormat,
     defaultTopicMentionsMetric,
-    defaultTopicMentionsTime
-} from "@/components/config/defaults";
-import {configOptionNodes} from "@/components/config/config-option-nodes";
-import {Note} from "../layout/utils/note";
+    defaultTopicMentionsTime, enDiscusionTimeOptions
+} from "@/components/feed/config/defaults";
+import {configOptionNodes} from "@/components/feed/config/config-option-nodes";
+import {Note} from "../../layout/utils/note";
 
 
 function followingConfigToSelected(c: AlgorithmConfig["following"]) {
@@ -243,7 +243,7 @@ export const FeedDefaultsSettings = () => {
                     </div>
                     <SelectionComponent<EnDiscusionTime>
                         onSelection={setEnDiscusionTime}
-                        options={["Último día", "Última semana", "Último mes"]}
+                        options={enDiscusionTimeOptions}
                         optionsNodes={configOptionNodes}
                         selected={config.enDiscusion?.time ?? defaultEnDiscusionTime}
                         className={"flex gap-x-2 gap-y-1 flex-wrap"}

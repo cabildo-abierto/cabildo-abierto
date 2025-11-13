@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {BaseButton} from "../layout/base/baseButton";
+import {BaseButton} from "../../layout/base/baseButton";
 import { TrashIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 const DeleteAccountModal = dynamic(() => import("./delete-account-modal"))

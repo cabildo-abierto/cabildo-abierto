@@ -15,7 +15,7 @@ import DatasetIcon from "@/components/layout/icons/dataset-icon";
 import {ArrowsClockwiseIcon, FunnelIcon, PlusIcon} from "@phosphor-icons/react";
 import {FilterConfig} from "@/components/visualizations/editor/filter-config";
 import StateButton, {StateButtonClickHandler} from "../../layout/utils/state-button";
-import {feedOptionNodes} from "@/components/config/feed-option-nodes";
+import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import {Note} from "@/components/layout/utils/note";
 
 

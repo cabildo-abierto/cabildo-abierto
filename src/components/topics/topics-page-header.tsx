@@ -9,7 +9,7 @@ import {useSearch} from "@/components/buscar/search-context";
 import TopicsSortSelector from "@/components/topics/topic-sort-selector";
 import DescriptionOnHover from "../layout/utils/description-on-hover";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
-import {useTopicsPageParams} from "@/components/config/topics";
+import {useTopicsPageParams} from "@/components/feed/config/topics";
 import {updateSearchParam} from "@/utils/fetch";
 import { cn } from "@/lib/utils";
 import {createPortal} from "react-dom";
