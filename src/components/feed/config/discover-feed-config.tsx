@@ -103,10 +103,6 @@ export const DiscoverFeedConfig = () => {
         })
 
     return <div className={"space-y-2"}>
-        <Note className={"text-left"}>
-            Intereses
-        </Note>
-
         <div className={"flex flex-wrap gap-1 group portal"}>
             <SearchBar
                 className={"w-[144px] mr-1"}
