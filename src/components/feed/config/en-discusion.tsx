@@ -6,7 +6,6 @@ import {updateSearchParam} from "@/utils/fetch";
 import {useSession} from "@/queries/getters/useSession";
 import {configOptionNodes} from "@/components/feed/config/config-option-nodes";
 import {enDiscusionTimeOptions} from "@/components/feed/config/defaults";
-import {Note} from "@/components/layout/utils/note";
 
 
 export const EnDiscusionFeedConfig = () => {
@@ -26,9 +25,6 @@ export const EnDiscusionFeedConfig = () => {
     }
 
     return <div className={"space-y-4"}>
-        <Note className={"text-left"}>
-            Configurá <span className={"font-medium"}>En discusión</span>
-        </Note>
         <div>
             <div className={"text-xs text-[var(--text-light)]"}>
                 Métrica
