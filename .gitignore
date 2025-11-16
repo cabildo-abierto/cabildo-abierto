@@ -3,6 +3,7 @@ node_modules/
 .DS_STORE
 .env
 .idea
+.turbo
 pnpm-lock.yaml
 coverage/
 ecosystem.config.*.js
