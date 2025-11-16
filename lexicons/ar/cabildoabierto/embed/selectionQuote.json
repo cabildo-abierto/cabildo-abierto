@@ -1,0 +1,57 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.embed.selectionQuote",
+  "description": "A quote of a text selection in a record. Start is inclusive, end is exclusive",
+  "defs": {
+    "main": {
+      "type": "object",
+      "required": [
+        "start", "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": ["start", "end", "quotedText", "quotedContent", "quotedContentAuthor"],
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        },
+        "quotedText": {
+          "type": "string"
+        },
+        "quotedTextFormat": {
+          "type": "string"
+        },
+        "quotedContent": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "quotedContentEmbeds": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "ar.cabildoabierto.feed.article#articleEmbedView"
+          }
+        },
+        "quotedContentAuthor": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "quotedContentTitle": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

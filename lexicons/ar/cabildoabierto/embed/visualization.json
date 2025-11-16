@@ -1,0 +1,278 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.embed.visualization",
+  "defs": {
+    "main": {
+      "type": "object",
+      "required": ["dataSource", "spec"],
+      "properties": {
+        "dataSource": {
+          "type": "union",
+          "refs": [
+            "#datasetDataSource",
+            "#topicsDataSource"
+          ]
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "union",
+            "refs": [
+              "#columnFilter"
+            ]
+          }
+        },
+        "spec": {
+          "type": "union",
+          "refs": [
+            "#hemicycle",
+            "#twoAxisPlot",
+            "#oneAxisPlot",
+            "#table",
+            "#eleccion"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "aspectRatio": {
+          "type": "string",
+          "description": "Un número de punto flotante que determina la proporción del ancho sobre el alto."
+        }
+      }
+    },
+    "datasetDataSource": {
+      "type": "object",
+      "required": ["dataset"],
+      "properties": {
+        "dataset": { "type": "string", "format": "at-uri" }
+      }
+    },
+    "topicsDataSource": {
+      "type": "object",
+      "properties": {
+      }
+    },
+    "columnFilter": {
+      "type": "object",
+      "required": ["column", "operator"],
+      "properties": {
+        "column": {"type": "string"},
+        "operator": {"type":  "string"},
+        "operands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "hemicycle" : {
+      "type": "object",
+      "properties": {
+      }
+    },
+    "table" : {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#tableVisualizationColumn"
+          },
+          "description": "Se puede usar para mostrar solo algunas de las columnas y para opcionalmente renombrar algunas."
+        }
+      }
+    },
+    "tableVisualizationColumn": {
+      "type": "object",
+      "required": ["columnName"],
+      "properties": {
+        "columnName": {"type":  "string"},
+        "alias": {"type":  "string"},
+        "precision": {"type": "integer"}
+      }
+    },
+    "twoAxisPlot": {
+      "type": "object",
+      "required": ["xAxis", "plot"],
+      "properties": {
+        "xAxis": {"type": "string"},
+        "xLabel": {"type": "string"},
+        "yAxis": {"type": "string"},
+        "yLabel": {"type": "string"},
+        "dimensions": {
+          "type": "ref",
+          "ref": "#plotDimensions"
+        },
+        "plot": {
+          "type": "union",
+          "refs": [
+            "#barplot",
+            "#lines",
+            "#scatterplot"
+          ]
+        },
+        "yAxes": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#axisConfig"
+          }
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#axisConfig"
+          },
+          "maxLength": 1
+        }
+      }
+    },
+    "axisConfig": {
+      "type": "object",
+      "properties": {
+        "column": {"type": "string"},
+        "label": {"type":  "string"}
+      }
+    },
+    "oneAxisPlot": {
+      "type": "object",
+      "required": ["xAxis", "plot"],
+      "properties": {
+        "xAxis": {"type": "string"},
+        "xLabel": {"type": "string"},
+        "dimensions": {
+          "type": "ref",
+          "ref": "#plotDimensions"
+        },
+        "plot": {
+          "type": "union",
+          "refs": [
+            "#histogram"
+          ]
+        }
+      }
+    },
+    "plotDimensions": {
+      "type": "object",
+      "properties": {
+        "xTickLabelsAngle": {
+          "type": "integer",
+          "description": "El ángulo de las etiquetas del eje x. 0 es horizontal y aumenta en sentido antihorario (0-360)."
+        },
+        "xLabelFontSize": {"type": "integer"},
+        "xTickLabelsFontSize": {"type": "integer"},
+        "xTicksCount": {"type": "integer"},
+        "xLabelOffset": {"type":  "integer"},
+        "xAxisPrecision": {"type": "integer"},
+        "yTicksCount": {"type": "integer"},
+        "yLabelOffset": {"type":  "integer"},
+        "yLabelFontSize": {"type": "integer"},
+        "yTickLabelsFontSize": {"type": "integer"},
+        "yAxisPrecision": {"type":  "integer"},
+        "marginBottom": {"type": "integer"},
+        "marginLeft": {"type": "integer"}
+      }
+    },
+    "histogram": {
+      "type": "object",
+      "properties": {
+      }
+    },
+    "lines": {
+      "type": "object",
+      "properties": {
+      }
+    },
+    "scatterplot": {
+      "type": "object",
+      "properties": {
+      }
+    },
+    "barplot": {
+      "type": "object",
+      "properties": {
+      }
+    },
+    "eleccion": {
+      "type": "object",
+      "properties": {
+        "tipoDeEleccion": {
+          "type":  "string",
+          "description": "Legislativa o Ejecutiva"
+        },
+        "region": {
+          "type": "string",
+          "description": "Nombre de la provincia en el caso de ser una elección provincial y 'Nacional' en caso contrario."
+        },
+        "columnaTopicIdDistrito": {
+          "type": "string",
+          "description": "Columna con el identificador del tema de la wiki sobre el distrito del candidato."
+        },
+        "columnaNombreCandidato": {
+          "type": "string",
+          "description": "Columna con el nombre del candidato."
+        },
+        "columnaTopicIdCandidato": {
+          "type": "string",
+          "description": "Columna con el identificador del tema de la wiki sobre el candidato."
+        },
+        "columnaDistritoCandidato": {
+          "type": "string",
+          "description": "Columna usada como distrito en el cual se postula el candidato."
+        },
+        "columnaGeneroCandidato": {
+          "type": "string",
+          "description": "Columna usada como género del candidato."
+        },
+        "columnaAlianza": {
+          "type": "string",
+          "description": "Columna usada como alianza por la cual se postula el candidato."
+        },
+        "columnaTopicIdAlianza": {
+          "type": "string",
+          "description": "Columna con el identificador del tema de la wiki sobre la alianza."
+        },
+        "columnaPosicion": {
+          "type": "string",
+          "description": "Columna que indica la posición del candidato en la lista."
+        },
+        "columnaSubcargo": {
+          "type": "string",
+          "description": "Columna que indica si la postulación es como titular o suplente."
+        },
+        "columnaAnioNacimiento": {
+          "type": "string",
+          "description": "Columna que indica el año de nacimiento del candidato."
+        },
+        "columnaCargo": {
+          "type": "string",
+          "description": "Columna que indica el cargo (Diputado o Senador)"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": ["visualization", "dataset"],
+      "properties": {
+        "visualization": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.embed.visualization"
+        },
+        "dataset": {
+          "type": "union",
+          "refs": [
+            "ar.cabildoabierto.data.dataset#datasetView",
+            "ar.cabildoabierto.data.dataset#topicsDatasetView"
+          ]
+        }
+      }
+    }
+  }
+}

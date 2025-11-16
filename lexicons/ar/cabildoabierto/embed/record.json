@@ -1,0 +1,103 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.embed.record",
+  "description": "Una representación de un registro embebido (ej. en un post). Se usa para citar posts o artículos completos.",
+  "defs": {
+    "view": {
+      "type": "object",
+      "required": ["record"],
+      "properties": {
+        "record": {
+          "type": "union",
+          "refs": [
+            "#viewRecord",
+            "#viewArticleRecord",
+            "app.bsky.embed.record#viewNotFound",
+            "app.bsky.embed.record#viewBlocked",
+            "app.bsky.embed.record#viewDetached"
+          ]
+        }
+      }
+    },
+    "viewRecord": {
+      "type": "object",
+      "required": ["uri", "cid", "author", "value", "indexedAt"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "cid": { "type": "string", "format": "cid" },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "value": {
+          "type": "unknown",
+          "description": "The record data itself."
+        },
+        "labels": {
+          "type": "array",
+          "items": { "type": "ref", "ref": "com.atproto.label.defs#label" }
+        },
+        "replyCount": { "type": "integer" },
+        "repostCount": { "type": "integer" },
+        "likeCount": { "type": "integer" },
+        "quoteCount": { "type": "integer" },
+        "embeds": {
+          "type": "array",
+          "items": {
+            "type": "union",
+            "refs": [
+              "app.bsky.embed.images#view",
+              "app.bsky.embed.video#view",
+              "app.bsky.embed.external#view",
+              "ar.cabildoabierto.embed.record#view",
+              "ar.cabildoabierto.embed.recordWithMedia#view"
+            ]
+          }
+        },
+        "indexedAt": { "type": "string", "format": "datetime" }
+      }
+    },
+    "viewArticleRecord": {
+      "type": "object",
+      "required": ["uri", "cid", "author", "value", "indexedAt"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "cid": { "type": "string", "format": "cid" },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "value": {
+          "type": "unknown",
+          "description": "The record data itself."
+        },
+        "labels": {
+          "type": "array",
+          "items": { "type": "ref", "ref": "com.atproto.label.defs#label" }
+        },
+        "replyCount": { "type": "integer" },
+        "repostCount": { "type": "integer" },
+        "likeCount": { "type": "integer" },
+        "quoteCount": { "type": "integer" },
+        "embeds": {
+          "type": "array",
+          "items": {
+            "type": "union",
+            "refs": [
+              "app.bsky.embed.images#view",
+              "app.bsky.embed.video#view",
+              "app.bsky.embed.external#view",
+              "ar.cabildoabierto.embed.record#view",
+              "ar.cabildoabierto.embed.recordWithMedia#view"
+            ]
+          }
+        },
+        "indexedAt": { "type": "string", "format": "datetime" },
+        "summary": {
+          "type": "string",
+          "description": "El resumen del artículo que se muestra en el muro."
+        }
+      }
+    }
+  }
+}

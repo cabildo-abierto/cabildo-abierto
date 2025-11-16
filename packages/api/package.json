@@ -1,0 +1,17 @@
+{
+  "name": "@cabildo-abierto/api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@atproto/xrpc": "^0.7.5",
+    "@atproto/lexicon": "^0.5.1",
+    "multiformats": "^9.9.0"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "^0.9.5"
+  }
+}

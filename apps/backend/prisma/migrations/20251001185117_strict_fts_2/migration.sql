@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "content_text_fts_idx" ON "Content" USING GIN ("text_tsv");
