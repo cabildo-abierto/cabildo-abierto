@@ -1,0 +1,37 @@
+"use client"
+import React from "react";
+import {useSearch} from "@/components/buscar/search-context";
+import FollowSuggestions from "@/components/layout/main-layout/right-panel/follow-suggestions";
+import {TrendingTopicsPanel} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {MagnifyingGlassIcon} from "@phosphor-icons/react";
+import SearchContent from "@/components/buscar/search-content";
+import { usePathname } from "next/navigation";
+import {useSession} from "@/components/auth/use-session";
+
+
+const Page = () => {
+    const pathname = usePathname()
+    const {searchState} = useSearch(`${pathname}::main`)
+    const {layoutConfig} = useLayoutConfig()
+    const {user} = useSession()
+
+    const searching = searchState.searching && searchState.value && searchState.value.length > 0
+
+    return <div className={"flex flex-col items-center pb-16"}>
+        {searching && <div className={"w-full"}>
+            <SearchContent/>
+        </div>}
+        {!searching && <div className={"sm:py-32 py-8 text-[var(--text)] opacity-[0.05]"}>
+            <MagnifyingGlassIcon fontSize={!layoutConfig.spaceForRightSide ? 128 : 256} weight={"bold"}/>
+        </div>}
+        {!searching && !layoutConfig.spaceForRightSide &&
+        <div className={"flex flex-col items-center gap-2 w-full pt-2 sm:px-0 px-2"}>
+            {user && <FollowSuggestions/>}
+            <TrendingTopicsPanel/>
+        </div>}
+    </div>
+}
+
+
+export default Page

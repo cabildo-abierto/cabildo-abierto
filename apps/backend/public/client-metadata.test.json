@@ -1,0 +1,15 @@
+{
+  "client_id": "https://test-api.cabildoabierto.ar/client-metadata.json",
+  "client_name": "Cabildo Abierto",
+  "application_type": "web",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "scope": "atproto transition:generic transition:chat.bsky transition:email",
+  "response_types": ["code"],
+  "redirect_uris": ["https://test-api.cabildoabierto.ar/oauth/callback"],
+  "dpop_bound_access_tokens": true,
+  "client_uri": "https://test-api.cabildoabierto.ar",
+  "token_endpoint_auth_method": "none",
+  "logo_uri": "https://cabildoabierto.ar/logo.svg",
+  "tos_uri": "https://cabildoabierto.ar/tema?i=Cabildo%20Abierto:%20T%C3%A9rminos%20y%20condiciones",
+  "policy_uri": "https://cabildoabierto.ar/tema?i=Cabildo%20Abierto%3A%20Pol%C3%ADtica%20de%20privacidad"
+}

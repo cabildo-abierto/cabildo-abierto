@@ -1,0 +1,44 @@
+
+
+export const formatIsoDate = (
+    isoDate: string | Date, hoursAndMinutes: boolean = false, day: boolean = true, year: boolean = true) => {
+    const date = new Date(isoDate)
+    try {
+        return new Intl.DateTimeFormat("es-AR", {
+            year: year && day ? "numeric" : undefined,
+            month: day ? "long" : undefined,
+            day: day ? "numeric" : undefined,
+            hour: hoursAndMinutes ? "2-digit" : undefined,
+            minute: hoursAndMinutes ? "2-digit" : undefined,
+            hour12: false,
+            timeZone: "America/Argentina/Buenos_Aires",
+        }).format(date)
+    } catch {
+        return isoDate.toString()
+    }
+}
+
+
+
+export const formatIsoDateShort = (
+    isoDate: string | Date, hoursAndMinutes: boolean = false, day: boolean = true, year: boolean = true) => {
+    const date = new Date(isoDate)
+    try {
+        return new Intl.DateTimeFormat("es-AR", {
+            year: year && day ? "2-digit" : undefined,
+            month: day ? "2-digit" : undefined,
+            day: day ? "2-digit" : undefined,
+            hour: hoursAndMinutes ? "2-digit" : undefined,
+            minute: hoursAndMinutes ? "2-digit" : undefined,
+            hour12: false,
+            timeZone: "America/Argentina/Buenos_Aires",
+        }).format(date)
+    } catch {
+        return isoDate.toString()
+    }
+}
+
+
+export function sortDatesDescending(a: Date | string, b: Date | string) {
+    return new Date(b).getTime() - new Date(a).getTime()
+}

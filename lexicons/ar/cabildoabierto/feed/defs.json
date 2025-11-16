@@ -1,0 +1,476 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.feed.defs",
+  "defs": {
+    "feedViewContent": {
+      "type": "object",
+      "description": "a feed is always a list of feedViewContents",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "union",
+          "refs": [
+            "#postView",
+            "#articleView",
+            "ar.cabildoabierto.wiki.topicVersion#topicViewBasic"
+          ]
+        },
+        "reply": {
+          "type": "ref",
+          "ref": "#replyRef"
+        },
+        "reason": {
+          "type": "union",
+          "refs": [
+            "#reasonRepost",
+            "app.bsky.feed.defs#reasonPin"
+          ]
+        },
+        "feedContext": {
+          "type": "string",
+          "description": "Context provided by feed generator that may be passed back alongside interactions.",
+          "maxLength": 2000
+        }
+      }
+    },
+    "reasonRepost": {
+      "type": "object",
+      "required": ["by", "indexedAt"],
+      "properties": {
+        "by": { "type": "ref", "ref": "ar.cabildoabierto.actor.defs#profileViewBasic" },
+        "indexedAt": { "type": "string", "format": "datetime" }
+      }
+    },
+    "threadViewContent": {
+      "type": "object",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "union",
+          "refs": [
+            "#postView",
+            "#articleView",
+            "#fullArticleView",
+            "ar.cabildoabierto.wiki.topicVersion#topicViewBasic",
+            "ar.cabildoabierto.data.dataset#datasetView"
+          ]
+        },
+        "parent": {
+          "type": "union",
+          "refs": [
+            "#threadViewContent",
+            "app.bsky.feed.defs#notFoundPost",
+            "app.bsky.feed.defs#blockedPost"
+          ]
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "type": "union",
+            "refs": [
+              "#threadViewContent",
+              "app.bsky.feed.defs#notFoundPost",
+              "app.bsky.feed.defs#blockedPost"
+            ]
+          }
+        },
+        "threadContext": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#threadContext"
+        }
+      }
+    },
+    "replyRef": {
+      "type": "object",
+      "required": ["root", "parent"],
+      "properties": {
+        "root": {
+          "type": "union",
+          "refs": [
+            "ar.cabildoabierto.feed.defs#postView",
+            "ar.cabildoabierto.feed.defs#articleView",
+            "ar.cabildoabierto.wiki.topicVersion#topicViewBasic",
+            "app.bsky.feed.defs#notFoundPost",
+            "app.bsky.feed.defs#blockedPost"
+          ]
+        },
+        "parent": {
+          "type": "union",
+          "refs": [
+            "#postView",
+            "#articleView",
+            "ar.cabildoabierto.wiki.topicVersion#topicViewBasic",
+            "app.bsky.feed.defs#notFoundPost",
+            "app.bsky.feed.defs#blockedPost"
+          ]
+        },
+        "grandparentAuthor": {
+          "type": "ref",
+          "ref": "app.bsky.actor.defs#profileViewBasic",
+          "description": "When parent is a reply to another post, this is the author of that post."
+        }
+      }
+    },
+    "postView": {
+      "type": "object",
+      "required": [
+        "uri",
+        "cid",
+        "author",
+        "record",
+        "indexedAt"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "record": {
+          "type": "unknown"
+        },
+        "embed": {
+          "type": "union",
+          "refs": [
+            "app.bsky.embed.images#view",
+            "app.bsky.embed.video#view",
+            "app.bsky.embed.external#view",
+            "ar.cabildoabierto.embed.record#view",
+            "ar.cabildoabierto.embed.recordWithMedia#view",
+            "ar.cabildoabierto.embed.selectionQuote#view",
+            "ar.cabildoabierto.embed.visualization#view"
+          ]
+        },
+        "bskyRepostCount": {
+          "type": "integer"
+        },
+        "bskyLikeCount": {
+          "type": "integer"
+        },
+        "bskyQuoteCount": {
+          "type": "integer"
+        },
+        "replyCount": {
+          "type": "integer"
+        },
+        "repostCount": {
+          "type": "integer"
+        },
+        "likeCount": {
+          "type": "integer"
+        },
+        "quoteCount": {
+          "type": "integer"
+        },
+        "indexedAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "viewer": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#viewerState"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "com.atproto.label.defs#label"
+          }
+        },
+        "threadgate": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#threadgateView"
+        },
+        "rootCreationDate": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "editedAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "voteContext": {
+          "type": "ref",
+          "ref": "#voteContext",
+          "description": "Si el usuario votó a favor o encontra de esta versión y si es una justificación de voto"
+        }
+      }
+    },
+    "voteContext": {
+      "type": "object",
+      "required": ["authorVotingState"],
+      "properties": {
+        "authorVotingState": {
+          "type": "string",
+          "knownValues": ["accept", "reject", "none"]
+        },
+        "vote": {
+          "type": "ref",
+          "ref": "#voteInContext"
+        }
+      }
+    },
+    "voteInContext": {
+      "type": "object",
+      "required": ["uri", "subject", "subjectCreatedAt"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "subject": {
+          "type": "string",
+          "format": "uri"
+        },
+        "subjectCreatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "articleView": {
+      "type": "object",
+      "required": [
+        "uri",
+        "cid",
+        "author",
+        "record",
+        "indexedAt",
+        "title",
+        "summary"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "title": {
+          "type": "string"
+        },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 3000,
+          "maxGraphemes": 300,
+          "description": "A summary of the article to be shown in the feed."
+        },
+        "summaryFormat":  {
+          "type": "string",
+          "maxLength": 50
+        },
+        "record": {
+          "type": "unknown"
+        },
+        "bskyRepostCount": {
+          "type": "integer"
+        },
+        "bskyLikeCount": {
+          "type": "integer"
+        },
+        "bskyQuoteCount": {
+          "type": "integer"
+        },
+        "replyCount": {
+          "type": "integer"
+        },
+        "repostCount": {
+          "type": "integer"
+        },
+        "likeCount": {
+          "type": "integer"
+        },
+        "quoteCount": {
+          "type": "integer"
+        },
+        "indexedAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "viewer": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#viewerState"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "com.atproto.label.defs#label"
+          }
+        },
+        "threadgate": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#threadgateView"
+        }
+      }
+    },
+    "fullArticleView": {
+      "type": "object",
+      "required": [
+        "uri",
+        "cid",
+        "author",
+        "record",
+        "indexedAt",
+        "text",
+        "summary",
+        "title"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "description": "The full article text"
+        },
+        "format":  {
+          "type": "string",
+          "maxLength": 50
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 3000,
+          "maxGraphemes": 300,
+          "description": "A summary of the article to be shown in the feed."
+        },
+        "summaryFormat":  {
+          "type": "string",
+          "maxLength": 50
+        },
+        "record": {
+          "type": "unknown"
+        },
+        "bskyRepostCount": {
+          "type": "integer"
+        },
+        "bskyLikeCount": {
+          "type": "integer"
+        },
+        "bskyQuoteCount": {
+          "type": "integer"
+        },
+        "replyCount": {
+          "type": "integer"
+        },
+        "repostCount": {
+          "type": "integer"
+        },
+        "likeCount": {
+          "type": "integer"
+        },
+        "quoteCount": {
+          "type": "integer"
+        },
+        "indexedAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "viewer": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#viewerState"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "com.atproto.label.defs#label"
+          }
+        },
+        "topicsMentioned": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#topicMention"
+          }
+        },
+        "threadgate": {
+          "type": "ref",
+          "ref": "app.bsky.feed.defs#threadgateView"
+        },
+        "embeds": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "ar.cabildoabierto.feed.article#articleEmbedView"
+          }
+        },
+        "editedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "topicMention": {
+      "type": "object",
+      "required": ["title", "count", "id"],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        }
+      }
+    },
+    "skeletonFeedPost": {
+      "type": "object",
+      "required": ["post"],
+      "properties": {
+        "post": { "type": "string", "format": "at-uri" },
+        "reason": {
+          "type": "union",
+          "refs": ["#skeletonReasonRepost", "#skeletonReasonPin"]
+        },
+        "feedContext": {
+          "type": "string",
+          "description": "Context that will be passed through to client and may be passed to feed generator back alongside interactions.",
+          "maxLength": 2000
+        }
+      }
+    },
+    "skeletonReasonRepost": {
+      "type": "object",
+      "required": ["repost"],
+      "properties": {
+        "repost": { "type": "string", "format": "at-uri" }
+      }
+    },
+    "skeletonReasonPin": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.wiki.defs",
+  "defs": {
+    "voteView": {
+      "type": "object",
+      "required": [
+        "uri",
+        "cid",
+        "author",
+        "subject"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "subject": {
+          "type": "ref",
+          "ref": "com.atproto.repo.strongRef"
+        }
+      }
+    }
+  }
+}

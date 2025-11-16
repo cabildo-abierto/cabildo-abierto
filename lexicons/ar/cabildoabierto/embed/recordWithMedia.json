@@ -1,0 +1,25 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.embed.recordWithMedia",
+  "description": "A representation of a record embedded in a Bluesky record (eg, a post), alongside other compatible embeds. For example, a quote post and image, or a quote post and external URL card.",
+  "defs": {
+    "view": {
+      "type": "object",
+      "required": ["record", "media"],
+      "properties": {
+        "record": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.embed.record#view"
+        },
+        "media": {
+          "type": "union",
+          "refs": [
+            "app.bsky.embed.images#view",
+            "app.bsky.embed.video#view",
+            "app.bsky.embed.external#view"
+          ]
+        }
+      }
+    }
+  }
+}

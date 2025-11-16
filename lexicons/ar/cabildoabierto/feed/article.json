@@ -1,0 +1,80 @@
+{
+    "lexicon": 1,
+    "id": "ar.cabildoabierto.feed.article",
+    "defs": {
+      "main": {
+        "type": "record",
+        "key": "tid",
+        "record": {
+          "type": "object",
+          "required": ["text", "title", "createdAt", "format"],
+          "properties": {
+            "text": {
+              "type": "blob"
+            },
+            "format": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "embeds": {
+              "type": "array",
+              "items": {
+                "type": "ref",
+                "ref": "#articleEmbed"
+              }
+            },
+            "labels": {
+              "type": "union",
+              "description": "Self-label values for this post. Effectively content warnings.",
+              "refs": [
+                "com.atproto.label.defs#selfLabels"
+              ]
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "datetime"
+            }
+          }
+        }
+      },
+      "articleEmbed": {
+        "type": "object",
+        "required": ["value", "index"],
+        "properties": {
+          "value": {
+            "type": "union",
+            "refs": [
+              "ar.cabildoabierto.embed.visualization",
+              "app.bsky.embed.images"
+            ]
+          },
+          "index": {
+            "type": "integer"
+          }
+        }
+      },
+      "articleEmbedView": {
+        "type": "object",
+        "required": ["value", "index"],
+        "properties": {
+          "value": {
+            "type": "union",
+            "refs": [
+              "ar.cabildoabierto.embed.visualization",
+              "ar.cabildoabierto.embed.visualization#view",
+              "app.bsky.embed.images#view"
+            ]
+          },
+          "index": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }

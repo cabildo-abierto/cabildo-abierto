@@ -1,0 +1,64 @@
+import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
+import {useState} from "react";
+import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
+import {EditTopicButton} from "./edit-topic-button";
+import {TopicPropsPanel} from "../props/topic-props-panel";
+import {TopicHeader} from "./topic-header";
+import {TopicContent} from "./topic-content";
+import {TopicDiscussion} from "./topic-discussion";
+import {useTopicPageParams} from "../use-topic-page-params";
+import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
+import TopicNotFoundPage from "../topic-not-found-page";
+import {cn} from "@/lib/utils";
+
+
+export const TopicViewPage = () => {
+    const {did, rkey, topicId} = useTopicPageParams()
+    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
+    const {isMobile} = useLayoutConfig()
+    const {layoutConfig} = useLayoutConfig()
+
+    if (topic == "loading") {
+        return <div className={"py-8"}>
+            <LoadingSpinner/>
+        </div>
+    } else if(!topic) {
+        return <TopicNotFoundPage/>
+    }
+
+    return <div
+        className={cn("mt-8 space-y-8 pb-32", isMobile && "pt-6")}
+    >
+        <div
+            className="absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"
+        >
+            <EditTopicButton/>
+            <TopicPropsPanel
+                topic={topic}
+            />
+        </div>
+
+        <div
+            className={cn(
+            "space-y-8",
+                isMobile ? "px-4" : (!layoutConfig.spaceForRightSide ? "pr-4 " : ""), !layoutConfig.spaceForLeftSide && "pl-4")}
+        >
+            <TopicHeader topic={topic}/>
+
+            <div className={"pb-16"}>
+                <TopicContent
+                    topic={topic}
+                    pinnedReplies={pinnedReplies}
+                    setPinnedReplies={setPinnedReplies}
+                />
+            </div>
+        </div>
+
+        <TopicDiscussion
+            topic={topic}
+            pinnedReplies={pinnedReplies}
+            setPinnedReplies={setPinnedReplies}
+        />
+    </div>
+}

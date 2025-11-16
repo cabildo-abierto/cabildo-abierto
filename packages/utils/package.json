@@ -1,0 +1,11 @@
+{
+  "name": "@cabildo-abierto/utils",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+  }
+}

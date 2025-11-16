@@ -1,0 +1,19 @@
+import {PostExternalEmbed} from "../../feed/embed/post-external-embed";
+import {CloseButton} from "@/components/utils/base/close-button";
+import {AppBskyEmbedExternal} from "@atproto/api";
+
+export const ExternalEmbedInEditor = ({embed, onRemove}: {
+    embed: AppBskyEmbedExternal.View
+    onRemove: () => void
+}) => {
+    return <div className={"relative mt-2"}>
+        <div className={"absolute top-2 right-1"}>
+            <CloseButton
+                onClose={onRemove}
+                size={"small"}
+                variant={"outlined"}
+            />
+        </div>
+        <PostExternalEmbed embed={embed}/>
+    </div>
+}

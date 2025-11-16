@@ -1,0 +1,179 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.data.dataset",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["name", "createdAt", "columns"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this post was originally created."
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#column"
+            },
+            "minLength": 1
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#dataBlock"
+            }
+          }
+        }
+      }
+    },
+    "column": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      }
+    },
+    "dataBlock": {
+      "type": "object",
+      "required": ["blob"],
+      "properties": {
+        "blob": {
+          "type": "blob"
+        },
+        "format": {
+          "type": "string"
+        }
+      }
+    },
+    "datasetViewBasic": {
+      "type": "object",
+      "required": ["name", "uri", "cid", "author", "createdAt", "columns"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime",
+          "description": "Client-declared timestamp when this post was originally created."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 3000,
+          "maxGraphemes": 300
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#column"
+          },
+          "minLength": 1
+        },
+        "editedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "datasetView": {
+      "type": "object",
+      "required": ["name", "uri", "cid", "author", "createdAt", "columns", "data"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime",
+          "description": "Client-declared timestamp when this post was originally created."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 3000,
+          "maxGraphemes": 300
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#column"
+          },
+          "minLength": 1
+        },
+        "data": {
+          "type": "string"
+        },
+        "dataFormat": {
+          "type": "string"
+        },
+        "editedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "topicsDatasetView": {
+      "type": "object",
+      "required": ["columns", "data"],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#column"
+          },
+          "minLength": 1
+        },
+        "data": {
+          "type": "string"
+        },
+        "dataFormat": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

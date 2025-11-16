@@ -1,0 +1,400 @@
+{
+    "lexicon": 1,
+    "id": "ar.cabildoabierto.wiki.topicVersion",
+    "defs": {
+      "main": {
+        "type": "record",
+        "key": "tid",
+        "record": {
+          "type": "object",
+          "required": ["id", "createdAt"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 120
+            },
+            "text": {
+              "type": "blob"
+            },
+            "format": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "props": {
+              "type": "array",
+              "items": {
+                "type": "ref",
+                "ref": "#topicProp"
+              }
+            },
+            "embeds": {
+              "type": "array",
+              "items": {
+                "type": "ref",
+                "ref": "ar.cabildoabierto.feed.article#articleEmbed"
+              }
+            },
+            "message": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 120
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "claimsAuthorship": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "topicView": {
+        "type": "object",
+        "required": ["text", "id", "createdAt", "lastEdit", "uri", "cid"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "uri": {
+            "type": "string",
+            "format": "at-uri"
+          },
+          "cid": {
+            "type": "string",
+            "format": "cid"
+          },
+          "currentVersion": {
+            "type": "string",
+            "format": "at-uri"
+          },
+          "record": {
+            "type": "unknown"
+          },
+          "text": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#topicProp"
+            }
+          },
+          "lastEdit": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "ar.cabildoabierto.feed.article#articleEmbedView"
+            }
+          },
+          "status": {
+            "type": "ref",
+            "ref": "#topicVersionStatus"
+          },
+          "author": {
+            "type": "ref",
+            "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+          },
+          "viewer": {
+            "type": "ref",
+            "ref": "#topicVersionViewerState"
+          },
+          "protection": {
+            "type": "string"
+          },
+          "replyCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "topicHistory": {
+        "type": "object",
+        "required": ["id", "versions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#versionInHistory"
+            }
+          },
+          "protection": {
+            "type": "string"
+          }
+        }
+      },
+      "versionInHistory": {
+        "type": "object",
+        "required": ["uri", "cid", "createdAt", "author", "status"],
+        "properties": {
+          "uri": {
+            "type": "string",
+            "format": "at-uri"
+          },
+          "cid": {
+            "type": "string",
+            "format": "cid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "author": {
+            "type": "ref",
+            "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+          },
+          "message": {
+            "type": "string"
+          },
+          "viewer": {
+            "type": "ref",
+            "ref": "#topicVersionViewerState"
+          },
+          "status": {
+            "type": "ref",
+            "ref": "#topicVersionStatus"
+          },
+          "addedChars": {
+            "type": "integer"
+          },
+          "removedChars": {
+            "type": "integer"
+          },
+          "prevAccepted": {
+            "type": "string",
+            "format": "at-uri"
+          },
+          "contribution": {
+            "type": "ref",
+            "ref": "#topicVersionContribution"
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#topicProp"
+            }
+          },
+          "claimsAuthorship": {
+            "type": "boolean"
+          },
+          "replyCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "topicVersionViewerState": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "accept": {
+            "type": "string",
+            "format": "at-uri"
+          },
+          "reject": {
+            "type": "string",
+            "format": "at-uri"
+          }
+        }
+      },
+      "topicVersionStatus": {
+        "type": "object",
+        "required": ["voteCounts", "accepted"],
+        "properties": {
+          "voteCounts": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#categoryVotes"
+            }
+          },
+          "accepted": {
+            "type": "boolean"
+          },
+          "protection": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "categoryVotes": {
+        "type": "object",
+        "required": ["accepts", "rejects", "category"],
+        "properties": {
+          "accepts": {
+            "type": "integer"
+          },
+          "rejects": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 50
+          }
+        }
+      },
+      "topicProp": {
+        "type": "object",
+        "required": ["name", "value"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "value": {
+            "type": "union",
+            "refs": [
+              "#stringProp",
+              "#stringListProp",
+              "#dateProp",
+              "#numberProp",
+              "#booleanProp"
+            ]
+          }
+        }
+      },
+      "stringProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "booleanProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "boolean"
+          }
+        }
+      },
+      "stringListProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "dateProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      },
+      "numberProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "integer"
+          }
+        }
+      },
+      "topicViewBasic": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "#topicProp"
+            }
+          },
+          "popularity": {
+            "type": "ref",
+            "ref": "#topicPopularity"
+          },
+          "lastEdit": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "currentVersionCreatedAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "numWords": {
+            "type": "integer"
+          },
+          "lastSeen": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      },
+      "topicVersionContribution": {
+        "type": "object",
+        "required": ["monetized", "all"],
+        "properties": {
+          "monetized": {
+            "type": "string"
+          },
+          "all": {
+            "type": "string"
+          }
+        }
+      },
+      "topicPopularity": {
+        "type": "object",
+        "required": ["lastDay", "lastWeek", "lastMonth"],
+        "properties": {
+          "lastDay": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "lastWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "lastMonth": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["pnpm-lock.yaml", "package.json", "tsconfig.json"],
+
+  "tasks": {
+    // -------------------------
+    // Development tasks
+    // -------------------------
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": []
+    },
+
+    // -------------------------
+    // Backend build (tsup)
+    // -------------------------
+    "build:tsup": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+
+    // -------------------------
+    // Next.js app build
+    // -------------------------
+    "build:next": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**"]
+    },
+
+    // Universal build task
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+
+    // -------------------------
+    // Linting
+    // -------------------------
+    "lint": {
+      "outputs": []
+    },
+
+    // -------------------------
+    // Typechecking
+    // -------------------------
+    "typecheck": {
+      "outputs": []
+    },
+
+    // -------------------------
+    // Testing
+    // -------------------------
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
+    },
+
+    // -------------------------
+    // Cleaning
+    // -------------------------
+    "clean": {
+      "cache": false
+    }
+  }
+}
