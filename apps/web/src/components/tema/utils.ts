@@ -1,4 +1,4 @@
-import {areArraysEqual, gett} from "@cabildo-abierto/utils/dist/arrays";
+import {areArraysEqual, gett} from "@cabildo-abierto/utils";
 import {$Typed, EditorStatus} from "@cabildo-abierto/api";
 import { ArCabildoabiertoWikiTopicVersion } from "@cabildo-abierto/api";
 

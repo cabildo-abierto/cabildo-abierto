@@ -1,7 +1,7 @@
 "use client"
 
 import {useSession} from "@/components/auth/use-session";
-import { getUri } from "@cabildo-abierto/utils/dist/uri"
+import { getUri } from "@cabildo-abierto/utils"
 import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import ArticleEditor from "./article-editor";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";

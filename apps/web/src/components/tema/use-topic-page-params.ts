@@ -6,7 +6,10 @@ export function useTopicPageParams() {
     const did = searchParams.get("did")
     const rkey = searchParams.get("rkey")
     const topicId = searchParams.get("i")
-    const s = searchParams.get("s")
+    const s = searchParams.get("s") // edit atenrior
+    const edit = searchParams.get("edit")
 
-    return {did, rkey, topicId, s: s == "editing" ? s : undefined}
+    const editing = s == "editing" || edit == "true"
+
+    return {did, rkey, topicId, editing}
 }

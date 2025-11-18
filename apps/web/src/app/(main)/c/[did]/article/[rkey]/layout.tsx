@@ -1,6 +1,6 @@
 import {Metadata} from "next";
 import {createMetadata, mainMetadata, MetadataParams} from "@/utils/metadata";
-import {shortCollectionToCollection} from "@cabildo-abierto/utils/dist/uri";
+import {shortCollectionToCollection} from "@cabildo-abierto/utils";
 import { get } from "@/components/utils/react/fetch";
 import {ReactNode} from "react";
 

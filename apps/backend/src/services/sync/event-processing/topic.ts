@@ -181,6 +181,11 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
                 .execute()
 
             await trx
+                .deleteFrom("AssignedPayment")
+                .where("AssignedPayment.contentId", "in", uris)
+                .execute()
+
+            await trx
                 .deleteFrom("TopicVersion")
                 .where("uri", "in", uris)
                 .execute()

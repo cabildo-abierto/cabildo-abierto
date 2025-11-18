@@ -4,10 +4,10 @@ import TopicCategories from "../tema/view/topic-categories";
 import {topicUrl} from "@/components/utils/react/url";
 import TopicPopularityIndicator from "../tema/topic-popularity-indicator";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
-import {rounder} from "@cabildo-abierto/utils/dist/strings";
+import {rounder} from "@cabildo-abierto/utils";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {DateSince} from "@/components/utils/base/date";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {useLayoutConfig} from "../layout/main-layout/layout-config-context";
 import {ArCabildoabiertoWikiTopicVersion, Session} from "@cabildo-abierto/api"
 import {useSession} from "@/components/auth/use-session";

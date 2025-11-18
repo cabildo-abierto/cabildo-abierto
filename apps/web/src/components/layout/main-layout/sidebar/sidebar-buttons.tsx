@@ -12,7 +12,7 @@ import NotificationsIcon from "@/components/utils/icons/notifications-icon";
 import TopicsIcon from "@/components/utils/icons/topics-icon";
 import MessagesIcon from "@/components/utils/icons/messages-icon";
 import React from "react";
-import {sum} from "@cabildo-abierto/utils/dist/arrays";
+import {sum} from "@cabildo-abierto/utils";
 import {useSession} from "@/components/auth/use-session";
 import {useLayoutConfig} from "../layout-config-context";
 import {usePathname} from "next/navigation";

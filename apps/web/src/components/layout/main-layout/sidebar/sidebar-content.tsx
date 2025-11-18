@@ -52,7 +52,6 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                             </BaseButton>}
                             {!showText && <BaseIconButton
                                 className={"h-8"}
-                                size={isMobile ? "default" : "small"}
                                 onClick={() => {setLoginModalOpen(true)}}
                             >
                                 <SignInIcon/>

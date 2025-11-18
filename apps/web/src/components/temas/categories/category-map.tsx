@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import {useSearch} from "../../buscar/search-context";
 import {useMemo} from "react";
 import {TopicsGraph} from "@/lib/types";
-import {cleanText} from "@cabildo-abierto/utils/dist/strings";
+import {cleanText} from "@cabildo-abierto/utils";
 
 const Graph = dynamic(() => import("@/components/visualizations/visualization/topics-graph/graph-view").then(mod => mod.GraphView), {ssr: false})
 

@@ -5,7 +5,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {useEffect, useState} from "react";
 import {TopicVotesList} from "./topic-votes-list";
 import {TopicHistoryPanel} from "../view/topic-history-panel";
-import { sum } from "@cabildo-abierto/utils/dist/arrays";
+import { sum } from "@cabildo-abierto/utils";
 
 
 function countVotes(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"]) {

@@ -20,6 +20,7 @@ import {AxesPlotter} from "../axes-plotter";
 import {isTwoAxisPlotter} from "./two-axis-plotter";
 import {$Typed} from "@atproto/api";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
+import {Note} from "@/components/utils/base/note";
 
 
 export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {
@@ -140,9 +141,9 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         }
     }, [visualization.dataset, spec])
 
-    if (!plotter) return <div className={"w-full h-full flex justify-center items-center text-[var(--text-light)]"}>
+    if (!plotter) return <Note className={"py-8 h-full flex justify-center items-center"}>
         {error}
-    </div>
+    </Note>
 
     const data = plotter.getDataPoints()
 
@@ -400,9 +401,9 @@ const TwoAxisPlotComp = ({spec, visualization, maxWidth, maxHeight}: TwoAxisPlot
             spec.yAxes && spec.yAxes.some(a => !validColumn(a.column, dataset))
 
         if (!validColumn(spec.xAxis, dataset) || invalidY) {
-            return <div className={"text-[var(--text-light)] w-full h-full flex justify-center items-center"}>
+            return <Note className={"py-8"}>
                 No se encontraron las columnas especificadas en los datos.
-            </div>
+            </Note>
         }
     }
 

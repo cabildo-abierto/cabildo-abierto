@@ -1,4 +1,4 @@
-import {getRkeyFromUri} from "@cabildo-abierto/utils/dist/uri";
+import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {postOrArticle} from "../../utils/type-utils";
 import {produce} from "immer";

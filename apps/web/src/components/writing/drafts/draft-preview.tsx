@@ -1,6 +1,6 @@
 import {DraftPreview} from "@/queries/getters/useDrafts";
 import {ArticlePreviewContent} from "../../feed/article/article-preview";
-import {isArticle} from "@cabildo-abierto/utils/dist/uri";
+import {isArticle} from "@cabildo-abierto/utils";
 import {useRouter} from "next/navigation";
 
 

@@ -1,5 +1,5 @@
 import {useSearchParams} from "next/navigation";
-import {stringToEnum} from "@cabildo-abierto/utils/dist/strings";
+import {stringToEnum} from "@cabildo-abierto/utils";
 import {
     defaultTopicMentionsFormat,
     defaultTopicMentionsMetric,

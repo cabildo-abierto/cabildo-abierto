@@ -17,7 +17,7 @@ import {
     getRkeyFromUri,
     getUri,
     shortCollectionToCollection
-} from "@cabildo-abierto/utils/dist/uri";
+} from "@cabildo-abierto/utils";
 import {usePathname, useRouter} from "next/navigation";
 import {ComAtprotoRepoStrongRef} from "@atproto/api"
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";

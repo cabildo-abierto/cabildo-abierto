@@ -70,7 +70,7 @@ const VisualizationEditorSidebar = ({
     function optionsNodes(o: string, isSelected: boolean) {
         const icon = o == "Datos" ? <DatasetIcon/> : <VisualizationIcon/>
         return <BaseButton
-            className={isSelected ? "group-[.portal]:bg-[var(--background-dark3)] group-[.portal]:hover:bg-[var(--background-dark4)]" : ""}
+            className={isSelected ? "bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)]" : ""}
             startIcon={icon}
             variant={"outlined"}
         >
@@ -81,7 +81,7 @@ const VisualizationEditorSidebar = ({
     return (
         <div
             style={{width}}
-            className={cn("z-[1400] absolute border-r border-[var(--accent-dark)] top-0 left-0 h-full flex flex-col group portal", isResizing ? "select-none" : "")}
+            className={cn("z-[1400] absolute border-r border-[var(--accent-dark)] top-0 left-0 h-full flex flex-col", isResizing ? "select-none" : "")}
         >
             <div className="flex flex-col h-full">
                 <div className="p-2">

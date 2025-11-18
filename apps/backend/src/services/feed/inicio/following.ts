@@ -360,19 +360,19 @@ const followingFeedOnlyCASkeletonQuery: FollowingFeedSkeletonQuery<FollowingFeed
     const res = await ctx.kysely
         .selectFrom("Record")
         .where("Record.collection", "=", "ar.cabildoabierto.feed.article")
-        .$if(from != null, qb => qb.where("Record.created_at", "<", new Date(from!)))
-        .$if(to != null, qb => qb.where("Record.created_at", ">", new Date(to!)))
+        .$if(from != null, qb => qb.where("Record.created_at_tz", "<", new Date(from!)))
+        .$if(to != null, qb => qb.where("Record.created_at_tz", ">", new Date(to!)))
         .where("Record.authorId", "in", [...follows, did])
         .where("Record.record", "is not", null)
         .select([
             "Record.uri as uri",
-            "Record.created_at as createdAt",
+            "Record.created_at_tz as createdAt",
             eb => eb.val<string | null>(null).as("repostedRecordUri")
         ])
         .unionAll(eb => eb
             .selectFrom("Record")
-            .$if(from != null, qb => qb.where("Record.created_at", "<", new Date(from!)))
-            .$if(to != null, qb => qb.where("Record.created_at", ">", new Date(to!)))
+            .$if(from != null, qb => qb.where("Record.created_at_tz", "<", new Date(from!)))
+            .$if(to != null, qb => qb.where("Record.created_at_tz", ">", new Date(to!)))
             .where("Record.authorId", "in", [...follows, did])
             .where("Record.collection", "=", "app.bsky.feed.post")
             .where("Record.record", "is not", null)
@@ -380,7 +380,7 @@ const followingFeedOnlyCASkeletonQuery: FollowingFeedSkeletonQuery<FollowingFeed
             .where("Post.replyToId", "is", null)
             .select([
                 "Record.uri as uri",
-                "Record.created_at as createdAt",
+                "Record.created_at_tz as createdAt",
                 eb => eb.val<string | null>(null).as("repostedRecordUri")
             ])
         )
@@ -390,8 +390,8 @@ const followingFeedOnlyCASkeletonQuery: FollowingFeedSkeletonQuery<FollowingFeed
             .where("Record.collection", "=", "app.bsky.feed.repost")
             .innerJoin("Record as SubjectRecord", "SubjectRecord.uri", "Reaction.subjectId")
             .innerJoin("User as SubjectRecordAuthor", "SubjectRecordAuthor.did", "SubjectRecord.authorId")
-            .$if(from != null, qb => qb.where("Record.created_at", "<", new Date(from!)))
-            .$if(to != null, qb => qb.where("Record.created_at", ">", new Date(to!)))
+            .$if(from != null, qb => qb.where("Record.created_at_tz", "<", new Date(from!)))
+            .$if(to != null, qb => qb.where("Record.created_at_tz", ">", new Date(to!)))
             .where("Record.authorId", "in", [...follows, did])
             .where("Record.record", "is not", null)
             .where("SubjectRecordAuthor.inCA", "=", true)
@@ -399,7 +399,7 @@ const followingFeedOnlyCASkeletonQuery: FollowingFeedSkeletonQuery<FollowingFeed
             .where("SubjectRecord.record", "is not", null)
             .select([
                 "Record.uri as uri",
-                "Record.created_at as createdAt",
+                "Record.created_at_tz as createdAt",
                 "Reaction.subjectId as repostedRecordUri"
             ])
         )
@@ -407,13 +407,13 @@ const followingFeedOnlyCASkeletonQuery: FollowingFeedSkeletonQuery<FollowingFeed
         .limit(limit)
         .execute()
     const t3 = Date.now()
-    ctx.logger.logTimes("following feed only ca skeleton query", [t1, t2, t3])
-    return res.map(r => ({
+    ctx.logger.logTimes("following feed only ca skeleton query", [t1, t2, t3], {res})
+    return res.map(r => (r.createdAt ? {
         uri: r.uri,
         repostedRecordUri: r.repostedRecordUri ?? undefined,
         createdAt: r.createdAt,
-        score: r.createdAt.getTime()
-    }))
+        score: r.createdAt?.getTime()
+    } : null)).filter(x => x != null)
 }
 
 

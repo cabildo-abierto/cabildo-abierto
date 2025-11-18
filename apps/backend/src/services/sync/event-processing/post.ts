@@ -189,6 +189,11 @@ export class PostDeleteProcessor extends DeleteProcessor {
                 .execute()
 
             await trx
+                .deleteFrom("DiscoverFeedIndex")
+                .where("contentId", "in", uris)
+                .execute()
+
+            await trx
                 .deleteFrom("Post")
                 .where("Post.uri", "in", uris)
                 .execute()

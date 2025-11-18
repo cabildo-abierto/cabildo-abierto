@@ -1,7 +1,7 @@
 "use client"
 import dayjs from "dayjs";
 import "dayjs/locale/es";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import { useMemo } from "react";
 
 

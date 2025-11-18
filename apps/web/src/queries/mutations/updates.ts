@@ -7,10 +7,10 @@ import {
 } from "@cabildo-abierto/api"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
-import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@cabildo-abierto/utils";
 import {QueryFilters} from "@tanstack/query-core";
 import {$Typed} from "@atproto/api";
-import {areArraysEqual} from "@cabildo-abierto/utils/dist/arrays";
+import {areArraysEqual} from "@cabildo-abierto/utils";
 import {GetFeedOutput} from "@/lib/types";
 import {InfiniteFeed} from "@/components/feed/types";
 

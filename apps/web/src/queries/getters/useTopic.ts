@@ -1,7 +1,7 @@
 import {useAPI} from "@/components/utils/react/queries";
 import {useEffect, useState} from "react";
 import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
-import {splitUri} from "@cabildo-abierto/utils/dist";
+import {splitUri} from "@cabildo-abierto/utils";
 import {topicUrl} from "@/components/utils/react/url";
 import { decompress } from "@cabildo-abierto/editor-core";
 

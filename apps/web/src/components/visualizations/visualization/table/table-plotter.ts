@@ -1,7 +1,7 @@
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {DataRow, Plotter} from "../plotter";
 import {DatasetForTableView, DatasetSortOrder} from "@/components/visualizations/visualization/table/types";
-import {cleanText} from "@cabildo-abierto/utils/dist";
+import {cleanText} from "@cabildo-abierto/utils";
 
 
 export class TablePlotter extends Plotter {

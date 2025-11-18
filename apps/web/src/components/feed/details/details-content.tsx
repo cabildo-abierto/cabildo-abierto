@@ -1,6 +1,6 @@
 import UserSearchResult from "../../buscar/user-search-result";
 import Feed from "../feed/feed";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
 import { get } from "@/components/utils/react/fetch";
 

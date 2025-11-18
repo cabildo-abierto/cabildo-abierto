@@ -1,6 +1,6 @@
 import {ContentOptionsButton} from "@/components/feed/options/content-options-button"
 import {ReplyCounter} from "./reply-counter"
-import {getCollectionFromUri} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri} from "@cabildo-abierto/utils";
 import React, {useState} from "react";
 import {$Typed} from "@cabildo-abierto/api";
 import {RepostCounter} from "./repost-counter";

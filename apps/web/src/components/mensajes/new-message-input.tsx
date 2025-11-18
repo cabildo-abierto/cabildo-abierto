@@ -49,7 +49,7 @@ export default function NewMessageInput({
         sendMessageMutation.mutate(msg)
     }
 
-    return <div className={"p-1"}>
+    return <div className={"p-1  portal group"}>
         <BaseTextArea
             className={"bg-[var(--background-dark)]"}
             value={newMessage}

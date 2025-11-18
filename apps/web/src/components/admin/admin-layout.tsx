@@ -1,32 +1,30 @@
 "use client"
 import {ReactNode} from "react";
-import SelectionComponent from "../buscar/search-selection-component";
-import {useRouter, useSearchParams} from "next/navigation";
-import {configOptionNodes} from "../feed/config/config-option-nodes";
 import {AdminProtected} from "../layout/main-layout/admin-protected";
+import Link from "next/link";
+import {cn} from "@/lib/utils";
+import {usePathname} from "next/navigation";
 
 
-export const AdminLayout = ({children}: {children: ReactNode}) => {
-    const router = useRouter()
-    const params = useSearchParams()
-
-    function onSelection(option: string){
-        router.push("/admin?s="+option)
-    }
+export const AdminLayout = ({children}: { children: ReactNode }) => {
+    const options = ["post", "acceso", "sync", "validacion", "remuneraciones", "stats", "wiki", "UI"]
+    const pathname = usePathname()
 
     return <AdminProtected>
-        <div className={"w-full"}>
-        <div className={"w-full py-2"}>
-            <SelectionComponent
-                onSelection={onSelection}
-                selected={params.get("s") ? params.get("s") : "Principal"}
-                options={["Principal", "Acceso", "Sync", "Validacion", "Remuneraciones", "Stats", "Wiki"]}
-                optionsNodes={configOptionNodes}
-                className={"flex space-x-2"}
-                optionContainerClassName={""}
-            />
+        <div className={""}>
+            <div className={"flex flex-wrap gap-2 p-4"}>
+                {options.map(o => {
+                    return <div key={o}>
+                        <Link
+                            href={`/admin/${o.toLowerCase()}`}
+                            className={cn("border px-2 py-1 text-sm hover:bg-[var(--background-dark)] capitalize", pathname.includes(o.toLowerCase()) && "bg-[var(--background-dark)]")}
+                        >
+                            {o}
+                        </Link>
+                    </div>
+                })}
+            </div>
+            {children}
         </div>
-        {children}
-    </div>
     </AdminProtected>
 }

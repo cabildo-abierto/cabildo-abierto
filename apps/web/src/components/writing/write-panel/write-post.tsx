@@ -8,7 +8,7 @@ import {
     isPost,
     isTopicVersion,
     isVisualization,
-} from "@cabildo-abierto/utils/dist/uri";
+} from "@cabildo-abierto/utils";
 import {ProfilePic} from "../../perfil/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
@@ -30,7 +30,7 @@ import {getEditorSettings} from "../settings";
 import dynamic from "next/dynamic";
 import {$dfs} from "@lexical/utils";
 import {$isLinkNode} from "@lexical/link";
-import {areSetsEqual} from "@cabildo-abierto/utils/dist/arrays";
+import {areSetsEqual} from "@cabildo-abierto/utils";
 import {TopicsMentionedSmall} from "../../feed/article/topics-mentioned";
 import AddToEnDiscusionButton from "../add-to-en-discusion-button";
 import {useTopicsMentioned} from "../use-topics-mentioned";

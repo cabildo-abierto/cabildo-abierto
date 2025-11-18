@@ -1,5 +1,5 @@
 import {useAPI} from "@/components/utils/react/queries";
-import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {ProfilePic} from "../../perfil/profile-pic";
 import {ArCabildoabiertoWikiDefs} from "@cabildo-abierto/api";

@@ -1,4 +1,4 @@
-import {getCollectionFromUri, isArticle, isTopicVersion} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, isArticle, isTopicVersion} from "@cabildo-abierto/utils";
 import Link from "next/link";
 import {Authorship} from "../../../perfil/authorship";
 import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"

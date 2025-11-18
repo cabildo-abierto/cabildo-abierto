@@ -30,7 +30,7 @@ export async function updateReferencesForNewContents(ctx: AppContext) {
     const caUsers = await getCAUsersDids(ctx)
 
     while (true) {
-        const contents: {uri: string}[] = await ctx.kysely
+        const contents: { uri: string }[] = await ctx.kysely
             .selectFrom('Record')
             .select([
                 'Record.uri',
@@ -61,7 +61,7 @@ export async function updateReferencesForNewContents(ctx: AppContext) {
 
 async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: string[]) {
     try {
-        if(uris != undefined && uris.length == 0 || topics != undefined && topics.length == 0) return []
+        if (uris != undefined && uris.length == 0 || topics != undefined && topics.length == 0) return []
         return await ctx.kysely
             .with(wb => wb("Synonyms").materialized(), eb => eb
                 .selectFrom(
@@ -69,18 +69,23 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
                         .$if(topics != null, qb => qb.where("Topic.id", "in", topics!))
                         .select([
                             "Topic.id",
-                            sql<string>`unnest("Topic"."synonyms")`.as("keyword")
+                            sql<string>`unnest
+                            ("Topic"."synonyms")`.as("keyword")
                         ])
                         .as("UnnestedSynonyms")
                 )
                 .select([
                     "UnnestedSynonyms.id",
-                    sql`to_tsquery('public.spanish_simple_unaccent', regexp_replace(trim("UnnestedSynonyms"."keyword"), '\\s+', ' <-> ', 'g'))`.as("query")
+                    sql`to_tsquery
+                    ('public.spanish_simple_unaccent', regexp_replace(trim("UnnestedSynonyms"."keyword"), '\\s+', ' <-> ', 'g'))`.as("query")
                 ])
             )
             .selectFrom("Content")
             .innerJoin("Synonyms", (join) =>
-                join.on(sql`"Content"."text_tsv" @@ "Synonyms"."query"`)
+                join.on(sql`"Content"
+                .
+                "text_tsv"
+                @@ "Synonyms"."query"`)
             )
             .$if(uris != null, qb => qb.where("Content.uri", "in", uris!))
             .innerJoin("Record", "Record.uri", "Content.uri")
@@ -90,28 +95,33 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
             .select([
                 "Synonyms.id",
                 "Content.uri",
-                sql<number>`ts_rank_cd("Content"."text_tsv", "Synonyms"."query")`.as("rank")
+                sql<number>`ts_rank_cd
+                ("Content"."text_tsv", "Synonyms"."query")`.as("rank")
             ])
             .execute()
     } catch (error) {
-        ctx.logger.pino.error({error, topics: topics?.slice(0, 5), uris: uris?.slice(0, 5)}, "error in ftsReferences query")
+        ctx.logger.pino.error({
+            error,
+            topics: topics?.slice(0, 5),
+            uris: uris?.slice(0, 5)
+        }, "error in ftsReferences query")
         throw error
     }
 }
 
 
 export async function getReferencesToInsert(ctx: AppContext, uris?: string[], topics?: string[]) {
-    if(!topics && !uris) throw Error("Obtener las referencias para todos los contenidos y temas es muy caro!")
+    if (!topics && !uris) throw Error("Obtener las referencias para todos los contenidos y temas es muy caro!")
 
     const matches = await ftsReferencesQuery(ctx, uris, topics)
 
     // entre cada par (tema, contenido) almacenamos a lo sumo una referencia
     const refsMap = new Map<string, ReferenceToInsert>()
 
-    for(const m of matches) {
+    for (const m of matches) {
         const key = `${m.uri}:${m.id}`
         const cur = refsMap.get(key)
-        if(!cur || !cur.relevance || cur.relevance < m.rank){
+        if (!cur || !cur.relevance || cur.relevance < m.rank) {
             refsMap.set(key, {
                 id: uuidv4(),
                 referencedTopicId: m.id,
@@ -127,19 +137,19 @@ export async function getReferencesToInsert(ctx: AppContext, uris?: string[], to
 
 
 async function updateReferencesForContentsAndTopics(ctx: AppContext, contents?: string[], topics?: string[]): Promise<string[]> {
-    if(!topics && !contents) throw Error("Obtener las referencias para todos los contenidos y temas es muy caro!")
+    if (!topics && !contents) throw Error("Obtener las referencias para todos los contenidos y temas es muy caro!")
     const topicBs = 10
     const contentsBs = 500
-    if(!contents && topics && topics.length > topicBs) {
+    if (!contents && topics && topics.length > topicBs) {
         const newReferences: string[] = []
-        for(let i = 0; i < topics.length; i+=topicBs) {
-            newReferences.push(...await updateReferencesForContentsAndTopics(ctx, contents, topics.slice(i, i+topicBs)))
+        for (let i = 0; i < topics.length; i += topicBs) {
+            newReferences.push(...await updateReferencesForContentsAndTopics(ctx, contents, topics.slice(i, i + topicBs)))
         }
         return newReferences
-    } else if(!topics && contents && contents.length > contentsBs) {
+    } else if (!topics && contents && contents.length > contentsBs) {
         const newReferences: string[] = []
-        for(let i = 0; i < contents.length; i+=contentsBs) {
-            newReferences.push(...await updateReferencesForContentsAndTopics(ctx, contents.slice(i, i+contentsBs), topics))
+        for (let i = 0; i < contents.length; i += contentsBs) {
+            newReferences.push(...await updateReferencesForContentsAndTopics(ctx, contents.slice(i, i + contentsBs), topics))
         }
         return newReferences
     } else {
@@ -169,33 +179,38 @@ async function applyReferencesUpdate(ctx: AppContext, referencesToInsert: Refere
     // asumimos que referencesToInsert tiene todas las referencias en el producto cartesiano
     // entre contentIds y topicIds
     // si contentIds es undefined son todos los contenidos y lo mismo con topicIds
-    if(contentUris != null && contentUris.length == 0 || topicIds != null && topicIds.length == 0) return
+    if (contentUris != null && contentUris.length == 0 || topicIds != null && topicIds.length == 0) return
 
     try {
         const date = new Date()
-        ctx.logger.pino.info({count: referencesToInsert.length}, "applying references update")
-        if(referencesToInsert.length > 0){
-            await ctx.kysely
-                .insertInto("Reference")
-                .values(referencesToInsert
-                    .map(r => ({...r, touched_tz: date})))
-                .onConflict(oc => oc.columns(["referencingContentId", "referencedTopicId"]).doUpdateSet(eb => ({
-                    touched_tz: eb.ref("excluded.touched_tz"),
-                    relevance: eb.ref("excluded.relevance")
-                })))
-                .execute()
-        }
+        ctx.logger.pino.info(
+            {count: referencesToInsert.length},
+            "applying references update"
+        )
 
-        await ctx.kysely
-            .deleteFrom("Reference")
-            .where("touched_tz", "<", date)
-            .$if(
-                contentUris != null,
-                qb => qb.where("Reference.referencingContentId", "in", contentUris!))
-            .$if(
-                topicIds != null,
-                qb => qb.where("Reference.referencedTopicId", "in", topicIds!))
-            .execute()
+        await ctx.kysely.transaction().execute(async trx => {
+            if (referencesToInsert.length > 0) {
+                await trx
+                    .insertInto("Reference")
+                    .values(referencesToInsert
+                        .map(r => ({...r, touched_tz: date})))
+                    .onConflict(oc => oc.columns(["referencingContentId", "referencedTopicId"]).doUpdateSet(eb => ({
+                        touched_tz: eb.ref("excluded.touched_tz"),
+                        relevance: eb.ref("excluded.relevance")
+                    })))
+                    .execute()
+            }
+            await trx
+                .deleteFrom("Reference")
+                .where("touched_tz", "<", date)
+                .$if(
+                    contentUris != null,
+                    qb => qb.where("Reference.referencingContentId", "in", contentUris!))
+                .$if(
+                    topicIds != null,
+                    qb => qb.where("Reference.referencedTopicId", "in", topicIds!))
+                .execute()
+        })
     } catch (e) {
         ctx.logger.pino.error({error: e}, "error applying references update")
         throw e
@@ -228,10 +243,10 @@ export async function updateReferencesForNewTopics(ctx: AppContext) {
     }
 
     const bs = 10
-    for(let i = 0; i < topicIds.length; i+=bs) {
+    for (let i = 0; i < topicIds.length; i += bs) {
         ctx.logger.pino.info({newTopics: topicIds.length, bs}, "updating references for new topics batch")
         const t1 = Date.now()
-        await updateReferencesForContentsAndTopics(ctx, undefined, topicIds.slice(i, i+bs))
+        await updateReferencesForContentsAndTopics(ctx, undefined, topicIds.slice(i, i + bs))
         const t2 = Date.now()
         ctx.logger.logTimes("updating references for new topics batch", [t1, t2])
     }
@@ -280,7 +295,7 @@ export function findMentionsInText(text: string) {
     const mentionRegex = /\[@([a-zA-Z0-9.-]+)\]\(\/perfil\/\1\)/g
     const matches = text.matchAll(mentionRegex)
     const mentions = new Set<string>()
-    for(const match of matches) {
+    for (const match of matches) {
         mentions.add(match[1])
     }
     return Array.from(mentions)
@@ -293,7 +308,7 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
         return isArticle(c) || isTopicVersion(c)
     })
 
-    if(filteredUris.length == 0) return
+    if (filteredUris.length == 0) return
 
     const texts = await ctx.kysely
         .selectFrom("Content")
@@ -302,12 +317,12 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
         .execute()
 
     const data: NotificationJobData[] = []
-    for(let i = 0; i < texts.length; i++) {
+    for (let i = 0; i < texts.length; i++) {
         const res = anyEditorStateToMarkdownOrLexical(texts[i].text, texts[i].dbFormat)
-        if(res.format == "markdown") {
+        if (res.format == "markdown") {
             const mentions = findMentionsInText(res.text)
             ctx.logger.pino.info({...texts[i], mentions: Array.from(mentions)}, "looking for mentions in text")
-            for(const m of mentions) {
+            for (const m of mentions) {
                 data.push({
                     type: "Mention",
                     uri: texts[i].uri,
@@ -321,7 +336,7 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
             )
         }
     }
-    if(data.length > 0) {
+    if (data.length > 0) {
         ctx.worker?.addJob("batch-create-notifications", data)
     }
 }
@@ -353,7 +368,7 @@ export async function updatePopularitiesOnContentsChange(ctx: AppContext, uris: 
 
 export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
     uris = uris.filter(r => isReactionCollection(getCollectionFromUri(r)))
-    if(uris.length == 0) return
+    if (uris.length == 0) return
 
     const t1 = Date.now()
     const topicsWithNewInteractions = await updateTopicInteractionsOnNewReactions(ctx, uris)
@@ -381,7 +396,7 @@ export async function recomputeTopicInteractionsAndPopularities(ctx: AppContext,
     let offset = 0
     const bs = 2000
 
-    while(true){
+    while (true) {
         const t1 = Date.now()
         const references = await ctx.kysely
             .selectFrom("Reference")
@@ -392,7 +407,7 @@ export async function recomputeTopicInteractionsAndPopularities(ctx: AppContext,
             .where("Record.created_at", ">", since)
             .execute()
         const t2 = Date.now()
-        if(references.length == 0) break
+        if (references.length == 0) break
 
         await updateTopicInteractionsOnNewReferences(ctx, references.map(r => r.id))
         const t3 = Date.now()
@@ -402,7 +417,7 @@ export async function recomputeTopicInteractionsAndPopularities(ctx: AppContext,
 
         ctx.logger.logTimes("recomputing topic interactions and popularities batch", [t1, t2, t3, t4], {offset})
         offset += bs
-        if(references.length < bs) break
+        if (references.length < bs) break
     }
 }
 
@@ -436,7 +451,10 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
             topicsMap.set(match.topicId, {
                 id: match.topicId,
                 count: match.rank,
-                title: getTopicTitle({id: match.topicId, props: match.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]}),
+                title: getTopicTitle({
+                    id: match.topicId,
+                    props: match.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
+                }),
             })
         }
     }
@@ -450,7 +468,7 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
     const batchSize = 2000
     let offset = 0
 
-    while(true) {
+    while (true) {
         const contents = await ctx.kysely
             .selectFrom("Content")
             .innerJoin("Record", "Record.uri", "Content.uri")
@@ -471,15 +489,15 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
             ])
             .orderBy("Record.created_at_tz desc")
             .execute()
-        if(contents.length == 0) break
+        if (contents.length == 0) break
 
-        const values: {categoryId: string, contentId: string, created_at: Date}[] = []
-        for(const c of contents) {
+        const values: { categoryId: string, contentId: string, created_at: Date }[] = []
+        for (const c of contents) {
             const cats = unique(c.mentionedTopicsProps.flatMap(p => {
                 return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
             }))
-            for(const cat of cats) {
-                if(c.created_at_tz){
+            for (const cat of cats) {
+                if (c.created_at_tz) {
                     values.push({
                         categoryId: cat,
                         contentId: c.uri,
@@ -492,22 +510,22 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
         }
 
         ctx.logger.pino.info({count: values.length}, "inserting content categories")
-        await ctx.kysely.transaction().execute(async trx => {
-            await trx
-                .deleteFrom("DiscoverFeedIndex")
-                .where("contentId", "in", unique(values.map(v => v.contentId)))
-                .execute()
+        if (values.length > 0) {
+            await ctx.kysely.transaction().execute(async trx => {
+                await trx
+                    .deleteFrom("DiscoverFeedIndex")
+                    .where("contentId", "in", unique(values.map(v => v.contentId)))
+                    .execute()
 
-            if(values.length > 0){
                 await trx
                     .insertInto("DiscoverFeedIndex")
                     .values(values)
                     .execute()
-            }
-        })
+            })
+        }
 
         offset += batchSize
-        if(contents.length < batchSize) {
+        if (contents.length < batchSize) {
             break
         }
     }
@@ -516,7 +534,7 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
 
 /***
  actualizamos las categorías de todos los contenidos que mencionen a algún tema de la lista
-*/
+ */
 export async function updateContentCategoriesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
     const contents = await ctx.kysely.selectFrom("Reference")
         .where("referencedTopicId", "in", topicIds)

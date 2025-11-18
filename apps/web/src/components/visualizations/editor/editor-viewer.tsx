@@ -13,6 +13,7 @@ import {EditableDatasetFullView} from "./datasets/editable-dataset-full-view";
 import {useMemo, useState} from "react";
 
 import {PlotConfigProps} from "./types";
+import { Note } from "@/components/utils/base/note";
 
 const PlotFromVisualizationMain = dynamic(
     () => import("./plot-from-visualization-main"), {
@@ -83,19 +84,33 @@ const EditorViewerViewDataForDataset = ({datasetUri, config}: {
         </div>
     } else if (!dataset && datasets) {
         const filters = config.filters ? validateColumnFilters(config.filters) : undefined
+        const datasetPreview = datasets.find(d => d.uri == datasetUri)
+
+        if(!datasetPreview) {
+            return <Note>
+                No se encontró el conjunto de datos.
+            </Note>
+        }
+
         return <DatasetFullView
             dataset={{
                 $type: "ar.cabildoabierto.data.dataset#datasetViewBasic",
-                ...datasets.find(d => d.uri == datasetUri)
+                ...datasetPreview
             }}
             filters={filters}
         />
     }
 
-    if (isLoading || !dataset) {
+    if (isLoading) {
         return <div className={"py-8 h-full flex items-center"}>
             <LoadingSpinner/>
         </div>
+    }
+
+    if(!dataset) {
+        return <Note>
+            Ocurrió un error al obtener el conjunto de datos.
+        </Note>
     }
 
     return <EditableDatasetFullView

@@ -1,9 +1,9 @@
 import Link from "next/link";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {AppBskyFeedPost} from "@atproto/api";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
-import {formatIsoDate, formatIsoDateShort} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate, formatIsoDateShort} from "@cabildo-abierto/utils";
 import {topicUrl} from "@/components/utils/react/url";
 
 

@@ -36,7 +36,7 @@ import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
 import {CheckIcon, TrashIcon, XIcon} from '@phosphor-icons/react';
 import {WriteButtonIcon} from '../../../utils/icons/write-button-icon';
 import {cn} from "@/lib/utils";
-import {encodeParentheses} from "@cabildo-abierto/utils/dist";
+import {encodeParentheses} from "@cabildo-abierto/utils";
 import {createPortal} from "react-dom";
 import {dropdownMenuItemClass} from "@/components/utils/ui/dropdown-menu";
 import {getTopicTitle} from "@/components/tema/utils";

@@ -1,7 +1,7 @@
 import {contentUrl} from "@/components/utils/react/url";
 import ShareIcon from "@/components/utils/icons/share-icon";
 import {toast} from "sonner";
-import {getRkeyFromUri} from "@cabildo-abierto/utils/dist";
+import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {DropdownMenuItem} from "@/components/utils/ui/dropdown-menu";
 
 export const OptionsShareButton = ({uri, handle}: {uri: string, handle?: string}) => {

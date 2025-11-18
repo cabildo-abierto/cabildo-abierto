@@ -6,8 +6,9 @@ import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import React, {useState} from "react";
 import {SearchBar} from "@/components/utils/base/search-bar";
-import {cleanText} from "@cabildo-abierto/utils/dist/strings";
+import {cleanText} from "@cabildo-abierto/utils";
 import {post} from "@/components/utils/react/fetch";
+import {useSession} from "@/components/auth/use-session";
 
 
 export type UserInterest = {
@@ -25,6 +26,7 @@ export const DiscoverFeedConfig = () => {
     const qc = useQueryClient()
     const [viewingCount, setViewingCount] = useState<number>(12)
     const [categorySearch, setCategorySearch] = useState("")
+    const {user} = useSession()
 
     async function selectInterest(interestId: string) {
         return await post<{}, {}>(`/interest/${encodeURIComponent(interestId)}`)
@@ -67,6 +69,12 @@ export const DiscoverFeedConfig = () => {
         onSettled: (s) => {
         }
     })
+
+    if(!user) {
+        return <Note>
+            Iniciá sesión para configurar tus intereses.
+        </Note>
+    }
 
 
     if (isLoading) {

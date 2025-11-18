@@ -13,6 +13,7 @@ export const LoginRequiredPage = ({text}: {text?: string}) => {
             {text}
         </div>}
         <BaseButton
+            size={"small"}
             variant={"outlined"}
             onClick={() => {setLoginModalOpen(true)}}
         >

@@ -1,7 +1,7 @@
 import {useEffect} from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import {useQueryClient} from "@tanstack/react-query";
 import {RefetchInterval, useAPI} from "@/components/utils/react/queries";
-import { Session } from "@cabildo-abierto/api";
+import {Session} from "@cabildo-abierto/api";
 
 
 export const useSession = (
@@ -19,8 +19,8 @@ export const useSession = (
     )
 
     useEffect(() => {
-        if(res.data){
-            if(key == "session"){
+        if (res.data) {
+            if (key == "session") {
                 qc.setQueryData(["sidebar-session"], old => {
                     return res.data
                 })

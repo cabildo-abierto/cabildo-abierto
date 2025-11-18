@@ -1,6 +1,6 @@
 import {RefObject, useCallback, useEffect, useRef, useState} from "react";
 import {post} from "../../utils/react/fetch";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {usePathname, useSearchParams} from 'next/navigation'
 
 type ReadChunks = {

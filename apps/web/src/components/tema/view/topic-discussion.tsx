@@ -12,7 +12,7 @@ import {LoadingFeed} from "../../feed/feed/loading-feed";
 import FeedElement from "../../feed/feed/feed-element";
 import {FeedEndText} from "../../feed/feed/feed-end-text";
 import {getFeedElementKey} from "../../feed/feed/feed-view-content-feed";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 
 
 

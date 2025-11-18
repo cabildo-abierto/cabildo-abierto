@@ -8,7 +8,7 @@ import {ReactNode} from "react";
 import {
     getCollectionFromUri,
     getDidFromUri,
-} from "@cabildo-abierto/utils/dist/uri";
+} from "@cabildo-abierto/utils";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import TopicsIcon from "@/components/utils/icons/topics-icon";

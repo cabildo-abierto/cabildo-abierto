@@ -1,5 +1,5 @@
 import {useAPI} from "@/components/utils/react/queries";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 
 export function useDatasets() {

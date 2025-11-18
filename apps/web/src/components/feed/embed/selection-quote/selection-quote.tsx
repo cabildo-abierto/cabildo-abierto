@@ -1,7 +1,7 @@
 import {SelectionQuoteContext} from "./selection-quote-context";
 import {SelectionQuoteText} from "./selection-quote-text";
 import {useRouter} from "next/navigation";
-import {getCollectionFromUri, isArticle} from "@cabildo-abierto/utils/dist";
+import {getCollectionFromUri, isArticle} from "@cabildo-abierto/utils";
 import {ATProtoStrongRef} from "@/lib/types";
 import {useEffect, useState} from "react";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";

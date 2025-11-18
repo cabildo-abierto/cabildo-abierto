@@ -1,6 +1,6 @@
 import React, {ReactNode} from "react";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {range} from "@cabildo-abierto/utils/dist/arrays";
+import {range} from "@cabildo-abierto/utils";
 
 export const LoadingFeed = ({loadingFeedContent}: { loadingFeedContent?: ReactNode }) => {
     if (!loadingFeedContent) {

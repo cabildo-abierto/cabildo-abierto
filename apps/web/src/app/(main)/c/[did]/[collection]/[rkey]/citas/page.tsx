@@ -1,6 +1,6 @@
 "use client"
 import { QuotesDetailsContent } from "@/components/feed/details/quotes-details-content";
-import {getUri, shortCollectionToCollection} from "@cabildo-abierto/utils/dist/uri";
+import {getUri, shortCollectionToCollection} from "@cabildo-abierto/utils";
 import React from "react";
 
 export default function Page({params}: {

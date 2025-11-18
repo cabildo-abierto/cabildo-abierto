@@ -1,5 +1,5 @@
 import EnDiscusionIcon from "@/components/utils/icons/en-discusion-icon";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, isArticle, isPost} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, isArticle, isPost} from "@cabildo-abierto/utils";
 import {useSession} from "@/components/auth/use-session";
 import {DropdownMenuItem} from "@/components/utils/ui/dropdown-menu";
 

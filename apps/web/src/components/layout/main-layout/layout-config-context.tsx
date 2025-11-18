@@ -1,9 +1,9 @@
 "use client"
 
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
-import {isArticle, isDataset, shortCollectionToCollection} from "@cabildo-abierto/utils/dist/uri";
+import {isArticle, isDataset, shortCollectionToCollection} from "@cabildo-abierto/utils";
 import {usePathname} from "next/navigation";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
+import {pxToNumber} from "@cabildo-abierto/utils";
 import {useWindowSize} from "usehooks-ts";
 import {useIsMobile} from "../../utils/use-is-mobile";
 
@@ -98,6 +98,18 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         sidebarKind: "floating",
         readingLayout: false
     }
+    const emptyLayoutConfig: LayoutConfigProps = {
+        maxWidthCenter: undefined,
+        widthLeftSide: "0px",
+        widthRightSide: "0px",
+        widthLeftSideSmall: "0px",
+        openSidebar: false,
+        defaultSidebarState: false,
+        openRightPanel: false,
+        rightDisappearsFirst: true,
+        sidebarKind: "floating",
+        readingLayout: false
+    }
 
     let config: LayoutConfigProps
     if (isMobile) {
@@ -126,6 +138,8 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         }
     } else if (pathname.startsWith("/escribir/articulo")) {
         config = articleConfig
+    } else if(pathname.startsWith("/admin")) {
+        config = emptyLayoutConfig
     } else {
         config = feedConfig
     }

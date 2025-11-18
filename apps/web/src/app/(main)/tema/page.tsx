@@ -2,7 +2,7 @@ import { TopicPage } from "@/components/tema/topic-page"
 import {Metadata} from "next";
 import {createMetadata, mainMetadata} from "@/utils/metadata";
 import {get} from "@/components/utils/react/fetch";
-import {encodeParentheses} from "@cabildo-abierto/utils/dist/uri";
+import {encodeParentheses} from "@cabildo-abierto/utils";
 
 type Props = {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>

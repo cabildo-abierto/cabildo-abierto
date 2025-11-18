@@ -3,7 +3,7 @@ import {ReactNode, useState} from "react";
 import {ATProtoImage} from "../../utils/images/atproto-image";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
+import {pxToNumber} from "@cabildo-abierto/utils";
 import {AppBskyEmbedImages} from "@atproto/api"
 
 

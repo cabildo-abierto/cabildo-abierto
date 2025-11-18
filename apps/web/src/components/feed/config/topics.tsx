@@ -1,5 +1,5 @@
 import {useSession} from "@/components/auth/use-session";
-import {stringToEnum} from "@cabildo-abierto/utils/dist/strings";
+import {stringToEnum} from "@cabildo-abierto/utils";
 import {enDiscusionTimeOptions} from "./defaults";
 import {useSearchParams} from "next/navigation";
 

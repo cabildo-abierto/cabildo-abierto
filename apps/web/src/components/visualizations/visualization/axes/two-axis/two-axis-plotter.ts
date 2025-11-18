@@ -97,7 +97,7 @@ export class TwoAxisPlotter extends AxesPlotter {
                 this.colors = spec.colors.map(c => {
                     const detectedType = this.columnTypes.get(c.column)
                     if (detectedType != "string") {
-                        throw Error("La columna para el color debería ser categórica.")
+                        throw Error("La columna del color debería ser categórica.")
                     }
                     return {
                         name: "color",

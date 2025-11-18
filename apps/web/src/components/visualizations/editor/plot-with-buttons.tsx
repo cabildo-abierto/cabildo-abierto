@@ -1,6 +1,6 @@
 import {useState} from "react";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
-import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
+import {pxToNumber} from "@cabildo-abierto/utils";
+import {ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {TrashIcon} from "@phosphor-icons/react";
 import {PlotData} from "./plot-data";
 import {BaseButton} from "@/components/utils/base/base-button";
@@ -8,6 +8,8 @@ import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {ResponsivePlot, visualizationViewToMain} from "@/components/visualizations/visualization";
 import {InsertVisualizationModal} from "@/components/editor";
+import { Note } from "@/components/utils/base/note";
+import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 
 
 export default function PlotWithButtons({
@@ -15,26 +17,31 @@ export default function PlotWithButtons({
                                  height,
                                  width,
                                  onEdit,
-                                 onDelete
+                                 onDelete,
+    loadingDataset=false
                              }: {
     visualization: ArCabildoabiertoEmbedVisualization.View
     height?: number | string
     width?: number | string
     onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
     onDelete?: () => void
+    loadingDataset?: boolean
 }) {
     const [editing, setEditing] = useState(false)
+
+    const datasetAvailable = ArCabildoabiertoDataDataset.isDatasetView(visualization.dataset) && visualization.dataset.data != null
 
     return <div
         style={{height, width}}
         className={"relative not-article-content"}
     >
-        <div
+        {datasetAvailable && <div
             className={"absolute top-0 left-2 z-[20] h-7"}
         >
             {!ArCabildoabiertoEmbedVisualization.isTable(visualization.visualization.spec) ?
-                <PlotData visualization={visualization}/> : <div/>}
-        </div>
+                <PlotData visualization={visualization}/> :
+                <div/>}
+        </div>}
         {(onEdit || onDelete) && <div className={"absolute h-7 top-2 right-2 z-[20] flex space-x-2"}>
             {onEdit && <BaseButton
                 onClick={() => {
@@ -56,18 +63,26 @@ export default function PlotWithButtons({
                 <TrashIcon/>
             </BaseIconButton>}
         </div>}
-        <ResponsivePlot
+        {datasetAvailable && <ResponsivePlot
             visualization={visualization}
             maxWidth={width ? pxToNumber(width) : undefined}
             maxHeight={height ? pxToNumber(height) : undefined}
-        />
-        <InsertVisualizationModal
+        />}
+        {!datasetAvailable && !loadingDataset && <Note>
+            No se pudo obtener el conjunto de datos.
+        </Note>}
+        {loadingDataset && <div className={"py-4"}>
+            <LoadingSpinner/>
+        </div>}
+        {editing && <InsertVisualizationModal
             open={editing}
             onClose={() => {
                 setEditing(false)
             }}
-            onSave={onEdit}
+            onSave={(v) => {
+                onEdit(v)
+            }}
             initialConfig={visualizationViewToMain(visualization)}
-        />
+        />}
     </div>
 }

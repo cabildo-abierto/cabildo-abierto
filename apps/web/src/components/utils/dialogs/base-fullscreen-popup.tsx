@@ -1,4 +1,4 @@
-import {ReactNode} from "react";
+import {ReactNode, useEffect} from "react";
 import {
     Dialog,
     DialogTitle,
@@ -10,6 +10,8 @@ import {
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 import {CloseButton} from "../base/close-button";
 import {cn} from "@/lib/utils";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {produce} from "immer";
 
 
 export const BaseFullscreenPopup = ({
@@ -34,8 +36,14 @@ export const BaseFullscreenPopup = ({
     overlayClassName?: string
     ariaLabelledBy?: string
 }) => {
-    // TO DO (!): Cerrar la sidebar al abrir el popup
-
+    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    useEffect(() => {
+        if(layoutConfig.openSidebar && isMobile) {
+            setLayoutConfig(produce(layoutConfig, draft => {
+                draft.openSidebar = false
+            }))
+        }
+    }, [layoutConfig, isMobile])
 
     if (hidden) return <div className={"hidden"}>{children}</div>
 

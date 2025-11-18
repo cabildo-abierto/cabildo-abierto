@@ -6,7 +6,7 @@ import {
     isTopicVersion,
     isVisualization,
     splitUri
-} from "@cabildo-abierto/utils/dist"
+} from "@cabildo-abierto/utils"
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones" | "articulos"
 

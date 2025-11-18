@@ -6,14 +6,14 @@ import {useState} from "react";
 import {post} from "../utils/react/fetch";
 import {StateButton} from "@/components/utils/base/state-button"
 import {useAPI} from "@/components/utils/react/queries";
-import {unique} from "@cabildo-abierto/utils/dist/arrays";
+import {unique} from "@cabildo-abierto/utils";
 import {BaseTextFieldWithSuggestions} from "@/components/utils/base/base-text-field-with-suggestions";
 
 function useRegisteredJobs() {
     return useAPI<string[]>("/registered-jobs", ["registered-jobs"])
 }
 
-export const AdminPrincipal = () => {
+export const AdminPost = () => {
     const [route, setRoute] = useState("")
     const {data} = useRegisteredJobs()
 
@@ -40,11 +40,11 @@ export const AdminPrincipal = () => {
                 </StateButton>
             </div>
             <div className={"space-y-2"}>
-                <div className={"space-y-2 flex flex-col pb-2 font-mono"}>
+                <div className={"space-y-2 flex flex-col items-center pb-2 font-mono"}>
                     {data && data.map((s, i) => {
                         return <div
                             key={i}
-                            className={"px-2 py-1 panel hover:bg-[var(--background-dark)] text-sm cursor-pointer"}
+                            className={"px-2 py-1 panel hover:bg-[var(--background-dark)] text-sm cursor-pointer w-[360px]"}
                             onClick={() => {setRoute(`/job/${s}`)}}
                         >
                             {`/job/${s}`}

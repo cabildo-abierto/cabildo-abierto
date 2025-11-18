@@ -2,7 +2,7 @@ import {RepostIcon} from "@/components/utils/icons/reposts-icon";
 import React, {useCallback, useMemo} from "react";
 import {$Typed} from "@cabildo-abierto/api";
 import dynamic from "next/dynamic";
-import {getRkeyFromUri} from "@cabildo-abierto/utils/dist/uri";
+import {getRkeyFromUri} from "@cabildo-abierto/utils";
 const WritePanel = dynamic(() => import('../../writing/write-panel/write-panel'), {ssr: false})
 import {ArCabildoabiertoEmbedRecord, ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {useSession} from "@/components/auth/use-session";
