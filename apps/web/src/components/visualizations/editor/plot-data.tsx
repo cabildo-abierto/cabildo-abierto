@@ -7,7 +7,7 @@ import {cn} from "@/lib/utils";
 import {DateSince} from "@/components/utils/base/date";
 import {ModalOnClick} from "@/components/utils/base/modal-on-click";
 import {BaseNotButton} from "@/components/utils/base/base-not-button";
-import {visualizationViewToMain} from "@/components/visualizations/visualization";
+import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {contentUrl} from "@/components/utils/react/url";
 
 export const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbedVisualization.View }) => {

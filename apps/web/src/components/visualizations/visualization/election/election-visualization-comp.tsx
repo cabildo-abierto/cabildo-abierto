@@ -10,7 +10,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "../title";
 import { Note } from "@/components/utils/base/note";
 import {$Typed} from "@atproto/api";
-import {visualizationViewToMain} from "@/components/visualizations/visualization";
+import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {post} from "@/components/utils/react/fetch";
 
 type Props = {

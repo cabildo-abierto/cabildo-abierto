@@ -8,6 +8,7 @@ import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyEmbedVideo} from "@atpr
 import {PostRecordEmbed} from "./post-record-embed";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {pxToNumber} from "@cabildo-abierto/utils";
+import PlotWithButtons from "@/components/visualizations/editor/plot-with-buttons";
 
 
 const PostVideoEmbed = dynamic(() => import("./post-video-embed"), {
@@ -20,10 +21,6 @@ const PostVideoEmbed = dynamic(() => import("./post-video-embed"), {
 const SelectionQuoteEmbed = dynamic(() => import("./selection-quote/selection-quote-embed"), {
     ssr: false,
     loading: () => <></>
-})
-
-const PlotWithButtons = dynamic(() => import("../../visualizations/editor/plot-with-buttons"), {
-    ssr: false
 })
 
 type PostEmbedProps = {

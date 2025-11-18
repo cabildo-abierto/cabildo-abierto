@@ -1,8 +1,10 @@
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
-import {LoginModal} from "./login-modal";
 import {usePathname} from "next/navigation";
 import {createPortal} from "react-dom";
+import dynamic from "next/dynamic";
 
+
+const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginModal), {ssr: false})
 
 const LoginModalContext = createContext<{
     loginModalOpen: boolean;

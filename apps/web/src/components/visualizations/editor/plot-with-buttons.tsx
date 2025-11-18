@@ -6,11 +6,14 @@ import {PlotData} from "./plot-data";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
-import {ResponsivePlot, visualizationViewToMain} from "@/components/visualizations/visualization";
-import {InsertVisualizationModal} from "@/components/editor";
+import {InsertVisualizationModal} from "@/components/editor/insert-visualization-modal";
 import { Note } from "@/components/utils/base/note";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
+import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
+import dynamic from "next/dynamic";
 
+
+const ResponsivePlot = dynamic(() => import("@/components/visualizations/visualization/responsive-plot").then(mod => mod.ResponsivePlot), { ssr: false })
 
 export default function PlotWithButtons({
                                  visualization,

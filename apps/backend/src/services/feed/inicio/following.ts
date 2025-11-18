@@ -407,7 +407,6 @@ const followingFeedOnlyCASkeletonQuery: FollowingFeedSkeletonQuery<FollowingFeed
         .limit(limit)
         .execute()
     const t3 = Date.now()
-    ctx.logger.logTimes("following feed only ca skeleton query", [t1, t2, t3], {res})
     return res.map(r => (r.createdAt ? {
         uri: r.uri,
         repostedRecordUri: r.repostedRecordUri ?? undefined,

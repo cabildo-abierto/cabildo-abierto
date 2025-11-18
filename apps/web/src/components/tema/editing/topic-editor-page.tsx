@@ -1,15 +1,23 @@
 import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {TopicEditor} from "./topic-editor";
 import {useEffect, useState} from "react";
-import {LexicalEditor} from "lexical";
-import {TopicHeaderEditor} from "./topic-header-editor";
-import {SaveEditButton} from "./save-edit-button";
+import type {LexicalEditor} from "lexical";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
-import {TopicPropsEditingPanel} from "../props/topic-props-editing-panel";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useTopicPageParams} from "../use-topic-page-params";
 import {addDefaults} from "../props/topic-prop-editor";
+import dynamic from "next/dynamic";
+import {cn} from "@/lib/utils";
+
+
+const TopicPropsEditingPanel = dynamic(() => import("../props/topic-props-editing-panel").then(mod => mod.TopicPropsEditingPanel), {ssr: false})
+
+
+const SaveEditButton = dynamic(() => import("./save-edit-button").then(mod => mod.SaveEditButton), {ssr: false})
+
+const TopicEditor = dynamic(() => import("./topic-editor").then(mod => mod.TopicEditor), {ssr: false})
+
+const TopicHeaderEditor = dynamic(() => import("./topic-header-editor").then(mod => mod.TopicHeaderEditor), {ssr: false})
 
 
 export const TopicEditorPage = () => {
@@ -32,7 +40,7 @@ export const TopicEditorPage = () => {
         </div>
     }
 
-    return <div className={"mt-8 space-y-8 pb-32 " + (isMobile ? "pt-6" : "")}>
+    return <div className={cn("space-y-8 pb-32", isMobile ? "pt-6" : "pt-8")}>
         <div className={"fixed top-14 right-2 z-[200] space-y-2 flex flex-col items-end"}>
             <SaveEditButton
                 topic={topic}

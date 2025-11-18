@@ -16,8 +16,10 @@ import {PreventLeavePopup} from "../../utils/dialogs/prevent-leave-popup";
 import { ArCabildoabiertoFeedDefs } from "@cabildo-abierto/api";
 import {pxToNumber} from "@cabildo-abierto/utils";
 import {cn} from "@/lib/utils";
-import {CAEditor} from "@/components/editor";
 import {EditorState} from "lexical";
+import dynamic from "next/dynamic";
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
 
 

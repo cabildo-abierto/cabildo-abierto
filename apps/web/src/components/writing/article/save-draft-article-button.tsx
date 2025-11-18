@@ -5,6 +5,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
 import {EmbedContext} from "@/components/editor/nodes/EmbedNode";
 import {updateSearchParam} from "@/components/utils/react/search-params";
+import {toast} from "sonner";
 
 
 type CreateDraftParams = {
@@ -47,6 +48,7 @@ export const SaveDraftArticleButton = ({title, draftId, editorState, disabled, o
             await qc.cancelQueries({ queryKey: ["draft", data.id] })
             await qc.invalidateQueries({ queryKey: ["draft", data.id] })
             await qc.invalidateQueries({ queryKey: ["drafts"] })
+            toast.success('Se guardó el borrador en Tus papeles')
         }
         return {error}
     }

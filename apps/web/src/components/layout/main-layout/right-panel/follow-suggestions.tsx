@@ -49,7 +49,11 @@ export default function FollowSuggestions() {
                 >
                     <div className={"flex space-x-2 items-center w-full"}>
                         <div>
-                            <ProfilePic user={u} className={"rounded-full w-8 h-8"} descriptionOnHover={false}/>
+                            <ProfilePic
+                                user={u}
+                                className={"rounded-full w-8 h-8"}
+                                descriptionOnHover={false}
+                            />
                         </div>
                         <div className={"space-y-[-2px] text-ellipsis"}>
                             <div className={"text-sm font-semibold truncate w-32"}>

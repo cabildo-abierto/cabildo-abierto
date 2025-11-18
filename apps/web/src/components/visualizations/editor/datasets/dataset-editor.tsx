@@ -8,8 +8,8 @@ import {UploadDatasetButton} from "./upload-dataset-button";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseTextArea} from "@/components/utils/base/base-text-area";
-import {DatasetTableView} from "@/components/visualizations/visualization";
 import {post} from "@/components/utils/react/fetch";
+import {DatasetTableView} from "@/components/visualizations/visualization/table/dataset-table-view";
 
 
 export type DatasetEditState = Omit<ArCabildoabiertoDataDataset.DatasetView, "$type" | "data" | "uri" | "cid" | "author" | "createdAt"> & {

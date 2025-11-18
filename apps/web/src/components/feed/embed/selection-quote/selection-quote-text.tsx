@@ -2,11 +2,13 @@ import React, {useMemo} from "react";
 import {getEditorSettings} from "../../../writing/settings";
 import {isArticle} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoEmbedSelectionQuote} from "@cabildo-abierto/api"
-import {CAEditor} from '@/components/editor'
 import {robotoSerif} from "../../../writing/article-font";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {markdownToEditorState} from "../../../editor/markdown-transforms";
 import { decompress } from "@cabildo-abierto/editor-core";
+import dynamic from "next/dynamic";
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
 
 type QuoteTextProps = {

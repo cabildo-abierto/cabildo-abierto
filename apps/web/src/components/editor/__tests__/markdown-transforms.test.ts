@@ -8,6 +8,7 @@ import {
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api";
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api";
 import {$Typed} from "@atproto/api";
+import { expect, test } from "vitest"
 //import {prettyPrintJSON} from "@/utils/strings";
 
 /*function nodeForPrint(node: any){

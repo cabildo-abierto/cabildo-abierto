@@ -12,13 +12,15 @@ import {DownloadIcon} from "@phosphor-icons/react";
 import Image from "next/image"
 import SelectionComponent from "../buscar/search-selection-component";
 import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
-import { BaseTextField } from "@/components/utils/base/base-text-field";
+import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseTextArea} from "@/components/utils/base/base-text-area";
-import {OrgType} from "../ajustes/verificar/types";
+import {OrgType} from "@/components/ajustes/verificar/types";
 import {post} from "@/components/utils/react/fetch";
 
 
-export type ValidationRequestView = { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date } & ({
+export type ValidationRequestView =
+    { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date }
+    & ({
     tipo: "persona"
     dniFrente: FilePayload
     dniDorso: FilePayload

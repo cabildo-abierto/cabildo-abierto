@@ -8,7 +8,11 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {getTopicTitle} from "../utils";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
-import {CAEditor} from "@/components/editor";
+import dynamic from "next/dynamic";
+
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
+
 
 
 export const TopicEditor = ({

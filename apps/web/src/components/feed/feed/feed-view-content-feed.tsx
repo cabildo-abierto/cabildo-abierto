@@ -3,8 +3,13 @@ import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabil
 import LoadingFeedViewContent from "./loading-feed-view-content"
 import StaticFeed from "./static-feed";
 import {GetFeedProps} from "@/lib/types";
-import FeedElement from "./feed-element";
 import {FeedProps} from "./types";
+import dynamic from "next/dynamic";
+
+
+const FeedElement = dynamic(() => import("./feed-element"), {
+    ssr: false
+})
 
 
 type FeedViewContentFeedProps =

@@ -3,12 +3,15 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {cn} from "@/lib/utils";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {formatIsoDate} from "@cabildo-abierto/utils";
-import {WAUPlot} from "./stats";
 import {useState} from "react";
 import {BackButton} from "@/components/utils/base/back-button";
 import {getCollectionFromUri, isArticle} from "@cabildo-abierto/utils";
 import {sum} from "@cabildo-abierto/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
+import dynamic from "next/dynamic";
+
+
+const WAUPlot = dynamic(() => import("./wau-plot").then(mod => mod.WAUPlot), {ssr: false});
 
 type UserMonths = {
     did: string

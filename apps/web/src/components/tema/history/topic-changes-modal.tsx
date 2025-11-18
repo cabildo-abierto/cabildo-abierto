@@ -11,10 +11,13 @@ import {useAPI} from "@/components/utils/react/queries";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {BaseSelect} from "@/components/utils/base/base-select";
 import { range } from "@cabildo-abierto/utils";
-import {CAEditor} from "@/components/editor";
 import {editorStateToMarkdown, markdownToEditorState} from "../../editor/markdown-transforms";
 import {SerializedDiffNode} from "@/components/editor/nodes/DiffNode";
 import {decompress, MatchesType} from "@cabildo-abierto/editor-core";
+import dynamic from "next/dynamic";
+
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
 
 function getChanges(prevText: SerializedEditorState, newText: SerializedEditorState, diff: MatchesType): SerializedEditorState {
