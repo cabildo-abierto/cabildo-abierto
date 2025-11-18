@@ -2,12 +2,8 @@ import React, {useEffect, useMemo, useState} from "react";
 import {StateButton} from "@/components/utils/base/state-button"
 import {ExtraChars} from "./extra-chars";
 import {
+    areSetsEqual,
     getCollectionFromUri,
-    isArticle,
-    isDataset,
-    isPost,
-    isTopicVersion,
-    isVisualization,
 } from "@cabildo-abierto/utils";
 import {ProfilePic} from "../../perfil/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
@@ -18,41 +14,38 @@ import {ReplyToContent} from "./write-panel";
 import {post} from "../../utils/react/fetch";
 import {WritePanelReplyPreview} from "./write-panel-reply-preview";
 import {ExternalEmbedInEditor} from "./external-embed-in-editor";
+import {WritePanelQuotedPost} from "./write-panel-quoted-post";
 import {
-    WritePanelQuotedPost
-} from "./write-panel-quoted-post";
-import {$Typed} from "@cabildo-abierto/api";
-import {
-    EditorState
-} from "lexical";
-import {InsertVisualizationModal, SettingsProps} from "@/components/editor";
-import {getEditorSettings} from "../settings";
+    $Typed,
+    ArCabildoabiertoEmbedRecord,
+    ArCabildoabiertoEmbedVisualization,
+    ArCabildoabiertoFeedDefs,
+    ArCabildoabiertoWikiTopicVersion
+} from "@cabildo-abierto/api";
+import {EditorState} from "lexical";
+import {InsertVisualizationModal} from "@/components/editor";
 import dynamic from "next/dynamic";
 import {$dfs} from "@lexical/utils";
 import {$isLinkNode} from "@lexical/link";
-import {areSetsEqual} from "@cabildo-abierto/utils";
 import {TopicsMentionedSmall} from "../../feed/article/topics-mentioned";
 import AddToEnDiscusionButton from "../add-to-en-discusion-button";
 import {useTopicsMentioned} from "../use-topics-mentioned";
 import Link from "next/link";
 import {getTextLength} from "./rich-text"
-import {AppBskyEmbedImages, AppBskyFeedPost} from "@atproto/api"
-import {AppBskyEmbedExternal} from "@atproto/api";
-import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
+import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyFeedPost} from "@atproto/api"
 import {AddVisualizationButton} from "./add-visualization-button";
-import {useMarkdownFromBsky} from "./use-markdown-from-bsky";
 import {hasEnDiscusionLabel} from "../../feed/utils/post-preview-frame";
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {ArCabildoabiertoEmbedRecord} from "@cabildo-abierto/api"
 import {getAllText} from "@cabildo-abierto/editor-core";
-import {CAEditor} from "@/components/editor/ca-editor";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
 import {markdownToEditorState} from "../../editor/markdown-transforms";
 import {profileUrl} from "@/components/utils/react/url";
-import {visualizationViewToMain} from "@/components/visualizations/visualization";
+import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
+import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
 
 const InsertImageModal = dynamic(() => import("./insert-image-modal"), {ssr: false})
@@ -184,25 +177,6 @@ export type CreatePostProps = {
 }
 
 
-function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {
-    if (!replyToCollection && !quotedCollection) {
-        return "¿Qué está pasando?"
-    } else {
-        const collection = replyToCollection ?? quotedCollection
-        if (isPost(collection)) {
-            return "Escribí una respuesta"
-        } else if (isArticle(collection)) {
-            return "Respondé al artículo"
-        } else if (isTopicVersion(collection)) {
-            return !isVoteReject ? "Responder en la discusión del tema" : "Justificá el rechazo"
-        } else if (isVisualization(collection)) {
-            return "Respondé a la visualización"
-        } else if (isDataset(collection)) {
-            return "Respondé al conjunto de datos"
-        }
-    }
-}
-
 
 function getLinksFromEditor(editorState: EditorState) {
     const links: string[] = []
@@ -215,29 +189,6 @@ function getLinksFromEditor(editorState: EditorState) {
         })
     })
     return links
-}
-
-
-export function usePostEditorSettings(
-    replyToCollection: string | undefined,
-    quoteCollection: string | undefined,
-    postView: ArCabildoabiertoFeedDefs.PostView | undefined,
-    isVoteReject: boolean
-): SettingsProps {
-    const p = postView?.record as AppBskyFeedPost.Record | undefined
-    const {markdown} = useMarkdownFromBsky(p)
-
-    return getEditorSettings({
-        placeholder: getPlaceholder(replyToCollection, quoteCollection, isVoteReject),
-        placeholderClassName: "text-[var(--text-light)] absolute text-base top-0",
-        editorClassName: "link relative h-full text-base",
-        isReadOnly: false,
-        isRichText: false,
-        markdownShortcuts: false,
-        topicMentions: false,
-        initialText: markdown,
-        initialTextFormat: "markdown"
-    })
 }
 
 

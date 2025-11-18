@@ -2,15 +2,27 @@ import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
 import {useState} from "react";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {EditTopicButton} from "./edit-topic-button";
-import {TopicPropsPanel} from "../props/topic-props-panel";
-import {TopicHeader} from "./topic-header";
-import {TopicContent} from "./topic-content";
-import {TopicDiscussion} from "./topic-discussion";
 import {useTopicPageParams} from "../use-topic-page-params";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import TopicNotFoundPage from "../topic-not-found-page";
 import {cn} from "@/lib/utils";
+import dynamic from "next/dynamic";
 
+const TopicDiscussion = dynamic(() => import("./topic-discussion").then(mod => mod.TopicDiscussion), {
+    ssr: false
+})
+
+const TopicContent = dynamic(() => import("./topic-content").then(mod => mod.TopicContent), {
+    ssr: false
+})
+
+const TopicPropsPanel = dynamic(() => import("../props/topic-props-panel").then(mod => mod.TopicPropsPanel), {
+    ssr: false
+})
+
+const TopicHeader = dynamic(() => import("./topic-header").then(mod => mod.TopicHeader), {
+    ssr: false
+})
 
 export const TopicViewPage = () => {
     const {did, rkey, topicId} = useTopicPageParams()

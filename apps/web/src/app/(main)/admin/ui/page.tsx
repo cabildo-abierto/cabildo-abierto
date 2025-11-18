@@ -28,10 +28,13 @@ import {randomBernoulli} from "d3-random";
 import { Note } from "@/components/utils/base/note";
 import Link from "next/link";
 import {TrendingTopicInSlider} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics-slider";
-import {usePostEditorSettings} from "@/components/writing/write-panel/write-post";
-import {CAEditor} from "@/components/editor";
 import {PlotConfigProps} from "@/components/visualizations/editor/types";
 import {TTOption} from "@cabildo-abierto/api";
+import dynamic from "next/dynamic";
+import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
+
 
 const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 

@@ -5,10 +5,10 @@ import {ReactNode, useState} from "react";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "./login-modal-provider";
 import {BaseFullscreenPopup} from "@/components/utils/dialogs/base-fullscreen-popup";
-import { BackButton } from "@/components/utils/base/back-button";
-import { CloseButton } from "@/components/utils/base/close-button";
-import { post } from "@/components/utils/react/fetch";
-import { AcceptButtonPanel } from "@/components/utils/dialogs/accept-button-panel";
+import {BackButton} from "@/components/utils/base/back-button";
+import {CloseButton} from "@/components/utils/base/close-button";
+import {post} from "@/components/utils/react/fetch";
+import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
 import {Note} from "@/components/utils/base/note";
 import {BaseTextArea} from "@/components/utils/base/base-text-area";
 import {StateButton} from "@/components/utils/base/state-button";
@@ -46,9 +46,9 @@ const LoginPanel = ({children, onClickBack, onClose}: {
 
 
 export const LoginModal = ({
-                        open,
-                        onClose
-                    }: {
+                               open,
+                               onClose
+                           }: {
     open: boolean;
     onClose: () => void;
 }) => {

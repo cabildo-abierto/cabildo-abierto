@@ -1,5 +1,7 @@
 import {createHeadlessEditor} from "@lexical/headless"
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown"
+import {$generateNodesFromDOM} from "@lexical/html";
+import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api";
 import {CA_TRANSFORMERS, MarkdownTransformer} from "@/components/editor/markdown-transformers/ca-transformers";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {
@@ -11,19 +13,17 @@ import {
     LexicalNode,
     SerializedEditorState
 } from "lexical";
-import {$generateNodesFromDOM} from "@lexical/html";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api";
 import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {LexicalPointer} from "./selection/lexical-selection";
-import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api";
 import {AppBskyEmbedImages} from "@atproto/api"
 import {$isBeautifulMentionNode} from "lexical-beautiful-mentions";
 import {$createLinkNode} from "@lexical/link";
 import {profileUrl} from "@/components/utils/react/url";
-import { decompress } from "@cabildo-abierto/editor-core";
+import {decompress} from "@cabildo-abierto/editor-core";
 
 
 export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | SerializedEditorState | string) {
@@ -48,7 +48,7 @@ export function editorStateToMarkdownNoEmbeds(state: ProcessedLexicalState | Ser
         for (let i = 0; i < mentions.length; i++) {
             const m = mentions[i]
             const linkNode = $createLinkNode(profileUrl(m.getValue()))
-            linkNode.append($createTextNode("@"+m.getValue()))
+            linkNode.append($createTextNode("@" + m.getValue()))
             m.insertAfter(linkNode)
             m.remove()
         }

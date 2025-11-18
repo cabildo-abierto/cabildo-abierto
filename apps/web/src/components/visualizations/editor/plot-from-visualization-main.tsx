@@ -3,7 +3,7 @@ import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {useDataset} from "@/queries/getters/useDataset";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useTopicsDataset} from "./visualization-editor";
-import {getDatasetVisualizationView} from "@/components/visualizations/visualization";
+import {getDatasetVisualizationView} from "@/components/visualizations/visualization/utils";
 
 
 export const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {

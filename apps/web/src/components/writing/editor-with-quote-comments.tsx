@@ -13,9 +13,11 @@ import {useTrackReading} from "../feed/article/track-reading";
 import {useSession} from "@/components/auth/use-session";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import dynamic from "next/dynamic";
-import {CAEditor} from "@/components/editor"
 import {ArCabildoabiertoEmbedSelectionQuote} from "@cabildo-abierto/api"
 import {useLoginModal} from "../auth/login-modal-provider";
+
+const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
+
 
 const WritePanel = dynamic(() => import('./write-panel/write-panel'), {
     ssr: false

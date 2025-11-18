@@ -5,7 +5,7 @@ import {isArticle, isDataset, shortCollectionToCollection} from "@cabildo-abiert
 import {usePathname} from "next/navigation";
 import {pxToNumber} from "@cabildo-abierto/utils";
 import {useWindowSize} from "usehooks-ts";
-import {useIsMobile} from "../../utils/use-is-mobile";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 export type LayoutConfigProps = {
     maxWidthCenter: string

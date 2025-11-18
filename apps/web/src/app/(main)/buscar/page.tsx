@@ -5,9 +5,12 @@ import FollowSuggestions from "@/components/layout/main-layout/right-panel/follo
 import {TrendingTopicsPanel} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {MagnifyingGlassIcon} from "@phosphor-icons/react";
-import SearchContent from "@/components/buscar/search-content";
-import { usePathname } from "next/navigation";
+import {usePathname} from "next/navigation";
 import {useSession} from "@/components/auth/use-session";
+import dynamic from "next/dynamic";
+
+
+const SearchContent = dynamic(() => import("@/components/buscar/search-content"), {ssr: false})
 
 
 const Page = () => {
@@ -26,10 +29,10 @@ const Page = () => {
             <MagnifyingGlassIcon fontSize={!layoutConfig.spaceForRightSide ? 128 : 256} weight={"bold"}/>
         </div>}
         {!searching && !layoutConfig.spaceForRightSide &&
-        <div className={"flex flex-col items-center gap-2 w-full pt-2 sm:px-0 px-2"}>
-            {user && <FollowSuggestions/>}
-            <TrendingTopicsPanel/>
-        </div>}
+            <div className={"flex flex-col items-center gap-2 w-full pt-2 sm:px-0 px-2"}>
+                {user && <FollowSuggestions/>}
+                <TrendingTopicsPanel/>
+            </div>}
     </div>
 }
 

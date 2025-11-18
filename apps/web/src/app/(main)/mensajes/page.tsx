@@ -1,51 +1,31 @@
 "use client"
 import {useConversations} from "@/queries/getters/useConversations";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {ProfilePic} from "@/components/perfil/profile-pic";
-import Link from "next/link";
-import {useSession} from "@/components/auth/use-session";
-import { ChatBskyConvoDefs } from "@atproto/api";
-import {chatUrl} from "@/components/utils/react/url";
+import {ErrorPage} from "@/components/utils/error-page";
+import dynamic from "next/dynamic";
 
-
-const ConversationCard = ({view}: { view: ChatBskyConvoDefs.ConvoView }) => {
-    const {user} = useSession()
-    const other = view.members.filter(x => x.did != user.did)[0]
-    return <Link
-        className="border-b hover:bg-[var(--background-dark)] p-4 space-x-4 flex cursor-pointer"
-        href={chatUrl(view.id)}
-    >
-        <ProfilePic user={other} className={"rounded-full w-12 h-12"}/>
-        <div className={"max-w-[80%]"}>
-            <div className={"font-semibold"}>
-                {other.displayName ?? `@${other.handle}`}
-            </div>
-            <div>
-                {`@${other.handle}`}
-            </div>
-            <div>
-                {ChatBskyConvoDefs.isMessageView(view.lastMessage) && <div className={"text-sm"}>
-                    {view.lastMessage.sender.did == user.did ? "Vos: " : ""}{view.lastMessage.text.slice(0, 80) + (view.lastMessage.text.length > 80 ? "..." : "")}
-                </div>}
-            </div>
-        </div>
-    </Link>
-}
-
+const ConversationCard = dynamic(() => import("@/components/mensajes/conversation-card").then(mod => mod.ConversationCard), {ssr: false})
 
 const Page = () => {
     const {data, isLoading} = useConversations()
 
-    return <div className={"pb-16"}>
-        {isLoading && <div className={"py-8"}>
+    if(isLoading) {
+        return <div className={"py-8"}>
             <LoadingSpinner/>
-        </div>}
-        {data && data.map(c => {
+        </div>
+    } else if(!data) {
+        return <ErrorPage>
+            No pudimos obtener las conversaciones.
+        </ErrorPage>
+    }
+
+    return <div className={"pb-16"}>
+        {data.map(c => {
             return <div key={c.id}>
                 <ConversationCard view={c}/>
             </div>
         })}
-        {data && data.length == 0 && <div className={"py-8 text-sm text-[var(--text-light)] text-center"}>
+        {data.length == 0 && <div className={"py-8 text-sm text-[var(--text-light)] text-center"}>
             Sin conversaciones todavía.
         </div>}
     </div>

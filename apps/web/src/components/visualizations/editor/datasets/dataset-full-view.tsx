@@ -6,7 +6,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {DatasetOptionsButton} from "../../../feed/options/dataset-options-button";
 import {DateSince} from "@/components/utils/base/date";
-import {DatasetTableView} from "@/components/visualizations/visualization";
+import {DatasetTableView} from "@/components/visualizations/visualization/table/dataset-table-view";
 
 
 export type AnyDatasetView = $Typed<ArCabildoabiertoDataDataset.DatasetView> | $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic> | $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView>

@@ -57,7 +57,7 @@ import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api/dist"
 import {EmbedContext} from "./nodes/EmbedNode";
 import LinksToMentionsPlugin from "./plugins/MentionsToLinksPlugin";
-//import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {NoLineBreaksPlugin} from "./plugins/NoLineBreaksPlugin";
 import {cn} from "./lib/utils";
 
@@ -134,7 +134,7 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
     const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false)
     const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false)
     const [uniqueId, setUniqueId] = useState<string | null>(null)
-    //const {layoutConfig} = useLayoutConfig()
+    const {layoutConfig} = useLayoutConfig()
 
     useEffect(() => {
         if (setEditor) {
@@ -307,12 +307,12 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
                         <NoLineBreaksPlugin/>
                     </>
                 )}
-                <div className={/*layoutConfig.spaceForLeftSide ? "" : "hidden"*/ ""}>
+                <div className={cn(!layoutConfig.spaceForLeftSide && "hidden")}>
                     {tableOfContents &&
-                        <TableOfContentsPlugin
-                            title={settings.title}
-                            marginAboveEditor={marginAboveEditor}
-                        />}
+                    <TableOfContentsPlugin
+                        title={settings.title}
+                        marginAboveEditor={marginAboveEditor}
+                    />}
                 </div>
                 {useContextMenu && <ContextMenuPlugin/>}
             </div>

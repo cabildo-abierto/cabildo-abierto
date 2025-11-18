@@ -13,7 +13,7 @@ import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api";
 import {ProcessedLexicalState} from "../selection/processed-lexical-state";
 import {$Typed} from "@atproto/api";
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api";
-
+import { expect, test } from "vitest"
 
 
 export const longText = `

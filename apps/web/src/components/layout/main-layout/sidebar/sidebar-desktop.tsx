@@ -1,7 +1,7 @@
 import React from "react";
 import {SidebarContent} from "./sidebar-content";
 import {useLayoutConfig} from "../layout-config-context";
-import {cn} from "../../../../lib/utils";
+import {cn} from "@/lib/utils";
 
 
 export const SidebarDesktop = ({onClose, setWritePanelOpen}: {

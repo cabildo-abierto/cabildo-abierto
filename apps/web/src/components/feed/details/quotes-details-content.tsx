@@ -2,8 +2,9 @@ import Feed from "../feed/feed";
 import {get} from "../../utils/react/fetch";
 import {splitUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
-import {PostPreview} from "../post/post-preview";
+import dynamic from "next/dynamic";
 
+const PostPreview = dynamic(() => import("../post/post-preview").then(mod => mod.PostPreview), {ssr: false})
 
 export const QuotesDetailsContent = ({uri}: { uri: string }) => {
     async function getQuotesDetails(cursor: string): Promise<{error?: string, data?: {feed: ArCabildoabiertoFeedDefs.PostView[], cursor: string | null}}> {

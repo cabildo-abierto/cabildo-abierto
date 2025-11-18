@@ -1,12 +1,11 @@
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useStatsDashboard} from "@/queries/getters/admin";
-import PlotWithButtons from "../visualizations/editor/plot-with-buttons";
-import {$Typed} from "@cabildo-abierto/api";
+import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {DateSince} from "@/components/utils/base/date";
-import {ArCabildoabiertoActorDefs, ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
-import {useProfile} from "@/components/perfil/use-profile";
+import dynamic from "next/dynamic";
 
+const WAUPlot = dynamic(() => import("./wau-plot").then(mod => mod.WAUPlot), {ssr: false});
 
 export type StatsDashboard = {
     lastUsers: (ArCabildoabiertoActorDefs.ProfileViewBasic & { lastReadSession: Date | null, CAProfileCreatedAt?: Date })[]
@@ -22,58 +21,6 @@ export type StatsDashboard = {
     articlesPlot: {date: Date, count: number}[]
     topicVersionsPlot: {date: Date, count: number}[]
     caCommentsPlot: {date: Date, count: number}[]
-}
-
-
-export const WAUPlot = ({data, title}: {
-    data: StatsDashboard["WAUPlot"]
-    title: string
-}) => {
-    const {data: profile, isLoading} = useProfile("cabildoabierto.ar")
-
-    if(isLoading || !profile) return <LoadingSpinner />
-
-    const dataset: $Typed<ArCabildoabiertoDataDataset.DatasetView> = {
-        $type: "ar.cabildoabierto.data.dataset#datasetView",
-        data: JSON.stringify(data),
-        columns: ["date", "count"].map(x => ({
-            $type: "ar.cabildoabierto.data.dataset#column",
-            name: x
-        })),
-        createdAt: new Date().toISOString(),
-        uri: "",
-        cid: "",
-        name: "data",
-        author: {
-            ...profile,
-            $type: "ar.cabildoabierto.actor.defs#profileViewBasic"
-        }
-    }
-
-    const WAUVisualization: ArCabildoabiertoEmbedVisualization.View = {
-        $type: "ar.cabildoabierto.embed.visualization#view",
-        visualization: {
-            $type: "ar.cabildoabierto.embed.visualization",
-            dataSource: {
-                $type: "ar.cabildoabierto.embed.visualization#datasetDataSource",
-                dataset: ""
-            },
-            title,
-            spec: {
-                $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
-                xAxis: "date",
-                yAxis: "count",
-                plot: {
-                    $type: "ar.cabildoabierto.embed.visualization#lines"
-                }
-            }
-        },
-        dataset,
-    }
-
-    return <div>
-        <PlotWithButtons visualization={WAUVisualization}/>
-    </div>
 }
 
 

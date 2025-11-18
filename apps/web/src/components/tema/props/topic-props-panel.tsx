@@ -5,7 +5,9 @@ import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {useEffect, useMemo, useState} from "react";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {LayoutConfigProps, useLayoutConfig} from "../../layout/main-layout/layout-config-context";
-import {TopicPropView} from "./topic-prop-view";
+import dynamic from "next/dynamic";
+
+const TopicPropView = dynamic(() => import("./topic-prop-view").then(m => m.TopicPropView), {ssr: false})
 
 function propsStartOpen(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], isMobile: boolean, layoutConfig: LayoutConfigProps) {
     return !isMobile && layoutConfig.spaceForRightSide && props.some(p => !["Título", "Categorías", "Sinónimos"].includes(p.name))

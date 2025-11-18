@@ -16,7 +16,9 @@ const Page = () => {
         </NavigationGuardProvider>
     } else if(typeof r == "string"){
         return <NavigationGuardProvider>
-            <ArticleEditorFromPublished rkey={r}/>
+            <ArticleEditorFromPublished
+                rkey={r}
+            />
         </NavigationGuardProvider>
     } else {
         return <NavigationGuardProvider>

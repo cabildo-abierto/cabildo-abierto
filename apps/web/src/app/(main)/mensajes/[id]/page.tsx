@@ -13,10 +13,12 @@ import {
     optimisticMarkRead
 } from "@/components/mensajes/create-message";
 import dynamic from "next/dynamic";
-import NewMessageInput from "@/components/mensajes/new-message-input";
 import {useConversation} from "@/queries/getters/conversation";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
-import {cn} from "../../../../lib/utils";
+import {cn} from "@/lib/utils";
+
+
+const NewMessageInput = dynamic(() => import('@/components/mensajes/new-message-input'), {ssr: false})
 
 
 const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), {
@@ -66,7 +68,7 @@ export default function Page() {
         </div>
     } else if(!data){
         return <ErrorPage>
-            Ocurrió un error al cargar las conversaciones.
+            Ocurrió un error al cargar la conversación.
         </ErrorPage>
     }
 
