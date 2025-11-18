@@ -15,9 +15,9 @@ export function useAPI<T>(
     return useQuery<T>({
         queryKey: key,
         queryFn: async () => {
-            const {data, error} = await get<T>(route)
+            const {data} = await get<T>(route)
             if (data != undefined) return data
-            throw Error(`Error on route ${route}: ${error}`)
+            return null
         },
         staleTime,
         enabled,

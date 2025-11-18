@@ -10,7 +10,7 @@ import {
     invalidateQueriesAfterVoteUpdate,
     optimisticRejectVote, setCreatedRejectVote
 } from "./vote-edit-buttons";
-import {getDidFromUri, getRkeyFromUri} from '@cabildo-abierto/utils/dist/uri';
+import {getDidFromUri, getRkeyFromUri} from '@cabildo-abierto/utils';
 import {post} from "../../utils/react/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 

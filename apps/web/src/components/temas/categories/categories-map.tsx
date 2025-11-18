@@ -5,7 +5,7 @@ import {ErrorPage} from "../../utils/error-page";
 import dynamic from "next/dynamic";
 import {useSearch} from "../../buscar/search-context";
 import {useMemo} from "react";
-import {cleanText} from "@cabildo-abierto/utils/dist";
+import {cleanText} from "@cabildo-abierto/utils";
 import {TopicsGraph} from "@/lib/types";
 
 const Graph = dynamic(() => import("@/components/visualizations/visualization/topics-graph/graph-view").then(mod => mod.GraphView), {ssr: false});

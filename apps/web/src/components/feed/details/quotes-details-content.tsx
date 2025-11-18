@@ -1,6 +1,6 @@
 import Feed from "../feed/feed";
 import {get} from "../../utils/react/fetch";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {PostPreview} from "../post/post-preview";
 

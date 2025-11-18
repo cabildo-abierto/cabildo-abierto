@@ -1,5 +1,5 @@
 import React from "react";
-import {getRkeyFromUri} from "@cabildo-abierto/utils/dist/uri";
+import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {$Typed} from "@cabildo-abierto/api";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {ActiveLikeIcon} from "@/components/utils/icons/active-like-icon";

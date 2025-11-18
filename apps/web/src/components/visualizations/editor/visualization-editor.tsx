@@ -8,7 +8,7 @@ import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {useDatasets} from "@/queries/getters/useDataset";
 import {StateButtonClickHandler} from "../../utils/base/state-button";
 import {$Typed} from "@cabildo-abierto/api";
-import { produce } from "immer";
+import {produce} from "immer";
 
 import {PlotConfigProps} from "./types";
 import {post} from "@/components/utils/react/fetch";
@@ -54,11 +54,11 @@ type TopicDatasetSpec = {
 
 export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] {
     const validFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] = []
-    for(let i = 0; i < filters.length; i++) {
+    for (let i = 0; i < filters.length; i++) {
         const f = filters[i]
-        if(ArCabildoabiertoEmbedVisualization.isColumnFilter(f)){
+        if (ArCabildoabiertoEmbedVisualization.isColumnFilter(f)) {
             const valid = ArCabildoabiertoEmbedVisualization.validateColumnFilter(f)
-            if(valid.success){
+            if (valid.success) {
                 validFilters.push(valid.value)
             }
         }
@@ -69,10 +69,10 @@ export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typ
 async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
     const validFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] = validateColumnFilters(filters)
 
-    if(validFilters.length > 0){
+    if (validFilters.length > 0) {
         return await post<TopicDatasetSpec, ArCabildoabiertoDataDataset.TopicsDatasetView>("/topics-dataset", {filters: validFilters})
     } else {
-        if(filters.length == 0){
+        if (filters.length == 0) {
             return {error: "Agregá algún filtro."}
         } else {
             return {error: "El filtro es inválido."}
@@ -84,7 +84,7 @@ async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
 export const useTopicsDataset = (filters: PlotConfigProps["filters"], load: boolean = false) => {
     const queryFn = async () => {
         const {error, data} = await fetchTopicsDataset(filters)
-        if(error) throw Error(error)
+        if (error) throw Error(error)
         return {data}
     }
 
@@ -101,14 +101,15 @@ export const VisualizationEditor = ({
                                         msg,
                                         onClose,
                                         onSave
-}: VisualizationEditorProps) => {
+                                    }: VisualizationEditorProps) => {
     const {data: datasets} = useDatasets()
-    const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : {$type: "ar.cabildoabierto.embed.visualization"})
+    const initialConfigWithDefault = initialConfig ?? {$type: "ar.cabildoabierto.embed.visualization"}
+    const [config, setConfig] = useState<PlotConfigProps>(initialConfigWithDefault)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
     const editorMinWidth = 1080
     const [wideEnough, setWideEnough] = useState(window.innerWidth >= editorMinWidth)
-    const [width, setWidth] = useState(window.innerWidth-50)
-    const [height, setHeight] = useState(window.innerHeight-50)
+    const [width, setWidth] = useState(window.innerWidth - 50)
+    const [height, setHeight] = useState(window.innerHeight - 50)
     const {refetch} = useTopicsDataset(config.filters)
     const qc = useQueryClient()
     const [creatingNewDataset, setCreatingNewDataset] = useState(false)
@@ -116,7 +117,7 @@ export const VisualizationEditor = ({
     const baseSidebarWidth = Math.max(Math.floor(width / 4), 350)
 
     useEffect(() => {
-        if(config.dataSource) {
+        if (config.dataSource) {
             setCreatingNewDataset(false)
         }
     }, [config]);
@@ -124,8 +125,8 @@ export const VisualizationEditor = ({
     useEffect(() => {
         const handleResize = () => {
             setWideEnough(window.innerWidth >= editorMinWidth)
-            setWidth(window.innerWidth-50)
-            setHeight(window.innerHeight-50)
+            setWidth(window.innerWidth - 50)
+            setHeight(window.innerHeight - 50)
         };
 
         window.addEventListener('resize', handleResize);
@@ -135,10 +136,10 @@ export const VisualizationEditor = ({
         }
     }, [])
 
-    const onReloadData: StateButtonClickHandler = async () =>  {
+    const onReloadData: StateButtonClickHandler = async () => {
         await qc.cancelQueries({queryKey: config.filters})
         const {error} = await refetch()
-        if(error && error.message) return {error: error.message}
+        if (error && error.message) return {error: error.message}
         return {}
     }
 
@@ -194,7 +195,7 @@ export const VisualizationEditor = ({
                 maxWidth={width / 2}
                 onReloadData={onReloadData}
                 onNewDataset={() => {
-                    if(config.dataSource) {
+                    if (config.dataSource) {
                         setConfig(produce(config, draft => {
                             draft.dataSource = null
                         }))
@@ -213,8 +214,8 @@ export const VisualizationEditor = ({
                     onSave={onSave}
                     creatingNewDataset={creatingNewDataset}
                     setCreatingNewDataset={(v: boolean) => {
-                        if(v) {
-                            if(config.dataSource) {
+                        if (v) {
+                            if (config.dataSource) {
                                 setConfig(produce(config, draft => {
                                     draft.dataSource = null
                                 }))

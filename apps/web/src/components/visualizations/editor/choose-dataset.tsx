@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {DatasetPreviewOnEditor} from "./datasets/dataset-preview-on-editor";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {cleanText} from "@cabildo-abierto/utils/dist/strings";
+import {cleanText} from "@cabildo-abierto/utils";
 import {produce} from "immer";
 import {
     ArCabildoabiertoEmbedVisualization,
@@ -93,7 +93,7 @@ const ChooseDatasetPanelDatasetSelection = ({
         <div className={"flex space-x-1 px-2"}>
             <BaseButton
                 startIcon={<TopicsIcon/>}
-                className={creatingTopicsBased ? "bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)] " : ""}
+                className={creatingTopicsBased && "bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)]"}
                 size={"small"}
                 onClick={() => {
                     setConfig(produce(config, draft => {
@@ -129,11 +129,7 @@ const ChooseDatasetPanelDatasetSelection = ({
                 setConfig={setConfig}
                 config={config}
             />}
-            {creatingTopicsBased && <TopicsDataSourceConfig
-                onGoToFilters={() => {
-                    setSelectedMenu("Filtros")
-                }}
-            />}
+            {creatingTopicsBased && <TopicsDataSourceConfig/>}
         </div>
     </>
 }

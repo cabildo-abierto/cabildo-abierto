@@ -1,7 +1,7 @@
 import {useInfiniteQuery} from "@tanstack/react-query";
 import {GetFeedProps} from "@/lib/types";
 import {useEffect, useMemo} from "react";
-import {unique} from "@cabildo-abierto/utils/dist/arrays";
+import {unique} from "@cabildo-abierto/utils";
 import {VirtualItem} from "@tanstack/virtual-core";
 import {FeedPage} from "@/components/feed/types";
 

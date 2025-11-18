@@ -13,7 +13,7 @@ import TopbarDesktop from "./topbar/topbar-desktop";
 import ThreeColumnsLayout from "./three-columns-layout";
 import {SidebarDesktop} from "./sidebar/sidebar-desktop";
 import {cn} from "@/lib/utils";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
+import {pxToNumber} from "@cabildo-abierto/utils";
 import {RightPanel} from "./right-panel/right-panel";
 import {useSearch} from "../../buscar/search-context";
 

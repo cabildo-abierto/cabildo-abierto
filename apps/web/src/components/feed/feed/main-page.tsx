@@ -4,7 +4,7 @@ import {useSearchParams} from "next/navigation";
 import React from "react";
 import FeedViewContentFeed from "./feed-view-content-feed";
 import {useSession} from "@/components/auth/use-session";
-import {stringToEnum} from "@cabildo-abierto/utils/dist/strings";
+import {stringToEnum} from "@cabildo-abierto/utils";
 import {
     defaultEnDiscusionFormat,
     defaultEnDiscusionMetric,
@@ -124,7 +124,7 @@ export const MainPage = () => {
             />}
 
         {(selected == "Siguiendo" || selected == "Descubrir") && !user &&
-            <LoginRequiredPage text={"Creá una cuenta o iniciá sesión para ver este muro."}/>}
+            <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>}
 
         {selected == "En discusión" &&
             <FeedViewContentFeed

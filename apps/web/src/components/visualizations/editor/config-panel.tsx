@@ -6,7 +6,7 @@ import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {ConfigPanelDimensions} from "./config-panel-dimensions";
 import {feedOptionNodes} from "../../feed/config/feed-option-nodes";
 import {CompassToolIcon, TextTIcon} from "@phosphor-icons/react";
-import {DeepPartial} from "@cabildo-abierto/utils/dist";
+import {DeepPartial} from "@cabildo-abierto/utils";
 import {PlotConfigProps} from "./types";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseSelect} from "@/components/utils/base/base-select";

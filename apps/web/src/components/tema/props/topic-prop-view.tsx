@@ -1,5 +1,5 @@
 import {ListView} from "@/components/utils/base/list-editor";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import Image from "next/image"
 import {topicUrl} from "@/components/utils/react/url";

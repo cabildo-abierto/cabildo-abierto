@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {rounder} from "@cabildo-abierto/utils/dist";
+import {rounder} from "@cabildo-abierto/utils";
 import {FollowKind} from "./types";
 
 

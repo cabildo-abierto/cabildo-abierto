@@ -3,7 +3,7 @@ import {emptyChar} from "../../utils/utils";
 import React, {useEffect, useMemo, useState} from "react";
 import {ErrorPage} from "../../utils/error-page";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
-import {cleanText} from "@cabildo-abierto/utils/dist/strings";
+import {cleanText} from "@cabildo-abierto/utils";
 import {SearchBar} from "@/components/utils/base/search-bar";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";

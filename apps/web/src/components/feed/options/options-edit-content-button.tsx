@@ -1,5 +1,5 @@
 import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
-import {getRkeyFromUri, isArticle, isPost, splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {getRkeyFromUri, isArticle, isPost, splitUri} from "@cabildo-abierto/utils";
 import {useRouter} from "next/navigation";
 import {
     ArCabildoabiertoDataDataset,

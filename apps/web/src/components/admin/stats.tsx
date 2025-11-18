@@ -2,7 +2,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useStatsDashboard} from "@/queries/getters/admin";
 import PlotWithButtons from "../visualizations/editor/plot-with-buttons";
 import {$Typed} from "@cabildo-abierto/api";
-import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils/dist/arrays";
+import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {DateSince} from "@/components/utils/base/date";
 import {ArCabildoabiertoActorDefs, ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {useProfile} from "@/components/perfil/use-profile";

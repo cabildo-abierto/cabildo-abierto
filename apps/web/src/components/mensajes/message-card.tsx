@@ -1,6 +1,6 @@
 import BskyRichTextContent from "../feed/post/bsky-rich-text-content";
 import {ChatBskyConvoDefs} from "@atproto/api";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {useSession} from "@/components/auth/use-session";
 import {cn} from "@/lib/utils";
 

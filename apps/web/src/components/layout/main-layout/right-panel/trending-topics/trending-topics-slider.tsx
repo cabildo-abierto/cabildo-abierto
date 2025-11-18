@@ -7,7 +7,7 @@ import TopicPopularityIndicator from "../../../../tema/topic-popularity-indicato
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {hasUnseenUpdate} from "../../../../buscar/topic-search-result";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {useSession} from "@/components/auth/use-session";
 import {cn} from "@/lib/utils";

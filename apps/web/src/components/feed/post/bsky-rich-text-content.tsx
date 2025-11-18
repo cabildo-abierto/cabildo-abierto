@@ -13,14 +13,12 @@ type BskyRichTextContentProps = {
 
 const BskyRichTextContent = ({
     post,
-    fontSize = "16px",
-    className = "no-margin-top article-content exclude-links not-article-content",
+    className = "text-[16px] no-margin-top article-content exclude-links not-article-content",
     editedAt
 }: BskyRichTextContentProps) => {
     const {markdown} = useMarkdownFromBsky(post)
 
     return <div
-        style={{fontSize: fontSize}}
         className={className}
         key={editedAt}
     >

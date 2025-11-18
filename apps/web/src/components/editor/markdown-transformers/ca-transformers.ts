@@ -16,7 +16,7 @@ import {HR} from "./index";
 import {TABLE} from "./index";
 import {$createLinkNode, $isLinkNode, LinkNode} from "@lexical/link";
 import {$createHeadingNode, $isHeadingNode, HeadingNode, HeadingTagType} from "@lexical/rich-text";
-import {encodeParentheses} from "@cabildo-abierto/utils/dist"
+import {encodeParentheses} from "@cabildo-abierto/utils"
 
 
 export const LINK: TextMatchTransformer = {

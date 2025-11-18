@@ -1,5 +1,5 @@
 import {useAPI} from "@/components/utils/react/queries";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import TopicsIcon from "@/components/utils/icons/topics-icon";
 import {AcceptButtonPanel} from "../../utils/dialogs/accept-button-panel";

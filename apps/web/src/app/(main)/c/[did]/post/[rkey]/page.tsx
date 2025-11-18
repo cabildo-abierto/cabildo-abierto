@@ -1,7 +1,7 @@
 "use client"
 import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 import {use} from "react";
-import {getUri} from "@cabildo-abierto/utils/dist/uri";
+import {getUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {LoadingThread} from "@/components/feed/post/loading-thread";
 import dynamic from "next/dynamic";

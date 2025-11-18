@@ -14,7 +14,7 @@ import ArticleEditorAuthor from "./article-editor-author-line";
 import {useNavigationGuard} from "next-navigation-guard"
 import {PreventLeavePopup} from "../../utils/dialogs/prevent-leave-popup";
 import { ArCabildoabiertoFeedDefs } from "@cabildo-abierto/api";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
+import {pxToNumber} from "@cabildo-abierto/utils";
 import {cn} from "@/lib/utils";
 import {CAEditor} from "@/components/editor";
 import {EditorState} from "lexical";

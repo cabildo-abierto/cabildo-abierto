@@ -1,6 +1,10 @@
-import {VisualizationEditor} from "@/components/visualizations/editor";
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api/dist"
 import {BaseFullscreenPopup} from "@/components/utils/dialogs/base-fullscreen-popup";
+import dynamic from "next/dynamic";
+
+const VisualizationEditor = dynamic(() => import("@/components/visualizations/editor").then(mod => mod.VisualizationEditor),
+    {ssr: false}
+)
 
 
 export const InsertVisualizationModal = ({open, onClose, onSave, initialConfig}: {

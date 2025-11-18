@@ -7,7 +7,7 @@ import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecordWithMedia, ArCabild
 import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyEmbedVideo} from "@atproto/api"
 import {PostRecordEmbed} from "./post-record-embed";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
+import {pxToNumber} from "@cabildo-abierto/utils";
 
 
 const PostVideoEmbed = dynamic(() => import("./post-video-embed"), {

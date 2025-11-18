@@ -1,6 +1,6 @@
 import React, {MouseEventHandler, useState} from "react"
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {useRouter} from "next/navigation";
 import {useLoginModal} from "../../auth/login-modal-provider";

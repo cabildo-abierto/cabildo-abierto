@@ -4,7 +4,7 @@ import {useRouter} from "next/navigation"
 import React from "react"
 import {ChangesCounter} from "../changes-counter"
 import {ProfilePic} from "../../perfil/profile-pic";
-import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils";
 import {VoteEditButtons} from "../votes/vote-edit-buttons";
 import {Authorship} from "../../perfil/authorship";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"

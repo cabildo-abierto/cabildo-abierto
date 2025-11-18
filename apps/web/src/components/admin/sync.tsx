@@ -5,7 +5,7 @@ import {ListEditor} from "@/components/utils/base/list-editor";
 import {collectionsList} from "./acceso";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {DateSince} from "@/components/utils/base/date";
-import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils/dist/arrays";
+import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {useUsersSyncStatus} from "@/queries/getters/admin";
 import {StateButton} from "@/components/utils/base/state-button";

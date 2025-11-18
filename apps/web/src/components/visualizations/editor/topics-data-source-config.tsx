@@ -1,12 +1,11 @@
+import {Note} from "@/components/utils/base/note";
+import {FunnelIcon} from "@phosphor-icons/react";
 
 
-export const TopicsDataSourceConfig = ({onGoToFilters}: {
-    onGoToFilters: () => void
-}) => {
-
-    return <div className={"flex flex-col items-center"}>
-        <div className={"text-sm text-[var(--text-light)] text-center py-16 px-4"}>
-            Usá <button onClick={onGoToFilters} className={"text-[var(--primary)] hover:underline font-semibold"}>filtros</button> para elegir una lista de temas de la wiki, que van a ser los datos de tu visualización.
-        </div>
+export const TopicsDataSourceConfig = () => {
+    return <div className={"flex flex-col items-center pt-12 cursor-normal px-4"}>
+        <Note>
+            Usá filtros (<FunnelIcon className={"inline-block"} fontSize={14}/>) para elegir una lista de temas de la wiki, que van a ser los datos de tu visualización.
+        </Note>
     </div>
 }

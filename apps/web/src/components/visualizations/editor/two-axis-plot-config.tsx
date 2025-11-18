@@ -6,6 +6,7 @@ import {PlotConfigProps} from "./types";
 import {BaseSelect} from "@/components/utils/base/base-select";
 import {ListEditor} from "@/components/utils/base/list-editor";
 import {Switch} from "@/components/utils/ui/switch";
+import { Label } from "@/components/utils/ui/label";
 
 type Props = {
     config: PlotConfigProps
@@ -48,9 +49,9 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             }}
         />}
         {multipleYAxis && <div className={"text-sm space-y-1"}>
-            <div className={"text-[var(--text-light)]"}>
+            <Label>
                 Columnas para el eje y
-            </div>
+            </Label>
             <ListEditor
                 items={config.spec.yAxes ? config.spec.yAxes.map(c => c.column) : []}
                 setItems={(yCols: string[]) => {

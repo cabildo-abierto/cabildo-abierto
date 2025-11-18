@@ -1,6 +1,6 @@
 import React, {useMemo} from "react";
 import {getEditorSettings} from "../../../writing/settings";
-import {isArticle} from "@cabildo-abierto/utils/dist/uri";
+import {isArticle} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoEmbedSelectionQuote} from "@cabildo-abierto/api"
 import {CAEditor} from '@/components/editor'
 import {robotoSerif} from "../../../writing/article-font";

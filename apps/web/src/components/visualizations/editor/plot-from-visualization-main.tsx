@@ -47,10 +47,6 @@ export const DatasetPlotFromMain = ({visualization, dataSource, height, width, o
 }) => {
     const {data: dataset, isLoading} = useDataset(dataSource.dataset)
 
-    if (isLoading || !dataset) {
-        return <div className={"py-4"}><LoadingSpinner/></div>
-    }
-
     const view = getDatasetVisualizationView(visualization, {
         ...dataset,
         $type: "ar.cabildoabierto.data.dataset#datasetView"
@@ -58,6 +54,7 @@ export const DatasetPlotFromMain = ({visualization, dataSource, height, width, o
 
     return <PlotWithButtons
         visualization={view}
+        loadingDataset={isLoading}
         width={width}
         height={height}
         onEdit={onEdit}
@@ -71,7 +68,7 @@ const PlotFromVisualizationMain = ({
                                        width,
                                        onEdit,
                                        onDelete
-}: {
+                                   }: {
     visualization: ArCabildoabiertoEmbedVisualization.Main
     height?: number | string
     width?: number | string

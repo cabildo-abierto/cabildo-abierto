@@ -1,5 +1,5 @@
 import {TimePeriod, useTrendingTopics} from "@/queries/getters/useTrendingTopics";
-import {range} from "@cabildo-abierto/utils/dist/arrays";
+import {range} from "@cabildo-abierto/utils";
 import {emptyChar} from "../../../../utils/utils";
 import dynamic from "next/dynamic";
 import {useState} from "react";

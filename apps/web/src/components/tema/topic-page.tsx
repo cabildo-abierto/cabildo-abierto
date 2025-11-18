@@ -8,9 +8,9 @@ import {useTopicPageParams} from "./use-topic-page-params";
 
 
 export const TopicPage = () => {
-    const {s} = useTopicPageParams()
+    const {editing} = useTopicPageParams()
 
-    if(s == "editing") {
+    if(editing) {
         return <TopicEditorPage/>
     } else {
         return <TopicViewPage/>

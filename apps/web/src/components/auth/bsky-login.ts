@@ -47,7 +47,7 @@ export function useBlueskyLogin({
         e.preventDefault();
         setError(null)
 
-        const handle = getHandleFromInputs(handleStart, domain);
+        const handle = getHandleFromInputs(handleStart, domain)
         if (!isValidHandle(handle)) {
             setError("El nombre de usuario es inválido.")
             return
@@ -65,8 +65,7 @@ export function useBlueskyLogin({
             route: "/login",
             method: "POST",
             credentials: "include",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({handle, code: inviteCode}),
+            body: {handle, code: inviteCode},
             redirect: "follow"
         })
 

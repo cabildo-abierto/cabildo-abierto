@@ -1,5 +1,5 @@
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
-import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils";
 import {QueryContentUpdater, updateContentInQueries} from "@/queries/mutations/updates";
 import {ConfirmModal} from "../../utils/dialogs/confirm-modal";
 import {getCollectionWithArticle} from "./options-delete-button";

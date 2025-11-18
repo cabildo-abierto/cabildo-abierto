@@ -1,5 +1,5 @@
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
-import {splitUri} from "@cabildo-abierto/utils/dist/uri";
+import {splitUri} from "@cabildo-abierto/utils";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {getEditorSettings} from "../../writing/settings";
 import {TopicVersionChangesProps} from "@/lib/types";
@@ -10,7 +10,7 @@ import {DateSince} from "@/components/utils/base/date";
 import {useAPI} from "@/components/utils/react/queries";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {BaseSelect} from "@/components/utils/base/base-select";
-import { range } from "@cabildo-abierto/utils/dist/arrays";
+import { range } from "@cabildo-abierto/utils";
 import {CAEditor} from "@/components/editor";
 import {editorStateToMarkdown, markdownToEditorState} from "../../editor/markdown-transforms";
 import {SerializedDiffNode} from "@/components/editor/nodes/DiffNode";

@@ -2,12 +2,12 @@ import {useAPI} from "@/components/utils/react/queries";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {cn} from "@/lib/utils";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {WAUPlot} from "./stats";
 import {useState} from "react";
 import {BackButton} from "@/components/utils/base/back-button";
-import {getCollectionFromUri, isArticle} from "@cabildo-abierto/utils/dist/uri";
-import {sum} from "@cabildo-abierto/utils/dist/arrays";
+import {getCollectionFromUri, isArticle} from "@cabildo-abierto/utils";
+import {sum} from "@cabildo-abierto/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
 
 type UserMonths = {
@@ -200,7 +200,7 @@ const AdminReadSessions = () => {
 export const AdminRemuneraciones = () => {
     const [viewingReadSessions, setViewingReadSessions] = useState(false)
 
-    return <div className={"pb-32 space-y-16"}>
+    return <div className={"pb-32 space-y-16 flex flex-col items-center"}>
         {viewingReadSessions ?
         <AdminReadSessions/> :
         <BaseButton

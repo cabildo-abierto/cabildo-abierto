@@ -11,7 +11,7 @@ import {robotoSerif} from "../../writing/article-font";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {cn} from "@/lib/utils";
-import {pxToNumber} from "@cabildo-abierto/utils/dist/strings";
+import {pxToNumber} from "@cabildo-abierto/utils";
 
 
 type ArticleCompProps = {

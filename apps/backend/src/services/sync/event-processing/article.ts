@@ -87,6 +87,16 @@ export class ArticleDeleteProcessor extends DeleteProcessor {
                 .execute()
 
             await trx
+                .deleteFrom("DiscoverFeedIndex")
+                .where("contentId", "in", uris)
+                .execute()
+
+            await trx
+                .deleteFrom("AssignedPayment")
+                .where("AssignedPayment.contentId", "in", uris)
+                .execute()
+
+            await trx
                 .deleteFrom("Content")
                 .where("Content.uri", "in", uris)
                 .execute()

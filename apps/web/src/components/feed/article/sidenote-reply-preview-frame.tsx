@@ -3,7 +3,7 @@ import {DateSince} from '@/components/utils/base/date'
 import Link from 'next/link'
 import {ReactNode} from 'react'
 import {EngagementIcons} from '../utils/engagement-icons'
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {emptyChar} from "../../utils/utils";
 import {smoothScrollTo} from "../../utils/react/scroll";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"

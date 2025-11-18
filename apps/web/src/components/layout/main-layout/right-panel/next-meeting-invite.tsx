@@ -2,7 +2,7 @@ import React from "react";
 import {CustomLink as Link} from "@/components/utils/base/custom-link"
 import {useNextMeeting} from "@/queries/getters/useNextMeeting";
 import {useLayoutConfig} from "../layout-config-context";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 
 
 const NextMeetingInvite = () => {

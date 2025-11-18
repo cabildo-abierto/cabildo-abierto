@@ -1,5 +1,5 @@
 import {useDonationHistory} from "@/queries/getters/useFunding";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 
 type Donation = {
     date: Date

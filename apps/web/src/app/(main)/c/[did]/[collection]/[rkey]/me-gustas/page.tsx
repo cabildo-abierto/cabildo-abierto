@@ -1,5 +1,5 @@
 "use client"
-import {getUri, shortCollectionToCollection} from "@cabildo-abierto/utils/dist/uri";
+import {getUri, shortCollectionToCollection} from "@cabildo-abierto/utils";
 import {DetailsContent} from "@/components/feed/details/details-content";
 import React from "react";
 

@@ -37,10 +37,10 @@ export function BaseSelect({
     inPortal?: boolean
     size?: "small" | "default"
 }) {
-    const items = options.map(o => ({
+    const items = options?.map(o => ({
         value: o,
         label: optionLabels ? optionLabels(o) : o
-    }))
+    })) ?? []
 
     return (
         <Select value={value} onValueChange={onChange}>
@@ -58,7 +58,7 @@ export function BaseSelect({
                 )}
             >
                 <SelectGroup>
-                    {items.map(({label, value: v}) => {
+                    {items?.map(({label, value: v}) => {
                         return <div key={v}>
                             <SelectItem
                                 className={cn(itemClassName, size == "default" ? "text-[13px] py-[8px]" : "")}

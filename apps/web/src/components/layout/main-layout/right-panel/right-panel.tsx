@@ -5,7 +5,7 @@ import {RightPanelButtons} from "./right-panel-buttons";
 import {Logo} from "@/components/utils/icons/logo";
 import Link from "next/link";
 import {useNextMeeting} from "@/queries/getters/useNextMeeting";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import FollowSuggestions from "./follow-suggestions";
 import {BaseButton} from "@/components/utils/base/base-button";
 import DonateIcon from "@/components/utils/icons/donate-icon";

@@ -6,7 +6,7 @@ import {
     isPost,
     isTopicVersion,
     splitUri
-} from "@cabildo-abierto/utils/dist/uri";
+} from "@cabildo-abierto/utils";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
     contentQueriesFilter, invalidateQueries,

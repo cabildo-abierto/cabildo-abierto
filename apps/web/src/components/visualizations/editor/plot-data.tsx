@@ -56,7 +56,10 @@ export const PlotData = ({visualization}: { visualization: ArCabildoabiertoEmbed
         </div>}
     </div>
 
-    return <ModalOnClick modal={modal} className={"z-[1501]"}>
+    return <ModalOnClick
+        modal={modal}
+        className={"z-[1501] p-0"}
+    >
         <BaseNotButton
             className={"mt-1"}
             variant={"outlined"}

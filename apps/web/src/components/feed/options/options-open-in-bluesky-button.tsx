@@ -1,5 +1,5 @@
 import BlueskyLogo from "@/components/utils/icons/bluesky-logo";
-import {getCollectionFromUri, getRkeyFromUri, isPost} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, getRkeyFromUri, isPost} from "@cabildo-abierto/utils";
 import {getBlueskyUrl} from "@/components/utils/react/url";
 import {DropdownMenuItem} from "@/components/utils/ui/dropdown-menu";
 

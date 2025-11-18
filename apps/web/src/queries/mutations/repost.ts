@@ -7,7 +7,7 @@ import {
 import {ATProtoStrongRef} from "@/lib/types";
 import {produce} from "immer";
 import {postOrArticle} from "../../utils/type-utils";
-import { getRkeyFromUri } from "@cabildo-abierto/utils/dist/uri";
+import { getRkeyFromUri } from "@cabildo-abierto/utils";
 
 
 async function repost(ref: ATProtoStrongRef) {

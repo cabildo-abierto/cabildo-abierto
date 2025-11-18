@@ -1,5 +1,5 @@
 "use client"
-import {rounder, valueToPercentage} from "@cabildo-abierto/utils/dist/strings";
+import {rounder, valueToPercentage} from "@cabildo-abierto/utils";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {ReactNode, useEffect, useState} from "react";

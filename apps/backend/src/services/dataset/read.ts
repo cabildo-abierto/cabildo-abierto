@@ -9,7 +9,6 @@ import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
-
 import {sql} from "kysely";
 import {$Typed} from "@atproto/api";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
@@ -64,6 +63,15 @@ export function hydrateTopicsDatasetView(ctx: AppContext, filters: $Typed<ArCabi
 
 export async function getDataset(ctx: AppContext, uri: string) {
     const dataplane = new Dataplane(ctx)
+
+    const dataset = await ctx.kysely
+        .selectFrom("Dataset")
+        .select("uri")
+        .where("uri", "=", uri)
+        .executeTakeFirst()
+    if(!dataset) {
+        return {error: "Ocurrió un error al obtener el dataset."}
+    }
 
     // No se pueden paralelizar
     await dataplane.fetchDatasetsHydrationData([uri])

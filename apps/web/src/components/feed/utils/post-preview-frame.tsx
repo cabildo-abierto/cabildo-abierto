@@ -3,7 +3,7 @@ import {ReactNode} from 'react'
 import {EngagementIcons} from './engagement-icons'
 import {RepostedBy} from "../post/reposted-by";
 import {ProfilePic} from "../../perfil/profile-pic";
-import {getCollectionFromUri, isPost} from "@cabildo-abierto/utils/dist/uri";
+import {getCollectionFromUri, isPost} from "@cabildo-abierto/utils";
 import {emptyChar} from "../../utils/utils";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {$Typed} from "@cabildo-abierto/api";

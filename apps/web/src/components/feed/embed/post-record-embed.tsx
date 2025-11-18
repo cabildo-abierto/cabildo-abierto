@@ -2,7 +2,7 @@
 
 import {DateSince} from "@/components/utils/base/date";
 import {useRouter} from "next/navigation";
-import {formatIsoDate} from "@cabildo-abierto/utils/dist/dates";
+import {formatIsoDate} from "@cabildo-abierto/utils";
 import {ProfilePic} from "../../perfil/profile-pic";
 import Link from "next/link";
 import {ATProtoStrongRef} from "@/lib/types";
