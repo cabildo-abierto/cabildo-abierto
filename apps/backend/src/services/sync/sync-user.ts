@@ -90,7 +90,12 @@ export class RepoSync {
         const t6 = Date.now()
         await this.processPendingEvents()
 
-        await this.updateHandle()
+        const {error: updateHandleError} = await this.updateHandle()
+        if(updateHandleError) {
+            ctx.logger.pino.warn(`${did} update handle failed`)
+            await ctx.redisCache.mirrorStatus.set(did, "Failed", inCA)
+            return
+        }
 
         const t7 = Date.now()
         await ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
@@ -99,11 +104,13 @@ export class RepoSync {
 
     async updateHandle() {
         const handle = await this.ctx.resolver.resolveDidToHandle(this.did, false)
+        if(!handle) return {error: "Couldn't find handle"}
         await this.ctx.kysely
             .updateTable("User")
             .set("handle", handle)
             .where("did", "=", this.did)
             .execute()
+        return {}
     }
 
     async getPresentRecords() {

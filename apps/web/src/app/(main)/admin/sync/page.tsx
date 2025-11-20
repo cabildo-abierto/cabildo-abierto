@@ -1,7 +1,7 @@
 "use client"
-import {AdminPost} from "@/components/admin/principal";
+import {AdminSync} from "@/components/admin/sync";
 
 
 export default function Page() {
-    return <AdminPost/>
+    return <AdminSync/>
 }

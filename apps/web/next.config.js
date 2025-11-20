@@ -12,9 +12,7 @@ nextConfig = {
     },
     images: {
         remotePatterns: [
-            { protocol: "https", hostname: "cdn.bsky.app" },
-            { protocol: "https", hostname: "video.bsky.app" },
-            { protocol: "https", hostname: "upload.wikimedia.org" }, // THIS is the correct Wikimedia image host
+            { protocol: "https", hostname: "*" }
         ],
     },
     allowedDevOrigins: [

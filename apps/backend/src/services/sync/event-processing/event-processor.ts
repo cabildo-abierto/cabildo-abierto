@@ -4,6 +4,7 @@ import {getUri, isCAProfile} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
+import {isValidHandle} from "@atproto/syntax";
 
 
 function newUser(ctx: AppContext, did: string, inCA: boolean) {
@@ -121,7 +122,9 @@ class IdentityEventProcessor extends EventProcessor {
     async process(events: JetstreamEvent[]) {
         for(const e of events) {
             if(e.kind == "identity") {
-                await this.updateUserIdentity(e.identity.did, e.identity.handle)
+                if(isValidHandle(e.identity.handle)){
+                    await this.updateUserIdentity(e.identity.did, e.identity.handle)
+                }
             }
         }
     }

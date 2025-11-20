@@ -1,8 +1,8 @@
 import {useFollowSuggestions} from "@/queries/getters/suggestions";
-import {ProfilePic} from "../../../perfil/profile-pic";
-import {CustomLink, CustomLink as Link} from "@/components/utils/base/custom-link";
-import {FollowButton} from "@/components/perfil/follows/follow-button";
-import {profileUrl} from "@/components/utils/react/url";
+import {CustomLink as Link} from "@/components/utils/base/custom-link";
+import dynamic from "next/dynamic";
+
+const FollowSuggestionSmallView = dynamic(() => import("@/components/layout/main-layout/right-panel/follow-suggestion-small-view").then(mod => mod.FollowSuggestionSmallView), {ssr: false})
 
 
 export const followSuggestionsInfo = "Se priorizan usuarios seguidos por personas que seguís, usuarios activos, autores de artículos y usuarios de Cabildo Abierto."
@@ -42,34 +42,10 @@ export default function FollowSuggestions() {
                 <LoadingFollowSuggestion/>
             </div>}
             {data && data.profiles.map(u => {
-                return <CustomLink
-                    href={profileUrl(u.handle)}
+                return <FollowSuggestionSmallView
+                    user={u}
                     key={u.did}
-                    className={"hover:bg-[var(--background-dark)] flex space-x-2 justify-between p-2 items-center"}
-                >
-                    <div className={"flex space-x-2 items-center w-full"}>
-                        <div>
-                            <ProfilePic
-                                user={u}
-                                className={"rounded-full w-8 h-8"}
-                                descriptionOnHover={false}
-                            />
-                        </div>
-                        <div className={"space-y-[-2px] text-ellipsis"}>
-                            <div className={"text-sm font-semibold truncate w-32"}>
-                                {u.displayName ? u.displayName : `@${u.handle}`}
-                            </div>
-                            <div className={"text-xs text-[var(--text-light)] truncate w-32"}>
-                                @{u.handle}
-                            </div>
-                        </div>
-                    </div>
-                    <FollowButton
-                        dense={true}
-                        handle={u.handle}
-                        profile={u}
-                    />
-                </CustomLink>
+                />
             })}
         </div>
         <Link
