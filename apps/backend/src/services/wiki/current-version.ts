@@ -1,15 +1,14 @@
-import {max, unique} from "@cabildo-abierto/utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
-import {getUri} from "@cabildo-abierto/utils";
-import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {getTopicCategories, getTopicTitle} from "#/services/wiki/utils.js";
-import {AppContext} from "#/setup.js";
-import {DB} from "../../../prisma/generated/types.js";
-import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
-import {Transaction} from "kysely";
-import {EditorStatus} from "@prisma/client";
-import {produce} from "immer";
-import {jsonArrayFrom} from "kysely/helpers/postgres";
+import {max, unique} from "@cabildo-abierto/utils"
+import {ArCabildoabiertoWikiTopicVersion, EditorStatus} from "@cabildo-abierto/api"
+import {getUri} from "@cabildo-abierto/utils"
+import {CAHandlerNoAuth} from "#/utils/handler.js"
+import {getTopicCategories, getTopicTitle} from "#/services/wiki/utils.js"
+import {AppContext} from "#/setup.js"
+import {DB} from "../../../prisma/generated/types.js"
+import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js"
+import {Transaction} from "kysely"
+import {produce} from "immer"
+import {jsonArrayFrom} from "kysely/helpers/postgres"
 
 
 export async function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string) {
