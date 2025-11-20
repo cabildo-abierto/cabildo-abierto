@@ -1,7 +1,7 @@
 import type {OAuthClient} from '@atproto/oauth-client-node'
 import {createClient} from '#/auth/client.js'
 import {BidirectionalResolver, createBidirectionalResolver, createIdResolver} from '#/id-resolver.js'
-import {type Redis, Redis as IORedis} from "ioredis"
+import {type Redis, Redis as IORedis} from "ioredis/built/index.js"
 import {CAWorker, RedisCAWorker} from "#/jobs/worker.js";
 import {Kysely, PostgresDialect} from 'kysely'
 import {Pool} from 'pg'

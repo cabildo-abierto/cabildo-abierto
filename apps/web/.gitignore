@@ -8,3 +8,4 @@ package-lock.json
 coverage/
 public/dev/
 ecosystem.config.*.js
+*.turbo

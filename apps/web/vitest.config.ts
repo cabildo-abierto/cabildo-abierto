@@ -5,11 +5,12 @@ export default defineConfig({
     plugins: [tsconfigPaths()],
     test: {
         globals: true,
-        environment: 'node',
         clearMocks: true,
         exclude: [
             ...configDefaults.exclude,
-            '**/ecosystem.config.test.cjs'
-        ]
+            '**/ecosystem.config.test.js'
+        ],
+        setupFiles: ['src/test/setup/react-shim.ts'],
+        environment: 'jsdom',
     },
 })

@@ -1,7 +1,7 @@
 import { NodeOAuthClient } from '@atproto/oauth-client-node'
 import {createSessionLock, SessionStore, StateStore} from './storage.js'
 import {env} from "#/lib/env.js";
-import {type Redis} from "ioredis";
+import {type Redis} from "ioredis/built/index.js";
 
 
 export const createClient = async (redis: Redis) => {

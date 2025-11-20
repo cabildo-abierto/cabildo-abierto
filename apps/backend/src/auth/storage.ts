@@ -5,7 +5,7 @@ import type {
     NodeSavedStateStore,
     RuntimeLock,
 } from '@atproto/oauth-client-node';
-import {type Redis} from "ioredis";
+import {type Redis} from "ioredis/built/index.js";
 
 export class StateStore implements NodeSavedStateStore {
     constructor(private db: Redis) {}
