@@ -1,6 +1,6 @@
 import {CAHandler} from "#/utils/handler.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopicVersion, EditorStatus} from "@cabildo-abierto/api"
 import {sql} from "kysely";
 import {getSessionData} from "#/services/user/users.js";
 import {isVersionAccepted} from "#/services/wiki/current-version.js";
@@ -9,7 +9,6 @@ import {AppContext} from "#/setup.js";
 import {orderNumberDesc, sortByKey, sum} from "@cabildo-abierto/utils";
 import {ReadChunks, ReadChunksAttr} from "#/services/monetization/read-tracking.js";
 import {FULL_READ_DURATION, joinManyChunks} from "#/services/monetization/get-users-with-read-sessions.js";
-import {EditorStatus} from "@prisma/client";
 
 type ArticleStats = {
     uri: string

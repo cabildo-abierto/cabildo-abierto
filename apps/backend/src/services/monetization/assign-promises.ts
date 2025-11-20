@@ -215,7 +215,7 @@ class PromiseAssigner {
                 "TopicVersion.uri",
                 "Topic.id",
                 "ReadVersion.uri as readVersion",
-                "TopicVersion.contribution"
+                "TopicVersion.monetizedContribution"
             ])
             .orderBy("Record.created_at_tz asc")
             .whereRef("Record.created_at_tz", "<=", "ReadVersionRecord.created_at_tz")
@@ -223,13 +223,13 @@ class PromiseAssigner {
             .execute()
 
         res.forEach(tv => {
-            const contr = tv.contribution ? JSON.parse(tv.contribution) : {}
-            if (contr.monetized == null) {
+            const contr = tv.monetizedContribution
+            if (contr == null) {
                 this.ctx.logger.pino.error({tv}, "contribution not found")
                 throw Error("contribution not found when assigning promises")
             }
             const cur = this.topicVersions.get(tv.readVersion)
-            const newVersion = {uri: tv.uri, monetizedContribution: contr.monetized}
+            const newVersion = {uri: tv.uri, monetizedContribution: contr}
             if (!cur) {
                 this.topicVersions.set(tv.readVersion, [newVersion])
             } else {

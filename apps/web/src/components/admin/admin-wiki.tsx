@@ -18,11 +18,13 @@ export const AdminWiki = () => {
     }
 
     return <div className={"flex flex-col space-y-4 items-center mt-8"}>
-        <BaseTextField
-            label={"Id del tema"}
-            value={topicId}
-            onChange={e => setTopicId(e.target.value)}
-        />
+        <div>
+            <BaseTextField
+                label={"Id del tema"}
+                value={topicId}
+                onChange={e => setTopicId(e.target.value)}
+            />
+        </div>
 
         <BaseButton onClick={onUpdateMentions} variant={"outlined"} size={"small"}>
             Actualizar popularidad

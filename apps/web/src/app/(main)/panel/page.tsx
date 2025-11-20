@@ -12,6 +12,9 @@ import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import {useSession} from "@/components/auth/use-session";
 import {contentUrl, topicUrl} from "@/components/utils/react/url";
 import {useAPI} from "@/components/utils/react/queries";
+import {BaseSelect} from "@/components/utils/base/base-select";
+import {CustomLink} from "@/components/utils/base/custom-link";
+import { Note } from "@/components/utils/base/note";
 
 
 type ArticleStats = {
@@ -164,7 +167,8 @@ const ArticleStatsCard = ({article}: { article: ArticleStats }) => {
 
 
 const EditStatsCard = ({topicVersion}: { topicVersion: EditedTopicStats }) => {
-    return <Link
+    return <CustomLink
+        tag={"div"}
         href={topicUrl(topicVersion.topicId)}
         className="hover:bg-[var(--background-dark)] p-4 border border-[var(--accent-dark)] mx-2 flex flex-col sm:flex-row sm:justify-between"
     >
@@ -186,7 +190,7 @@ const EditStatsCard = ({topicVersion}: { topicVersion: EditedTopicStats }) => {
             <CardStat label={"Lectores"} value={rounder(topicVersion.topicSeenBy)}/>
             <CardStat label={"Ingresos"} value={"$" + topicVersion.income.toFixed(2)}/>
         </div>
-    </Link>
+    </CustomLink>
 }
 
 
@@ -194,6 +198,7 @@ const Page = () => {
     let {data, isLoading} = useAuthorDashboard()
 
     const [selected, setSelected] = useState<string>("")
+    const [selectedOrder, setSelectedOrder] = useState<string>("Mayores ingresos")
     const enabledOptions: string[] = []
     if (data && data.articles.length > 0) enabledOptions.push("Artículos")
     if (data && data.edits.length > 0) enabledOptions.push("Ediciones")
@@ -205,6 +210,22 @@ const Page = () => {
     }, [enabledOptions]);
 
     const isAuthor = enabledOptions.length > 0
+
+    function cmpArticles(a: ArticleStats, b: ArticleStats) {
+        if(selectedOrder == "Mayores ingresos") {
+            return b.income - a.income
+        } else {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        }
+    }
+
+    function cmpEdits(a: EditedTopicStats, b: EditedTopicStats) {
+        if(selectedOrder == "Mayores ingresos") {
+            return b.income - a.income
+        } else {
+            return new Date(b.last_edit).getTime() - new Date(a.last_edit).getTime()
+        }
+    }
 
     return <div className={"flex flex-col"}>
         {isLoading && <div className={"mt-8"}>
@@ -266,18 +287,28 @@ const Page = () => {
                     className={"flex border-b"}
                     optionContainerClassName={"flex"}
                 />
+                {(selected == "Artículos" && data.articles.length > 1 || selected == "Ediciones" && data.edits.length > 1) && <div className={"flex justify-end pt-2 pr-2"}>
+                    <div className={"w-36"}>
+                        <BaseSelect
+                            size={"small"}
+                            value={selectedOrder}
+                            options={["Mayores ingresos", "Más recientes"]}
+                            onChange={setSelectedOrder}
+                        />
+                    </div>
+                </div>}
                 {selected != null && (selected == "Artículos" ? <div className={"space-y-4 py-2"}>
-                        {data.articles.map((a, idx) => {
+                        {data.articles.toSorted(cmpArticles).map((a, idx) => {
                             return <div key={idx}>
                                 <ArticleStatsCard article={a}/>
                             </div>
                         })}
-                        {data.articles.length == 0 && <div className={"text-center text-[var(--text-light)] py-16"}>
+                        {data.articles.length == 0 && <Note className={"py-16"}>
                             Todavía no escribiste ningún artículo.
-                        </div>}
+                        </Note>}
                     </div> :
                     <div className={"space-y-4 py-2"}>
-                        {data.edits.map((a, idx) => {
+                        {data.edits.toSorted(cmpEdits).map((a, idx) => {
                             return <div key={idx}>
                                 <EditStatsCard topicVersion={a}/>
                             </div>
