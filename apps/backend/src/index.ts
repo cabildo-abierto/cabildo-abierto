@@ -6,7 +6,7 @@ export const run = async (roles: Role[]) => {
     const server = await Server.create(roles)
 
     const onCloseSignal = async () => {
-        setTimeout(() => process.exit(1), 10000).unref() // Force shutdown after 10s
+        setTimeout(() => process.exit(1), 10000).unref()
         await server.close()
         process.exit()
     }

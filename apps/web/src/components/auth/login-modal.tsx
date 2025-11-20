@@ -20,7 +20,7 @@ import {topicUrl} from "@/components/utils/react/url";
 const LoginPanel = ({children, onClickBack, onClose}: {
     children: ReactNode
     onClickBack?: () => void
-    onClose: () => void
+    onClose?: () => void
 }) => {
     return <BaseFullscreenPopup
         open={true}
@@ -35,9 +35,9 @@ const LoginPanel = ({children, onClickBack, onClose}: {
                 {onClickBack && <BackButton
                     onClick={onClickBack}
                 />}
-                <CloseButton
+                {onClose != null && <CloseButton
                     onClose={onClose}
-                />
+                />}
             </div>
             {children}
         </div>
@@ -50,7 +50,7 @@ export const LoginModal = ({
                                onClose
                            }: {
     open: boolean;
-    onClose: () => void;
+    onClose?: () => void;
 }) => {
     const params = useSearchParams()
     const inviteCode = params.get("c")

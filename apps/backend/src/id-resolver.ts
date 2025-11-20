@@ -21,7 +21,7 @@ export interface BidirectionalResolver {
 
 export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache) {
     return {
-        async resolveDidToHandle(did: string, useCache: boolean = true): Promise<string> {
+        async resolveDidToHandle(did: string, useCache: boolean = true): Promise<string | null> {
             const handle = await redis.resolver.getHandle(did)
             if(!handle || !useCache){
                 const didDoc = await resolver.did.resolveAtprotoData(did)
@@ -30,23 +30,10 @@ export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCa
                     await redis.resolver.setHandle(did, didDoc.handle)
                     return didDoc.handle
                 }
+                return null
             } else {
                 return handle
             }
-            return did
-        },
-
-        async resolveDidsToHandles(
-            dids: string[]
-        ): Promise<Record<string, string>> {
-            const didHandleMap: Record<string, string> = {}
-            const resolves = await Promise.all(
-                dids.map((did) => this.resolveDidToHandle(did).catch((_) => did))
-            )
-            for (let i = 0; i < dids.length; i++) {
-                didHandleMap[dids[i]] = resolves[i]
-            }
-            return didHandleMap
         },
 
         async resolveHandleToDid(handle: string): Promise<string | null> {

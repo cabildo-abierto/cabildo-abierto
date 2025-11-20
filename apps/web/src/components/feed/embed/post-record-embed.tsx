@@ -50,7 +50,7 @@ export const PostRecordEmbedRecord = ({
         const recordMain = record.value as AppBskyFeedPost.Record
 
         return <div
-            className={"embed-panel p-3"}
+            className={"embed-panel cursor-pointer p-3"}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

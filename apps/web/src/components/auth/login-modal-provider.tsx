@@ -7,8 +7,9 @@ import dynamic from "next/dynamic";
 const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginModal), {ssr: false})
 
 const LoginModalContext = createContext<{
-    loginModalOpen: boolean;
-    setLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    loginModalOpen: boolean
+    allowsClose: boolean
+    setLoginModalOpen: (v: boolean, w?: boolean) => void
 } | undefined>(undefined)
 
 
@@ -23,6 +24,7 @@ export const useLoginModal = () => {
 
 export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false)
+    const [allowsClose, setAllowsClose] = useState<boolean>(false)
     const pathname = usePathname()
 
     useEffect(() => {
@@ -31,12 +33,17 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }, [pathname])
 
+    function onSetLoginModalOpen(v: boolean, w: boolean = true) {
+        setLoginModalOpen(v)
+        setAllowsClose(w)
+    }
+
     return (
-        <LoginModalContext.Provider value={{ loginModalOpen, setLoginModalOpen }}>
+        <LoginModalContext.Provider value={{ loginModalOpen, allowsClose, setLoginModalOpen: onSetLoginModalOpen }}>
             {children}
             {loginModalOpen && createPortal(<LoginModal
                 open={loginModalOpen}
-                onClose={() => {setLoginModalOpen(false)}}
+                onClose={allowsClose ? () => {setLoginModalOpen(false)} : undefined}
             />, document.body)}
         </LoginModalContext.Provider>
     )
