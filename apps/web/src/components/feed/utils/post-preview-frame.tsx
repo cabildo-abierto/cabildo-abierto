@@ -14,10 +14,9 @@ import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import ValidationIcon from "../../perfil/validation-icon";
 import BlueskyLogo from "@/components/utils/icons/bluesky-logo";
 import dynamic from "next/dynamic";
-import {CheckIcon, XIcon} from '@phosphor-icons/react';
-import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {contentUrl, profileUrl} from "@/components/utils/react/url";
 import {CustomLink} from "@/components/utils/base/custom-link";
+import {VoteMarkerOnPostPreviewFrame} from "@/components/feed/post/vote-marker-on-post-preview-frame";
 
 const UserSummaryOnHover = dynamic(() => import("../../perfil/user-summary"), {
     ssr: false,
@@ -88,7 +87,6 @@ export const PostPreviewFrame = ({
         className={"flex flex-col " + (borderBelow ? "border-b" : "") + (engagementIcons ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
         onClick={!isOptimistic && engagementIcons ? onClick : undefined}
         href={!isOptimistic && engagementIcons ? url : undefined}
-
     >
         {ArCabildoabiertoFeedDefs.isPostView(postView) && pageRootUri &&
         <ReplyToVersion
@@ -104,16 +102,7 @@ export const PostPreviewFrame = ({
                     href={profileUrl(author.handle)}
                     className={"relative flex items-center justify-center " + (isMobile ? "w-9" : "w-11")}
                 >
-                    {ArCabildoabiertoFeedDefs.isPostView(postView) && postView.voteContext?.authorVotingState == "accept" && <DescriptionOnHover description={`@${postView.author.handle} votó a favor de esta versión del tema.`}>
-                        <div className={"absolute top-0 right-0 bg-[var(--green-dark2)] text-[var(--text-light)] rounded-full items-center p-[2px]"}>
-                            <CheckIcon fontSize={12}/>
-                        </div>
-                    </DescriptionOnHover>}
-                    {ArCabildoabiertoFeedDefs.isPostView(postView) && postView.voteContext?.authorVotingState == "reject" && <DescriptionOnHover description={`@${postView.author.handle} votó en contra de esta versión del tema.`}>
-                        <div className={"absolute top-0 right-0 bg-[var(--red-dark2)] text-[var(--text-light)] rounded-full items-center p-[2px]"}>
-                            <XIcon fontSize={12}/>
-                        </div>
-                    </DescriptionOnHover>}
+                    {ArCabildoabiertoFeedDefs.isPostView(postView) && <VoteMarkerOnPostPreviewFrame postView={postView}/>}
                     <ProfilePic
                         user={author}
                         className={"rounded-full w-full"}

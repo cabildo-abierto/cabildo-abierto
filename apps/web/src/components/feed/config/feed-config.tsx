@@ -31,7 +31,7 @@ export const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
             </BaseIconButton>
 
             <div
-                className="pointer-events-none fixed w-screen left-0"
+                className={cn("pointer-events-none fixed w-screen left-0", !open && "hidden")}
                 style={{
                     paddingLeft: layoutConfig.spaceForLeftSide ? layoutConfig.widthLeftSide : (layoutConfig.spaceForMinimizedLeftSide ? layoutConfig.widthLeftSideSmall : 0),
                     paddingRight: layoutConfig.spaceForRightSide && layoutConfig.openRightPanel ? layoutConfig.widthRightSide : 0,
