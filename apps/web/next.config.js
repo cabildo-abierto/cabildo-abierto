@@ -3,6 +3,7 @@
 //})
 
 nextConfig = {
+    output: "standalone",
     reactStrictMode: false,
     logging: {
         fetches: {
@@ -11,10 +12,9 @@ nextConfig = {
     },
     images: {
         remotePatterns: [
-            {
-                protocol: "https",
-                hostname: "**",
-            },
+            { protocol: "https", hostname: "cdn.bsky.app" },
+            { protocol: "https", hostname: "video.bsky.app" },
+            { protocol: "https", hostname: "upload.wikimedia.org" }, // THIS is the correct Wikimedia image host
         ],
     },
     allowedDevOrigins: [
@@ -26,8 +26,7 @@ nextConfig = {
             '@atproto/api',
             '@atproto/syntax',
             '@atproto/xrpc'
-        ],
-        esmExternals: true
+        ]
     },
 }
 

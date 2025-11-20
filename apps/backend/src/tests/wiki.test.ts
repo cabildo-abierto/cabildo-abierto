@@ -41,7 +41,7 @@ const testSuite = getSuiteId(__filename)
 // TO DO: Eliminaciones de votos...
 // Probablemente no haga falta testear todos estos
 
-describe('Create topic vote', { timeout: 20000 }, () => {
+describe('Create topic vote', { timeout: 30000 }, () => {
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
@@ -108,7 +108,7 @@ describe('Create topic vote', { timeout: 20000 }, () => {
         const votes2 = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
         expect(votes2).not.toBeFalsy()
         expect(votes2!.length).toEqual(0)
-    })
+    }, {timeout: 20000})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })

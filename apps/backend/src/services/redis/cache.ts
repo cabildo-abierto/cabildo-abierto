@@ -8,7 +8,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {AppBskyGraphFollow} from "@atproto/api";
 import {NextMeeting} from "#/services/admin/meetings.js";
 import {AppContext} from "#/setup.js";
-import {type Redis} from "ioredis";
+import {type Redis} from "ioredis/built/index.js";
 
 
 class CacheKey {

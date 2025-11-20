@@ -4,7 +4,12 @@
   "description": "",
   "author": "",
   "license": "MIT",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "public",
+    "package.json"
+  ],
   "private": true,
   "type": "module",
   "scripts": {
@@ -105,26 +110,5 @@
     "@vitest/coverage-v8": "^3.2.4",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
-  },
-  "tsup": {
-    "entry": [
-      "src",
-      "!src/**/__tests__/**",
-      "!src/**/*.test.*"
-    ],
-    "splitting": false,
-    "sourcemap": true,
-    "clean": true,
-    "format": [
-      "esm"
-    ],
-    "platform": "node",
-    "target": "node20",
-    "external": [
-      "safer-buffer",
-      "iconv-lite",
-      "whatwg-encoding",
-      "undici"
-    ]
   }
 }

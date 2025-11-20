@@ -31,5 +31,5 @@ prisma/generated
 src/components
 src/layouts
 src/services/emails/templates
-
+.turbo
 src/script.ts

@@ -33,7 +33,7 @@ import {env} from "#/lib/env.js";
 import {reprocessCollection} from "#/services/sync/reprocess.js";
 import {runTestJob} from "#/services/admin/status.js";
 import {clearAllRedis} from "#/services/redis/cache.js";
-import {type Redis} from "ioredis"
+import {type Redis} from "ioredis/built/index.js"
 import {updateAllTopicPopularities} from "#/services/wiki/references/popularity.js";
 import {assignPayments} from "#/services/monetization/payments.js";
 
