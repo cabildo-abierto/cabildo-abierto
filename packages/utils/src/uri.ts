@@ -1,3 +1,4 @@
+import {Collection} from "@cabildo-abierto/api";
 
 export function getUri(did: string, collection: string, rkey: string) {
     return "at://" + did + "/" + collection + "/" + rkey
@@ -40,6 +41,19 @@ export function shortCollectionToCollection(collection: string) {
 
 export function getCollectionFromUri(uri: string) {
     return uri.split("/")[3]
+}
+
+export function getCollectionEnumFromUri(uri: string): Collection {
+    const collection = getCollectionFromUri(uri)
+    if(collection == "app.bsky.feed.post") {
+        return "AppBskyFeedPost"
+    } else if(collection == "ar.cabildoabierto.feed.article") {
+        return "ArCabildoabiertoFeedArticle"
+    } else if(collection == "app.bsky.feed.repost") {
+        return "AppBskyFeedRepost"
+    } else {
+        throw Error("Unknown collection: " + collection)
+    }
 }
 
 export function isPost(c: string) {
