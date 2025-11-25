@@ -53,7 +53,7 @@ export const TrendingTopicInSlider = ({
 
         <div className={"flex space-x-1"}>
             <div
-                className={cn("font-medium w-full max-w-[225px] text-[15px]", hovering && "truncate")}
+                className={cn("font-medium w-full max-w-[225px] text-[15px]", !hovering && "truncate")}
             >
                 {title}
             </div>

@@ -45,12 +45,12 @@ export const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
                             pointer-events-auto z-[1300] p-3 space-y-2 
                             bg-[var(--background)] shadow
                             border-[var(--accent-dark)] border-b transition-all duration-300 ease-in-out
-                            opacity-0 -translate-y-2
+                            opacity-0 -translate-y-2 
                             `,
                             open && "opacity-100 translate-y-0",
                             !isMobile && "border-l border-r"
                         )}
-                        style={{minWidth: layoutConfig.centerWidth}}
+                        style={{width: layoutConfig.centerWidth}}
                     >
                         {selected == "En discusión" && <EnDiscusionFeedConfig />}
                         {selected == "Siguiendo" && <FollowingFeedConfig />}
