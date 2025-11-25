@@ -1,16 +1,26 @@
 import {AppContext} from "#/setup.js";
 import {getCollectionEnumFromUri, getDidFromUri} from "@cabildo-abierto/utils";
-import {Collection} from "@cabildo-abierto/api";
+import {CollectionEnum} from "@cabildo-abierto/api";
 
 
 type FollowingFeedIndexUpdate = {
     contentId: string
     repostedContentId: string | null
     readerId: string
-    collection: Collection
+    collection: CollectionEnum
     authorInCA: boolean
     created_at: Date
 }
+
+
+/*
+    Idea:
+     - Por cada post, para cada uno de los seguidores actualizamos el feed de la siguiente manera.
+     - Si es un root, se inserta.
+     - Si no, se mira el root. Si el autor es seguido por el usuario:
+        - Si no existe: se inserta.
+        - Si existe lo reemplazamos.
+ */
 
 export class FeedIndexPopulator {
     ctx: AppContext
@@ -22,7 +32,9 @@ export class FeedIndexPopulator {
         const records = await this.ctx.kysely
             .selectFrom("Record")
             .innerJoin("User", "User.did", "Record.authorId")
+            .leftJoin("Post", "Post.uri", "Record.uri")
             .where("Record.created_at_tz", ">", since)
+            .where("Post.replyToId", "is", null) // por ahora
             .where("User.inCA", "=", true) // por ahora
             .where("Record.collection", "in", [
                 "app.bsky.feed.post",
