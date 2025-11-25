@@ -1,6 +1,6 @@
 import {useAPI} from "@/components/utils/react/queries";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import { Note } from "@/components/utils/base/note";
+import {Note} from "@/components/utils/base/note";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
@@ -70,7 +70,7 @@ export const DiscoverFeedConfig = () => {
         }
     })
 
-    if(!user) {
+    if (!user) {
         return <Note>
             Iniciá sesión para configurar tus intereses.
         </Note>
@@ -109,40 +109,38 @@ export const DiscoverFeedConfig = () => {
             return cleanText(x.id).includes(cleanText(categorySearch))
         })
 
-    return <div className={"space-y-2"}>
-        <div className={"flex flex-wrap gap-1 group portal"}>
-            <SearchBar
-                className={"w-[144px] mr-1"}
-                inputClassName={"py-[3px] text-[12px]"}
-                inputGroupClassName={""}
-                autoComplete={"off"}
-                searchValue={categorySearch}
-                setSearchValue={(e) => {
-                    setCategorySearch(e)
-                }}
-                placeholder={"Buscar..."}
-            />
-            {filteredCategories.slice(0, viewingCount).map(i => {
-                return <BaseButton
-                    onClick={() => {
-                        onClickInterest(i.id)
-                    }}
-                    size={"small"}
-                    variant={i.selected ? "outlined" : "default"}
-                    key={i.id}
-                    className={"text-xs px-1 py-1"}
-                >
-                    {i.id}
-                </BaseButton>
-            })}
-            {viewingCount < filteredCategories.length && <BaseButton
-                className={"text-xs px-1 py-1 underline"}
+    return <div className={"flex flex-wrap gap-1 group portal"}>
+        <SearchBar
+            className={"w-[144px] mr-1"}
+            inputClassName={"py-[3px] text-[12px]"}
+            inputGroupClassName={""}
+            autoComplete={"off"}
+            searchValue={categorySearch}
+            setSearchValue={(e) => {
+                setCategorySearch(e)
+            }}
+            placeholder={"Buscar..."}
+        />
+        {filteredCategories.slice(0, viewingCount).map(i => {
+            return <BaseButton
                 onClick={() => {
-                    setViewingCount(viewingCount + 10)
+                    onClickInterest(i.id)
                 }}
+                size={"small"}
+                variant={i.selected ? "outlined" : "default"}
+                key={i.id}
+                className={"text-xs px-1 py-1"}
             >
-                Ver más
-            </BaseButton>}
-        </div>
+                {i.id}
+            </BaseButton>
+        })}
+        {viewingCount < filteredCategories.length && <BaseButton
+            className={"text-xs px-1 py-1 underline"}
+            onClick={() => {
+                setViewingCount(viewingCount + 10)
+            }}
+        >
+            Ver más
+        </BaseButton>}
     </div>
 }
