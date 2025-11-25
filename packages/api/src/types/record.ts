@@ -1,3 +1,3 @@
 
 
-export type Collection = "ArCabildoabiertoFeedArticle" | "AppBskyFeedPost" | "AppBskyFeedRepost"
+export type CollectionEnum = "ArCabildoabiertoFeedArticle" | "AppBskyFeedPost" | "AppBskyFeedRepost"
