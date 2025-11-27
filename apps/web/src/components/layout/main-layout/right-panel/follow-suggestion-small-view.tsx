@@ -11,6 +11,7 @@ export const FollowSuggestionSmallView = ({
     user: ArCabildoabiertoActorDefs.ProfileViewBasic
 }) => {
     return <CustomLink
+        tag={"div"}
         href={profileUrl(user.handle)}
         className="hover:bg-[var(--background-dark)] flex space-x-2 justify-between p-2 items-center"
     >
@@ -19,7 +20,6 @@ export const FollowSuggestionSmallView = ({
                 <ProfilePic
                     user={user}
                     className={"rounded-full w-8 h-8"}
-                    descriptionOnHover={false}
                 />
             </div>
             <div className={"space-y-[-2px] text-ellipsis"}>
