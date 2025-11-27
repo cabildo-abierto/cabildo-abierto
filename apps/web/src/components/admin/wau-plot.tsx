@@ -1,8 +1,13 @@
 import {useProfile} from "@/components/perfil/use-profile";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {$Typed, ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api";
+import {
+    $Typed,
+    ArCabildoabiertoDataDataset,
+    ArCabildoabiertoEmbedVisualization,
+    StatsDashboard
+} from "@cabildo-abierto/api";
 import PlotWithButtons from "@/components/visualizations/editor/plot-with-buttons";
-import {StatsDashboard} from "@/components/admin/stats";
+
 
 export const WAUPlot = ({data, title}: {
     data: StatsDashboard["WAUPlot"]
@@ -50,7 +55,9 @@ export const WAUPlot = ({data, title}: {
         dataset,
     }
 
-    return <div>
-        <PlotWithButtons visualization={WAUVisualization}/>
+    return <div className={"max-w-[600px] w-full"}>
+        <PlotWithButtons
+            visualization={WAUVisualization}
+        />
     </div>
 }

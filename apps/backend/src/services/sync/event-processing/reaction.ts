@@ -1,6 +1,7 @@
 import {
     getCollectionFromUri,
-    getDidFromUri
+    getDidFromUri,
+    isRepost
 } from "@cabildo-abierto/utils";
 import {Transaction} from "kysely";
 import {ReactionRecord, ReactionType} from "#/services/reactions/reactions.js";
@@ -159,6 +160,13 @@ export class ReactionRecordProcessor extends RecordProcessor<ReactionRecord> {
         } | undefined,
         records: RefAndRecord<ReactionRecord>[]
     ) {
+        const reposts = records
+            .map(r => r.ref.uri)
+            .filter(uri => isRepost(getCollectionFromUri(uri)))
+        if(reposts.length > 0){
+            await this.ctx.worker?.addJob("update-following-feed-on-new-content",  reposts)
+        }
+
         if (res) {
             const data: NotificationJobData[] = res.topicVotes.map(t => ({
                 type: "TopicVersionVote",
@@ -236,8 +244,6 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
         const type = getCollectionFromUri(uris[0])
         if (!isReactionCollection(type)) return
 
-        this.ctx.logger.pino.info({uris}, "deleting reactions")
-
         const {topicIds, subjectIds} = await this.ctx.kysely.transaction().execute(async (db) => {
             let subjectIds: {subjectId: string, uri: string}[] = []
             try {
@@ -285,6 +291,9 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                     .execute()
             }
 
+            await db.deleteFrom("FollowingFeedIndex")
+                .where("contentId", "in", uris).execute()
+
             await db.deleteFrom("TopicInteraction").where("recordId", "in", uris).execute()
 
             await db.deleteFrom("Notification").where("causedByRecordId", "in", uris).execute()
@@ -294,8 +303,6 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
             await db.deleteFrom("Record").where("uri", "in", uris).execute()
 
             if (subjectIds.length > 0 && (type == "ar.cabildoabierto.wiki.voteReject" || type == "ar.cabildoabierto.wiki.voteAccept")) {
-                this.ctx.logger.pino.info("getting topic ids")
-
                 let topicIds: string[] = []
                 try {
                     topicIds = (await db
@@ -307,14 +314,11 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                     this.ctx.logger.pino.error({error}, "error getting topic ids")
                 }
 
-                this.ctx.logger.pino.info({topicIds}, "got topic ids")
-
                 if (topicIds.length > 0) {
                     await updateTopicsCurrentVersionBatch(this.ctx, db, topicIds)
                     return {topicIds, subjectIds}
                 }
             }
-            this.ctx.logger.pino.info("deleting reactions transaction finished correctly")
             return {subjectIds}
         })
         if (topicIds && topicIds.length > 0) {
@@ -330,6 +334,12 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                 "update-interactions-score",
                 postsAndArticles
             )
+
+            const reposts = subjectIds.filter(r  => isRepost(getCollectionFromUri(r.uri)))
+            if(reposts.length > 0) {
+                this.ctx.logger.pino.info({reposts}, "updating following feed after reposts deleted")
+                await this.ctx.worker?.addJob("update-following-feed-on-deleted-content", reposts.map(r => r.subjectId))
+            }
         }
     }
 

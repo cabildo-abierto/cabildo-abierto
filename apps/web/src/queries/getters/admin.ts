@@ -1,6 +1,5 @@
 import {useAPI} from "@/components/utils/react/queries";
 import {ValidationRequestView} from "@/components/admin/admin-validation";
-import {StatsDashboard} from "@/components/admin/stats";
 
 
 type AccessRequest = {
@@ -22,9 +21,6 @@ export const usePendingValidationRequests = () => {
 }
 
 
-export function useStatsDashboard() {
-    return useAPI<StatsDashboard>("/stats-dashboard", ["stats-dashboard"])
-}
 
 
 export type UserSyncStatus = {

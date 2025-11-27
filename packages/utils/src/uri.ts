@@ -76,6 +76,10 @@ export function isVisualization(c: string){
     return c == "ar.com.cabildoabierto.visualization"
 }
 
+export function isRepost(c: string){
+    return c == "app.bsky.feed.repost"
+}
+
 
 export function encodeParentheses(s: string){
     return s.replaceAll("(", "%28").replaceAll(")", "%29")

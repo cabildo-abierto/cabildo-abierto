@@ -14,9 +14,7 @@ export function createIdResolver() {
 export interface BidirectionalResolver {
     resolveHandleToDid(handle: string): Promise<string | null>
 
-    resolveDidToHandle(did: string, useCache: boolean): Promise<string>
-
-    resolveDidsToHandles(dids: string[]): Promise<Record<string, string>>
+    resolveDidToHandle(did: string, useCache: boolean): Promise<string | null>
 }
 
 export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache) {

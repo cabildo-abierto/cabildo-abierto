@@ -2,7 +2,7 @@ import {AppBskyGraphFollow} from "@atproto/api"
 import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-
+import {getDidFromUri} from "@cabildo-abierto/utils";
 
 
 export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Record> {
@@ -27,6 +27,11 @@ export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Re
                     })
                 )
                 .execute()
+
+            await this.ctx.worker?.addJob("update-following-feed-on-follow-change", follows.map(f => ({
+                follower: getDidFromUri(f.uri),
+                followed: f.userFollowedId
+            })))
         })
     }
 }
@@ -34,7 +39,12 @@ export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Re
 
 export class FollowDeleteProcessor extends DeleteProcessor {
     async deleteRecordsFromDB(uris: string[]){
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+        const follows = await this.ctx.kysely.transaction().execute(async (trx) => {
+            const follows = await trx.selectFrom("Follow")
+                .where("Follow.uri", "in", uris)
+                .select(["Follow.userFollowedId", "Follow.uri"])
+                .execute()
+
             await trx
                 .deleteFrom("Follow")
                 .where("Follow.uri", "in", uris)
@@ -44,6 +54,13 @@ export class FollowDeleteProcessor extends DeleteProcessor {
                 .deleteFrom("Record")
                 .where("Record.uri", "in", uris)
                 .execute()
+
+            return follows
         })
+
+        await this.ctx.worker?.addJob("update-following-feed-on-follow-change", follows.map(f => ({
+            follower: getDidFromUri(f.uri),
+            followed: f.userFollowedId
+        })).filter(x => x.followed != null))
     }
 }

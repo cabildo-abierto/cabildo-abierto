@@ -136,8 +136,12 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
             await Promise.all([
                 this.ctx.worker?.addJob("update-interactions-score", interactions),
                 this.createNotifications(insertedPosts),
-                this.ctx.worker?.addJob("update-contents-topic-mentions", insertedPosts.map(r => r.uri), 11)
+                this.ctx.worker?.addJob("update-contents-topic-mentions", insertedPosts.map(r => r.uri), 11),
             ])
+        }
+
+        if(!reprocess) {
+            await this.ctx.worker?.addJob("update-following-feed-on-new-content",  records.map(r => r.ref.uri))
         }
     }
 
@@ -167,7 +171,13 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
 
 export class PostDeleteProcessor extends DeleteProcessor {
     async deleteRecordsFromDB(uris: string[]){
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+        const rootUris = await this.ctx.kysely.transaction().execute(async (trx) => {
+            const rootUris = await this.ctx.kysely
+                .selectFrom("Post")
+                .where("uri", "in", uris)
+                .select(["Post.rootId"])
+                .execute()
+
             await trx
                 .deleteFrom("Notification")
                 .where("Notification.causedByRecordId", "in", uris)
@@ -194,6 +204,16 @@ export class PostDeleteProcessor extends DeleteProcessor {
                 .execute()
 
             await trx
+                .deleteFrom("FollowingFeedIndex")
+                .where("contentId", "in", uris)
+                .execute()
+
+            await trx
+                .deleteFrom("FollowingFeedIndex")
+                .where("rootId", "in", uris)
+                .execute()
+
+            await trx
                 .deleteFrom("Post")
                 .where("Post.uri", "in", uris)
                 .execute()
@@ -207,7 +227,10 @@ export class PostDeleteProcessor extends DeleteProcessor {
                 .deleteFrom("Record")
                 .where("Record.uri", "in", uris)
                 .execute()
+
+            return rootUris
         })
+        await this.ctx.worker?.addJob("update-following-feed-on-deleted-content", rootUris.map(r => r.rootId).filter(x => x != null))
         await this.ctx.worker?.addJob("update-contents-topic-mentions", uris)
     }
 }

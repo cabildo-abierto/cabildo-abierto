@@ -76,16 +76,13 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
                 )
                 .select([
                     "UnnestedSynonyms.id",
-                    sql`to_tsquery
-                    ('public.spanish_simple_unaccent', regexp_replace(trim("UnnestedSynonyms"."keyword"), '\\s+', ' <-> ', 'g'))`.as("query")
+                    sql`websearch_to_tsquery
+                    ('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
                 ])
             )
             .selectFrom("Content")
             .innerJoin("Synonyms", (join) =>
-                join.on(sql`"Content"
-                .
-                "text_tsv"
-                @@ "Synonyms"."query"`)
+                join.on(sql`"Content"."text_tsv" @@ "Synonyms"."query"`)
             )
             .$if(uris != null, qb => qb.where("Content.uri", "in", uris!))
             .innerJoin("Record", "Record.uri", "Content.uri")
@@ -346,20 +343,38 @@ export async function updatePopularitiesOnContentsChange(ctx: AppContext, uris: 
     const t1 = Date.now()
     await updateContentsText(ctx, uris)
     const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(ctx, uris, undefined)
+    const newReferences = await updateReferencesForContentsAndTopics(
+        ctx,
+        uris,
+        undefined
+    )
     const t3 = Date.now()
-    const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(ctx, newReferences)
+    const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(
+        ctx,
+        newReferences
+    )
     const t4 = Date.now()
-    topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(ctx, uris))
+    topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(
+        ctx,
+        uris
+    ))
     const t5 = Date.now()
-
-    await updateTopicPopularities(ctx, topicsWithNewInteractions)
+    await updateTopicPopularities(
+        ctx,
+        topicsWithNewInteractions
+    )
     const t6 = Date.now()
 
-    await createMentionNotifications(ctx, uris)
+    await createMentionNotifications(
+        ctx,
+        uris
+    )
     const t7 = Date.now()
 
-    await updateDiscoverFeedIndex(ctx, uris)
+    await updateDiscoverFeedIndex(
+        ctx,
+        uris
+    )
     const t8 = Date.now()
 
     ctx.logger.logTimes(`update refs and pops on ${uris.length} contents`, [t1, t2, t3, t4, t5, t6, t7, t8])
@@ -433,13 +448,15 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
             .select(["id", "currentVersionId", sql<string>`unnest("Topic"."synonyms")`.as("keyword")])
         )
         .selectFrom("Synonyms")
-        .where(sql<boolean>`${text_tsv} @@ to_tsquery('public.spanish_simple_unaccent', regexp_replace(trim("Synonyms"."keyword"), '\\s+', ' <-> ', 'g'))`)
+        .where(sql<boolean>`
+          ${text_tsv} @@ websearch_to_tsquery('public.spanish_simple_unaccent', "Synonyms"."keyword")
+        `)
         .innerJoin("TopicVersion", "TopicVersion.uri", "Synonyms.currentVersionId")
         .select([
             'Synonyms.id as topicId',
             'Synonyms.keyword',
             "TopicVersion.props",
-            sql<number>`ts_rank_cd(${text_tsv}, to_tsquery('public.spanish_simple_unaccent', regexp_replace(trim("Synonyms"."keyword"), '\\s+', ' <-> ', 'g')))`.as('rank')
+            sql<number>`ts_rank_cd(${text_tsv}, websearch_to_tsquery('public.spanish_simple_unaccent',"Synonyms"."keyword"))`.as('rank')
         ])
         .execute()
 
@@ -468,65 +485,72 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
     const batchSize = 2000
     let offset = 0
 
-    while (true) {
-        const contents = await ctx.kysely
-            .selectFrom("Content")
-            .innerJoin("Record", "Record.uri", "Content.uri")
-            .where("Record.collection", "in", ["ar.cabildoabierto.feed.article", "app.bsky.feed.post"])
-            .$if(uris != null, qb => qb.where("Content.uri", "in", uris!))
-            .limit(batchSize)
-            .offset(offset)
-            .select([
-                "Content.uri",
-                "Record.created_at_tz",
-                eb => jsonArrayFrom(eb
-                    .selectFrom("Reference")
-                    .whereRef("Reference.referencingContentId", "=", "Content.uri")
-                    .innerJoin("Topic", "Topic.id", "Reference.referencedTopicId")
-                    .innerJoin("TopicVersion", "TopicVersion.uri", "Topic.currentVersionId")
-                    .select(["TopicVersion.props"])
-                ).as("mentionedTopicsProps")
-            ])
-            .orderBy("Record.created_at_tz desc")
-            .execute()
-        if (contents.length == 0) break
+    if(uris != null && uris.length == 0) return
 
-        const values: { categoryId: string, contentId: string, created_at: Date }[] = []
-        for (const c of contents) {
-            const cats = unique(c.mentionedTopicsProps.flatMap(p => {
-                return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
-            }))
-            for (const cat of cats) {
-                if (c.created_at_tz) {
-                    values.push({
-                        categoryId: cat,
-                        contentId: c.uri,
-                        created_at: c.created_at_tz
-                    })
-                } else {
-                    ctx.logger.pino.warn({uri: c.uri}, "content has no created at tz")
+    while (true) {
+        try {
+            const contents = await ctx.kysely
+                .selectFrom("Content")
+                .innerJoin("Record", "Record.uri", "Content.uri")
+                .where("Record.collection", "in", ["ar.cabildoabierto.feed.article", "app.bsky.feed.post"])
+                .$if(uris != null, qb => qb.where("Content.uri", "in", uris!))
+                .$if(uris == null, qb => qb.limit(batchSize))
+                .$if(uris == null, qb => qb.offset(offset))
+                .select([
+                    "Content.uri",
+                    "Record.created_at_tz",
+                    eb => jsonArrayFrom(eb
+                        .selectFrom("Reference")
+                        .innerJoin("Topic", "Topic.id", "Reference.referencedTopicId")
+                        .innerJoin("TopicVersion", "TopicVersion.uri", "Topic.currentVersionId")
+                        .whereRef("Reference.referencingContentId", "=", "Content.uri")
+                        .select(["TopicVersion.props"])
+                    ).as("mentionedTopicsProps")
+                ])
+                .orderBy("Record.created_at_tz desc")
+                .execute()
+
+            if (contents.length == 0) break
+
+            const values: { categoryId: string, contentId: string, created_at: Date }[] = []
+            for (const c of contents) {
+                const cats = unique(c.mentionedTopicsProps.flatMap(p => {
+                    return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+                }))
+                for (const cat of cats) {
+                    if (c.created_at_tz) {
+                        values.push({
+                            categoryId: cat,
+                            contentId: c.uri,
+                            created_at: c.created_at_tz
+                        })
+                    } else {
+                        ctx.logger.pino.warn({uri: c.uri}, "content has no created at tz")
+                    }
                 }
             }
-        }
 
-        ctx.logger.pino.info({count: values.length}, "inserting content categories")
-        if (values.length > 0) {
-            await ctx.kysely.transaction().execute(async trx => {
-                await trx
-                    .deleteFrom("DiscoverFeedIndex")
-                    .where("contentId", "in", unique(values.map(v => v.contentId)))
-                    .execute()
+            if (values.length > 0) {
+                await ctx.kysely.transaction().execute(async trx => {
+                    await trx
+                        .deleteFrom("DiscoverFeedIndex")
+                        .where("contentId", "in", unique(values.map(v => v.contentId)))
+                        .execute()
 
-                await trx
-                    .insertInto("DiscoverFeedIndex")
-                    .values(values)
-                    .execute()
-            })
-        }
+                    await trx
+                        .insertInto("DiscoverFeedIndex")
+                        .values(values)
+                        .execute()
+                })
+            }
 
-        offset += batchSize
-        if (contents.length < batchSize) {
-            break
+            offset += batchSize
+            if (contents.length < batchSize || uris != null) {
+                break
+            }
+        } catch (error) {
+            ctx.logger.pino.error({error, offset, batchSize}, "error updating discover feed index")
+            throw error
         }
     }
 }

@@ -1,7 +1,6 @@
 import {Agent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import {FeedPipelineProps, FollowingFeedFilter, GetSkeletonProps} from "#/services/feed/feed.js";
-import {rootCreationDateSortKey} from "#/services/feed/utils.js";
 import {getCollectionFromUri, getDidFromUri, isArticle, isPost, isTopicVersion, min} from "@cabildo-abierto/utils";
 import {AppBskyFeedPost, ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {isKnownContent} from "#/utils/type-utils.js";
@@ -472,7 +471,5 @@ export function filterFeed(ctx: AppContext, feed: ArCabildoabiertoFeedDefs.FeedV
 
 
 export const getFollowingFeedPipeline: (filter?: FollowingFeedFilter, format?: FeedFormatOption) => FeedPipelineProps = (filter = "Todos", format = "Todos") => ({
-    getSkeleton: getFollowingFeedSkeleton(filter, format),
-    sortKey: rootCreationDateSortKey,
-    filter: filterFeed
+    getSkeleton: getFollowingFeedSkeleton(filter, format)
 })

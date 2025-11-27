@@ -80,7 +80,7 @@ export const ProfilePage = ({
                     queryKey={["profile-feed", handle, "main"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
-                    endText={"Fin del feed."}
+                    endText={"Fin del muro."}
                 />}
             {selected == "respuestas" &&
                 <FeedViewContentFeed
@@ -90,7 +90,7 @@ export const ProfilePage = ({
                     queryKey={["profile-feed", handle, "replies"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
-                    endText={"Fin del feed."}
+                    endText={"Fin del muro."}
                 />}
             {selected == "ediciones" &&
                 <FeedViewContentFeed
@@ -100,7 +100,7 @@ export const ProfilePage = ({
                     queryKey={["profile-feed", handle, "edits"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no hizo ninguna edición en la wiki."}
-                    endText={"Fin del feed."}
+                    endText={"Fin del muro."}
                     estimateSize={100}
                     overscan={10}
                 />}
@@ -110,7 +110,7 @@ export const ProfilePage = ({
                     queryKey={["profile-feed", handle, "articles"]}
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó ningún artículo."}
-                    endText={"Fin del feed."}
+                    endText={"Fin del muro."}
                 />}
         </div>
     </div>

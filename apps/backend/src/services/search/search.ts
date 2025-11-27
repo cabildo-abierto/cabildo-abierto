@@ -97,11 +97,11 @@ async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?:
     }
 
     if (terms.length === 0) {
-        tsQuery = sql`to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
+        tsQuery = sql`websearch_to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
     } else {
         const baseQueryString = terms.join(' ');
         const baseQuery = sql`websearch_to_tsquery('public.spanish_simple_unaccent', ${baseQueryString})`;
-        const prefixQuery = sql`to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
+        const prefixQuery = sql`websearch_to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
         tsQuery = sql`(${baseQuery} && ${prefixQuery})`;
     }
 

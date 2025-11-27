@@ -32,7 +32,7 @@ export default function PlotWithButtons({
 }) {
     const [editing, setEditing] = useState(false)
 
-    const datasetAvailable = ArCabildoabiertoDataDataset.isDatasetView(visualization.dataset) && visualization.dataset.data != null
+    const datasetAvailable = (ArCabildoabiertoDataDataset.isDatasetView(visualization.dataset) || ArCabildoabiertoDataDataset.isTopicsDatasetView(visualization.dataset)) && visualization.dataset.data != null
 
     return <div
         style={{height, width}}

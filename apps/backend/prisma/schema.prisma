@@ -86,8 +86,6 @@ model Content {
   Dataset                 Dataset[]
   text_tsv                Unsupported("tsvector")?
   inDiscoverFeed          DiscoverFeedIndex[]
-  reposts                 FollowingFeedIndex[]
-  repliesInFollowingFeed  FollowingFeedIndex[]   @relation("root")
 
   @@index([text_tsv], map: "content_text_fts_idx", type: Gin)
   @@index([created_at(sort: Desc)])
@@ -146,9 +144,9 @@ model Draft {
 
 model Follow {
   userFollowedId String?
-  uri            String  @id
-  Record         Record  @relation(fields: [uri], references: [uri])
-  User           User?   @relation(fields: [userFollowedId], references: [did])
+  uri            String    @id
+  Record         Record    @relation(fields: [uri], references: [uri])
+  User           User?     @relation(fields: [userFollowedId], references: [did])
 
   @@index([userFollowedId])
 }
@@ -268,7 +266,6 @@ model Reaction {
   Record_Reaction_subjectIdToRecord Record?     @relation("Reaction_subjectIdToRecord", fields: [subjectId], references: [uri])
   Record_Reaction_uriToRecord       Record      @relation("Reaction_uriToRecord", fields: [uri], references: [uri])
   VoteReject                        VoteReject?
-  contentsInFollowingFeed           FollowingFeedIndex[]
 
   @@index([subjectId])
   @@index([uri, subjectId])
@@ -331,6 +328,8 @@ model Record {
   User_User_CAProfileUriToRecord      User?              @relation("User_CAProfileUriToRecord")
 
   followingFeedEntries                FollowingFeedIndex[]
+  repliesInFollowingFeed  FollowingFeedIndex[]   @relation("root")
+  repostedInFollowingFeed FollowingFeedIndex[]   @relation("repostInFollowingFeed")
 
   @@index([authorId, collection, created_at(sort: Desc)])
   @@index([authorId, created_at(sort: Desc)])
@@ -471,10 +470,14 @@ model FollowingFeedIndex {
   content        Record  @relation(fields: [contentId], references: [uri])
 
   repostedContentId String?
-  repostedContent Content? @relation(fields: [repostedContentId], references: [uri])
+  repostedContent Record? @relation("repostInFollowingFeed", fields: [repostedContentId], references: [uri])
 
   readerId       String
-  reader         User     @relation(fields: [readerId], references: [did])
+  reader         User     @relation("followingFeed", fields: [readerId], references: [did])
+
+  // autor del post, artículo o repost (en caso de ser un repost, es el autor del repost)
+  authorId       String
+  author         User     @relation(fields: [authorId], references: [did])
 
   // artículo o post (en caso de ser repost se usa la collection del contenido)
   collection     Collection
@@ -485,16 +488,13 @@ model FollowingFeedIndex {
 
   // usado para evitar respuestas repetidas
   rootId         String
-  root           Content @relation("root", fields: [rootId], references: [uri])
-
-  // usado para eliminar todos los posts correspondientes a un follow cuando se elimina el follow
-  followId       String
-  follow         Reaction @relation(fields: [followId], references: [uri])
+  root           Record @relation("root", fields: [rootId], references: [uri])
 
   @@id([readerId, contentId])
   @@index([readerId, collection, authorInCA, created_at(sort: Desc)])
   @@index([rootId])
-  @@index([followId])
+  @@index([readerId, rootId, created_at(sort: Desc)])
+  @@index([authorId])
   @@index([readerId, created_at(sort: Desc)])
 }
 
@@ -557,7 +557,8 @@ model User {
   ValidationRequest                             ValidationRequest?
   interests                                     UserInterest[]           @relation("UserInterests")
 
-  followingFeed                                 FollowingFeedIndex[]
+  followingFeed                                 FollowingFeedIndex[]     @relation("followingFeed")
+  contentsInOthersFollowingFeed                 FollowingFeedIndex[]
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])

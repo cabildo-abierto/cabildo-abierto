@@ -26,7 +26,7 @@ export const MentionsFeedPage = () => {
             onClickQuote={() => {
             }}
             noResultsText={"El tema todavía no fue mencionado."}
-            endText={"Fin del feed."}
+            endText={"Fin del muro."}
         />
     }, [metric, time, format, topicId])
 }

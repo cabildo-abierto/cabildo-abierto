@@ -9,20 +9,26 @@ import ValidationIcon from "./validation-icon";
 import {useProfile} from "./use-profile";
 import {ContentCounters} from "./follows/content-counters";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-
+import {Note} from "@/components/utils/base/note";
 
 
 export const UserSummaryCardContent = ({
-                                    handle
-                                }: {
+                                           handle
+                                       }: {
     handle: string
 }) => {
     const {data: profile, isLoading} = useProfile(handle);
 
-    if(isLoading) {
+    if (isLoading) {
         return <div className={"py-6 w-[200px]"}>
             <LoadingSpinner/>
         </div>
+    }
+
+    if (!profile) {
+        return <Note>
+            Error al cargar el perfil.
+        </Note>
     }
 
     const className: string = 'w-12 h-12 rounded-full';
