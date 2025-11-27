@@ -27,6 +27,8 @@ import {getServerStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/otros/find-users.js";
+import {getAllCAFeed} from "#/services/feed/all.js";
+import {updateAllFollowingFeeds} from "#/services/feed/following/update.js";
 
 
 function isAdmin(did: string) {
@@ -172,7 +174,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get("/top-authors", makeAdminHandler(ctx, getTopAuthors))
 
+    router.get("/all-ca-feed", makeAdminHandler(ctx, getAllCAFeed))
+
     router.post("/find-users/:handle", makeAdminHandler(ctx, findUsersInFollows))
+
+    router.post("/update-all-following-feeds", makeAdminHandler(ctx, updateAllFollowingFeeds))
 
     return router
 }

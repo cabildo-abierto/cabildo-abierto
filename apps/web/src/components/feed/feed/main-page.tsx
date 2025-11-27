@@ -111,7 +111,7 @@ export const MainPage = () => {
             <FeedViewContentFeed
                 getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
                 noResultsText={followingFeedNoResultsText}
-                endText={"Fin del feed."}
+                endText={"Fin del muro."}
                 queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
             />}
 
@@ -119,7 +119,7 @@ export const MainPage = () => {
             <FeedViewContentFeed
                 getFeed={getFeed({type: "descubrir"})}
                 noResultsText={discoverFeedNoResultsText}
-                endText={"Fin del feed."}
+                endText={"Fin del muro."}
                 queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
             />}
 
@@ -130,7 +130,7 @@ export const MainPage = () => {
             <FeedViewContentFeed
                 getFeed={getFeed({type: "discusion", params: {metric, time, format}})}
                 noResultsText={"No hay contenidos en discusión."}
-                endText={"Fin del feed."}
+                endText={"Fin del muro."}
                 queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time, format]}
             />}
 

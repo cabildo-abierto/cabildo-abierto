@@ -51,6 +51,7 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
         const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
         if(!reprocess) await Promise.all([
             this.ctx.worker?.addJob("update-author-status", authors, 11),
+            this.ctx.worker?.addJob("update-following-feed-on-new-content",  records.map(r => r.ref.uri)),
             this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
             this.ctx.worker?.addJob("update-interactions-score", records.map(r => r.ref.uri), 11)
         ])
@@ -89,6 +90,16 @@ export class ArticleDeleteProcessor extends DeleteProcessor {
             await trx
                 .deleteFrom("DiscoverFeedIndex")
                 .where("contentId", "in", uris)
+                .execute()
+
+            await trx
+                .deleteFrom("FollowingFeedIndex")
+                .where("contentId", "in", uris)
+                .execute()
+
+            await trx
+                .deleteFrom("FollowingFeedIndex")
+                .where("rootId", "in", uris)
                 .execute()
 
             await trx

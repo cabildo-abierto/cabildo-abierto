@@ -95,10 +95,10 @@ export const ContentOptionsButton = ({
                         uri={record.uri}
                         handle={record.author.handle}
                     />
-                    <TopicsMentionedOptionsButton
+                    {record.author.caProfile != null && <TopicsMentionedOptionsButton
                         uri={record.uri}
                         onClick={() => {setTopicsMentionedModalOpen(true)}}
-                    />
+                    />}
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

@@ -7,11 +7,11 @@ import {usePathname} from "next/navigation";
 
 
 export const AdminLayout = ({children}: { children: ReactNode }) => {
-    const options = ["post", "acceso", "sync", "validacion", "remuneraciones", "stats", "wiki", "UI"]
+    const options = ["post", "acceso", "sync", "validacion", "remuneraciones", "stats", "wiki", "UI", "feed"]
     const pathname = usePathname()
 
     return <AdminProtected>
-        <div className={""}>
+        <div>
             <div className={"flex flex-wrap gap-2 p-4"}>
                 {options.map(o => {
                     return <div key={o}>

@@ -146,7 +146,9 @@ export function inFilterCond(name: string, values: string[]) {
 
 export const getTopicsDatasetHandler: CAHandlerNoAuth<TopicDatasetSpec, ArCabildoabiertoDataDataset.TopicsDatasetView> = async (ctx, agent, params) => {
     const filters = params.filters ? params.filters.filter(f => ArCabildoabiertoEmbedVisualization.isColumnFilter(f)): []
-    if(filters.length == 0) return {error: "Aplicá al menos un filtro."}
+    if(filters.length == 0) {
+        return {error: "Aplicá al menos un filtro."}
+    }
 
     const dataplane = new Dataplane(ctx, agent)
 
@@ -154,11 +156,12 @@ export const getTopicsDatasetHandler: CAHandlerNoAuth<TopicDatasetSpec, ArCabild
 
     const dataset = hydrateTopicsDatasetView(ctx, filters, dataplane)
 
-    return dataset ? {
-        data: dataset
-    } : {
-        error: "Ocurrió un error al obtener el dataset."
+    if(!dataset) {
+        ctx.logger.pino.error("Error getting topics dataset")
+        return {error: "Ocurrió un error al obtener el conjunto de datos."}
     }
+
+    return {data: dataset}
 }
 
 

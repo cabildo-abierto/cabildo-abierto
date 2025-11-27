@@ -36,6 +36,11 @@ import {clearAllRedis} from "#/services/redis/cache.js";
 import {type Redis} from "ioredis/built/index.js"
 import {updateAllTopicPopularities} from "#/services/wiki/references/popularity.js";
 import {assignPayments} from "#/services/monetization/payments.js";
+import {
+    updateFollowingFeedOnContentDelete,
+    updateFollowingFeedOnFollowChange,
+    updateFollowingFeedOnNewContent
+} from "#/services/feed/following/update.js";
 
 const mins = 60 * 1000
 const seconds = 1000
@@ -219,6 +224,21 @@ export class CAWorker {
         this.registerJob(
             "update-all-content-categories",
             () => updateDiscoverFeedIndex(ctx)
+        )
+        this.registerJob(
+            "update-following-feed-on-new-content",
+            (data) => updateFollowingFeedOnNewContent(ctx, data as string[]),
+            true
+        )
+        this.registerJob(
+            "update-following-feed-on-deleted-content",
+            (data) => updateFollowingFeedOnContentDelete(ctx, data as string[]),
+            true
+        )
+        this.registerJob(
+            "update-following-feed-on-follow-change",
+            (data) => updateFollowingFeedOnFollowChange(ctx, data as {follower: string, followed: string}[]),
+            true
         )
 
         this.logger.pino.info("worker jobs registered")

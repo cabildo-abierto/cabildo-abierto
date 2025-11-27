@@ -84,6 +84,7 @@ class CommitCreateOrUpdateEventProcessor extends CommitEventProcessor {
         }
 
         for await (const [c, refAndRecords] of byCollection.entries()) {
+            if(refAndRecords.length == 0) continue
             const recordProcessor = getRecordProcessor(this.ctx, c)
             await recordProcessor.process(refAndRecords)
         }

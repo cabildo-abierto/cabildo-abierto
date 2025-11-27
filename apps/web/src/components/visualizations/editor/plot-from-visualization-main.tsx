@@ -17,7 +17,9 @@ export const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, wi
     const {data, isLoading} = useTopicsDataset(visualization.filters, true)
 
     if (isLoading) {
-        return <div className={"py-4"}><LoadingSpinner/></div>
+        return <div className={"py-4"}>
+            <LoadingSpinner/>
+        </div>
     } else if (!data) {
         return null
     }
