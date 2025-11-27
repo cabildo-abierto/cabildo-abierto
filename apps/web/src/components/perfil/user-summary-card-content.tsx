@@ -72,7 +72,7 @@ export const UserSummaryCardContent = ({
             <ContentCounters profile={profile}/>
         </div>
 
-        <ProfileDescription description={profile.description} className="text-sm"/>
+        <ProfileDescription description={profile.description} className="text-sm break-all"/>
 
         {!profile.caProfile && <div className={"text-sm text-[var(--text-light)]"}>
             Este usuario todavía no está en Cabildo Abierto.

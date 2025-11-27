@@ -1,6 +1,64 @@
 import {AppContext} from "#/setup.js";
 import {getTopicCategories} from "#/services/wiki/utils.js";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {unique} from "@cabildo-abierto/utils";
+
+
+// actualizamos la tabla topicToCategory para estos temas y creamos las categorías nuevas
+// no se eliminan categorías anteriores
+export async function updateTopicsCategoriesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
+    if(topicIds.length === 0) return
+
+    const topics = await ctx.kysely
+        .selectFrom('Topic')
+        .leftJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
+        .select([
+            "id",
+            "TopicVersion.props"
+        ])
+        .where("Topic.id", "in", topicIds)
+        .execute()
+
+    const topicCategories = topics.map((t) => ({
+        topicId: t.id,
+        categoryIds: getTopicCategories(t.props as unknown as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+    }))
+
+    const allCategoryIds = unique(topicCategories.flatMap(({categoryIds}) => categoryIds))
+
+    if (allCategoryIds.length === 0) return
+
+    const topicCategoryValues = topicCategories.flatMap(({topicId, categoryIds}) =>
+        categoryIds.map((categoryId) => ({
+            topicId,
+            categoryId
+        }))
+    )
+
+    await ctx.kysely.transaction().execute(async (trx) => {
+        try {
+            await trx
+                .insertInto('TopicCategory')
+                .values(allCategoryIds.map(id => ({id})))
+                .onConflict((oc) => oc.column('id').doNothing())
+                .execute()
+        } catch (err) {
+            ctx.logger.pino.error({error: err}, `Error inserting categories.`)
+        }
+
+        await trx
+            .deleteFrom('TopicToCategory')
+            .where("topicId", "in", topicIds)
+            .execute()
+
+        await trx
+            .insertInto("TopicToCategory")
+            .values(topicCategoryValues)
+            .onConflict((oc) => oc.columns(['topicId', 'categoryId']).doNothing())
+            .execute()
+    })
+}
+
 
 
 export async function updateTopicsCategories(ctx: AppContext) {

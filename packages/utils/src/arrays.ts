@@ -9,6 +9,31 @@ export function sortByKey<T, V>(a: T[], keyFn: (x: T) => V, keyCmp: (a: V, b: V)
 }
 
 
+export function mergeSort<T, V>(a: T[], b: T[], keyFn: (x: T) => V, keyCmp: (a: V, b: V) => number): T[] {
+    const res: T[] = []
+    let i = 0, j = 0
+    while (i < a.length || j < b.length) {
+        if(i >= a.length) {
+            res.push(b[j])
+            j++
+        } else if(j >= b.length) {
+            res.push(a[i])
+            i++
+        } else {
+            const ka = keyFn(a[i]), kb = keyFn(b[j])
+            if(keyCmp(ka, kb) <= 0){
+                res.push(a[i])
+                i++
+            } else {
+                res.push(b[j])
+                j++
+            }
+        }
+    }
+    return res
+}
+
+
 export function areSetsEqual<T>(a: Set<T>, b: Set<T>) {
     return areArraysEqual(Array.from(a), Array.from(b))
 }

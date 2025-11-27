@@ -87,8 +87,8 @@ export const searchUsers: CAHandlerNoAuth<{
 
 
 async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?: string[], limit?: number) {
-    const terms = query.trim().split(/\s+/).filter(Boolean); // Split into words and remove empty ones
-    const lastTerm = terms.pop(); // Get the last word
+    const terms = query.trim().split(/\s+/).filter(Boolean);
+    const lastTerm = terms.pop()
 
     let tsQuery;
 
@@ -97,11 +97,11 @@ async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?:
     }
 
     if (terms.length === 0) {
-        tsQuery = sql`websearch_to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
+        tsQuery = sql`to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
     } else {
         const baseQueryString = terms.join(' ');
         const baseQuery = sql`websearch_to_tsquery('public.spanish_simple_unaccent', ${baseQueryString})`;
-        const prefixQuery = sql`websearch_to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
+        const prefixQuery = sql`to_tsquery('public.spanish_simple_unaccent', ${lastTerm} || ':*')`;
         tsQuery = sql`(${baseQuery} && ${prefixQuery})`;
     }
 

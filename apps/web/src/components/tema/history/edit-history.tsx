@@ -52,7 +52,7 @@ const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: Topic
                     return <div key={index}
                                 className={"flex space-x-1 items-center rounded-lg"}>
                         <ProfilePic user={c.profile} className={"rounded-full w-4 h-4"}/>
-                        <span>({(c.all * 100).toFixed(1)}%)</span>
+                        <span>({(Math.min(c.all, 1) * 100).toFixed(1)}%)</span>
                     </div>
                 })}
             </div>

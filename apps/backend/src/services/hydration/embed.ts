@@ -67,7 +67,6 @@ export class EmbedHydrator extends Hydrator<string, ArCabildoabiertoFeedDefs.Pos
     hydrateRecordWithMediaEmbedView(embed: $Typed<AppBskyEmbedRecordWithMedia.Main>, authorId: string, postView?: AppBskyFeedDefs.PostView): $Typed<ArCabildoabiertoEmbedRecordWithMedia.View> | null {
         const uri = embed.record.record.uri
         const record = this.hydrateRecordEmbedViewFromUri(uri)
-        if(!record) return null
 
         let media: ArCabildoabiertoEmbedRecordWithMedia.View["media"]
 
@@ -89,7 +88,13 @@ export class EmbedHydrator extends Hydrator<string, ArCabildoabiertoFeedDefs.Pos
 
         return {
             $type: "ar.cabildoabierto.embed.recordWithMedia#view",
-            record,
+            record: record ?? {
+                record: {
+                    $type: "app.bsky.embed.record#viewNotFound",
+                    notFound: true,
+                    uri
+                }
+            },
             media
         }
     }

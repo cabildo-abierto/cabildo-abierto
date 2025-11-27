@@ -3,30 +3,24 @@ import {useEffect, useState} from "react";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {GetFeedOutput} from "@/lib/types";
-import FeedViewContentFeed from "../feed/feed/feed-view-content-feed";
 import {usePathname} from "next/navigation";
 import {get} from "@/components/utils/react/fetch";
+import {useDebounce} from "@/components/utils/react/debounce";
+import FeedElement from "@/components/feed/feed/feed-element";
+import {FeedEndText} from "@/components/feed/feed/feed-end-text";
 
 
 // TO DO: Feed infinito
 export const ContentsSearchResults = () => {
     const pathname = usePathname()
     const {searchState} = useSearch(`${pathname}::main`)
-    const [results, setResults] = useState<ArCabildoabiertoFeedDefs.FeedViewContent[] | "loading">([]);
-    const [debouncedValue, setDebouncedValue] = useState(searchState.value);
+    const [results, setResults] = useState<ArCabildoabiertoFeedDefs.FeedViewContent[] | "loading">([])
+    const debouncedValue = useDebounce(searchState.value, 300)
     const [resultsValue, setResultsValue] = useState<string | undefined>()
 
     async function searchContents(q: string) {
         return await get<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(`/search-contents/${q}`)
     }
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(searchState.value);
-        }, 300); // Adjust delay as needed (e.g., 300ms)
-
-        return () => clearTimeout(handler);
-    }, [searchState.value]);
 
     useEffect(() => {
         async function search() {
@@ -59,10 +53,15 @@ export const ContentsSearchResults = () => {
         </div>
     }
 
-    return <FeedViewContentFeed
-        queryKey={["search-contents", resultsValue]}
-        initialContents={results}
-        noResultsText={"No se encontraron resultados."}
-        endText={"No tenemos más resultados para mostrarte."}
-    />
+    if(results && resultsValue == searchState.value) {
+        return <div>
+            {results.map(r => {
+                if(ArCabildoabiertoFeedDefs.isPostView(r.content) || ArCabildoabiertoFeedDefs.isArticleView(r.content)){
+                    return <FeedElement key={r.content.uri} elem={r}/>
+                }
+            })}
+            {results.length == 0 && <FeedEndText text={"No se encontraron resultados."}/>}
+            {results.length > 0 && <FeedEndText text={"No tenemos más resultados para mostrarte."}/>}
+        </div>
+    }
 }

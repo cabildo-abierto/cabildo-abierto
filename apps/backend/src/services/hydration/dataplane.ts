@@ -443,7 +443,7 @@ export class Dataplane {
             }
         } else if (post.embed && AppBskyEmbedRecordWithMedia.isView(post.embed)) {
             const recordView = post.embed.record
-            if (AppBskyEmbedRecord.isView(recordView) && AppBskyEmbedRecord.isViewRecord(recordView.record)) {
+            if (AppBskyEmbedRecord.isViewRecord(recordView.record)) {
                 const record = recordView.record
                 this.storeBskyPost(record.uri, {
                     ...record,
@@ -457,6 +457,8 @@ export class Dataplane {
                     record: record.value,
                     embed: record.embeds && record.embeds.length > 0 ? record.embeds[0] : undefined
                 })
+            } else {
+                this.ctx.logger.pino.warn({post}, "unknown record with media embed, can't store it")
             }
         } else if (post.embed && AppBskyEmbedRecord.isView(post.embed) && AppBskyEmbedRecord.isViewNotFound(post.embed.record)) {
             const uri = post.embed.record.uri

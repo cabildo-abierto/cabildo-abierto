@@ -80,7 +80,7 @@ export const HistoryElement = ({topic, topicHistory, index, onClose}: {
                 <div className="text-xs space-x-2 flex items-center">
                     <div>
                         <div className={"text-[var(--text-light)]"}>
-                            {topicVersion.contribution ? (parseFloat(topicVersion.contribution.all ?? "0") * 100).toFixed(1).toString() + "%" : null}
+                            {topicVersion.contribution ? (Math.min(parseFloat(topicVersion.contribution.all ?? "0"), 1) * 100).toFixed(1).toString() + "%" : null}
                         </div>
                     </div>
                     <TopicPropsInHistory

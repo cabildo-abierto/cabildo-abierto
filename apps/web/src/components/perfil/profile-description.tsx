@@ -24,7 +24,7 @@ export const ProfileDescription = ({
 
     return <div key={description} className={className}>
         <BskyRichTextContent
-            className={"text-sm"}
+            className={"text-sm link"}
             post={{text: rt.text, facets: rt.facets}}
         />
     </div>

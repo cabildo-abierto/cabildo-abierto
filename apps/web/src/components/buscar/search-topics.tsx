@@ -37,7 +37,7 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
         }
 
         search();
-    }, [categories, debouncedValue]);
+    }, [categories, debouncedValue])
 
     if (searchState.value.length === 0 && searchState.searching) {
         return (

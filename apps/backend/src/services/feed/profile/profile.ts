@@ -17,8 +17,7 @@ export const getProfileFeed: CAHandlerNoAuth<{params: {handleOrDid: string, kind
     let pipeline: FeedPipelineProps
     if(kind == "publicaciones"){
         pipeline = {
-            getSkeleton: getMainProfileFeedSkeleton(did),
-            filter: (ctx, f) => filterFeed(ctx, f, true)
+            getSkeleton: getMainProfileFeedSkeleton(did)
         }
     } else if(kind == "respuestas"){
         pipeline = {

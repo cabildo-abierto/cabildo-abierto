@@ -32,7 +32,7 @@ export default function TopicPopularityIndicator({counts, selected}: {
     >
         <div className={"text-[var(--text-light)] space-x-[1px] text-xs flex items-center"} id={"topic-popularity"}>
             <div>{count}</div>
-            <div className={"pb-[1px]"}>
+            <div className={"pt-[2px]"}>
                 <ValidationIcon
                     fontSize={12}
                     verification={"person"}
