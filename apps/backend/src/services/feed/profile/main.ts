@@ -3,7 +3,7 @@ import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
 import {FeedSkeletonWithDate, getSkeletonFromTimeline} from "#/services/feed/inicio/following.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
-import {sortByKey} from "@cabildo-abierto/utils";
+import {mergeSort, sortByKey} from "@cabildo-abierto/utils";
 
 
 const getMainProfileFeedSkeletonBsky = async (ctx: AppContext, agent: Agent, data: Dataplane, did: string, cursor?: string): Promise<{skeleton: {post: string, created_at: Date}[], cursor?: string}> => {
@@ -52,14 +52,16 @@ export const getMainProfileFeedSkeleton = (did: string) : GetSkeletonProps => {
             CASkeleton = CASkeleton.filter(x => new Date(x.created_at) >= newCursorDate)
         }
 
-        const skeleton = sortByKey([
-            ...bskySkeleton.skeleton,
-            ...CASkeleton
-        ], e => e.created_at.getTime(), (a, b) => b-a)
+        try {
+            const skeleton = mergeSort(bskySkeleton.skeleton, CASkeleton, e => e.created_at.getTime(), (a, b) => b-a)
 
-        return {
-            skeleton,
-            cursor: bskySkeleton.skeleton.length > 0 ? bskySkeleton.cursor : undefined
+            return {
+                skeleton,
+                cursor: bskySkeleton.skeleton.length > 0 ? bskySkeleton.cursor : undefined
+            }
+        } catch (error) {
+            ctx.logger.pino.error({error: error}, "error getting profile feed skeleton")
+            throw error
         }
     }
 }

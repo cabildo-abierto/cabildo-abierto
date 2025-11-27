@@ -19,6 +19,7 @@ import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
+import {updateTopicsCategories, updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
 
 export async function updateReferencesForNewContents(ctx: AppContext) {
     const lastUpdate = await getLastReferencesUpdate(ctx)
@@ -281,6 +282,8 @@ export async function updatePopularitiesOnTopicsChange(ctx: AppContext, topicIds
     const t4 = Date.now()
     await updateTopicPopularities(ctx, topicIds)
     const t5 = Date.now()
+
+    await updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
 
     await updateContentCategoriesOnTopicsChange(ctx, topicIds)
 

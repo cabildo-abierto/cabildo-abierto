@@ -1,4 +1,3 @@
-"use client"
 import React from "react"
 import SelectionComponent from "./search-selection-component";
 import {ContentsSearchResults} from "./contents-search-results";
