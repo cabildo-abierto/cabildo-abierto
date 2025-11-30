@@ -1,6 +1,5 @@
 import {Metadata} from "next";
 import {createMetadata, mainMetadata, MetadataParams} from "@/utils/metadata";
-import {shortCollectionToCollection} from "@cabildo-abierto/utils";
 import { get } from "@/components/utils/react/fetch";
 import {ReactNode} from "react";
 
@@ -9,8 +8,7 @@ export async function generateMetadata(
     { params }: {params: Promise<{did: string, rkey: string}>}
 ): Promise<Metadata> {
     const {did, rkey} = await params
-    const collection = "ar.cabildoabierto.feed.article"
-    const route = `/content-metadata/${decodeURIComponent(did)}/${shortCollectionToCollection(collection)}/${rkey}`
+    const route = `/content-metadata/${decodeURIComponent(did)}/ar.cabildoabierto.feed.article/${rkey}`
     const {data} = await get<MetadataParams>(route)
     if(data){
         return createMetadata(data)

@@ -4,7 +4,7 @@ import {useState, useCallback} from "react";
 import Cropper from "react-easy-crop";
 import {BaseFullscreenPopup} from "../utils/dialogs/base-fullscreen-popup";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {ImagePayload} from "../writing/write-panel/write-post";
+import {ImagePayload} from "@cabildo-abierto/api";
 import {Slider} from "@/components/utils/ui/slider";
 
 const getCroppedImg = (

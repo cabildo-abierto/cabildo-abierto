@@ -5,9 +5,9 @@ import {validArticle} from "./valid-article";
 import {useState} from "react";
 import {SettingsProps} from "@/components/editor";
 import {EditorState} from "lexical";
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
-import {Draft} from "@/queries/getters/useDrafts"
+import {ArCabildoabiertoFeedDefs, Draft} from "@cabildo-abierto/api"
 import {cn} from "@/lib/utils";
+import {ImagePayload} from "@cabildo-abierto/api";
 
 
 export const ArticleEditorTopbar = ({
@@ -35,15 +35,22 @@ export const ArticleEditorTopbar = ({
     const [modalOpen, setModalOpen] = useState(false)
     const {isMobile} = useLayoutConfig()
     const {valid} = validArticle(editorState, settings.charLimit, title)
+    const [previewImage, setPreviewImage] = useState<ImagePayload | null>(draft ? {$type: "url", src: draft.previewImage} : null)
+    const [description, setDescription] = useState<string | null>(draft ? draft.summary : undefined)
 
     return <div
-        className={cn("flex justify-end w-full pt-3 pb-2 space-x-2 items-center", isMobile && "px-3")}
+        className={cn(
+            "flex justify-end w-full pt-3 pb-2 space-x-2 items-center",
+            isMobile && "px-3"
+        )}
     >
         {!article && <SaveDraftArticleButton
             disabled={!guardEnabled || editorState == null}
             title={title}
             editorState={editorState}
             draftId={draftId}
+            previewImage={previewImage}
+            description={description}
             onSavedChanges={(time, draftId, state: string) => {
                 setDraftId(draftId)
                 setInitialEditorState(state)
@@ -60,6 +67,10 @@ export const ArticleEditorTopbar = ({
             guardEnabled={guardEnabled}
             setGuardEnabled={setGuardEnabled}
             article={article}
+            description={description}
+            setDescription={setDescription}
+            previewImage={previewImage}
+            setPreviewImage={setPreviewImage}
         />
     </div>
 }

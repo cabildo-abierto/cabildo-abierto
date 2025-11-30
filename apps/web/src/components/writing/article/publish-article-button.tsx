@@ -6,30 +6,36 @@ import {StateButton} from "@/components/utils/base/state-button"
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import dynamic from "next/dynamic";
 import {useQueryClient} from "@tanstack/react-query";
-import {ArCabildoabiertoFeedArticle, ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, CreateArticleProps} from "@cabildo-abierto/api"
 import {threadQueryKey} from "@/queries/getters/useThread";
-import {EmbedContext} from "@/components/editor/nodes/EmbedNode";
 import {contentUrl} from "@/components/utils/react/url";
+import {ImagePayload} from "@cabildo-abierto/api";
 
 const PublishArticleModal = dynamic(() => import('./publish-article-modal'))
 
-export type CreateArticleProps = {
-    title: string
-    format: string
-    text: string
-    enDiscusion: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    embedContexts?: EmbedContext[]
-    draftId?: string
-    uri?: string
-}
+
 
 const createArticle = async (props: CreateArticleProps) => {
     return post("/article", props)
 }
 
 
-export const PublishArticleButton = ({editorState, article, guardEnabled, setGuardEnabled, draftId, title, disabled, modalOpen, setModalOpen, mentions}: {
+export const PublishArticleButton = ({
+                                         editorState,
+                                         article,
+                                         guardEnabled,
+                                         setGuardEnabled,
+                                         draftId,
+                                         title,
+                                         disabled,
+                                         modalOpen,
+                                         setModalOpen,
+                                         mentions,
+    description,
+    setDescription,
+    previewImage,
+    setPreviewImage
+}: {
     editorState: EditorState
     disabled: boolean
     title?: string
@@ -40,6 +46,10 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
     guardEnabled: boolean
     setGuardEnabled: (s: boolean) => void,
     article?: ArCabildoabiertoFeedDefs.FullArticleView
+    description: string | null
+    setDescription: (s: string | null) => void
+    previewImage: ImagePayload | null
+    setPreviewImage: (s: ImagePayload | null) => void
 }) => {
     const [mdText, setMdText] = useState("")
     const router = useRouter()
@@ -70,7 +80,9 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
             embeds,
             embedContexts,
             draftId,
-            uri: article?.uri
+            uri: article?.uri,
+            previewImage,
+            description
         })
         if (error) return {error}
 
@@ -126,6 +138,10 @@ export const PublishArticleButton = ({editorState, article, guardEnabled, setGua
             title={title}
             mentions={mentions}
             article={article}
+            description={description}
+            setDescription={setDescription}
+            previewImage={previewImage}
+            setPreviewImage={setPreviewImage}
         />}
     </>
 }

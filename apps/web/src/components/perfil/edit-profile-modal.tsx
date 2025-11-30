@@ -2,7 +2,7 @@ import {BaseFullscreenPopup} from "../utils/dialogs/base-fullscreen-popup"
 import Image from "next/image";
 import React, {useState} from "react";
 import {useSession} from "@/components/auth/use-session";
-import {ImagePayload} from "../writing/write-panel/write-post";
+import {ImagePayload} from "@cabildo-abierto/api";
 import {StateButton} from "@/components/utils/base/state-button"
 import {useQueryClient} from "@tanstack/react-query";
 import FullscreenImageViewer from "../utils/images/fullscreen-image-viewer";

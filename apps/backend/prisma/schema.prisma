@@ -30,6 +30,8 @@ model Article {
   title   String
   uri     String  @id
   Content Content @relation(fields: [uri], references: [uri])
+  previewImage  String?
+  description   String?
 }
 
 model AuthSession {
@@ -138,6 +140,8 @@ model Draft {
   text          String
   title         String?
   User          User     @relation(fields: [authorId], references: [did])
+  previewImage  String?
+  description   String?
 
   @@index([authorId])
 }

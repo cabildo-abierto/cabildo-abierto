@@ -88,3 +88,5 @@ echo_blue "🧹 Cleaning old releases..."
 ssh $SERVER_USER@$SERVER_IP "
   cd $RELEASES_PATH && ls -t | tail -n +$(($RELEASES_TO_KEEP + 1)) | xargs -r rm -rf
 "
+
+echo_blue "Finished deployment ${RELEASE_DIR_NAME}"

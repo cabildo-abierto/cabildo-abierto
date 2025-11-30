@@ -50,8 +50,8 @@ import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import VisualizationIcon from '../../../utils/icons/visualization-icon';
 import {INSERT_EMBED_COMMAND} from "../EmbedPlugin";
 import {ToolbarButton} from "./toolbar-button";
-import {ImagePayload} from "@/components/writing/write-panel/write-post";
-import {EmbedContext, EmbedSpec} from "../../nodes/EmbedNode";
+import {EmbedContext, ImagePayload} from "@cabildo-abierto/api";
+import {EmbedSpec} from "../../nodes/EmbedNode";
 import {AppBskyEmbedImages} from "@atproto/api"
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import dynamic from 'next/dynamic';

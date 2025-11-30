@@ -20,7 +20,7 @@ import {
     ArCabildoabiertoEmbedRecord,
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopicVersion, ImagePayload
 } from "@cabildo-abierto/api";
 import {EditorState} from "lexical";
 import {InsertVisualizationModal} from "@/components/editor";
@@ -160,7 +160,6 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
 }
 
 
-export type ImagePayload = { src: string, $type: "url" } | { $type: "file", base64: string, src: string }
 export type ImagePayloadForPostCreation = { src: string, $type: "url" } | { $type: "file", base64: string }
 
 export type CreatePostProps = {

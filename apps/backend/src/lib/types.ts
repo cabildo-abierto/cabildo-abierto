@@ -3,10 +3,6 @@ import {AlgorithmConfig} from "#/services/user/users.js";
 import {MirrorStatus} from "#/services/redis/cache.js";
 
 
-export type ATProtoStrongRef = {
-    uri: string
-    cid: string
-}
 
 export type ValidationState = "org" | "persona" | null
 

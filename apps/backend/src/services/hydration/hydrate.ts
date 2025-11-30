@@ -1,4 +1,4 @@
-import {$Typed} from "@atproto/api";
+import {$Typed, AppBskyEmbedImages} from "@atproto/api";
 import {getCollectionFromUri, getDidFromUri, isArticle, isDataset, isPost, isTopicVersion} from "@cabildo-abierto/utils";
 import {
     AppBskyFeedPost,
@@ -92,7 +92,15 @@ export function hydrateFullArticleView(ctx: AppContext, uri: string, data: Datap
     if (text == null || !e || !e.title) return {error: "Ocurrió un error al cargar el contenido."}
 
     const embeds = hydrateEmbedViews(author.did, record?.embeds ?? [])
-    const {summary, summaryFormat} = getArticleSummary(text, format ?? undefined)
+    const {summary, summaryFormat} = getArticleSummary(text, format ?? undefined, e.articleDescription ?? undefined)
+
+    const previewCid = e.articlePreviewImage
+
+    const preview: AppBskyEmbedImages.ViewImage | undefined = previewCid ? {
+        thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorId}/${previewCid}@jpeg`,
+        fullsize: `https://cdn.bsky.app/img/feed_fullsize/plain/${authorId}/${previewCid}@jpeg`,
+        alt: e.title
+    } : undefined
 
     return {
         data: {
@@ -119,7 +127,8 @@ export function hydrateFullArticleView(ctx: AppContext, uri: string, data: Datap
                 id: m.id
             })),
             embeds,
-            editedAt: e.editedAt?.toISOString()
+            editedAt: e.editedAt?.toISOString(),
+            preview: preview
         }
     }
 }
@@ -143,7 +152,13 @@ export function markdownToPlainText(md: string) {
 }
 
 
-export function getArticleSummary(text: string | null, format?: string) {
+export function getArticleSummary(text: string | null, format: string | undefined, description: string | undefined) {
+    if(description) {
+        return {
+            summary: description,
+            summaryFormat: "plain-text"
+        }
+    }
     if (text == null) {
         return {
             summary: "Contenido no encontrado.",
@@ -206,7 +221,15 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
         return {error: "Ocurrió un error al cargar el artículo."}
     }
 
-    const {summary, summaryFormat} = getArticleSummary(text, format ?? undefined)
+    const {summary, summaryFormat} = getArticleSummary(text, format ?? undefined, e.articleDescription ?? undefined)
+
+    const previewCid = e.articlePreviewImage
+
+    const preview: AppBskyEmbedImages.ViewImage | undefined = previewCid ? {
+        thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorId}/${previewCid}@jpeg`,
+        fullsize: `https://cdn.bsky.app/img/feed_fullsize/plain/${authorId}/${previewCid}@jpeg`,
+        alt: e.title
+    } : undefined
 
     return {
         data: {
@@ -224,7 +247,8 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
             repostCount: e.uniqueRepostsCount,
             replyCount: e.repliesCount,
             quoteCount: e.quotesCount,
-            viewer
+            viewer,
+            preview
         }
     }
 }

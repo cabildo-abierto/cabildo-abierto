@@ -3,7 +3,7 @@ import {useState} from "react";
 import {LinkIcon} from "@/components/utils/icons/link-icon";
 import {UploadImageButton} from "./upload-image-button";
 import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
-import {ImagePayload} from "./write-post";
+import {ImagePayload} from "@cabildo-abierto/api";
 import {BaseButton} from "@/components/utils/base/base-button";
 
 export type InsertImageModalProps = {

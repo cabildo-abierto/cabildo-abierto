@@ -2,8 +2,7 @@ import {processContentsBatch} from "#/services/sync/event-processing/content.js"
 import {isSelfLabels} from "@atproto/api/dist/client/types/com/atproto/label/defs.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {SyncContentProps} from "#/services/sync/types.js";
-import {ATProtoStrongRef} from "#/lib/types.js";
-import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
@@ -30,7 +29,9 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
 
         const articles = records.map(r => ({
             uri: r.ref.uri,
-            title: r.record.title
+            title: r.record.title,
+            previewImage: r.record.preview ? getCidFromBlobRef(r.record.preview) : undefined,
+            description: r.record.description
         }))
 
         await this.ctx.kysely.transaction().execute(async (trx) => {
@@ -42,7 +43,9 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
                 .values(articles)
                 .onConflict((oc) =>
                     oc.column("uri").doUpdateSet({
-                        title: (eb) => eb.ref('excluded.title')
+                        title: (eb) => eb.ref('excluded.title'),
+                        previewImage: eb => eb.ref("excluded.previewImage"),
+                        description: eb => eb.ref("excluded.description")
                     })
                 )
                 .execute()

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import {CloseButton} from '@/components/utils/base/close-button'
 import {useState} from "react";
-import {ImagePayload} from './write-post';
+import {ImagePayload} from "@cabildo-abierto/api";
 import dynamic from "next/dynamic";
 const FullscreenImageViewer = dynamic(() => import('../../utils/images/fullscreen-image-viewer'));
 
