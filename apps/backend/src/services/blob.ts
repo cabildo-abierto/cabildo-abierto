@@ -1,6 +1,6 @@
 import {DidResolver} from "@atproto/identity";
 import {SessionAgent} from "#/utils/session-agent.js";
-import {ImagePayload} from "#/services/write/post.js";
+import {ImagePayload} from "@cabildo-abierto/api";
 import {AppContext} from "#/setup.js";
 import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getBlobKey} from "#/services/hydration/dataplane.js";

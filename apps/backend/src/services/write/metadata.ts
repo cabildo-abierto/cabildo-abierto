@@ -1,6 +1,6 @@
-import { CAHandler, CAHandlerNoAuth } from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
 import * as cheerio from "cheerio";
-import { getUri, isArticle, isDataset, isPost } from "@cabildo-abierto/utils";
+import {getUri, isArticle, isDataset, isPost} from "@cabildo-abierto/utils";
 
 const getContent = async (url: string): Promise<Partial<Metadata>> => {
     const response = await fetch(url)
@@ -63,19 +63,30 @@ export const getContentMetadata: CAHandlerNoAuth<{
             .selectFrom("Article")
             .innerJoin("Record", "Record.uri", "Article.uri")
             .innerJoin("User", "Record.authorId", "User.did")
-            .select(["title", "User.handle"])
+            .select([
+                "title",
+                "User.handle",
+                "User.did",
+                "Article.description",
+                "Article.previewImage"
+            ])
             .where("Record.uri", "=", uri)
-            .execute()
+            .executeTakeFirst()
+        if (!article) {
+            return {error: "No se encontró el artículo."}
+        }
 
-        const description = `Artículo de @${article[0].handle}.`
+        const description = article.description ?? `Artículo de @${article.handle}.`
 
-        if (article.length > 0) {
-            return {
-                data: {
-                    title: article[0].title,
-                    description: description,
-                    thumbnail: banner
-                }
+        // https://cdn.bsky.app/img/feed_thumbnail/plain/usuariodepruebas.bsky.social/bafkreif464qovcqrkxpwir3b6rxhwsqwhwlvqgz3y7jyehf7tes6amt34y@jpeg
+
+        const previewImage = article.previewImage ? `https://cdn.bsky.app/img/feed_thumbnail/plain/${article.did}/${article.previewImage}@jpeg` : undefined
+
+        return {
+            data: {
+                title: article.title,
+                description: description,
+                thumbnail: previewImage ?? banner
             }
         }
     } else if (isPost(c)) {

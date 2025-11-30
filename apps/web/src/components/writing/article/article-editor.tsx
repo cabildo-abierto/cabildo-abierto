@@ -4,7 +4,7 @@ import {TitleInput} from "./title-input"
 import {getEditorSettings} from "../settings";
 import {useTopicsMentioned} from "../use-topics-mentioned";
 import {TopicsMentioned} from "../../feed/article/topics-mentioned";
-import {Draft, useDraft} from "@/queries/getters/useDrafts"
+import {useDraft} from "@/queries/getters/useDrafts"
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {ErrorPage} from "../../utils/error-page";
 import {robotoSerif} from "../article-font";
@@ -13,7 +13,7 @@ import {ArticleEditorTopbar} from "./article-editor-topbar";
 import ArticleEditorAuthor from "./article-editor-author-line";
 import {useNavigationGuard} from "next-navigation-guard"
 import {PreventLeavePopup} from "../../utils/dialogs/prevent-leave-popup";
-import { ArCabildoabiertoFeedDefs } from "@cabildo-abierto/api";
+import { ArCabildoabiertoFeedDefs, Draft } from "@cabildo-abierto/api";
 import {pxToNumber} from "@cabildo-abierto/utils";
 import {cn} from "@/lib/utils";
 import {EditorState} from "lexical";
@@ -26,7 +26,6 @@ const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod 
 const articleEditorSettings = (
     title: string,
     smallScreen: boolean,
-    isMobile: boolean,
     layoutConfig: LayoutConfigProps,
     width: number,
     draft?: Draft,
@@ -90,7 +89,7 @@ const ArticleEditor = ({draft, article}: {
         setTitle
     } = useTopicsMentioned(initialTitle)
     const smallScreen = window.innerWidth < 700
-    const {isMobile, layoutConfig, width} = useLayoutConfig()
+    const {layoutConfig, width} = useLayoutConfig()
     const [guardEnabled, setGuardEnabled] = useState(false)
     const navGuard = useNavigationGuard({enabled: guardEnabled})
     const [initialEditorState, setInitialEditorState] = useState(null)
@@ -98,7 +97,6 @@ const ArticleEditor = ({draft, article}: {
     const settings = articleEditorSettings(
         title,
         smallScreen,
-        isMobile,
         layoutConfig,
         width,
         draft,

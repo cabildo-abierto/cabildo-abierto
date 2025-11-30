@@ -1,22 +1,12 @@
-import {uploadStringBlob} from "#/services/blob.js";
+import {uploadImageBlob, uploadStringBlob} from "#/services/blob.js";
 import {CAHandler} from "#/utils/handler.js";
 import {SessionAgent} from "#/utils/session-agent.js";
-import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
-import {EmbedContext, getEmbedsFromEmbedViews} from "#/services/write/topic.js";
+import {ArCabildoabiertoFeedArticle, CreateArticleProps} from "@cabildo-abierto/api"
+import {getEmbedsFromEmbedViews} from "#/services/write/topic.js";
 import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
 import {getRkeyFromUri} from "@cabildo-abierto/utils";
 
 
-export type CreateArticleProps = {
-    title: string
-    format: string
-    text: string
-    enDiscusion: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    embedContexts?: EmbedContext[]
-    draftId?: string
-    uri?: string
-}
 
 export const createArticleAT = async (agent: SessionAgent, article: CreateArticleProps) => {
     const did = agent.did
@@ -28,6 +18,8 @@ export const createArticleAT = async (agent: SessionAgent, article: CreateArticl
         return {error: embedMains.error}
     }
 
+    const preview = article.previewImage ? await uploadImageBlob(agent, article.previewImage) : undefined
+
     const record: ArCabildoabiertoFeedArticle.Record = {
         "$type": "ar.cabildoabierto.feed.article",
         title: article.title,
@@ -35,7 +27,9 @@ export const createArticleAT = async (agent: SessionAgent, article: CreateArticl
         text: blobRef,
         createdAt: new Date().toISOString(),
         embeds: embedMains.data,
-        labels: article.enDiscusion ? {$type: "com.atproto.label.defs#selfLabels", values: [{val: "ca:en discusión"}]} : undefined
+        labels: article.enDiscusion ? {$type: "com.atproto.label.defs#selfLabels", values: [{val: "ca:en discusión"}]} : undefined,
+        description: article.description,
+        preview: preview?.ref
     }
 
     if(!article.uri) {

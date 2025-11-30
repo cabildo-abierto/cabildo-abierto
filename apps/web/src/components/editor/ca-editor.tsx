@@ -54,8 +54,7 @@ import EmbedPlugin from "./plugins/EmbedPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
-import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api/dist"
-import {EmbedContext} from "./nodes/EmbedNode";
+import {ArCabildoabiertoFeedArticle, EmbedContext} from "@cabildo-abierto/api"
 import LinksToMentionsPlugin from "./plugins/MentionsToLinksPlugin";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {NoLineBreaksPlugin} from "./plugins/NoLineBreaksPlugin";

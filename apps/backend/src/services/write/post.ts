@@ -1,13 +1,11 @@
 import {SessionAgent} from "#/utils/session-agent.js";
 import {$Typed} from "@atproto/api";
-import {ATProtoStrongRef} from "#/lib/types.js";
 import {
     AppBskyEmbedImages,
     AppBskyEmbedExternal,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
-    ArCabildoabiertoEmbedVisualization,
-    AppBskyFeedPost
+    AppBskyFeedPost, ATProtoStrongRef, ImagePayload, CreatePostProps
 } from "@cabildo-abierto/api"
 import {uploadImageBlob} from "#/services/blob.js";
 import {CAHandler} from "#/utils/handler.js";
@@ -166,25 +164,7 @@ export async function createPostAT({
 }
 
 
-export type FastPostReplyProps = {
-    parent: ATProtoStrongRef
-    root: ATProtoStrongRef
-}
 
-export type ImagePayload = { src: string, $type: "url" } | { $type: "file", base64: string }
-
-export type CreatePostProps = {
-    text: string
-    reply?: FastPostReplyProps
-    selection?: [number, number]
-    images?: ImagePayload[]
-    enDiscusion?: boolean
-    externalEmbedView?: $Typed<AppBskyEmbedExternal.View>
-    quotedPost?: ATProtoStrongRef
-    visualization?: ArCabildoabiertoEmbedVisualization.Main
-    uri?: string
-    forceEdit?: boolean
-}
 
 
 export async function isContentReferenced(ctx: AppContext, uri: string) {

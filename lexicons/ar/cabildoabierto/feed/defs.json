@@ -318,6 +318,10 @@
         "threadgate": {
           "type": "ref",
           "ref": "app.bsky.feed.defs#threadgateView"
+        },
+        "preview": {
+          "type": "ref",
+          "ref": "app.bsky.embed.images#viewImage"
         }
       }
     },
@@ -427,6 +431,10 @@
         "editedAt": {
           "type": "string",
           "format": "datetime"
+        },
+        "preview": {
+          "type": "ref",
+          "ref": "app.bsky.embed.images#viewImage"
         }
       }
     },

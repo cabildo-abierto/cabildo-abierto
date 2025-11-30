@@ -1,6 +1,6 @@
 import {post} from "../../utils/react/fetch";
 import {
-    getCollectionFromUri,
+    getCollectionFromUri, getRkeyFromUri,
     isArticle,
     isDataset,
     isPost,
@@ -20,6 +20,7 @@ import {useErrors} from "@/components/layout/contexts/error-context";
 import {AppBskyFeedPost} from "@atproto/api";
 import {DropdownMenuItem} from "@/components/utils/ui/dropdown-menu";
 import {useSession} from "@/components/auth/use-session";
+import {DraftPreview} from "@cabildo-abierto/api";
 
 
 const collection2displayText = {
@@ -34,69 +35,11 @@ const collection2displayText = {
     "ar.cabildoabierto.data.dataset": "conjunto de datos"
 }
 
-
-/*function isContentInThreadViewContent(uri: string, t: MaybeThreadViewContent) {
-    if(!ArCabildoabiertoFeedDefs.isThreadViewContent(t)) return false
-
-    let content = t.content
-
-    if(postOrArticle(content) && content.uri == uri){
-        return true
-    }
-
-    const inReplies = t.replies
-        ?.some(r => isContentInThreadViewContent(uri, r))
-
-    if(inReplies) return true
-
-    return isContentInThreadViewContent(uri, t.parent)
-}
-
-
-function isContentInFeed(uri: string, feed: InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>){
-    return feed.pages
-        .some(page => page.data.some(r => postOrArticle(r.content) && r.content.uri == uri))
-}
-
-
-function isContentInPostFeed(uri: string, feed: InfiniteFeed<ArCabildoabiertoFeedDefs.PostView>){
-    return feed.pages
-        .some(page => page.data.some(r => r.uri == uri))
-}
-
-
-function queriesWithContent(qc: QueryClient, uri: string) {
-    const queries: string[][] = []
-    qc.getQueryCache()
-        .getAll()
-        .filter(q => Array.isArray(q.queryKey))
-        .forEach(q => {
-            qc.setQueryData(q.queryKey, old => {
-                if (!old) return old
-
-                const k = q.queryKey
-
-                if (k[0] == "thread") {
-                    const t = old as MaybeThreadViewContent
-                    return isContentInThreadViewContent(uri, t)
-                } else if (k[0] == "main-feed" || k[0] == "profile-feed" || k[0] == "topic-feed") {
-                    return isContentInFeed(uri, old as InfiniteFeed<ArCabildoabiertoFeedDefs.FeedViewContent>)
-                } else if(k[0] == "topic-quote-replies"){
-                    return (old as ArCabildoabiertoFeedDefs.PostView[]).some(p => p.uri == uri)
-                } else if(k[0] == "details-content" && k[1] == "quotes"){
-                    if(uri == k[2]) return true
-                    return isContentInPostFeed(uri, old as InfiniteFeed<ArCabildoabiertoFeedDefs.PostView>)
-                }
-            })
-        })
-    return queries
-}*/
-
-
 function optimisticDelete(qc: QueryClient, uri: string) {
     updateContentInQueries(qc, uri, c => null)
     updateTopicHistories(qc, uri, e => null)
     updateDatasets(qc, uri, e => null)
+    qc.setQueryData(["drafts"], drafts => (drafts as DraftPreview[]).filter(d => d.id != getRkeyFromUri(uri)))
 }
 
 const deleteRecord = async ({uri}: { uri: string }) => {
@@ -114,6 +57,8 @@ function getDeleteContentMessage(collection: string) {
         return "Si eliminás la edición, no vas a poder recuperarla."
     } else if (isDataset(collection)) {
         return "Si eliminás el conjunto de datos, no vas a poder recuperarlo."
+    } else if(collection == "draft") {
+        return "Si lo eliminás, no vas a poder recuperarlo."
     } else {
         return "Si eliminás el contenido, no vas a poder recuperarlo."
     }
@@ -128,6 +73,8 @@ export function getCollectionWithArticle(collection: string) {
         return "la edición"
     } else if (isDataset(collection)) {
         return "el conjunto de datos"
+    } else if(collection == "draft") {
+        return "el borrador"
     } else {
         return "el contenido"
     }
@@ -157,6 +104,13 @@ function invalidateQueriesAfterDeleteSuccess(uri: string, qc: QueryClient, reply
         }
     }
 
+    const collection = getCollectionFromUri(uri)
+    if(collection == "draft") {
+        const id = getRkeyFromUri(uri)
+        queriesToInvalidate.push(["drafts"])
+        queriesToInvalidate.push(["draft", id])
+    }
+
     invalidateQueries(qc, queriesToInvalidate)
 }
 
@@ -167,7 +121,7 @@ export const ConfirmDeleteModal = ({
                                        onClose,
                                        open
                                    }: {
-    uri: string
+    uri?: string
     reply?: AppBskyFeedPost.ReplyRef
     onClose: () => void
     open: boolean
@@ -178,9 +132,9 @@ export const ConfirmDeleteModal = ({
 
     const deleteMutation = useMutation({
         mutationFn: deleteRecord,
-        onMutate: (likedContent) => {
+        onMutate: (content) => {
             try {
-                optimisticDelete(qc, likedContent.uri)
+                optimisticDelete(qc, content.uri)
                 qc.cancelQueries(contentQueriesFilter(uri))
             } catch (err) {
                 console.log("Error on mutate", uri)

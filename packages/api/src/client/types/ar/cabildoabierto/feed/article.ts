@@ -22,6 +22,8 @@ export interface Main {
   text: BlobRef
   format: string
   title: string
+  description?: string
+  preview?: BlobRef
   embeds?: ArticleEmbed[]
   labels?: $Typed<ComAtprotoLabelDefs.SelfLabels> | { $type: string }
   createdAt: string

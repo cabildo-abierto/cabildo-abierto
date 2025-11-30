@@ -22,6 +22,14 @@
               "minLength": 1,
               "maxLength": 120
             },
+            "description": {
+              "type": "string",
+              "maxLength": 250
+            },
+            "preview":  {
+              "type": "blob",
+              "accept": ["image/*"]
+            },
             "embeds": {
               "type": "array",
               "items": {

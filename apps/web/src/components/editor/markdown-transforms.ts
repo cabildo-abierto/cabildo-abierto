@@ -1,7 +1,7 @@
 import {createHeadlessEditor} from "@lexical/headless"
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown"
 import {$generateNodesFromDOM} from "@lexical/html";
-import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api";
+import {ArCabildoabiertoEmbedVisualization, EmbedContext} from "@cabildo-abierto/api";
 import {CA_TRANSFORMERS, MarkdownTransformer} from "@/components/editor/markdown-transformers/ca-transformers";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {
@@ -16,7 +16,7 @@ import {
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api";
-import {EmbedContext, SerializedEmbedNode} from "./nodes/EmbedNode";
+import {SerializedEmbedNode} from "./nodes/EmbedNode";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {LexicalPointer} from "./selection/lexical-selection";
 import {AppBskyEmbedImages} from "@atproto/api"

@@ -228,6 +228,7 @@ export interface ArticleView {
   viewer?: AppBskyFeedDefs.ViewerState
   labels?: ComAtprotoLabelDefs.Label[]
   threadgate?: AppBskyFeedDefs.ThreadgateView
+  preview?: AppBskyEmbedImages.ViewImage
 }
 
 const hashArticleView = 'articleView'
@@ -267,6 +268,7 @@ export interface FullArticleView {
   threadgate?: AppBskyFeedDefs.ThreadgateView
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
   editedAt?: string
+  preview?: AppBskyEmbedImages.ViewImage
 }
 
 const hashFullArticleView = 'fullArticleView'

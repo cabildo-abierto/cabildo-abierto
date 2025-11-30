@@ -2441,6 +2441,14 @@ export const schemaDict = {
               minLength: 1,
               maxLength: 120,
             },
+            description: {
+              type: 'string',
+              maxLength: 250,
+            },
+            preview: {
+              type: 'blob',
+              accept: ['image/*'],
+            },
             embeds: {
               type: 'array',
               items: {
@@ -2816,6 +2824,10 @@ export const schemaDict = {
             type: 'ref',
             ref: 'lex:app.bsky.feed.defs#threadgateView',
           },
+          preview: {
+            type: 'ref',
+            ref: 'lex:app.bsky.embed.images#viewImage',
+          },
         },
       },
       fullArticleView: {
@@ -2924,6 +2936,10 @@ export const schemaDict = {
           editedAt: {
             type: 'string',
             format: 'datetime',
+          },
+          preview: {
+            type: 'ref',
+            ref: 'lex:app.bsky.embed.images#viewImage',
           },
         },
       },

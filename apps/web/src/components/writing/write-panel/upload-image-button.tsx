@@ -1,9 +1,9 @@
-import {ImagePayload} from "./write-post";
 import {file2base64} from "../../utils/react/files";
 import imageCompression from "browser-image-compression"
 import UploadFileIcon from "@/components/utils/icons/upload-file-icon";
 import {ChangeEvent, useRef} from "react";
-import {BaseButton} from "@/components/utils/base/base-button";
+import {BaseButton, BaseButtonProps} from "@/components/utils/base/base-button";
+import {ImagePayload} from "@cabildo-abierto/api";
 
 
 type SubmitImage = (i: ImagePayload) => void
@@ -37,10 +37,12 @@ export function useLoadImage(onSubmit: SubmitImage) {
 
 export const UploadImageButton = ({
                                       onSubmit,
-                                      text = "Subir archivo"
+                                      text = "Subir archivo",
+    size="default"
                                   }: {
     text?: string,
     onSubmit: SubmitImage
+    size?: BaseButtonProps["size"]
 }) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const loadImage = useLoadImage(onSubmit)
@@ -56,6 +58,7 @@ export const UploadImageButton = ({
         tabIndex={-1}
         startIcon={<UploadFileIcon weight={"light"}/>}
         onClick={handleButtonClick}
+        size={size}
     >
         {text}
         <input

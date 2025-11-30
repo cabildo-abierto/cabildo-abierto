@@ -4,7 +4,7 @@ import {
     ArCabildoabiertoWikiTopicVersion,
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
-    ArCabildoabiertoEmbedVisualization
+    ArCabildoabiertoEmbedVisualization, EmbedContext
 } from "@cabildo-abierto/api"
 import {uploadBase64Blob, uploadStringBlob} from "#/services/blob.js";
 import {BlobRef} from "@atproto/lexicon";
@@ -131,11 +131,6 @@ export async function createTopicVersionATProto(agent: SessionAgent, {id, text, 
     })
     return {ref: {uri: data.uri, cid: data.cid}, record}
 }
-
-
-export type EmbedContext = {
-    base64files?: string[]
-} | null
 
 
 type CreateTopicVersionProps = {

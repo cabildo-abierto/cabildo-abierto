@@ -12,13 +12,11 @@ import {EmbedNodeComp} from "./embed-node-comp";
 import {ReactNode} from "react";
 import {$Typed} from "@atproto/api";
 import {AppBskyEmbedImages} from "@atproto/api"
-import { ArCabildoabiertoEmbedVisualization } from "@cabildo-abierto/api";
+import {ArCabildoabiertoEmbedVisualization, EmbedContext} from "@cabildo-abierto/api";
 
 export type EmbedSpec = $Typed<ArCabildoabiertoEmbedVisualization.Main> | $Typed<AppBskyEmbedImages.View>
 
-export type EmbedContext = {
-    base64files?: string[]
-} | null
+
 
 export interface EmbedPayload {
     spec?: EmbedSpec

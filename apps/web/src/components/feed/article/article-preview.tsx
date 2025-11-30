@@ -1,10 +1,9 @@
-"use client"
 import {PostPreviewFrame} from '../utils/post-preview-frame'
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api";
 import {$Typed, AppBskyFeedDefs} from "@atproto/api";
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
-import {cn} from "@/lib/utils";
-import {ReadOnlyEditor} from "@/components/utils/base/read-only-editor";
+import {ArticleOrExternalPreview} from "@/components/feed/article/article-or-external-preview";
+import {contentUrl} from "@cabildo-abierto/utils";
 
 
 export type ArticlePreviewProps = {
@@ -18,27 +17,24 @@ export type ArticlePreviewProps = {
 export const ArticlePreviewContent = ({
                                           title,
                                           summary,
-                                          className
+    image,
+    onClick,
+    uri
                                       }: {
     title: string,
     summary: string
-    className?: string
+    image?: string
+    onClick?: () => void
+    uri?: string
 }) => {
-    return <div
-        className={cn("border p-2", className)}
-    >
-        <div className={"flex justify-between w-full"}>
-            <div className={"text-[11px] text-[var(--text-light)] uppercase"}>
-                Artículo
-            </div>
-        </div>
-        <div className={"font-bold text-lg pb-1"}>
-            {title}
-        </div>
-        <div className={"border-t pt-1 text-sm text-[var(--text-light)] article-preview-content line-clamp-2"}>
-            <ReadOnlyEditor text={summary}/>
-        </div>
-    </div>
+    return <ArticleOrExternalPreview
+        isArticle={true}
+        description={summary}
+        thumb={image}
+        title={title}
+        onClick={onClick}
+        url={uri ? contentUrl(uri) : undefined}
+    />
 }
 
 
@@ -57,7 +53,12 @@ export const ArticlePreview = (
         reason={reason}
     >
         <div className={"mt-2"}>
-            <ArticlePreviewContent title={title} summary={summary}/>
+            <ArticlePreviewContent
+                title={title}
+                summary={summary}
+                image={articleView.preview?.thumb}
+                uri={articleView.uri}
+            />
         </div>
     </PostPreviewFrame>
 }

@@ -5,6 +5,7 @@ import {CAHandler} from "#/utils/handler.js";
 import {handleToDid} from "#/services/user/users.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {batchDeleteRecords} from "#/services/sync/event-processing/get-record-processor.js";
+import {deleteDraft} from "#/services/write/drafts.js";
 
 
 export async function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {ctx: AppContext, agent?: SessionAgent, did: string, collections?: string[], atproto: boolean}){
@@ -156,6 +157,11 @@ async function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string) {
 
 export const deleteRecordHandler: CAHandler<{params: {rkey: string, collection: string}}> = async (ctx, agent, {params}) => {
     const {rkey, collection} = params
+
+    if(collection == "draft") {
+        await deleteDraft(ctx, agent, rkey)
+    }
+
     const uri = getUri(agent.did, collection, rkey)
 
     return await deleteRecord(ctx, agent, uri)

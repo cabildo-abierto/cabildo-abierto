@@ -67,6 +67,8 @@ export type FeedElementQueryResult = {
     embeds: unknown
     datasetsUsed: { uri: string }[]
     editedAt: Date | null
+    articleDescription: string | null
+    articlePreviewImage: string | null
 }
 
 
@@ -136,6 +138,8 @@ export class Dataplane {
     caUsers: Map<string, CAProfile> = new Map()
     profiles: Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed> = new Map()
     profileViewers: Map<string, AppBskyActorDefs.ViewerState> = new Map()
+
+    signedStorageUrls: Map<string, Map<string, string>> = new Map()
 
     constructor(ctx: AppContext, agent?: SessionAgent | NoSessionAgent) {
         this.ctx = ctx
@@ -236,6 +240,8 @@ export class Dataplane {
                 "Content.format",
                 "Content.textBlobId",
                 "Article.title",
+                "Article.description",
+                "Article.previewImage",
                 "TopicVersion.topicId",
                 "TopicVersion.props",
                 "Record.editedAt",
@@ -256,7 +262,9 @@ export class Dataplane {
                     repliesCount: c.repliesCount ? Number(c.repliesCount) : 0,
                     quotesCount: c.quotesCount ? Number(c.quotesCount) : 0,
                     cid: c.cid,
-                    selfLabels: c.selfLabels ?? []
+                    selfLabels: c.selfLabels ?? [],
+                    articleDescription: c.description,
+                    articlePreviewImage: c.previewImage
                 })
             } else {
                 this.ctx.logger.pino.warn({uri: c.uri}, "content ignored, no cid")
@@ -1109,6 +1117,21 @@ export class Dataplane {
             }
         } else {
             this.ctx.logger.pino.info({post: thread.post}, "thread->post no es postView")
+        }
+    }
+
+    async fetchSignedStorageUrls(paths: string[], bucket: string) {
+        paths = paths.filter(p => !this.signedStorageUrls.has(p))
+        if(paths.length == 0) return
+        const urls = await this.ctx.storage?.getSignedUrlsFromPaths(paths, bucket)
+        if(urls) {
+            if(!this.signedStorageUrls.has(bucket)) {
+                this.signedStorageUrls.set(bucket, new Map<string, string>)
+            }
+            const cur = this.signedStorageUrls.get(bucket)!
+            urls.data.forEach((u, i) => {
+                cur.set(paths[i], u)
+            })
         }
     }
 }

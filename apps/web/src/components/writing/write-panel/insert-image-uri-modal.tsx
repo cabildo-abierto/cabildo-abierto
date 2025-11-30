@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {ImagePayload} from "./write-post";
+import {ImagePayload} from "@cabildo-abierto/api";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseButton} from "@/components/utils/base/base-button";
 
