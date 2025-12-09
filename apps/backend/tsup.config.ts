@@ -17,11 +17,6 @@ export default defineConfig({
 
     skipNodeModulesBundle: true,
 
-    noExternal: [
-        "@cabildo-abierto/utils",
-        "@cabildo-abierto/editor-core"
-    ],
-
     external: [
         /^@cabildo-abierto\/api$/,
         /^@atproto\//,

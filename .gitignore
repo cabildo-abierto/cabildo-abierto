@@ -4,7 +4,6 @@ node_modules/
 .env
 .idea
 .turbo
-pnpm-lock.yaml
 coverage/
 ecosystem.config.*.js
 out
