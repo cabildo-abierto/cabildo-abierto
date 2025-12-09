@@ -1,4 +1,4 @@
-import {decompress} from "#/utils/compression.js";
+import {decompress} from "@cabildo-abierto/editor-core";
 import {
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoEmbedVisualization,

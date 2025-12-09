@@ -9,7 +9,7 @@ import {
 } from "@cabildo-abierto/api"
 import {AppBskyFeedDefs} from "@atproto/api"
 import {FeedSkeleton} from "#/services/feed/feed.js";
-import {decompress} from "#/utils/compression.js";
+import {decompress} from "@cabildo-abierto/editor-core";
 import {getAllText} from "#/services/wiki/diff.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {Dataplane} from "#/services/hydration/dataplane.js";

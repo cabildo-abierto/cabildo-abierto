@@ -18,3 +18,4 @@ pnpm-store
 .vscode
 .env
 .idea
+out

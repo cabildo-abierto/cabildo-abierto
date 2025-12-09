@@ -1,7 +1,7 @@
 import {AppContext} from "#/setup.js";
 import {TextAndFormat} from "#/services/wiki/references/references.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
-import {decompress} from "#/utils/compression.js";
+import {decompress} from "@cabildo-abierto/editor-core";
 import {getAllText} from "#/services/wiki/diff.js";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {BlobRef} from "#/services/hydration/hydrate.js";

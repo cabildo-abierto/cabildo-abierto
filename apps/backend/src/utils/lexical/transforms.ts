@@ -1,5 +1,5 @@
-import {decompress} from "../compression.js";
 import {JSDOM} from "jsdom"
+import {decompress} from "@cabildo-abierto/editor-core"
 
 
 export function htmlToMarkdown(html: string){

@@ -7,3 +7,4 @@ node_modules/
 pnpm-lock.yaml
 coverage/
 ecosystem.config.*.js
+out

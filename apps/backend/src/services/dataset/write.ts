@@ -3,7 +3,7 @@ import {CAHandler} from "#/utils/handler.js";
 import {uploadStringBlob} from "#/services/blob.js";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
-import {compress} from "#/utils/compression.js";
+import {compress} from "@cabildo-abierto/editor-core";
 import {DatasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
 import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
