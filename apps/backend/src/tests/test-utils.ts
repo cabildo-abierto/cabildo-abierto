@@ -7,7 +7,6 @@ import {sql} from "kysely";
 import {BaseAgent, bskyPublicAPI, SessionAgent} from "#/utils/session-agent.js";
 import {env} from "#/lib/env.js";
 import {AppBskyFeedPost, AtpBaseClient} from "@atproto/api";
-import {ATProtoStrongRef} from "#/lib/types.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
 import {getCollectionFromUri, getUri} from "@cabildo-abierto/utils";
@@ -16,7 +15,14 @@ import {randomBytes} from "crypto";
 import * as path from 'path';
 import { sha256 } from 'multiformats/hashes/sha2'
 import { encode, code } from '@ipld/dag-cbor'
-import {ArCabildoabiertoActorCaProfile, ArCabildoabiertoWikiVoteReject, ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiVoteAccept, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {
+    ArCabildoabiertoActorCaProfile,
+    ArCabildoabiertoWikiVoteReject,
+    ArCabildoabiertoFeedArticle,
+    ArCabildoabiertoWikiVoteAccept,
+    ArCabildoabiertoWikiTopicVersion,
+    ATProtoStrongRef
+} from "@cabildo-abierto/api";
 import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";

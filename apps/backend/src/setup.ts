@@ -50,7 +50,6 @@ export function setupKysely(dbUrl?: string) {
 export function setupRedis(db: number) {
     return new IORedis(redisUrl, {
         maxRetriesPerRequest: null,
-        family: 6,
         db
     })
 }

@@ -1,5 +1,5 @@
 import {AppContext} from "#/setup.js";
-import {Account, ATProtoStrongRef, AuthorStatus, Session, ValidationState} from "#/lib/types.js";
+import {Account, AuthorStatus, Session, ValidationState} from "#/lib/types.js";
 import {Agent, cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {deleteRecords} from "#/services/delete.js";
 import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
@@ -9,7 +9,7 @@ import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
 import {createCAUser} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorDefs, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {uploadBase64Blob} from "#/services/blob.js";
 import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "#/services/feed/inicio/discusion.js";
@@ -53,12 +53,13 @@ export async function didToHandle(ctx: AppContext, did: string): Promise<string 
 
 
 export const getCAUsersDids = async (ctx: AppContext) => {
-    return (await ctx.kysely
+    const users = await ctx.kysely
         .selectFrom("User")
         .select("did")
         .where("inCA", "=", true)
         .where("hasAccess", "=", true)
-        .execute()).map(({did}) => did)
+        .execute()
+    return users.map(({did}) => did)
 }
 
 

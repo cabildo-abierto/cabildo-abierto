@@ -1,64 +1,63 @@
-# syntax = docker/dockerfile:1
+# ============================
+# 1. Turbo Prune Prereq Stage
+# ============================
+FROM node:20-alpine AS pruner
+WORKDIR /repo
 
-# Adjust NODE_VERSION as desired
-ARG NODE_VERSION=22.15.0
-FROM node:${NODE_VERSION}-slim AS base
+RUN npm install -g pnpm turbo && apk add --no-cache libc6-compat
 
-LABEL fly_launch_runtime="Node.js/Prisma"
+COPY . .
+RUN turbo prune --scope=backend --docker
 
-# Node.js/Prisma app lives here
+
+# ============================
+# 2. Builder Stage
+# ============================
+FROM node:20-alpine AS builder
+WORKDIR /repo
+
+# Needed for pnpm + some native deps
+RUN npm install -g pnpm && apk add --no-cache libc6-compat
+
+# Build args (your metadata toggle)
+ARG DEPLOY_ENV=prod
+
+# Bring in pruned workspace
+COPY --from=pruner /repo/out/json/ .
+COPY --from=pruner /repo/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=pruner /repo/out/full/ .
+
+# Install *only required* deps
+RUN pnpm install --frozen-lockfile
+
+# Build backend only
+RUN pnpm -F backend build
+
+# Ensure public dir exists in the pruned workspace
+RUN mkdir -p apps/backend/public
+
+# Select correct metadata file
+RUN if [ "$DEPLOY_ENV" = "prod" ]; then \
+      cp apps/backend/public/client-metadata.prod.json apps/backend/public/client-metadata.json ; \
+    else \
+      cp apps/backend/public/client-metadata.test.json apps/backend/public/client-metadata.json ; \
+    fi
+
+
+# ============================
+# 3. Runtime Stage
+# ============================
+FROM node:20-alpine
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+RUN apk add --no-cache curl
 
+# Copy backend dist, node_modules, public
+COPY --from=builder /repo/apps/backend/dist ./dist
+COPY --from=builder /repo/apps/backend/public ./public
+COPY --from=builder /repo/apps/backend/package.json ./
+COPY --from=builder /repo/node_modules ./node_modules
 
-# Throw-away build stage to reduce size of final image
-FROM base AS build
+EXPOSE 8080
 
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp openssl pkg-config python-is-python3
-
-# Install node modules
-COPY package-lock.json package.json ./
-RUN npm ci --include=dev
-
-# Generate Prisma Client
-COPY prisma .
-RUN npx prisma generate
-
-# Copy application code
-COPY . .
-
-# Build application
-RUN npm run build
-
-# Remove development dependencies
-RUN npm prune --omit=dev
-
-
-# Final stage for app image
-FROM base
-
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Copy built application
-COPY --from=build /app /app
-
-# Setup sqlite3 on a separate volume
-RUN mkdir -p /data
-VOLUME /data
-
-# added
-RUN ls -la /app/docker-entrypoint.js
-
-# Entrypoint prepares the database.
-ENTRYPOINT [ "/app/docker-entrypoint.js" ]
-
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD ["node", "dist/index.js"]

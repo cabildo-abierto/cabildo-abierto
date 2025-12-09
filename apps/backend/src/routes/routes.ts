@@ -463,6 +463,14 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/remove-interest/:id", makeHandler(ctx, removeInterestHandler))
 
+    router.get("/healthz", (req, res) => {
+        res.status(200).json({
+            status: "ok",
+            uptime: process.uptime(),
+            timestamp: Date.now()
+        })
+    })
+
     router.use(adminRoutes(ctx))
 
     return router
