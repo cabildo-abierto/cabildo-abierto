@@ -13,7 +13,7 @@ build
 dist-ssr
 *.local
 .env
-
+**/*.env
 !.vscode/extensions.json
 .idea
 .DS_Store
