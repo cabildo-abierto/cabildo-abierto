@@ -1,6 +1,7 @@
-import 'dotenv/config'
 import {Server} from './server.js'
 import {Role} from "#/setup.js";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const run = async (roles: Role[]) => {
     const server = await Server.create(roles)

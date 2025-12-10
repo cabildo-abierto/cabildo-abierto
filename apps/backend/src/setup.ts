@@ -6,13 +6,13 @@ import {CAWorker, RedisCAWorker} from "#/jobs/worker.js";
 import {Kysely, PostgresDialect} from 'kysely'
 import {Pool} from 'pg'
 import {DB} from '#/../prisma/generated/types.js'
-import 'dotenv/config'
 import {RedisCache} from "#/services/redis/cache.js";
 import {Logger} from "#/utils/logger.js";
 import {env} from './lib/env.js';
 import {S3Storage} from './services/storage/storage.js';
 import {getCAUsersDids} from "#/services/user/users.js";
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export type AppContext = {
     logger: Logger

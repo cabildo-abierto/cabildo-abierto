@@ -1,63 +1,56 @@
 # ============================
-# 1. Turbo Prune Prereq Stage
+# 1. Base
 # ============================
-FROM node:20-alpine AS pruner
+FROM node:20-alpine AS base
+RUN apk update
+RUN apk add --no-cache libc6-compat
 WORKDIR /repo
 
-RUN npm install -g pnpm turbo && apk add --no-cache libc6-compat
-
+# ============================
+# 1. Prepare (Turbo Prune)
+# ============================
+FROM base AS prepare
+RUN npm install -g turbo@^2
 COPY . .
-RUN turbo prune --scope=backend --docker
 
+RUN turbo prune backend --docker
 
 # ============================
-# 2. Builder Stage
+# 2. Builder
 # ============================
-FROM node:20-alpine AS builder
-WORKDIR /repo
+FROM base AS builder
 
-# Needed for pnpm + some native deps
-RUN npm install -g pnpm && apk add --no-cache libc6-compat
+RUN npm install -g pnpm@^10
 
-# Build args (your metadata toggle)
-ARG DEPLOY_ENV=prod
+COPY --from=prepare /repo/out/json/ .
 
-# Bring in pruned workspace
-COPY --from=pruner /repo/out/json/ .
-COPY --from=pruner /repo/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=pruner /repo/out/full/ .
-
-# Install *only required* deps
 RUN pnpm install --frozen-lockfile
 
-# Build backend only
+COPY --from=prepare /repo/out/full/ .
+COPY tsconfig.base.json /repo/.
+
+RUN pnpm -F utils build
+RUN pnpm -F api build
+RUN pnpm -F editor-core build
 RUN pnpm -F backend build
 
-# Ensure public dir exists in the pruned workspace
-RUN mkdir -p apps/backend/public
-
-# Select correct metadata file
-RUN if [ "$DEPLOY_ENV" = "prod" ]; then \
-      cp apps/backend/public/client-metadata.prod.json apps/backend/public/client-metadata.json ; \
-    else \
-      cp apps/backend/public/client-metadata.test.json apps/backend/public/client-metadata.json ; \
-    fi
-
-
 # ============================
-# 3. Runtime Stage
+# 3. Runtime
 # ============================
-FROM node:20-alpine
-WORKDIR /app
+FROM base AS runner
 
 RUN apk add --no-cache curl
 
-# Copy backend dist, node_modules, public
-COPY --from=builder /repo/apps/backend/dist ./dist
-COPY --from=builder /repo/apps/backend/public ./public
-COPY --from=builder /repo/apps/backend/package.json ./
-COPY --from=builder /repo/node_modules ./node_modules
+COPY --from=builder /repo ./
+
+RUN mkdir -p /repo/public
+
+ARG DEPLOY_ENV=prod
+RUN if [ "$DEPLOY_ENV" = "prod" ]; then \
+      cp apps/backend/public/client-metadata.prod.json public/client-metadata.json ; \
+    else \
+      cp apps/backend/public/client-metadata.test.json public/client-metadata.json ; \
+    fi
 
 EXPOSE 8080
-
-CMD ["node", "dist/index.js"]
+CMD ["node", "apps/backend/dist/index.js"]

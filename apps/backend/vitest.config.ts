@@ -9,7 +9,8 @@ export default defineConfig({
         clearMocks: true,
         exclude: [
             ...configDefaults.exclude,
-            '**/ecosystem.config.test.cjs'
+            '**/ecosystem.config.test.cjs',
+            '**/out/**'
         ]
     },
 })

@@ -2,8 +2,8 @@
   "name": "@cabildo-abierto/editor-core",
   "version": "1.0.0",
   "private": true,
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -w"
@@ -18,20 +18,13 @@
     "@lexical/markdown": "0.27.2",
     "@lexical/overflow": "0.27.2",
     "@lexical/rich-text": "0.27.2",
-    "@lexical/selection": "^0.27.2",
+    "@lexical/selection": "0.27.2",
     "@lexical/table": "0.27.2",
     "@lexical/utils": "0.27.2",
     "lexical": "0.27.2",
-    "lexical-beautiful-mentions": "^0.1.48",
-    "binary-search-bounds": "^2.0.5",
-    "browser-image-compression": "^2.0.2",
-    "date-fns": "^4.1.0",
-    "dayjs": "^1.11.13",
-    "fflate": "^0.8.2",
-    "geist": "^1.5.1",
     "immer": "^10.1.1",
+    "fflate": "^0.8.2",
     "remove-markdown": "^0.6.2",
-    "sharp": "^0.33.5",
     "uuid": "^11.1.0"
   }
 }

@@ -12,9 +12,11 @@ export async function updateTimestamp(ctx: AppContext, id: string, date: Date) {
         .insertInto("Timestamps")
         .values([{
             id,
-            date,
+            date: date,
+            date_tz: date,
         }])
         .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
+            date_tz: eb.ref("excluded.date_tz"),
             date: eb.ref("excluded.date")
         })))
         .execute()
@@ -24,10 +26,10 @@ export async function updateTimestamp(ctx: AppContext, id: string, date: Date) {
 export async function getTimestamp(ctx: AppContext, id: string) {
     const ts = await ctx.kysely
         .selectFrom("Timestamps")
-        .select("date")
+        .select("date_tz")
         .where("id", "=", id)
         .executeTakeFirst()
-    return ts?.date
+    return ts?.date_tz
 }
 
 

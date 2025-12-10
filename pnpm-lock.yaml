@@ -75,7 +75,7 @@ importers:
         version: link:../../packages/api
       '@cabildo-abierto/editor-core':
         specifier: workspace:*
-        version: file:packages/editor-core(@lexical/react@0.27.2(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(yjs@13.6.27))(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+        version: link:../../packages/editor-core
       '@cabildo-abierto/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -490,7 +490,7 @@ importers:
         version: 0.548.0(react@19.0.1)
       next:
         specifier: 15.5.7
-        version: 15.5.7(@babel/core@7.28.5)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+        version: 15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       next-navigation-guard:
         specifier: ^0.2.0
         version: 0.2.0(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)
@@ -623,7 +623,7 @@ importers:
         specifier: 0.27.2
         version: 0.27.2
       '@lexical/selection':
-        specifier: ^0.27.2
+        specifier: 0.27.2
         version: 0.27.2
       '@lexical/table':
         specifier: 0.27.2
@@ -631,39 +631,18 @@ importers:
       '@lexical/utils':
         specifier: 0.27.2
         version: 0.27.2
-      binary-search-bounds:
-        specifier: ^2.0.5
-        version: 2.0.5
-      browser-image-compression:
-        specifier: ^2.0.2
-        version: 2.0.2
-      date-fns:
-        specifier: ^4.1.0
-        version: 4.1.0
-      dayjs:
-        specifier: ^1.11.13
-        version: 1.11.19
       fflate:
         specifier: ^0.8.2
         version: 0.8.2
-      geist:
-        specifier: ^1.5.1
-        version: 1.5.1(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1))
       immer:
         specifier: ^10.1.1
         version: 10.2.0
       lexical:
         specifier: 0.27.2
         version: 0.27.2
-      lexical-beautiful-mentions:
-        specifier: ^0.1.48
-        version: 0.1.48(@lexical/react@0.27.2(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(yjs@13.6.27))(@lexical/utils@0.27.2)(lexical@0.27.2)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       remove-markdown:
         specifier: ^0.6.2
         version: 0.6.2
-      sharp:
-        specifier: ^0.33.5
-        version: 0.33.5
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -1065,15 +1044,6 @@ packages:
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
-
-  '@cabildo-abierto/api@file:packages/api':
-    resolution: {directory: packages/api, type: directory}
-
-  '@cabildo-abierto/editor-core@file:packages/editor-core':
-    resolution: {directory: packages/editor-core, type: directory}
-
-  '@cabildo-abierto/utils@file:packages/utils':
-    resolution: {directory: packages/utils, type: directory}
 
   '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
     resolution: {integrity: sha512-P7swiOAdF7aSi0H+tHtHtr6zrpF3aAq/W9FXx5HektRvLTM2O89xCyXF3pk7pLc7QpaY7AoaE8UowVf9QBdh3w==}
@@ -9768,48 +9738,6 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@cabildo-abierto/api@file:packages/api':
-    dependencies:
-      '@atproto/lexicon': 0.5.2
-      '@atproto/xrpc': 0.7.6
-      multiformats: 9.9.0
-
-  '@cabildo-abierto/editor-core@file:packages/editor-core(@lexical/react@0.27.2(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(yjs@13.6.27))(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react-dom@19.0.1(react@19.0.1))(react@19.0.1)':
-    dependencies:
-      '@cabildo-abierto/utils': file:packages/utils
-      '@lexical/headless': 0.27.2
-      '@lexical/html': 0.27.2
-      '@lexical/link': 0.27.2
-      '@lexical/list': 0.27.2
-      '@lexical/mark': 0.27.2
-      '@lexical/markdown': 0.27.2
-      '@lexical/overflow': 0.27.2
-      '@lexical/rich-text': 0.27.2
-      '@lexical/selection': 0.27.2
-      '@lexical/table': 0.27.2
-      '@lexical/utils': 0.27.2
-      binary-search-bounds: 2.0.5
-      browser-image-compression: 2.0.2
-      date-fns: 4.1.0
-      dayjs: 1.11.19
-      fflate: 0.8.2
-      geist: 1.5.1(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1))
-      immer: 10.2.0
-      lexical: 0.27.2
-      lexical-beautiful-mentions: 0.1.48(@lexical/react@0.27.2(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(yjs@13.6.27))(@lexical/utils@0.27.2)(lexical@0.27.2)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
-      remove-markdown: 0.6.2
-      sharp: 0.33.5
-      uuid: 11.1.0
-    transitivePeerDependencies:
-      - '@lexical/react'
-      - next
-      - react
-      - react-dom
-
-  '@cabildo-abierto/utils@file:packages/utils':
-    dependencies:
-      '@cabildo-abierto/api': file:packages/api
-
   '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
     optional: true
 
@@ -15896,7 +15824,7 @@ snapshots:
 
   geist@1.5.1(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1)):
     dependencies:
-      next: 15.5.7(@babel/core@7.28.5)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+      next: 15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
 
   generator-function@2.0.1: {}
 
@@ -17142,10 +17070,10 @@ snapshots:
 
   next-navigation-guard@0.2.0(next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1):
     dependencies:
-      next: 15.5.7(@babel/core@7.28.5)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+      next: 15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       react: 19.0.1
 
-  next@15.5.7(@babel/core@7.28.5)(react-dom@19.0.1(react@19.0.1))(react@19.0.1):
+  next@15.5.7(react-dom@19.0.1(react@19.0.1))(react@19.0.1):
     dependencies:
       '@next/env': 15.5.7
       '@swc/helpers': 0.5.15
@@ -17153,7 +17081,7 @@ snapshots:
       postcss: 8.4.31
       react: 19.0.1
       react-dom: 19.0.1(react@19.0.1)
-      styled-jsx: 5.1.6(@babel/core@7.28.5)(react@19.0.1)
+      styled-jsx: 5.1.6(react@19.0.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.5.7
       '@next/swc-darwin-x64': 15.5.7
@@ -18778,12 +18706,10 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  styled-jsx@5.1.6(@babel/core@7.28.5)(react@19.0.1):
+  styled-jsx@5.1.6(react@19.0.1):
     dependencies:
       client-only: 0.0.1
       react: 19.0.1
-    optionalDependencies:
-      '@babel/core': 7.28.5
 
   stylehacks@7.0.7(postcss@8.5.6):
     dependencies:

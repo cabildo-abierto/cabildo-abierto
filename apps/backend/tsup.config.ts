@@ -23,6 +23,21 @@ export default defineConfig({
         "safer-buffer",
         "iconv-lite",
         "whatwg-encoding",
-        "undici"
+        "undici",
+        "express",
+        "cors",
+        "morgan",
+        "dotenv",
+        "ioredis",
+        "pg",
+        "kysely",
+        "pino",
+        "jsonwebtoken",
+        "jsdom",
+        "immer",
+        "uuid",
+        "ws",
+        "remove-markdown",
+        "bullmq"
     ]
 });

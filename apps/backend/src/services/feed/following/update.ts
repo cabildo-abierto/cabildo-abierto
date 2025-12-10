@@ -18,9 +18,9 @@ export async function updateFollowingFeedOnContentDelete(ctx: AppContext, rootUr
 }
 
 
-export const updateAllFollowingFeeds: CAHandler = async (ctx, agent) => {
+export const updateAllFollowingFeeds = async (ctx: AppContext) => {
     const lastTwoMonths = new Date(Date.now() - 2*30*24*60*60*1000)
     const dids = await getCAUsersDids(ctx)
     await new FeedIndexUpdater(ctx).populate(dids, lastTwoMonths)
-    return {data: {}}
 }
+

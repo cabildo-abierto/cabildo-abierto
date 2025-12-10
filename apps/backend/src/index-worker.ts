@@ -1,6 +1,7 @@
 import {MirrorMachine} from "#/services/sync/mirror-machine.js";
-import 'dotenv/config'
 import {Role, setupAppContext} from "#/setup.js";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 
 export const run = async (roles: Role[]) => {

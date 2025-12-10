@@ -491,6 +491,7 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
     if(uris != null && uris.length == 0) return
 
     while (true) {
+        ctx.logger.pino.info({offset}, "batch")
         try {
             const contents = await ctx.kysely
                 .selectFrom("Content")

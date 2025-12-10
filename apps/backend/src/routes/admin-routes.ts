@@ -178,7 +178,5 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post("/find-users/:handle", makeAdminHandler(ctx, findUsersInFollows))
 
-    router.post("/update-all-following-feeds", makeAdminHandler(ctx, updateAllFollowingFeeds))
-
     return router
 }

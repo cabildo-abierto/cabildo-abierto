@@ -65,6 +65,9 @@ cd "$(dirname "$0")"
 
 GIT_SHA=$(git rev-parse --short HEAD)
 
+echo "🧹 Cleaning prune output before tests..."
+rm -rf out
+
 if [ "$DEPLOY_WEB" -eq 1 ] || [ "$DEPLOY_BACKEND" -eq 1 ]; then
   echo "📦 Installing workspace dependencies with pnpm..."
   pnpm install

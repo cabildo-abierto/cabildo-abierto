@@ -158,6 +158,7 @@ export class FeedIndexUpdater {
         if(updates.length > 0) {
             const bs = 5000
             for(let i = 0; i < updates.length; i += bs) {
+                this.ctx.logger.pino.info({i}, "batch")
                 await this.ctx.kysely.transaction().execute(async trx => {
                     await trx
                         .insertInto("FollowingFeedIndex")
@@ -189,7 +190,7 @@ export class FeedIndexUpdater {
             if (!r.userFollowedId) return
             const cur = followersMap.get(r.userFollowedId)
             if (cur) {
-                cur.add(r.uri)
+                cur.add(getDidFromUri(r.uri))
             } else {
                 followersMap.set(r.userFollowedId, new Set([getDidFromUri(r.uri)]))
             }

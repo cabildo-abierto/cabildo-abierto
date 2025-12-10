@@ -37,6 +37,7 @@ import {type Redis} from "ioredis/built/index.js"
 import {updateAllTopicPopularities} from "#/services/wiki/references/popularity.js";
 import {assignPayments} from "#/services/monetization/payments.js";
 import {
+    updateAllFollowingFeeds,
     updateFollowingFeedOnContentDelete,
     updateFollowingFeedOnFollowChange,
     updateFollowingFeedOnNewContent
@@ -240,6 +241,11 @@ export class CAWorker {
             (data) => updateFollowingFeedOnFollowChange(ctx, data as {follower: string, followed: string}[]),
             true
         )
+        this.registerJob(
+            "update-all-following-feeds",
+            () => updateAllFollowingFeeds(ctx),
+            true
+        )
 
         this.logger.pino.info("worker jobs registered")
 
@@ -328,7 +334,8 @@ export class RedisCAWorker extends CAWorker {
                 },
                 {
                     connection: ioredis,
-                    lockDuration: 60 * 1000 * 5
+                    lockDuration: 60 * 1000 * 5,
+                    concurrency: 5
                 }
             )
             this.worker.on('failed', (job, err) => {
