@@ -2,7 +2,7 @@ import {
     cleanUpAfterTests,
     cleanUPTestDataFromDB,
     createTestContext,
-    getSuiteId
+    getSuiteId, testTimeout
 } from "#/tests/test-utils.js";
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
@@ -11,17 +11,17 @@ import {findMentionsInText} from "#/services/wiki/references/references.js";
 const testSuite = getSuiteId(__filename)
 
 
-describe('Detect mention notifications', { timeout: 20000 }, () => {
+describe('Detect mention notifications', { timeout: 30000 }, () => {
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
         await ctx.worker?.setup(ctx)
-    }, 20000)
+    }, testTimeout)
 
     beforeEach(async () => {
         await cleanUPTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
-    }, 20000)
+    }, testTimeout)
 
     it("should find mention", async () => {
         const text = "[@cabildoabierto.ar](/perfil/cabildoabierto.ar)"

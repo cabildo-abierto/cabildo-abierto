@@ -33,12 +33,12 @@ export const redisUrl = env.REDIS_URL
 const envName = env.NODE_ENV
 
 
-export function setupKysely(dbUrl?: string) {
+export function setupKysely(dbUrl?: string, maxThreads?: number) {
     return new Kysely<DB>({
         dialect: new PostgresDialect({
             pool: new Pool({
                 connectionString: dbUrl ?? env.DATABASE_URL,
-                max: env.MAX_CONNECTIONS,
+                max: maxThreads ?? env.MAX_CONNECTIONS,
                 idleTimeoutMillis: 30000,
                 keepAlive: true,
             })
@@ -63,7 +63,6 @@ export function setupResolver(redis: RedisCache) {
 
 export async function setupAppContext(roles: Role[]) {
     const logger = new Logger([...roles, envName].join(":"))
-
     const kysely = setupKysely()
     logger.pino.info("kysely client created")
 

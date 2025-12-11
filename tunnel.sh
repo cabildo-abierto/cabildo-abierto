@@ -1,1 +1,0 @@
-ssh -N -L 6432:localhost:6432 root@64.176.14.194

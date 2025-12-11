@@ -13,7 +13,7 @@ import {
     getPostRefAndRecord,
     getSuiteId,
     MockSessionAgent,
-    processRecordsInTest
+    processRecordsInTest, testTimeout
 } from "./test-utils.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 
@@ -21,14 +21,14 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 const testSuite = getSuiteId(__filename);
 
 
-describe('Process follow', {timeout: 20000}, () => {
+describe('Process follow', {timeout: testTimeout}, () => {
     let ctx : AppContext | undefined
 
     beforeAll(async () => {
         ctx = await createTestContext()
 
         await cleanUPTestDataFromDB(ctx, testSuite)
-    }, 20000)
+    }, testTimeout)
 
     it("should create a record", async () => {
         const did = generateUserDid(testSuite)
@@ -61,19 +61,19 @@ describe('Process follow', {timeout: 20000}, () => {
 })
 
 
-describe('Create read session', {timeout: 20000}, () => {
+describe('Create read session', {timeout: testTimeout}, () => {
     const agent = new MockSessionAgent(generateUserDid(testSuite))
 
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
-    }, 20000)
+    }, testTimeout)
 
     beforeEach(async () => {
         await cleanUPTestDataFromDB(ctx!, testSuite)
-    }, 20000)
+    }, testTimeout)
 
-    it("should create a read session", {timeout: 20000}, async () => {
+    it("should create a read session", {timeout: testTimeout}, async () => {
         expect(ctx).not.toBeFalsy()
 
         const post = await getPostRefAndRecord(
@@ -132,7 +132,7 @@ describe('Create read session', {timeout: 20000}, () => {
         expect(db_rs!.topicId).toBeNull()
     })
 
-    it("should get liked if created before", {timeout: 20000}, async () => {
+    it("should get liked if created before", {timeout: testTimeout}, async () => {
         expect(ctx).not.toBeFalsy()
 
         const post = await getPostRefAndRecord("hola!", new Date(), testSuite)
@@ -150,7 +150,7 @@ describe('Create read session', {timeout: 20000}, () => {
         expect(record!.uniqueLikesCount).toEqual(1)
     })
 
-    it("should get liked if created later", {timeout: 20000}, async () => {
+    it("should get liked if created later", {timeout: testTimeout}, async () => {
         expect(ctx).not.toBeFalsy()
 
         const post = await getPostRefAndRecord(

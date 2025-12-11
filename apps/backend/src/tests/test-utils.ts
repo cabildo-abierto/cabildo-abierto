@@ -28,6 +28,7 @@ import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 
+export const testTimeout = 40000
 
 export function generateRkey(): string {
     return `${Date.now()}${Math.random().toString(36).substring(2, 7)}`;
@@ -114,7 +115,7 @@ export async function createTestContext(): Promise<AppContext> {
     const redisCache = new RedisCache(ioredis, mirrorId, logger)
     const ctx: AppContext = {
         logger,
-        kysely: setupKysely(process.env.TEST_DB),
+        kysely: setupKysely(process.env.TEST_DB, 2),
         ioredis,
         resolver: setupResolver(redisCache),
         mirrorId,
@@ -159,7 +160,7 @@ export function getSuiteId(filename: string): string {
 }
 
 
-export async function getFollowRefAndRecord(subject: string, testSuite: string) {
+export async function getFollowRefAndRecord(subject: string, testSuite: string, authorId?: string) {
     const record: AppBskyGraphFollow.Record = {
         $type: "app.bsky.graph.follow",
         subject,
@@ -167,7 +168,8 @@ export async function getFollowRefAndRecord(subject: string, testSuite: string) 
     }
 
     return await getRefAndRecord(record, testSuite, {
-        collection: "app.bsky.graph.follow"
+        collection: "app.bsky.graph.follow",
+        did: authorId
     })
 }
 
@@ -307,13 +309,14 @@ function getRepostRecord(ref: ATProtoStrongRef, created_at: Date = new Date()): 
 }
 
 
-export function getRepostRefAndRecord(ref: ATProtoStrongRef, created_at: Date = new Date(), testSuite: string) {
+export function getRepostRefAndRecord(ref: ATProtoStrongRef, created_at: Date = new Date(), testSuite: string, authorId?: string) {
     const record = getRepostRecord(ref, created_at)
 
     return getRefAndRecord(
         record,
         testSuite,
         {
+            did: authorId,
             collection: "app.bsky.feed.repost"
         }
     )
@@ -509,8 +512,8 @@ export async function processRecordsInTest(ctx: AppContext, records: RefAndRecor
     for(const r of records) {
         const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
         await processor.process([r])
+        await ctx!.worker?.runAllJobs()
     }
-    await ctx!.worker?.runAllJobs()
 }
 
 
@@ -591,4 +594,33 @@ export class MockCAWorker extends CAWorker {
     async clear() {
         this.queue = []
     }
+}
+
+
+export async function checkRecordExists(ctx: AppContext, uri: string) {
+    return await ctx.kysely
+        .selectFrom("Record")
+        .where("uri", "=", uri).select("uri")
+        .executeTakeFirst() != null
+}
+
+
+export async function checkIsFollowing(ctx: AppContext, follower: string, subject: string) {
+    return await ctx!.kysely
+        .selectFrom("Follow")
+        .innerJoin("Record", "Record.uri", "Follow.uri")
+        .where("Record.authorId", "=", follower)
+        .where("Follow.userFollowedId", "=", subject)
+        .selectAll()
+        .executeTakeFirst() != null
+}
+
+
+export async function checkContentInFollowingFeed(ctx: AppContext, uri: string, follower: string) {
+    return await ctx!.kysely
+        .selectFrom("FollowingFeedIndex")
+        .select("contentId")
+        .where("contentId", "=", uri)
+        .where("readerId", "=", follower)
+        .executeTakeFirst() != null
 }

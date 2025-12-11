@@ -8,7 +8,7 @@ import {
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
     ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoActorDefs
+    ArCabildoabiertoActorDefs, EditorStatus
 } from "@cabildo-abierto/api"
 import {Agent} from "#/utils/session-agent.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
@@ -20,7 +20,6 @@ import {stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js"
 import {cleanText} from "@cabildo-abierto/utils";
 import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
-import {EditorStatus} from "@prisma/client";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 
 export type TimePeriod = "day" | "week" | "month" | "all"

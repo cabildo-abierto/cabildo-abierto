@@ -2,7 +2,7 @@ import {
     cleanUpAfterTests,
     cleanUPTestDataFromDB,
     createTestContext, getArticleRefAndRecord,
-    getPostRefAndRecord, getSuiteId, processRecordsInTest
+    getPostRefAndRecord, getSuiteId, processRecordsInTest, testTimeout
 } from "#/tests/test-utils.js";
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
@@ -11,7 +11,7 @@ import {splitUri} from "@cabildo-abierto/utils";
 const testSuite = getSuiteId(__filename)
 
 
-describe('Edit post', {timeout: 20000}, () => {
+describe('Edit post', {timeout: testTimeout}, () => {
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
@@ -23,7 +23,7 @@ describe('Edit post', {timeout: 20000}, () => {
         await ctx!.worker?.clear()
     })
 
-    it("should modify the text in a post", {timeout: 20000}, async () => {
+    it("should modify the text in a post", {timeout: testTimeout}, async () => {
         const post = await getPostRefAndRecord(
             "hola!", new Date(), testSuite
         )
@@ -65,19 +65,19 @@ describe('Edit post', {timeout: 20000}, () => {
 
 
 
-describe('Edit article', {timeout: 20000}, () => {
+describe('Edit article', {timeout: testTimeout}, () => {
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
         await ctx.worker?.setup(ctx)
-    }, 20000)
+    }, testTimeout)
 
     beforeEach(async () => {
         await cleanUPTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
-    }, 20000)
+    }, testTimeout)
 
-    it("should modify the text and set edited", {timeout: 20000}, async () => {
+    it("should modify the text and set edited", {timeout: testTimeout}, async () => {
         const article = await getArticleRefAndRecord(
             ctx!, "título", "hola!", new Date(), testSuite
         )

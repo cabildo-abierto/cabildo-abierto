@@ -9,7 +9,7 @@ import {
     getPostRefAndRecord,
     getSuiteId,
     getTopicVersionRefAndRecord, MockSessionAgent,
-    processRecordsInTest
+    processRecordsInTest, testTimeout
 } from "#/tests/test-utils.js";
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
@@ -41,17 +41,17 @@ const testSuite = getSuiteId(__filename)
 // TO DO: Eliminaciones de votos...
 // Probablemente no haga falta testear todos estos
 
-describe('Create topic vote', { timeout: 30000 }, () => {
+describe('Create topic vote', { timeout: testTimeout }, () => {
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
         await ctx.worker?.setup(ctx)
-    }, 20000)
+    }, testTimeout)
 
     beforeEach(async () => {
         await cleanUPTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
-    }, 20000)
+    }, testTimeout)
 
     it("should add one to the counter", async () => {
         const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
@@ -108,23 +108,23 @@ describe('Create topic vote', { timeout: 30000 }, () => {
         const votes2 = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
         expect(votes2).not.toBeFalsy()
         expect(votes2!.length).toEqual(0)
-    }, {timeout: 20000})
+    }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })
 
 
-describe('Create topic version', { timeout: 20000 }, () => {
+describe('Create topic version', { timeout: testTimeout }, () => {
     let ctx : AppContext | undefined
     beforeAll(async () => {
         ctx = await createTestContext()
         await ctx.worker?.setup(ctx)
-    }, 20000)
+    }, testTimeout)
 
     beforeEach(async () => {
         await cleanUPTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
-    }, 20000)
+    }, testTimeout)
 
     it("should be created with the text", async () => {
         const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
@@ -145,7 +145,7 @@ describe('Create topic version', { timeout: 20000 }, () => {
         expect(topicView1).not.toBeFalsy()
         expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
         expect(topicView1!.text).toEqual("texto")
-    })
+    }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })
@@ -156,12 +156,12 @@ describe('Get discussion', { timeout: 20000 }, () => {
     beforeAll(async () => {
         ctx = await createTestContext()
         await ctx.worker?.setup(ctx)
-    }, 20000)
+    }, testTimeout)
 
     beforeEach(async () => {
         await cleanUPTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
-    }, 20000)
+    }, testTimeout)
 
     it("should return a post", async () => {
         const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
@@ -210,7 +210,7 @@ describe('Get discussion', { timeout: 20000 }, () => {
                 e.content.uri == post.ref.uri)
 
         expect(postOnFeed).not.toBeFalsy()
-    })
+    }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })

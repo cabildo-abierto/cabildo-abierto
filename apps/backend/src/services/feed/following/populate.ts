@@ -1,5 +1,11 @@
 import {AppContext} from "#/setup.js";
-import {getCollectionEnumFromUri, getCollectionFromUri, getDidFromUri, isRepost, unique} from "@cabildo-abierto/utils";
+import {
+    getCollectionEnumFromUri,
+    getCollectionFromUri,
+    getDidFromUri,
+    isArticle, isPost,
+    isRepost
+} from "@cabildo-abierto/utils";
 import {CollectionEnum} from "@cabildo-abierto/api";
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
@@ -28,6 +34,7 @@ type FollowingFeedIndexUpdate = {
 
 export class FeedIndexUpdater {
     ctx: AppContext
+
     constructor(ctx: AppContext) {
         this.ctx = ctx
     }
@@ -155,9 +162,9 @@ export class FeedIndexUpdater {
         const repostUpdates = await this.getUpdatesFromReposts(followersMap, since)
         const updates = [...recordUpdates, ...repostUpdates]
 
-        if(updates.length > 0) {
+        if (updates.length > 0) {
             const bs = 5000
-            for(let i = 0; i < updates.length; i += bs) {
+            for (let i = 0; i < updates.length; i += bs) {
                 this.ctx.logger.pino.info({i}, "batch")
                 await this.ctx.kysely.transaction().execute(async trx => {
                     await trx
@@ -204,7 +211,7 @@ export class FeedIndexUpdater {
     }
 
     async updateOnFollowChange(data: { follower: string, followed: string }[]) {
-        if(data.length == 0) return
+        if (data.length == 0) return
         const ctx = this.ctx
         await ctx.kysely.transaction().execute(async trx => {
             const follows = await trx
@@ -259,122 +266,159 @@ export class FeedIndexUpdater {
         })
     }
 
+    async getUpdatesFromRepostUris(uris: string[]): Promise<FollowingFeedIndexUpdate[]> {
+        if(uris.length == 0) return []
+        const repostsData = await this.ctx.kysely
+            .selectFrom("Record")
+            .innerJoin("User", "User.did", "Record.authorId")
+            .innerJoin("Reaction", "Reaction.uri", "Record.uri")
+            .innerJoin("Record as RepostedRecord", "Reaction.subjectId", "RepostedRecord.uri")
+            .leftJoin("Content as RepostedRecordContent", "RepostedRecordContent.uri", "RepostedRecord.uri")
+            .leftJoin("Post", "Post.uri", "RepostedRecord.uri")
+            .where("Record.uri", "in", uris)
+            .innerJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .select([
+                "Record.uri",
+                "Record.collection",
+                "Record.created_at_tz as created_at",
+                "RepostedRecord.uri as repostedContentId",
+                "User.inCA",
+                "Post.rootId",
+                "Follow.uri as followUri"
+            ])
+            .execute()
+
+        return repostsData.map(r => {
+            if (r.created_at) {
+                return {
+                    contentId: r.uri,
+                    repostedContentId: r.repostedContentId,
+                    readerId: getDidFromUri(r.followUri),
+                    collection: getCollectionEnumFromUri(r.repostedContentId),
+                    authorInCA: r.inCA,
+                    created_at: r.created_at,
+                    rootId: r.rootId ?? r.repostedContentId,
+                    authorId: getDidFromUri(r.uri)
+                }
+            }
+        }).filter(x => x != null)
+    }
+
+    async getUpdatesFromPostUris(uris: string[]): Promise<FollowingFeedIndexUpdate[]> {
+        if(uris.length == 0) return []
+
+        const follows = await this.ctx.kysely.selectFrom("Follow")
+            .selectAll()
+            .execute()
+        this.ctx.logger.pino.info({follows}, "follows")
+
+        const postsData = await this.ctx.kysely
+            .selectFrom("Post")
+            .where("Post.uri", "in", uris)
+            .innerJoin("Record", "Record.uri", "Post.uri")
+            .innerJoin("User", "User.did", "Record.authorId")
+            .leftJoin("Content", "Content.uri", "Post.uri")
+            .innerJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .innerJoin("Record as FollowRecord", "FollowRecord.uri", "Follow.uri")
+            .innerJoin("User as FollowUser", "FollowUser.did", "FollowRecord.authorId")
+            .where("FollowUser.inCA", "=", true)
+            .leftJoin("Record as RootRecord", "RootRecord.uri", "Post.rootId")
+            .where(eb => eb.or([
+                eb("Post.rootId", "is", null),
+                eb.exists(eb // solo lo agregamos si el lector también sigue al autor de la raíz
+                    .selectFrom("Follow as Follow2")
+                    .innerJoin("Record as FollowRecord2", "FollowRecord2.uri", "Follow2.uri")
+                    .whereRef("FollowRecord.authorId", "=", "FollowRecord2.authorId")
+                    .whereRef("Follow2.userFollowedId", "=", "RootRecord.authorId")
+                )
+            ]))
+            .select([
+                "Record.uri",
+                "Record.collection",
+                "Record.created_at_tz as created_at",
+                "User.inCA",
+                "Post.rootId",
+                "Follow.uri as followUri",
+                "RootRecord.uri as rootUri"
+            ])
+            .execute()
+
+        return postsData.map(r => {
+            if (r.created_at) {
+                return {
+                    contentId: r.uri,
+                    readerId: getDidFromUri(r.followUri),
+                    collection: getCollectionEnumFromUri(r.uri),
+                    authorInCA: r.inCA,
+                    created_at: r.created_at,
+                    rootId: r.rootUri ?? r.uri,
+                    authorId: getDidFromUri(r.uri),
+                    repostedContentId: null,
+                }
+            }
+        }).filter(x => x != null)
+    }
+
+    async getUpdatesFromArticleUris(uris: string[]): Promise<FollowingFeedIndexUpdate[]> {
+        if(uris.length == 0) return []
+        const articlesData = await this.ctx.kysely
+            .selectFrom("Article")
+            .innerJoin("Record", "Record.uri", "Article.uri")
+            .innerJoin("User", "User.did", "Record.authorId")
+            .leftJoin("Content", "Content.uri", "Article.uri")
+            .where("Article.uri", "in", uris)
+            .innerJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .select([
+                "Record.uri",
+                "Record.collection",
+                "Record.created_at_tz as created_at",
+                "User.inCA",
+                "Follow.uri as followUri"
+            ])
+            .execute()
+
+        return articlesData.map(r => {
+            if (r.created_at) {
+                return {
+                    contentId: r.uri,
+                    readerId: getDidFromUri(r.followUri),
+                    collection: getCollectionEnumFromUri(r.uri),
+                    authorInCA: r.inCA,
+                    created_at: r.created_at,
+                    rootId: r.uri,
+                    authorId: getDidFromUri(r.uri),
+                    repostedContentId: null
+                }
+            }
+        }).filter(x => x != null)
+    }
+
     async updateOnNewContents(uris: string[]) {
-        await this.ctx.kysely.transaction().execute(async trx => {
-            const authors = unique(uris.map(getDidFromUri))
-            if(uris.length == 0) return
-            const followers = await trx
-                .selectFrom("Follow")
-                .innerJoin("Record", "Record.uri", "Follow.uri")
-                .innerJoin("User", "User.did", "Record.authorId")
-                .where("User.inCA", "=", true)
-                .where("Follow.userFollowedId", "in", authors)
-                .select(["Follow.uri", "Follow.userFollowedId"])
-                .execute()
+        if (uris.length == 0) return
 
-            const reposts = uris.filter(u => isRepost(getCollectionFromUri(u)))
+        const articles = uris.filter(u => isArticle(getCollectionFromUri(u)))
+        const posts = uris.filter(u => isPost(getCollectionFromUri(u)))
+        const reposts = uris.filter(u => isRepost(getCollectionFromUri(u)))
 
-            const records = uris
-                .filter(u => !isRepost(getCollectionFromUri(u)))
+        this.ctx.logger.pino.info({articles: articles.length, posts: posts.length, reposts: reposts.length}, "running update on new contents")
 
-            const values: FollowingFeedIndexUpdate[] = []
+        const values = (await Promise.all([
+            this.getUpdatesFromRepostUris(reposts),
+            this.getUpdatesFromPostUris(posts),
+            this.getUpdatesFromArticleUris(articles)
+        ])).flat()
+        this.ctx.logger.pino.info({values: values.length}, "got values on update on new contents")
 
-            if (reposts.length > 0) {
-                const repostsData = await this.ctx.kysely
-                    .selectFrom("Record")
-                    .innerJoin("User", "User.did", "Record.authorId")
-                    .innerJoin("Reaction", "Reaction.uri", "Record.uri")
-                    .innerJoin("Record as RepostedRecord", "Reaction.subjectId", "RepostedRecord.uri")
-                    .leftJoin("Content as RepostedRecordContent", "RepostedRecordContent.uri", "RepostedRecord.uri")
-                    .leftJoin("Post", "Post.uri", "RepostedRecord.uri")
-                    .where("Record.uri", "in", reposts)
-                    .select([
-                        "Record.uri",
-                        "Record.collection",
-                        "Record.created_at_tz as created_at",
-                        "RepostedRecord.uri as repostedContentId",
-                        "User.inCA",
-                        "Post.rootId"
-                    ])
-                    .execute()
-
-                followers.forEach(f => {
-                    repostsData.forEach(r => {
-                        if (r.created_at) {
-                            values.push({
-                                contentId: r.uri,
-                                repostedContentId: r.repostedContentId,
-                                readerId: getDidFromUri(f.uri),
-                                collection: getCollectionEnumFromUri(r.repostedContentId),
-                                authorInCA: r.inCA,
-                                created_at: r.created_at,
-                                rootId: r.rootId ?? r.repostedContentId,
-                                authorId: getDidFromUri(r.uri)
-                            })
-                        }
-                    })
-                })
-            }
-
-            if (records.length > 0) {
-                const recordsData = await this.ctx.kysely
-                    .selectFrom("Record")
-                    .innerJoin("User", "User.did", "Record.authorId")
-                    .leftJoin("Post", "Post.uri", "Record.uri")
-                    .where("Record.uri", "in", records)
-                    .select([
-                        "Record.uri",
-                        "Record.collection",
-                        "Record.created_at_tz as created_at",
-                        "User.inCA",
-                        "Post.rootId"
-                    ])
-                    .execute()
-
-                const readers = followers.map(f => getDidFromUri(f.uri))
-
-                const follows = await this.ctx.kysely
-                    .selectFrom("Follow")
-                    .innerJoin("Record", "Record.uri", "Follow.uri")
-                    .where("Record.authorId", "in", readers)
-                    .select(["Follow.uri", "Follow.userFollowedId"])
-                    .execute()
-
-                const followsSet = new Set<string>(follows.map(f => {
-                    return `${f.userFollowedId}:${getDidFromUri(f.uri)}`
-                }))
-
-                followers.forEach(f => {
-                    recordsData.forEach(r => {
-                        if (r.created_at) {
-                            const readerId = getDidFromUri(f.uri)
-                            if (!r.rootId || followsSet.has(`${getDidFromUri(r.rootId)}:${readerId}`)) {
-                                values.push({
-                                    contentId: r.uri,
-                                    repostedContentId: null,
-                                    readerId,
-                                    collection: getCollectionEnumFromUri(r.uri),
-                                    authorInCA: r.inCA,
-                                    created_at: r.created_at,
-                                    rootId: r.rootId ?? r.uri,
-                                    authorId: getDidFromUri(r.uri)
-                                })
-                            }
-                        }
-                    })
-                })
-            }
-
-            if(values.length > 0) {
+        if(values.length > 0){
+            await this.ctx.kysely.transaction().execute(async trx => {
                 await trx
                     .insertInto("FollowingFeedIndex")
                     .values(values)
                     .onConflict((oc) => oc.columns(["readerId", "contentId"]).doNothing())
                     .execute()
-            }
-
-            await this.keepLatestWithRoot(trx)
-        })
+                await this.keepLatestWithRoot(trx)
+            })
+        }
     }
 
     async keepLatestWithRoot(trx: Transaction<DB>) {
