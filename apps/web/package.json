@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "NODE_ENV=test vitest",
+    "test": "NODE_ENV=test vitest --no-watch",
     "test:watch": "NODE_ENV=test vitest --watch",
     "coverage": "NODE_ENV=test vitest run --coverage",
     "typecheck": "tsc --noEmit",
@@ -72,6 +72,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "d3-bboxCollide": "^1.0.4",
+    "d3-color": "3.1.0",
     "d3-force": "^3.0.0",
     "d3-random": "^3.0.1",
     "d3-scale": "^3.0.0",
@@ -86,12 +87,12 @@
     "lexical": "0.27.2",
     "lexical-beautiful-mentions": "^0.1.48",
     "lucide-react": "^0.548.0",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "next-navigation-guard": "^0.2.0",
     "papaparse": "^5.4.1",
-    "react": "19.0.1",
+    "react": "19.2.3",
     "react-day-picker": "^9.11.1",
-    "react-dom": "19.0.1",
+    "react-dom": "19.2.3",
     "react-easy-crop": "^5.5.0",
     "react-markdown": "^10.1.0",
     "react-use-measure": "^2.1.7",
@@ -106,22 +107,22 @@
     "vitest": "^3.2.4"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.5.7",
+    "@next/bundle-analyzer": "15.5.9",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.15.0",
     "@types/papaparse": "^5.3.15",
+    "@types/react": "19.2.3",
     "@vitest/ui": "3.2.4",
     "eslint": "^9.0.0",
-    "eslint-config-next": "^15.5.7",
+    "eslint-config-next": "15.5.9",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
-    "tsx": "^4.16.2",
-    "typescript": "^5.8.3"
+    "tsx": "^4.16.2"
   },
   "overrides": {
     "react-spring": "^10.0.3",
     "@react-spring/web": "^10.0.3",
-    "react": "19.0.1",
-    "react-dom": "19.0.1"
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   }
 }
