@@ -1,6 +1,6 @@
 import React from "react";
 import {TrendingTopicsPanel} from "./trending-topics/trending-topics";
-import {usePathname, useRouter} from "next/navigation";
+import {usePathname} from "next/navigation";
 import {RightPanelButtons} from "./right-panel-buttons";
 import {Logo} from "@/components/utils/icons/logo";
 import Link from "next/link";
@@ -94,7 +94,6 @@ function useInSearchPage() {
 
 export const RightPanel = () => {
     const {user} = useSession()
-    const router = useRouter()
     const pathname = usePathname()
     const {searchState} = useSearch(`${pathname}::main`)
     const {inSearchPage} = useInSearchPage()
@@ -104,18 +103,15 @@ export const RightPanel = () => {
     const showSearchButton = searchState.searching && searchState.value.length > 0
 
     const searching = searchState.searching && searchState.value.length > 0
-    const handleSubmit = () => {
-        if (searchState.value.length > 0) {
-            router.push("/buscar?q=" + encodeURIComponent(searchState.value));
-        }
-    }
+
+    const searchHref = searchState.value.length > 0 ? "/buscar?q=" + encodeURIComponent(searchState.value) : null
 
     if (!layoutConfig.openRightPanel) {
         return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-2 top-14"}>
             <div className={"w-[292px]"}>
                 <SearchResultsOnRightPanel
                     showSearchButton={showSearchButton}
-                    handleSubmit={handleSubmit}
+                    href={searchHref}
                 />
             </div>
         </div>, document.body)
@@ -125,7 +121,7 @@ export const RightPanel = () => {
         {searching && !inSearchPage && <div className={"w-[292px]"}>
             <SearchResultsOnRightPanel
                 showSearchButton={showSearchButton}
-                handleSubmit={handleSubmit}
+                href={searchHref}
             />
         </div>}
 

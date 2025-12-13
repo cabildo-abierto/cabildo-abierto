@@ -71,7 +71,8 @@ const WritePanelPanel = ({
             hidden={hidden}
             open={open}
             className="w-full max-w-[512px] sm:w-full"
-            backgroundShadow={true}
+            backgroundShadow={replyTo == null && quotedPost == null}
+            overlayClassName={"z-[1399]"}
         >
             <div
                 className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto custom-scrollbar">

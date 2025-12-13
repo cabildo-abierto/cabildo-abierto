@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {EditorState, LexicalEditor} from "lexical";
 import {useNavigationGuard} from "next-navigation-guard";
 import {getEditorSettings} from "../../writing/settings";
@@ -47,32 +47,34 @@ export const TopicEditor = ({
         }
     }, [editorState, initialEditorState])
 
-    if(!topic || topic == "loading") {
-        return <div className={"py-16"}>
-            <LoadingSpinner/>
-        </div>
-    }
+    return useMemo(() => {
+        if(!topic || topic == "loading") {
+            return <div className={"py-16"}>
+                <LoadingSpinner/>
+            </div>
+        }
 
-    return <div className={"mb-72"}>
-        <CAEditor
-            settings={getEditorSettings({
-                isReadOnly: false,
-                initialText: topic.text,
-                initialTextFormat: topic.format,
-                embeds: topic.embeds ?? [],
-                allowComments: false,
-                tableOfContents: true,
-                showToolbar: true,
-                isDraggableBlock: !isMobile,
-                title: getTopicTitle({id: topic.id, props}),
-                editorClassName: "relative article-content not-article-content mt-8 min-h-[300px]",
-                placeholderClassName: "text-[var(--text-light)] absolute top-0",
-                placeholder: "Agregá información sobre el tema...",
-                topicMentions: false
-            })}
-            setEditor={setEditor}
-            setEditorState={setEditorState}
-        />
-        <PreventLeavePopup navGuard={navGuard}/>
-    </div>
+        return <div className={"mb-72"}>
+            <CAEditor
+                settings={getEditorSettings({
+                    isReadOnly: false,
+                    initialText: topic.text,
+                    initialTextFormat: topic.format,
+                    embeds: topic.embeds ?? [],
+                    allowComments: false,
+                    tableOfContents: true,
+                    showToolbar: true,
+                    isDraggableBlock: !isMobile,
+                    title: getTopicTitle({id: topic.id, props}),
+                    editorClassName: "relative article-content not-article-content mt-8 min-h-[300px]",
+                    placeholderClassName: "text-[var(--text-light)] absolute top-0",
+                    placeholder: "Agregá información sobre el tema...",
+                    topicMentions: false
+                })}
+                setEditor={setEditor}
+                setEditorState={setEditorState}
+            />
+            <PreventLeavePopup navGuard={navGuard}/>
+        </div>
+    }, [topic, setEditor, isMobile, props, setEditorState])
 }

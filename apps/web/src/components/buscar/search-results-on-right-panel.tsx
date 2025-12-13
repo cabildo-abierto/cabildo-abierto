@@ -14,6 +14,7 @@ import TopicsIcon from "@/components/utils/icons/topics-icon";
 import TopicPopularityIndicator from "../tema/topic-popularity-indicator";
 import Link from "next/link";
 import {topicUrl} from "@/components/utils/react/url";
+import {CustomLink} from "@/components/utils/base/custom-link";
 
 
 type UserOrTopic =
@@ -52,11 +53,11 @@ export const useSearchUsersAndTopics = (
 
 type Props = {
     showSearchButton: boolean
-    handleSubmit: () => void
+    href: string | null
 }
 
 
-const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
+const SearchResultsOnRightPanel = ({showSearchButton, href}: Props) => {
     const pathname = usePathname()
     const {searchState, setSearchState} = useSearch(`${pathname}::main`)
     const {results, isLoading} = useSearchUsersAndTopics(searchState, 6)
@@ -69,18 +70,22 @@ const SearchResultsOnRightPanel = ({showSearchButton, handleSubmit}: Props) => {
         className={"w-full z-[20000]"}
     >
         {showSearchButton && (
-            <BaseButton
-                onClick={handleSubmit}
-                variant={"outlined"}
-                className={"normal-case w-full"}
+            <CustomLink
+                tag={"div"}
+                href={href}
             >
-                <div className={"space-x-1 w-full"}>
-                    <span>Buscar</span>
-                    <span className={"text-[var(--text-light)]"}>
+                <BaseButton
+                    variant={"outlined"}
+                    className={"normal-case w-full"}
+                >
+                    <div className={"space-x-1 w-full"}>
+                        <span>Buscar</span>
+                        <span className={"text-[var(--text-light)]"}>
                         {searchState.value}
                     </span>
-                </div>
-            </BaseButton>
+                    </div>
+                </BaseButton>
+            </CustomLink>
         )}
         <div className={""}>
             {isLoading &&

@@ -53,7 +53,7 @@ export const BaseFullscreenPopup = ({
         modal={true}
     >
         {backgroundShadow && <DialogOverlay
-            className={cn("z-[1050]", overlayClassName)}
+            className={cn("z-[1399]", overlayClassName)}
         />}
         <DialogContent
             className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)] sm:w-auto`, className)}

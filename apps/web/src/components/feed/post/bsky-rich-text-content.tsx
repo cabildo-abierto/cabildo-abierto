@@ -23,7 +23,8 @@ const BskyRichTextContent = ({
         key={editedAt}
     >
         <ReadOnlyEditor
-            text={markdown.replaceAll("\n", "\n\n")}
+            className={"break-words"}
+            text={markdown}
         />
     </div>
 }

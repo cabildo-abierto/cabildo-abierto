@@ -3,7 +3,7 @@
 # --- CONFIGURATION ---
 DB_NAME="ca-sql"
 DB_USER="postgres"
-BACKUP_DIR="/mnt/pgbackups/backups"
+BACKUP_DIR="/mnt/blockstorage/backups"
 DATE_FORMAT_DAILY=$(date +%Y-%m-%d)
 DATE_FORMAT_WEEKLY=$(date +%Y-%m-%W)
 DATE_FORMAT_MONTHLY=$(date +%Y-%m)
