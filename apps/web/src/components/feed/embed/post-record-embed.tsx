@@ -13,10 +13,14 @@ import {ArCabildoabiertoActorDefs, ArCabildoabiertoEmbedRecord, ArCabildoabierto
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import ValidationIcon from "../../perfil/validation-icon";
 import BlueskyLogo from "@/components/utils/icons/bluesky-logo";
-import dynamic from "next/dynamic";
-import {ArticlePreviewContent} from "../article/article-preview";
+import {colorFromString} from "../article/article-preview";
 import {contentUrl, getBlueskyUrl, profileUrl} from "@/components/utils/react/url";
 import {CustomLink} from "@/components/utils/base/custom-link";
+import {cn} from "@/lib/utils";
+import Image from "next/image";
+import {ArticleIcon} from "@phosphor-icons/react";
+import dynamic from "next/dynamic";
+import {useTheme} from "@/components/layout/theme/theme-context";
 
 
 const UserSummaryOnHover = dynamic(() => import("../../perfil/user-summary"), {
@@ -173,54 +177,94 @@ export const PostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
     mainPostRef?: ATProtoStrongRef
 }) => {
     const record = embed.record
-    const router = useRouter()
+    const theme = useTheme()
 
-    if(ArCabildoabiertoEmbedRecord.isViewArticleRecord(record)){
+    if(ArCabildoabiertoEmbedRecord.isViewArticleRecord(record)) {
         const summary = record.summary
-        const title = (record.value as ArCabildoabiertoFeedArticle.Record).title
+        const article = record.value as ArCabildoabiertoFeedArticle.Record
+        const title = article.title
         const author = record.author
-        const createdAt = record.indexedAt
         const url = contentUrl(record.uri, author.handle)
+        const bgColor = colorFromString(record.uri, theme.currentTheme)
+        const thumb = record.preview?.thumb
 
-        return <div
-            className={"p-3 embed-panel"}
-            onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                if(navigateOnClick) {
-                    router.push(url)
-                }
-            }}
+        return <CustomLink
+            tag={"div"}
+            href={url}
+            className={cn("embed-panel cursor-pointer flex hover:bg-[var(--background-dark)]")}
         >
-            <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
-                <Link
-                    href={profileUrl(author.handle)}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        if(!navigateOnClick) e.preventDefault()
-                    }}
-                    className="flex items-center justify-center"
-                >
-                    <ProfilePic
-                        user={author}
-                        className={"rounded-full w-4 h-4"}
-                    />
-                </Link>
-                <EmbedAuthor
-                    url={profileUrl(author.handle)}
-                    author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...author}}/>
-                <span className="text-[var(--text-light)]">·</span>
-                <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(createdAt)}>
-                    <DateSince date={createdAt}/>
-                </span>
+            <div className={"flex h-full w-full"}>
+                <div className={"flex flex-col w-full"}>
+                    {thumb && thumb.length > 0 ?
+                        <div className={"w-full relative"}>
+                            <Image
+                                src={thumb}
+                                alt={""}
+                                className="w-full max-h-[240px] object-cover"
+                                width={400}
+                                height={300}
+                            />
+                            <div className="
+                              absolute top-2 right-2
+                              bg-black/40
+                              px-2 py-0.5
+                              text-[11px]
+                              uppercase tracking-wide
+                              rounded
+                            ">
+                                Artículo
+                            </div>
+                        </div> :
+                        <div className={"w-full relative"}>
+                            <div
+                                className="w-full h-[200px] object-cover flex justify-center items-center"
+                                style={{ backgroundColor: bgColor }}
+                            >
+                                <ArticleIcon weight={"light"} fontSize={170}
+                                             className={"text-[var(--text-light)] opacity-20"}/>
+                            </div>
+                            <div className="
+                              absolute top-2 right-2
+                              bg-black/40
+                              px-2 py-0.5
+                              text-[11px]
+                              uppercase tracking-wide
+                              rounded
+                            ">
+                                Artículo
+                            </div>
+                        </div>
+                    }
+                    <div className={cn("p-2")}>
+                        <div className="text-[17px] font-semibold break-words">
+                            {title ?? url}
+                        </div>
+                        <div className="text-sm text-[15px] line-clamp-2 font-light pb-1">
+                            {summary}
+                        </div>
+                        <div className={"flex space-x-1 items-center"}>
+                            <ProfilePic user={author} className={"rounded-full h-[14px] w-[14px]"}/>
+                            <CustomLink
+                                href={profileUrl(author.handle)}
+                                className={"text-[14px] font-medium space-x-1"}
+                            >
+                                <UserSummaryOnHover handle={author.handle}>
+                                    <div className={"flex space-x-1"}>
+                                        <span className={"hover:underline"}>
+                                        {author.displayName ?? `@${author.handle}`}
+                                        </span>
+                                                                <span className={"text-[var(--text-light)] hover:underline"}>
+                                            @{author.handle}
+                                        </span>
+                                    </div>
+                                </UserSummaryOnHover>
+                            </CustomLink>
+                            <ValidationIcon verification={author.verification} fontSize={14}/>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className={"mt-1"}>
-                <ArticlePreviewContent
-                    title={title}
-                    summary={summary}
-                />
-            </div>
-        </div>
+        </CustomLink>
     } else if(ArCabildoabiertoEmbedRecord.isViewRecord(record)) {
         return <PostRecordEmbedRecord
             record={record}

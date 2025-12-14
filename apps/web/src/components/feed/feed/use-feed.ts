@@ -1,15 +1,16 @@
 import {useInfiniteQuery} from "@tanstack/react-query";
 import {GetFeedProps} from "@/lib/types";
 import {useEffect, useMemo} from "react";
-import {unique} from "@cabildo-abierto/utils";
 import {VirtualItem} from "@tanstack/virtual-core";
 import {FeedPage} from "@/components/feed/types";
+import {FeedMerger} from "@/components/feed/feed/types";
 
 export function useFeed<T>(
     getFeed: GetFeedProps<T>,
     queryKey: string[],
     enabled: boolean,
     getFeedElementKey: (e: T) => string,
+    feedMerger: FeedMerger<T>
 ) {
     const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching} = useInfiniteQuery({
         queryKey,
@@ -33,8 +34,8 @@ export function useFeed<T>(
     })
 
     const feedList = useMemo(() => {
-        const elements = feed?.pages.reduce((acc, page) => [...acc, ...page.data], []) || []
-        return unique(elements, getFeedElementKey) // TO DO (!): No debería hacer falta
+        // ineficiente... se remergea desde el principio cada vez, pero no sé si importa
+        return feed?.pages.reduce((acc: T[], page) => feedMerger(acc, page.data), []) || []
     }, [feed?.pages])
 
     const loading = isFetchingNextPage || (isFetching && feedList.length == 0)

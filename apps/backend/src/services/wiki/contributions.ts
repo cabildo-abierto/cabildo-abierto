@@ -193,7 +193,6 @@ class TopicContributionsUpdater {
     }
 
     async update(topicIds: string[]) {
-        const t1 = Date.now()
         const ctx = this.ctx
 
         const batchSize = 500
@@ -242,8 +241,6 @@ class TopicContributionsUpdater {
         })
 
         await this.applyUpdates(tvUpdates, contentUpdates)
-
-        console.log("Done after", Date.now() - t1)
     }
 
     getContributionUpdatesForVersionsOfTopic(topicId: string, topicVersions: TopicVersion[], dataplane: Dataplane) {

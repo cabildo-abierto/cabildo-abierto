@@ -11,6 +11,7 @@ import {ProfileFeedOption} from "@/components/utils/react/url";
 import {useProfile} from "@/components/perfil/use-profile";
 import {updateSearchParam} from "@/components/utils/react/search-params";
 import {useGetFeed} from "@/components/feed/feed/get-feed";
+import {chronologicalFeedMerger, repliesFeedMerger} from "@/components/feed/feed/feed-merger";
 
 const ProfileHeader = dynamic(() => import("./profile-header"), {
     ssr: false
@@ -81,6 +82,7 @@ export const ProfilePage = ({
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
                     endText={"Fin del muro."}
+                    feedMerger={chronologicalFeedMerger}
                 />}
             {selected == "respuestas" &&
                 <FeedViewContentFeed
@@ -91,6 +93,7 @@ export const ProfilePage = ({
                     getFeed={getFeed({handleOrDid: handle, type: selected})}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
                     endText={"Fin del muro."}
+                    feedMerger={repliesFeedMerger}
                 />}
             {selected == "ediciones" &&
                 <FeedViewContentFeed

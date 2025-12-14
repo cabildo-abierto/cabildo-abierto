@@ -23,6 +23,7 @@ import { Note } from "@/components/utils/base/note";
 import {CaretDownIcon} from "@phosphor-icons/react";
 import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilter, Session} from "@cabildo-abierto/api";
 import {useGetFeed} from "@/components/feed/feed/get-feed";
+import {chronologicalFeedMerger} from "@/components/feed/feed/feed-merger";
 
 
 export function useFollowingParams(user: Session): {
@@ -113,6 +114,7 @@ export const MainPage = () => {
                 noResultsText={followingFeedNoResultsText}
                 endText={"Fin del muro."}
                 queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
+                feedMerger={chronologicalFeedMerger}
             />}
 
         {selected == "Descubrir" && user &&

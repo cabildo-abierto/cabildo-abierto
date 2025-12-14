@@ -1,6 +1,5 @@
 import {AppContext} from "#/setup.js";
 import {FeedIndexUpdater} from "#/services/feed/following/populate.js";
-import {CAHandler} from "#/utils/handler.js";
 import {getCAUsersDids} from "#/services/user/users.js";
 
 

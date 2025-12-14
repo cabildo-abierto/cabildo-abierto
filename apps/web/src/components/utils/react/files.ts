@@ -1,16 +1,17 @@
 export type FilePayload = {base64: string, fileName: string}
 
-export async function file2base64(file: File): Promise<FilePayload> {
-    const buffer = await file.arrayBuffer();
+export function file2base64(file: File): Promise<FilePayload> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
 
-    const base64Data = btoa(
-        String.fromCharCode(...new Uint8Array(buffer))
-    )
+        reader.onload = () => {
+            resolve({
+                fileName: file.name,
+                base64: reader.result as string,
+            })
+        }
 
-    const mimeType = file.type;
-
-    return {
-        fileName: file.name,
-        base64: `data:${mimeType};base64,${base64Data}`,
-    }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+    })
 }

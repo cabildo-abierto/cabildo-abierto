@@ -108,7 +108,6 @@ export const RepostCounter = ({
                 </DropdownMenuItem>}
                 {reposted && <DropdownMenuItem
                     onClick={async (e) => {
-                        close()
                         await onClickRemoveRepost(e)
                         return {}
                     }}

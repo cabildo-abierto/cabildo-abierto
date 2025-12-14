@@ -39,10 +39,12 @@ export const getInterestsHandler: CAHandler<{}, UserInterest[]> = async (ctx, ag
     ])
 
     function cmp(a: string, b: string) {
-        return categoryScoreAsInterest(a) - categoryScoreAsInterest(b)
+        return categoryScoreAsInterest(b) - categoryScoreAsInterest(a)
     }
 
-    const data = categories.data?.toSorted(cmp).filter(x => x != "Sin categoría").map(c => {
+    const data = categories.data?.toSorted(cmp)
+        .filter(x => x != "Sin categoría")
+        .map(c => {
         return {
             id: c,
             selected: res.some(r => r.topicCategoryId == c)

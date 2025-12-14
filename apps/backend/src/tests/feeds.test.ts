@@ -62,6 +62,9 @@ describe('Following feed index', { timeout: testTimeout }, () => {
 
         const notFollowerHasContent = await checkContentInFollowingFeed(ctx!, post.ref.uri, notFollower)
         expect(notFollowerHasContent).toEqual(false)
+
+        const authorHasContent = await checkContentInFollowingFeed(ctx!, post.ref.uri, poster)
+        expect(authorHasContent).toEqual(true)
     }, {timeout: testTimeout})
 
 
@@ -119,7 +122,7 @@ describe('Following feed index', { timeout: testTimeout }, () => {
         expect(feedElements.has(`${article.ref.uri}:${follower}`)).toEqual(true)
         expect(feedElements.has(`${article.ref.uri}:${notFollower}`)).toEqual(false)
         expect(feedElements.has(`${article.ref.uri}:${reposterFollower}`)).toEqual(false)
-        expect(feedElements.has(`${article.ref.uri}:${bothFollower}`)).toEqual(false)
+        expect(feedElements.has(`${article.ref.uri}:${bothFollower}`)).toEqual(true)
         expect(feedElements.has(`${repost.ref.uri}:${follower}`)).toEqual(false)
         expect(feedElements.has(`${repost.ref.uri}:${notFollower}`)).toEqual(false)
         expect(feedElements.has(`${repost.ref.uri}:${reposterFollower}`)).toEqual(true)
@@ -191,7 +194,33 @@ describe('Following feed index', { timeout: testTimeout }, () => {
         expect(feedElements.has(`${reply.ref.uri}:${replierFollower}`)).toEqual(false)
 
         expect(feedElements.has(`${reply.ref.uri}:${bothFollower}`)).toEqual(true)
-        expect(feedElements.has(`${post.ref.uri}:${bothFollower}`)).toEqual(false)
+        expect(feedElements.has(`${post.ref.uri}:${bothFollower}`)).toEqual(true)
+    }, {timeout: testTimeout})
+
+
+    it("should include repost of own post", async () => {
+        const poster = await createTestUser(ctx!, "poster", testSuite)
+
+        const post = await getPostRefAndRecord(
+            "hola!",
+            new Date(Date.now()),
+            testSuite,
+            {
+                did: poster
+            }
+        )
+
+        const repost = await getRepostRefAndRecord(post.ref, new Date(Date.now()+1), testSuite, poster)
+
+        await processRecordsInTest(ctx!, [
+            post,
+            repost
+        ])
+        const postInFeed = await checkContentInFollowingFeed(ctx!, post.ref.uri, poster)
+        expect(postInFeed).toEqual(true)
+
+        const repostInFeed = await checkContentInFollowingFeed(ctx!, repost.ref.uri, poster)
+        expect(repostInFeed).toEqual(true)
     }, {timeout: testTimeout})
 
 

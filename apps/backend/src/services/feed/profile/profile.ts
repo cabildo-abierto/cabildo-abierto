@@ -4,7 +4,6 @@ import {getRepliesProfileFeedSkeleton} from "#/services/feed/profile/replies.js"
 import {FeedPipelineProps, getFeed, GetFeedOutput} from "#/services/feed/feed.js";
 import {getEditsProfileFeedSkeleton} from "#/services/feed/profile/edits.js";
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {filterFeed} from "#/services/feed/inicio/following.js";
 import {getArticlesProfileFeedSkeleton} from "#/services/feed/profile/articles.js";
 
 
@@ -21,8 +20,7 @@ export const getProfileFeed: CAHandlerNoAuth<{params: {handleOrDid: string, kind
         }
     } else if(kind == "respuestas"){
         pipeline = {
-            getSkeleton: getRepliesProfileFeedSkeleton(did),
-            filter: (ctx, f) => filterFeed(ctx, f, true)
+            getSkeleton: getRepliesProfileFeedSkeleton(did)
         }
     } else if(kind == "ediciones") {
         pipeline = {

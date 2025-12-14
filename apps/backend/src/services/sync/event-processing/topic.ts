@@ -1,5 +1,4 @@
 import {AppContext} from "#/setup.js";
-import { ATProtoStrongRef } from "#/lib/types.js";
 import {RefAndRecord, SyncContentProps} from "#/services/sync/types.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
@@ -7,7 +6,7 @@ import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kyse
 import {DB} from "../../../../prisma/generated/types.js";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
     RecordProcessor
 } from "#/services/sync/event-processing/record-processor.js";
@@ -183,6 +182,10 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
             await trx
                 .deleteFrom("AssignedPayment")
                 .where("AssignedPayment.contentId", "in", uris)
+                .execute()
+
+            await trx.deleteFrom("FollowingFeedIndex") // en realidad no debería estar
+                .where("rootId", "in", uris)
                 .execute()
 
             await trx

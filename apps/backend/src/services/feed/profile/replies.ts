@@ -1,5 +1,4 @@
 import {GetSkeletonProps} from "#/services/feed/feed.js";
-import {sortByKey} from "@cabildo-abierto/utils";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {FeedSkeletonWithDate, getSkeletonFromTimeline} from "#/services/feed/inicio/following.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
@@ -33,10 +32,10 @@ export const getRepliesProfileFeedSkeleton = (did: string) : GetSkeletonProps =>
             CASkeleton = CASkeleton.filter(x => new Date(x.created_at) >= newCursorDate)
         }
 
-        const skeleton = sortByKey([
+        const skeleton = [
             ...bskySkeleton.skeleton,
             ...CASkeleton
-        ], e => e.created_at.getTime(), (a, b) => b-a)
+        ]
 
         return {
             skeleton: skeleton,

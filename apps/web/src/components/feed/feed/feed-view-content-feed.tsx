@@ -3,7 +3,7 @@ import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabil
 import LoadingFeedViewContent from "./loading-feed-view-content"
 import StaticFeed from "./static-feed";
 import {GetFeedProps} from "@/lib/types";
-import {FeedProps} from "./types";
+import {FeedMerger, FeedProps} from "./types";
 import dynamic from "next/dynamic";
 
 
@@ -20,16 +20,17 @@ type FeedViewContentFeedProps =
     queryKey?: string[]
     getFeed?: GetFeedProps<ArCabildoabiertoFeedDefs.FeedViewContent>
     pageRootUri?: string
+    feedMerger?: FeedMerger<ArCabildoabiertoFeedDefs.FeedViewContent>
 }
 
 
 export const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) => {
-    if(!e) return null
+    if (!e) return null
     if (ArCabildoabiertoFeedDefs.isPostView(e.content) ||
         ArCabildoabiertoFeedDefs.isArticleView(e.content)
     ) {
         return e.content.uri
-    } else if(ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
+    } else if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
         return e.content.id
     } else {
         return null
@@ -42,6 +43,7 @@ const FeedViewContentFeed = ({
                                  queryKey,
                                  getFeed,
                                  pageRootUri,
+                                 feedMerger,
                                  ...props
                              }: FeedViewContentFeedProps) => {
     if (initialContents) {
@@ -66,6 +68,7 @@ const FeedViewContentFeed = ({
             LoadingFeedContent={<LoadingFeedViewContent/>}
             getFeedElementKey={getFeedElementKey}
             getFeed={getFeed}
+            feedMerger={feedMerger}
             {...props}
         />
     }

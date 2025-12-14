@@ -8,6 +8,7 @@ import {LikeCounter} from "./like-counter";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {EngagementDetails} from "./engagement-details";
 import {BaseButtonProps} from "@/components/utils/base/base-button";
+import {cn} from "@/lib/utils";
 
 
 type EngagementIconsProps = {
@@ -39,7 +40,7 @@ export const EngagementIcons = ({
         />}
 
         <div
-            className={"portal group flex items-center justify-between exclude-links w-full pt-1 " + className}
+            className={cn("portal group flex items-center exclude-links w-full pt-1", className)}
         >
             {getCollectionFromUri(content.uri) != "ar.cabildoabierto.wiki.topicVersion" && <>
                 {content.replyCount != undefined && <div className={"flex-1"}>

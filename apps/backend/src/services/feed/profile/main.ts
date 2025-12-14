@@ -3,7 +3,7 @@ import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
 import {FeedSkeletonWithDate, getSkeletonFromTimeline} from "#/services/feed/inicio/following.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
-import {mergeSort, sortByKey} from "@cabildo-abierto/utils";
+import {mergeSort} from "@cabildo-abierto/utils";
 
 
 const getMainProfileFeedSkeletonBsky = async (ctx: AppContext, agent: Agent, data: Dataplane, did: string, cursor?: string): Promise<{skeleton: {post: string, created_at: Date}[], cursor?: string}> => {

@@ -1984,6 +1984,10 @@ export const schemaDict = {
               ],
             },
           },
+          preview: {
+            type: 'ref',
+            ref: 'lex:app.bsky.embed.images#viewImage',
+          },
           indexedAt: {
             type: 'string',
             format: 'datetime',

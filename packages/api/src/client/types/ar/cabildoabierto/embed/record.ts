@@ -95,6 +95,7 @@ export interface ViewArticleRecord {
     | $Typed<ArCabildoabiertoEmbedRecordWithMedia.View>
     | { $type: string }
   )[]
+  preview?: AppBskyEmbedImages.ViewImage
   indexedAt: string
   /** El resumen del artículo que se muestra en el muro. */
   summary?: string

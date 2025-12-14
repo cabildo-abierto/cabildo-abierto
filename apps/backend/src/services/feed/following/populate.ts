@@ -7,8 +7,6 @@ import {
     isRepost
 } from "@cabildo-abierto/utils";
 import {CollectionEnum} from "@cabildo-abierto/api";
-import {Transaction} from "kysely";
-import {DB} from "../../../../prisma/generated/types.js";
 
 
 type FollowingFeedIndexUpdate = {
@@ -173,7 +171,7 @@ export class FeedIndexUpdater {
                         .onConflict((oc) => oc.columns(["readerId", "contentId"]).doNothing())
                         .execute()
 
-                    await this.keepLatestWithRoot(trx)
+                    // await this.keepLatestWithRoot(trx)
                 })
             }
         }
@@ -267,7 +265,7 @@ export class FeedIndexUpdater {
     }
 
     async getUpdatesFromRepostUris(uris: string[]): Promise<FollowingFeedIndexUpdate[]> {
-        if(uris.length == 0) return []
+        if (uris.length == 0) return []
         const repostsData = await this.ctx.kysely
             .selectFrom("Record")
             .innerJoin("User", "User.did", "Record.authorId")
@@ -276,7 +274,13 @@ export class FeedIndexUpdater {
             .leftJoin("Content as RepostedRecordContent", "RepostedRecordContent.uri", "RepostedRecord.uri")
             .leftJoin("Post", "Post.uri", "RepostedRecord.uri")
             .where("Record.uri", "in", uris)
-            .innerJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .leftJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .leftJoin("Record as FollowRecord", "FollowRecord.uri", "Follow.uri")
+            .leftJoin("User as FollowUser", "FollowUser.did", "FollowRecord.authorId")
+            .where(eb => eb.or([
+                eb("FollowUser.inCA", "=", true),
+                eb("Follow.uri", "is", null)
+            ]))
             .select([
                 "Record.uri",
                 "Record.collection",
@@ -288,8 +292,8 @@ export class FeedIndexUpdater {
             ])
             .execute()
 
-        return repostsData.map(r => {
-            if (r.created_at) {
+        const result: FollowingFeedIndexUpdate[] = repostsData.map(r => {
+            if (r.created_at && r.followUri) {
                 return {
                     contentId: r.uri,
                     repostedContentId: r.repostedContentId,
@@ -302,35 +306,52 @@ export class FeedIndexUpdater {
                 }
             }
         }).filter(x => x != null)
+
+        // agregamos también los reposts al following feed del autor
+        uris.forEach(uri => {
+            const r = repostsData.find(r => r.uri === uri)
+            if(r && r.created_at) {
+                result.push({
+                    contentId: r.uri,
+                    repostedContentId: r.repostedContentId,
+                    readerId: getDidFromUri(r.uri),
+                    collection: getCollectionEnumFromUri(r.repostedContentId),
+                    authorInCA: r.inCA,
+                    created_at: r.created_at,
+                    rootId: r.rootId ?? r.repostedContentId,
+                    authorId: getDidFromUri(r.uri)
+                })
+            }
+        })
+        return result
     }
 
     async getUpdatesFromPostUris(uris: string[]): Promise<FollowingFeedIndexUpdate[]> {
-        if(uris.length == 0) return []
-
-        const follows = await this.ctx.kysely.selectFrom("Follow")
-            .selectAll()
-            .execute()
-        this.ctx.logger.pino.info({follows}, "follows")
+        if (uris.length == 0) return []
 
         const postsData = await this.ctx.kysely
             .selectFrom("Post")
             .where("Post.uri", "in", uris)
             .innerJoin("Record", "Record.uri", "Post.uri")
             .innerJoin("User", "User.did", "Record.authorId")
-            .leftJoin("Content", "Content.uri", "Post.uri")
-            .innerJoin("Follow", "Follow.userFollowedId", "Record.authorId")
-            .innerJoin("Record as FollowRecord", "FollowRecord.uri", "Follow.uri")
-            .innerJoin("User as FollowUser", "FollowUser.did", "FollowRecord.authorId")
-            .where("FollowUser.inCA", "=", true)
+            .innerJoin("Content", "Content.uri", "Post.uri")
+            .leftJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .leftJoin("Record as FollowRecord", "FollowRecord.uri", "Follow.uri")
+            .leftJoin("User as FollowUser", "FollowUser.did", "FollowRecord.authorId")
+            .where(eb => eb.or([
+                eb("FollowUser.inCA", "=", true),
+                eb("Follow.uri", "is", null)
+            ]))
             .leftJoin("Record as RootRecord", "RootRecord.uri", "Post.rootId")
             .where(eb => eb.or([
                 eb("Post.rootId", "is", null),
+                eb("RootRecord.authorId", "=", eb.ref("Record.authorId")),
                 eb.exists(eb // solo lo agregamos si el lector también sigue al autor de la raíz
                     .selectFrom("Follow as Follow2")
                     .innerJoin("Record as FollowRecord2", "FollowRecord2.uri", "Follow2.uri")
                     .whereRef("FollowRecord.authorId", "=", "FollowRecord2.authorId")
                     .whereRef("Follow2.userFollowedId", "=", "RootRecord.authorId")
-                )
+                ),
             ]))
             .select([
                 "Record.uri",
@@ -343,8 +364,8 @@ export class FeedIndexUpdater {
             ])
             .execute()
 
-        return postsData.map(r => {
-            if (r.created_at) {
+        const result = postsData.map(r => {
+            if (r.created_at && r.followUri) {
                 return {
                     contentId: r.uri,
                     readerId: getDidFromUri(r.followUri),
@@ -357,10 +378,28 @@ export class FeedIndexUpdater {
                 }
             }
         }).filter(x => x != null)
+
+        uris.forEach(uri => {
+            const r = postsData.find(r => r.uri === uri)
+            if(r && r.created_at) {
+                result.push({
+                    contentId: r.uri,
+                    readerId: getDidFromUri(r.uri),
+                    collection: getCollectionEnumFromUri(r.uri),
+                    authorInCA: r.inCA,
+                    created_at: r.created_at,
+                    rootId: r.rootUri ?? r.uri,
+                    authorId: getDidFromUri(r.uri),
+                    repostedContentId: null,
+                })
+            }
+        })
+
+        return result
     }
 
     async getUpdatesFromArticleUris(uris: string[]): Promise<FollowingFeedIndexUpdate[]> {
-        if(uris.length == 0) return []
+        if (uris.length == 0) return []
         const articlesData = await this.ctx.kysely
             .selectFrom("Article")
             .innerJoin("Record", "Record.uri", "Article.uri")
@@ -368,6 +407,12 @@ export class FeedIndexUpdater {
             .leftJoin("Content", "Content.uri", "Article.uri")
             .where("Article.uri", "in", uris)
             .innerJoin("Follow", "Follow.userFollowedId", "Record.authorId")
+            .leftJoin("Record as FollowRecord", "FollowRecord.uri", "Follow.uri")
+            .leftJoin("User as FollowUser", "FollowUser.did", "FollowRecord.authorId")
+            .where(eb => eb.or([
+                eb("FollowUser.inCA", "=", true),
+                eb("Follow.uri", "is", null)
+            ]))
             .select([
                 "Record.uri",
                 "Record.collection",
@@ -377,7 +422,7 @@ export class FeedIndexUpdater {
             ])
             .execute()
 
-        return articlesData.map(r => {
+        const result: FollowingFeedIndexUpdate[] = articlesData.map(r => {
             if (r.created_at) {
                 return {
                     contentId: r.uri,
@@ -391,44 +436,67 @@ export class FeedIndexUpdater {
                 }
             }
         }).filter(x => x != null)
+
+        uris.forEach(uri => {
+            const r = articlesData.find(r => r.uri == uri)
+            if(r && r.created_at) {
+                result.push({
+                    contentId: r.uri,
+                    readerId: getDidFromUri(r.uri),
+                    collection: getCollectionEnumFromUri(r.uri),
+                    authorInCA: r.inCA,
+                    created_at: r.created_at,
+                    rootId: r.uri,
+                    authorId: getDidFromUri(r.uri),
+                    repostedContentId: null
+                })
+            }
+        })
+
+        return result
     }
 
     async updateOnNewContents(uris: string[]) {
         if (uris.length == 0) return
 
+        this.ctx.logger.pino.info({uris}, "starting following feed update on contents")
+
         const articles = uris.filter(u => isArticle(getCollectionFromUri(u)))
         const posts = uris.filter(u => isPost(getCollectionFromUri(u)))
         const reposts = uris.filter(u => isRepost(getCollectionFromUri(u)))
 
-        this.ctx.logger.pino.info({articles: articles.length, posts: posts.length, reposts: reposts.length}, "running update on new contents")
-
+        const t1 = Date.now()
         const values = (await Promise.all([
             this.getUpdatesFromRepostUris(reposts),
             this.getUpdatesFromPostUris(posts),
             this.getUpdatesFromArticleUris(articles)
         ])).flat()
-        this.ctx.logger.pino.info({values: values.length}, "got values on update on new contents")
+        const t2 = Date.now()
 
-        if(values.length > 0){
+        if (values.length > 0) {
             await this.ctx.kysely.transaction().execute(async trx => {
                 await trx
                     .insertInto("FollowingFeedIndex")
                     .values(values)
                     .onConflict((oc) => oc.columns(["readerId", "contentId"]).doNothing())
                     .execute()
-                await this.keepLatestWithRoot(trx)
+                // await this.keepLatestWithRoot(trx, unique(values.map(v => v.readerId)))
             })
         }
+        const t3 = Date.now()
+        this.ctx.logger.logTimes("keep latest with root", [t1, t2, t3])
     }
 
-    async keepLatestWithRoot(trx: Transaction<DB>) {
+    /*async keepLatestWithRoot(trx: Transaction<DB>, readersId?: string[]) {
         await trx
             .deleteFrom("FollowingFeedIndex as A")
             .where(eb => eb.exists(eb.selectFrom("FollowingFeedIndex as B")
                 .whereRef("A.rootId", "=", "B.rootId")
                 .whereRef("B.created_at", ">", "A.created_at")
                 .whereRef("A.readerId", "=", "B.readerId")
+                .$if(readersId != null, qb => qb.where("B.readerId", "in", readersId!))
             ))
+            .$if(readersId != null, qb => qb.where("A.readerId", "in", readersId!))
             .execute()
-    }
+    }*/
 }

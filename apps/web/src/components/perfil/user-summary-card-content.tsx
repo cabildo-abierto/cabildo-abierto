@@ -19,6 +19,8 @@ export const UserSummaryCardContent = ({
 }) => {
     const {data: profile, isLoading} = useProfile(handle);
 
+    console.log("rendering content")
+
     if (isLoading) {
         return <div className={"py-6 w-[200px]"}>
             <LoadingSpinner/>

@@ -92,6 +92,10 @@
             ]
           }
         },
+        "preview": {
+          "type": "ref",
+          "ref": "app.bsky.embed.images#viewImage"
+        },
         "indexedAt": { "type": "string", "format": "datetime" },
         "summary": {
           "type": "string",

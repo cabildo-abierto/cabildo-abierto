@@ -163,6 +163,8 @@ export const PostPreview = ({
     const {user} = useSession()
     const {layoutConfig} = useLayoutConfig()
 
+    const parentAlone = feedViewContent && feedViewContent.reply && feedViewContent.reply.parent && feedViewContent.reply.root == null
+
     const {parent, root} = getParentAndRoot(feedViewContent)
     const reason = feedViewContent && feedViewContent.reason && ArCabildoabiertoFeedDefs.isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined
     const grandparentAuthor = feedViewContent && feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
@@ -192,6 +194,7 @@ export const PostPreview = ({
                 author={grandparentAuthor}
                 did={user.did}
             />}
+            {parentAlone && (ArCabildoabiertoFeedDefs.isPostView(feedViewContent.reply.parent) || ArCabildoabiertoFeedDefs.isArticleView(feedViewContent.reply.parent)) && <IsReplyMessage did={user.did} author={feedViewContent.reply.parent.author}/>}
             <PostContent
                 postView={postView}
                 onClickQuote={onClickQuote}

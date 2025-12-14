@@ -5,6 +5,7 @@ import {FeedProps} from "./types";
 import {useFeed, useFetchNextPage} from "./use-feed";
 import {LoadingFeed} from "./loading-feed";
 import {FeedEndText} from "./feed-end-text";
+import {defaultFeedMerger} from "@/components/feed/feed/feed-merger";
 
 
 function Feed<T>({
@@ -20,10 +21,16 @@ function Feed<T>({
                              overscan=4,
                              startContent,
     isLoadingStartContent,
-    loadingStartContent
+    loadingStartContent,
+    feedMerger=defaultFeedMerger
                          }: FeedProps<T>) {
     const {data: feed, fetchNextPage, loading, hasNextPage, isFetchingNextPage, feedList} = useFeed(
-        getFeed, queryKey, enabled, getFeedElementKey)
+        getFeed,
+        queryKey,
+        enabled,
+        getFeedElementKey,
+        feedMerger
+    )
 
     const count = feedList.length + 1 + (startContent ? 1 : 0)
 

@@ -17,7 +17,10 @@ export const IsReplyMessage = ({collection=null, did, author}: {did: string, col
         text = <>Respuesta a {authorText}</>
     }
 
-    return <div className="text-sm text-[var(--text-light)]">
-        <ReplyIcon/> {text}
+    return <div className="flex items-center space-x-1 text-sm text-[var(--text-light)]">
+        <ReplyIcon/>
+        <div>
+            {text}
+        </div>
     </div>
 }

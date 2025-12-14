@@ -335,7 +335,7 @@ export class RedisCAWorker extends CAWorker {
                 {
                     connection: ioredis,
                     lockDuration: 60 * 1000 * 5,
-                    concurrency: 5
+                    concurrency: env.WORKER_CONCURRENCY
                 }
             )
             this.worker.on('failed', (job, err) => {

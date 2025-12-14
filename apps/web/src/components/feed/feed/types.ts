@@ -1,6 +1,7 @@
 import {ReactNode} from "react";
 import {GetFeedProps} from "@/lib/types";
 
+export type FeedMerger<T> = (curFeed: T[], newContents: T[]) => T[]
 
 export type FeedProps<T> = {
     startContent?: ReactNode
@@ -17,4 +18,5 @@ export type FeedProps<T> = {
     enabled?: boolean
     estimateSize?: number
     overscan?: number
+    feedMerger?: FeedMerger<T>
 }
