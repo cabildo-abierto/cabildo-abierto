@@ -32,9 +32,8 @@ import AddToEnDiscusionButton from "../add-to-en-discusion-button";
 import {useTopicsMentioned} from "../use-topics-mentioned";
 import Link from "next/link";
 import {getTextLength} from "./rich-text"
-import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyFeedPost} from "@atproto/api"
+import {AppBskyEmbedExternal, AppBskyFeedPost} from "@atproto/api"
 import {AddVisualizationButton} from "./add-visualization-button";
-import {hasEnDiscusionLabel} from "../../feed/utils/post-preview-frame";
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {getAllText} from "@cabildo-abierto/editor-core";
@@ -44,6 +43,8 @@ import {markdownToEditorState} from "../../editor/markdown-transforms";
 import {profileUrl} from "@/components/utils/react/url";
 import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
+import {AddThreadElementButton} from "@/components/writing/write-panel/add-thread-element-button";
+import {isThreadElementStateEmpty, ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
 
 const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
@@ -85,19 +86,38 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
     }
 }
 
-function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?: ArCabildoabiertoFeedDefs.PostView) {
-    let initialState: $Typed<AppBskyEmbedExternal.View> | null = null
-    let initialUrl: string | null = null
-    if (postView && AppBskyEmbedExternal.isView(postView.embed)) {
-        initialState = postView.embed
-        initialUrl = postView.embed.external.uri
-    }
-    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<AppBskyEmbedExternal.View> | null>(initialState)
-    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(initialUrl)
+function useUpdateExternalEmbed(
+    state: ThreadElementState,
+    setThreadElementState: (t: ThreadElementState) => void
+) {
     const [links, setLinks] = useState<string[]>([])
+    const {images, visualization, editorState, externalEmbed} = state
+    const externalEmbedUrl = externalEmbed?.url
+    const disabled = (images && images.length > 0) || visualization != null
+
+    function setExternalEmbedView(view: $Typed<AppBskyEmbedExternal.View>) {
+        setThreadElementState({
+            ...state,
+            externalEmbed: {
+                ...state.externalEmbed,
+                view
+            }
+        })
+    }
+
+    function setExternalEmbedUrl(url: string | null) {
+        setThreadElementState({
+            ...state,
+            externalEmbed: {
+                view: state.externalEmbed?.view ?? null,
+                ...state.externalEmbed,
+                url
+            }
+        })
+    }
 
     useEffect(() => {
-        if (!externalEmbedUrl) {
+        if (!state.externalEmbed?.url) {
             setExternalEmbedView(null)
             return
         }
@@ -156,7 +176,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
         setExternalEmbedView(null)
     }
 
-    return {externalEmbedView, setExternalEmbedView, externalEmbedUrl, setExternalEmbedUrl, onRemove}
+    return {onRemove}
 }
 
 
@@ -191,31 +211,10 @@ function getLinksFromEditor(editorState: EditorState) {
 }
 
 
-function useImagesInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
-    const postImages = useMemo(() => {
-        if (postView && AppBskyEmbedImages.isView(postView.embed)) {
-            const images: ImagePayload[] = postView.embed.images.map(i => ({
-                $type: "url",
-                src: i.thumb
-            }))
-            return images
-        } else {
-            return []
-        }
-    }, [postView])
-
-    const [images, setImages] = useState<ImagePayload[]>(postImages)
-
-    return {images, setImages}
-}
 
 
-function useEnDiscusionForWritePost(replyTo: ReplyToContent, postView?: ArCabildoabiertoFeedDefs.PostView) {
-    const initialState = postView ? hasEnDiscusionLabel(postView) : !replyTo
-    const [enDiscusion, setEnDiscusion] = useState(initialState)
 
-    return {enDiscusion, setEnDiscusion}
-}
+
 
 
 function useVisualizationInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
@@ -258,7 +257,12 @@ export const WritePost = ({
                               handleSubmit,
                               onClose,
                               postView,
-    isVoteReject
+    isVoteReject,
+    threadElementState,
+    setThreadElementState,
+    enDiscusion,
+    setEnDiscusion,
+    onAddThreadElement
                           }: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
@@ -268,22 +272,24 @@ export const WritePost = ({
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
     isVoteReject?: boolean
+    threadElementState: ThreadElementState
+    setThreadElementState: (t: ThreadElementState) => void
+    enDiscusion: boolean
+    setEnDiscusion: (e: boolean) => void
+    onAddThreadElement: () => void
 }) => {
+    const {text, images, editorState, externalEmbed} = threadElementState
+    const externalEmbedView = externalEmbed?.view
     const {user} = useSession()
     const [editorKey, setEditorKey] = useState(0)
-
-    const [text, setText] = useState("")
     const [forceEditModalOpen, setForceEditModalOpen] = useState(false)
-
-    // editor state
-    const {images, setImages} = useImagesInPostEditor(postView)
     const {visualization, setVisualization} = useVisualizationInPostEditor(postView)
-    const {enDiscusion, setEnDiscusion} = useEnDiscusionForWritePost(replyTo, postView)
-    const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {
-        externalEmbedView,
         onRemove
-    } = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null, postView)
+    } = useUpdateExternalEmbed(
+        threadElementState,
+        setThreadElementState
+    )
 
     // modals
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
@@ -294,12 +300,32 @@ export const WritePost = ({
     const isReply = replyTo != undefined
     const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
     const quoteCollection = quotedContent && "uri" in quotedContent ? getCollectionFromUri(quotedContent.uri) : null
+
     const settings = usePostEditorSettings(
         replyToCollection,
         quoteCollection,
         postView,
-        isVoteReject
+        isVoteReject,
+        threadElementState
     )
+
+    function setEditorState(editorState: EditorState) {
+        setThreadElementState({
+            ...threadElementState,
+            editorState
+        })
+    }
+
+    function setImages(images: ImagePayload[]) {
+        setThreadElementState({
+            ...threadElementState,
+            images
+        })
+    }
+
+    function setText(text: string) {
+        setThreadElementState({...threadElementState, text})
+    }
 
     async function handleClickSubmit(force: boolean = false) {
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
@@ -436,6 +462,10 @@ export const WritePost = ({
                 />
             </div>
             <div className={"flex space-x-2 items-center"}>
+                <AddThreadElementButton
+                    onAddThreadElement={onAddThreadElement}
+                    disabled={isThreadElementStateEmpty(threadElementState)}
+                />
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton

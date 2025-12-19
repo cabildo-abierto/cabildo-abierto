@@ -10,6 +10,7 @@ import {
     isTopicVersion,
     isVisualization,
 } from "@cabildo-abierto/utils";
+import {ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
 
 
 function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {
@@ -36,7 +37,8 @@ export function usePostEditorSettings(
     replyToCollection: string | undefined,
     quoteCollection: string | undefined,
     postView: ArCabildoabiertoFeedDefs.PostView | undefined,
-    isVoteReject: boolean
+    isVoteReject: boolean,
+    threadElementState?: ThreadElementState
 ): SettingsProps {
     const p = postView?.record as AppBskyFeedPost.Record | undefined
     const {markdown} = useMarkdownFromBsky(p)

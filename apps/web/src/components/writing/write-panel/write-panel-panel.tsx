@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useMemo, useState} from "react"
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup"
 import {CloseButton} from "@/components/utils/base/close-button"
 import SelectionComponent from "../../buscar/search-selection-component";
@@ -6,11 +6,21 @@ import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
 import {CreatePostProps, WritePost} from "./write-post";
 import {emptyChar} from "../../utils/utils";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@cabildo-abierto/api"
+import {
+    ArCabildoabiertoFeedDefs,
+    ArCabildoabiertoEmbedRecord,
+    ImagePayload,
+    ArCabildoabiertoEmbedVisualization
+} from "@cabildo-abierto/api"
 import {BaseButton} from "@/components/utils/base/base-button";
 import {ReplyToContent} from "./write-panel";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
+import {$Typed, AppBskyEmbedExternal, AppBskyEmbedImages} from "@atproto/api";
+import {EditorState} from "lexical";
+import {hasEnDiscusionLabel} from "@/components/feed/utils/post-preview-frame";
+import {UnselectedThreadElement} from "@/components/writing/write-panel/unselected-thread-element";
+import {getAllText} from "@cabildo-abierto/editor-core";
 
 
 type WritePanelProps = {
@@ -21,6 +31,77 @@ type WritePanelProps = {
     quotedPost?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
+}
+
+
+type ThreadElementExternalState = {
+    url: string
+    view: $Typed<AppBskyEmbedExternal.View>
+}
+
+
+export type ThreadElementState = {
+    text: string
+    editorState: EditorState | null
+    images: ImagePayload[]
+    externalEmbed: ThreadElementExternalState | null
+    visualization: ArCabildoabiertoEmbedVisualization.View | null
+}
+
+
+const emptyThreadElementState: ThreadElementState = {
+    text: "",
+    images: [],
+    editorState: null,
+    externalEmbed: null,
+    visualization: null
+}
+
+
+function useInitialThreadElementState(postView?: ArCabildoabiertoFeedDefs.PostView): ThreadElementState {
+
+    return useMemo(() => {
+        if (!postView) {
+            return emptyThreadElementState
+        } else {
+            let images: ImagePayload[] = []
+            if (postView && AppBskyEmbedImages.isView(postView.embed)) {
+                images = postView.embed.images.map(i => ({
+                    $type: "url",
+                    src: i.thumb,
+                    editorState: null
+                }))
+            }
+            let externalEmbed: ThreadElementExternalState | null = AppBskyEmbedExternal.isView(postView.embed) ? {
+                view: postView.embed,
+                url: postView.embed.external.uri
+            } : null
+
+            return {
+                text: "",
+                images,
+                editorState: null,
+                externalEmbed,
+                visualization: null
+            }
+        }
+    }, [postView])
+}
+
+
+function useEnDiscusionForWritePost(replyTo: ReplyToContent, postView?: ArCabildoabiertoFeedDefs.PostView) {
+    const initialState = postView ? hasEnDiscusionLabel(postView) : !replyTo
+    const [enDiscusion, setEnDiscusion] = useState(initialState)
+
+    return {enDiscusion, setEnDiscusion}
+}
+
+function emptyEditorState(editorState: EditorState | null) {
+    return editorState == null || getAllText(editorState.toJSON().root).trim().length == 0
+}
+
+export function isThreadElementStateEmpty(threadElementState: ThreadElementState) {
+    return threadElementState.text.length == 0 && threadElementState.images.length == 0 && emptyEditorState(threadElementState.editorState) && threadElementState.externalEmbed?.url == null && threadElementState.visualization == null
 }
 
 
@@ -36,8 +117,13 @@ const WritePanelPanel = ({
     const [selected, setSelected] = useState("Publicación")
     const router = useRouter()
     const [hidden, setHidden] = useState(false)
-
+    const initialThreadElementState = useInitialThreadElementState(postView)
+    const [thread, setThread] = useState<ThreadElementState[]>([initialThreadElementState])
+    const [selectedThreadIndex, setSelectedThreadIndex] = useState(0)
+    const {enDiscusion, setEnDiscusion} = useEnDiscusionForWritePost(replyTo, postView)
     const isReply = replyTo != undefined
+
+    console.log("thread elements", thread.map(t => t.text))
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)] text-sm">
@@ -91,15 +177,43 @@ const WritePanelPanel = ({
                         }}
                     />
                 </div>
-                {selected == "Publicación" && <WritePost
-                    onClose={onClose}
-                    replyTo={replyTo}
-                    selection={selection}
-                    quotedContent={quotedPost}
-                    setHidden={setHidden}
-                    handleSubmit={handleSubmit}
-                    postView={postView}
-                />}
+                {selected == "Publicación" && <div className={""}>
+                    {thread.map((e, i) => {
+                        if (i == selectedThreadIndex) {
+                            return <WritePost
+                                onClose={onClose}
+                                replyTo={replyTo}
+                                selection={selection}
+                                quotedContent={quotedPost}
+                                setHidden={setHidden}
+                                handleSubmit={handleSubmit}
+                                postView={postView}
+                                threadElementState={thread[selectedThreadIndex]}
+                                setThreadElementState={(t) => {
+                                    setThread(thread.map((e, i) => i == selectedThreadIndex ? t : e))
+                                }}
+                                enDiscusion={enDiscusion}
+                                setEnDiscusion={setEnDiscusion}
+                                onAddThreadElement={() => {
+                                    setThread([
+                                        ...thread.slice(0, selectedThreadIndex + 1),
+                                        emptyThreadElementState,
+                                        ...thread.slice(selectedThreadIndex + 1)
+                                    ])
+                                    setSelectedThreadIndex(selectedThreadIndex + 1)
+                                }}
+                                key={i}
+                            />
+                        } else {
+                            return <UnselectedThreadElement
+                                key={i}
+                                threadElementState={e}
+                                onSelect={() => {
+                                    setSelectedThreadIndex(i)
+                                }}
+                            />
+                        }
+                    })}</div>}
                 {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>
         </BaseFullscreenPopup>

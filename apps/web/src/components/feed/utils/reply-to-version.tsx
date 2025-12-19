@@ -21,7 +21,7 @@ export const ReplyToVersion = ({postView, pageRootUri}: {
                 const {did, rkey} = splitUri(rootUri)
                 const url = topicUrl(undefined, {did, rkey})
 
-                const text = new Date(postView.rootCreationDate) < new Date(topic.createdAt) ? `Respuesta a una versión del tema anterior (${formatIsoDate(postView.rootCreationDate, true)}).` :
+                const text = new Date(postView.rootCreationDate) < new Date(topic.createdAt) ? `Respuesta a una versión anterior del tema (${formatIsoDate(postView.rootCreationDate, true)}).` :
                     `Respuesta a una versión más reciente del tema (${formatIsoDateShort(postView.rootCreationDate, true)}).`
 
                 return <div className={"text-sm text-[var(--text-light)] px-4 py-2"}>
