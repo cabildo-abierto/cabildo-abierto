@@ -1,27 +1,37 @@
 "use client"
-import {GoToLoginButton} from "@/components/presentacion/go-to-login-button";
-import {
-    PresentacionAbierto,
-    PresentacionCalidadDeLaInformacion, PresentacionFormato,
-    PresentacionInicio, PresentacionRemuneraciones,
-    PresentacionWiki
-} from "@/components/presentacion/sections";
+import LandingTopbar from "@/components/presentacion/landing-topbar";
+import {LandingFirstScreen} from "@/components/presentacion/landing-first-screen";
+import {LandingScroll} from "@/components/presentacion/landing-scroll";
+import { Special_Elite, Courier_Prime, IBM_Plex_Mono, JetBrains_Mono } from 'next/font/google'
+import {cn} from "@/lib/utils";
 
+const special_elite = Special_Elite({
+    subsets: ['latin'],
+    weight: ["400"]
+})
+
+const courier_prime = Courier_Prime({
+    subsets: ["latin", "latin-ext"],
+    weight: ["400", "700"]
+})
+
+const ibm_plex_mono = IBM_Plex_Mono({
+    subsets: ["latin", "latin-ext"],
+    weight: ["100", "200", "300", "400", "500", "600", "700"]
+})
+
+const jetbrains_mono = JetBrains_Mono({
+    subsets: ["latin"],
+    weight: ["100", "200", "300", "400", "500", "600", "700"]
+})
 
 export default function Page() {
 
-    return <div className="flex flex-col items-center h-full presentation">
-        <PresentacionInicio/>
-        <PresentacionFormato/>
-        <PresentacionWiki/>
-        <PresentacionCalidadDeLaInformacion/>
-        <PresentacionRemuneraciones/>
-        <PresentacionAbierto/>
-        <div className="pb-8 z-10 bg-[var(--background-dark)] portal group w-full flex justify-center">
-            <GoToLoginButton
-                textClassName="w-36 sm:w-48 font-semibold sm:p-1 text-[16px]"
-                text={"Empezar"}
-            />
-        </div>
+    return <div className={cn("presentation")}>
+        <LandingTopbar/>
+
+        <LandingFirstScreen/>
+
+        <LandingScroll/>
     </div>
 }

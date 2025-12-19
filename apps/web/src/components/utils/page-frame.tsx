@@ -4,9 +4,9 @@ import {BackButton} from "@/components/utils/base/back-button";
 
 
 export const PageFrame = ({children}: { children: ReactNode }) => {
-    return <div className={"flex flex-col items-center pb-16 pt-4 sm:px-6 px-2"}>
+    return <div className={"flex flex-col items-center pb-16 pt-4 sm:px-6 px-2 bg-[var(--background-dark)]"}>
         <div
-            className={"p-6 font-light sm:max-w-[700px] w-full space-y-4 group portal panel-dark"}
+            className={"p-6 font-light sm:max-w-[700px] w-full space-y-4 group portal panel"}
         >
             <div>
                 <BackButton behavior={"ca-back"}/>

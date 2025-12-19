@@ -21,7 +21,7 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
                         {subtitle && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
                             {subtitle}
                         </div>}
-                        <div className={"font-light text-lg max-[400px]:text-base"}>
+                        <div className={"font-light  text-lg max-[400px]:text-base"}>
                             {description}
                         </div>
                     </div>
@@ -32,9 +32,9 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
             </div>
         </div>
 
-        <div className={"sm:flex hidden"}>
+        <div className={"sm:flex hidden w-full"}>
             <div
-                className={"w-screen max-w-[1200px] h-[600px] space-y-0 flex-row items-center " + (inverted ? "flex flex-row-reverse" : "flex")}>
+                className={"w-full h-[550px] space-y-0 flex-row items-center " + (inverted ? "flex flex-row-reverse" : "flex")}>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center flex-col"}>
                     <div className={"w-full max-w-[400px] space-y-2"}>
                         <h2 className={"font-bold text-lg md:text-xl leading-tight"}>
@@ -43,7 +43,7 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
                         {subtitle && image && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
                             {subtitle}
                         </div>}
-                        <div className={"font-light md:text-lg text-base"}>
+                        <div className={"font-light md:text-xl text-base"}>
                             {description}
                         </div>
                     </div>

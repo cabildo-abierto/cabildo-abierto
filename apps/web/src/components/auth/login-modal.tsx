@@ -96,7 +96,7 @@ export const LoginModal = ({
                     ¡Listo! Ni bien podamos te enviamos la invitación. Gracias por tu interés.
                 </div>
             </AcceptButtonPanel>}
-            <h2 className={"font-bold uppercase text-lg pb-2"}>Solicitar acceso</h2>
+            <h2 className={"font-bold text-lg pb-2"}>Solicitar acceso</h2>
             <div className={"flex flex-col items-center space-y-4 pb-12"}>
                 <Note maxWidth={380}>
                     Estamos enviando invitaciones al período de prueba por orden de llegada a medida que hacemos espacio

@@ -5,6 +5,7 @@ import {useSession} from "@/components/auth/use-session";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useMediaQuery} from "usehooks-ts";
 import {cn} from "@/lib/utils";
+import {SignInIcon} from "@phosphor-icons/react";
 
 
 export const GoToLoginButton = ({
@@ -38,17 +39,13 @@ export const GoToLoginButton = ({
         }}
         letterSpacing={"0em"}
         className={className}
+        startIcon={<SignInIcon/>}
     >
         <div className={"flex flex-col items-center"}>
-            {code && <div
-                className={cn("text-[11px] text-[var(--text-light)] flex items-center space-x-2 justify-center  whitespace-break-spaces normal-case", inviteClassName)}
-            >
-                <span>¡Recibiste un código de invitación!</span>
-            </div>}
             <div
                 className={cn("text-[13px] whitespace-break-spaces", textClassName)}
             >
-                {text}
+                {code ? "¡Recibiste un código de invitación!" : text}
             </div>
         </div>
     </BaseButton>

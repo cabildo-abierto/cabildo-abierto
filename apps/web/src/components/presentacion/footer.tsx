@@ -85,7 +85,7 @@ export default function Footer({showCA = true, className}: {
     className?: string
 }) {
     return <div
-        className={cn("flex justify-between px-4 md:px-16 space-x-4 sm:space-x-12 py-12 ", className)}
+        className={cn("flex justify-between px-4 md:px-16 lg:px-32 space-x-4 sm:space-x-12 py-12 bg-[var(--background-dark)] ", className)}
     >
         <FooterLeftSide/>
         <FooterRightSide showCA={showCA}/>

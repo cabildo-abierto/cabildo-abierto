@@ -6,6 +6,47 @@ import {Logo} from "@/components/utils/icons/logo";
 import {ArrowDownIcon, CheckIcon, ChecksIcon} from "@phosphor-icons/react";
 import {FeatureSection} from "./feature-section";
 import {TwoImages} from "./two-images";
+import {useTheme} from "@/components/layout/theme/theme-context";
+
+
+export const FormatGrid = () => {
+    const {currentTheme} = useTheme()
+
+    return <div className={"flex space-x-2 max-w-[500px] opacity-90"}>
+        <div className={"flex flex-col space-y-2 h-full justify-center w-1/2"}>
+            <Image
+                src={`/presentacion/${currentTheme}/rápida.png`}
+                width={2000}
+                height={600}
+                alt="Publicación rápida"
+                className="border w-full h-auto mt-10"
+            />
+            <Image
+                src={`/presentacion/${currentTheme}/artículo.png`}
+                width={700}
+                height={700}
+                alt="Publicación"
+                className="border w-full h-auto"
+            />
+        </div>
+        <div className={"flex flex-col space-y-2 w-1/2"}>
+            <Image
+                src={`/presentacion/${currentTheme}/comentarios-texto.png`}
+                width={700}
+                height={700}
+                alt="Publicación"
+                className="border w-full h-auto mt-10"
+            />
+            <Image
+                src={`/presentacion/${currentTheme}/editor.png`}
+                width={700}
+                height={700}
+                alt="Publicación"
+                className="border w-full h-full object-contain"
+            />
+        </div>
+    </div>
+}
 
 
 export const PresentacionFormato = () => {
@@ -39,45 +80,10 @@ export const PresentacionFormato = () => {
         </ul>
     </div>
 
-    const image = <div className={"flex space-x-2 max-w-[500px]"}>
-        <div className={"flex flex-col space-y-2 h-full justify-center w-3/5"}>
-            <Image
-                src="/presentacion/light/rápida.png"
-                width={2000}
-                height={600}
-                alt="Publicación rápida"
-                className="border border-[var(--text)] w-full h-auto"
-            />
-            <Image
-                src="/presentacion/light/editor.png"
-                width={700}
-                height={700}
-                alt="Publicación"
-                className="border border-[var(--text)] w-full h-auto mt-10"
-            />
-        </div>
-        <div className={"flex flex-col space-y-2 justify-center w-2/5"}>
-            <Image
-                src="/presentacion/light/articulo.png"
-                width={700}
-                height={700}
-                alt="Publicación"
-                className="border border-[var(--text)] w-full h-auto"
-            />
-            <Image
-                src="/presentacion/light/comentarios-texto.png"
-                width={700}
-                height={700}
-                alt="Publicación"
-                className="border border-[var(--text)] w-full h-auto mt-10"
-            />
-        </div>
-    </div>
-
     return <FeatureSection
         title={"Porque a veces 280 caracteres se quedan cortos."}
         description={description}
-        image={image}
+        image={<FormatGrid/>}
         inverted={true}
         className={"bg-[var(--background-dark)]"}
     />
@@ -222,7 +228,8 @@ export const PresentacionAbierto = () => {
             <div
                 className="absolute z-2 left-1/2 bottom-8 translate-y-1/2 -translate-x-1/2 text-3xl pt-4">
                 <Link href="https://atproto.com" className={"font-bold tracking-tighter"}>
-                    <span className="text-[#0481f7]">@AT</span><span className={"text-[var(--accent-dark)]"}>Protocol</span>
+                    <span className="text-[#0481f7]">@AT</span><span
+                    className={"text-[var(--accent-dark)]"}>Protocol</span>
                 </Link>
             </div>
         </div>
@@ -239,6 +246,7 @@ export const PresentacionAbierto = () => {
 
 
 export const PresentacionInicio = () => {
+
 
     return <>
         <div className="absolute top-4 right-4 z-10 md:hidden">
