@@ -16,14 +16,14 @@ export const LandingScroll = () => {
     />
 
     const cabildoWindow = <Image
-        src={"/construccion.png"}
+        src={"/presentacion/construccion.png"}
         alt={"cabildo"}
         width={400} height={400}
         className={cn("opacity-80 w-[320px] h-auto", currentTheme == "dark" && "invert")}
     />
 
     const cabildo = <Image
-        src={"/cabildo.png"}
+        src={"/presentacion/cabildo.svg"}
         alt={"cabildo"}
         width={400} height={400}
         className={cn("opacity-80 w-[360px] h-auto", currentTheme == "dark" && "invert")}
@@ -33,11 +33,11 @@ export const LandingScroll = () => {
         <FeatureSection
             title={""}
             description={<div className={"space-y-2 max-w-[400px]"}>
-                <div className={"leading-tight"}>
+                <div className={"leading-tight tracking-tight"}>
                     Sin recomendaciones {'"'}para vos{'"'}, sin publicidad y sin bots.
                 </div>
                 <div className={"font-semibold text-[var(--text-light)] text-sm md:text-base"}>
-                    Personas reales y algoritmos transparentes que no se basan en tus datos.
+                    Personas reales y algoritmos transparentes que no se basan en tus datos personales.
                 </div>
             </div>}
             image={cabildoWindow}
@@ -47,7 +47,7 @@ export const LandingScroll = () => {
         <FeatureSection
             title={""}
             description={<div className={"space-y-2 max-w-[400px]"}>
-                <div>
+                <div className={"leading-tight tracking-tight"}>
                     Con herramientas para que las discusiones no queden en la superficie y para que tener consensos
                     básicos sea posible.
                 </div>
@@ -62,7 +62,7 @@ export const LandingScroll = () => {
         <FeatureSection
             title={""}
             description={<div className={"space-y-2 max-w-[400px]"}>
-                <div>
+                <div className={"tracking-tight leading-tight"}>
                     Hecha en Argentina e independiente de todo control corporativo o partidario.
                 </div>
                 <div className={"text-[var(--text-light)] font-semibold text-sm md:text-base"}>

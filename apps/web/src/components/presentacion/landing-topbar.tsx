@@ -17,7 +17,7 @@ const LandingTopbar = () => {
 
     return <>
         <div
-            className={cn("w-full hidden sm:block fixed top-0 left-0 z-50 py-3 px-6 transition-all  ease-in-out", isScrolled ? "backdrop-blur bg-[var(--background-dark)]/50 shadow-md" : "bg-transparent")}
+            className={cn("w-full hidden sm:block fixed top-0 left-0 z-50 py-3 px-6 transition-all  ease-in-out", isScrolled ? "backdrop-blur  shadow-md" : "bg-transparent")}
         >
             <div className="flex justify-between items-center">
                 <div className="flex-1">
