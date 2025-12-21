@@ -1,6 +1,6 @@
 import {DidResolver} from "@atproto/identity";
 import {SessionAgent} from "#/utils/session-agent.js";
-import {ImagePayload} from "@cabildo-abierto/api";
+import {ImagePayload, ImagePayloadForPostCreation} from "@cabildo-abierto/api";
 import {AppContext} from "#/setup.js";
 import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
@@ -125,7 +125,7 @@ export async function uploadBase64Blob(agent: SessionAgent, base64: string){
 }
 
 
-export async function uploadImageBlob(agent: SessionAgent, image: ImagePayload){
+export async function uploadImageBlob(agent: SessionAgent, image: ImagePayloadForPostCreation){
     if(image.$type == "url") {
         return await uploadImageSrcBlob(agent, image.src)
     } else {

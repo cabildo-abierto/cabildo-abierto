@@ -2,7 +2,6 @@ import React from 'react';
 import InfoPanel from '@/components/utils/base/info-panel';
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
 import {ATProtoStrongRef} from "@/lib/types";
-import {CreatePostProps, WritePost} from "../../writing/write-panel/write-post";
 import {CloseButton} from "@/components/utils/base/close-button";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useSession} from "@/components/auth/use-session";
@@ -13,6 +12,8 @@ import {
 import {getDidFromUri, getRkeyFromUri} from '@cabildo-abierto/utils';
 import {post} from "../../utils/react/fetch";
 import {useQueryClient} from "@tanstack/react-query";
+import {CreatePostProps} from "@cabildo-abierto/api";
+import {ThreadEditor} from "@/components/writing/write-panel/thread-editor";
 
 
 async function rejectEdit({ref, reason, force}: { ref: ATProtoStrongRef, force: boolean, reason: CreatePostProps }) {
@@ -69,9 +70,8 @@ export const RejectVersionModal = ({open, onClose, topicId, versionRef}: {
                 </div>
             </div>
             <div className="w-full">
-                <WritePost
+                <ThreadEditor
                     replyTo={{$type: "com.atproto.repo.strongRef", ...versionRef}}
-                    onClose={() => {}}
                     setHidden={(v) => {}}
                     handleSubmit={async (p) => {
                         const res = await onReject(p, false)
@@ -79,6 +79,7 @@ export const RejectVersionModal = ({open, onClose, topicId, versionRef}: {
                         return res
                     }}
                     isVoteReject={true}
+                    onClose={() => {}}
                 />
             </div>
         </div>

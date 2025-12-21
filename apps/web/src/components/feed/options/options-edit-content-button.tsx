@@ -8,11 +8,13 @@ import {
 } from "@cabildo-abierto/api"
 import {$Typed} from "@cabildo-abierto/api";
 import {useSession} from "@/components/auth/use-session";
-import { DropdownMenuItem } from "@/components/utils/ui/dropdown-menu";
+import {DropdownMenuItem} from "@/components/utils/ui/dropdown-menu";
 
 
 export const OptionsEditContentButton = ({
-                                             record, setEditingPost}: {
+                                             record,
+                                             setEditingPost
+                                         }: {
     record: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |

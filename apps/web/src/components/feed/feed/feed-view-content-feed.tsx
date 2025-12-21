@@ -5,7 +5,6 @@ import StaticFeed from "./static-feed";
 import {GetFeedProps} from "@/lib/types";
 import {FeedMerger, FeedProps} from "./types";
 import dynamic from "next/dynamic";
-import {useSession} from "@/components/auth/use-session";
 
 
 const FeedElement = dynamic(() => import("./feed-element"), {
@@ -47,10 +46,6 @@ const FeedViewContentFeed = ({
                                  feedMerger,
                                  ...props
                              }: FeedViewContentFeedProps) => {
-    const {user} = useSession()
-
-    if(!user) return null
-
     if (initialContents) {
         return <StaticFeed
             initialContents={initialContents}

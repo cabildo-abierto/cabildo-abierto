@@ -5,15 +5,20 @@ import {
     AppBskyEmbedExternal,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
-    AppBskyFeedPost, ATProtoStrongRef, ImagePayload, CreatePostProps
+    AppBskyFeedPost,
+    ATProtoStrongRef,
+    CreatePostProps,
+    CreatePostThreadElement,
+    ImagePayloadForPostCreation, FastPostReplyProps
 } from "@cabildo-abierto/api"
 import {uploadImageBlob} from "#/services/blob.js";
 import {CAHandler} from "#/utils/handler.js";
 import {getParsedPostContent} from "#/services/write/rich-text.js";
 import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
 import {AppContext} from "#/setup.js";
-import {deleteRecords} from "#/services/delete.js";
+import {deleteRecordAT, deleteRecords} from "#/services/delete.js";
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
+import {RefAndRecord} from "#/services/sync/types.js";
 
 function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord.Main> {
     return {
@@ -53,7 +58,7 @@ async function externalEmbedViewToMain(agent: SessionAgent, embed: AppBskyEmbedE
 }
 
 
-async function getImagesEmbed(agent: SessionAgent, images: ImagePayload[]) {
+async function getImagesEmbed(agent: SessionAgent, images: ImagePayloadForPostCreation[]) {
     const blobs = await Promise.all(images.map(image => uploadImageBlob(agent, image)))
 
     const imagesEmbed: AppBskyEmbedImages.Image[] = blobs.map((({ref, size}) => {
@@ -89,7 +94,7 @@ function getRecordWithMedia(quotedPost: ATProtoStrongRef, media: AppBskyEmbedRec
 }
 
 
-async function getPostEmbed(agent: SessionAgent, post: CreatePostProps): Promise<AppBskyFeedPost.Record["embed"] | undefined> {
+async function getPostEmbed(agent: SessionAgent, post: CreatePostThreadElement): Promise<AppBskyFeedPost.Record["embed"] | undefined> {
     if (post.selection) {
         return {
             $type: "ar.cabildoabierto.embed.selectionQuote",
@@ -122,41 +127,45 @@ async function getPostEmbed(agent: SessionAgent, post: CreatePostProps): Promise
 }
 
 
-export async function createPostAT({
-    ctx,
+async function createPostAT({
+                                       ctx,
                                        agent,
-                                       post
+                                       post,
+    index,
+    reply
                                    }: {
     ctx: AppContext
     agent: SessionAgent
-    post: CreatePostProps
+    post: CreatePostProps,
+    index: number
+    reply?: FastPostReplyProps
 }): Promise<{ ref: ATProtoStrongRef, record: AppBskyFeedPost.Record }> {
-    const rt = await getParsedPostContent(agent, post.text)
+    const elem = post.threadElements[index]
+    const rt = await getParsedPostContent(agent, elem.text)
 
-    const embed = await getPostEmbed(agent, post)
+    const embed = await getPostEmbed(agent, post.threadElements[index])
 
     let record: AppBskyFeedPost.Record = {
         $type: "app.bsky.feed.post",
         text: rt.text,
         facets: rt.facets,
         createdAt: new Date().toISOString(),
-        reply: post.reply,
+        reply: post.reply ?? reply,
         embed,
-        labels: post.enDiscusion ? {
+        labels: post.enDiscusion && index == 0 ? {
             $type: "com.atproto.label.defs#selfLabels",
             values: [{val: "ca:en discusión"}]
         } : undefined
     }
 
-    if(!post.uri) {
-        ctx.logger.pino.info({post: record}, "creating bsky post")
+    if (!elem.uri) {
         const ref = await agent.bsky.post({...record})
         return {ref, record}
     } else {
         const {data} = await agent.bsky.com.atproto.repo.putRecord({
-            repo: getDidFromUri(post.uri),
+            repo: getDidFromUri(elem.uri),
             collection: 'app.bsky.feed.post',
-            rkey: getRkeyFromUri(post.uri),
+            rkey: getRkeyFromUri(elem.uri),
             record: record,
         })
         return {ref: {uri: data.uri, cid: data.cid}, record}
@@ -164,71 +173,89 @@ export async function createPostAT({
 }
 
 
-
-
-
 export async function isContentReferenced(ctx: AppContext, uri: string) {
     const references = await ctx.kysely
         .selectFrom("Content")
         .innerJoin("Record", "Content.uri", "Record.uri")
-        .select(eb => [
+        .select([
             "Content.uri",
-            eb.exists(eb
+            eb => eb.exists(eb
                 .selectFrom("Reaction")
-                .select([])
+                .select(["uri"])
                 .whereRef("Reaction.subjectId", "=", "Content.uri")
             ).as("reactions"),
-            eb.exists(eb
+            eb => eb.exists(eb
                 .selectFrom("Post")
-                .select([])
+                .select(["uri"])
                 .whereRef("Post.replyToId", "=", "Content.uri")
             ).as("replies"),
-            eb.exists(eb
+            eb => eb.exists(eb
                 .selectFrom("Post")
-                .select([])
+                .select(["uri"])
                 .whereRef("Post.quoteToId", "=", "Content.uri")
             ).as("quotes")
         ])
         .where("Content.uri", "=", uri)
         .executeTakeFirst()
 
-    if(!references) return {error: "No se encontró la publicación que se está editando."}
+    if (!references) return {error: "No se encontró la publicación que se está editando."}
     return {
         data: references.reactions || references.replies || references.quotes
     }
 }
 
 
-export const createPost: CAHandler<CreatePostProps, ATProtoStrongRef> = async (ctx, agent, post) => {
-    ctx.logger.pino.info({text: post.text, author: getDidFromUri(agent.did)}, "creating post")
-    if(post.uri) {
+export const createPost: CAHandler<CreatePostProps, ATProtoStrongRef[]> = async (ctx, agent, post) => {
+    ctx.logger.pino.info({post, author: agent.did}, "creating post")
+    if (post.threadElements.length == 0) {
+        return {error: "Hilo vacío."}
+    }
+    const elem = post.threadElements[0]
+    if (elem.uri) {
+        if (post.threadElements.length > 1) {
+            return {error: "No es posible editar una publicación y al mismo tiempo crear un hilo."}
+        }
         // se está editando un post
-        const {data: referenced, error} = await isContentReferenced(ctx, post.uri)
-        if(error) return {error}
-        if(referenced){
-            if(!post.forceEdit){
-                ctx.logger.pino.info({text: post.text, author: getDidFromUri(agent.did)}, "referenced edit")
+        const {data: referenced, error} = await isContentReferenced(ctx, elem.uri)
+        if (error) return {error}
+        if (referenced) {
+            if (!post.forceEdit) {
                 return {error: "La publicación ya fue referenciada."}
             }
         } else {
-            ctx.logger.pino.info({uri: post.uri}, "deleting edited post")
+            ctx.logger.pino.info({uri: elem.uri}, "deleting edited post")
             // edición de un post que todavía no fue referenciado
-            const {error} = await deleteRecords({ctx, agent, uris: [post.uri], atproto: true})
-            if(error) return {error: "Ocurrió un error al editar."}
-            post.uri = undefined
+            const {error} = await deleteRecords({ctx, agent, uris: [elem.uri], atproto: true})
+            if (error) return {error: "Ocurrió un error al editar."}
+            post.threadElements[0].uri = undefined
         }
     }
 
+    let refsAndRecords: RefAndRecord<AppBskyFeedPost.Record>[] = []
     try {
-        const {ref, record} = await createPostAT({ctx, agent, post})
-        ctx.logger.pino.info({uri: ref.uri}, "created post")
-
-        await new PostRecordProcessor(ctx).processValidated([{ref, record}])
-
-        ctx.logger.pino.info({uri: ref.uri}, "processed created post")
-        return {data: ref}
+        for (let i = 0; i < post.threadElements.length; i++) {
+            const refAndRecord = await createPostAT({
+                ctx,
+                agent,
+                post,
+                index: i,
+                reply: i > 0 ? {
+                    parent: refsAndRecords[refsAndRecords.length-1].ref,
+                    root: refsAndRecords[0].ref
+                } : undefined
+            })
+            refsAndRecords.push(refAndRecord)
+        }
     } catch (error) {
         ctx.logger.pino.error({error}, "error creating post")
+        for (const {ref} of refsAndRecords) {
+            ctx.logger.pino.info({ref}, "deleting partial thread")
+            await deleteRecordAT(agent, ref.uri)
+        }
         return {error: "Ocurrió un error al crear la publicación."}
     }
+
+    await new PostRecordProcessor(ctx).processValidated(refsAndRecords)
+
+    return {data: refsAndRecords.map(r => r.ref)}
 }

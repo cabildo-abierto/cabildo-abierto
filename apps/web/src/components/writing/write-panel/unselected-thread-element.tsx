@@ -1,6 +1,6 @@
-import {ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
 import {ProfilePic} from "@/components/perfil/profile-pic";
 import {useSession} from "@/components/auth/use-session";
+import {ThreadElementState} from "@/components/writing/write-panel/thread-editor";
 
 
 export const UnselectedThreadElement = ({threadElementState, onSelect}: {

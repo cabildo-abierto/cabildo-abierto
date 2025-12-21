@@ -10,7 +10,7 @@ import {
     isTopicVersion,
     isVisualization,
 } from "@cabildo-abierto/utils";
-import {ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
+import {ThreadElementState} from "@/components/writing/write-panel/thread-editor";
 
 
 function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {
@@ -51,7 +51,7 @@ export function usePostEditorSettings(
         isRichText: false,
         markdownShortcuts: false,
         topicMentions: false,
-        initialText: markdown,
-        initialTextFormat: "markdown"
+        initialText: threadElementState?.editorState ?? markdown,
+        initialTextFormat: threadElementState?.editorState ? "editor-state" : "markdown"
     })
 }

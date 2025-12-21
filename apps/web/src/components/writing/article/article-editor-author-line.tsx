@@ -3,7 +3,7 @@ import {ReadingTime} from "../../feed/article/reading-time";
 import {useSession} from "@/components/auth/use-session";
 import {EditorState} from "lexical";
 import {getUsername} from "../../perfil/utils";
-import { getAllText } from "@cabildo-abierto/editor-core";
+import {getPlainText} from "@cabildo-abierto/editor-core";
 
 const ArticleEditorAuthor = ({
                                  editorState
@@ -25,7 +25,7 @@ const ArticleEditorAuthor = ({
         </div>
         <div className={"text-[var(--text-light)]"}>
             {editorState && <ReadingTime
-                numWords={getAllText(editorState.toJSON().root).split(" ").length}
+                numWords={getPlainText(editorState.toJSON().root).split(" ").length}
             />}
         </div>
     </div>

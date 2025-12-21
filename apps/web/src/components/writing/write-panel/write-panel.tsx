@@ -1,6 +1,5 @@
 import React from "react"
-import {CreatePostProps} from "./write-post";
-import {$Typed} from "@cabildo-abierto/api";
+import {$Typed, CreatePostProps} from "@cabildo-abierto/api";
 import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@cabildo-abierto/api"
 import WritePanelPanel from "./write-panel-panel";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
@@ -156,12 +155,13 @@ const WritePanel = ({
     async function handleSubmit(body: CreatePostProps) {
         const res = await createPost({body})
         if(res.data) {
+            const originalUri = body.threadElements[0].uri
             invalidateQueriesAfterPostCreationSuccess(
                 res.data.uri,
                 replyTo,
                 author,
                 qc,
-                body.uri,
+                originalUri,
                 quotedPost
             )
             if(pathname.startsWith("/c/")){
@@ -170,7 +170,7 @@ const WritePanel = ({
                 if(typeof did == "string" && typeof collection == "string" && typeof rkey == "string"){
                     collection = shortCollectionToCollection(collection)
                     const currentUri = getUri(did, collection, rkey)
-                    if(body.uri && body.uri != res.data.uri && body.uri == currentUri) {
+                    if(originalUri && originalUri != res.data.uri && originalUri == currentUri) {
                         router.push(contentUrl(res.data.uri))
                     }
                 }

@@ -17,8 +17,7 @@ import {
     ArCabildoabiertoWikiTopicVersion
 } from "@cabildo-abierto/api"
 import {FeedSkeleton} from "#/services/feed/feed.js";
-import {decompress} from "@cabildo-abierto/editor-core";
-import {getAllText} from "#/services/wiki/diff.js";
+import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateEmbedViews, hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
@@ -175,7 +174,7 @@ export function getArticleSummary(text: string | null, format: string | undefine
             .trim()
     } else if (!format || format == "lexical-compressed") {
         const summaryJson = JSON.parse(decompress(text))
-        summary = getAllText(summaryJson.root).slice(0, 150).replaceAll("\n", " ")
+        summary = getPlainText(summaryJson.root).slice(0, 150).replaceAll("\n", " ")
     }
     return {summary, summaryFormat: "plain-text"}
 }

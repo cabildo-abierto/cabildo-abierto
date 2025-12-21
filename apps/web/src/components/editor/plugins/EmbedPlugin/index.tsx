@@ -129,10 +129,12 @@ export default function EmbedPlugin() {
             editor.registerNodeTransform(RootNode, (node) => {
                 if(editor.isEditable()){
                     const children = node.getChildren()
-                    const last = children[children.length - 1]
-                    if(!$isParagraphNode(last)) {
-                        const p = $createParagraphNode()
-                        last.insertAfter(p)
+                    if(children.length > 0) {
+                        const last = children[children.length - 1]
+                        if(!$isParagraphNode(last)) {
+                            const p = $createParagraphNode()
+                            last.insertAfter(p)
+                        }
                     }
                 }
             })

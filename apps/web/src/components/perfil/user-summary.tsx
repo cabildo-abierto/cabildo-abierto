@@ -15,10 +15,6 @@ const UserSummaryOnHover = ({children, handle}: { children: ReactNode, handle: s
         }
     }
 
-    if(data) {
-        console.log("data", data)
-    }
-
     return <HoverCard openDelay={500} closeDelay={300}>
         <HoverCardTrigger asChild onMouseEnter={prefetch}>
             {children}
