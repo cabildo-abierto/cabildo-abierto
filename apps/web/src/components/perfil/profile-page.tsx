@@ -12,6 +12,7 @@ import {useProfile} from "@/components/perfil/use-profile";
 import {updateSearchParam} from "@/components/utils/react/search-params";
 import {useGetFeed} from "@/components/feed/feed/get-feed";
 import {chronologicalFeedMerger, repliesFeedMerger} from "@/components/feed/feed/feed-merger";
+import {FeedConfig} from "@cabildo-abierto/api";
 
 const ProfileHeader = dynamic(() => import("./profile-header"), {
     ssr: false
@@ -61,6 +62,12 @@ export const ProfilePage = ({
     const s = params.get("s")
     let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" || s == "articulos" ? s : "publicaciones"
 
+    const config: FeedConfig = {
+        type: "profile",
+        subtype: s == "respuestas" ? "replies" : s == "ediciones" ? "edits" : s == "articulos" ? "articles" : "main",
+        handleOrDid: handle
+    }
+
     function setSelected(v: string) {
         updateSearchParam("s", profileDisplayToOption(v))
     }
@@ -79,7 +86,7 @@ export const ProfilePage = ({
                     loadingStartContent={<LoadingProfile/>}
                     isLoadingStartContent={!profile}
                     queryKey={["profile-feed", handle, "main"]}
-                    getFeed={getFeed({handleOrDid: handle, type: selected})}
+                    getFeed={getFeed(config)}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
                     endText={"Fin del muro."}
                     feedMerger={chronologicalFeedMerger}
@@ -90,7 +97,7 @@ export const ProfilePage = ({
                     loadingStartContent={<LoadingProfile/>}
                     isLoadingStartContent={!profile}
                     queryKey={["profile-feed", handle, "replies"]}
-                    getFeed={getFeed({handleOrDid: handle, type: selected})}
+                    getFeed={getFeed(config)}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó nada."}
                     endText={"Fin del muro."}
                     feedMerger={repliesFeedMerger}
@@ -101,7 +108,7 @@ export const ProfilePage = ({
                     loadingStartContent={<LoadingProfile/>}
                     isLoadingStartContent={!profile}
                     queryKey={["profile-feed", handle, "edits"]}
-                    getFeed={getFeed({handleOrDid: handle, type: selected})}
+                    getFeed={getFeed(config)}
                     noResultsText={profile && getUsername(profile) + " todavía no hizo ninguna edición en la wiki."}
                     endText={"Fin del muro."}
                     estimateSize={100}
@@ -111,7 +118,7 @@ export const ProfilePage = ({
                 <FeedViewContentFeed
                     startContent={startContent}
                     queryKey={["profile-feed", handle, "articles"]}
-                    getFeed={getFeed({handleOrDid: handle, type: selected})}
+                    getFeed={getFeed(config)}
                     noResultsText={profile && getUsername(profile) + " todavía no publicó ningún artículo."}
                     endText={"Fin del muro."}
                 />}

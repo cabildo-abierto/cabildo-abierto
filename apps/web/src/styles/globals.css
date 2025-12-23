@@ -629,9 +629,21 @@ td {
     z-index: 10;
 }
 
+.tabs-scrollbar {
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.has-x-overflow .tabs-scrollbar {
+    opacity: 1;
+}
+
+.has-x-overflow:hover .tabs-scrollbar {
+    opacity: 1;
+}
+
 .tabs-scrollbar-thumb {
     height: 100%;
-    width: 30%;
     background: rgba(140, 140, 140, 0.35);
     border-radius: 2px;
     transform-origin: left center;
@@ -642,12 +654,8 @@ td {
 
 /* hover expansion (like WebStorm) */
 .tabs-scrollbar:hover .tabs-scrollbar-thumb {
-    height: 8px;
+    height: 6px;
     background: rgba(140, 140, 140, 0.6);
-}
-
-.relative:hover .tabs-scrollbar {
-    opacity: 1;
 }
 
 .tabs-scrollbar-thumb {

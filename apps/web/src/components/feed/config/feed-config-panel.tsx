@@ -1,44 +1,32 @@
-import {CaretDownIcon, CaretUpIcon} from "@phosphor-icons/react";
-import {useRef, useState} from "react";
 import InfoPanel from "@/components/utils/base/info-panel";
 import {topicUrl} from "@/components/utils/react/url";
 import {EnDiscusionFeedConfig} from "./en-discusion";
 import {FollowingFeedConfig} from "./following-feed-config";
 import {DiscoverFeedConfig} from "./discover-feed-config";
-import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useTopbarHeight} from "../../layout/main-layout/topbar/topbar-height";
 import {cn} from "@/lib/utils";
-import {MainFeedOption} from "@/lib/types";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
+import {BaseIconButton} from "@/components/utils/base/base-icon-button";
+import {CaretUpIcon} from "@phosphor-icons/react";
 
 
-export const FeedConfigPanel = ({selected}: { selected: MainFeedOption }) => {
-    const buttonRef = useRef<HTMLButtonElement>(null)
+export const FeedConfigPanel = ({onClose, configOpen}: { onClose: () => void, configOpen: boolean }) => {
     const {layoutConfig, isMobile} = useLayoutConfig()
-    const [open, setOpen] = useState(false);
     const topbarHeight = useTopbarHeight()
+    const {config} = useMainPageFeeds()
 
     return (
         <>
-            <BaseIconButton
-                id="feed-config-button"
-                ref={buttonRef}
-                className={cn("hover:bg-[var(--background-dark)] p-1", isMobile && "fixed top-3 right-3")}
-                onClick={() => setOpen(!open)}
-            >
-                {!open && <CaretDownIcon size={22} weight="light" />}
-                {open && <CaretUpIcon size={22} weight="light" />}
-            </BaseIconButton>
-
             <div
-                className={cn("pointer-events-none fixed w-screen left-0", !open && "hidden")}
+                className={cn("pointer-events-none fixed w-full left-0", !configOpen && "hidden")}
                 style={{
                     paddingLeft: layoutConfig.spaceForLeftSide ? layoutConfig.widthLeftSide : (layoutConfig.spaceForMinimizedLeftSide ? layoutConfig.widthLeftSideSmall : 0),
                     paddingRight: layoutConfig.spaceForRightSide && layoutConfig.openRightPanel ? layoutConfig.widthRightSide : 0,
                     top: topbarHeight
                 }}
             >
-                <div className="flex justify-center w-full">
+                <div className="flex justify-center">
                     <div
                         className={cn(
                             `
@@ -47,22 +35,25 @@ export const FeedConfigPanel = ({selected}: { selected: MainFeedOption }) => {
                             border-[var(--accent-dark)] border-b transition-all duration-300 ease-in-out
                             opacity-0 -translate-y-2 
                             `,
-                            open && "opacity-100 translate-y-0",
+                            configOpen && "opacity-100 translate-y-0",
                             !isMobile && "border-l border-r"
                         )}
                         style={{width: layoutConfig.centerWidth}}
                     >
-                        {selected == "En discusión" && <EnDiscusionFeedConfig />}
-                        {selected == "Siguiendo" && <FollowingFeedConfig />}
-                        {selected == "Descubrir" && <DiscoverFeedConfig />}
+                        {config.subtype == "discusion" && <EnDiscusionFeedConfig />}
+                        {config.subtype == "siguiendo" && <FollowingFeedConfig />}
+                        {config.subtype == "descubrir" && <DiscoverFeedConfig />}
 
-                        <div className="w-full flex justify-end items-center">
+                        <div className="w-full flex justify-end items-center space-x-2">
                             <InfoPanel
                                 onClick={() =>
                                     window.open(topicUrl("Cabildo Abierto: Muros"), "_blank")
                                 }
                                 iconFontSize={18}
                             />
+                            <BaseIconButton onClick={onClose} className={"rounded-full bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] p-[2px]"} size={"small"}>
+                                <CaretUpIcon/>
+                            </BaseIconButton>
                         </div>
                     </div>
                 </div>

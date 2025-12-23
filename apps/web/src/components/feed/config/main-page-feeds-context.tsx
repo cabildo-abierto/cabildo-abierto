@@ -4,7 +4,7 @@ import {
     defaultEnDiscusionFormat,
     defaultEnDiscusionMetric,
     defaultEnDiscusionTime
-} from "@/components/feed/config/defaults";
+} from "../../../../../../packages/api/src/constants/feed-defaults";
 import {useSession} from "@/components/auth/use-session";
 import * as React from "react";
 import {useRouter} from "next/navigation";
@@ -96,23 +96,31 @@ type MainFeedConfigError = "auth required"
 const MainPageFeedsContext = createContext<{
     openFeeds?: MainPageFeedsState
     error?: MainFeedConfigError
-    select: (i: number) => void
+    select: (i: number, ensureHome: boolean) => void
     config: FeedConfig | null
     addFeed: (f: FeedConfig) => void
     closeTab: (i: number) => void
+    configOpen: boolean
+    setConfigOpen: (v: boolean) => void
+    setConfig: (i: number, c: FeedConfig) => void
 } | undefined>(undefined)
 
 
-export function MainPageFeedsProvider({ children }: {children: ReactNode}) {
+export function MainPageFeedsProvider({ children }: {
+    children: ReactNode
+}) {
     const {user} = useSession()
     const [openFeeds, setOpenFeeds] = useState<MainPageFeedsState>(() => loadOpenFeeds(user))
     const router = useRouter()
+    const [configOpen, setConfigOpen] = useState(false)
 
-    function select(i: number) {
+    function select(i: number, ensureHome: boolean) {
         const newOpenFeeds = {...openFeeds, selected: i}
         setOpenFeeds(newOpenFeeds)
         saveOpenTabs(newOpenFeeds)
-        router.push("/inicio")
+        if(ensureHome) {
+            router.push("/inicio")
+        }
     }
 
     function addFeed(f: FeedConfig) {
@@ -134,12 +142,23 @@ export function MainPageFeedsProvider({ children }: {children: ReactNode}) {
         saveOpenTabs(newOpenFeeds)
     }
 
+    function setConfig(i: number, c: FeedConfig) {
+        const newOpenFeeds = {
+            ...openFeeds,
+            tabs: openFeeds.tabs.map((t, j) => j == i ? {...t, config: c} : t)
+        }
+        setOpenFeeds(newOpenFeeds)
+        saveOpenTabs(newOpenFeeds)
+    }
+
     const config = openFeeds.selected != null ? openFeeds.tabs[openFeeds.selected].config : null
 
     const error: MainFeedConfigError | undefined = !user && ["siguiendo", "custom", "descubrir"].includes(config.subtype) ? "auth required" : undefined
 
     return (
-        <MainPageFeedsContext.Provider value={{openFeeds, select, config, error, addFeed, closeTab}}>
+        <MainPageFeedsContext.Provider
+            value={{openFeeds, select, config, error, addFeed, closeTab, configOpen, setConfig, setConfigOpen}}
+        >
             {children}
         </MainPageFeedsContext.Provider>
     )

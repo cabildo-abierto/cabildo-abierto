@@ -266,7 +266,7 @@ export function hydrateContent(ctx: AppContext, uri: string, data: Dataplane, fu
     } else if (isArticle(collection)) {
         return full ? hydrateFullArticleView(ctx, uri, data) : hydrateArticleView(ctx, uri, data)
     } else if (isTopicVersion(collection)) {
-        return hydrateTopicViewBasicFromUri(uri, data)
+        return hydrateTopicViewBasicFromUri(ctx, uri, data)
     } else if (isDataset(collection)) {
         const res = hydrateDatasetView(ctx, uri, data)
         if (res) return {data: res}; else return {error: "No se pudo hidratar el dataset."}

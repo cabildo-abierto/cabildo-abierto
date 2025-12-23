@@ -42,10 +42,23 @@ export const MainPage = () => {
 
     if (error == "auth required") {
         return <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>
-    } else if (error == "custom feed uri required" || error == "topic id required" || !config) {
+    } else if (error == "custom feed uri required" || error == "topic id required") {
         return <Note className={"py-16"}>
             Muro inválido.
         </Note>
+    } else if (!config) {
+        return <div className={"flex flex-col items-center py-16 space-y-4"}>
+            <Note className={""}>
+                Agregá al menos un muro a tu pantalla principal
+            </Note>
+            <div>
+                <Link href={"/inicio/muros"}>
+                    <BaseButton variant={"outlined"} size={"small"}>
+                        Explorar muros
+                    </BaseButton>
+                </Link>
+            </div>
+        </div>
     }
 
     const noResultsText = config.subtype == "siguiendo" ? followingFeedNoResultsText : config.subtype == "descubrir" ? discoverFeedNoResultsText : config.subtype == "discusion" ? "No hay contenidos en discusión" : "No se encontraron resultados."
@@ -57,7 +70,7 @@ export const MainPage = () => {
             getFeed={getFeed(config)}
             noResultsText={noResultsText}
             endText={"Fin del muro."}
-            queryKey={["feed", JSON.stringify(config)]}
+            queryKey={["main-feed", config.subtype, JSON.stringify(config)]}
             feedMerger={feedMerger}
         />}
     </div>

@@ -11,6 +11,7 @@ import {
 } from '../../../../util'
 import type * as ArCabildoabiertoFeedArticle from '../feed/article.js'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs.js'
+import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -280,6 +281,8 @@ export interface TopicViewBasic {
   currentVersionCreatedAt?: string
   numWords?: number
   lastSeen?: string
+  versionRef?: ComAtprotoRepoStrongRef.Main
+  versionAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
 }
 
 const hashTopicViewBasic = 'topicViewBasic'

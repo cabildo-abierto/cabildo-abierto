@@ -4,7 +4,7 @@ import {
     defaultTopicMentionsFormat,
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime
-} from "../feed/config/defaults";
+} from "@cabildo-abierto/api";
 import {TopicFeedOption} from "./feed/topic-feed-config";
 import {EnDiscusionMetric, EnDiscusionTime, Session} from "@cabildo-abierto/api";
 

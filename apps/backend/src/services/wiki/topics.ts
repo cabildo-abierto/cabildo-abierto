@@ -21,6 +21,7 @@ import {cleanText} from "@cabildo-abierto/utils";
 import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
+import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
@@ -39,24 +40,28 @@ export type TopicQueryResultBasic = {
     numWords: number | null
     lastRead?: Date | null
     created_at?: Date
+    uri?: string
+    cid?: string
 }
 
 
 export type TopicVersionQueryResultBasic = TopicQueryResultBasic & {uri: string}
 
 
-export function hydrateTopicViewBasicFromUri(uri: string, data: Dataplane): {data?: $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>, error?: string} {
+export function hydrateTopicViewBasicFromUri(ctx: AppContext, uri: string, data: Dataplane): {data?: $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>, error?: string} {
     const q = data.topicsByUri.get(uri)
     if(!q) {
         data.ctx.logger.pino.warn({uri}, "data for topic basic not found")
         return {error: "No se pudo encontrar el tema."}
     }
 
-    return {data: topicQueryResultToTopicViewBasic(q)}
+    const author = hydrateProfileViewBasic(ctx, getDidFromUri(uri), data)
+
+    return {data: topicQueryResultToTopicViewBasic(q, author ?? undefined)}
 }
 
 
-export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic): $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> {
+export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic, author?: ArCabildoabiertoActorDefs.ProfileViewBasic): $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> {
     let props: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
 
     if(t.props){
@@ -83,7 +88,12 @@ export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic): $Typ
         props,
         numWords: t.numWords != null ? t.numWords : undefined,
         lastSeen: t.lastRead?.toISOString(),
-        currentVersionCreatedAt: t.created_at?.toISOString()
+        currentVersionCreatedAt: t.created_at?.toISOString(),
+        versionRef: t.uri && t.cid ? {
+            uri: t.uri,
+            cid: t.cid
+        } : undefined,
+        versionAuthor: author
     }
 }
 
@@ -136,7 +146,7 @@ export async function getTopics(
     await dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
 
     const data = topics
-        .map(t => hydrateTopicViewBasicFromUri(t.uri, dataplane).data)
+        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
         .filter(x => x != null)
 
     return {data}

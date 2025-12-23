@@ -31,7 +31,7 @@ export const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) =
     ) {
         return e.content.uri
     } else if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
-        return e.content.id
+        return e.content.versionRef?.uri ?? null
     } else {
         return null
     }

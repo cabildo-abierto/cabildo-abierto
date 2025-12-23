@@ -1,6 +1,6 @@
 "use client"
 import {ReactNode} from "react";
-import {cn} from "../../../../../lib/utils";
+import {cn} from "@/lib/utils";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 
 

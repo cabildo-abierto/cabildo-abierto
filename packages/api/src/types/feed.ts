@@ -38,7 +38,7 @@ export type TopicFeedConfig =  {
 export type ProfileFeedConfig = {
     type: "profile"
     subtype: "main" | "replies" | "edits" | "articles"
-    did: string
+    handleOrDid: string
 }
 
 

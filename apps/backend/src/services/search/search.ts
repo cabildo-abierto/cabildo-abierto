@@ -162,7 +162,7 @@ export const searchTopics: CAHandlerNoAuth<{params: {q: string}, query: {c: stri
     await dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
 
     const data: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] = topics
-        .map(t => hydrateTopicViewBasicFromUri(t.uri, dataplane).data)
+        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
         .filter(x => x != null)
 
     return {
@@ -204,7 +204,7 @@ export const searchUsersAndTopics: CAHandlerNoAuth<{
         .map(x => ({$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...x}))
 
     let topics = caTopics
-        .map(t => hydrateTopicViewBasicFromUri(t.uri, dataplane).data)
+        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
         .filter(x => x != null)
 
 

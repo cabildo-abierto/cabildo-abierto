@@ -17,7 +17,7 @@ function setSearchParams(baseUrl: string, params: {[key: string]: string | undef
 function getFeedRoute(config: FeedConfig, cursor?: string) {
     let base: string
     if (config.type == "profile") {
-        base = `/profile-feed/${config.did}/${config.subtype}`
+        base = `/profile-feed/${config.handleOrDid}/${config.subtype}`
     } else if (config.type == "main") {
         const {type, subtype, ...params} = config
         void type

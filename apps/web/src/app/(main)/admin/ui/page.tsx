@@ -7,7 +7,6 @@ import React, {ReactNode, useEffect, useState} from "react";
 import {TrendingTopicsConfig} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics-config";
 import {SelectPlotType} from "@/components/visualizations/editor/config-panel";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
-import {FeedConfigPanel} from "@/components/feed/config/feed-config-panel";
 import {ThemePicker} from "@/components/feed/config/appearance-settings";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "@/components/auth/login-modal-provider";
@@ -297,11 +296,6 @@ export default function Page() {
                                     Pasá el mouse por acá.
                                 </div>
                             </DescriptionOnHover>
-                        </UIDemoSection>
-                        <UIDemoSection title={"Popover"}>
-                            <FeedConfigPanel
-                                selected={"En discusión"}
-                            />
                         </UIDemoSection>
                         <UIDemoSection title={"Dropdown"}>
                             <TopicSortSelector

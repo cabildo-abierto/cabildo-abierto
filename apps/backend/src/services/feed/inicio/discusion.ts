@@ -1,6 +1,11 @@
 import {FeedPipelineProps, GetSkeletonProps} from "#/services/feed/feed.js";
 import {CAHandler} from "#/utils/handler.js";
-import {AppBskyFeedPost, ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
+import {
+    AppBskyFeedPost,
+    ArCabildoabiertoFeedArticle, defaultEnDiscusionFormat,
+    defaultEnDiscusionMetric,
+    defaultEnDiscusionTime
+} from "@cabildo-abierto/api"
 import {isSelfLabels} from "@atproto/api/dist/client/types/com/atproto/label/defs.js";
 import {$Typed} from "@atproto/api";
 import {sql} from "kysely";
@@ -207,7 +212,7 @@ export const getEnDiscusionSkeleton: (metric: EnDiscusionMetric, time: EnDiscusi
 
 
 export const getEnDiscusionFeedPipeline = (
-    metric: EnDiscusionMetric = "Me gustas", time: EnDiscusionTime = "Último día", format: FeedFormatOption = "Todos"): FeedPipelineProps => {
+    metric: EnDiscusionMetric = defaultEnDiscusionMetric, time: EnDiscusionTime = defaultEnDiscusionTime, format: FeedFormatOption = defaultEnDiscusionFormat): FeedPipelineProps => {
     return {
         getSkeleton: getEnDiscusionSkeleton(metric, time, format)
     }
