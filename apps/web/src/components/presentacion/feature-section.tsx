@@ -10,7 +10,10 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
     inverted: boolean
     className?: string
 }) => {
+
     return <div className={cn("w-full flex justify-center", className)}>
+
+        {/* Mobile */}
         <div className={"sm:hidden"}>
             <div className={"flex-col space-y-20 py-20 items-center justify-center flex"}>
                 <div className={"w-screen px-8 flex justify-center items-center"}>
@@ -32,7 +35,8 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
             </div>
         </div>
 
-        <div className={"sm:flex hidden w-full"}>
+        {/* Desktop */}
+        <div className={"sm:flex hidden w-full max-w-[1200px]"}>
             <div
                 className={"w-full h-[550px] space-y-0 flex-row items-center " + (inverted ? "flex flex-row-reverse" : "flex")}>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center flex-col"}>

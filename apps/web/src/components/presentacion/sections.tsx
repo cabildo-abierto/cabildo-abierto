@@ -12,7 +12,7 @@ import {useTheme} from "@/components/layout/theme/theme-context";
 export const FormatGrid = () => {
     const {currentTheme} = useTheme()
 
-    return <div className={"flex space-x-2 max-w-[500px] opacity-90"}>
+    return <div className={"flex space-x-2 max-w-[600px] opacity-90"}>
         <div className={"flex flex-col space-y-2 h-full justify-center w-1/2"}>
             <Image
                 src={`/presentacion/${currentTheme}/rápida.png`}

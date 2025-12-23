@@ -11,7 +11,7 @@ const TeamSection = ({title, children}: {
     children: ReactNode
 }) => {
     return <div className={""}>
-        <h4 className={"font-bold uppercase text-sm text-[var(--text-light)]"}>
+        <h4 className={"font-bold text-sm text-[var(--text-light)]"}>
             {title}
         </h4>
         <div className={"flex flex-col"}>
@@ -48,10 +48,12 @@ export default function Page() {
             </Paragraph>
             <Paragraph>
                 Durante noviembre y ocutubre de 2024 estuvo abierta una primera versión de la plataforma y en julio de
-                2025 abrimos el período de prueba de la versión actual, desarrollada sobre un ecosistema abierto que se llama <Link
-                href={topicUrl("ATProtocol")}>ATProtocol</Link>.
+                2025 abrimos el período de prueba de la versión actual, desarrollada sobre un ecosistema abierto que se llama ATProtocol.
             </Paragraph>
-            <h3 className={"tracking-[0.0167em] font-bold uppercase text-base"}>
+            <Paragraph>
+                Somos un equipo chico y trabajamos en la plataforma en nuestro tiempo libre, principalmente en Buenos Aires.
+            </Paragraph>
+            <h3 className={"tracking-[0.0167em] font-bold text-base"}>
                 Equipo
             </h3>
             <div className={"space-y-3"}>
@@ -71,7 +73,7 @@ export default function Page() {
                 </TeamSection>
             </div>
             <div className={"space-y-1"}>
-                <h3 className={"tracking-[0.0167em] font-bold uppercase text-base"}>Sumate</h3>
+                <h3 className={"tracking-[0.0167em] font-bold text-base"}>Sumate</h3>
                 <Paragraph>
                     Si te interesa aportar a la discusión pública contruyendo mejores herramientas y espacios de
                     discusión, escribinos. Tenemos una <Link href={"/sumate/comunicacion"}>búsqueda activa</Link> de alguien

@@ -50,31 +50,33 @@ const FooterLink = ({children, href}: {href: string, children: ReactNode}) => {
 
 
 export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
-    return <div className="flex w-full justify-end flex-wrap gap-x-12 text-sm gap-y-4">
-        {showCA && <div className="flex flex-col space-y-1 uppercase">
-            <div className={"font-extrabol"}>Cabildo Abierto</div>
-            <FooterLink href={topicUrl("Cabildo Abierto")}>
-                FAQ
-            </FooterLink>
-            <FooterLink href={topicUrl("Cabildo Abierto: Términos y condiciones")}>
-                Términos y condiciones
-            </FooterLink>
-            <FooterLink href={topicUrl("Cabildo Abierto: Política de privacidad")}>
-                Política de privacidad
-            </FooterLink>
-            <FooterLink href={"/equipo"}>
-                Equipo
-            </FooterLink>
-        </div>}
+    return <div className="flex w-full justify-end">
+        <div className={"flex md:flex-row md:flex-wrap md:gap-x-12 text-sm md:gap-y-4 md:space-y-0 flex-col space-y-4"}>
+            {showCA && <div className="flex flex-col space-y-1">
+                <div className={"uppercase"}>Cabildo Abierto</div>
+                <FooterLink href={topicUrl("Cabildo Abierto")}>
+                    FAQ
+                </FooterLink>
+                <FooterLink href={"/equipo"}>
+                    Equipo
+                </FooterLink>
+                <FooterLink href={topicUrl("Cabildo Abierto: Términos y condiciones")}>
+                    Términos y condiciones
+                </FooterLink>
+                <FooterLink href={topicUrl("Cabildo Abierto: Política de privacidad")}>
+                    Política de privacidad
+                </FooterLink>
+            </div>}
 
-        <div className="flex flex-col space-y-1">
-            <div className={"font-extrabol uppercase"}>Contacto</div>
-            <FooterLink href="mailto:soporte@cabildoabierto.ar">
-                soporte@cabildoabierto.ar
-            </FooterLink>
-            <FooterLink href="mailto:soporte@cabildoabierto.ar">
-                contacto@cabildoabierto.ar
-            </FooterLink>
+            <div className="flex flex-col space-y-1">
+                <div className={"uppercase"}>Contacto</div>
+                <FooterLink href="mailto:soporte@cabildoabierto.ar">
+                    soporte@cabildoabierto.ar
+                </FooterLink>
+                <FooterLink href="mailto:soporte@cabildoabierto.ar">
+                    contacto@cabildoabierto.ar
+                </FooterLink>
+            </div>
         </div>
     </div>
 }
@@ -85,7 +87,7 @@ export default function Footer({showCA = true, className}: {
     className?: string
 }) {
     return <div
-        className={cn("flex justify-between px-4 md:px-16 lg:px-32 space-x-4 sm:space-x-12 py-12 bg-[var(--background-dark)] ", className)}
+        className={cn("flex justify-between px-8 md:px-16 lg:px-32 space-x-4 sm:space-x-12 py-16 bg-[var(--background-dark)] ", className)}
     >
         <FooterLeftSide/>
         <FooterRightSide showCA={showCA}/>

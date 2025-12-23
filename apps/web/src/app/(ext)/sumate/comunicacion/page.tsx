@@ -76,14 +76,11 @@ export default function Page() {
                 <Paragraph>
                     Buscamos alguien que pueda liderar la estrategia de comunicación y difusión de la plataforma y
                     trabajar en conjunto
-                    con el resto del equipo en el diseño del producto, analizando las necesidades de
+                    con el resto del <Link href={"/equipo"}>equipo</Link> en el diseño del producto, analizando las necesidades de
                     los usuarios.
                 </Paragraph>
                 <Paragraph>
-                    Serías la cuarta persona en el <Link href={"/equipo"}>equipo</Link>.
-                </Paragraph>
-                <Paragraph>
-                    El trabajo por ahora es ad-honorem (para todos) hasta que tengamos financiamiento o suficientes donaciones. No hay un mínimo de horas semanales y el horario es flexible. Estamos en Capital Federal, pero el trabajo puede ser remoto.
+                    El trabajo es voluntario hasta que tengamos suficientes donaciones para pagar salarios. No hay un mínimo de horas semanales y el horario es flexible. Estamos en CABA, pero podés sumarte remotamente.
                 </Paragraph>
                 <Paragraph>
                     Si te interesa sumarte, dejanos tu contacto y te escribimos.
