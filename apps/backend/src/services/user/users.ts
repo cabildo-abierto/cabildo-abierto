@@ -1,5 +1,4 @@
 import {AppContext} from "#/setup.js";
-import {Account, AuthorStatus, Session, ValidationState} from "#/lib/types.js";
 import {Agent, cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {deleteRecords} from "#/services/delete.js";
 import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
@@ -9,7 +8,14 @@ import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
 import {createCAUser} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
-import {ArCabildoabiertoActorDefs, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {
+    Account,
+    ArCabildoabiertoActorDefs,
+    ATProtoStrongRef,
+    AuthorStatus,
+    Session,
+    ValidationState
+} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {uploadBase64Blob} from "#/services/blob.js";
 import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "#/services/feed/inicio/discusion.js";
@@ -230,7 +236,7 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
             displayName: data.displayName,
             avatar: data.avatar,
             hasAccess: data.hasAccess,
-            caProfile: data.CAProfileUri,
+            caProfile: data.CAProfileUri ?? null,
             seenTutorial: {
                 home: data.seenTutorial,
                 topics: data.seenTopicsTutorial,
@@ -242,7 +248,8 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
             platformAdmin: data.platformAdmin,
             validation: getValidationState(data),
             algorithmConfig: (data.algorithmConfig ?? {}) as AlgorithmConfig,
-            mirrorStatus: data.inCA ? mirrorStatus: "Dirty"
+            mirrorStatus: data.inCA ? mirrorStatus: "Dirty",
+            pinnedFeeds: []
         }
     } catch (err) {
         ctx.logger.pino.error({error: err, did}, "error getting session data")

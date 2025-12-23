@@ -68,7 +68,7 @@ export function useTopbarTitle(): {title?: string, className?: string} {
             return {title: "Nuevo artículo"}
         }
     } else if(pathname.includes("/admin")){
-        return {title: "Admin"}
+        return {title: ""}
     } else if(pathname.startsWith("/soporte")) {
         return {title: "Soporte"}
     }

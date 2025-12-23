@@ -10,6 +10,7 @@
   "dependencies": {
     "@atproto/xrpc": "^0.7.5",
     "@atproto/lexicon": "^0.5.1",
+    "@atproto/api": "^0.16.9",
     "multiformats": "^9.9.0"
   },
   "devDependencies": {

@@ -49,4 +49,4 @@ export type GetFeedOutput<T> = {
 }
 
 
-export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir" | "Artículos"
+export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir" | "Custom"

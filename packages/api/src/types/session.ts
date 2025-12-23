@@ -1,4 +1,4 @@
-
+import {AppBskyFeedDefs} from "@atproto/api"
 
 export type AuthorStatus = {
     isAuthor: boolean
@@ -40,6 +40,11 @@ export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
 export type ValidationState = "org" | "persona" | string | null
 
+export type FeedTabView = {
+    idOrUri: string
+    displayName: string
+}
+
 export type Session = {
     platformAdmin: boolean
     authorStatus: AuthorStatus | null
@@ -59,4 +64,10 @@ export type Session = {
     validation: ValidationState
     algorithmConfig: AlgorithmConfig
     mirrorStatus: MirrorStatus
+    pinnedFeeds: FeedTabView[]
+    caProfile: string | null
+}
+
+export type Account = {
+    email?: string
 }

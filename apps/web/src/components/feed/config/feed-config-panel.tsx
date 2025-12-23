@@ -12,7 +12,7 @@ import {cn} from "@/lib/utils";
 import {MainFeedOption} from "@/lib/types";
 
 
-export const FeedConfig = ({selected}: { selected: MainFeedOption }) => {
+export const FeedConfigPanel = ({selected}: { selected: MainFeedOption }) => {
     const buttonRef = useRef<HTMLButtonElement>(null)
     const {layoutConfig, isMobile} = useLayoutConfig()
     const [open, setOpen] = useState(false);

@@ -7,6 +7,7 @@ import {PageRequiresLoginChecker} from "@/components/layout/main-layout/page-req
 import {Toaster} from "@/components/utils/ui/sonner";
 import FirstContributionMessage from "@/components/layout/main-layout/first-contribution-message";
 import {VerificationNotification} from "@/components/layout/main-layout/verification-notification";
+import {MainPageFeedsProvider} from "@/components/feed/config/main-page-feeds-context";
 
 
 export default function RootLayout({children}: { children: ReactNode }) {
@@ -16,11 +17,13 @@ export default function RootLayout({children}: { children: ReactNode }) {
                 <VerificationNotification>
                     <SearchProvider>
                         <Toaster/>
-                        <MainLayoutContent>
-                            <PageRequiresLoginChecker>
-                                {children}
-                            </PageRequiresLoginChecker>
-                        </MainLayoutContent>
+                        <MainPageFeedsProvider>
+                            <MainLayoutContent>
+                                <PageRequiresLoginChecker>
+                                    {children}
+                                </PageRequiresLoginChecker>
+                            </MainLayoutContent>
+                        </MainPageFeedsProvider>
                     </SearchProvider>
                 </VerificationNotification>
             </FirstContributionMessage>

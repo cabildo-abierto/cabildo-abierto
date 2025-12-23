@@ -7,6 +7,8 @@ import cors from 'cors'
 import {MirrorMachine} from "#/services/sync/mirror-machine.js";
 import {AppContext, Role, setupAppContext} from "#/setup.js";
 import morgan from "morgan"
+//import {createServer} from "#/server/index.js";
+//import feedGeneration from "#/services/feed/feed-generation.js";
 
 
 export class Server {
@@ -67,6 +69,17 @@ export class Server {
         app.use(express.urlencoded({extended: true}))
 
         app.use(morgan('combined'))
+
+        /*ctx.xrpc = createServer({
+            validateResponse: true,
+            payload: {
+                jsonLimit: 100 * 1024, // 100kb
+                textLimit: 100 * 1024, // 100kb
+                blobLimit: 5 * 1024 * 1024, // 5mb
+            }
+        })
+
+        feedGeneration(ctx.xrpc, ctx)*/
 
         const router = createRouter(ctx)
         app.use(router)

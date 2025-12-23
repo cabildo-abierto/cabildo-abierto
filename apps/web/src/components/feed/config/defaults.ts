@@ -16,7 +16,6 @@ export function mainFeedOptionToSearchParam(v: MainFeedOption) {
     if (v == "Siguiendo") return "siguiendo"
     if (v == "En discusión") return "discusion"
     if (v == "Descubrir") return "descubrir"
-    if (v == "Artículos") return "articulos"
     return "siguiendo"
 }
 
@@ -24,7 +23,6 @@ export function searchParamToMainFeedOption(v: string): MainFeedOption {
     if (v == "siguiendo") return "Siguiendo"
     if (v == "discusion") return "En discusión"
     if (v == "descubrir") return "Descubrir"
-    if (v == "articulos") return "Artículos"
     return "Siguiendo"
 }
 

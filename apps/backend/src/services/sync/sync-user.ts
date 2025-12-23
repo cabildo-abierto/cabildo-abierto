@@ -1,6 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {dbHandleToDid, getCAUsersDids, handleToDid} from "#/services/user/users.js";
-import {ATProtoStrongRef, JetstreamEvent} from "#/lib/types.js";
+import {JetstreamEvent} from "#/lib/types.js";
 import {RepoReader} from "@atcute/car/v4"
 import {getServiceEndpointForDid} from "#/services/blob.js";
 import {getUri, shortCollectionToCollection} from "@cabildo-abierto/utils";
@@ -9,6 +9,7 @@ import {processEventsBatch} from "#/services/sync/event-processing/event-process
 import {batchDeleteRecords, getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 
 
 export async function syncAllUsers(ctx: AppContext, mustUpdateCollections?: string[]) {

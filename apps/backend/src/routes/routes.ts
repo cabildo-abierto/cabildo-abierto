@@ -73,6 +73,8 @@ import {getTopicsDataForElectionVisualizationHandler} from "#/services/wiki/elec
 import {getKnownPropsHandler} from "#/services/wiki/known-props.js";
 import { syncHandler } from "#/services/sync/sync-user.js";
 import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/services/feed/discover/interests.js";
+import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
+import {getCustomFeed} from "#/services/feed/custom-feed.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -470,6 +472,12 @@ export const createRouter = (ctx: AppContext): Router => {
             timestamp: Date.now()
         })
     })
+
+    router.get("/custom-feeds", makeHandler(ctx, getCustomFeeds))
+
+    router.get("/topic-feeds", makeHandler(ctx, getTopicFeeds))
+
+    router.get("/custom-feed/:did/:rkey", makeHandler(ctx, getCustomFeed))
 
     router.use(adminRoutes(ctx))
 

@@ -617,3 +617,56 @@ td {
 .note a:hover {
   color: var(--text-light)
 }
+
+
+.tabs-scrollbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: transparent;
+    z-index: 10;
+}
+
+.tabs-scrollbar-thumb {
+    height: 100%;
+    width: 30%;
+    background: rgba(140, 140, 140, 0.35);
+    border-radius: 2px;
+    transform-origin: left center;
+    transition:
+            height 120ms ease,
+            background-color 120ms ease;
+}
+
+/* hover expansion (like WebStorm) */
+.tabs-scrollbar:hover .tabs-scrollbar-thumb {
+    height: 8px;
+    background: rgba(140, 140, 140, 0.6);
+}
+
+.relative:hover .tabs-scrollbar {
+    opacity: 1;
+}
+
+.tabs-scrollbar-thumb {
+    cursor: grab;
+    pointer-events: auto;
+}
+
+.tabs-scrollbar-thumb:active {
+    cursor: grabbing;
+}
+
+.tabs-scrollbar {
+    pointer-events: auto;
+}
+.no-select {
+    user-select: none;
+}
+@media (pointer: coarse) {
+    .tabs-scrollbar {
+        display: none;
+    }
+}

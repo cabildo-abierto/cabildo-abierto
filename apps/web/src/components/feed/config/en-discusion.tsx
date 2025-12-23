@@ -1,16 +1,21 @@
 import SelectionComponent from "../../buscar/search-selection-component"
-import {
-    useEnDiscusionParams
-} from "../feed/main-page";
-import {useSession} from "@/components/auth/use-session";
 import {configOptionNodes} from "./config-option-nodes";
 import {enDiscusionTimeOptions} from "./defaults";
 import {updateSearchParam} from "@/components/utils/react/search-params";
+import { Note } from "@/components/utils/base/note";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 
 
 export const EnDiscusionFeedConfig = () => {
-    const {user} = useSession()
-    const {metric, time, format} = useEnDiscusionParams(user)
+    const {config} = useMainPageFeeds()
+
+    if(!config || config.type != "main" || config.subtype != "discusion"){
+        return <Note>
+            Ocurrió un error al cargar la configuración.
+        </Note>
+    }
+
+    const {metric, time, format} = config
 
     function setMetric(v: string) {
         updateSearchParam("m", v)

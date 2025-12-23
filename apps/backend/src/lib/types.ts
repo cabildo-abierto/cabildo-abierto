@@ -1,10 +1,6 @@
 import {EditorStatus} from "@prisma/client";
-import {AlgorithmConfig} from "#/services/user/users.js";
-import {MirrorStatus} from "#/services/redis/cache.js";
+import {ValidationState} from "@cabildo-abierto/api";
 
-
-
-export type ValidationState = "org" | "persona" | null
 
 export type CAProfileDetailed = {
     did: string
@@ -32,39 +28,6 @@ export type CAProfile = {
         following: string | null,
         followedBy: string | null
     }
-}
-
-
-export type AuthorStatus = {
-    isAuthor: boolean
-    seenAuthorTutorial: boolean
-}
-
-export type Session = {
-    platformAdmin: boolean
-    authorStatus: AuthorStatus | null
-    editorStatus: EditorStatus
-    seenTutorial: {
-        topics: boolean
-        home: boolean
-        topicMinimized: boolean
-        topicMaximized: boolean
-    }
-    seenVerifiedNotification: boolean
-    caProfile: string | null
-    handle: string
-    displayName: string | null
-    avatar: string | null
-    did: string
-    hasAccess: boolean
-    validation: ValidationState
-    algorithmConfig: AlgorithmConfig
-    mirrorStatus: MirrorStatus
-}
-
-
-export type Account = {
-    email?: string
 }
 
 

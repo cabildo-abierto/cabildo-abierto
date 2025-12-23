@@ -1,14 +1,21 @@
-import {useSession} from "@/components/auth/use-session";
-import {useFollowingParams} from "../feed/main-page";
 import SelectionComponent from "../../buscar/search-selection-component";
 import {configOptionNodes} from "./config-option-nodes";
 import {updateSearchParam} from "@/components/utils/react/search-params";
 import {FeedFormatOption, FollowingFeedFilter} from "@cabildo-abierto/api";
+import { Note } from "@/components/utils/base/note";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 
 
 export const FollowingFeedConfig = () => {
-    const {user} = useSession()
-    const {filter, format} = useFollowingParams(user)
+    const {config} = useMainPageFeeds()
+
+    if(!config || config.type != "main" || config.subtype != "siguiendo"){
+        return <Note>
+            Ocurrió un error al cargar la configuración.
+        </Note>
+    }
+
+    const {format, filter} = config
 
     function setFilter(v: FollowingFeedFilter) {
         updateSearchParam("filtro", v)

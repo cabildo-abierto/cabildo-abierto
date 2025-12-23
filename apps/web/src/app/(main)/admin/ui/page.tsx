@@ -7,7 +7,7 @@ import React, {ReactNode, useEffect, useState} from "react";
 import {TrendingTopicsConfig} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics-config";
 import {SelectPlotType} from "@/components/visualizations/editor/config-panel";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
-import {FeedConfig} from "@/components/feed/config/feed-config";
+import {FeedConfigPanel} from "@/components/feed/config/feed-config-panel";
 import {ThemePicker} from "@/components/feed/config/appearance-settings";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "@/components/auth/login-modal-provider";
@@ -299,7 +299,7 @@ export default function Page() {
                             </DescriptionOnHover>
                         </UIDemoSection>
                         <UIDemoSection title={"Popover"}>
-                            <FeedConfig
+                            <FeedConfigPanel
                                 selected={"En discusión"}
                             />
                         </UIDemoSection>

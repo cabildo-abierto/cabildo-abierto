@@ -1,6 +1,8 @@
-import {ArCabildoabiertoFeedDefs, FeedFormatOption, FollowingFeedFilter} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {GetFeedOutput, GetFeedProps} from "@/lib/types";
 import {get} from "@/components/utils/react/fetch";
+import {FeedConfig} from "@cabildo-abierto/api/dist/types/feed";
+import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 
 
 function setSearchParams(baseUrl: string, params: {[key: string]: string | undefined}): string {
@@ -12,38 +14,39 @@ function setSearchParams(baseUrl: string, params: {[key: string]: string | undef
 }
 
 
-function getFeedRoute(type: string, handleOrDid?: string, cursor?: string, params?: {metric?: string, time?: string, filter?: FollowingFeedFilter, format?: FeedFormatOption}) {
+function getFeedRoute(config: FeedConfig, cursor?: string) {
     let base: string
-    if (["publicaciones", "respuestas", "ediciones", "articulos"].includes(type) && handleOrDid) {
-        base = `/profile-feed/${handleOrDid}/${type}`
-    } else if (["siguiendo", "discusion", "descubrir"].includes(type)) {
-        base = `/feed/${type}`
+    if (config.type == "profile") {
+        base = `/profile-feed/${config.did}/${config.subtype}`
+    } else if (config.type == "main") {
+        const {type, subtype, ...params} = config
+        void type
+        return setSearchParams(`/feed/${subtype}`, {
+            cursor,
+            ...params
+        })
+    } else if (config.type == "custom") {
+        base = `/custom-feed/${getDidFromUri(config.uri)}/${getRkeyFromUri(config.uri)}`
     } else {
-        throw new Error(`Tipo de feed inválido: ${type}`)
-    }
-    if(params){
-        return setSearchParams(base, {...params, cursor})
+        const {type, subtype, ...params} = config
+        void type
+        return setSearchParams(`/topic-feed/${subtype}`, {
+            i: config.id,
+            cursor,
+            ...params
+        })
     }
     return setSearchParams(base, {cursor})
 }
 
 export function useGetFeed() {
 
-    function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>({handleOrDid, type, params}: {
-        handleOrDid?: string
-        type: string
-        params?: {
-            metric?: string,
-            time?: string,
-            filter?: FollowingFeedFilter,
-            format?: FeedFormatOption
-        }
-    }): GetFeedProps<T> {
+    function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>(config: FeedConfig):  GetFeedProps<T> {
         return async (cursor) => {
             const {
                 error,
                 data
-            } = await get<GetFeedOutput<T>>(getFeedRoute(type, handleOrDid, cursor, params))
+            } = await get<GetFeedOutput<T>>(getFeedRoute(config, cursor))
             if (error) return {error}
 
             return {
