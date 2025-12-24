@@ -1,4 +1,4 @@
-import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
+import {MainPageFeedsState, useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {PlusIcon} from "@phosphor-icons/react";
@@ -7,6 +7,16 @@ import {FeedConfig} from "@cabildo-abierto/api";
 import {MainFeedHeaderButton, MainFeedHeaderButtonPlaceholder} from "@/components/feed/feed/main-feed-header-button";
 import {range} from "@cabildo-abierto/utils";
 import {cn} from "@/lib/utils";
+
+
+export function getFeedIndex(id: string, openFeeds: MainPageFeedsState) {
+    const label = getFeedLabel(openFeeds.tabs.find(x => x.id == id).config)
+    const sameLabel = openFeeds.tabs
+        .filter(x => getFeedLabel(x.config) == label)
+        .toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
+    return sameLabel.findIndex(x => x.id == id)
+}
 
 
 export function getFeedLabel(feed: FeedConfig) {

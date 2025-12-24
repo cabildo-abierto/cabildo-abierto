@@ -17,6 +17,7 @@ export type FeedTab =  {
     config: FeedConfig
     id: string
     pinned: boolean
+    createdAt: Date
 }
 
 
@@ -38,7 +39,8 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
                     format: "Todos"
                 },
                 id: crypto.randomUUID(),
-                pinned: true
+                pinned: true,
+                createdAt: new Date()
             },
             {
                 config: {
@@ -49,7 +51,8 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
                     metric: defaultEnDiscusionMetric
                 },
                 id: crypto.randomUUID(),
-                pinned: true
+                pinned: true,
+                createdAt: new Date()
             },
             {
                 config: {
@@ -57,7 +60,8 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
                     subtype: "descubrir"
                 },
                 id: crypto.randomUUID(),
-                pinned: true
+                pinned: true,
+                createdAt: new Date()
             }
         ],
         selected: 0,
@@ -69,7 +73,7 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
 function validMainPageFeedsState(state: MainPageFeedsState): boolean {
     if(state.version != payloadVersion) return false
     if(state.selected == null || state.selected > state.tabs.length-1 || state.selected < 0) return false
-    return !state.tabs.some(t => t == null || !t.id)
+    return !state.tabs.some(t => t == null || !t.id || !t.createdAt)
 }
 
 
@@ -114,7 +118,6 @@ const MainPageFeedsContext = createContext<{
     configOpen: boolean
     setConfigOpen: (v: boolean) => void
     setConfig: (i: number, c: FeedConfig) => void
-    reorderTab: (i: number, j: number) => void
     reorderTabs: (p: number[]) => void
 } | undefined>(undefined)
 
@@ -139,7 +142,7 @@ export function MainPageFeedsProvider({ children }: {
     function addFeed(f: FeedConfig) {
         const newOpenFeeds = {
             ...openFeeds,
-            tabs: [...openFeeds.tabs, {config: f, pinned: false, id: crypto.randomUUID()}]
+            tabs: [...openFeeds.tabs, {config: f, pinned: false, id: crypto.randomUUID(), createdAt: new Date()}]
         }
         setOpenFeeds(newOpenFeeds)
         saveOpenTabs(newOpenFeeds)
@@ -164,26 +167,10 @@ export function MainPageFeedsProvider({ children }: {
         saveOpenTabs(newOpenFeeds)
     }
 
-    function reorderTab(i: number, j: number) {
-        const tabs = openFeeds.tabs.map((t, k) => {
-            if(i == j) {
-                return t
-            } else if(i < j) {
-                if(k < i) return t
-                if(k < j) return openFeeds.tabs[k+1]
-                if(k == j) return openFeeds.tabs[i]
-                return t
-            } else {
-                if(k < j) return t
-                if(k == j) return openFeeds.tabs[i]
-                if(k <= i) return openFeeds.tabs[k-1]
-                return t
-            }
-        })
-
+    function renameFeed(id: string, name: string) {
         const newOpenFeeds = {
             ...openFeeds,
-            tabs
+            tabs: openFeeds.tabs.map(t => t.id == id ? {...t, name} : t)
         }
         setOpenFeeds(newOpenFeeds)
         saveOpenTabs(newOpenFeeds)
@@ -207,7 +194,7 @@ export function MainPageFeedsProvider({ children }: {
 
     return (
         <MainPageFeedsContext.Provider
-            value={{openFeeds, select, config, error, addFeed, closeTab, configOpen, setConfig, setConfigOpen, reorderTab, reorderTabs}}
+            value={{openFeeds, select, config, error, addFeed, closeTab, configOpen, setConfig, setConfigOpen, reorderTabs}}
         >
             {children}
         </MainPageFeedsContext.Provider>

@@ -1,6 +1,6 @@
 import {cn} from "@/lib/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {getFeedLabel} from "@/components/feed/feed/main-feed-header";
+import {getFeedIndex, getFeedLabel} from "@/components/feed/feed/main-feed-header";
 import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 import {useState} from "react";
 import {CloseButtonIcon} from "@/components/utils/icons/close-button-icon";
@@ -49,6 +49,8 @@ export const MainFeedHeaderButton = ({id, startDrag}: {
         select(i, false)
     }
 
+    const idx = getFeedIndex(feed.id, openFeeds)
+
     return <>
         <BaseButton
             onClick={() => {
@@ -84,13 +86,16 @@ export const MainFeedHeaderButton = ({id, startDrag}: {
             <span
                 style={{height: 47}}
                 className={cn(
-                    "flex text-[13px] items-center whitespace-nowrap pt-2 pb-1 font-medium border-b-[4px]",
+                    "flex space-x-1 text-[13px] items-center whitespace-nowrap pt-2 pb-1 font-medium border-b-[4px]",
                     isSelected
                         ? "border-[var(--text-light)] text-[var(--text)]"
                         : "border-transparent text-[var(--text-light)]"
                 )}
             >
-                {getFeedLabel(feed.config)}
+                <span>{getFeedLabel(feed.config)}</span> <span className={idx == 0 ? "hidden" : ""}
+                >
+                    ({idx+1})
+                </span>
             </span>
             <div
                 className={cn("mb-[2px] hover:rounded-full hover:bg-[var(--background-dark2)] p-[2px] cursor-pointer opacity-0", hovered && !dragging && "opacity-100")}
