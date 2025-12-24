@@ -678,3 +678,7 @@ td {
         display: none;
     }
 }
+
+.tab {
+    will-change: transform;
+}

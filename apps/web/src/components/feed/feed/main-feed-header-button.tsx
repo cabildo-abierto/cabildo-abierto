@@ -25,16 +25,20 @@ export const MainFeedHeaderButtonPlaceholder = ({text}: { text: string }) => {
 }
 
 
-export const MainFeedHeaderButton = ({index: i}: {
-    index: number
+export const MainFeedHeaderButton = ({id, startDrag}: {
+    id: string
+    startDrag?: (e: any, id: string) => void
 }) => {
     const {openFeeds, select, closeTab, configOpen, setConfigOpen} = useMainPageFeeds()
     const [hovered, setHovered] = useState(false)
     const [dragging, setDragging] = useState(false)
 
-    const feed = openFeeds.tabs[i]
+    const feed = openFeeds.tabs.find(x => x.id == id)
 
-    const isSelected = openFeeds.selected === i
+    if(!feed) return null
+
+    const isSelected = openFeeds.tabs[openFeeds.selected].id == id
+    const i = openFeeds.tabs.findIndex(x => x.id == id)
 
     function onClickOptionsButton() {
         if (isSelected) {
@@ -51,7 +55,7 @@ export const MainFeedHeaderButton = ({index: i}: {
                 select(i, true)
             }}
             variant="default"
-            className="py-0 px-2 space-x-0"
+            className="py-0 px-2 space-x-0 tab"
             onMouseEnter={() => {
                 setHovered(true)
             }}
@@ -64,6 +68,11 @@ export const MainFeedHeaderButton = ({index: i}: {
             onDragEnd={() => {
                 setDragging(false)
             }}
+            onPointerDown={(e) => {
+                e.preventDefault()
+                if(startDrag) startDrag(e, id)
+            }}
+            draggable={false}
         >
             <FeedTabOptionsButton
                 configOpen={configOpen}
@@ -81,8 +90,8 @@ export const MainFeedHeaderButton = ({index: i}: {
                         : "border-transparent text-[var(--text-light)]"
                 )}
             >
-            {getFeedLabel(feed.config)}
-        </span>
+                {getFeedLabel(feed.config)}
+            </span>
             <div
                 className={cn("mb-[2px] hover:rounded-full hover:bg-[var(--background-dark2)] p-[2px] cursor-pointer opacity-0", hovered && !dragging && "opacity-100")}
                 onClick={(e) => {
@@ -93,11 +102,11 @@ export const MainFeedHeaderButton = ({index: i}: {
                 <CloseButtonIcon size={10}/>
             </div>
         </BaseButton>
-        {configOpen && <FeedConfigPanel
+        <FeedConfigPanel
             configOpen={configOpen}
             onClose={() => {
                 setConfigOpen(false)
             }}
-        />}
+        />
     </>
 }

@@ -16,26 +16,38 @@ export const FeedConfigPanel = ({onClose, configOpen}: { onClose: () => void, co
     const topbarHeight = useTopbarHeight()
     const {config} = useMainPageFeeds()
 
+    if(!config) return null
+
     return (
         <>
             <div
-                className={cn("pointer-events-none fixed w-full left-0", !configOpen && "hidden")}
+                className={cn(
+                    "fixed w-full left-0 pointer-events-none transition-opacity duration-300",
+                    configOpen ? "opacity-100" : "opacity-0"
+                )}
                 style={{
-                    paddingLeft: layoutConfig.spaceForLeftSide ? layoutConfig.widthLeftSide : (layoutConfig.spaceForMinimizedLeftSide ? layoutConfig.widthLeftSideSmall : 0),
-                    paddingRight: layoutConfig.spaceForRightSide && layoutConfig.openRightPanel ? layoutConfig.widthRightSide : 0,
-                    top: topbarHeight
+                    paddingLeft: layoutConfig.spaceForLeftSide
+                        ? layoutConfig.widthLeftSide
+                        : layoutConfig.spaceForMinimizedLeftSide
+                            ? layoutConfig.widthLeftSideSmall
+                            : 0,
+                    paddingRight:
+                        layoutConfig.spaceForRightSide && layoutConfig.openRightPanel
+                            ? layoutConfig.widthRightSide
+                            : 0,
+                    top: topbarHeight,
                 }}
             >
                 <div className="flex justify-center">
                     <div
                         className={cn(
                             `
-                            pointer-events-auto z-[1300] p-3 space-y-2 
-                            bg-[var(--background)] shadow
+                            pointer-events-auto mt-2 border-t z-[1300] p-3 space-y-2 
+                            bg-[var(--background-dark)] shadow
                             border-[var(--accent-dark)] border-b transition-all duration-300 ease-in-out
                             opacity-0 -translate-y-2 
                             `,
-                            configOpen && "opacity-100 translate-y-0",
+                            configOpen ? "opacity-100 translate-y-0" : "pointer-events-none",
                             !isMobile && "border-l border-r"
                         )}
                         style={{width: layoutConfig.centerWidth}}

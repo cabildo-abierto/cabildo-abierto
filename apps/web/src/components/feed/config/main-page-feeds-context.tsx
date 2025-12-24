@@ -4,7 +4,7 @@ import {
     defaultEnDiscusionFormat,
     defaultEnDiscusionMetric,
     defaultEnDiscusionTime
-} from "../../../../../../packages/api/src/constants/feed-defaults";
+} from "@cabildo-abierto/api";
 import {useSession} from "@/components/auth/use-session";
 import * as React from "react";
 import {useRouter} from "next/navigation";
@@ -15,6 +15,7 @@ const payloadVersion = 1
 
 export type FeedTab =  {
     config: FeedConfig
+    id: string
     pinned: boolean
 }
 
@@ -36,6 +37,7 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
                     filter: "Todos",
                     format: "Todos"
                 },
+                id: crypto.randomUUID(),
                 pinned: true
             },
             {
@@ -46,6 +48,7 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
                     time: defaultEnDiscusionTime,
                     metric: defaultEnDiscusionMetric
                 },
+                id: crypto.randomUUID(),
                 pinned: true
             },
             {
@@ -53,12 +56,20 @@ function getDefaultFeedTabs(user: Session): MainPageFeedsState {
                     type: "main",
                     subtype: "descubrir"
                 },
+                id: crypto.randomUUID(),
                 pinned: true
             }
         ],
         selected: 0,
         version: payloadVersion
     }
+}
+
+
+function validMainPageFeedsState(state: MainPageFeedsState): boolean {
+    if(state.version != payloadVersion) return false
+    if(state.selected == null || state.selected > state.tabs.length-1 || state.selected < 0) return false
+    return !state.tabs.some(t => t == null || !t.id)
 }
 
 
@@ -74,7 +85,7 @@ function loadOpenFeeds(user: Session): MainPageFeedsState {
             return getDefaultFeedTabs(user)
         }
         const parsed = JSON.parse(raw) as MainPageFeedsState
-        if(parsed.version != payloadVersion || parsed.selected != null && (parsed.selected > parsed.tabs.length-1 || parsed.selected < 0)) {
+        if(!validMainPageFeedsState(parsed)) {
             return getDefaultFeedTabs(user)
         }
         return parsed
@@ -103,6 +114,8 @@ const MainPageFeedsContext = createContext<{
     configOpen: boolean
     setConfigOpen: (v: boolean) => void
     setConfig: (i: number, c: FeedConfig) => void
+    reorderTab: (i: number, j: number) => void
+    reorderTabs: (p: number[]) => void
 } | undefined>(undefined)
 
 
@@ -126,7 +139,7 @@ export function MainPageFeedsProvider({ children }: {
     function addFeed(f: FeedConfig) {
         const newOpenFeeds = {
             ...openFeeds,
-            tabs: [...openFeeds.tabs, {config: f, pinned: false}]
+            tabs: [...openFeeds.tabs, {config: f, pinned: false, id: crypto.randomUUID()}]
         }
         setOpenFeeds(newOpenFeeds)
         saveOpenTabs(newOpenFeeds)
@@ -151,13 +164,50 @@ export function MainPageFeedsProvider({ children }: {
         saveOpenTabs(newOpenFeeds)
     }
 
+    function reorderTab(i: number, j: number) {
+        const tabs = openFeeds.tabs.map((t, k) => {
+            if(i == j) {
+                return t
+            } else if(i < j) {
+                if(k < i) return t
+                if(k < j) return openFeeds.tabs[k+1]
+                if(k == j) return openFeeds.tabs[i]
+                return t
+            } else {
+                if(k < j) return t
+                if(k == j) return openFeeds.tabs[i]
+                if(k <= i) return openFeeds.tabs[k-1]
+                return t
+            }
+        })
+
+        const newOpenFeeds = {
+            ...openFeeds,
+            tabs
+        }
+        setOpenFeeds(newOpenFeeds)
+        saveOpenTabs(newOpenFeeds)
+    }
+
+    function reorderTabs(p: number[]) {
+        if(!p.some((x, i) => i != x)) return
+        const tabs = p.map(i => openFeeds.tabs[i])
+        const newOpenFeeds = {
+            ...openFeeds,
+            tabs,
+            selected: p[openFeeds.selected]
+        }
+        setOpenFeeds(newOpenFeeds)
+        saveOpenTabs(newOpenFeeds)
+    }
+
     const config = openFeeds.selected != null ? openFeeds.tabs[openFeeds.selected].config : null
 
     const error: MainFeedConfigError | undefined = !user && ["siguiendo", "custom", "descubrir"].includes(config.subtype) ? "auth required" : undefined
 
     return (
         <MainPageFeedsContext.Provider
-            value={{openFeeds, select, config, error, addFeed, closeTab, configOpen, setConfig, setConfigOpen}}
+            value={{openFeeds, select, config, error, addFeed, closeTab, configOpen, setConfig, setConfigOpen, reorderTab, reorderTabs}}
         >
             {children}
         </MainPageFeedsContext.Provider>
