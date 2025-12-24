@@ -17,13 +17,14 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {topicUrl} from "@/components/utils/react/url";
 
 
-const LoginPanel = ({children, onClickBack, onClose}: {
+const LoginPanel = ({children, onClickBack, onClose, open}: {
     children: ReactNode
     onClickBack?: () => void
     onClose?: () => void
+    open: boolean
 }) => {
     return <BaseFullscreenPopup
-        open={true}
+        open={open}
         closeButton={false}
         backgroundShadow={true}
     >
@@ -45,22 +46,12 @@ const LoginPanel = ({children, onClickBack, onClose}: {
 }
 
 
-export const LoginModal = ({
-                               open,
-                               onClose
-                           }: {
-    open: boolean;
-    onClose?: () => void;
+const LoginModalAccessRequest = ({onBack}: {
+    onBack: () => void,
 }) => {
-    const params = useSearchParams()
-    const inviteCode = params.get("c")
-    const router = useRouter()
-    const [wantsAccess, setWantsAccess] = useState<boolean>(false)
     const [email, setEmail] = useState<string>("")
     const [comment, setComment] = useState<string>("")
     const [showRequestCreated, setShowRequestCreated] = useState<boolean>(false)
-    const [showWhyBsky, setShowWhyBsky] = useState(false)
-    const {setLoginModalOpen} = useLoginModal()
 
     async function onSendAccessRequest() {
         const {error} = await post<{}, {}>("/access-request", {email, comment})
@@ -74,99 +65,80 @@ export const LoginModal = ({
         }
     }
 
-    if (!open) {
-        return null
-    }
-
-    if (wantsAccess) {
-        return <LoginPanel
-            onClose={onClose}
-            onClickBack={() => {
-                setWantsAccess(false)
-            }}>
-            {showRequestCreated && <AcceptButtonPanel
-                onClose={() => {
-                    setShowRequestCreated(false);
-                    setWantsAccess(false)
-                }}
-                open={showRequestCreated}
-            >
-                <div
-                    className="text-[var(--text-light)] font-light p-5 max-w-[360px] text-center">
-                    ¡Listo! Ni bien podamos te enviamos la invitación. Gracias por tu interés.
-                </div>
-            </AcceptButtonPanel>}
-            <h2 className={"font-bold text-lg pb-2"}>Solicitar acceso</h2>
-            <div className={"flex flex-col items-center space-y-4 pb-12"}>
-                <Note maxWidth={380}>
-                    Estamos enviando invitaciones al período de prueba por orden de llegada a medida que hacemos espacio
-                    para más
-                    gente.
-                </Note>
-                <BaseTextField
-                    label={"Correo de contacto"}
-                    value={email}
-                    placeholder={""}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <BaseTextArea
-                    label={"Comentario opcional"}
-                    rows={3}
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                />
-                <div className={"flex justify-end w-full"}>
-                    <StateButton
-                        handleClick={onSendAccessRequest}
-                        variant={"outlined"}
-                        disabled={!/^.+@.+$/.test(email)}
-                    >
-                        Enviar
-                    </StateButton>
-                </div>
-                <Note text={"text-xs"}>
-                    Ante cualquier duda podés escribirnos a soporte@cabildoabierto.ar.
-                </Note>
+    return <div>
+        <AcceptButtonPanel
+            onClose={() => {
+                setShowRequestCreated(false);
+                onBack()
+            }}
+            open={showRequestCreated}
+        >
+            <div
+                className="text-[var(--text-light)] font-light p-5 max-w-[360px] text-center">
+                ¡Listo! Ni bien podamos te enviamos la invitación. Gracias por tu interés.
             </div>
-        </LoginPanel>
-    }
-
-    if (showWhyBsky) {
-        return <LoginPanel
-            onClose={onClose}
-            onClickBack={() => {
-                setShowWhyBsky(false)
-            }}>
-            <h2 className={"font-extrabold"}>¿Por qué el registro es en Bluesky?</h2>
-            <div className={"flex flex-col items-center space-y-2 pb-12 text-justify p-4 text-[var(--text-light)]"}>
-                <p>
-                    Bluesky y Cabildo Abierto se basan en un mismo {'"protocolo de redes sociales descentralizadas"'},
-                    que se
-                    llama ATProtocol. Esto significa fundamentalmente que las cuentas y algunos contenidos son
-                    compartidos entre las dos plataformas,
-                    y cualquier otra plataforma que use el mismo protocolo.
-                </p>
-                <p>
-                    Cuando te registrás en Bluesky, te estás creando una cuenta en este protocolo, que te sirve para
-                    cualquier plataforma que lo use.
-
-                    Eventualmente vamos a agregar la posibilidad de registrarte directamente en Cabildo Abierto, pero
-                    por ahora, te pedimos que vayas a Bluesky.
-                </p>
-                <p>
-                    Podés encontrar más información sobre ATProtocol en su <Link target={"_blank"}
-                                                                                 className="text-[var(--primary)] hover:underline"
-                                                                                 href={"https://atproto.com/"}>página
-                    oficial</Link>.
-                </p>
+        </AcceptButtonPanel>
+        <h2 className={"font-bold text-lg pb-2 text-center"}>Solicitar acceso</h2>
+        <div className={"flex flex-col items-center space-y-4 pb-12"}>
+            <Note maxWidth={380} className={"text-left"}>
+                Estamos enviando invitaciones al período de prueba por orden de llegada a medida que hacemos espacio
+                para más
+                gente.
+            </Note>
+            <BaseTextField
+                label={"Correo de contacto"}
+                value={email}
+                placeholder={""}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <BaseTextArea
+                label={"Comentario opcional"}
+                rows={3}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+            />
+            <div className={"flex justify-end w-full"}>
+                <StateButton
+                    handleClick={onSendAccessRequest}
+                    variant={"outlined"}
+                    disabled={!/^.+@.+$/.test(email)}
+                >
+                    Enviar
+                </StateButton>
             </div>
-        </LoginPanel>
-    }
+            <Note text={"text-xs"}>
+                Ante cualquier duda podés escribirnos a soporte@cabildoabierto.ar.
+            </Note>
+        </div>
+    </div>
+}
+
+
+
+export const LoginModal = ({
+                               open,
+                               onClose
+                           }: {
+    open: boolean;
+    onClose?: () => void;
+}) => {
+    const params = useSearchParams()
+    const inviteCode = params.get("c")
+    const router = useRouter()
+    const [wantsAccess, setWantsAccess] = useState<boolean>(false)
+    const {setLoginModalOpen} = useLoginModal()
 
     return <LoginPanel
+        open={open}
         onClose={onClose}
+        onClickBack={wantsAccess ? () => {
+            setWantsAccess(false)
+        } : undefined}
     >
-        <div className={"space-y-4 flex flex-col items-center pt-4"}>
+        {wantsAccess && <LoginModalAccessRequest
+            onBack={() => {setWantsAccess(false)}}
+        />}
+        {!wantsAccess && <div className={"space-y-4 flex flex-col items-center pt-4"}>
             <div className="space-y-4 flex flex-col items-center">
                 <Logo width={64} height={64}/>
                 <h1 className={"text-lg font-bold uppercase"}>Iniciar sesión</h1>
@@ -238,6 +210,6 @@ export const LoginModal = ({
                     </div>
                 </div>
             </div>
-        </div>
+        </div>}
     </LoginPanel>
 }

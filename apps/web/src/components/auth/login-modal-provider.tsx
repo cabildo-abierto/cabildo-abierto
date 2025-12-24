@@ -26,6 +26,11 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
     const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false)
     const [allowsClose, setAllowsClose] = useState<boolean>(false)
     const pathname = usePathname()
+    const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null)
+
+    useEffect(() => {
+        setPortalRoot(document.body)
+    }, [])
 
     useEffect(() => {
         if(loginModalOpen){
@@ -41,10 +46,10 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
     return (
         <LoginModalContext.Provider value={{ loginModalOpen, allowsClose, setLoginModalOpen: onSetLoginModalOpen }}>
             {children}
-            {loginModalOpen && createPortal(<LoginModal
+            {portalRoot && createPortal(<LoginModal
                 open={loginModalOpen}
                 onClose={allowsClose ? () => {setLoginModalOpen(false)} : undefined}
-            />, document.body)}
+            />, portalRoot)}
         </LoginModalContext.Provider>
     )
 }

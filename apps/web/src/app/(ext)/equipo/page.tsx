@@ -3,7 +3,7 @@ import Link from "next/link";
 import {Paragraph} from "@/components/utils/base/paragraph";
 import {ReactNode} from "react";
 import {PageFrame} from "@/components/utils/page-frame";
-import {profileUrl, topicUrl} from "@/components/utils/react/url";
+import {profileUrl} from "@/components/utils/react/url";
 
 
 const TeamSection = ({title, children}: {
@@ -30,8 +30,8 @@ const TeamMember = ({handle, name}: {
         className="text-[var(--text-light)] hover:underline"
         href={profileUrl(handle)}
     >
-                @{handle}
-        </Link>).
+        @{handle}
+    </Link>).
     </span>
 }
 

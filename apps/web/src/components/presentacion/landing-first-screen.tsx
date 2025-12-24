@@ -24,9 +24,9 @@ export const LandingFirstScreen = () => {
 
     return <>
 
-        {/* 768 a 1439px, default = 1280px */}
+        {/* 768 a 1500px, default = 1280px */}
         <div
-            className={"min-[768px]:flex min-[1439px]:hidden hidden relative w-full justify-center items-center h-[90vh]"}>
+            className={"min-[768px]:flex min-[1500px]:hidden hidden relative w-full justify-center items-center h-[90vh]"}>
             <div className={"flex w-full justify-between space-x-6 lg:space-x-12 items-center px-6 lg:px-12"}>
                 <div className={"w-1/2 flex flex-col items-center"}>
                     <div className={"space-y-6"}>
@@ -48,9 +48,9 @@ export const LandingFirstScreen = () => {
             </div>
         </div>
 
-        {/* 1440px+, default = 1600px */}
+        {/* 1500px+, default = 1600px */}
         <div
-            className={"min-[1439px]:flex hidden relative w-full justify-center items-center h-[90vh]"}>
+            className={"min-[1500px]:flex hidden relative w-full justify-center items-center h-[90vh]"}>
             <div className={"flex w-full justify-between space-x-12 items-center px-12"}>
                 <div className={"w-1/2 flex flex-col items-center"}>
                     <div className={"space-y-6"}>
@@ -58,7 +58,7 @@ export const LandingFirstScreen = () => {
                             {title}
                         </h1>
                         <div
-                            className={"text-[1rem] text-3xl lg:text-[1.6rem] font-light leading-tight"}>
+                            className={"text-[1rem] text-xl lg:text-[1.6rem] font-light leading-tight"}>
                             {subtitle}
                         </div>
                     </div>

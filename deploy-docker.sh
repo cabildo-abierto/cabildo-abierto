@@ -5,8 +5,8 @@ set -euo pipefail
 # CONFIG
 #############################################
 
-ENV=prod
-TARGET="${1:-all}"   # all | frontend/web | backend
+ENV="${1:-prod}"        # prod | test
+TARGET="${2:-all}"      # all | frontend | web | backend
 
 SERVER="deploy@64.176.19.176"
 STACK_NAME="cabildo"
@@ -32,14 +32,18 @@ case "$TARGET" in
     DEPLOY_BACKEND=1
     ;;
   *)
-    echo "Usage: $0 [all|frontend|web|backend]"
+    echo "Usage: $0 [prod|test] [all|frontend|web|backend]"
     exit 1
     ;;
 esac
 
 if [ "$ENV" = "prod" ]; then
+  STACK_NAME="cabildo"
+  STACK_FILE="/opt/cabildo/docker-stack.yml"
   NEXT_PUBLIC_BACKEND_URL="https://api.cabildoabierto.ar"
 else
+  STACK_NAME="cabildo-test"
+  STACK_FILE="/opt/cabildo/docker-stack-test.yml"
   NEXT_PUBLIC_BACKEND_URL="https://test-api.cabildoabierto.ar"
 fi
 
@@ -93,13 +97,19 @@ fi
 # BUILD IMAGES
 #############################################
 
+WEB_TAG="${ENV}-${GIT_SHA}"
+WEB_LATEST="${ENV}-latest"
+
+BACKEND_TAG="${ENV}-${GIT_SHA}"
+BACKEND_LATEST="${ENV}-latest"
+
 if [ "$DEPLOY_WEB" -eq 1 ]; then
   echo "🏗  Building image for web…"
   docker build \
     -f apps/web/Dockerfile \
     --build-arg NEXT_PUBLIC_BACKEND_URL="$NEXT_PUBLIC_BACKEND_URL" \
-    -t "${WEB_IMAGE_REPO}:prod-${GIT_SHA}" \
-    -t "${WEB_IMAGE_REPO}:prod-latest" \
+    -t "${WEB_IMAGE_REPO}:${WEB_TAG}" \
+    -t "${WEB_IMAGE_REPO}:${WEB_LATEST}" \
     .
 fi
 
@@ -108,8 +118,8 @@ if [ "$DEPLOY_BACKEND" -eq 1 ]; then
   docker build \
     -f apps/backend/Dockerfile \
     --build-arg DEPLOY_ENV="$ENV" \
-    -t "${BACKEND_IMAGE_REPO}:prod-${GIT_SHA}" \
-    -t "${BACKEND_IMAGE_REPO}:prod-latest" \
+    -t "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" \
+    -t "${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}" \
     .
 fi
 
@@ -118,25 +128,30 @@ fi
 #############################################
 
 if [ "$DEPLOY_WEB" -eq 1 ]; then
-  echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:prod-${GIT_SHA}"
-  docker push "${WEB_IMAGE_REPO}:prod-${GIT_SHA}"
+  echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:${WEB_TAG}"
+  docker push "${WEB_IMAGE_REPO}:${WEB_TAG}"
 
-  echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:prod-latest"
-  docker push "${WEB_IMAGE_REPO}:prod-latest"
+  echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:${WEB_LATEST}"
+  docker push "${WEB_IMAGE_REPO}:${WEB_LATEST}"
 fi
 
 if [ "$DEPLOY_BACKEND" -eq 1 ]; then
-  echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:prod-${GIT_SHA}"
-  docker push "${BACKEND_IMAGE_REPO}:prod-${GIT_SHA}"
+  echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
+  docker push "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
 
-  echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:prod-latest"
-  docker push "${BACKEND_IMAGE_REPO}:prod-latest"
+  echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
+  docker push "${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
 fi
 
 echo ""
 echo "🎉 Successfully built & pushed:"
-[ "$DEPLOY_WEB" -eq 1 ] && echo "    ${WEB_IMAGE_REPO}:prod-${GIT_SHA}" && echo "    ${WEB_IMAGE_REPO}:prod-latest"
-[ "$DEPLOY_BACKEND" -eq 1 ] && echo "    ${BACKEND_IMAGE_REPO}:prod-${GIT_SHA}" && echo "    ${BACKEND_IMAGE_REPO}:prod-latest"
+[ "$DEPLOY_WEB" -eq 1 ] && \
+  echo "    ${WEB_IMAGE_REPO}:${WEB_TAG}" && \
+  echo "    ${WEB_IMAGE_REPO}:${WEB_LATEST}"
+
+[ "$DEPLOY_BACKEND" -eq 1 ] && \
+  echo "    ${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" && \
+  echo "    ${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
 echo ""
 
 #############################################
@@ -159,30 +174,16 @@ ssh "$SERVER" bash <<EOF
   echo "📦 Pulling latest images on server…"
 
   if [ "\$DEPLOY_WEB" -eq 1 ]; then
-    docker pull "${WEB_IMAGE_REPO}:prod-latest"
+    docker pull "${WEB_IMAGE_REPO}:${ENV}-latest"
   fi
 
   if [ "\$DEPLOY_BACKEND" -eq 1 ]; then
-    docker pull "${BACKEND_IMAGE_REPO}:prod-latest"
+    docker pull "${BACKEND_IMAGE_REPO}:${ENV}-latest"
   fi
 
   if [ "\$DEPLOY_WEB" -eq 1 ] || [ "\$DEPLOY_BACKEND" -eq 1 ]; then
     echo "🔄 Re-deploying stack: ${STACK_NAME}"
     docker stack deploy -c "${STACK_FILE}" "${STACK_NAME}"
-  fi
-
-  if [ "\$DEPLOY_WEB" -eq 1 ]; then
-    echo "♻️ Updating service: ${STACK_NAME}_web"
-    docker service update --force "${STACK_NAME}_web"
-  fi
-
-  if [ "\$DEPLOY_BACKEND" -eq 1 ]; then
-    echo "♻️ Updating backend services: backend, worker, mirror"
-    docker service update --force "${STACK_NAME}_backend"
-    docker service update --force "${STACK_NAME}_worker"
-    docker service update --force "${STACK_NAME}_mirror"
-    # Uncomment if you add worker_mirror service:
-    # docker service update --force "${STACK_NAME}_worker_mirror"
   fi
 
   echo "✅ Deployment on server complete."
