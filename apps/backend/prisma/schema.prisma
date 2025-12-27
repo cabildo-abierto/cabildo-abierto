@@ -673,7 +673,19 @@ model EmailSent {
   subject       String
   success       Boolean
   from          String
-  template_name String
+  templateId    String
+  template      EmailTemplate           @relation(fields: [templateId], references: [id])
+}
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  subject     String
+  html        String
+  text        String
+  created_at  DateTime @default(now()) @db.Timestamptz(3)
+  updated_at  DateTime @updatedAt @db.Timestamptz(3)
+  emailsSent  EmailSent[]
 }
 
 enum EditorStatus {
