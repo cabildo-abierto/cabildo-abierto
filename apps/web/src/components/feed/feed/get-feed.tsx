@@ -1,17 +1,8 @@
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
-import {GetFeedOutput, GetFeedProps} from "@/lib/types";
-import {get} from "@/components/utils/react/fetch";
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api"
+import {GetFeedProps} from "@/lib/types";
+import {get, setSearchParams} from "@/components/utils/react/fetch";
 import {FeedConfig} from "@cabildo-abierto/api/dist/types/feed";
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
-
-
-function setSearchParams(baseUrl: string, params: {[key: string]: string | undefined}): string {
-    const keyValues = Array.from(Object.entries(params))
-    if(keyValues.length == 0) {
-        return baseUrl
-    }
-    return baseUrl + "?" + keyValues.filter(([_, value]) => value != undefined).map(([key, value]) => `${key}=${value}`).join("&")
-}
 
 
 function getFeedRoute(config: FeedConfig, cursor?: string) {

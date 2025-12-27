@@ -9,12 +9,17 @@ import {cn} from "@/lib/utils";
 import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {CaretUpIcon} from "@phosphor-icons/react";
+import {TopicMentionsFeedConfig} from "@/components/tema/feed/topic-mentions-feed-config";
+import {Paragraph} from "@/components/utils/base/paragraph";
+import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
+import {getFeedDescriptionFromConfig} from "@/components/feed/utils/use-feed-description";
 
 
 export const FeedConfigPanel = ({onClose, configOpen}: { onClose: () => void, configOpen: boolean }) => {
     const {layoutConfig, isMobile} = useLayoutConfig()
     const topbarHeight = useTopbarHeight()
     const {config} = useMainPageFeeds()
+    const {description} = getFeedDescriptionFromConfig(config)
 
     if(!config) return null
 
@@ -52,9 +57,19 @@ export const FeedConfigPanel = ({onClose, configOpen}: { onClose: () => void, co
                         )}
                         style={{width: layoutConfig.centerWidth}}
                     >
+                        <div>
+                            {description && <BskyRichTextContent
+                                className={"text-[15px] text-[var(--text-light)] text-sm max-w-[480px] break-words"}
+                                post={{text: description}}
+                            />}
+                        </div>
                         {config.subtype == "discusion" && <EnDiscusionFeedConfig />}
                         {config.subtype == "siguiendo" && <FollowingFeedConfig />}
                         {config.subtype == "descubrir" && <DiscoverFeedConfig />}
+                        {config.subtype == "custom" && <Paragraph className={"text-sm"}>
+                            Este muro no tiene ninguna configuración disponible.
+                        </Paragraph>}
+                        {config.type == "topic" && config.subtype == "mentions" && <TopicMentionsFeedConfig/>}
 
                         <div className="w-full flex justify-end items-center space-x-2">
                             <InfoPanel
@@ -63,7 +78,11 @@ export const FeedConfigPanel = ({onClose, configOpen}: { onClose: () => void, co
                                 }
                                 iconFontSize={18}
                             />
-                            <BaseIconButton onClick={onClose} className={"rounded-full bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] p-[2px]"} size={"small"}>
+                            <BaseIconButton
+                                onClick={onClose}
+                                className={"rounded-full bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] p-[2px]"}
+                                size={"small"}
+                            >
                                 <CaretUpIcon/>
                             </BaseIconButton>
                         </div>

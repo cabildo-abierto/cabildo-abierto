@@ -1,22 +1,13 @@
-import {MainPageFeedsState, useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
-import {PlusIcon} from "@phosphor-icons/react";
+import {ArrowLeftIcon, PlusIcon} from "@phosphor-icons/react";
 import Link from "next/link";
 import {FeedConfig} from "@cabildo-abierto/api";
 import {MainFeedHeaderButton, MainFeedHeaderButtonPlaceholder} from "@/components/feed/feed/main-feed-header-button";
 import {range} from "@cabildo-abierto/utils";
 import {cn} from "@/lib/utils";
-
-
-export function getFeedIndex(id: string, openFeeds: MainPageFeedsState) {
-    const label = getFeedLabel(openFeeds.tabs.find(x => x.id == id).config)
-    const sameLabel = openFeeds.tabs
-        .filter(x => getFeedLabel(x.config) == label)
-        .toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-
-    return sameLabel.findIndex(x => x.id == id)
-}
+import {usePathname} from "next/navigation";
 
 
 export function getFeedLabel(feed: FeedConfig) {
@@ -59,8 +50,12 @@ export const MainFeedHeader = () => {
     const autoScrollRaf = useRef<number | null>(null)
     const autoScrollSpeed = useRef(0)
     const prevRects = useRef<Map<string, DOMRect>>(new Map())
+    const pathname = usePathname()
+    const atFeedsPage = pathname.startsWith("/inicio/muros")
 
     useLayoutEffect(() => {
+        if(tabRefs.current.length != openFeeds.tabs.length) return
+
         tabRefs.current.forEach((el, i) => {
             const id = openFeeds.tabs[i].id
             const prev = prevRects.current.get(id)
@@ -122,6 +117,10 @@ export const MainFeedHeader = () => {
     }
 
     useEffect(() => {
+        tabRefs.current = tabRefs.current.slice(0, openFeeds.tabs.length)
+    }, [openFeeds.tabs.length])
+
+    useEffect(() => {
         if (!drag) return
 
         // al mover el mouse actualizamos currentX y el overIndex
@@ -155,17 +154,26 @@ export const MainFeedHeader = () => {
                 stopAutoScroll()
             }
 
-            const centers = tabRefs.current.map((t, i) => {
-                let curCenter: number
-                const isDragged = openFeeds.tabs[i].id == drag.id
-                if (!isDragged) {
-                    const r = t.getBoundingClientRect()
-                    curCenter = r.left + r.width / 2
-                } else {
-                    curCenter = e.clientX
-                }
-                return { x: curCenter, index: i, isDragged}
-            }).sort((a, b) => a.x - b.x)
+            const centers = openFeeds.tabs.map((tab, i) => {
+                const el = tabRefs.current[i]
+                if (!el) return null
+
+                const isDragged = tab.id === drag.id
+
+                const curCenter = isDragged
+                    ? e.clientX
+                    : (() => {
+                        const r = el.getBoundingClientRect()
+                        return r.left + r.width / 2
+                    })()
+
+                return { x: curCenter, index: i, isDragged }
+            }).filter(Boolean)
+                .sort((a, b) => a!.x - b!.x) as {
+                x: number
+                index: number
+                isDragged: boolean
+            }[]
 
             tabRefs.current.forEach((el, i) => {
                 const id = openFeeds.tabs[i].id
@@ -293,6 +301,38 @@ export const MainFeedHeader = () => {
         }
     }, [openFeeds.tabs])
 
+    function ensureTabVisible(
+        scroller: HTMLDivElement,
+        tab: HTMLDivElement,
+        padding = 12
+    ) {
+        const scrollerRect = scroller.getBoundingClientRect()
+        const tabRect = tab.getBoundingClientRect()
+
+        const overLeft = tabRect.left < scrollerRect.left + padding
+        const overRight = tabRect.right > scrollerRect.right - padding
+
+        if (overLeft) {
+            scroller.scrollLeft -=
+                scrollerRect.left - tabRect.left + padding
+        } else if (overRight) {
+            scroller.scrollLeft +=
+                tabRect.right - scrollerRect.right + padding
+        }
+    }
+
+    useLayoutEffect(() => {
+        if (drag) return // do not interfere while dragging
+
+        const scroller = scrollRef.current
+        if (!scroller) return
+
+        const tabEl = tabRefs.current[openFeeds.selected]
+        if (!tabEl) return
+
+        ensureTabVisible(scroller, tabEl)
+    }, [openFeeds])
+
     if (openFeeds.tabs.length == 0) return <div className={"opacity-40"}>
         {range(3).map(i => {
             return <MainFeedHeaderButtonPlaceholder key={i} text={`Muro ${i + 1}`}/>
@@ -329,7 +369,7 @@ export const MainFeedHeader = () => {
                     style={{
                         position: "fixed",
                         top: tabRefs.current[openFeeds.tabs.findIndex(x => x.id == drag.id)].getBoundingClientRect().top,
-                        left: Math.min(Math.max(scrollRef.current.getBoundingClientRect().left, drag.originLeft + (drag.currentX - drag.startX)), scrollRef.current.getBoundingClientRect().right - drag.width),
+                        left: Math.min(Math.max(scrollRef.current.getBoundingClientRect().left, drag.originLeft + (drag.currentX - drag.startX)), scrollRef.current.getBoundingClientRect().right),
                         width: drag.width,
                         height: drag.height,
                         zIndex: 1000,
@@ -339,7 +379,7 @@ export const MainFeedHeader = () => {
                     <MainFeedHeaderButton id={drag.id}/>
                 </div>
             )}
-            <div className={"px-2 ml-2"}>
+            {!atFeedsPage && <div className={"px-2 ml-2"}>
                 <Link href={"/inicio/muros"} onClick={() => {
                     setConfigOpen(false)
                 }}>
@@ -347,7 +387,16 @@ export const MainFeedHeader = () => {
                         <PlusIcon/>
                     </BaseIconButton>
                 </Link>
-            </div>
+            </div>}
+            {atFeedsPage && <div className={"px-2 ml-2"}>
+                <Link href={"/inicio"} onClick={() => {
+                    setConfigOpen(false)
+                }}>
+                    <BaseIconButton>
+                        <ArrowLeftIcon/>
+                    </BaseIconButton>
+                </Link>
+            </div>}
         </div>
     )
 }

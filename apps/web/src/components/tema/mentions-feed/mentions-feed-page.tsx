@@ -1,8 +1,7 @@
 import {get} from "../../utils/react/fetch";
-import {GetFeedOutput} from "@/lib/types";
 import {useMemo} from "react";
 import FeedViewContentFeed from "../../feed/feed/feed-view-content-feed";
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api";
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api";
 import {useTopicFeedParams} from "../use-topic-feed-params";
 import {useSession} from "@/components/auth/use-session";
 import {useTopicPageParams} from "../use-topic-page-params";

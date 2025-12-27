@@ -1,12 +1,12 @@
 import {CAHandler} from "#/utils/handler.js";
-import {GetFeedOutput} from "#/services/feed/feed.js";
 import {getUri} from "@cabildo-abierto/utils";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateFeedViewContent} from "#/services/hydration/hydrate.js";
 import {getSkeletonFromTimeline} from "#/services/feed/inicio/following.js";
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api";
 
 
-export const getCustomFeed: CAHandler<{params: {did: string, rkey: string}, query?: {cursor?: string}}, GetFeedOutput> = async (ctx, agent, {params, query}) => {
+export const getCustomFeed: CAHandler<{params: {did: string, rkey: string}, query?: {cursor?: string}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params, query}) => {
     const uri = getUri(params.did, "app.bsky.feed.generator", params.rkey)
 
     const res = await agent.bsky.app.bsky.feed.getFeed({

@@ -5,10 +5,12 @@ import {LoginRequiredPage} from "../../layout/main-layout/page-requires-login-ch
 import {BaseButton} from "@/components/utils/base/base-button";
 import Link from "next/link";
 import {Note} from "@/components/utils/base/note";
-import {CaretDownIcon} from "@phosphor-icons/react";
+import {ArrowSquareOutIcon, CaretDownIcon} from "@phosphor-icons/react";
 import {useGetFeed} from "@/components/feed/feed/get-feed";
 import {chronologicalFeedMerger} from "@/components/feed/feed/feed-merger";
 import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {topicUrl} from "@/components/utils/react/url";
 
 
 const followingFeedNoResultsText = <div
@@ -39,6 +41,7 @@ export const MainPage = () => {
     const {user} = useSession()
     const {getFeed} = useGetFeed()
     const {config, error} = useMainPageFeeds()
+    const {layoutConfig} = useLayoutConfig()
 
     if (error == "auth required") {
         return <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>
@@ -63,15 +66,27 @@ export const MainPage = () => {
 
     const noResultsText = config.subtype == "siguiendo" ? followingFeedNoResultsText : config.subtype == "descubrir" ? discoverFeedNoResultsText : config.subtype == "discusion" ? "No hay contenidos en discusión" : "No se encontraron resultados."
 
-    const feedMerger = config.subtype == "siguiendo" ? chronologicalFeedMerger : undefined
+    const feedMerger = config.subtype == "siguiendo" || config.subtype == "descubrir" ? chronologicalFeedMerger : undefined
 
     return <div className="w-full">
-        {(config.subtype == "discusion" || user) && <FeedViewContentFeed
-            getFeed={getFeed(config)}
-            noResultsText={noResultsText}
-            endText={"Fin del muro."}
-            queryKey={["main-feed", config.subtype, JSON.stringify(config)]}
-            feedMerger={feedMerger}
-        />}
+        {config.type == "topic" &&
+            <Link
+                href={topicUrl(config.id)}
+                className={"px-4 bg-[var(--background)]  opacity-90 backdrop-blur z-[1500] font-light flex items-center fixed h-12  hover:bg-[var(--background-dark)] normal-case space-x-3 text-sm cursor-pointer"}
+                style={{width: layoutConfig.centerWidth}}
+            >
+                <ArrowSquareOutIcon fontSize={15}/>
+                <div>
+                    <span>Ir al tema</span> <span className="text-[var(--text-light)] font-semibold" >{config.title}</span>
+                </div>
+            </Link>}
+        {(config.subtype == "discusion" || user) &&
+            <div className={config.type == "topic" ? "pt-12" : ""}><FeedViewContentFeed
+                getFeed={getFeed(config)}
+                noResultsText={noResultsText}
+                endText={"Fin del muro."}
+                queryKey={["main-feed", config.subtype, JSON.stringify(config)]}
+                feedMerger={feedMerger}
+            /></div>}
     </div>
 }

@@ -25,8 +25,8 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
-export const getTrendingTopics: CAHandlerNoAuth<{params: {time: TimePeriod}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params}) => {
-    return await getTopics(ctx, [], "popular", params.time, 10, agent.hasSession() ? agent.did : undefined)
+export const getTrendingTopics: CAHandlerNoAuth<{params: {time: TimePeriod}, query: {cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
+    return getTopics(ctx, [], "popular", params.time, query?.limit ?? 10, query?.cursor);
 }
 
 
@@ -55,7 +55,7 @@ export function hydrateTopicViewBasicFromUri(ctx: AppContext, uri: string, data:
         return {error: "No se pudo encontrar el tema."}
     }
 
-    const author = hydrateProfileViewBasic(ctx, getDidFromUri(uri), data)
+    const author = hydrateProfileViewBasic(ctx, getDidFromUri(uri), data, false)
 
     return {data: topicQueryResultToTopicViewBasic(q, author ?? undefined)}
 }
@@ -103,10 +103,9 @@ export async function getTopics(
     categories: string[],
     sortedBy: "popular" | "recent",
     time: TimePeriod,
-    limit?: number,
-    did?: string
+    limit: number = 50,
+    cursor?: string
 ): CAHandlerOutput<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> {
-    if(!limit) limit = 50
 
     const topics = await ctx.kysely
         .selectFrom('Topic')
@@ -155,7 +154,7 @@ export async function getTopics(
 
 export const getTopicsHandler: CAHandlerNoAuth<{
     params: { sort: string, time: string },
-    query: { c: string[] | string }
+    query: { c: string[] | string, cursor?: string, limit?: number }
 }, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
     let {sort, time} = params
     const {c} = query
@@ -172,8 +171,8 @@ export const getTopicsHandler: CAHandlerNoAuth<{
         categories,
         sort,
         time as TimePeriod,
-        50,
-        agent.hasSession() ? agent.did : undefined
+        query?.limit ?? 50,
+        query?.cursor
     )
 }
 

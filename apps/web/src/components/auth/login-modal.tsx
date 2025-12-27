@@ -26,6 +26,7 @@ const LoginPanel = ({children, onClickBack, onClose}: {
         open={true}
         closeButton={false}
         backgroundShadow={true}
+        className={"top-0 h-screen translate-y-0 sm:h-auto"}
     >
         <div
             className={"sm:w-[480px] px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}

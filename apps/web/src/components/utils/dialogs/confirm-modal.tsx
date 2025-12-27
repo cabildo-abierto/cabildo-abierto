@@ -4,15 +4,15 @@ import {StateButton, StateButtonClickHandler} from "../base/state-button";
 
 
 export const ConfirmModal = ({
-    open,
-    title,
-    text,
-    onConfirm,
-    onClose,
-    confirmButtonText="Confirmar",
-    confirmButtonClassName,
-    confirmButtonVariant="outlined"
-}: {
+                                 open,
+                                 title,
+                                 text,
+                                 onConfirm,
+                                 onClose,
+                                 confirmButtonText = "Confirmar",
+                                 confirmButtonClassName,
+                                 confirmButtonVariant = "outlined"
+                             }: {
     title: string,
     text: string,
     open: boolean
@@ -25,15 +25,19 @@ export const ConfirmModal = ({
     return <BaseFullscreenPopup
         open={open}
         closeButton={true}
-        onClose={() => {onClose()}}
+        onClose={() => {
+            onClose()
+        }}
         className={"z-[1600]"}
     >
         <div className={"px-8 pb-4 space-y-4"}>
-            <h3 className={"normal-case"}>
-                {title}
-            </h3>
-            <div className={"font-light text-[var(--text-light)] max-w-[300px]"}>
-                {text}
+            <div className={"space-y-2"}>
+                <h3 className={"normal-case"}>
+                    {title}
+                </h3>
+                <div className={"font-light text-[var(--text-light)] max-w-[300px]"}>
+                    {text}
+                </div>
             </div>
             <div className={"flex justify-end space-x-2 mr-2"}>
                 <BaseButton
@@ -46,10 +50,10 @@ export const ConfirmModal = ({
                 <StateButton
                     handleClick={async (e) => {
                         const res = await onConfirm(e)
-                        if(res && !res.error) {
+                        if (res && !res.error) {
                             onClose()
                         }
-                        if(res) {
+                        if (res) {
                             return res
                         }
                         return {}

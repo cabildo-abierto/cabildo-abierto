@@ -140,7 +140,7 @@ async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?:
 }
 
 
-export const searchTopics: CAHandlerNoAuth<{params: {q: string}, query: {c: string | string[] | undefined}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
+export const searchTopics: CAHandlerNoAuth<{params: {q: string}, query: {c: string | string[] | undefined, cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
     let {q} = params;
     const categories = query.c == undefined ? undefined : (typeof query.c == "string" ? [query.c] : query.c);
     const searchQuery = cleanText(q)

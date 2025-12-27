@@ -1,4 +1,4 @@
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api"
 import {getFollowingFeedPipeline} from "#/services/feed/inicio/following.js";
 import {Agent} from "#/utils/session-agent.js";
 import {hydrateFeed} from "#/services/hydration/hydrate.js";
@@ -33,7 +33,7 @@ async function maybeClearFollows(ctx: AppContext, agent: Agent) {
 }
 
 
-export const getFeedByKind: CAHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput> = async (ctx, agent, {params, query}) => {
+export const getFeedByKind: CAHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params, query}) => {
     let pipeline: FeedPipelineProps
     
     const {kind} = params
@@ -73,15 +73,10 @@ export type GetFeedProps = {
     agent: Agent
     ctx: AppContext
     cursor?: string
-    params?: {metric?: string, time?: string}
+    params?: { metric?: string, time?: string }
 }
 
-export type GetFeedOutput = {
-    feed: ArCabildoabiertoFeedDefs.FeedViewContent[]
-    cursor?: string
-}
-
-export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAHandlerOutput<GetFeedOutput> => {
+export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAHandlerOutput<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> => {
     const data = new Dataplane(ctx, agent)
 
     let newCursor: string | undefined

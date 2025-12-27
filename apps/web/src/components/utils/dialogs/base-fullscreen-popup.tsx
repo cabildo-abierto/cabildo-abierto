@@ -56,7 +56,20 @@ export const BaseFullscreenPopup = ({
             className={cn("z-[1399]", overlayClassName)}
         />}
         <DialogContent
-            className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)] sm:w-auto`, className)}
+            className={cn(
+                `
+    z-[1400]
+    fixed
+    w-screen
+    translate-x-0
+    top-1/2
+    left-0
+    h-auto
+    sm:w-auto
+    sm:left-[50%] sm:top-[50%]
+    sm:translate-x-[-50%] translate-y-[-100%] sm:translate-y-[-50%]
+    sm:border
+    `, className)}
             onClick={e => {
                 e.stopPropagation()
             }}

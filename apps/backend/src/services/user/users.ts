@@ -9,7 +9,7 @@ import {getIronSession} from "iron-session";
 import {createCAUser} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
 import {
-    Account,
+    Account, AlgorithmConfig,
     ArCabildoabiertoActorDefs,
     ATProtoStrongRef,
     AuthorStatus,
@@ -18,8 +18,6 @@ import {
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {uploadBase64Blob} from "#/services/blob.js";
-import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "#/services/feed/inicio/discusion.js";
-import {FollowingFeedFilter} from "#/services/feed/feed.js";
 import {BskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js";
 import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
@@ -168,25 +166,6 @@ export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
     }
 }
 
-
-export type TTOption = EnDiscusionTime | "Ediciones recientes"
-
-
-export type AlgorithmConfig = {
-    following?: {
-        filter?: FollowingFeedFilter
-        format?: FeedFormatOption
-    }
-    enDiscusion?: {
-        time?: EnDiscusionTime
-        metric?: EnDiscusionMetric
-        format?: FeedFormatOption
-    }
-    tt?: {
-        time?: TTOption
-    }
-}
-
 type SessionData = Omit<Session, "handle"> & {handle: string | null}
 
 export const getSessionData = async (ctx: AppContext, did: string): Promise<SessionData | null> => {
@@ -213,7 +192,7 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
                     "algorithmConfig",
                     "authorStatus",
                     "CAProfileUri",
-                    "inCA"
+                    "inCA",
                 ])
                 .where("did", "=", did)
                 .executeTakeFirst(),

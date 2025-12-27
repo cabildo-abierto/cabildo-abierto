@@ -56,7 +56,7 @@ export function hydrateProfileView(ctx: AppContext, did: string, data: Dataplane
 }
 
 
-export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Dataplane): ArCabildoabiertoActorDefs.ProfileViewBasic | null {
+export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Dataplane, warn: boolean = true): ArCabildoabiertoActorDefs.ProfileViewBasic | null {
     const profile = data.profiles?.get(did)
     const viewer = data.profileViewers?.get(did)
 
@@ -102,7 +102,9 @@ export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Data
     const bsky = data.bskyBasicUsers?.get(did)
 
     if(!bsky) {
-        ctx.logger.pino.error({did, bsky: bsky != null, ca: ca != null}, "data not found during profile view basic hydration")
+        if(warn) {
+            ctx.logger.pino.warn({did, bsky: bsky != null, ca: ca != null}, "data not found during profile view basic hydration")
+        }
         return null
     }
 

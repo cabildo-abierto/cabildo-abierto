@@ -53,7 +53,18 @@ export type CustomFeedConfig = {
 export type FeedConfig = MainFeedConfig | TopicFeedConfig | ProfileFeedConfig | CustomFeedConfig
 
 
+type TopicFeedView = TopicFeedConfig & {
+    synonyms: string[]
+}
+
+
 export type FeedView = {
     type: "custom"
     feed: AppBskyFeedDefs.GeneratorView
-} | MainFeedConfig | TopicFeedConfig | ProfileFeedConfig
+} | MainFeedConfig | TopicFeedView | ProfileFeedConfig
+
+
+export type GetFeedOutput<T> = {
+    feed: T[]
+    cursor: string | undefined
+}

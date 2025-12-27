@@ -2,6 +2,7 @@ import React, {createContext, useContext, useState, ReactNode, useEffect} from "
 import {usePathname} from "next/navigation";
 import {createPortal} from "react-dom";
 import dynamic from "next/dynamic";
+import {ConfirmModal} from "@/components/utils/dialogs/confirm-modal";
 
 
 const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginModal), {ssr: false})
@@ -9,7 +10,7 @@ const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginMo
 const LoginModalContext = createContext<{
     loginModalOpen: boolean
     allowsClose: boolean
-    setLoginModalOpen: (v: boolean, w?: boolean) => void
+    setLoginModalOpen: (v: boolean, w?: boolean, msg?: string) => void
 } | undefined>(undefined)
 
 
@@ -23,8 +24,9 @@ export const useLoginModal = () => {
 
 
 export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false)
-    const [allowsClose, setAllowsClose] = useState<boolean>(false)
+    const [loginModalOpen, setLoginModalOpen] = useState(false)
+    const [allowsClose, setAllowsClose] = useState(false)
+    const [showingMsg, setShowingMsg] = useState<string | null>(null)
     const pathname = usePathname()
 
     useEffect(() => {
@@ -33,9 +35,13 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }, [pathname])
 
-    function onSetLoginModalOpen(v: boolean, w: boolean = true) {
-        setLoginModalOpen(v)
-        setAllowsClose(w)
+    function onSetLoginModalOpen(open: boolean, allowsClose: boolean = true, msg: string | undefined) {
+        setAllowsClose(allowsClose)
+        if(msg) {
+            setShowingMsg(msg)
+        } else {
+            setLoginModalOpen(open)
+        }
     }
 
     return (
@@ -44,6 +50,14 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
             {loginModalOpen && createPortal(<LoginModal
                 open={loginModalOpen}
                 onClose={allowsClose ? () => {setLoginModalOpen(false)} : undefined}
+            />, document.body)}
+            {showingMsg && createPortal(<ConfirmModal
+                onClose={() => {setShowingMsg(null)}}
+                onConfirm={() => {setLoginModalOpen(true); setShowingMsg(null)}}
+                open={true}
+                confirmButtonText={"Iniciar sesión"}
+                title={"Iniciá sesión"}
+                text={showingMsg}
             />, document.body)}
         </LoginModalContext.Provider>
     )
