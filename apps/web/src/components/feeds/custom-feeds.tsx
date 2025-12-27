@@ -5,6 +5,7 @@ import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {FeedPreview} from "@/components/feeds/feed-preview";
 import {get, setSearchParams} from "../utils/react/fetch";
 import Feed from "@/components/feed/feed/feed";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 
 
 async function searchCustomFeeds(query: string, cursor: string | undefined) {
@@ -17,15 +18,16 @@ async function searchCustomFeeds(query: string, cursor: string | undefined) {
 export const CustomFeeds = () => {
     const [searchQuery, setSearchQuery] = useState("")
     const debouncedQuery = useDebounce(searchQuery, 300)
+    const {isMobile} = useLayoutConfig()
 
-    return <div className={"space-y-2 pt-2 px-2"}>
+    return <div className={"space-y-2 pt-2"}>
         <BaseTextField
             value={searchQuery}
             onChange={(e) => {
                 setSearchQuery(e.target.value)
             }}
             placeholder={"Buscar..."}
-            className={"px-4"}
+            className={isMobile ? "px-2" : "px-4"}
         />
         <Feed<FeedView>
             noResultsText={debouncedQuery.length > 0 ? "No se encontraron resultados." : "Ocurrió un error al obtener los muros."}

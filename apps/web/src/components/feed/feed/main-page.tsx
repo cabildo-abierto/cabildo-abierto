@@ -7,7 +7,7 @@ import Link from "next/link";
 import {Note} from "@/components/utils/base/note";
 import {ArrowSquareOutIcon, CaretDownIcon} from "@phosphor-icons/react";
 import {useGetFeed} from "@/components/feed/feed/get-feed";
-import {chronologicalFeedMerger} from "@/components/feed/feed/feed-merger";
+import {chronologicalFeedMerger, defaultFeedViewContentFeedMerger} from "@/components/feed/feed/feed-merger";
 import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {topicUrl} from "@/components/utils/react/url";
@@ -66,7 +66,7 @@ export const MainPage = () => {
 
     const noResultsText = config.subtype == "siguiendo" ? followingFeedNoResultsText : config.subtype == "descubrir" ? discoverFeedNoResultsText : config.subtype == "discusion" ? "No hay contenidos en discusión" : "No se encontraron resultados."
 
-    const feedMerger = config.subtype == "siguiendo" || config.subtype == "descubrir" ? chronologicalFeedMerger : undefined
+    const feedMerger = config.subtype == "siguiendo" || config.subtype == "descubrir" || config.subtype == "mentions" && config.metric == "Recientes" || config.subtype == "discusion" && config.metric == "Recientes" ? chronologicalFeedMerger : defaultFeedViewContentFeedMerger
 
     return <div className="w-full">
         {config.type == "topic" &&

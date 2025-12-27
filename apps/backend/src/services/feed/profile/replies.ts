@@ -7,7 +7,7 @@ import {AppContext} from "#/setup.js";
 
 
 const getRepliesProfileFeedSkeletonBsky = async (ctx: AppContext, agent: SessionAgent, data: Dataplane, did: string, cursor?: string): Promise<{skeleton: FeedSkeletonWithDate, cursor?: string}> => {
-    const res = await agent.bsky.app.bsky.feed.getAuthorFeed({actor: did, filter: "posts_with_replies", cursor})
+    const res = await agent.bsky.app.bsky.feed.getAuthorFeed({actor: did, filter: "posts_with_replies", cursor, limit: 25})
     const feed = res.data.feed
     data.storeFeedViewPosts(feed)
 

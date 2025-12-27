@@ -7,7 +7,7 @@ import {mergeSort} from "@cabildo-abierto/utils";
 
 
 const getMainProfileFeedSkeletonBsky = async (ctx: AppContext, agent: Agent, data: Dataplane, did: string, cursor?: string): Promise<{skeleton: {post: string, created_at: Date}[], cursor?: string}> => {
-    const res = await agent.bsky.app.bsky.feed.getAuthorFeed({actor: did, filter: "posts_and_author_threads", cursor})
+    const res = await agent.bsky.app.bsky.feed.getAuthorFeed({actor: did, filter: "posts_and_author_threads", cursor, limit: 25})
     const feed = res.data.feed
     data.storeFeedViewPosts(feed)
 
@@ -25,6 +25,7 @@ export const getMainProfileFeedSkeletonCA = async (ctx: AppContext, did: string,
         .where("authorId", "=", did)
         .where("collection", "=", "ar.cabildoabierto.feed.article")
         .$if(cursor != null, qb => qb.where("created_at", "<", new Date(cursor!)))
+        .limit(25)
         .execute()
 
     return sk

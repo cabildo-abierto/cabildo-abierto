@@ -12,7 +12,8 @@ import {getCollectionFromUri, getDidFromUri, getUri} from "@cabildo-abierto/util
 import {
     ArCabildoabiertoWikiTopicVersion,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoEmbedSelectionQuote
+    ArCabildoabiertoEmbedSelectionQuote, defaultTopicMentionsMetric, defaultTopicMentionsTime,
+    defaultTopicMentionsFormat
 } from "@cabildo-abierto/api"
 import {
     EnDiscusionMetric,
@@ -412,9 +413,9 @@ export const getTopicFeed: CAHandlerNoAuth<{ params: {kind: "mentions" | "discus
                 data,
                 id,
                 cursor,
-                metric ?? "Interacciones",
-                time ?? "Última semana",
-                format ?? "Todos"
+                metric ?? defaultTopicMentionsMetric,
+                time ?? defaultTopicMentionsTime,
+                format ?? defaultTopicMentionsFormat
             )
         }
 

@@ -11,7 +11,8 @@ export const getCustomFeed: CAHandler<{params: {did: string, rkey: string}, quer
 
     const res = await agent.bsky.app.bsky.feed.getFeed({
         feed: uri,
-        cursor: query?.cursor
+        cursor: query?.cursor,
+        limit: 25
     })
 
     if(res.success) {

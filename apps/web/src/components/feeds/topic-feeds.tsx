@@ -8,6 +8,8 @@ import {CategorySelector} from "@/components/temas/categories/category-selector"
 import {get, setSearchParams} from "@/components/utils/react/fetch";
 import {FeedView} from "@cabildo-abierto/api";
 import {FeedPreview} from "@/components/feeds/feed-preview";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {cn} from "@/lib/utils";
 
 
 async function searchTopicFeeds(query: string, categories: string[]) {
@@ -35,17 +37,17 @@ export const TopicFeeds = () => {
         queryFn: () => searchTopicFeeds(debouncedQuery, categories),
         staleTime: 1000 * 60 * 5
     })
+    const {isMobile} = useLayoutConfig()
 
-    return <div className={"space-y-2 pt-2 px-2"}>
-        <BaseTextField
-            value={searchQuery}
-            onChange={(e) => {
-                setSearchQuery(e.target.value)
-            }}
-            placeholder={"Buscar..."}
-            className={"px-4"}
-        />
-        <div className={"px-4"}>
+    return <div className={"space-y-2 pt-2"}>
+        <div className={cn("space-y-2", isMobile ? "px-2" : "px-4")}>
+            <BaseTextField
+                value={searchQuery}
+                onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                }}
+                placeholder={"Buscar..."}
+            />
             <CategorySelector
                 categories={categories}
                 setCategories={setCategories}
