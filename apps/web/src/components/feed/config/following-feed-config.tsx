@@ -16,8 +16,6 @@ export const FollowingFeedConfig = () => {
 
     const {format, filter} = config
 
-    console.log("format", format, filter)
-
     function setFilterAndFormat(format: FeedFormatOption, filter: FollowingFeedFilter) {
         if(config.subtype == "siguiendo") {
             setConfig(openFeeds.selected, {

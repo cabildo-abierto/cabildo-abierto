@@ -217,8 +217,12 @@ export const ThreadEditor = ({
                     handleClickSubmit={handleClickSubmit}
                     postView={postView}
                     threadElementState={thread[selectedThreadIndex]}
-                    setThreadElementState={(t) => {
-                        setThread(thread.map((e, i) => i == selectedThreadIndex ? t : e))
+                    setThreadElementState={(updater) => {
+                        setThread(prev =>
+                            prev.map((e, i) =>
+                                i === selectedThreadIndex ? updater(e) : e
+                            )
+                        )
                     }}
                     enDiscusion={enDiscusion}
                     setEnDiscusion={setEnDiscusion}

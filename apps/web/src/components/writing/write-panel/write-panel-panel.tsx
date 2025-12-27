@@ -35,7 +35,7 @@ function emptyEditorState(editorState: EditorState | null) {
 }
 
 export function isThreadElementStateEmpty(threadElementState: ThreadElementState) {
-    return threadElementState.text.length == 0 && threadElementState.images.length == 0 && emptyEditorState(threadElementState.editorState) && threadElementState.externalEmbed?.url == null && threadElementState.visualization == null
+    return (!threadElementState.text || threadElementState.text.length == 0) && threadElementState.images.length == 0 && emptyEditorState(threadElementState.editorState) && threadElementState.externalEmbed?.url == null && threadElementState.visualization == null
 }
 
 

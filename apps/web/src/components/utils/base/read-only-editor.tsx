@@ -13,12 +13,20 @@ function renderTextWithLinks(text: string) {
             parts.push(text.slice(last, match.index))
         }
 
+        let href = match[2]
+        if(href.startsWith("https://cabildoabierto.ar")) {
+            href = href.replace("https://cabildoabierto.ar", "")
+        } else if(href.startsWith("https://cabildoabierto.com.ar")) {
+            href = href.replace("https://cabildoabierto.com.ar", "")
+        }
+        const local = href.startsWith("/")
+
         parts.push(
             <a
                 key={match.index}
                 href={match[2]}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={local ? undefined : "_blank"}
+                rel={local ? undefined : "noopener noreferrer"}
                 className="underline"
             >
                 {match[1]}

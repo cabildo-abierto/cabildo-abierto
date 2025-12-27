@@ -63,5 +63,5 @@ export function getParsedPostContent(text: string) {
 
 export function getTextLength(text: string) {
     const rt = getParsedPostContent(text)
-    return rt.text.length
+    return rt.text?.length ?? 0
 }

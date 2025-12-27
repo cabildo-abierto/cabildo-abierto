@@ -57,7 +57,9 @@ const PlotFromVisualizationMain = dynamic(
 
 function useUpdateExternalEmbed(
     state: ThreadElementState,
-    setThreadElementState: (t: ThreadElementState) => void
+    setThreadElementState: (
+        updater: (prev: ThreadElementState) => ThreadElementState
+    ) => void
 ) {
     const [links, setLinks] = useState<string[]>([])
     const {images, visualization, editorState, externalEmbed} = state
@@ -65,24 +67,24 @@ function useUpdateExternalEmbed(
     const disabled = (images && images.length > 0) || visualization != null
 
     function setExternalEmbedView(view: $Typed<AppBskyEmbedExternal.View>) {
-        setThreadElementState({
+        setThreadElementState(state => ({
             ...state,
             externalEmbed: {
                 ...state.externalEmbed,
                 view
             }
-        })
+        }))
     }
 
     function setExternalEmbedUrl(url: string | null) {
-        setThreadElementState({
+        setThreadElementState(state => ({
             ...state,
             externalEmbed: {
                 view: state.externalEmbed?.view ?? null,
                 ...state.externalEmbed,
                 url
             }
-        })
+        }))
     }
 
     useEffect(() => {
@@ -111,6 +113,7 @@ function useUpdateExternalEmbed(
                             thumb: thumbnail
                         }
                     }
+                    console.log("setting embed", embed)
                     setExternalEmbedView(embed)
                 }
             }
@@ -200,7 +203,9 @@ export const WritePost = ({
     postView?: ArCabildoabiertoFeedDefs.PostView
     isVoteReject?: boolean
     threadElementState: ThreadElementState
-    setThreadElementState: (t: ThreadElementState) => void
+    setThreadElementState: (
+        updater: (prev: ThreadElementState) => ThreadElementState
+    ) => void
     enDiscusion: boolean
     setEnDiscusion: (e: boolean) => void
     onAddThreadElement: () => void
@@ -239,21 +244,21 @@ export const WritePost = ({
     )
 
     function setEditorState(editorState: EditorState) {
-        setThreadElementState({
-            ...threadElementState,
+        setThreadElementState(prev => ({
+            ...prev,
             editorState
-        })
+        }))
     }
 
     function setImages(images: ImagePayload[]) {
-        setThreadElementState({
-            ...threadElementState,
+        setThreadElementState(prev => ({
+            ...prev,
             images
-        })
+        }))
     }
 
     function setText(text: string) {
-        setThreadElementState({...threadElementState, text})
+        setThreadElementState(state => ({...state, text}))
     }
 
     useEffect(() => {
@@ -266,7 +271,10 @@ export const WritePost = ({
 
     const charLimit = 300
 
-    const textLength = getTextLength(text)
+    let textLength = 0
+    try {
+        textLength = getTextLength(text)
+    } catch {}
 
     const valid = (textLength > 0 && textLength <= 300) || (images && images.length > 0) || visualization != null
 
