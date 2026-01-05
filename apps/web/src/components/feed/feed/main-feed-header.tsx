@@ -104,6 +104,8 @@ export const MainFeedHeader = () => {
     }
 
     function startDrag(e: PointerEvent, id: string) {
+        if (e.pointerType != "mouse") return
+
         const rect = tabRefs.current[openFeeds.tabs.findIndex(t => t.id == id)].getBoundingClientRect()
 
         setDrag({
@@ -125,6 +127,8 @@ export const MainFeedHeader = () => {
 
         // al mover el mouse actualizamos currentX y el overIndex
         function onMove(e: PointerEvent) {
+            if(e.pointerType != "mouse") return
+
             const scroller = scrollRef.current
             if (!scroller) return
 

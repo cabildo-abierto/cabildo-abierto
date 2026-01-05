@@ -77,16 +77,19 @@ export const MainPage = () => {
             >
                 <ArrowSquareOutIcon fontSize={15}/>
                 <div>
-                    <span>Ir al tema</span> <span className="text-[var(--text-light)] font-semibold" >{config.title}</span>
+                    <span>Ir al tema</span> <span
+                    className="text-[var(--text-light)] font-semibold">{config.title}</span>
                 </div>
             </Link>}
         {(config.subtype == "discusion" || user) &&
-            <div className={config.type == "topic" ? "pt-12" : ""}><FeedViewContentFeed
-                getFeed={getFeed(config)}
-                noResultsText={noResultsText}
-                endText={"Fin del muro."}
-                queryKey={["main-feed", config.subtype, JSON.stringify(config)]}
-                feedMerger={feedMerger}
-            /></div>}
+            <div className={config.type == "topic" ? "pt-12" : ""}>
+                <FeedViewContentFeed
+                    getFeed={getFeed(config)}
+                    noResultsText={noResultsText}
+                    endText={"Fin del muro."}
+                    queryKey={["main-feed", config.subtype, JSON.stringify(config)]}
+                    feedMerger={feedMerger}
+                />
+            </div>}
     </div>
 }
