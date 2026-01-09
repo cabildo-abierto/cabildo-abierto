@@ -89,7 +89,7 @@ const CreateTopicButtons = ({
         return {}
     }
 
-    return <div className="space-x-2 text-[var(--text-light)] w-full flex justify-between items-center">
+    return <div className="space-x-2 w-full flex justify-between items-center">
         <div className={"flex space-x-1 items-center"}>
             {results != "loading" && topicName.length > 0 && <BaseIconButton
                 onClick={() => {

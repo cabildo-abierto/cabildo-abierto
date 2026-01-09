@@ -5,7 +5,7 @@ export const LandingFirstScreen = () => {
 
     const title = <div>
         <div>
-            Un nuevo espacio de discusión
+            Un espacio de discusión
         </div>
         <div>
             argentino.
@@ -40,7 +40,9 @@ export const LandingFirstScreen = () => {
                     </div>
                 </div>
                 <div className={"w-1/2 flex justify-center"}>
-                    {image}
+                    <div className={"w-[80%]"}>
+                        {image}
+                    </div>
                 </div>
                 <div className={"absolute bottom-2 left-1/2 transform -translate-x-1/2"}>
                     <ChevronDownIcon/>

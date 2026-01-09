@@ -24,15 +24,9 @@ const FooterLeftSide = () => {
             </DimOnHoverLink>
             <DimOnHoverLink
                 target="_blank"
-                href="https://x.com/CabildoAbiertoX"
-            >
-                <XLogoIcon fontSize="25"/>
-            </DimOnHoverLink>
-            <DimOnHoverLink
-                target="_blank"
                 href="https://github.com/cabildo-abierto"
             >
-                <GithubLogoIcon fontSize={22}/>
+                <GithubLogoIcon fontSize={24}/>
             </DimOnHoverLink>
         </div>
     </div>

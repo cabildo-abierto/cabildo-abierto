@@ -111,7 +111,7 @@ export const LandingScroll = () => {
                 <div
                     className={"text-[var(--text-light)] font-semibold text-sm md:text-base"}
                 >
-                    Cabildo Abierto es parte de ATProtocol, un nuevo ecosistema de plataformas descentralizadas, en el cual convive con Bluesky.
+                    Cabildo Abierto es parte de ATProtocol, un nuevo ecosistema de plataformas descentralizadas, en el cual cada usuario es dueño de sus datos.
                 </div>
                 <div className={"flex flex-wrap gap-x-2 gap-y-1"}>
                     <LandingBadge text={"Nuestro GitHub"} href={"https://github.com/cabildo-abierto/cabildo-abierto"}/>
