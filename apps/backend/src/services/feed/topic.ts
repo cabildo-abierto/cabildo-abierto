@@ -424,7 +424,8 @@ export const getTopicFeed: CAHandlerNoAuth<{ params: {kind: "mentions" | "discus
                 ctx,
                 agent,
                 pipeline: {
-                    getSkeleton
+                    getSkeleton,
+                    debugName: `topic:${metric}:${time}:${format}`
                 },
                 cursor
             })

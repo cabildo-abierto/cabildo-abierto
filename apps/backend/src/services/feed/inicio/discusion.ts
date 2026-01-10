@@ -214,7 +214,8 @@ export const getEnDiscusionSkeleton: (metric: EnDiscusionMetric, time: EnDiscusi
 export const getEnDiscusionFeedPipeline = (
     metric: EnDiscusionMetric = defaultEnDiscusionMetric, time: EnDiscusionTime = defaultEnDiscusionTime, format: FeedFormatOption = defaultEnDiscusionFormat): FeedPipelineProps => {
     return {
-        getSkeleton: getEnDiscusionSkeleton(metric, time, format)
+        getSkeleton: getEnDiscusionSkeleton(metric, time, format),
+        debugName: `discusion:${time}:${format}:${metric}`
     }
 }
 

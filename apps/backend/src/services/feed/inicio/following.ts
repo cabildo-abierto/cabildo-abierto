@@ -345,5 +345,6 @@ export const getFollowingFeedSkeleton: (filter: FollowingFeedFilter, format: Fee
 
 
 export const getFollowingFeedPipeline: (filter?: FollowingFeedFilter, format?: FeedFormatOption) => FeedPipelineProps = (filter = "Todos", format = "Todos") => ({
-    getSkeleton: getFollowingFeedSkeleton(filter, format)
+    getSkeleton: getFollowingFeedSkeleton(filter, format),
+    debugName: `following:${filter}:${format}`
 })

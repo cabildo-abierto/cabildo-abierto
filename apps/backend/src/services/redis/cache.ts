@@ -487,4 +487,7 @@ export const clearRedisHandler: CAHandler<{ params: { prefix: string } }, {}> = 
 
 export async function clearAllRedis(ctx: AppContext) {
     await ctx.redisCache.clear()
+
+    await ctx.worker?.clearFailedAndCompleted()
+
 }

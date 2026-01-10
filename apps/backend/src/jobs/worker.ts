@@ -280,6 +280,10 @@ export class CAWorker {
         throw Error("Sin implementar!")
     }
 
+    async clearFailedAndCompleted() {
+        throw Error("Sin implementar!")
+    }
+
     async addJob(name: string, data: any, priority: number = 10) {
         throw Error("Sin implementar!")
     }
@@ -360,7 +364,19 @@ export class RedisCAWorker extends CAWorker {
     // priority va de 1 a 2097152, más bajo significa mayor prioridad
     async addJob(name: string, data: any, priority: number = 10) {
         this.logger.pino.info({name}, "job added")
-        await this.queue.add(name, data, {priority})
+        await this.queue.add(
+            name,
+            data, {
+                priority,
+                removeOnComplete: {
+                    age: 60 * 60, // trabajos completados por 1 hora
+                    count: 1000 // y hasta 1000
+                },
+                removeOnFail: {
+                    age: 24 * 60 * 60, // trabajos fallidos por hasta 24hs
+                    count: 500, // y hasta 500
+                },
+            })
     }
 
     async removeAllRepeatingJobs() {
@@ -456,6 +472,35 @@ export class RedisCAWorker extends CAWorker {
 
     async waitUntilReady() {
         await this.queue.waitUntilReady()
+    }
+
+    async clearFailedAndCompleted() {
+        const GRACE = 1000 * 60 * 60
+
+        const counts = await this.queue.getJobCounts(
+            'completed',
+            'failed'
+        )
+
+        this.logger.pino.info({
+            completed: counts.completed,
+            failed: counts.failed,
+        }, "jobs before cleanup")
+
+        await this.queue.clean(GRACE, 1000, 'completed')
+        await this.queue.clean(GRACE, 1000, 'failed')
+
+        const after = await this.queue.getJobCounts(
+            'completed',
+            'failed'
+        )
+
+        this.logger.pino.info({
+            completed: after.completed,
+            failed: after.failed,
+            removedCompleted: counts.completed - after.completed,
+            removedFailed: counts.failed - after.failed,
+        }, "jobs cleaned")
     }
 }
 
