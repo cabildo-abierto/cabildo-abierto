@@ -29,6 +29,8 @@ import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/otros/find-users.js";
 import {getAllCAFeed} from "#/services/feed/all.js";
 import {updateAllFollowingFeeds} from "#/services/feed/following/update.js";
+import {getMailSubscriptions, getSentEmails, getEmailTemplates, createEmailTemplate, updateEmailTemplate, deleteEmailTemplate, sendBulkEmails} from "#/services/emails/subscriptions.js"
+import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
 
 
 function isAdmin(did: string) {
@@ -177,6 +179,22 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/all-ca-feed", makeAdminHandler(ctx, getAllCAFeed))
 
     router.post("/find-users/:handle", makeAdminHandler(ctx, findUsersInFollows))
+
+    router.get("/mail-subscriptions", makeAdminHandler(ctx, getMailSubscriptions))
+
+    router.get("/sent-emails", makeAdminHandler(ctx, getSentEmails))
+
+    // Email templates CRUD
+    router.get("/email-templates", makeAdminHandler(ctx, getEmailTemplates))
+    router.post("/email-template", makeAdminHandler(ctx, createEmailTemplate))
+    router.post("/email-template/:id/update", makeAdminHandler(ctx, updateEmailTemplate))
+    router.post("/email-template/:id/delete", makeAdminHandler(ctx, deleteEmailTemplate))
+
+    // Send emails
+    router.post("/send-emails", makeAdminHandler(ctx, sendBulkEmails))
+
+    // SMTP2GO stats
+    router.get("/smtp2go-stats", makeAdminHandler(ctx, getSMTP2GOStats))
 
     return router
 }
