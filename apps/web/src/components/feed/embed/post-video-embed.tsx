@@ -24,7 +24,15 @@ export default function PostVideoEmbed({ embed }: PostVideoEmbedProps) {
         };
 
         if (Hls.isSupported()) {
-            const hls = new Hls();
+            const hls = new Hls({
+                autoStartLoad: true,
+                maxBufferLength: 10,           // segundos hacia adelante
+                maxMaxBufferLength: 20,
+                backBufferLength: 5,           // segundos hacia atras
+                maxBufferSize: 30 * 1000 * 1000, // maximo 30mb
+                lowLatencyMode: false,
+                enableWorker: true,
+            });
             hls.loadSource(embed.playlist);
             hls.attachMedia(video);
 
@@ -91,12 +99,12 @@ export default function PostVideoEmbed({ embed }: PostVideoEmbedProps) {
             {!isReady && (
                 <div className={"w-full flex justify-center"}>
                     <Image
-                    src={embed.thumbnail}
-                    alt="Video thumbnail"
-                    className="w-[400px] h-[500px] object-cover rounded-lg"
-                    width={embed.aspectRatio?.width ?? 400}
-                    height={embed.aspectRatio?.height ?? 500}
-                />
+                        src={embed.thumbnail}
+                        alt="Video thumbnail"
+                        className="w-[400px] h-[500px] object-cover rounded-lg"
+                        width={embed.aspectRatio?.width ?? 400}
+                        height={embed.aspectRatio?.height ?? 500}
+                    />
                 </div>
             )}
             <video

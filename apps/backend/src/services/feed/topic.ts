@@ -63,25 +63,15 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
             if(limit == 0) return []
 
             const res = await ctx.kysely
-                .selectFrom("Content")
-                .innerJoin("Record", "Record.uri", "Content.uri")
-                .innerJoin("Reference", "Reference.referencingContentId", "Record.uri")
-                .leftJoin("Post", "Post.uri", "Record.uri")
-                .leftJoin("TopicVersion", "TopicVersion.uri", "Post.rootId")
-                .innerJoin("User", "User.did", "Record.authorId")
-                .where("User.inCA", "=", true)
+                .selectFrom("Reference")
                 .where("Reference.referencedTopicId", "=", id)
-                .where("Record.collection", "in", collections)
-                .where(eb => eb.or([
-                    eb("TopicVersion.topicId", "!=", id),
-                    eb("TopicVersion.uri", "is", null)
-                ]))
-                .where("Record.created_at", ">", startDate)
+                .where("Reference.referencingContentCreatedAt", ">", startDate)
+                .innerJoin("Content", "Content.uri", "Reference.referencingContentId")
                 .select([
-                    'Record.uri',
-                    "Record.created_at as createdAt"
+                    'Reference.referencingContentId as uri',
+                    "Reference.referencingContentCreatedAt as createdAt"
                 ])
-                .orderBy(["likesScore desc", "Content.created_at desc"])
+                .orderBy(["likesScore desc", "Reference.referencingContentCreatedAt desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -103,22 +93,15 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 .innerJoin("Record", "Record.uri", "Content.uri")
                 .innerJoin("Reference", "Reference.referencingContentId", "Record.uri")
                 .leftJoin("Post", "Post.uri", "Record.uri")
-                .leftJoin("TopicVersion", "TopicVersion.uri", "Post.rootId")
-                .innerJoin("User", "User.did", "Record.authorId")
-                .where("User.inCA", "=", true)
                 .where("Reference.referencedTopicId", "=", id)
                 .where("Record.collection", "in", collections)
-                .where(eb => eb.or([
-                    eb("TopicVersion.topicId", "!=", id),
-                    eb("TopicVersion.uri", "is", null)
-                ]))
                 .where("Record.created_at", ">", startDate)
                 .where("interactionsScore", "is not", null)
                 .select([
-                    'Record.uri',
-                    "Record.created_at as createdAt"
+                    "Reference.referencingContentId as uri",
+                    "Reference.referencingContentCreatedAt as createdAt"
                 ])
-                .orderBy(["interactionsScore desc", "Content.created_at desc"])
+                .orderBy(["interactionsScore desc", "Reference.referencingContentCreatedAt desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -170,28 +153,29 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
 
             if(offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
 
+            const t1 = Date.now()
+
             const res = await ctx.kysely
-                .selectFrom("Record")
-                .innerJoin("Reference", "Reference.referencingContentId", "Record.uri")
-                .leftJoin("Post", "Post.uri", "Record.uri")
-                .leftJoin("TopicVersion", "TopicVersion.uri", "Post.rootId")
-                .innerJoin("User", "User.did", "Record.authorId")
-                .where("User.inCA", "=", true)
+                .selectFrom("Reference")
+                .innerJoin("Record", "Record.uri", "Reference.referencingContentId")
                 .where("Reference.referencedTopicId", "=", id)
                 .where("Record.collection", "in", collections)
-                .where(eb => eb.or([
-                    eb("TopicVersion.topicId", "!=", id),
-                    eb("TopicVersion.uri", "is", null)
-                ]))
-                .$if(offsetFrom != null, qb => qb.where("Record.created_at", "<", offsetFrom!))
-                .$if(offsetTo != null, qb => qb.where("Record.created_at", ">", offsetTo!))
+                .$if(offsetFrom != null, qb => qb.where("Reference.referencingContentCreatedAt", "<", offsetFrom!))
+                .$if(offsetTo != null, qb => qb.where("Reference.referencingContentCreatedAt", ">", offsetTo!))
                 .select([
-                    'Record.uri',
-                    "Record.created_at as createdAt"
+                    "Reference.referencingContentId as uri",
+                    "Reference.referencingContentCreatedAt as createdAt"
                 ])
-                .orderBy('Record.created_at', 'desc')
+                .orderBy('Reference.referencingContentCreatedAt', 'desc')
                 .limit(limit)
                 .execute()
+
+            const t2 = Date.now()
+
+            ctx.logger.logTimes("topic mentions skeleton", [t1, t2], {
+                id, collections, offsetFrom, offsetTo, limit
+            })
+
             return res.map(r => ({
                 uri: r.uri,
                 createdAt: r.createdAt,

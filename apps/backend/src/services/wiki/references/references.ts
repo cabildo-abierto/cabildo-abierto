@@ -19,7 +19,7 @@ import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
-import {updateTopicsCategories, updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
+import {updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
 
 export async function updateReferencesForNewContents(ctx: AppContext) {
     const lastUpdate = await getLastReferencesUpdate(ctx)
@@ -71,14 +71,14 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
                         .select([
                             "Topic.id",
                             sql<string>`unnest
-                            ("Topic"."synonyms")`.as("keyword")
+                                ("Topic"."synonyms")`.as("keyword")
                         ])
                         .as("UnnestedSynonyms")
                 )
                 .select([
                     "UnnestedSynonyms.id",
                     sql`websearch_to_tsquery
-                    ('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
+                        ('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
                 ])
             )
             .selectFrom("Content")
@@ -93,8 +93,9 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
             .select([
                 "Synonyms.id",
                 "Content.uri",
+                "Record.created_at_tz",
                 sql<number>`ts_rank_cd
-                ("Content"."text_tsv", "Synonyms"."query")`.as("rank")
+                    ("Content"."text_tsv", "Synonyms"."query")`.as("rank")
             ])
             .execute()
     } catch (error) {
@@ -120,13 +121,16 @@ export async function getReferencesToInsert(ctx: AppContext, uris?: string[], to
         const key = `${m.uri}:${m.id}`
         const cur = refsMap.get(key)
         if (!cur || !cur.relevance || cur.relevance < m.rank) {
-            refsMap.set(key, {
-                id: uuidv4(),
-                referencedTopicId: m.id,
-                referencingContentId: m.uri,
-                type: "Weak",
-                relevance: m.rank
-            })
+            if(m.created_at_tz) {
+                refsMap.set(key, {
+                    id: uuidv4(),
+                    referencedTopicId: m.id,
+                    referencingContentId: m.uri,
+                    type: "Weak",
+                    relevance: m.rank,
+                    referencingContentCreatedAt: m.created_at_tz
+                })
+            }
         }
     }
 
@@ -170,6 +174,7 @@ export type ReferenceToInsert = {
     relevance?: number
     referencedTopicId: string
     referencingContentId: string
+    referencingContentCreatedAt: Date
 }
 
 
@@ -443,23 +448,26 @@ export async function recomputeTopicInteractionsAndPopularities(ctx: AppContext,
 export async function getTopicsReferencedInText(ctx: AppContext, text: string): Promise<ArCabildoabiertoFeedDefs.TopicMention[]> {
     if (!text.trim()) return []
 
-    const text_tsv = sql`to_tsvector('public.spanish_simple_unaccent', ${text})`;
+    const text_tsv = sql`to_tsvector
+        ('public.spanish_simple_unaccent', ${text})`;
 
     const matches = await ctx.kysely
         .with("Synonyms", eb => eb
             .selectFrom("Topic")
-            .select(["id", "currentVersionId", sql<string>`unnest("Topic"."synonyms")`.as("keyword")])
+            .select(["id", "currentVersionId", sql<string>`unnest
+                ("Topic"."synonyms")`.as("keyword")])
         )
         .selectFrom("Synonyms")
         .where(sql<boolean>`
-          ${text_tsv} @@ websearch_to_tsquery('public.spanish_simple_unaccent', "Synonyms"."keyword")
+            ${text_tsv} @@ websearch_to_tsquery('public.spanish_simple_unaccent', "Synonyms"."keyword")
         `)
         .innerJoin("TopicVersion", "TopicVersion.uri", "Synonyms.currentVersionId")
         .select([
             'Synonyms.id as topicId',
             'Synonyms.keyword',
             "TopicVersion.props",
-            sql<number>`ts_rank_cd(${text_tsv}, websearch_to_tsquery('public.spanish_simple_unaccent',"Synonyms"."keyword"))`.as('rank')
+            sql<number>`ts_rank_cd
+            (${text_tsv}, websearch_to_tsquery('public.spanish_simple_unaccent',"Synonyms"."keyword"))`.as('rank')
         ])
         .execute()
 
@@ -488,7 +496,7 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
     const batchSize = 2000
     let offset = 0
 
-    if(uris != null && uris.length == 0) return
+    if (uris != null && uris.length == 0) return
 
     while (true) {
         ctx.logger.pino.info({offset}, "batch")
@@ -570,4 +578,55 @@ export async function updateContentCategoriesOnTopicsChange(ctx: AppContext, top
         .execute()
 
     await updateDiscoverFeedIndex(ctx, contents.map(c => c.referencingContentId))
+}
+
+
+export async function updateReferencesCreatedAt(ctx: AppContext) {
+    let offset = 0
+    const bs = 5000
+
+    while (true) {
+        ctx.logger.pino.info({offset, bs}, "updating references created at")
+        const res = await ctx.kysely
+            .selectFrom("Reference")
+            .innerJoin("Record", "Record.uri", "Reference.referencingContentId")
+            .select([
+                "Reference.id",
+                "Record.created_at_tz",
+                "Reference.referencingContentId",
+                "Reference.referencingContentCreatedAt",
+                "Reference.referencedTopicId"
+            ])
+            .where("Reference.referencingContentCreatedAt", "<", new Date(Date.now() - 1000 * 60 * 60 * 24 * 365 * 20))
+            .limit(bs)
+            .offset(offset)
+            .execute()
+        if (res.length == 0) break
+
+        const values: ({
+            id: string,
+            referencingContentCreatedAt: Date,
+            type: "Strong" | "Weak",
+            referencingContentId: string
+            referencedTopicId: string
+        } | null)[] = res
+            .map(r => r.created_at_tz != null ? {
+                id: r.id,
+                referencingContentCreatedAt: r.created_at_tz,
+                type: "Weak",
+                referencingContentId: r.referencingContentId,
+                referencedTopicId: r.referencedTopicId
+            } : null)
+
+        await ctx.kysely
+            .insertInto("Reference")
+            .values(values.filter(x => x != null))
+            .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
+                referencingContentCreatedAt: eb.ref("excluded.referencingContentCreatedAt")
+            })))
+            .execute()
+
+        if (res.length < bs) break
+        offset += bs
+    }
 }
