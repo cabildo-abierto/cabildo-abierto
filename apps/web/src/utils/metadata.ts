@@ -1,6 +1,6 @@
 import {Metadata} from "next";
 
-export const mainDescription = "Una plataforma para discutir en serio, hecha en Argentina."
+export const mainDescription = "Una espacio de discusión argentino. Sumate a conectar con otros y construir conocimiento colectivo."
 const banner = 'https://www.cabildoabierto.ar/banners/99.jpg'
 
 

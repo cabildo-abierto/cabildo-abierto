@@ -44,15 +44,16 @@ export const LandingFirstScreen = () => {
                         {image}
                     </div>
                 </div>
-                <div className={"absolute bottom-2 left-1/2 transform -translate-x-1/2"}>
-                    <ChevronDownIcon/>
-                </div>
+            </div>
+            <div className={"absolute bottom-2 left-1/2 transform -translate-x-1/2"}>
+                <ChevronDownIcon/>
             </div>
         </div>
 
         {/* 1500px+, default = 1600px */}
         <div
-            className={"min-[1500px]:flex hidden relative w-full justify-center items-center h-[90vh]"}>
+            className={"min-[1500px]:flex hidden relative w-full justify-center items-center h-[90vh]"}
+        >
             <div className={"flex w-full justify-between space-x-12 items-center px-12"}>
                 <div className={"w-1/2 flex flex-col items-center"}>
                     <div className={"space-y-6"}>
@@ -68,9 +69,9 @@ export const LandingFirstScreen = () => {
                 <div className={"w-1/2 flex justify-center"}>
                     {image}
                 </div>
-                <div className={"absolute bottom-2 left-1/2 transform -translate-x-1/2"}>
-                    <ChevronDownIcon/>
-                </div>
+            </div>
+            <div className={"absolute bottom-2 left-1/2 transform -translate-x-1/2"}>
+                <ChevronDownIcon/>
             </div>
         </div>
 

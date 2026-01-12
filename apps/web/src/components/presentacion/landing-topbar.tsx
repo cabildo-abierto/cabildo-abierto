@@ -22,7 +22,7 @@ const LandingTopbar = () => {
             <div className="flex justify-between items-center">
                 <div className="flex-1">
                     <h2
-                        className={cn("uppercase font-bold tracking-[0.026em] leading-[1.15] text-2xl transition-colors duration-300")}
+                        className={cn("uppercase font-bold tracking-[0.026em] leading-[1.15] text-xl transition-colors duration-300")}
                     >
                         Cabildo Abierto
                     </h2>

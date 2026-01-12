@@ -1,10 +1,11 @@
 import {Metadata} from "next";
 import {ReactNode} from "react";
 import {HomeTutorial} from "@/components/layout/tutorial/home-tutorial";
+import {mainDescription} from "@/utils/metadata";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
-    description: 'Una plataforma para la discusión pública. Sumate a conectar con otros y construir conocimiento colectivo.'
+    description: mainDescription
 }
 
 export default function RootLayout({children}: { children: ReactNode }) {

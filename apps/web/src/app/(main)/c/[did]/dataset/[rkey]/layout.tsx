@@ -5,7 +5,6 @@ import { get } from "@/components/utils/react/fetch";
 import {ReactNode} from "react";
 
 
-
 export async function generateMetadata(
     { params }: {params: Promise<{did: string, rkey: string}>}
 ): Promise<Metadata> {

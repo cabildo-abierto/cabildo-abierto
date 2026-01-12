@@ -5,10 +5,14 @@ import {useTheme} from "@/components/layout/theme/theme-context";
 import Link from "next/link";
 import {topicUrl} from "@/components/utils/react/url";
 import {ArrowSquareOutIcon} from "@phosphor-icons/react";
+import {BaseButton} from "@/components/utils/base/base-button";
+import {useSearchParams} from "next/navigation";
+import {useLoginModal} from "@/components/auth/login-modal-provider";
 
 
-const LandingBadge = ({text, href}: {text: string, href: string}) => {
-    return <Link href={href} className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] text-[var(--text)] space-x-1 flex items-center text-xs px-2 py-0.5 font-light tracking-tight"}>
+const LandingBadge = ({text, href}: { text: string, href: string }) => {
+    return <Link href={href}
+                 className={"bg-[var(--background-dark2)] hover:bg-[var(--background-dark3)] text-[var(--text)] space-x-1 flex items-center text-xs px-2 py-0.5 font-light tracking-tight"}>
         <div>
             {text}
         </div>
@@ -19,12 +23,30 @@ const LandingBadge = ({text, href}: {text: string, href: string}) => {
 
 export const LandingScroll = () => {
     const {currentTheme} = useTheme()
+    const params = useSearchParams()
+    const {setLoginModalOpen} = useLoginModal()
+
+    const code = params.get("c")
 
     const cabildoWindow = <Image
         src={"/presentacion/construccion.png"}
         alt={"cabildo"}
         width={400} height={400}
         className={cn("opacity-80 w-[320px] h-auto", currentTheme == "dark" && "invert")}
+    />
+
+    const cabildoPlano = <Image
+        src={"/presentacion/plano.png"}
+        alt={"cabildo"}
+        width={400} height={400}
+        className={cn("opacity-80 w-[250px] h-auto", currentTheme == "dark" && "invert")}
+    />
+
+    const cabildoPuertas = <Image
+        src={"/presentacion/puertas.png"}
+        alt={"cabildo"}
+        width={400} height={400}
+        className={cn("opacity-80 w-[400px] h-auto", currentTheme == "dark" && "invert")}
     />
 
     const cabildo = <Image
@@ -57,8 +79,7 @@ export const LandingScroll = () => {
             title={""}
             description={<div className={"space-y-2 max-w-[400px]"}>
                 <div className={"leading-tight tracking-tight text-2xl"}>
-                    Con herramientas para que las discusiones no queden en la superficie y para que tener consensos
-                    básicos sea posible.
+                    Con herramientas para que las discusiones no queden en la superficie.
                 </div>
                 <div className={"text-[var(--text-light)] font-semibold text-base md:text-base"}>
                     Una wiki (como Wikipedia) pero centrada en la discusión argentina.
@@ -68,8 +89,30 @@ export const LandingScroll = () => {
                     <LandingBadge text={"Visualizaciones"} href={topicUrl("Cabildo Abierto: Visualizaciones")}/>
                 </div>
             </div>}
-            image={cabildoWindow}
+            image={cabildoPlano}
             inverted={true}
+        />
+
+        <FeatureSection
+            title={""}
+            description={<div className={"space-y-2 max-w-[400px]"}>
+                <div className={"tracking-tight leading-tight text-2xl"}>
+                    Con código y datos abiertos.
+                </div>
+                <div
+                    className={"text-[var(--text-light)] font-semibold text-sm md:text-base"}
+                >
+                    Cabildo Abierto es parte de ATProtocol, un nuevo ecosistema de plataformas descentralizadas, en el
+                    cual cada usuario es dueño de sus datos.
+                </div>
+                <div className={"flex flex-wrap gap-x-2 gap-y-1"}>
+                    <LandingBadge text={"Nuestro GitHub"} href={"https://github.com/cabildo-abierto/cabildo-abierto"}/>
+                    <LandingBadge text={"Relación con Bluesky"}
+                                  href={topicUrl("Cabildo Abierto: Relación con Bluesky y descentralización")}/>
+                </div>
+            </div>}
+            image={cabildoPuertas}
+            inverted={false}
         />
 
         <FeatureSection
@@ -99,27 +142,30 @@ export const LandingScroll = () => {
                 </div>
             </div>}
             image={cabildo}
-            inverted={false}
-        />
-
-        <FeatureSection
-            title={""}
-            description={<div className={"space-y-2 max-w-[400px]"}>
-                <div className={"tracking-tight leading-tight text-2xl"}>
-                    Con código y datos abiertos.
-                </div>
-                <div
-                    className={"text-[var(--text-light)] font-semibold text-sm md:text-base"}
-                >
-                    Cabildo Abierto es parte de ATProtocol, un nuevo ecosistema de plataformas descentralizadas, en el cual cada usuario es dueño de sus datos.
-                </div>
-                <div className={"flex flex-wrap gap-x-2 gap-y-1"}>
-                    <LandingBadge text={"Nuestro GitHub"} href={"https://github.com/cabildo-abierto/cabildo-abierto"}/>
-                    <LandingBadge text={"Relación con Bluesky"} href={topicUrl("Cabildo Abierto: Relación con Bluesky y descentralización")}/>
-                </div>
-            </div>}
-            image={cabildoWindow}
             inverted={true}
         />
+
+        <div className={"text-center space-y-6 portal group py-16"}>
+            <div className={"tracking-tight"}>
+                Lanzamiento oficial: 25 de mayo de 2026.
+            </div>
+            <BaseButton
+                className={""}
+                variant={"outlined"}
+                onClick={() => {
+                    setLoginModalOpen(true, true, true)
+                }}
+            >
+                <div>
+                    {!code && <div className={"text-xs  normal-case"}>
+                        ¡Sumate a probar la plataforma!
+                    </div>}
+                    {code && <div className={"text-xs  normal-case"}>
+                        ¡Recibiste un código de invitación!
+                    </div>}
+                    Participar en el acceso anticipado
+                </div>
+            </BaseButton>
+        </div>
     </div>
 }

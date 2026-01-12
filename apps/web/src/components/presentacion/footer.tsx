@@ -20,7 +20,7 @@ const FooterLeftSide = () => {
                 target="_blank"
                 href="https://bsky.app/profile/cabildoabierto.ar"
             >
-                <BlueskyLogo className={"w-[22px] h-[22px]"}/>
+                <BlueskyLogo className={"w-[24px] h-[24px]"} outlined={true}/>
             </DimOnHoverLink>
             <DimOnHoverLink
                 target="_blank"

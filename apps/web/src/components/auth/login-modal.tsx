@@ -81,7 +81,7 @@ const LoginModalAccessRequest = ({onBack}: {
         <h2 className={"font-bold text-lg pb-2 text-center"}>Solicitar acceso</h2>
         <div className={"flex flex-col items-center space-y-4 pb-12"}>
             <Note maxWidth={380} className={"text-left"}>
-                Estamos enviando invitaciones al período de prueba por orden de llegada a medida que hacemos espacio
+                Estamos enviando invitaciones al acceso anticipado por orden de llegada a medida que hacemos espacio
                 para más
                 gente.
             </Note>
@@ -117,28 +117,31 @@ const LoginModalAccessRequest = ({onBack}: {
 
 export const LoginModal = ({
                                open,
-                               onClose
+                               onClose,
+    accessRequest,
+    setAccessRequest
                            }: {
     open: boolean;
     onClose?: () => void;
+    accessRequest: boolean
+    setAccessRequest: (v: boolean) => void
 }) => {
     const params = useSearchParams()
     const inviteCode = params.get("c")
     const router = useRouter()
-    const [wantsAccess, setWantsAccess] = useState<boolean>(false)
     const {setLoginModalOpen} = useLoginModal()
 
     return <LoginPanel
         open={open}
         onClose={onClose}
-        onClickBack={wantsAccess ? () => {
-            setWantsAccess(false)
+        onClickBack={accessRequest ? () => {
+            setAccessRequest(false)
         } : undefined}
     >
-        {wantsAccess && <LoginModalAccessRequest
-            onBack={() => {setWantsAccess(false)}}
+        {accessRequest && <LoginModalAccessRequest
+            onBack={() => {setAccessRequest(false)}}
         />}
-        {!wantsAccess && <div className={"space-y-4 flex flex-col items-center pt-4"}>
+        {!accessRequest && <div className={"space-y-4 flex flex-col items-center pt-4"}>
             <div className="space-y-4 flex flex-col items-center">
                 <Logo width={64} height={64}/>
                 <h1 className={"text-lg font-bold uppercase"}>Iniciar sesión</h1>
@@ -171,10 +174,10 @@ export const LoginModal = ({
                                 variant={"outlined"}
                                 className={"w-full"}
                                 onClick={() => {
-                                    setWantsAccess(true)
+                                    setAccessRequest(true)
                                 }}
                             >
-                                Participar en el período de prueba
+                                Participar en el acceso anticipado
                             </BaseButton>
                         </div>}
                     </div>

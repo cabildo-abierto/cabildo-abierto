@@ -9,7 +9,7 @@ const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginMo
 const LoginModalContext = createContext<{
     loginModalOpen: boolean
     allowsClose: boolean
-    setLoginModalOpen: (v: boolean, w?: boolean) => void
+    setLoginModalOpen: (v: boolean, w?: boolean, trial?: boolean) => void
 } | undefined>(undefined)
 
 
@@ -24,6 +24,7 @@ export const useLoginModal = () => {
 
 export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false)
+    const [accessRequest, setAccessRequest] = useState<boolean>(false)
     const [allowsClose, setAllowsClose] = useState<boolean>(false)
     const pathname = usePathname()
     const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null)
@@ -38,9 +39,12 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }, [pathname])
 
-    function onSetLoginModalOpen(v: boolean, w: boolean = true) {
+    function onSetLoginModalOpen(v: boolean, w: boolean = true, trial: boolean = false) {
         setLoginModalOpen(v)
         setAllowsClose(w)
+        if(trial) {
+            setAccessRequest(true)
+        }
     }
 
     return (
@@ -49,6 +53,8 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
             {portalRoot && createPortal(<LoginModal
                 open={loginModalOpen}
                 onClose={allowsClose ? () => {setLoginModalOpen(false)} : undefined}
+                accessRequest={accessRequest}
+                setAccessRequest={setAccessRequest}
             />, portalRoot)}
         </LoginModalContext.Provider>
     )
