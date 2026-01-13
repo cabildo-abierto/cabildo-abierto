@@ -68,6 +68,33 @@ const NextMeetingOnRightPanel = () => {
 }
 
 
+const InviteAndDonateButtons = () => {
+    const pathname = usePathname()
+
+    return <div className={"flex space-x-2"}>
+        {!pathname.includes("/ajustes/compartir") && <Link href={"/ajustes/compartir"}>
+            <BaseButton
+                startIcon={<ShareIcon/>}
+                size="small"
+                variant={"outlined"}
+                className={""}
+            >
+                Invitar
+            </BaseButton>
+        </Link>}
+        <Link href={"/aportar"}>
+            <BaseButton
+                startIcon={<DonateIcon/>}
+                size="small"
+                variant={"outlined"}
+            >
+                Aportar
+            </BaseButton>
+        </Link>
+    </div>
+}
+
+
 function useRightPanelConfig() {
     const pathname = usePathname()
     const isFollowSuggestionsPath = (pathname.startsWith("/inicio")
@@ -135,29 +162,10 @@ export const RightPanel = () => {
             <TrendingTopicsPanel/>
         </div>}
 
+        {isDonatePath && <InviteAndDonateButtons/>}
+
         {isFollowSuggestionsPath && user && <div className={"w-[292px]"}>
             <FollowSuggestions/>
-        </div>}
-
-        {isDonatePath && <div className={"flex space-x-2"}>
-            <Link href={"/aportar"}>
-                <BaseButton
-                    startIcon={<DonateIcon/>}
-                    size="small"
-                    variant={"outlined"}
-                >
-                    Aportar
-                </BaseButton>
-            </Link>
-            <Link href={"/ajustes/compartir"}>
-                <BaseButton
-                    startIcon={<ShareIcon/>}
-                    size="small"
-                    variant={"outlined"}
-                >
-                    Invitar
-                </BaseButton>
-            </Link>
         </div>}
 
         <div className={"text-sm mt-4 pb-8"}>

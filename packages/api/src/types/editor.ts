@@ -38,6 +38,7 @@ export type CreateArticleProps = {
     uri?: string
     previewImage?: ImagePayload
     description?: string
+    bskyPostText: string | null
 }
 
 export type ImagePayloadForPostCreation = {

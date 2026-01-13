@@ -37,6 +37,7 @@ export const ArticleEditorTopbar = ({
     const {valid} = validArticle(editorState, settings.charLimit, title)
     const [previewImage, setPreviewImage] = useState<ImagePayload | null>(draft ? {$type: "url", src: draft.previewImage} : null)
     const [description, setDescription] = useState<string | null>(draft ? draft.summary : undefined)
+    const [bskyPostText, setBskyPostText] = useState<string | null>("")
 
     return <div
         className={cn(
@@ -71,6 +72,8 @@ export const ArticleEditorTopbar = ({
             setDescription={setDescription}
             previewImage={previewImage}
             setPreviewImage={setPreviewImage}
+            bskyPostText={bskyPostText}
+            setBskyPostText={setBskyPostText}
         />
     </div>
 }

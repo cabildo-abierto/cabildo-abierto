@@ -180,6 +180,15 @@ export function getArticleSummary(text: string | null, format: string | undefine
 }
 
 
+export function getArticlePreviewImage(authorId: string, previewCid: string | undefined, title?: string): AppBskyEmbedImages.ViewImage | undefined {
+    return previewCid ? {
+        thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorId}/${previewCid}@jpeg`,
+        fullsize: `https://cdn.bsky.app/img/feed_fullsize/plain/${authorId}/${previewCid}@jpeg`,
+        alt: title ?? ""
+    } : undefined
+}
+
+
 export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane): {
     data?: $Typed<ArCabildoabiertoFeedDefs.ArticleView>
     error?: string
@@ -227,11 +236,7 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
 
     const previewCid = e.articlePreviewImage
 
-    const preview: AppBskyEmbedImages.ViewImage | undefined = previewCid ? {
-        thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorId}/${previewCid}@jpeg`,
-        fullsize: `https://cdn.bsky.app/img/feed_fullsize/plain/${authorId}/${previewCid}@jpeg`,
-        alt: e.title
-    } : undefined
+    const preview = getArticlePreviewImage(authorId, previewCid ?? undefined, e.title)
 
     return {
         data: {

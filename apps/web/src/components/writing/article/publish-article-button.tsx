@@ -34,7 +34,9 @@ export const PublishArticleButton = ({
     description,
     setDescription,
     previewImage,
-    setPreviewImage
+    setPreviewImage,
+    bskyPostText,
+    setBskyPostText
 }: {
     editorState: EditorState
     disabled: boolean
@@ -50,6 +52,8 @@ export const PublishArticleButton = ({
     setDescription: (s: string | null) => void
     previewImage: ImagePayload | null
     setPreviewImage: (s: ImagePayload | null) => void
+    bskyPostText: string | null
+    setBskyPostText: (s: string | null) => void
 }) => {
     const [mdText, setMdText] = useState("")
     const router = useRouter()
@@ -82,7 +86,8 @@ export const PublishArticleButton = ({
             draftId,
             uri: article?.uri,
             previewImage,
-            description
+            description,
+            bskyPostText
         })
         if (error) return {error}
 
@@ -142,6 +147,8 @@ export const PublishArticleButton = ({
             setDescription={setDescription}
             previewImage={previewImage}
             setPreviewImage={setPreviewImage}
+            bskyPostText={bskyPostText}
+            setBskyPostText={setBskyPostText}
         />}
     </>
 }
