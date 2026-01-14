@@ -5,16 +5,17 @@ import {cva, type VariantProps} from "class-variance-authority"
 import {cn} from "@/lib/utils"
 
 const buttonVariants = cva(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap tracking-[0.0167em]  uppercase font-medium transition-colors  disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none  [&_svg]:shrink-0 hover:bg-[var(--background-dark)]",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap tracking-[0.0167em] uppercase font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
     {
         variants: {
             variant: {
                 default:
-                    "group-[.portal]:hover:bg-[var(--background-dark2)]",
+                    "",
                 outlined:
                     "border border-[var(--accent-dark)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] group-[.portal]:bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)]",
                 error:
-                    "bg-[var(--red-dark)] hover:bg-[var(--red-dark2)] text-[var(--white-text)] border border-[var(--accent-dark)]"
+                    "bg-[var(--red-dark)] hover:bg-[var(--red-dark2)] text-[var(--white-text)] border border-[var(--accent-dark)]",
+                black: "bg-[var(--text)] group-[.portal]:hover:bg-[var(--text-light)] hover:bg-[var(--text-light)] text-[var(--background)] rounded-xl"
             },
             size: {
                 default: "px-4 py-[8px] text-[13.5px] [&_svg]:size-4",

@@ -28,8 +28,7 @@ export const GoToLoginButton = ({
     const code = params.get("c")
 
     return <BaseButton
-        variant={"outlined"}
-        size={!isMobile ? "large" : "default"}
+        size={!isMobile ? "default" : "default"}
         onClick={() => {
             if (user) {
                 router.push("/inicio")
@@ -37,6 +36,7 @@ export const GoToLoginButton = ({
                 setLoginModalOpen(true)
             }
         }}
+        variant={"black"}
         letterSpacing={"0em"}
         className={className}
         startIcon={<SignInIcon/>}

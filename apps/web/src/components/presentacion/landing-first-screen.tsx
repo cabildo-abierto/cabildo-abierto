@@ -11,6 +11,7 @@ export const LandingFirstScreen = () => {
             argentino.
         </div>
     </div>
+
     const subtitle = <>
         <div>
             Para informarnos, discutir y conectar con otros,

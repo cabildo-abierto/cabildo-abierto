@@ -2,14 +2,16 @@ import {ReactNode} from "react";
 import {cn} from "@/lib/utils";
 
 
-export const FeatureSection = ({title, subtitle, description, image, inverted, className}: {
+export const FeatureSection = ({title, subtitle, image, inverted, className}: {
     title: string
-    subtitle?: string
-    description: ReactNode
+    subtitle: string
     image: ReactNode
     inverted: boolean
     className?: string
 }) => {
+
+    const titleClassName = "tracking-tight leading-tight font-light"
+    const subtitleClassName = "tracking-tight leading-tight font-light"
 
     return <div className={cn("w-full flex justify-center", className)}>
 
@@ -17,15 +19,16 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
         <div className={"sm:hidden"}>
             <div className={"flex-col space-y-20 py-20 items-center justify-center flex"}>
                 <div className={"w-screen px-8 flex justify-center items-center"}>
-                    <div className={"space-y-4"}>
-                        <h2 className={"font-extrabold text-xl leading-none"}>
-                            {title}
-                        </h2>
-                        {subtitle && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
-                            {subtitle}
-                        </div>}
-                        <div className={"font-light  text-lg max-[400px]:text-base"}>
-                            {description}
+                    <div className={"font-light text-lg max-[400px]:text-base"}>
+                        <div className={"space-y-2 max-w-[400px]"}>
+                            <div className={cn("text-2xl", titleClassName)}>
+                                {title}
+                            </div>
+                            <div
+                                className={cn("text-base", subtitleClassName)}
+                            >
+                                {subtitle}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -41,27 +44,20 @@ export const FeatureSection = ({title, subtitle, description, image, inverted, c
                 className={"w-full h-[550px] space-y-0 flex-row items-center " + (inverted ? "flex flex-row-reverse" : "flex")}>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center flex-col"}>
                     <div className={"w-full max-w-[400px] space-y-2"}>
-                        <h2 className={"font-bold text-lg md:text-xl leading-tight"}>
-                            {image ? title : null}
-                        </h2>
-                        {subtitle && image && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
-                            {subtitle}
-                        </div>}
-                        <div className={"font-light md:text-xl text-base"}>
-                            {description}
+                        <div className={"space-y-2 max-w-[400px]"}>
+                            <div className={cn("text-2xl", titleClassName)}>
+                                {title}
+                            </div>
+                            <div
+                                className={cn("text-base", subtitleClassName)}
+                            >
+                                {subtitle}
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center font-light"}>
-                    {image ? image :
-                        <div className={"space-y-2 max-w-[400px]"}>
-                            <h2 className={"font-extrabold md:text-xl text-lg leading-tight"}>
-                                {title}
-                            </h2>
-                            {subtitle && <div className={"text-sm sm:text-base text-[var(--text-light)]"}>
-                                {subtitle}
-                            </div>}
-                        </div>}
+                    {image}
                 </div>
             </div>
         </div>
