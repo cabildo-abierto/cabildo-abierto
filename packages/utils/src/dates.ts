@@ -42,3 +42,6 @@ export const formatIsoDateShort = (
 export function sortDatesDescending(a: Date | string, b: Date | string) {
     return new Date(b).getTime() - new Date(a).getTime()
 }
+
+
+export const dayMs = 1000*60*60*24

@@ -1,32 +1,12 @@
 import {CAHandler} from "#/utils/handler.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
-import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
-import {AppContext} from "#/setup.js";
-import {SessionAgent} from "#/utils/session-agent.js";
-import {getUsersWithReadSessions} from "#/services/monetization/get-users-with-read-sessions.js";
-import {isWeeklyActiveUser} from "#/services/monetization/donations.js";
-import {count, listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
-import {sql} from "kysely";
+import {dayMs, getDidFromUri, unique} from "@cabildo-abierto/utils";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {dailyPlotData} from "#/services/admin/stats/utils.js";
-
-
-export type StatsDashboard = {
-    lastUsers: (ArCabildoabiertoActorDefs.ProfileViewBasic & { lastReadSession: Date | null, CAProfileCreatedAt?: Date | null })[]
-    counts: {
-        registered: number
-        active: number
-        verified: number
-        verifiedActive: number
-    }
-    WAUPlot: { date: Date, count: number }[]
-    usersPlot: { date: Date, count: number }[]
-    WAUPlotVerified: { date: Date, count: number }[]
-    articlesPlot: {date: Date, count: number}[]
-    topicVersionsPlot: {date: Date, count: number}[]
-    caCommentsPlot: {date: Date, count: number}[]
-}
+import {getValidationState} from "#/services/user/users.js";
+import {StatsDashboard, StatsDashboardUser} from "@cabildo-abierto/api";
+import {sql} from "kysely";
+import {AppContext} from "#/setup.js";
+import {v4 as uuidv4} from "uuid";
 
 
 export const testUsers = [
@@ -44,218 +24,181 @@ export const testUsers = [
 ]
 
 
-async function getRegisteredUsers(ctx: AppContext, agent: SessionAgent): Promise<StatsDashboard["lastUsers"]> {
-    const users = await ctx.kysely
+const launchDate = new Date('2025-07-09T00:00:00-03:00')
+
+
+export async function computeWAUStats(ctx: AppContext, reset: boolean) {
+    if(reset) {
+        await ctx.kysely.deleteFrom("Stat").where("label", "=", "wau").execute()
+    }
+    const existing = await ctx.kysely
+        .selectFrom("Stat")
+        .select(["date"])
+        .where("label", "=", "wau")
+        .execute()
+
+    const yesterday = new Date(Date.now()-dayMs)
+    yesterday.setHours(0, 0, 0, 0)
+
+    const toInsert: {date: Date, wau: number}[] = []
+    for (
+        let d = new Date(launchDate);
+        d <= yesterday;
+        d.setDate(d.getDate() + 1)
+    ) {
+        if(existing.some(s => s.date.getUTCDate() == d.getUTCDate())) continue
+        ctx.logger.pino.info(`computing wau for day ${d}`)
+        const [{ wau }] = await ctx.kysely
+            .selectFrom('ReadSession')
+            .select(({ fn }) => [
+                fn.count<number>('userId').distinct().as('wau'),
+            ])
+            .where("ReadSession.created_at_tz", ">=", new Date(d.getTime()-dayMs*6))
+            .where("ReadSession.created_at_tz", "<", new Date(d.getTime()+dayMs))
+            .execute()
+        toInsert.push({
+            date: new Date(d),
+            wau: wau
+        })
+    }
+
+    if(toInsert.length > 0) {
+        await ctx.kysely
+            .insertInto("Stat")
+            .values(toInsert.map(i => ({
+                id: uuidv4(),
+                value: i.wau,
+                date: i.date,
+                label: "wau"
+            })))
+            .execute()
+    }
+}
+
+
+const automatedDids = ["did:plc:arplmoycj2z7jz3wljgyq3lh", "did:plc:2semihha42b7efhu4ywv7whi"]
+
+
+async function getStatsDashboardUsers(ctx: AppContext){
+    return ctx.kysely
         .selectFrom("User")
-        .leftJoin("Record as CAProfile", "CAProfile.uri", "User.CAProfileUri")
+        .where("inCA", "=", true)
         .select([
             "did",
-            "User.created_at_tz",
+            "handle",
+            "authorStatus",
+            "created_at_tz",
+            "email",
             "userValidationHash",
             "orgValidation",
             eb => jsonArrayFrom(eb
                 .selectFrom("ReadSession")
-                .select("created_at_tz")
                 .whereRef("ReadSession.userId", "=", "User.did")
-                .orderBy("ReadSession.created_at_tz desc")
-            ).as("readSessions"),
-            "CAProfile.created_at_tz as CAProfileCreatedAt"
+                .select([
+                    "created_at_tz"
+                ])
+                .orderBy("created_at_tz desc")
+                .limit(1)
+            ).as("lastReadSession")
         ])
-        .where("User.inCA", "=", true)
-        .where("User.hasAccess", "=", true)
-        .where("User.handle", "not in", testUsers)
         .execute()
-
-    const dataplane = new Dataplane(ctx, agent)
-    await dataplane.fetchProfileViewBasicHydrationData(users.map(u => u.did))
-
-    const profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[] = users.map(u => hydrateProfileViewBasic(ctx, u.did, dataplane)).filter(u => u != null)
-    return sortByKey(profiles.map(p => {
-        const user = users.find(u => u.did == p.did)
-        if (user) {
-            return {
-                ...p,
-                CAProfileCreatedAt: user.CAProfileCreatedAt,
-                lastReadSession: user.readSessions.length > 0 ? user?.readSessions[0].created_at_tz : null,
-                createdAt: user.created_at_tz?.toString(),
-            }
-        }
-        return null
-    }).filter(u => u != null), e => {
-        return e?.lastReadSession ?
-            [new Date(e.lastReadSession).getTime()] :
-            [0]
-    }, listOrderDesc)
-}
-
-
-
-
-async function getWAUPlot(ctx: AppContext, verified: boolean) {
-    const after = new Date(0)
-    const users = await getUsersWithReadSessions(ctx, after, verified)
-
-    const data = dailyPlotData(
-        users,
-        (u, d) => isWeeklyActiveUser(ctx, u, d)
-    )
-    return {
-        WAUPlot: data,
-        active: data[data.length-1].count
-    }
-}
-
-
-async function getTopicVersionsPlot(ctx: AppContext) {
-    const tv = await ctx.kysely
-        .selectFrom("TopicVersion")
-        .innerJoin("Record", "TopicVersion.uri", "Record.uri")
-        .select("Record.created_at")
-        .where("authorId", "!=", "cabildoabierto.ar")
-        .execute()
-
-    return dailyPlotData(
-        tv,
-        (x, d) => x.created_at.toDateString() == d.toDateString()
-    )
-}
-
-
-async function getArticlesPlot(ctx: AppContext) {
-    const tv = await ctx.kysely
-        .selectFrom("Record")
-        .select("created_at")
-        .where("collection", "=", "ar.cabildoabierto.feed.article")
-        .execute()
-
-    return dailyPlotData(
-        tv,
-        (x, d) => x.created_at.toDateString() == d.toDateString()
-    )
-}
-
-
-async function getCACommentsPlot(ctx: AppContext) {
-    const tv = await ctx.kysely
-        .selectFrom("Post")
-        .innerJoin("Record", "Record.uri", "Post.uri")
-        .innerJoin("Record as Root", "Root.uri", "Post.rootId")
-        .select("Record.created_at")
-        .where("Root.collection", "in", ["ar.cabildoabierto.feed.article", "ar.cabildoabierto.wiki.topicVersion"])
-        .execute()
-
-    return dailyPlotData(
-        tv,
-        (x, d) => x.created_at.toDateString() == d.toDateString()
-    )
-}
-
-
-async function getUsersPlot(ctx: AppContext, users: StatsDashboard["lastUsers"]){
-    return dailyPlotData(
-        users,
-        (x, d) => x.CAProfileCreatedAt != null && new Date(x.CAProfileCreatedAt) <= getEndOfDay(d)
-    )
-}
-
-
-function getEndOfDay(date: Date) {
-    const endOfDay = new Date(date); // clone the date
-    endOfDay.setHours(23, 59, 59, 999);
-    return endOfDay;
 }
 
 
 export const getStatsDashboard: CAHandler<{}, StatsDashboard> = async (ctx, agent, {}) => {
-
-    const [
-        lastUsers,
-        {WAUPlot, active},
-        {WAUPlot: WAUPlotVerified, active: verifiedActive},
-        topicVersionsPlot,
-        caCommentsPlot,
-        articlesPlot,
-    ] = await Promise.all([
-        getRegisteredUsers(ctx, agent),
-        getWAUPlot(ctx, false),
-        getWAUPlot(ctx, true),
-        getTopicVersionsPlot(ctx),
-        getCACommentsPlot(ctx),
-        getArticlesPlot(ctx),
+    const t1 = Date.now()
+    const label = 'ca:en discusión'
+    const [users, articles, humanEdits, edits, enDiscusion, humanEnDiscusion, stats] = await Promise.all([
+        getStatsDashboardUsers(ctx),
+        ctx.kysely
+            .selectFrom("Article")
+            .select(["uri"])
+            .execute(),
+        ctx.kysely
+            .selectFrom("TopicVersion")
+            .innerJoin("Record", "Record.uri", "TopicVersion.uri")
+            .select(({ fn }) => fn.countAll<number>().as("count"))
+            .where("Record.authorId", "not in", automatedDids)
+            .executeTakeFirst(),
+        ctx.kysely
+            .selectFrom("TopicVersion")
+            .select(({ fn }) => fn.countAll<number>().as("count"))
+            .executeTakeFirst(),
+        ctx.kysely
+            .selectFrom("Content")
+            .select(({ fn }) => fn.countAll<number>().as("count"))
+            .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+            .executeTakeFirst(),
+        ctx.kysely
+            .selectFrom("Content")
+            .select(({ fn }) => fn.countAll<number>().as("count"))
+            .innerJoin("Record", "Record.uri", "Content.uri")
+            .where("Record.authorId", "not in", automatedDids)
+            .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+            .executeTakeFirst(),
+        ctx.kysely
+            .selectFrom("Stat")
+            .select(["label", "date", "value"])
+            .execute()
     ])
 
-    const usersPlot = await getUsersPlot(ctx, lastUsers)
+    const lastWeek = new Date(Date.now()-dayMs*7)
+
+    const usersRes: StatsDashboardUser[] = users.map(u => ({
+        handle: u.handle,
+        did: u.did,
+        email: u.email,
+        created_at: u.created_at_tz,
+        authorStatus: u.authorStatus as string,
+        lastReadSession: u.lastReadSession.length > 0 ? new Date(u.lastReadSession[0].created_at_tz ?? 0) : null,
+        verification: getValidationState(u)
+    }))
+
+    const active = usersRes.filter(u => u.lastReadSession && u.lastReadSession > lastWeek && !testUsers.includes(u.handle ?? "") && u.handle != "cabildoabierto.ar").length
+
+    const verified = usersRes
+        .filter(u => u.verification != null).length
+
+    const verifiedHuman = usersRes.filter(u => u.verification == "person").length
+
+    const verifiedActive = usersRes.filter(u => u.verification != null && u.lastReadSession && u.lastReadSession > lastWeek && !testUsers.includes(u.handle ?? "") && u.handle != "cabildoabierto.ar").length
+
+    const humanArticles = articles
+        .filter(a => !automatedDids.includes(getDidFromUri(a.uri)))
+
+    const t2 = Date.now()
+
+    ctx.logger.logTimes("stats dashboard", [t1, t2])
+
+    const labels: string[] = unique(stats.map(s => s.label))
+    const statsByLabel = labels.map(l => ({
+        label: l,
+        data: stats.filter(s => s.label == l).map(x => ({
+            date: x.date,
+            value: x.value
+        }))
+    }))
 
     return {
         data: {
-            lastUsers,
-            WAUPlot,
-            usersPlot,
-            WAUPlotVerified,
             counts: {
                 active,
-                verified: count(lastUsers, u => u.verification != null),
+                verified,
+                verifiedHuman,
                 verifiedActive,
-                registered: lastUsers.length
+                registered: users.length,
+                totalArticles: articles.length,
+                humanArticles: humanArticles.length,
+                totalEdits: edits?.count ?? 0,
+                humanEdits: humanEdits?.count ?? 0,
+                totalEnDiscusion: enDiscusion?.count ?? 0,
+                humanEnDiscusion: humanEnDiscusion?.count ?? 0
             },
-            topicVersionsPlot,
-            caCommentsPlot,
-            articlesPlot,
+            users: usersRes,
+            stats: statsByLabel
         }
     }
 }
-
-
-export type ActivityStats = {
-    did: string
-    handle: string
-    articles: number
-    topicVersions: number
-    enDiscusion: number
-}
-
-
-export const getActivityStats: CAHandler<{}, ActivityStats[]> = async (ctx, agent, {}) => {
-
-    const results = await ctx.kysely
-        .selectFrom('User')
-        .leftJoin('Record', 'Record.authorId', 'User.did')
-        .innerJoin("Content", "Content.uri", "Record.uri")
-        .leftJoin("PaymentPromise", "PaymentPromise.contentId", "Record.uri")
-        .select([
-            'User.did',
-            'User.handle',
-            ctx.kysely.fn
-                .count<number>(sql`case when "Record".collection = 'app.bsky.feed.post' and 'ca:en discusión' = ANY("Content"."selfLabels") then 1 end`)
-                .as('enDiscusion'),
-            ctx.kysely.fn
-                .count<number>(sql`case when "Record".collection = 'ar.cabildoabierto.feed.article' then 1 end`)
-                .as('articles'),
-            ctx.kysely.fn
-                .count<number>(sql`case when "Record".collection = 'ar.cabildoabierto.wiki.topicVersion' then 1 end`)
-                .as('topicVersions'),
-            ctx.kysely.fn
-                .sum<number>("PaymentPromise.amount")
-                .as('income')
-        ])
-        .where('User.inCA', '=', true)
-        .groupBy(['User.did', 'User.handle'])
-        .execute()
-
-    const stats: ActivityStats[] = []
-
-    results.forEach(s => {
-        if(s.handle){
-            stats.push({
-                ...s,
-                handle: s.handle
-            })
-        }
-    })
-
-    return {data: stats}
-}
-
 
 
 export const getReadSessionsPlot: CAHandler<{}, {date: Date, count: number}[]> = async (ctx, agent, params) => {

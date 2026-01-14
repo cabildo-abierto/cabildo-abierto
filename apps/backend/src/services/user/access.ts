@@ -7,6 +7,7 @@ import {range} from "@cabildo-abierto/utils";
 import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {AppBskyActorProfile} from "@atproto/api"
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
+import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 
 async function getCAStatus(ctx: AppContext, did: string): Promise<{inCA: boolean, hasAccess: boolean} | null> {
     return await ctx.kysely
@@ -211,6 +212,8 @@ export const createAccessRequest: CAHandlerNoAuth<{email: string, comment: strin
             comment: params.comment,
             id: uuidv4()
         }]).execute()
+
+        await createMailingListSubscription(ctx, params.email)
     } catch {
         return {error: "Ocurrió un error al crear la solicitud :("}
     }

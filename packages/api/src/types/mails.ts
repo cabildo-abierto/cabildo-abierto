@@ -14,6 +14,7 @@ export type MailSubscriptionsResponse = {
         subscribed: number
         unsubscribed: number
         usersWithoutSubscription: number
+        subscriptionsWithoutUserId: number
     }
 }
 

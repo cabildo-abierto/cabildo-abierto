@@ -12,7 +12,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import dynamic from "next/dynamic";
 
 
-const WAUPlot = dynamic(() => import("@/components/admin/wau-plot").then(mod => mod.WAUPlot), {ssr: false});
+const LinePlotByDate = dynamic(() => import("@/components/admin/line-plot-by-date").then(mod => mod.LinePlotByDate), {ssr: false});
 
 type UserMonths = {
     did: string
@@ -203,8 +203,8 @@ const AdminReadSessions = () => {
 
     if (isLoading) return <LoadingSpinner/>
     if (data) {
-        return <WAUPlot
-            data={data}
+        return <LinePlotByDate
+            data={data.map(d => ({date: d.date, value: d.count}))}
             title={"Lecturas"}
         />
     }

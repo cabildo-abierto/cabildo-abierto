@@ -291,6 +291,8 @@ model ReadSession {
 
   @@index([readContentId])
   @@index([userId])
+  @@index([userId, created_at_tz])
+  @@index([created_at_tz])
 }
 
 model Record {
@@ -654,14 +656,15 @@ enum MailingListSubscriptionStatus {
 }
 
 model MailingListSubscription {
-  id           String                        @id @default(cuid())
-  email        String                        @unique
-  status       MailingListSubscriptionStatus @default(Subscribed)
-  userId       String?                       @unique
-  user         User?                         @relation(fields: [userId], references: [did])
-  subscribedAt DateTime                      @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime?                     @updatedAt @db.Timestamptz(3)
-  emailsSent   EmailSent[]
+  id            String                        @id @default(cuid())
+  email         String                        @unique
+  emailOriginal String?
+  status        MailingListSubscriptionStatus @default(Subscribed)
+  userId        String?                       @unique
+  user          User?                         @relation(fields: [userId], references: [did])
+  subscribedAt  DateTime                      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime?                     @updatedAt @db.Timestamptz(3)
+  emailsSent    EmailSent[]
 }
 
 model EmailSent {
@@ -733,4 +736,14 @@ enum Collection {
   ArCabildoabiertoFeedArticle
   AppBskyFeedPost
   AppBskyFeedRepost
+}
+
+model Stat {
+  id    String   @id
+  date  DateTime @db.Timestamptz(3)
+  label String
+  value Float
+
+  @@index(date)
+  @@index([label, date])
 }

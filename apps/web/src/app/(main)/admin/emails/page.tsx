@@ -230,6 +230,10 @@ function SubscriptionsView() {
                     value={data.counts.usersWithoutSubscription} 
                     label="Sin suscripción" 
                 />
+                <CounterBox
+                    value={data.counts.subscriptionsWithoutUserId}
+                    label="Suscripciones sin usuario"
+                />
             </div>
 
             {/* Subscriptions List */}

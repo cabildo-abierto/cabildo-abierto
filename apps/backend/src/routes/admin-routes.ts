@@ -17,7 +17,7 @@ import {
     setValidationRequestResultHandler
 } from "#/services/user/validation.js";
 import {updateTopicContributionsHandler} from "#/services/wiki/contributions.js";
-import {getActivityStats, getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
+import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
 import {getRegisteredJobs, startJob} from "#/jobs/worker.js";
 
@@ -29,8 +29,15 @@ import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/otros/find-users.js";
 import {getAllCAFeed} from "#/services/feed/all.js";
 import {updateAllFollowingFeeds} from "#/services/feed/following/update.js";
-import {getMailSubscriptions, getSentEmails, getEmailTemplates, createEmailTemplate, updateEmailTemplate, deleteEmailTemplate, sendBulkEmails} from "#/services/emails/subscriptions.js"
+import {getMailSubscriptions, getSentEmails} from "#/services/emails/subscriptions.js"
 import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
+import {
+    createEmailTemplate,
+    deleteEmailTemplate,
+    getEmailTemplates,
+    updateEmailTemplate
+} from "#/services/emails/template.js";
+import {sendBulkEmails} from "#/services/emails/sending.js";
 
 
 function isAdmin(did: string) {
@@ -149,8 +156,6 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.post('/update-topic-contributions/:id', makeHandler(ctx, updateTopicContributionsHandler))
 
     router.get("/stats-dashboard", makeAdminHandler(ctx, getStatsDashboard))
-
-    router.get("/activity-stats", makeAdminHandler(ctx, getActivityStats))
 
     router.get("/repo/:handleOrDid", makeAdminHandler(ctx, getRepoCounts))
 

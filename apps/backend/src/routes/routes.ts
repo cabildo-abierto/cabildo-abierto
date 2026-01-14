@@ -68,13 +68,13 @@ import { getAuthorDashboardHandler } from '#/services/monetization/author-dashbo
 import { getFollowSuggestions, setNotInterested } from '#/services/user/follow-suggestions.js';
 import {AppContext} from "#/setup.js";
 import { jobApplicationHandler } from '#/services/admin/jobs.js';
-import {unsubscribeHandler} from "#/services/emails/sending.js";
 import {getTopicsDataForElectionVisualizationHandler} from "#/services/wiki/election.js";
 import {getKnownPropsHandler} from "#/services/wiki/known-props.js";
 import { syncHandler } from "#/services/sync/sync-user.js";
 import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/services/feed/discover/interests.js";
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
+import {unsubscribeHandler} from "#/services/emails/subscriptions.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}

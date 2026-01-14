@@ -1,17 +1,36 @@
-import { ArCabildoabiertoActorDefs } from "../client"
+import {ValidationState} from "./session";
 
 export type StatsDashboard = {
-    lastUsers: (ArCabildoabiertoActorDefs.ProfileViewBasic & { lastReadSession: Date | null, CAProfileCreatedAt?: Date })[]
     counts: {
         registered: number
         active: number
         verified: number
         verifiedActive: number
-    }
-    WAUPlot: { date: Date, count: number }[]
-    usersPlot: { date: Date, count: number }[]
-    WAUPlotVerified: { date: Date, count: number }[]
-    articlesPlot: {date: Date, count: number}[]
-    topicVersionsPlot: {date: Date, count: number}[]
-    caCommentsPlot: {date: Date, count: number}[]
+        verifiedHuman: number
+        totalArticles: number
+        humanArticles: number
+        totalEdits: number
+        humanEdits: number
+        totalEnDiscusion: number
+        humanEnDiscusion: number
+    },
+    stats: {
+        label: string
+        data: {
+            date: Date
+            value: number
+        }[]
+    }[]
+    users: StatsDashboardUser[]
+}
+
+
+export type StatsDashboardUser = {
+    handle: string | null
+    did: string
+    email: string | null
+    created_at: Date | null
+    authorStatus: string | null
+    lastReadSession: Date | null
+    verification: ValidationState
 }
