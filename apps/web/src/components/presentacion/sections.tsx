@@ -12,14 +12,14 @@ export const FormatGrid = () => {
                 width={2000}
                 height={600}
                 alt="Publicación rápida"
-                className="border w-full h-auto mt-10"
+                className="border border-[var(--accent-dark)] w-full h-auto mt-10"
             />
             <Image
                 src={`/presentacion/${currentTheme}/artículo.png`}
                 width={700}
                 height={700}
                 alt="Publicación"
-                className="border w-full h-auto"
+                className="border border-[var(--accent-dark)] w-full h-auto"
             />
         </div>
         <div className={"flex flex-col space-y-2 w-1/2"}>
@@ -28,14 +28,14 @@ export const FormatGrid = () => {
                 width={700}
                 height={700}
                 alt="Publicación"
-                className="border w-full h-auto mt-10"
+                className="border border-[var(--accent-dark)] w-full h-auto mt-10"
             />
             <Image
                 src={`/presentacion/${currentTheme}/editor.png`}
                 width={700}
                 height={700}
                 alt="Publicación"
-                className="border w-full h-full object-contain"
+                className="border border-[var(--accent-dark)] w-full h-full object-contain"
             />
         </div>
     </div>

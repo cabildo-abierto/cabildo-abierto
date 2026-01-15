@@ -12,14 +12,9 @@ export const LandingFirstScreen = () => {
         </div>
     </div>
 
-    const subtitle = <>
-        <div>
-            Para informarnos, discutir y conectar con otros,
-        </div>
-        <div>
-            sin algoritmos en el medio.
-        </div>
-    </>
+    const subtitle = <div>
+        Cabildo Abierto es una plataforma para informarnos y discutir de formas más sanas y útiles, sin algoritmos en el medio.
+    </div>
 
     const image = <FormatGrid/>
 
@@ -31,11 +26,12 @@ export const LandingFirstScreen = () => {
             <div className={"flex w-full justify-between space-x-6 lg:space-x-12 items-center px-6 lg:px-12"}>
                 <div className={"w-1/2 flex flex-col items-center"}>
                     <div className={"space-y-6"}>
-                        <h1 className={"leading-none tracking-tight text-xl lg:text-2xl"}>
+                        <h1 className={"normal-case leading-none tracking-tight text-xl lg:text-3xl"}>
                             {title}
                         </h1>
                         <div
-                            className={"text-xl text-[1rem] lg:text-2xl lg:text-[1.3rem] font-light leading-tight"}>
+                            className={"text-xl tracking-tight text-[1rem] max-w-[450px] lg:text-xl lg:text-[1.3rem] font-light leading-tight"}
+                        >
                             {subtitle}
                         </div>
                     </div>

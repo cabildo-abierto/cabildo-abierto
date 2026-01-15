@@ -38,15 +38,20 @@ export const GoToLoginButton = ({
         }}
         variant={"black"}
         letterSpacing={"0em"}
-        className={className}
+        className={cn(className, "")}
         startIcon={<SignInIcon/>}
+
     >
         <div className={"flex flex-col items-center"}>
-            <div
+            {code ? <div
+                className={cn("text-[11px] max-w-36 sm:max-w-none sm:text-[12px] whitespace-break-spaces")}
+            >
+                ¡Recibiste un código de invitación!
+            </div> : <div
                 className={cn("text-[13px] whitespace-break-spaces", textClassName)}
             >
-                {code ? "¡Recibiste un código de invitación!" : text}
-            </div>
+                {text}
+            </div>}
         </div>
     </BaseButton>
 }

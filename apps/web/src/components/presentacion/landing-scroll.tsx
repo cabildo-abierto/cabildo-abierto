@@ -3,14 +3,17 @@ import Image from "next/image";
 import {cn} from "@/lib/utils";
 import {useTheme} from "@/components/layout/theme/theme-context";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {useLoginModal} from "@/components/auth/login-modal-provider";
+import {useSession} from "@/components/auth/use-session";
 
 
 export const LandingScroll = () => {
     const {currentTheme} = useTheme()
     const params = useSearchParams()
     const {setLoginModalOpen} = useLoginModal()
+    const {user} = useSession()
+    const router = useRouter()
 
     const code = params.get("c")
 
@@ -59,7 +62,7 @@ export const LandingScroll = () => {
 
         <FeatureSection
             title={"Con código y datos abiertos."}
-            subtitle={"Cabildo Abierto es parte de ATProtocol, un nuevo ecosistema de plataformas descentralizadas, en el cual cada usuario es dueño de sus datos."}
+            subtitle={"Cabildo Abierto es parte de un nuevo ecosistema de plataformas descentralizadas en el cual cada usuario es dueño de sus datos."}
             image={cabildoPuertas}
             inverted={false}
         />
@@ -78,7 +81,11 @@ export const LandingScroll = () => {
             <BaseButton
                 variant={"default"}
                 onClick={() => {
-                    setLoginModalOpen(true, true, true)
+                    if(user) {
+                        router.push("/inicio")
+                    } else {
+                        setLoginModalOpen(true, true, true)
+                    }
                 }}
                 className={"rounded-xl bg-[var(--text)] text-[var(--background)] hover:bg-[var(--text-light)]"}
             >
