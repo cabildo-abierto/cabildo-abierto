@@ -83,7 +83,7 @@ export const createArticle: CAHandler<CreateArticleProps> = async (ctx, agent, a
                 externalEmbedView: {
                     $type: "app.bsky.embed.external#view",
                     external: {
-                        uri: `https://cabildoabierto.ar/${did}/articulo/${rkey}`,
+                        uri: `https://cabildoabierto.ar/c/${did}/article/${rkey}`,
                         title: article.title,
                         description: getArticleSummary(article.text, article.format, article.description).summary,
                         thumb: previewRef ? getArticlePreviewImage(did, getCidFromBlobRef(previewRef), article.title)?.thumb : undefined
