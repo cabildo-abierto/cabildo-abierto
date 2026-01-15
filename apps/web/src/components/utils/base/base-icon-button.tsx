@@ -9,7 +9,7 @@ export const BaseIconButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
          title,
          size = "default",
          className,
-        variant,
+        variant="default",
          ...props}, ref) => {
         size = size == "small" ? "icon-sm" : (size == "large" ? "icon-lg" : (size == "default" ? "icon" : size))
 

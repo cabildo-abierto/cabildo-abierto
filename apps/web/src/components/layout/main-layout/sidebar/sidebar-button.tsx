@@ -65,7 +65,6 @@ export const SidebarButton = ({
             }}
         >
             <BaseButton
-                variant="default"
                 size="large"
                 className={"flex py-0 text-[15px] [&_svg]:size-6 " + (showText ? " justify-start px-4 " : " justify-center px-2 ") + (showText && isMobile ? "w-full" : "")}
                 onClick={handleClick}

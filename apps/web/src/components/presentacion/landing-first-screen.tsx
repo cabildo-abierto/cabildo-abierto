@@ -3,17 +3,13 @@ import {ChevronDownIcon} from "lucide-react";
 
 export const LandingFirstScreen = () => {
 
-    const title = <div>
-        <div>
-            Un espacio de discusión
-        </div>
-        <div>
-            argentino.
-        </div>
-    </div>
+    const title = <span className={""}>
+        Un foro argentino.
+    </span>
 
     const subtitle = <div>
-        Cabildo Abierto es una plataforma para informarnos y discutir de formas más sanas y útiles, sin algoritmos en el medio.
+        Cabildo Abierto es un espacio para informarnos y discutir de formas más sanas y útiles. Sin algoritmos en el
+        medio.
     </div>
 
     const image = <FormatGrid/>
@@ -24,9 +20,9 @@ export const LandingFirstScreen = () => {
         <div
             className={"min-[768px]:flex min-[1500px]:hidden hidden relative w-full justify-center items-center h-[90vh]"}>
             <div className={"flex w-full justify-between space-x-6 lg:space-x-12 items-center px-6 lg:px-12"}>
-                <div className={"w-1/2 flex flex-col items-center"}>
-                    <div className={"space-y-6"}>
-                        <h1 className={"normal-case leading-none tracking-tight text-xl lg:text-3xl"}>
+                <div className={"w-1/2 flex flex-col items-center "}>
+                    <div className={"space-y-4"}>
+                        <h1 className={"w-full normal-case leading-none tracking-tight text-2xl"}>
                             {title}
                         </h1>
                         <div

@@ -198,7 +198,6 @@ export default function Page() {
                                 Chico
                             </BaseButton>
                             <BaseButton
-                                variant={"default"}
                                 onClick={() => {
                                     setLoginModalOpen(true)
                                 }}
@@ -255,7 +254,6 @@ export default function Page() {
                             </BaseButton>
                             <BaseButton
                                 startIcon={<DonateIcon/>}
-                                variant={"default"}
                                 onClick={() => {
                                     setLoginModalOpen(true)
                                 }}

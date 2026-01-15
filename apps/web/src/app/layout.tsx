@@ -17,13 +17,6 @@ export default function RootLayout({
 }>) {
     return <html lang="es" spellCheck="false" className={GeistSans.variable}>
         <head>
-            <script
-                defer
-                src="https://cloud.umami.is/script.js"
-                data-website-id="49c00411-610e-4f0c-ae51-3fe9e37aded3"
-            >
-            </script>
-
             <meta
                 name="viewport"
                 content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">

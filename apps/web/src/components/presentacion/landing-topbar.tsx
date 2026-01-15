@@ -22,12 +22,12 @@ const LandingTopbar = () => {
             <div className="flex justify-between items-center">
                 <div className="flex-1">
                     <h2
-                        className={cn("uppercase font-bold tracking-[0.026em] leading-[1.15] text-xl transition-colors duration-300")}
+                        className={cn("uppercase font-bold tracking-[0em] leading-[1.15] text-lg transition-colors duration-300")}
                     >
                         Cabildo Abierto
                     </h2>
                 </div>
-                <Logo width={40} height={40}/>
+                <Logo width={32} height={32}/>
 
                 <div className="flex-1 flex justify-end">
                     <GoToLoginButton

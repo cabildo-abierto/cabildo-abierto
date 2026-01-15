@@ -47,7 +47,7 @@ export const TopicPropEditor = ({
                 </DescriptionOnHover>
                 {info && <InfoPanel text={info} moreInfoHref={moreInfoHref} iconFontSize={16}/>}
             </div>
-            {!isDefault && <BaseIconButton variant={"default"} size={"small"}>
+            {!isDefault && <BaseIconButton size={"small"}>
                 <TrashIcon/>
             </BaseIconButton>}
         </div>

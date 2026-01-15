@@ -35,7 +35,7 @@ const SmallUserSearchResult: React.FC<{
                     {user.caProfile && <div className={"pb-[2px]"}>
                         <ValidationIcon fontSize={18} handle={user.handle} verification={user.verification}/>
                     </div>}
-                    {!user.caProfile && <BlueskyLogo className={"w-[12px] h-auto"}/>}
+                    {!user.caProfile && <BlueskyLogo fontSize={12}/>}
                 </div>
                 <div className={"truncate whitespace-nowrap max-w-[200px]"}>
                     {user.displayName && <span className="text-[var(--text-light)] text-sm">@{user.handle}</span>}

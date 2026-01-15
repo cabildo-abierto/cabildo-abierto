@@ -138,7 +138,7 @@ export const PostPreviewFrame = ({
                                 {!author.caProfile && <div
                                     className={"pb-[2px]"}
                                 >
-                                    <BlueskyLogo className={"w-auto h-[10px]"}/>
+                                    <BlueskyLogo fontSize={11}/>
                                 </div>}
                             </div>
                         </UserSummaryOnHover>

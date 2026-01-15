@@ -5,7 +5,7 @@ import {BaseButton, BaseButtonProps} from "@/components/utils/base/base-button";
 export const ReplyButton = ({
                                 onClick,
                                 text = "Responder",
-                                variant = "default",
+                                variant = "text",
                                 size
                             }: {
     onClick: () => void

@@ -2,7 +2,7 @@ import {Logo} from '@/components/utils/icons/logo';
 import {ScrollToButton} from "../utils/scroll-to-button";
 import {topicUrl} from "@/components/utils/react/url";
 import BlueskyLogo from "@/components/utils/icons/bluesky-logo";
-import {GithubLogoIcon, XLogoIcon} from "@phosphor-icons/react";
+import {GithubLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {cn} from "@/lib/utils";
 import {dimOnHoverClassName, DimOnHoverLink} from "@/components/utils/base/dim-on-hover-link";
@@ -20,7 +20,7 @@ const FooterLeftSide = () => {
                 target="_blank"
                 href="https://bsky.app/profile/cabildoabierto.ar"
             >
-                <BlueskyLogo className={"w-[24px] h-[24px]"} outlined={true}/>
+                <BlueskyLogo fontSize={24} color="var(--text)" outlined={true}/>
             </DimOnHoverLink>
             <DimOnHoverLink
                 target="_blank"
@@ -49,7 +49,7 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
             {showCA && <div className="flex flex-col space-y-1">
                 <div className={"uppercase"}>Cabildo Abierto</div>
                 <FooterLink href={topicUrl("Cabildo Abierto")}>
-                    FAQ
+                    Preguntas frecuentes
                 </FooterLink>
                 <FooterLink href={"/equipo"}>
                     Equipo

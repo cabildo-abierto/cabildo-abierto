@@ -55,7 +55,6 @@ export const TopicVotesOnFeed = ({topic, setWritingReply}: {
             <div className={"flex justify-between"}>
                 <BaseButton
                     size={"small"}
-                    variant={"default"}
                     onClick={() => {
                         setOpenHistory(true)
                     }}

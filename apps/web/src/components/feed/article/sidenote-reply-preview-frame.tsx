@@ -91,7 +91,7 @@ export const SidenoteReplyPreviewFrame = ({
                                     </div>
                                 </div>
                                 {!author.caProfile && <div className={"pb-[2px]"}>
-                                    <BlueskyLogo className={"w-auto h-[10px]"}/>
+                                    <BlueskyLogo fontSize={10}/>
                                 </div>}
                             </div>
                         </UserSummaryOnHover>

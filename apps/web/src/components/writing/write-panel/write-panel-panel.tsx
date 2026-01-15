@@ -43,7 +43,6 @@ const WritePanelPanel = ({
         return <div className="text-[var(--text)] text-sm">
             <BaseButton
                 size={"small"}
-                variant={"default"}
                 className={"w-full py-0"}
             >
                 <div className={"px-2 py-[2px]"}>

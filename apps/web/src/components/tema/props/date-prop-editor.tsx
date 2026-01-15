@@ -35,7 +35,6 @@ export function DateAndTimePicker({value, onChange, label, time = true}: {
                     <PopoverTrigger asChild>
                         <Button
                             size={"default"}
-                            variant="default"
                             id="date-picker"
                             className="w-32 border border-[var(--accent-dark)] justify-between font-normal"
                         >

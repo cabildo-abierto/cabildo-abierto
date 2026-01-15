@@ -99,7 +99,7 @@ const UserSearchResult = ({
                 {user.caProfile && <div className={"pb-[2px]"}>
                     <ValidationIcon fontSize={18} handle={user.handle} verification={user.verification}/>
                 </div>}
-                {!user.caProfile && <BlueskyLogo className={"w-[12px] h-auto"}/>}
+                {!user.caProfile && <BlueskyLogo fontSize={12}/>}
             </div>
             </UserSummaryOnHover>
             {user.displayName &&

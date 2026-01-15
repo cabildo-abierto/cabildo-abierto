@@ -55,7 +55,7 @@ export const LandingScroll = () => {
 
         <FeatureSection
             title={"Con herramientas para que las discusiones no queden en la superficie."}
-            subtitle={"Una wiki (como Wikipedia) pero centrada en la discusión argentina."}
+            subtitle={"Artículos, visualizaciones y una wiki (como Wikipedia) pero centrada en la discusión argentina."}
             image={cabildoPlano}
             inverted={true}
         />
@@ -79,15 +79,15 @@ export const LandingScroll = () => {
                 Lanzamiento oficial: 25 de mayo de 2026.
             </div>
             <BaseButton
-                variant={"default"}
                 onClick={() => {
-                    if(user) {
+                    if (user) {
                         router.push("/inicio")
                     } else {
                         setLoginModalOpen(true, true, true)
                     }
                 }}
-                className={"rounded-xl bg-[var(--text)] text-[var(--background)] hover:bg-[var(--text-light)]"}
+                variant={"black"}
+                className={"rounded-xl text-[var(--background)]"}
             >
                 <div>
                     {!code && <div className={"text-xs  normal-case"}>
@@ -99,6 +99,22 @@ export const LandingScroll = () => {
                     Participar en el acceso anticipado
                 </div>
             </BaseButton>
+        </div>
+
+        <div className={"flex justify-start py-10"}>
+            <div>
+                <div>
+                    <div>
+                        “Ya estáis congregados;
+                    </div>
+                    <div>
+                        hablad con toda libertad [...]”
+                    </div>
+                </div>
+                <div className={"text-sm text-right font-light"}>
+                    — Justo José Núñez, 22 de mayo de 1810.
+                </div>
+            </div>
         </div>
     </div>
 }
