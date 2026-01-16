@@ -3580,6 +3580,17 @@ export const schemaDict = {
             type: 'string',
             format: 'datetime',
           },
+          versionRef: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+            description:
+              'Opcionalmente se referencia una versión específica del tema',
+          },
+          versionAuthor: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+            description: 'Autor de la versión en versionRef',
+          },
         },
       },
       topicVersionContribution: {

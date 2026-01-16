@@ -97,7 +97,8 @@ const getDiscoverFeedSkeleton: GetSkeletonProps = async (ctx, agent, data, curso
 
 export const discoverFeedPipeline: FeedPipelineProps = {
     getSkeleton: getDiscoverFeedSkeleton,
-    sortKey: (a) => [0]
+    sortKey: (a) => [0],
+    debugName: "discover"
 }
 
 /* FEED CON TODOS LOS POSTS/ARTICULOS QUE CITAN ALGÚN TEMA, PARA INSPIRARSE EN QUÉ TEMAS FALTA DEFINIR

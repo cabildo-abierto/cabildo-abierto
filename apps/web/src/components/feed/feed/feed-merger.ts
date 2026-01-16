@@ -21,6 +21,14 @@ function getFeedViewContentCreationDate(content: FeedViewContent): Date {
 }
 
 
+function getFeedViewContentUri(content: FeedViewContent): string {
+    if(ArCabildoabiertoFeedDefs.isPostView(content.content) || ArCabildoabiertoFeedDefs.isArticleView(content.content)) {
+        return content.content.uri
+    }
+    return null
+}
+
+
 function getFeedViewContentRootUri(content: FeedViewContent): string {
     if(ArCabildoabiertoFeedDefs.isReasonRepost(content.reason)) {
         if(ArCabildoabiertoFeedDefs.isPostView(content.content) || ArCabildoabiertoFeedDefs.isArticleView(content.content)) {
@@ -57,13 +65,36 @@ export const chronologicalFeedMerger: FeedMerger<FeedViewContent> = (acc, newEle
 
     const res = [...acc]
 
-    const present = new Set(acc.map(getFeedViewContentRootUri))
+    const presentRoots = new Set(acc.map(getFeedViewContentRootUri))
+    const present = new Set(acc.map(getFeedViewContentUri))
     sorted.forEach(e => {
+        const uri = getFeedViewContentUri(e)
         const rootUri = getFeedViewContentRootUri(e)
         if(!rootUri) return
-        if(!present.has(rootUri)) {
+        if(!presentRoots.has(rootUri) && !present.has(uri)) {
             res.push(e)
-            present.add(rootUri)
+            present.add(uri)
+            presentRoots.add(rootUri)
+        }
+    })
+    return res
+}
+
+
+export const defaultFeedViewContentFeedMerger: FeedMerger<FeedViewContent> = (acc, newElements) => {
+    // Agrego solo los elementos cuyo root no haya aparecido todavía, donde root en caso de un repost es el contenido reposteado.
+    const res = [...acc]
+
+    const presentRoots = new Set(acc.map(getFeedViewContentRootUri))
+    const present = new Set(acc.map(getFeedViewContentUri))
+    newElements.forEach(e => {
+        const uri = getFeedViewContentUri(e)
+        const rootUri = getFeedViewContentRootUri(e)
+        if(!rootUri) return
+        if(!presentRoots.has(rootUri) && !present.has(uri)) {
+            res.push(e)
+            present.add(uri)
+            presentRoots.add(rootUri)
         }
     })
     return res
@@ -85,13 +116,16 @@ export const repliesFeedMerger: FeedMerger<FeedViewContent> = (acc, newElements)
 
     const res = [...acc]
 
-    const present = new Set(acc.map(getFeedViewContentRootUri))
+    const presentRoots = new Set(acc.map(getFeedViewContentRootUri))
+    const present = new Set(acc.map(getFeedViewContentUri))
     sorted.forEach(e => {
+        const uri = getFeedViewContentUri(e)
         const rootUri = getFeedViewContentRootUri(e)
         if(!rootUri) return
-        if(!present.has(rootUri)) {
+        if(!presentRoots.has(rootUri) && !present.has(uri)) {
             res.push(e)
-            present.add(rootUri)
+            presentRoots.add(rootUri)
+            present.add(uri)
         } else {
             if(e.reply) {
                 res.push({

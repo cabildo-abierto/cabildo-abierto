@@ -59,6 +59,7 @@ import LinksToMentionsPlugin from "./plugins/MentionsToLinksPlugin";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {NoLineBreaksPlugin} from "./plugins/NoLineBreaksPlugin";
 import {cn} from "./lib/utils";
+import {EditorState} from "lexical";
 
 export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 
@@ -96,7 +97,7 @@ export type SettingsProps = {
     isReadOnly: boolean
 
     title?: string
-    initialText: string
+    initialText: string | EditorState
     initialTextFormat: string
     placeholder: string
 

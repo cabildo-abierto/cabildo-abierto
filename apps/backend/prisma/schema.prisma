@@ -291,6 +291,8 @@ model ReadSession {
 
   @@index([readContentId])
   @@index([userId])
+  @@index([userId, created_at_tz])
+  @@index([created_at_tz])
 }
 
 model Record {
@@ -348,14 +350,15 @@ model Record {
 }
 
 model Reference {
-  id                   String        @id
-  type                 ReferenceType
-  referencedTopicId    String
-  referencingContentId String
-  count                Int?
-  relevance            Float?
-  Topic                Topic         @relation(fields: [referencedTopicId], references: [id])
-  Content              Content       @relation(fields: [referencingContentId], references: [uri])
+  id                          String        @id
+  type                        ReferenceType
+  referencedTopicId           String
+  referencingContentId        String
+  count                       Int?
+  relevance                   Float?
+  Topic                       Topic         @relation(fields: [referencedTopicId], references: [id])
+  Content                     Content       @relation(fields: [referencingContentId], references: [uri])
+  referencingContentCreatedAt DateTime      @default(dbgenerated("'1970-01-01 00:00:00+00'::timestamptz")) @db.Timestamptz(3)
 
   interactions TopicInteraction[]
 
@@ -364,7 +367,7 @@ model Reference {
 
   @@unique([referencingContentId, referencedTopicId])
   @@index([referencingContentId, referencedTopicId])
-  @@index([referencedTopicId])
+  @@index([referencedTopicId, referencingContentCreatedAt(sort: Desc)])
   @@index([referencingContentId])
   @@index([touched])
 }
@@ -653,27 +656,41 @@ enum MailingListSubscriptionStatus {
 }
 
 model MailingListSubscription {
-  id           String                        @id @default(cuid())
-  email        String                        @unique
-  status       MailingListSubscriptionStatus @default(Subscribed)
-  userId       String?                       @unique
-  user         User?                         @relation(fields: [userId], references: [did])
-  subscribedAt DateTime                      @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime?                     @updatedAt @db.Timestamptz(3)
-  emailsSent   EmailSent[]
+  id            String                        @id @default(cuid())
+  email         String                        @unique
+  emailOriginal String?
+  status        MailingListSubscriptionStatus @default(Subscribed)
+  userId        String?                       @unique
+  user          User?                         @relation(fields: [userId], references: [did])
+  subscribedAt  DateTime                      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime?                     @updatedAt @db.Timestamptz(3)
+  emailsSent    EmailSent[]
 }
 
 model EmailSent {
-  id            String                  @id @default(cuid())
-  recipientId   String
-  recipient     MailingListSubscription @relation(fields: [recipientId], references: [id])
-  sent_at       DateTime                @default(now()) @db.Timestamptz(3)
-  text          String
-  html          String
-  subject       String
-  success       Boolean
-  from          String
-  template_name String
+  id          String                  @id @default(cuid())
+  recipientId String
+  recipient   MailingListSubscription @relation(fields: [recipientId], references: [id])
+  sent_at     DateTime                @default(now()) @db.Timestamptz(3)
+  text        String
+  html        String
+  subject     String
+  success     Boolean
+  from        String
+  replyTo     String?
+  templateId  String
+  template    EmailTemplate           @relation(fields: [templateId], references: [id])
+}
+
+model EmailTemplate {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  subject    String
+  html       String
+  text       String
+  created_at DateTime    @default(now()) @db.Timestamptz(3)
+  updated_at DateTime    @updatedAt @db.Timestamptz(3)
+  emailsSent EmailSent[]
 }
 
 enum EditorStatus {
@@ -720,4 +737,14 @@ enum Collection {
   ArCabildoabiertoFeedArticle
   AppBskyFeedPost
   AppBskyFeedRepost
+}
+
+model Stat {
+  id    String   @id
+  date  DateTime @db.Timestamptz(3)
+  label String
+  value Float
+
+  @@index(date)
+  @@index([label, date])
 }

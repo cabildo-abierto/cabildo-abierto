@@ -34,20 +34,6 @@ export const LandingScroll = () => {
         className={cn("opacity-80 w-[320px] h-auto", currentTheme == "dark" && "invert")}
     />
 
-    const cabildoPlano = <Image
-        src={"/presentacion/plano.png"}
-        alt={"cabildo"}
-        width={400} height={400}
-        className={cn("opacity-80 w-[250px] h-auto", currentTheme == "dark" && "invert")}
-    />
-
-    const cabildoPuertas = <Image
-        src={"/presentacion/puertas.png"}
-        alt={"cabildo"}
-        width={400} height={400}
-        className={cn("opacity-80 w-[400px] h-auto", currentTheme == "dark" && "invert")}
-    />
-
     const cabildo = <Image
         src={"/presentacion/cabildo.svg"}
         alt={"cabildo"}
@@ -100,10 +86,10 @@ export const LandingScroll = () => {
             title={"Porque tenés derecho a saber cómo funciona, y tus datos son tuyos."}
             subtitle={<div className={"space-y-4"}>
                 <p>
-                    Cabildo Abierto es de código abierto, cualquiera lo puede revisar (<Link className={"underline"} href={"https://github.com/cabildo-abierto/cabildo-abierto"}>acá</Link>).
+                    Cabildo Abierto es de código abierto, cualquiera lo puede revisar, <Link className={"underline"} href={"https://github.com/cabildo-abierto/cabildo-abierto"}>acá</Link>.
                 </p>
                 <p>
-                    Además, es parte de un nuevo ecosistema de plataformas descentralizadas que permite que
+                    A su vez, es parte de un nuevo ecosistema de plataformas descentralizadas que permite que
                     cada usuario sea dueño de sus datos y hace que migrar entre plataformas sea mucho más fácil.
                 </p>
             </div>}
@@ -127,7 +113,7 @@ export const LandingScroll = () => {
                     if (user) {
                         router.push("/inicio")
                     } else {
-                        setLoginModalOpen(true, true, true)
+                        setLoginModalOpen(true, true, null, true)
                     }
                 }}
                 variant={"black"}

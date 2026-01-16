@@ -32,7 +32,7 @@ export const GoToLoginButton = ({
     return <BaseButton
         size={!isMobile ? "default" : "default"}
         onClick={() => {
-            if (user) {
+            if (user || !code) {
                 router.push("/inicio")
             } else {
                 setLoginModalOpen(true)

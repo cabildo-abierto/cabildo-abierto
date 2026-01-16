@@ -38,7 +38,7 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
         return <Link href={topicUrl(topic.id)}>
             <div className={"hover:bg-[var(--background-dark)] w-full text-[var(--text-light)] p-4 border-b"}>
                 <span>{inSearch ? "Tema" : "Edición del tema"}</span> <span
-                className={"text-[var(--primary)]"}>{getTopicTitle(topic)}</span>
+                className={"font-semibold"}>{getTopicTitle(topic)}</span>
             </div>
         </Link>
     }

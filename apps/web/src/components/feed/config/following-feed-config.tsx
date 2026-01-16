@@ -1,33 +1,38 @@
-import {useSession} from "@/components/auth/use-session";
-import {useFollowingParams} from "../feed/main-page";
 import SelectionComponent from "../../buscar/search-selection-component";
 import {configOptionNodes} from "./config-option-nodes";
-import {updateSearchParam} from "@/components/utils/react/search-params";
 import {FeedFormatOption, FollowingFeedFilter} from "@cabildo-abierto/api";
+import { Note } from "@/components/utils/base/note";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
 
 
 export const FollowingFeedConfig = () => {
-    const {user} = useSession()
-    const {filter, format} = useFollowingParams(user)
+    const {config, setConfig, openFeeds} = useMainPageFeeds()
 
-    function setFilter(v: FollowingFeedFilter) {
-        updateSearchParam("filtro", v)
+    if(!config || config.type != "main" || config.subtype != "siguiendo"){
+        return <Note>
+            Ocurrió un error al cargar la configuración.
+        </Note>
     }
 
-    function setFormat(v: FeedFormatOption) {
-        updateSearchParam("formato", v)
+    const {format, filter} = config
+
+    function setFilterAndFormat(format: FeedFormatOption, filter: FollowingFeedFilter) {
+        if(config.subtype == "siguiendo") {
+            setConfig(openFeeds.selected, {
+                ...config,
+                format,
+                filter
+            })
+        }
     }
 
     function onSelection(v: string) {
         if (v == "Todos") {
-            setFilter("Todos")
-            setFormat("Todos")
+            setFilterAndFormat("Todos", "Todos")
         } else if (v == "Cabildo Abierto") {
-            setFilter("Solo Cabildo Abierto")
-            setFormat("Todos")
+            setFilterAndFormat("Todos", "Solo Cabildo Abierto")
         } else if (v == "Artículos") {
-            setFilter("Solo Cabildo Abierto")
-            setFormat("Artículos")
+            setFilterAndFormat("Artículos", "Solo Cabildo Abierto")
         }
     }
 

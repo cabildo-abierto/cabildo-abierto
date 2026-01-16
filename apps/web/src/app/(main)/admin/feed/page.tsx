@@ -2,8 +2,8 @@
 import FeedViewContentFeed from "@/components/feed/feed/feed-view-content-feed";
 import React from "react";
 import {get} from "@/components/utils/react/fetch";
-import {GetFeedOutput} from "@/lib/types";
 import {FeedViewContent} from "@cabildo-abierto/api/dist/client/types/ar/cabildoabierto/feed/defs";
+import {GetFeedOutput} from "@cabildo-abierto/api";
 
 
 export default function Page() {

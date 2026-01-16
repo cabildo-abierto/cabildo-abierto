@@ -1,72 +1,16 @@
-"use client"
-
-import {useSearchParams} from "next/navigation";
 import React from "react";
 import FeedViewContentFeed from "./feed-view-content-feed";
 import {useSession} from "@/components/auth/use-session";
-import {stringToEnum} from "@cabildo-abierto/utils";
-import {
-    defaultEnDiscusionFormat,
-    defaultEnDiscusionMetric,
-    defaultEnDiscusionTime,
-    enDiscusionMetricOptions,
-    enDiscusionTimeOptions,
-    feedFormatOptions,
-    followingFeedFilterOption,
-    mainFeedOptionToSearchParam,
-    searchParamToMainFeedOption
-} from "../config/defaults";
 import {LoginRequiredPage} from "../../layout/main-layout/page-requires-login-checker";
 import {BaseButton} from "@/components/utils/base/base-button";
 import Link from "next/link";
-import { Note } from "@/components/utils/base/note";
-import {CaretDownIcon} from "@phosphor-icons/react";
-import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilter, Session} from "@cabildo-abierto/api";
+import {Note} from "@/components/utils/base/note";
+import {ArrowSquareOutIcon, CaretDownIcon} from "@phosphor-icons/react";
 import {useGetFeed} from "@/components/feed/feed/get-feed";
-import {chronologicalFeedMerger} from "@/components/feed/feed/feed-merger";
-
-
-export function useFollowingParams(user: Session): {
-    filter: FollowingFeedFilter
-    format: FeedFormatOption } {
-    const params = useSearchParams()
-
-    const config = user ? user.algorithmConfig : undefined
-
-    const defaultFilter = config?.following?.filter ?? "Todos"
-    const defaultFormat = config?.enDiscusion?.format ?? "Todos"
-    const filter = stringToEnum(params.get("filtro"), followingFeedFilterOption, defaultFilter)
-    const format = stringToEnum(params.get("formato"), feedFormatOptions, defaultFormat)
-
-    return {
-        filter,
-        format
-    }
-}
-
-
-export function useEnDiscusionParams(user: Session): {
-    time: EnDiscusionTime,
-    metric: EnDiscusionMetric,
-    format: FeedFormatOption
-} {
-    const params = useSearchParams()
-
-    const config = user ? user.algorithmConfig.enDiscusion : undefined
-
-    const defaultMetric = config?.metric ?? defaultEnDiscusionMetric
-    const defaultTime = config?.time ?? defaultEnDiscusionTime
-    const defaultFormat = config?.format ?? defaultEnDiscusionFormat
-    const metric = stringToEnum(params.get("m"), enDiscusionMetricOptions, defaultMetric)
-    const time = stringToEnum(params.get("p"), enDiscusionTimeOptions, defaultTime)
-    const format = stringToEnum(params.get("formato"), ["Todos", "Artículos"], defaultFormat)
-
-    return {
-        metric,
-        time,
-        format
-    }
-}
+import {chronologicalFeedMerger, defaultFeedViewContentFeedMerger} from "@/components/feed/feed/feed-merger";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {topicUrl} from "@/components/utils/react/url";
 
 
 const followingFeedNoResultsText = <div
@@ -93,48 +37,59 @@ const discoverFeedNoResultsText = <div>
 </div>
 
 
-export function useMainPageSelected(user: Session) {
-    const params = useSearchParams()
-    const paramsFeed = params.get("f")
-    return paramsFeed ? searchParamToMainFeedOption(paramsFeed) : (!user ? "En discusión" : "Siguiendo")
-}
-
-
 export const MainPage = () => {
     const {user} = useSession()
-    const selected = useMainPageSelected(user)
-    const {metric, time} = useEnDiscusionParams(user)
-    const {filter, format} = useFollowingParams(user)
     const {getFeed} = useGetFeed()
+    const {config, error} = useMainPageFeeds()
+    const {layoutConfig} = useLayoutConfig()
+
+    if (error == "auth required") {
+        return <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>
+    } else if (error == "custom feed uri required" || error == "topic id required") {
+        return <Note className={"py-16"}>
+            Muro inválido.
+        </Note>
+    } else if (!config) {
+        return <div className={"flex flex-col items-center py-16 space-y-4"}>
+            <Note className={""}>
+                Agregá al menos un muro a tu pantalla principal
+            </Note>
+            <div>
+                <Link href={"/inicio/muros"}>
+                    <BaseButton variant={"outlined"} size={"small"}>
+                        Explorar muros
+                    </BaseButton>
+                </Link>
+            </div>
+        </div>
+    }
+
+    const noResultsText = config.subtype == "siguiendo" ? followingFeedNoResultsText : config.subtype == "descubrir" ? discoverFeedNoResultsText : config.subtype == "discusion" ? "No hay contenidos en discusión" : "No se encontraron resultados."
+
+    const feedMerger = config.subtype == "siguiendo" || config.subtype == "descubrir" || config.subtype == "mentions" && config.metric == "Recientes" || config.subtype == "discusion" && config.metric == "Recientes" ? chronologicalFeedMerger : defaultFeedViewContentFeedMerger
 
     return <div className="w-full">
-        {selected == "Siguiendo" && user &&
-            <FeedViewContentFeed
-                getFeed={getFeed({type: "siguiendo", params: {filter, format}})}
-                noResultsText={followingFeedNoResultsText}
-                endText={"Fin del muro."}
-                queryKey={["main-feed", mainFeedOptionToSearchParam(selected), filter, format]}
-                feedMerger={chronologicalFeedMerger}
-            />}
-
-        {selected == "Descubrir" && user &&
-            <FeedViewContentFeed
-                getFeed={getFeed({type: "descubrir"})}
-                noResultsText={discoverFeedNoResultsText}
-                endText={"Fin del muro."}
-                queryKey={["main-feed", mainFeedOptionToSearchParam(selected)]}
-            />}
-
-        {(selected == "Siguiendo" || selected == "Descubrir") && !user &&
-            <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>}
-
-        {selected == "En discusión" &&
-            <FeedViewContentFeed
-                getFeed={getFeed({type: "discusion", params: {metric, time, format}})}
-                noResultsText={"No hay contenidos en discusión."}
-                endText={"Fin del muro."}
-                queryKey={["main-feed", mainFeedOptionToSearchParam(selected), metric, time, format]}
-            />}
-
+        {config.type == "topic" &&
+            <Link
+                href={topicUrl(config.id)}
+                className={"px-4 bg-[var(--background)]  opacity-90 backdrop-blur z-[1500] font-light flex items-center fixed h-12  hover:bg-[var(--background-dark)] normal-case space-x-3 text-sm cursor-pointer"}
+                style={{width: layoutConfig.centerWidth}}
+            >
+                <ArrowSquareOutIcon fontSize={15}/>
+                <div>
+                    <span>Ir al tema</span> <span
+                    className="text-[var(--text-light)] font-semibold">{config.title}</span>
+                </div>
+            </Link>}
+        {(config.subtype == "discusion" || user) &&
+            <div className={config.type == "topic" ? "pt-12" : ""}>
+                <FeedViewContentFeed
+                    getFeed={getFeed(config)}
+                    noResultsText={noResultsText}
+                    endText={"Fin del muro."}
+                    queryKey={["main-feed", config.subtype, JSON.stringify(config)]}
+                    feedMerger={feedMerger}
+                />
+            </div>}
     </div>
 }

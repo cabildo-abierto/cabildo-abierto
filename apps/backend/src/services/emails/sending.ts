@@ -1,148 +1,16 @@
 import {AppContext} from "#/setup.js";
-import {v4 as uuidv4} from "uuid";
-import nodemailer, {Transporter} from "nodemailer"
-import {CAHandlerNoAuth} from "#/utils/handler.js";
-import path from 'path';
-import fs from "fs/promises";
+import {CAHandler} from "#/utils/handler.js";
+import {SendEmailResult, SendEmailsParams, SendEmailsResponse} from "@cabildo-abierto/api";
 import {createInviteCodes} from "#/services/user/access.js";
-import jwt from 'jsonwebtoken';
-import tailwindcssPresetEmail from "tailwindcss-preset-email"
-
-
-// Para cada usuario que tenga mail guardado pero no tenga una suscripción, creamos la suscripción
-export async function createSubscriptions(ctx: AppContext) {
-    const users = await ctx.kysely
-        .selectFrom("User")
-        .select(["did", "User.email"])
-        .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
-        .where("MailingListSubscription.id", "is", null)
-        .where("User.email", "is not", null)
-        .execute()
-
-    const values: ({
-        email: string
-        id: string
-        status: "Subscribed"
-        userId: string
-    } | undefined)[] = users.map(u => {
-        if (u.email) {
-            return {
-                email: u.email,
-                id: uuidv4(),
-                status: "Subscribed",
-                userId: u.did
-            }
-        }
-    })
-
-    await ctx.kysely
-        .insertInto("MailingListSubscription")
-        .values(values.filter(x => x != null))
-        .onConflict(oc => oc.column("id").doNothing())
-        .onConflict(oc => oc.column("email").doNothing())
-        .execute()
-    ctx.logger.pino.info({count: values.length, emails: values.map(v => v?.email)}, "created email subscriptions")
-}
-
-
-// Creamos suscripciones para una lista de mails, sin sus usuarios
-export async function createExternalSubscriptions(ctx: AppContext, emails: string[]) {
-    await ctx.kysely
-        .insertInto("MailingListSubscription")
-        .values(emails.map(email => ({
-            id: uuidv4(),
-            email,
-            status: "Subscribed"
-        })))
-        .onConflict(oc => oc.doNothing())
-        .execute()
-    ctx.logger.pino.info({emails}, "created email subscription")
-}
-
-
-export async function unsubscribe(ctx: AppContext, email: string) {
-    await ctx.kysely
-        .updateTable("MailingListSubscription")
-        .where("email", "=", email)
-        .set("status", "Unsubscribed")
-        .execute()
-    ctx.logger.pino.info({email}, "unsuscribed from mailing list")
-}
-
-
-export const unsubscribeHandler: CAHandlerNoAuth<{email: string}, {}> = async (ctx, agent, params) => {
-    const email = params.email
-    try {
-        await unsubscribe(ctx, email)
-    } catch (error) {
-        ctx.logger.pino.error({email, error},"error on unsubscribe")
-        return {error: "Ocurrió un error en la desuscipción."}
-    }
-
-    return {data: {}}
-}
-
-
-type EmailToSend = {
-    text: string
-    html: string
-    subject: string
-    email: string
-    template_name: string
-}
-
-
-async function sendEmail(ctx: AppContext, transporter: Transporter, email: EmailToSend) {
-    let success = false
-    let responseInfo: any = null
-
-    const from = "Cabildo Abierto <soporte@cabildoabierto.ar>"
-
-    try {
-        responseInfo = await transporter.sendMail({
-            from,
-            to: email.email,
-            subject: email.subject,
-            text: email.text,
-            html: email.html
-        })
-        success = true;
-        ctx.logger.pino.info({email: email.email, template: email.template_name, response: responseInfo}, "Email sent successfully");
-    } catch (error) {
-        ctx.logger.pino.error({error, to: email.email}, "Error sending mail")
-        throw Error("Error sending mail")
-    }
-
-    const recipient = await ctx.kysely
-        .selectFrom("MailingListSubscription")
-        .select("id")
-        .where("email", "=", email.email)
-        .executeTakeFirst()
-
-    if(recipient) {
-        await ctx.kysely
-            .insertInto("EmailSent")
-            .values([{
-                id: uuidv4(),
-                recipientId: recipient.id,
-                text: email.text,
-                html: email.html,
-                subject: email.subject,
-                from,
-                success,
-                template_name: email.template_name
-            }])
-            .execute()
-    }
-
-}
+import {v4 as uuidv4} from "uuid";
+import nodemailer from "nodemailer";
 
 
 function getTransporter() {
     return nodemailer.createTransport({
         host: "mail.smtp2go.com",
         port: 587,
-        secure: false, // false for STARTTLS on port 587
+        secure: false,
         auth: {
             user: process.env.SMTP2GO_USER,
             pass: process.env.SMTP2GO_PASSWORD,
@@ -150,235 +18,227 @@ function getTransporter() {
     })
 }
 
-
-async function renderEmails(ctx: AppContext, template: string, locals: Record<string, any>[], emails: string[], subject: string): Promise<EmailToSend[]> {
-    if(emails.length != locals.length) throw Error(`${emails.length} != ${locals.length}`)
-    const templatePath = path.join(process.cwd(), `src/services/emails/templates/${template}.html`);
-    const templateSource = await fs.readFile(templatePath, 'utf-8');
-
-    const { render } = await import('@maizzle/framework')
-
-    const renderedResults: {html: string}[] = await Promise.all(locals.map(l =>
-        render(templateSource, {
-            templates: {
-                source: 'src/services/emails',
-                root: 'src/services/emails'
-            },
-            css: {
-                inline: true,
-                purge: true,
-                shorthand: true,
-                tailwind: {
-                    content: [
-                        {
-                            raw: templateSource,
-                            extension: 'html'
-                        }
-                    ],
-                    presets: [
-                        tailwindcssPresetEmail
-                    ]
-                }
-            },
-            locals: l
-        })
-    ))
-
-    const { generatePlaintext } = await import('@maizzle/framework')
-
-    return await Promise.all(renderedResults.map(async (r, i) => ({
-        html: r.html,
-        text: await generatePlaintext(r.html),
-        subject: subject,
-        email: emails[i],
-        template_name: template
-    })))
+function getUnsubscribeLink(emailSentId: string) {
+    return {
+        unsubscribeUIUrl: `https://cabildoabierto.ar/desuscripcion/${emailSentId}`,
+        unsubscribeAPIUrl: `https://cabildoabierto.ar/desuscripcion/${emailSentId}`
+    }
 }
 
-
-function getUnsubscribeLink(subscribedAddress: string) {
-    const token = jwt.sign(
-        { email: subscribedAddress },
-        process.env.EMAIL_TOKEN!
-    )
-    return `https://cabildoabierto.ar/baja?token=${token}`
+function getInviteLink(code: string) {
+    return `https://cabildoabierto.ar/login?c=${code}`
 }
 
+function replaceTemplateVariables(content: string, variables: { unsubscribe_link: string, invite_link?: string }) {
+    let result = content
+    result = result.replace(/\{\{unsubscribe_link\}\}/g, variables.unsubscribe_link)
+    if (variables.invite_link) {
+        result = result.replace(/\{\{invite_link\}\}/g, variables.invite_link)
+    }
+    return result
+}
 
-export async function sendToSubscribersWithNoAccount(ctx: AppContext, template: string, subject: string) {
-    ctx.logger.pino.info({template}, "sending email to everyone")
-
-    const recipients = await ctx.kysely
+async function ensureSubscriptionExists(ctx: AppContext, email: string): Promise<string> {
+    // Try to get existing subscription
+    const existing = await ctx.kysely
         .selectFrom("MailingListSubscription")
-        .select("email")
-        .leftJoin("User", "User.did", "MailingListSubscription.userId")
-        .where(eb => eb.or([
-            eb("User.did", "is", null),
-            eb("User.inCA", "=", false)
-        ]))
-        .where("status", "=", "Subscribed")
+        .select("id")
+        .where("email", "=", email)
+        .executeTakeFirst()
+
+    if (existing) {
+        return existing.id
+    }
+
+    // Create new subscription
+    const id = uuidv4()
+    await ctx.kysely
+        .insertInto("MailingListSubscription")
+        .values({
+            id,
+            email,
+            status: "Subscribed"
+        })
+        .onConflict(oc => oc.column("email").doNothing())
         .execute()
 
-    const {emails, error} = await prepareEmails(
-        ctx,
-        recipients.map(r => r.email),
-        template,
-        subject,
-        true
-    )
-
-    if(emails) {
-        await sendEmailsBatch(
-            ctx,
-            emails
-        )
-    } else {
-        ctx.logger.pino.error({error}, "error preparing emails")
-    }
-}
-
-
-export async function sendToSubscribersWithAccount(
-    ctx: AppContext,
-    template: string,
-    subject: string
-) {
-    ctx.logger.pino.info({template}, "sending email to everyone")
-
-    const recipients = await ctx.kysely
+    // Re-fetch in case of conflict
+    const created = await ctx.kysely
         .selectFrom("MailingListSubscription")
-        .select("email")
-        .leftJoin("User", "User.did", "MailingListSubscription.userId")
-        .where("User.did", "is not", null)
-        .where("User.inCA", "=", true)
-        .where("status", "=", "Subscribed")
-        .execute()
+        .select("id")
+        .where("email", "=", email)
+        .executeTakeFirst()
 
-    const {emails, error} = await prepareEmails(
-        ctx,
-        recipients.map(r => r.email),
-        template,
-        subject,
-        false
-    )
+    return created?.id ?? id
+}
 
-    if(emails) {
-        await sendEmailsBatch(
-            ctx,
-            emails
-        )
+const BATCH_SIZE = 10
+const BATCH_DELAY_MS = 1000
+
+async function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = async (ctx, agent, params) => {
+    const {templateId, target, emails: inputEmails} = params
+
+    // Validate inputs
+    if (!templateId) {
+        return {error: "Se requiere un template"}
+    }
+
+    if (target === "single" || target === "list") {
+        if (!inputEmails || inputEmails.length === 0) {
+            return {error: "Se requiere al menos un email"}
+        }
+    }
+
+    // Get template
+    const template = await ctx.kysely
+        .selectFrom("EmailTemplate")
+        .select(["id", "name", "subject", "html", "text"])
+        .where("id", "=", templateId)
+        .executeTakeFirst()
+
+    if (!template) {
+        return {error: "Plantilla no encontrada"}
+    }
+
+    // Get recipient emails based on target
+    let recipientEmails: string[]
+
+    if (target === "all_subscribers") {
+        const subscribers = await ctx.kysely
+            .selectFrom("MailingListSubscription")
+            .select("email")
+            .where("status", "=", "Subscribed")
+            .execute()
+        recipientEmails = subscribers.map(s => s.email)
     } else {
-        ctx.logger.pino.error({error}, "error preparing emails")
-    }
-}
-
-
-async function prepareEmails(ctx: AppContext, recipients: string[], template: string, subject: string, reqCodes: boolean) {
-    let codes: string[]
-    if(reqCodes) {
-        const res = await createInviteCodes(ctx, recipients.length)
-        if(res.error || !res.data) return {error: res.error}
-        codes = res.data.inviteCodes
+        recipientEmails = inputEmails!
     }
 
-    const locals = recipients.map(((e, i) => ({
-        unsubscribe_link: getUnsubscribeLink(e),
-        code: codes[i]
-    })))
+    if (recipientEmails.length === 0) {
+        return {error: "No hay destinatarios"}
+    }
 
-    let emails = await renderEmails(
-        ctx, template, locals, recipients, subject
-    )
+    // Check if template uses invite_link
+    const needsInviteCodes = template.html.includes("{{invite_link}}") || template.text.includes("{{invite_link}}")
 
-    return {emails}
-}
-
-
-async function sendEmailsBatch(
-    ctx: AppContext,
-    emails: EmailToSend[],
-    checkNotExists: boolean = true
-) {
-    if(checkNotExists) {
-        const existing = await ctx.kysely
-            .selectFrom("EmailSent")
-            .innerJoin("MailingListSubscription", "MailingListSubscription.id", "EmailSent.recipientId")
-            .select(["email", "template_name"])
-            .where(({eb, refTuple, tuple}) =>
-                eb(
-                    refTuple("email", 'template_name'),
-                    'in',
-                    emails
-                        .map((r) => tuple(r.email, r.template_name))
-                )
-            ).
-            execute()
-
-        emails = emails.filter(c => {
-            const exists = existing.some(e => e.email == c.email)
-            if(exists) {
-                ctx.logger.pino.error({c}, "An email was already sent")
-                throw Error("An email was already sent")
-            }
-            return !exists
-        })
+    // Generate invite codes if needed
+    let inviteCodes: string[] = []
+    if (needsInviteCodes) {
+        const codesResult = await createInviteCodes(ctx, recipientEmails.length)
+        if (codesResult.error || !codesResult.data) {
+            return {error: codesResult.error ?? "Error al crear códigos de invitación"}
+        }
+        inviteCodes = codesResult.data.inviteCodes
     }
 
     const transporter = getTransporter()
+    const from = `${params.fromName} <${params.fromEmail}>`
+    const replyTo = params.replyTo
+    const results: SendEmailResult[] = []
 
-    for(const email of emails) {
-        ctx.logger.pino.info({email: email.email}, "sending email")
-        await sendEmail(
-            ctx,
-            transporter,
-            email
-        )
+    // Process emails in batches
+    for (let i = 0; i < recipientEmails.length; i += BATCH_SIZE) {
+        const batch = recipientEmails.slice(i, i + BATCH_SIZE)
+        const batchCodes = needsInviteCodes ? inviteCodes.slice(i, i + BATCH_SIZE) : []
+
+        const batchPromises = batch.map(async (email, batchIndex) => {
+            try {
+                // Ensure subscription exists and get ID
+                const subscriptionId = await ensureSubscriptionExists(ctx, email)
+
+                // Pre-create EmailSent record to get ID for unsubscribe link
+                const emailSentId = uuidv4()
+
+                const {unsubscribeUIUrl, unsubscribeAPIUrl} = getUnsubscribeLink(emailSentId)
+                const inviteLink = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
+
+                // Replace template variables
+                const finalHtml = replaceTemplateVariables(template.html, {
+                    unsubscribe_link: unsubscribeUIUrl,
+                    invite_link: inviteLink
+                })
+                const finalText = replaceTemplateVariables(template.text, {
+                    unsubscribe_link: unsubscribeUIUrl,
+                    invite_link: inviteLink
+                })
+
+                // Send email with List-Unsubscribe headers
+                await transporter.sendMail({
+                    from,
+                    to: email,
+                    subject: template.subject,
+                    replyTo,
+                    text: finalText,
+                    html: finalHtml,
+                    headers: {
+                        "List-Unsubscribe": `<${unsubscribeAPIUrl}>`,
+                        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+                    }
+                })
+
+                // Insert EmailSent record with success
+                await ctx.kysely
+                    .insertInto("EmailSent")
+                    .values({
+                        id: emailSentId,
+                        recipientId: subscriptionId,
+                        templateId: template.id,
+                        subject: template.subject,
+                        html: finalHtml,
+                        text: finalText,
+                        from,
+                        replyTo,
+                        success: true
+                    })
+                    .execute()
+
+                ctx.logger.pino.info({email, templateName: template.name, emailSentId}, "Email sent successfully")
+
+                return {
+                    email,
+                    success: true,
+                    emailSentId
+                } as SendEmailResult
+
+            } catch (error) {
+                ctx.logger.pino.error({error, email, templateName: template.name}, "Error sending email")
+
+                return {
+                    email,
+                    success: false,
+                    error: error instanceof Error ? error.message : "Error desconocido"
+                } as SendEmailResult
+            }
+        })
+
+        const batchResults = await Promise.all(batchPromises)
+        results.push(...batchResults)
+
+        // Add delay between batches (except for last batch)
+        if (i + BATCH_SIZE < recipientEmails.length) {
+            await delay(BATCH_DELAY_MS)
+        }
     }
-}
 
+    const totalSent = results.filter(r => r.success).length
+    const totalFailed = results.filter(r => !r.success).length
 
-export async function getSubscriptionStatus(ctx: AppContext) {
-    return await ctx.kysely
-        .selectFrom("MailingListSubscription")
-        .leftJoin("User", "User.did", "MailingListSubscription.userId")
-        .select([
-            "MailingListSubscription.userId",
-            "MailingListSubscription.email",
-            "MailingListSubscription.status",
-            "MailingListSubscription.subscribedAt",
-            "MailingListSubscription.updatedAt",
-            "User.handle",
-            "User.inCA"
-        ])
-        .execute()
-}
+    ctx.logger.pino.info({
+        templateName: template.name,
+        totalSent,
+        totalFailed,
+        target
+    }, "Bulk email send completed")
 
-
-async function createSubscriptionIfNotExists(ctx: AppContext, recipient: string) {
-    await ctx.kysely
-        .insertInto("MailingListSubscription")
-        .values([{
-            email: recipient,
-            id: uuidv4(),
-            status: "Subscribed"
-        }])
-        .onConflict(oc => oc.column("id").doNothing())
-        .onConflict(oc => oc.column("email").doNothing())
-        .execute()
-}
-
-
-
-export async function sendSingleEmail(ctx: AppContext, recipient: string, template: string, subject: string, reqCode: boolean, checkNotExists: boolean) {
-    await createSubscriptionIfNotExists(ctx, recipient)
-    const {emails} = await prepareEmails(
-        ctx,
-        [recipient],
-        template,
-        subject,
-        reqCode
-    )
-    if(emails && emails.length > 0) {
-        await sendEmailsBatch(ctx, emails, checkNotExists)
+    return {
+        data: {
+            results,
+            totalSent,
+            totalFailed
+        }
     }
 }

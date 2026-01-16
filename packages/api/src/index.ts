@@ -22,5 +22,6 @@ export {
 } from "./client";
 
 export * from "./types"
+export * from "./constants"
 
-export {$Typed} from "./client/util"
+export type {$Typed} from "./client/util"

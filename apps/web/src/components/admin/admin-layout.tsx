@@ -7,7 +7,7 @@ import {usePathname} from "next/navigation";
 
 
 export const AdminLayout = ({children}: { children: ReactNode }) => {
-    const options = ["post", "acceso", "sync", "validacion", "remuneraciones", "stats", "wiki", "UI", "feed"]
+    const options = ["post", "acceso", "sync", "validacion", "remuneraciones", "stats", "wiki", "UI", "feed", "emails"]
     const pathname = usePathname()
 
     return <AdminProtected>

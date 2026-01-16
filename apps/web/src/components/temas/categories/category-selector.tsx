@@ -15,7 +15,7 @@ export const CategorySelector = ({categories, setMultipleEnabled, setCategories,
     categories: string[]
     setCategories: (c: string[]) => void
     multipleEnabled: boolean
-    setMultipleEnabled: (enabled: boolean) => void
+    setMultipleEnabled?: (enabled: boolean) => void
 }) => {
     let {data: allCategories, isLoading, error} = useCategories()
     const {layoutConfig, isMobile} = useLayoutConfig()
@@ -75,7 +75,7 @@ export const CategorySelector = ({categories, setMultipleEnabled, setCategories,
             }}
             placeholder={"Buscar categoría..."}
         />
-        <DescriptionOnHover
+        {setMultipleEnabled && <DescriptionOnHover
             description={!multipleEnabled && "Activalo para buscar temas que estén en múltiples categorías a la vez."}
         >
             <BaseIconButton
@@ -87,7 +87,7 @@ export const CategorySelector = ({categories, setMultipleEnabled, setCategories,
             >
                 <StackIcon/>
             </BaseIconButton>
-        </DescriptionOnHover>
+        </DescriptionOnHover>}
         {filteredCategories && filteredCategories.length == 0 && <div
             className={"text-[var(--text-light)] text-sm"}
         >

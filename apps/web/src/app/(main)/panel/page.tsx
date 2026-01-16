@@ -6,8 +6,6 @@ import {ReactNode, useEffect, useState} from "react";
 import {formatIsoDate} from "@cabildo-abierto/utils";
 import Link from "next/link";
 import InfoPanel from "@/components/utils/base/info-panel";
-import ValidationIcon from "@/components/perfil/validation-icon";
-import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {feedOptionNodes} from "@/components/feed/config/feed-option-nodes";
 import {useSession} from "@/components/auth/use-session";
 import {contentUrl, topicUrl} from "@/components/utils/react/url";
@@ -15,6 +13,7 @@ import {useAPI} from "@/components/utils/react/queries";
 import {BaseSelect} from "@/components/utils/base/base-select";
 import {CustomLink} from "@/components/utils/base/custom-link";
 import { Note } from "@/components/utils/base/note";
+import {StatSquare} from "@/components/utils/stat-square";
 
 
 type ArticleStats = {
@@ -61,54 +60,7 @@ function useAuthorDashboard() {
 }
 
 
-const StatSquare = ({
-                        label,
-                        value,
-                        info,
-                        moreInfoHref,
-                        labelVerified,
-                        valueVerified
-                    }: {
-    moreInfoHref?: string
-    label: string
-    value: string
-    info?: ReactNode
-    labelVerified?: string
-    valueVerified?: string
-}) => {
-    return <DescriptionOnHover
-        description={info}
-        moreInfoHref={moreInfoHref}
-    >
-        <div
-            className={"relative border border-[var(--accent-dark)] min-w-32 h-32 flex-col text-[30px] space-y-2 text-center flex items-center justify-center"}
-        >
-            <div>
-                <div className={"px-2 font-bold"}>
-                    {value}
-                </div>
-                <div className={"font-light text-center text-sm text-[var(--text-light)] px-2"}>
-                    {label}
-                </div>
-            </div>
 
-            {valueVerified != null && <div className={"absolute bottom-1 left-2 text-[var(--text-light)]"}>
-                <div className={"text-xs flex space-x-1 items-center"}>
-                    <div>
-                        {valueVerified}
-                    </div>
-                    <div className={"pb-[2px]"}>
-                        <ValidationIcon
-                            handle={undefined}
-                            verification={"persona"}
-                            fontSize={12}
-                        />
-                    </div>
-                </div>
-            </div>}
-        </div>
-    </DescriptionOnHover>
-}
 
 
 const CardStat = ({label, value, info, moreInfoHref}: {

@@ -16,7 +16,6 @@ export const getEditsProfileFeedSkeleton = (did: string) : GetSkeletonProps => {
             .limit(25)
             .execute()
 
-        ctx.logger.pino.info({skeleton}, "edits")
         return {
             skeleton: skeleton.map(r => ({post: r.uri})),
             cursor: min(skeleton, e => e.created_at_tz?.getTime() ?? Date.now())?.created_at_tz?.toISOString()

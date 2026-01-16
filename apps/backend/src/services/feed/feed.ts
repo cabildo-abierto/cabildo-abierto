@@ -1,4 +1,4 @@
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api"
 import {getFollowingFeedPipeline} from "#/services/feed/inicio/following.js";
 import {Agent} from "#/utils/session-agent.js";
 import {hydrateFeed} from "#/services/hydration/hydrate.js";
@@ -33,7 +33,7 @@ async function maybeClearFollows(ctx: AppContext, agent: Agent) {
 }
 
 
-export const getFeedByKind: CAHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput> = async (ctx, agent, {params, query}) => {
+export const getFeedByKind: CAHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params, query}) => {
     let pipeline: FeedPipelineProps
     
     const {kind} = params
@@ -65,6 +65,7 @@ export type FeedPipelineProps = {
     getSkeleton: GetSkeletonProps
     sortKey?: FeedSortKey
     filter?: (ctx: AppContext, feed: ArCabildoabiertoFeedDefs.FeedViewContent[]) => ArCabildoabiertoFeedDefs.FeedViewContent[]
+    debugName?: string
 }
 
 
@@ -73,17 +74,13 @@ export type GetFeedProps = {
     agent: Agent
     ctx: AppContext
     cursor?: string
-    params?: {metric?: string, time?: string}
+    params?: { metric?: string, time?: string }
 }
 
-export type GetFeedOutput = {
-    feed: ArCabildoabiertoFeedDefs.FeedViewContent[]
-    cursor?: string
-}
-
-export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAHandlerOutput<GetFeedOutput> => {
+export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAHandlerOutput<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> => {
     const data = new Dataplane(ctx, agent)
 
+    const t1 = Date.now()
     let newCursor: string | undefined
     let skeleton: FeedSkeleton
     try {
@@ -94,6 +91,7 @@ export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAH
         ctx.logger.pino.error({error: err}, "Error getting feed skeleton")
         return {error: "Ocurrió un error al obtener el muro."}
     }
+    const t2 = Date.now()
 
     let feed: ArCabildoabiertoFeedDefs.FeedViewContent[] = await hydrateFeed(ctx, skeleton, data)
 
@@ -101,8 +99,18 @@ export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAH
         feed = sortByKey(feed, pipeline.sortKey, listOrderDesc)
     }
 
+    const t3 = Date.now()
+
     if(pipeline.filter){
         feed = pipeline.filter(ctx, feed)
     }
+
+    const t4 = Date.now()
+
+    ctx.logger.logTimes( "feed", [t1, t2, t3, t4], {
+        feed: pipeline.debugName ?? "feed",
+        cursor
+    })
+
     return {data: {feed, cursor: newCursor}}
 }

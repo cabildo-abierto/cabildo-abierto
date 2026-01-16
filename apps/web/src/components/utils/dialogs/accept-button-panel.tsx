@@ -12,10 +12,10 @@ export const AcceptButtonPanel = ({
                                       open,
                                       backgroundShadow=false
                                   }: {
-    children: ReactNode,
+    children: ReactNode
     className?: string
-    buttonText?: string,
-    onClose: StateButtonClickHandler,
+    buttonText?: string
+    onClose: StateButtonClickHandler
     open: boolean
     backgroundShadow?: boolean
 }) => {

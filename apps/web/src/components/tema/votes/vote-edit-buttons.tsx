@@ -1,4 +1,4 @@
-import {ATProtoStrongRef} from "@/lib/types"
+import {ATProtoStrongRef} from "@cabildo-abierto/api"
 import React, {useState} from "react";
 import {ReactionButton} from "../../feed/utils/reaction-button";
 import {RejectVersionModal} from "./reject-version-modal";

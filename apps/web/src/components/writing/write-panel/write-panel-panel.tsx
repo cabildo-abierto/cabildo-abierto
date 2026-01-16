@@ -4,13 +4,18 @@ import {CloseButton} from "@/components/utils/base/close-button"
 import SelectionComponent from "../../buscar/search-selection-component";
 import {useRouter} from "next/navigation";
 import {CreateTopic} from "./create-topic";
-import {CreatePostProps, WritePost} from "./write-post";
 import {emptyChar} from "../../utils/utils";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@cabildo-abierto/api"
+import {
+    ArCabildoabiertoFeedDefs,
+    ArCabildoabiertoEmbedRecord, CreatePostProps
+} from "@cabildo-abierto/api"
 import {BaseButton} from "@/components/utils/base/base-button";
 import {ReplyToContent} from "./write-panel";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
+import {EditorState} from "lexical";
+import {ThreadEditor, ThreadElementState} from "@/components/writing/write-panel/thread-editor";
+import {getPlainText} from "@cabildo-abierto/editor-core";
 
 
 type WritePanelProps = {
@@ -21,6 +26,16 @@ type WritePanelProps = {
     quotedPost?: ArCabildoabiertoEmbedRecord.View["record"]
     handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
+}
+
+
+
+function emptyEditorState(editorState: EditorState | null) {
+    return editorState == null || getPlainText(editorState.toJSON().root).trim().length == 0
+}
+
+export function isThreadElementStateEmpty(threadElementState: ThreadElementState) {
+    return (!threadElementState.text || threadElementState.text.length == 0) && threadElementState.images.length == 0 && emptyEditorState(threadElementState.editorState) && threadElementState.externalEmbed?.url == null && threadElementState.visualization == null
 }
 
 
@@ -36,7 +51,6 @@ const WritePanelPanel = ({
     const [selected, setSelected] = useState("Publicación")
     const router = useRouter()
     const [hidden, setHidden] = useState(false)
-
     const isReply = replyTo != undefined
 
     function optionsNodes(o: string, isSelected: boolean) {
@@ -70,7 +84,7 @@ const WritePanelPanel = ({
             hidden={hidden}
             open={open}
             className="w-full max-w-[512px] sm:w-full"
-            backgroundShadow={replyTo == null && quotedPost == null}
+            backgroundShadow={replyTo == null && quotedPost == null && postView == null}
             overlayClassName={"z-[1399]"}
         >
             <div
@@ -90,14 +104,14 @@ const WritePanelPanel = ({
                         }}
                     />
                 </div>
-                {selected == "Publicación" && <WritePost
+                {selected == "Publicación" && <ThreadEditor
+                    setHidden={setHidden}
                     onClose={onClose}
                     replyTo={replyTo}
-                    selection={selection}
-                    quotedContent={quotedPost}
-                    setHidden={setHidden}
-                    handleSubmit={handleSubmit}
+                    quotedPost={quotedPost}
                     postView={postView}
+                    handleSubmit={handleSubmit}
+                    selection={selection}
                 />}
                 {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>

@@ -1,5 +1,4 @@
 import {AppContext} from "#/setup.js";
-import {Account, AuthorStatus, Session, ValidationState} from "#/lib/types.js";
 import {Agent, cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {deleteRecords} from "#/services/delete.js";
 import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
@@ -9,11 +8,16 @@ import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
 import {createCAUser} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
-import {ArCabildoabiertoActorDefs, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {
+    Account, AlgorithmConfig,
+    ArCabildoabiertoActorDefs,
+    ATProtoStrongRef,
+    AuthorStatus,
+    Session,
+    ValidationState
+} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {uploadBase64Blob} from "#/services/blob.js";
-import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "#/services/feed/inicio/discusion.js";
-import {FollowingFeedFilter} from "#/services/feed/feed.js";
 import {BskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js";
 import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
@@ -162,25 +166,6 @@ export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
     }
 }
 
-
-export type TTOption = EnDiscusionTime | "Ediciones recientes"
-
-
-export type AlgorithmConfig = {
-    following?: {
-        filter?: FollowingFeedFilter
-        format?: FeedFormatOption
-    }
-    enDiscusion?: {
-        time?: EnDiscusionTime
-        metric?: EnDiscusionMetric
-        format?: FeedFormatOption
-    }
-    tt?: {
-        time?: TTOption
-    }
-}
-
 type SessionData = Omit<Session, "handle"> & {handle: string | null}
 
 export const getSessionData = async (ctx: AppContext, did: string): Promise<SessionData | null> => {
@@ -207,7 +192,7 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
                     "algorithmConfig",
                     "authorStatus",
                     "CAProfileUri",
-                    "inCA"
+                    "inCA",
                 ])
                 .where("did", "=", did)
                 .executeTakeFirst(),
@@ -230,7 +215,7 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
             displayName: data.displayName,
             avatar: data.avatar,
             hasAccess: data.hasAccess,
-            caProfile: data.CAProfileUri,
+            caProfile: data.CAProfileUri ?? null,
             seenTutorial: {
                 home: data.seenTutorial,
                 topics: data.seenTopicsTutorial,
@@ -242,7 +227,8 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
             platformAdmin: data.platformAdmin,
             validation: getValidationState(data),
             algorithmConfig: (data.algorithmConfig ?? {}) as AlgorithmConfig,
-            mirrorStatus: data.inCA ? mirrorStatus: "Dirty"
+            mirrorStatus: data.inCA ? mirrorStatus: "Dirty",
+            pinnedFeeds: []
         }
     } catch (err) {
         ctx.logger.pino.error({error: err, did}, "error getting session data")
@@ -324,17 +310,25 @@ export const getSession: CAHandlerNoAuth<{ params?: { code?: string } }, Session
 export const getAccount: CAHandler<{}, Account> = async (ctx, agent) => {
 
     const [caData, bskySession] = await Promise.all([
-        ctx.kysely.selectFrom("User").select("email").where("did", "=", agent.did).executeTakeFirst(),
+        ctx.kysely
+            .selectFrom("User")
+            .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
+            .select(["User.email", "MailingListSubscription.id as subsId", "MailingListSubscription.status"])
+            .where("did", "=", agent.did)
+            .execute(),
         agent.bsky.com.atproto.server.getSession()
     ])
 
-    if (!caData) {
+    if (caData.length == 0) {
         return {error: "No se encontró el usuario"}
     }
 
+    const {email, subsId, status} = caData[0]
+    const subscribed = subsId != null && status == "Subscribed"
+
     const bskyEmail = bskySession.data.email
 
-    if (bskyEmail && (!caData.email || caData.email != bskyEmail)) {
+    if (bskyEmail && (!email || email != bskyEmail)) {
         await ctx.kysely.updateTable("User")
             .set("email", bskyEmail)
             .where("did", "=", agent.did)
@@ -343,7 +337,8 @@ export const getAccount: CAHandler<{}, Account> = async (ctx, agent) => {
 
     return {
         data: {
-            email: bskyEmail
+            email: bskyEmail,
+            subscribedToEmailUpdates: subscribed
         }
     }
 }

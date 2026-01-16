@@ -73,3 +73,22 @@ export async function get<Output>(route: string): PostOutput<Output> {
 
 
 export type PostOutput<Output> = Promise<{ error?: string, data?: Output }>
+
+
+export function setSearchParams(baseUrl: string, params: {[key: string]: string | string[] | undefined}): string {
+    const keyValues: [string, string][] = []
+    Object.entries(params).forEach(([key, value]) => {
+        if(value == null) return
+        if(typeof value == "string") {
+            keyValues.push([key, value])
+        } else {
+            value.forEach(v => {
+                keyValues.push([key, v])
+            })
+        }
+    })
+    if(keyValues.length == 0) {
+        return baseUrl
+    }
+    return baseUrl + "?" + keyValues.map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join("&")
+}

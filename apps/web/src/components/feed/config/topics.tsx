@@ -1,6 +1,6 @@
 import {useSession} from "@/components/auth/use-session";
 import {stringToEnum} from "@cabildo-abierto/utils";
-import {enDiscusionTimeOptions} from "./defaults";
+import {enDiscusionTimeOptions} from "../../../../../../packages/api/src/constants/feed-defaults";
 import {useSearchParams} from "next/navigation";
 
 

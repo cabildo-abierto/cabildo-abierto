@@ -2,6 +2,36 @@
 set -euo pipefail
 
 #############################################
+# Check main
+#############################################
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
+
+BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+DIRTY=$(git status --porcelain)
+
+# Check if up to date with origin/main
+git fetch origin main >/dev/null 2>&1 || true
+LOCAL_SHA=$(git rev-parse HEAD)
+ORIGIN_SHA=$(git rev-parse origin/main 2>/dev/null || echo "")
+
+NOT_LATEST=0
+[ -n "$ORIGIN_SHA" ] && [ "$LOCAL_SHA" != "$ORIGIN_SHA" ] && NOT_LATEST=1
+
+if [ "$BRANCH" != "main" ] || [ -n "$DIRTY" ] || [ "$NOT_LATEST" -eq 1 ]; then
+  echo "⚠️  You are about to deploy from a non-standard git state:"
+  [ "$BRANCH" != "main" ] && echo "   - branch: $BRANCH"
+  [ -n "$DIRTY" ] && echo "   - uncommitted changes"
+  [ "$NOT_LATEST" -eq 1 ] && echo "   - not at origin/main"
+
+  echo ""
+  read -rp "Continue anyway? (y/N) " CONFIRM
+  if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "❌ Deployment aborted."
+    exit 1
+  fi
+fi
+
+#############################################
 # CONFIG
 #############################################
 

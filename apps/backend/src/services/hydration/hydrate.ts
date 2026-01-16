@@ -17,8 +17,7 @@ import {
     ArCabildoabiertoWikiTopicVersion
 } from "@cabildo-abierto/api"
 import {FeedSkeleton} from "#/services/feed/feed.js";
-import {decompress} from "@cabildo-abierto/editor-core";
-import {getAllText} from "#/services/wiki/diff.js";
+import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateEmbedViews, hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
@@ -175,9 +174,18 @@ export function getArticleSummary(text: string | null, format: string | undefine
             .trim()
     } else if (!format || format == "lexical-compressed") {
         const summaryJson = JSON.parse(decompress(text))
-        summary = getAllText(summaryJson.root).slice(0, 150).replaceAll("\n", " ")
+        summary = getPlainText(summaryJson.root).slice(0, 150).replaceAll("\n", " ")
     }
     return {summary, summaryFormat: "plain-text"}
+}
+
+
+export function getArticlePreviewImage(authorId: string, previewCid: string | undefined, title?: string): AppBskyEmbedImages.ViewImage | undefined {
+    return previewCid ? {
+        thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorId}/${previewCid}@jpeg`,
+        fullsize: `https://cdn.bsky.app/img/feed_fullsize/plain/${authorId}/${previewCid}@jpeg`,
+        alt: title ?? ""
+    } : undefined
 }
 
 
@@ -228,11 +236,7 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
 
     const previewCid = e.articlePreviewImage
 
-    const preview: AppBskyEmbedImages.ViewImage | undefined = previewCid ? {
-        thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/${authorId}/${previewCid}@jpeg`,
-        fullsize: `https://cdn.bsky.app/img/feed_fullsize/plain/${authorId}/${previewCid}@jpeg`,
-        alt: e.title
-    } : undefined
+    const preview = getArticlePreviewImage(authorId, previewCid ?? undefined, e.title)
 
     return {
         data: {
@@ -267,7 +271,7 @@ export function hydrateContent(ctx: AppContext, uri: string, data: Dataplane, fu
     } else if (isArticle(collection)) {
         return full ? hydrateFullArticleView(ctx, uri, data) : hydrateArticleView(ctx, uri, data)
     } else if (isTopicVersion(collection)) {
-        return hydrateTopicViewBasicFromUri(uri, data)
+        return hydrateTopicViewBasicFromUri(ctx, uri, data)
     } else if (isDataset(collection)) {
         const res = hydrateDatasetView(ctx, uri, data)
         if (res) return {data: res}; else return {error: "No se pudo hidratar el dataset."}

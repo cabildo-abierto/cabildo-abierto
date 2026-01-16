@@ -3,19 +3,6 @@ import {makeMatrix, range} from "@cabildo-abierto/utils";
 import {areArraysEqual} from "@cabildo-abierto/utils";
 
 
-export function getAllText(node: any){
-    let text = ""
-    if(node.type == "text"){
-        text += node.text
-    }
-    if(node.children)
-        for(let i = 0; i < node.children.length; i++){
-            text += getAllText(node.children[i])
-        }
-    return text
-}
-
-
 export function charDiff(str1: string, str2: string){
     if(str1 == str2) return {total: 0, insertions: 0, deletions: 0}
 

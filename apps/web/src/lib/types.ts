@@ -1,17 +1,6 @@
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorDefs, ATProtoStrongRef, GetFeedOutput} from "@cabildo-abierto/api"
 import {MatchesType} from "@cabildo-abierto/editor-core";
 import {PostOutput} from "@/components/utils/react/fetch";
-
-
-export type Account = {
-    email?: string
-}
-
-
-export type ATProtoStrongRef = {
-    uri: string
-    cid: string
-}
 
 
 export type FastPostReplyProps = {
@@ -41,12 +30,3 @@ export type TopicsGraph = {
 
 
 export type GetFeedProps<T> = (_?: string) => PostOutput<GetFeedOutput<T>>
-
-
-export type GetFeedOutput<T> = {
-    feed: T[]
-    cursor: string | undefined
-}
-
-
-export type MainFeedOption = "En discusión" | "Siguiendo" | "Descubrir" | "Artículos"

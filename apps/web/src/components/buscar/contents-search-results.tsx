@@ -1,8 +1,7 @@
 import {useSearch} from "./search-context";
 import {useEffect, useState} from "react";
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api";
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {GetFeedOutput} from "@/lib/types";
 import {usePathname} from "next/navigation";
 import {get} from "@/components/utils/react/fetch";
 import {useDebounce} from "@/components/utils/react/debounce";

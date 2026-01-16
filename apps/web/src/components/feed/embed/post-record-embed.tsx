@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {formatIsoDate} from "@cabildo-abierto/utils";
 import {ProfilePic} from "../../perfil/profile-pic";
 import Link from "next/link";
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {PostEmbed} from "./post-embed";
 import {$Typed, AppBskyEmbedRecord} from "@atproto/api"
 import {AppBskyFeedPost} from "@atproto/api"

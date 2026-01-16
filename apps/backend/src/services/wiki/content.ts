@@ -1,8 +1,7 @@
 import {AppContext} from "#/setup.js";
 import {TextAndFormat} from "#/services/wiki/references/references.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
-import {decompress} from "@cabildo-abierto/editor-core";
-import {getAllText} from "#/services/wiki/diff.js";
+import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
 import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getCollectionFromUri, getDidFromUri, isPost} from "@cabildo-abierto/utils";
@@ -15,9 +14,9 @@ export function getNumWords(text: string, format: string) {
     } else if(format == "markdown-compressed"){
         return decompress(text).split(" ").length
     } else if(!format || format == "lexical-compressed") {
-        return getAllText(JSON.parse(decompress(text)).root).split(" ").length
+        return getPlainText(JSON.parse(decompress(text)).root).split(" ").length
     } else if(format == "lexical"){
-        return getAllText(JSON.parse(text).root).split(" ").length
+        return getPlainText(JSON.parse(text).root).split(" ").length
     } else {
         throw Error("No se pudo obtener la cantidad de palabras de un contenido con formato: " + format)
     }

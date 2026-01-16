@@ -310,10 +310,12 @@ export class Dataplane {
         const data: TopicVersionQueryResultBasic[] = await this.ctx.kysely
             .selectFrom("TopicVersion")
             .innerJoin("Topic", "Topic.id", "TopicVersion.topicId")
+            .innerJoin("Record", "Record.uri", "TopicVersion.uri")
             .innerJoin("TopicVersion as CurrentVersion", "CurrentVersion.uri", "Topic.currentVersionId")
             .innerJoin("Content", "TopicVersion.uri", "Content.uri")
             .select([
                 "TopicVersion.uri",
+                "Record.cid",
                 "Topic.id",
                 "Topic.popularityScoreLastDay",
                 "Topic.popularityScoreLastWeek",

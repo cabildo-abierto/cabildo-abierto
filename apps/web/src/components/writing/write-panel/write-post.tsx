@@ -8,7 +8,6 @@ import {
 import {ProfilePic} from "../../perfil/profile-pic";
 import {PostImagesEditor} from "./post-images-editor";
 import {AddImageButton} from "./add-image-button";
-import {ATProtoStrongRef, FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/components/auth/use-session";
 import {ReplyToContent} from "./write-panel";
 import {post} from "../../utils/react/fetch";
@@ -20,7 +19,7 @@ import {
     ArCabildoabiertoEmbedRecord,
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion, ImagePayload
+    ImagePayload
 } from "@cabildo-abierto/api";
 import {EditorState} from "lexical";
 import {InsertVisualizationModal} from "@/components/editor";
@@ -32,18 +31,18 @@ import AddToEnDiscusionButton from "../add-to-en-discusion-button";
 import {useTopicsMentioned} from "../use-topics-mentioned";
 import Link from "next/link";
 import {getTextLength} from "./rich-text"
-import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyFeedPost} from "@atproto/api"
+import {AppBskyEmbedExternal} from "@atproto/api"
 import {AddVisualizationButton} from "./add-visualization-button";
-import {hasEnDiscusionLabel} from "../../feed/utils/post-preview-frame";
-import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
-import {BaseButton} from "@/components/utils/base/base-button";
-import {getAllText} from "@cabildo-abierto/editor-core";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
-import {markdownToEditorState} from "../../editor/markdown-transforms";
 import {profileUrl} from "@/components/utils/react/url";
 import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
+import {AddThreadElementButton} from "@/components/writing/write-panel/add-thread-element-button";
+import {isThreadElementStateEmpty} from "@/components/writing/write-panel/write-panel-panel";
+import {getPlainText} from "@cabildo-abierto/editor-core";
+import {ThreadElementState} from "@/components/writing/write-panel/thread-editor";
+import {DeleteThreadElement} from "@/components/writing/write-panel/delete-thread-element";
 
 const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
@@ -56,48 +55,40 @@ const PlotFromVisualizationMain = dynamic(
     })
 
 
-function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
-    if (ArCabildoabiertoFeedDefs.isPostView(replyTo)) {
-        const parent = {
-            uri: replyTo.uri,
-            cid: replyTo.cid
-        }
-        if ((replyTo.record as AppBskyFeedPost.Record).reply) {
-            return {
-                parent,
-                root: (replyTo.record as AppBskyFeedPost.Record).reply.root
-            }
-        } else {
-            return {
-                parent,
-                root: {...parent}
-            }
-        }
-    } else {
-        const parent = {
-            uri: replyTo.uri,
-            cid: replyTo.cid
-        }
-        return {
-            parent,
-            root: parent
-        }
-    }
-}
-
-function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?: ArCabildoabiertoFeedDefs.PostView) {
-    let initialState: $Typed<AppBskyEmbedExternal.View> | null = null
-    let initialUrl: string | null = null
-    if (postView && AppBskyEmbedExternal.isView(postView.embed)) {
-        initialState = postView.embed
-        initialUrl = postView.embed.external.uri
-    }
-    const [externalEmbedView, setExternalEmbedView] = useState<$Typed<AppBskyEmbedExternal.View> | null>(initialState)
-    const [externalEmbedUrl, setExternalEmbedUrl] = useState<string | null>(initialUrl)
+function useUpdateExternalEmbed(
+    state: ThreadElementState,
+    setThreadElementState: (
+        updater: (prev: ThreadElementState) => ThreadElementState
+    ) => void
+) {
     const [links, setLinks] = useState<string[]>([])
+    const {images, visualization, editorState, externalEmbed} = state
+    const externalEmbedUrl = externalEmbed?.url
+    const disabled = (images && images.length > 0) || visualization != null
+
+    function setExternalEmbedView(view: $Typed<AppBskyEmbedExternal.View>) {
+        setThreadElementState(state => ({
+            ...state,
+            externalEmbed: {
+                ...state.externalEmbed,
+                view
+            }
+        }))
+    }
+
+    function setExternalEmbedUrl(url: string | null) {
+        setThreadElementState(state => ({
+            ...state,
+            externalEmbed: {
+                view: state.externalEmbed?.view ?? null,
+                ...state.externalEmbed,
+                url
+            }
+        }))
+    }
 
     useEffect(() => {
-        if (!externalEmbedUrl) {
+        if (!state.externalEmbed?.url) {
             setExternalEmbedView(null)
             return
         }
@@ -122,6 +113,7 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
                             thumb: thumbnail
                         }
                     }
+                    console.log("setting embed", embed)
                     setExternalEmbedView(embed)
                 }
             }
@@ -156,25 +148,8 @@ function useExternalEmbed(editorState: EditorState, disabled: boolean, postView?
         setExternalEmbedView(null)
     }
 
-    return {externalEmbedView, setExternalEmbedView, externalEmbedUrl, setExternalEmbedUrl, onRemove}
+    return {onRemove}
 }
-
-
-export type ImagePayloadForPostCreation = { src: string, $type: "url" } | { $type: "file", base64: string }
-
-export type CreatePostProps = {
-    text: string
-    reply?: FastPostReplyProps
-    selection?: [number, number]
-    images?: ImagePayloadForPostCreation[]
-    enDiscusion?: boolean
-    externalEmbedView?: $Typed<AppBskyEmbedExternal.View>
-    quotedPost?: ATProtoStrongRef
-    visualization?: ArCabildoabiertoEmbedVisualization.Main
-    uri?: string
-    forceEdit?: boolean
-}
-
 
 
 function getLinksFromEditor(editorState: EditorState) {
@@ -188,33 +163,6 @@ function getLinksFromEditor(editorState: EditorState) {
         })
     })
     return links
-}
-
-
-function useImagesInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
-    const postImages = useMemo(() => {
-        if (postView && AppBskyEmbedImages.isView(postView.embed)) {
-            const images: ImagePayload[] = postView.embed.images.map(i => ({
-                $type: "url",
-                src: i.thumb
-            }))
-            return images
-        } else {
-            return []
-        }
-    }, [postView])
-
-    const [images, setImages] = useState<ImagePayload[]>(postImages)
-
-    return {images, setImages}
-}
-
-
-function useEnDiscusionForWritePost(replyTo: ReplyToContent, postView?: ArCabildoabiertoFeedDefs.PostView) {
-    const initialState = postView ? hasEnDiscusionLabel(postView) : !replyTo
-    const [enDiscusion, setEnDiscusion] = useState(initialState)
-
-    return {enDiscusion, setEnDiscusion}
 }
 
 
@@ -232,58 +180,50 @@ function useVisualizationInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostVi
 }
 
 
-function getPlainText(node: any) {
-    let text = ""
-    if(node.type == "text"){
-        text += node.text
-    }
-    if(node.type == "custom-beautifulMention"){
-        text += "@"+node.value
-    }
-    if(node.children)
-        for(let i = 0; i < node.children.length; i++){
-            text += getPlainText(node.children[i])
-        }
-    if(node.type == "paragraph") {
-        text += "\n"
-    }
-    return text
-}
-
-
 export const WritePost = ({
                               replyTo,
                               selection,
                               quotedContent,
-                              handleSubmit,
-                              onClose,
                               postView,
-    isVoteReject
+                              isVoteReject,
+                              threadElementState,
+                              setThreadElementState,
+                              enDiscusion,
+                              setEnDiscusion,
+                              onAddThreadElement,
+                              editorKey,
+                              handleClickSubmit,
+                              onDelete,
+                              isOnlyElement
                           }: {
     replyTo: ReplyToContent,
     selection?: MarkdownSelection | LexicalSelection
-    onClose: () => void
     setHidden: (_: boolean) => void
     quotedContent?: ArCabildoabiertoEmbedRecord.View["record"]
-    handleSubmit: (_: CreatePostProps) => Promise<{ error?: string }>
     postView?: ArCabildoabiertoFeedDefs.PostView
     isVoteReject?: boolean
+    threadElementState: ThreadElementState
+    setThreadElementState: (
+        updater: (prev: ThreadElementState) => ThreadElementState
+    ) => void
+    enDiscusion: boolean
+    setEnDiscusion: (e: boolean) => void
+    onAddThreadElement: () => void
+    handleClickSubmit: (force: boolean) => Promise<{ error?: string }>
+    editorKey?: number
+    onDelete?: () => void
+    isOnlyElement?: boolean
 }) => {
+    const {text, images, editorState, externalEmbed} = threadElementState
+    const externalEmbedView = externalEmbed?.view
     const {user} = useSession()
-    const [editorKey, setEditorKey] = useState(0)
-
-    const [text, setText] = useState("")
-    const [forceEditModalOpen, setForceEditModalOpen] = useState(false)
-
-    // editor state
-    const {images, setImages} = useImagesInPostEditor(postView)
     const {visualization, setVisualization} = useVisualizationInPostEditor(postView)
-    const {enDiscusion, setEnDiscusion} = useEnDiscusionForWritePost(replyTo, postView)
-    const [editorState, setEditorState] = useState<EditorState | null>(null)
     const {
-        externalEmbedView,
         onRemove
-    } = useExternalEmbed(editorState, (images && images.length > 0) || visualization != null, postView)
+    } = useUpdateExternalEmbed(
+        threadElementState,
+        setThreadElementState
+    )
 
     // modals
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
@@ -294,70 +234,49 @@ export const WritePost = ({
     const isReply = replyTo != undefined
     const replyToCollection = isReply ? getCollectionFromUri(replyTo.uri) : null
     const quoteCollection = quotedContent && "uri" in quotedContent ? getCollectionFromUri(quotedContent.uri) : null
+
     const settings = usePostEditorSettings(
         replyToCollection,
         quoteCollection,
         postView,
-        isVoteReject
+        isVoteReject,
+        threadElementState
     )
 
-    async function handleClickSubmit(force: boolean = false) {
-        const reply = replyTo ? replyFromParentElement(replyTo) : undefined
+    function setEditorState(editorState: EditorState) {
+        setThreadElementState(prev => ({
+            ...prev,
+            editorState
+        }))
+    }
 
-        let selectionForPost: [number, number]
-        if (selection instanceof LexicalSelection && (ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo)) && replyTo.format == "markdown") {
-            const state = markdownToEditorState(
-                replyTo.text,
-                true,
-                true,
-                replyTo.embeds
-            )
-            selectionForPost = selection.toMarkdownSelection(state).toArray()
-        }
+    function setImages(images: ImagePayload[]) {
+        setThreadElementState(prev => ({
+            ...prev,
+            images
+        }))
+    }
 
-        const text = getPlainText(editorState.toJSON().root)
-
-        const post: CreatePostProps = {
-            text,
-            reply,
-            selection: selectionForPost,
-            images,
-            enDiscusion,
-            externalEmbedView,
-            visualization,
-            quotedPost: quotedContent && "uri" in quotedContent && "cid" in quotedContent ? {
-                uri: quotedContent.uri,
-                cid: quotedContent.cid
-            } : undefined,
-            uri: postView?.uri,
-            forceEdit: force
-        }
-
-        const {error} = await handleSubmit(post)
-        if (error) {
-            if (error.includes("La publicación ya fue referenciada")) {
-                setForceEditModalOpen(true)
-                return {}
-            } else {
-                return {error}
-            }
-        }
-        setEditorKey(editorKey + 1)
-        onClose()
-        return {}
+    function setText(text: string) {
+        setThreadElementState(state => ({...state, text}))
     }
 
     useEffect(() => {
         if (editorState) {
-            let text = getAllText(editorState.toJSON().root)
-            if (text.endsWith("\n")) text = text.slice(0, text.length - 1)
+            let text = getPlainText(editorState.toJSON().root)
+            text = text.trim()
             setText(text)
         }
     }, [editorState])
 
     const charLimit = 300
 
-    const valid = (text.length > 0 && text.length <= 300) || (images && images.length > 0) || visualization != null
+    let textLength = 0
+    try {
+        textLength = getTextLength(text)
+    } catch {}
+
+    const valid = (textLength > 0 && textLength <= 300) || (images && images.length > 0) || visualization != null
 
     useEffect(() => {
         setLastTextChange(new Date())
@@ -386,7 +305,12 @@ export const WritePost = ({
         return null
     }, [visualization])
 
-    return <div className={"flex flex-col flex-grow justify-between"}>
+    return <div className={"relative flex flex-col flex-grow justify-between"}>
+        {!isOnlyElement && <div className={"absolute top-2 right-2 z-[1500]"}>
+            <DeleteThreadElement
+                onDelete={onDelete}
+            />
+        </div>}
         <div
             className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
         >
@@ -436,12 +360,16 @@ export const WritePost = ({
                 />
             </div>
             <div className={"flex space-x-2 items-center"}>
+                {!postView && !replyTo && !isThreadElementStateEmpty(threadElementState) && <AddThreadElementButton
+                    onAddThreadElement={onAddThreadElement}
+                    disabled={false}
+                />}
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
                 <StateButton
                     variant={"outlined"}
                     handleClick={async () => {
-                        return await handleClickSubmit()
+                        return handleClickSubmit(false)
                     }}
                     disabled={!valid}
                     size={"small"}
@@ -471,37 +399,5 @@ export const WritePost = ({
                 setImageModalOpen(false)
             }}
         />}
-        {forceEditModalOpen && <BaseFullscreenPopup open={true}>
-            <div className={"pb-4 pt-8 space-y-8"}>
-                <div className={"font-light text-[var(--text-light)] text-sm max-w-[400px] px-8"}>
-                    La publicación ya fue referenciada. Si la editás ahora el cambio se va a ver reflejado en Cabildo
-                    Abierto pero no en Bluesky.
-                </div>
-                <div className={"flex space-x-2 justify-center"}>
-                    <BaseButton
-                        variant={"outlined"}
-                        size={"small"}
-                        onClick={() => {
-                            setForceEditModalOpen(false)
-                        }}
-                    >
-                        Cancelar
-                    </BaseButton>
-                    <StateButton
-                        variant={"outlined"}
-                        size={"small"}
-                        handleClick={async () => {
-                            const {error} = await handleClickSubmit(true)
-                            if (!error) {
-                                setForceEditModalOpen(false)
-                            }
-                            return {error}
-                        }}
-                    >
-                        Editar igualmente
-                    </StateButton>
-                </div>
-            </div>
-        </BaseFullscreenPopup>}
     </div>
 }

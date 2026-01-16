@@ -1,6 +1,6 @@
 import {useInfiniteQuery} from "@tanstack/react-query";
 import {GetFeedProps} from "@/lib/types";
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useRef} from "react";
 import {VirtualItem} from "@tanstack/virtual-core";
 import {FeedPage} from "@/components/feed/types";
 import {FeedMerger} from "@/components/feed/feed/types";
@@ -51,6 +51,17 @@ export function useFetchNextPage<T>(
     isFetchingNextPage: boolean,
     hasNextPage: boolean
 ) {
+    const hasScrolledRef = useRef(false)
+
+    useEffect(() => {
+        const onScroll = () => {
+            hasScrolledRef.current = true
+        }
+
+        window.addEventListener("scroll", onScroll, { once: true })
+        return () => window.removeEventListener("scroll", onScroll)
+    }, [])
+
     useEffect(() => {
         if(feedList.length == 0 || items.length == 0) return
         const lastItem = items[items.length - 1]
@@ -58,7 +69,7 @@ export function useFetchNextPage<T>(
         if (
             lastItem.index >= feedList.length - 1 &&
             hasNextPage &&
-            !isFetchingNextPage
+            !isFetchingNextPage && hasScrolledRef.current
         ) {
             fetchNextPage()
         }

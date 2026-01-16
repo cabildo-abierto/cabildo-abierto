@@ -3,14 +3,13 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {
     $Typed,
     ArCabildoabiertoDataDataset,
-    ArCabildoabiertoEmbedVisualization,
-    StatsDashboard
+    ArCabildoabiertoEmbedVisualization
 } from "@cabildo-abierto/api";
 import PlotWithButtons from "@/components/visualizations/editor/plot-with-buttons";
 
 
-export const WAUPlot = ({data, title}: {
-    data: StatsDashboard["WAUPlot"]
+export const LinePlotByDate = ({data, title}: {
+    data: {date: Date, value: number}[]
     title: string
 }) => {
     const {data: profile, isLoading} = useProfile("cabildoabierto.ar")
@@ -20,7 +19,7 @@ export const WAUPlot = ({data, title}: {
     const dataset: $Typed<ArCabildoabiertoDataDataset.DatasetView> = {
         $type: "ar.cabildoabierto.data.dataset#datasetView",
         data: JSON.stringify(data),
-        columns: ["date", "count"].map(x => ({
+        columns: ["date", "value"].map(x => ({
             $type: "ar.cabildoabierto.data.dataset#column",
             name: x
         })),
@@ -46,7 +45,7 @@ export const WAUPlot = ({data, title}: {
             spec: {
                 $type: "ar.cabildoabierto.embed.visualization#twoAxisPlot",
                 xAxis: "date",
-                yAxis: "count",
+                yAxis: "value",
                 plot: {
                     $type: "ar.cabildoabierto.embed.visualization#lines"
                 }
@@ -55,7 +54,7 @@ export const WAUPlot = ({data, title}: {
         dataset,
     }
 
-    return <div className={"max-w-[600px] w-full"}>
+    return <div className={"w-[600px]"}>
         <PlotWithButtons
             visualization={WAUVisualization}
         />

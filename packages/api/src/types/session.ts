@@ -1,4 +1,5 @@
-
+import {AppBskyFeedDefs} from "@atproto/api"
+import {FeedConfig} from "./feed";
 
 export type AuthorStatus = {
     isAuthor: boolean
@@ -11,6 +12,20 @@ export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad rel
 export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes" | "Último año"
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
 export type TTOption = EnDiscusionTime | "Ediciones recientes"
+
+
+export type FeedTab =  {
+    config: FeedConfig
+    id: string
+    pinned: boolean
+    createdAt: Date
+}
+
+
+export type MainPageFeedsState = {
+    tabs: FeedTab[]
+    selected: number | null
+}
 
 
 export type AlgorithmConfig = {
@@ -28,6 +43,7 @@ export type AlgorithmConfig = {
         metric?: EnDiscusionMetric
         format?: FeedFormatOption
     }
+    mainPageFeeds?: MainPageFeedsState
     tt?: {
         time?: TTOption
     }
@@ -39,6 +55,11 @@ export type MirrorStatus = "Sync" | "Dirty" | "InProcess" | "Failed" | "Failed -
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
 export type ValidationState = "org" | "persona" | string | null
+
+export type FeedTabView = {
+    idOrUri: string
+    displayName: string
+}
 
 export type Session = {
     platformAdmin: boolean
@@ -59,4 +80,11 @@ export type Session = {
     validation: ValidationState
     algorithmConfig: AlgorithmConfig
     mirrorStatus: MirrorStatus
+    pinnedFeeds: FeedTabView[]
+    caProfile: string | null
+}
+
+export type Account = {
+    email?: string
+    subscribedToEmailUpdates: boolean
 }

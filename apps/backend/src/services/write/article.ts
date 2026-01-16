@@ -1,10 +1,14 @@
 import {uploadImageBlob, uploadStringBlob} from "#/services/blob.js";
 import {CAHandler} from "#/utils/handler.js";
 import {SessionAgent} from "#/utils/session-agent.js";
-import {ArCabildoabiertoFeedArticle, CreateArticleProps} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedArticle, CreateArticleProps, CreatePostThreadElement} from "@cabildo-abierto/api"
 import {getEmbedsFromEmbedViews} from "#/services/write/topic.js";
 import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
-import {getRkeyFromUri} from "@cabildo-abierto/utils";
+import {getRkeyFromUri, splitUri} from "@cabildo-abierto/utils";
+import {createPost} from "#/services/write/post.js";
+import {getArticlePreviewImage, getArticleSummary} from "#/services/hydration/hydrate.js";
+import {BlobRef} from "@atproto/lexicon";
+import {getCidFromBlobRef} from "#/services/sync/utils.js";
 
 
 
@@ -52,10 +56,13 @@ export const createArticleAT = async (agent: SessionAgent, article: CreateArticl
 }
 
 export const createArticle: CAHandler<CreateArticleProps> = async (ctx, agent, article) => {
+    let uri: string | undefined
+    let previewRef: BlobRef | undefined = undefined
     try {
         const res = await createArticleAT(agent, article)
         if(res.error || !res.ref || !res.record) return {error: res.error}
-
+        uri = res.ref.uri
+        previewRef = res.record.preview
         await Promise.all([
             article.draftId ? ctx.kysely
                 .deleteFrom("Draft")
@@ -66,6 +73,35 @@ export const createArticle: CAHandler<CreateArticleProps> = async (ctx, agent, a
     } catch (e) {
         ctx.logger.pino.error({error: e}, "error al publicar arículo")
         return {error: "Ocurrió un error al publicar el artículo."}
+    }
+
+    if(article.bskyPostText != null) {
+        try {
+            const {did, rkey} = splitUri(uri)
+            const elem: CreatePostThreadElement = {
+                text: article.bskyPostText,
+                externalEmbedView: {
+                    $type: "app.bsky.embed.external#view",
+                    external: {
+                        uri: `https://cabildoabierto.ar/c/${did}/article/${rkey}`,
+                        title: article.title,
+                        description: getArticleSummary(article.text, article.format, article.description).summary,
+                        thumb: previewRef ? getArticlePreviewImage(did, getCidFromBlobRef(previewRef), article.title)?.thumb : undefined
+                    }
+                }
+            }
+
+            await createPost(ctx, agent, {
+                threadElements: [
+                    elem
+                ],
+                forceEdit: false,
+                enDiscusion: false,
+            })
+        } catch (e) {
+            ctx.logger.pino.error({error: e}, "error al publicar el artículo en Bluesky")
+            return {error: "El artículo fue creado, pero ocurrió un error al crear la publicación para compartir el artículo."}
+        }
     }
 
     return {data: {}}

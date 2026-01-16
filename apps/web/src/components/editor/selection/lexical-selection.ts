@@ -20,7 +20,7 @@ import {
 import {MarkdownSelection} from "./markdown-selection";
 import {ProcessedLexicalState} from "./processed-lexical-state";
 import {produce} from "immer";
-import {getAllText} from "@cabildo-abierto/editor-core";
+import {getPlainText} from "@cabildo-abierto/editor-core";
 
 
 export function getOrderedNodeListWithPointers(node: ElementOrTextNode): {node: ElementOrTextNode, pointer: number[], isLeaf: boolean}[] {
@@ -425,7 +425,7 @@ export class LexicalSelection {
         } catch {
             console.log("Error filtering outside selection:")
             console.log(this.start, this.end)
-            console.log(getAllText(s.root))
+            console.log(getPlainText(s.root))
             return null
         }
     }

@@ -4,7 +4,6 @@ import {
     DialogTitle,
     DialogContent,
     DialogOverlay,
-    DialogHeader,
     DialogDescription
 } from "../ui/dialog"
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
@@ -56,18 +55,33 @@ export const BaseFullscreenPopup = ({
             className={cn("z-[1399]", overlayClassName)}
         />}
         <DialogContent
-            className={cn(`z-[1400] w-screen sm:min-w-[300px] sm:border border-[var(--accent-dark)] sm:w-auto`, className)}
+            className={cn(
+                `
+    z-[1400]
+    fixed
+    w-screen
+    left-0
+    translate-x-0
+    translate-y-0
+    top-0
+    h-screen
+    sm:w-auto
+    sm:left-[50%] 
+    sm:top-[50%]
+    sm:translate-x-[-50%]
+    sm:translate-y-[-50%]
+    sm:border
+    sm:h-auto
+    `, className)}
             onClick={e => {
                 e.stopPropagation()
             }}
             aria-labelledby={ariaLabelledBy}
         >
-            <DialogHeader>
-                <VisuallyHidden>
-                    <DialogTitle>Título</DialogTitle>
-                    <DialogDescription>Descripción</DialogDescription>
-                </VisuallyHidden>
-            </DialogHeader>
+            <VisuallyHidden>
+                <DialogTitle>Título</DialogTitle>
+                <DialogDescription>Descripción</DialogDescription>
+            </VisuallyHidden>
             {closeButton && onClose && (
                 <div className="flex justify-end mr-1 mt-1">
                     <CloseButton

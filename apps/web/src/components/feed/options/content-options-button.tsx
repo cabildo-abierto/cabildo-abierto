@@ -128,6 +128,7 @@ export const ContentOptionsButton = ({
             quotedPost={
                 ArCabildoabiertoEmbedRecord.isView(record.embed) ? record.embed.record : undefined
             }
+
         />}
         {topicsMentionedModalOpen && <TopicsMentionedModal
             uri={record.uri}

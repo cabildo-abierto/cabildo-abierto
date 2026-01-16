@@ -7,7 +7,9 @@ import {CloseSessionButton} from "@/components/utils/close-session-button";
 import React, {ReactNode} from "react";
 import {DeleteAccountButton} from "./delete-account-button";
 import {useAPI} from "@/components/utils/react/queries";
-import {Account} from "@/lib/types";
+import {StateButton} from "@/components/utils/base/state-button";
+import {Account} from "@cabildo-abierto/api";
+import {post} from "@/components/utils/react/fetch";
 
 
 const useAccount = () => {
@@ -40,13 +42,31 @@ const ChangeFromBluesky = ({add = false}: { add?: boolean }) => {
 
 export const AccountSettings = () => {
     const {user} = useSession()
-    const {account, isLoading} = useAccount()
+    const {account, isLoading, refetch: refetchAccount} = useAccount()
     const {data: request, isLoading: requestLoading} = useCurrentValidationRequest()
 
     if (isLoading || requestLoading) {
         return <div className={"py-8"}>
             <LoadingSpinner/>
         </div>
+    }
+
+    async function onSubscribe() {
+        const {error} = await post("/subscribe")
+        if(error) {
+            return {error: "Ocurrió un error al suscribirte a la lista de correo."}
+        }
+        await refetchAccount()
+        return {}
+    }
+
+    async function onUnsubscribe() {
+        const {error} = await post(`/unsubscribe`)
+        if(error) {
+            return {error: "Ocurrió un error al desuscribirte de la lista de correo."}
+        }
+        await refetchAccount()
+        return {}
     }
 
     return <div className={"py-4 space-y-4"}>
@@ -59,11 +79,19 @@ export const AccountSettings = () => {
         <SettingsElement label={"Contraseña"}>
             <ChangeFromBluesky/>
         </SettingsElement>
-        <SettingsElement label={"Correo"}>
-            {account.email ? <div className="text-lg ">{account.email}</div> :
+        {account && <SettingsElement label={"Correo"}>
+            {account.email ? <div className="text-lg">{account.email}</div> :
                 <div className="text-lg ">Pendiente</div>}
             <ChangeFromBluesky add={account.email == null}/>
-        </SettingsElement>
+        </SettingsElement>}
+        {account && <SettingsElement label={"Novedades por correo"}>
+            {account.email && (account.subscribedToEmailUpdates ? <StateButton handleClick={onUnsubscribe} size={"small"} variant={"outlined"}>
+                Desuscribirme
+            </StateButton> : <StateButton handleClick={onSubscribe} size={"small"} variant={"outlined"}>
+                Suscribirme
+            </StateButton>)}
+            {!account.email && <div className="">Agregá un correo electrónico primero.</div>}
+        </SettingsElement>}
         <SettingsElement label={"Permisos de edición"}>
             <PermissionLevel level={user.editorStatus}/>
         </SettingsElement>

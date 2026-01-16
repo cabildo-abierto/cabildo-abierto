@@ -1,8 +1,7 @@
 import React, {Dispatch, SetStateAction, useCallback, useState} from "react";
 import {useSession} from "@/components/auth/use-session";
-import {GetFeedOutput} from "@/lib/types";
 import {smoothScrollTo} from "../../utils/react/scroll";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion, GetFeedOutput} from "@cabildo-abierto/api";
 import {TopicVotesOnFeed} from "../votes/topic-votes-on-feed";
 import {ReplyButton} from "../../feed/utils/reply-button";
 import WritePanel, {ReplyToContent} from "../../writing/write-panel/write-panel";

@@ -45,7 +45,7 @@ async function getThreadRepliesSkeletonForPostFromBsky(ctx: AppContext, agent: A
 
         return thread ? threadViewPostToThreadSkeleton(thread) : {post: uri}
     } catch (error) {
-        ctx.logger.pino.warn({uri, error}, "error fecthing thread from bsky")
+        ctx.logger.pino.warn({uri, error}, "error fetching thread from bsky")
         return null
     }
 }

@@ -14,7 +14,7 @@ import {
     defaultTopicMentionsFormat,
     defaultTopicMentionsMetric,
     defaultTopicMentionsTime, enDiscusionTimeOptions
-} from "./defaults";
+} from "@cabildo-abierto/api";
 import {configOptionNodes} from "./config-option-nodes";
 import {Note} from "@/components/utils/base/note";
 import {AlgorithmConfig, EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "@cabildo-abierto/api";

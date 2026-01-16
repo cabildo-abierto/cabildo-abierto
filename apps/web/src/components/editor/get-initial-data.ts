@@ -1,5 +1,5 @@
 import {InitialEditorStateType} from '@lexical/react/LexicalComposer';
-import {$createParagraphNode, $createTextNode, $getRoot} from "lexical";
+import {$createParagraphNode, $createTextNode, $getRoot, EditorState} from "lexical";
 import {
     htmlToEditorStateStr, markdownToEditorState,
     normalizeMarkdown
@@ -65,13 +65,16 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 
 
 export function getInitialData(
-    text: string,
+    text: string | EditorState,
     format: string,
     shouldPreserveNewLines: boolean = false,
     embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
     topicMentions: boolean = false,
     transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): InitialEditorStateType {
+    if(typeof text != "string"){
+        return text
+    }
     if(format == "markdown"){
         text = normalizeMarkdown(text, true)
         const state = markdownToEditorState(
@@ -104,15 +107,17 @@ export function getInitialData(
     } else if(format == "lexical"){
         return (editor: OriginalLexicalEditor) => {
             editor.update(() => {
-                try {
-                    if(topicMentions){
-                        text = createTopicMentions(text)
+                if(typeof text == "string") {
+                    try {
+                        if(topicMentions){
+                            text = createTopicMentions(text)
+                        }
+                        const parsed = editor.parseEditorState(text)
+                        editor.setEditorState(parsed)
+                    } catch (e) {
+                        console.log("Error", e)
+                        console.log("Text", text)
                     }
-                    const parsed = editor.parseEditorState(text)
-                    editor.setEditorState(parsed)
-                } catch (e) {
-                    console.log("Error", e)
-                    console.log("Text", text)
                 }
             })
         }

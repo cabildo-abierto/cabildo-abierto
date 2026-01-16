@@ -1,10 +1,33 @@
 "use client"
 import {PageCardMessage} from "@/components/aportar/page-card-message";
-import {useState} from "react";
-import {CheckIcon, LinkIcon} from "@phosphor-icons/react";
-import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
+import {
+    CopyIcon,
+    WhatsappLogoIcon
+} from "@phosphor-icons/react";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useAPI} from "@/components/utils/react/queries";
+import {toast} from "sonner";
+import {BaseIconButton} from "@/components/utils/base/base-icon-button";
+
+function shareText(code: string) {
+    return encodeURIComponent(
+        "Sumate a Cabildo Abierto, una plataforma de discusión argentina."
+    )
+}
+
+function shareUrl(code: string) {
+    return encodeURIComponent(inviteCodeUrl(code))
+}
+
+function openShare(url: string) {
+    window.open(url, "_blank", "noopener,noreferrer")
+}
+
+function shareOnWpp(code: string) {
+    openShare(
+        `https://wa.me/?text=${shareText(code)}%20${shareUrl(code)}`
+    )
+}
 
 
 function inviteCodeUrl(code: string) {
@@ -32,7 +55,6 @@ function useInviteCodesToShare() {
 
 export default function Page() {
     const {data, isLoading} = useInviteCodesToShare()
-    const [copied, setCopied] = useState<boolean>(false)
 
     if(isLoading){
         return <div className={"pt-16"}>
@@ -41,44 +63,45 @@ export default function Page() {
     }
 
     const content = <div className={"space-y-2"}>
+        <h2 className={"text-lg"}>
+            Cuantos más, mejor
+        </h2>
         <div className={"pb-2 font-light text-[var(--text)]"}>
-            Hacé click en un enlace para copiarlo. Vamos a ir disponibilizando más enlaces a medida que la plataforma esté lista.
+            Cada enlace de invitación permite registrar una cuenta. ¡Compartilos!
         </div>
         {data && data.map(c => {
             return <div key={c.code}>
                 <div
-                    onClick={async () => {
-                        await copyCode(c.code);
-                        setCopied(true)
-                    }}
-                    className={"space-x-2 bg-[var(--background-dark)] hover:bg-[var(--background-dark2)] flex items-center justify-between cursor-pointer border py-1 px-2"}
+                    className={"space-x-2 bg-[var(--background-dark)] flex items-center justify-between border py-1 px-2"}
                 >
                     <div className={"font-light text-sm"}>
                         {inviteCodeUrl(c.code)}
                     </div>
-                    <div className={"w-12 flex justify-center items-center"}>
-                        <LinkIcon/>
+                    <div className={"flex justify-center items-center space-x-1"}>
+                        <BaseIconButton
+                            onClick={() => {shareOnWpp(c.code)}}
+                        >
+                            <WhatsappLogoIcon/>
+                        </BaseIconButton>
+                        <BaseIconButton
+                            onClick={async () => {
+                                await copyCode(c.code)
+                                toast.message("¡Enlace copiado!")
+                            }}
+                        >
+                        <CopyIcon/>
+                        </BaseIconButton>
                     </div>
                 </div>
             </div>
         })}
+        <div className={"text-sm text-[var(--text-light)]"}>
+            Si te quedás sin enlaces para compartir, cada tanto agregamos más, podés avisarnos escribiendo a @cabildoabierto.ar.
+        </div>
     </div>
     return <div>
         <PageCardMessage
             content={content}
         />
-        {copied && <AcceptButtonPanel open={copied} onClose={() => setCopied(false)}>
-            <div className={"flex flex-col items-center space-y-4 py-4"}>
-                <div className={"w-16 h-16 rounded-full bg-[var(--background-dark2)] flex items-center justify-center"}>
-                    <CheckIcon
-                        fontSize={30}
-                        weight={"bold"}
-                    />
-                </div>
-                <div className={"text-lg"}>
-                    ¡Invitación copiada!
-                </div>
-            </div>
-        </AcceptButtonPanel>}
     </div>
 }

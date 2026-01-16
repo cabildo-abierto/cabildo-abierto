@@ -71,7 +71,7 @@ export const DiscoverFeedConfig = () => {
     })
 
     if (!user) {
-        return <Note>
+        return <Note className={"text-left"}>
             Iniciá sesión para configurar tus intereses.
         </Note>
     }

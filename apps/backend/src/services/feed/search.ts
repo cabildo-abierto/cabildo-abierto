@@ -1,7 +1,8 @@
 import {cleanText} from "@cabildo-abierto/utils";
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {FeedPipelineProps, getFeed, GetFeedOutput, GetSkeletonProps} from "#/services/feed/feed.js";
+import {FeedPipelineProps, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
 import {sql} from "kysely";
+import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api";
 
 
 const getSearchContentsSkeleton: (q: string) => GetSkeletonProps = (q) => async (ctx, agent, data, cursor) => {
@@ -26,7 +27,7 @@ const getSearchContentsSkeleton: (q: string) => GetSkeletonProps = (q) => async 
 };
 
 
-export const searchContents: CAHandlerNoAuth<{params: {q: string}}, GetFeedOutput> = async (ctx, agent, {params}) => {
+export const searchContents: CAHandlerNoAuth<{params: {q: string}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params}) => {
     let {q} = params
     if(q.length == 0) return {data: {feed: [], cursor: undefined}}
     q = cleanText(q)

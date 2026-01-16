@@ -1,30 +1,55 @@
 import SelectionComponent from "../../buscar/search-selection-component"
-import {
-    useEnDiscusionParams
-} from "../feed/main-page";
-import {useSession} from "@/components/auth/use-session";
 import {configOptionNodes} from "./config-option-nodes";
-import {enDiscusionTimeOptions} from "./defaults";
-import {updateSearchParam} from "@/components/utils/react/search-params";
+import {
+    defaultEnDiscusionFormat,
+    defaultEnDiscusionMetric,
+    defaultEnDiscusionTime,
+    enDiscusionTimeOptions
+} from "@cabildo-abierto/api";
+import { Note } from "@/components/utils/base/note";
+import {useMainPageFeeds} from "@/components/feed/config/main-page-feeds-context";
+import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "@cabildo-abierto/api";
 
 
 export const EnDiscusionFeedConfig = () => {
-    const {user} = useSession()
-    const {metric, time, format} = useEnDiscusionParams(user)
+    const {config, setConfig, openFeeds} = useMainPageFeeds()
 
-    function setMetric(v: string) {
-        updateSearchParam("m", v)
+    if(!config || config.type != "main" || config.subtype != "discusion"){
+        return <Note>
+            Ocurrió un error al cargar la configuración.
+        </Note>
     }
 
-    function setTime(v: string) {
-        updateSearchParam("p", v)
+    const {metric, time, format} = config
+
+    function setMetric(v: EnDiscusionMetric) {
+        if(config.subtype == "discusion") {
+            setConfig(openFeeds.selected, {
+                ...config,
+                metric: v
+            })
+        }
     }
 
-    function setFormat(v: string) {
-        updateSearchParam("formato", v)
+    function setTime(v: EnDiscusionTime) {
+        if(config.subtype == "discusion") {
+            setConfig(openFeeds.selected, {
+                ...config,
+                time: v
+            })
+        }
     }
 
-    return <div className={"space-y-4"}>
+    function setFormat(v: FeedFormatOption) {
+        if(config.subtype == "discusion") {
+            setConfig(openFeeds.selected, {
+                ...config,
+                format: v
+            })
+        }
+    }
+
+    return <div className={"space-y-4 w-full"}>
         <div>
             <div className={"text-xs text-[var(--text-light)]"}>
                 Métrica
@@ -33,7 +58,7 @@ export const EnDiscusionFeedConfig = () => {
                 onSelection={setMetric}
                 options={["Interacciones", "Recientes", "Me gustas", "Popularidad relativa"]}
                 optionsNodes={configOptionNodes}
-                selected={metric}
+                selected={metric ?? defaultEnDiscusionMetric}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
             />
@@ -46,7 +71,7 @@ export const EnDiscusionFeedConfig = () => {
                 onSelection={setTime}
                 options={enDiscusionTimeOptions}
                 optionsNodes={configOptionNodes}
-                selected={time}
+                selected={time ?? defaultEnDiscusionTime}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
             />
@@ -59,7 +84,7 @@ export const EnDiscusionFeedConfig = () => {
                 onSelection={setFormat}
                 options={["Todos", "Artículos"]}
                 optionsNodes={configOptionNodes}
-                selected={format}
+                selected={format ?? defaultEnDiscusionFormat}
                 className={"flex gap-x-2 gap-y-1 flex-wrap"}
                 optionContainerClassName={""}
             />

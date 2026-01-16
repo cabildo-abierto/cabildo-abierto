@@ -3,7 +3,7 @@ import {
     AppBskyFeedDefs,
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopicVersion, GetFeedOutput
 } from "@cabildo-abierto/api"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
@@ -11,7 +11,6 @@ import {isArticle, isDataset, isPost, isTopicVersion, splitUri} from "@cabildo-a
 import {QueryFilters} from "@tanstack/query-core";
 import {$Typed} from "@atproto/api";
 import {areArraysEqual} from "@cabildo-abierto/utils";
-import {GetFeedOutput} from "@/lib/types";
 import {InfiniteFeed} from "@/components/feed/types";
 
 

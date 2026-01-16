@@ -4,7 +4,7 @@ import {
     filterQueriesCancelledByUriUpdate,
     updateContentInQueries
 } from "./updates";
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {produce} from "immer";
 import {postOrArticle} from "../../utils/type-utils";
 import { getRkeyFromUri } from "@cabildo-abierto/utils";
