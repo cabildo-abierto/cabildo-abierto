@@ -86,4 +86,5 @@ export type Session = {
 
 export type Account = {
     email?: string
+    subscribedToEmailUpdates: boolean
 }

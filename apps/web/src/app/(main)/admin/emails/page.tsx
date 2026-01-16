@@ -34,8 +34,8 @@ function TabButton({active, onClick, children}: {active: boolean, onClick: () =>
             onClick={onClick}
             className={cn(
                 "px-4 py-2 text-sm border transition-colors",
-                active 
-                    ? "bg-[var(--background-dark)] border-[var(--text)]" 
+                active
+                    ? "bg-[var(--background-dark)] border-[var(--text)]"
                     : "border-transparent hover:bg-[var(--background-dark)] opacity-70"
             )}
         >
@@ -157,7 +157,7 @@ function ResizablePreview({html}: {html: string}) {
             </div>
 
             {/* Resizable container - width/height must be inline styles for dynamic values */}
-            <div 
+            <div
                 className="bg-neutral-500 p-1 rounded overflow-hidden resize-x min-w-80 max-w-full"
                 style={{ width: width ? `${width}px` : '100%' }}
                 onMouseUp={(e) => {
@@ -217,18 +217,18 @@ function SubscriptionsView() {
         <div className="space-y-8">
             {/* Counters Section */}
             <div className="flex flex-wrap items-end gap-4">
-                <CounterBox 
-                    value={data.counts.subscribed} 
-                    label="Suscriptos" 
-                    size="large" 
+                <CounterBox
+                    value={data.counts.subscribed}
+                    label="Suscriptos"
+                    size="large"
                 />
-                <CounterBox 
-                    value={data.counts.unsubscribed} 
-                    label="Desuscriptos" 
+                <CounterBox
+                    value={data.counts.unsubscribed}
+                    label="Desuscriptos"
                 />
-                <CounterBox 
-                    value={data.counts.usersWithoutSubscription} 
-                    label="Sin suscripción" 
+                <CounterBox
+                    value={data.counts.usersWithoutSubscription}
+                    label="Sin suscripción"
                 />
                 <CounterBox
                     value={data.counts.subscriptionsWithoutUserId}
@@ -251,8 +251,8 @@ function SubscriptionsView() {
                         </thead>
                         <tbody>
                             {data.subscriptions.map((subscription, i) => (
-                                <tr 
-                                    key={subscription.email + i} 
+                                <tr
+                                    key={subscription.email + i}
                                     className="border-b border-[var(--background-dark)] hover:bg-[var(--background-dark)]"
                                 >
                                     <td className="py-2 px-3 font-mono text-xs">
@@ -303,7 +303,7 @@ function EmailPreview({email}: {email: SentEmail}) {
 
     return (
         <div className="border-b border-[var(--background-dark)]">
-            <div 
+            <div
                 className="py-2 px-3 flex items-center gap-4 hover:bg-[var(--background-dark)] cursor-pointer"
                 onClick={() => setShowPreview(!showPreview)}
             >
@@ -333,7 +333,7 @@ function TemplateGroup({templateName, emails}: {templateName: string, emails: Se
 
     return (
         <div className="border border-[var(--background-dark3)] rounded mb-4">
-            <div 
+            <div
                 className="p-3 bg-[var(--background-dark)] flex items-center justify-between cursor-pointer hover:bg-[var(--background-dark3)]"
                 onClick={() => setExpanded(!expanded)}
             >
@@ -383,10 +383,10 @@ function SentEmailsView() {
         <div className="space-y-8">
             {/* Counter */}
             <div className="flex flex-wrap items-end gap-4">
-                <CounterBox 
-                    value={data.totalCount} 
-                    label="Enviados" 
-                    size="large" 
+                <CounterBox
+                    value={data.totalCount}
+                    label="Enviados"
+                    size="large"
                 />
             </div>
 
@@ -398,10 +398,10 @@ function SentEmailsView() {
                     </div>
                 ) : (
                     templateNames.map((templateName) => (
-                        <TemplateGroup 
-                            key={templateName} 
-                            templateName={templateName} 
-                            emails={data.emailsByTemplate[templateName]} 
+                        <TemplateGroup
+                            key={templateName}
+                            templateName={templateName}
+                            emails={data.emailsByTemplate[templateName]}
                         />
                     ))
                 )}
@@ -708,10 +708,10 @@ function TemplatesView() {
 
             {/* Counter */}
             <div className="flex flex-wrap items-end gap-4">
-                <CounterBox 
-                    value={data.templates.length} 
-                    label="Plantillas" 
-                    size="large" 
+                <CounterBox
+                    value={data.templates.length}
+                    label="Plantillas"
+                    size="large"
                 />
             </div>
 
@@ -779,7 +779,7 @@ function SendEmailsView() {
     const {data: templatesData, isLoading: templatesLoading} = useEmailTemplates(true)
     const {data: subscriptionsData, isLoading: subscriptionsLoading} = useMailSubscriptions(true)
     const queryClient = useQueryClient()
-    
+
     const [selectedTemplateId, setSelectedTemplateId] = useState<string>("")
     const [targetType, setTargetType] = useState<SendEmailsTarget>("single")
     const [emailsInput, setEmailsInput] = useState("")
@@ -788,6 +788,9 @@ function SendEmailsView() {
     const [sendState, setSendState] = useState<SendEmailsState>("idle")
     const [sendResult, setSendResult] = useState<SendEmailsResponse | null>(null)
     const [error, setError] = useState<string | null>(null)
+    const [nameFrom, setNameFrom] = useState("Cabildo Abierto")
+    const [emailFrom, setEmailFrom] = useState("")
+    const [replyTo, setReplyTo] = useState("Cabildo Abierto <contacto@cabildoabierto.ar>")
 
     const selectedTemplate = templatesData?.templates.find(t => t.id === selectedTemplateId)
 
@@ -814,13 +817,13 @@ function SendEmailsView() {
 
     // Check if template uses invite_link
     const templateUsesInviteLink = selectedTemplate && (
-        selectedTemplate.html.includes("{{invite_link}}") || 
+        selectedTemplate.html.includes("{{invite_link}}") ||
         selectedTemplate.text.includes("{{invite_link}}")
     )
 
     const handleSend = async () => {
         if (!canSend) return
-        
+
         setShowConfirm(false)
         setSendState("sending")
         setError(null)
@@ -830,7 +833,10 @@ function SendEmailsView() {
             const body: SendEmailsParams = {
                 templateId: selectedTemplateId,
                 target: targetType,
-                emails: targetType !== "all_subscribers" ? parsedEmails : undefined
+                emails: targetType !== "all_subscribers" ? parsedEmails : undefined,
+                fromName: nameFrom,
+                fromEmail: emailFrom,
+                replyTo: replyTo.length > 0 ? replyTo : undefined
             }
 
             const res = await fetchBackend({
@@ -840,7 +846,7 @@ function SendEmailsView() {
             })
 
             const json = await res.json()
-            
+
             if (json.error) {
                 setError(json.error)
                 setSendState("idle")
@@ -897,7 +903,7 @@ function SendEmailsView() {
                                 </div>
                                 <div className="max-h-64 overflow-y-auto">
                                     {sendResult.results.map((result, i) => (
-                                        <div 
+                                        <div
                                             key={i}
                                             className="px-3 py-2 flex items-center gap-3 border-b border-[var(--background-dark)] last:border-b-0 text-sm"
                                         >
@@ -1019,6 +1025,48 @@ function SendEmailsView() {
                         </div>
                     )}
 
+                    <div>
+                        <label className="block text-sm text-[var(--text-light)] mb-1">
+                            Mail emisor
+                        </label>
+                        <textarea
+                            value={emailFrom}
+                            onChange={(e) => setEmailFrom(e.target.value)}
+                            placeholder={"novedades@cabildoabierto.ar"}
+                            rows={1}
+                            disabled={sendState === "sending"}
+                            className="w-full px-3 py-2 bg-[var(--background-dark)] border border-[var(--background-dark3)] rounded text-sm font-mono focus:outline-none focus:border-[var(--text)] resize-y"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-[var(--text-light)] mb-1">
+                            Nombre emisor
+                        </label>
+                        <textarea
+                            value={nameFrom}
+                            onChange={(e) => setNameFrom(e.target.value)}
+                            placeholder={"Cabildo Abierto"}
+                            rows={1}
+                            disabled={sendState === "sending"}
+                            className="w-full px-3 py-2 bg-[var(--background-dark)] border border-[var(--background-dark3)] rounded text-sm font-mono focus:outline-none focus:border-[var(--text)] resize-y"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-[var(--text-light)] mb-1">
+                            Responder a
+                        </label>
+                        <textarea
+                            value={replyTo}
+                            onChange={(e) => setReplyTo(e.target.value)}
+                            placeholder={"Cabildo Abierto"}
+                            rows={1}
+                            disabled={sendState === "sending"}
+                            className="w-full px-3 py-2 bg-[var(--background-dark)] border border-[var(--background-dark3)] rounded text-sm font-mono focus:outline-none focus:border-[var(--text)] resize-y"
+                        />
+                    </div>
+
                     {/* Warning for invite_link usage */}
                     {templateUsesInviteLink && (
                         <div className="p-3 bg-yellow-900/30 border border-yellow-700 rounded text-sm">
@@ -1029,7 +1077,7 @@ function SendEmailsView() {
                     {/* Selected template preview */}
                     {selectedTemplate && (
                         <div className="border border-[var(--background-dark3)] rounded">
-                            <div 
+                            <div
                                 className="p-3 bg-[var(--background-dark)] flex items-center justify-between cursor-pointer hover:bg-[var(--background-dark3)]"
                                 onClick={() => setShowPreview(!showPreview)}
                             >
@@ -1072,7 +1120,7 @@ function SendEmailsView() {
                                     "Seleccioná una plantilla y destinatarios"
                                 )}
                             </div>
-                            
+
                             {sendState === "sending" ? (
                                 <div className="flex items-center gap-2 text-sm text-[var(--text-light)]">
                                     <LoadingSpinner />
@@ -1122,12 +1170,12 @@ function PercentageBar({value, label, color = "green"}: {value: number, label: s
         red: "bg-red-600",
         yellow: "bg-yellow-600"
     }
-    
+
     return (
         <div className="flex items-center gap-3">
             <div className="w-24 text-sm text-[var(--text-light)]">{label}</div>
             <div className="flex-1 h-6 bg-[var(--background-dark3)] rounded overflow-hidden">
-                <div 
+                <div
                     className={`h-full ${colorClasses[color]} transition-all duration-500`}
                     style={{width: `${Math.min(100, value)}%`}}
                 />
@@ -1198,19 +1246,19 @@ function StatsView() {
             {/* Rates */}
             <AdminSection title="Tasas de rendimiento">
                 <div className="space-y-4">
-                    <PercentageBar 
-                        value={data.summary.deliveryRate} 
-                        label="Entrega" 
+                    <PercentageBar
+                        value={data.summary.deliveryRate}
+                        label="Entrega"
                         color={data.summary.deliveryRate >= 95 ? "green" : data.summary.deliveryRate >= 90 ? "yellow" : "red"}
                     />
-                    <PercentageBar 
-                        value={data.summary.openRate} 
-                        label="Apertura" 
+                    <PercentageBar
+                        value={data.summary.openRate}
+                        label="Apertura"
                         color={data.summary.openRate >= 20 ? "green" : data.summary.openRate >= 10 ? "yellow" : "red"}
                     />
-                    <PercentageBar 
-                        value={data.summary.clickRate} 
-                        label="Clicks" 
+                    <PercentageBar
+                        value={data.summary.clickRate}
+                        label="Clicks"
                         color={data.summary.clickRate >= 3 ? "green" : data.summary.clickRate >= 1 ? "yellow" : "red"}
                     />
                 </div>
@@ -1219,34 +1267,34 @@ function StatsView() {
             {/* Bounces & Issues */}
             <AdminSection title="Rebotes y problemas">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <StatCard 
-                        title="Total emails (30 días)" 
-                        value={data.bounces.total.toLocaleString("es-AR")} 
+                    <StatCard
+                        title="Total emails (30 días)"
+                        value={data.bounces.total.toLocaleString("es-AR")}
                     />
-                    <StatCard 
-                        title="Rechazados" 
-                        value={data.bounces.rejects.toLocaleString("es-AR")} 
+                    <StatCard
+                        title="Rechazados"
+                        value={data.bounces.rejects.toLocaleString("es-AR")}
                     />
-                    <StatCard 
-                        title="Soft Bounces" 
-                        value={data.bounces.softBounces.toLocaleString("es-AR")} 
+                    <StatCard
+                        title="Soft Bounces"
+                        value={data.bounces.softBounces.toLocaleString("es-AR")}
                         subtitle="Temporales"
                     />
-                    <StatCard 
-                        title="Hard Bounces" 
-                        value={data.bounces.hardBounces.toLocaleString("es-AR")} 
+                    <StatCard
+                        title="Hard Bounces"
+                        value={data.bounces.hardBounces.toLocaleString("es-AR")}
                         subtitle="Permanentes"
                     />
                 </div>
                 <div className="space-y-4">
-                    <PercentageBar 
-                        value={data.bounces.bouncePercent} 
-                        label="Rebotes" 
+                    <PercentageBar
+                        value={data.bounces.bouncePercent}
+                        label="Rebotes"
                         color={data.bounces.bouncePercent <= 2 ? "green" : data.bounces.bouncePercent <= 5 ? "yellow" : "red"}
                     />
-                    <PercentageBar 
-                        value={data.spam.spamPercent} 
-                        label="Spam" 
+                    <PercentageBar
+                        value={data.spam.spamPercent}
+                        label="Spam"
                         color={data.spam.spamPercent <= 0.1 ? "green" : data.spam.spamPercent <= 0.5 ? "yellow" : "red"}
                     />
                 </div>
@@ -1279,32 +1327,32 @@ export default function Page() {
         <div className="p-6">
             {/* Tab Navigation */}
             <div className="flex gap-2 mb-6">
-                <TabButton 
-                    active={activeTab === "subscriptions"} 
+                <TabButton
+                    active={activeTab === "subscriptions"}
                     onClick={() => setActiveTab("subscriptions")}
                 >
                     Suscripciones
                 </TabButton>
-                <TabButton 
-                    active={activeTab === "sent"} 
+                <TabButton
+                    active={activeTab === "sent"}
                     onClick={() => setActiveTab("sent")}
                 >
                     Emails enviados
                 </TabButton>
-                <TabButton 
-                    active={activeTab === "templates"} 
+                <TabButton
+                    active={activeTab === "templates"}
                     onClick={() => setActiveTab("templates")}
                 >
                     Plantillas
                 </TabButton>
-                <TabButton 
-                    active={activeTab === "send"} 
+                <TabButton
+                    active={activeTab === "send"}
                     onClick={() => setActiveTab("send")}
                 >
                     Enviar correos
                 </TabButton>
-                <TabButton 
-                    active={activeTab === "stats"} 
+                <TabButton
+                    active={activeTab === "stats"}
                     onClick={() => setActiveTab("stats")}
                 >
                     Estadísticas

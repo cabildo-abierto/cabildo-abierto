@@ -1,4 +1,4 @@
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {SelectionQuote} from "./selection-quote";
 import {ArCabildoabiertoEmbedSelectionQuote} from "@cabildo-abierto/api"
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";

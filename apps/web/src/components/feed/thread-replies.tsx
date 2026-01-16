@@ -3,7 +3,7 @@ import {PostPreview} from "./post/post-preview";
 import {Dispatch, SetStateAction} from "react";
 import {smoothScrollTo} from "../utils/react/scroll";
 import {FeedEndText} from "./feed/feed-end-text";
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {AppBskyFeedPost} from "@atproto/api";
 
 

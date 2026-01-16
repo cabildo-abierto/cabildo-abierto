@@ -74,7 +74,7 @@ import { syncHandler } from "#/services/sync/sync-user.js";
 import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/services/feed/discover/interests.js";
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
-import {unsubscribeHandler} from "#/services/emails/subscriptions.js";
+import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -442,7 +442,11 @@ export const createRouter = (ctx: AppContext): Router => {
         jobApplicationHandler
     ))
 
-    router.post("/unsubscribe", makeHandlerNoAuth(ctx, unsubscribeHandler))
+    router.post("/unsubscribe/:code", makeHandlerNoAuth(ctx, unsubscribeHandler))
+
+    router.post("/unsubscribe", makeHandler(ctx, unsubscribeHandlerWithAuth))
+
+    router.post("/subscribe", makeHandler(ctx, subscribeHandler))
 
     router.get("/votes/:did/:rkey", makeHandlerNoAuth(ctx, getTopicVersionVotesHandler))
 

@@ -310,17 +310,25 @@ export const getSession: CAHandlerNoAuth<{ params?: { code?: string } }, Session
 export const getAccount: CAHandler<{}, Account> = async (ctx, agent) => {
 
     const [caData, bskySession] = await Promise.all([
-        ctx.kysely.selectFrom("User").select("email").where("did", "=", agent.did).executeTakeFirst(),
+        ctx.kysely
+            .selectFrom("User")
+            .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
+            .select(["User.email", "MailingListSubscription.id as subsId", "MailingListSubscription.status"])
+            .where("did", "=", agent.did)
+            .execute(),
         agent.bsky.com.atproto.server.getSession()
     ])
 
-    if (!caData) {
+    if (caData.length == 0) {
         return {error: "No se encontró el usuario"}
     }
 
+    const {email, subsId, status} = caData[0]
+    const subscribed = subsId != null && status == "Subscribed"
+
     const bskyEmail = bskySession.data.email
 
-    if (bskyEmail && (!caData.email || caData.email != bskyEmail)) {
+    if (bskyEmail && (!email || email != bskyEmail)) {
         await ctx.kysely.updateTable("User")
             .set("email", bskyEmail)
             .where("did", "=", agent.did)
@@ -329,7 +337,8 @@ export const getAccount: CAHandler<{}, Account> = async (ctx, agent) => {
 
     return {
         data: {
-            email: bskyEmail
+            email: bskyEmail,
+            subscribedToEmailUpdates: subscribed
         }
     }
 }

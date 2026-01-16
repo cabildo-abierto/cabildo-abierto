@@ -19,7 +19,10 @@ function getTransporter() {
 }
 
 function getUnsubscribeLink(emailSentId: string) {
-    return `https://cabildoabierto.ar/ajustes/desuscripcion/${emailSentId}`
+    return {
+        unsubscribeUIUrl: `https://cabildoabierto.ar/desuscripcion/${emailSentId}`,
+        unsubscribeAPIUrl: `https://api.cabildoabierto.ar/unsubscribe/${emailSentId}`
+    }
 }
 
 function getInviteLink(code: string) {
@@ -133,7 +136,8 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
     }
 
     const transporter = getTransporter()
-    const from = "Cabildo Abierto <soporte@cabildoabierto.ar>"
+    const from = `${params.fromName} <${params.fromEmail}>`
+    const replyTo = params.replyTo
     const results: SendEmailResult[] = []
 
     // Process emails in batches
@@ -142,8 +146,6 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
         const batchCodes = needsInviteCodes ? inviteCodes.slice(i, i + BATCH_SIZE) : []
 
         const batchPromises = batch.map(async (email, batchIndex) => {
-            const globalIndex = i + batchIndex
-
             try {
                 // Ensure subscription exists and get ID
                 const subscriptionId = await ensureSubscriptionExists(ctx, email)
@@ -151,16 +153,16 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
                 // Pre-create EmailSent record to get ID for unsubscribe link
                 const emailSentId = uuidv4()
 
-                const unsubscribeLink = getUnsubscribeLink(emailSentId)
+                const {unsubscribeUIUrl, unsubscribeAPIUrl} = getUnsubscribeLink(emailSentId)
                 const inviteLink = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
 
                 // Replace template variables
                 const finalHtml = replaceTemplateVariables(template.html, {
-                    unsubscribe_link: unsubscribeLink,
+                    unsubscribe_link: unsubscribeUIUrl,
                     invite_link: inviteLink
                 })
                 const finalText = replaceTemplateVariables(template.text, {
-                    unsubscribe_link: unsubscribeLink,
+                    unsubscribe_link: unsubscribeUIUrl,
                     invite_link: inviteLink
                 })
 
@@ -169,10 +171,11 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
                     from,
                     to: email,
                     subject: template.subject,
+                    replyTo,
                     text: finalText,
                     html: finalHtml,
                     headers: {
-                        "List-Unsubscribe": `<${unsubscribeLink}>`,
+                        "List-Unsubscribe": `<${unsubscribeAPIUrl}>`,
                         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
                     }
                 })
@@ -188,6 +191,7 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
                         html: finalHtml,
                         text: finalText,
                         from,
+                        replyTo,
                         success: true
                     })
                     .execute()

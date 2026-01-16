@@ -1,7 +1,7 @@
 import {PostImagesEmbed} from "./post-images-embed";
 import {PostRecordEmbedRecord} from "./post-record-embed";
 import { ArCabildoabiertoEmbedRecordWithMedia } from "@cabildo-abierto/api";
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {AppBskyEmbedExternal, AppBskyEmbedImages, AppBskyEmbedVideo} from "@atproto/api"
 import PostVideoEmbed from "./post-video-embed";
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";

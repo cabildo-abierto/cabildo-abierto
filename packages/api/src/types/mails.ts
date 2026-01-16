@@ -55,6 +55,9 @@ export type SendEmailsParams = {
     templateId: string
     target: SendEmailsTarget
     emails?: string[]  // Required for "single" and "list" targets
+    fromEmail: string
+    fromName: string
+    replyTo?: string
 }
 
 export type SendEmailResult = {

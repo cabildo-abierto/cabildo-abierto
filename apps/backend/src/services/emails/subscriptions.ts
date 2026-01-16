@@ -23,8 +23,6 @@ export const getMailSubscriptions: CAHandler<{}, MailSubscriptionsResponse> = as
         .orderBy("MailingListSubscription.subscribedAt", "desc")
         .execute()
 
-    ctx.logger.pino.info({subscriptions}, "got subscriptions")
-
     // Count subscribed and unsubscribed
     const subscribed = subscriptions.filter(s => s.status === "Subscribed").length
     const unsubscribed = subscriptions.filter(s => s.status === "Unsubscribed").length
@@ -135,13 +133,73 @@ export async function unsubscribe(ctx: AppContext, email: string) {
     ctx.logger.pino.info({email}, "unsuscribed from mailing list")
 }
 
-export const unsubscribeHandler: CAHandlerNoAuth<{ email: string }, {}> = async (ctx, agent, params) => {
-    const email = params.email
+async function checkUnsuscribeCode(ctx: AppContext, code: string) {
+    const emails = await ctx.kysely
+        .selectFrom("EmailSent")
+        .where("EmailSent.id", "=", code)
+        .innerJoin("MailingListSubscription", "EmailSent.recipientId", "MailingListSubscription.id")
+        .select(["MailingListSubscription.email"])
+        .execute()
+    return emails.length > 0 ? {email: emails[0].email} : {}
+}
+
+export const unsubscribeHandler: CAHandlerNoAuth<{ params: {code: string} }, {}> = async (ctx, agent, {params}) => {
+    const code = params.code
+    const {email} = await checkUnsuscribeCode(ctx, code)
+    ctx.logger.pino.info({email, code}, "check unsuscribe code")
+    if(!email) {
+        return {error: "Desuscripción inválida."}
+    }
+
     try {
         await unsubscribe(ctx, email)
     } catch (error) {
         ctx.logger.pino.error({email, error}, "error on unsubscribe")
         return {error: "Ocurrió un error en la desuscipción."}
+    }
+
+    return {data: {}}
+}
+
+
+export const unsubscribeHandlerWithAuth: CAHandler<{}, {}> = async (ctx, agent) => {
+    const email = await ctx.kysely
+        .selectFrom("User")
+        .where("User.did", "=", agent.did)
+        .select(["email"])
+        .executeTakeFirst()
+
+    if(!email || !email.email) {
+        return {error: "Correo desconocido."}
+    }
+
+    try {
+        await unsubscribe(ctx, email.email)
+    } catch (error) {
+        ctx.logger.pino.error({email, error}, "error on unsubscribe")
+        return {error: "Ocurrió un error en la desuscipción."}
+    }
+
+    return {data: {}}
+}
+
+
+export const subscribeHandler: CAHandler<{}, {}> = async (ctx, agent) => {
+    const email = await ctx.kysely
+        .selectFrom("User")
+        .where("User.did", "=", agent.did)
+        .select(["email"])
+        .executeTakeFirst()
+
+    if(!email || !email.email) {
+        return {error: "Correo desconocido."}
+    }
+
+    try {
+        await createMailingListSubscription(ctx, email.email, agent.did)
+    } catch (error) {
+        ctx.logger.pino.error({email, error}, "error on subscribe")
+        return {error: "Ocurrió un error en la suscipción."}
     }
 
     return {data: {}}
@@ -278,6 +336,8 @@ export async function createMailingListSubscription(ctx: AppContext, email: stri
             status: "Subscribed",
             userId: userId ?? null
         })
-        .onConflict(oc => oc.column("email").doNothing())
+        .onConflict(oc => oc.column("email").doUpdateSet(eb => ({
+            status: "Subscribed"
+        })))
         .execute()
 }

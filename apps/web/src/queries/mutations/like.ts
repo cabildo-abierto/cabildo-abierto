@@ -5,7 +5,7 @@ import {produce} from "immer";
 import {
     updateContentInQueries
 } from "./updates";
-import {ATProtoStrongRef} from "@/lib/types";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {post} from "@/components/utils/react/fetch";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 

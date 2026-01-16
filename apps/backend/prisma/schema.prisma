@@ -677,6 +677,7 @@ model EmailSent {
   subject     String
   success     Boolean
   from        String
+  replyTo     String?
   templateId  String
   template    EmailTemplate           @relation(fields: [templateId], references: [id])
 }
