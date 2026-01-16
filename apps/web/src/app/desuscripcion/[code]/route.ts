@@ -19,10 +19,11 @@ async function unsubscribe(token: string) {
 
 export async function POST(
     _req: NextRequest,
-    { params }: { params: { code: string } }
+    {params}: {params: Promise<{ code: string }>}
 ) {
+    const {code} = await params
     try {
-        await unsubscribe(params.code);
+        await unsubscribe(code);
         return new NextResponse(null, { status: 200 });
     } catch {
         return new NextResponse(null, { status: 500 });
@@ -32,12 +33,13 @@ export async function POST(
 
 export async function GET(
     _req: NextRequest,
-    { params }: { params: { code: string } }
+    {params}: {params: Promise<{ code: string }>}
 ) {
     let ok = true;
+    const {code} = await params
 
     try {
-        await unsubscribe(params.code);
+        await unsubscribe(code);
     } catch {
         ok = false;
     }
