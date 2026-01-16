@@ -21,7 +21,7 @@ function getTransporter() {
 function getUnsubscribeLink(emailSentId: string) {
     return {
         unsubscribeUIUrl: `https://cabildoabierto.ar/desuscripcion/${emailSentId}`,
-        unsubscribeAPIUrl: `https://api.cabildoabierto.ar/unsubscribe/${emailSentId}`
+        unsubscribeAPIUrl: `https://cabildoabierto.ar/unsubscribe/${emailSentId}`
     }
 }
 

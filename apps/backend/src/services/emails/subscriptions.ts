@@ -140,14 +140,14 @@ async function checkUnsuscribeCode(ctx: AppContext, code: string) {
         .innerJoin("MailingListSubscription", "EmailSent.recipientId", "MailingListSubscription.id")
         .select(["MailingListSubscription.email"])
         .execute()
-    return emails.length > 0 ? {email: emails[0].email} : {}
+    return emails.length > 0 ? {email: emails[0].email} : {email: null}
 }
 
 export const unsubscribeHandler: CAHandlerNoAuth<{ params: {code: string} }, {}> = async (ctx, agent, {params}) => {
     const code = params.code
     const {email} = await checkUnsuscribeCode(ctx, code)
-    ctx.logger.pino.info({email, code}, "check unsuscribe code")
-    if(!email) {
+    ctx.logger.pino.info({email, code, hasEmail: !email}, "check unsuscribe code")
+    if(email == null || code == null) {
         return {error: "Desuscripción inválida."}
     }
 
