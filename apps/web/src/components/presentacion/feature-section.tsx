@@ -4,14 +4,14 @@ import {cn} from "@/lib/utils";
 
 export const FeatureSection = ({title, subtitle, image, inverted, className}: {
     title: string
-    subtitle: string
+    subtitle: ReactNode
     image: ReactNode
     inverted: boolean
     className?: string
 }) => {
 
-    const titleClassName = "tracking-tight leading-tight font-light"
-    const subtitleClassName = "tracking-tight leading-tight font-light"
+    const titleClassName = "tracking-[0.0167em] leading-tight font-light"
+    const subtitleClassName = "tracking-[0.0167em] leading-tight font-light"
 
     return <div className={cn("w-full flex justify-center", className)}>
 
@@ -21,11 +21,11 @@ export const FeatureSection = ({title, subtitle, image, inverted, className}: {
                 <div className={"w-screen px-8 flex justify-center items-center"}>
                     <div className={"font-light text-lg max-[400px]:text-base"}>
                         <div className={"space-y-2 max-w-[400px]"}>
-                            <div className={cn("text-2xl", titleClassName)}>
+                            <div className={cn("text-xl", titleClassName)}>
                                 {title}
                             </div>
                             <div
-                                className={cn("text-base", subtitleClassName)}
+                                className={cn("text-sm", subtitleClassName)}
                             >
                                 {subtitle}
                             </div>
@@ -44,7 +44,7 @@ export const FeatureSection = ({title, subtitle, image, inverted, className}: {
                 className={"w-full h-[550px] space-y-0 flex-row items-center " + (inverted ? "flex flex-row-reverse" : "flex")}>
                 <div className={"w-1/2 h-full px-8 flex justify-center items-center flex-col"}>
                     <div className={"w-full max-w-[400px] space-y-2"}>
-                        <div className={"space-y-2 max-w-[400px]"}>
+                        <div className={"space-y-5 max-w-[400px]"}>
                             <div className={cn("text-2xl", titleClassName)}>
                                 {title}
                             </div>

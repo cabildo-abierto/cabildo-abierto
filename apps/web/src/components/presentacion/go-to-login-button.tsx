@@ -12,12 +12,14 @@ export const GoToLoginButton = ({
                                     className,
                                     textClassName = "font-semibold",
                                     text = "Crear una cuenta o iniciar sesión",
-    inviteClassName
+    inviteClassName,
+    variant
                                 }: {
     textClassName?: string
     className?: string
     inviteClassName?: string
     text?: string
+    variant: "outlined" | "black" | "white" | "default"
 }) => {
     const {setLoginModalOpen} = useLoginModal()
     const {user} = useSession()
@@ -36,15 +38,14 @@ export const GoToLoginButton = ({
                 setLoginModalOpen(true)
             }
         }}
-        variant={"black"}
+        variant={variant}
         letterSpacing={"0em"}
-        className={cn(className, "")}
+        className={cn(className, "max-w-80")}
         startIcon={<SignInIcon/>}
-
     >
         <div className={"flex flex-col items-center"}>
             {code ? <div
-                className={cn("text-[11px] max-w-36 sm:max-w-none sm:text-[12px] whitespace-break-spaces")}
+                className={cn("text-[11px] sm:max-w-none sm:text-[12px] whitespace-nowrap")}
             >
                 ¡Recibiste un código de invitación!
             </div> : <div

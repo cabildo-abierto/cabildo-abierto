@@ -7,6 +7,7 @@ export const darkThemePalette = {
 
   "accent-dark": 'rgb(74,80,87)',
   "accent": 'rgb(45,48,53)',
+  "accent-dark2": '#d7d7d7',
 
   "background": 'rgb(14, 17, 19)',
   "background-dark": 'rgb(24, 28, 31)',
@@ -34,8 +35,9 @@ export const lightThemePalette = {
   "button-text": 'rgb(26, 26, 26)',
   "white-text": 'rgb(229, 229, 229)',
 
-  "accent-dark": 'rgb(137, 146, 155)',
   "accent": 'rgb(188,198,208)',
+  "accent-dark": 'rgb(137, 146, 155)',
+  "accent-dark2": '#282828',
 
   "background": 'rgb(255,255,247)',
   "background-dark": 'rgb(242,242,234)',

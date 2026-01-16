@@ -6,7 +6,8 @@ import {GithubLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {cn} from "@/lib/utils";
 import {dimOnHoverClassName, DimOnHoverLink} from "@/components/utils/base/dim-on-hover-link";
-
+import Image from "next/image"
+import {useTheme} from "@/components/layout/theme/theme-context";
 
 const FooterLeftSide = () => {
     return <div className="flex flex-col justify-between items-start space-y-16 min-w-24">
@@ -80,10 +81,21 @@ export default function Footer({showCA = true, className}: {
     showCA?: boolean
     className?: string
 }) {
+    const {currentTheme} = useTheme()
     return <div
-        className={cn("flex justify-between px-8 md:px-16 lg:px-32 space-x-4 sm:space-x-12 py-16 bg-[var(--background-dark)] ", className)}
+        className={cn("flex justify-between px-8 md:px-16 lg:px-32 space-x-4 sm:space-x-12 py-16 relative bg-[var(--background)] ", className)}
     >
         <FooterLeftSide/>
         <FooterRightSide showCA={showCA}/>
+
+        <div className={"absolute bottom-0 right-[8vw]"}>
+            <Image
+                src={"/presentacion/puertas.png"}
+                alt={"Puertas del cabildo"}
+                width={500}
+                height={150}
+                className={cn("w-32", currentTheme == "dark" ? "invert" : "")}
+            />
+        </div>
     </div>
 }

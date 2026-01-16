@@ -14,7 +14,8 @@ const buttonVariants = cva(
                     "border border-[var(--accent-dark)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] group-[.portal]:bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)]",
                 error:
                     "bg-[var(--red-dark)] hover:bg-[var(--red-dark2)] text-[var(--white-text)] border border-[var(--accent-dark)]",
-                black: "bg-[var(--text)] group-[.portal]:hover:bg-[var(--text-light)] hover:bg-[var(--text-light)] text-[var(--background)] rounded-xl"
+                black: "bg-[var(--text)] group-[.portal]:hover:bg-[var(--text-light)] hover:bg-[var(--text-light)] text-[var(--background)] rounded-xl",
+                white: "bg-[var(--background)] group-[.portal]:hover:bg-[var(--background-dark)] group-[.portal]:hover:bg-[var(--background-dark2)] hover:bg-[var(--background-dark)] text-[var(--text)] rounded-xl"
             },
             size: {
                 default: "px-4 py-[8px] text-[13.5px] [&_svg]:size-4",
