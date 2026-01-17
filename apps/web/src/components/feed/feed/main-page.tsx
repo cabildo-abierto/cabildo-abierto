@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import FeedViewContentFeed from "./feed-view-content-feed";
 import {useSession} from "@/components/auth/use-session";
 import {LoginRequiredPage} from "../../layout/main-layout/page-requires-login-checker";
@@ -37,38 +37,17 @@ const discoverFeedNoResultsText = <div>
 </div>
 
 
-export const MainPage = () => {
+const MainPageContent = () => {
+    const {config} = useMainPageFeeds()
     const {user} = useSession()
     const {getFeed} = useGetFeed()
-    const {config, error} = useMainPageFeeds()
     const {layoutConfig} = useLayoutConfig()
-
-    if (error == "auth required") {
-        return <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>
-    } else if (error == "custom feed uri required" || error == "topic id required") {
-        return <Note className={"py-16"}>
-            Muro inválido.
-        </Note>
-    } else if (!config) {
-        return <div className={"flex flex-col items-center py-16 space-y-4"}>
-            <Note className={""}>
-                Agregá al menos un muro a tu pantalla principal
-            </Note>
-            <div>
-                <Link href={"/inicio/muros"}>
-                    <BaseButton variant={"outlined"} size={"small"}>
-                        Explorar muros
-                    </BaseButton>
-                </Link>
-            </div>
-        </div>
-    }
 
     const noResultsText = config.subtype == "siguiendo" ? followingFeedNoResultsText : config.subtype == "descubrir" ? discoverFeedNoResultsText : config.subtype == "discusion" ? "No hay contenidos en discusión" : "No se encontraron resultados."
 
     const feedMerger = config.subtype == "siguiendo" || config.subtype == "descubrir" || config.subtype == "mentions" && config.metric == "Recientes" || config.subtype == "discusion" && config.metric == "Recientes" ? chronologicalFeedMerger : defaultFeedViewContentFeedMerger
 
-    return <div className="w-full">
+    return useMemo(() => (<div className="w-full">
         {config.type == "topic" &&
             <Link
                 href={topicUrl(config.id)}
@@ -91,5 +70,33 @@ export const MainPage = () => {
                     feedMerger={feedMerger}
                 />
             </div>}
-    </div>
+    </div>), [layoutConfig.centerWidth, config, noResultsText])
+}
+
+
+export const MainPage = () => {
+    const {config, error} = useMainPageFeeds()
+
+    if (error == "auth required") {
+        return <LoginRequiredPage text={"Iniciá sesión para ver este muro."}/>
+    } else if (error == "custom feed uri required" || error == "topic id required") {
+        return <Note className={"py-16"}>
+            Muro inválido.
+        </Note>
+    } else if (!config) {
+        return <div className={"flex flex-col items-center py-16 space-y-4"}>
+            <Note className={""}>
+                Agregá al menos un muro a tu pantalla principal
+            </Note>
+            <div>
+                <Link href={"/inicio/muros"}>
+                    <BaseButton variant={"outlined"} size={"small"}>
+                        Explorar muros
+                    </BaseButton>
+                </Link>
+            </div>
+        </div>
+    }
+
+    return <MainPageContent/>
 }
