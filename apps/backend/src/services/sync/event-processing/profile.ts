@@ -2,7 +2,7 @@ import {getDidFromUri} from "@cabildo-abierto/utils";
 import {didToHandle} from "#/services/user/users.js";
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {AppBskyActorProfile} from "@atproto/api"
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";

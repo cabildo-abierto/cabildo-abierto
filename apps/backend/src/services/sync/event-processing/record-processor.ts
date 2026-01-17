@@ -1,5 +1,5 @@
 import {AppContext} from "#/setup.js";
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, splitUri} from "@cabildo-abierto/utils";
 import {ValidationResult} from "@atproto/lexicon";
 import {parseRecord} from "#/services/sync/parse.js";

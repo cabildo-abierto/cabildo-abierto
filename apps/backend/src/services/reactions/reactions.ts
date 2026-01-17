@@ -1,5 +1,5 @@
 import {AppContext} from "#/setup.js";
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {CAHandler} from "#/utils/handler.js";
 import {getCollectionFromUri, getUri} from "@cabildo-abierto/utils";
 import {AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"

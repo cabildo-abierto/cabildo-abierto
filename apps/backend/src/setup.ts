@@ -12,7 +12,6 @@ import {env} from './lib/env.js';
 import {S3Storage} from './services/storage/storage.js';
 import {getCAUsersDids} from "#/services/user/users.js";
 import * as dotenv from 'dotenv';
-import { Server } from "./server/index.js";
 dotenv.config();
 
 export type AppContext = {
@@ -25,7 +24,6 @@ export type AppContext = {
     worker: CAWorker | undefined
     kysely: Kysely<DB>
     storage: S3Storage | undefined
-    xrpc?: Server
 }
 
 
@@ -117,7 +115,6 @@ export async function setupAppContext(roles: Role[]) {
                 await worker.addJob("sync-user", {handleOrDid: u}, 21)
             }
         }
-
 
         logger.pino.info("worker setup")
     }

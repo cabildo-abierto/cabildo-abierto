@@ -9,3 +9,4 @@ coverage/
 public/dev/
 ecosystem.config.*.js
 *.turbo
+tsconfig.tsbuildinfo

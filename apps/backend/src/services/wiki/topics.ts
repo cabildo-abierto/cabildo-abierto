@@ -40,8 +40,8 @@ export type TopicQueryResultBasic = {
     numWords: number | null
     lastRead?: Date | null
     created_at?: Date
-    uri?: string
-    cid?: string
+    uri: string | null
+    cid: string | null
 }
 
 

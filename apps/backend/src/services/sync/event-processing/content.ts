@@ -1,4 +1,4 @@
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
 import {

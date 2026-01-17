@@ -1,4 +1,4 @@
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef, CreatePostProps} from "@cabildo-abierto/api";
 import {BaseAgent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import {getCollectionFromUri, getDidFromUri, getUri, splitUri} from "@cabildo-abierto/utils";
@@ -11,7 +11,7 @@ import {
 } from "@cabildo-abierto/api"
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {createPost, CreatePostProps} from "#/services/write/post.js";
+import {createPost} from "#/services/write/post.js";
 import {deleteRecords} from "#/services/delete.js";
 
 export type TopicVoteType = "ar.cabildoabierto.wiki.voteAccept" | "ar.cabildoabierto.wiki.voteReject"
@@ -132,7 +132,7 @@ export const voteEdit: CAHandler<{
             versionRef,
             type,
             {
-                reason: data
+                reason: data[0]
             }
         )
     } else {

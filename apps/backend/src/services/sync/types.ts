@@ -1,5 +1,5 @@
 import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 
 
 export type SyncContentProps = {

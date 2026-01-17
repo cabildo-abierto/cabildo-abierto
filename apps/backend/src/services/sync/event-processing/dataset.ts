@@ -2,7 +2,7 @@ import {
     getDidFromUri
 } from "@cabildo-abierto/utils";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
-import {ATProtoStrongRef} from "#/lib/types.js";
+import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 

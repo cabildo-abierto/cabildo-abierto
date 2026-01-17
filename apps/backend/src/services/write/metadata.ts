@@ -1,6 +1,7 @@
 import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
 import * as cheerio from "cheerio";
 import {getUri, isArticle, isDataset, isPost} from "@cabildo-abierto/utils";
+import {AppBskyFeedPost} from "@atproto/api";
 
 const getContent = async (url: string): Promise<Partial<Metadata>> => {
     const response = await fetch(url)
@@ -90,6 +91,7 @@ export const getContentMetadata: CAHandlerNoAuth<{
             }
         }
     } else if (isPost(c)) {
+        ctx.logger.pino.info({uri}, "getting post metadata")
         try {
             const post = await ctx.kysely
                 .selectFrom("Content")
@@ -108,6 +110,17 @@ export const getContentMetadata: CAHandlerNoAuth<{
                     data
                 }
             } else {
+                const posts = await agent.bsky.app.bsky.feed.getPosts({uris: [uri]})
+                ctx.logger.pino.info({uri, posts}, "getting post from bsky")
+                if(posts.success) {
+                    const post = posts.data.posts[0]
+                    const data = {
+                        title: post.author.displayName ? `${post.author.displayName} (@${post.author.handle})` : `@${post.author.handle}`,
+                        description: (post.record as AppBskyFeedPost.Record).text as string,
+                        thumbnail: banner
+                    }
+                    return {data}
+                }
                 ctx.logger.pino.warn({uri}, "post metadata not found")
                 return {error: "No se encontró la publicación."}
             }
