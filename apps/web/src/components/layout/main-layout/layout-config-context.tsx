@@ -93,7 +93,7 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthRightSide: "0px",
         widthLeftSideSmall: "80px",
         defaultSidebarState: false,
-        openSidebar: false,
+        openSidebar: currentConfig?.openSidebar ?? false,
         openRightPanel: false,
         sidebarKind: "floating",
         readingLayout: false
@@ -103,7 +103,7 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthLeftSide: "0px",
         widthRightSide: "0px",
         widthLeftSideSmall: "0px",
-        openSidebar: false,
+        openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
         openRightPanel: false,
         rightDisappearsFirst: true,
@@ -201,7 +201,7 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({childre
     const {isMobile} = useIsMobile()
     const size = useWindowSize()
 
-    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(getLayoutConfig(pathname, size.width, undefined, isMobile))
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(() => getLayoutConfig(pathname, size.width, undefined, isMobile))
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {

@@ -41,7 +41,6 @@ export async function post<Body, Output>(route: string, body?: Body): PostOutput
     if (res.ok) {
         const json = await res.json()
         if (json.error && (json.error == "No session" || json.error == "Unauthorized")) {
-            console.log("sin sesion!")
             // window.location.href = "/login"
             return {error: "Iniciá sesión"}
         }
@@ -61,7 +60,6 @@ export async function get<Output>(route: string): PostOutput<Output> {
     if (res.ok) {
         const json = await res.json()
         if (json.error && (json.error == "No session" || json.error == "Unauthorized")) {
-            console.log("sin sesion!")
             // window.location.href = "/login"
             return {error: "Iniciá sesión"}
         }

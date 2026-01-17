@@ -37,7 +37,7 @@ export const BaseFullscreenPopup = ({
 }) => {
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
     useEffect(() => {
-        if(layoutConfig.openSidebar && isMobile) {
+        if(layoutConfig.openSidebar && isMobile && open) {
             setLayoutConfig(produce(layoutConfig, draft => {
                 draft.openSidebar = false
             }))

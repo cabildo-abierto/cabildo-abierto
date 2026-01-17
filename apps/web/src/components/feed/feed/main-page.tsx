@@ -72,7 +72,7 @@ export const MainPage = () => {
         {config.type == "topic" &&
             <Link
                 href={topicUrl(config.id)}
-                className={"px-4 bg-[var(--background)]  opacity-90 backdrop-blur z-[1500] font-light flex items-center fixed h-12  hover:bg-[var(--background-dark)] normal-case space-x-3 text-sm cursor-pointer"}
+                className={"px-4 bg-[var(--background)]  opacity-90 backdrop-blur z-[800] font-light flex items-center fixed h-12  hover:bg-[var(--background-dark)] normal-case space-x-3 text-sm cursor-pointer"}
                 style={{width: layoutConfig.centerWidth}}
             >
                 <ArrowSquareOutIcon fontSize={15}/>

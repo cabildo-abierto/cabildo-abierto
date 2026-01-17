@@ -213,7 +213,7 @@ ssh "$SERVER" bash <<EOF
 
   if [ "\$DEPLOY_WEB" -eq 1 ] || [ "\$DEPLOY_BACKEND" -eq 1 ]; then
     echo "🔄 Re-deploying stack: ${STACK_NAME}"
-    docker stack deploy -c "${STACK_FILE}" "${STACK_NAME}"
+    docker stack deploy --with-registry-auth -c "${STACK_FILE}" "${STACK_NAME}"
   fi
 
   echo "✅ Deployment on server complete."
