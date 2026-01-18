@@ -20,6 +20,8 @@ type Props = {
     /** Radius (in px) of the point markers. Scaled internally by scaleFactor props. */
     markerRadius?: number;
     margin: { left: number, top: number }
+    /** Set of color labels to hide from the plot */
+    hiddenLines?: Set<string>;
 }
 
 export function CurvePlotContent({
@@ -32,7 +34,8 @@ export function CurvePlotContent({
     scaleFactorY,
     scaleFactorX,
     markerRadius = 4,
-    margin
+    margin,
+    hiddenLines = new Set()
 }: Props) {
     const effectiveRadius = markerRadius * Math.min(scaleFactorX, scaleFactorY);
 
@@ -66,14 +69,17 @@ export function CurvePlotContent({
         return {colors, dataByColor}
     }, [data])
 
+    const visibleColors = colors.filter(color => !hiddenLines.has(color))
+
     const [xMin, xMax] = xScale.domain() as [number, number]
     const [yMin, yMax] = yScale.domain() as [number, number]
-    const totalVisibleData = data.filter(d => 
-        d.x >= xMin && d.x <= xMax && d.y >= yMin && d.y <= yMax
+    const totalVisibleData = data.filter(d =>
+        (!d.color || visibleColors.includes(d.color)) && d.x >= xMin && d.x <= xMax && d.y >= yMin && d.y <= yMax
     )
     const showMarkers = totalVisibleData.length < 100
 
-    return colors.map((color, colorIndex) => {
+    return visibleColors.map((color) => {
+        const colorIndex = colors.indexOf(color)
         const colorData = dataByColor.get(color)
         return <g key={color} onMouseMove={handleMouseMove}>
             <LinePath

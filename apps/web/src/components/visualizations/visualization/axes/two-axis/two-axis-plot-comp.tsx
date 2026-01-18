@@ -1,9 +1,10 @@
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {CurvePlotContent} from "../../curve/curve-plot";
+import {LineLegendMenu} from "../../curve/line-legend-menu";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
 import {DataPoint, ValueType} from "../../plotter";
 import useMeasure from "react-use-measure";
-import {useCallback, useMemo} from "react";
+import {useCallback, useMemo, useState} from "react";
 import {TransformMatrix} from "@visx/zoom/lib/types";
 import {Zoom} from "@visx/zoom";
 import {Group} from "@visx/group";
@@ -24,13 +25,21 @@ import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {Note} from "@/components/utils/base/note";
 
 
-export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {
+export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues, hiddenLines}: {
     plotter: AxesPlotter
     xLabel: string
     yLabel: string
     xValue: string
     yValues: { value: string, label: string, selected: boolean }[]
+    hiddenLines?: Set<string>
 }) {
+    // Filter out hidden lines from the tooltip
+    const visibleYValues = hiddenLines 
+        ? yValues.filter(v => !hiddenLines.has(v.label))
+        : yValues
+    
+    if (visibleYValues.length === 0) return null
+    
     return (
         <div className={"bg-[var(--background)] border-2 border-[var(--text)] p-1 text-sm"}>
             <div className={"flex justify-between space-x-2"}>
@@ -38,7 +47,7 @@ export function TwoAxisTooltip({plotter, xLabel, yLabel, xValue, yValues}: {
                 <div className={"font-bold"}>{xValue}</div>
             </div>
             <div>
-                {yValues.map((v, index) => {
+                {visibleYValues.map((v, index) => {
                     return <div key={index} className={"flex justify-between items-center space-x-2"}>
                         <div className={"flex space-x-1 items-center"}>
                             <div
@@ -115,6 +124,30 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     } = useTooltip<{ x: ValueType; y: ValueType }>()
     const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({scroll: true})
     const [measureRef, bounds] = useMeasure()
+    
+    // Legend menu state for line visibility
+    const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set())
+    const [legendCollapsed, setLegendCollapsed] = useState(false)
+    
+    const toggleLine = useCallback((color: string) => {
+        setHiddenLines(prev => {
+            const next = new Set(prev)
+            if (next.has(color)) {
+                next.delete(color)
+            } else {
+                next.add(color)
+            }
+            return next
+        })
+    }, [])
+    
+    const selectAllLines = useCallback(() => {
+        setHiddenLines(new Set())
+    }, [])
+    
+    const deselectAllLines = useCallback((colors: string[]) => {
+        setHiddenLines(new Set(colors))
+    }, [])
 
     const containerRef = useCallback((node: HTMLDivElement | null) => {
         tooltipContainerRef(node)
@@ -230,6 +263,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         yLabel={yLabel}
                         xValue={plotter.xValueToString(tooltipData.x)}
                         yValues={plotter.getTooltipYValues(tooltipData)}
+                        hiddenLines={hiddenLines}
                     />
                 </TooltipInPortal>
             )}
@@ -318,17 +352,18 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 }}
                             />
                             <Group clipPath={`url(#zoom-clip-${randId})`}>
-                                {ArCabildoabiertoEmbedVisualization.isLines(spec.plot) && isTwoAxisPlotter(plotter) && <CurvePlotContent
-                                    plotter={plotter}
-                                    xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
-                                    yScale={axisLeftScale as ScaleLinear<number, number>}
-                                    data={data as DataPoint<number, number>[]}
-                                    showTooltip={showTooltip}
-                                    hideTooltip={hideTooltip}
-                                    scaleFactorX={scaleFactorX}
-                                    scaleFactorY={scaleFactorY}
-                                    margin={margin}
-                                />}
+{ArCabildoabiertoEmbedVisualization.isLines(spec.plot) && isTwoAxisPlotter(plotter) && <CurvePlotContent
+                                                    plotter={plotter}
+                                                    xScale={axisBottomScale as ScaleLinear<number, number> | ScaleTime<number, number>}
+                                                    yScale={axisLeftScale as ScaleLinear<number, number>}
+                                                    data={data as DataPoint<number, number>[]}
+                                                    showTooltip={showTooltip}
+                                                    hideTooltip={hideTooltip}
+                                                    scaleFactorX={scaleFactorX}
+                                                    scaleFactorY={scaleFactorY}
+                                                    margin={margin}
+                                                    hiddenLines={hiddenLines}
+                                                />}
                                 {(ArCabildoabiertoEmbedVisualization.isBarplot(spec.plot) || ArCabildoabiertoEmbedVisualization.isHistogram(spec.plot)) && <BarplotContent
                                     xScale={axisBottomScale as ScaleBand<string>}
                                     yScale={axisLeftScale as ScaleLinear<number, number>}
@@ -397,6 +432,18 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
             <div style={{maxWidth: svgWidth, height: captionHeight}}>
                 <PlotCaption caption={vis.caption} fontSize={Math.min(15, 16 * Math.min(scaleFactorX, scaleFactorY))}/>
             </div>
+            {ArCabildoabiertoEmbedVisualization.isLines(spec.plot) && isTwoAxisPlotter(plotter) && plotter.getColorLabels().length > 1 && (
+                <LineLegendMenu
+                    colors={plotter.getColorLabels()}
+                    getLabelColor={(label) => plotter.getLabelColor(label)}
+                    hiddenLines={hiddenLines}
+                    onToggleLine={toggleLine}
+                    onSelectAll={selectAllLines}
+                    onDeselectAll={() => deselectAllLines(plotter.getColorLabels())}
+                    collapsed={legendCollapsed}
+                    onToggleCollapsed={() => setLegendCollapsed(prev => !prev)}
+                />
+            )}
         </div>
     );
 }

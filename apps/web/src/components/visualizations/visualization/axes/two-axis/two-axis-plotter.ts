@@ -165,6 +165,10 @@ export class TwoAxisPlotter extends AxesPlotter {
         if(!label || label.length == 0) return palette(0)
         return this.colorLabelToColor.get(label)
     }
+
+    public getColorLabels(): string[] {
+        return Array.from(this.colorLabelToColor.keys())
+    }
 }
 
 
