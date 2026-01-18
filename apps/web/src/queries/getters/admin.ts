@@ -41,8 +41,25 @@ export function useUsersSyncStatus() {
 export type AdminNotificationCounts = {
     unsentAccessRequests: number
     pendingValidationRequests: number
+    unseenJobApplications: number
 }
 
 export function useAdminNotificationCounts() {
     return useAPI<AdminNotificationCounts>("/notification-counts", ["admin-notification-counts"])
+}
+
+
+export type JobApplication = {
+    id: string
+    name: string
+    email: string
+    comment: string
+    cvFileName: string | null
+    job: string
+    createdAt: Date
+    seen: boolean
+}
+
+export function useJobApplications() {
+    return useAPI<JobApplication[]>("/job-applications", ["job-applications"])
 }

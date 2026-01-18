@@ -8,7 +8,7 @@ import {useAdminNotificationCounts} from "@/queries/getters/admin";
 
 
 export const AdminLayout = ({children}: { children: ReactNode }) => {
-    const options = ["post", "acceso", "sync", "validacion", "remuneraciones", "stats", "wiki", "UI", "feed", "emails"]
+    const options = ["post", "acceso", "sync", "validacion", "trabajos", "remuneraciones", "stats", "wiki", "UI", "feed", "emails"]
     const pathname = usePathname()
     const {data: notificationCounts} = useAdminNotificationCounts()
 
@@ -16,6 +16,7 @@ export const AdminLayout = ({children}: { children: ReactNode }) => {
         if (!notificationCounts) return false
         if (option === "acceso" && notificationCounts.unsentAccessRequests > 0) return true
         if (option === "validacion" && notificationCounts.pendingValidationRequests > 0) return true
+        if (option === "trabajos" && notificationCounts.unseenJobApplications > 0) return true
         return false
     }
 

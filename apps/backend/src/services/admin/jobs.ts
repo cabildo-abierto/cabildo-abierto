@@ -1,4 +1,4 @@
-import {CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
 import {FilePayload} from "@cabildo-abierto/api";
 
@@ -30,6 +30,77 @@ export const jobApplicationHandler: CAHandlerNoAuth<JobApplication> = async (ctx
             job: params.job,
             cv
         }])
+        .execute()
+
+    return {data: {}}
+}
+
+
+export type JobApplicationView = {
+    id: string
+    name: string
+    email: string
+    comment: string
+    cvFileName: string | null
+    job: string
+    createdAt: Date
+    seen: boolean
+}
+
+function getFileNameFromPath(path: string) {
+    // Path format is "uuid/filename" from upload
+    const parts = path.split("/")
+    return parts[parts.length - 1]
+}
+
+export const getJobApplications: CAHandler<{}, JobApplicationView[]> = async (ctx, agent, {}) => {
+    const applications = await ctx.kysely
+        .selectFrom("JobApplication")
+        .select([
+            "id",
+            "name",
+            "email",
+            "comment",
+            "cv",
+            "job",
+            "created_at as createdAt",
+            "seen"
+        ])
+        .orderBy("created_at", "desc")
+        .execute()
+
+    const result: JobApplicationView[] = applications.map(a => ({
+        ...a,
+        cvFileName: a.cv ? getFileNameFromPath(a.cv) : null
+    }))
+
+    return {data: result}
+}
+
+export const getUnseenJobApplicationsCount: CAHandler<{}, {count: number}> = async (ctx, agent, {}) => {
+    const result = await ctx.kysely
+        .selectFrom("JobApplication")
+        .select(eb => eb.fn.count<number>("id").as("count"))
+        .where("seen", "=", false)
+        .executeTakeFirst()
+
+    return {data: {count: result?.count ?? 0}}
+}
+
+export const markJobApplicationSeen: CAHandler<{params: {id: string}}, {}> = async (ctx, agent, {params}) => {
+    await ctx.kysely
+        .updateTable("JobApplication")
+        .set("seen", true)
+        .where("id", "=", params.id)
+        .execute()
+
+    return {data: {}}
+}
+
+export const deleteJobApplication: CAHandler<{params: {id: string}}, {}> = async (ctx, agent, {params}) => {
+    await ctx.kysely
+        .deleteFrom("JobApplication")
+        .where("id", "=", params.id)
         .execute()
 
     return {data: {}}

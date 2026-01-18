@@ -182,6 +182,7 @@ export const saveDraft: CAHandler<CreateDraftParams, {id: string}> = async (ctx,
     let embeds: string | undefined = undefined
     if(params.embeds){
         if(!params.embedContexts || params.embedContexts.length != params.embeds.length){
+            ctx.logger.pino.info({params}, "error al guardar el borrador (embeds)")
             return {error: "Ocurrió un error al guardar el borrador."}
         }
         let sbPaths: (string | null)[][] = []
@@ -195,6 +196,7 @@ export const saveDraft: CAHandler<CreateDraftParams, {id: string}> = async (ctx,
                 }
                 const {path, error} = await ctx.storage!.upload(file, "draft-embeds")
                 if(error){
+                    ctx.logger.pino.info({path, error}, "error al guardar el borrador (upload)")
                     return {error: "Ocurrió un error al guardar el borrador"}
                 }
                 if(path){

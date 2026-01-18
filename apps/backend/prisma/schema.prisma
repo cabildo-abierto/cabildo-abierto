@@ -649,6 +649,7 @@ model JobApplication {
   comment    String
   cv         String?
   job        String
+  seen       Boolean  @default(false)
 }
 
 enum MailingListSubscriptionStatus {

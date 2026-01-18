@@ -2,6 +2,7 @@ import {CAHandler} from "#/utils/handler.js";
 import {AppContext} from "#/setup.js";
 import {getUnsentAccessRequestsCount} from "#/services/user/access.js";
 import {getPendingValidationRequestsCount} from "#/services/user/validation.js";
+import {getUnseenJobApplicationsCount} from "#/services/admin/jobs.js";
 
 type ServerStatus = {
     worker: boolean
@@ -59,15 +60,17 @@ export const getServerStatus: CAHandler<{}, {status: ServerStatus}> = async (ctx
 }
 
 
-export const getAdminNotificationCounts: CAHandler<{}, {unsentAccessRequests: number, pendingValidationRequests: number}> = async (ctx, agent, {}) => {
-    const [accessResult, validationResult] = await Promise.all([
+export const getAdminNotificationCounts: CAHandler<{}, {unsentAccessRequests: number, pendingValidationRequests: number, unseenJobApplications: number}> = async (ctx, agent, {}) => {
+    const [accessResult, validationResult, jobsResult] = await Promise.all([
         getUnsentAccessRequestsCount(ctx, agent, {}),
-        getPendingValidationRequestsCount(ctx, agent, {})
+        getPendingValidationRequestsCount(ctx, agent, {}),
+        getUnseenJobApplicationsCount(ctx, agent, {})
     ])
     return {
         data: {
             unsentAccessRequests: accessResult.data?.count ?? 0,
-            pendingValidationRequests: validationResult.data?.count ?? 0
+            pendingValidationRequests: validationResult.data?.count ?? 0,
+            unseenJobApplications: jobsResult.data?.count ?? 0
         }
     }
 }

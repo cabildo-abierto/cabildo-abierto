@@ -36,6 +36,7 @@ import {
     updateEmailTemplate
 } from "#/services/emails/template.js";
 import {sendBulkEmails} from "#/services/emails/sending.js";
+import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
 
 
 function isAdmin(did: string) {
@@ -202,6 +203,47 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     // SMTP2GO stats
     router.get("/smtp2go-stats", makeAdminHandler(ctx, getSMTP2GOStats))
+
+    // Job applications
+    router.get("/job-applications", makeAdminHandler(ctx, getJobApplications))
+    router.post("/job-application-seen/:id", makeAdminHandler(ctx, markJobApplicationSeen))
+    router.post("/job-application-delete/:id", makeAdminHandler(ctx, deleteJobApplication))
+
+    router.get("/job-application-cv/:id", async (req, res) => {
+        const agent = await sessionAgent(req, res, ctx)
+        if (!agent.hasSession() || !isAdmin(agent.did)) {
+            return res.status(403).json({error: "No autorizado"})
+        }
+
+        const {id} = req.params
+        const application = await ctx.kysely
+            .selectFrom("JobApplication")
+            .select(["cv"])
+            .where("id", "=", id)
+            .executeTakeFirst()
+
+        if (!application || !application.cv) {
+            return res.status(404).json({error: "CV no encontrado"})
+        }
+
+        if (!ctx.storage) {
+            return res.status(500).json({error: "Storage no configurado"})
+        }
+
+        const {data, error} = await ctx.storage.download(application.cv, "job-applications")
+        if (error || !data) {
+            ctx.logger.pino.error({error, cv: application.cv}, "Error downloading CV")
+            return res.status(500).json({error: "Error al descargar el CV"})
+        }
+
+        // Get filename from path
+        const parts = application.cv.split("/")
+        const fileName = parts[parts.length - 1]
+
+        res.setHeader("Content-Type", data.contentType)
+        res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`)
+        res.send(data.file)
+    })
 
     return router
 }

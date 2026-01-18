@@ -99,7 +99,7 @@ export class S3Storage {
                 }
             };
         } catch (error) {
-            this.logger.pino.error({error}, "S3 Download Error");
+            this.logger.pino.error({error, path, bucket}, "S3 Download Error");
             return { error: "Ocurrió un error al descargar el contenido." };
         }
     }
