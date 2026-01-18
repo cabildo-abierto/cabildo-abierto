@@ -48,6 +48,36 @@ const seconds = 1000
 
 type CAJobHandler<T> = (data: T) => Promise<void>
 
+export type WorkerState = {
+    counts: {
+        waiting: number
+        active: number
+        completed: number
+        failed: number
+        delayed: number
+        prioritized: number
+    }
+    activeJobs: {
+        id: string | undefined
+        name: string
+        timestamp: number | undefined
+        processedOn: number | undefined
+    }[]
+    failedJobs: {
+        id: string | undefined
+        name: string
+        failedReason: string | undefined
+        timestamp: number | undefined
+        finishedOn: number | undefined
+    }[]
+    scheduledJobs: {
+        name: string | undefined
+        every: number | undefined
+        next: number | undefined
+    }[]
+    registeredJobs: string[]
+}
+
 type CAJobDefinition<T> = {
     name: string
     handler: CAJobHandler<T>
@@ -502,6 +532,52 @@ export class RedisCAWorker extends CAWorker {
             removedFailed: counts.failed - after.failed,
         }, "jobs cleaned")
     }
+
+    async getState(): Promise<WorkerState> {
+        const [counts, activeJobs, failedJobs, schedulers] = await Promise.all([
+            this.queue.getJobCounts(
+                'waiting',
+                'active',
+                'completed',
+                'failed',
+                'delayed',
+                'prioritized'
+            ),
+            this.queue.getJobs(['active'], 0, 50),
+            this.queue.getJobs(['failed'], 0, 50),
+            this.queue.getJobSchedulers()
+        ])
+
+        return {
+            counts: {
+                waiting: counts.waiting ?? 0,
+                active: counts.active ?? 0,
+                completed: counts.completed ?? 0,
+                failed: counts.failed ?? 0,
+                delayed: counts.delayed ?? 0,
+                prioritized: counts.prioritized ?? 0
+            },
+            activeJobs: activeJobs.filter(j => j != null).map(j => ({
+                id: j.id,
+                name: j.name,
+                timestamp: j.timestamp,
+                processedOn: j.processedOn
+            })),
+            failedJobs: failedJobs.filter(j => j != null).map(j => ({
+                id: j.id,
+                name: j.name,
+                failedReason: j.failedReason,
+                timestamp: j.timestamp,
+                finishedOn: j.finishedOn
+            })),
+            scheduledJobs: schedulers.map(s => ({
+                name: s.name,
+                every: s.every,
+                next: s.next
+            })),
+            registeredJobs: this.jobs.map(j => j.name)
+        }
+    }
 }
 
 
@@ -518,4 +594,12 @@ export const getRegisteredJobs: CAHandler<{}, string[]> = async (ctx, agent, par
     return {
         data: ctx.worker?.jobs?.map(j => j.name)
     }
+}
+
+
+export const getWorkerState: CAHandler<{}, WorkerState> = async (ctx, agent, {}) => {
+    if (!ctx.worker || !(ctx.worker instanceof RedisCAWorker)) {
+        return { error: "Worker not available" }
+    }
+    return { data: await ctx.worker.getState() }
 }

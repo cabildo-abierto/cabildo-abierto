@@ -19,10 +19,10 @@ import {
 import {updateTopicContributionsHandler} from "#/services/wiki/contributions.js";
 import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
-import {getRegisteredJobs, startJob} from "#/jobs/worker.js";
+import {getRegisteredJobs, startJob, getWorkerState} from "#/jobs/worker.js";
 import {clearRedisHandler} from "#/services/redis/cache.js";
 import {env} from "#/lib/env.js";
-import {getAdminNotificationCounts, getServerStatus} from "#/services/admin/status.js";
+import {getAdminNotificationCounts, getServerStatus, getUsersSyncStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/otros/find-users.js";
@@ -174,6 +174,8 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get("/status", makeAdminHandler(ctx, getServerStatus))
 
+    router.get("/sync-status", makeAdminHandler(ctx, getUsersSyncStatus))
+
     router.get("/user-months", makeAdminHandler(ctx, getUserMonthsStats))
 
     router.get("/user-month-payments/:id", makeAdminHandler(ctx, getUserMonthPayments))
@@ -181,6 +183,8 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/read-sessions-plot", makeAdminHandler(ctx, getReadSessionsPlot))
 
     router.get("/registered-jobs", makeAdminHandler(ctx, getRegisteredJobs))
+
+    router.get("/worker-state", makeAdminHandler(ctx, getWorkerState))
 
     router.get("/top-authors", makeAdminHandler(ctx, getTopAuthors))
 

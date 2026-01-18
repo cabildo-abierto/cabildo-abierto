@@ -63,3 +63,38 @@ export type JobApplication = {
 export function useJobApplications() {
     return useAPI<JobApplication[]>("/job-applications", ["job-applications"])
 }
+
+
+export type WorkerState = {
+    counts: {
+        waiting: number
+        active: number
+        completed: number
+        failed: number
+        delayed: number
+        prioritized: number
+    }
+    activeJobs: {
+        id: string | undefined
+        name: string
+        timestamp: number | undefined
+        processedOn: number | undefined
+    }[]
+    failedJobs: {
+        id: string | undefined
+        name: string
+        failedReason: string | undefined
+        timestamp: number | undefined
+        finishedOn: number | undefined
+    }[]
+    scheduledJobs: {
+        name: string | undefined
+        every: number | undefined
+        next: number | undefined
+    }[]
+    registeredJobs: string[]
+}
+
+export function useWorkerState() {
+    return useAPI<WorkerState>("/worker-state", ["worker-state"])
+}

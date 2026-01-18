@@ -74,3 +74,35 @@ export const getAdminNotificationCounts: CAHandler<{}, {unsentAccessRequests: nu
         }
     }
 }
+
+
+type UserSyncStatus = {
+    did: string
+    handle: string | null
+    mirrorStatus: string | null
+    CAProfile: {
+        createdAt: Date
+    } | null
+}
+
+export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, agent, {}) => {
+    // Get all CA users from database
+    const users = await ctx.kysely
+        .selectFrom("User")
+        .select(["did", "handle", "created_at_tz"])
+        .where("inCA", "=", true)
+        .where("hasAccess", "=", true)
+        .execute()
+    
+    // Get mirror status for each user from Redis
+    const statuses = await Promise.all(
+        users.map(async u => ({
+            did: u.did,
+            handle: u.handle,
+            mirrorStatus: await ctx.redisCache.mirrorStatus.get(u.did, true),
+            CAProfile: u.created_at_tz ? { createdAt: u.created_at_tz } : null
+        }))
+    )
+    
+    return { data: statuses }
+}
