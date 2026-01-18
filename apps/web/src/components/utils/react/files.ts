@@ -1,4 +1,5 @@
-export type FilePayload = {base64: string, fileName: string}
+import {FilePayload} from "@cabildo-abierto/api";
+
 
 export function file2base64(file: File): Promise<FilePayload> {
     return new Promise((resolve, reject) => {

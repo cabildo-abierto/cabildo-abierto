@@ -7,31 +7,14 @@ import {useState} from "react";
 import {ProfilePic} from "../perfil/profile-pic";
 import {StateButton} from "@/components/utils/base/state-button"
 import {BaseButton} from "@/components/utils/base/base-button";
-import {FilePayload} from "../utils/react/files";
 import {DownloadIcon} from "@phosphor-icons/react";
 import Image from "next/image"
 import SelectionComponent from "../buscar/search-selection-component";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {FilePayload, ValidationRequestView} from "@cabildo-abierto/api"
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseTextArea} from "@/components/utils/base/base-text-area";
-import {OrgType} from "@/components/ajustes/verificar/types";
 import {post} from "@/components/utils/react/fetch";
 
-
-export type ValidationRequestView =
-    { id: string, user: ArCabildoabiertoActorDefs.ProfileViewBasic, createdAt: Date }
-    & ({
-    tipo: "persona"
-    dniFrente: FilePayload
-    dniDorso: FilePayload
-} | {
-    tipo: "org"
-    tipoOrg: OrgType
-    sitioWeb?: string
-    email?: string
-    documentacion: FilePayload[]
-    comentarios?: string
-})
 
 function DownloadButton({file}: { file: FilePayload }) {
 
@@ -148,8 +131,8 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
 
         {open && <div className={"space-y-4 bg-[var(--background-dark)] p-4"}>
             {request.tipo == "persona" && <div className={"space-y-2"}>
-                <FileViewer file={request.dniFrente}/>
-                <FileViewer file={request.dniDorso}/>
+                {request.dniFrente && <FileViewer file={request.dniFrente}/>}
+                {request.dniDorso && <FileViewer file={request.dniDorso}/>}
             </div>}
             {request.tipo == "org" && <div className={"space-y-4 py-4"}>
                 <div>

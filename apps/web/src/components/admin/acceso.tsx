@@ -191,6 +191,8 @@ export const AdminAcceso = () => {
                     <div>
                         {a.sentInviteAt ? <div className={"bg-green-800 rounded text-sm px-1"}>
                             Enviada {formatIsoDate(a.sentInviteAt)}
+                        </div> : a.markedIgnored ? <div className={"bg-yellow-700 rounded text-sm px-1"}>
+                            Ignorada
                         </div> : <div className={"bg-[var(--background-dark3)] px-1 text-sm rounded"}>
                             Pendiente
                         </div>}
@@ -199,7 +201,17 @@ export const AdminAcceso = () => {
                         Hace <DateSince date={a.createdAt}/>
                     </div>
                     <GenerateCode/>
-                    {!a.sentInviteAt && <div className={"w-full flex justify-end"}>
+                    {!a.sentInviteAt && !a.markedIgnored && <div className={"w-full flex justify-end gap-2"}>
+                        <StateButton
+                            size={"small"}
+                            handleClick={async () => {
+                                const {error} = await post<{}, {}>(`/access-request-ignored/${a.id}`)
+                                refetch()
+                                return {error}
+                            }}
+                        >
+                            Ignorar
+                        </StateButton>
                         <StateButton
                             size={"small"}
                             handleClick={async () => {

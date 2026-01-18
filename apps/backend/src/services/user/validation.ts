@@ -1,14 +1,13 @@
 import {CAHandler} from "#/utils/handler.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {FilePayload, OrgType, ValidationRequestView} from "@cabildo-abierto/api"
 import {createHash} from "crypto";
 import {v4 as uuidv4} from "uuid";
-import { FilePayload } from "../storage/storage.js";
 import {AppContext} from "#/setup.js";
 import {acceptValidationRequestFromPayment} from "#/services/monetization/donations.js";
 
-type OrgType = "creador-individual" | "empresa" | "medio" | "fundacion" | "consultora" | "otro"
+
 
 type ValidationRequestProps = {
     tipo: "persona"
@@ -148,27 +147,20 @@ export const cancelValidationRequest: CAHandler<{}, {}> = async (ctx, agent, {})
 }
 
 
-export type ValidationRequestView = {
-    id: string
-    user: ArCabildoabiertoActorDefs.ProfileViewBasic
-    createdAt: Date
-} & ({
-    tipo: "persona"
-    dniFrente: FilePayload
-    dniDorso: FilePayload
-} | {
-    tipo: "org"
-    tipoOrg: OrgType
-    sitioWeb?: string
-    email?: string
-    documentacion: FilePayload[]
-    comentarios?: string
-})
-
-
 function getFileNameFromPath(path: string) {
     const s = path.split("::")
     return s[s.length - 1]
+}
+
+
+export const getPendingValidationRequestsCount: CAHandler<{}, {count: number}> = async (ctx, agent, {}) => {
+    const result = await ctx.kysely
+        .selectFrom("ValidationRequest")
+        .select(eb => eb.fn.count<number>("id").as("count"))
+        .where("result", "=", "Pendiente")
+        .executeTakeFirst()
+
+    return {data: {count: result?.count ?? 0}}
 }
 
 
@@ -217,7 +209,10 @@ export const getPendingValidationRequests: CAHandler<{}, {
 
     const res: ValidationRequestView[] = requests.map(r => {
         const user = hydrateProfileViewBasic(ctx, r.userId, dataplane)
-        if (!user) return null
+        if (!user) {
+            ctx.logger.pino.info({r}, "error hydrating validation request")
+            return null
+        }
         const tipo: "org" | "persona" = r.type == "Persona" ? "persona" : "org"
         if (tipo == "org") {
             const req: ValidationRequestView = {
@@ -237,19 +232,18 @@ export const getPendingValidationRequests: CAHandler<{}, {
             }
             return req
         } else {
-            if (!r.dniFrente || !r.dniDorso) return null
             const req: ValidationRequestView = {
                 tipo: "persona",
                 ...r,
                 user,
-                dniFrente: {
+                dniFrente: r.dniFrente ? {
                     fileName: getFileNameFromPath(r.dniFrente),
                     base64: dataplane.s3files.get("validation-documents:" + r.dniFrente) ?? "not found"
-                },
-                dniDorso: {
+                } : null,
+                dniDorso: r.dniDorso ? {
                     fileName: getFileNameFromPath(r.dniDorso),
                     base64: dataplane.s3files.get("validation-documents:" + r.dniDorso) ?? "not found"
-                }
+                } : null
             }
             return req
         }

@@ -9,3 +9,4 @@ ecosystem.config.*.js
 out
 tunnel*.sh
 *.html
+*.txt

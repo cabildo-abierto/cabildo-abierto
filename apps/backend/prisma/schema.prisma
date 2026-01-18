@@ -22,6 +22,7 @@ model AccessRequest {
   sentInviteAt_tz DateTime?   @db.Timestamptz(3)
   inviteCodeId    String?     @unique
   InviteCode      InviteCode? @relation(fields: [inviteCodeId], references: [code])
+  markedIgnored   Boolean     @default(false)
 
   @@index([inviteCodeId])
 }

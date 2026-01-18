@@ -1,3 +1,4 @@
+import { ArCabildoabiertoActorDefs } from "../client";
 import {ValidationState} from "./session";
 
 export type StatsDashboard = {
@@ -34,3 +35,30 @@ export type StatsDashboardUser = {
     lastReadSession: Date | null
     verification: ValidationState
 }
+
+
+export type OrgType = "creador-individual" | "empresa" | "medio" | "fundacion" | "consultora" | "otro"
+
+
+export type FilePayload = {
+    base64: string
+    fileName: string
+}
+
+
+export type ValidationRequestView = {
+    id: string
+    user: ArCabildoabiertoActorDefs.ProfileViewBasic
+    createdAt: Date
+} & ({
+    tipo: "persona"
+    dniFrente: FilePayload | null
+    dniDorso: FilePayload | null
+} | {
+    tipo: "org"
+    tipoOrg: OrgType
+    sitioWeb?: string
+    email?: string
+    documentacion: FilePayload[]
+    comentarios?: string
+})

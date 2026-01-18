@@ -3,7 +3,7 @@ import type {AppContext} from '#/setup.js'
 import {CAHandler, CAHandlerNoAuth, makeHandler} from "#/utils/handler.js";
 import {syncAllUsersHandler, syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteUserHandler} from "#/services/delete.js";
-import {createInviteCodesHandler, getAccessRequests, markAccessRequestSent} from "#/services/user/access.js";
+import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
     getAllTopics,
@@ -20,15 +20,13 @@ import {updateTopicContributionsHandler} from "#/services/wiki/contributions.js"
 import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
 import {getRegisteredJobs, startJob} from "#/jobs/worker.js";
-
 import {clearRedisHandler} from "#/services/redis/cache.js";
 import {env} from "#/lib/env.js";
-import {getServerStatus} from "#/services/admin/status.js";
+import {getAdminNotificationCounts, getServerStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/otros/find-users.js";
 import {getAllCAFeed} from "#/services/feed/all.js";
-import {updateAllFollowingFeeds} from "#/services/feed/following/update.js";
 import {getMailSubscriptions, getSentEmails} from "#/services/emails/subscriptions.js"
 import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
 import {
@@ -166,6 +164,10 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/access-requests", makeAdminHandler(ctx, getAccessRequests))
 
     router.post("/access-request-sent/:id", makeAdminHandler(ctx, markAccessRequestSent))
+
+    router.post("/access-request-ignored/:id", makeAdminHandler(ctx, markAccessRequestIgnored))
+
+    router.get("/notification-counts", makeAdminHandler(ctx, getAdminNotificationCounts))
 
     router.post("/clear-redis/:prefix", makeAdminHandler(ctx, clearRedisHandler))
 

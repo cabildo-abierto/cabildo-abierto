@@ -13,7 +13,8 @@ import {PageFrame} from "@/components/utils/page-frame";
 import {Paragraph} from "@/components/utils/base/paragraph";
 import {UploadFileButton} from "@/components/utils/upload-file-button";
 import {post} from "@/components/utils/react/fetch";
-import {file2base64, FilePayload} from "@/components/utils/react/files";
+import {file2base64} from "@/components/utils/react/files";
+import {FilePayload} from "@cabildo-abierto/api";
 
 
 type JobApplication = {

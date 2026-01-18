@@ -6,7 +6,7 @@ import {
 import {v4 as uuidv4} from "uuid";
 import {getArticleSummary} from "#/services/hydration/hydrate.js";
 import {sql} from "kysely";
-import {FilePayload} from "#/services/storage/storage.js";
+import {FilePayload} from "@cabildo-abierto/api";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";

@@ -1,5 +1,7 @@
 import {CAHandler} from "#/utils/handler.js";
 import {AppContext} from "#/setup.js";
+import {getUnsentAccessRequestsCount} from "#/services/user/access.js";
+import {getPendingValidationRequestsCount} from "#/services/user/validation.js";
 
 type ServerStatus = {
     worker: boolean
@@ -54,4 +56,18 @@ export const getServerStatus: CAHandler<{}, {status: ServerStatus}> = async (ctx
 
     ctx.logger.pino.info({lastTestJob: ts, lastEventProcessed, worker, mirror, threshold, now: new Date()}, "server status")
     return {data: {status: {worker, mirror}}}
+}
+
+
+export const getAdminNotificationCounts: CAHandler<{}, {unsentAccessRequests: number, pendingValidationRequests: number}> = async (ctx, agent, {}) => {
+    const [accessResult, validationResult] = await Promise.all([
+        getUnsentAccessRequestsCount(ctx, agent, {}),
+        getPendingValidationRequestsCount(ctx, agent, {})
+    ])
+    return {
+        data: {
+            unsentAccessRequests: accessResult.data?.count ?? 0,
+            pendingValidationRequests: validationResult.data?.count ?? 0
+        }
+    }
 }

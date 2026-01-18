@@ -3,8 +3,7 @@ import {v4 as uuidv4} from "uuid";
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 import {GetObjectCommand, PutObjectCommand, S3Client,} from "@aws-sdk/client-s3";
 import { Logger } from "#/utils/logger.js";
-
-export type FilePayload = { base64: string, fileName: string }
+import {FilePayload} from "@cabildo-abierto/api";
 
 function extractMimeType(base64: string): string | null {
     const match = base64.match(/^data:(.*?);base64,/);

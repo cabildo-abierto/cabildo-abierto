@@ -1,5 +1,5 @@
 import {useAPI} from "@/components/utils/react/queries";
-import {ValidationRequestView} from "@/components/admin/admin-validation";
+import {ValidationRequestView} from "@cabildo-abierto/api";
 
 
 type AccessRequest = {
@@ -8,6 +8,7 @@ type AccessRequest = {
     comment: string
     createdAt: Date
     sentInviteAt: Date | null
+    markedIgnored: boolean
 }
 
 export function useAccessRequests() {
@@ -34,4 +35,14 @@ export type UserSyncStatus = {
 
 export function useUsersSyncStatus() {
     return useAPI<UserSyncStatus[]>("/sync-status", ["sync-status"])
+}
+
+
+export type AdminNotificationCounts = {
+    unsentAccessRequests: number
+    pendingValidationRequests: number
+}
+
+export function useAdminNotificationCounts() {
+    return useAPI<AdminNotificationCounts>("/notification-counts", ["admin-notification-counts"])
 }

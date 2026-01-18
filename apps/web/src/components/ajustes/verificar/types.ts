@@ -1,7 +1,5 @@
-import {FilePayload} from "../../utils/react/files";
+import {FilePayload, OrgType} from "@cabildo-abierto/api";
 
-
-export type OrgType = "creador-individual" | "empresa" | "medio" | "fundacion" | "consultora" | "otro"
 
 export type DNIValidationRequestProps = {
     tipo: "persona"

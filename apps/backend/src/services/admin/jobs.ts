@@ -1,6 +1,6 @@
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {FilePayload} from "#/services/storage/storage.js";
 import {v4 as uuidv4} from "uuid";
+import {FilePayload} from "@cabildo-abierto/api";
 
 type JobApplication = {
     name: string

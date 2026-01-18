@@ -227,6 +227,7 @@ type AccessRequest = {
     comment: string
     createdAt: Date
     sentInviteAt: Date | null
+    markedIgnored: boolean
 }
 
 export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx, agent, {}) => {
@@ -237,11 +238,23 @@ export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx, age
             "comment",
             "created_at as createdAt",
             "sentInviteAt",
-            "id"
+            "id",
+            "markedIgnored"
         ])
         .execute()
 
     return {data: requests}
+}
+
+export const getUnsentAccessRequestsCount: CAHandler<{}, {count: number}> = async (ctx, agent, {}) => {
+    const result = await ctx.kysely
+        .selectFrom("AccessRequest")
+        .select(eb => eb.fn.count<number>("id").as("count"))
+        .where("sentInviteAt", "is", null)
+        .where("markedIgnored", "=", false)
+        .executeTakeFirst()
+
+    return {data: {count: result?.count ?? 0}}
 }
 
 
@@ -250,6 +263,16 @@ export const markAccessRequestSent: CAHandler<{params: {id: string}}, {}> = asyn
         .updateTable("AccessRequest")
         .set("sentInviteAt", new Date())
         .set("sentInviteAt_tz", new Date())
+        .where("id", "=", params.id)
+        .execute()
+
+    return {data: {}}
+}
+
+export const markAccessRequestIgnored: CAHandler<{params: {id: string}}, {}> = async (ctx, agent, {params} ) => {
+    await ctx.kysely
+        .updateTable("AccessRequest")
+        .set("markedIgnored", true)
         .where("id", "=", params.id)
         .execute()
 
