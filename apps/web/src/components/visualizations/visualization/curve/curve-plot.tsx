@@ -66,10 +66,15 @@ export function CurvePlotContent({
         return {colors, dataByColor}
     }, [data])
 
+    const [xMin, xMax] = xScale.domain() as [number, number]
+    const [yMin, yMax] = yScale.domain() as [number, number]
+    const totalVisibleData = data.filter(d => 
+        d.x >= xMin && d.x <= xMax && d.y >= yMin && d.y <= yMax
+    )
+    const showMarkers = totalVisibleData.length < 100
 
     return colors.map((color, colorIndex) => {
         const colorData = dataByColor.get(color)
-        const showMarkers = colorData.length < 200
         return <g key={color} onMouseMove={handleMouseMove}>
             <LinePath
                 data={colorData}

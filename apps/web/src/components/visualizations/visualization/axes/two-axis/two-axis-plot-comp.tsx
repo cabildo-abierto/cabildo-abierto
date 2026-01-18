@@ -12,6 +12,7 @@ import {AxisBottom, AxisLeft} from "@visx/axis";
 import {zoomIdentity, ZoomTransform} from 'd3-zoom';
 import {BarplotContent} from "./bars/barplot"
 import {ScaleBand, ScaleLinear, ScaleTime} from "d3-scale"
+import {scaleLinear} from "@visx/scale"
 import {ScatterplotContent} from "./scatter/scatterplot";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "../../title";
@@ -237,21 +238,51 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 width={plotInnerWidth}
                 height={plotInnerHeight}
                 scaleXMin={0.5}
-                scaleXMax={10}
+                scaleXMax={40}
                 scaleYMin={0.5}
-                scaleYMax={10}
+                scaleYMax={40}
                 initialTransformMatrix={initialTransform}
             >
                 {zoom => {
-                    let axisLeftScale
-                    let axisBottomScale
+                    let axisLeftScale: ScaleLinear<number, number>
+                    let axisBottomScale: ScaleLinear<number, number> | ScaleTime<number, number> | ScaleBand<string>
                     if (allowZoom) {
                         const d3Transform = toD3ZoomTransform(zoom.transformMatrix);
                         axisBottomScale = d3Transform.rescaleX(xScale)
-                        axisLeftScale = d3Transform.rescaleY(yScale)
+                        
+                        // Get the visible X domain from the zoomed scale
+                        const visibleXDomain = axisBottomScale.domain() as [number, number] | [Date, Date]
+                        
+                        // Filter data points to those within the visible X range
+                        const visibleData = data.filter(d => {
+                            const xVal = d.x
+                            if (xVal instanceof Date) {
+                                const [minDate, maxDate] = visibleXDomain as [Date, Date]
+                                return xVal >= minDate && xVal <= maxDate
+                            } else if (typeof xVal === 'number') {
+                                const [minX, maxX] = visibleXDomain as [number, number]
+                                return xVal >= minX && xVal <= maxX
+                            }
+                            return true
+                        })
+
+                        const yValues = visibleData.map(d => d.y as number).filter(y => y != null && !isNaN(y))
+                        
+                        if (yValues.length > 0) {
+                            const minY = Math.min(...yValues)
+                            const maxY = Math.max(...yValues)
+                            const yPadding = (maxY - minY) * 0.05 || Math.abs(maxY) * 0.05 || 1
+                            axisLeftScale = scaleLinear({
+                                domain: [minY - yPadding, maxY + yPadding],
+                                range: [plotInnerHeight, 0],
+                                nice: true
+                            })
+                        } else {
+                            axisLeftScale = yScale as ScaleLinear<number, number>
+                        }
                     } else {
                         axisBottomScale = xScale
-                        axisLeftScale = yScale
+                        axisLeftScale = yScale as ScaleLinear<number, number>
                     }
 
                     return <svg
@@ -259,6 +290,9 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         height={svgHeight}
                         style={{cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none'}}
                         ref={zoom.containerRef}
+                        onWheel={e => {
+                            e.stopPropagation()
+                        }}
                     >
                         <defs>
                             <clipPath id={`zoom-clip-${randId}`}>
@@ -280,7 +314,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 onDoubleClick={(e) => {
                                     const point = localPoint(e);
                                     if (!point) return;
-                                    zoom.scale({scaleX: 1.5, scaleY: 1.5, point});
+                                    zoom.scale({scaleX: 1.5, scaleY: 1, point});
                                 }}
                             />
                             <Group clipPath={`url(#zoom-clip-${randId})`}>

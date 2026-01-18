@@ -192,7 +192,7 @@ export class AxesPlotter extends Plotter {
         const detectedType = this.axes.find(a => a.name === "x")?.detectedType
         if (detectedType !== "date" || !this.dataPoints.length) return undefined
 
-        return this.parser.getDateFormater(this.dataPoints[0].x as Date)
+        return this.parser.getDateFormaterFromDateArray(this.dataPoints.map(d => d.x as Date))
     }
 
     protected sortByX(): void {

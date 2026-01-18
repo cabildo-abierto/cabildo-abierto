@@ -208,7 +208,35 @@ export class DataParser {
         return null
     }
 
-    getDateFormater(sampleDate: Date) {
+    getDateFormaterFromDateArray(sampleDates: Date[]) {
+        if (!sampleDates.length) {
+            return undefined
+        }
+
+        const shuffled = [...sampleDates].sort(() => Math.random() - 0.5)
+        const sample = shuffled.slice(0, Math.min(20, sampleDates.length))
+
+        const formats: string[] = sample.map(d => this.getDateFormaterFormat(d))
+
+        const frequencyMap = formats.reduce<Record<string, number>>((acc, format) => {
+            acc[format] = (acc[format] || 0) + 1
+            return acc
+        }, {})
+
+        let mostCommonFormat = formats[0]
+        let maxCount = 0
+
+        for (const [format, count] of Object.entries(frequencyMap)) {
+            if (count > maxCount) {
+                maxCount = count
+                mostCommonFormat = format
+            }
+        }
+
+        return esLocale.format(mostCommonFormat)
+    }
+
+    getDateFormaterFormat(sampleDate: Date) {
         const hasMilliseconds = sampleDate.getMilliseconds() !== 0
         const hasSeconds = sampleDate.getSeconds() !== 0
         const hasMinutes = sampleDate.getMinutes() !== 0
@@ -221,17 +249,21 @@ export class DataParser {
         }
 
         if (hasMilliseconds) {
-            return esLocale.format('%d %b %Y %H:%M:%S.%L') // e.g., "13:45:32.123"
+            return '%d %b %Y %H:%M:%S.%L' // e.g., "13:45:32.123"
         } else if (hasSeconds) {
-            return esLocale.format('%d %b %Y %H:%M:%S')    // "13:45:32"
+            return '%d %b %Y %H:%M:%S'    // "13:45:32"
         } else if (hasMinutes || hasHours) {
-            return esLocale.format('%d %b %Y %H:%M')       // "13:45"
+            return '%d %b %Y %H:%M'       // "13:45"
         } else if (hasDay) {
-            return esLocale.format('%d %b %Y')    // "14 jul 2025"
+            return '%d %b %Y'    // "14 jul 2025"
         } else if (hasMonth) {
-            return esLocale.format('%b-%Y')       // "jul-2025"
+            return '%b-%Y'       // "jul-2025"
         } else {
-            return esLocale.format('%Y')          // "2025"
+            return '%Y'          // "2025"
         }
+    }
+
+    getDateFormater(sampleDate: Date) {
+        return esLocale.format(this.getDateFormaterFormat(sampleDate))
     }
 }
