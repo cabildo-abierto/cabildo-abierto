@@ -1,9 +1,18 @@
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {count, unique} from "@cabildo-abierto/utils";
-import {Axis, Plotter, ValueType} from "../../plotter";
+import {Axis, DataPoint, Plotter, ValueType} from "../../plotter";
 import {AxesPlotter} from "../axes-plotter";
 import {palette} from "../../palette";
 import {DatasetForTableView} from "@/components/visualizations/visualization/table/types";
+import {
+    aggregateDataByDate,
+    AggregationLevel,
+    detectDateFrequency
+} from "@/components/visualizations/visualization/data-parser";
+
+
+export type TooltipMap = Map<string, { value: number, color: string }[]>
+
 
 export class TwoAxisPlotter extends AxesPlotter {
     private yAxes: Axis[]
@@ -168,6 +177,45 @@ export class TwoAxisPlotter extends AxesPlotter {
 
     public getColorLabels(): string[] {
         return Array.from(this.colorLabelToColor.keys())
+    }
+
+    public getAvailableAggregationLevels(): AggregationLevel[] {
+        const rawData = this.getDataPoints()
+        const isDateXAxis = this.getAxisType('x') === 'date'
+        if (!isDateXAxis || rawData.length < 2) return ['original'] as AggregationLevel[]
+        const dates = rawData.map(d => d.x as Date).filter(d => d instanceof Date)
+        if (dates.length < 2) return ['original'] as AggregationLevel[]
+        const frequency = detectDateFrequency(dates)
+
+        switch (frequency) {
+            case 'sub-day':
+                return ['original', 'day', 'month', 'year']
+            case 'day':
+                return ['original', 'month', 'year']
+            case 'month':
+                return ['original', 'year']
+            case 'year':
+                return ['original']
+        }
+    }
+
+    public getAggregatedTooltipMap(aggregationLevel: AggregationLevel): {data: DataPoint<ValueType, ValueType>[], aggregatedTooltipMap: TooltipMap} {
+        const rawData = this.getDataPoints()
+        const isDateXAxis = this.getAxisType('x') === 'date'
+        if (!isDateXAxis || aggregationLevel === 'original') {
+            return {data: rawData, aggregatedTooltipMap: null}
+        }
+        const aggregatedData = aggregateDataByDate(rawData as DataPoint<Date, number>[], aggregationLevel)
+
+        // Build a map for tooltip values from aggregated data
+        const tooltipMap = new Map<string, { value: number, color: string }[]>()
+        aggregatedData.forEach(d => {
+            const key = (d.x as Date).getTime().toString()
+            const entry = {value: d.y as number, color: d.color}
+            tooltipMap.set(key, [...(tooltipMap.get(key) ?? []), entry])
+        })
+
+        return {data: aggregatedData, aggregatedTooltipMap: tooltipMap}
     }
 }
 

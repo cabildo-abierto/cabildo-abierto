@@ -1,6 +1,10 @@
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {CurvePlotContent} from "../../curve/curve-plot";
 import {LineLegendMenu} from "../../curve/line-legend-menu";
+import {DateAggregationMenu} from "../../curve/date-aggregation-menu";
+import {
+    AggregationLevel
+} from "../../data-parser";
 import {useTooltip, useTooltipInPortal} from "@visx/tooltip";
 import {DataPoint, ValueType} from "../../plotter";
 import useMeasure from "react-use-measure";
@@ -19,7 +23,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "../../title";
 import {createAxesPlotter} from "./plotter-factory";
 import {AxesPlotter} from "../axes-plotter";
-import {isTwoAxisPlotter} from "./two-axis-plotter";
+import {isTwoAxisPlotter, TwoAxisPlotter} from "./two-axis-plotter";
 import {$Typed} from "@atproto/api";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {Note} from "@/components/utils/base/note";
@@ -122,10 +126,11 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         showTooltip,
         hideTooltip,
     } = useTooltip<{ x: ValueType; y: ValueType }>()
-    const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({scroll: true})
+    const {containerRef: tooltipContainerRef, TooltipInPortal} = useTooltipInPortal({
+        scroll: true, detectBounds: true
+    })
     const [measureRef, bounds] = useMeasure()
-    
-    // Legend menu state for line visibility
+
     const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set())
     const [legendCollapsed, setLegendCollapsed] = useState(false)
     
@@ -148,6 +153,9 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
     const deselectAllLines = useCallback((colors: string[]) => {
         setHiddenLines(new Set(colors))
     }, [])
+
+    const [aggregationLevel, setAggregationLevel] = useState<AggregationLevel>('original')
+    const [aggregationCollapsed, setAggregationCollapsed] = useState(true)
 
     const containerRef = useCallback((node: HTMLDivElement | null) => {
         tooltipContainerRef(node)
@@ -175,11 +183,30 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         }
     }, [visualization.dataset, spec])
 
+    const getTooltipYValues = useCallback((tooltipData: { x: ValueType, y: ValueType, color?: string }) => {
+        if (aggregatedTooltipMap && tooltipData.x instanceof Date) {
+            const key = tooltipData.x.getTime().toString()
+            const values = aggregatedTooltipMap.get(key)
+            if (values) {
+                return values.map(v => ({
+                    value: plotter.yValueToString(v.value),
+                    label: v.color,
+                    selected: tooltipData.color === v.color
+                }))
+            }
+        }
+        return plotter.getTooltipYValues(tooltipData as { x: ValueType, y: ValueType, color: string })
+    }, [plotter])
+
     if (!plotter) return <Note className={"py-8 h-full flex justify-center items-center"}>
         {error}
     </Note>
 
-    const data = plotter.getDataPoints()
+    const availableAggregationLevels: AggregationLevel[] = plotter instanceof TwoAxisPlotter ? plotter.getAvailableAggregationLevels() : ["original"]
+
+    const {data, aggregatedTooltipMap} = plotter instanceof TwoAxisPlotter ? plotter.getAggregatedTooltipMap(aggregationLevel) : {data: plotter.getDataPoints(), aggregatedTooltipMap: null}
+
+    const xTicksFormat = plotter.getXTicksFormat(aggregationLevel)
 
     const vis = visualization.visualization
 
@@ -236,9 +263,11 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
 
     const yLabel = ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(spec) ? spec.yLabel ?? (spec.yAxis ?? "") : "Cantidad"
 
+    const isDateXAxis = plotter.getAxisType('x') === 'date'
+
     return (
         <div
-            className="relative w-full h-full flex flex-col justify-center items-center space-y-2 overflow-clip"
+            className="w-full h-full flex flex-col justify-center items-center space-y-2 overflow-clip"
             ref={containerRef}
         >
             <div style={{height: titleHeight, maxWidth: svgWidth}}>
@@ -251,6 +280,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                 <TooltipInPortal
                     top={tooltipTop}
                     left={tooltipLeft}
+                    key={Math.random()}
                     style={{
                         position: "absolute",
                         zIndex: 2000,
@@ -262,7 +292,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         xLabel={spec.xLabel ?? spec.xAxis}
                         yLabel={yLabel}
                         xValue={plotter.xValueToString(tooltipData.x)}
-                        yValues={plotter.getTooltipYValues(tooltipData)}
+                        yValues={getTooltipYValues(tooltipData)}
                         hiddenLines={hiddenLines}
                     />
                 </TooltipInPortal>
@@ -407,7 +437,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                                 top={plotInnerHeight}
                                 scale={axisBottomScale}
                                 stroke="var(--text-light)"
-                                tickFormat={plotter.getXTicksFormat()}
+                                tickFormat={xTicksFormat}
                                 tickStroke="var(--text-light)"
                                 label={spec.xLabel ?? spec.xAxis}
                                 numTicks={(plotter.isBarplot() || plotter.isHistogram()) ? 1000000 : undefined}
@@ -432,6 +462,15 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
             <div style={{maxWidth: svgWidth, height: captionHeight}}>
                 <PlotCaption caption={vis.caption} fontSize={Math.min(15, 16 * Math.min(scaleFactorX, scaleFactorY))}/>
             </div>
+            {ArCabildoabiertoEmbedVisualization.isLines(spec.plot) && isDateXAxis && availableAggregationLevels.length > 1 && (
+                <DateAggregationMenu
+                    availableLevels={availableAggregationLevels}
+                    selectedLevel={aggregationLevel}
+                    onSelectLevel={setAggregationLevel}
+                    collapsed={aggregationCollapsed}
+                    onToggleCollapsed={() => setAggregationCollapsed(prev => !prev)}
+                />
+            )}
             {ArCabildoabiertoEmbedVisualization.isLines(spec.plot) && isTwoAxisPlotter(plotter) && plotter.getColorLabels().length > 1 && (
                 <LineLegendMenu
                     colors={plotter.getColorLabels()}

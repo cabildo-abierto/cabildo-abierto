@@ -5,6 +5,7 @@ import {orderDateAsc, orderNumberAsc, orderStrAsc, sortByKey} from "@cabildo-abi
 import {Axis, DataType, Plotter, ScaleOutput, ValueType} from "../plotter";
 import {palette} from "../palette";
 import {DatasetForTableView} from "@/components/visualizations/visualization/table/types";
+import {AggregationLevel, getDateFormatterForAggregation} from "@/components/visualizations/visualization/data-parser";
 
 
 function dataTypeToPrintable(x: DataType){
@@ -188,7 +189,11 @@ export class AxesPlotter extends Plotter {
         throw Error("Debería estar implementado por una subclase.")
     }
 
-    getXTicksFormat() {
+    getXTicksFormat(aggregationLevel: AggregationLevel) {
+        const isDateXAxis = this.getAxisType('x') === 'date'
+        if (aggregationLevel !== 'original' && isDateXAxis) {
+            return getDateFormatterForAggregation(aggregationLevel)
+        }
         const detectedType = this.axes.find(a => a.name === "x")?.detectedType
         if (detectedType !== "date" || !this.dataPoints.length) return undefined
 

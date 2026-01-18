@@ -267,3 +267,141 @@ export class DataParser {
         return esLocale.format(this.getDateFormaterFormat(sampleDate))
     }
 }
+
+
+export type DateFrequency = 'sub-day' | 'day' | 'month' | 'year'
+
+export function detectDateFrequency(dates: Date[]): DateFrequency {
+    if (dates.length < 2) {
+        return 'day'
+    }
+
+    const hasTimeVariation = dates.some((d, i) => {
+        if (i === 0) return false
+        const prev = dates[i - 1]
+        return d.getHours() !== prev.getHours() ||
+               d.getMinutes() !== prev.getMinutes() ||
+               d.getSeconds() !== prev.getSeconds()
+    })
+    if (hasTimeVariation) {
+        return 'sub-day'
+    }
+
+    const hasDayVariation = dates.some((d, i) => {
+        if (i === 0) return false
+        const prev = dates[i - 1]
+        return d.getDate() !== prev.getDate() && 
+               (d.getMonth() === prev.getMonth() && d.getFullYear() === prev.getFullYear())
+    })
+    if (hasDayVariation) {
+        return 'day'
+    }
+
+    const hasMonthVariation = dates.some((d, i) => {
+        if (i === 0) return false
+        const prev = dates[i - 1]
+        return d.getMonth() !== prev.getMonth() && d.getFullYear() === prev.getFullYear()
+    })
+    if (hasMonthVariation) {
+        return 'month'
+    }
+
+    return 'year'
+}
+
+export type AggregationLevel = 'original' | 'day' | 'month' | 'year'
+
+
+/**
+ * Gets a date key for grouping based on the aggregation level.
+ */
+function getDateKey(date: Date, level: AggregationLevel): string {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const day = date.getDate()
+    
+    switch (level) {
+        case 'year':
+            return `${year}`
+        case 'month':
+            return `${year}-${month}`
+        case 'day':
+            return `${year}-${month}-${day}`
+        default:
+            return date.toISOString()
+    }
+}
+
+function getRepresentativeDate(date: Date, level: AggregationLevel): Date {
+    switch (level) {
+        case 'year':
+            return new Date(date.getFullYear(), 0, 1)
+        case 'month':
+            return new Date(date.getFullYear(), date.getMonth(), 1)
+        case 'day':
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+        default:
+            return date
+    }
+}
+
+type DataPointWithColor = {
+    x: Date
+    y: number
+    color?: string
+}
+
+export function aggregateDataByDate<T extends DataPointWithColor>(
+    data: T[],
+    level: AggregationLevel
+): T[] {
+    if (level === 'original') {
+        return data
+    }
+
+    const groups = new Map<string, { sum: number; count: number; date: Date; color?: string }>()
+    
+    for (const point of data) {
+        if (!(point.x instanceof Date)) continue
+        
+        const dateKey = getDateKey(point.x, level)
+        const colorKey = point.color ?? ''
+        const key = `${dateKey}|${colorKey}`
+        
+        const existing = groups.get(key)
+        if (existing) {
+            existing.sum += point.y
+            existing.count += 1
+        } else {
+            groups.set(key, {
+                sum: point.y,
+                count: 1,
+                date: getRepresentativeDate(point.x, level),
+                color: point.color
+            })
+        }
+    }
+    
+    return Array.from(groups.values()).map(group => ({
+        x: group.date,
+        y: group.sum / group.count,
+        color: group.color
+    })) as T[]
+}
+
+export function getDateFormatForAggregation(level: AggregationLevel): string {
+    switch (level) {
+        case 'year':
+            return '%Y'
+        case 'month':
+            return '%b-%Y'
+        case 'day':
+            return '%d %b %Y'
+        default:
+            return '%d %b %Y'
+    }
+}
+
+export function getDateFormatterForAggregation(level: AggregationLevel) {
+    return esLocale.format(getDateFormatForAggregation(level))
+}

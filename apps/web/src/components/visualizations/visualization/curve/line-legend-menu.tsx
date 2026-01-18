@@ -32,20 +32,20 @@ export function LineLegendMenu({
     return (
         <div
             className={cn(
-                "absolute bottom-2 right-2 z-[15] bg-[var(--background)] border border-[var(--accent-dark)] rounded shadow-sm",
+                "absolute bottom-2 right-2 z-[15] bg-[var(--background)] border border-[var(--accent-dark)] shadow-sm",
                 "text-sm max-w-[180px]"
             )}
             onWheel={(e) => e.stopPropagation()}
         >
             <button
                 onClick={onToggleCollapsed}
-                className="flex items-center justify-between w-full px-2 py-1 hover:bg-[var(--background-dark)] rounded-t"
+                className="flex items-center justify-between w-full px-2 py-1 hover:bg-[var(--background-dark)]"
             >
-                <span className="font-medium text-[var(--text)]">Seleccionar datos</span>
+                <span className="font-medium uppercase text-[13px] text-[var(--text)]">Seleccionar</span>
                 {collapsed ? (
-                    <CaretDownIcon className="w-4 h-4 text-[var(--text-light)]" />
-                ) : (
                     <CaretUpIcon className="w-4 h-4 text-[var(--text-light)]" />
+                ) : (
+                    <CaretDownIcon className="w-4 h-4 text-[var(--text-light)]" />
                 )}
             </button>
             {!collapsed && (
