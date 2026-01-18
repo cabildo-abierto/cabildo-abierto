@@ -23,7 +23,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {PlotCaption, PlotTitle} from "../../title";
 import {createAxesPlotter} from "./plotter-factory";
 import {AxesPlotter} from "../axes-plotter";
-import {isTwoAxisPlotter, TwoAxisPlotter} from "./two-axis-plotter";
+import {isTwoAxisPlotter, TooltipMap, TwoAxisPlotter} from "./two-axis-plotter";
 import {$Typed} from "@atproto/api";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {Note} from "@/components/utils/base/note";
@@ -183,7 +183,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
         }
     }, [visualization.dataset, spec])
 
-    const getTooltipYValues = useCallback((tooltipData: { x: ValueType, y: ValueType, color?: string }) => {
+    const getTooltipYValues = useCallback((tooltipData: { x: ValueType, y: ValueType, color?: string }, aggregatedTooltipMap: TooltipMap) => {
         if (aggregatedTooltipMap && tooltipData.x instanceof Date) {
             const key = tooltipData.x.getTime().toString()
             const values = aggregatedTooltipMap.get(key)
@@ -292,7 +292,7 @@ export const TwoAxisPlotPlot = ({spec, visualization, maxWidth, maxHeight}: TwoA
                         xLabel={spec.xLabel ?? spec.xAxis}
                         yLabel={yLabel}
                         xValue={plotter.xValueToString(tooltipData.x)}
-                        yValues={getTooltipYValues(tooltipData)}
+                        yValues={getTooltipYValues(tooltipData, aggregatedTooltipMap)}
                         hiddenLines={hiddenLines}
                     />
                 </TooltipInPortal>
