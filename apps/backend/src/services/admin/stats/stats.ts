@@ -27,6 +27,56 @@ export const testUsers = [
 const launchDate = new Date('2025-07-09T00:00:00-03:00')
 
 
+export async function computePaymentPromiseStats(ctx: AppContext, reset: boolean) {
+    const label = "new-payment-promises"
+    if(reset) {
+        await ctx.kysely.deleteFrom("Stat").where("label", "=", label).execute()
+    }
+    const existing = await ctx.kysely
+        .selectFrom("Stat")
+        .select(["date"])
+        .where("label", "=", label)
+        .execute()
+
+    const yesterday = new Date(Date.now()-dayMs)
+    yesterday.setHours(0, 0, 0, 0)
+
+    const toInsert: {date: Date, value: number}[] = []
+    for (
+        let d = new Date(launchDate);
+        d <= yesterday;
+        d.setDate(d.getDate() + 1)
+    ) {
+        if(existing.some(s => s.date.getUTCDate() == d.getUTCDate())) continue
+        ctx.logger.pino.info(`computing npp for day ${d}`)
+        const [{ npp }] = await ctx.kysely
+            .selectFrom('AssignedPayment')
+            .select(({ fn }) => [
+                fn.sum<number>('amount').as('npp'),
+            ])
+            .where("AssignedPayment.created_at", ">=", new Date(d.getTime()))
+            .where("AssignedPayment.created_at", "<", new Date(d.getTime()+dayMs))
+            .execute()
+        toInsert.push({
+            date: new Date(d),
+            value: npp ?? 0
+        })
+    }
+
+    if(toInsert.length > 0) {
+        await ctx.kysely
+            .insertInto("Stat")
+            .values(toInsert.map(i => ({
+                id: uuidv4(),
+                value: i.value,
+                date: i.date,
+                label
+            })))
+            .execute()
+    }
+}
+
+
 export async function computeWAUStats(ctx: AppContext, reset: boolean) {
     if(reset) {
         await ctx.kysely.deleteFrom("Stat").where("label", "=", "wau").execute()

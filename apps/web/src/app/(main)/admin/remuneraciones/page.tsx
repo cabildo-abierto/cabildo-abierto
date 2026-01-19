@@ -76,6 +76,9 @@ const UserMonthPayments = ({monthId, onBack}: {
             <div>
                 Total: ${total.toFixed(2)}
             </div>
+            <div>
+                Azul significa pago confirmado.
+            </div>
         </div>
         {data.payments.map((d, i) => {
             const collection = getCollectionFromUri(d.uri)
