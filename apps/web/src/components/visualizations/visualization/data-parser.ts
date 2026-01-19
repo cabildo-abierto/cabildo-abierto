@@ -98,7 +98,7 @@ export class DataParser {
     }
 
     parseValue(value: any, type?: DataType): ParsingResult {
-        if(value instanceof Array){
+        if(value instanceof Array && (type == "string[]" || !type)){
             if(value.length == 0){
                 return {
                     success: true,
@@ -122,13 +122,14 @@ export class DataParser {
 
         if (value == null || value === '') return {success: false}
 
-        if(type && type == "string"){
+        if(type == "string"){
             return {
                 success: true,
                 value: value,
                 dataType: "string"
             }
         }
+
         if(!type || type == "number"){
             const parsedNumber = this.parseNumber(value)
             if (parsedNumber.success) {
@@ -139,6 +140,7 @@ export class DataParser {
                 }
             }
         }
+
         if(!type || type == "date") {
             const parsedDate = this.parseDate(value)
             if (parsedDate.success) {
@@ -149,7 +151,7 @@ export class DataParser {
                 }
             }
         }
-        if(!type || typeof value == "string"){
+        if(!type && typeof value == "string"){
             return {
                 success: true,
                 value: value,
@@ -237,29 +239,33 @@ export class DataParser {
     }
 
     getDateFormaterFormat(sampleDate: Date) {
-        const hasMilliseconds = sampleDate.getMilliseconds() !== 0
-        const hasSeconds = sampleDate.getSeconds() !== 0
-        const hasMinutes = sampleDate.getMinutes() !== 0
-        let hasHours = sampleDate.getHours() !== 0
-        const hasDay = sampleDate.getDate() !== 1
-        const hasMonth = sampleDate.getMonth() !== 0
+        try {
+            const hasMilliseconds = sampleDate.getMilliseconds() !== 0
+            const hasSeconds = sampleDate.getSeconds() !== 0
+            const hasMinutes = sampleDate.getMinutes() !== 0
+            let hasHours = sampleDate.getHours() !== 0
+            const hasDay = sampleDate.getDate() !== 1
+            const hasMonth = sampleDate.getMonth() !== 0
 
-        if(sampleDate.getHours() == 3 && sampleDate.getMinutes() == 0 && sampleDate.getSeconds() == 0 && sampleDate.getMilliseconds() == 0){
-            hasHours = false
-        }
+            if(sampleDate.getHours() == 3 && sampleDate.getMinutes() == 0 && sampleDate.getSeconds() == 0 && sampleDate.getMilliseconds() == 0){
+                hasHours = false
+            }
 
-        if (hasMilliseconds) {
-            return '%d %b %Y %H:%M:%S.%L' // e.g., "13:45:32.123"
-        } else if (hasSeconds) {
-            return '%d %b %Y %H:%M:%S'    // "13:45:32"
-        } else if (hasMinutes || hasHours) {
-            return '%d %b %Y %H:%M'       // "13:45"
-        } else if (hasDay) {
-            return '%d %b %Y'    // "14 jul 2025"
-        } else if (hasMonth) {
-            return '%b-%Y'       // "jul-2025"
-        } else {
-            return '%Y'          // "2025"
+            if (hasMilliseconds) {
+                return '%d %b %Y %H:%M:%S.%L' // e.g., "13:45:32.123"
+            } else if (hasSeconds) {
+                return '%d %b %Y %H:%M:%S'    // "13:45:32"
+            } else if (hasMinutes || hasHours) {
+                return '%d %b %Y %H:%M'       // "13:45"
+            } else if (hasDay) {
+                return '%d %b %Y'    // "14 jul 2025"
+            } else if (hasMonth) {
+                return '%b-%Y'       // "jul-2025"
+            } else {
+                return '%Y'          // "2025"
+            }
+        } catch {
+            return null
         }
     }
 
