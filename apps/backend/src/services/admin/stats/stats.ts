@@ -96,7 +96,9 @@ export async function computeWAUStats(ctx: AppContext, reset: boolean) {
         d <= yesterday;
         d.setDate(d.getDate() + 1)
     ) {
-        if(existing.some(s => s.date.getUTCDate() == d.getUTCDate())) continue
+        if(existing.some(s => s.date.getUTCDate() == d.getUTCDate() && s.date.getUTCMonth() == d.getUTCMonth() && s.date.getUTCFullYear() == d.getUTCFullYear())) {
+            continue
+        }
         ctx.logger.pino.info(`computing wau for day ${d}`)
         const [{ wau }] = await ctx.kysely
             .selectFrom('ReadSession')
@@ -122,6 +124,25 @@ export async function computeWAUStats(ctx: AppContext, reset: boolean) {
                 label: "wau"
             })))
             .execute()
+    }
+}
+
+
+export async function updateStat(ctx: AppContext, label: string, reset: boolean) {
+    ctx.logger.pino.info({label, reset}, "running update stat")
+    if(label == "new-payment-promises") {
+        await computePaymentPromiseStats(ctx, reset)
+        ctx.logger.pino.info("done computing payment promises stats")
+    } else if(label == "wau") {
+        await computeWAUStats(ctx, reset)
+        ctx.logger.pino.info("done computing wau stats")
+    }
+}
+
+
+export async function updateAllStats(ctx: AppContext) {
+    for(const label of ["new-payment-promises", "wau"]) {
+        await ctx.worker?.addJob("update-stat", label)
     }
 }
 

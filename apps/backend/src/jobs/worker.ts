@@ -42,6 +42,7 @@ import {
     updateFollowingFeedOnFollowChange,
     updateFollowingFeedOnNewContent
 } from "#/services/feed/following/update.js";
+import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
 
 const mins = 60 * 1000
 const seconds = 1000
@@ -276,6 +277,16 @@ export class CAWorker {
             () => updateAllFollowingFeeds(ctx),
             true
         )
+        this.registerJob(
+            "update-stat",
+            (data) => updateStat(ctx, data, false),
+            false
+        )
+        this.registerJob(
+            "update-all-stats",
+            () => updateAllStats(ctx),
+            false
+        )
 
         this.logger.pino.info("worker jobs registered")
 
@@ -288,6 +299,7 @@ export class CAWorker {
             await this.addRepeatingJob("assign-payments", 30 * mins, 60 * mins + 15)
             await this.addRepeatingJob("batch-jobs", mins / 2, 0, 1)
             await this.addRepeatingJob("update-follow-suggestions", 30 * mins, 30 * mins + 18)
+            await this.addRepeatingJob("update-stats", 30 * mins, 30 * mins + 20)
             await this.addRepeatingJob("update-all-interactions-score", 30 * mins, 30 * mins + 23)
             await this.addRepeatingJob("update-all-topics-popularities", 30 * mins, 30 * mins + 26)
             await this.addRepeatingJob("test-job", 20 * seconds, 20 * seconds, 14)
