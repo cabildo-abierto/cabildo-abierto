@@ -3,39 +3,11 @@ import {CAHandler} from "#/utils/handler.js";
 import {SendEmailResult, SendEmailsParams, SendEmailsResponse} from "@cabildo-abierto/api";
 import {createInviteCodes} from "#/services/user/access.js";
 import {v4 as uuidv4} from "uuid";
-import nodemailer from "nodemailer";
+import {EmailSender} from "#/services/emails/email-sender.js";
 
-
-function getTransporter() {
-    return nodemailer.createTransport({
-        host: "mail.smtp2go.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.SMTP2GO_USER,
-            pass: process.env.SMTP2GO_PASSWORD,
-        },
-    })
-}
-
-function getUnsubscribeLink(emailSentId: string) {
-    return {
-        unsubscribeUIUrl: `https://cabildoabierto.ar/desuscripcion/${emailSentId}`,
-        unsubscribeAPIUrl: `https://cabildoabierto.ar/desuscripcion/${emailSentId}`
-    }
-}
 
 function getInviteLink(code: string) {
     return `https://cabildoabierto.ar/login?c=${code}`
-}
-
-function replaceTemplateVariables(content: string, variables: { unsubscribe_link: string, invite_link?: string }) {
-    let result = content
-    result = result.replace(/\{\{unsubscribe_link\}\}/g, variables.unsubscribe_link)
-    if (variables.invite_link) {
-        result = result.replace(/\{\{invite_link\}\}/g, variables.invite_link)
-    }
-    return result
 }
 
 async function ensureSubscriptionExists(ctx: AppContext, email: string): Promise<string> {
@@ -135,7 +107,7 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
         inviteCodes = codesResult.data.inviteCodes
     }
 
-    const transporter = getTransporter()
+    const emailSender = new EmailSender(ctx)
     const from = `${params.fromName} <${params.fromEmail}>`
     const replyTo = params.replyTo
     const results: SendEmailResult[] = []
@@ -147,54 +119,30 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
 
         const batchPromises = batch.map(async (email, batchIndex) => {
             try {
-                // Ensure subscription exists and get ID
                 const subscriptionId = await ensureSubscriptionExists(ctx, email)
 
-                // Pre-create EmailSent record to get ID for unsubscribe link
                 const emailSentId = uuidv4()
 
-                const {unsubscribeUIUrl, unsubscribeAPIUrl} = getUnsubscribeLink(emailSentId)
-                const inviteLink = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
+                const invite_link = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
 
-                // Replace template variables
-                const finalHtml = replaceTemplateVariables(template.html, {
-                    unsubscribe_link: unsubscribeUIUrl,
-                    invite_link: inviteLink
-                })
-                const finalText = replaceTemplateVariables(template.text, {
-                    unsubscribe_link: unsubscribeUIUrl,
-                    invite_link: inviteLink
-                })
+                const vars: {[key: string]: string} = {
+                    unsubscribe_link: emailSender.getUnsubscribeLink(emailSentId).unsubscribeUIUrl
+                }
+                if(invite_link) vars.invite_link = invite_link
 
                 // Send email with List-Unsubscribe headers
-                await transporter.sendMail({
+                await emailSender.sendMail({
                     from,
                     to: email,
+                    emailId: emailSentId,
+                    templateId,
+                    subscriptionId: subscriptionId,
                     subject: template.subject,
-                    replyTo,
-                    text: finalText,
-                    html: finalHtml,
-                    headers: {
-                        "List-Unsubscribe": `<${unsubscribeAPIUrl}>`,
-                        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
-                    }
+                    replyTo: replyTo ?? null,
+                    template,
+                    vars,
+                    unsubscribe: true
                 })
-
-                // Insert EmailSent record with success
-                await ctx.kysely
-                    .insertInto("EmailSent")
-                    .values({
-                        id: emailSentId,
-                        recipientId: subscriptionId,
-                        templateId: template.id,
-                        subject: template.subject,
-                        html: finalHtml,
-                        text: finalText,
-                        from,
-                        replyTo,
-                        success: true
-                    })
-                    .execute()
 
                 ctx.logger.pino.info({email, templateName: template.name, emailSentId}, "Email sent successfully")
 
