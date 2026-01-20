@@ -16,6 +16,7 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useEffect, useRef, useState} from 'react';
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {smoothScrollTo} from "@/components/utils/react/scroll";
+import {cn} from "@/lib/utils";
 
 
 const HEADING_WIDTH = 30;
@@ -190,17 +191,25 @@ function TableOfContentsList({
         className={"fixed top-16 left-2 w-56 flex text-sm transition-all duration-300 ease-in-out"}
     >
         <div className={"relative w-full"}>
-            <div className={"absolute left-0 top-0 w-[3px] z-0 bg-[var(--accent)] h-[calc(100vh-115px)]"}/>
-            <div className={"absolute left-0 top-0 flex flex-col justify-between font-light z-1 h-[calc(100vh-115px)]"}>
+            <div
+                className={"absolute left-0 top-0 w-[3px] z-0 bg-[var(--accent)] h-[calc(100vh-115px)]"}
+            />
+            <div
+                className={"absolute left-0 top-0 flex flex-col justify-between font-light z-1 h-[calc(100vh-115px)]"}
+            >
                 <div
                     ref={scrollContainerRef}
                     className={"overflow-y-auto no-scrollbar flex flex-col"}
                     onWheel={(e) => {e.stopPropagation()}}
                 >
                     <div className={"flex space-x-2"}>
-                        <div className={"w-[3px] " + (selectedIndex.current == 0 && selectedKey == null ? "bg-[var(--text-light)]": "bg-[var(--accent)]")}/>
+                        <div className={cn("w-[6px]", selectedIndex.current == 0 && selectedKey == null ? "bg-[var(--text-light)]" : "bg-[var(--accent)]")}
+                        />
 
-                        <div className={"cursor-pointer py-[6px] hover:text-[var(--text-light)] transition-opacity " + (open ? "" : "opacity-0")} onClick={() => {smoothScrollTo(0)}}>
+                        <div
+                            className={cn("cursor-pointer py-[6px] hover:text-[var(--text-light)] transition-opacity", open ? "" : "opacity-0")}
+                             onClick={() => {smoothScrollTo(0)}}
+                        >
                             {title}
                         </div>
                     </div>

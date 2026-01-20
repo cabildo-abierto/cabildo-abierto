@@ -71,6 +71,7 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                     "Content.uri",
                     "Content.created_at as createdAt"
                 ])
+                .where("Content.caModeration", "=", "Ok")
                 .orderBy(["likesScore desc", "Content.created_at desc"])
                 .limit(limit)
                 .offset(offsetFrom)
@@ -98,6 +99,7 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                     "Content.uri",
                     "Content.created_at as createdAt"
                 ])
+                .where("Content.caModeration", "=", "Ok")
                 .where("interactionsScore", "is not", null)
                 .orderBy(["interactionsScore desc", "Content.created_at desc"])
                 .limit(limit)
@@ -126,6 +128,7 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                     'Record.uri',
                     "Record.created_at as createdAt"
                 ])
+                .where("Content.caModeration", "=", "Ok")
                 .orderBy(["relativePopularityScore desc", "Content.created_at desc"])
                 .limit(limit)
                 .offset(offsetFrom)
@@ -148,6 +151,7 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                 .orderBy("Record.authorId")
                 .orderBy("Record.created_at desc")
                 .distinctOn("Record.authorId")
+                .where("Content.caModeration", "=", "Ok")
                 .select([
                     'Record.uri',
                     "Record.authorId",

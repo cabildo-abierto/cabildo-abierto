@@ -90,6 +90,8 @@ model Content {
   text_tsv                Unsupported("tsvector")?
   inDiscoverFeed          DiscoverFeedIndex[]
 
+  caModeration ContentModerationStatus @default(Ok)
+
   @@index([text_tsv], map: "content_text_fts_idx", type: Gin)
   @@index([created_at(sort: Desc)])
   @@index([created_at_tz(sort: Desc)])
@@ -567,6 +569,8 @@ model User {
   followingFeed                 FollowingFeedIndex[] @relation("followingFeed")
   contentsInOthersFollowingFeed FollowingFeedIndex[]
 
+  moderationActions ModerationAction[]
+
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
   @@index([created_at])
@@ -749,4 +753,23 @@ model Stat {
 
   @@index(date)
   @@index([label, date])
+}
+
+model ModerationAction {
+  id             String               @id
+  userAffectedId String
+  userAffected   User                 @relation(fields: [userAffectedId], references: [did])
+  type           ModerationActionType
+  created_at     DateTime             @default(now()) @db.Timestamptz(3)
+  date_start     DateTime             @default(now()) @db.Timestamptz(3)
+  date_end       DateTime?            @db.Timestamptz(3)
+}
+
+enum ModerationActionType {
+  MainFeedsSuspend // Se dejan de mostrar las publicaciones del usuario en los muros En discusión y Descubrir.
+}
+
+enum ContentModerationStatus {
+  Ok
+  MainFeedsSuspend
 }
