@@ -150,6 +150,7 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
             ctx.logger.pino.error({result}, "error on create preference: no id")
             return {error: "Ocurrió un error al iniciar el pago."}
         } else {
+            ctx.logger.pino.info({resultId: result.id, verification}, "preference created")
             await ctx.kysely
                 .insertInto("Donation")
                 .values([{
@@ -168,7 +169,6 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
                 })
             }
 
-            ctx.logger.pino.info({result}, "preference created")
 
             return {data: {id: result.id}}
         }

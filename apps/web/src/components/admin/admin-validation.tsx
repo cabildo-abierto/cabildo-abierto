@@ -14,7 +14,6 @@ import {FilePayload, ValidationRequestView} from "@cabildo-abierto/api"
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseTextArea} from "@/components/utils/base/base-text-area";
 import {post} from "@/components/utils/react/fetch";
-import {PrettyJSON} from "@/components/utils/pretty-json";
 
 
 function DownloadButton({file}: { file: FilePayload }) {
@@ -129,8 +128,6 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
             </span>
             </div>
         </div>
-
-        <PrettyJSON data={request}/>
 
         {open && <div className={"space-y-4 bg-[var(--background-dark)] p-4"}>
             {request.tipo == "persona" && <div className={"space-y-2"}>

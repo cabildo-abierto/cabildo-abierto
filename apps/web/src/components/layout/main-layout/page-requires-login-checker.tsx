@@ -27,7 +27,7 @@ export const PageRequiresLoginChecker = ({children}: {children: ReactNode}) => {
     const {user} = useSession()
     const pathname = usePathname()
 
-    if (["/notificaciones", "/mensajes", "/ajustes", "/papeles"].includes(pathname) && !user){
+    if (["/notificaciones", "/mensajes", "/ajustes", "/papeles", "/ajustes"].some(x => pathname.startsWith(x)) && !user){
         return <LoginRequiredPage/>
     }
 
