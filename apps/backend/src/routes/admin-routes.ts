@@ -25,7 +25,7 @@ import {env} from "#/lib/env.js";
 import {getAdminNotificationCounts, getServerStatus, getUsersSyncStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
-import {findUsersInFollows} from "#/services/admin/otros/find-users.js";
+import {findUsersInFollows} from "#/services/admin/find-users.js";
 import {getAllCAFeed} from "#/services/feed/all.js";
 import {getMailSubscriptions, getSentEmails} from "#/services/emails/subscriptions.js"
 import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
@@ -37,6 +37,7 @@ import {
 } from "#/services/emails/template.js";
 import {sendBulkEmails} from "#/services/emails/sending.js";
 import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
+import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 
 
 function isAdmin(did: string) {
@@ -248,6 +249,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
         res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`)
         res.send(data.file)
     })
+
+    router.get(
+        '/all-topic-edits-feed',
+        makeAdminHandler(ctx, getAllTopicEditsFeed)
+    )
 
     return router
 }

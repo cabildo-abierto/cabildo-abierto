@@ -4,7 +4,9 @@ import {rootCreationDateSortKey} from "#/services/feed/utils.js";
 const getArticlesFeedSkeleton: GetSkeletonProps = async (ctx, agent) => {
     const skeleton = await ctx.kysely
         .selectFrom("Article")
-        .select(["uri"])
+        .innerJoin("Record", "Record.uri", "Article.uri")
+        .select(["Record.uri"])
+        .orderBy("Record.created_at_tz", "desc")
         .execute()
 
     return {

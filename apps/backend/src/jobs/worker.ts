@@ -43,6 +43,7 @@ import {
     updateFollowingFeedOnNewContent
 } from "#/services/feed/following/update.js";
 import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
+import {notifyContentCreated} from "#/services/moderation/notifications.js";
 
 const mins = 60 * 1000
 const seconds = 1000
@@ -286,6 +287,10 @@ export class CAWorker {
             "update-all-stats",
             () => updateAllStats(ctx),
             false
+        )
+        this.registerJob(
+            "notify-content-created",
+            (data: {uri: string, context: string}) => notifyContentCreated(ctx, data.uri, data.context)
         )
 
         this.logger.pino.info("worker jobs registered")

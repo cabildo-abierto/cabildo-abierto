@@ -1,5 +1,5 @@
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {FeedSkeleton, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
+import {FeedPipelineProps, FeedSkeleton, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
 import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
 import {creationDateSortKey} from "#/services/feed/utils.js";
@@ -471,4 +471,32 @@ export const getTopicQuoteReplies: CAHandlerNoAuth<{params: {did: string, rkey: 
     return {
         data: posts
     }
+}
+
+
+export const getAllTopicEditsFeed: CAHandlerNoAuth<{query: {cursor: string | undefined}}, {}> = async (ctx, agent, {query}) => {
+    const {cursor} = query
+
+    const pipeline: FeedPipelineProps = {
+        getSkeleton: async (ctx, agent, data, cursor) => {
+            const edits = await ctx.kysely
+                .selectFrom("TopicVersion")
+                .innerJoin("Record", "Record.uri", "TopicVersion.uri")
+                .select(["TopicVersion.uri", "Record.created_at_tz"])
+                .orderBy("Record.created_at_tz desc")
+                .limit(25)
+                .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
+                .execute()
+
+            const latest = edits[edits.length - 1]
+            const newCursor = latest?.created_at_tz?.toISOString()
+
+            return {
+                skeleton: edits.map(e => ({post: e.uri})),
+                cursor: newCursor
+            }
+        }
+    }
+
+    return await getFeed({ctx, agent, pipeline, cursor})
 }

@@ -322,7 +322,8 @@ export class Dataplane {
                 "Topic.popularityScoreLastMonth",
                 "Topic.lastEdit",
                 "CurrentVersion.props",
-                "Content.numWords"
+                "Content.numWords",
+                "Record.created_at_tz as created_at"
             ])
             .where("TopicVersion.uri", "in", uris)
             .execute()

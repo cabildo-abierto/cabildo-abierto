@@ -283,6 +283,7 @@ export interface TopicViewBasic {
   lastSeen?: string
   versionRef?: ComAtprotoRepoStrongRef.Main
   versionAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
+  versionCreatedAt?: string
 }
 
 const hashTopicViewBasic = 'topicViewBasic'

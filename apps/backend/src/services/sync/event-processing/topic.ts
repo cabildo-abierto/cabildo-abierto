@@ -189,6 +189,11 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
                 .execute()
 
             await trx
+                .deleteFrom("RecordModerationProcess")
+                .where("recordId", "in", uris)
+                .execute()
+
+            await trx
                 .deleteFrom("TopicVersion")
                 .where("uri", "in", uris)
                 .execute()

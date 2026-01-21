@@ -1,4 +1,3 @@
-import {AppContext} from "#/setup.js";
 import {CAHandler} from "#/utils/handler.js";
 import {SendEmailResult, SendEmailsParams, SendEmailsResponse} from "@cabildo-abierto/api";
 import {createInviteCodes} from "#/services/user/access.js";
@@ -8,40 +7,6 @@ import {EmailSender} from "#/services/emails/email-sender.js";
 
 function getInviteLink(code: string) {
     return `https://cabildoabierto.ar/login?c=${code}`
-}
-
-async function ensureSubscriptionExists(ctx: AppContext, email: string): Promise<string> {
-    // Try to get existing subscription
-    const existing = await ctx.kysely
-        .selectFrom("MailingListSubscription")
-        .select("id")
-        .where("email", "=", email)
-        .executeTakeFirst()
-
-    if (existing) {
-        return existing.id
-    }
-
-    // Create new subscription
-    const id = uuidv4()
-    await ctx.kysely
-        .insertInto("MailingListSubscription")
-        .values({
-            id,
-            email,
-            status: "Subscribed"
-        })
-        .onConflict(oc => oc.column("email").doNothing())
-        .execute()
-
-    // Re-fetch in case of conflict
-    const created = await ctx.kysely
-        .selectFrom("MailingListSubscription")
-        .select("id")
-        .where("email", "=", email)
-        .executeTakeFirst()
-
-    return created?.id ?? id
 }
 
 const BATCH_SIZE = 10
@@ -119,8 +84,6 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
 
         const batchPromises = batch.map(async (email, batchIndex) => {
             try {
-                const subscriptionId = await ensureSubscriptionExists(ctx, email)
-
                 const emailSentId = uuidv4()
 
                 const invite_link = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
@@ -135,8 +98,6 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
                     from,
                     to: email,
                     emailId: emailSentId,
-                    templateId,
-                    subscriptionId: subscriptionId,
                     subject: template.subject,
                     replyTo: replyTo ?? null,
                     template,

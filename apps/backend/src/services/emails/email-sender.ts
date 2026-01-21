@@ -1,15 +1,15 @@
 import nodemailer from "nodemailer";
 import {AppContext} from "#/setup.js";
+import {v4 as uuidv4} from "uuid";
 
 
 export type MailData = {
     emailId: string
-    subscriptionId: string
-    templateId: string
     subject: string
     template: {
         html: string
         text: string
+        id: string
     }
     vars: {
         [key: string]: string
@@ -51,6 +51,8 @@ export class EmailSender {
     }
 
     async sendMail(mail: MailData) {
+        const subscriptionId = await this.ensureSubscriptionExists(this.ctx, mail.to)
+
         const {unsubscribeAPIUrl} = this.getUnsubscribeLink(mail.emailId)
 
         const html = this.replaceTemplateVars(mail.template.html, mail.vars ?? {})
@@ -72,8 +74,8 @@ export class EmailSender {
             .insertInto("EmailSent")
             .values({
                 id: mail.emailId,
-                recipientId: mail.subscriptionId,
-                templateId: mail.templateId,
+                recipientId: subscriptionId,
+                templateId: mail.template.id,
                 subject: mail.subject,
                 html,
                 text,
@@ -88,5 +90,39 @@ export class EmailSender {
         return Object.entries(vars).reduce((acc, [key, value]) => {
             return acc.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value)
         }, template)
+    }
+
+    async ensureSubscriptionExists(ctx: AppContext, email: string): Promise<string> {
+        // Try to get existing subscription
+        const existing = await ctx.kysely
+            .selectFrom("MailingListSubscription")
+            .select("id")
+            .where("email", "=", email)
+            .executeTakeFirst()
+
+        if (existing) {
+            return existing.id
+        }
+
+        // Create new subscription
+        const id = uuidv4()
+        await ctx.kysely
+            .insertInto("MailingListSubscription")
+            .values({
+                id,
+                email,
+                status: "Subscribed"
+            })
+            .onConflict(oc => oc.column("email").doNothing())
+            .execute()
+
+        // Re-fetch in case of conflict
+        const created = await ctx.kysely
+            .selectFrom("MailingListSubscription")
+            .select("id")
+            .where("email", "=", email)
+            .executeTakeFirst()
+
+        return created?.id ?? id
     }
 }

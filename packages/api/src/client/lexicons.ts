@@ -3591,6 +3591,10 @@ export const schemaDict = {
             ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
             description: 'Autor de la versión en versionRef',
           },
+          versionCreatedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
         },
       },
       topicVersionContribution: {

@@ -39,7 +39,7 @@ export type TopicQueryResultBasic = {
     props: unknown
     numWords: number | null
     lastRead?: Date | null
-    created_at?: Date
+    created_at?: Date | null
     uri: string | null
     cid: string | null
 }
@@ -88,12 +88,12 @@ export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic, autho
         props,
         numWords: t.numWords != null ? t.numWords : undefined,
         lastSeen: t.lastRead?.toISOString(),
-        currentVersionCreatedAt: t.created_at?.toISOString(),
         versionRef: t.uri && t.cid ? {
             uri: t.uri,
             cid: t.cid
         } : undefined,
-        versionAuthor: author
+        versionAuthor: author,
+        versionCreatedAt: t.created_at?.toISOString()
     }
 }
 

@@ -340,6 +340,8 @@ model Record {
   repliesInFollowingFeed  FollowingFeedIndex[] @relation("root")
   repostedInFollowingFeed FollowingFeedIndex[] @relation("repostInFollowingFeed")
 
+  moderationProcesses RecordModerationProcess[]
+
   @@index([authorId, collection, created_at(sort: Desc)])
   @@index([authorId, created_at(sort: Desc)])
   @@index([collection, authorId, created_at(sort: Desc)])
@@ -569,7 +571,8 @@ model User {
   followingFeed                 FollowingFeedIndex[] @relation("followingFeed")
   contentsInOthersFollowingFeed FollowingFeedIndex[]
 
-  moderationActions ModerationAction[]
+  moderationActions         ModerationAction[]
+  resolvedModerationRecords RecordModerationProcess[]
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
@@ -767,6 +770,23 @@ model ModerationAction {
 
 enum ModerationActionType {
   MainFeedsSuspend // Se dejan de mostrar las publicaciones del usuario en los muros En discusión y Descubrir.
+}
+
+model RecordModerationProcess {
+  id            String                   @id
+  recordId      String                   @unique
+  record        Record                   @relation(fields: [recordId], references: [uri])
+  created_at    DateTime                 @default(now()) @db.Timestamptz(3)
+  processed_at  DateTime?
+  result        ContentModerationStatus?
+  processedById String?
+  processedBy   User?                    @relation(fields: [processedById], references: [did])
+  method        ModerationMethod
+}
+
+enum ModerationMethod {
+  Manual
+  Automatic
 }
 
 enum ContentModerationStatus {
