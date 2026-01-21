@@ -147,7 +147,7 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
             }
         })
         if (!result.id) {
-            console.log("No id", result)
+            ctx.logger.pino.error({result}, "error on create preference: no id")
             return {error: "Ocurrió un error al iniciar el pago."}
         } else {
             await ctx.kysely
@@ -168,10 +168,12 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
                 })
             }
 
+            ctx.logger.pino.info({result}, "preference created")
+
             return {data: {id: result.id}}
         }
-    } catch (err) {
-        console.log("Error al crear una preferencia.", err)
+    } catch (error) {
+        ctx.logger.pino.error({error}, "Error al crear una preferencia.")
         return {error: "Ocurrió un error al iniciar el pago."}
     }
 }

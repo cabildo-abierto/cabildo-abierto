@@ -7,7 +7,7 @@ import {Note} from "@/components/utils/base/note";
 
 
 const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });
-initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30')
+initMercadoPago('APP_USR-178a0c6a-a060-4bf4-9099-3dd93dd2efa8')
 
 
 const LoadingWallet = () => {
@@ -37,7 +37,7 @@ export const MPWallet = ({preferenceId, verification}: {preferenceId: string, ve
 
         <Wallet
             onReady={() => {setWalletReady(true)}}
-            initialization={{ preferenceId: preferenceId }}
+            initialization={{ preferenceId }}
         />
     </div>
 }

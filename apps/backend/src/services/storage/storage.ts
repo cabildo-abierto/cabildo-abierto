@@ -72,6 +72,7 @@ export class S3Storage {
             await this.client.send(command)
             return { path: filePath }
         } catch {
+            this.logger.pino.error({bucket, filePath, contentType}, "error on file upload")
             return {error: "Ocurrió un error al guardar el contenido."}
         }
     }

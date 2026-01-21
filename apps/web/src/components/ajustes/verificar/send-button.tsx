@@ -1,10 +1,11 @@
 import {useQueryClient} from "@tanstack/react-query";
 import {post} from "../../utils/react/fetch";
-import { LoadingValidationRequest, ValidationRequestProps } from "./types";
+import { LoadingValidationRequest } from "./types";
 import {useCallback, useState} from "react";
 import {StateButton} from "@/components/utils/base/state-button"
 import {AcceptButtonPanel} from "../../utils/dialogs/accept-button-panel";
 import {ConfettiIcon} from "@phosphor-icons/react";
+import {ValidationRequestProps} from "@cabildo-abierto/api";
 
 
 

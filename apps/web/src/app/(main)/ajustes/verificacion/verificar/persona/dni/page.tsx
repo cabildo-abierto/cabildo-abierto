@@ -4,7 +4,7 @@ import {produce} from "immer";
 import {file2base64} from "@/components/utils/react/files";
 import {UploadFileButton} from "@/components/utils/upload-file-button";
 import {FormItemWithFiles} from "@/components/ajustes/verificar/form-item";
-import {DNIValidationRequestProps} from "@/components/ajustes/verificar/types";
+import {DNIValidationRequestProps} from "@cabildo-abierto/api";
 import {SendButton} from "@/components/ajustes/verificar/send-button";
 import {IdentificationCardIcon} from "@phosphor-icons/react";
 import Link from "next/link";

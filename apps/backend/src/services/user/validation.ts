@@ -1,30 +1,12 @@
 import {CAHandler} from "#/utils/handler.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {FilePayload, OrgType, ValidationRequestView} from "@cabildo-abierto/api"
+import {OrgType, ValidationRequestProps, ValidationRequestView} from "@cabildo-abierto/api"
 import {createHash} from "crypto";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import {acceptValidationRequestFromPayment} from "#/services/monetization/donations.js";
 
-
-
-type ValidationRequestProps = {
-    tipo: "persona"
-    metodo: "dni"
-    dniFrente: FilePayload
-    dniDorso: FilePayload
-} | {
-    tipo: "org"
-    tipoOrg: OrgType
-    sitioWeb: string
-    email: string
-    documentacion: FilePayload[]
-    comentarios: string
-} | {
-    tipo: "persona"
-    metodo: "mp"
-}
 
 
 type ValidationType = "Organizacion" | "Persona"
