@@ -774,14 +774,14 @@ enum ModerationActionType {
 
 model RecordModerationProcess {
   id            String                   @id
-  recordId      String                   @unique
-  record        Record                   @relation(fields: [recordId], references: [uri])
+  recordId      String?                  @unique
+  record        Record?                  @relation(fields: [recordId], references: [uri])
   created_at    DateTime                 @default(now()) @db.Timestamptz(3)
   processed_at  DateTime?
   result        ContentModerationStatus?
   processedById String?
   processedBy   User?                    @relation(fields: [processedById], references: [did])
-  method        ModerationMethod
+  method        ModerationMethod?
 }
 
 enum ModerationMethod {

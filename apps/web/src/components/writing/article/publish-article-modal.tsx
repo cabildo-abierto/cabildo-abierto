@@ -166,7 +166,7 @@ const PublishArticleModalShareConfig = ({
         null
     )
 
-    bskyPostEditorSettings.placeholder = "Les comparto el artículo que escribí..."
+    bskyPostEditorSettings.placeholder = "Texto de la publicación..."
 
     const embed: AppBskyEmbedExternal.View = {
         external: {
@@ -186,8 +186,8 @@ const PublishArticleModalShareConfig = ({
 
     return <div className={"space-y-4"}
     >
-        <div className={"space-y-4"}>
-            <div className={"flex items-center space-x-2"}>
+        <div className={"space-y-4 pt-4"}>
+            <div className={"flex items-center space-x-2 px-2"}>
                 <Checkbox
                     onCheckedChange={() => {
                         setEnDiscusion(!enDiscusion)
@@ -198,22 +198,25 @@ const PublishArticleModalShareConfig = ({
                     ¿Agregar al muro <span className={"font-normal"}>En discusión</span>?
                 </Note>
             </div>
-            <div className={"flex items-center space-x-2"}>
+            <div className={"flex items-center space-x-2 px-2"}>
                 <Checkbox
                     onCheckedChange={() => {
                         setBskyPostText(bskyPostText == null ? "" : null)
                     }}
                     checked={bskyPostText != null}
                 />
-                <Note className={"text-sm flex space-x-2 items-center"}>
-                    ¿Compartir en una publicación de Bluesky? <InfoPanel
+                <Note className={"text-sm flex space-x-1 items-center"}>
+                    <div>
+                        ¿Compartir en una publicación de Bluesky?
+                    </div>
+                    <InfoPanel
                     iconFontSize={16}
                     text={"Marcá este casillero para crear una publicación  junto con el artículo, para que aparezca en los muros de Bluesky. En los muros de Cabildo Abierto van a aparecer tanto el artículo como la publicación."}
                 />
                 </Note>
             </div>
             {bskyPostText !== null && <div>
-                <div className={"border p-2"}>
+                <div className={"border p-2 ml-8"}>
                     <div className={"flex space-x-2 min-h-[40px]"}>
                         <div>
                             <ProfilePic
@@ -273,7 +276,7 @@ const PublishArticleModal = ({
     }, []);
     return <BaseFullscreenPopup
         open={open}
-        className={"border-[var(--text)]"}
+        className={""}
     >
         <div
             className={"sm:w-[600px]"}
@@ -286,14 +289,12 @@ const PublishArticleModal = ({
                     <StateButton
                         handleClick={() => {onClose()}}
                         size={"small"}
-                        variant={"outlined"}
                         className={"h-7"}
                     >
                         Cancelar
                     </StateButton>
                     <StateButton
                         handleClick={onSubmit(enDiscusion)}
-                        variant={"outlined"}
                         size={"small"}
                         className={"h-7"}
                     >

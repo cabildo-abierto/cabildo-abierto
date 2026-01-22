@@ -5,6 +5,7 @@ import {
     SyncContentProps
 } from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
+import {getCollectionFromUri} from "@cabildo-abierto/utils";
 
 
 export const processContentsBatch = async (ctx: AppContext, trx: Transaction<DB>, records: {
@@ -65,5 +66,18 @@ export const processContentsBatch = async (ctx: AppContext, trx: Transaction<DB>
             .values(contentDatasetLinks)
             .onConflict(oc => oc.columns(['A', 'B']).doNothing())
             .execute()
+    }
+
+    const moderationReq = contentData.filter(c => {
+        const collection = getCollectionFromUri(c.uri)
+        return (c.selfLabels && c.selfLabels.includes('ca:en discusión')) || collection == "ar.cabildoabierto.wiki.topicVersion" || collection == "ar.cabildoabierto.feed.article"
+    })
+    if(moderationReq.length > 0) {
+        await ctx.worker?.addJob("start-content-moderation", moderationReq.map(c => {
+            return {
+                uri: c.uri,
+                context: "Nuevo contenido."
+            }
+        }))
     }
 }

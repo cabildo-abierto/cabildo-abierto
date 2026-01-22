@@ -116,10 +116,8 @@ export function updateFeedElement(feed: InfiniteFeed<ArCabildoabiertoFeedDefs.Fe
             for (let j = 0; j < page.data.length; j++) {
                 const element = page.data[j]
                 if (element.reply && element.reply.parent && postOrArticle(element.reply.parent) && element.reply.parent.uri == uri){
-                    console.log("is parent!")
                     const newParent = updater(element.reply.parent)
                     if(newParent){
-                        console.log("replacing parent")
                         element.reply.parent = newParent
                     } else if(element.reply.root && postOrArticle(element.reply.root) && element.reply.root.uri != uri) {
                         page.data[j] = {

@@ -38,6 +38,7 @@ import {
 import {sendBulkEmails} from "#/services/emails/sending.js";
 import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
 import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
+import {getPendingModeration} from "#/services/moderation/status.js";
 
 
 function isAdmin(did: string) {
@@ -253,6 +254,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get(
         '/all-topic-edits-feed',
         makeAdminHandler(ctx, getAllTopicEditsFeed)
+    )
+
+    router.get(
+        '/pending-moderation',
+        makeAdminHandler(ctx, getPendingModeration)
     )
 
     return router

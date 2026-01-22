@@ -44,6 +44,7 @@ import {
 } from "#/services/feed/following/update.js";
 import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
 import {notifyContentCreated} from "#/services/moderation/notifications.js";
+import {startContentModeration} from "#/services/moderation/start.js";
 
 const mins = 60 * 1000
 const seconds = 1000
@@ -289,8 +290,9 @@ export class CAWorker {
             false
         )
         this.registerJob(
-            "notify-content-created",
-            (data: {uri: string, context: string}) => notifyContentCreated(ctx, data.uri, data.context)
+            "start-content-moderation",
+            (data: {uri: string, context: string}[]) => startContentModeration(ctx, data),
+            true
         )
 
         this.logger.pino.info("worker jobs registered")

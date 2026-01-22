@@ -8,7 +8,7 @@ import {useAdminNotificationCounts} from "@/queries/getters/admin";
 
 
 export const AdminLayout = ({children}: { children: ReactNode }) => {
-    const options = ["post", "acceso", "sync", "validacion", "trabajos", "remuneraciones", "stats", "wiki", "UI", "feed", "emails", "worker", "visualizaciones"]
+    const options = ["post", "acceso", "sync", "validacion", "trabajos", "remuneraciones", "stats", "wiki", "UI", "feed", "emails", "worker", "visualizaciones", "moderacion"]
     const pathname = usePathname()
     const {data: notificationCounts} = useAdminNotificationCounts()
 

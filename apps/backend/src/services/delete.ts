@@ -95,19 +95,19 @@ export async function deleteUser(ctx: AppContext, did: string) {
 
 
 export const deleteCAProfile: CAHandler<{}, {}> = async (ctx, agent, {}) => {
-    console.log("Deleting CA profile of did:", agent.did)
+    ctx.logger.pino.info({did: agent.did}, "Deleting CA profile")
     const res1 = await agent.bsky.com.atproto.repo.deleteRecord({
         rkey: "self",
         collection: "ar.com.cabildoabierto.profile",
         repo: agent.did
     })
-    console.log("Commit 1:", res1.data.commit)
+    ctx.logger.pino.info({commit: res1.data.commit}, "Commit 1")
     const res2 = await agent.bsky.com.atproto.repo.deleteRecord({
         rkey: "self",
         collection: "ar.cabildoabierto.actor.caProfile",
         repo: agent.did
     })
-    console.log("Commit 2:", res2.data.commit)
+    ctx.logger.pino.info({commit: res2.data.commit}, "Commit 2")
     return {}
 }
 
