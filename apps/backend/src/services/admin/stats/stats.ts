@@ -154,11 +154,14 @@ async function getStatsDashboardUsers(ctx: AppContext){
     return ctx.kysely
         .selectFrom("User")
         .where("inCA", "=", true)
+        .leftJoin("Record as CAProfileRecord", "CAProfileRecord.uri", "CAProfileUri")
         .select([
             "did",
             "handle",
             "authorStatus",
-            "created_at_tz",
+            "User.created_at_tz",
+            "User.created_at",
+            "CAProfileRecord.created_at_tz as ca_created_at",
             "email",
             "userValidationHash",
             "orgValidation",
@@ -219,10 +222,11 @@ export const getStatsDashboard: CAHandler<{}, StatsDashboard> = async (ctx, agen
         handle: u.handle,
         did: u.did,
         email: u.email,
-        created_at: u.created_at_tz,
+        created_at: u.created_at_tz ?? u.created_at,
         authorStatus: u.authorStatus as string,
         lastReadSession: u.lastReadSession.length > 0 ? new Date(u.lastReadSession[0].created_at_tz ?? 0) : null,
-        verification: getValidationState(u)
+        verification: getValidationState(u),
+        ca_created_at: u.ca_created_at ?? null
     }))
 
     const active = usersRes.filter(u => u.lastReadSession && u.lastReadSession > lastWeek && !testUsers.includes(u.handle ?? "") && u.handle != "cabildoabierto.ar").length
