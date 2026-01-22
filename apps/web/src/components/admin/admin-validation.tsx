@@ -113,14 +113,14 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
             <span className={"font-bold bg-[var(--background-dark2)] px-2 mr-2"}>
                 {request.tipo}
             </span>
-                <ProfilePic
-                    user={request.user}
-                    className={"w-6 h-6 rounded-full"}
-                />
-                <span className="truncate">
-                <ContentTopRowAuthor
-                    author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...request.user}}
-                />
+            <ProfilePic
+                user={request.user}
+                className={"w-6 h-6 rounded-full"}
+            />
+            <span className="truncate">
+            <ContentTopRowAuthor
+                author={{$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...request.user}}
+            />
             </span>
                 <span className="text-[var(--text-light)]">·</span>
                 <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(request.createdAt)}>
@@ -237,9 +237,9 @@ export const AdminValidation = () => {
         <h2>
             Solicitudes pendientes de revisión ({pending.length} de {count})
         </h2>
-        <div className={"space-y-2 w-full"}>
+        <div className={"space-y-2 w-full flex flex-col items-center max-w-[600px]"}>
             {pending.map((p, index) => {
-                return <div key={p.id}>
+                return <div key={p.id} className={"w-full"}>
                     <ValidationRequest request={p}/>
                 </div>
             })}

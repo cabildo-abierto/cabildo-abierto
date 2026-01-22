@@ -48,7 +48,7 @@ export default function Page() {
             <BaseButton
                 startIcon={<IdentificationCardIcon/>}
                 variant={"outlined"}
-                className={"w-[320px]"}
+                className={"w-[320px] normal-case"}
                 onClick={() => {
                     router.push("/ajustes/verificacion/verificar/persona/dni")
                 }}
@@ -58,7 +58,7 @@ export default function Page() {
             <BaseButton
                 startIcon={<CardholderIcon/>}
                 variant={"outlined"}
-                className={"w-[320px]"}
+                className={"w-[320px] normal-case"}
                 onClick={() => {
                     router.push("/ajustes/verificacion/verificar/persona/mp")
                 }}

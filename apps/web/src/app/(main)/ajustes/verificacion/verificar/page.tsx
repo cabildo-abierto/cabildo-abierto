@@ -14,7 +14,7 @@ export default function Page() {
         </Note>
         <div className={"space-y-4 flex flex-col justify-center items-center"}>
             <BaseButton
-                className={"w-[300px]"}
+                className={"w-[300px] normal-case"}
                 variant={"outlined"}
                 onClick={() => {
                     router.push("/ajustes/verificacion/verificar/persona")
@@ -24,7 +24,7 @@ export default function Page() {
                 Es mi cuenta personal
             </BaseButton>
             <BaseButton
-                className={"w-[300px]"}
+                className={"w-[300px]  normal-case"}
                 variant={"outlined"}
                 onClick={() => {
                     router.push("/ajustes/verificacion/verificar/org")

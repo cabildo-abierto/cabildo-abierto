@@ -83,7 +83,7 @@ export const SelectDonationPage = () => {
             </div>
         </div>
         {verification && <Note>
-            El aporte se va a usar para verificar tu cuenta con Mercado Pago, $1 (un peso) es suficiente. Si aportás más, lo que aportes se va a usar para financiar la plataforma y remunerar a los autores.
+            El aporte se va a usar para verificar tu cuenta con Mercado Pago, $1 (un peso) es suficiente.
         </Note>}
         <div className="flex justify-end w-full">
             <StateButton

@@ -1,30 +1,12 @@
 import {CAHandler} from "#/utils/handler.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {FilePayload, OrgType, ValidationRequestView} from "@cabildo-abierto/api"
+import {OrgType, ValidationRequestProps, ValidationRequestView} from "@cabildo-abierto/api"
 import {createHash} from "crypto";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import {acceptValidationRequestFromPayment} from "#/services/monetization/donations.js";
 
-
-
-type ValidationRequestProps = {
-    tipo: "persona"
-    metodo: "dni"
-    dniFrente: FilePayload
-    dniDorso: FilePayload
-} | {
-    tipo: "org"
-    tipoOrg: OrgType
-    sitioWeb: string
-    email: string
-    documentacion: FilePayload[]
-    comentarios: string
-} | {
-    tipo: "persona"
-    metodo: "mp"
-}
 
 
 type ValidationType = "Organizacion" | "Persona"
@@ -44,6 +26,7 @@ export const createValidationRequest: CAHandler<ValidationRequestProps, {}> = as
             tipoOrg?: string
             dniFrente?: string
             dniDorso?: string
+            result: "Pendiente"
         }
         if(request.tipo == "org"){
             const documentacion = request.documentacion ? await Promise.all(request.documentacion.map((f => ctx.storage?.upload(f, 'validation-documents')))) : []
@@ -57,7 +40,8 @@ export const createValidationRequest: CAHandler<ValidationRequestProps, {}> = as
                 comentarios: request.comentarios,
                 sitioWeb: request.sitioWeb,
                 email: request.email,
-                tipoOrg: request.tipoOrg
+                tipoOrg: request.tipoOrg,
+                result: "Pendiente"
             }
         } else if(request.tipo == "persona") {
             if(request.metodo == "dni") {
@@ -73,13 +57,15 @@ export const createValidationRequest: CAHandler<ValidationRequestProps, {}> = as
                     dniFrente: dniFrente?.path,
                     dniDorso: dniDorso?.path,
                     userId: agent.did,
-                    documentacion: []
+                    documentacion: [],
+                    result: "Pendiente"
                 }
             } else if(request.metodo == "mp") {
                 data = {
                     type: "Persona",
                     documentacion: [],
-                    userId: agent.did
+                    userId: agent.did,
+                    result: "Pendiente"
                 }
             } else {
                 return {error: "Método de verificación inválido."}
@@ -95,6 +81,7 @@ export const createValidationRequest: CAHandler<ValidationRequestProps, {}> = as
                 id: uuidv4()
             }])
             .onConflict(oc => oc.column("userId").doUpdateSet(eb => ({
+                result: eb.ref("excluded.result"),
                 type: eb.ref("excluded.type"),
                 documentacion: eb.ref("excluded.documentacion"),
                 userId: eb.ref("excluded.userId"),

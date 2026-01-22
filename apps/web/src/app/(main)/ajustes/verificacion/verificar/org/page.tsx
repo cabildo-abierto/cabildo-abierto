@@ -1,6 +1,6 @@
 "use client"
 import {useState} from "react";
-import {OrgType} from "@cabildo-abierto/api";
+import {OrgType, OrgValidationRequestProps} from "@cabildo-abierto/api";
 import {FormItem, FormItemWithFiles} from "@/components/ajustes/verificar/form-item";
 import {BaseSelect} from "@/components/utils/base/base-select";
 import {produce} from "immer";
@@ -11,7 +11,6 @@ import {BaseTextArea} from "@/components/utils/base/base-text-area";
 import {file2base64} from "@/components/utils/react/files";
 import {Note} from "@/components/utils/base/note";
 import {SendButton} from "@/components/ajustes/verificar/send-button";
-import {OrgValidationRequestProps} from "@/components/ajustes/verificar/types";
 
 
 export default function Page() {
