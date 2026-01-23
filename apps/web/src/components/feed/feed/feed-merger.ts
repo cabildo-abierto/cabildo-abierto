@@ -2,6 +2,7 @@ import {FeedMerger} from "@/components/feed/feed/types";
 import {unique} from "@cabildo-abierto/utils";
 import {FeedViewContent} from "@cabildo-abierto/api/dist/client/types/ar/cabildoabierto/feed/defs";
 import { ArCabildoabiertoFeedDefs } from "@cabildo-abierto/api";
+import {AppBskyFeedDefs} from "@atproto/api";
 
 
 export function defaultFeedMerger<T>(acc: T[], newElements: T[]) {
@@ -38,6 +39,8 @@ function getFeedViewContentRootUri(content: FeedViewContent): string {
     } else {
         if(content.reply) {
             if(ArCabildoabiertoFeedDefs.isPostView(content.reply.root)) {
+                return content.reply.root.uri
+            } else if(AppBskyFeedDefs.isNotFoundPost(content.reply.root)) {
                 return content.reply.root.uri
             }
         } else if(ArCabildoabiertoFeedDefs.isPostView(content.content) || ArCabildoabiertoFeedDefs.isArticleView(content.content)) {

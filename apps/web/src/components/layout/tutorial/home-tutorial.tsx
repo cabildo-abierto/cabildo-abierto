@@ -33,8 +33,7 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
                     discutir a través de internet de formas más sanas y útiles.
                 </div>
                 <div>
-                    Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá
-                    en cualquier contenido de la plataforma.
+                    Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá en directamente en la plataforma.
                 </div>
                 {isMobile && <div className={""}>
                     <span className={"font-semibold"}>Tip:</span> Cabildo Abierto funciona un poco mejor desde una

@@ -58,6 +58,10 @@ const FeedElement = ({
             } else {
                 return null
             }
+        } else if(elem.content.$type == "app.bsky.feed.defs#notFoundPost") {
+            return <div className={"m-2 p-2 border rounded-lg text-[var(--text-light)]"}>
+                No encontrado
+            </div>
         } else {
             return <div className={"py-4"}>
                 Error: No pudimos mostrar un elemento de la colección {elem.content.$type}

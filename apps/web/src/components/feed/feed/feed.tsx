@@ -63,7 +63,6 @@ function Feed<T>({
                     transform: `translateY(${items[0]?.start ?? 0}px)`,
                 }}
             >
-
                 {items.map((c) => {
                     const isEnd = c.index == count-1
                     const isStart = c.index == 0 && startContent != null
@@ -80,11 +79,10 @@ function Feed<T>({
                                 {loading &&
                                     <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
                                 }
-                                {feed && !hasNextPage && (endText || noResultsText) && !hasNextPage &&
+                                {feed && !hasNextPage && (endText || noResultsText) &&
                                     <FeedEndText text={feedList.length > 0 ? endText : noResultsText}/>}
                             </div>)}
                     </div>
-
                 })}
             </div>
         </div>

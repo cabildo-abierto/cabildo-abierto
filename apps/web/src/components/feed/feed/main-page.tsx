@@ -14,16 +14,18 @@ import {topicUrl} from "@/components/utils/react/url";
 
 
 const followingFeedNoResultsText = <div
-    className="flex flex-col items-center space-y-8 text-base text-[var(--text-light)]"
+    className={"flex flex-col space-y-6"}
 >
-    <div>
-        No se encontraron contenidos.
-    </div>
-    <Link href={"/buscar?s=Usuarios"}>
-        <BaseButton variant="outlined" size={"small"}>
-            Buscar usuarios
-        </BaseButton>
-    </Link>
+    <Note>
+        No se encontraron contenidos. Buscá usuarios para seguir.
+    </Note>
+    <Note>
+        <Link href={"/buscar?s=Usuarios"}>
+            <BaseButton variant="outlined" size={"small"}>
+                Buscar usuarios
+            </BaseButton>
+        </Link>
+    </Note>
 </div>
 
 const discoverFeedNoResultsText = <div>

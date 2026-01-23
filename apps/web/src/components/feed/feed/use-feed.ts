@@ -63,7 +63,13 @@ export function useFetchNextPage<T>(
     }, [])
 
     useEffect(() => {
-        if(feedList.length == 0 || items.length == 0) return
+        if(feedList.length == 0 || items.length == 0) {
+            if(hasNextPage && !isFetchingNextPage) {
+                fetchNextPage()
+            } else {
+                return
+            }
+        }
         const lastItem = items[items.length - 1]
 
         if (
