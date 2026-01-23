@@ -18,7 +18,7 @@ export function hydrateProfileView(ctx: AppContext, did: string, data: Dataplane
 
     const ca = data.caUsers?.get(did)
 
-    if(ca) {
+    if(ca && ca != "not-found") {
         return {
             viewer: {
                 $type: "app.bsky.actor.defs#viewerState",
@@ -48,14 +48,18 @@ export function hydrateProfileView(ctx: AppContext, did: string, data: Dataplane
 
     return {
         ...bsky,
-        caProfile: caDetailed?.caProfile ?? undefined,
-        verification: caDetailed?.verification ?? undefined,
+        caProfile: caDetailed && caDetailed != "not-found" && caDetailed.caProfile ? caDetailed.caProfile : undefined,
+        verification: caDetailed && caDetailed != "not-found" && caDetailed.verification ? caDetailed.verification : undefined,
         viewer: bsky.viewer,
         $type: "ar.cabildoabierto.actor.defs#profileView"
     }
 }
 
 
+// Requiere:
+// - profile y viewer o,
+// - caBasic y viewer o,
+// - caUsersDetailed y bskyBasicUser
 export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Dataplane, warn: boolean = true): ArCabildoabiertoActorDefs.ProfileViewBasic | null {
     const profile = data.profiles?.get(did)
     const viewer = data.profileViewers?.get(did)
@@ -79,7 +83,7 @@ export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Data
 
     const caBasic = data.caUsers?.get(did)
 
-    if(caBasic) {
+    if(caBasic && caBasic != "not-found") {
         return {
             did: caBasic.did,
             handle: caBasic.handle,
@@ -97,7 +101,6 @@ export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Data
         }
     }
 
-
     const ca = data.caUsersDetailed?.get(did)
     const bsky = data.bskyBasicUsers?.get(did)
 
@@ -110,9 +113,9 @@ export function hydrateProfileViewBasic(ctx: AppContext, did: string, data: Data
 
     return {
         ...bsky,
-        caProfile: ca?.caProfile ?? undefined,
-        verification: ca?.verification ?? undefined,
-        editorStatus: editorStatusToDisplay(ca?.editorStatus),
+        caProfile: ca && ca != "not-found" && ca.caProfile ? ca.caProfile : undefined,
+        verification: ca && ca != "not-found" && ca.verification ? ca.verification : undefined,
+        editorStatus: ca && ca != "not-found" && ca.editorStatus ? editorStatusToDisplay(ca.editorStatus) : undefined,
         viewer: bsky.viewer,
         $type: "ar.cabildoabierto.actor.defs#profileViewBasic"
     }
@@ -154,16 +157,16 @@ export function hydrateProfileViewDetailed(ctx: AppContext, did: string, datapla
     if (bskyProfile) {
         return {
             ...bskyProfile,
-            followersCount: caProfile?.followersCount,
-            followsCount: caProfile?.followsCount,
+            followersCount: caProfile != "not-found" ? caProfile?.followersCount : undefined,
+            followsCount: caProfile != "not-found" ? caProfile?.followsCount : undefined,
             bskyFollowersCount: bskyProfile.followersCount,
             bskyFollowsCount: bskyProfile.followsCount,
-            caProfile: caProfile?.caProfile ?? undefined,
-            verification: caProfile?.verification ?? undefined,
+            caProfile: caProfile != "not-found" ? (caProfile?.caProfile ?? undefined) : undefined,
+            verification: caProfile != "not-found" ? (caProfile?.verification ?? undefined) : undefined,
             viewer: viewer,
-            editorStatus: editorStatusToDisplay(caProfile?.editorStatus),
-            editsCount: caProfile?.editsCount ?? 0,
-            articlesCount: caProfile?.articlesCount ?? 0,
+            editorStatus: caProfile != "not-found" ? editorStatusToDisplay(caProfile?.editorStatus) : undefined,
+            editsCount: caProfile != "not-found" ? (caProfile?.editsCount ?? 0) : undefined,
+            articlesCount: caProfile != "not-found" ? (caProfile?.articlesCount ?? 0) : undefined,
             $type: "ar.cabildoabierto.actor.defs#profileViewDetailed"
         }
     }

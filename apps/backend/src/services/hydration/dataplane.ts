@@ -134,8 +134,8 @@ export class Dataplane {
     bskyBasicUsers: Map<string, $Typed<ProfileViewBasic>> = new Map()
     bskyDetailedUsers: Map<string, $Typed<ProfileViewDetailed>> = new Map()
 
-    caUsersDetailed: Map<string, CAProfileDetailed> = new Map()
-    caUsers: Map<string, CAProfile> = new Map()
+    caUsersDetailed: Map<string, CAProfileDetailed | "not-found"> = new Map()
+    caUsers: Map<string, CAProfile | "not-found"> = new Map()
     profiles: Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed> = new Map()
     profileViewers: Map<string, AppBskyActorDefs.ViewerState> = new Map()
 
@@ -737,6 +737,73 @@ export class Dataplane {
     }
 
 
+    async fetchCAUsers(dids: string[]) {
+        dids = dids.filter(d => !this.caUsers.has(d) && !this.caUsersDetailed.has(d))
+        if(dids.length == 0) return
+        const agentDid = this.agent.hasSession() ? this.agent.did : null
+        const users = await this.ctx.kysely
+            .selectFrom("User")
+            .where("User.did", "in", dids)
+            .select([
+                "did",
+                "CAProfileUri",
+                "handle",
+                "displayName",
+                "avatar",
+                "created_at",
+                "orgValidation",
+                "userValidationHash",
+                "editorStatus",
+                "description",
+                eb => eb
+                    .selectFrom("Follow")
+                    .where("Follow.userFollowedId", "=", agentDid ?? "no did")
+                    .innerJoin("Record", "Record.uri", "Follow.uri")
+                    .whereRef("Record.authorId", "=", "User.did")
+                    .select("Follow.uri")
+                    .limit(1)
+                    .as("followedBy"),
+                eb => eb
+                    .selectFrom("Follow")
+                    .whereRef("Follow.userFollowedId", "=", "User.did")
+                    .innerJoin("Record", "Record.uri", "Follow.uri")
+                    .where("Record.authorId", "=", agentDid ?? "no did")
+                    .select("Follow.uri")
+                    .limit(1)
+                    .as("following")
+            ])
+            .where("inCA", "=", true)
+            .execute()
+
+        users.forEach(u => {
+            if(u.handle) {
+                this.caUsers.set(u.did, {
+                    did: u.did,
+                    caProfile: u.CAProfileUri,
+                    handle: u.handle,
+                    avatar: u.avatar,
+                    displayName: u.displayName,
+                    createdAt: u.created_at,
+                    verification: getValidationState(u),
+                    editorStatus: u.editorStatus,
+                    description: u.description,
+                    viewer: {
+                        following: u.following,
+                        followedBy: u.followedBy
+                    }
+                })
+            } else {
+                this.ctx.logger.pino.warn({did: u.did}, "user with no handle, can't hydrate it")
+            }
+        })
+        for(const d of dids) {
+            if(!this.caUsers.has(d)){
+                this.caUsers.set(d, "not-found")
+            }
+        }
+    }
+
+
     async fetchProfileViewHydrationData(dids: string[]) {
         dids = dids.filter(d => {
             if(this.profiles.has(d)) return false
@@ -751,70 +818,8 @@ export class Dataplane {
             return
         }
 
-        const agentDid = this.agent.hasSession() ? this.agent.did : null
-
         // TO DO (!): Esto asume que todos los usuarios de CA están sincronizados. Hay que asegurarlo.
-
-        try {
-            const users = await this.ctx.kysely
-                .selectFrom("User")
-                .where("User.did", "in", dids)
-                .select([
-                    "did",
-                    "CAProfileUri",
-                    "handle",
-                    "displayName",
-                    "avatar",
-                    "created_at",
-                    "orgValidation",
-                    "userValidationHash",
-                    "editorStatus",
-                    "description",
-                    eb => eb
-                        .selectFrom("Follow")
-                        .where("Follow.userFollowedId", "=", agentDid ?? "no did")
-                        .innerJoin("Record", "Record.uri", "Follow.uri")
-                        .whereRef("Record.authorId", "=", "User.did")
-                        .select("Follow.uri")
-                        .limit(1)
-                        .as("followedBy"),
-                    eb => eb
-                        .selectFrom("Follow")
-                        .whereRef("Follow.userFollowedId", "=", "User.did")
-                        .innerJoin("Record", "Record.uri", "Follow.uri")
-                        .where("Record.authorId", "=", agentDid ?? "no did")
-                        .select("Follow.uri")
-                        .limit(1)
-                        .as("following")
-                ])
-                .where("inCA", "=", true)
-                .execute()
-
-
-            users.forEach(u => {
-                if(u.handle) {
-                    this.caUsers.set(u.did, {
-                        did: u.did,
-                        caProfile: u.CAProfileUri,
-                        handle: u.handle,
-                        avatar: u.avatar,
-                        displayName: u.displayName,
-                        createdAt: u.created_at,
-                        verification: getValidationState(u),
-                        editorStatus: u.editorStatus,
-                        description: u.description,
-                        viewer: {
-                            following: u.following,
-                            followedBy: u.followedBy
-                        }
-                    })
-                } else {
-                    this.ctx.logger.pino.warn({did: u.did}, "user with no handle, can't hydrate it")
-                }
-            })
-        } catch (error) {
-            this.ctx.logger.pino.error({error}, "error fetching profile views from CA")
-        }
+        await this.fetchCAUsers(dids)
 
         const bskyUsers = dids.filter(d => !this.caUsers.has(d))
         await this.fetchProfileViewDetailedHydrationDataFromBsky(bskyUsers)
@@ -871,8 +876,6 @@ export class Dataplane {
             .where("User.did", "in", dids)
             .execute()
 
-        if (profiles.length == 0) return null
-
         const formattedProfiles: CAProfileDetailed[] = profiles.map(profile => {
             if(profile.CAProfileUri){
                 return {
@@ -892,6 +895,12 @@ export class Dataplane {
         formattedProfiles.forEach(p => {
             this.caUsersDetailed.set(p.did, p)
         })
+
+        for(const d of dids) {
+            if(!this.caUsersDetailed.has(d)){
+                this.caUsersDetailed.set(d, "not-found")
+            }
+        }
     }
 
     async fetchProfileViewDetailedHydrationDataFromBsky(dids: string[]) {
@@ -900,11 +909,13 @@ export class Dataplane {
         dids = unique(dids.filter(d => !this.bskyDetailedUsers.has(d)))
         if (dids.length == 0) return
 
+        const batchSize = 20
         const didBatches: string[][] = []
-        for (let i = 0; i < dids.length; i += 25) didBatches.push(dids.slice(i, i + 25))
+        for (let i = 0; i < dids.length; i += batchSize) didBatches.push(dids.slice(i, i + batchSize))
         const profiles: ProfileViewDetailed[] = []
         for (let i = 0; i < didBatches.length; i++) {
             const b = didBatches[i]
+            this.ctx.logger.pino.info({batch: b}, "getting profiles")
             const res = await agent.bsky.app.bsky.actor.getProfiles({actors: b})
             profiles.push(...res.data.profiles)
         }
