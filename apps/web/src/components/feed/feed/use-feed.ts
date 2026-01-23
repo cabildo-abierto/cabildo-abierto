@@ -66,6 +66,7 @@ export function useFetchNextPage<T>(
         if(feedList.length == 0 || items.length == 0) {
             if(hasNextPage && !isFetchingNextPage) {
                 fetchNextPage()
+                return
             } else {
                 return
             }

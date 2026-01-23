@@ -192,7 +192,7 @@ function TableOfContentsList({
     >
         <div className={"relative w-full"}>
             <div
-                className={"absolute left-0 top-0 w-[3px] z-0 bg-[var(--accent)] h-[calc(100vh-115px)]"}
+                className={"absolute left-0 top-0 w-[3px] bg-[var(--accent)] z-0 h-[calc(100vh-115px)]"}
             />
             <div
                 className={"absolute left-0 top-0 flex flex-col justify-between font-light z-1 h-[calc(100vh-115px)]"}
@@ -203,11 +203,11 @@ function TableOfContentsList({
                     onWheel={(e) => {e.stopPropagation()}}
                 >
                     <div className={"flex space-x-2"}>
-                        <div className={cn("w-[6px]", selectedIndex.current == 0 && selectedKey == null ? "bg-[var(--text-light)]" : "bg-[var(--accent)]")}
+                        <div className={cn("w-[3px]", selectedIndex.current == 0 && selectedKey == null ? "bg-[var(--text-light)]" : "bg-[var(--accent)]")}
                         />
 
                         <div
-                            className={cn("cursor-pointer py-[6px] hover:text-[var(--text-light)] transition-opacity", open ? "" : "opacity-0")}
+                            className={cn("cursor-pointer py-[6px] hover:text-[var(--text-light)] transition-opacity max-w-[200px]", open ? "" : "opacity-0")}
                              onClick={() => {smoothScrollTo(0)}}
                         >
                             {title}
