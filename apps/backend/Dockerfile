@@ -53,4 +53,4 @@ RUN if [ "$DEPLOY_ENV" = "prod" ]; then \
     fi
 
 EXPOSE 8080
-CMD ["node", "apps/backend/dist/index.js"]
+CMD ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
