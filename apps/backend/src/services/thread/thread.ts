@@ -16,10 +16,11 @@ import {
     ThreadSkeleton
 } from "#/services/hydration/hydrate.js";
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {handleToDid} from "#/services/user/users.js";
+import {handleOrDidToDid} from "#/services/user/users.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {isThreadViewPost, ThreadViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
+import {Effect} from "effect";
 
 function threadViewPostToThreadSkeleton(thread: ThreadViewPost, isAncestor: boolean = false): ThreadSkeleton {
     return {
@@ -149,7 +150,7 @@ export const getThread: CAHandlerNoAuth<{params: {handleOrDid: string, collectio
     let {handleOrDid, collection, rkey} = params
     collection = shortCollectionToCollection(collection)
 
-    const did = await handleToDid(ctx, agent, handleOrDid)
+    const did = await Effect.runPromise(handleOrDidToDid(ctx, handleOrDid))
     if(!did) {
         return {error: "No se encontró el autor."}
     }

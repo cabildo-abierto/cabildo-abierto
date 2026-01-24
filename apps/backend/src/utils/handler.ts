@@ -1,13 +1,175 @@
 import {Agent, sessionAgent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import express from "express";
-import { SpanStatusCode } from '@opentelemetry/api';
+import {SpanStatusCode} from '@opentelemetry/api';
 import {env} from "#/lib/env.js";
+import {Effect, Exit} from "effect";
+
+
+export type CAHandlerNoAuth<Params={}, Output={}> = (ctx: AppContext, agent: Agent, params: Params) => CAHandlerOutput<Output>
+
+export type EffHandlerNoAuth<Params={}, Output={}> = (ctx: AppContext, agent: Agent, params: Params) => Effect.Effect<Output, string>
+
+export type EffHandler<Params={}, Output={}> = (ctx: AppContext, agent: SessionAgent, params: Params) => Effect.Effect<Output, string>
+
+
+export function makeEffHandler<Params = {}, Output = {}>(
+    ctx: AppContext,
+    fn: EffHandler<Params, Output>
+): express.Handler {
+    return async (req, res) => {
+        const tracer = ctx.tracer
+        const spanName = `${req.method} ${req.route?.path || req.path}`
+
+        await tracer.startActiveSpan(spanName, async (span) => {
+            try {
+                span.setAttributes({
+                    "http.method": req.method,
+                    "http.route": req.route?.path || req.path,
+                    "http.url": req.url,
+                    "http.target": req.path,
+                })
+
+                const params = {
+                    ...req.body,
+                    params: req.params,
+                    query: req.query,
+                } as Params
+
+                const agent = await sessionAgent(req, res, ctx)
+
+                if (agent.hasSession()) {
+                    span.setAttribute("user.authenticated", true)
+                    if (agent.did) {
+                        span.setAttribute("user.did", agent.did)
+                    }
+                } else {
+                    span.setAttribute("user.authenticated", false)
+                }
+
+                if (!agent.hasSession()) {
+                    span.setStatus({
+                        code: SpanStatusCode.ERROR,
+                        message: "Unauthorized",
+                    })
+                    span.end()
+                    return res.status(401).json({ error: "Unauthorized" })
+                }
+
+                const effect = fn(ctx, agent, params)
+                const exit = await Effect.runPromiseExit(effect)
+
+                Exit.match(exit, {
+                    onFailure: (cause) => {
+                        const error = cause.toString()
+
+                        span.setStatus({
+                            code: SpanStatusCode.ERROR,
+                            message: error,
+                        })
+                        span.recordException(new Error(error))
+
+                        res.status(400).json({ error })
+                    },
+                    onSuccess: (data) => {
+                        span.setStatus({ code: SpanStatusCode.OK })
+                        res.json({ data })
+                    },
+                })
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error)
+
+                span.setStatus({
+                    code: SpanStatusCode.ERROR,
+                    message: errorMessage,
+                })
+                span.recordException(error instanceof Error ? error : new Error(errorMessage))
+
+                res.status(500).json({ error: "Internal server error" })
+            } finally {
+                span.end()
+            }
+        })
+    }
+}
+
+
+export function makeEffHandlerNoAuth<Params = {}, Output = {}>(
+    ctx: AppContext,
+    fn: EffHandlerNoAuth<Params, Output>
+): express.Handler {
+    return async (req, res) => {
+        const tracer = ctx.tracer
+        const spanName = `${req.method} ${req.route?.path || req.path}`
+
+        await tracer.startActiveSpan(spanName, async (span) => {
+            try {
+                span.setAttributes({
+                    "http.method": req.method,
+                    "http.route": req.route?.path || req.path,
+                    "http.url": req.url,
+                    "http.target": req.path,
+                })
+
+                const params = {
+                    ...req.body,
+                    params: req.params,
+                    query: req.query,
+                } as Params
+
+                const agent = await sessionAgent(req, res, ctx)
+
+                if (agent.hasSession && agent.hasSession()) {
+                    span.setAttribute("user.authenticated", true)
+                    if (agent.did) {
+                        span.setAttribute("user.did", agent.did)
+                    }
+                } else {
+                    span.setAttribute("user.authenticated", false)
+                }
+
+                const effect = fn(ctx, agent, params)
+                const exit = await Effect.runPromiseExit(effect)
+
+                Exit.match(exit, {
+                    onFailure: (cause) => {
+                        const error = cause.toString()
+
+                        span.setStatus({
+                            code: SpanStatusCode.ERROR,
+                            message: error,
+                        })
+                        span.recordException(new Error(error))
+
+                        res.status(400).json({ error })
+                    },
+                    onSuccess: (data) => {
+                        span.setStatus({ code: SpanStatusCode.OK })
+                        res.json({ data })
+                    },
+                })
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error)
+
+                span.setStatus({
+                    code: SpanStatusCode.ERROR,
+                    message: errorMessage,
+                })
+                span.recordException(error instanceof Error ? error : new Error(errorMessage))
+
+                res.status(500).json({ error: "Internal server error" })
+            } finally {
+                span.end()
+            }
+        })
+    }
+}
+
+
+
 
 export type CAHandlerOutput<Output> = Promise<{error?: string, data?: Output}>
 export type CAHandler<Params={}, Output={}> = (ctx: AppContext, agent: SessionAgent, params: Params) => CAHandlerOutput<Output>
-export type CAHandlerNoAuth<Params={}, Output={}> = (ctx: AppContext, agent: Agent, params: Params) => CAHandlerOutput<Output>
-
 
 export function makeHandler<Params={}, Output={}>(ctx: AppContext, fn: CAHandler<Params, Output>): express.Handler {
     return async (req, res) => {
@@ -107,6 +269,19 @@ export function makeAdminHandler<P, Q>(ctx: AppContext, handler: CAHandler<P, Q>
     };
 
     return makeHandler(ctx, adminOnlyHandler);
+}
+
+
+export function makeEffAdminHandler<P, Q>(ctx: AppContext, handler: EffHandler<P, Q>): express.Handler {
+    const adminOnlyHandler: EffHandler<P, Q> = (ctx, agent, params) => {
+        if (isAdmin(agent.did)) {
+            return handler(ctx, agent, params);
+        } else {
+            return Effect.fail("Necesitás permisos de administrador para realizar esta acción.")
+        }
+    };
+
+    return makeEffHandler(ctx, adminOnlyHandler);
 }
 
 

@@ -45,6 +45,8 @@ import {AppBskyActorDefs} from "@atproto/api"
 import {CAProfileDetailed, CAProfile} from "#/lib/types.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
 import {getObjectKey} from "#/utils/object.js";
+import {Effect, pipe} from "effect";
+import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 
 
 export type FeedElementQueryResult = {
@@ -110,6 +112,22 @@ export function blobRefsFromContents(contents: FeedElementQueryResult[]) {
         .filter(x => x != null)
 
     return blobRefs
+}
+
+
+export class ViewerStateFetchError {
+    readonly _tag = "ViewerStateFetchError"
+    constructor(readonly message: string) {}
+}
+
+
+export class FetchFromCAError {
+    readonly _tag = "FetchFromCAError"
+}
+
+
+export class FetchFromBskyError {
+    readonly _tag = "FetchFromBskyError"
 }
 
 
@@ -930,75 +948,103 @@ export class Dataplane {
     }
 
 
-    async fetchProfilesViewerState(dids: string[]){
+    fetchProfilesViewerState(dids: string[]): Effect.Effect<void, ViewerStateFetchError> {
         const {agent, ctx} = this
         if(!agent.hasSession()) {
             dids.forEach(d => {
                 this.profileViewers.set(d, {})
             })
-            return
+            return Effect.void
         }
 
-        const follows = await ctx.kysely
-            .selectFrom("Follow")
-            .innerJoin("Record", "Record.uri", "Follow.uri")
-            .select("Follow.uri")
-            .where(eb => eb.or([
-                eb.and([
-                    eb("Follow.userFollowedId", "in", dids),
-                    eb("Record.authorId", "=", agent.did),
-                ]),
-                eb.and([
-                    eb("Follow.userFollowedId", "=", agent.did),
-                    eb("Record.authorId", "in", dids)
-                ])
-            ]))
-            .execute()
+        return pipe(
+            Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("Follow")
+                    .innerJoin("Record", "Record.uri", "Follow.uri")
+                    .select("Follow.uri")
+                    .where(eb => eb.or([
+                        eb.and([
+                            eb("Follow.userFollowedId", "in", dids),
+                            eb("Record.authorId", "=", agent.did),
+                        ]),
+                        eb.and([
+                            eb("Follow.userFollowedId", "=", agent.did),
+                            eb("Record.authorId", "in", dids)
+                        ])
+                    ]))
+                    .execute(),
+                catch: (error) => {
+                    const message = error instanceof Error ? error.message : String(error)
+                    return new ViewerStateFetchError(message)
+                }
+            }),
+            Effect.tap(follows => {
+                dids.forEach(did => {
+                    const following = follows.find(f => getDidFromUri(f.uri) == agent.did)
+                    const followedBy = follows.find(f => getDidFromUri(f.uri) == did)
 
-        dids.forEach(did => {
-            const following = follows.find(f => getDidFromUri(f.uri) == agent.did)
-            const followedBy = follows.find(f => getDidFromUri(f.uri) == did)
-
-            this.profileViewers.set(did, {
-                following: following ? following.uri : undefined,
-                followedBy: followedBy ? followedBy.uri : undefined
+                    this.profileViewers.set(did, {
+                        following: following ? following.uri : undefined,
+                        followedBy: followedBy ? followedBy.uri : undefined
+                    })
+                })
             })
-        })
+        )
     }
 
-    async fetchProfileViewDetailedHydrationData(dids: string[]) {
-        if(dids.length == 0) return
+    fetchProfileViewDetailedHydrationData(dids: string[]): Effect.Effect<void, RedisCacheFetchError | ViewerStateFetchError | FetchFromCAError | FetchFromBskyError | RedisCacheSetError> {
+        if(dids.length === 0) return Effect.void
 
-        const [profiles] = await Promise.all([
-            this.ctx.redisCache.profile.getMany(dids),
-            this.fetchProfilesViewerState(dids)
-        ])
+        return pipe(
+            // obtenemos los perfiles cacheados y los viewer states
+            Effect.all([
+                // TO DO: Esta cache está desactivada, ver qué queremos hacer con eso.
+                this.ctx.redisCache.profile.getMany(dids),
+                this.fetchProfilesViewerState(dids)
+            ], {concurrency: "unbounded"}),
 
-        profiles.forEach(p => {
-            if(p) {
-                this.profiles.set(p.did, p)
-            }
-        })
+            // almacenamos los perfiles cacheados en el dataplane
+            Effect.tap(([profiles]) => {
+                profiles.forEach(p => {
+                    if(p) {
+                        this.profiles.set(p.did, p)
+                    }
+                })
+            }),
 
-        const missedDids = dids.filter((_, i) => {
-            return profiles[i] == null
-        })
-        if(missedDids.length == 0) return
+            // obtenemos los perfiles que no están presentes
+            Effect.map(([profiles]) => dids.filter((_, i) => profiles[i] == null)),
 
-        await Promise.all([
-            this.fetchProfileViewDetailedHydrationDataFromCA(missedDids),
-            this.fetchProfileViewDetailedHydrationDataFromBsky(missedDids)
-        ])
+            // fetcheamos sus datos de CA y sus datos de Bsky
+            Effect.tap(missedDids =>
+                Effect.all([
+                    Effect.tryPromise({
+                        try: () => this.fetchProfileViewDetailedHydrationDataFromCA(missedDids),
+                        catch: () => new FetchFromCAError()
+                    }),
+                    Effect.tryPromise({
+                        try: () => this.fetchProfileViewDetailedHydrationDataFromBsky(missedDids),
+                        catch: () => new FetchFromBskyError()
+                    })
+                ], {concurrency: "unbounded"})
+            ),
 
-        const newProfiles: ArCabildoabiertoActorDefs.ProfileViewDetailed[] = missedDids
-            .map(d => hydrateProfileViewDetailed(this.ctx, d, this))
-            .filter(x => x != null)
-
-        newProfiles.forEach(p => {
-            this.profiles.set(p.did, p)
-        })
-
-        await this.ctx.redisCache.profile.setMany(newProfiles)
+            // los hidratamos para cachearlos
+            Effect.flatMap(missedDids => {
+                return Effect.succeed(missedDids
+                    .map(d => hydrateProfileViewDetailed(this.ctx, d, this))
+                    .filter(x => x != null))
+            }),
+            Effect.tap(newProfiles => {
+                newProfiles.forEach(p => {
+                    this.profiles.set(p.did, p)
+                })
+            }),
+            Effect.flatMap(newProfiles =>
+                this.ctx.redisCache.profile.setMany(newProfiles)
+            )
+        )
     }
 
     async fetchFilesFromStorage(filePaths: string[], bucket: string) {

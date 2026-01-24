@@ -1,10 +1,9 @@
 import {AppContext} from "#/setup.js";
-import {Agent, cookieOptions, SessionAgent} from "#/utils/session-agent.js";
+import {cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {deleteRecords} from "#/services/delete.js";
-import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
-import {hydrateProfileViewDetailed, hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {unique} from "@cabildo-abierto/utils";
-import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
+import {CAHandler, CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
+import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
+import {Dataplane} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
 import {createCAUser} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
@@ -20,7 +19,8 @@ import {BlobRef} from "@atproto/lexicon";
 import {uploadBase64Blob} from "#/services/blob.js";
 import {BskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js";
-import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
+import * as Effect from "effect/Effect";
+import {pipe} from "effect";
 
 
 export async function dbHandleToDid(ctx: AppContext, handleOrDid: string): Promise<string | null> {
@@ -37,16 +37,22 @@ export async function dbHandleToDid(ctx: AppContext, handleOrDid: string): Promi
 }
 
 
-export async function handleToDid(ctx: AppContext, agent: Agent, handleOrDid: string): Promise<string | null> {
-    if (handleOrDid.startsWith("did")) {
-        return handleOrDid
+export class HandleResolutionError {
+    readonly _tag = "HandleResolutionError"
+}
+
+
+
+export const handleOrDidToDid = (ctx: AppContext, handleOrDid: string): Effect.Effect<string, HandleResolutionError> => {
+    if(handleOrDid.startsWith("did")) {
+        return Effect.succeed(handleOrDid)
     } else {
-        try {
-            return await ctx.resolver.resolveHandleToDid(handleOrDid)
-        } catch (err) {
-            ctx.logger.pino.error({error: err, handleOrDid}, "error in handleToDid")
-            return null
-        }
+        return Effect.tryPromise({
+            try: async () => {
+                return await ctx.resolver.resolveHandleToDid(handleOrDid)
+            },
+            catch: () => new HandleResolutionError()
+        })
     }
 }
 
@@ -135,26 +141,31 @@ export const unfollow: CAHandler<{ followUri: string }> = async (ctx, agent, {fo
 }
 
 
-export const getProfile: CAHandlerNoAuth<{ params: { handleOrDid: string } }, ArCabildoabiertoActorDefs.ProfileViewDetailed> = async (ctx, agent, {params}) => {
-    try {
-        const did = await handleToDid(ctx, agent, params.handleOrDid)
-        if (!did) return {error: "No se encontró el usuario."}
+export const getProfile: EffHandlerNoAuth<{ params: { handleOrDid: string } }, ArCabildoabiertoActorDefs.ProfileViewDetailed> = (ctx, agent, {params}) => {
+    const dataplane = new Dataplane(ctx, agent)
 
-        const dataplane = new Dataplane(ctx, agent)
+    return pipe(
+        handleOrDidToDid(ctx, params.handleOrDid),
+        Effect.tap(did => dataplane.fetchProfileViewDetailedHydrationData([did])),
+        Effect.flatMap(did => Effect.tryPromise({
+            try: async () => {
+                const profile = hydrateProfileViewDetailed(ctx, did, dataplane)
 
-        await dataplane.fetchProfileViewDetailedHydrationData([did])
+                if(!profile) {
+                    throw new Error("Perfil no encontrado")
+                }
 
-        const profile = hydrateProfileViewDetailed(ctx, did, dataplane)
-
-        if(!profile) {
-            return {error: "Error al obtener el perfil"}
-        } else {
-            return {data: profile}
-        }
-    } catch (err) {
-        ctx.logger.pino.error({error: err, params}, "error getting profile")
-        return {error: "No se encontró el usuario."}
-    }
+                return profile
+            },
+            catch: () => "Error al obtener el perfil"
+        })),
+        Effect.catchTag("HandleResolutionError", () =>
+            Effect.fail("Usuario no encontrado")
+        ),
+        Effect.catchAll(error =>
+            Effect.fail("Ocurrió un error al obtener el usuario.")
+        )
+    )
 }
 
 
@@ -404,63 +415,7 @@ export const setSeenTutorialHandler: CAHandler<{ params: { tutorial: Tutorial } 
 }
 
 
-async function getFollowxFromCA(ctx: AppContext, did: string, data: Dataplane, kind: "follows" | "followers") {
-    const dids = kind == "follows" ?
-        await getCAFollowsDids(ctx, did) :
-        await getCAFollowersDids(ctx, did)
 
-    return unique(dids)
-}
-
-
-async function getFollowxFromBsky(agent: Agent, did: string, data: Dataplane, kind: "follows" | "followers") {
-    const users = kind == "follows" ?
-        (await agent.bsky.app.bsky.graph.getFollows({actor: did})).data.follows :
-        (await agent.bsky.app.bsky.graph.getFollowers({actor: did})).data.followers
-
-    data.bskyBasicUsers = joinMaps(data.bskyBasicUsers,
-        new Map(users.map(u => [u.did, {
-            ...u,
-            $type: "app.bsky.actor.defs#profileViewBasic"
-        }])))
-    return users.map(u => u.did)
-}
-
-
-export const getFollowx = async (ctx: AppContext, agent: Agent, {handleOrDid, kind}: {
-    handleOrDid: string,
-    kind: "follows" | "followers"
-}): Promise<{ data?: ArCabildoabiertoActorDefs.ProfileViewBasic[], error?: string }> => {
-    const did = await handleToDid(ctx, agent, handleOrDid)
-    if (!did) return {error: "No se encontró el usuario."}
-
-    const data = new Dataplane(ctx, agent)
-
-    const [caUsers, bskyUsers] = await Promise.all([
-        getFollowxFromCA(ctx, did, data, kind),
-        getFollowxFromBsky(agent, did, data, kind)
-    ])
-
-    const userList = unique([...caUsers, ...bskyUsers])
-
-    await data.fetchProfileViewHydrationData(userList)
-
-    return {data: userList.map(u => hydrateProfileViewBasic(ctx, u, data)).filter(u => u != null)}
-}
-
-
-export const getFollows: CAHandlerNoAuth<{
-    params: { handleOrDid: string }
-}, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = async (ctx, agent, {params}) => {
-    return await getFollowx(ctx, agent, {handleOrDid: params.handleOrDid, kind: "follows"})
-}
-
-
-export const getFollowers: CAHandlerNoAuth<{
-    params: { handleOrDid: string }
-}, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = async (ctx, agent, {params}) => {
-    return await getFollowx(ctx, agent, {handleOrDid: params.handleOrDid, kind: "followers"})
-}
 
 
 type UpdateProfileProps = {
@@ -515,17 +470,9 @@ export const updateProfile: CAHandler<UpdateProfileProps, {}> = async (ctx, agen
 }
 
 
-const bskyDid = "did:plc:z72i7hdynmk6r22z27h6tvur"
 
-export const clearFollowsHandler: CAHandler<{}, {}> = async (ctx, agent, {}) => {
-    const {data: follows} = await getFollows(ctx, agent, {params: {handleOrDid: agent.did}})
 
-    if (follows && follows.length == 1 && follows[0].did == bskyDid && follows[0].viewer?.following) {
-        await unfollow(ctx, agent, {followUri: follows[0].viewer.following})
-    }
 
-    return {data: {}}
-}
 
 
 export const updateAlgorithmConfig: CAHandler<AlgorithmConfig, {}> = async (ctx, agent, config) => {

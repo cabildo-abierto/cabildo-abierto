@@ -1,5 +1,5 @@
 import {AppContext} from "#/setup.js";
-import {dbHandleToDid, getCAUsersDids, handleToDid} from "#/services/user/users.js";
+import {dbHandleToDid, getCAUsersDids, handleOrDidToDid} from "#/services/user/users.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {RepoReader} from "@atcute/car/v4"
 import {getServiceEndpointForDid} from "#/services/blob.js";
@@ -10,6 +10,7 @@ import {batchDeleteRecords, getRecordProcessor} from "#/services/sync/event-proc
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
+import {Effect} from "effect";
 
 
 export async function syncAllUsers(ctx: AppContext, mustUpdateCollections?: string[]) {
@@ -464,7 +465,7 @@ export const syncUserHandler: CAHandler<{
     const {handleOrDid} = params
     const {c} = query
 
-    const did = await handleToDid(ctx, agent, handleOrDid)
+    const did = await Effect.runPromise(handleOrDidToDid(ctx, handleOrDid))
     if(!did) return {error: "No se pudo obtener el did."}
 
     const inCA = await isCAUser(ctx, did)

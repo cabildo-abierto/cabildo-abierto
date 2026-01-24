@@ -2,10 +2,11 @@ import {getCollectionFromUri, getRkeyFromUri, getUri, isPost} from "@cabildo-abi
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {CAHandler} from "#/utils/handler.js";
-import {handleToDid} from "#/services/user/users.js";
+import {handleOrDidToDid} from "#/services/user/users.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {batchDeleteRecords} from "#/services/sync/event-processing/get-record-processor.js";
 import {deleteDraft} from "#/services/write/drafts.js";
+import {Effect} from "effect";
 
 
 export async function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {ctx: AppContext, agent?: SessionAgent, did: string, collections?: string[], atproto: boolean}){
@@ -62,7 +63,7 @@ export async function deleteRecords({ctx, agent, uris, atproto}: { ctx: AppConte
 
 export const deleteUserHandler: CAHandler<{params: {handleOrDid: string}}> = async (ctx, agent, {params}) => {
     const {handleOrDid} = params
-    const did = await handleToDid(ctx, agent, handleOrDid)
+    const did = await Effect.runPromise(handleOrDidToDid(ctx, handleOrDid))
     if(!did) return {error: "No se pudo resolver el handle."}
     await deleteUser(ctx, did)
     return {data: {}}

@@ -11,56 +11,69 @@ import {
     getEnDiscusionFeedPipeline
 } from "#/services/feed/inicio/discusion.js";
 import {discoverFeedPipeline} from "#/services/feed/discover/discover.js";
-import {CAHandlerNoAuth, CAHandlerOutput} from "#/utils/handler.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {articlesFeedPipeline} from "#/services/feed/inicio/articles.js";
-import {clearFollowsHandler, getProfile, getSessionData} from "#/services/user/users.js";
-import {SpanStatusCode} from "@opentelemetry/api";
+import {getProfile, getSessionData} from "#/services/user/users.js";
+import * as Effect from "effect/Effect";
+import {pipe} from "effect";
+import {clearFollowsHandler} from "#/services/user/follows.js";
 
 
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
 
 
-async function maybeClearFollows(ctx: AppContext, agent: Agent) {
+function maybeClearFollows(ctx: AppContext, agent: Agent): Effect.Effect<void, string> {
     if(agent.hasSession()){
-        const data = await getSessionData(ctx, agent.did)
-        if(data && (!data.seenTutorial || !data.seenTutorial.home)){
-            const {data: profile} = await getProfile(ctx, agent, {params: {handleOrDid: agent.did}})
-            if(profile && profile.bskyFollowsCount == 1){
-                await clearFollowsHandler(ctx, agent, {})
-            }
-        }
+        return pipe(
+            Effect.promise(() => getSessionData(ctx, agent.did)),
+            Effect.flatMap(data => {
+                if(data && (!data.seenTutorial || !data.seenTutorial.home)){
+                    return getProfile(ctx, agent, {params: {handleOrDid: agent.did}})
+                } else {
+                    return Effect.succeed(null)
+                }
+            }),
+            Effect.tap(profile => {
+                if(profile && profile.bskyFollowsCount == 1){
+                    return Effect.promise(() => clearFollowsHandler(ctx, agent, {}))
+                } else {
+                    return
+                }
+            })
+        )
+    } else {
+        return Effect.void
     }
 }
 
 
-export const getFeedByKind: CAHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params, query}) => {
+export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = (ctx, agent, {params, query}) => {
     const {kind} = params
-    return await ctx.tracer.startActiveSpan(`getFeedByKind/${kind}`, async span => {
-        let pipeline: FeedPipelineProps
-        const {cursor, metric, time, filter, format} = query
-        span.setAttributes({cursor, metric, time, filter, format, kind})
-        if(kind == "discusion"){
-            pipeline = getEnDiscusionFeedPipeline(metric, time, format)
-        } else if(kind == "siguiendo"){
-            await maybeClearFollows(ctx, agent)
-            pipeline = getFollowingFeedPipeline(filter, format)
-        } else if(kind == "descubrir") {
-            pipeline = discoverFeedPipeline
-        } else if(kind == "articulos") {
-            pipeline = articlesFeedPipeline
-        } else {
-            const message = `Invalid feed kind: ${kind}`
-            span.setStatus({code: SpanStatusCode.ERROR, message })
-            span.end()
-            return {error: message}
-        }
+    const {cursor, metric, time, filter, format} = query
 
-        const res = await getFeed({ctx, agent, pipeline, cursor})
-
-        span.end()
-        return res
-    })
+    return pipe(
+        Effect.promise(async () => {
+            if (kind == "discusion") {
+                return getEnDiscusionFeedPipeline(metric, time, format)
+            } else if (kind == "siguiendo") {
+                await maybeClearFollows(ctx, agent)
+                return getFollowingFeedPipeline(filter, format)
+            } else if (kind == "descubrir") {
+                return discoverFeedPipeline
+            } else if (kind == "articulos") {
+                return articlesFeedPipeline
+            } else {
+                throw Error(`Invalid feed kind: ${kind}`)
+            }
+        }),
+        Effect.flatMap(pipeline => {
+            return getFeed({ctx, agent, pipeline, cursor})
+        }),
+        Effect.catchAll(error => {
+            return Effect.fail(error)
+        })
+    )
 }
 
 
@@ -87,42 +100,33 @@ export type GetFeedProps = {
     params?: { metric?: string, time?: string }
 }
 
-export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAHandlerOutput<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> => {
+type GetFeedError = string
+
+export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> => {
     const data = new Dataplane(ctx, agent)
 
     let newCursor: string | undefined
-    let skeleton: FeedSkeleton
-    const {data: skeletonData, error: skeletonError} = await ctx.tracer.startActiveSpan("getSkeleton", async span => {
-        span.setAttributes({cursor, pipeline: pipeline.debugName || "unknown"})
 
-        try {
-            const res = await pipeline.getSkeleton(ctx, agent, data, cursor)
-            span.end()
-            return {data: res}
-        } catch {
-            span.setStatus({code: SpanStatusCode.ERROR, message: "Ocurrió un error al obtener el esqueleto del feed"})
-            span.end()
-            return {error: "Ocurrió un error al obtener el muro."}
-        }
-    })
-    if(skeletonError || !skeletonData) return {error: skeletonError}
+    return pipe(
+        Effect.promise(() => pipeline.getSkeleton(ctx, agent, data, cursor)),
+        Effect.flatMap(skRes => {
+            newCursor = skRes.cursor
+            const skeleton = skRes.skeleton
+            return Effect.promise(async () => {
+                const feed = await hydrateFeed(ctx, skeleton, data).then(feed => {
+                    return pipeline.sortKey ? sortByKey(feed, pipeline.sortKey, listOrderDesc) : feed
+                }).then(feed => {
+                    return pipeline.filter ? pipeline.filter(ctx, feed) : feed
+                })
 
-    newCursor = skeletonData.cursor
-    skeleton = skeletonData.skeleton
-
-    let feed: ArCabildoabiertoFeedDefs.FeedViewContent[] = await ctx.tracer.startActiveSpan("hydrateFeed", async span => {
-        const res = await hydrateFeed(ctx, skeleton, data)
-        span.end()
-        return res
-    })
-
-    if(pipeline.sortKey){
-        feed = sortByKey(feed, pipeline.sortKey, listOrderDesc)
-    }
-
-    if(pipeline.filter){
-        feed = pipeline.filter(ctx, feed)
-    }
-
-    return {data: {feed, cursor: newCursor}}
+                return {
+                    feed,
+                    cursor: newCursor
+                }
+            })
+        }),
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al obtener el muro.")
+        })
+    )
 }

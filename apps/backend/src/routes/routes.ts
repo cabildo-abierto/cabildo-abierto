@@ -1,6 +1,6 @@
 import express, {Router} from 'express'
 import {cookieOptions, handler, Session, sessionAgent} from "#/utils/session-agent.js";
-import {CAHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandlerNoAuth, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
 import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/search.js";
 import {createArticle} from "#/services/write/article.js";
 import {getIronSession} from "iron-session";
@@ -9,12 +9,9 @@ import {createAccessRequest, getInviteCodesToShare, login} from "#/services/user
 import {getFeedByKind} from "#/services/feed/feed.js";
 import {getProfileFeed} from "#/services/feed/profile/profile.js";
 import {
-    clearFollowsHandler,
     deleteSession,
     follow,
     getAccount,
-    getFollowers,
-    getFollows,
     getProfile,
     getSession,
     setSeenTutorialHandler,
@@ -35,7 +32,12 @@ import {
     getTopicsMentioned,
     getTopicsMentionedByContent
 } from "#/services/wiki/topics.js";
-import {getTopicFeed, getTopicMentionsInTopicsFeed, getTopicQuoteReplies} from "#/services/feed/topic.js";
+import {
+    getTopicDiscussion,
+    getTopicFeed,
+    getTopicMentionsInTopicsFeed,
+    getTopicQuoteReplies
+} from "#/services/feed/topic.js";
 import {deleteCAProfile, deleteRecordHandler, deleteRecordsHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
 import {createTopicVersion} from "#/services/write/topic.js";
@@ -75,6 +77,7 @@ import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
+import {clearFollowsHandler, getFollowers, getFollows } from "#/services/user/follows.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -122,12 +125,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/feed/:kind',
-        handler(makeHandlerNoAuth(ctx, getFeedByKind))
+        handler(makeEffHandlerNoAuth(ctx, getFeedByKind))
     )
 
     router.get(
         '/profile-feed/:handleOrDid/:kind',
-        handler(makeHandlerNoAuth(ctx, getProfileFeed))
+        handler(makeEffHandlerNoAuth(ctx, getProfileFeed))
     )
 
     router.post(
@@ -189,9 +192,10 @@ export const createRouter = (ctx: AppContext): Router => {
         '/trending-topics/:time',
         handler(makeHandlerNoAuth(ctx, getTrendingTopics))
     )
+
     router.get(
         '/profile/:handleOrDid',
-        handler(makeHandlerNoAuth(ctx, getProfile))
+        handler(makeEffHandlerNoAuth(ctx, getProfile))
     )
 
     router.get("/test", makeHandlerNoAuth(ctx, serverStatusRouteHandler))
@@ -213,12 +217,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/follows/:handleOrDid',
-        makeHandlerNoAuth(ctx, getFollows)
+        makeEffHandlerNoAuth(ctx, getFollows)
     )
 
     router.get(
         '/followers/:handleOrDid',
-        makeHandlerNoAuth(ctx, getFollowers)
+        makeEffHandlerNoAuth(ctx, getFollowers)
     )
 
     router.get(
@@ -237,8 +241,13 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.get(
-        '/topic-feed/:kind',
-        makeHandlerNoAuth(ctx, getTopicFeed)
+        '/topic-feed',
+        makeEffHandlerNoAuth(ctx, getTopicFeed)
+    )
+
+    router.get(
+        '/topic-discussion',
+        makeEffHandlerNoAuth(ctx, getTopicDiscussion)
     )
 
     router.get(
@@ -304,7 +313,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/search-contents/:q',
-        makeHandlerNoAuth(ctx, searchContents)
+        makeEffHandlerNoAuth(ctx, searchContents)
     )
 
     router.post(

@@ -6,7 +6,8 @@ import {
     MessageView
 } from "@atproto/api/dist/client/types/chat/bsky/convo/defs.js";
 import {$Typed, ChatBskyConvoGetConvoAvailability} from "@atproto/api";
-import {handleToDid} from "#/services/user/users.js";
+import {handleOrDidToDid} from "#/services/user/users.js";
+import {Effect} from "effect";
 
 
 export const getConversations: CAHandler<{}, ConvoView[]> = async (ctx, agent, params) => {
@@ -36,7 +37,7 @@ export const getConversation: CAHandler<{
     params: { convoIdOrHandle: string }
 }, Conversation> = async (ctx, agent, {params}) => {
     const chatAgent = agent.bsky.withProxy("bsky_chat", "did:web:api.bsky.chat")
-    const did = await handleToDid(ctx, agent, params.convoIdOrHandle)
+    const did = await Effect.runPromise(handleOrDidToDid(ctx, params.convoIdOrHandle))
 
     if (did == null) {
         const convoId = params.convoIdOrHandle

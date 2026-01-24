@@ -9,6 +9,7 @@ import {AppBskyGraphFollow} from "@atproto/api";
 import {NextMeeting} from "#/services/admin/meetings.js";
 import {AppContext} from "#/setup.js";
 import {type Redis} from "ioredis/built/index.js";
+import { Effect } from "effect";
 
 
 class CacheKey {
@@ -49,6 +50,16 @@ class CacheKey {
     async clear() {
 
     }
+}
+
+
+export class RedisCacheFetchError {
+    readonly _tag = "RedisCacheFetchError"
+}
+
+
+export class RedisCacheSetError {
+    readonly _tag = "RedisCacheSetError"
 }
 
 
@@ -109,12 +120,14 @@ class ProfileCacheKey extends CacheKey {
         return this.formatCached(cached)
     }
 
-    async getMany(dids: string[]) {
-        return dids.map(d => null) // Cache desactivada
-        if(dids.length == 0) return []
+    getMany(dids: string[]): Effect.Effect<(ArCabildoabiertoActorDefs.ProfileViewDetailed | null)[], RedisCacheFetchError> {
+        // Cache desactivada
+        return Effect.succeed(dids.map(d => null))
+
+        /*if(dids.length == 0) return []
         const cached = await this.cache.redis.mget(dids.map(d => this.key(d)))
         const profiles: (ArCabildoabiertoActorDefs.ProfileViewDetailed | null)[] = cached.map(this.formatCached)
-        return profiles
+        return profiles*/
     }
 
     async set(did: string, profile: ArCabildoabiertoActorDefs.ProfileViewDetailed) {
@@ -124,10 +137,13 @@ class ProfileCacheKey extends CacheKey {
         )
     }
 
-    async setMany(profiles: ArCabildoabiertoActorDefs.ProfileViewDetailed[]) {
-        await this.cache.setMany(
-            profiles.map(p => [this.key(p.did), JSON.stringify(p)])
-        )
+    setMany(profiles: ArCabildoabiertoActorDefs.ProfileViewDetailed[]): Effect.Effect<void, RedisCacheSetError> {
+        return Effect.tryPromise({
+            try: () => this.cache.setMany(
+                profiles.map(p => [this.key(p.did), JSON.stringify(p)])
+            ),
+            catch: () => new RedisCacheSetError()
+        })
     }
 
     async onEvent(e: RedisEvent, params: string[]) {

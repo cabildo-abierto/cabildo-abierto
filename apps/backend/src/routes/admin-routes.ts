@@ -1,6 +1,6 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
-import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeHandler} from "#/utils/handler.js";
+import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler, makeHandler} from "#/utils/handler.js";
 import {syncAllUsersHandler, syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteUserHandler} from "#/services/delete.js";
 import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
@@ -144,7 +144,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get("/top-authors", makeAdminHandler(ctx, getTopAuthors))
 
-    router.get("/all-ca-feed", makeAdminHandler(ctx, getAllCAFeed))
+    router.get("/all-ca-feed", makeEffAdminHandler(ctx, getAllCAFeed))
 
     router.post("/find-users/:handle", makeAdminHandler(ctx, findUsersInFollows))
 
@@ -207,7 +207,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get(
         '/all-topic-edits-feed',
-        makeAdminHandler(ctx, getAllTopicEditsFeed)
+        makeEffAdminHandler(ctx, getAllTopicEditsFeed)
     )
 
     router.get(

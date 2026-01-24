@@ -1,4 +1,4 @@
-import {CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {FeedPipelineProps, FeedSkeleton, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
 import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
@@ -26,6 +26,7 @@ import {
 import {SkeletonQuery} from "#/services/feed/inicio/following.js";
 import {getTopicCurrentVersionFromDB} from "#/services/wiki/topics.js";
 import {$Typed} from "@atproto/api";
+import {Effect, pipe} from "effect";
 
 
 const getTopicRepliesSkeleton = async (ctx: AppContext, id: string) => {
@@ -353,58 +354,92 @@ export const getTopicVersionReplies = async (
 }
 
 
-export const getTopicFeed: CAHandlerNoAuth<{ params: {kind: "mentions" | "discussion"}, query: { i?: string, did?: string, rkey?: string, cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption } }, {
+export const getTopicDiscussion: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string, cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption } }, {
     feed: ArCabildoabiertoFeedDefs.FeedViewContent[],
     cursor?: string
-}> = async (ctx, agent, {query, params}) => {
-    let {i: id, did, rkey, cursor, metric, time, format} = query
-    const {kind} = params
+}> = (ctx, agent, {query}) => {
+    let {i: id, did, rkey} = query
 
-    let uri: string | undefined = did && rkey ? getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey) : undefined
-    if(!id){
-        if(!did || !rkey){
-            return {error: "Se requiere un id o un par did y rkey."}
-        } else {
-            id = await getTopicIdFromTopicVersionUri(ctx, did, rkey) ?? undefined
-            if(!id){
-                return {error: "No se encontró esta versión del tema."}
-            }
-        }
+    const uri: string | undefined = did && rkey ? getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey) : undefined
+
+    if(!id && (!did || !rkey)) {
+        return Effect.fail("Se requiere un id o un par did y rkey.")
     }
 
-    if(kind == "discussion"){
-        if(!uri) {
-            const {data, error} = await getTopicCurrentVersionFromDB(ctx, id)
-            if(error || !data) {
-                return {error: "No se encontró el tema."}
+    return pipe(
+        Effect.promise(async () => {
+            if(id) {
+                return id
+            } else {
+                return await getTopicIdFromTopicVersionUri(ctx, did!, rkey!) ?? undefined
             }
-            uri = data
-        }
-        const replies = await getTopicVersionReplies(ctx, agent, id, uri)
-        if(!replies.data) return {error: replies.error}
+        }),
+        Effect.flatMap(id => {
+            return id ?
+                Effect.succeed(id) :
+                Effect.fail("No se encontró la versión del tema.")
+        }),
+        Effect.flatMap(id =>
+            Effect.all([
+                Effect.promise(async () => (uri ? uri : (await getTopicCurrentVersionFromDB(ctx, id))?.data)),
+                Effect.succeed(id)
+            ])
+        ),
+        Effect.flatMap(([uri, id]) => {
+            return Effect.promise(async () => {
+                if(!uri) {
+                    throw Error("No se encontró la versión actual del tema.")
+                }
+                const replies = await getTopicVersionReplies(ctx, agent, id, uri)
+                if(!replies.data) throw Error(replies.error)
+                return {
+                    feed: replies.data,
+                    cursor: undefined
+                }
+            })
+        })
+    )
+}
 
-        return {
-            data: {
-                feed: replies.data,
-                cursor: undefined
+
+export const getTopicFeed: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string, cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption } }, {
+    feed: ArCabildoabiertoFeedDefs.FeedViewContent[],
+    cursor?: string
+}> = (ctx, agent, {query}) => {
+    let {i: id, did, rkey, cursor, metric, time, format} = query
+
+    if(!id && (!did || !rkey)) {
+        return Effect.fail("Se requiere un id o un par did y rkey.")
+    }
+
+    return pipe(
+        Effect.promise(async () => {
+            if(id) {
+                return id
+            } else {
+                return await getTopicIdFromTopicVersionUri(ctx, did!, rkey!) ?? undefined
             }
-        }
-    } else if(kind == "mentions"){
-        const getSkeleton: GetSkeletonProps = async (ctx, agent, data, cursor) => {
-            return await getTopicMentionsSkeleton(
-                ctx,
-                agent,
-                data,
-                id,
-                cursor,
-                metric ?? defaultTopicMentionsMetric,
-                time ?? defaultTopicMentionsTime,
-                format ?? defaultTopicMentionsFormat
-            )
-        }
+        }),
+        Effect.flatMap(id => {
+            return id ?
+                Effect.succeed(id) :
+                Effect.fail("No se encontró la versión del tema.")
+        }),
+        Effect.flatMap(id => {
+            const getSkeleton: GetSkeletonProps = async (ctx, agent, data, cursor) => {
+                return await getTopicMentionsSkeleton(
+                    ctx,
+                    agent,
+                    data,
+                    id,
+                    cursor,
+                    metric ?? defaultTopicMentionsMetric,
+                    time ?? defaultTopicMentionsTime,
+                    format ?? defaultTopicMentionsFormat
+                )
+            }
 
-        try {
-            return await getFeed({
+            return getFeed({
                 ctx,
                 agent,
                 pipeline: {
@@ -413,13 +448,8 @@ export const getTopicFeed: CAHandlerNoAuth<{ params: {kind: "mentions" | "discus
                 },
                 cursor
             })
-        } catch (error) {
-            ctx.logger.pino.error({error}, "error getting mentions feed")
-            return {error: "Ocurrió un error al obtener el muro."}
-        }
-    } else {
-        return {error: "Solicitud inválida."}
-    }
+        })
+    )
 }
 
 
@@ -474,7 +504,7 @@ export const getTopicQuoteReplies: CAHandlerNoAuth<{params: {did: string, rkey: 
 }
 
 
-export const getAllTopicEditsFeed: CAHandlerNoAuth<{query: {cursor: string | undefined}}, {}> = async (ctx, agent, {query}) => {
+export const getAllTopicEditsFeed: EffHandlerNoAuth<{query: {cursor: string | undefined}}, {}> = (ctx, agent, {query}) => {
     const {cursor} = query
 
     const pipeline: FeedPipelineProps = {
@@ -498,5 +528,5 @@ export const getAllTopicEditsFeed: CAHandlerNoAuth<{query: {cursor: string | und
         }
     }
 
-    return await getFeed({ctx, agent, pipeline, cursor})
+    return getFeed({ctx, agent, pipeline, cursor})
 }

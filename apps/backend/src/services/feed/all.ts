@@ -1,6 +1,6 @@
 import {FeedPipelineProps, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
 import {min} from "@cabildo-abierto/utils";
-import {CAHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 
 const getAllCAFeedPipeline: GetSkeletonProps = async (ctx, agent, data, cursor) => {
     if (!agent.hasSession()) {
@@ -54,6 +54,6 @@ export const allCAFeedPipeline: FeedPipelineProps = {
 }
 
 
-export const getAllCAFeed: CAHandler<{query: {cursor?: string}}, {}> = async (ctx, agent, {query}) => {
+export const getAllCAFeed: EffHandler<{query: {cursor?: string}}, {}> = (ctx, agent, {query}) => {
     return getFeed({ctx, agent, pipeline: allCAFeedPipeline, cursor: query?.cursor})
 }

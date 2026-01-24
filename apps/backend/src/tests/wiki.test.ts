@@ -15,8 +15,9 @@ import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import {getTopicVersion} from "#/services/wiki/topics.js";
 import {getTopicVersionVotes} from "#/services/wiki/votes.js";
-import {getTopicFeed} from "#/services/feed/topic.js";
+import {getTopicDiscussion} from "#/services/feed/topic.js";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
+import {Effect} from "effect";
 
 const testSuite = getSuiteId(__filename)
 
@@ -193,19 +194,18 @@ describe('Get discussion', { timeout: 20000 }, () => {
 
         const agent = new MockSessionAgent(user)
 
-        const feed = await getTopicFeed(
+        const feed = await Effect.runPromise(getTopicDiscussion(
             ctx!,
             agent,
             {
-                params: {kind: "discussion"},
                 query: {
                     i: "tema de prueba"
                 }
             }
-        )
-        expect(feed.data).not.toBeFalsy()
+        ))
+        expect(feed).not.toBeFalsy()
 
-        const postOnFeed = feed.data!.feed
+        const postOnFeed = feed.feed
             .find(e => ArCabildoabiertoFeedDefs.isPostView(e.content) &&
                 e.content.uri == post.ref.uri)
 

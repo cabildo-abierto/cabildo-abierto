@@ -12,14 +12,14 @@ export function createIdResolver() {
 }
 
 export interface BidirectionalResolver {
-    resolveHandleToDid(handle: string): Promise<string | null>
+    resolveHandleToDid(handle: string): Promise<string>
 
-    resolveDidToHandle(did: string, useCache: boolean): Promise<string | null>
+    resolveDidToHandle(did: string, useCache: boolean): Promise<string>
 }
 
 export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache) {
     return {
-        async resolveDidToHandle(did: string, useCache: boolean = true): Promise<string | null> {
+        async resolveDidToHandle(did: string, useCache: boolean = true): Promise<string> {
             const handle = await redis.resolver.getHandle(did)
             if(!handle || !useCache){
                 const didDoc = await resolver.did.resolveAtprotoData(did)
@@ -28,13 +28,13 @@ export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCa
                     await redis.resolver.setHandle(did, didDoc.handle)
                     return didDoc.handle
                 }
-                return null
+                throw new Error("Could not resolve handle for did.")
             } else {
                 return handle
             }
         },
 
-        async resolveHandleToDid(handle: string): Promise<string | null> {
+        async resolveHandleToDid(handle: string): Promise<string> {
             let did: string | null | undefined = await redis.resolver.getDid(handle)
             if(!did){
                 did = await resolver.handle.resolveDns(handle)
@@ -47,7 +47,11 @@ export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCa
             } else {
                 return did
             }
-            return did ?? null
+            if(did) {
+                return did
+            } else {
+                throw new Error("Could not resolve did for handle.")
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ import {splitUri} from "@cabildo-abierto/utils";
 function useTopicDiscussion(uri: string) {
     const {did, rkey} = splitUri(uri)
     return useAPI<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>>(
-        `/topic-feed/discussion?did=${did}&rkey=${rkey}`, ["topic-discussion", uri]
+        `/topic-discussion?did=${did}&rkey=${rkey}`, ["topic-discussion", uri]
     )
 }
 
