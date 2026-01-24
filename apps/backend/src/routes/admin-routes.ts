@@ -1,6 +1,6 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
-import {CAHandler, CAHandlerNoAuth, makeHandler} from "#/utils/handler.js";
+import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeHandler} from "#/utils/handler.js";
 import {syncAllUsersHandler, syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteUserHandler} from "#/services/delete.js";
 import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
@@ -21,7 +21,6 @@ import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/sta
 import {getRepoCounts} from "#/services/admin/repo.js";
 import {getRegisteredJobs, startJob, getWorkerState} from "#/jobs/worker.js";
 import {clearRedisHandler} from "#/services/redis/cache.js";
-import {env} from "#/lib/env.js";
 import {getAdminNotificationCounts, getServerStatus, getUsersSyncStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
@@ -39,51 +38,6 @@ import {sendBulkEmails} from "#/services/emails/sending.js";
 import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
 import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 import {getPendingModeration} from "#/services/moderation/status.js";
-
-
-function isAdmin(did: string) {
-    return [
-        "did:plc:2356xofv4ntrbu42xeilxjnb",
-        "did:plc:rup47j6oesjlf44wx4fizu4m",
-        "did:plc:2dbz7h5m3iowpqc23ozltpje",
-        "did:plc:2semihha42b7efhu4ywv7whi"
-    ].includes(did)
-}
-
-
-function makeAdminHandler<P, Q>(ctx: AppContext, handler: CAHandler<P, Q>): express.Handler {
-
-    const adminOnlyHandler: CAHandler<P, Q> = async (ctx, agent, params) => {
-        if (isAdmin(agent.did)) {
-            return handler(ctx, agent, params)
-        } else {
-            return {error: "Necesitás permisos de administrador para realizar esta acción."}
-        }
-    }
-
-    return makeHandler(ctx, adminOnlyHandler)
-}
-
-
-function makeAdminHandlerNoAuth<P, Q>(ctx: AppContext, handler: CAHandlerNoAuth<P, Q>): express.Handler {
-
-    return async (req, res) => {
-        const params = {...req.body, params: req.params, query: req.query} as P
-        const agent = await sessionAgent(req, res, ctx)
-
-        const admin = agent.hasSession() && isAdmin(agent.did)
-        const authHeader = req.headers.authorization || ''
-        const token = authHeader.replace(/^Bearer\s+/i, '')
-        const validToken = token == env.ADMIN_TOKEN
-
-        if(admin || validToken) {
-            const json = await handler(ctx, agent, params)
-            return res.json(json)
-        } else {
-            return res.json({error: "No session"})
-        }
-    }
-}
 
 
 export const adminRoutes = (ctx: AppContext): Router => {

@@ -1,3 +1,4 @@
+/*setup.ts*/
 import type {OAuthClient} from '@atproto/oauth-client-node'
 import {createClient} from '#/auth/client.js'
 import {BidirectionalResolver, createBidirectionalResolver, createIdResolver} from '#/id-resolver.js'
@@ -12,6 +13,7 @@ import {env} from './lib/env.js';
 import {S3Storage} from './services/storage/storage.js';
 import {getCAUsersDids} from "#/services/user/users.js";
 import * as dotenv from 'dotenv';
+import {trace, Tracer} from "@opentelemetry/api";
 dotenv.config();
 
 export type AppContext = {
@@ -24,6 +26,7 @@ export type AppContext = {
     worker: CAWorker | undefined
     kysely: Kysely<DB>
     storage: S3Storage | undefined
+    tracer: Tracer
 }
 
 
@@ -101,7 +104,8 @@ export async function setupAppContext(roles: Role[]) {
         kysely,
         worker,
         storage,
-        mirrorId
+        mirrorId,
+        tracer: trace.getTracer('ca-backend')
     }
 
     if(worker){

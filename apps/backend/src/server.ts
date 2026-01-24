@@ -1,3 +1,4 @@
+/*server.ts*/
 import events from 'node:events'
 import type http from 'node:http'
 import express, {type Express} from 'express'
@@ -7,9 +8,6 @@ import cors from 'cors'
 import {MirrorMachine} from "#/services/sync/mirror-machine.js";
 import {AppContext, Role, setupAppContext} from "#/setup.js";
 import morgan from "morgan"
-//import {createServer} from "#/server/index.js";
-//import feedGeneration from "#/services/feed/feed-generation.js";
-
 
 export class Server {
     constructor(
@@ -20,6 +18,8 @@ export class Server {
     }
 
     static async create(roles: Role[]) {
+        const app: Express = express()
+
         const {ctx} = await setupAppContext(roles)
         ctx.logger.pino.info("app context created")
 
@@ -28,7 +28,6 @@ export class Server {
             ingester.run()
         }
 
-        const app: Express = express()
         app.set('trust proxy', true)
 
         app.use(express.json({ limit: "50mb" })) // TO DO: Mejorar
@@ -69,17 +68,6 @@ export class Server {
         app.use(express.urlencoded({extended: true}))
 
         app.use(morgan('combined'))
-
-        /*ctx.xrpc = createServer({
-            validateResponse: true,
-            payload: {
-                jsonLimit: 100 * 1024, // 100kb
-                textLimit: 100 * 1024, // 100kb
-                blobLimit: 5 * 1024 * 1024, // 5mb
-            }
-        })
-
-        feedGeneration(ctx.xrpc, ctx)*/
 
         const router = createRouter(ctx)
         app.use(router)

@@ -915,7 +915,6 @@ export class Dataplane {
         const profiles: ProfileViewDetailed[] = []
         for (let i = 0; i < didBatches.length; i++) {
             const b = didBatches[i]
-            this.ctx.logger.pino.info({batch: b}, "getting profiles")
             const res = await agent.bsky.app.bsky.actor.getProfiles({actors: b})
             profiles.push(...res.data.profiles)
         }

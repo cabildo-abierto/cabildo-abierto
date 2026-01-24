@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "dev:web": "pnpm --filter cabildo-abierto dev",
-    "dev:backend": "pnpm --filter ca-server dev",
+    "dev:backend": "pnpm --filter backend dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",

@@ -15,6 +15,7 @@ import {CAHandlerNoAuth, CAHandlerOutput} from "#/utils/handler.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {articlesFeedPipeline} from "#/services/feed/inicio/articles.js";
 import {clearFollowsHandler, getProfile, getSessionData} from "#/services/user/users.js";
+import {SpanStatusCode} from "@opentelemetry/api";
 
 
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
@@ -34,23 +35,32 @@ async function maybeClearFollows(ctx: AppContext, agent: Agent) {
 
 
 export const getFeedByKind: CAHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params, query}) => {
-    let pipeline: FeedPipelineProps
-    
     const {kind} = params
-    const {cursor, metric, time, filter, format} = query
-    if(kind == "discusion"){
-        pipeline = getEnDiscusionFeedPipeline(metric, time, format)
-    } else if(kind == "siguiendo"){
-        await maybeClearFollows(ctx, agent)
-        pipeline = getFollowingFeedPipeline(filter, format)
-    } else if(kind == "descubrir") {
-        pipeline = discoverFeedPipeline
-    } else if(kind == "articulos") {
-        pipeline = articlesFeedPipeline
-    } else {
-        return {error: "Invalid feed kind:" + kind}
-    }
-    return getFeed({ctx, agent, pipeline, cursor})
+    return await ctx.tracer.startActiveSpan(`getFeedByKind/${kind}`, async span => {
+        let pipeline: FeedPipelineProps
+        const {cursor, metric, time, filter, format} = query
+        span.setAttributes({cursor, metric, time, filter, format, kind})
+        if(kind == "discusion"){
+            pipeline = getEnDiscusionFeedPipeline(metric, time, format)
+        } else if(kind == "siguiendo"){
+            await maybeClearFollows(ctx, agent)
+            pipeline = getFollowingFeedPipeline(filter, format)
+        } else if(kind == "descubrir") {
+            pipeline = discoverFeedPipeline
+        } else if(kind == "articulos") {
+            pipeline = articlesFeedPipeline
+        } else {
+            const message = `Invalid feed kind: ${kind}`
+            span.setStatus({code: SpanStatusCode.ERROR, message })
+            span.end()
+            return {error: message}
+        }
+
+        const res = await getFeed({ctx, agent, pipeline, cursor})
+
+        span.end()
+        return res
+    })
 }
 
 
@@ -80,37 +90,39 @@ export type GetFeedProps = {
 export const getFeed = async ({ctx, agent, pipeline, cursor}: GetFeedProps): CAHandlerOutput<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> => {
     const data = new Dataplane(ctx, agent)
 
-    const t1 = Date.now()
     let newCursor: string | undefined
     let skeleton: FeedSkeleton
-    try {
-        const res = await pipeline.getSkeleton(ctx, agent, data, cursor)
-        newCursor = res.cursor
-        skeleton = res.skeleton
-    } catch (err) {
-        ctx.logger.pino.error({error: err}, "Error getting feed skeleton")
-        return {error: "Ocurrió un error al obtener el muro."}
-    }
-    const t2 = Date.now()
+    const {data: skeletonData, error: skeletonError} = await ctx.tracer.startActiveSpan("getSkeleton", async span => {
+        span.setAttributes({cursor, pipeline: pipeline.debugName || "unknown"})
 
-    let feed: ArCabildoabiertoFeedDefs.FeedViewContent[] = await hydrateFeed(ctx, skeleton, data)
+        try {
+            const res = await pipeline.getSkeleton(ctx, agent, data, cursor)
+            span.end()
+            return {data: res}
+        } catch {
+            span.setStatus({code: SpanStatusCode.ERROR, message: "Ocurrió un error al obtener el esqueleto del feed"})
+            span.end()
+            return {error: "Ocurrió un error al obtener el muro."}
+        }
+    })
+    if(skeletonError || !skeletonData) return {error: skeletonError}
+
+    newCursor = skeletonData.cursor
+    skeleton = skeletonData.skeleton
+
+    let feed: ArCabildoabiertoFeedDefs.FeedViewContent[] = await ctx.tracer.startActiveSpan("hydrateFeed", async span => {
+        const res = await hydrateFeed(ctx, skeleton, data)
+        span.end()
+        return res
+    })
 
     if(pipeline.sortKey){
         feed = sortByKey(feed, pipeline.sortKey, listOrderDesc)
     }
 
-    const t3 = Date.now()
-
     if(pipeline.filter){
         feed = pipeline.filter(ctx, feed)
     }
-
-    const t4 = Date.now()
-
-    ctx.logger.logTimes( "feed", [t1, t2, t3, t4], {
-        feed: pipeline.debugName ?? "feed",
-        cursor
-    })
 
     return {data: {feed, cursor: newCursor}}
 }
