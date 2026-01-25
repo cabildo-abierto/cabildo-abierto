@@ -16,11 +16,11 @@ import {
     ThreadSkeleton
 } from "#/services/hydration/hydrate.js";
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {handleOrDidToDid} from "#/services/user/users.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {isThreadViewPost, ThreadViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
+import {handleOrDidToDid} from "#/id-resolver.js";
 
 function threadViewPostToThreadSkeleton(thread: ThreadViewPost, isAncestor: boolean = false): ThreadSkeleton {
     return {

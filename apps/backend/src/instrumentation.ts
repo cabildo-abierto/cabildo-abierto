@@ -1,11 +1,9 @@
-/*instrumentation.ts*/
-import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
-import {Resource} from '@opentelemetry/resources';
-import {ATTR_SERVICE_NAME} from '@opentelemetry/semantic-conventions';
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { NodeSdk } from "@effect/opentelemetry";
+import {make} from "effect/ManagedRuntime"
 import * as dotenv from 'dotenv';
-import {ExpressInstrumentation} from "@opentelemetry/instrumentation-express";
-import {getNodeAutoInstrumentations} from "@opentelemetry/auto-instrumentations-node";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 
 dotenv.config();
 
@@ -15,25 +13,22 @@ const traceExporter = new OTLPTraceExporter({
         'Authorization': `Bearer ${process.env.AXIOM_API_KEY}`,
         'X-Axiom-Dataset': 'cabildo-abierto'
     }
-});
+})
 
-const sdk = new NodeSDK({
-    traceExporter,
-    resource: new Resource({
-        [ATTR_SERVICE_NAME]: 'ca-backend',
-    }),
-    instrumentations: [
-        getNodeAutoInstrumentations()
-    ]
-});
 
-sdk.start();
+export const NodeSdkLive = NodeSdk.layer(() => ({
+    resource: {
+        serviceName: "ca-backend",
+        serviceVersion: "1.0.1"
+    },
+    spanProcessor: new BatchSpanProcessor(traceExporter),
+    instrumentations: [getNodeAutoInstrumentations({
+        '@opentelemetry/instrumentation-fs': {
+            enabled: false
+        },
+    })]
+}))
 
-process.on('SIGTERM', () => {
-    sdk.shutdown()
-        .then(() => console.log('Tracing terminated'))
-        .catch((error) => console.log('Error terminating tracing', error))
-        .finally(() => process.exit(0));
-});
+export const runtime = make(NodeSdkLive)
 
 console.log('OpenTelemetry instrumentation initialized');

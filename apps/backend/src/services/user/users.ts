@@ -8,7 +8,8 @@ import {getIronSession} from "iron-session";
 import {createCAUser} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
 import {
-    Account, AlgorithmConfig,
+    Account,
+    AlgorithmConfig,
     ArCabildoabiertoActorDefs,
     ATProtoStrongRef,
     AuthorStatus,
@@ -21,6 +22,7 @@ import {BskyProfileRecordProcessor} from "#/services/sync/event-processing/profi
 import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
+import {handleOrDidToDid} from "#/id-resolver.js";
 
 
 export async function dbHandleToDid(ctx: AppContext, handleOrDid: string): Promise<string | null> {
@@ -39,26 +41,6 @@ export async function dbHandleToDid(ctx: AppContext, handleOrDid: string): Promi
 
 export class HandleResolutionError {
     readonly _tag = "HandleResolutionError"
-}
-
-
-
-export const handleOrDidToDid = (ctx: AppContext, handleOrDid: string): Effect.Effect<string, HandleResolutionError> => {
-    if(handleOrDid.startsWith("did")) {
-        return Effect.succeed(handleOrDid)
-    } else {
-        return Effect.tryPromise({
-            try: async () => {
-                return await ctx.resolver.resolveHandleToDid(handleOrDid)
-            },
-            catch: () => new HandleResolutionError()
-        })
-    }
-}
-
-
-export async function didToHandle(ctx: AppContext, did: string): Promise<string | null> {
-    return await ctx.resolver.resolveDidToHandle(did, true)
 }
 
 

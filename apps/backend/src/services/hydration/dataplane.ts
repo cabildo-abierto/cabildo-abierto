@@ -1004,6 +1004,8 @@ export class Dataplane {
                 this.fetchProfilesViewerState(dids)
             ], {concurrency: "unbounded"}),
 
+            Effect.withSpan("fetchProfileViewDetailedHydrationData"),
+
             // almacenamos los perfiles cacheados en el dataplane
             Effect.tap(([profiles]) => {
                 profiles.forEach(p => {

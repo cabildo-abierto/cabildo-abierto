@@ -24,7 +24,7 @@ function Feed<T>({
                      loadingStartContent,
                      feedMerger=defaultFeedMerger
                  }: FeedProps<T>) {
-    const {data: feed, fetchNextPage, loading, hasNextPage, isFetchingNextPage, feedList} = useFeed(
+    const {data: feed, fetchNextPage, loading, hasNextPage, isFetching, isFetchingNextPage, feedList} = useFeed(
         getFeed,
         queryKey,
         enabled,
@@ -47,7 +47,9 @@ function Feed<T>({
         items,
         fetchNextPage,
         isFetchingNextPage,
-        hasNextPage
+        isFetching,
+        hasNextPage,
+        isLoadingStartContent
     )
 
     return (

@@ -1,5 +1,9 @@
 import {IdResolver, MemoryCache} from '@atproto/identity'
 import {RedisCache} from "#/services/redis/cache.js";
+import {pipe} from "effect";
+import {HandleResolutionError} from "#/services/user/users.js";
+import {AppContext} from "#/setup.js";
+import * as Effect from "effect/Effect";
 
 const HOUR = 60e3 * 60
 const DAY = HOUR * 24
@@ -12,12 +16,12 @@ export function createIdResolver() {
 }
 
 export interface BidirectionalResolver {
-    resolveHandleToDid(handle: string): Promise<string>
+    resolveHandleToDid(handle: string): Effect.Effect<string, HandleResolutionError>
 
     resolveDidToHandle(did: string, useCache: boolean): Promise<string>
 }
 
-export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache) {
+export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache): BidirectionalResolver {
     return {
         async resolveDidToHandle(did: string, useCache: boolean = true): Promise<string> {
             const handle = await redis.resolver.getHandle(did)
@@ -34,24 +38,40 @@ export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCa
             }
         },
 
-        async resolveHandleToDid(handle: string): Promise<string> {
-            let did: string | null | undefined = await redis.resolver.getDid(handle)
-            if(!did){
-                did = await resolver.handle.resolveDns(handle)
-                if(!did){
-                    did = await resolver.handle.resolveHttp(handle)
-                }
-                if(did){
-                    await redis.resolver.setHandle(did, handle)
-                }
-            } else {
-                return did
-            }
-            if(did) {
-                return did
-            } else {
-                throw new Error("Could not resolve did for handle.")
-            }
+        resolveHandleToDid(handle: string): Effect.Effect<string, HandleResolutionError> {
+            return pipe(
+                Effect.promise(() => redis.resolver.getDid(handle)),
+                Effect.flatMap(did => {
+                    return did ?
+                        Effect.succeed(did) :
+                        Effect.promise(() => resolver.handle.resolveDns(handle))
+                }),
+                Effect.flatMap(did => {
+                    return did ?
+                        Effect.succeed(did) :
+                        Effect.promise(() => resolver.handle.resolveHttp(handle))
+                }),
+                Effect.tap(did =>  {
+                    return did ? Effect.promise(() => redis.resolver.setHandle(did, handle)) : Effect.void
+                }),
+                Effect.flatMap(did => {
+                    return did ?
+                        Effect.succeed(did) :
+                        Effect.fail(new HandleResolutionError())
+                }),
+                Effect.catchAll(error => Effect.fail(new HandleResolutionError())),
+                Effect.withSpan("resolveHandleToDid", {
+                    attributes: {handle}
+                })
+            )
         }
+    }
+}
+
+export const handleOrDidToDid = (ctx: AppContext, handleOrDid: string): Effect.Effect<string, HandleResolutionError> => {
+    if (handleOrDid.startsWith("did")) {
+        return Effect.succeed(handleOrDid)
+    } else {
+        return ctx.resolver.resolveHandleToDid(handleOrDid)
     }
 }

@@ -49,7 +49,9 @@ export function useFetchNextPage<T>(
     items: VirtualItem[],
     fetchNextPage: () => void,
     isFetchingNextPage: boolean,
-    hasNextPage: boolean
+    isFetching: boolean,
+    hasNextPage: boolean,
+    loadingStartContent: boolean
 ) {
     const hasScrolledRef = useRef(false)
 
@@ -65,6 +67,7 @@ export function useFetchNextPage<T>(
     useEffect(() => {
         if(feedList.length == 0 || items.length == 0) {
             if(hasNextPage && !isFetchingNextPage) {
+                console.log("fetching next page (empty feed)")
                 fetchNextPage()
                 return
             } else {
@@ -76,8 +79,9 @@ export function useFetchNextPage<T>(
         if (
             lastItem.index >= feedList.length - 1 &&
             hasNextPage &&
-            !isFetchingNextPage && hasScrolledRef.current
+            !isFetchingNextPage && hasScrolledRef.current && !isFetching && !loadingStartContent
         ) {
+            console.log("fetching next page (not empty)")
             fetchNextPage()
         }
     }, [

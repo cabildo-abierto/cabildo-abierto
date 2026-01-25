@@ -27,7 +27,6 @@ import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
-import {trace} from "@opentelemetry/api";
 
 export const testTimeout = 40000
 
@@ -123,8 +122,7 @@ export async function createTestContext(): Promise<AppContext> {
         worker: new MockCAWorker(logger),
         storage: undefined,
         oauthClient: undefined,
-        redisCache,
-        tracer: trace.getTracer('ca-backend')
+        redisCache
     }
 
     const result = await sql<{ dbName: string }>`SELECT current_database() as "dbName"`.execute(ctx.kysely);

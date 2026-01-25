@@ -43,16 +43,27 @@ import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
 import {createTopicVersion} from "#/services/write/topic.js";
 import path from "path";
 import {cancelEditVote, getTopicVersionVotesHandler, voteEdit} from "#/services/wiki/votes.js";
-import { adminRoutes } from './admin-routes.js';
-import { fetchURLMetadataHandler, getContentMetadata } from '#/services/write/metadata.js';
-import {getDatasetHandler, getDatasets, getTopicsDatasetHandler } from '#/services/dataset/read.js';
-import { createDataset } from '#/services/dataset/write.js';
+import {adminRoutes} from './admin-routes.js';
+import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
+import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
+import {createDataset} from '#/services/dataset/write.js';
 import {searchContents} from "#/services/feed/search.js";
 import {addToEnDiscusion, removeFromEnDiscusion} from "#/services/feed/inicio/discusion.js";
-import {attemptMPVerification, cancelValidationRequest, createValidationRequest, getValidationRequest } from '#/services/user/validation.js';
-import {createPreference, getDonationHistory, getFundingStateHandler, getMonthlyValueHandler, processPayment} from '#/services/monetization/donations.js';
-import { storeReadSessionHandler } from '#/services/monetization/read-tracking.js';
-import { getTopicTitleHandler } from '#/services/wiki/current-version.js';
+import {
+    attemptMPVerification,
+    cancelValidationRequest,
+    createValidationRequest,
+    getValidationRequest
+} from '#/services/user/validation.js';
+import {
+    createPreference,
+    getDonationHistory,
+    getFundingStateHandler,
+    getMonthlyValueHandler,
+    processPayment
+} from '#/services/monetization/donations.js';
+import {storeReadSessionHandler} from '#/services/monetization/read-tracking.js';
+import {getTopicTitleHandler} from '#/services/wiki/current-version.js';
 import {getTopicHistoryHandler} from "#/services/wiki/history.js";
 import {getNewVersionDiff, getTopicVersionChanges} from '#/services/wiki/changes.js';
 import {getNotifications, getUnreadNotificationsCount} from '#/services/notifications/notifications.js';
@@ -64,20 +75,20 @@ import {
     markConversationRead,
     sendMessage
 } from "#/services/messaging/conversations.js";
-import {getDraft, getDrafts, saveDraft } from '#/services/write/drafts.js';
-import { getNextMeeting } from '#/services/admin/meetings.js';
-import { getAuthorDashboardHandler } from '#/services/monetization/author-dashboard.js';
-import { getFollowSuggestions, setNotInterested } from '#/services/user/follow-suggestions.js';
+import {getDraft, getDrafts, saveDraft} from '#/services/write/drafts.js';
+import {getNextMeeting} from '#/services/admin/meetings.js';
+import {getAuthorDashboardHandler} from '#/services/monetization/author-dashboard.js';
+import {getFollowSuggestions, setNotInterested} from '#/services/user/follow-suggestions.js';
 import {AppContext} from "#/setup.js";
-import { jobApplicationHandler } from '#/services/admin/jobs.js';
+import {jobApplicationHandler} from '#/services/admin/jobs.js';
 import {getTopicsDataForElectionVisualizationHandler} from "#/services/wiki/election.js";
 import {getKnownPropsHandler} from "#/services/wiki/known-props.js";
-import { syncHandler } from "#/services/sync/sync-user.js";
+import {syncHandler} from "#/services/sync/sync-user.js";
 import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/services/feed/discover/interests.js";
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
-import {clearFollowsHandler, getFollowers, getFollows } from "#/services/user/follows.js";
+import {clearFollowsHandler, getFollowers, getFollows} from "#/services/user/follows.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -100,23 +111,23 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post('/login', makeHandlerNoAuth(ctx, login))
 
     router.get('/oauth/callback', async (req, res) => {
-        if(!ctx.oauthClient) return
+        if (!ctx.oauthClient) return
         const params = new URLSearchParams(req.originalUrl.split('?')[1])
         try {
-            const { session } = await ctx.oauthClient.callback(params)
+            const {session} = await ctx.oauthClient.callback(params)
             const clientSession = await getIronSession<Session>(req, res, cookieOptions)
             clientSession.did = session.did
             await clientSession.save()
         } catch (err) {
-            ctx.logger.pino.error({ error: err, params }, 'oauth callback failed')
-            return res.redirect(env.FRONTEND_URL+'/login/error')
+            ctx.logger.pino.error({error: err, params}, 'oauth callback failed')
+            return res.redirect(env.FRONTEND_URL + '/login/error')
         }
-        return res.redirect(env.FRONTEND_URL+'/login/ok')
+        return res.redirect(env.FRONTEND_URL + '/login/ok')
     })
 
     router.post('/logout', async (req, res) => {
         const agent = await sessionAgent(req, res, ctx)
-        if(agent.hasSession()){
+        if (agent.hasSession()) {
             await deleteSession(ctx, agent)
         }
 
@@ -463,7 +474,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/known-props", makeHandlerNoAuth(ctx, getKnownPropsHandler))
 
-    router.get("/chat-availability/:handle", makeHandler(
+    router.get("/chat-availability/:handle", makeHandlerNoAuth(
         ctx,
         getChatAvailability
     ))

@@ -8,6 +8,7 @@ import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/s
 import {AppBskyActorProfile} from "@atproto/api"
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
+import {Effect} from "effect";
 
 async function getCAStatus(ctx: AppContext, did: string): Promise<{inCA: boolean, hasAccess: boolean} | null> {
     return await ctx.kysely
@@ -26,7 +27,7 @@ export const login: CAHandlerNoAuth<{handle?: string, code?: string}> = async (c
 
     handle = handle.trim()
 
-    const did = await ctx.resolver.resolveHandleToDid(handle)
+    const did = await Effect.runPromise(ctx.resolver.resolveHandleToDid(handle))
     if(!did) return {error: "No se encontró el usuario."}
 
     const status = await getCAStatus(ctx, did)

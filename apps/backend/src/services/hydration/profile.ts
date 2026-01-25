@@ -1,7 +1,6 @@
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {AppContext} from "#/setup.js";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
-import {EditorStatus} from "@prisma/client";
+import {ArCabildoabiertoActorDefs, EditorStatus} from "@cabildo-abierto/api"
 
 
 export function hydrateProfileView(ctx: AppContext, did: string, data: Dataplane): ArCabildoabiertoActorDefs.ProfileView | null {

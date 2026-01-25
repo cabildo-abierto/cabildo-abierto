@@ -1,5 +1,5 @@
 import {AppContext} from "#/setup.js";
-import {dbHandleToDid, getCAUsersDids, handleOrDidToDid} from "#/services/user/users.js";
+import {dbHandleToDid, getCAUsersDids} from "#/services/user/users.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {RepoReader} from "@atcute/car/v4"
 import {getServiceEndpointForDid} from "#/services/blob.js";
@@ -11,6 +11,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {Effect} from "effect";
+import {handleOrDidToDid} from "#/id-resolver.js";
 
 
 export async function syncAllUsers(ctx: AppContext, mustUpdateCollections?: string[]) {

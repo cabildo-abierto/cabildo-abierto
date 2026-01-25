@@ -1,4 +1,4 @@
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
 import {
     ConvoView,
     DeletedMessageView,
@@ -6,8 +6,8 @@ import {
     MessageView
 } from "@atproto/api/dist/client/types/chat/bsky/convo/defs.js";
 import {$Typed, ChatBskyConvoGetConvoAvailability} from "@atproto/api";
-import {handleOrDidToDid} from "#/services/user/users.js";
 import {Effect} from "effect";
+import {handleOrDidToDid} from "#/id-resolver.js";
 
 
 export const getConversations: CAHandler<{}, ConvoView[]> = async (ctx, agent, params) => {
@@ -95,14 +95,17 @@ export const markConversationRead: CAHandler<{ params: { convoId: string } }, {}
 }
 
 
-export const getChatAvailability: CAHandler<{
+export const getChatAvailability: CAHandlerNoAuth<{
     params: { handle: string }
 }, ChatBskyConvoGetConvoAvailability.Response["data"]> = async (ctx, agent, {params}) => {
+    if(!agent.hasSession()) {
+        return {data: {canChat: false}}
+    }
 
     const chatAgent = agent.bsky
         .withProxy("bsky_chat", "did:web:api.bsky.chat")
 
-    const did = await ctx.resolver.resolveHandleToDid(params.handle)
+    const did = await Effect.runPromise(ctx.resolver.resolveHandleToDid(params.handle))
 
     if(!did) {
         return {error: "No se encontró el usuario"}

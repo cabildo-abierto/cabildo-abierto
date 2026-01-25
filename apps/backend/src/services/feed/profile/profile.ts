@@ -1,4 +1,3 @@
-import {handleOrDidToDid} from "#/services/user/users.js";
 import {getMainProfileFeedSkeleton} from "#/services/feed/profile/main.js";
 import {getRepliesProfileFeedSkeleton} from "#/services/feed/profile/replies.js";
 import {FeedPipelineProps, getFeed} from "#/services/feed/feed.js";
@@ -8,6 +7,7 @@ import {getArticlesProfileFeedSkeleton} from "#/services/feed/profile/articles.j
 import {ArCabildoabiertoFeedDefs, GetFeedOutput, ProfileFeedConfig} from "@cabildo-abierto/api";
 import {pipe} from "effect";
 import * as Effect from "effect/Effect";
+import {handleOrDidToDid} from "#/id-resolver.js";
 
 
 export const getProfileFeed: EffHandlerNoAuth<{params: {handleOrDid: string, kind: ProfileFeedConfig["subtype"]}, query: {cursor?: string}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = (ctx, agent, {params, query}) => {

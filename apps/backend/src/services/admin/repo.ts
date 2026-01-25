@@ -1,6 +1,7 @@
 import {CAHandler} from "#/utils/handler.js";
 import {getServiceEndpointForDid} from "#/services/blob.js";
 import {allCollections, getUserRepo} from "#/services/sync/sync-user.js";
+import {Effect} from "effect";
 
 type UserRepoCounts = {
     counts: {
@@ -11,7 +12,7 @@ type UserRepoCounts = {
 
 export const getRepoCounts: CAHandler<{params: {handleOrDid: string}}, UserRepoCounts> = async (ctx, agent, {params}) => {
     const {handleOrDid} = params
-    const did = await ctx.resolver.resolveHandleToDid(handleOrDid)
+    const did = await Effect.runPromise(ctx.resolver.resolveHandleToDid(handleOrDid))
     if(!did){
         return {error: "No se encontró el usuario"}
     }

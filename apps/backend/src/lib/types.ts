@@ -1,5 +1,4 @@
-import {EditorStatus} from "@prisma/client";
-import {ValidationState} from "@cabildo-abierto/api";
+import {EditorStatus, ValidationState} from "@cabildo-abierto/api";
 
 
 export type CAProfileDetailed = {

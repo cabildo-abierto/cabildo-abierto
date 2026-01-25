@@ -8,9 +8,10 @@ import {Exit, pipe} from "effect";
 import {
     ArCabildoabiertoActorDefs
 } from "@cabildo-abierto/api"
-import {handleOrDidToDid, unfollow} from "#/services/user/users.js";
+import {unfollow} from "#/services/user/users.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {CAHandler, EffHandlerNoAuth} from "#/utils/handler.js";
+import {handleOrDidToDid} from "#/id-resolver.js";
 
 async function getFollowxFromCA(ctx: AppContext, did: string, data: Dataplane, kind: "follows" | "followers") {
     const dids = kind == "follows" ?

@@ -1,5 +1,4 @@
 import {getDidFromUri} from "@cabildo-abierto/utils";
-import {didToHandle} from "#/services/user/users.js";
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {AppBskyActorProfile} from "@atproto/api"
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
@@ -108,7 +107,7 @@ export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProf
             const bannerCid = r.banner ? getCidFromBlobRef(r.banner) : undefined
             const banner = bannerCid ? bannerUrl(did, bannerCid) : undefined
 
-            const handle = await didToHandle(ctx, did)
+            const handle = await ctx.resolver.resolveDidToHandle(did, true)
 
             if(handle == null) {
                 ctx.logger.pino.error({did}, "couldn't get handle for bsky profile")
