@@ -433,7 +433,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get('/draft/:id', makeHandler(ctx, getDraft))
 
-    router.post('/draft', makeHandler(ctx, saveDraft))
+    router.post('/draft', makeEffHandler(ctx, saveDraft))
 
     router.get("/next-meeting", makeHandlerNoAuth(ctx, getNextMeeting))
 

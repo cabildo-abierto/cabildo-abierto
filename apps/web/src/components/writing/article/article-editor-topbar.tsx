@@ -35,7 +35,7 @@ export const ArticleEditorTopbar = ({
     const [modalOpen, setModalOpen] = useState(false)
     const {isMobile} = useLayoutConfig()
     const {valid} = validArticle(editorState, settings.charLimit, title)
-    const [previewImage, setPreviewImage] = useState<ImagePayload | null>(draft ? {$type: "url", src: draft.previewImage} : null)
+    const [previewImage, setPreviewImage] = useState<ImagePayload | null>(draft && draft.previewImage ? {$type: "url", src: draft.previewImage} : null)
     const [description, setDescription] = useState<string | null>(draft ? draft.summary : undefined)
     const [bskyPostText, setBskyPostText] = useState<string | null>("")
 

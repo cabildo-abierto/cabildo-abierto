@@ -1,4 +1,4 @@
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages, CreateDraftParams, DraftPreview, Draft
@@ -10,6 +10,7 @@ import {FilePayload} from "@cabildo-abierto/api";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
+import {Effect} from "effect";
 
 
 type DraftQueryResult = {
@@ -54,17 +55,17 @@ function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, data
     const embeds: EmbedsInDB | null = d.embeds as EmbedsInDB | null
 
     let embedViews: ArCabildoabiertoFeedArticle.ArticleEmbedView[] | undefined = undefined
-    if(embeds && embeds.embeds && embeds.sbPaths && embeds.embeds.length == embeds.sbPaths.length){
+    if (embeds && embeds.embeds && embeds.sbPaths && embeds.embeds.length == embeds.sbPaths.length) {
         embedViews = []
-        for(let i = 0; i < embeds.embeds?.length; i++){
+        for (let i = 0; i < embeds.embeds?.length; i++) {
             const e = embeds.embeds[i]
-            if(AppBskyEmbedImages.isView(e.value)){
+            if (AppBskyEmbedImages.isView(e.value)) {
                 const sbPath = embeds.sbPaths[i][0]
-                if(sbPath == null){
+                if (sbPath == null) {
                     embedViews.push(e)
                 } else {
                     const imgUrl = signedUrls.get(sbPath)
-                    if(!imgUrl) {
+                    if (!imgUrl) {
                         console.log("Warning: No se encontró el url de una imagen.")
                         continue
                     }
@@ -125,7 +126,7 @@ export const getDrafts: CAHandler<{}, DraftPreview[]> = async (ctx, agent, {}) =
 }
 
 
-export const getDraft: CAHandler<{params: {id: string}}, Draft> = async (ctx, agent, {params}) => {
+export const getDraft: CAHandler<{ params: { id: string } }, Draft> = async (ctx, agent, {params}) => {
     const res: DraftQueryResult[] = await ctx.kysely
         .selectFrom("Draft")
         .select([
@@ -143,18 +144,18 @@ export const getDraft: CAHandler<{params: {id: string}}, Draft> = async (ctx, ag
         .where("id", "=", params.id)
         .execute()
 
-    if(res.length == 0){
+    if (res.length == 0) {
         return {error: "No se encontró el borrador."}
     }
 
     const draft = res[0]
     const signedUrls = new Map<string, string>()
-    if(draft.embeds){
+    if (draft.embeds) {
         const embeds = draft.embeds as EmbedsInDB
-        if(embeds.sbPaths){
+        if (embeds.sbPaths) {
             const sbPaths = embeds.sbPaths.flat().filter(x => x != null)
             const {data} = await ctx.storage!.getSignedUrlsFromPaths(sbPaths, "draft-embeds")
-            if(data){
+            if (data) {
                 data.forEach((r, i) => {
                     signedUrls.set(sbPaths[i], r)
                 })
@@ -164,103 +165,151 @@ export const getDraft: CAHandler<{params: {id: string}}, Draft> = async (ctx, ag
 
     const dataplane = new Dataplane(ctx, agent)
 
-    if(draft.previewImage) {
+    if (draft.previewImage) {
         await dataplane.fetchSignedStorageUrls([draft.previewImage], "draft-embeds")
     }
 
     const hydratedDraft = hydrateDraft(draft, signedUrls, dataplane)
-    if(!hydratedDraft){
+    if (!hydratedDraft) {
         return {error: "Ocurrió un error al obtener el borrador."}
     }
     return {data: hydratedDraft}
 }
 
 
-export const saveDraft: CAHandler<CreateDraftParams, {id: string}> = async (ctx, agent, params) => {
-    const id = params.id ? params.id : uuidv4()
+class StoreDraftEmbedsError {
+    readonly _tag = "StoreDraftEmbedsError"
+}
 
-    let embeds: string | undefined = undefined
-    if(params.embeds){
-        if(!params.embedContexts || params.embedContexts.length != params.embeds.length){
-            ctx.logger.pino.info({params}, "error al guardar el borrador (embeds)")
-            return {error: "Ocurrió un error al guardar el borrador."}
-        }
-        let sbPaths: (string | null)[][] = []
-        for(let i = 0; i < params.embedContexts.length; i++){
-            const e = params.embedContexts[i]
-            const embedPaths: (string | null)[] = []
-            if(e?.base64files && e.base64files.length > 0){
-                const file: FilePayload = {
-                    fileName: getDraftEmbedSbUrl(id, i),
-                    base64: e.base64files[0]
-                }
-                const {path, error} = await ctx.storage!.upload(file, "draft-embeds")
-                if(error){
-                    ctx.logger.pino.info({path, error}, "error al guardar el borrador (upload)")
-                    return {error: "Ocurrió un error al guardar el borrador"}
-                }
-                if(path){
-                    embedPaths.push(path)
-                }
-            } else {
-                embedPaths.push(null)
+
+function storeDraftEmbeds(ctx: AppContext, params: CreateDraftParams, draftId: string): Effect.Effect<string | null, StoreDraftEmbedsError> {
+    return Effect.gen(function* () {
+        if (params.embeds) {
+            if (!params.embedContexts || params.embedContexts.length != params.embeds.length) {
+                return yield* Effect.fail(new StoreDraftEmbedsError())
             }
-            sbPaths.push(embedPaths)
+
+            let sbPaths: (string | null)[][] = []
+            for (let i = 0; i < params.embedContexts.length; i++) {
+                const e = params.embedContexts[i]
+                const embedPaths: (string | null)[] = []
+                if (e?.base64files && e.base64files.length > 0) {
+                    const file: FilePayload = {
+                        fileName: getDraftEmbedSbUrl(draftId, i),
+                        base64: e.base64files[0]
+                    }
+                    const {path, error} = yield* Effect.promise(() => ctx.storage!.upload(file, "draft-embeds"))
+                    if (error) {
+                        return yield* Effect.fail(new StoreDraftEmbedsError())
+                    }
+                    if (path) {
+                        embedPaths.push(path)
+                    }
+                } else {
+                    embedPaths.push(null)
+                }
+                sbPaths.push(embedPaths)
+            }
+            return JSON.stringify({
+                sbPaths: sbPaths,
+                embeds: params.embeds
+            })
         }
-        embeds = JSON.stringify({
-            sbPaths: sbPaths,
-            embeds: params.embeds
-        })
+        return null
+
+    })
+
+}
+
+
+class StoreDraftPreviewImageError {
+    readonly _tag = "StoreDraftPreviewImageError"
+
+    constructor(readonly message: string) {
     }
+}
 
-    ctx.logger.pino.info({params}, "saving draft")
 
-    let previewImage: string | undefined = undefined
-    if(params.previewImage) {
-        if(params.previewImage.$type == "file") {
-            const file: FilePayload = {
-                fileName: getDraftEmbedSbUrl(id, "preview"),
-                base64: params.previewImage.base64
-            }
-            const {path, error} = await ctx.storage!.upload(file, "draft-embeds")
-            if(path && !error) {
-                previewImage = path
+function storePreviewImage(ctx: AppContext, params: CreateDraftParams, id: string): Effect.Effect<string | null, StoreDraftPreviewImageError> {
+    return Effect.gen(function* () {
+        if (params.previewImage) {
+            if (params.previewImage.$type == "file") {
+                const file: FilePayload = {
+                    fileName: getDraftEmbedSbUrl(id, "preview"),
+                    base64: params.previewImage.base64
+                }
+                const {path, error} = yield* Effect.promise(() => ctx.storage!.upload(file, "draft-embeds"))
+
+                if (path && !error) {
+                    return path
+                } else {
+                    return yield* Effect.fail(new StoreDraftPreviewImageError("upload error"))
+                }
             } else {
-                return {error: error ?? "Ocurrió un error al guardar la imagen de la previsualización."}
+                return yield* Effect.fail(new StoreDraftPreviewImageError("should be a file, not url"))
             }
         } else {
-            return {error: "URL en la previsualización no está soportado, usá un archivo."}
+            return null
         }
-    }
+    })
+}
 
-    await ctx.kysely
-        .insertInto("Draft")
-        .values([{
-            id: id,
-            text: params.text,
-            embeds: embeds,
-            title: params.title,
-            collection: params.collection,
-            lastUpdate: new Date(),
-            created_at: new Date(),
-            authorId: agent.did,
-            previewImage,
-            description: params.description
-        }])
-        .onConflict((oc) => oc.column("id").doUpdateSet({
-            collection: eb => eb.ref("excluded.collection"), // no debería cambiar pero bueno
-            lastUpdate: eb => eb.ref("excluded.lastUpdate"),
-            text: eb => eb.ref("excluded.text"),
-            title: eb => eb.ref("excluded.title"),
-            embeds: sql`excluded.embeds`,
-            description: eb => eb.ref("excluded.description"),
-            previewImage: eb => eb.ref("excluded.previewImage")
-        }))
-        .execute()
 
-    return {
-        data: {id}
-    }
+export const saveDraft: EffHandler<CreateDraftParams, { id: string }> = (ctx, agent, params) => {
+
+    return Effect.gen(function* () {
+        const id = params.id ? params.id : uuidv4()
+        const embeds: string | null = yield* storeDraftEmbeds(ctx, params, id)
+
+        const previewImage = yield* storePreviewImage(ctx, params, id)
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("Draft")
+                .values([{
+                    id: id,
+                    text: params.text,
+                    embeds: embeds,
+                    title: params.title,
+                    collection: params.collection,
+                    lastUpdate: new Date(),
+                    created_at: new Date(),
+                    authorId: agent.did,
+                    previewImage,
+                    description: params.description
+                }])
+                .onConflict((oc) => oc.column("id").doUpdateSet({
+                    collection: eb => eb.ref("excluded.collection"), // no debería cambiar pero bueno
+                    lastUpdate: eb => eb.ref("excluded.lastUpdate"),
+                    text: eb => eb.ref("excluded.text"),
+                    title: eb => eb.ref("excluded.title"),
+                    embeds: sql`excluded.embeds`,
+                    description: eb => eb.ref("excluded.description"),
+                    previewImage: eb => eb.ref("excluded.previewImage")
+                }))
+                .execute(),
+            catch: error => {
+                return "Ocurrió un error al guardar el borrador."
+            }
+        })
+
+        return {id}
+    }).pipe(
+        Effect.catchTag("StoreDraftPreviewImageError", e => Effect.fail(`Ocurrió un error al guardar la imagen de la vista previa.`)),
+        Effect.catchTag("StoreDraftEmbedsError", e => Effect.fail("Ocurrió un error al guardar un adjunto.")),
+        Effect.withSpan("saveDraft", {
+            attributes: {
+                draftId: params.id,
+                collection: params.collection,
+                embedCount: params.embeds?.length ?? 0,
+                previewImage: params.previewImage != null,
+                title: params.title,
+                description: params.description,
+                textLength: params.text.length,
+                embedContexts: params.embedContexts?.length ?? 0
+            }
+        })
+    )
 }
 
 
