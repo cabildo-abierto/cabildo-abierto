@@ -153,9 +153,12 @@ model Follow {
   userFollowedId String?
   uri            String  @id
   Record         Record  @relation(fields: [uri], references: [uri])
-  User           User?   @relation(fields: [userFollowedId], references: [did])
+  User           User?   @relation("follow", fields: [userFollowedId], references: [did])
+  authorId       String?
+  author         User?   @relation(fields: [authorId], references: [did])
 
   @@index([userFollowedId])
+  @@index([authorId, userFollowedId])
 }
 
 model HasReacted {
@@ -553,7 +556,8 @@ model User {
   Blob                                          Blob[]
   Donation                                      Donation[]
   Draft                                         Draft[]
-  Follow                                        Follow[]
+  Follow                                        Follow[]                 @relation("follow")
+  Followers                                     Follow[]
   HasReacted                                    HasReacted[]
   InviteCode_InviteCode_recommenderIdToUser     InviteCode[]             @relation("InviteCode_recommenderIdToUser")
   InviteCode_InviteCode_usedByDidToUser         InviteCode?              @relation("InviteCode_usedByDidToUser")
@@ -573,6 +577,9 @@ model User {
 
   moderationActions         ModerationAction[]
   resolvedModerationRecords RecordModerationProcess[]
+
+  caFollowingCount Int @default(0)
+  caFollowersCount Int @default(0)
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])

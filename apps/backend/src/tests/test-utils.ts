@@ -113,6 +113,7 @@ export async function createTestContext(): Promise<AppContext> {
     const logger = new Logger("test")
     const mirrorId = "test"
     const redisCache = new RedisCache(ioredis, mirrorId, logger)
+    logger.pino.info({url: process.env.TEST_DB}, "setting up test db")
     const ctx: AppContext = {
         logger,
         kysely: setupKysely(process.env.TEST_DB, 2),

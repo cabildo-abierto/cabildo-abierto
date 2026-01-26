@@ -98,3 +98,70 @@ export const clearFollowsHandler: CAHandler<{}, {}> = async (ctx, agent, {}) => 
         }
     });
 }
+
+
+export async function updateAllFollowCounters(ctx: AppContext) {
+
+    const batchSize = 5
+    let offset = 0
+
+    while(true) {
+        ctx.logger.pino.info({offset, batchSize}, "updating follow counters")
+        const users = await ctx.kysely.transaction().execute(async () => {
+            const users = await ctx.kysely
+                .selectFrom("User")
+                .where("User.inCA", "=", true)
+                .select([
+                    "did",
+                    (eb) =>
+                        eb
+                            .selectFrom("Follow")
+                            .innerJoin("Record", "Record.uri", "Follow.uri")
+                            .innerJoin("User as Follower", "Follower.did", "Record.authorId")
+                            .select(eb.fn.countAll<number>().as("count"))
+                            .where("Follower.inCA", "=", true)
+                            .whereRef("Follow.userFollowedId", "=", "User.did")
+                            .as("followersCount"),
+                    (eb) =>
+                        eb
+                            .selectFrom("Record")
+                            .whereRef("Record.authorId", "=", "User.did")
+                            .innerJoin("Follow", "Follow.uri", "Record.uri")
+                            .innerJoin("User as UserFollowed", "UserFollowed.did", "Follow.userFollowedId")
+                            .where("UserFollowed.inCA", "=", true)
+                            .select(eb.fn.countAll<number>().as("count"))
+                            .as("followsCount"),
+                ])
+                .offset(offset)
+                .limit(batchSize)
+                .orderBy("User.created_at_tz asc")
+                .execute()
+
+            await ctx.kysely
+                .insertInto("User")
+                .values(users.map(u => {
+                    return {
+                        did: u.did,
+                        caFollowingCount: u.followsCount ?? 0,
+                        caFollowersCount: u.followersCount ?? 0
+                    }
+                }))
+                .onConflict(oc => oc
+                .column("did")
+                .doUpdateSet(eb => ({
+                    caFollowersCount: eb.ref("excluded.caFollowersCount"),
+                    caFollowingCount: eb.ref("excluded.caFollowingCount")
+                })))
+                .execute()
+
+            return users
+        })
+
+        offset += batchSize
+        if(users.length < batchSize) {
+            break
+        }
+    }
+
+
+}
