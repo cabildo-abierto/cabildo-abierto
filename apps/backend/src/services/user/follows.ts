@@ -2,7 +2,7 @@ import {AppContext} from "#/setup.js";
 import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
 import {unique} from "@cabildo-abierto/utils";
 import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
-import {Agent} from "#/utils/session-agent.js";
+import {Agent, SessionAgent} from "#/utils/session-agent.js";
 import * as Effect from "effect/Effect";
 import {Exit, pipe} from "effect";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@cabildo-abierto/api"
 import {unfollow} from "#/services/user/users.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {CAHandler, EffHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {handleOrDidToDid} from "#/id-resolver.js";
 
 async function getFollowxFromCA(ctx: AppContext, did: string, data: Dataplane, kind: "follows" | "followers") {
@@ -81,20 +81,21 @@ export const getFollowers: EffHandlerNoAuth<{
 }
 
 
-export const clearFollowsHandler: CAHandler<{}, {}> = async (ctx, agent, {}) => {
+export const clearFollows = (ctx: AppContext, agent: SessionAgent): Effect.Effect<void, string> => {
     const bskyDid = "did:plc:z72i7hdynmk6r22z27h6tvur"
-    const exit = await Effect.runPromiseExit(getFollows(ctx, agent, {params: {handleOrDid: agent.did}}))
 
-    return Exit.match(exit, {
-        onFailure: () => {
-            return {error: "Error al obtener los seguidores."}
-        },
-        onSuccess: async follows => {
-            if (follows && follows.length == 1 && follows[0].did == bskyDid && follows[0].viewer?.following) {
-                await unfollow(ctx, agent, {followUri: follows[0].viewer.following})
+    return getFollows(ctx, agent, {params: {handleOrDid: agent.did}}).pipe(
+        Effect.flatMap(follows => Effect.tryPromise({
+            try: async () => {
+                if (follows && follows.length == 1 && follows[0].did == bskyDid && follows[0].viewer?.following) {
+                    await unfollow(ctx, agent, {followUri: follows[0].viewer.following})
+                }
+
+                return
+            },
+            catch: error => {
+                return "Ocurrió un error al limpiar los seguidores"
             }
-
-            return {data: {}}
-        }
-    });
+        })
+    ))
 }

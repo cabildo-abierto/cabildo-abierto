@@ -17,7 +17,7 @@ import {articlesFeedPipeline} from "#/services/feed/inicio/articles.js";
 import {getProfile, getSessionData} from "#/services/user/users.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
-import {clearFollowsHandler} from "#/services/user/follows.js";
+import {clearFollows} from "#/services/user/follows.js";
 
 
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
@@ -34,12 +34,10 @@ function maybeClearFollows(ctx: AppContext, agent: Agent): Effect.Effect<void, s
                     return Effect.succeed(null)
                 }
             }),
-            Effect.tap(profile => {
-                if(profile && profile.bskyFollowsCount == 1){
-                    return Effect.promise(() => clearFollowsHandler(ctx, agent, {}))
-                } else {
-                    return
-                }
+            Effect.flatMap(profile => {
+                return profile && profile.bskyFollowsCount == 1 ?
+                    clearFollows(ctx, agent) :
+                    Effect.void
             })
         )
     } else {
@@ -53,19 +51,26 @@ export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cu
     const {cursor, metric, time, filter, format} = query
 
     return pipe(
-        Effect.promise(async () => {
-            if (kind == "discusion") {
-                return getEnDiscusionFeedPipeline(metric, time, format)
-            } else if (kind == "siguiendo") {
-                await maybeClearFollows(ctx, agent)
-                return getFollowingFeedPipeline(filter, format)
-            } else if (kind == "descubrir") {
-                return discoverFeedPipeline
-            } else if (kind == "articulos") {
-                return articlesFeedPipeline
-            } else {
-                throw Error(`Invalid feed kind: ${kind}`)
-            }
+        kind == "siguiendo" ? maybeClearFollows(ctx, agent) : Effect.void,
+        Effect.flatMap(() => {
+            return Effect.tryPromise({
+                try: async () => {
+                    if (kind == "discusion") {
+                        return getEnDiscusionFeedPipeline(metric, time, format)
+                    } else if (kind == "siguiendo") {
+                        return getFollowingFeedPipeline(filter, format)
+                    } else if (kind == "descubrir") {
+                        return discoverFeedPipeline
+                    } else if (kind == "articulos") {
+                        return articlesFeedPipeline
+                    } else {
+                        throw Error(`Invalid feed kind: ${kind}`)
+                    }
+                },
+                catch: error => {
+                    return "Ocurrió un error al obtener el muro."
+                }
+            })
         }),
         Effect.flatMap(pipeline => {
             return getFeed({ctx, agent, pipeline, cursor})

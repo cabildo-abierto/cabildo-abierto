@@ -24,7 +24,7 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
         <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
             <h2 className={"mb-4 py-2 text-xl"}>¡Te damos la bienvenida!</h2>
 
-            <div className={"text-[var(--text-light)] font-light space-y-3"}>
+            <div className={"font-light space-y-3"}>
                 <div>
                     Cabildo Abierto es una incipiente plataforma de discusión argentina.
                 </div>
