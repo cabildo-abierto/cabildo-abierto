@@ -88,7 +88,7 @@ import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
-import {clearFollowsHandler, getFollowers, getFollows} from "#/services/user/follows.js";
+import {getFollowers, getFollows} from "#/services/user/follows.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -427,13 +427,11 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/access-request", makeHandlerNoAuth(ctx, createAccessRequest))
 
-    router.post('/clear-follows', makeHandler(ctx, clearFollowsHandler))
-
     router.get('/drafts', makeHandler(ctx, getDrafts))
 
     router.get('/draft/:id', makeHandler(ctx, getDraft))
 
-    router.post('/draft', makeHandler(ctx, saveDraft))
+    router.post('/draft', makeEffHandler(ctx, saveDraft))
 
     router.get("/next-meeting", makeHandlerNoAuth(ctx, getNextMeeting))
 

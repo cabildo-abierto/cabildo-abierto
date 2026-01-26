@@ -15,7 +15,8 @@ export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Re
 
             const follows = records.map(r => ({
                 uri: r.ref.uri,
-                userFollowedId: r.record.subject
+                userFollowedId: r.record.subject,
+                authorId: getDidFromUri(r.ref.uri)
             }))
 
             await trx

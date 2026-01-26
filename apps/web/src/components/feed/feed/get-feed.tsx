@@ -21,7 +21,7 @@ function getFeedRoute(config: FeedConfig, cursor?: string) {
     } else {
         const {type, subtype, ...params} = config
         void type
-        return setSearchParams(`/topic-feed/${subtype}`, {
+        return setSearchParams(subtype == "mentions" ? "/topic-feed" : "/topic-discussion", {
             i: config.id,
             cursor,
             ...params

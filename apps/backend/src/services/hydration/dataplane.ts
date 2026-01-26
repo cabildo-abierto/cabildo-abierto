@@ -863,8 +863,24 @@ export class Dataplane {
                         "editorStatus",
                         "userValidationHash",
                         "orgValidation",
-                        "User.caFollowingCount",
-                        "User.caFollowersCount",
+                        (eb) =>
+                            eb
+                                .selectFrom("Follow")
+                                .innerJoin("Record", "Record.uri", "Follow.uri")
+                                .innerJoin("User as Follower", "Follower.did", "Record.authorId")
+                                .select(eb.fn.countAll<number>().as("count"))
+                                .where("Follower.inCA", "=", true)
+                                .whereRef("Follow.userFollowedId", "=", "User.did")
+                                .as("followersCount"),
+                        (eb) =>
+                            eb
+                                .selectFrom("Record")
+                                .whereRef("Record.authorId", "=", "User.did")
+                                .innerJoin("Follow", "Follow.uri", "Record.uri")
+                                .innerJoin("User as UserFollowed", "UserFollowed.did", "Follow.userFollowedId")
+                                .where("UserFollowed.inCA", "=", true)
+                                .select(eb.fn.countAll<number>().as("count"))
+                                .as("followsCount"),
                         (eb) =>
                             eb
                                 .selectFrom("Record")
@@ -893,8 +909,8 @@ export class Dataplane {
                             did: profile.did,
                             editorStatus: profile.editorStatus,
                             caProfile: profile.CAProfileUri,
-                            followsCount: profile.caFollowingCount ?? 0,
-                            followersCount: profile.caFollowersCount ?? 0,
+                            followsCount: profile.followsCount ?? 0,
+                            followersCount: profile.followersCount ?? 0,
                             articlesCount: profile.articlesCount ?? 0,
                             editsCount: profile.editsCount ?? 0,
                             verification: getValidationState(profile)

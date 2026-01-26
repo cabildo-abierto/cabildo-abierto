@@ -45,7 +45,7 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
                 className={"max-w-[400px] font-light space-y-2 sm:text-base text-sm"}
             >
                 <p>
-                    Por cada tema de discusión en Cabildo Abierto hay un artículo que cualquier usuario puede editar en el que se reúne información.
+                    Por cada tema de discusión en Cabildo Abierto en el que se reúne información. Llamamos a estos artículos {'"temas"'} y cualquiera puede editarlos.
                 </p>
                 <p>
                     Además, cada tema tiene una sección de discusión y un muro en el que se muestran las menciones que recibió.
