@@ -43,7 +43,6 @@ export const SaveDraftArticleButton = ({
             description,
             previewImage
         })
-        console.log("draft creation", error, data)
         if (data && data.id && !error) {
             const state = JSON.stringify(editorState.toJSON()) + `::${title}`
             onSavedChanges(saveTime, data.id, state)
