@@ -1,7 +1,7 @@
 import {AppContext} from "#/setup.js";
 import {cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {deleteRecords} from "#/services/delete.js";
-import {CAHandler, CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
@@ -129,18 +129,12 @@ export const getProfile: EffHandlerNoAuth<{ params: { handleOrDid: string } }, A
     return pipe(
         handleOrDidToDid(ctx, params.handleOrDid),
         Effect.tap(did => dataplane.fetchProfileViewDetailedHydrationData([did])),
-        Effect.flatMap(did => Effect.tryPromise({
-            try: async () => {
-                const profile = hydrateProfileViewDetailed(ctx, did, dataplane)
-
-                if(!profile) {
-                    throw new Error("Perfil no encontrado")
-                }
-
-                return profile
-            },
-            catch: () => "Error al obtener el perfil"
-        })),
+        Effect.flatMap(did => {
+            const profile = hydrateProfileViewDetailed(ctx, did, dataplane)
+            return profile ?
+                Effect.succeed(profile) :
+                Effect.fail("Usuario no encontrado")
+        }),
         Effect.catchTag("HandleResolutionError", () =>
             Effect.fail("Usuario no encontrado")
         ),
@@ -243,97 +237,113 @@ function isFullSessionData(data: SessionData | null): data is Session {
 }
 
 
-export const getSession: CAHandlerNoAuth<{ params?: { code?: string } }, Session> = async (ctx, agent, {params}) => {
-    if (!agent.hasSession()) {
-        ctx.logger.pino.info("sin sesión")
-        return {error: "No session."}
-    }
-
-    const status = await ctx.redisCache.mirrorStatus.get(agent.did, true)
-    if(status == "Dirty"){
-        await ctx.redisCache.mirrorStatus.set(agent.did, "InProcess", true)
-        await ctx.worker?.addJob("sync-user", {handleOrDid: agent.did}, 5)
-    }
-
-    const data = await getSessionData(ctx, agent.did)
-    if (data && isFullSessionData(data) && data.hasAccess && data.caProfile) {
-        return {data}
-    }
-
-    const code = params?.code
-
-    if(data && data.hasAccess) {
-        // está en le DB y tiene acceso pero no está sincronizado o no tiene perfil de ca
-        const {error} = await createCAUser(ctx, agent)
-        if (error) {
-            return {error}
-        }
-
-        const newUserData = await getSessionData(ctx, agent.did)
-        if (isFullSessionData(newUserData)) {
-            return {data: newUserData}
-        } else {
-            ctx.logger.pino.error({data, did: agent.did, newUserData}, "no user after sync")
-        }
-    } else if (code) {
-        ctx.logger.pino.info("creando usuario de ca")
-        // el usuario no está en la db (o está pero no tiene acceso) y logró iniciar sesión, creamos un nuevo usuario de CA
-        const {error} = await createCAUser(ctx, agent, code)
-        if (error) {
-            ctx.logger.pino.error({did: agent.did, error}, "error creating ca user")
-            return {error}
-        }
-
-        const newUserData = await getSessionData(ctx, agent.did)
-        if (isFullSessionData(newUserData)) {
-            return {data: newUserData}
-        } else {
-            ctx.logger.pino.error({did: agent.did, newUserData, data}, "no full session data after user creation")
-        }
-    } else {
-        ctx.logger.pino.error({did: agent.did, data}, "no code and no access")
-    }
-
-    await deleteSession(ctx, agent)
-    ctx.logger.pino.error({did: agent.did}, "error getting session data, deleted session")
-    return {error: "Ocurrió un error al crear el usuario."}
+function startSyncIfDirty(ctx: AppContext, did: string): Effect.Effect<void, string> {
+    return pipe(
+        Effect.promise(() => ctx.redisCache.mirrorStatus.get(did, true)),
+        Effect.flatMap(status => {
+            return status == "Dirty" ? Effect.promise(() => {
+                return ctx.redisCache.mirrorStatus.set(did, "InProcess", true)
+                    .then(() => {
+                    return ctx.worker?.addJob("sync-user", {handleOrDid: did}, 5)
+                })
+            }) : Effect.void
+        })
+    )
 }
 
 
-export const getAccount: CAHandler<{}, Account> = async (ctx, agent) => {
+export const getSession: EffHandlerNoAuth<{ params?: { code?: string } }, Session> = (ctx, agent, {params}) => {
+    const code = params?.code
 
-    const [caData, bskySession] = await Promise.all([
-        ctx.kysely
-            .selectFrom("User")
-            .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
-            .select(["User.email", "MailingListSubscription.id as subsId", "MailingListSubscription.status"])
-            .where("did", "=", agent.did)
-            .execute(),
-        agent.bsky.com.atproto.server.getSession()
-    ])
-
-    if (caData.length == 0) {
-        return {error: "No se encontró el usuario"}
+    if (!agent.hasSession()) {
+        return Effect.fail("No session")
     }
 
-    const {email, subsId, status} = caData[0]
-    const subscribed = subsId != null && status == "Subscribed"
+    return Effect.gen(function* () {
+        yield* startSyncIfDirty(ctx, agent.did)
 
-    const bskyEmail = bskySession.data.email
+        const data = yield* Effect.promise(() => getSessionData(ctx, agent.did))
 
-    if (bskyEmail && (!email || email != bskyEmail)) {
-        await ctx.kysely.updateTable("User")
-            .set("email", bskyEmail)
-            .where("did", "=", agent.did)
-            .execute()
-    }
+        if (data != null && isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
+            return data
+        } else if(data && data.hasAccess) {
+            // está en le DB y tiene acceso pero no está sincronizado o no tiene perfil de ca
+            const {error} = yield* Effect.promise(() =>  createCAUser(ctx, agent))
+            if (error) return yield* Effect.fail(error)
 
-    return {
-        data: {
+            const newUserData = yield* Effect.promise(() => getSessionData(ctx, agent.did))
+
+            if(!isFullSessionData(newUserData)) {
+                return yield* Effect.fail("La cuenta tiene acceso, pero ocurrió un error al obtener los datos.")
+            }
+
+            return newUserData
+        } else if(code) {
+            // el usuario no está en la db (o está pero no tiene acceso) y logró iniciar sesión, creamos un nuevo usuario de CA
+            const {error} = yield* Effect.promise(() => createCAUser(ctx, agent, code))
+            if (error) return yield* Effect.fail(error)
+
+            const newUserData = yield* Effect.promise(() => getSessionData(ctx, agent.did))
+
+            if(!isFullSessionData(newUserData)){
+                return yield* Effect.fail("Ocurrió un error al obtener los datos de la cuenta.")
+            }
+
+            return newUserData
+        } else {
+            return yield* Effect.fail("Necesitás un código de invitación para crear una cuenta.")
+        }
+    }).pipe(Effect.catchAll(error => {
+        return pipe(
+            Effect.promise(() => deleteSession(ctx, agent)),
+            Effect.flatMap(() => Effect.fail("Ocurrió un error al obtener la sesión"))
+        )
+    }))
+}
+
+
+export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
+    return Effect.gen(function* () {
+        const [caData, bskySession] = yield* Effect.all([
+            Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("User")
+                    .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
+                    .select(["User.email", "MailingListSubscription.id as subsId", "MailingListSubscription.status"])
+                    .where("did", "=", agent.did)
+                    .execute(),
+                catch: () => "Error al obtener los datos del correo del usuario."
+            }),
+            Effect.tryPromise({
+                try: () => agent.bsky.com.atproto.server.getSession(),
+                catch: () => "Error al obtener la sesión de Bluesky."
+            })
+        ], {concurrency: "unbounded"})
+
+        if (caData.length == 0) {
+            return yield* Effect.fail("No se encontró el usuario")
+        }
+
+        const {email, subsId, status} = caData[0]
+        const subscribed = subsId != null && status == "Subscribed"
+
+        const bskyEmail = bskySession.data.email
+
+        if (bskyEmail && (!email || email != bskyEmail)) {
+            yield* Effect.tryPromise({
+                try: () => ctx.kysely.updateTable("User")
+                    .set("email", bskyEmail)
+                    .where("did", "=", agent.did)
+                    .execute(),
+                catch: () => "Error al guardar el correo."
+            })
+        }
+
+        return {
             email: bskyEmail,
             subscribedToEmailUpdates: subscribed
         }
-    }
+    })
 }
 
 

@@ -1,7 +1,7 @@
 import {fetchTextBlobs} from "../blob.js";
 import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
-import {CAHandlerNoAuth, CAHandlerOutput} from "#/utils/handler.js";
+import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {
     ArCabildoabiertoWikiTopicVersion,
     ArCabildoabiertoFeedDefs,
@@ -22,10 +22,11 @@ import {getTopicsReferencedInText} from "#/services/wiki/references/references.j
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
+import {Effect, Exit, pipe} from "effect";
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
-export const getTrendingTopics: CAHandlerNoAuth<{params: {time: TimePeriod}, query: {cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
+export const getTrendingTopics: EffHandlerNoAuth<{params: {time: TimePeriod}, query: {cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
     return getTopics(ctx, [], "popular", params.time, query?.limit ?? 10, query?.cursor);
 }
 
@@ -98,75 +99,81 @@ export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic, autho
 }
 
 
-export async function getTopics(
+export function getTopics(
     ctx: AppContext,
     categories: string[],
     sortedBy: "popular" | "recent",
     time: TimePeriod,
     limit: number = 50,
     cursor?: string
-): CAHandlerOutput<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> {
-
-    const topics = await ctx.kysely
-        .selectFrom('Topic')
-        .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
-        .select([
-            "id",
-            "TopicVersion.uri"
-        ])
-        .where("Topic.lastEdit_tz", "is not", null)
-        .innerJoin("Record", "TopicVersion.uri", "Record.uri")
-        .where("Record.record", "is not", null)
-        .where("Record.cid", "is not", null)
-        .$if(categories && categories.length > 0, qb => qb.where(categories.includes("Sin categoría") ?
-            stringListIsEmpty("Categorías") :
-            (eb) =>
-                eb.and(categories.map(c => stringListIncludes("Categorías", c))
-                )
-        ))
-        .$if(
-            sortedBy == "popular" && (time == "all" || time == "month"),
-                qb => qb
-                    .orderBy("popularityScoreLastMonth desc")
-                    .orderBy("lastEdit_tz desc")
-        )
-        .$if(sortedBy == "popular" && time == "week", qb => qb
-            .orderBy("popularityScoreLastWeek desc")
-            .orderBy("lastEdit_tz desc"))
-        .$if(sortedBy == "popular" && time == "day", qb => qb
-            .orderBy("popularityScoreLastDay desc")
-            .orderBy("lastEdit_tz desc"))
-        .$if(sortedBy == "recent", qb => qb
-            .orderBy("lastEdit_tz desc"))
-        .limit(limit)
-        .execute()
-
+): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[], string> {
     const dataplane = new Dataplane(ctx)
-    await dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
 
-    const data = topics
-        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
-        .filter(x => x != null)
-
-    return {data}
+    return pipe(
+        Effect.promise(() => {
+            return ctx.kysely
+                .selectFrom('Topic')
+                .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
+                .select([
+                    "id",
+                    "TopicVersion.uri"
+                ])
+                .where("Topic.lastEdit_tz", "is not", null)
+                .innerJoin("Record", "TopicVersion.uri", "Record.uri")
+                .where("Record.record", "is not", null)
+                .where("Record.cid", "is not", null)
+                .$if(categories && categories.length > 0, qb => qb.where(categories.includes("Sin categoría") ?
+                    stringListIsEmpty("Categorías") :
+                    (eb) =>
+                        eb.and(categories.map(c => stringListIncludes("Categorías", c))
+                        )
+                ))
+                .$if(
+                    sortedBy == "popular" && (time == "all" || time == "month"),
+                    qb => qb
+                        .orderBy("popularityScoreLastMonth desc")
+                        .orderBy("lastEdit_tz desc")
+                )
+                .$if(sortedBy == "popular" && time == "week", qb => qb
+                    .orderBy("popularityScoreLastWeek desc")
+                    .orderBy("lastEdit_tz desc"))
+                .$if(sortedBy == "popular" && time == "day", qb => qb
+                    .orderBy("popularityScoreLastDay desc")
+                    .orderBy("lastEdit_tz desc"))
+                .$if(sortedBy == "recent", qb => qb
+                    .orderBy("lastEdit_tz desc"))
+                .limit(limit)
+                .execute()
+        }),
+        Effect.tap(topics => {
+            return Effect.promise(() => dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri)))
+        }),
+        Effect.map(topics => {
+            return topics
+                .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
+                .filter(x => x != null)
+        }),
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al obtener los temas.")
+        })
+    )
 }
 
 
-export const getTopicsHandler: CAHandlerNoAuth<{
+export const getTopicsHandler: EffHandlerNoAuth<{
     params: { sort: string, time: string },
     query: { c: string[] | string, cursor?: string, limit?: number }
-}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
+}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
     let {sort, time} = params
     const {c} = query
     const categories = Array.isArray(c) ? c : c ? [c] : []
 
-    if (sort != "popular" && sort != "recent") return {error: `Criterio de ordenamiento inválido: ${sort}`}
+    if (sort != "popular" && sort != "recent") return Effect.fail(`Criterio de ordenamiento inválido: ${sort}`)
     if (time != "day" && time != "week" && time != "month" && time != "all") {
-        console.log(`Período de tiempo inválido: ${time}`)
-        return {error: `Período de tiempo inválido: ${time}`}
+        return Effect.fail(`Período de tiempo inválido: ${time}`)
     }
 
-    return await getTopics(
+    return getTopics(
         ctx,
         categories,
         sort,
@@ -510,47 +517,49 @@ type TopicWithEditors = {
 }
 
 export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: string}}, TopicWithEditors[]> = async (ctx, agent, {params}) => {
-    const {data: topics, error} = await getTopics(
+    const exit = await Effect.runPromiseExit(getTopics(
         ctx,
         [params.cat],
         "recent",
         "all",
         undefined,
         agent.hasSession() ? agent.did : undefined
-    )
+    ))
 
-    if(!topics) {
-        console.log("error getting topics", error)
-        return {error}
-    }
+    return Exit.match(exit, {
+        onSuccess: async topics => {
+            const editors = await ctx.kysely
+                .selectFrom("TopicVersion")
+                .innerJoin("Record", "Record.uri", "TopicVersion.uri")
+                .innerJoin("User", "User.did", "Record.authorId")
+                .select(["topicId", "User.handle", "User.did"])
+                .where("TopicVersion.topicId", "in", topics.map(t => t.id))
+                .execute()
 
-    const editors = await ctx.kysely
-        .selectFrom("TopicVersion")
-        .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-        .innerJoin("User", "User.did", "Record.authorId")
-        .select(["topicId", "User.handle", "User.did"])
-        .where("TopicVersion.topicId", "in", topics.map(t => t.id))
-        .execute()
+            const m = new Map<string, TopicWithEditors>()
 
-    const m = new Map<string, TopicWithEditors>()
-
-    editors.forEach(editor => {
-        if(!editor.handle) return
-        let cur = m.get(editor.topicId)
-        if(!cur) {
-            m.set(editor.topicId, {
-                topicId: editor.topicId,
-                editors: [editor.handle]
+            editors.forEach(editor => {
+                if(!editor.handle) return
+                let cur = m.get(editor.topicId)
+                if(!cur) {
+                    m.set(editor.topicId, {
+                        topicId: editor.topicId,
+                        editors: [editor.handle]
+                    })
+                } else {
+                    m.set(editor.topicId, {
+                        topicId: editor.topicId,
+                        editors: [...cur.editors, editor.handle]
+                    })
+                }
             })
-        } else {
-            m.set(editor.topicId, {
-                topicId: editor.topicId,
-                editors: [...cur.editors, editor.handle]
-            })
+
+            return {data: Array.from(m.values())}
+        },
+        onFailure: error => {
+            return {error: error.toString()}
         }
     })
-
-    return {data: Array.from(m.values())}
 }
 
 

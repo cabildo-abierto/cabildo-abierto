@@ -45,8 +45,10 @@ import {AppBskyActorDefs} from "@atproto/api"
 import {CAProfileDetailed, CAProfile} from "#/lib/types.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
 import {getObjectKey} from "#/utils/object.js";
-import {Effect, pipe} from "effect";
+import {Effect, pipe, Stream} from "effect";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
+import {withSpan} from "effect/Effect";
+import {toReadonlyArray} from "effect/Chunk";
 
 
 export type FeedElementQueryResult = {
@@ -123,6 +125,7 @@ export class ViewerStateFetchError {
 
 export class FetchFromCAError {
     readonly _tag = "FetchFromCAError"
+    constructor(readonly message: string) {}
 }
 
 
@@ -575,7 +578,7 @@ export class Dataplane {
         this.reposts.set(repost.subjectId, [...cur, repost])
     }
 
-    async fetchThreadHydrationData(skeleton: ThreadSkeleton) {
+    fetchThreadHydrationData(skeleton: ThreadSkeleton): Effect.Effect<void, string> {
         let uris = getUrisFromThreadSkeleton(skeleton)
 
         const reqUris = uris
@@ -590,19 +593,21 @@ export class Dataplane {
             if (r) uris.push()
         })
 
-        uris = await this.expandUrisWithRepliesQuotesAndReposts(uris.map(u => ({post: u})))
-
         const c = getCollectionFromUri(skeleton.post)
 
-        const dids = uris.map(u => getDidFromUri(u))
-
-        await Promise.all([
-            this.fetchPostAndArticleViewsHydrationData(uris),
-            this.fetchProfileViewBasicHydrationData(dids),
-            isArticle(c) ? this.fetchTopicsMentioned(skeleton.post) : null,
-            isDataset(c) ? this.fetchDatasetsHydrationData([skeleton.post]) : null,
-            isDataset(c) ? this.fetchDatasetContents([skeleton.post]) : null
-        ])
+        return pipe(
+            Effect.promise(() => this.expandUrisWithRepliesQuotesAndReposts(uris.map(u => ({post: u})))),
+            Effect.flatMap(uris => {
+                const dids = uris.map(u => getDidFromUri(u))
+                return Effect.all([
+                    Effect.promise(() => this.fetchPostAndArticleViewsHydrationData(uris)),
+                    Effect.promise(() => this.fetchProfileViewBasicHydrationData(dids)),
+                    isArticle(c) ? Effect.promise(() => this.fetchTopicsMentioned(skeleton.post)) : Effect.void,
+                    isDataset(c) ? Effect.promise(() => this.fetchDatasetsHydrationData([skeleton.post])) : Effect.void,
+                    isDataset(c) ? Effect.promise(() => this.fetchDatasetContents([skeleton.post])) : Effect.void
+                ])
+            })
+        )
     }
 
     storeBskyBasicUser(user: ProfileViewBasic) {
@@ -844,106 +849,134 @@ export class Dataplane {
     }
 
 
-    async fetchProfileViewDetailedHydrationDataFromCA(dids: string[]) {
+    fetchProfileViewDetailedHydrationDataFromCA(dids: string[]): Effect.Effect<void, FetchFromCAError> {
         dids = unique(dids.filter(d => !this.caUsersDetailed.has(d)))
-        if (dids.length == 0) return
+        if (dids.length == 0) return Effect.void
 
-        const profiles = await this.ctx.kysely
-            .selectFrom("User")
-            .select([
-                "User.did",
-                "User.CAProfileUri",
-                "editorStatus",
-                "userValidationHash",
-                "orgValidation",
-                (eb) =>
-                    eb
-                        .selectFrom("Follow")
-                        .innerJoin("Record", "Record.uri", "Follow.uri")
-                        .innerJoin("User as Follower", "Follower.did", "Record.authorId")
-                        .select(eb.fn.countAll<number>().as("count"))
-                        .where("Follower.inCA", "=", true)
-                        .whereRef("Follow.userFollowedId", "=", "User.did")
-                        .as("followersCount"),
-                (eb) =>
-                    eb
-                        .selectFrom("Record")
-                        .whereRef("Record.authorId", "=", "User.did")
-                        .innerJoin("Follow", "Follow.uri", "Record.uri")
-                        .innerJoin("User as UserFollowed", "UserFollowed.did", "Follow.userFollowedId")
-                        .where("UserFollowed.inCA", "=", true)
-                        .select(eb.fn.countAll<number>().as("count"))
-                        .as("followsCount"),
-                (eb) =>
-                    eb
-                        .selectFrom("Record")
-                        .innerJoin("Article", "Article.uri", "Record.uri")
-                        .select(eb.fn.countAll<number>().as("count"))
-                        .whereRef("Record.authorId", "=", "User.did")
-                        .where("Record.collection", "=", "ar.cabildoabierto.feed.article")
-                        .as("articlesCount"),
-                (eb) =>
-                    eb
-                        .selectFrom("Record")
-                        .innerJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
-                        .select(eb.fn.countAll<number>().as("count"))
-                        .whereRef("Record.authorId", "=", "User.did")
-                        .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
-                        .as("editsCount"),
-            ])
-            .where("User.did", "in", dids)
-            .execute()
+        return pipe(
+            Effect.tryPromise({
+                try: () => this.ctx.kysely
+                    .selectFrom("User")
+                    .select([
+                        "User.did",
+                        "User.CAProfileUri",
+                        "editorStatus",
+                        "userValidationHash",
+                        "orgValidation",
+                        (eb) =>
+                            eb
+                                .selectFrom("Follow")
+                                .innerJoin("Record", "Record.uri", "Follow.uri")
+                                .innerJoin("User as Follower", "Follower.did", "Record.authorId")
+                                .select(eb.fn.countAll<number>().as("count"))
+                                .where("Follower.inCA", "=", true)
+                                .whereRef("Follow.userFollowedId", "=", "User.did")
+                                .as("followersCount"),
+                        (eb) =>
+                            eb
+                                .selectFrom("Record")
+                                .whereRef("Record.authorId", "=", "User.did")
+                                .innerJoin("Follow", "Follow.uri", "Record.uri")
+                                .innerJoin("User as UserFollowed", "UserFollowed.did", "Follow.userFollowedId")
+                                .where("UserFollowed.inCA", "=", true)
+                                .select(eb.fn.countAll<number>().as("count"))
+                                .as("followsCount"),
+                        (eb) =>
+                            eb
+                                .selectFrom("Record")
+                                .innerJoin("Article", "Article.uri", "Record.uri")
+                                .select(eb.fn.countAll<number>().as("count"))
+                                .whereRef("Record.authorId", "=", "User.did")
+                                .where("Record.collection", "=", "ar.cabildoabierto.feed.article")
+                                .as("articlesCount"),
+                        (eb) =>
+                            eb
+                                .selectFrom("Record")
+                                .innerJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
+                                .select(eb.fn.countAll<number>().as("count"))
+                                .whereRef("Record.authorId", "=", "User.did")
+                                .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
+                                .as("editsCount"),
+                    ])
+                    .where("User.did", "in", dids)
+                    .execute(),
+                catch: () => new FetchFromCAError("ProfileViewDetailed")
+            }),
+            Effect.map(profiles => {
+                const formattedProfiles: CAProfileDetailed[] = profiles.map(profile => {
+                    if(profile.CAProfileUri){
+                        return {
+                            did: profile.did,
+                            editorStatus: profile.editorStatus,
+                            caProfile: profile.CAProfileUri,
+                            followsCount: profile.followsCount ?? 0,
+                            followersCount: profile.followersCount ?? 0,
+                            articlesCount: profile.articlesCount ?? 0,
+                            editsCount: profile.editsCount ?? 0,
+                            verification: getValidationState(profile)
+                        }
+                    }
+                    return null
+                }).filter(x => x != null)
 
-        const formattedProfiles: CAProfileDetailed[] = profiles.map(profile => {
-            if(profile.CAProfileUri){
-                return {
-                    did: profile.did,
-                    editorStatus: profile.editorStatus,
-                    caProfile: profile.CAProfileUri,
-                    followsCount: profile.followsCount ?? 0,
-                    followersCount: profile.followersCount ?? 0,
-                    articlesCount: profile.articlesCount ?? 0,
-                    editsCount: profile.editsCount ?? 0,
-                    verification: getValidationState(profile)
+                formattedProfiles.forEach(p => {
+                    this.caUsersDetailed.set(p.did, p)
+                })
+
+                for(const d of dids) {
+                    if(!this.caUsersDetailed.has(d)){
+                        this.caUsersDetailed.set(d, "not-found")
+                    }
                 }
-            }
-            return null
-        }).filter(x => x != null)
 
-        formattedProfiles.forEach(p => {
-            this.caUsersDetailed.set(p.did, p)
-        })
-
-        for(const d of dids) {
-            if(!this.caUsersDetailed.has(d)){
-                this.caUsersDetailed.set(d, "not-found")
-            }
-        }
+                return formattedProfiles
+            }),
+            withSpan("fetchProfileViewDetailedHydrationDataFromCA", {
+                attributes: {
+                    profilesCount: dids.length
+                }
+            })
+        )
     }
 
-    async fetchProfileViewDetailedHydrationDataFromBsky(dids: string[]) {
+    fetchProfileViewDetailedHydrationDataFromBsky(dids: string[]): Effect.Effect<void, FetchFromBskyError> {
         const agent = this.agent
 
         dids = unique(dids.filter(d => !this.bskyDetailedUsers.has(d)))
-        if (dids.length == 0) return
+        if (dids.length == 0) return Effect.void
 
         const batchSize = 20
         const didBatches: string[][] = []
         for (let i = 0; i < dids.length; i += batchSize) didBatches.push(dids.slice(i, i + batchSize))
-        const profiles: ProfileViewDetailed[] = []
-        for (let i = 0; i < didBatches.length; i++) {
-            const b = didBatches[i]
-            const res = await agent.bsky.app.bsky.actor.getProfiles({actors: b})
-            profiles.push(...res.data.profiles)
-        }
 
-        this.bskyDetailedUsers = joinMaps(
-            this.bskyDetailedUsers,
-            new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewDetailed"}]))
-        )
-        this.bskyBasicUsers = joinMaps(
-            this.bskyBasicUsers,
-            new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewBasic"}]))
+        const profiles = Stream.runCollect(Stream.make(...didBatches).pipe(
+            Stream.mapConcatEffect(b => Effect.tryPromise({
+                try: async () => {
+                    const res = await agent.bsky.app.bsky.actor.getProfiles({actors: b})
+                    if(res.success) {
+                        return res.data.profiles
+                    } else {
+                        throw Error()
+                    }
+                },
+                catch: () => new FetchFromBskyError()
+            }))
+        ))
+
+        return pipe(
+            profiles,
+            Effect.map(profiles => toReadonlyArray(profiles)),
+            Effect.tap(profiles => {
+                this.bskyDetailedUsers = joinMaps(
+                    this.bskyDetailedUsers,
+                    new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewDetailed"}]))
+                )
+                this.bskyBasicUsers = joinMaps(
+                    this.bskyBasicUsers,
+                    new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewBasic"}]))
+                )
+            }),
+            withSpan("FetchProfileViewDetailedFromBsky")
         )
     }
 
@@ -1021,14 +1054,8 @@ export class Dataplane {
             // fetcheamos sus datos de CA y sus datos de Bsky
             Effect.tap(missedDids =>
                 Effect.all([
-                    Effect.tryPromise({
-                        try: () => this.fetchProfileViewDetailedHydrationDataFromCA(missedDids),
-                        catch: () => new FetchFromCAError()
-                    }),
-                    Effect.tryPromise({
-                        try: () => this.fetchProfileViewDetailedHydrationDataFromBsky(missedDids),
-                        catch: () => new FetchFromBskyError()
-                    })
+                    this.fetchProfileViewDetailedHydrationDataFromCA(missedDids),
+                    this.fetchProfileViewDetailedHydrationDataFromBsky(missedDids)
                 ], {concurrency: "unbounded"})
             ),
 

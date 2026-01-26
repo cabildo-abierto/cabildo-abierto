@@ -40,7 +40,6 @@ export function makeEffHandler<Params = {}, Output = {}>(
 ): express.Handler {
     return async (req, res) => {
         const spanName = `${req.method} ${req.route?.path || req.path}`;
-        ctx.logger.pino.info({spanName}, "span name in makeEffHandler")
 
         const program = Effect.gen(function* () {
             yield* withHttpAttributes(req);

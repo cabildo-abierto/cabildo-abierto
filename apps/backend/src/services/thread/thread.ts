@@ -15,11 +15,11 @@ import {
     threadPostRepliesSortKey,
     ThreadSkeleton
 } from "#/services/hydration/hydrate.js";
-import {CAHandlerNoAuth} from "#/utils/handler.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {isThreadViewPost, ThreadViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
-import {Effect} from "effect";
+import {Effect, pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 
 function threadViewPostToThreadSkeleton(thread: ThreadViewPost, isAncestor: boolean = false): ThreadSkeleton {
@@ -146,24 +146,33 @@ export async function getThreadSkeleton(ctx: AppContext, agent: Agent, uri: stri
 }
 
 
-export const getThread: CAHandlerNoAuth<{params: {handleOrDid: string, collection: string, rkey: string}}, ArCabildoabiertoFeedDefs.ThreadViewContent> = async (ctx, agent, {params})  => {
+export const getThread: EffHandlerNoAuth<{params: {handleOrDid: string, collection: string, rkey: string}}, ArCabildoabiertoFeedDefs.ThreadViewContent> = (ctx, agent, {params})  => {
     let {handleOrDid, collection, rkey} = params
     collection = shortCollectionToCollection(collection)
-
-    const did = await Effect.runPromise(handleOrDidToDid(ctx, handleOrDid))
-    if(!did) {
-        return {error: "No se encontró el autor."}
-    }
     const data = new Dataplane(ctx, agent)
 
-    const uri = getUri(did, collection, rkey)
-    const skeleton = await getThreadSkeleton(ctx, agent, uri, data)
-
-    await data.fetchThreadHydrationData(skeleton)
-
-    let thread = hydrateThreadViewContent(ctx, skeleton, data, true, true)
-
-    return thread ? {data: thread} : {error: "Ocurrió un error al obtener el contenido."}
+    return pipe(
+        handleOrDidToDid(ctx, handleOrDid),
+        Effect.flatMap(did => {
+            const uri = getUri(did, collection, rkey)
+            return Effect.promise(() => getThreadSkeleton(ctx, agent, uri, data))
+        }),
+        Effect.tap(async skeleton => {
+            await data.fetchThreadHydrationData(skeleton)
+        }),
+        Effect.flatMap(skeleton => {
+            const thread = hydrateThreadViewContent(ctx, skeleton, data, true, true)
+            return thread ?
+                Effect.succeed(thread) :
+                Effect.fail("Ocurrió un error al obtener el contenido")
+        }),
+        Effect.catchTag("HandleResolutionError", () => {
+            return Effect.fail("Ocurrió un error al obtener el autor.")
+        }),
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al obtener el hilo.")
+        })
+    )
 }
 
 

@@ -1,10 +1,11 @@
-import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandlerNoAuth, EffHandler} from "#/utils/handler.js";
 import {getTopics} from "#/services/wiki/topics.js";
 import {searchTopics} from "#/services/search/search.js";
 import {FeedView, GetFeedOutput} from "@cabildo-abierto/api";
 import {getTopicSynonyms, getTopicTitle} from "#/services/wiki/utils.js";
 import {Agent} from "#/utils/session-agent.js";
 import {AppBskyFeedDefs} from "@atproto/api";
+import {Effect, pipe} from "effect";
 
 
 const murosRecomendados: string[] = [
@@ -62,24 +63,19 @@ export const getCustomFeeds: CAHandlerNoAuth<{
 }
 
 
-export const getTopicFeeds: CAHandler<{
+export const getTopicFeeds: EffHandler<{
     query: { q?: string, c?: string | string[], cursor?: string, limit?: number }
-}, FeedView[]> = async (ctx, agent, {query}) => {
+}, FeedView[]> = (ctx, agent, {query}) => {
     const q = query?.q
     const limit = query?.limit ?? 50
-
     const categories = typeof query?.c == "string" ? [query.c] : query?.c ?? []
 
-    const res = !q || q.length == 0 ?
-        await getTopics(ctx, categories, "popular", "week") :
-        await searchTopics(ctx, agent, {params: {q}, query: {c: query?.c, cursor: query?.cursor, limit}})
-
-    if (res.error || !res.data) {
-        ctx.logger.pino.error({error: res.error}, "error getting topic feeds")
-        return {error: "Ocurrió un error al obtener los muros."}
-    } else {
-        return {
-            data: res.data.map(f => {
+    return pipe(
+        (!q || q.length == 0) ?
+        getTopics(ctx, categories, "popular", "week") :
+        searchTopics(ctx, agent, {params: {q}, query: {c: query?.c, cursor: query?.cursor, limit}}),
+        Effect.map(topics => {
+            const views: FeedView[] = topics.map(f => {
                 return {
                     type: "topic",
                     subtype: "mentions",
@@ -88,6 +84,10 @@ export const getTopicFeeds: CAHandler<{
                     synonyms: getTopicSynonyms(f)
                 }
             })
-        }
-    }
+            return views
+        }),
+        Effect.catchAll(error => {
+            return Effect.fail("Ocurrió un error en la búsqueda.")
+        })
+    )
 }

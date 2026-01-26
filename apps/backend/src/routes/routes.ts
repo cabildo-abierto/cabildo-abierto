@@ -1,6 +1,6 @@
 import express, {Router} from 'express'
 import {cookieOptions, handler, Session, sessionAgent} from "#/utils/session-agent.js";
-import {CAHandlerNoAuth, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
 import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/search.js";
 import {createArticle} from "#/services/write/article.js";
 import {getIronSession} from "iron-session";
@@ -196,12 +196,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/thread/:handleOrDid/:collection/:rkey',
-        handler(makeHandlerNoAuth(ctx, getThread))
+        handler(makeEffHandlerNoAuth(ctx, getThread))
     )
 
     router.get(
         '/trending-topics/:time',
-        handler(makeHandlerNoAuth(ctx, getTrendingTopics))
+        handler(makeEffHandlerNoAuth(ctx, getTrendingTopics))
     )
 
     router.get(
@@ -213,17 +213,17 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/session',
-        handler(makeHandlerNoAuth(ctx, getSession))
+        handler(makeEffHandlerNoAuth(ctx, getSession))
     )
 
     router.get(
         '/session/:code',
-        handler(makeHandlerNoAuth(ctx, getSession))
+        handler(makeEffHandlerNoAuth(ctx, getSession))
     )
 
     router.get(
         '/account',
-        handler(makeHandler(ctx, getAccount))
+        handler(makeEffHandler(ctx, getAccount))
     )
 
     router.get(
@@ -314,12 +314,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topics/:sort/:time',
-        makeHandlerNoAuth(ctx, getTopicsHandler)
+        makeEffHandlerNoAuth(ctx, getTopicsHandler)
     )
 
     router.get(
         '/search-topics/:q',
-        makeHandlerNoAuth(ctx, searchTopics)
+        makeEffHandlerNoAuth(ctx, searchTopics)
     )
 
     router.get(
@@ -499,7 +499,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
 
-    router.get("/topic-feeds", makeHandler(ctx, getTopicFeeds))
+    router.get("/topic-feeds", makeEffHandler(ctx, getTopicFeeds))
 
     router.get("/custom-feed/:did/:rkey", makeHandler(ctx, getCustomFeed))
 

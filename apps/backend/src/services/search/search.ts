@@ -1,4 +1,4 @@
-import {CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {AppBskyActorDefs, ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {cleanText} from "@cabildo-abierto/utils";
@@ -12,6 +12,7 @@ import {sql} from "kysely";
 import {sortByKey, unique} from "@cabildo-abierto/utils";
 import {getTopicTitle} from "#/services/wiki/utils.js";
 import dice from "fast-dice-coefficient"
+import {Effect, pipe} from "effect";
 
 
 export async function searchUsersInCA(ctx: AppContext, query: string, limit: number): Promise<string[]> {
@@ -140,34 +141,31 @@ async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?:
 }
 
 
-export const searchTopics: CAHandlerNoAuth<{params: {q: string}, query: {c: string | string[] | undefined, cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = async (ctx, agent, {params, query}) => {
+export const searchTopics: EffHandlerNoAuth<{params: {q: string}, query: {c: string | string[] | undefined, cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
     let {q} = params;
     const categories = query.c == undefined ? undefined : (typeof query.c == "string" ? [query.c] : query.c);
     const searchQuery = cleanText(q)
+    const dataplane = new Dataplane(ctx, agent)
 
-    let topics: {id: string, title: string, uri: string}[] = []
-    try {
-        topics = await searchTopicsSkeleton(
+    return pipe(
+        Effect.promise(() => searchTopicsSkeleton(
             ctx,
             searchQuery,
             categories,
             20
-        )
-    } catch (error) {
-        ctx.logger.pino.error({error, searchQuery, categories}, "error getting search topics skeleton")
-        return {error: "Error en la búsqueda."}
-    }
-
-    const dataplane = new Dataplane(ctx, agent)
-    await dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
-
-    const data: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] = topics
-        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
-        .filter(x => x != null)
-
-    return {
-        data
-    }
+        )),
+        Effect.tap(async topics => {
+            await dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
+        }),
+        Effect.map(topics => {
+            return topics
+                .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
+                .filter(x => x != null)
+        }),
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al buscar los temas.")
+        })
+    )
 }
 
 type UserOrTopicBasic = $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>

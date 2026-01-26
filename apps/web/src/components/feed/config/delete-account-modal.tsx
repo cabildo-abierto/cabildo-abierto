@@ -57,7 +57,7 @@ const DeleteAccountModal = ({
                     variant={"error"}
                     handleClick={onClick}
                     disabled={text != "borrarcuenta"}
-                    textClassName={text == "borrarcuenta" ? "text-[var(--background)]" : ""}
+                    textClassName={text == "borrarcuenta" ? "" : ""}
                 >
                     Confirmar
                 </StateButton>

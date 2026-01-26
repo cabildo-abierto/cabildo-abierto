@@ -19,7 +19,10 @@ const traceExporter = new OTLPTraceExporter({
 export const NodeSdkLive = NodeSdk.layer(() => ({
     resource: {
         serviceName: "ca-backend",
-        serviceVersion: "1.0.1"
+        serviceVersion: "1.0.1",
+        attributes: {
+            "dev": process.env.DEV_NAME ?? "anonymous"
+        }
     },
     spanProcessor: new BatchSpanProcessor(traceExporter),
     instrumentations: [getNodeAutoInstrumentations({
