@@ -496,7 +496,7 @@ export const getTopicQuoteReplies: CAHandlerNoAuth<{params: {did: string, rkey: 
     const posts: ArCabildoabiertoFeedDefs.PostView[] = hydrated
         .map(c => c.content)
         .filter(c => ArCabildoabiertoFeedDefs.isPostView(c))
-        .filter(c => ArCabildoabiertoEmbedSelectionQuote.isMain(c.embed))
+        .filter(c => ArCabildoabiertoEmbedSelectionQuote.isView(c.embed))
 
     return {
         data: posts
