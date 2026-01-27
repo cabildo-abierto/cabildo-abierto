@@ -156,8 +156,8 @@ export function hydrateProfileViewDetailed(ctx: AppContext, did: string, datapla
     if (bskyProfile) {
         return {
             ...bskyProfile,
-            followersCount: caProfile != "not-found" ? caProfile?.followersCount : undefined,
-            followsCount: caProfile != "not-found" ? caProfile?.followsCount : undefined,
+            followersCount: caProfile != "not-found" ? (caProfile?.followersCount ?? undefined) : undefined,
+            followsCount: caProfile != "not-found" ? (caProfile?.followsCount ?? undefined) : undefined,
             bskyFollowersCount: bskyProfile.followersCount,
             bskyFollowsCount: bskyProfile.followsCount,
             caProfile: caProfile != "not-found" ? (caProfile?.caProfile ?? undefined) : undefined,

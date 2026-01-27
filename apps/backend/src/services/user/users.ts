@@ -156,7 +156,6 @@ export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
 type SessionData = Omit<Session, "handle"> & {handle: string | null}
 
 export const getSessionData = async (ctx: AppContext, did: string): Promise<SessionData | null> => {
-    const t1 = Date.now()
 
     try {
         const [res, mirrorStatus] = await Promise.all([
@@ -185,8 +184,6 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
                 .executeTakeFirst(),
             ctx.redisCache.mirrorStatus.get(did, true)
         ])
-        const t2 = Date.now()
-        ctx.logger.logTimes("get session", [t1, t2])
 
         if(!res) {
             ctx.logger.pino.info({did}, "user not found")

@@ -11,7 +11,7 @@ export const FollowCounters = ({profile}: { profile: ArCabildoabiertoActorDefs.P
     const followingCountAT = profile.bskyFollowsCount
     const [hovered, setHovered] = useState(false)
 
-    const showBsky = hovered || !profile.caProfile
+    const showBsky = hovered || !profile.caProfile || followersCountCA == null || followingCountCA == null
     const className = "flex space-x-2 text-sm items-center rounded-lg py-1 " + (showBsky ? "" : "")
 
     return <div

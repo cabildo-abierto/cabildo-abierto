@@ -863,7 +863,7 @@ export class Dataplane {
                         "editorStatus",
                         "userValidationHash",
                         "orgValidation",
-                        (eb) =>
+                        /*(eb) =>
                             eb
                                 .selectFrom("Follow")
                                 .innerJoin("Record", "Record.uri", "Follow.uri")
@@ -880,7 +880,7 @@ export class Dataplane {
                                 .innerJoin("User as UserFollowed", "UserFollowed.did", "Follow.userFollowedId")
                                 .where("UserFollowed.inCA", "=", true)
                                 .select(eb.fn.countAll<number>().as("count"))
-                                .as("followsCount"),
+                                .as("followsCount"),*/
                         (eb) =>
                             eb
                                 .selectFrom("Record")
@@ -909,8 +909,8 @@ export class Dataplane {
                             did: profile.did,
                             editorStatus: profile.editorStatus,
                             caProfile: profile.CAProfileUri,
-                            followsCount: profile.followsCount ?? 0,
-                            followersCount: profile.followersCount ?? 0,
+                            followsCount: null,
+                            followersCount: null,
                             articlesCount: profile.articlesCount ?? 0,
                             editsCount: profile.editsCount ?? 0,
                             verification: getValidationState(profile)

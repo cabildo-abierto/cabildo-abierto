@@ -4,8 +4,8 @@ import {EditorStatus, ValidationState} from "@cabildo-abierto/api";
 export type CAProfileDetailed = {
     did: string
     caProfile: string | null
-    followersCount: number
-    followsCount: number
+    followersCount: number | null
+    followsCount: number | null
     articlesCount: number
     editsCount: number
     editorStatus: EditorStatus
