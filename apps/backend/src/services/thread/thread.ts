@@ -157,9 +157,7 @@ export const getThread: EffHandlerNoAuth<{params: {handleOrDid: string, collecti
             const uri = getUri(did, collection, rkey)
             return Effect.promise(() => getThreadSkeleton(ctx, agent, uri, data))
         }),
-        Effect.tap(async skeleton => {
-            await data.fetchThreadHydrationData(skeleton)
-        }),
+        Effect.tap(skeleton => data.fetchThreadHydrationData(skeleton)),
         Effect.flatMap(skeleton => {
             const thread = hydrateThreadViewContent(ctx, skeleton, data, true, true)
             return thread ?
