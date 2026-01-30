@@ -1,15 +1,16 @@
 import {AppContext} from "#/setup.js";
-import {ATProtoStrongRef} from "@cabildo-abierto/api";
-import {CAHandler} from "#/utils/handler.js";
+import {ArCabildoabiertoWikiVoteAccept, ArCabildoabiertoWikiVoteReject, ATProtoStrongRef} from "@cabildo-abierto/api";
+import {EffHandler} from "#/utils/handler.js";
 import {getCollectionFromUri, getUri} from "@cabildo-abierto/utils";
-import {AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
-import {ArCabildoabiertoWikiVoteAccept, ArCabildoabiertoWikiVoteReject} from "@cabildo-abierto/api"
+import {$Typed, AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
 import {SessionAgent} from "#/utils/session-agent.js";
-import {$Typed} from "@atproto/api";
-import {createVoteAcceptAT, createVoteRejectAT, VoteRejectProps} from "#/services/wiki/votes.js";
-import {deleteRecordAT} from "#/services/delete.js";
-import {ReactionDeleteProcessor, ReactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
-
+import {ATCreateRecordError, createVoteAcceptAT, createVoteRejectAT, VoteRejectProps} from "#/services/wiki/votes.js";
+import {ATDeleteRecordError, deleteRecordAT} from "#/services/delete.js";
+import {ReactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
+import {Effect} from "effect";
+import {batchDeleteRecords, ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
+import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {InvalidValueError} from "#/utils/errors.js";
 
 
 export type ReactionType =
@@ -26,27 +27,45 @@ export type ReactionRecord =
     | $Typed<ArCabildoabiertoWikiVoteReject.Record>
 
 
-const addReactionAT = async (agent: SessionAgent, ref: ATProtoStrongRef, type: ReactionType, voteRejectProps?: VoteRejectProps): Promise<ATProtoStrongRef> => {
+class ATCreateLikeError {
+    readonly _tag = "ATCreateLikeError"
+}
+
+
+class ATCreateRepostError {
+    readonly _tag = "ATCreateRepostError"
+}
+
+
+type ATCreateReactionError = ATCreateLikeError | ATCreateRepostError | InvalidValueError | ATCreateRecordError
+
+
+const addReactionAT = (agent: SessionAgent, ref: ATProtoStrongRef, type: ReactionType, voteRejectProps?: VoteRejectProps): Effect.Effect<ATProtoStrongRef, ATCreateReactionError> => {
+
     if (type == "app.bsky.feed.like") {
-        return await agent.bsky.like(ref.uri, ref.cid)
+        return Effect.tryPromise({
+            try: () => agent.bsky.like(ref.uri, ref.cid),
+            catch: () => new ATCreateLikeError()
+        })
     } else if (type == "ar.cabildoabierto.wiki.voteAccept") {
-        return await createVoteAcceptAT(agent, ref)
+        return createVoteAcceptAT(agent, ref)
     } else if (type == "ar.cabildoabierto.wiki.voteReject") {
-        return await createVoteRejectAT(agent, ref, voteRejectProps)
+        return createVoteRejectAT(agent, ref, voteRejectProps)
     } else if (type == "app.bsky.feed.repost") {
-        return await agent.bsky.repost(ref.uri, ref.cid)
+        return Effect.tryPromise({
+            try: () => agent.bsky.repost(ref.uri, ref.cid),
+            catch: () => new ATCreateRepostError()
+        })
     } else {
-        throw Error(`Reacción desconocida: ${type}`)
+        return Effect.fail(new InvalidValueError(type))
     }
 }
 
 
-export const addReaction = async (ctx: AppContext, agent: SessionAgent, ref: ATProtoStrongRef, type: ReactionType, voteRejectProps?: VoteRejectProps): Promise<{
-    data?: { uri: string },
-    error?: string
-}> => {
-    try {
-        const res = await addReactionAT(agent, ref, type, voteRejectProps)
+export const addReaction = (ctx: AppContext, agent: SessionAgent, ref: ATProtoStrongRef, type: ReactionType, voteRejectProps?: VoteRejectProps): Effect.Effect<{uri: string}, ProcessCreateError | ATCreateReactionError> => {
+
+    return Effect.gen(function* () {
+        const res = yield* addReactionAT(agent, ref, type, voteRejectProps)
 
         const record: ReactionRecord = {
             $type: type,
@@ -54,39 +73,51 @@ export const addReaction = async (ctx: AppContext, agent: SessionAgent, ref: ATP
             createdAt: new Date().toISOString()
         }
 
-        await new ReactionRecordProcessor(ctx).processValidated([{ref: res, record}])
-        ctx.logger.pino.info("finished adding reaction")
-        return {data: {uri: res.uri}}
-    } catch (err) {
-        ctx.logger.pino.error({error: err, ref, type}, "Error adding reaction")
-        return {error: "No se pudo crear la reacción."}
-    }
+        const processor = new ReactionRecordProcessor(ctx)
+        yield* processor.processValidated([{ref: res, record}])
+        return {uri: res.uri}
+    })
 }
 
 
-export const addLike: CAHandler<ATProtoStrongRef, { uri: string }> = async (ctx, agent, ref) => {
-    return await addReaction(ctx, agent, ref, "app.bsky.feed.like")
+export const addLike: EffHandler<ATProtoStrongRef, { uri: string }> = (ctx, agent, ref) => {
+    return addReaction(ctx, agent, ref, "app.bsky.feed.like").pipe(
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al dar me gusta.")
+        })
+    )
 }
 
 
-export const repost: CAHandler<ATProtoStrongRef, { uri: string }> = async (ctx, agent, ref) => {
-    return await addReaction(ctx, agent, ref, "app.bsky.feed.repost")
+export const repost: EffHandler<ATProtoStrongRef, { uri: string }> = (ctx, agent, ref) => {
+    return addReaction(ctx, agent, ref, "app.bsky.feed.repost").pipe(
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al republicar.")
+        })
+    )
 }
 
 
-export const removeReactionAT = async (ctx: AppContext, agent: SessionAgent, uri: string) => {
-    const collection = getCollectionFromUri(uri)
-    if (collection == "app.bsky.feed.like") {
-        await agent.bsky.deleteLike(uri)
-    } else if (collection == "app.bsky.feed.repost") {
-        await agent.bsky.deleteRepost(uri)
-    } else if (collection == "ar.cabildoabierto.wiki.voteAccept") {
-        await deleteRecordAT(agent, uri)
-    } else if (collection == "ar.cabildoabierto.wiki.voteReject") {
-        await deleteRecordAT(agent, uri)
-    }
-    await new ReactionDeleteProcessor(ctx).process([uri])
-    return {data: {}}
+export const removeReactionAT = (ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError> => {
+    return Effect.gen(function* () {
+        const collection = getCollectionFromUri(uri)
+        if (collection == "app.bsky.feed.like") {
+            yield* Effect.tryPromise({
+                try: () => agent.bsky.deleteLike(uri),
+                catch: () => new ATDeleteRecordError()
+            })
+        } else if (collection == "app.bsky.feed.repost") {
+            yield* Effect.tryPromise({
+                try: () => agent.bsky.deleteRepost(uri),
+                catch: () => new ATDeleteRecordError()
+            })
+        } else if (collection == "ar.cabildoabierto.wiki.voteAccept") {
+            yield* deleteRecordAT(agent, uri)
+        } else if (collection == "ar.cabildoabierto.wiki.voteReject") {
+            yield* deleteRecordAT(agent, uri)
+        }
+        yield* batchDeleteRecords(ctx, [uri])
+    })
 }
 
 
@@ -99,17 +130,23 @@ type RemoveReactionProps = {
 }
 
 
-export const removeLike: CAHandler<RemoveReactionProps> = async (ctx, agent, {params}) => {
+export const removeLike: EffHandler<RemoveReactionProps> = (ctx, agent, {params}) => {
     const {rkey} = params
     const uri = getUri(agent.did, "app.bsky.feed.like", rkey)
-    return await removeReactionAT(ctx, agent, uri)
+    return removeReactionAT(ctx, agent, uri).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al remover el me gusta.")),
+        Effect.flatMap(() => Effect.succeed({}))
+    )
 }
 
 
-export const removeRepost: CAHandler<RemoveReactionProps> = async (ctx, agent, {params}) => {
+export const removeRepost: EffHandler<RemoveReactionProps> = (ctx, agent, {params}) => {
     const {rkey} = params
     const uri = getUri(agent.did, "app.bsky.feed.repost", rkey)
-    return await removeReactionAT(ctx, agent, uri)
+    return removeReactionAT(ctx, agent, uri).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al remover el me gusta.")),
+        Effect.flatMap(() => Effect.succeed({}))
+    )
 }
 
 

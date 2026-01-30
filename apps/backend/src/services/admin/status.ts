@@ -3,6 +3,7 @@ import {AppContext} from "#/setup.js";
 import {getUnsentAccessRequestsCount} from "#/services/user/access.js";
 import {getPendingValidationRequestsCount} from "#/services/user/validation.js";
 import {getUnseenJobApplicationsCount} from "#/services/admin/jobs.js";
+import {Effect} from "effect";
 
 type ServerStatus = {
     worker: boolean
@@ -99,7 +100,7 @@ export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, a
         users.map(async u => ({
             did: u.did,
             handle: u.handle,
-            mirrorStatus: await ctx.redisCache.mirrorStatus.get(u.did, true),
+            mirrorStatus: await Effect.runPromise(ctx.redisCache.mirrorStatus.get(u.did, true)),
             CAProfile: u.created_at_tz ? { createdAt: u.created_at_tz } : null
         }))
     )

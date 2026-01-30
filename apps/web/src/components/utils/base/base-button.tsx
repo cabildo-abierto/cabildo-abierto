@@ -30,7 +30,7 @@ export const BaseButton = ({
             {...props}
             variant={variant}
             size={size}
-            className={cn(className, "relative", loading && "text-transparent")}
+            className={cn(className, "relative", loading && "text-transparent hover:text-transparent")}
         >
             {startIcon}
             {children}

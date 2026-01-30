@@ -42,7 +42,6 @@ export async function updateContentsText(ctx: AppContext, uris?: string[]) {
 
         if(contents.length == 0) break
 
-        console.log(`updating ${contents.length} contents text in batch ${offset}`)
         const texts = await getContentsText(ctx, contents, undefined, false)
 
         await setContentsText(ctx, contents.map(c => c.uri), texts)

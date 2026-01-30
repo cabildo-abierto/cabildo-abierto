@@ -1,14 +1,16 @@
 import {updateCategoriesGraph} from "#/services/wiki/graph.js";
-import {Worker} from 'bullmq';
+import {Queue, Worker} from 'bullmq';
 import {AppContext} from "#/setup.js";
-import {syncAllUsers, syncUserJobHandler, updateRecordsCreatedAt} from "#/services/sync/sync-user.js";
+import {syncUserJobHandler, updateRecordsCreatedAt} from "#/services/sync/sync-user.js";
 import {updateAuthorStatus} from "#/services/user/users.js";
 import {
+    recomputeTopicInteractionsAndPopularities,
     recreateAllReferences,
+    updateDiscoverFeedIndex,
     updatePopularitiesOnContentsChange,
-    updateReferences,
+    updatePopularitiesOnNewReactions,
     updatePopularitiesOnTopicsChange,
-    updatePopularitiesOnNewReactions, recomputeTopicInteractionsAndPopularities, updateDiscoverFeedIndex
+    updateReferences
 } from "#/services/wiki/references/references.js";
 import {updateEngagementCounts} from "#/services/feed/get-user-engagement.js";
 import {deleteCollection} from "#/services/delete.js";
@@ -19,7 +21,6 @@ import {
     updateTopicContributionsRequired
 } from "#/services/wiki/contributions.js";
 import {createUserMonths} from "#/services/monetization/user-months.js";
-import {Queue} from "bullmq";
 import {createNotificationsJob} from "#/services/notifications/notifications.js";
 import {CAHandler} from "#/utils/handler.js";
 import {assignInviteCodesToUsers} from "#/services/user/access.js";
@@ -43,13 +44,16 @@ import {
     updateFollowingFeedOnNewContent
 } from "#/services/feed/following/update.js";
 import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
-import {notifyContentCreated} from "#/services/moderation/notifications.js";
 import {startContentModeration} from "#/services/moderation/start.js";
+import {Effect, Exit} from "effect";
+import {AddJobError} from "#/utils/errors.js";
+import {runtime} from "#/instrumentation.js";
 
 const mins = 60 * 1000
 const seconds = 1000
 
 type CAJobHandler<T> = (data: T) => Promise<void>
+type EffJobHandler<T> = (data: T) => Effect.Effect<void, string>
 
 export type WorkerState = {
     counts: {
@@ -83,9 +87,14 @@ export type WorkerState = {
 
 type CAJobDefinition<T> = {
     name: string
-    handler: CAJobHandler<T>
     batchable: boolean
-}
+} & ({
+    type: "async"
+    handler: CAJobHandler<T>
+} | {
+    type: "eff"
+    effHandler: EffJobHandler<T>
+})
 
 
 export class CAWorker {
@@ -101,16 +110,32 @@ export class CAWorker {
     }
 
     registerJob(jobName: string, handler: (data: any) => Promise<void>, batchable: boolean = false) {
-        this.jobs.push({name: jobName, handler, batchable})
+        this.jobs.push({name: jobName, type: "async", handler, batchable})
+    }
+
+    registerEffJob(jobName: string, handler: (data: any) => Effect.Effect<void, string>, batchable: boolean = false) {
+        this.jobs.push({name: jobName, type: "eff", effHandler: handler, batchable})
     }
 
     async runJob(name: string, data: any) {
         for (let i = 0; i < this.jobs.length; i++) {
-            if (name.startsWith(this.jobs[i].name)) {
-                try {
-                    await this.jobs[i].handler(data)
-                } catch (error) {
-                    this.logger.pino.error({job: name, error}, "error running job")
+            const job = this.jobs[i]
+            if (name.startsWith(job.name)) {
+                if (job.type == "eff") {
+                    this.logger.pino.info({job: name, data}, "running eff job")
+                    const exit = await runtime.runPromiseExit(job.effHandler(data).pipe(Effect.withSpan(`worker-job ${name}`)))
+                    Exit.match(exit, {
+                        onSuccess: () => {},
+                        onFailure: error => {
+                            this.logger.pino.error({job: name, error}, "error running job")
+                        }
+                    })
+                } else {
+                    try {
+                        await job.handler(data)
+                    } catch (error) {
+                        this.logger.pino.error({job: name, error}, "error running job")
+                    }
                 }
                 return
             }
@@ -120,15 +145,12 @@ export class CAWorker {
 
     async setup(ctx: AppContext) {
         this.registerJob("update-categories-graph", () => updateCategoriesGraph(ctx))
-        this.registerJob("sync-user", async (data: any) => await syncUserJobHandler(ctx, data))
+        this.registerEffJob("sync-user", data => syncUserJobHandler(ctx, data).pipe(Effect.catchAll(() => Effect.fail("Error en en trabajo sync-user"))))
         this.registerJob("update-references", () => updateReferences(ctx))
         this.registerJob("update-engagement-counts", () => updateEngagementCounts(ctx))
         this.registerJob("delete-collection", async (data) => {
             await deleteCollection(ctx, (data as { collection: string }).collection)
         })
-        this.registerJob("sync-all-users", (data) => syncAllUsers(ctx, (data as {
-            mustUpdateCollections: string[]
-        }).mustUpdateCollections))
         this.registerJob("delete-collection", (data) => deleteCollection(ctx, (data as {
             collection: string
         }).collection))
@@ -286,7 +308,7 @@ export class CAWorker {
         )
         this.registerJob(
             "update-all-stats",
-            () => updateAllStats(ctx),
+            () => Effect.runPromise(updateAllStats(ctx)),
             false
         )
         this.registerJob(
@@ -333,7 +355,7 @@ export class CAWorker {
         throw Error("Sin implementar!")
     }
 
-    async addJob(name: string, data: any, priority: number = 10) {
+    addJob(name: string, data: any, priority: number = 10): Effect.Effect<void, AddJobError> {
         throw Error("Sin implementar!")
     }
 
@@ -411,21 +433,24 @@ export class RedisCAWorker extends CAWorker {
     }
 
     // priority va de 1 a 2097152, más bajo significa mayor prioridad
-    async addJob(name: string, data: any, priority: number = 10) {
-        this.logger.pino.info({name}, "job added")
-        await this.queue.add(
-            name,
-            data, {
-                priority,
-                removeOnComplete: {
-                    age: 60 * 60, // trabajos completados por 1 hora
-                    count: 1000 // y hasta 1000
-                },
-                removeOnFail: {
-                    age: 24 * 60 * 60, // trabajos fallidos por hasta 24hs
-                    count: 500, // y hasta 500
-                },
-            })
+    addJob(name: string, data: any, priority: number = 10) {
+        return Effect.tryPromise({
+            try: () => this.queue.add(
+                name,
+                data, {
+                    priority,
+                    removeOnComplete: {
+                        age: 60 * 60, // trabajos completados por 1 hora
+                        count: 1000 // y hasta 1000
+                    },
+                    removeOnFail: {
+                        age: 24 * 60 * 60, // trabajos fallidos por hasta 24hs
+                        count: 500, // y hasta 500
+                    },
+                }),
+            catch: () => new AddJobError()
+        })
+
     }
 
     async removeAllRepeatingJobs() {
@@ -503,7 +528,7 @@ export class RedisCAWorker extends CAWorker {
 
         for (let i = 0; i < jobData.length; i += batchSize) {
             const batchData = jobData.slice(i, i + batchSize)
-            await this.addJob(name, batchData)
+            await Effect.runPromise(this.addJob(name, batchData))
         }
     }
 

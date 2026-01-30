@@ -5,7 +5,7 @@ import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
 import {Dataplane} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
-import {createCAUser} from "#/services/user/access.js";
+import {createCAUser, UserNotFoundError} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
 import {
     Account,
@@ -23,18 +23,26 @@ import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js"
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
+import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
+import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {DBError} from "#/services/write/article.js";
+import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
+import {AddJobError} from "#/utils/errors.js";
 
 
-export async function dbHandleToDid(ctx: AppContext, handleOrDid: string): Promise<string | null> {
+export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBError> {
     if (handleOrDid.startsWith("did")) {
-        return handleOrDid
+        return Effect.succeed(handleOrDid)
     } else {
-        const res = await ctx.kysely
-            .selectFrom("User")
-            .select("did")
-            .where("handle", "=", handleOrDid)
-            .executeTakeFirst()
-        return res?.did ?? null
+        return Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("User")
+                .select("did")
+                .where("handle", "=", handleOrDid)
+                .executeTakeFirst(),
+            catch: () => new DBError()
+        })
+            .pipe(Effect.map(res => res?.did ?? null))
     }
 }
 
@@ -44,14 +52,18 @@ export class HandleResolutionError {
 }
 
 
-export const getCAUsersDids = async (ctx: AppContext) => {
-    const users = await ctx.kysely
-        .selectFrom("User")
-        .select("did")
-        .where("inCA", "=", true)
-        .where("hasAccess", "=", true)
-        .execute()
-    return users.map(({did}) => did)
+export const getCAUsersDids = (ctx: AppContext): Effect.Effect<string[], DBError> => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .select("did")
+            .where("inCA", "=", true)
+            .where("hasAccess", "=", true)
+            .execute(),
+        catch: () => new DBError()
+    }).pipe(Effect.map(users => {
+        return users.map(({did}) => did)
+    }))
 }
 
 
@@ -155,44 +167,42 @@ export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
 
 type SessionData = Omit<Session, "handle"> & {handle: string | null}
 
-export const getSessionData = async (ctx: AppContext, did: string): Promise<SessionData | null> => {
+export const getSessionData = (ctx: AppContext, did: string): Effect.Effect<SessionData, RedisCacheFetchError | UserNotFoundError | DBError> => {
 
-    try {
-        const [res, mirrorStatus] = await Promise.all([
-            ctx.kysely
-                .selectFrom("User")
-                .select([
-                    "platformAdmin",
-                    "editorStatus",
-                    "seenTutorial",
-                    "seenTopicMaximizedTutorial",
-                    "seenTopicMinimizedTutorial",
-                    "seenTopicsTutorial",
-                    "seenVerifiedNotification",
-                    "handle",
-                    "displayName",
-                    "avatar",
-                    "hasAccess",
-                    "userValidationHash",
-                    "orgValidation",
-                    "algorithmConfig",
-                    "authorStatus",
-                    "CAProfileUri",
-                    "inCA",
-                ])
-                .where("did", "=", did)
-                .executeTakeFirst(),
+    return Effect.gen(function* () {
+        const [data, mirrorStatus] = yield* Effect.all([
+            Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("User")
+                    .select([
+                        "platformAdmin",
+                        "editorStatus",
+                        "seenTutorial",
+                        "seenTopicMaximizedTutorial",
+                        "seenTopicMinimizedTutorial",
+                        "seenTopicsTutorial",
+                        "seenVerifiedNotification",
+                        "handle",
+                        "displayName",
+                        "avatar",
+                        "hasAccess",
+                        "userValidationHash",
+                        "orgValidation",
+                        "algorithmConfig",
+                        "authorStatus",
+                        "CAProfileUri",
+                        "inCA",
+                    ])
+                    .where("did", "=", did)
+                    .executeTakeFirst(),
+                catch: () => new DBError()
+            }),
             ctx.redisCache.mirrorStatus.get(did, true)
-        ])
+        ], {concurrency: "unbounded"})
 
-        if(!res) {
-            ctx.logger.pino.info({did}, "user not found")
-            return null
-        }
+        if(!data) return yield* Effect.fail(new UserNotFoundError())
 
-        const data = res
-
-        return {
+        const sessionData: SessionData = {
             authorStatus: data.authorStatus as AuthorStatus | null,
             did: did,
             handle: data.handle,
@@ -211,13 +221,12 @@ export const getSessionData = async (ctx: AppContext, did: string): Promise<Sess
             platformAdmin: data.platformAdmin,
             validation: getValidationState(data),
             algorithmConfig: (data.algorithmConfig ?? {}) as AlgorithmConfig,
-            mirrorStatus: data.inCA ? mirrorStatus: "Dirty",
+            mirrorStatus: data.inCA ? mirrorStatus : "Dirty",
             pinnedFeeds: []
         }
-    } catch (err) {
-        ctx.logger.pino.error({error: err, did}, "error getting session data")
-        return null
-    }
+
+        return sessionData
+    })
 }
 
 
@@ -234,18 +243,14 @@ function isFullSessionData(data: SessionData | null): data is Session {
 }
 
 
-function startSyncIfDirty(ctx: AppContext, did: string): Effect.Effect<void, string> {
-    return pipe(
-        Effect.promise(() => ctx.redisCache.mirrorStatus.get(did, true)),
-        Effect.flatMap(status => {
-            return status == "Dirty" ? Effect.promise(() => {
-                return ctx.redisCache.mirrorStatus.set(did, "InProcess", true)
-                    .then(() => {
-                    return ctx.worker?.addJob("sync-user", {handleOrDid: did}, 5)
-                })
-            }) : Effect.void
-        })
-    )
+function startSyncIfDirty(ctx: AppContext, did: string): Effect.Effect<void, AddJobError | RedisCacheSetError | RedisCacheFetchError> {
+    return Effect.gen(function* () {
+        const status = yield* ctx.redisCache.mirrorStatus.get(did, true)
+        if(status == "Dirty") {
+            yield* ctx.redisCache.mirrorStatus.set(did, "InProcess", true)
+            if(ctx.worker) yield* ctx.worker.addJob("sync-user", {handleOrDid: did}, 5)
+        }
+    })
 }
 
 
@@ -259,16 +264,15 @@ export const getSession: EffHandlerNoAuth<{ params?: { code?: string } }, Sessio
     return Effect.gen(function* () {
         yield* startSyncIfDirty(ctx, agent.did)
 
-        const data = yield* Effect.promise(() => getSessionData(ctx, agent.did))
+        const data = yield* getSessionData(ctx, agent.did)
 
         if (data != null && isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
             return data
         } else if(data && data.hasAccess) {
             // está en le DB y tiene acceso pero no está sincronizado o no tiene perfil de ca
-            const {error} = yield* Effect.promise(() =>  createCAUser(ctx, agent))
-            if (error) return yield* Effect.fail(error)
+            yield* createCAUser(ctx, agent)
 
-            const newUserData = yield* Effect.promise(() => getSessionData(ctx, agent.did))
+            const newUserData = yield* getSessionData(ctx, agent.did)
 
             if(!isFullSessionData(newUserData)) {
                 return yield* Effect.fail("La cuenta tiene acceso, pero ocurrió un error al obtener los datos.")
@@ -277,10 +281,9 @@ export const getSession: EffHandlerNoAuth<{ params?: { code?: string } }, Sessio
             return newUserData
         } else if(code) {
             // el usuario no está en la db (o está pero no tiene acceso) y logró iniciar sesión, creamos un nuevo usuario de CA
-            const {error} = yield* Effect.promise(() => createCAUser(ctx, agent, code))
-            if (error) return yield* Effect.fail(error)
+            yield* createCAUser(ctx, agent, code)
 
-            const newUserData = yield* Effect.promise(() => getSessionData(ctx, agent.did))
+            const newUserData = yield* getSessionData(ctx, agent.did)
 
             if(!isFullSessionData(newUserData)){
                 return yield* Effect.fail("Ocurrió un error al obtener los datos de la cuenta.")
@@ -293,9 +296,23 @@ export const getSession: EffHandlerNoAuth<{ params?: { code?: string } }, Sessio
     }).pipe(Effect.catchAll(error => {
         return pipe(
             Effect.promise(() => deleteSession(ctx, agent)),
-            Effect.flatMap(() => Effect.fail("Ocurrió un error al obtener la sesión"))
+            Effect.flatMap(() => Effect.fail("Ocurrió un error al obtener la sesión."))
         )
     }))
+}
+
+
+function storeBskyEmail(ctx: AppContext, bskyEmail: string, userId: string) {
+    return Effect.gen(function* () {
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely.updateTable("User")
+                .set("email", bskyEmail)
+                .where("did", "=", userId)
+                .execute(),
+            catch: () => "Error al guardar el correo."
+        })
+        yield* createMailingListSubscription(ctx, bskyEmail, userId)
+    })
 }
 
 
@@ -321,26 +338,31 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
             return yield* Effect.fail("No se encontró el usuario")
         }
 
+
         const {email, subsId, status} = caData[0]
         const subscribed = subsId != null && status == "Subscribed"
 
         const bskyEmail = bskySession.data.email
 
-        if (bskyEmail && (!email || email != bskyEmail)) {
-            yield* Effect.tryPromise({
-                try: () => ctx.kysely.updateTable("User")
-                    .set("email", bskyEmail)
-                    .where("did", "=", agent.did)
-                    .execute(),
-                catch: () => "Error al guardar el correo."
-            })
+        if (bskyEmail && !email) {
+            yield* storeBskyEmail(ctx, bskyEmail, agent.did)
         }
 
+        yield* Effect.annotateCurrentSpan({
+            email,
+            subscriptionId: subsId,
+            status,
+            bskyEmail
+        })
+
         return {
-            email: bskyEmail,
+            email: email ?? bskyEmail,
             subscribedToEmailUpdates: subscribed
         }
-    })
+    }).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los datos de la cuenta")),
+        Effect.withSpan("getAccount")
+    )
 }
 
 
@@ -404,9 +426,6 @@ export const setSeenTutorialHandler: CAHandler<{ params: { tutorial: Tutorial } 
 }
 
 
-
-
-
 type UpdateProfileProps = {
     displayName?: string
     description?: string
@@ -415,20 +434,30 @@ type UpdateProfileProps = {
 }
 
 
-export const updateProfile: CAHandler<UpdateProfileProps, {}> = async (ctx, agent, params) => {
-    const {data} = await agent.bsky.com.atproto.repo.getRecord({
-        repo: agent.did,
-        collection: 'app.bsky.actor.profile',
-        rkey: "self"
-    })
+export const updateProfile: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
 
-    const val = AppBskyActorProfile.validateRecord(data.value)
+    return Effect.gen(function* () {
+        const {success, data} = yield* Effect.tryPromise({
+            try: () => agent.bsky.com.atproto.repo.getRecord({
+                repo: agent.did,
+                collection: 'app.bsky.actor.profile',
+                rkey: "self"
+            }),
+            catch: () => "Ocurrió un error en la conexión con ATProtocol."
+        })
 
-    if (val.success) {
-        const record = val.value
+        if(!success) {
+            return yield* Effect.fail("Error en la conexión.")
+        }
 
-        const avatarBlob: BlobRef | undefined = params.profilePic ? (await uploadBase64Blob(agent, params.profilePic)).ref : record.avatar
-        const bannerBlob: BlobRef | undefined = params.banner ? (await uploadBase64Blob(agent, params.banner)).ref : record.banner
+        yield* Effect.log("Got current profile.")
+
+        const record = data.value as AppBskyActorProfile.Record
+
+        const avatarBlob: BlobRef | undefined = params.profilePic ? (yield* uploadBase64Blob(agent, params.profilePic)).ref : record.avatar
+        const bannerBlob: BlobRef | undefined = params.banner ? (yield* uploadBase64Blob(agent, params.banner)).ref : record.banner
+
+        yield* Effect.log("Avatar and banner uploaded correctly.")
 
         const newRecord: AppBskyActorProfile.Record = {
             ...record,
@@ -437,12 +466,17 @@ export const updateProfile: CAHandler<UpdateProfileProps, {}> = async (ctx, agen
             avatar: avatarBlob,
             banner: bannerBlob
         }
-        await agent.bsky.com.atproto.repo.putRecord({
-            repo: agent.did,
-            collection: "app.bsky.actor.profile",
-            record: newRecord,
-            rkey: "self"
+        yield* Effect.tryPromise({
+            try: () => agent.bsky.com.atproto.repo.putRecord({
+                repo: agent.did,
+                collection: "app.bsky.actor.profile",
+                record: newRecord,
+                rkey: "self"
+            }),
+            catch: () => new ATCreateRecordError()
         })
+
+        yield* Effect.log("Record created.")
 
         if(data.cid){
             const ref: ATProtoStrongRef = {
@@ -450,12 +484,27 @@ export const updateProfile: CAHandler<UpdateProfileProps, {}> = async (ctx, agen
                 cid: data.cid
             }
 
-            await new BskyProfileRecordProcessor(ctx)
+            yield* new BskyProfileRecordProcessor(ctx)
                 .processValidated([{ref, record}])
         }
-    }
 
-    return {data: {}}
+        return {}
+    }).pipe(
+        Effect.catchTag("ATCreateRecordError", () => Effect.fail("Ocurrió un error al actualizar el perfil.")),
+        Effect.catchTag("InsertRecordError", () => Effect.fail("El perfil se actualizó, pero tuvimos un problema para procesarlo. Volvé a intentar o comunicate con el soporte.")),
+        Effect.catchTag("UploadImageFromBase64Error", () => Effect.fail("Ocurrió un error al subir una imagen.")),
+        Effect.catchTag("InvalidValueError", () => Effect.fail("Ocurrió un error al actualizar el perfil")),
+        Effect.catchTag("UpdateRedisError", () => Effect.fail("Ocurrió un error al actualizar el perfil")),
+        Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al actualizar el perfil")),
+        Effect.withSpan("updateProfile", {
+            attributes: {
+                displayName: params.displayName,
+                description: params.description,
+                banner: params.banner != null,
+                profilePic: params.profilePic != null
+            }
+        })
+    )
 }
 
 
@@ -529,5 +578,56 @@ export async function updateAuthorStatus(ctx: AppContext, dids?: string[]) {
         .onConflict(oc => oc.column("did").doUpdateSet(eb => ({
             authorStatus: eb.ref("excluded.authorStatus")
         })))
+        .execute()
+}
+
+
+class CheckEmailError {
+    readonly _tag = "CheckEmailError"
+}
+
+
+function checkEmailUsed(ctx: AppContext, email: string): Effect.Effect<boolean, CheckEmailError> {
+    return Effect.gen(function* () {
+        const user = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("User")
+                .select("did")
+                .where("email", "=", email)
+                .executeTakeFirst(),
+            catch: error => new CheckEmailError()
+        })
+        return user != null
+    })
+}
+
+
+
+export const saveNewEmail: EffHandler<{email: string}, {}> = (ctx, agent, {email}) => {
+    return Effect.gen(function* () {
+
+        const used = yield* checkEmailUsed(ctx, email)
+
+        if(used) {
+            yield* Effect.fail("Este correo ya fue usado.")
+        }
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .updateTable("User")
+                .set("email", email)
+                .where("did", "=", agent.did).execute(),
+            catch: error => {
+                return "No se encontró el usuario."
+            }
+        })
+    }).pipe(Effect.flatMap(() => Effect.succeed({})), Effect.catchTag("CheckEmailError", () => Effect.fail("Error en la conexión.")))
+}
+
+
+export async function verifyEmails(ctx: AppContext) {
+    await ctx.kysely.updateTable("User")
+        .where("email", "is not", null)
+        .set("emailVerified", true)
         .execute()
 }

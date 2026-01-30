@@ -2,10 +2,11 @@ import {ReactNode, useEffect, useState} from 'react';
 import {BaseButton, BaseButtonProps as ButtonProps} from "./base-button";
 import {useErrors} from "@/components/layout/contexts/error-context";
 import {cn} from "@/lib/utils";
+import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 
 export type StateButtonProps = Omit<ButtonProps, "onClick"> & {
     handleClick?: StateButtonClickHandler
-    children: ReactNode
+    children?: ReactNode
     startIcon?: ReactNode
     textClassName?: string
     stopPropagation?: boolean
@@ -45,6 +46,26 @@ export const StateButton = ({
             submit()
         }
     }, [loading])
+
+    if(startIcon && !children) {
+        return <BaseIconButton
+            size={size}
+            loading={loading}
+            className={cn(className, textClassName)}
+            onClick={(e) => {
+                if (stopPropagation) {
+                    e.stopPropagation()
+                    e.preventDefault()
+                }
+                setLoading(true)
+                setMouseEvent(e)
+            }}
+            disabled={disabled}
+            {...props}
+        >
+            {startIcon}
+        </BaseIconButton>
+    }
 
     return <BaseButton
         startIcon={startIcon}

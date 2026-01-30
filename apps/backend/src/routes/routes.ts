@@ -14,6 +14,7 @@ import {
     getAccount,
     getProfile,
     getSession,
+    saveNewEmail,
     setSeenTutorialHandler,
     unfollow,
     updateAlgorithmConfig,
@@ -38,11 +39,11 @@ import {
     getTopicMentionsInTopicsFeed,
     getTopicQuoteReplies
 } from "#/services/feed/topic.js";
-import {deleteCAProfile, deleteRecordHandler, deleteRecordsHandler} from "#/services/delete.js";
+import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
 import {createTopicVersion} from "#/services/write/topic.js";
 import path from "path";
-import {cancelEditVote, getTopicVersionVotesHandler, voteEdit} from "#/services/wiki/votes.js";
+import {cancelEditVoteHandler, getTopicVersionVotesHandler, voteEdit} from "#/services/wiki/votes.js";
 import {adminRoutes} from './admin-routes.js';
 import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
@@ -156,12 +157,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/article',
-        handler(makeHandler(ctx, createArticle))
+        handler(makeEffHandler(ctx, createArticle))
     )
 
     router.post(
         '/post',
-        handler(makeHandler(ctx, createPost))
+        handler(makeEffHandler(ctx, createPost))
     )
 
     router.get(
@@ -176,22 +177,22 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/like',
-        handler(makeHandler(ctx, addLike))
+        handler(makeEffHandler(ctx, addLike))
     )
 
     router.post(
         '/remove-like/:rkey',
-        handler(makeHandler(ctx, removeLike))
+        handler(makeEffHandler(ctx, removeLike))
     )
 
     router.post(
         '/repost',
-        handler(makeHandler(ctx, repost))
+        handler(makeEffHandler(ctx, repost))
     )
 
     router.post(
         '/remove-repost/:rkey',
-        handler(makeHandler(ctx, removeRepost))
+        handler(makeEffHandler(ctx, removeRepost))
     )
 
     router.get(
@@ -243,7 +244,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/topic-version',
-        makeHandler(ctx, createTopicVersion)
+        makeEffHandler(ctx, createTopicVersion)
     )
 
     router.get(
@@ -288,13 +289,8 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.post(
-        '/delete-records',
-        makeHandler(ctx, deleteRecordsHandler)
-    )
-
-    router.post(
         '/delete-record/:collection/:rkey',
-        makeHandler(ctx, deleteRecordHandler)
+        makeEffHandler(ctx, deleteRecordHandler)
     )
 
     router.get(
@@ -329,12 +325,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/vote-edit/:vote/:did/:rkey/:cid',
-        makeHandler(ctx, voteEdit)
+        makeEffHandler(ctx, voteEdit)
     )
 
     router.post(
         '/cancel-edit-vote/:collection/:rkey',
-        makeHandler(ctx, cancelEditVote)
+        makeEffHandler(ctx, cancelEditVoteHandler)
     )
 
     router.post('/seen-tutorial/:tutorial',
@@ -354,11 +350,11 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.post('/dataset',
-        makeHandler(ctx, createDataset)
+        makeEffHandler(ctx, createDataset)
     )
 
     router.post('/set-en-discusion/:collection/:rkey',
-        makeHandler(ctx, addToEnDiscusion)
+        makeEffHandler(ctx, addToEnDiscusion)
     )
 
     router.post('/unset-en-discusion/:collection/:rkey',
@@ -377,7 +373,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/profile',
-        handler(makeHandler(ctx, updateProfile))
+        handler(makeEffHandler(ctx, updateProfile))
     )
 
     router.post(
@@ -417,7 +413,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/conversations/list", makeHandler(ctx, getConversations))
 
-    router.get("/conversation/:convoIdOrHandle", makeHandler(ctx, getConversation))
+    router.get("/conversation/:convoIdOrHandle", makeEffHandler(ctx, getConversation))
 
     router.post("/send-message", makeHandler(ctx, sendMessage))
 
@@ -464,7 +460,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/unsubscribe", makeHandler(ctx, unsubscribeHandlerWithAuth))
 
-    router.post("/subscribe", makeHandler(ctx, subscribeHandler))
+    router.post("/subscribe", makeEffHandler(ctx, subscribeHandler))
 
     router.get("/votes/:did/:rkey", makeHandlerNoAuth(ctx, getTopicVersionVotesHandler))
 
@@ -479,7 +475,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/attempt-mp-verification", makeHandler(ctx, attemptMPVerification))
 
-    router.post("/sync", makeHandler(ctx, syncHandler))
+    router.post("/sync", makeEffHandler(ctx, syncHandler))
 
     router.get("/interests", makeHandler(ctx, getInterestsHandler))
 
@@ -494,6 +490,8 @@ export const createRouter = (ctx: AppContext): Router => {
             timestamp: Date.now()
         })
     })
+
+    router.post("/email", makeEffHandler(ctx, saveNewEmail))
 
     router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
 

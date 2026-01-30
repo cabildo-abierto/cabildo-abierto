@@ -2,9 +2,12 @@ import {AppContext} from "#/setup.js";
 import {contentUrl, getCollectionFromUri, splitUri} from "@cabildo-abierto/utils";
 import {EmailSender} from "#/services/emails/email-sender.js";
 import {v4 as uuidv4} from "uuid";
+import {env} from "#/lib/env.js";
 
 
 export async function notifyContentCreated(ctx: AppContext, uri: string, context: string){
+    if(env.NODE_ENV == "test") return
+
     // Objetivo: Mandar un mail a moderacion@cabildoabierto.ar
     const template = await ctx.kysely
         .selectFrom("EmailTemplate")

@@ -1,5 +1,5 @@
 import {FeedPipelineProps, GetSkeletonProps} from "#/services/feed/feed.js";
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {
     AppBskyFeedPost,
     ArCabildoabiertoFeedArticle, defaultEnDiscusionFormat,
@@ -16,6 +16,7 @@ import {
 } from "#/services/feed/inicio/following.js";
 import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
 import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
+import {Effect} from "effect";
 
 
 export function getEnDiscusionStartDate(time: EnDiscusionTime) {
@@ -224,62 +225,85 @@ export const getEnDiscusionFeedPipeline = (
 }
 
 
-export const addToEnDiscusion: CAHandler<{
+export const addToEnDiscusion: EffHandler<{
     params: { collection: string, rkey: string }
-}, {}> = async (ctx, agent, {params}) => {
-    // TO DO: Pasar a processUpdate
-    const {collection, rkey} = params
-    const did = agent.did
+}, {}> = (ctx, agent, {params}) => {
 
-    const res = await agent.bsky.com.atproto.repo.getRecord({
-        repo: did,
-        collection,
-        rkey
-    })
+    return Effect.gen(function* () {
+        // TO DO: Pasar a processUpdate
+        const {collection, rkey} = params
+        const did = agent.did
 
-    if (!res.success) {
-        return {error: "No se pudo agregar a en discusión."}
-    }
-
-    const record = res.data.value
-
-    const validatePost = AppBskyFeedPost.validateRecord(record)
-    const validateArticle = ArCabildoabiertoFeedArticle.validateRecord(record)
-
-    let validRecord: $Typed<AppBskyFeedPost.Record> | $Typed<ArCabildoabiertoFeedArticle.Record> | undefined
-    if (validatePost.success) {
-        validRecord = {...validatePost.value, $type: "app.bsky.feed.post"}
-    } else if (validateArticle.success) {
-        validRecord = {...validateArticle.value, $type: "ar.cabildoabierto.feed.article"}
-    }
-
-    if (validRecord) {
-        if (validRecord.labels && isSelfLabels(validRecord.labels)) {
-            validRecord.labels.values.push({val: "ca:en discusión"})
-        } else if (!validRecord.labels) {
-            validRecord.labels = {
-                $type: "com.atproto.label.defs#selfLabels",
-                values: [{val: "ca:en discusión"}]
-            }
-        }
-
-        const ref = await agent.bsky.com.atproto.repo.putRecord({
-            repo: did,
-            collection,
-            rkey,
-            record: validRecord
+        const res = yield* Effect.tryPromise({
+            try: () => agent.bsky.com.atproto.repo.getRecord({
+                repo: did,
+                collection,
+                rkey
+            }),
+            catch: () => "No se encontró el contenido."
         })
 
-        if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
-            await new ArticleRecordProcessor(ctx).processValidated([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
-        } else {
-            await new PostRecordProcessor(ctx).processValidated([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
+        if (!res.success) {
+            return yield* Effect.fail("No se encontró el contenido.")
         }
-    } else {
-        return {error: "No se pudo agregar a en discusión."}
-    }
 
-    return {data: {}}
+        const record = res.data.value
+
+        const validatePost = AppBskyFeedPost.validateRecord(record)
+        const validateArticle = ArCabildoabiertoFeedArticle.validateRecord(record)
+
+        let validRecord: $Typed<AppBskyFeedPost.Record> | $Typed<ArCabildoabiertoFeedArticle.Record> | undefined
+        if (validatePost.success) {
+            validRecord = {...validatePost.value, $type: "app.bsky.feed.post"}
+        } else if (validateArticle.success) {
+            validRecord = {...validateArticle.value, $type: "ar.cabildoabierto.feed.article"}
+        }
+
+        if (validRecord) {
+            if (validRecord.labels && isSelfLabels(validRecord.labels)) {
+                validRecord.labels.values.push({val: "ca:en discusión"})
+            } else if (!validRecord.labels) {
+                validRecord.labels = {
+                    $type: "com.atproto.label.defs#selfLabels",
+                    values: [{val: "ca:en discusión"}]
+                }
+            }
+
+            const ref = yield* Effect.tryPromise({
+                try: () => agent.bsky.com.atproto.repo.putRecord({
+                    repo: did,
+                    collection,
+                    rkey,
+                    record: validRecord
+                }),
+                catch: () => "Ocurrió un error al agregar el contenido a En discusión."
+            })
+
+            if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
+                yield* new ArticleRecordProcessor(ctx).processValidated([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
+            } else {
+                yield* new PostRecordProcessor(ctx).processValidated([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
+            }
+        } else {
+            return yield* Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+        }
+
+        return {}
+    }).pipe(
+        Effect.catchTag("AddJobsError", () => {
+            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+        }),
+        Effect.catchTag("UpdateRedisError", () => {
+            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+        }),
+        Effect.catchTag("InvalidValueError", () => {
+            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+        }),
+        Effect.catchTag("InsertRecordError", () => {
+            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+        })
+    )
+
 }
 
 

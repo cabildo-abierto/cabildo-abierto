@@ -3,23 +3,27 @@ import {RefAndRecord, SyncContentProps} from "#/services/sync/types.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
 import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kysely";
-import {DB} from "../../../../prisma/generated/types.js";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
+    InsertRecordError,
     RecordProcessor
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
+import {Effect, pipe} from "effect";
+
+import { DB } from "prisma/generated/types.js";
+import {AddJobError} from "#/utils/errors.js";
 
 
 export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> {
 
     validateRecord = ArCabildoabiertoWikiTopicVersion.validateRecord
 
-    async addRecordsToDB(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], reprocess: boolean = false) {
+    addRecordsToDB(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], reprocess: boolean = false) {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -42,7 +46,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             authorship: r.record.claimsAuthorship ?? false
         }))
 
-        const inserted = await this.ctx.kysely.transaction().execute(async (trx) => {
+        const insertTopics = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
             await processContentsBatch(this.ctx, trx, contents)
 
@@ -83,9 +87,21 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             }
         })
 
-        if(!reprocess){
-            await this.createJobs(records, inserted, topics)
-        }
+        const createJobs = this.createJobs
+
+        return pipe(
+            Effect.tryPromise({
+                try: () => insertTopics,
+                catch: () => new InsertRecordError()
+            }),
+            Effect.tap(inserted => {
+                return !reprocess ? Effect.tryPromise({
+                    try: () => createJobs(records, inserted, topics),
+                    catch: () => new AddJobError()
+                }) : Effect.void
+            }),
+            Effect.map(() => records.length)
+        )
     }
 
     async createJobs(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[]) {
@@ -134,11 +150,11 @@ function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabil
 }
 
 
-export async function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {
-    await ctx.worker?.addJob(
+export function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {
+    return ctx.worker ? ctx.worker.addJob(
         "update-topic-contributions",
         ids
-    )
+    ) : Effect.void
 }
 
 
@@ -209,8 +225,11 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
                 .execute()
 
             await updateTopicsCurrentVersionBatch(ctx, trx, topicIds.map(t => t.id))
-            await ctx.worker?.addJob("update-contents-topic-mentions", uris)
-            await ctx.worker?.addJob("update-topic-mentions", topicIds.map(t => t.id))
+
+            await Effect.runPromise(Effect.all([
+                ctx.worker.addJob("update-contents-topic-mentions", uris),
+                ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
+            ]))
         } catch (err) {
             console.log(err)
             console.log("Error deleting topic versions")

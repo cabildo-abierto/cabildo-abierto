@@ -22,11 +22,13 @@
     "start:mirror": "node --import ./dist/instrumentation.js dist/mirror.js",
     "start:worker-mirror": "node --import ./dist/instrumentation.js dist/worker-mirror.js",
     "script": "tsx watch --clear-screen=false src/script.ts | pino-pretty",
+    "script:once": "tsx src/script.ts | pino-pretty",
     "build": "tsup src/index.ts src/worker.ts src/mirror.ts src/worker-mirror.ts src/instrumentation.ts",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist coverage",
     "test": "NODE_ENV=test vitest --pool=threads",
     "test:watch": "NODE_ENV=test vitest --watch",
+    "test:bail": "NODE_ENV=test vitest --pool=threads --bail=1",
     "coverage": "NODE_ENV=test vitest run --coverage"
   },
   "dependencies": {

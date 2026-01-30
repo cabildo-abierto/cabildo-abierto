@@ -30,7 +30,7 @@ const MessageCard = dynamic(() => import('@/components/mensajes/message-card'), 
 export default function Page() {
     const params = useParams()
     const convoIdOrHandle = params.id instanceof Array ? params.id[0] : params.id
-    const {data, isLoading} = useConversation(convoIdOrHandle)
+    const {data, error, isLoading} = useConversation(convoIdOrHandle)
     const qc = useQueryClient()
     const {isMobile} = useLayoutConfig()
     const scrollRef = useRef<HTMLDivElement>(null)

@@ -8,7 +8,7 @@ export const CloseSessionButton = () => {
     return (
         <StateButton
             variant="error"
-            size="default"
+            size="small"
             handleClick={logout}
         >
             Cerrar sesión

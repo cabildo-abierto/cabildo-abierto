@@ -27,6 +27,7 @@ import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
+import {Effect, Exit} from "effect";
 
 export const testTimeout = 40000
 
@@ -184,7 +185,7 @@ export async function cleanUPTestDataFromDB(ctx: AppContext, testSuite: string) 
 
     ctx.logger.pino.info({testUsers, testSuite}, "clearing test users")
 
-    await deleteUsersInTest(ctx, testUsers.map(t => t.did))
+    await Effect.runPromise(deleteUsersInTest(ctx, testUsers.map(t => t.did)))
 }
 
 export async function cleanUpAfterTests(ctx: AppContext) {
@@ -497,23 +498,33 @@ export function getLikeRefAndRecord(ref: ATProtoStrongRef, created_at: Date = ne
 }
 
 
-export async function deleteUsersInTest(ctx: AppContext, dids: string[]) {
-    for(const d of dids) {
-        try {
-            await deleteUser(ctx, d)
-        } catch (err) {
-            ctx.logger.pino.error({did: d, error: err}, "couldn't delete user")
-        }
-    }
-    await ctx!.worker?.runAllJobs()
+export function deleteUsersInTest(ctx: AppContext, dids: string[]) {
+    return Effect.all(dids.map(did => deleteUser(ctx, did)),
+        {concurrency: 2}).pipe(
+        Effect.flatMap(() => {
+            return ctx.worker ?
+                Effect.tryPromise({
+                    try: () => ctx.worker!.runAllJobs(),
+                    catch: () => "Error al correr los trabajos."
+                })
+                : Effect.void
+        })
+    )
 }
 
 
 export async function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
     for(const r of records) {
         const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
-        await processor.process([r])
-        await ctx!.worker?.runAllJobs()
+        const exit = await Effect.runPromiseExit(processor.process([r]))
+        Exit.match(exit, {
+            onFailure: () => {
+                throw Error("Error processing record")
+            },
+            onSuccess: async () => {
+                await ctx!.worker?.runAllJobs()
+            }
+        })
     }
 }
 
@@ -558,7 +569,7 @@ export class MockCAWorker extends CAWorker {
         data: any
     }[] = []
 
-    async addJob(name: string, data: any, priority: number = 10) {
+    addJob(name: string, data: any, priority: number = 10) {
         this.logger.pino.info({name}, "job added")
 
         this.queue.push({
@@ -566,6 +577,8 @@ export class MockCAWorker extends CAWorker {
             priority,
             data,
         })
+
+        return Effect.void
     }
 
     async runAllJobs() {

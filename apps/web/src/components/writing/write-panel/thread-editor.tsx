@@ -44,7 +44,7 @@ export type ThreadElementState = {
     editorState: EditorState | null
     images: ImagePayload[]
     externalEmbed: ThreadElementExternalState | null
-    visualization: ArCabildoabiertoEmbedVisualization.View | null
+    visualization: ArCabildoabiertoEmbedVisualization.Main | null
     editorKey: number
 }
 
@@ -68,12 +68,17 @@ function useInitialThreadElementState(editorKey: number, postView?: ArCabildoabi
                 url: postView.embed.external.uri
             } : null
 
+            let visualization: ArCabildoabiertoEmbedVisualization.Main | null = null
+            if (ArCabildoabiertoEmbedVisualization.isView(postView.embed)) {
+                visualization = visualizationViewToMain(postView.embed)
+            }
+
             return {
                 text: "",
                 images,
                 editorState: null,
                 externalEmbed,
-                visualization: null,
+                visualization,
                 editorKey
             }
         }
@@ -178,12 +183,13 @@ export const ThreadEditor = ({
                 text,
                 images: e.images,
                 externalEmbedView: e.externalEmbed?.view,
-                visualization: e.visualization ? visualizationViewToMain(e.visualization) : undefined,
+                visualization: e.visualization ?? undefined,
                 quotedPost: quotedPostForPostCreation,
                 uri: i == 0 ? postView?.uri : undefined,
                 selection: selectionForPost
             }
         })
+
 
         const post: CreatePostProps = {
             reply,

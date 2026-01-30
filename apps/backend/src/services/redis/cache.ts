@@ -1,15 +1,14 @@
-import {getCollectionFromUri, getDidFromUri, isCAProfile, isFollow, splitUri} from "@cabildo-abierto/utils";
-import {unique} from "@cabildo-abierto/utils";
+import {getCollectionFromUri, getDidFromUri, isCAProfile, isFollow, splitUri, unique} from "@cabildo-abierto/utils";
 import {FollowingFeedSkeletonElement} from "#/services/feed/inicio/following.js";
 import {CAHandler} from "#/utils/handler.js";
 import {Logger} from "#/utils/logger.js";
-import { ArCabildoabiertoActorDefs } from "@cabildo-abierto/api";
+import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppBskyGraphFollow} from "@atproto/api";
 import {NextMeeting} from "#/services/admin/meetings.js";
 import {AppContext} from "#/setup.js";
 import {type Redis} from "ioredis/built/index.js";
-import { Effect } from "effect";
+import {Effect} from "effect";
 
 
 class CacheKey {
@@ -336,16 +335,23 @@ class MirrorStatusCacheKey extends CacheKey {
         return `${this.mirrorId}:mirror-status:${did}:${inCA ? "ca" : "ext"}`
     }
 
-    async set(did: string, mirrorStatus: MirrorStatus, inCA: boolean) {
-        await this.cache.redis.set(
-            this.key(did, inCA),
-            mirrorStatus
-        )
+    set(did: string, mirrorStatus: MirrorStatus, inCA: boolean): Effect.Effect<void, RedisCacheSetError> {
+        return Effect.tryPromise({
+            try: () => this.cache.redis.set(
+                this.key(did, inCA),
+                mirrorStatus
+            ),
+            catch: () => new RedisCacheSetError()
+        })
     }
 
-    async get(did: string, inCA: boolean) {
-        const res = await this.cache.redis.get(this.key( did, inCA))
-        return res ? res as MirrorStatus : "Dirty"
+    get(did: string, inCA: boolean): Effect.Effect<MirrorStatus, RedisCacheFetchError> {
+        return Effect.tryPromise({
+            try: () => this.cache.redis.get(this.key( did, inCA)),
+            catch: () => new RedisCacheFetchError()
+        }).pipe(
+            Effect.map(res => res ? (res as MirrorStatus) : "Dirty")
+        )
     }
 }
 

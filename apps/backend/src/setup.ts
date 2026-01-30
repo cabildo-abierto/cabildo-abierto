@@ -13,6 +13,7 @@ import {env} from './lib/env.js';
 import {S3Storage} from './services/storage/storage.js';
 import {getCAUsersDids} from "#/services/user/users.js";
 import * as dotenv from 'dotenv';
+import {Effect} from "effect";
 dotenv.config();
 
 export type AppContext = {
@@ -22,7 +23,7 @@ export type AppContext = {
     ioredis: Redis
     redisCache: RedisCache
     mirrorId: string
-    worker: CAWorker | undefined
+    worker: CAWorker
     kysely: Kysely<DB>
     storage: S3Storage | undefined
 }
@@ -76,14 +77,11 @@ export async function setupAppContext(roles: Role[]) {
     const oauthClient = await createClient(ioredis)
     logger.pino.info("oauth client created")
 
-    let worker: CAWorker | undefined
-    if(roles.length > 0){
-        worker = new RedisCAWorker(
-            ioredis,
-            roles.includes("worker"),
-            logger
-        )
-    }
+    let worker: CAWorker = new RedisCAWorker(
+        ioredis,
+        roles.includes("worker"),
+        logger
+    )
 
     const mirrorId = `mirror-${envName}`
     logger.pino.info({mirrorId}, "Mirror ID")
@@ -110,11 +108,13 @@ export async function setupAppContext(roles: Role[]) {
 
         if(env.RUN_CRONS){
             ctx.logger.pino.info("adding sync ca users jobs")
-            const caUsers = await getCAUsersDids(ctx)
-            for(const u of caUsers){
-                await ctx.redisCache.mirrorStatus.set(u, "InProcess", true)
-                await worker.addJob("sync-user", {handleOrDid: u}, 21)
-            }
+            await Effect.runPromiseExit(Effect.gen(function* () {
+                const caUsers = yield* getCAUsersDids(ctx)
+                for(const u of caUsers){
+                    yield* ctx.redisCache.mirrorStatus.set(u, "InProcess", true)
+                    yield* worker.addJob("sync-user", {handleOrDid: u}, 21)
+                }
+            }))
         }
 
         logger.pino.info("worker setup")

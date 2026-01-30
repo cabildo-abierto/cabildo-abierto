@@ -1,8 +1,8 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
 import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler, makeHandler} from "#/utils/handler.js";
-import {syncAllUsersHandler, syncUserHandler} from "#/services/sync/sync-user.js";
-import {deleteCollectionHandler, deleteUserHandler} from "#/services/delete.js";
+import {syncUserHandler} from "#/services/sync/sync-user.js";
+import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
 import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
@@ -45,11 +45,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post(
         "/sync-user/:handleOrDid",
-        makeAdminHandler(ctx, syncUserHandler)
+        makeEffAdminHandler(ctx, syncUserHandler)
     )
     router.post(
         "/user/delete/:handleOrDid",
-        makeAdminHandler(ctx, deleteUserHandler)
+        makeEffAdminHandler(ctx, deleteUserHandler)
     )
 
     router.post(
@@ -75,11 +75,6 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get(
         "/topics-not-selfsynonym",
         makeAdminHandlerNoAuth(ctx, getTopicsWhereTitleIsNotSetAsSynonym)
-    )
-
-    router.post(
-        "/sync-all-users",
-        makeAdminHandler(ctx, syncAllUsersHandler)
     )
 
     router.get(
@@ -213,6 +208,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get(
         '/pending-moderation',
         makeAdminHandler(ctx, getPendingModeration)
+    )
+
+    router.post(
+        '/delete-records',
+        makeEffAdminHandler(ctx, deleteRecordsHandler)
     )
 
     return router

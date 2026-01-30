@@ -46,8 +46,6 @@ describe('Following feed index', { timeout: testTimeout }, () => {
             follower
         )
 
-        ctx!.logger.pino.info({follow}, "inserting follow")
-
         await processRecordsInTest(ctx!, [follow])
 
         const recordExists = await checkRecordExists(ctx!, follow.ref.uri)

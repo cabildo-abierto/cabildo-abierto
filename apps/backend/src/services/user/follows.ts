@@ -164,3 +164,30 @@ export async function updateAllFollowCounters(ctx: AppContext) {
         }
     }
 }
+
+
+export async function deleteNonCAFollows(ctx: AppContext) {
+    for(let i = 0; i < 20; i++) {
+        const t1 = Date.now()
+        const batchSize = 100000
+        await ctx.kysely.transaction().execute(async trx => {
+            const result = await trx
+                .deleteFrom("Follow")
+                .where("uri", "in", (eb) =>
+                    eb.selectFrom("Record")
+                        .innerJoin("User", "User.did", "Record.authorId")
+                        .select("Record.uri")
+                        .where("User.inCA", "=", false)
+                        .limit(batchSize)
+                )
+                .executeTakeFirst()
+
+            if (result.numDeletedRows === 0n) {
+                ctx.logger.pino.info("no follows to delete")
+                return
+            }
+        })
+        const t2 = Date.now()
+        ctx.logger.logTimes("deleted follows", [t1, t2], {count: batchSize, i})
+    }
+}

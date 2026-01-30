@@ -78,7 +78,7 @@ export function makeEffHandler<Params = {}, Output = {}>(
 
         Exit.match(exit, {
             onFailure: (cause) => {
-                const error = cause.toString();
+                const error = cause.toString().replace(/^Error: /, '');
 
                 if (error.includes("Unauthorized")) {
                     res.status(401).json({ error: "Unauthorized" });

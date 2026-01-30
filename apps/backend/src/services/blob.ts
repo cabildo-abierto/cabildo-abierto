@@ -2,134 +2,209 @@ import {DidResolver} from "@atproto/identity";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {ImagePayloadForPostCreation} from "@cabildo-abierto/api";
 import {AppContext} from "#/setup.js";
-import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {redisCacheTTL} from "#/services/wiki/topics.js";
 import {imageSize} from "image-size";
+import {Effect, pipe} from "effect";
+import {BlobRef as ATBlobRef} from "@atproto/lexicon";
+import { BlobRef } from "./hydration/hydrate.js";
+import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 
 
-export async function getServiceEndpointForDid(ctx: AppContext, did: string){
-    try {
-        const didres: DidResolver = new DidResolver({})
-        const doc = await didres.resolve(did)
-        if(doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint){
-            return doc.service[0].serviceEndpoint
+export class ServiceEndpointResolutionError {
+    readonly _tag = "ServiceEndpointResolutionError"
+}
+
+export function getServiceEndpointForDid(ctx: AppContext, did: string): Effect.Effect<string, ServiceEndpointResolutionError> {
+    const didres: DidResolver = new DidResolver({})
+    return Effect.tryPromise({
+        try: () => didres.resolve(did),
+        catch: () => new ServiceEndpointResolutionError()
+    }).pipe(
+        Effect.flatMap(doc => {
+            if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint && typeof doc.service[0].serviceEndpoint == "string") {
+                return Effect.succeed(doc.service[0].serviceEndpoint)
+            } else {
+                return Effect.fail(new ServiceEndpointResolutionError())
+            }
+        })
+    )
+}
+
+
+export class FetchBlobError {
+    readonly _tag = "FetchBlobError"
+}
+
+
+export function fetchBlob(ctx: AppContext, blob: { cid: string, authorId: string }) {
+    return Effect.gen(function* () {
+        let serviceEndpoint = yield* getServiceEndpointForDid(ctx, blob.authorId)
+        if (serviceEndpoint) {
+            const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
+            return yield* Effect.tryPromise({
+                try: () => fetch(url),
+                catch: () => {
+                    return Effect.fail(new FetchBlobError())
+                }
+            })
         }
-    } catch (e) {
-        ctx.logger.pino.error({error: e}, "error getting service endpoint")
         return null
-    }
-    return null
+    })
 }
 
 
-export async function fetchBlob(ctx: AppContext, blob: {cid: string, authorId: string}) {
-    let serviceEndpoint = await getServiceEndpointForDid(ctx, blob.authorId)
-    if (serviceEndpoint) {
-        const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
-        try {
-            return await fetch(url)
-        } catch {
-            ctx.logger.pino.error({blob}, "couldn't fetch blob")
-            return null
+export function fetchTextBlob(ctx: AppContext, ref: { cid: string, authorId: string }, retries: number = 0): Effect.Effect<string, FetchBlobError> {
+    return Effect.gen(function* () {
+        const res = yield* fetchBlob(ctx, ref).pipe(
+            Effect.catchAll(() => Effect.succeed(null))
+        )
+        if (!res || res.status != 200) {
+            if (retries > 0) {
+                return yield* fetchTextBlob(ctx, ref, retries - 1)
+            } else {
+                return yield* Effect.fail(new FetchBlobError())
+            }
         }
-    }
-    return null
+        return yield* Effect.tryPromise({
+            try: () => res.blob().then(b => b.text()),
+            catch: () => new FetchBlobError()
+        })
+    })
+
 }
 
 
-export async function fetchTextBlob(ctx: AppContext, ref: {cid: string, authorId: string}, retries: number = 0) {
-    const res = await fetchBlob(ctx, ref)
-    if(!res || res.status != 200) {
-        if(retries > 0) {
-            ctx.logger.pino.warn({retriesLeft: retries-1, ref}, "retrying fetch text blob")
-            return fetchTextBlob(ctx, ref, retries - 1)
-        } else {
-            return null
+export function fetchTextBlobs(ctx: AppContext, blobs: BlobRef[], retries: number = 0): Effect.Effect<(string | null)[]> {
+
+    return Effect.gen(function* () {
+        if (blobs.length == 0) return []
+        const keys: string[] = blobs.map(b => getBlobKey(b))
+
+        let blobContents: (string | null)[] = yield* Effect.tryPromise({
+            try: () => ctx.ioredis.mget(keys),
+            catch: () => new RedisCacheFetchError()
+        }).pipe(Effect.catchTag("RedisCacheFetchError", () => Effect.succeed(keys.map(k => null))))
+
+        const pending: { i: number, blob: BlobRef }[] = []
+        for (let i = 0; i < blobContents.length; i++) {
+            if (!blobContents[i]) {
+                pending.push({i, blob: blobs[i]})
+            }
         }
-    }
-    const blob = await res.blob()
-    return await blob.text()
+
+        const res = yield* Effect.all(pending.map(p => fetchTextBlob(ctx, p.blob, retries).pipe(Effect.catchTag("FetchBlobError", () => Effect.succeed(null)))))
+
+        for (let i = 0; i < pending.length; i++) {
+            const r = res[i]
+            if (r) {
+                blobContents[pending[i].i] = r
+            }
+        }
+
+        const pipeline = ctx.ioredis.pipeline()
+        for (let i = 0; i < pending.length; i++) {
+            const b = res[i]
+            const k = getBlobKey(pending[i].blob)
+            if (b) pipeline.set(k, b, 'EX', redisCacheTTL)
+        }
+        yield* Effect.tryPromise({
+            try: () => pipeline.exec(),
+            catch: () => new RedisCacheSetError()
+        }).pipe(Effect.catchTag("RedisCacheSetError", () => {
+            return Effect.void
+        }))
+
+        return blobContents
+    })
 }
 
 
-export async function fetchTextBlobs(ctx: AppContext, blobs: BlobRef[], retries: number = 0): Promise<(string | null)[]> {
-    if(blobs.length == 0) return []
-    const keys: string[] = blobs.map(b => getBlobKey(b))
-
-    let blobContents: (string | null)[]
-    try {
-        ctx.logger.pino.info({keys}, "fetching text blobs")
-        blobContents = await ctx.ioredis.mget(keys)
-    } catch (err) {
-        if(err instanceof Error){
-            ctx.logger.pino.error({err: err.message}, "error fetching text blobs from redis")
-        }
-        blobContents = keys.map(k => null)
-    }
-
-    const pending: {i: number, blob: BlobRef}[] = []
-    for(let i = 0; i < blobContents.length; i++){
-        if(!blobContents[i]){
-            pending.push({i, blob: blobs[i]})
-        }
-    }
-
-    const res = await Promise.all(pending.map(p => fetchTextBlob(ctx, p.blob, retries)))
-
-    for(let i = 0; i < pending.length; i++) {
-        const r = res[i]
-        if (r) {
-            blobContents[pending[i].i] = r
-        } else {
-            ctx.logger.pino.warn({blob: pending[i].blob}, "couldn't find blob")
-        }
-    }
-
-
-    const pipeline = ctx.ioredis.pipeline()
-    for(let i = 0; i < pending.length; i++){
-        const b = res[i]
-        const k = getBlobKey(pending[i].blob)
-        if(b) pipeline.set(k, b, 'EX', redisCacheTTL)
-    }
-    await pipeline.exec()
-
-    return blobContents
+export class UploadStringBlobError {
+    readonly _tag = "UploadStringBlobError"
 }
 
 
-export async function uploadStringBlob(agent: SessionAgent, s: string, encoding?: string){
+export function uploadStringBlob(agent: SessionAgent, s: string, encoding?: string): Effect.Effect<ATBlobRef, UploadStringBlobError> {
     const encoder = new TextEncoder()
     const uint8 = encoder.encode(s)
-    const res = await agent.bsky.uploadBlob(uint8, {encoding})
-    return res.data.blob
+
+    return Effect.tryPromise({
+        try: () => agent.bsky.uploadBlob(uint8, {encoding}),
+        catch: () => new UploadStringBlobError()
+    }).pipe(
+        Effect.map(({data}) => {
+            return data.blob
+        })
+    )
 }
 
 
-export async function uploadImageSrcBlob(agent: SessionAgent, src: string){
-    const response = await fetch(src)
-    const arrayBuffer = await response.arrayBuffer();
-    const uint8 = new Uint8Array(arrayBuffer);
-    const res = await agent.bsky.uploadBlob(uint8)
-    return {ref: res.data.blob, size: imageSize(uint8)}
+export class FetchImageURLError {
+    readonly _tag = "FetchImageURLError"
 }
 
 
-export async function uploadBase64Blob(agent: SessionAgent, base64: string){
+export function uploadImageSrcBlob(agent: SessionAgent, src: string): Effect.Effect<UploadedImage, UploadImageFromURLError | FetchImageURLError> {
+
+    return pipe(
+        Effect.tryPromise({
+            try: async () => {
+                const response = await fetch(src)
+                const arrayBuffer = await response.arrayBuffer();
+                return new Uint8Array(arrayBuffer);
+            },
+            catch: () => new FetchImageURLError()
+        }),
+        Effect.flatMap(uint8 =>
+            Effect.all([
+                Effect.tryPromise({
+                    try: () => agent.bsky.uploadBlob(uint8),
+                    catch: () => new UploadImageFromURLError()
+                }),
+                Effect.succeed(uint8)
+            ])
+        ),
+        Effect.flatMap(([res, uint8]) => Effect.succeed({ref: res.data.blob, size: imageSize(uint8)}))
+        )
+}
+
+
+export function uploadBase64Blob(agent: SessionAgent, base64: string): Effect.Effect<UploadedImage, UploadImageFromBase64Error> {
     const base64Data = base64.replace(/^data:.*?;base64,/, '');
     const arrayBuffer = Buffer.from(base64Data, "base64")
     const uint8 = new Uint8Array(arrayBuffer);
-    const res = await agent.bsky.uploadBlob(uint8)
-    return {ref: res.data.blob, size: imageSize(uint8)}
+
+    return Effect.tryPromise({
+        try: () => agent.bsky.uploadBlob(uint8),
+        catch: () => new UploadImageFromBase64Error()
+    }).pipe(Effect.flatMap(res => Effect.succeed({ref: res.data.blob, size: imageSize(uint8)})))
 }
 
 
-export async function uploadImageBlob(agent: SessionAgent, image: ImagePayloadForPostCreation){
-    if(image.$type == "url") {
-        return await uploadImageSrcBlob(agent, image.src)
+export type UploadedImage = {
+    ref: ATBlobRef,
+    size: { width: number, height: number }
+}
+
+
+export class UploadImageFromURLError {
+    readonly _tag = "UploadImageFromURLError"
+}
+
+export class UploadImageFromBase64Error {
+    readonly _tag = "UploadImageFromBase64Error"
+}
+
+
+export type UploadImageBlobError = UploadImageFromURLError | FetchImageURLError | UploadImageFromBase64Error
+
+
+export function uploadImageBlob(agent: SessionAgent, image: ImagePayloadForPostCreation): Effect.Effect<UploadedImage, UploadImageBlobError> {
+    if (image.$type == "url") {
+        return uploadImageSrcBlob(agent, image.src)
     } else {
-        return await uploadBase64Blob(agent, image.base64)
+        return uploadBase64Blob(agent, image.base64)
     }
 }
 

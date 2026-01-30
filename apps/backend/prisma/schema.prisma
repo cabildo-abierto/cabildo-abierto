@@ -322,22 +322,25 @@ model Record {
 
   editedAt DateTime? @db.Timestamptz(3)
 
-  quotesCount                         Int                @default(0)
+  quotesCount                         Int            @default(0)
   Content                             Content?
   Dataset                             Dataset?
   Follow                              Follow?
   HasReacted                          HasReacted[]
   Notification                        Notification[]
-  Post_Post_quoteToIdToRecord         Post[]             @relation("Post_quoteToIdToRecord")
-  Post_Post_replyToIdToRecord         Post[]             @relation("Post_replyToIdToRecord")
-  Post_Post_rootIdToRecord            Post[]             @relation("Post_rootIdToRecord")
-  Reaction_Reaction_subjectIdToRecord Reaction[]         @relation("Reaction_subjectIdToRecord")
-  Reaction_Reaction_uriToRecord       Reaction?          @relation("Reaction_uriToRecord")
-  User_Record_authorIdToUser          User               @relation("Record_authorIdToUser", fields: [authorId], references: [did])
-  Record                              Record             @relation("RecordToRecord", fields: [uri], references: [uri])
-  other_Record                        Record?            @relation("RecordToRecord")
-  TopicInteraction                    TopicInteraction[]
-  User_User_CAProfileUriToRecord      User?              @relation("User_CAProfileUriToRecord")
+  Post_Post_quoteToIdToRecord         Post[]         @relation("Post_quoteToIdToRecord")
+  Post_Post_replyToIdToRecord         Post[]         @relation("Post_replyToIdToRecord")
+  Post_Post_rootIdToRecord            Post[]         @relation("Post_rootIdToRecord")
+  Reaction_Reaction_subjectIdToRecord Reaction[]     @relation("Reaction_subjectIdToRecord")
+  Reaction_Reaction_uriToRecord       Reaction?      @relation("Reaction_uriToRecord")
+  User_Record_authorIdToUser          User           @relation("Record_authorIdToUser", fields: [authorId], references: [did])
+
+  // T: no sé qué es esto, habría que borrarlo
+  Record       Record  @relation("RecordToRecord", fields: [uri], references: [uri])
+  other_Record Record? @relation("RecordToRecord")
+
+  TopicInteraction               TopicInteraction[]
+  User_User_CAProfileUriToRecord User?              @relation("User_CAProfileUriToRecord")
 
   followingFeedEntries    FollowingFeedIndex[]
   repliesInFollowingFeed  FollowingFeedIndex[] @relation("root")
@@ -510,6 +513,7 @@ model FollowingFeedIndex {
   @@index([readerId, rootId, created_at(sort: Desc)])
   @@index([authorId])
   @@index([readerId, created_at(sort: Desc)])
+  @@index([repostedContentId]) // para borrar records más eficientemente
 }
 
 model DiscoverFeedIndex {
@@ -527,6 +531,7 @@ model User {
   did                                           String                   @id @db.VarChar(255)
   handle                                        String?
   email                                         String?
+  emailVerified                                 Boolean                  @default(false)
   mailingListSubs                               MailingListSubscription?
   created_at                                    DateTime                 @default(now())
   created_at_tz                                 DateTime?                @db.Timestamptz(3)
@@ -789,6 +794,9 @@ model RecordModerationProcess {
   processedById String?
   processedBy   User?                    @relation(fields: [processedById], references: [did])
   method        ModerationMethod?
+
+  @@index([recordId])
+  @@index([processedById])
 }
 
 enum ModerationMethod {

@@ -20,6 +20,7 @@ import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
+import {Effect} from "effect";
 
 export async function updateReferencesForNewContents(ctx: AppContext) {
     const lastUpdate = await getLastReferencesUpdate(ctx)
@@ -28,7 +29,7 @@ export async function updateReferencesForNewContents(ctx: AppContext) {
     const batchSize = 500
     let curOffset = 0
 
-    const caUsers = await getCAUsersDids(ctx)
+    const caUsers = await Effect.runPromise(getCAUsersDids(ctx))
 
     while (true) {
         const contents: { uri: string }[] = await ctx.kysely
@@ -266,17 +267,6 @@ export async function updateReferences(ctx: AppContext) {
 }
 
 
-export async function cleanNotCAReferences(ctx: AppContext) {
-    const caUsers = await getCAUsersDids(ctx)
-
-    await ctx.kysely
-        .deleteFrom("Reference")
-        .innerJoin("Record", "Reference.referencingContentId", "Record.uri")
-        .where("Record.authorId", "not in", caUsers)
-        .execute()
-}
-
-
 export async function updatePopularitiesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
     const t1 = Date.now()
     await updateContentsText(ctx)
@@ -342,7 +332,7 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
         }
     }
     if (data.length > 0) {
-        ctx.worker?.addJob("batch-create-notifications", data)
+        await Effect.runPromise(ctx.worker?.addJob("batch-create-notifications", data))
     }
 }
 

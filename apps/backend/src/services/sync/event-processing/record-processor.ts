@@ -1,13 +1,21 @@
 import {AppContext} from "#/setup.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, splitUri} from "@cabildo-abierto/utils";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, splitUri, sum, unique} from "@cabildo-abierto/utils";
 import {ValidationResult} from "@atproto/lexicon";
 import {parseRecord} from "#/services/sync/parse.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Transaction} from "kysely";
-import { DB } from "prisma/generated/types.js";
-import {unique} from "@cabildo-abierto/utils";
+import {DB} from "prisma/generated/types.js";
+import {Effect, pipe} from "effect";
 
+import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+
+
+export class InsertRecordError {
+    readonly _tag = "InsertRecordError"
+}
+
+export type ProcessCreateError = InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError
 
 export class RecordProcessor<T> {
     ctx: AppContext
@@ -16,81 +24,91 @@ export class RecordProcessor<T> {
         this.ctx = ctx
     }
 
-    async process(records: RefAndRecord[], reprocess: boolean = false) {
-        if(records.length == 0) return
-        const validatedRecords = this.parseRecords(records)
-        await this.processValidated(validatedRecords, reprocess)
+    process(records: RefAndRecord[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError> {
+        if(records.length == 0) return Effect.succeed(0)
+
+        return this.parseRecords(records).pipe(Effect.flatMap(validatedRecords => {
+            return this.processValidated(validatedRecords, reprocess)
+        }))
     }
 
-    async processValidated(records: RefAndRecord<T>[], reprocess: boolean = false) {
-        if(records.length == 0) return
-        await this.addRecordsToDB(records, reprocess)
-        if(!reprocess){
-            await this.ctx.redisCache.onUpdateRecords(records)
-        }
+    processValidated(records: RefAndRecord<T>[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError> {
+        if(records.length == 0) return Effect.succeed(0)
+
+        return pipe(
+            this.addRecordsToDB(records, reprocess),
+            Effect.tap(() => {
+                return !reprocess ? Effect.tryPromise({
+                    try: () => this.ctx.redisCache.onUpdateRecords(records),
+                    catch: () => new UpdateRedisError()
+                }) : Effect.void
+            }),
+            Effect.flatMap(processed => Effect.succeed(processed))
+        )
     }
 
     validateRecord(record: any): ValidationResult<T> {
-        this.ctx.logger.pino.info("Warning: Validación sin implementar para este tipo de record.")
+        this.ctx.logger.pino.info({record}, "Warning: Validación sin implementar para este tipo de record.")
         return {
             success: false,
             error: Error("Sin implementar")
         }
     }
 
-    async addRecordsToDB(records: RefAndRecord<T>[], reprocess: boolean = false) {
-        if(records.length == 0) return
-        this.ctx.logger.pino.info({uri: records[0].ref.uri}, "Warning: Validación sin implementar para este tipo de record.")
+    addRecordsToDB(records: RefAndRecord<T>[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError | InvalidValueError> {
+        if(records.length == 0) return Effect.succeed(0)
+        return Effect.fail(new InvalidValueError(records[0].ref.uri))
     }
 
-    async processInBatches(records: RefAndRecord[]){
-        if(records.length == 0) return
-
-        const collection = getCollectionFromUri(records[0].ref.uri)
+    processInBatches(records: RefAndRecord[]): Effect.Effect<void, ProcessCreateError | UpdateRedisError | InvalidValueError> {
+        if(records.length == 0) return Effect.void
 
         const batchSize = 1000
+        const batches: RefAndRecord[][] = []
+
         for (let i = 0; i < records.length; i+=batchSize) {
-            const t1 = Date.now()
-            const batchRecords = records.slice(i, i+batchSize)
-            await this.process(batchRecords)
-            const t2 = Date.now()
-            this.ctx.logger.pino.info(`${collection}: processed batch ${i+1} of ${records.length} in ${t2-t1}ms`)
+            batches.push(records.slice(i, i+batchSize))
         }
+
+        return Effect.all(batches.map(b => this.process(b))).pipe(
+            Effect.map(processResults => {
+                return sum(processResults, x => x)
+            })
+        )
     }
 
-    parseRecords(records: RefAndRecord[]): {
+    parseRecords(records: RefAndRecord[]): Effect.Effect<{
         ref: ATProtoStrongRef,
         record: T
-    }[] {
-        const parsedRecords: RefAndRecord<T>[] = []
-        for (const {ref, record} of records) {
+    }[], never> {
+        return Effect.all(records.map(r => {
+            const {ref, record} = r
             const res = this.validateRecord(record)
-            if (res.success) {
-                parsedRecords.push({
-                    ref,
-                    record: res.value
-                })
+            if(res.success) {
+                return Effect.succeed({ref, record: res.value})
             } else {
                 const parsedRecord = parseRecord(this.ctx, record)
                 const res = this.validateRecord(parsedRecord)
                 if(res.success) {
-                    parsedRecords.push({
+                    return Effect.succeed({
                         ref,
                         record: res.value
                     })
                 } else {
-                    this.ctx.logger.pino.warn({
+                    // TO DO: Esto sobreescribe, habría que armar un resumen.
+                    return Effect.annotateCurrentSpan({
                         reason: res.error.message,
                         stack: res.error.stack,
                         uri: ref.uri,
                         record
-                    }, "invalid record")
+                    }).pipe(Effect.flatMap(() => Effect.succeed(null)))
                 }
             }
-        }
-        return parsedRecords
+        })).pipe(
+            Effect.flatMap(results => Effect.succeed(results.filter(r => r != null))),
+            Effect.withSpan("parseRecords")
+        )
     }
-
 
     async processRecordsBatch(trx: Transaction<DB>, records: { ref: ATProtoStrongRef, record: any }[]) {
         const data: {

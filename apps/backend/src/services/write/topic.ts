@@ -1,32 +1,93 @@
 import {SessionAgent} from "#/utils/session-agent.js";
-import {CAHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 import {
     ArCabildoabiertoWikiTopicVersion,
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
     ArCabildoabiertoEmbedVisualization, EmbedContext
 } from "@cabildo-abierto/api"
-import {uploadBase64Blob, uploadStringBlob} from "#/services/blob.js";
+import {
+    uploadBase64Blob,
+    UploadImageFromBase64Error,
+    uploadStringBlob,
+    UploadStringBlobError
+} from "#/services/blob.js";
 import {BlobRef} from "@atproto/lexicon";
 import {TopicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
+import {Effect} from "effect";
+import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {RefAndRecord} from "#/services/sync/types.js";
+import {AppContext} from "#/setup.js";
+import {DBError} from "#/services/write/article.js";
 
 
-export async function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): Promise<{data?: ArCabildoabiertoFeedArticle.ArticleEmbed[], error?: string}> {
-    let embedMains: ArCabildoabiertoFeedArticle.ArticleEmbed[] = []
-    if(embeds){
-        for(let i = 0; i < embeds.length; i++){
-            const e = embeds[i]
-            if(AppBskyEmbedImages.isView(e.value)){
-                if(embedContexts && embedContexts[i]){
-                    const context = embedContexts[i]
-                    if(context?.base64files){
-                        const blobs = await Promise.all(context.base64files.map(f => uploadBase64Blob(agent, f)))
+export class FetchError {
+    readonly _tag = "FetchError"
+}
+
+export class ImageNotFoundError {
+    readonly _tag = "ImageNotFoundError"
+}
+
+
+export function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): Effect.Effect<ArCabildoabiertoFeedArticle.ArticleEmbed[], FetchError | ImageNotFoundError | UploadImageFromBase64Error> {
+
+    return Effect.gen(function* () {
+        let embedMains: ArCabildoabiertoFeedArticle.ArticleEmbed[] = []
+        if(embeds){
+            for(let i = 0; i < embeds.length; i++){
+                const e = embeds[i]
+                if(AppBskyEmbedImages.isView(e.value)){
+                    if(embedContexts && embedContexts[i]){
+                        const context = embedContexts[i]
+                        if(context?.base64files){
+                            const blobs = yield* Effect.all(
+                                context.base64files.map(f => uploadBase64Blob(agent, f)),
+                                {concurrency: "unbounded"}
+                            )
+                            const images: AppBskyEmbedImages.Image[] = []
+                            for(let j = 0; j < blobs.length; j++){
+                                const b = blobs[j]
+                                images.push({
+                                    $type: "app.bsky.embed.images#image",
+                                    image: b.ref,
+                                    alt: ""
+                                })
+                            }
+                            embedMains.push({
+                                $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                                value: {
+                                    $type: "app.bsky.embed.images",
+                                    images
+                                },
+                                index: e.index
+                            })
+                        }
+                    } else {
                         const images: AppBskyEmbedImages.Image[] = []
-                        for(let j = 0; j < blobs.length; j++){
-                            const b = blobs[j]
+                        for(let j = 0; j < e.value.images.length; j++){
+                            const img = e.value.images[j]
+                            const url = img.fullsize && img.fullsize.length > 0 ? img.fullsize : img.thumb
+                            const res = yield* Effect.tryPromise({
+                                try: () => fetch(url),
+                                catch: () => {
+                                    return new FetchError()
+                                }
+                            })
+                            if(!res.ok){
+                                return yield* Effect.fail(new ImageNotFoundError())
+                            }
+                            const arrayBuffer = yield* Effect.tryPromise({
+                                try: () => res.blob().then(blob => blob.arrayBuffer()),
+                                catch: () => new FetchError()
+                            })
+
+                            const buffer = Buffer.from(arrayBuffer);
+                            const base64 = buffer.toString('base64');
+                            const blobRef = yield* uploadBase64Blob(agent, base64)
                             images.push({
                                 $type: "app.bsky.embed.images#image",
-                                image: b.ref,
+                                image: blobRef.ref,
                                 alt: ""
                             })
                         }
@@ -39,97 +100,71 @@ export async function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCa
                             index: e.index
                         })
                     }
-                } else {
-                    const images: AppBskyEmbedImages.Image[] = []
-                    for(let j = 0; j < e.value.images.length; j++){
-                        const img = e.value.images[j]
-                        const url = img.fullsize && img.fullsize.length > 0 ? img.fullsize : img.thumb
-                        const res = await fetch(url)
-                        if(!res.ok){
-                            return {error: "No se encontró la imagen."}
-                        }
-                        const blob = await res.blob();
-                        const arrayBuffer = await blob.arrayBuffer();
-                        const buffer = Buffer.from(arrayBuffer);
-                        const base64 = buffer.toString('base64');
-                        const blobRef = await uploadBase64Blob(agent, base64)
-                        images.push({
-                            $type: "app.bsky.embed.images#image",
-                            image: blobRef.ref,
-                            alt: ""
-                        })
-                    }
+                } else if(ArCabildoabiertoEmbedVisualization.isMain(e.value)){
                     embedMains.push({
                         $type: "ar.cabildoabierto.feed.article#articleEmbed",
-                        value: {
-                            $type: "app.bsky.embed.images",
-                            images
-                        },
+                        value: e.value,
                         index: e.index
                     })
                 }
-            } else if(ArCabildoabiertoEmbedVisualization.isMain(e.value)){
-                embedMains.push({
-                    $type: "ar.cabildoabierto.feed.article#articleEmbed",
-                    value: e.value,
-                    index: e.index
-                })
             }
         }
-    }
-    return {data: embedMains}
+        return embedMains
+    })
 }
 
 
-export async function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps){
-    let blob: BlobRef | null = null
+export class InvalidTopicPropError {
+    readonly _tag = "InvalidTopicPropError"
+    constructor(readonly prop?: string) {}
+}
 
-    if(text){
-        blob = await uploadStringBlob(agent, text)
-    }
 
-    if(text && !blob) return {error: "Ocurrió un error al publicar el tema."}
+export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError> {
 
-    let validatedProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined = undefined
-    if(props){
-        validatedProps = []
-        for(let i = 0; i < props.length; i++){
-            const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(props[i])
-            if(!res.success){
-                console.log("Propiedad inválida:", props[i])
-                if(props[i].name){
-                    return {error: `Ocurrió un error al validar la propiedad: ${props[i].name}`}
+    return Effect.gen(function* () {
+        let validatedProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined = undefined
+        if(props){
+            validatedProps = []
+            for(let i = 0; i < props.length; i++){
+                const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(props[i])
+                if(!res.success){
+                    return yield* Effect.fail(new InvalidTopicPropError(props[i].name))
+                } else {
+                    validatedProps.push(res.value)
                 }
-                return {error: "Ocurrió un error al validar una propiedad."}
-            } else {
-                validatedProps.push(res.value)
             }
         }
-    }
 
-    const embedMains = await getEmbedsFromEmbedViews(agent, embeds, embedContexts)
-    if(embedMains.error){
-        return {error: embedMains.error}
-    }
+        let blob: BlobRef | null = null
+        if(text){
+            blob = yield* uploadStringBlob(agent, text)
+        }
 
-    const record: ArCabildoabiertoWikiTopicVersion.Record = {
-        $type: "ar.cabildoabierto.wiki.topicVersion",
-        text: text && blob ? blob : undefined,
-        format,
-        message,
-        id,
-        props: validatedProps,
-        createdAt: new Date().toISOString(),
-        embeds: embedMains.data,
-        claimsAuthorship: claimsAuthorship
-    }
+        const embedMains = yield* getEmbedsFromEmbedViews(agent, embeds, embedContexts)
 
-    const {data} = await agent.bsky.com.atproto.repo.createRecord({
-        repo: agent.did,
-        collection: 'ar.cabildoabierto.wiki.topicVersion',
-        record: record,
+        const record: ArCabildoabiertoWikiTopicVersion.Record = {
+            $type: "ar.cabildoabierto.wiki.topicVersion",
+            text: text && blob ? blob : undefined,
+            format,
+            message,
+            id,
+            props: validatedProps,
+            createdAt: new Date().toISOString(),
+            embeds: embedMains,
+            claimsAuthorship: claimsAuthorship
+        }
+
+        const {data} = yield* Effect.tryPromise({
+            try: () => agent.bsky.com.atproto.repo.createRecord({
+                repo: agent.did,
+                collection: 'ar.cabildoabierto.wiki.topicVersion',
+                record: record,
+            }),
+            catch: () => new ATCreateRecordError()
+        })
+        return {ref: {uri: data.uri, cid: data.cid}, record}
     })
-    return {ref: {uri: data.uri, cid: data.cid}, record}
 }
 
 
@@ -145,28 +180,51 @@ type CreateTopicVersionProps = {
 }
 
 
-export const createTopicVersion: CAHandler<CreateTopicVersionProps> = async (ctx, agent, params) => {
-    if(params.text == undefined){
-        const exists = await ctx.kysely
+export class TopicAlreadyExistsError {
+    readonly _tag = "TopicAlreadyExistsError"
+}
+
+
+function checkTopicNotExists(ctx: AppContext, id: string): Effect.Effect<void, TopicAlreadyExistsError | DBError> {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
             .selectFrom("Topic")
             .select("id")
-            .where("id", "ilike", params.id)
+            .where("id", "ilike", id)
             .where(eb => eb.exists(
                 eb
                     .selectFrom("TopicVersion")
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
             ))
-            .executeTakeFirst()
+            .executeTakeFirst(),
+        catch: () => new DBError()
+    }).pipe(Effect.flatMap(exists => {
+        return exists != null ?
+            Effect.fail(new TopicAlreadyExistsError()) :
+            Effect.void
+    }))
+}
 
-        if(exists != null){
-            return {error: "Ya existe un tema con ese nombre."}
+
+export const createTopicVersion: EffHandler<CreateTopicVersionProps> = (ctx, agent, params) => {
+    return Effect.gen(function* () {
+
+        if(params.text == undefined){
+            yield* checkTopicNotExists(ctx, params.id)
+                .pipe(
+                    Effect.catchTag("DBError", () => Effect.fail("Error en la conexión")),
+                    Effect.catchTag("TopicAlreadyExistsError", () => Effect.fail("Ya existe un tema con ese nombre."))
+                )
         }
-    }
 
-    const {error, ref, record} = await createTopicVersionATProto(agent, params)
-    if(!error && ref && record){
-        await new TopicVersionRecordProcessor(ctx)
-            .processValidated([{ref, record}])
-    }
-    return {error}
+        const {ref, record} = yield* createTopicVersionATProto(agent, params)
+            .pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al crear la versión del tema.")))
+
+        const processor = new TopicVersionRecordProcessor(ctx)
+
+        yield* processor.processValidated([{ref, record}]).pipe(
+            Effect.catchAll(() => Effect.fail("La versión del tema fue creada, pero ocurrió un error al procesarla."))
+        )
+        return {}
+    })
 }

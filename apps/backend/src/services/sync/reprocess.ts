@@ -1,6 +1,7 @@
 import {AppContext} from "#/setup.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
+import {Effect} from "effect";
 
 
 async function countCollectionRecords(ctx: AppContext, collection: string): Promise<number> {
@@ -59,7 +60,7 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
                 await processor.processRecordsBatch(trx, refAndRecords)
             })
         } else {
-            await processor.process(refAndRecords, true)
+            await Effect.runPromiseExit(processor.process(refAndRecords, true))
         }
         const t3 = Date.now()
 

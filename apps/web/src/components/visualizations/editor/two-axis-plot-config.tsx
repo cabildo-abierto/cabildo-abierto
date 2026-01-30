@@ -26,6 +26,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Eje x"}
+            deselectOption={true}
             value={config.spec.xAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
@@ -39,6 +40,7 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Eje y"}
+            deselectOption={true}
             value={config.spec.yAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
@@ -72,11 +74,12 @@ export const TwoAxisPlotConfig = ({config, setConfig, columnOptions}: Props) => 
             contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Color"}
+            deselectOption={true}
             value={config.spec.colors && config.spec.colors.length > 0 ? config.spec.colors[0].column : ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {
                     if (ArCabildoabiertoEmbedVisualization.isTwoAxisPlot(draft.spec)) {
-                        if(v.trim().length == 0){
+                        if(!v || v.trim().length == 0){
                             draft.spec.colors = undefined
                         } else {
                             draft.spec.colors = [{

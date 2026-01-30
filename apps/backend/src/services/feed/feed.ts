@@ -26,7 +26,9 @@ export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
 function maybeClearFollows(ctx: AppContext, agent: Agent): Effect.Effect<void, string> {
     if(agent.hasSession()){
         return pipe(
-            Effect.promise(() => getSessionData(ctx, agent.did)),
+            getSessionData(ctx, agent.did).pipe(
+                Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener la sesión."))
+            ),
             Effect.flatMap(data => {
                 if(data && (!data.seenTutorial || !data.seenTutorial.home)){
                     return getProfile(ctx, agent, {params: {handleOrDid: agent.did}})

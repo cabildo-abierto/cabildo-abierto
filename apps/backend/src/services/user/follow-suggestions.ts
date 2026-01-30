@@ -6,6 +6,7 @@ import {sql} from "kysely";
 import {AppContext} from "#/setup.js";
 import {v4 as uuidv4} from 'uuid'
 import {getCAUsersDids} from "#/services/user/users.js";
+import {Effect} from "effect";
 
 /*
     1. Tomamos un conjunto de usuarios recomendadores. Los recomendadores son los seguidos del usuario o, si tiene muy pocos, todos los usuarios de CA.
@@ -185,7 +186,7 @@ export const setNotInterested: CAHandler<{params: {subject: string}}> = async (c
 export async function updateFollowSuggestions(ctx: AppContext){
     let dids = await ctx.redisCache.followSuggestionsDirty.getDirty()
 
-    const caUsers = new Set(await getCAUsersDids(ctx))
+    const caUsers = new Set(await Effect.runPromise(getCAUsersDids(ctx)))
 
     dids = dids.filter(d => caUsers.has(d))
     ctx.logger.pino.info({count: dids.length}, `updating follow suggestions`)
