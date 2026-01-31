@@ -59,7 +59,8 @@
             "type": "union",
             "refs": [
               "ar.cabildoabierto.embed.visualization",
-              "app.bsky.embed.images"
+              "app.bsky.embed.images",
+              "ar.cabildoabierto.embed.poll"
             ]
           },
           "index": {

@@ -1852,6 +1852,27 @@ export const schemaDict = {
       },
     },
   },
+  ArCabildoabiertoEmbedPoll: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.embed.poll',
+    defs: {
+      main: {
+        type: 'object',
+        required: ['choices'],
+        properties: {
+          description: {
+            type: 'string',
+          },
+          choices: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+  },
   ArCabildoabiertoEmbedRecord: {
     lexicon: 1,
     id: 'ar.cabildoabierto.embed.record',
@@ -2482,6 +2503,7 @@ export const schemaDict = {
             refs: [
               'lex:ar.cabildoabierto.embed.visualization',
               'lex:app.bsky.embed.images',
+              'lex:ar.cabildoabierto.embed.poll',
             ],
           },
           index: {
@@ -4340,6 +4362,7 @@ export const ids = {
   ArCabildoabiertoActorCaProfile: 'ar.cabildoabierto.actor.caProfile',
   ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
+  ArCabildoabiertoEmbedPoll: 'ar.cabildoabierto.embed.poll',
   ArCabildoabiertoEmbedRecord: 'ar.cabildoabierto.embed.record',
   ArCabildoabiertoEmbedRecordWithMedia:
     'ar.cabildoabierto.embed.recordWithMedia',

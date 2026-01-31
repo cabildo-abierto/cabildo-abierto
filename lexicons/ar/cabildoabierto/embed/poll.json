@@ -1,0 +1,21 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.embed.poll",
+  "defs": {
+    "main": {
+      "type": "object",
+      "required": ["choices"],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

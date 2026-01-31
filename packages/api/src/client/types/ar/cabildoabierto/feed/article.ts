@@ -12,6 +12,7 @@ import {
 import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs.js'
 import type * as ArCabildoabiertoEmbedVisualization from '../embed/visualization.js'
 import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images.js'
+import type * as ArCabildoabiertoEmbedPoll from '../embed/poll.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -51,6 +52,7 @@ export interface ArticleEmbed {
   value:
     | $Typed<ArCabildoabiertoEmbedVisualization.Main>
     | $Typed<AppBskyEmbedImages.Main>
+    | $Typed<ArCabildoabiertoEmbedPoll.Main>
     | { $type: string }
   index: number
 }
