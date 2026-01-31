@@ -239,7 +239,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic',
-        makeHandlerNoAuth(ctx, getTopicHandler)
+        makeEffHandlerNoAuth(ctx, getTopicHandler)
     )
 
     router.post(
@@ -249,7 +249,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic-version/:did/:rkey',
-        makeHandlerNoAuth(ctx, getTopicVersionHandler)
+        makeEffHandlerNoAuth(ctx, getTopicVersionHandler)
     )
 
     router.get(
@@ -338,15 +338,15 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.get('/datasets',
-        makeHandlerNoAuth(ctx, getDatasets)
+        makeEffHandlerNoAuth(ctx, getDatasets)
     )
 
     router.get('/dataset/:did/:collection/:rkey',
-        makeHandlerNoAuth(ctx, getDatasetHandler)
+        makeEffHandlerNoAuth(ctx, getDatasetHandler)
     )
 
     router.post('/topics-dataset',
-        makeHandlerNoAuth(ctx, getTopicsDatasetHandler)
+        makeEffHandlerNoAuth(ctx, getTopicsDatasetHandler)
     )
 
     router.post('/dataset',

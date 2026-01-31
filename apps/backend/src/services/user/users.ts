@@ -3,7 +3,7 @@ import {cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {deleteRecords} from "#/services/delete.js";
 import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
 import {createCAUser, UserNotFoundError} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
@@ -136,23 +136,31 @@ export const unfollow: CAHandler<{ followUri: string }> = async (ctx, agent, {fo
 
 
 export const getProfile: EffHandlerNoAuth<{ params: { handleOrDid: string } }, ArCabildoabiertoActorDefs.ProfileViewDetailed> = (ctx, agent, {params}) => {
-    const dataplane = new Dataplane(ctx, agent)
 
     return pipe(
         handleOrDidToDid(ctx, params.handleOrDid),
-        Effect.tap(did => dataplane.fetchProfileViewDetailedHydrationData([did])),
-        Effect.flatMap(did => {
-            const profile = hydrateProfileViewDetailed(ctx, did, dataplane)
-            return profile ?
-                Effect.succeed(profile) :
-                Effect.fail("Usuario no encontrado")
-        }),
+        Effect.flatMap(did =>
+            Effect.gen(function* () {
+                const dataplane = yield* DataPlane
+
+                yield* dataplane.fetchProfileViewDetailedHydrationData([did])
+
+                const profile = yield* hydrateProfileViewDetailed(ctx, did)
+
+                if (!profile) {
+                    return yield* Effect.fail(new UserNotFoundError())
+                }
+
+                return profile
+            })
+        ),
         Effect.catchTag("HandleResolutionError", () =>
-            Effect.fail("Usuario no encontrado")
+            Effect.fail(new UserNotFoundError())
         ),
         Effect.catchAll(error =>
             Effect.fail("Ocurrió un error al obtener el usuario.")
-        )
+        ),
+        Effect.provideServiceEffect(DataPlane, makeDataPlane(ctx, agent))
     )
 }
 

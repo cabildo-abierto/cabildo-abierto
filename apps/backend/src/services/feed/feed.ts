@@ -12,7 +12,7 @@ import {
 } from "#/services/feed/inicio/discusion.js";
 import {discoverFeedPipeline} from "#/services/feed/discover/discover.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, makeDataPlane, type Dataplane} from "#/services/hydration/dataplane.js";
 import {articlesFeedPipeline} from "#/services/feed/inicio/articles.js";
 import {getProfile, getSessionData} from "#/services/user/users.js";
 import * as Effect from "effect/Effect";
@@ -109,31 +109,20 @@ export type GetFeedProps = {
 
 type GetFeedError = string
 
-export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> => {
-    const data = new Dataplane(ctx, agent)
-
-    let newCursor: string | undefined
-
-    return pipe(
-        Effect.promise(() => pipeline.getSkeleton(ctx, agent, data, cursor)),
-        Effect.flatMap(skRes => {
-            newCursor = skRes.cursor
+export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> =>
+    pipe(
+        Effect.gen(function* () {
+            const dataplane = yield* DataPlane
+            const skRes = yield* Effect.promise(() => pipeline.getSkeleton(ctx, agent, dataplane, cursor))
             const skeleton = skRes.skeleton
-            return Effect.promise(async () => {
-                const feed = await hydrateFeed(ctx, skeleton, data).then(feed => {
-                    return pipeline.sortKey ? sortByKey(feed, pipeline.sortKey, listOrderDesc) : feed
-                }).then(feed => {
-                    return pipeline.filter ? pipeline.filter(ctx, feed) : feed
-                })
-
-                return {
-                    feed,
-                    cursor: newCursor
-                }
-            })
+            const feed = yield* hydrateFeed(ctx, agent, skeleton)
+            const sortedFeed = pipeline.sortKey ? sortByKey(feed, pipeline.sortKey, listOrderDesc) : feed
+            const filteredFeed = pipeline.filter ? pipeline.filter(ctx, sortedFeed) : sortedFeed
+            return {
+                feed: filteredFeed,
+                cursor: skRes.cursor
+            }
         }),
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al obtener el muro.")
-        })
+        Effect.provideServiceEffect(DataPlane, makeDataPlane(ctx, agent)),
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el muro." as GetFeedError))
     )
-}

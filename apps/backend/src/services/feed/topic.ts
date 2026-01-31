@@ -5,7 +5,6 @@ import {Agent} from "#/utils/session-agent.js";
 import {creationDateSortKey} from "#/services/feed/utils.js";
 import {hydrateFeedViewContent} from "#/services/hydration/hydrate.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
-import {Dataplane} from "#/services/hydration/dataplane.js";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
 import {getCollectionFromUri, getDidFromUri, getUri} from "@cabildo-abierto/utils";
@@ -192,7 +191,6 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
 const getTopicMentionsSkeleton = async (
     ctx: AppContext,
     agent: Agent,
-    data: Dataplane,
     id: string,
     cursor: string | undefined,
     metric: EnDiscusionMetric,

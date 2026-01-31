@@ -20,6 +20,17 @@ function sanitizeFileName(fileName: string): string {
         .toLowerCase();
 }
 
+
+export class S3DownloadError {
+    readonly _tag = "S3DownloadError";
+}
+
+
+export class S3GetSignedURLError {
+    readonly _tag = "S3GetSignedURLError";
+}
+
+
 export class S3Storage {
     client: S3Client
     logger: Logger
