@@ -7,10 +7,11 @@ import {v4 as uuidv4} from "uuid";
 import {getArticleSummary} from "#/services/hydration/hydrate.js";
 import {sql} from "kysely";
 import {FilePayload} from "@cabildo-abierto/api";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane} from "#/services/hydration/dataplane.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
 
 type DraftQueryResult = {
@@ -36,9 +37,9 @@ function getDraftEmbedSbUrl(id: string, i: number | "preview") {
     return `${id}-${i}-0`
 }
 
-
-function hydrateDraftPreview(d: Omit<DraftQueryResult, "embeds">, dataplane: Dataplane): DraftPreview | null {
-    const signedUrls = dataplane.signedStorageUrls.get("draft-embeds")
+const hydrateDraftPreview = (d: Omit<DraftQueryResult, "embeds">): Effect.Effect<DraftPreview | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const signedUrls = dataplane.getState().signedStorageUrls.get("draft-embeds")
     return {
         id: d.id,
         createdAt: d.created_at,
@@ -48,10 +49,10 @@ function hydrateDraftPreview(d: Omit<DraftQueryResult, "embeds">, dataplane: Dat
         summary: getArticleSummary(d.text, "markdown", d.description ?? undefined).summary,
         previewImage: d.previewImage ? signedUrls?.get(d.previewImage) : undefined,
     }
-}
+})
 
 
-function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, dataplane: Dataplane): Draft | null {
+const hydrateDraft = (d: DraftQueryResult, signedUrls: Map<string, string>): Effect.Effect<Draft | null, never, DataPlane> => Effect.gen(function* () {
     const embeds: EmbedsInDB | null = d.embeds as EmbedsInDB | null
 
     let embedViews: ArCabildoabiertoFeedArticle.ArticleEmbedView[] | undefined = undefined
@@ -89,6 +90,8 @@ function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, data
         }
     }
 
+    const dataplane = yield* DataPlane
+
     return {
         id: d.id,
         createdAt: d.created_at,
@@ -98,12 +101,15 @@ function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, data
         collection: d.collection,
         title: d.title ?? undefined,
         summary: getArticleSummary(d.text, "markdown", d.description ?? undefined).summary,
-        previewImage: d.previewImage ? dataplane.signedStorageUrls.get("draft-embeds")?.get(d.previewImage) : undefined
+        previewImage: d.previewImage ? dataplane.getState().signedStorageUrls.get("draft-embeds")?.get(d.previewImage) : undefined
     }
-}
+})
 
-export const getDrafts: CAHandler<{}, DraftPreview[]> = async (ctx, agent, {}) => {
-    const drafts: Omit<DraftQueryResult, "embeds">[] = await ctx.kysely
+
+export const getDrafts: EffHandler<{}, DraftPreview[]> = (
+    ctx, agent, {}) => Effect.provideServiceEffect(Effect.gen(function* () {
+    const drafts: Omit<DraftQueryResult, "embeds">[] = yield* Effect.tryPromise({
+        try: () => ctx.kysely
         .selectFrom("Draft")
         .select([
             "id",
@@ -116,14 +122,16 @@ export const getDrafts: CAHandler<{}, DraftPreview[]> = async (ctx, agent, {}) =
             "previewImage"
         ])
         .where("authorId", "=", agent.did)
-        .execute()
+        .execute(),
+        catch: () => new DBError()
+    })
 
-    const dataplane = new Dataplane(ctx, agent)
+    yield* DataPlane
 
-    await dataplane.fetchSignedStorageUrls(drafts.map(d => d.previewImage).filter(x => x != null), "draft-embeds")
+    yield* dataplane.fetchSignedStorageUrls(drafts.map(d => d.previewImage).filter(x => x != null), "draft-embeds")
 
-    return {data: drafts.map(d => hydrateDraftPreview(d, dataplane)).filter(x => x != null)}
-}
+    return drafts.map(d => hydrateDraftPreview(d, dataplane)).filter(x => x != null)}
+}), DataPlane, E)
 
 
 export const getDraft: CAHandler<{ params: { id: string } }, Draft> = async (ctx, agent, {params}) => {

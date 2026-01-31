@@ -39,7 +39,7 @@ export const getProfileFeed: EffHandlerNoAuth<{params: {handleOrDid: string, kin
             }
             return getFeed({ctx, agent, pipeline, cursor})
         }),
-        Effect.catchAll(error => {
+        Effect.catchAll(() => {
             return Effect.fail("Ocurrió un error al obtener el muro.")
         })
     )

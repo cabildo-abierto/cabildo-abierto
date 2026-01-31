@@ -1,10 +1,10 @@
-import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {AppBskyActorDefs, ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {cleanText} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
-import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
+import {DataPlane, FetchFromBskyError, joinMaps, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {Agent} from "#/utils/session-agent.js";
 import {stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js";
 import {$Typed} from "@atproto/api";
@@ -12,79 +12,97 @@ import {sql} from "kysely";
 import {sortByKey, unique} from "@cabildo-abierto/utils";
 import {getTopicTitle} from "#/services/wiki/utils.js";
 import dice from "fast-dice-coefficient"
-import {Effect, pipe} from "effect";
+import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
 
-export async function searchUsersInCA(ctx: AppContext, query: string, limit: number): Promise<string[]> {
+export function searchUsersInCA(ctx: AppContext, query: string, limit: number): Effect.Effect<string[], DBError> {
     const MIN_SIMILARITY_THRESHOLD = 0.1
 
-    let users = await ctx.kysely
-        .selectFrom("User")
-        .select([
-            "did",
-            eb => sql<number>`GREATEST(
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .select([
+                "did",
+                eb => sql<number>`GREATEST(
                 similarity(${eb.ref('User.displayName')}::text, ${eb.val(query)}::text),
                 similarity(${eb.ref('User.handle')}::text, ${eb.val(query)}::text)
             )`.as('match_score')
 
-        ])
-        .where("User.inCA", "=", true)
-        .where(eb => eb.or([
-            eb(sql<number>`similarity(${eb.ref('User.displayName')}::text, ${eb.val(query)}::text)`, ">=", MIN_SIMILARITY_THRESHOLD),
-            eb(sql<number>`similarity(${eb.ref('User.handle')}::text, ${eb.val(query)}::text)`, ">=", MIN_SIMILARITY_THRESHOLD)
-        ]))
-        .orderBy("match_score desc")
-        .limit(limit)
-        .execute()
-
-    return users.map(a => a.did)
+            ])
+            .where("User.inCA", "=", true)
+            .where(eb => eb.or([
+                eb(sql<number>`similarity(${eb.ref('User.displayName')}::text, ${eb.val(query)}::text)`, ">=", MIN_SIMILARITY_THRESHOLD),
+                eb(sql<number>`similarity(${eb.ref('User.handle')}::text, ${eb.val(query)}::text)`, ">=", MIN_SIMILARITY_THRESHOLD)
+            ]))
+            .orderBy("match_score desc")
+            .limit(limit)
+            .execute(),
+        catch: () => new DBError()
+    }).pipe(Effect.map(res => res.map(r => r.did)))
 }
 
 
-export async function searchUsersInBsky(agent: Agent, query: string, dataplane: Dataplane, limit: number): Promise<string[]> {
-    const {data} = await agent.bsky.app.bsky.actor.searchActorsTypeahead({q: query, limit})
+export const searchUsersInBsky = (
+    agent: Agent,
+    query: string,
+    limit: number
+): Effect.Effect<string[], FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    const {data} = yield* Effect.tryPromise({
+        try: () => agent.bsky.app.bsky.actor.searchActorsTypeahead({q: query, limit}),
+        catch: () => new FetchFromBskyError()
+    })
 
-    dataplane.bskyBasicUsers = joinMaps(
-        dataplane.bskyBasicUsers,
+    const dataplane = yield* DataPlane
+    const state = dataplane.getState()
+    state.bskyBasicUsers = joinMaps(
+        state.bskyBasicUsers,
         new Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>>(data.actors.map(a => [a.did, {
             $type: "app.bsky.actor.defs#profileViewBasic", ...a
         }]))
     )
 
     return data.actors.map(a => a.did)
-}
+})
 
 
-export const searchUsers: CAHandlerNoAuth<{
+export const searchUsers: EffHandlerNoAuth<{
     params: { query: string }, query?: {limit?: number}
-}, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = async (ctx, agent, {params, query}) => {
+}, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = (
+    ctx,
+    agent,
+    {params, query}
+) => Effect.provideServiceEffect(Effect.gen(function* () {
     const {query: searchQuery} = params
     const limit = query?.limit ?? 25
 
-    const dataplane = new Dataplane(ctx, agent)
+    const dataplane = yield* DataPlane
 
-    let [caSearchResults, bskySearchResults] = await Promise.all([
+    let [caSearchResults, bskySearchResults] = yield* Effect.all([
         searchUsersInCA(ctx, searchQuery, limit),
-        searchUsersInBsky(agent, searchQuery, dataplane, limit)
-    ])
+        searchUsersInBsky(agent, searchQuery, limit)
+    ], {concurrency: "unbounded"})
 
     let usersList: string[] = []
     for(let i = 0; i < limit; i++){
         if(caSearchResults.length > i){
-            if(!usersList.includes(caSearchResults[i])) usersList.push(caSearchResults[i])
+            if(!usersList.includes(caSearchResults[i]))
+                usersList.push(caSearchResults[i])
         }
         if(bskySearchResults.length > i) {
-            if(!usersList.includes(bskySearchResults[i])) usersList.push(bskySearchResults[i])
+            if(!usersList.includes(bskySearchResults[i]))
+                usersList.push(bskySearchResults[i])
         }
     }
     usersList = usersList.slice(0, limit)
 
-    await dataplane.fetchProfileViewHydrationData(usersList)
+    yield* dataplane.fetchProfileViewHydrationData(usersList)
 
-    const users = usersList.map(did => hydrateProfileViewBasic(ctx, did, dataplane))
+    const users = yield* Effect.all(usersList
+        .map(did => hydrateProfileViewBasic(ctx, did)))
 
-    return {data: users.filter(x => x != null)}
-}
+    return users.filter(x => x != null)
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al buscar."))), DataPlane, makeDataPlane(ctx, agent))
 
 
 async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?: string[], limit?: number) {
@@ -141,32 +159,32 @@ async function searchTopicsSkeleton(ctx: AppContext, query: string, categories?:
 }
 
 
-export const searchTopics: EffHandlerNoAuth<{params: {q: string}, query: {c: string | string[] | undefined, cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
+export const searchTopics: EffHandlerNoAuth<
+    {params: {q: string}, query: {c: string | string[] | undefined, cursor?: string, limit?: number}},
+    ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
+> = (ctx, agent, {params, query}) => Effect.provideServiceEffect(Effect.gen(function* () {
     let {q} = params;
     const categories = query.c == undefined ? undefined : (typeof query.c == "string" ? [query.c] : query.c);
     const searchQuery = cleanText(q)
-    const dataplane = new Dataplane(ctx, agent)
+    const dataplane = yield* DataPlane
 
-    return pipe(
-        Effect.promise(() => searchTopicsSkeleton(
+    const topics = yield* Effect.tryPromise({
+        try: () => searchTopicsSkeleton(
             ctx,
             searchQuery,
             categories,
             20
-        )),
-        Effect.tap(async topics => {
-            await dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
-        }),
-        Effect.map(topics => {
-            return topics
-                .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
-                .filter(x => x != null)
-        }),
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al buscar los temas.")
-        })
-    )
-}
+        ),
+        catch: () => new DBError()
+    })
+
+    yield* dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri))
+
+    return (yield* Effect.all(topics
+        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri))
+    )).filter(x => x != null)
+
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al buscar."))), DataPlane, makeDataPlane(ctx, agent))
 
 type UserOrTopicBasic = $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
 
@@ -174,37 +192,45 @@ function calculateScore(query: string, text: string): number {
     return dice(cleanText(query), cleanText(text))
 }
 
-export const searchUsersAndTopics: CAHandlerNoAuth<{
+export const searchUsersAndTopics: EffHandlerNoAuth<{
     params: { query: string }, query?: {limit?: number}
-}, UserOrTopicBasic[]> = async (ctx, agent, {params, query}) => {
+}, UserOrTopicBasic[]> = (
+    ctx,
+    agent,
+    {params, query}
+) => Effect.provideServiceEffect(Effect.gen(function* () {
     const {query: searchQuery} = params
     const limit = query?.limit ?? 25
 
-    const dataplane = new Dataplane(ctx, agent)
+    const dataplane = yield* DataPlane
 
     const limitByKind = Math.ceil(limit / 2)
 
-    const [caUsers, caTopics, bskyUsers] = await Promise.all([
+    const [caUsers, caTopics, bskyUsers] = yield* Effect.all([
         searchUsersInCA(ctx, searchQuery, limitByKind),
-        searchTopicsSkeleton(ctx, searchQuery, undefined, limitByKind),
-        searchUsersInBsky(agent, searchQuery, dataplane, limitByKind)
-    ])
+        Effect.tryPromise({
+            try: () => searchTopicsSkeleton(ctx, searchQuery, undefined, limitByKind),
+            catch: () => new DBError()
+        }),
+        searchUsersInBsky(agent, searchQuery, limitByKind)
+    ], {concurrency: "unbounded"})
 
     const userDids = unique([...caUsers, ...bskyUsers])
-    await Promise.all([
+    yield* Effect.all([
         dataplane.fetchProfileViewBasicHydrationData(userDids),
         dataplane.fetchTopicsBasicByUris(caTopics.map(t => t.uri)),
-    ])
+    ], {concurrency: "unbounded"})
 
-    let users: $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic>[] = userDids
-        .map(d => hydrateProfileViewBasic(ctx, d, dataplane))
+    let users: $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic>[] = (yield* Effect.all(
+        userDids
+        .map(d => hydrateProfileViewBasic(ctx, d))
+    ))
         .filter(x => x != null)
         .map(x => ({$type: "ar.cabildoabierto.actor.defs#profileViewBasic", ...x}))
 
-    let topics = caTopics
-        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
+    let topics = (yield* Effect.all(caTopics
+        .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri))))
         .filter(x => x != null)
-
 
     const score = (x: UserOrTopicBasic) => {
         if(ArCabildoabiertoActorDefs.isProfileViewBasic(x)){
@@ -232,5 +258,5 @@ export const searchUsersAndTopics: CAHandlerNoAuth<{
         (a, b) => b-a
     )
 
-    return {data: data}
-}
+    return data
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al buscar."))), DataPlane, makeDataPlane(ctx, agent))

@@ -10,14 +10,15 @@ import {
     FeedFormatOption,
     getEnDiscusionFeedPipeline
 } from "#/services/feed/inicio/discusion.js";
-import {discoverFeedPipeline} from "#/services/feed/discover/discover.js";
+import {discoverFeedPipeline, InvalidCursorError, SessionRequiredError} from "#/services/feed/discover/discover.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
-import {DataPlane, makeDataPlane, type Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, makeDataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {articlesFeedPipeline} from "#/services/feed/inicio/articles.js";
 import {getProfile, getSessionData} from "#/services/user/users.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {clearFollows} from "#/services/user/follows.js";
+import {DBError} from "#/services/write/article.js";
 
 
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
@@ -69,8 +70,8 @@ export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cu
                         throw Error(`Invalid feed kind: ${kind}`)
                     }
                 },
-                catch: error => {
-                    return "Ocurrió un error al obtener el muro."
+                catch: () => {
+                    return "No se encontró el muro"
                 }
             })
         }),
@@ -78,17 +79,22 @@ export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cu
             return getFeed({ctx, agent, pipeline, cursor})
         }),
         Effect.catchAll(error => {
-            return Effect.fail(error)
+            return typeof error == "string" ?
+                Effect.fail(error) :
+                Effect.fail("Ocurrió un error al cargar el muro.")
         })
     )
 }
+
+
+export type GetSkeletonError = DBError | FetchFromBskyError | InvalidCursorError | SessionRequiredError
 
 
 export type FeedSkeleton = ArCabildoabiertoFeedDefs.SkeletonFeedPost[]
 
 
 export type GetSkeletonOutput = {skeleton: FeedSkeleton, cursor: string | undefined}
-export type GetSkeletonProps = (ctx: AppContext, agent: Agent, data: Dataplane, cursor?: string) => Promise<GetSkeletonOutput>
+export type GetSkeletonProps = (ctx: AppContext, agent: Agent, cursor?: string) => Effect.Effect<GetSkeletonOutput, GetSkeletonError, DataPlane>
 export type FeedSortKey = ((a: ArCabildoabiertoFeedDefs.FeedViewContent) => number[]) | null
 
 export type FeedPipelineProps = {
@@ -107,13 +113,12 @@ export type GetFeedProps = {
     params?: { metric?: string, time?: string }
 }
 
-type GetFeedError = string
+type GetFeedError = GetSkeletonError | DBError | FetchFromBskyError
 
-export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> =>
-    pipe(
+export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> => {
+    return Effect.provideServiceEffect(
         Effect.gen(function* () {
-            const dataplane = yield* DataPlane
-            const skRes = yield* Effect.promise(() => pipeline.getSkeleton(ctx, agent, dataplane, cursor))
+            const skRes = yield* pipeline.getSkeleton(ctx, agent, cursor)
             const skeleton = skRes.skeleton
             const feed = yield* hydrateFeed(ctx, agent, skeleton)
             const sortedFeed = pipeline.sortKey ? sortByKey(feed, pipeline.sortKey, listOrderDesc) : feed
@@ -123,6 +128,7 @@ export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Ef
                 cursor: skRes.cursor
             }
         }),
-        Effect.provideServiceEffect(DataPlane, makeDataPlane(ctx, agent)),
-        Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el muro." as GetFeedError))
+        DataPlane,
+        makeDataPlane(ctx, agent)
     )
+}

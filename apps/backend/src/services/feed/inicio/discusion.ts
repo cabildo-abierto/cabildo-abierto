@@ -1,5 +1,5 @@
 import {FeedPipelineProps, GetSkeletonProps} from "#/services/feed/feed.js";
-import {CAHandler, EffHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 import {
     AppBskyFeedPost,
     ArCabildoabiertoFeedArticle, defaultEnDiscusionFormat,
@@ -17,6 +17,8 @@ import {
 import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
 import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
 import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
+import {FetchFromBskyError} from "#/services/hydration/dataplane.js";
 
 
 export function getEnDiscusionStartDate(time: EnDiscusionTime) {
@@ -39,9 +41,13 @@ export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad rel
 export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes" | "Último año"
 export type FeedFormatOption = "Todos" | "Artículos"
 
-export type EnDiscusionSkeletonElement = {uri: string, createdAt: Date}
+export type EnDiscusionSkeletonElement = { uri: string, createdAt: Date }
 
-const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusionTime, format: FeedFormatOption) => SkeletonQuery<EnDiscusionSkeletonElement> = (metric, time, format) => {
+const getEnDiscusionSkeletonQuery: (
+    metric: EnDiscusionMetric,
+    time: EnDiscusionTime,
+    format: FeedFormatOption
+) => SkeletonQuery<EnDiscusionSkeletonElement> = (metric, time, format) => {
     return async (ctx, agent, from, to, limit) => {
         const startDate = metric != "Recientes" ? getEnDiscusionStartDate(time) : new Date(0)
         const collections = format == "Artículos" ?
@@ -49,24 +55,30 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
             ["ar.cabildoabierto.feed.article", "app.bsky.feed.post"]
         const label = 'ca:en discusión'
 
-        if(limit == 0){
+        if (limit == 0) {
             return []
         }
 
-        if(metric == "Me gustas"){
-            const offsetFrom = from != null ? Number(from)+1 : 0
+        if (metric == "Me gustas") {
+            const offsetFrom = from != null ? Number(from) + 1 : 0
             const offsetTo = to != null ? Number(to) : undefined
-            if(offsetTo != null){
+            if (offsetTo != null) {
                 limit = Math.min(limit, offsetTo - offsetFrom)
             }
 
-            if(limit == 0) return []
+            if (limit == 0) return []
 
             const res = await ctx.kysely
                 .selectFrom('Content')
                 .innerJoin('Record', 'Record.uri', 'Content.uri')
                 .where('Record.collection', 'in', collections)
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
+                ${label}
+                ]
+                ::
+                text
+                [
+                ]`)
                 .where("Record.created_at", ">", startDate)
                 .select([
                     "Content.uri",
@@ -82,20 +94,26 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                 ...r,
                 score: -(i + offsetFrom)
             }))
-        } else if(metric == "Interacciones"){
-            const offsetFrom = from != null ? Number(from)+1 : 0
+        } else if (metric == "Interacciones") {
+            const offsetFrom = from != null ? Number(from) + 1 : 0
             const offsetTo = to != null ? Number(to) : undefined
-            if(offsetTo != null){
+            if (offsetTo != null) {
                 limit = Math.min(limit, offsetTo - offsetFrom)
             }
 
-            if(limit == 0) return []
+            if (limit == 0) return []
             const res = await ctx.kysely
                 .selectFrom('Record')
                 .where('Record.collection', 'in', collections)
                 .where("Record.created_at", ">", startDate)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
+                ${label}
+                ]
+                ::
+                text
+                [
+                ]`)
                 .select([
                     "Content.uri",
                     "Content.created_at as createdAt"
@@ -111,20 +129,26 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                 ...r,
                 score: -(i + offsetFrom)
             }))
-        } else if(metric == "Popularidad relativa"){
-            const offsetFrom = from != null ? Number(from)+1 : 0
+        } else if (metric == "Popularidad relativa") {
+            const offsetFrom = from != null ? Number(from) + 1 : 0
             const offsetTo = to != null ? Number(to) : undefined
-            if(offsetTo != null){
+            if (offsetTo != null) {
                 limit = Math.min(limit, offsetTo - offsetFrom)
             }
 
-            if(limit == 0) return []
+            if (limit == 0) return []
 
             const res = await ctx.kysely.selectFrom('Record')
                 .where('Record.collection', 'in', collections)
                 .where("Record.created_at", ">", startDate)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
+                ${label}
+                ]
+                ::
+                text
+                [
+                ]`)
                 .select(eb => [
                     'Record.uri',
                     "Record.created_at as createdAt"
@@ -139,16 +163,22 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
                 ...r,
                 score: -(i + offsetFrom)
             }))
-        } else if(metric == "Recientes"){
+        } else if (metric == "Recientes") {
             const offsetFrom = from != null ? new Date(from) : undefined
             const offsetTo = to != null ? new Date(to) : undefined
 
-            if(offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
+            if (offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
 
             const res = await ctx.kysely.with("EnDiscusionContent", eb => eb.selectFrom('Record')
                 .where('Record.collection', 'in', collections)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
+                ${label}
+                ]
+                ::
+                text
+                [
+                ]`)
                 .orderBy("Record.authorId")
                 .orderBy("Record.created_at desc")
                 .distinctOn("Record.authorId")
@@ -182,7 +212,7 @@ const getEnDiscusionSkeletonQuery: (metric: EnDiscusionMetric, time: EnDiscusion
 
 export const getNextCursorEnDiscusion: (metric: EnDiscusionMetric, time: EnDiscusionTime, format: FeedFormatOption) => GetNextCursor<EnDiscusionSkeletonElement> = (metric, time, format) => {
     return (cursor, skeleton, limit) => {
-        if(metric == "Recientes"){
+        if (metric == "Recientes") {
             return getNextFollowingFeedCursor(
                 cursor,
                 skeleton.map(s => ({
@@ -193,26 +223,34 @@ export const getNextCursorEnDiscusion: (metric: EnDiscusionMetric, time: EnDiscu
             )
         } else {
             const cur = cursor ? Number(cursor) : 0
-            if(skeleton.length < limit) return undefined
+            if (skeleton.length < limit) return undefined
             return (cur - 1 + skeleton.length).toString()
         }
     }
 }
 
 
-export const getEnDiscusionSkeleton: (metric: EnDiscusionMetric, time: EnDiscusionTime, format: FeedFormatOption) => GetSkeletonProps = (metric, time, format) => async (
-    ctx, agent, data, cursor
+export const getEnDiscusionSkeleton: (
+    metric: EnDiscusionMetric,
+    time: EnDiscusionTime,
+    format: FeedFormatOption
+) => GetSkeletonProps = (metric, time, format) => (
+    ctx, agent, cursor
 ) => {
     const limit = 25
 
-    const res = await getEnDiscusionSkeletonQuery(metric, time, format)(
-        ctx, agent, cursor, undefined, limit
-    )
+    return Effect.tryPromise({
+        try: () => getEnDiscusionSkeletonQuery(metric, time, format)(
+            ctx, agent, cursor, undefined, limit
+        ),
+        catch: () => new DBError()
+    }).pipe(Effect.map(res => {
+        return {
+            skeleton: res.map(r => ({post: r.uri})),
+            cursor: getNextCursorEnDiscusion(metric, time, format)(cursor, res, limit)
+        }
+    }))
 
-    return {
-        skeleton: res.map(r => ({post: r.uri})),
-        cursor: getNextCursorEnDiscusion(metric, time, format)(cursor, res, limit)
-    }
 }
 
 
@@ -280,9 +318,15 @@ export const addToEnDiscusion: EffHandler<{
             })
 
             if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
-                yield* new ArticleRecordProcessor(ctx).processValidated([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
+                yield* new ArticleRecordProcessor(ctx).processValidated([{
+                    ref: {uri: ref.data.uri, cid: ref.data.cid},
+                    record: validRecord
+                }])
             } else {
-                yield* new PostRecordProcessor(ctx).processValidated([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
+                yield* new PostRecordProcessor(ctx).processValidated([{
+                    ref: {uri: ref.data.uri, cid: ref.data.cid},
+                    record: validRecord
+                }])
             }
         } else {
             return yield* Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
@@ -307,21 +351,28 @@ export const addToEnDiscusion: EffHandler<{
 }
 
 
-export const removeFromEnDiscusion: CAHandler<{
+export const removeFromEnDiscusion: EffHandler<{
     params: { collection: string, rkey: string }
-}, {}> = async (ctx, agent, {params}) => {
+}, {}> = (
+    ctx,
+    agent,
+    {params}
+) => Effect.gen(function* () {
     // TO DO: Pasar a processUpdate
     const {collection, rkey} = params
     const did = agent.did
 
-    const res = await agent.bsky.com.atproto.repo.getRecord({
-        repo: did,
-        collection,
-        rkey
+    const res = yield* Effect.tryPromise({
+        try: () => agent.bsky.com.atproto.repo.getRecord({
+            repo: did,
+            collection,
+            rkey
+        }),
+        catch: () => new FetchFromBskyError()
     })
 
     if (!res.success) {
-        return {error: "No se pudo remover de en discusión."}
+        return yield* Effect.fail("Ocurrió un error al obtener el contenido.")
     }
 
     const record = res.data.value
@@ -336,26 +387,51 @@ export const removeFromEnDiscusion: CAHandler<{
         validRecord = validateArticle.value
     }
 
-    if (validRecord) {
-        if (validRecord.labels && isSelfLabels(validRecord.labels)) {
-            validRecord.labels.values = validRecord.labels.values.filter(v => v.val != "ca:en discusión")
-        }
+    if (!validRecord) {
+        return yield* Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
+    }
 
-        const ref = await agent.bsky.com.atproto.repo.putRecord({
+    if (validRecord.labels && isSelfLabels(validRecord.labels)) {
+        validRecord.labels.values = validRecord.labels.values.filter(v => v.val != "ca:en discusión")
+    }
+
+    const ref = yield* Effect.tryPromise({
+        try: () => agent.bsky.com.atproto.repo.putRecord({
             repo: did,
             collection,
             rkey,
             record: validRecord
-        })
+        }),
+        catch: () => "Ocurrió un error al remover el contenido de En discusión."
+    })
 
-        if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
-            await new ArticleRecordProcessor(ctx).process([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
-        } else if(AppBskyFeedPost.isRecord(validRecord)) {
-            await new PostRecordProcessor(ctx).process([{ref: {uri: ref.data.uri, cid: ref.data.cid}, record: validRecord}])
-        }
-    } else {
-        return {error: "No se pudo remover de en discusión."}
+    if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
+        yield* (new ArticleRecordProcessor(ctx).process([{
+            ref: {uri: ref.data.uri, cid: ref.data.cid},
+            record: validRecord
+        }]))
+    } else if (AppBskyFeedPost.isRecord(validRecord)) {
+        yield* (new PostRecordProcessor(ctx).process([{
+            ref: {uri: ref.data.uri, cid: ref.data.cid},
+            record: validRecord
+        }]))
     }
 
-    return {data: {}}
-}
+    return {}
+}).pipe(
+    Effect.catchTag("FetchFromBskyError", () => {
+        return Effect.fail("Ocurrió un error en la conexión con Bluesky.")
+    }),
+    Effect.catchTag("AddJobsError", () => {
+        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
+    }),
+    Effect.catchTag("InsertRecordError", () => {
+        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
+    }),
+    Effect.catchTag("UpdateRedisError", () => {
+        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
+    }),
+    Effect.catchTag("InvalidValueError", () => {
+        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
+    })
+)

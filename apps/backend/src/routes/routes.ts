@@ -264,12 +264,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic-mentions-in-topics-feed',
-        makeHandlerNoAuth(ctx, getTopicMentionsInTopicsFeed)
+        makeEffHandlerNoAuth(ctx, getTopicMentionsInTopicsFeed)
     )
 
     router.get(
         '/topic-quote-replies/:did/:rkey',
-        makeHandlerNoAuth(ctx, getTopicQuoteReplies)
+        makeEffHandlerNoAuth(ctx, getTopicQuoteReplies)
     )
 
 
@@ -280,7 +280,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic-version-changes/:curDid/:curRkey/:prevDid/:prevRkey',
-        makeHandlerNoAuth(ctx, getTopicVersionChanges)
+        makeEffHandlerNoAuth(ctx, getTopicVersionChanges)
     )
 
     router.post(
@@ -358,7 +358,7 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.post('/unset-en-discusion/:collection/:rkey',
-        makeHandler(ctx, removeFromEnDiscusion)
+        makeEffHandler(ctx, removeFromEnDiscusion)
     )
 
     router.post(
@@ -407,7 +407,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/topic-title/:id", makeHandlerNoAuth(ctx, getTopicTitleHandler))
 
-    router.get("/notifications/list", makeHandler(ctx, getNotifications))
+    router.get("/notifications/list", makeEffHandler(ctx, getNotifications))
 
     router.get("/notifications/unread-count", makeHandler(ctx, getUnreadNotificationsCount))
 

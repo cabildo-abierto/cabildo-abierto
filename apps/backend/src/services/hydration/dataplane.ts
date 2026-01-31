@@ -144,7 +144,7 @@ export class DataPlane extends Context.Tag("DataPlane")<
     readonly fetchNotificationsHydrationData: (skeleton: NotificationsSkeleton) => Effect.Effect<void, DBError | FetchFromBskyError>
     readonly fetchProfileViewDetailedHydrationData: (dids: string[]) => Effect.Effect<void, ViewerStateFetchError | FetchFromCAError | FetchFromBskyError>
     readonly fetchProfileViewHydrationData: (dids: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
-    readonly fetchProfileViewBasicHydrationData: (dids: string[]) => Effect.Effect<void, ViewerStateFetchError | FetchFromCAError | FetchFromBskyError>
+    readonly fetchProfileViewBasicHydrationData: (dids: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
     readonly fetchDatasetsHydrationData: (uris: string[]) => Effect.Effect<void, FetchFromBskyError | DBError>
     readonly fetchDatasetContents: (uris: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
     readonly fetchFilesFromStorage: (filePaths: string[], bucket: string) => Effect.Effect<void, S3DownloadError>
@@ -173,6 +173,7 @@ export class DataPlane extends Context.Tag("DataPlane")<
         profileViewers: Map<string, AppBskyActorDefs.ViewerState>
         signedStorageUrls: Map<string, Map<string, string>>
     }
+    readonly storeRepost: (repost: RepostQueryResult & {subjectId: string}) => void
     readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBError>
     readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBError>
 }>() {}
@@ -1280,6 +1281,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         fetchFilteredTopics,
         fetchTopicsBasicByUris,
         fetchProfileViewBasicHydrationData,
-        fetchProfileViewHydrationData
+        fetchProfileViewHydrationData,
+        storeRepost
     } as const
 })

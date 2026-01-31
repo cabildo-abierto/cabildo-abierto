@@ -3,10 +3,12 @@ import {AppContext} from "#/setup.js";
 import {FeedPipelineProps, FollowingFeedFilter, GetSkeletonProps} from "#/services/feed/feed.js";
 import {min} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {$Typed, AppBskyFeedDefs} from "@atproto/api";
 import {FeedFormatOption} from "#/services/feed/inicio/discusion.js";
 import {FeedViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
+import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
 export type RepostQueryResult = {
     uri?: string
@@ -14,10 +16,10 @@ export type RepostQueryResult = {
     subjectId: string | null
 }
 
-export type SkeletonFeedPostWithDate = ArCabildoabiertoFeedDefs.SkeletonFeedPost & {created_at: Date}
+export type SkeletonFeedPostWithDate = ArCabildoabiertoFeedDefs.SkeletonFeedPost & { created_at: Date }
 
 function bskySkeletonReasonToCA(reason: FeedViewPost["reason"]): ArCabildoabiertoFeedDefs.SkeletonFeedPost["reason"] {
-    if(AppBskyFeedDefs.isReasonRepost(reason)) {
+    if (AppBskyFeedDefs.isReasonRepost(reason)) {
         return {
             $type: "ar.cabildoabierto.feed.defs#skeletonReasonRepost",
             repost: reason.uri
@@ -43,14 +45,14 @@ export type FeedSkeletonWithDate = SkeletonFeedPostWithDate[]
 export const getSkeletonFromTimeline = (ctx: AppContext, timeline: FeedViewPost[], onlyFollowedRoots: boolean = false) => {
     let filtered = onlyFollowedRoots ? timeline
         .filter(t => {
-        if (t.reason && AppBskyFeedDefs.isReasonRepost(t.reason)) return true
-        if(AppBskyFeedDefs.isPostView(t.reply?.root)) {
-            if(!t.reply.root.author.viewer?.following) {
-                return false
+            if (t.reason && AppBskyFeedDefs.isReasonRepost(t.reason)) return true
+            if (AppBskyFeedDefs.isPostView(t.reply?.root)) {
+                if (!t.reply.root.author.viewer?.following) {
+                    return false
+                }
             }
-        }
-        return true
-    }) : timeline
+            return true
+        }) : timeline
 
     let skeleton: FeedSkeletonWithDate = filtered
         .map(feedViewPostToSkeletonElement)
@@ -59,27 +61,35 @@ export const getSkeletonFromTimeline = (ctx: AppContext, timeline: FeedViewPost[
 }
 
 
-export async function getArticlesForFollowingFeed(ctx: AppContext, agent: SessionAgent, data: Dataplane, startDate: Date): Promise<{
+export const getArticlesForFollowingFeed = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    startDate: Date
+): Effect.Effect<{
     created_at: Date,
     contentId: string
     repostedContentId: string | null
-}[]> {
-    const res = await ctx.kysely
-        .selectFrom("FollowingFeedIndex")
-        .where("FollowingFeedIndex.collection", "=", "ArCabildoabiertoFeedArticle")
-        .where("readerId", "=", agent.did)
-        .select([
-            "FollowingFeedIndex.created_at",
-            "FollowingFeedIndex.contentId",
-            "FollowingFeedIndex.repostedContentId"
-        ])
-        .where("FollowingFeedIndex.created_at", "<", startDate)
-        .orderBy("FollowingFeedIndex.created_at", "desc")
-        .limit(25)
-        .execute()
+}[], DBError, DataPlane> => Effect.gen(function* () {
+    const res = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("FollowingFeedIndex")
+            .where("FollowingFeedIndex.collection", "=", "ArCabildoabiertoFeedArticle")
+            .where("readerId", "=", agent.did)
+            .select([
+                "FollowingFeedIndex.created_at",
+                "FollowingFeedIndex.contentId",
+                "FollowingFeedIndex.repostedContentId"
+            ])
+            .where("FollowingFeedIndex.created_at", "<", startDate)
+            .orderBy("FollowingFeedIndex.created_at", "desc")
+            .limit(25)
+            .execute(),
+        catch: () => new DBError()
+    })
 
+    const data = yield* DataPlane
     res.forEach(r => {
-        if(r.repostedContentId){
+        if (r.repostedContentId) {
             data.storeRepost({
                 subjectId: r.repostedContentId,
                 uri: r.contentId,
@@ -89,7 +99,7 @@ export async function getArticlesForFollowingFeed(ctx: AppContext, agent: Sessio
     })
 
     return res
-}
+})
 
 
 async function retry<X, Y>(x: X, f: (params: X) => Promise<Y>, attempts: number, delay: number = 200): Promise<Y> {
@@ -97,7 +107,6 @@ async function retry<X, Y>(x: X, f: (params: X) => Promise<Y>, attempts: number,
         return await f(x)
     } catch (err) {
         if (attempts > 0) {
-            console.log(`Retrying after error. Attempts remaining ${attempts - 1}. Error:`, err)
             await new Promise(r => setTimeout(r, delay))
             return retry(x, f, attempts - 1)
         } else {
@@ -108,15 +117,25 @@ async function retry<X, Y>(x: X, f: (params: X) => Promise<Y>, attempts: number,
 }
 
 
-export async function getBskyTimeline(ctx: AppContext, agent: SessionAgent, limit: number, data: Dataplane, cursor?: string): Promise<{
+const getBskyTimeline = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    limit: number,
+    cursor?: string
+): Effect.Effect<{
     feed: $Typed<FeedViewPost>[],
     cursor: string | undefined
-}> {
-    const res = await retry({limit, cursor}, agent.bsky.getTimeline, 3)
+}, FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    const res = yield* Effect.tryPromise({
+        try: () => retry({limit, cursor}, agent.bsky.getTimeline, 3),
+        catch: () => new FetchFromBskyError()
+    })
+    const dataplane = yield* DataPlane
 
     const newCursor = res.data.cursor
     const feed = res.data.feed
-    data.storeFeedViewPosts(feed)
+    dataplane.storeFeedViewPosts(feed)
+
     return {
         feed: feed.map(f => ({
             ...f,
@@ -124,25 +143,28 @@ export async function getBskyTimeline(ctx: AppContext, agent: SessionAgent, limi
         })),
         cursor: newCursor
     }
-}
+})
 
 
-const getFollowingFeedSkeletonAll: GetSkeletonProps = async (ctx, agent, data, cursor) => {
+const getFollowingFeedSkeletonAll: GetSkeletonProps = (
+    ctx,
+    agent,
+    cursor
+) => Effect.gen(function* () {
     if (!agent.hasSession()) return {skeleton: [], cursor: undefined}
 
     const timelineQuery = getBskyTimeline(
         ctx,
         agent,
         25,
-        data,
         cursor
     )
 
     const cursorDate = cursor ? new Date(cursor) : new Date()
 
-    let [timeline, articles] = await Promise.all([
+    let [timeline, articles] = yield* Effect.all([
         timelineQuery,
-        getArticlesForFollowingFeed(ctx, agent, data, cursorDate)
+        getArticlesForFollowingFeed(ctx, agent, cursorDate)
     ])
 
     // borramos todos los artículos y reposts de artículos anteriores en fecha al último post de la timeline
@@ -163,7 +185,7 @@ const getFollowingFeedSkeletonAll: GetSkeletonProps = async (ctx, agent, data, c
         skeleton,
         cursor: timelineSkeleton.length > 0 ? timeline.cursor : undefined
     }
-}
+})
 
 
 export async function getCAFollowersDids(ctx: AppContext, did: string): Promise<string[]> {
@@ -225,7 +247,7 @@ export type SkeletonQuery<T> = (
     from: string | undefined,
     to: string | undefined,
     limit: number
-) => Promise<(T & {score: number})[]>
+) => Promise<(T & { score: number })[]>
 
 
 export type FollowingFeedSkeletonElement = {
@@ -237,14 +259,14 @@ export type FollowingFeedSkeletonElement = {
 export type GetNextCursor<T> = (cursor: string | undefined, skeleton: T[], limit: number) => (string | undefined)
 
 
-export function getNextFollowingFeedCursor(cursor: string | undefined, skeleton: FollowingFeedSkeletonElement[], limit: number){
-    if(skeleton.length < limit) return undefined
+export function getNextFollowingFeedCursor(cursor: string | undefined, skeleton: FollowingFeedSkeletonElement[], limit: number) {
+    if (skeleton.length < limit) return undefined
     const m = Math.min(...skeleton.map(x => new Date(x.createdAt).getTime()))
     return new Date(m).toISOString()
 }
 
 
-async function followingFeedOnlyCABaseQueryAll(ctx: AppContext, agent: SessionAgent, limit: number, cursor?: string){
+async function followingFeedOnlyCABaseQueryAll(ctx: AppContext, agent: SessionAgent, limit: number, cursor?: string) {
     return await ctx.kysely
         .selectFrom("FollowingFeedIndex")
         .select([
@@ -279,18 +301,23 @@ async function followingFeedOnlyCABaseQueryArticles(ctx: AppContext, agent: Sess
 }
 
 
-const getFollowingFeedSkeletonOnlyCA = (format: FeedFormatOption): GetSkeletonProps => async (ctx, agent, data, cursor) => {
+const getFollowingFeedSkeletonOnlyCA = (
+    format: FeedFormatOption
+): GetSkeletonProps => (
+    ctx,
+    agent,
+    cursor
+) => Effect.gen(function* () {
     if (!agent.hasSession()) return {skeleton: [], cursor: undefined}
 
     const limit = 25
 
-    const t1 = Date.now()
-    const queryRes = await (format == "Todos" ?
-        followingFeedOnlyCABaseQueryAll(ctx, agent, limit, cursor) :
-        followingFeedOnlyCABaseQueryArticles(ctx, agent, limit, cursor))
-
-    const t2 = Date.now()
-    ctx.logger.logTimes("posts for skeleton only ca", [t1, t2])
+    const queryRes = yield* Effect.tryPromise({
+        try: () => (format == "Todos" ?
+            followingFeedOnlyCABaseQueryAll(ctx, agent, limit, cursor) :
+            followingFeedOnlyCABaseQueryArticles(ctx, agent, limit, cursor)),
+        catch: () => new DBError()
+    })
 
     function queryToSkeletonElement(e: {
         contentId: string,
@@ -313,14 +340,15 @@ const getFollowingFeedSkeletonOnlyCA = (format: FeedFormatOption): GetSkeletonPr
         }
     }
 
-
     const newCursor = min(queryRes, x => x.created_at.getTime())?.created_at?.toISOString()
 
     const skeleton = queryRes.map(queryToSkeletonElement)
 
+    const data = yield* DataPlane
+
     queryRes.forEach(r => {
-        if(r.repostedContentId){
-            data.storeRepost( {
+        if (r.repostedContentId) {
+            data.storeRepost({
                 subjectId: r.repostedContentId,
                 uri: r.contentId,
                 created_at: r.created_at
@@ -332,14 +360,17 @@ const getFollowingFeedSkeletonOnlyCA = (format: FeedFormatOption): GetSkeletonPr
         skeleton,
         cursor: newCursor
     }
-}
+})
 
 
-export const getFollowingFeedSkeleton: (filter: FollowingFeedFilter, format: FeedFormatOption) => GetSkeletonProps = (filter, format) => async (ctx, agent, data, cursor) => {
+export const getFollowingFeedSkeleton: (
+    filter: FollowingFeedFilter,
+    format: FeedFormatOption
+) => GetSkeletonProps = (filter, format) => (ctx, agent, cursor) => {
     if (filter == "Todos" && format == "Todos") {
-        return getFollowingFeedSkeletonAll(ctx, agent, data, cursor)
+        return getFollowingFeedSkeletonAll(ctx, agent, cursor)
     } else {
-        return getFollowingFeedSkeletonOnlyCA(format)(ctx, agent, data, cursor)
+        return getFollowingFeedSkeletonOnlyCA(format)(ctx, agent, cursor)
     }
 }
 

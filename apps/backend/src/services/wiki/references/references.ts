@@ -21,6 +21,7 @@ import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
 import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
 export async function updateReferencesForNewContents(ctx: AppContext) {
     const lastUpdate = await getLastReferencesUpdate(ctx)
@@ -267,23 +268,31 @@ export async function updateReferences(ctx: AppContext) {
 }
 
 
-export async function updatePopularitiesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
-    const t1 = Date.now()
-    await updateContentsText(ctx)
-    const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(ctx, undefined, topicIds)
-    const t3 = Date.now()
-    await updateTopicInteractionsOnNewReferences(ctx, newReferences)
-    const t4 = Date.now()
-    await updateTopicPopularities(ctx, topicIds)
-    const t5 = Date.now()
-
-    await updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
-
-    await updateContentCategoriesOnTopicsChange(ctx, topicIds)
-
-    ctx.logger.logTimes(`update refs and pops on ${topicIds.length} topics`, [t1, t2, t3, t4, t5])
+export class UpdatePopularitiesError {
+    readonly _tag = "UpdatePopularitiesError"
 }
+
+
+export const updatePopularitiesOnTopicsChange = (
+    ctx: AppContext,
+    topicIds: string[]
+): Effect.Effect<void, UpdatePopularitiesError | DBError> => Effect.gen(function* () {
+    yield* updateContentsText(ctx)
+
+    yield* Effect.tryPromise({
+        try: async () => {
+            // TO DO: Pasar a Effect
+            const newReferences = await updateReferencesForContentsAndTopics(ctx, undefined, topicIds)
+            await updateTopicInteractionsOnNewReferences(ctx, newReferences)
+            await updateTopicPopularities(ctx, topicIds)
+
+            await updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
+
+            await updateContentCategoriesOnTopicsChange(ctx, topicIds)
+        },
+        catch: () => new UpdatePopularitiesError()
+    })
+})
 
 
 export function findMentionsInText(text: string) {

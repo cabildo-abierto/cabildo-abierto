@@ -1,10 +1,14 @@
 import {FeedPipelineProps, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
 import {min} from "@cabildo-abierto/utils";
 import {EffHandler} from "#/utils/handler.js";
+import {SessionRequiredError} from "#/services/feed/discover/discover.js";
+import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
-const getAllCAFeedPipeline: GetSkeletonProps = async (ctx, agent, data, cursor) => {
+const getAllCAFeedPipeline: GetSkeletonProps = (
+    ctx, agent, cursor) => Effect.gen(function* () {
     if (!agent.hasSession()) {
-        throw Error("Sin sesión")
+        return yield* Effect.fail(new SessionRequiredError())
     }
 
     let dateSince = new Date()
@@ -19,21 +23,18 @@ const getAllCAFeedPipeline: GetSkeletonProps = async (ctx, agent, data, cursor) 
         }
     }
 
-
-    const t1 = Date.now()
-    const skeleton = await ctx.kysely
-        .selectFrom("Content")
-        .select(["uri", "created_at_tz"])
-        .where("Content.created_at_tz", "<", firstFetchDate)
-        .where("Content.created_at_tz", "<", dateSince)
-        .orderBy("Content.created_at_tz", "desc")
-        .distinct()
-        .limit(25)
-        .execute()
-
-    const t2 = Date.now()
-
-    ctx.logger.logTimes("discover feed skeleton", [t1, t2])
+    const skeleton = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Content")
+            .select(["uri", "created_at_tz"])
+            .where("Content.created_at_tz", "<", firstFetchDate)
+            .where("Content.created_at_tz", "<", dateSince)
+            .orderBy("Content.created_at_tz", "desc")
+            .distinct()
+            .limit(25)
+            .execute(),
+        catch: () => new DBError()
+    })
 
     const newDateSince = min(skeleton, x => x.created_at_tz?.getTime() ?? 0)?.created_at_tz
 
@@ -46,7 +47,7 @@ const getAllCAFeedPipeline: GetSkeletonProps = async (ctx, agent, data, cursor) 
         skeleton: skeleton.map(u => ({post: u.uri})),
         cursor: newCursor
     }
-}
+})
 
 export const allCAFeedPipeline: FeedPipelineProps = {
     getSkeleton: getAllCAFeedPipeline,
@@ -56,4 +57,8 @@ export const allCAFeedPipeline: FeedPipelineProps = {
 
 export const getAllCAFeed: EffHandler<{query: {cursor?: string}}, {}> = (ctx, agent, {query}) => {
     return getFeed({ctx, agent, pipeline: allCAFeedPipeline, cursor: query?.cursor})
+        .pipe(
+            Effect.catchTag("SessionRequiredError", () => Effect.fail("Iniciá sesión para ver este muro.")),
+            Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el muro."))
+        )
 }

@@ -9,18 +9,24 @@ import {getTopicVersionStatusFromReactions} from "#/services/monetization/author
 import {Transaction} from "kysely"
 import {produce} from "immer"
 import {jsonArrayFrom} from "kysely/helpers/postgres"
+import {Effect} from "effect";
+import {NotFoundError} from "#/services/dataset/read.js";
+import {DBError} from "#/services/write/article.js";
 
 
-export async function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string) {
+export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string): Effect.Effect<string, NotFoundError | DBError> {
     const uris = [getUri(did, "ar.com.cabildoabierto.topic", rkey), getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)]
 
-    const res = await ctx.kysely
-        .selectFrom("TopicVersion")
-        .select("topicId")
-        .where("uri", "in", uris)
-        .execute()
-
-    return res && res.length > 0 ? res[0].topicId : null
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("TopicVersion")
+            .select("topicId")
+            .where("uri", "in", uris)
+            .executeTakeFirst(),
+        catch: () => new DBError()
+    }).pipe(Effect.flatMap(res => {
+        return res ? Effect.succeed(res?.topicId) : Effect.fail(new NotFoundError())
+    }))
 }
 
 

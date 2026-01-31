@@ -41,11 +41,7 @@ export async function updateInteractionsScore(ctx: AppContext, uris?: string[]) 
                             .then(1).else(0)
                             .end()
                     ).as("likesScore"),
-                    sql<number>`
-                        "Record"
-                        .
-                        "uniqueLikesCount"
-                        + 
+                    sql<number>`"Record"."uniqueLikesCount" + 
                     "Record"."uniqueRepostsCount" +
                     (select count("Post"."uri") as "count" from "Post"
                     inner join "Record" as "ReplyRecord" on "Post"."uri" = "ReplyRecord"."uri"

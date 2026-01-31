@@ -1,14 +1,16 @@
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {AppContext} from "#/setup.js";
 import {v4 as uuidv4} from "uuid";
 import {NotificationType} from "../../../prisma/generated/types.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {sortByKey, unique} from "@cabildo-abierto/utils";
 import {sortDatesDescending} from "@cabildo-abierto/utils";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoNotificationListNotifications} from "@cabildo-abierto/api"
+import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
 
 export type NotificationQueryResult = {
@@ -26,21 +28,29 @@ export type NotificationQueryResult = {
 }
 
 
-function hydrateCANotification(ctx: AppContext, id: string, dataplane: Dataplane, lastReadTime: Date): ArCabildoabiertoNotificationListNotifications.Notification | null {
-    const data = dataplane.notifications.get(id)
+const hydrateCANotification = (
+    ctx: AppContext,
+    id: string,
+    lastReadTime: Date
+): Effect.Effect<ArCabildoabiertoNotificationListNotifications.Notification | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const state = dataplane.getState()
+    const data = state.notifications.get(id)
+
     if (!data) {
-        console.log(`No hydration data for notification: ${id}`)
         return null
     }
 
     if (!data.cid) {
-        console.log(`No cid for notification: ${id}`)
         return null
     }
 
-    const author = hydrateProfileViewBasic(ctx, getDidFromUri(data.causedByRecordId), dataplane)
+    const author = yield* hydrateProfileViewBasic(
+        ctx,
+        getDidFromUri(data.causedByRecordId)
+    )
+
     if (!author) {
-        console.log(`No author hydration data for notification: ${id}`)
         return null
     }
 
@@ -70,7 +80,7 @@ function hydrateCANotification(ctx: AppContext, id: string, dataplane: Dataplane
         reasonSubject: data.reasonSubject ?? undefined,
         reasonSubjectContext: data.topicId ?? undefined
     }
-}
+})
 
 
 export type NotificationsSkeleton = {
@@ -80,56 +90,79 @@ export type NotificationsSkeleton = {
 }[]
 
 
-async function getCANotifications(ctx: AppContext, agent: SessionAgent): Promise<ArCabildoabiertoNotificationListNotifications.Notification[]> {
-    const dataplane = new Dataplane(ctx, agent)
+const getCANotifications = (
+    ctx: AppContext,
+    agent: SessionAgent
+): Effect.Effect<ArCabildoabiertoNotificationListNotifications.Notification[], DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
 
-    const [skeleton, lastSeen] = await Promise.all([
-        ctx.kysely
-            .selectFrom("Notification")
-            .innerJoin("Record", "Notification.causedByRecordId", "Record.uri")
-            .select([
-                "Notification.id",
-                "Notification.causedByRecordId",
-                "Notification.reasonSubject"
-            ])
-            .where("Notification.userNotifiedId", "=", agent.did)
-            .orderBy("Notification.created_at_tz", "desc")
-            .limit(20)
-            .execute(),
-        ctx.kysely
-            .selectFrom("User")
-            .select("lastSeenNotifications_tz")
-            .where("did", "=", agent.did)
-            .execute()
+    const [skeleton, lastSeen] = yield* Effect.all([
+        Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Notification")
+                .innerJoin("Record", "Notification.causedByRecordId", "Record.uri")
+                .select([
+                    "Notification.id",
+                    "Notification.causedByRecordId",
+                    "Notification.reasonSubject"
+                ])
+                .where("Notification.userNotifiedId", "=", agent.did)
+                .orderBy("Notification.created_at_tz", "desc")
+                .limit(20)
+                .execute(),
+            catch: () => new DBError()
+        }),
+        Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("User")
+                .select("lastSeenNotifications_tz")
+                .where("did", "=", agent.did)
+                .execute(),
+            catch: () => new DBError()
+        })
     ])
 
-    await dataplane.fetchNotificationsHydrationData(skeleton)
+    yield* dataplane.fetchNotificationsHydrationData(skeleton)
 
     const lastReadTime = lastSeen[0].lastSeenNotifications_tz ?? new Date(0)
 
-    return skeleton
-        .map(n => hydrateCANotification(ctx, n.id, dataplane, lastReadTime))
-        .filter(n => n != null)
+    const res = yield* (Effect.all(skeleton
+        .map(n => hydrateCANotification(ctx, n.id, lastReadTime))
+    ))
+    return res.filter(n => n != null)
+})
+
+
+function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .updateTable("User")
+            .set("lastSeenNotifications", new Date())
+            .set("lastSeenNotifications_tz", new Date())
+            .where("did", "=", agent.did)
+            .execute(),
+        catch: () => new DBError()
+    })
 }
 
 
-async function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
-    await ctx.kysely
-        .updateTable("User")
-        .set("lastSeenNotifications", new Date())
-        .set("lastSeenNotifications_tz", new Date())
-        .where("did", "=", agent.did)
-        .execute()
-}
+export const getNotifications: EffHandler<{}, ArCabildoabiertoNotificationListNotifications.Notification[]> = (
+    ctx,
+    agent,
+    {}) => Effect.provideServiceEffect(Effect.gen(function* () {
 
-
-export const getNotifications: CAHandler<{}, ArCabildoabiertoNotificationListNotifications.Notification[]> = async (ctx, agent, {}) => {
-    const [{data}, caNotifications] = await Promise.all([
-        agent.bsky.app.bsky.notification.listNotifications(),
+    const [{data}, caNotifications] = yield* Effect.all([
+        Effect.tryPromise({
+            try: () => agent.bsky.app.bsky.notification.listNotifications(),
+            catch: () => new FetchFromBskyError()
+        }),
         getCANotifications(ctx, agent),
-        agent.bsky.app.bsky.notification.updateSeen({seenAt: new Date().toISOString()}),
+        Effect.tryPromise({
+            try: () => agent.bsky.app.bsky.notification.updateSeen({seenAt: new Date().toISOString()}),
+            catch: () => new FetchFromBskyError()
+        }),
         updateSeenCANotifications(ctx, agent)
-    ])
+    ], {concurrency: "unbounded"})
 
     const bskyNotifications: ArCabildoabiertoNotificationListNotifications.Notification[] = data.notifications.map(n => ({
         ...n,
@@ -147,8 +180,8 @@ export const getNotifications: CAHandler<{}, ArCabildoabiertoNotificationListNot
         sortDatesDescending
     )
 
-    return {data: notifications}
-}
+    return notifications
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las notificaciones."))), DataPlane, makeDataPlane(ctx, agent))
 
 
 export const getUnreadNotificationsCount: CAHandler<{}, number> = async (ctx, agent, {}) => {

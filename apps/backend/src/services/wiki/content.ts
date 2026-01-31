@@ -6,16 +6,18 @@ import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion} from "@ca
 import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getCollectionFromUri, getDidFromUri, isPost} from "@cabildo-abierto/utils";
 import {fetchTextBlobs} from "#/services/blob.js";
+import {Effect} from "effect";
+import {DBError} from "#/services/write/article.js";
 
 
 export function getNumWords(text: string, format: string) {
-    if(format == "markdown" || format == "plain-text") {
+    if (format == "markdown" || format == "plain-text") {
         return text.split(" ").length
-    } else if(format == "markdown-compressed"){
+    } else if (format == "markdown-compressed") {
         return decompress(text).split(" ").length
-    } else if(!format || format == "lexical-compressed") {
+    } else if (!format || format == "lexical-compressed") {
         return getPlainText(JSON.parse(decompress(text)).root).split(" ").length
-    } else if(format == "lexical"){
+    } else if (format == "lexical") {
         return getPlainText(JSON.parse(text).root).split(" ").length
     } else {
         throw Error("No se pudo obtener la cantidad de palabras de un contenido con formato: " + format)
@@ -23,37 +25,45 @@ export function getNumWords(text: string, format: string) {
 }
 
 
-export async function updateContentsText(ctx: AppContext, uris?: string[]) {
-    if(uris && uris.length == 0) return
+export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Effect<void, DBError> =>
+    Effect.gen(function* () {
+    if (uris && uris.length == 0) return
     const batchSize = 50
     let offset = 0
-    while(true){
-        const contents = await ctx.kysely
-            .selectFrom("Content")
-            .innerJoin("Record", "Record.uri", "Content.uri")
-            .select(["Content.uri", "textBlobId", "Record.record", "Content.format", "Content.text"])
-            .where("Record.collection", "in", longTextCollections)
-            .where("text", "is", null)
-            .orderBy("Record.created_at", "desc")
-            .$if(uris == null, qb => qb.limit(batchSize).offset(offset))
-            .$if(uris != null, qb => qb.where("Record.uri", "in", uris!.slice(offset, offset+batchSize)))
-            .execute()
+    while (true) {
+        const contents = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Content")
+                .innerJoin("Record", "Record.uri", "Content.uri")
+                .select(["Content.uri", "textBlobId", "Record.record", "Content.format", "Content.text"])
+                .where("Record.collection", "in", longTextCollections)
+                .where("text", "is", null)
+                .orderBy("Record.created_at", "desc")
+                .$if(uris == null, qb => qb.limit(batchSize).offset(offset))
+                .$if(uris != null, qb => qb.where("Record.uri", "in", uris!.slice(offset, offset + batchSize)))
+                .execute(),
+            catch: () => new DBError()
+        })
         offset += batchSize
 
-        if(contents.length == 0) break
+        if (contents.length == 0) break
 
-        const texts = await getContentsText(ctx, contents, undefined, false)
+        const texts = yield* getContentsText(ctx, contents, undefined, false)
 
-        await setContentsText(ctx, contents.map(c => c.uri), texts)
+        yield* setContentsText(ctx, contents.map(c => c.uri), texts)
 
-        if(contents.length < batchSize){
+        if (contents.length < batchSize) {
             break
         }
     }
-}
+})
 
 
-async function setContentsText(ctx: AppContext, uris: string[], texts: (TextAndFormat | null)[]){
+const setContentsText = (
+    ctx: AppContext,
+    uris: string[],
+    texts: (TextAndFormat | null)[]
+): Effect.Effect<void, DBError> => Effect.gen(function* () {
     const values: {
         uri: string
         selfLabels: string[]
@@ -61,49 +71,45 @@ async function setContentsText(ctx: AppContext, uris: string[], texts: (TextAndF
         dbFormat: string
         text: string
     }[] = texts.map((t, idx) => {
-        if(!t) {
+        if (!t) {
             t = {
                 text: "",
                 format: "plain-text"
             }
         }
-        try {
-            const res = anyEditorStateToMarkdownOrLexical(
-                t.text,
-                t.format
-            )
-            return {
-                uri: uris[idx],
-                selfLabels: [],
-                embeds: [],
-                dbFormat: res.format,
-                text: res.text
-            }
-        } catch (err) {
-            console.log("failed to process", uris[idx])
-            console.log(t.text.length, t.text.slice(0, 100))
-            console.log("Error", err)
-            return null
+        const res = anyEditorStateToMarkdownOrLexical(
+            t.text,
+            t.format
+        )
+        return {
+            uri: uris[idx],
+            selfLabels: [],
+            embeds: [],
+            dbFormat: res.format,
+            text: res.text
         }
     }).filter(x => x != null)
 
-    if(values.length > 0){
-        await ctx.kysely
-            .insertInto("Content")
-            .values(values)
-            .onConflict((oc) => oc.column("uri").doUpdateSet({
-                text: eb => eb.ref("excluded.text"),
-                dbFormat: eb => eb.ref("excluded.dbFormat")
-            }))
-            .execute()
+    if (values.length > 0) {
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("Content")
+                .values(values)
+                .onConflict((oc) => oc.column("uri").doUpdateSet({
+                    text: eb => eb.ref("excluded.text"),
+                    dbFormat: eb => eb.ref("excluded.dbFormat")
+                }))
+                .execute(),
+            catch: () => new DBError()
+        })
     }
-}
+})
 
 
 export async function updateContentsNumWords(ctx: AppContext) {
     const batchSize = 500
     let offset = 0
-    while(true){
+    while (true) {
         console.log("updating num words for batch", offset)
         const contents = await ctx.kysely
             .selectFrom("Content")
@@ -118,7 +124,7 @@ export async function updateContentsNumWords(ctx: AppContext) {
         offset += contents.length
 
         const values = contents.map(c => {
-            if(c.text != null){
+            if (c.text != null) {
                 return {
                     uri: c.uri,
                     numWords: getNumWords(c.text, c.dbFormat ?? "lexical-compressed")
@@ -128,7 +134,7 @@ export async function updateContentsNumWords(ctx: AppContext) {
             }
         }).filter(x => x != null)
 
-        if(values.length > 0){
+        if (values.length > 0) {
             await ctx.kysely
                 .insertInto("Content")
                 .values(values.map(v => ({
@@ -143,7 +149,7 @@ export async function updateContentsNumWords(ctx: AppContext) {
                 .execute()
         }
 
-        if(values.length < batchSize){
+        if (values.length < batchSize) {
             break
         }
     }
@@ -157,7 +163,7 @@ export async function resetContentsFormat(ctx: AppContext) {
     const batchSize = 2000
     let offset = 0
 
-    while(true){
+    while (true) {
         const contents = await ctx.kysely
             .selectFrom("Content")
             .innerJoin("Record", "Record.uri", "Content.uri")
@@ -171,7 +177,7 @@ export async function resetContentsFormat(ctx: AppContext) {
         const values = contents.map(c => {
             const recordStr = c.record
             const record = recordStr ? JSON.parse(recordStr) as ArCabildoabiertoFeedArticle.Record | ArCabildoabiertoWikiTopicVersion.Record : null
-            if(!record) {
+            if (!record) {
                 console.log("Warning: " + c.uri + " no tiene el registro.")
                 return null
             }
@@ -185,7 +191,7 @@ export async function resetContentsFormat(ctx: AppContext) {
             }
         }).filter(x => x != null)
 
-        if(values.length > 0){
+        if (values.length > 0) {
             await ctx.kysely
                 .insertInto("Content")
                 .values(values)
@@ -196,7 +202,7 @@ export async function resetContentsFormat(ctx: AppContext) {
                 .execute()
         }
 
-        if(contents.length < batchSize) break
+        if (contents.length < batchSize) break
     }
 
 }
@@ -232,7 +238,12 @@ function formatToDecompressed(format: string) {
 }
 
 
-export async function getContentsText(ctx: AppContext, contents: MaybeContent[], retries: number = 10, decompressed: boolean = true): Promise<(TextAndFormat | null)[]> {
+export const getContentsText = (
+    ctx: AppContext,
+    contents: MaybeContent[],
+    retries: number = 10,
+    decompressed: boolean = true
+): Effect.Effect<(TextAndFormat | null)[]> => Effect.gen(function* () {
     const texts: (TextAndFormat | null)[] = contents.map(_ => null)
 
     const blobRefs: { i: number, blob: BlobRef }[] = []
@@ -245,7 +256,7 @@ export async function getContentsText(ctx: AppContext, contents: MaybeContent[],
         }
     }
 
-    const blobTexts = await fetchTextBlobs(ctx, blobRefs.map(x => x.blob), retries)
+    const blobTexts = yield* fetchTextBlobs(ctx, blobRefs.map(x => x.blob), retries)
 
     for (let i = 0; i < blobRefs.length; i++) {
         const text = blobTexts[i]
@@ -274,4 +285,4 @@ export async function getContentsText(ctx: AppContext, contents: MaybeContent[],
     }
 
     return texts
-}
+})

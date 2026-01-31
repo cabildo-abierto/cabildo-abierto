@@ -45,7 +45,7 @@ import {
 } from "#/services/feed/following/update.js";
 import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
 import {startContentModeration} from "#/services/moderation/start.js";
-import {Effect, Exit} from "effect";
+import {Effect} from "effect";
 import {AddJobError} from "#/utils/errors.js";
 import {runtime} from "#/instrumentation.js";
 
@@ -53,7 +53,10 @@ const mins = 60 * 1000
 const seconds = 1000
 
 type CAJobHandler<T> = (data: T) => Promise<void>
-type EffJobHandler<T> = (data: T) => Effect.Effect<void, string>
+
+
+type EffJobHandlerOutput = Effect.Effect<void, string | {_tag: string}>
+type EffJobHandler<T> = (data: T) => EffJobHandlerOutput
 
 export type WorkerState = {
     counts: {
@@ -113,7 +116,7 @@ export class CAWorker {
         this.jobs.push({name: jobName, type: "async", handler, batchable})
     }
 
-    registerEffJob(jobName: string, handler: (data: any) => Effect.Effect<void, string>, batchable: boolean = false) {
+    registerEffJob(jobName: string, handler: (data: any) => EffJobHandlerOutput, batchable: boolean = false) {
         this.jobs.push({name: jobName, type: "eff", effHandler: handler, batchable})
     }
 
@@ -122,14 +125,9 @@ export class CAWorker {
             const job = this.jobs[i]
             if (name.startsWith(job.name)) {
                 if (job.type == "eff") {
-                    this.logger.pino.info({job: name, data}, "running eff job")
-                    const exit = await runtime.runPromiseExit(job.effHandler(data).pipe(Effect.withSpan(`worker-job ${name}`)))
-                    Exit.match(exit, {
-                        onSuccess: () => {},
-                        onFailure: error => {
-                            this.logger.pino.error({job: name, error}, "error running job")
-                        }
-                    })
+                    await runtime.runPromiseExit(
+                        job.effHandler(data).pipe(Effect.withSpan(`worker-job ${name}`))
+                    )
                 } else {
                     try {
                         await job.handler(data)
@@ -192,9 +190,9 @@ export class CAWorker {
             "assign-invite-codes",
             () => assignInviteCodesToUsers(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-contents-text",
-            () => updateContentsText(ctx)
+            () => updateContentsText(ctx).pipe(Effect.catchAll(() => Effect.fail("Error en en trabajo update-contents-text"))),
         )
         this.registerJob(
             "update-num-words",
@@ -246,7 +244,7 @@ export class CAWorker {
             "reprocess-collection",
             (data) => reprocessCollection(ctx, data.collection as string, data.onlyRecords as boolean)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-topic-mentions",
             (data) => updatePopularitiesOnTopicsChange(ctx, data),
             true

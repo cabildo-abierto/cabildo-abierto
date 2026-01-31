@@ -4,7 +4,7 @@ import {diff, nodesCharDiff} from "#/services/wiki/diff.js";
 import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {getTopicVersion} from "#/services/wiki/topics.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
-import {DataPlane, Dataplane, makeDataPlane} from "../hydration/dataplane.js";
+import {DataPlane, makeDataPlane} from "../hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {Effect} from "effect";
 
