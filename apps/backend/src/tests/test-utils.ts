@@ -1,4 +1,4 @@
-import {RedisCache} from "#/services/redis/cache.js";
+import {RedisCache, RedisCacheSetError} from "#/services/redis/cache.js";
 import {AppContext, setupKysely, setupRedis, setupResolver} from "#/setup.js";
 import {Logger} from "#/utils/logger.js";
 import {AppBskyActorProfile, AppBskyFeedLike, AppBskyFeedRepost, AppBskyGraphFollow} from "@atproto/api";
@@ -36,10 +36,18 @@ export function generateRkey(): string {
 }
 
 
-export async function generateCid(data: any) {
+class GenerateCIDError {
+    readonly _tag = "GenerateCIDError"
+}
+
+
+export function generateCid(data: any): Effect.Effect<string, GenerateCIDError> {
     const bytes = encode({data, date: new Date().toISOString()})
 
-    const hash = await sha256.digest(bytes)
+    const hash = Effect.tryPromise({
+        try: () => sha256.digest(bytes),
+        catch: () => new GenerateCIDError()
+    })
 
     const cid = CID.createV1(code, hash)
 
@@ -63,7 +71,7 @@ export function generateUserDid(testSuite: string) {
 }
 
 
-function getCAProfileRefAndRecord(did: string, testSuite: string): Promise<RefAndRecord<ArCabildoabiertoActorCaProfile.Record>> {
+function getCAProfileRefAndRecord(did: string, testSuite: string): Effect.Effect<RefAndRecord<ArCabildoabiertoActorCaProfile.Record>> {
     const record: ArCabildoabiertoActorCaProfile.Record = {
         $type: "ar.cabildoabierto.actor.caProfile",
         createdAt: new Date().toISOString()
@@ -80,14 +88,14 @@ function getCAProfileRefAndRecord(did: string, testSuite: string): Promise<RefAn
 }
 
 
-async function getBskyProfileRefAndRecord(did: string, testSuite: string): Promise<RefAndRecord<AppBskyActorProfile.Record>> {
+function getBskyProfileRefAndRecord(did: string, testSuite: string) {
     const record: AppBskyActorProfile.Record = {
         $type: "app.bsky.actor.profile",
         displayName: "Test",
         createdAt: new Date().toISOString()
     }
 
-    return await getRefAndRecord(
+    return getRefAndRecord(
         record,
         testSuite,
         {
@@ -98,33 +106,35 @@ async function getBskyProfileRefAndRecord(did: string, testSuite: string): Promi
 }
 
 
-export async function createTestUser(ctx: AppContext, handle: string, testSuite: string) {
+export const createTestUser = (
+    ctx: AppContext,
+    handle: string,
+    testSuite: string
+): Effect.Effect<string, never, RedisCache> => Effect.gen(function* () {
     const did = generateUserDid(testSuite)
-    await ctx.redisCache.resolver.setHandle(did, handle)
-    const caProfile = await getCAProfileRefAndRecord(did, testSuite)
-    const bskyProfile = await getBskyProfileRefAndRecord(did, testSuite)
+    const redis = yield* RedisCache
+    yield* redis.resolver.setHandle(did, handle)
+    const caProfile = yield* getCAProfileRefAndRecord(did, testSuite)
+    const bskyProfile = yield* getBskyProfileRefAndRecord(did, testSuite)
 
-    await processRecordsInTest(ctx, [caProfile, bskyProfile])
+    yield* processRecordsInTest(ctx, [caProfile, bskyProfile])
     return did
-}
+})
 
 
 export async function createTestContext(): Promise<AppContext> {
     const ioredis = setupRedis(1)
     const logger = new Logger("test")
     const mirrorId = "test"
-    const redisCache = new RedisCache(ioredis, mirrorId, logger)
     logger.pino.info({url: process.env.TEST_DB}, "setting up test db")
     const ctx: AppContext = {
         logger,
         kysely: setupKysely(process.env.TEST_DB, 2),
         ioredis,
-        resolver: setupResolver(redisCache),
         mirrorId,
         worker: new MockCAWorker(logger),
         storage: undefined,
-        oauthClient: undefined,
-        redisCache
+        oauthClient: undefined
     }
 
     const result = await sql<{ dbName: string }>`SELECT current_database() as "dbName"`.execute(ctx.kysely);
@@ -135,11 +145,11 @@ export async function createTestContext(): Promise<AppContext> {
 }
 
 
-export async function getRefAndRecord<T>(record: T, testSuite: string, uri: {
+export const getRefAndRecord = <T>(record: T, testSuite: string, uri: {
     did?: string
     collection: string
     rkey?: string
-}) {
+}): Effect.Effect<RefAndRecord<T>, GenerateCIDError> => Effect.gen(function* () {
     const uriStr = getUri(
         uri?.did ?? generateUserDid(testSuite),
         uri.collection,
@@ -149,11 +159,11 @@ export async function getRefAndRecord<T>(record: T, testSuite: string, uri: {
     return {
         ref: {
             uri: uriStr,
-            cid: await generateCid(record)
+            cid: yield* generateCid(record)
         },
         record
     }
-}
+})
 
 export function getSuiteId(filename: string): string {
     return path.basename(filename, path.extname(filename))
@@ -243,15 +253,24 @@ export function getPostRefAndRecord(
 }
 
 
-async function getArticleRecord(ctx: AppContext, title: string, text: string, created_at: Date = new Date(), authorId: string): Promise<ArCabildoabiertoFeedArticle.Record> {
-    const cid = await generateCid(text)
+const getArticleRecord = (
+    ctx: AppContext,
+    title: string,
+    text: string,
+    created_at: Date = new Date(),
+    authorId: string
+): Effect.Effect<ArCabildoabiertoFeedArticle.Record, RedisCacheSetError | GenerateCIDError> => Effect.gen(function* () {
+    const cid = yield* generateCid(text)
     const mimeType = "text/plain"
     const blob = new BlobRef(
         CID.parse(cid),
         mimeType,
         text.length
     )
-    await ctx.ioredis.set(getBlobKey({cid, authorId}), text)
+    yield* Effect.tryPromise({
+        try: () => ctx.ioredis.set(getBlobKey({cid, authorId}), text),
+        catch: () => new RedisCacheSetError()
+    })
     return {
         $type: "ar.cabildoabierto.feed.article",
         createdAt: created_at.toISOString(),
@@ -259,7 +278,7 @@ async function getArticleRecord(ctx: AppContext, title: string, text: string, cr
         format: "markdown",
         title
     }
-}
+})
 
 
 export async function getArticleRefAndRecord(
@@ -327,16 +346,25 @@ export function getRepostRefAndRecord(ref: ATProtoStrongRef, created_at: Date = 
 
 
 
-async function getTopicVersionRecord(ctx: AppContext, topicId: string, text: string, created_at: Date, authorId: string): Promise<ArCabildoabiertoWikiTopicVersion.Record> {
-    const cid = await generateCid(text)
+const getTopicVersionRecord = (
+    ctx: AppContext,
+    topicId: string,
+    text: string,
+    created_at: Date,
+    authorId: string
+): Effect.Effect<ArCabildoabiertoWikiTopicVersion.Record, GenerateCIDError | RedisCacheSetError> => Effect.gen(function* ()  {
+    const cid = yield* generateCid(text)
     const mimeType = "text/plain"
     const blob = new BlobRef(
         CID.parse(cid),
         mimeType,
         text.length
     )
-    ctx.logger.pino.info({key: getBlobKey({cid, authorId}), text}, "setting blob key")
-    await ctx.ioredis.set(getBlobKey({cid, authorId}), text)
+
+    yield* Effect.tryPromise({
+        try: () => ctx.ioredis.set(getBlobKey({cid, authorId}), text),
+        catch: () => new RedisCacheSetError()
+    })
 
     return {
         $type: "ar.cabildoabierto.wiki.topicVersion",
@@ -345,11 +373,11 @@ async function getTopicVersionRecord(ctx: AppContext, topicId: string, text: str
         format: "markdown",
         createdAt: created_at.toISOString(),
     }
-}
+})
 
 
-export async function getTopicVersionRefAndRecord(ctx: AppContext, topicId: string, text: string, created_at: Date, authorId: string, testSuite: string): Promise<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>> {
-    const record = await getTopicVersionRecord(
+export function getTopicVersionRefAndRecord(ctx: AppContext, topicId: string, text: string, created_at: Date, authorId: string, testSuite: string) {
+    const record = getTopicVersionRecord(
         ctx,
         topicId,
         text,
@@ -368,7 +396,7 @@ export async function getTopicVersionRefAndRecord(ctx: AppContext, topicId: stri
 }
 
 
-async function getAcceptVoteRecord(ctx: AppContext, subjectRef: ATProtoStrongRef, created_at: Date): Promise<ArCabildoabiertoWikiVoteAccept.Record> {
+function getAcceptVoteRecord(ctx: AppContext, subjectRef: ATProtoStrongRef, created_at: Date): ArCabildoabiertoWikiVoteAccept.Record {
     return {
         $type: "ar.cabildoabierto.wiki.voteAccept",
         subject: subjectRef,
@@ -377,8 +405,14 @@ async function getAcceptVoteRecord(ctx: AppContext, subjectRef: ATProtoStrongRef
 }
 
 
-export async function getAcceptVoteRefAndRecord(ctx: AppContext, subjectRef: ATProtoStrongRef, created_at: Date, authorId: string, testSuite: string) {
-    const record = await getAcceptVoteRecord(
+export const getAcceptVoteRefAndRecord = (
+    ctx: AppContext,
+    subjectRef: ATProtoStrongRef,
+    created_at: Date,
+    authorId: string,
+    testSuite: string
+) => {
+    const record = getAcceptVoteRecord(
         ctx,
         subjectRef,
         created_at
@@ -395,61 +429,69 @@ export async function getAcceptVoteRefAndRecord(ctx: AppContext, subjectRef: ATP
 }
 
 
-export async function createTestAcceptVote(ctx: AppContext, authorId: string, topicVersion: ATProtoStrongRef, testSuite: string) {
-    const vote = await getAcceptVoteRefAndRecord(
-        ctx!,
+export const createTestAcceptVote = (
+    ctx: AppContext,
+    authorId: string,
+    topicVersion: ATProtoStrongRef,
+    testSuite: string) => Effect.gen(function* () {
+    const vote = yield* getAcceptVoteRefAndRecord(
+        ctx,
         topicVersion,
         new Date(),
         authorId,
         testSuite
     )
-    await processRecordsInTest(ctx!, [vote])
+    yield* processRecordsInTest(ctx!, [vote])
     return vote
-}
+})
 
 
-export async function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string) {
-    const topicVersion = await getTopicVersionRefAndRecord(
+export function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string) {
+    return getTopicVersionRefAndRecord(
         ctx!,
         "tema de prueba",
         "texto",
         new Date(),
         authorId,
         testSuite
-    )
-    await processRecordsInTest(ctx!, [topicVersion])
-    return topicVersion
+    ).pipe(Effect.tap(topicVersion => {
+        return processRecordsInTest(ctx!, [topicVersion])
+    }))
 }
 
 
-export async function createTestRejectVote(ctx: AppContext, authorId: string, topicVersion: ATProtoStrongRef, testSuite: string) {
-    const reasonPost = await getPostRefAndRecord(
+export const createTestRejectVote = (
+    ctx: AppContext,
+    authorId: string,
+    topicVersion: ATProtoStrongRef,
+    testSuite: string) => Effect.gen(function* () {
+    const reasonPost = yield* getPostRefAndRecord(
         "prueba",
         new Date(),
         testSuite,
         {did: authorId},
         topicVersion
     )
-    const vote = await getRejectVoteRefAndRecord(
-        ctx!,
+    const vote = yield* getRejectVoteRefAndRecord(
+        ctx,
         topicVersion,
         new Date(),
         authorId,
         reasonPost.ref,
         testSuite,
     )
-    await processRecordsInTest(ctx!, [reasonPost])
-    await processRecordsInTest(ctx!, [vote])
+    yield* processRecordsInTest(ctx!, [reasonPost])
+    yield* processRecordsInTest(ctx!, [vote])
     return {reasonPost, vote}
-}
+})
 
 
-async function getRejectVoteRecord(
+function getRejectVoteRecord(
     ctx: AppContext,
     subjectRef: ATProtoStrongRef,
     created_at: Date,
     reasonRef: ATProtoStrongRef
-): Promise<ArCabildoabiertoWikiVoteReject.Record> {
+): ArCabildoabiertoWikiVoteReject.Record {
     return {
         $type: "ar.cabildoabierto.wiki.voteReject",
         subject: subjectRef,
@@ -459,7 +501,7 @@ async function getRejectVoteRecord(
 }
 
 
-export async function getRejectVoteRefAndRecord(
+export function getRejectVoteRefAndRecord(
     ctx: AppContext,
     subjectRef: ATProtoStrongRef,
     created_at: Date,
@@ -467,13 +509,12 @@ export async function getRejectVoteRefAndRecord(
     reasonRef: ATProtoStrongRef,
     testSuite: string
 ) {
-    const record = await getRejectVoteRecord(
+    const record = getRejectVoteRecord(
         ctx,
         subjectRef,
         created_at,
         reasonRef
     )
-
     return getRefAndRecord(
         record,
         testSuite,
@@ -513,19 +554,14 @@ export function deleteUsersInTest(ctx: AppContext, dids: string[]) {
 }
 
 
-export async function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
-    for(const r of records) {
-        const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
-        const exit = await Effect.runPromiseExit(processor.process([r]))
-        Exit.match(exit, {
-            onFailure: () => {
-                throw Error("Error processing record")
-            },
-            onSuccess: async () => {
-                await ctx!.worker?.runAllJobs()
-            }
+export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
+
+    return Effect.all(
+        records.map(r => {
+            const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
+            return processor.process([r])
         })
-    }
+    )
 }
 
 

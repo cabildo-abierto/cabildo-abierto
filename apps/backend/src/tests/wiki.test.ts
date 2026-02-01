@@ -55,60 +55,63 @@ describe('Create topic vote', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     it("should add one to the counter", async () => {
-        const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
-        const topicVersion = await createTestTopicVersion(ctx!, user, testSuite)
+        const test = Effect.gen(function* () {
+            const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
+            const topicVersion = await createTestTopicVersion(ctx!, user, testSuite)
 
-        await processRecordsInTest(ctx!, [topicVersion])
+            await processRecordsInTest(ctx!, [topicVersion])
 
-        const {data: topicView1} = await getTopicVersion(
-            ctx!, topicVersion.ref.uri, user)
+            const {data: topicView1} = await getTopicVersion(
+                ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView1).not.toBeFalsy()
-        expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
+            expect(topicView1).not.toBeFalsy()
+            expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
 
-        const vote = await createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
+            const vote = await createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
 
-        const {data: topicView2} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
+            const {data: topicView2} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView2).not.toBeFalsy()
-        expect(topicView2!.status).not.toBeFalsy()
-        expect(topicView2!.status!.accepted).toEqual(true)
-        expect(topicView2!.status!.voteCounts.length).toEqual(1)
-        expect(topicView2!.status!.voteCounts[0].accepts).toEqual(1)
-        expect(topicView2!.status!.voteCounts[0].rejects).toEqual(0)
+            expect(topicView2).not.toBeFalsy()
+            expect(topicView2!.status).not.toBeFalsy()
+            expect(topicView2!.status!.accepted).toEqual(true)
+            expect(topicView2!.status!.voteCounts.length).toEqual(1)
+            expect(topicView2!.status!.voteCounts[0].accepts).toEqual(1)
+            expect(topicView2!.status!.voteCounts[0].rejects).toEqual(0)
 
-        // un segundo voto positivo
-        const vote2 = await createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
+            // un segundo voto positivo
+            const vote2 = await createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
 
-        const {data: topicView3} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
-        expect(topicView3).not.toBeFalsy()
-        expect(topicView3!.status).not.toBeFalsy()
-        expect(topicView3!.status!.accepted).toEqual(true)
-        expect(topicView3!.status!.voteCounts.length).toEqual(1)
-        expect(topicView3!.status!.voteCounts[0].accepts).toEqual(1)
-        expect(topicView3!.status!.voteCounts[0].rejects).toEqual(0)
+            const {data: topicView3} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
+            expect(topicView3).not.toBeFalsy()
+            expect(topicView3!.status).not.toBeFalsy()
+            expect(topicView3!.status!.accepted).toEqual(true)
+            expect(topicView3!.status!.voteCounts.length).toEqual(1)
+            expect(topicView3!.status!.voteCounts[0].accepts).toEqual(1)
+            expect(topicView3!.status!.voteCounts[0].rejects).toEqual(0)
 
-        const agent = new MockSessionAgent(user)
-        const votes = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
-        expect(votes).not.toBeFalsy()
-        expect(votes!.length).toEqual(1)
+            const agent = new MockSessionAgent(user)
+            const votes = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
+            expect(votes).not.toBeFalsy()
+            expect(votes!.length).toEqual(1)
 
-        await deleteRecordsInTest(ctx!, [vote.ref.uri])
+            await deleteRecordsInTest(ctx!, [vote.ref.uri])
 
-        const {data: topicView4} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
+            const {data: topicView4} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView4).not.toBeFalsy()
-        expect(topicView4!.status).not.toBeFalsy()
-        expect(topicView4!.status!.accepted).toEqual(true)
-        expect(topicView4!.status!.voteCounts.length).toEqual(1)
-        expect(topicView4!.status!.voteCounts[0].accepts).toEqual(1)
-        expect(topicView4!.status!.voteCounts[0].rejects).toEqual(0)
+            expect(topicView4).not.toBeFalsy()
+            expect(topicView4!.status).not.toBeFalsy()
+            expect(topicView4!.status!.accepted).toEqual(true)
+            expect(topicView4!.status!.voteCounts.length).toEqual(1)
+            expect(topicView4!.status!.voteCounts[0].accepts).toEqual(1)
+            expect(topicView4!.status!.voteCounts[0].rejects).toEqual(0)
 
-        await deleteRecordsInTest(ctx!, [vote2.ref.uri])
+            await deleteRecordsInTest(ctx!, [vote2.ref.uri])
 
-        const votes2 = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
-        expect(votes2).not.toBeFalsy()
-        expect(votes2!.length).toEqual(0)
+            const votes2 = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
+            expect(votes2).not.toBeFalsy()
+            expect(votes2!.length).toEqual(0)
+        })
+        return await Effect.runPromise(test)
     }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))

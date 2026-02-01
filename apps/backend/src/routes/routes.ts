@@ -167,12 +167,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/search-users/:query',
-        handler(makeHandlerNoAuth(ctx, searchUsers))
+        handler(makeEffHandlerNoAuth(ctx, searchUsers))
     )
 
     router.get(
         '/search-users-and-topics/:query',
-        handler(makeHandlerNoAuth(ctx, searchUsersAndTopics))
+        handler(makeEffHandlerNoAuth(ctx, searchUsersAndTopics))
     )
 
     router.post(
@@ -275,7 +275,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic-history/:id',
-        makeHandlerNoAuth(ctx, getTopicHistoryHandler)
+        makeEffHandlerNoAuth(ctx, getTopicHistoryHandler)
     )
 
     router.get(
@@ -403,7 +403,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post('/notify-payment', makeHandlerNoAuth(ctx, processPayment))
 
-    router.post('/read-session/:did/:collection/:rkey', makeHandlerNoAuth(ctx, storeReadSessionHandler))
+    router.post('/read-session/:did/:collection/:rkey', makeEffHandlerNoAuth(ctx, storeReadSessionHandler))
 
     router.get("/topic-title/:id", makeHandlerNoAuth(ctx, getTopicTitleHandler))
 
@@ -423,9 +423,9 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/access-request", makeHandlerNoAuth(ctx, createAccessRequest))
 
-    router.get('/drafts', makeHandler(ctx, getDrafts))
+    router.get('/drafts', makeEffHandler(ctx, getDrafts))
 
-    router.get('/draft/:id', makeHandler(ctx, getDraft))
+    router.get('/draft/:id', makeEffHandler(ctx, getDraft))
 
     router.post('/draft', makeEffHandler(ctx, saveDraft))
 
@@ -441,13 +441,13 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/delete-ca-profile", makeHandler(ctx, deleteCAProfile))
 
-    router.get("/follow-suggestions/:limit/:cursor", makeHandler(ctx, getFollowSuggestions))
+    router.get("/follow-suggestions/:limit/:cursor", makeEffHandler(ctx, getFollowSuggestions))
 
-    router.get("/likes/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getLikes))
+    router.get("/likes/:did/:collection/:rkey", makeEffHandlerNoAuth(ctx, getLikes))
 
-    router.get("/reposts/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getReposts))
+    router.get("/reposts/:did/:collection/:rkey", makeEffHandlerNoAuth(ctx, getReposts))
 
-    router.get("/quotes/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getQuotes))
+    router.get("/quotes/:did/:collection/:rkey", makeEffHandlerNoAuth(ctx, getQuotes))
 
     router.post("/not-interested/:subject", makeHandler(ctx, setNotInterested))
 
@@ -462,9 +462,9 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/subscribe", makeEffHandler(ctx, subscribeHandler))
 
-    router.get("/votes/:did/:rkey", makeHandlerNoAuth(ctx, getTopicVersionVotesHandler))
+    router.get("/votes/:did/:rkey", makeEffHandlerNoAuth(ctx, getTopicVersionVotesHandler))
 
-    router.post("/election", makeHandlerNoAuth(ctx, getTopicsDataForElectionVisualizationHandler))
+    router.post("/election", makeEffHandlerNoAuth(ctx, getTopicsDataForElectionVisualizationHandler))
 
     router.get("/known-props", makeHandlerNoAuth(ctx, getKnownPropsHandler))
 
@@ -497,7 +497,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/topic-feeds", makeEffHandler(ctx, getTopicFeeds))
 
-    router.get("/custom-feed/:did/:rkey", makeHandler(ctx, getCustomFeed))
+    router.get("/custom-feed/:did/:rkey", makeEffHandler(ctx, getCustomFeed))
 
     router.use(adminRoutes(ctx))
 

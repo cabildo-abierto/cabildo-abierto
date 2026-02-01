@@ -1,11 +1,12 @@
-import {CAHandler} from "#/utils/handler.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {OrgType, ValidationRequestProps, ValidationRequestView} from "@cabildo-abierto/api"
 import {createHash} from "crypto";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import {acceptValidationRequestFromPayment} from "#/services/monetization/donations.js";
+import {Effect} from "effect";
 
 
 
@@ -151,37 +152,49 @@ export const getPendingValidationRequestsCount: CAHandler<{}, {count: number}> =
 }
 
 
-export const getPendingValidationRequests: CAHandler<{}, {
+export class DBSelectError {
+    readonly _tag = "DBSelectError"
+    constructor(readonly message?: string) {}
+}
+
+
+export const getPendingValidationRequests: EffHandler<{}, {
     requests: ValidationRequestView[],
     count: number
-}> = async (ctx, agent, {}) => {
-    const [requests, count] = await Promise.all([
-        ctx.kysely
-            .selectFrom("ValidationRequest")
-            .select([
-                "id",
-                "dniFrente",
-                "dniDorso",
-                "created_at_tz as createdAt",
-                "documentacion",
-                "userId",
-                "type",
-                "tipoOrg",
-                "sitioWeb",
-                "comentarios",
-                "sitioWeb",
-                "email"
-            ])
-            .where("result", "=", "Pendiente")
-            .limit(10)
-            .execute(),
-        ctx.kysely.selectFrom("ValidationRequest")
-            .select(eb => eb.fn.count<number>("id").as("count"))
-            .where("result", "=", "Pendiente")
-            .executeTakeFirst()
-    ])
+}> = (ctx, agent, {}) => Effect.provideServiceEffect(Effect.gen(function* () {
+    const [requests, count] = yield* Effect.all([
+        Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("ValidationRequest")
+                .select([
+                    "id",
+                    "dniFrente",
+                    "dniDorso",
+                    "created_at_tz as createdAt",
+                    "documentacion",
+                    "userId",
+                    "type",
+                    "tipoOrg",
+                    "sitioWeb",
+                    "comentarios",
+                    "sitioWeb",
+                    "email"
+                ])
+                .where("result", "=", "Pendiente")
+                .limit(10)
+                .execute(),
+            catch: () => new DBSelectError("PendingValidationRequests")
+        }),
+        Effect.tryPromise({
+            try: () => ctx.kysely.selectFrom("ValidationRequest")
+                .select(eb => eb.fn.count<number>("id").as("count"))
+                .where("result", "=", "Pendiente")
+                .executeTakeFirst(),
+            catch: () => new DBSelectError("PendingValidationRequestCount")
+        })
+    ], {concurrency: "unbounded"})
 
-    const dataplane = new Dataplane(ctx, agent)
+    const dataplane = yield* DataPlane
 
     const files = [
         ...requests.map(r => r.dniFrente),
@@ -189,15 +202,16 @@ export const getPendingValidationRequests: CAHandler<{}, {
         ...requests.flatMap(r => r.documentacion),
     ].filter(x => x != null)
 
-    await Promise.all([
+    yield* Effect.all([
         dataplane.fetchProfileViewHydrationData(requests.map(r => r.userId)),
         dataplane.fetchFilesFromStorage(files, "validation-documents")
-    ])
+    ], {concurrency: "unbounded"})
 
-    const res: ValidationRequestView[] = requests.map(r => {
-        const user = hydrateProfileViewBasic(ctx, r.userId, dataplane)
+    const state = dataplane.getState()
+
+    const res: (ValidationRequestView | null)[] = yield* Effect.all(requests.map(r => Effect.gen(function* () {
+        const user = yield* hydrateProfileViewBasic(ctx, r.userId)
         if (!user) {
-            ctx.logger.pino.info({r}, "error hydrating validation request")
             return null
         }
         const tipo: "org" | "persona" = r.type == "Persona" ? "persona" : "org"
@@ -213,7 +227,7 @@ export const getPendingValidationRequests: CAHandler<{}, {
                 documentacion: r.documentacion ? r.documentacion.map(d => {
                     return {
                         fileName: getFileNameFromPath(d),
-                        base64: dataplane.s3files.get("validation-documents:" + d) ?? "not found"
+                        base64: state.s3files.get("validation-documents:" + d) ?? "not found"
                     }
                 }) : []
             }
@@ -225,19 +239,25 @@ export const getPendingValidationRequests: CAHandler<{}, {
                 user,
                 dniFrente: r.dniFrente ? {
                     fileName: getFileNameFromPath(r.dniFrente),
-                    base64: dataplane.s3files.get("validation-documents:" + r.dniFrente) ?? "not found"
+                    base64: state.s3files.get("validation-documents:" + r.dniFrente) ?? "not found"
                 } : null,
                 dniDorso: r.dniDorso ? {
                     fileName: getFileNameFromPath(r.dniDorso),
-                    base64: dataplane.s3files.get("validation-documents:" + r.dniDorso) ?? "not found"
+                    base64: state.s3files.get("validation-documents:" + r.dniDorso) ?? "not found"
                 } : null
             }
             return req
         }
-    }).filter(x => x != null)
+    })))
 
-    return {data: {requests: res, count: count?.count ?? 0}}
-}
+    return {
+        requests: res.filter(x => x != null),
+        count: count?.count ?? 0
+    }
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las solicitudes."))),
+    DataPlane,
+    makeDataPlane(ctx, agent)
+)
 
 
 type ValidationRequestResultProps = {

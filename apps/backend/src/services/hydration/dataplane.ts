@@ -33,7 +33,7 @@ import {
     isThreadViewPost,
     PostView, ThreadViewPost
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
-import {fetchTextBlobs} from "#/services/blob.js";
+import {FetchBlobError, fetchTextBlobs} from "#/services/blob.js";
 import {env} from "#/lib/env.js";
 import {RepostQueryResult} from "#/services/feed/inicio/following.js";
 import {NotificationQueryResult, NotificationsSkeleton} from "#/services/notifications/notifications.js";
@@ -176,6 +176,8 @@ export class DataPlane extends Context.Tag("DataPlane")<
     readonly storeRepost: (repost: RepostQueryResult & {subjectId: string}) => void
     readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBError>
     readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBError>
+    readonly fetchPostAndArticleViewsHydrationData: (uris: string[], dids?: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
+    readonly dpFetchTextBlobs: (blobs: BlobRef[]) => Effect.Effect<void, FetchBlobError>
 }>() {}
 
 
@@ -1282,6 +1284,8 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         fetchTopicsBasicByUris,
         fetchProfileViewBasicHydrationData,
         fetchProfileViewHydrationData,
-        storeRepost
+        storeRepost,
+        fetchPostAndArticleViewsHydrationData,
+        dpFetchTextBlobs
     } as const
 })

@@ -1,515 +1,627 @@
-import {getCollectionFromUri, getDidFromUri, isCAProfile, isFollow, splitUri, unique} from "@cabildo-abierto/utils";
-import {FollowingFeedSkeletonElement} from "#/services/feed/inicio/following.js";
-import {CAHandler} from "#/utils/handler.js";
-import {Logger} from "#/utils/logger.js";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api";
-import {RefAndRecord} from "#/services/sync/types.js";
-import {AppBskyGraphFollow} from "@atproto/api";
-import {NextMeeting} from "#/services/admin/meetings.js";
-import {AppContext} from "#/setup.js";
-import {type Redis} from "ioredis/built/index.js";
-import {Effect} from "effect";
+import {
+    isCAProfile,
+    isFollow,
+    splitUri
+} from "@cabildo-abierto/utils";
+import { FollowingFeedSkeletonElement } from "#/services/feed/inicio/following.js";
+import { ArCabildoabiertoActorDefs } from "@cabildo-abierto/api";
+import { RefAndRecord } from "#/services/sync/types.js";
+import { AppBskyGraphFollow } from "@atproto/api";
+import { NextMeeting } from "#/services/admin/meetings.js";
+import { type Redis } from "ioredis/built/index.js";
+import { Context, Effect, Layer } from "effect";
 
-
-class CacheKey {
-    cache: RedisCache
-
-    constructor(cache: RedisCache) {
-        this.cache = cache
-    }
-
-    async onUpdateRecord(r: RefAndRecord<any>) {
-
-    }
-
-    async onDeleteRecord(uri: string) {
-
-    }
-
-    async onDeleteRecords(uris: string[]) {
-        for(const r of uris) {
-            await this.onDeleteRecord(r)
-        }
-    }
-
-    async onUpdateRecords(records: RefAndRecord<any>[]) {
-        for(const r of records) {
-            await this.onUpdateRecord(r)
-        }
-    }
-
-    async onEvent(e: RedisEvent, params: string[]) {
-
-    }
-
-    buildKey(params: string[]) {
-        return params.join(":")
-    }
-
-    async clear() {
-
-    }
-}
-
-
+// Error types
 export class RedisCacheFetchError {
-    readonly _tag = "RedisCacheFetchError"
+    readonly _tag = "RedisCacheFetchError";
 }
-
 
 export class RedisCacheSetError {
-    readonly _tag = "RedisCacheSetError"
+    readonly _tag = "RedisCacheSetError";
 }
 
+export type MirrorStatus =
+    | "Sync"
+    | "Dirty"
+    | "InProcess"
+    | "Failed"
+    | "Failed - Too Large";
 
-class ProfileCacheKey extends CacheKey {
-    // Se actualiza si:
-    // Cambia el record del perfil de Bluesky o Cabildo Abierto
-    // Se verifica al usuario
-    // Cambia el nivel de edicion del usuario (todavía no)
-    // Alguien sigue al usuario o el usuario sigue a alguien
+export type RedisEvent =
+    | "verification-update"
+    | "follow-suggestions-ready"
+    | "follow-suggestions-dirty";
 
-    async onUpdateRecord(r: RefAndRecord<any>) {
-        // TO DO: Hacer en pipeline para muchos records
-        const {did, collection, rkey} = splitUri(r.ref.uri)
-        if(collection == "app.bsky.actor.profile" && rkey == "self"){
-            await this.del(did)
-        } else if(isCAProfile(collection)){
-            await this.del(did)
-        } else if(isFollow(collection)){
-            await this.del(did)
-            const follow: AppBskyGraphFollow.Record = r.record
-            await this.del(follow.subject)
-        }
+// Service interface
+export class RedisCache extends Context.Tag("RedisCache")<
+    RedisCache,
+    {
+        // Profile operations
+        readonly profile: {
+            readonly get: (
+                did: string
+            ) => Effect.Effect<
+                ArCabildoabiertoActorDefs.ProfileViewDetailed | null,
+                RedisCacheFetchError
+            >;
+            readonly getMany: (
+                dids: string[]
+            ) => Effect.Effect<
+                (ArCabildoabiertoActorDefs.ProfileViewDetailed | null)[],
+                RedisCacheFetchError
+            >;
+            readonly set: (
+                did: string,
+                profile: ArCabildoabiertoActorDefs.ProfileViewDetailed
+            ) => Effect.Effect<void, RedisCacheSetError>;
+            readonly setMany: (
+                profiles: ArCabildoabiertoActorDefs.ProfileViewDetailed[]
+            ) => Effect.Effect<void, RedisCacheSetError>;
+            readonly clear: () => Effect.Effect<void, never>;
+        };
+
+        // Mirror status operations
+        readonly mirrorStatus: {
+            readonly get: (
+                did: string,
+                inCA: boolean
+            ) => Effect.Effect<MirrorStatus, RedisCacheFetchError>;
+            readonly set: (
+                did: string,
+                status: MirrorStatus,
+                inCA: boolean
+            ) => Effect.Effect<void, RedisCacheSetError>;
+            readonly clear: () => Effect.Effect<void, never>;
+        };
+
+        // CA Follows operations
+        readonly CAFollows: {
+            readonly get: (
+                did: string
+            ) => Effect.Effect<string[] | null, RedisCacheFetchError>;
+            readonly set: (
+                did: string,
+                follows: string[]
+            ) => Effect.Effect<void, RedisCacheSetError>;
+            readonly clear: () => Effect.Effect<void, never>;
+        };
+
+        // Follow suggestions operations
+        readonly followSuggestions: {
+            readonly get: (
+                did: string
+            ) => Effect.Effect<string[] | null, RedisCacheFetchError>;
+            readonly set: (
+                did: string,
+                dids: string[]
+            ) => Effect.Effect<void, RedisCacheSetError>;
+            readonly getDirty: () => Effect.Effect<string[], RedisCacheFetchError>;
+            readonly setDirty: (did: string) => Effect.Effect<void, RedisCacheSetError>;
+            readonly setReady: (did: string) => Effect.Effect<void, RedisCacheSetError>;
+        };
+
+        // Following feed skeleton operations
+        readonly followingFeedSkeleton: {
+            readonly get: (
+                did: string,
+                params: string[],
+                score: number | null,
+                limit: number
+            ) => Effect.Effect<string[], RedisCacheFetchError>;
+            readonly add: (
+                did: string,
+                params: string[],
+                elements: ({ score: number } & FollowingFeedSkeletonElement)[]
+            ) => Effect.Effect<void, RedisCacheSetError>;
+            readonly clear: () => Effect.Effect<void, never>;
+        };
+
+        // DID/Handle resolver operations
+        readonly resolver: {
+            readonly getHandle: (
+                did: string
+            ) => Effect.Effect<string | null, RedisCacheFetchError>;
+            readonly getDid: (
+                handle: string
+            ) => Effect.Effect<string | null, RedisCacheFetchError>;
+            readonly setHandle: (
+                did: string,
+                handle: string
+            ) => Effect.Effect<void, RedisCacheSetError>;
+        };
+
+        // Next meeting operations
+        readonly nextMeeting: {
+            readonly get: () => Effect.Effect<NextMeeting | null, RedisCacheFetchError>;
+            readonly set: (meeting: NextMeeting) => Effect.Effect<void, RedisCacheSetError>;
+        };
+
+        // Global cache operations
+        readonly onUpdateRecords: (
+            records: RefAndRecord<any>[]
+        ) => Effect.Effect<void, never>;
+        readonly onDeleteRecords: (uris: string[]) => Effect.Effect<void, never>;
+        readonly onEvent: (
+            e: RedisEvent,
+            params: string[]
+        ) => Effect.Effect<void, never>;
+        readonly clear: () => Effect.Effect<void, never>;
+        readonly deleteByPrefix: (prefix: string) => Effect.Effect<void, never>;
+        readonly getKeysByPrefix: (
+            prefix: string
+        ) => Effect.Effect<string[], RedisCacheFetchError>;
     }
+>() {}
 
-    async onDeleteRecord(uri: string) {
-        const {did, collection, rkey} = splitUri(uri)
-        if(collection == "app.bsky.actor.profile" && rkey == "self"){
-            await this.del(did)
-        } else if(isCAProfile(collection)) {
-            await this.del(did)
-        } else if(isFollow(collection)){
-            await this.del(did)
-        }
-    }
+// Helper functions
+const formatCachedProfile = (
+    p: string | null
+): ArCabildoabiertoActorDefs.ProfileViewDetailed | null => {
+    if (p == null) return null;
+    const profile: ArCabildoabiertoActorDefs.ProfileViewDetailed = JSON.parse(p);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { viewer, ...profileNoViewer } = profile;
+    return profileNoViewer;
+};
 
-    private del(did: string) {
-        return this.cache.redis.del(this.key(did))
-    }
+const buildFollowingFeedSkeletonKey = (did: string, params: string[]) => {
+    return ["following-feed-skeleton", did, ...params].join(":");
+};
 
-    key(did: string) {
-        return `profile-detailed:${did}`
-    }
+const buildProfileKey = (did: string) => `profile-detailed:${did}`;
+const buildCAFollowsKey = (did: string) => `ca-follows:${did}`;
+const buildFollowSuggestionsKey = (did: string) => `follow-suggestions:${did}`;
+const buildMirrorStatusKey = (did: string, inCA: boolean, mirrorId: string) =>
+    `${mirrorId}:mirror-status:${did}:${inCA ? "ca" : "ext"}`;
+const buildDidToHandleKey = (did: string) => `did->handle:${did}`;
+const buildHandleToDidKey = (handle: string) => `handle->did:${handle}`;
 
-    formatCached(p: string | null): ArCabildoabiertoActorDefs.ProfileViewDetailed | null {
-        if(p == null) return null
-        const profile: ArCabildoabiertoActorDefs.ProfileViewDetailed = JSON.parse(p)
+// Implementation
+export const RedisCacheLive = (redis: Redis, mirrorId: string) =>
+    Layer.succeed(
+        RedisCache,
+        RedisCache.of({
+            // Profile operations
+            profile: {
+                get: (did: string) =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            const cached = await redis.get(buildProfileKey(did));
+                            return formatCachedProfile(cached);
+                        },
+                        catch: () => new RedisCacheFetchError(),
+                    }),
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const {viewer, ...profileNoViewer} = profile
+                getMany: (dids: string[]) => {
+                    // Cache desactivada
+                    return Effect.succeed(dids.map(() => null));
+                },
 
-        // sacamos al viewer porque depende del agent
-        return profileNoViewer
-    }
+                set: (did: string, profile: ArCabildoabiertoActorDefs.ProfileViewDetailed) =>
+                    Effect.tryPromise({
+                        try: () => redis.set(buildProfileKey(did), JSON.stringify(profile)),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
 
-    async get(did: string): Promise<ArCabildoabiertoActorDefs.ProfileViewDetailed | null> {
-        const cached = await this.cache.redis.get(this.key(did))
-        if(!cached) return null
-        return this.formatCached(cached)
-    }
+                setMany: (profiles: ArCabildoabiertoActorDefs.ProfileViewDetailed[]) =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            const pipeline = redis.pipeline();
+                            profiles.forEach((p) => {
+                                pipeline.set(buildProfileKey(p.did), JSON.stringify(p));
+                            });
+                            await pipeline.exec();
+                        },
+                        catch: () => new RedisCacheSetError(),
+                    }),
 
-    getMany(dids: string[]): Effect.Effect<(ArCabildoabiertoActorDefs.ProfileViewDetailed | null)[], RedisCacheFetchError> {
-        // Cache desactivada
-        return Effect.succeed(dids.map(d => null))
+                clear: () =>
+                    Effect.promise(() => deleteByPrefixImpl(redis, "profile-detailed")),
+            },
 
-        /*if(dids.length == 0) return []
-        const cached = await this.cache.redis.mget(dids.map(d => this.key(d)))
-        const profiles: (ArCabildoabiertoActorDefs.ProfileViewDetailed | null)[] = cached.map(this.formatCached)
-        return profiles*/
-    }
+            // Mirror status operations
+            mirrorStatus: {
+                get: (did: string, inCA: boolean) =>
+                    Effect.tryPromise({
+                        try: () => redis.get(buildMirrorStatusKey(did, inCA, mirrorId)),
+                        catch: () => new RedisCacheFetchError(),
+                    }).pipe(
+                        Effect.map((res) => (res ? (res as MirrorStatus) : "Dirty"))
+                    ),
 
-    async set(did: string, profile: ArCabildoabiertoActorDefs.ProfileViewDetailed) {
-        await this.cache.redis.set(
-            this.key(did),
-            JSON.stringify(profile)
-        )
-    }
+                set: (did: string, status: MirrorStatus, inCA: boolean) =>
+                    Effect.tryPromise({
+                        try: () =>
+                            redis.set(buildMirrorStatusKey(did, inCA, mirrorId), status),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
 
-    setMany(profiles: ArCabildoabiertoActorDefs.ProfileViewDetailed[]): Effect.Effect<void, RedisCacheSetError> {
-        return Effect.tryPromise({
-            try: () => this.cache.setMany(
-                profiles.map(p => [this.key(p.did), JSON.stringify(p)])
-            ),
-            catch: () => new RedisCacheSetError()
+                clear: () =>
+                    Effect.promise(() =>
+                        deleteByPrefixImpl(redis, `${mirrorId}:mirror-status`)
+                    ),
+            },
+
+            // CA Follows operations
+            CAFollows: {
+                get: (did: string) =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            const cached = await redis.get(buildCAFollowsKey(did));
+                            return cached ? JSON.parse(cached) : null;
+                        },
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                set: (did: string, follows: string[]) =>
+                    Effect.tryPromise({
+                        try: () =>
+                            redis.set(
+                                buildCAFollowsKey(did),
+                                JSON.stringify(follows),
+                                "EX",
+                                60 * 5
+                            ),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
+
+                clear: () =>
+                    Effect.promise(() => deleteByPrefixImpl(redis, "ca-follows")),
+            },
+
+            // Follow suggestions operations
+            followSuggestions: {
+                get: (did: string) =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            const res = await redis.get(buildFollowSuggestionsKey(did));
+                            return res ? JSON.parse(res) : null;
+                        },
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                set: (did: string, dids: string[]) =>
+                    Effect.tryPromise({
+                        try: () =>
+                            redis.set(buildFollowSuggestionsKey(did), JSON.stringify(dids)),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
+
+                getDirty: () =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            const dirty = await redis.smembers("follow-suggestions-dirty");
+                            const keys: string[] = await redis.keys(`follow-suggestions:*`);
+                            const requested = new Set(
+                                keys.map((k) => k.replace("follow-suggestions:", ""))
+                            );
+                            return dirty.filter((did: string) => requested.has(did));
+                        },
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                setDirty: (did: string) =>
+                    Effect.tryPromise({
+                        try: () => redis.sadd("follow-suggestions-dirty", did),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
+
+                setReady: (did: string) =>
+                    Effect.tryPromise({
+                        try: () => redis.srem("follow-suggestions-dirty", did),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
+            },
+
+            // Following feed skeleton operations
+            followingFeedSkeleton: {
+                get: (
+                    did: string,
+                    params: string[],
+                    score: number | null,
+                    limit: number
+                ) =>
+                    Effect.tryPromise({
+                        try: () => {
+                            const max = score != null ? score - 1 : "+inf";
+                            return redis.zrevrangebyscore(
+                                buildFollowingFeedSkeletonKey(did, params),
+                                max,
+                                "-inf",
+                                "WITHSCORES",
+                                "LIMIT",
+                                0,
+                                limit
+                            );
+                        },
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                add: (
+                    did: string,
+                    params: string[],
+                    elements: ({ score: number } & FollowingFeedSkeletonElement)[]
+                ) =>
+                    Effect.tryPromise({
+                        try: () =>
+                            redis.zadd(
+                                buildFollowingFeedSkeletonKey(did, params),
+                                ...elements.flatMap(({ score, ...r }) => [
+                                    score,
+                                    JSON.stringify(r),
+                                ])
+                            ),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
+
+                clear: () =>
+                    Effect.promise(() =>
+                        deleteByPrefixImpl(redis, "following-feed-skeleton")
+                    ),
+            },
+
+            // Resolver operations
+            resolver: {
+                getHandle: (did: string) =>
+                    Effect.tryPromise({
+                        try: () => redis.get(buildDidToHandleKey(did)),
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                getDid: (handle: string) =>
+                    Effect.tryPromise({
+                        try: () => redis.get(buildHandleToDidKey(handle)),
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                setHandle: (did: string, handle: string) =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            await redis.set(buildDidToHandleKey(did), handle, "EX", 3600);
+                            await redis.set(buildHandleToDidKey(handle), did, "EX", 3600);
+                        },
+                        catch: () => new RedisCacheSetError(),
+                    }),
+            },
+
+            // Next meeting operations
+            nextMeeting: {
+                get: () =>
+                    Effect.tryPromise({
+                        try: async () => {
+                            const res = await redis.get("next-meeting");
+                            return res ? JSON.parse(res) : null;
+                        },
+                        catch: () => new RedisCacheFetchError(),
+                    }),
+
+                set: (meeting: NextMeeting) =>
+                    Effect.tryPromise({
+                        try: () =>
+                            redis.set("next-meeting", JSON.stringify(meeting), "EX", 60 * 60),
+                        catch: () => new RedisCacheSetError(),
+                    }).pipe(Effect.asVoid),
+            },
+
+            // Global operations
+            onUpdateRecords: (records: RefAndRecord<any>[]) =>
+                Effect.gen(function* () {
+                    // Handle profile updates
+                    const profileDidsToDelete = new Set<string>();
+                    const caFollowDidsToDelete = new Set<string>();
+                    const followSuggestionDidsToMarkDirty = new Set<string>();
+
+                    for (const r of records) {
+                        const { did, collection, rkey } = splitUri(r.ref.uri);
+
+                        if (collection === "app.bsky.actor.profile" && rkey === "self") {
+                            profileDidsToDelete.add(did);
+                        } else if (isCAProfile(collection)) {
+                            profileDidsToDelete.add(did);
+                        } else if (isFollow(collection)) {
+                            profileDidsToDelete.add(did);
+                            const follow: AppBskyGraphFollow.Record = r.record;
+                            profileDidsToDelete.add(follow.subject);
+                            caFollowDidsToDelete.add(did);
+                            followSuggestionDidsToMarkDirty.add(did);
+                        }
+                    }
+
+                    // Delete profile keys
+                    if (profileDidsToDelete.size > 0) {
+                        yield* Effect.promise(() => {
+                            const pipeline = redis.pipeline();
+                            profileDidsToDelete.forEach((did) =>
+                                pipeline.del(buildProfileKey(did))
+                            );
+                            return pipeline.exec();
+                        });
+                    }
+
+                    // Delete CA follows keys
+                    if (caFollowDidsToDelete.size > 0) {
+                        yield* Effect.promise(() => {
+                            const pipeline = redis.pipeline();
+                            caFollowDidsToDelete.forEach((did) =>
+                                pipeline.del(buildCAFollowsKey(did))
+                            );
+                            return pipeline.exec();
+                        });
+                    }
+
+                    // Mark follow suggestions as dirty
+                    if (followSuggestionDidsToMarkDirty.size > 0) {
+                        yield* Effect.promise(() =>
+                            redis.sadd(
+                                "follow-suggestions-dirty",
+                                ...Array.from(followSuggestionDidsToMarkDirty)
+                            )
+                        );
+                    }
+                }),
+
+            onDeleteRecords: (uris: string[]) =>
+                Effect.gen(function* () {
+                    const profileDidsToDelete = new Set<string>();
+                    const caFollowDidsToDelete = new Set<string>();
+                    const followSuggestionDidsToMarkDirty = new Set<string>();
+
+                    for (const uri of uris) {
+                        const { did, collection, rkey } = splitUri(uri);
+
+                        if (collection === "app.bsky.actor.profile" && rkey === "self") {
+                            profileDidsToDelete.add(did);
+                        } else if (isCAProfile(collection)) {
+                            profileDidsToDelete.add(did);
+                        } else if (isFollow(collection)) {
+                            profileDidsToDelete.add(did);
+                            caFollowDidsToDelete.add(did);
+                            followSuggestionDidsToMarkDirty.add(did);
+                        }
+                    }
+
+                    // Delete profile keys
+                    if (profileDidsToDelete.size > 0) {
+                        yield* Effect.promise(() => {
+                            const pipeline = redis.pipeline();
+                            profileDidsToDelete.forEach((did) =>
+                                pipeline.del(buildProfileKey(did))
+                            );
+                            return pipeline.exec();
+                        });
+                    }
+
+                    // Delete CA follows keys
+                    if (caFollowDidsToDelete.size > 0) {
+                        yield* Effect.promise(() => {
+                            const pipeline = redis.pipeline();
+                            caFollowDidsToDelete.forEach((did) =>
+                                pipeline.del(buildCAFollowsKey(did))
+                            );
+                            return pipeline.exec();
+                        });
+                    }
+
+                    // Mark follow suggestions as dirty
+                    if (followSuggestionDidsToMarkDirty.size > 0) {
+                        yield* Effect.promise(() =>
+                            redis.sadd(
+                                "follow-suggestions-dirty",
+                                ...Array.from(followSuggestionDidsToMarkDirty)
+                            )
+                        );
+                    }
+                }),
+
+            onEvent: (e: RedisEvent, params: string[]) =>
+                Effect.gen(function* () {
+                    if (params.length === 1) {
+                        const did = params[0];
+
+                        if (e === "verification-update") {
+                            yield* Effect.promise(() => redis.del(buildProfileKey(did)));
+                        } else if (e === "follow-suggestions-ready") {
+                            yield* Effect.promise(() =>
+                                redis.srem("follow-suggestions-dirty", did)
+                            );
+                        } else if (e === "follow-suggestions-dirty") {
+                            yield* Effect.promise(() => redis.sadd("follow-suggestions-dirty", did));
+                        }
+                    }
+                }),
+
+            clear: () =>
+                Effect.gen(function* () {
+                    yield* Effect.promise(() => deleteByPrefixImpl(redis, "profile-detailed"));
+                    yield* Effect.promise(() => deleteByPrefixImpl(redis, "ca-follows"));
+                    yield* Effect.promise(() =>
+                        deleteByPrefixImpl(redis, "following-feed-skeleton")
+                    );
+                }),
+
+            deleteByPrefix: (prefix: string) =>
+                Effect.promise(() => deleteByPrefixImpl(redis, prefix)),
+
+            getKeysByPrefix: (prefix: string) =>
+                Effect.tryPromise({
+                    try: () => redis.keys(`${prefix}*`),
+                    catch: () => new RedisCacheFetchError(),
+                }),
         })
-    }
+    );
 
-    async onEvent(e: RedisEvent, params: string[]) {
-        if(e == "verification-update" && params.length == 1) {
-            const [did] = params
-            await this.del(did)
-        }
-    }
+// Helper implementation for deleteByPrefix
+async function deleteByPrefixImpl(redis: Redis, prefix: string): Promise<void> {
+    const stream = redis.scanStream({
+        match: `${prefix}*`,
+        count: 100,
+    });
 
-    async clear() {
-        await this.cache.deleteByPrefix("profile-detailed")
-    }
-}
-
-
-export class FollowingFeedSkeletonKey extends CacheKey {
-    params: string[]
-
-    constructor(cache: RedisCache, params: string[]) {
-        super(cache)
-        this.params = params
-    }
-
-    key(did: string) {
-        return this.buildKey(["following-feed-skeleton", did, ...this.params])
-    }
-
-    async clear() {
-        await this.cache.deleteByPrefix("following-feed-skeleton")
-    }
-
-    async get(did: string, score: number | null, limit: number): Promise<string[]> {
-        const max = score != null ? score-1 : "+inf"
-        return this.cache.redis
-            .zrevrangebyscore(
-                this.key(did),
-                max,
-                '-inf',
-                'WITHSCORES',
-                'LIMIT',
-                0,
-                limit
-            )
-    }
-
-    async add(did: string, elements: ({score: number} & FollowingFeedSkeletonElement)[]) {
-        await this.cache.redis.zadd(this.key(did),
-            ...elements.flatMap(({score, ...r}) => {
-                return [score, JSON.stringify(r)]
-            })
-        )
-    }
-}
-
-
-class CAFollowsCacheKey extends CacheKey {
-    async onUpdateRecords(r: RefAndRecord<any>[]) {
-        await this.onUpdateOrDeleteRecords(r.map(r => r.ref.uri))
-    }
-
-    async onDeleteRecords(uris: string[]) {
-        await this.onUpdateOrDeleteRecords(uris)
-    }
-
-    async onUpdateOrDeleteRecords(uris: string[]) {
-        uris = uris.filter(u => isFollow(getCollectionFromUri(u)))
-        if(uris.length == 0) return
-        const dids = unique(uris.map(getDidFromUri))
-        for(let i = 0; i < dids.length; i++){
-            await this.cache.redis.del(`ca-follows:${dids[i]}`)
-        }
-    }
-
-    key(did: string){
-        return `ca-follows:${did}`
-    }
-
-    async clear() {
-        await this.cache.deleteByPrefix("ca-follows")
-    }
-
-    async get(did: string): Promise<string[] | null> {
-        const cached = await this.cache.redis.get(this.key(did));
-        if (cached) {
-            return JSON.parse(cached);
-        }
-        return null
-    }
-
-    async set(did: string, follows: string[]) {
-        await this.cache.redis.set(
-            this.key(did),
-            JSON.stringify(follows),
-            "EX",
-            60 * 5
-        ) // 5 min TTL
-    }
-}
-
-
-class FollowSuggestionsDirtyCacheKey extends CacheKey {
-    async onUpdateRecords(records: RefAndRecord<any>[]) {
-        await this.onUpdateOrDeleteRecords(records.map(r => r.ref.uri))
-    }
-
-    async onDeleteRecords(uris: string[]) {
-        await this.onUpdateOrDeleteRecords(uris)
-    }
-
-    async onUpdateOrDeleteRecords(uris: string[]) {
-        uris = uris.filter(u => isFollow(getCollectionFromUri(u)))
-        if(uris.length == 0) return
-        const dids = unique(uris.map(getDidFromUri))
-        for(let i = 0; i < dids.length; i++){
-            await this.setFollowSuggestionsDirty(dids[i])
-        }
-    }
-
-    async setFollowSuggestionsDirty(did: string) {
-        await this.cache.redis.sadd("follow-suggestions-dirty", did)
-    }
-
-    async setFollowSuggestionsReady(did: string) {
-        await this.cache.redis.srem("follow-suggestions-dirty", did)
-    }
-
-    async clear() {
-        // TO DO no se limpia. Probablemente esto no debería estar en Redis.
-    }
-
-    async onEvent(e: RedisEvent, params: string[]) {
-        if(params.length == 1){
-            const did = params[0]
-            if(e == "follow-suggestions-ready"){
-                await this.setFollowSuggestionsReady(did)
-            } else if(e == "follow-suggestions-dirty"){
-                await this.setFollowSuggestionsDirty(did)
-            }
-        }
-    }
-
-    async getDirty() {
-        const dirty = await this.cache.redis.smembers("follow-suggestions-dirty")
-        const keys: string[] = await this.cache.getKeysByPrefix(`follow-suggestions:`)
-        const requested = new Set(keys.map(k => k.replace("follow-suggestions:", "")))
-
-        return dirty.filter((did: string) => requested.has(did))
-    }
-}
-
-
-class FollowSuggestionsCacheKey extends CacheKey {
-    async get(did: string): Promise<string[] | null> {
-        const res = await this.cache.redis.get(this.key(did))
-        return res ? JSON.parse(res) : null
-    }
-
-    key(did: string) {
-        return `follow-suggestions:${did}`
-    }
-
-    async clear() {
-        // TO DO no se limpia. Probablemente esto no debería estar en Redis.
-    }
-
-    async set(did: string, dids: string[]) {
-        await this.cache.redis.set(
-            this.key(did),
-            JSON.stringify(dids)
-        )
-    }
-}
-
-
-export type MirrorStatus = "Sync" | "Dirty" | "InProcess" | "Failed" | "Failed - Too Large"
-
-class MirrorStatusCacheKey extends CacheKey {
-    mirrorId: string
-
-    constructor(cache: RedisCache, mirrorId: string){
-        super(cache)
-        this.mirrorId = mirrorId
-    }
-
-    async clear() {
-        await this.cache.deleteByPrefix(`${this.mirrorId}:mirror-status`)
-    }
-
-    key(did: string, inCA: boolean) {
-        return `${this.mirrorId}:mirror-status:${did}:${inCA ? "ca" : "ext"}`
-    }
-
-    set(did: string, mirrorStatus: MirrorStatus, inCA: boolean): Effect.Effect<void, RedisCacheSetError> {
-        return Effect.tryPromise({
-            try: () => this.cache.redis.set(
-                this.key(did, inCA),
-                mirrorStatus
-            ),
-            catch: () => new RedisCacheSetError()
-        })
-    }
-
-    get(did: string, inCA: boolean): Effect.Effect<MirrorStatus, RedisCacheFetchError> {
-        return Effect.tryPromise({
-            try: () => this.cache.redis.get(this.key( did, inCA)),
-            catch: () => new RedisCacheFetchError()
-        }).pipe(
-            Effect.map(res => res ? (res as MirrorStatus) : "Dirty")
-        )
-    }
-}
-
-
-class DidsAndHandlesCacheKey extends CacheKey {
-
-    async getHandle(did: string): Promise<string | null> {
-        return this.cache.redis.get(`did->handle:${did}`);
-    }
-
-    async getDid(handle: string): Promise<string | null> {
-        return this.cache.redis.get(`handle->did:${handle}`);
-    }
-
-    async setHandle(did: string, handle: string) {
-        await this.cache.redis.set(`did->handle:${did}`, handle, 'EX', 3600)
-        await this.cache.redis.set(`handle->did:${did}`, handle, 'EX', 3600)
-    }
-}
-
-
-class SingleKey<T> extends CacheKey {
-    key: string
-    ttl: number | undefined
-    constructor(cache: RedisCache, key: string, ttl?: number) {
-        super(cache)
-        this.key = key
-        this.ttl = ttl
-    }
-
-    async get(): Promise<T | null> {
-        const res = await this.cache.redis.get(this.key)
-        return res ? JSON.parse(res) : null
-    }
-
-    async set(v: T) {
-        if(this.ttl){
-            await this.cache.redis.set(this.key, JSON.stringify(v), "EX", this.ttl)
-        } else {
-            await this.cache.redis.set(this.key, JSON.stringify(v))
-        }
-    }
-}
-
-export type RedisEvent = "verification-update" | "follow-suggestions-ready" | "follow-suggestions-dirty"
-
-export class RedisCache {
-    redis: Redis
-    keys: CacheKey[] = []
-    logger: Logger
-    followSuggestionsDirty: FollowSuggestionsDirtyCacheKey
-    followSuggestions: FollowSuggestionsCacheKey
-    CAFollows: CAFollowsCacheKey
-    mirrorStatus: MirrorStatusCacheKey
-    followingFeedSkeletonCAAll: FollowingFeedSkeletonKey
-    followingFeedSkeletonCAArticles: FollowingFeedSkeletonKey
-    profile: ProfileCacheKey
-    nextMeeting: SingleKey<NextMeeting>
-    resolver: DidsAndHandlesCacheKey
-
-    constructor(redis: Redis, mirrorId: string, logger: Logger) {
-        this.redis = redis
-        this.followSuggestions = new FollowSuggestionsCacheKey(this)
-        this.followSuggestionsDirty = new FollowSuggestionsDirtyCacheKey(this)
-        this.mirrorStatus = new MirrorStatusCacheKey(this, mirrorId)
-        this.CAFollows = new CAFollowsCacheKey(this)
-        this.followingFeedSkeletonCAAll = new FollowingFeedSkeletonKey(this, ["ca-all"])
-        this.followingFeedSkeletonCAArticles = new FollowingFeedSkeletonKey(this, ["ca-articles"])
-        this.profile = new ProfileCacheKey(this)
-        this.resolver = new DidsAndHandlesCacheKey(this)
-        this.nextMeeting = new SingleKey<NextMeeting>(this, "next-meeting", 60*60)
-        this.logger = logger
-
-        this.keys = [
-            this.profile,
-            this.followSuggestions,
-            this.CAFollows,
-            this.followSuggestionsDirty,
-            this.followingFeedSkeletonCAAll,
-            this.followingFeedSkeletonCAArticles,
-            this.resolver
-        ]
-    }
-
-    async onUpdateRecords(records: RefAndRecord<any>[]) {
-        for(const k of this.keys) {
-            await k.onUpdateRecords(records)
-        }
-    }
-
-    async onDeleteRecords(uris: string[]) {
-        for(const k of this.keys) {
-            await k.onDeleteRecords(uris)
-        }
-    }
-
-    async onEvent(e: RedisEvent, params: string[]) {
-        for(const k of this.keys) {
-            await k.onEvent(e, params)
-        }
-    }
-
-    async deleteByPrefix(prefix: string) {
-        const stream = this.redis.scanStream({
-            match: `${prefix}*`,
-            count: 100
-        })
-
+    return new Promise((resolve, reject) => {
         stream.on("data", async (keys) => {
             if (keys.length) {
-                const pipeline = this.redis.pipeline()
-                keys.forEach((key: string) => pipeline.del(key))
+                const pipeline = redis.pipeline();
+                keys.forEach((key: string) => pipeline.del(key));
                 await pipeline.exec();
             }
-        })
-    }
+        });
 
-    async getKeysByPrefix(prefix: string) {
-        return this.redis.keys(`${prefix}*`)
-    }
-
-    async setMany(items: [string, string][], ttl?: number) {
-        const pipeline = this.redis.pipeline()
-
-        items.forEach(([key, value]) => {
-            // Queue the SET command
-            pipeline.set(key, value);
-            // Queue the EXPIRE command
-            if(ttl) pipeline.expire(key, ttl)
-        })
-
-        await pipeline.exec()
-    }
-
-    async clear() {
-        const toClear = [
-            this.profile,
-            this.CAFollows,
-            this.followingFeedSkeletonCAAll,
-            this.followingFeedSkeletonCAArticles,
-        ]
-
-        for (const k of toClear) {
-            await k.clear()
-        }
-    }
+        stream.on("end", () => resolve());
+        stream.on("error", (err) => reject(err));
+    });
 }
 
-export const clearRedisHandler: CAHandler<{ params: { prefix: string } }, {}> = async (ctx, agent, {params}) => {
-    console.log("Clearing redis prefix", params.prefix)
-    await ctx.redisCache.deleteByPrefix(params.prefix)
-    return {data: {}}
-}
+// Convenience functions for common operations
+export const getProfile = (did: string) =>
+    Effect.gen(function* () {
+        const cache = yield* RedisCache;
+        return yield* cache.profile.get(did);
+    });
 
+export const setProfile = (
+    did: string,
+    profile: ArCabildoabiertoActorDefs.ProfileViewDetailed
+) =>
+    Effect.gen(function* () {
+        const cache = yield* RedisCache;
+        return yield* cache.profile.set(did, profile);
+    });
 
-export async function clearAllRedis(ctx: AppContext) {
-    await ctx.redisCache.clear()
+export const getMirrorStatus = (did: string, inCA: boolean) =>
+    Effect.gen(function* () {
+        const cache = yield* RedisCache;
+        return yield* cache.mirrorStatus.get(did, inCA);
+    });
 
-    await ctx.worker?.clearFailedAndCompleted()
+export const setMirrorStatus = (
+    did: string,
+    status: MirrorStatus,
+    inCA: boolean
+) =>
+    Effect.gen(function* () {
+        const cache = yield* RedisCache;
+        return yield* cache.mirrorStatus.set(did, status, inCA);
+    });
 
-}
+// Example usage:
+/*
+const program = Effect.gen(function* () {
+  const cache = yield* RedisCache;
+
+  // Get a profile
+  const profile = yield* cache.profile.get("did:example:123");
+
+  // Set mirror status
+  yield* cache.mirrorStatus.set("did:example:123", "Sync", true);
+
+  // Handle record updates
+  yield* cache.onUpdateRecords(records);
+});
+
+// Run with the layer
+const runnable = program.pipe(
+  Effect.provide(RedisCacheLive(redisClient, "mirror-1"))
+);
+
+Effect.runPromise(runnable);
+*/

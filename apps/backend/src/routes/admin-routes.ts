@@ -1,6 +1,6 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
-import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler, makeHandler} from "#/utils/handler.js";
+import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler} from "#/utils/handler.js";
 import {syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
 import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
@@ -16,7 +16,6 @@ import {
     getPendingValidationRequests,
     setValidationRequestResultHandler
 } from "#/services/user/validation.js";
-import {updateTopicContributionsHandler} from "#/services/wiki/contributions.js";
 import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
 import {getRegisteredJobs, startJob, getWorkerState} from "#/jobs/worker.js";
@@ -97,13 +96,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
         makeAdminHandler(ctx, createAccountInCabildoPDS)
     )
 
-    router.get("/pending-validation-requests", makeAdminHandler(ctx, getPendingValidationRequests))
+    router.get("/pending-validation-requests", makeEffAdminHandler(ctx, getPendingValidationRequests))
 
     router.post(
         "/validation-request/result", makeAdminHandler(ctx, setValidationRequestResultHandler)
     )
-
-    router.post('/update-topic-contributions/:id', makeHandler(ctx, updateTopicContributionsHandler))
 
     router.get("/stats-dashboard", makeAdminHandler(ctx, getStatsDashboard))
 
@@ -207,7 +204,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get(
         '/pending-moderation',
-        makeAdminHandler(ctx, getPendingModeration)
+        makeEffAdminHandler(ctx, getPendingModeration)
     )
 
     router.post(

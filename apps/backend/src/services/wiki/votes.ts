@@ -2,19 +2,20 @@ import {ATProtoStrongRef, CreatePostProps} from "@cabildo-abierto/api";
 import {BaseAgent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import {getCollectionFromUri, getDidFromUri, getUri, splitUri} from "@cabildo-abierto/utils";
-import {CAHandlerNoAuth, EffHandler} from "#/utils/handler.js";
+import {EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {addReaction, removeReactionAT} from "#/services/reactions/reactions.js";
 import {
     ArCabildoabiertoWikiVoteAccept,
     ArCabildoabiertoWikiVoteReject,
     ArCabildoabiertoWikiDefs
 } from "@cabildo-abierto/api"
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {createPost} from "#/services/write/post.js";
 import {ATDeleteRecordError, deleteRecords} from "#/services/delete.js";
 import {Effect} from "effect";
 import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
+import {DBError} from "#/services/write/article.js";
 
 export type TopicVoteType = "ar.cabildoabierto.wiki.voteAccept" | "ar.cabildoabierto.wiki.voteReject"
 
@@ -241,25 +242,33 @@ export function cancelEditVote(ctx: AppContext, agent: SessionAgent, uri: string
 }
 
 
-export async function getTopicVersionVotes(ctx: AppContext, agent: BaseAgent, uri: string) {
-    const reactions = await ctx.kysely
-        .selectFrom("Reaction")
-        .innerJoin("Record", "Record.uri", "Reaction.uri")
-        .where("Reaction.subjectId","=", uri)
-        .where("Record.collection", "in", [
-            "ar.cabildoabierto.wiki.voteAccept",
-            "ar.cabildoabierto.wiki.voteReject"
-        ])
-        .select([
-            "Reaction.uri",
-            "Record.cid",
-            "Reaction.subjectId",
-            "Reaction.subjectCid"
-        ])
-        .orderBy("Record.authorId")
-        .orderBy("Record.created_at_tz desc")
-        .distinctOn(["Record.authorId"])
-        .execute()
+export const getTopicVersionVotes = (
+    ctx: AppContext,
+    agent: BaseAgent,
+    uri: string
+): Effect.Effect<ArCabildoabiertoWikiDefs.VoteView[], DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+
+    const reactions = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Reaction")
+            .innerJoin("Record", "Record.uri", "Reaction.uri")
+            .where("Reaction.subjectId","=", uri)
+            .where("Record.collection", "in", [
+                "ar.cabildoabierto.wiki.voteAccept",
+                "ar.cabildoabierto.wiki.voteReject"
+            ])
+            .select([
+                "Reaction.uri",
+                "Record.cid",
+                "Reaction.subjectId",
+                "Reaction.subjectCid"
+            ])
+            .orderBy("Record.authorId")
+            .orderBy("Record.created_at_tz desc")
+            .distinctOn(["Record.authorId"])
+            .execute(),
+        catch: () => new DBError()
+    })
 
     const votes = reactions
         .filter(r => isTopicVote(getCollectionFromUri(r.uri)))
@@ -267,16 +276,15 @@ export async function getTopicVersionVotes(ctx: AppContext, agent: BaseAgent, ur
         .filter(r => r != null)
 
     const users = votes.map(v => getDidFromUri(v.uri))
-    const dataplane = new Dataplane(ctx, agent)
-    await dataplane.fetchProfileViewBasicHydrationData(users)
+    const dataplane = yield* DataPlane
+    yield* dataplane.fetchProfileViewBasicHydrationData(users)
 
-    const voteViews: (ArCabildoabiertoWikiDefs.VoteView | null)[] = votes.map(v => {
-        const author = hydrateProfileViewBasic(ctx, getDidFromUri(v.uri), dataplane)
+    const voteViews: (ArCabildoabiertoWikiDefs.VoteView | null)[] = yield* Effect.all(votes.map(v => Effect.gen(function* () {
+        const author = yield* hydrateProfileViewBasic(ctx, getDidFromUri(v.uri))
         if(!author) {
-            ctx.logger.pino.warn({uri: v.uri}, "author of vote not found")
             return null
         }
-        return {
+        const vote: ArCabildoabiertoWikiDefs.VoteView = {
             $type: "ar.cabildoabierto.wiki.defs#voteView",
             uri: v.uri,
             cid: v.cid,
@@ -286,15 +294,22 @@ export async function getTopicVersionVotes(ctx: AppContext, agent: BaseAgent, ur
             },
             author
         }
-    })
+        return vote
+    })))
 
     return voteViews.filter(v => v != null)
-}
+})
 
 
-export const getTopicVersionVotesHandler: CAHandlerNoAuth<{params: {did: string, rkey: string}}, ArCabildoabiertoWikiDefs.VoteView[]> = async (ctx, agent, {params}) => {
+export const getTopicVersionVotesHandler: EffHandlerNoAuth<{params: {did: string, rkey: string}}, ArCabildoabiertoWikiDefs.VoteView[]> = (
+    ctx,
+    agent,
+    {params}
+) => {
     const uri = getUri(params.did, "ar.cabildoabierto.wiki.topicVersion", params.rkey)
-    const votes = await getTopicVersionVotes(ctx, agent, uri)
-
-    return {data: votes}
+    return Effect.provideServiceEffect(
+        getTopicVersionVotes(ctx, agent, uri).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los votos."))),
+        DataPlane,
+        makeDataPlane(ctx, agent)
+    )
 }

@@ -110,6 +110,7 @@ const hydrateRecordEmbedViewFromUri = (ctx: AppContext, agent: SessionAgent | No
 
     if (isArticle(collection)) {
         const artView = yield* hydrateArticleView(ctx, agent, uri)
+        if(!artView) return null
         return {
             $type: "ar.cabildoabierto.embed.record#view",
             record: {

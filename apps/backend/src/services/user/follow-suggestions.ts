@@ -1,6 +1,6 @@
 import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
-import {Dataplane} from "#/services/hydration/dataplane.js";
-import {CAHandler} from "#/utils/handler.js";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {hydrateProfileView} from "#/services/hydration/profile.js";
 import {sql} from "kysely";
 import {AppContext} from "#/setup.js";
@@ -131,11 +131,21 @@ export async function getFollowSuggestionsToAvoid(ctx: AppContext, did: string) 
 }
 
 
-export const getFollowSuggestions: CAHandler<{params: {limit: string, cursor?: string}}, {profiles: ArCabildoabiertoActorDefs.ProfileView[], cursor?: string}> = async (ctx, agent, {params}) =>  {
-    const [ranking, avoid] = await Promise.all([
-        getRecommendationRankingForUser(ctx, agent.did),
-        getFollowSuggestionsToAvoid(ctx, agent.did)
-    ])
+export const getFollowSuggestions: EffHandler<
+    {params: {limit: string, cursor?: string}},
+    {profiles: ArCabildoabiertoActorDefs.ProfileView[], cursor?: string}
+> = (ctx, agent, {params}) => Effect.provideServiceEffect(
+    Effect.gen(function* () {
+    const [ranking, avoid] = yield* Effect.all([
+        Effect.tryPromise({
+            try: () => getRecommendationRankingForUser(ctx, agent.did),
+            catch: () => "Ocurrió un error al obtener las recomendaciones."
+        }),
+        Effect.tryPromise({
+            try: () => getFollowSuggestionsToAvoid(ctx, agent.did),
+            catch: () => "Ocurrió un error al obtener las recomendaciones."
+        })
+    ], {concurrency: "unbounded"})
 
     const limit = parseInt(params.limit)
     const offset = params.cursor ? parseInt(params.cursor) : 0
@@ -150,21 +160,20 @@ export const getFollowSuggestions: CAHandler<{params: {limit: string, cursor?: s
         nextIndex++
     }
 
-    const dataplane = new Dataplane(ctx, agent)
-    await dataplane.fetchProfileViewHydrationData(dids)
+    const dataplane = yield* DataPlane
+    yield* dataplane.fetchProfileViewHydrationData(dids)
 
-    const profiles = dids
-        .map(d => hydrateProfileView(ctx, d, dataplane))
+    const profiles = (yield* Effect.all(dids
+        .map(d => hydrateProfileView(ctx, d))))
         .filter(x => x != null)
 
     const cursor = nextIndex >= ranking.length ? undefined : nextIndex.toString()
 
     return {
-        data: {
         profiles: profiles,
         cursor
-    }}
-}
+    }
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las recomendaciones."))), DataPlane, makeDataPlane(ctx, agent))
 
 
 export const setNotInterested: CAHandler<{params: {subject: string}}> = async (ctx, agent, {params}) => {

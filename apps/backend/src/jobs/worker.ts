@@ -19,7 +19,7 @@ import {
     updateAllTopicContributions,
     updateTopicContributions,
     updateTopicContributionsRequired
-} from "#/services/wiki/contributions.js";
+} from "#/services/wiki/contributions/contributions.js";
 import {createUserMonths} from "#/services/monetization/user-months.js";
 import {createNotificationsJob} from "#/services/notifications/notifications.js";
 import {CAHandler} from "#/utils/handler.js";
@@ -48,6 +48,7 @@ import {startContentModeration} from "#/services/moderation/start.js";
 import {Effect} from "effect";
 import {AddJobError} from "#/utils/errors.js";
 import {runtime} from "#/instrumentation.js";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 
 const mins = 60 * 1000
 const seconds = 1000
@@ -156,18 +157,26 @@ export class CAWorker {
             "update-topics-categories",
             () => updateTopicsCategories(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-topic-contributions",
-            (data) => updateTopicContributions(ctx, data as string[]),
+            (data) => Effect.provideServiceEffect(
+                updateTopicContributions(ctx, data as string[]),
+                DataPlane,
+                makeDataPlane(ctx)
+            ),
             true
         )
         this.registerJob(
             "update-all-topic-contributions",
             () => updateAllTopicContributions(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "required-update-topic-contributions",
-            () => updateTopicContributionsRequired(ctx)
+            () => Effect.provideServiceEffect(
+                updateTopicContributionsRequired(ctx),
+                DataPlane,
+                makeDataPlane(ctx)
+            )
         )
         this.registerJob(
             "create-user-months",
