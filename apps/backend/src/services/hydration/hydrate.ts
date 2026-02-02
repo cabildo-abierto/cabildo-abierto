@@ -301,12 +301,16 @@ export function notFoundPost(uri: string): $Typed<AppBskyFeedDefs.NotFoundPost> 
 }
 
 
-const hydrateFeedViewContentReason = (ctx: AppContext, subjectUri: string, reason: ArCabildoabiertoFeedDefs.SkeletonFeedPost["reason"]): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent["reason"] | null, never, DataPlane> => Effect.gen(function* () {
+const hydrateFeedViewContentReason = (
+    ctx: AppContext,
+    subjectUri: string,
+    reason: ArCabildoabiertoFeedDefs.SkeletonFeedPost["reason"]
+): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent["reason"] | null, never, DataPlane> => Effect.gen(function* () {
     if (!reason) return null
     const dataplane = yield* DataPlane
     const data = dataplane.getState()
     if (ArCabildoabiertoFeedDefs.isSkeletonReasonRepost(reason)) {
-        const user = hydrateProfileViewBasic(ctx, getDidFromUri(reason.repost))
+        const user = yield* hydrateProfileViewBasic(ctx, getDidFromUri(reason.repost))
         if (!user) {
             ctx.logger.pino.warn({reason}, "no se encontró el usuario autor del repost")
             return null
@@ -345,6 +349,8 @@ export const hydrateFeedViewContent = (ctx: AppContext, agent: SessionAgent | No
     const parent = reply && !ArCabildoabiertoFeedDefs.isReasonRepost(reason) ? yield* hydrateContent(ctx, agent, reply.parent.uri) : null
     const root = reply && !ArCabildoabiertoFeedDefs.isReasonRepost(reason) ? yield* hydrateContent(ctx, agent, reply.root.uri) : null
 
+    const isRepost = reason && reason.$type == "ar.cabildoabierto.feed.defs#reasonRepost"
+
     if (!leaf) {
         ctx.logger.pino.warn({uri: e.post}, "content not found")
         return null
@@ -360,10 +366,10 @@ export const hydrateFeedViewContent = (ctx: AppContext, agent: SessionAgent | No
             $type: "ar.cabildoabierto.feed.defs#feedViewContent",
             content: leaf,
             reason: reason ?? undefined,
-            reply: {
+            reply: !isRepost ? {
                 parent: parent && parent ? parent : notFoundPost(reply.parent.uri),
                 root: root ?? notFoundPost(reply.root.uri) // puede ser igual a parent, el frontend se ocupa
-            }
+            } : undefined
         }
         return res
     }

@@ -72,15 +72,13 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
                         .$if(topics != null, qb => qb.where("Topic.id", "in", topics!))
                         .select([
                             "Topic.id",
-                            sql<string>`unnest
-                                ("Topic"."synonyms")`.as("keyword")
+                            sql<string>`unnest("Topic"."synonyms")`.as("keyword")
                         ])
                         .as("UnnestedSynonyms")
                 )
                 .select([
                     "UnnestedSynonyms.id",
-                    sql`websearch_to_tsquery
-                        ('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
+                    sql`websearch_to_tsquery('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
                 ])
             )
             .selectFrom("Content")
@@ -346,46 +344,45 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
 }
 
 
-export async function updatePopularitiesOnContentsChange(ctx: AppContext, uris: string[]) {
-    const t1 = Date.now()
-    await updateContentsText(ctx, uris)
-    const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(
-        ctx,
-        uris,
-        undefined
-    )
-    const t3 = Date.now()
-    const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(
-        ctx,
-        newReferences
-    )
-    const t4 = Date.now()
-    topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(
-        ctx,
-        uris
-    ))
-    const t5 = Date.now()
-    await updateTopicPopularities(
-        ctx,
-        topicsWithNewInteractions
-    )
-    const t6 = Date.now()
+export const updatePopularitiesOnContentsChange = (
+    ctx: AppContext,
+    uris: string[]
+): Effect.Effect<void, UpdatePopularitiesError | DBError> => Effect.gen(function* () {
+    yield* updateContentsText(ctx, uris)
 
-    await createMentionNotifications(
-        ctx,
-        uris
-    )
-    const t7 = Date.now()
+    yield* Effect.tryPromise({
+        try: async () => {
+            const newReferences = await updateReferencesForContentsAndTopics(
+                ctx,
+                uris,
+                undefined
+            )
+            const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(
+                ctx,
+                newReferences
+            )
+            topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(
+                ctx,
+                uris
+            ))
+            await updateTopicPopularities(
+                ctx,
+                topicsWithNewInteractions
+            )
 
-    await updateDiscoverFeedIndex(
-        ctx,
-        uris
-    )
-    const t8 = Date.now()
+            await createMentionNotifications(
+                ctx,
+                uris
+            )
 
-    ctx.logger.logTimes(`update refs and pops on ${uris.length} contents`, [t1, t2, t3, t4, t5, t6, t7, t8])
-}
+            await updateDiscoverFeedIndex(
+                ctx,
+                uris
+            )
+        },
+        catch: () => new UpdatePopularitiesError()
+    })
+})
 
 
 export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
@@ -453,8 +450,7 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
     const matches = await ctx.kysely
         .with("Synonyms", eb => eb
             .selectFrom("Topic")
-            .select(["id", "currentVersionId", sql<string>`unnest
-                ("Topic"."synonyms")`.as("keyword")])
+            .select(["id", "currentVersionId", sql<string>`unnest("Topic"."synonyms")`.as("keyword")])
         )
         .selectFrom("Synonyms")
         .where(sql<boolean>`

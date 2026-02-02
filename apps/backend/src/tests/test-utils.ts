@@ -8,7 +8,7 @@ import {BaseAgent, bskyPublicAPI, SessionAgent} from "#/utils/session-agent.js";
 import {env} from "#/lib/env.js";
 import {AppBskyFeedPost, AtpBaseClient} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {getRecordProcessor, ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 import {getCollectionFromUri, getUri} from "@cabildo-abierto/utils";
 import {CAWorker} from "#/jobs/worker.js";
 import {randomBytes} from "crypto";
@@ -27,7 +27,9 @@ import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
-import {Effect, Exit} from "effect";
+import {Effect} from "effect";
+import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {DBSelectError} from "#/services/user/validation.js";
 
 export const testTimeout = 40000
 
@@ -41,18 +43,15 @@ class GenerateCIDError {
 }
 
 
-export function generateCid(data: any): Effect.Effect<string, GenerateCIDError> {
-    const bytes = encode({data, date: new Date().toISOString()})
+export const generateCid = (data: any): Effect.Effect<string, GenerateCIDError> => Effect.gen(function* () {
+    const bytes = encode({data: JSON.stringify(data), date: new Date().toISOString()})
 
-    const hash = Effect.tryPromise({
-        try: () => sha256.digest(bytes),
-        catch: () => new GenerateCIDError()
-    })
+    const hash = sha256.digest(bytes)
 
     const cid = CID.createV1(code, hash)
 
     return cid.toString()
-}
+})
 
 
 export function generateUserDid(testSuite: string) {
@@ -71,7 +70,7 @@ export function generateUserDid(testSuite: string) {
 }
 
 
-function getCAProfileRefAndRecord(did: string, testSuite: string): Effect.Effect<RefAndRecord<ArCabildoabiertoActorCaProfile.Record>> {
+function getCAProfileRefAndRecord(did: string, testSuite: string): Effect.Effect<RefAndRecord<ArCabildoabiertoActorCaProfile.Record>, GenerateCIDError> {
     const record: ArCabildoabiertoActorCaProfile.Record = {
         $type: "ar.cabildoabierto.actor.caProfile",
         createdAt: new Date().toISOString()
@@ -106,14 +105,21 @@ function getBskyProfileRefAndRecord(did: string, testSuite: string) {
 }
 
 
+class RunJobError {
+    readonly _tag = "RunJobError"
+}
+
+
 export const createTestUser = (
     ctx: AppContext,
     handle: string,
     testSuite: string
-): Effect.Effect<string, never, RedisCache> => Effect.gen(function* () {
+): Effect.Effect<string, RedisCacheSetError | GenerateCIDError | ProcessCreateError | RunJobError> => Effect.gen(function* () {
     const did = generateUserDid(testSuite)
-    const redis = yield* RedisCache
-    yield* redis.resolver.setHandle(did, handle)
+    yield* Effect.tryPromise({
+        try: () => ctx.redisCache.resolver.setHandle(did, handle),
+        catch: () => new RedisCacheSetError()
+    })
     const caProfile = yield* getCAProfileRefAndRecord(did, testSuite)
     const bskyProfile = yield* getBskyProfileRefAndRecord(did, testSuite)
 
@@ -126,12 +132,15 @@ export async function createTestContext(): Promise<AppContext> {
     const ioredis = setupRedis(1)
     const logger = new Logger("test")
     const mirrorId = "test"
+    const redisCache = new RedisCache(ioredis, mirrorId, logger)
     logger.pino.info({url: process.env.TEST_DB}, "setting up test db")
     const ctx: AppContext = {
         logger,
         kysely: setupKysely(process.env.TEST_DB, 2),
         ioredis,
         mirrorId,
+        resolver: setupResolver(redisCache),
+        redisCache,
         worker: new MockCAWorker(logger),
         storage: undefined,
         oauthClient: undefined
@@ -139,7 +148,7 @@ export async function createTestContext(): Promise<AppContext> {
 
     const result = await sql<{ dbName: string }>`SELECT current_database() as "dbName"`.execute(ctx.kysely);
 
-    if(result.rows[0].dbName != "ca-sql-dev") throw Error(`Wrong database name! ${result.rows[0].dbName}`)
+    if(result.rows[0].dbName != "ca-sql-dev") throw Error(`Los tests deberían correrse sobre la base de datos de desarrollo! ${result.rows[0].dbName}`)
 
     return ctx
 }
@@ -172,18 +181,22 @@ export function getSuiteId(filename: string): string {
 }
 
 
-export async function getFollowRefAndRecord(subject: string, testSuite: string, authorId?: string) {
+export const getFollowRefAndRecord = (
+    subject: string,
+    testSuite: string,
+    authorId?: string
+) => Effect.gen(function* () {
     const record: AppBskyGraphFollow.Record = {
         $type: "app.bsky.graph.follow",
         subject,
         createdAt: new Date().toISOString()
     }
 
-    return await getRefAndRecord(record, testSuite, {
+    return yield* getRefAndRecord(record, testSuite, {
         collection: "app.bsky.graph.follow",
         did: authorId
     })
-}
+})
 
 
 export async function cleanUPTestDataFromDB(ctx: AppContext, testSuite: string) {
@@ -281,7 +294,7 @@ const getArticleRecord = (
 })
 
 
-export async function getArticleRefAndRecord(
+export const getArticleRefAndRecord = (
     ctx: AppContext,
     title: string,
     text: string,
@@ -291,9 +304,9 @@ export async function getArticleRefAndRecord(
         did?: string
         rkey?: string
     },
-) {
+) => Effect.gen(function* () {
     const authorId = uri?.did ?? generateUserDid(testSuite)
-    const record = await getArticleRecord(
+    const record = yield* getArticleRecord(
         ctx,
         title,
         text,
@@ -301,7 +314,7 @@ export async function getArticleRefAndRecord(
         authorId
     )
 
-    return getRefAndRecord(
+    return yield* getRefAndRecord(
         record,
         testSuite,
         {
@@ -310,7 +323,7 @@ export async function getArticleRefAndRecord(
             collection: "ar.cabildoabierto.feed.article"
         }
     )
-}
+})
 
 
 function getLikeRecord(ref: ATProtoStrongRef, created_at: Date = new Date()): AppBskyFeedLike.Record {
@@ -385,14 +398,14 @@ export function getTopicVersionRefAndRecord(ctx: AppContext, topicId: string, te
         authorId
     )
 
-    return getRefAndRecord(
+    return record.pipe(Effect.flatMap(record => getRefAndRecord(
         record,
         testSuite,
         {
             did: authorId,
             collection: "ar.cabildoabierto.wiki.topicVersion"
         }
-    )
+    )))
 }
 
 
@@ -446,7 +459,7 @@ export const createTestAcceptVote = (
 })
 
 
-export function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string) {
+export function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Main>, GenerateCIDError | ProcessCreateError | RunJobError | RedisCacheSetError> {
     return getTopicVersionRefAndRecord(
         ctx!,
         "tema de prueba",
@@ -561,17 +574,29 @@ export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
             const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
             return processor.process([r])
         })
-    )
+    ).pipe(Effect.tap(
+        Effect.tryPromise({
+            try: () => ctx.worker.runAllJobs(),
+            catch: () => new RunJobError()
+        })
+    ))
 }
 
 
-export async function deleteRecordsInTest(ctx: AppContext, records: string[]) {
-    for(const r of records) {
-        const processor = getDeleteProcessor(ctx, getCollectionFromUri(r))
-        await processor.process([r])
-    }
-    await ctx!.worker?.runAllJobs()
-}
+export const deleteRecordsInTest = (ctx: AppContext, records: string[]) => Effect.gen(function* () {
+    yield* Effect.all(records.map(r => {
+        const c = getCollectionFromUri(r)
+        const processor = getDeleteProcessor(ctx, c)
+        return Effect.tryPromise({
+            try: () => processor.process([r]),
+            catch: () => new ProcessDeleteError(c)
+        })
+    }))
+    yield* Effect.tryPromise({
+        try: () => ctx!.worker?.runAllJobs(), // TO DO: Pasar a Effect
+        catch: () => "Error al correr los trabajos."
+    })
+})
 
 
 export async function getRecord(ctx: AppContext, uri: string){
@@ -647,30 +672,39 @@ export class MockCAWorker extends CAWorker {
 }
 
 
-export async function checkRecordExists(ctx: AppContext, uri: string) {
-    return await ctx.kysely
-        .selectFrom("Record")
-        .where("uri", "=", uri).select("uri")
-        .executeTakeFirst() != null
+export function checkRecordExists(ctx: AppContext, uri: string) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Record")
+            .where("uri", "=", uri).select("uri")
+            .executeTakeFirst().then(x => x != null),
+        catch: () => new DBSelectError("Record")
+    })
 }
 
 
-export async function checkIsFollowing(ctx: AppContext, follower: string, subject: string) {
-    return await ctx!.kysely
-        .selectFrom("Follow")
-        .innerJoin("Record", "Record.uri", "Follow.uri")
-        .where("Record.authorId", "=", follower)
-        .where("Follow.userFollowedId", "=", subject)
-        .selectAll()
-        .executeTakeFirst() != null
+export function checkIsFollowing(ctx: AppContext, follower: string, subject: string) {
+    return Effect.tryPromise({
+        try: () => ctx!.kysely
+            .selectFrom("Follow")
+            .innerJoin("Record", "Record.uri", "Follow.uri")
+            .where("Record.authorId", "=", follower)
+            .where("Follow.userFollowedId", "=", subject)
+            .selectAll()
+            .executeTakeFirst().then(x => x != null),
+        catch: () => new DBSelectError("Follow")
+    })
 }
 
 
-export async function checkContentInFollowingFeed(ctx: AppContext, uri: string, follower: string) {
-    return await ctx!.kysely
-        .selectFrom("FollowingFeedIndex")
-        .select("contentId")
-        .where("contentId", "=", uri)
-        .where("readerId", "=", follower)
-        .executeTakeFirst() != null
+export function checkContentInFollowingFeed(ctx: AppContext, uri: string, follower: string) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("FollowingFeedIndex")
+            .select("contentId")
+            .where("contentId", "=", uri)
+            .where("readerId", "=", follower)
+            .executeTakeFirst().then(x => x != null),
+        catch: () => new DBSelectError("FollowingFeedIndex")
+    })
 }

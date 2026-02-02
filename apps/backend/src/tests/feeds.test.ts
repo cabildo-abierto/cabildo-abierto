@@ -10,6 +10,8 @@ import {
 } from "#/tests/test-utils.js";
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import {Effect} from "effect";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 
 const testSuite = getSuiteId(__filename)
 
@@ -27,198 +29,230 @@ describe('Following feed index', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     it("should include new post", async () => {
-        const follower = await createTestUser(ctx!, "follower", testSuite)
-        const notFollower = await createTestUser(ctx!, "notFollower", testSuite)
-        const poster = await createTestUser(ctx!, "poster", testSuite)
+        const test = Effect.gen(function* () {
+            const follower = yield* createTestUser(ctx!, "follower", testSuite)
+            const notFollower = yield* createTestUser(ctx!, "notFollower", testSuite)
+            const poster = yield* createTestUser(ctx!, "poster", testSuite)
 
-        const post = await getPostRefAndRecord(
-            "hola!",
-            new Date(),
-            testSuite,
-            {
-                did: poster
-            }
-        )
+            const post = yield* getPostRefAndRecord(
+                "hola!",
+                new Date(),
+                testSuite,
+                {
+                    did: poster
+                }
+            )
 
-        const follow = await getFollowRefAndRecord(
-            poster,
-            testSuite,
-            follower
-        )
+            const follow = yield* getFollowRefAndRecord(
+                poster,
+                testSuite,
+                follower
+            )
 
-        await processRecordsInTest(ctx!, [follow])
+            yield* processRecordsInTest(ctx!, [follow])
 
-        const recordExists = await checkRecordExists(ctx!, follow.ref.uri)
-        const isFollowing = await checkIsFollowing(ctx!, follower, poster)
-        expect(recordExists).toEqual(true)
-        expect(isFollowing).toEqual(true)
+            const recordExists = yield* checkRecordExists(ctx!, follow.ref.uri)
+            const isFollowing = yield* checkIsFollowing(ctx!, follower, poster)
+            expect(recordExists).toEqual(true)
+            expect(isFollowing).toEqual(true)
 
-        await processRecordsInTest(ctx!, [post])
+            yield* processRecordsInTest(ctx!, [post])
 
-        const followerHasContent = await checkContentInFollowingFeed(ctx!, post.ref.uri, follower)
-        expect(followerHasContent).toEqual(true)
+            const followerHasContent = yield* checkContentInFollowingFeed(ctx!, post.ref.uri, follower)
+            expect(followerHasContent).toEqual(true)
 
-        const notFollowerHasContent = await checkContentInFollowingFeed(ctx!, post.ref.uri, notFollower)
-        expect(notFollowerHasContent).toEqual(false)
+            const notFollowerHasContent = yield* checkContentInFollowingFeed(ctx!, post.ref.uri, notFollower)
+            expect(notFollowerHasContent).toEqual(false)
 
-        const authorHasContent = await checkContentInFollowingFeed(ctx!, post.ref.uri, poster)
-        expect(authorHasContent).toEqual(true)
+            const authorHasContent = yield* checkContentInFollowingFeed(ctx!, post.ref.uri, poster)
+            expect(authorHasContent).toEqual(true)
+        })
+
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     }, {timeout: testTimeout})
 
 
     it("should include new article and repost", async () => {
-        const follower = await createTestUser(ctx!, "follower", testSuite)
-        const notFollower = await createTestUser(ctx!, "notFollower", testSuite)
-        const reposterFollower = await createTestUser(ctx!, "reposterFollower", testSuite)
-        const bothFollower = await createTestUser(ctx!, "bothFollower", testSuite)
-        const poster = await createTestUser(ctx!, "poster", testSuite)
-        const reposter = await createTestUser(ctx!, "reposter", testSuite)
+        const test = Effect.gen(function* () {
+            const follower = yield* createTestUser(ctx!, "follower", testSuite)
+            const notFollower = yield* createTestUser(ctx!, "notFollower", testSuite)
+            const reposterFollower = yield* createTestUser(ctx!, "reposterFollower", testSuite)
+            const bothFollower = yield* createTestUser(ctx!, "bothFollower", testSuite)
+            const poster = yield* createTestUser(ctx!, "poster", testSuite)
+            const reposter = yield* createTestUser(ctx!, "reposter", testSuite)
 
-        const article = await getArticleRefAndRecord(
-            ctx!,
-            "hola!",
-            "texto",
-            new Date(Date.now()),
-            testSuite,
-            {
-                did: poster
+            const article = yield* getArticleRefAndRecord(
+                ctx!,
+                "hola!",
+                "texto",
+                new Date(Date.now()),
+                testSuite,
+                {
+                    did: poster
+                }
+            )
+
+            const repost = yield* getRepostRefAndRecord(article.ref, new Date(Date.now()+1), testSuite, reposter)
+
+            const followFollowerPoster = yield* getFollowRefAndRecord(
+                poster,
+                testSuite,
+                follower
+            )
+            const followReposterFollowerReposter = yield* getFollowRefAndRecord(
+                reposter,
+                testSuite,
+                reposterFollower
+            )
+            const followBothFollowerReposter = yield* getFollowRefAndRecord(
+                reposter,
+                testSuite,
+                bothFollower
+            )
+            const followBothFollowerPoster = yield* getFollowRefAndRecord(
+                poster,
+                testSuite,
+                bothFollower
+            )
+
+            yield* processRecordsInTest(ctx!, [followFollowerPoster, followReposterFollowerReposter, followBothFollowerReposter, followBothFollowerPoster, article, repost])
+
+            const feedElements = new Set<string>()
+            for(const user of [follower, notFollower, bothFollower, reposterFollower]) {
+                for(const uri of [article.ref.uri, repost.ref.uri]) {
+                    const present = yield* checkContentInFollowingFeed(ctx!, uri, user)
+                    if(present) feedElements.add(`${uri}:${user}`)
+                }
             }
-        )
+            expect(feedElements.has(`${article.ref.uri}:${follower}`)).toEqual(true)
+            expect(feedElements.has(`${article.ref.uri}:${notFollower}`)).toEqual(false)
+            expect(feedElements.has(`${article.ref.uri}:${reposterFollower}`)).toEqual(false)
+            expect(feedElements.has(`${article.ref.uri}:${bothFollower}`)).toEqual(true)
+            expect(feedElements.has(`${repost.ref.uri}:${follower}`)).toEqual(false)
+            expect(feedElements.has(`${repost.ref.uri}:${notFollower}`)).toEqual(false)
+            expect(feedElements.has(`${repost.ref.uri}:${reposterFollower}`)).toEqual(true)
+            expect(feedElements.has(`${repost.ref.uri}:${bothFollower}`)).toEqual(true)
+        })
 
-        const repost = await getRepostRefAndRecord(article.ref, new Date(Date.now()+1), testSuite, reposter)
-
-        const followFollowerPoster = await getFollowRefAndRecord(
-            poster,
-            testSuite,
-            follower
-        )
-        const followReposterFollowerReposter = await getFollowRefAndRecord(
-            reposter,
-            testSuite,
-            reposterFollower
-        )
-        const followBothFollowerReposter = await getFollowRefAndRecord(
-            reposter,
-            testSuite,
-            bothFollower
-        )
-        const followBothFollowerPoster = await getFollowRefAndRecord(
-            poster,
-            testSuite,
-            bothFollower
-        )
-
-        await processRecordsInTest(ctx!, [followFollowerPoster, followReposterFollowerReposter, followBothFollowerReposter, followBothFollowerPoster, article, repost])
-
-        const feedElements = new Set<string>()
-        for(const user of [follower, notFollower, bothFollower, reposterFollower]) {
-            for(const uri of [article.ref.uri, repost.ref.uri]) {
-                const present = await checkContentInFollowingFeed(ctx!, uri, user)
-                if(present) feedElements.add(`${uri}:${user}`)
-            }
-        }
-        expect(feedElements.has(`${article.ref.uri}:${follower}`)).toEqual(true)
-        expect(feedElements.has(`${article.ref.uri}:${notFollower}`)).toEqual(false)
-        expect(feedElements.has(`${article.ref.uri}:${reposterFollower}`)).toEqual(false)
-        expect(feedElements.has(`${article.ref.uri}:${bothFollower}`)).toEqual(true)
-        expect(feedElements.has(`${repost.ref.uri}:${follower}`)).toEqual(false)
-        expect(feedElements.has(`${repost.ref.uri}:${notFollower}`)).toEqual(false)
-        expect(feedElements.has(`${repost.ref.uri}:${reposterFollower}`)).toEqual(true)
-        expect(feedElements.has(`${repost.ref.uri}:${bothFollower}`)).toEqual(true)
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     }, {timeout: testTimeout})
 
 
     it("should include reply", async () => {
-        const posterFollower = await createTestUser(ctx!, "posterFollower", testSuite)
-        const bothFollower = await createTestUser(ctx!, "bothFollower", testSuite)
-        const replierFollower = await createTestUser(ctx!, "replierFollower", testSuite)
-        const poster = await createTestUser(ctx!, "poster", testSuite)
-        const replier = await createTestUser(ctx!, "replier", testSuite)
+        const test = Effect.gen(function* () {
+            const posterFollower = yield* createTestUser(ctx!, "posterFollower", testSuite)
+            const bothFollower = yield* createTestUser(ctx!, "bothFollower", testSuite)
+            const replierFollower = yield* createTestUser(ctx!, "replierFollower", testSuite)
+            const poster = yield* createTestUser(ctx!, "poster", testSuite)
+            const replier = yield* createTestUser(ctx!, "replier", testSuite)
 
-        const post = await getPostRefAndRecord(
-            "hola!",
-            new Date(Date.now()),
-            testSuite,
-            {
-                did: poster
+            const post = yield* getPostRefAndRecord(
+                "hola!",
+                new Date(Date.now()),
+                testSuite,
+                {
+                    did: poster
+                }
+            )
+            const reply = yield* getPostRefAndRecord(
+                "hola!",
+                new Date(Date.now()+1),
+                testSuite,
+                {
+                    did: replier
+                },
+                post.ref
+            )
+
+            yield* processRecordsInTest(ctx!, [
+                yield* getFollowRefAndRecord(
+                    poster,
+                    testSuite,
+                    posterFollower
+                ),
+                yield* getFollowRefAndRecord(
+                    poster,
+                    testSuite,
+                    bothFollower
+                ),
+                yield* getFollowRefAndRecord(
+                    replier,
+                    testSuite,
+                    bothFollower
+                ),
+                yield* getFollowRefAndRecord(
+                    replier,
+                    testSuite,
+                    replierFollower
+                ),
+                post,
+                reply
+            ])
+
+            const feedElements = new Set<string>()
+            for(const user of [posterFollower, replierFollower, bothFollower]) {
+                for(const uri of [post.ref.uri, reply.ref.uri]) {
+                    const present = yield* checkContentInFollowingFeed(ctx!, uri, user)
+                    if(present) feedElements.add(`${uri}:${user}`)
+                }
             }
-        )
-        const reply = await getPostRefAndRecord(
-            "hola!",
-            new Date(Date.now()+1),
-            testSuite,
-            {
-                did: replier
-            },
-            post.ref
-        )
+            expect(feedElements.has(`${post.ref.uri}:${posterFollower}`)).toEqual(true)
+            expect(feedElements.has(`${reply.ref.uri}:${posterFollower}`)).toEqual(false)
 
-        await processRecordsInTest(ctx!, [
-            await getFollowRefAndRecord(
-                poster,
-                testSuite,
-                posterFollower
-            ),
-            await getFollowRefAndRecord(
-                poster,
-                testSuite,
-                bothFollower
-            ),
-            await getFollowRefAndRecord(
-                replier,
-                testSuite,
-                bothFollower
-            ),
-            await getFollowRefAndRecord(
-                replier,
-                testSuite,
-                replierFollower
-            ),
-            post,
-            reply
-        ])
+            expect(feedElements.has(`${post.ref.uri}:${replierFollower}`)).toEqual(false)
+            expect(feedElements.has(`${reply.ref.uri}:${replierFollower}`)).toEqual(false)
 
-        const feedElements = new Set<string>()
-        for(const user of [posterFollower, replierFollower, bothFollower]) {
-            for(const uri of [post.ref.uri, reply.ref.uri]) {
-                const present = await checkContentInFollowingFeed(ctx!, uri, user)
-                if(present) feedElements.add(`${uri}:${user}`)
-            }
-        }
-        expect(feedElements.has(`${post.ref.uri}:${posterFollower}`)).toEqual(true)
-        expect(feedElements.has(`${reply.ref.uri}:${posterFollower}`)).toEqual(false)
+            expect(feedElements.has(`${reply.ref.uri}:${bothFollower}`)).toEqual(true)
+            expect(feedElements.has(`${post.ref.uri}:${bothFollower}`)).toEqual(true)
+        })
 
-        expect(feedElements.has(`${post.ref.uri}:${replierFollower}`)).toEqual(false)
-        expect(feedElements.has(`${reply.ref.uri}:${replierFollower}`)).toEqual(false)
-
-        expect(feedElements.has(`${reply.ref.uri}:${bothFollower}`)).toEqual(true)
-        expect(feedElements.has(`${post.ref.uri}:${bothFollower}`)).toEqual(true)
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     }, {timeout: testTimeout})
 
 
     it("should include repost of own post", async () => {
-        const poster = await createTestUser(ctx!, "poster", testSuite)
+        const test = Effect.gen(function* () {
+            const poster = yield* createTestUser(ctx!, "poster", testSuite)
 
-        const post = await getPostRefAndRecord(
-            "hola!",
-            new Date(Date.now()),
-            testSuite,
-            {
-                did: poster
-            }
-        )
+            const post = yield* getPostRefAndRecord(
+                "hola!",
+                new Date(Date.now()),
+                testSuite,
+                {
+                    did: poster
+                }
+            )
 
-        const repost = await getRepostRefAndRecord(post.ref, new Date(Date.now()+1), testSuite, poster)
+            const repost = yield* getRepostRefAndRecord(post.ref, new Date(Date.now()+1), testSuite, poster)
 
-        await processRecordsInTest(ctx!, [
-            post,
-            repost
-        ])
-        const postInFeed = await checkContentInFollowingFeed(ctx!, post.ref.uri, poster)
-        expect(postInFeed).toEqual(true)
+            yield* processRecordsInTest(ctx!, [
+                post,
+                repost
+            ])
+            const postInFeed = yield* checkContentInFollowingFeed(ctx!, post.ref.uri, poster)
+            expect(postInFeed).toEqual(true)
 
-        const repostInFeed = await checkContentInFollowingFeed(ctx!, repost.ref.uri, poster)
-        expect(repostInFeed).toEqual(true)
+            const repostInFeed = yield* checkContentInFollowingFeed(ctx!, repost.ref.uri, poster)
+            expect(repostInFeed).toEqual(true)
+        })
+
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     }, {timeout: testTimeout})
 
 

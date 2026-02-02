@@ -4,7 +4,6 @@ import {
     isDataset,
     isPost,
     isTopicVersion,
-    isVisualization,
     splitUri
 } from "@cabildo-abierto/utils"
 

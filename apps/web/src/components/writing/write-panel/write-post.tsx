@@ -36,7 +36,6 @@ import {AddVisualizationButton} from "./add-visualization-button";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
 import {profileUrl} from "@/components/utils/react/url";
-import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
 import {AddThreadElementButton} from "@/components/writing/write-panel/add-thread-element-button";
 import {isThreadElementStateEmpty} from "@/components/writing/write-panel/write-panel-panel";

@@ -58,7 +58,7 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
             this.ctx.worker?.addJob("update-following-feed-on-new-content",  records.map(r => r.ref.uri)),
             this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
             this.ctx.worker?.addJob("update-interactions-score", records.map(r => r.ref.uri), 11)
-        ]) : Effect.void
+        ], {concurrency: "unbounded"}) : Effect.void
 
         return Effect.gen(function*() {
             yield* Effect.tryPromise({

@@ -280,7 +280,7 @@ export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effec
     if (res && res.currentVersionId) {
         return res.currentVersionId
     } else {
-        return yield* Effect.fail(new NotFoundError())
+        return yield* Effect.fail(new NotFoundError(id))
     }
 })
 
@@ -434,7 +434,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
     })
 
     if (!topic || !topic.cid) {
-        return yield* Effect.fail(new NotFoundError())
+        return yield* Effect.fail(new NotFoundError(uri))
     }
 
     let text: string | null = null

@@ -258,7 +258,7 @@ export class CAWorker {
             (data) => updatePopularitiesOnTopicsChange(ctx, data),
             true
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-contents-topic-mentions",
             (data) => updatePopularitiesOnContentsChange(ctx, data as string[]),
             true

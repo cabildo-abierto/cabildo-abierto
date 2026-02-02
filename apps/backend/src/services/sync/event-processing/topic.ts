@@ -7,7 +7,7 @@ import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
-    InsertRecordError,
+    InsertRecordError, ProcessCreateError,
     RecordProcessor
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
@@ -16,14 +16,17 @@ import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.j
 import {Effect, pipe} from "effect";
 
 import { DB } from "prisma/generated/types.js";
-import {AddJobError} from "#/utils/errors.js";
+import {AddJobError, InvalidValueError} from "#/utils/errors.js";
 
 
 export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> {
 
     validateRecord = ArCabildoabiertoWikiTopicVersion.validateRecord
 
-    addRecordsToDB(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], reprocess: boolean = false) {
+    addRecordsToDB(
+        records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+        reprocess: boolean = false
+    ): Effect.Effect<number, ProcessCreateError | InvalidValueError> {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -55,8 +58,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                     .insertInto("Topic")
                     .values(topics.map(t => ({...t, synonyms: []})))
                     .onConflict((oc) => oc.column("id").doUpdateSet({
-                        lastEdit: sql`GREATEST
-                    ("Topic"."lastEdit", excluded."lastEdit")`
+                        lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
                     }))
                     .execute()
             } catch (err) {
@@ -87,42 +89,44 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             }
         })
 
-        const createJobs = this.createJobs
-
         return pipe(
             Effect.tryPromise({
                 try: () => insertTopics,
                 catch: () => new InsertRecordError()
             }),
             Effect.tap(inserted => {
-                return !reprocess ? Effect.tryPromise({
-                    try: () => createJobs(records, inserted, topics),
-                    catch: () => new AddJobError()
-                }) : Effect.void
+                return !reprocess ? this.createJobs(records, inserted, topics) : Effect.void
             }),
             Effect.map(() => records.length)
         )
     }
 
-    async createJobs(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[]) {
+    createJobs(
+        records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+        inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[]
+    ): Effect.Effect<void, AddJobError> {
         const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
 
-        if (inserted) {
-            const data: NotificationJobData[] = inserted.map((i) => ({
-                uri: i.uri,
-                topics: i.topicId,
-                type: "TopicEdit"
-            }))
-            this.ctx.worker?.addJob("batch-create-notifications", data)
-        }
+        const data: NotificationJobData[] | null = inserted ? inserted.map((i) => ({
+            uri: i.uri,
+            topics: i.topicId,
+            type: "TopicEdit"
+        })) : null
 
-        await addUpdateContributionsJobForTopics(this.ctx, topics.map(t => t.id))
+        return pipe(
+            data ? this.ctx.worker?.addJob("batch-create-notifications", data) : Effect.void,
+            Effect.flatMap(() => {
+                return addUpdateContributionsJobForTopics(this.ctx, topics.map(t => t.id))
+            }),
+            Effect.flatMap(() => {
+                return Effect.all([
+                    this.ctx.worker?.addJob("update-author-status", authors, 11),
+                    this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
+                    this.ctx.worker?.addJob("update-topic-mentions", topics.map(t=> t.id), 11)
+                ])
+            })
+        )
 
-        await Promise.all([
-            this.ctx.worker?.addJob("update-author-status", authors, 11),
-            this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
-            this.ctx.worker?.addJob("update-topic-mentions", topics.map(t=> t.id), 11)
-        ])
     }
 }
 

@@ -67,6 +67,7 @@ export const hydrateTopicsDatasetView = (ctx: AppContext, filters: $Typed<ArCabi
 
 export class NotFoundError {
     readonly _tag = "NotFoundError"
+    constructor(readonly message?: string) {}
 }
 
 

@@ -7,6 +7,8 @@ import {
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import {splitUri} from "@cabildo-abierto/utils";
+import {Effect} from "effect";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 
 const testSuite = getSuiteId(__filename)
 
@@ -24,45 +26,52 @@ describe('Edit post', {timeout: testTimeout}, () => {
     })
 
     it("should modify the text in a post", {timeout: testTimeout}, async () => {
-        const post = await getPostRefAndRecord(
-            "hola!", new Date(), testSuite
-        )
-
-        await processRecordsInTest(ctx!, [post])
-
-        const record = await ctx!.kysely
-            .selectFrom("Content")
-            .where(
-                "uri",
-                "=",
-                post.ref.uri
+        const test = Effect.gen(function* () {
+            const post = yield* getPostRefAndRecord(
+                "hola!", new Date(), testSuite
             )
-            .selectAll()
-            .executeTakeFirst()
 
-        expect(record).not.toBeFalsy()
-        expect(record!.text).toBe(post.record.text)
+            yield* processRecordsInTest(ctx!, [post])
 
-        const post2 = await getPostRefAndRecord(
-            "chau!", new Date(), testSuite, splitUri(post.ref.uri))
-        await processRecordsInTest(ctx!, [post2])
+            const record = yield* Effect.promise(() => ctx!.kysely
+                .selectFrom("Content")
+                .where(
+                    "uri",
+                    "=",
+                    post.ref.uri
+                )
+                .selectAll()
+                .executeTakeFirst())
 
-        const record2 = await ctx!.kysely
-            .selectFrom("Content")
-            .where(
-                "uri",
-                "=",
-                post.ref.uri
-            )
-            .selectAll()
-            .executeTakeFirst()
-        expect(record2).not.toBeNull()
-        expect(record2!.text).toBe(post2.record.text)
+            expect(record).not.toBeFalsy()
+            expect(record!.text).toBe(post.record.text)
+
+            const post2 = yield* getPostRefAndRecord(
+                "chau!", new Date(), testSuite, splitUri(post.ref.uri))
+            yield* processRecordsInTest(ctx!, [post2])
+
+            const record2 = yield* Effect.promise(() => ctx!.kysely
+                .selectFrom("Content")
+                .where(
+                    "uri",
+                    "=",
+                    post.ref.uri
+                )
+                .selectAll()
+                .executeTakeFirst())
+            expect(record2).not.toBeNull()
+            expect(record2!.text).toBe(post2.record.text)
+        })
+
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     })
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })
-
 
 
 describe('Edit article', {timeout: testTimeout}, () => {
@@ -78,54 +87,62 @@ describe('Edit article', {timeout: testTimeout}, () => {
     }, testTimeout)
 
     it("should modify the text and set edited", {timeout: testTimeout}, async () => {
-        const article = await getArticleRefAndRecord(
-            ctx!, "título", "hola!", new Date(), testSuite
-        )
-        await processRecordsInTest(ctx!, [article])
-
-        const record = await ctx!.kysely
-            .selectFrom("Content")
-            .innerJoin("Record", "Record.uri", "Content.uri")
-            .innerJoin("Article", "Article.uri", "Content.uri")
-            .where(
-                "Content.uri",
-                "=",
-                article.ref.uri
+        const test = Effect.gen(function* () {
+            const article = yield* getArticleRefAndRecord(
+                ctx!, "título", "hola!", new Date(), testSuite
             )
-            .selectAll()
-            .executeTakeFirst()
+            yield* processRecordsInTest(ctx!, [article])
 
-        expect(record).not.toBeFalsy()
-        expect(record!.text).toBe("hola!")
-        expect(record!.title).toBe(article.record.title)
-        expect(record!.editedAt).toBeNull()
+            const record = yield* Effect.promise(() => ctx!.kysely
+                .selectFrom("Content")
+                .innerJoin("Record", "Record.uri", "Content.uri")
+                .innerJoin("Article", "Article.uri", "Content.uri")
+                .where(
+                    "Content.uri",
+                    "=",
+                    article.ref.uri
+                )
+                .selectAll()
+                .executeTakeFirst())
 
-        const article2 = await getArticleRefAndRecord(
-            ctx!,
-            "otro título",
-            "chau!",
-            new Date(),
-            testSuite,
-            splitUri(article.ref.uri)
-        )
-        await processRecordsInTest(ctx!, [article2])
+            expect(record).not.toBeFalsy()
+            expect(record!.text).toBe("hola!")
+            expect(record!.title).toBe(article.record.title)
+            expect(record!.editedAt).toBeNull()
 
-        const record2 = await ctx!.kysely
-            .selectFrom("Content")
-            .innerJoin("Record", "Record.uri", "Content.uri")
-            .innerJoin("Article", "Article.uri", "Content.uri")
-            .where(
-                "Content.uri",
-                "=",
-                article.ref.uri
+            const article2 = yield* getArticleRefAndRecord(
+                ctx!,
+                "otro título",
+                "chau!",
+                new Date(),
+                testSuite,
+                splitUri(article.ref.uri)
             )
-            .selectAll()
-            .executeTakeFirst()
+            yield* processRecordsInTest(ctx!, [article2])
 
-        expect(record2).not.toBeNull()
-        expect(record2!.text).toBe("chau!")
-        expect(record2!.title).toBe(article2.record.title)
-        expect(record2!.editedAt).not.toBeNull()
+            const record2 = yield* Effect.promise(() => ctx!.kysely
+                .selectFrom("Content")
+                .innerJoin("Record", "Record.uri", "Content.uri")
+                .innerJoin("Article", "Article.uri", "Content.uri")
+                .where(
+                    "Content.uri",
+                    "=",
+                    article.ref.uri
+                )
+                .selectAll()
+                .executeTakeFirst())
+
+            expect(record2).not.toBeNull()
+            expect(record2!.text).toBe("chau!")
+            expect(record2!.title).toBe(article2.record.title)
+            expect(record2!.editedAt).not.toBeNull()
+        })
+
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     })
 
     afterAll(async () => cleanUpAfterTests(ctx!))
