@@ -163,7 +163,7 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
                     )
                 }
 
-                return Effect.all(jobs)
+                return Effect.all(jobs, {concurrency: "unbounded"})
             }),
             Effect.map(insertedPosts => insertedPosts.length)
         )

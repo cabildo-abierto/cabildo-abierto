@@ -573,7 +573,8 @@ export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
         records.map(r => {
             const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
             return processor.process([r])
-        })
+        }),
+        {concurrency: 4}
     ).pipe(Effect.tap(
         Effect.tryPromise({
             try: () => ctx.worker.runAllJobs(),
@@ -591,7 +592,7 @@ export const deleteRecordsInTest = (ctx: AppContext, records: string[]) => Effec
             try: () => processor.process([r]),
             catch: () => new ProcessDeleteError(c)
         })
-    }))
+    }), {concurrency: 4})
     yield* Effect.tryPromise({
         try: () => ctx!.worker?.runAllJobs(), // TO DO: Pasar a Effect
         catch: () => "Error al correr los trabajos."

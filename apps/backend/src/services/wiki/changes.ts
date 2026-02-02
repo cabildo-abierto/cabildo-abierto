@@ -70,7 +70,7 @@ export const getTopicVersionChanges: EffHandlerNoAuth<{
         getTopicVersion(ctx, curUri),
         getTopicVersion(ctx, prevUri),
         dataplane.fetchProfileViewBasicHydrationData([curAuthorId, prevAuthorId])
-    ])
+    ], {concurrency: "unbounded"})
 
     const nodes1 = anyEditorStateToNodesForDiff(prev.text, prev.format)
     const nodes2 = anyEditorStateToNodesForDiff(cur.text, cur.format)

@@ -120,7 +120,7 @@ const getCANotifications = (
                 .execute(),
             catch: () => new DBError()
         })
-    ])
+    ], {concurrency: "unbounded"})
 
     yield* dataplane.fetchNotificationsHydrationData(skeleton)
 

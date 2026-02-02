@@ -113,7 +113,7 @@ export function createCAUser(ctx: AppContext, agent: SessionAgent, code?: string
                 }),
                 catch: () => new ATCreateRecordError()
             })
-        ])
+        ], {concurrency: "unbounded"})
 
         const refAndRecordCA = {ref: {uri: data.uri, cid: data.cid}, record: caProfileRecord}
         const refAndRecordBsky = {ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!}, record: bskyProfile.value as AppBskyActorProfile.Record}
@@ -122,7 +122,7 @@ export function createCAUser(ctx: AppContext, agent: SessionAgent, code?: string
                 .processValidated([refAndRecordCA]),
             new BskyProfileRecordProcessor(ctx)
                 .processValidated([refAndRecordBsky])
-        ])
+        ], {concurrency: "unbounded"})
     })
 }
 
@@ -203,7 +203,7 @@ export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCod
                     .executeTakeFirstOrThrow(),
                 catch: () => new UserNotFoundError()
             }),
-        ])
+        ], {concurrency: "unbounded"})
 
         if(user.code != null && user.inCA && user.hasAccess){
             return

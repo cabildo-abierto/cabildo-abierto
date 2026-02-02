@@ -69,7 +69,7 @@ function externalEmbedViewToMain(agent: SessionAgent, embed: AppBskyEmbedExterna
 
 function getImagesEmbed(agent: SessionAgent, images: ImagePayloadForPostCreation[]): Effect.Effect<$Typed<AppBskyEmbedImages.Main>, UploadImageFromURLError | UploadImageFromBase64Error | FetchImageURLError> {
     return Effect.gen(function* () {
-        const blobs = yield* Effect.all(images.map(image => uploadImageBlob(agent, image)), {concurrency: "unbounded"})
+        const blobs = yield* Effect.all(images.map(image => uploadImageBlob(agent, image)), {concurrency: 3})
 
         const imagesEmbed: AppBskyEmbedImages.Image[] = blobs.map((({ref, size}) => {
             return {

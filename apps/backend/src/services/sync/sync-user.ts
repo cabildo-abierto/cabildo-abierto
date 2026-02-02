@@ -460,7 +460,6 @@ export function syncUserJobHandler(ctx: AppContext, data: {
 }): Effect.Effect<void, UserNotFoundError | SyncError> {
     const handleOrDid = data.handleOrDid ?? data.did
     return Effect.gen(function* () {
-        yield* Effect.log("running sync user job handler")
         if (!handleOrDid) return yield* Effect.fail(new UserNotFoundError())
         const did = yield* dbHandleToDid(ctx, handleOrDid)
         if (did) {

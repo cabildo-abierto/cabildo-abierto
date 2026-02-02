@@ -64,7 +64,7 @@ export const getMainProfileFeedSkeleton = (did: string) : GetSkeletonProps => {
         let [bskySkeleton, CASkeleton] = yield* Effect.all([
             getMainProfileFeedSkeletonBsky(ctx, agent, did, cursor),
             getMainProfileFeedSkeletonCA(ctx, did, cursor)
-        ])
+        ], {concurrency: "unbounded"})
 
         if(bskySkeleton.cursor != undefined){
             const newCursorDate = new Date(bskySkeleton.cursor)

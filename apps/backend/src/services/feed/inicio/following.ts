@@ -165,7 +165,7 @@ const getFollowingFeedSkeletonAll: GetSkeletonProps = (
     let [timeline, articles] = yield* Effect.all([
         timelineQuery,
         getArticlesForFollowingFeed(ctx, agent, cursorDate)
-    ])
+    ], {concurrency: "unbounded"})
 
     // borramos todos los artículos y reposts de artículos anteriores en fecha al último post de la timeline
     const lastInTimeline = timeline.feed.length > 0 ? timeline.feed[timeline.feed.length - 1].post.indexedAt : null

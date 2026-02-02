@@ -123,7 +123,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                     this.ctx.worker?.addJob("update-author-status", authors, 11),
                     this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
                     this.ctx.worker?.addJob("update-topic-mentions", topics.map(t=> t.id), 11)
-                ])
+                ], {concurrency: "unbounded"})
             })
         )
 
@@ -233,7 +233,7 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
             await Effect.runPromise(Effect.all([
                 ctx.worker.addJob("update-contents-topic-mentions", uris),
                 ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
-            ]))
+            ], {concurrency: "unbounded"}))
         } catch (err) {
             console.log(err)
             console.log("Error deleting topic versions")

@@ -1,7 +1,12 @@
 import {AppContext} from "#/setup.js";
 import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
 import {unique} from "@cabildo-abierto/utils";
-import {DataPlane, FetchFromBskyError, joinMaps, makeDataPlane} from "#/services/hydration/dataplane.js";
+import {
+    DataPlane,
+    FetchFromBskyError,
+    joinMapsInPlace,
+    makeDataPlane
+} from "#/services/hydration/dataplane.js";
 import {Agent, SessionAgent} from "#/utils/session-agent.js";
 import * as Effect from "effect/Effect";
 import {
@@ -12,6 +17,7 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {DBError} from "#/services/write/article.js";
+import {$Typed, AppBskyActorDefs} from "@atproto/api";
 
 async function getFollowxFromCA(
     ctx: AppContext,
@@ -40,11 +46,14 @@ const getFollowxFromBsky = (
 
     const data = (yield* DataPlane).getState()
 
-    data.bskyBasicUsers = joinMaps(data.bskyBasicUsers,
-        new Map(users.map(u => [u.did, {
-            ...u,
-            $type: "app.bsky.actor.defs#profileViewBasic"
-        }])))
+    const profiles: Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>> = new Map(users.map(u => [u.did, {
+        ...u,
+        $type: "app.bsky.actor.defs#profileViewBasic"
+    }]))
+    joinMapsInPlace(
+        data.bskyBasicUsers,
+        profiles
+    )
     return users.map(u => u.did)
 })
 

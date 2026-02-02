@@ -45,7 +45,6 @@ import {AppBskyActorDefs} from "@atproto/api"
 import {CAProfileDetailed, CAProfile} from "#/lib/types.js";
 import {getObjectKey} from "#/utils/object.js";
 import {Context, Effect, pipe, Stream} from "effect";
-import {withSpan} from "effect/Effect";
 import {toReadonlyArray} from "effect/Chunk";
 import {DBError} from "#/services/write/article.js";
 import {S3DownloadError, S3GetSignedURLError} from "../storage/storage.js";
@@ -100,6 +99,12 @@ export type TopicMentionedProps = {
 
 export function joinMaps<T>(a?: Map<string, T>, b?: Map<string, T>): Map<string, T> {
     return new Map([...a ?? [], ...b ?? []])
+}
+
+export function joinMapsInPlace<T>(a: Map<string, T>, b?: Map<string, T>) {
+    if(b) for(const [key, value] of b.entries()) {
+        a.set(key, value)
+    }
 }
 
 
@@ -395,11 +400,16 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 caUsers.set(d, "not-found")
             }
         }
-    })
+    }).pipe(Effect.withSpan("fetchCAUsers"))
 
     const fetchProfileViewDetailedHydrationDataFromBsky = (dids: string[]): Effect.Effect<void, FetchFromBskyError> => Effect.gen(function* () {
         dids = unique(dids.filter(d => !bskyDetailedUsers.has(d)))
-        if (dids.length == 0) return Effect.void
+
+        yield* Effect.annotateCurrentSpan({
+            didsCount: dids.length
+        })
+
+        if (dids.length == 0) return yield* Effect.void
 
         const batchSize = 20
         const didBatches: string[][] = []
@@ -420,7 +430,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             }))
         ))
 
-        return pipe(
+        return yield* pipe(
             profiles,
             Effect.map(profiles => toReadonlyArray(profiles)),
             Effect.tap(profiles => {
@@ -432,10 +442,9 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     bskyBasicUsers,
                     new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewBasic"}]))
                 )
-            }),
-            withSpan("FetchProfileViewDetailedFromBsky")
+            })
         )
-    })
+    }).pipe(Effect.withSpan("fetchProfileViewDetailedFromBsky"))
 
     const fetchProfileViewHydrationData = (dids: string[]): Effect.Effect<void, FetchFromBskyError | DBError> => Effect.gen(function* () {
         dids = dids.filter(d => {
@@ -557,7 +566,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .execute(),
                 catch: () => new DBError()
             }) : Effect.succeed([])
-        ]))[1]
+        ], {concurrency: "unbounded"}))[1]
 
         const bskyPostsData = pUris
             .map(u => bskyPosts?.get(u))
@@ -598,7 +607,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             fetchEngagement(uris),
             fetchTopicsBasicByUris(topicVersionUris(uris)),
             fetchProfileViewBasicHydrationData(dids)
-        ])
+        ], {concurrency: "unbounded"})
     })
 
     const fetchThreadHydrationData = (skeleton: ThreadSkeleton): Effect.Effect<void, DBError | FetchFromBskyError> => {
@@ -846,7 +855,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             fetchPostAndArticleViewsHydrationData(expandedUris),
             fetchRepostsHydrationData(expandedUris),
             fetchRootCreationDate(skeleton.map(s => s.post))
-        ])
+        ], {concurrency: "unbounded"})
     })
 
     const fetchRootCreationDate = (uris: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
@@ -996,11 +1005,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         topicsMentioned.set(uri, topics)
     })
 
-    const fetchProfileViewDetailedHydrationDataFromCA = (dids: string[]): Effect.Effect<void, FetchFromCAError> => {
+    const fetchProfileViewDetailedHydrationDataFromCA = (dids: string[]): Effect.Effect<void, FetchFromCAError> => Effect.gen(function* () {
         dids = unique(dids.filter(d => !caUsersDetailed.has(d)))
-        if (dids.length == 0) return Effect.void
 
-        return pipe(
+        yield* Effect.annotateCurrentSpan({didsCount: dids.length})
+
+        if (dids.length == 0) return yield* Effect.void
+
+        return yield* pipe(
             Effect.tryPromise({
                 try: () => ctx.kysely
                     .selectFrom("User")
@@ -1077,14 +1089,9 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 }
 
                 return formattedProfiles
-            }),
-            withSpan("fetchProfileViewDetailedHydrationDataFromCA", {
-                attributes: {
-                    profilesCount: dids.length
-                }
             })
         )
-    }
+    }).pipe(Effect.withSpan("fetchProfileViewDetailedHydrationDataFromCA"))
 
     const fetchProfilesViewerState = (dids: string[]): Effect.Effect<void, ViewerStateFetchError> => {
         if(!agent.hasSession()) {
@@ -1196,7 +1203,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 catch: () => new DBError()
             }),
             fetchProfileViewHydrationData(reqAuthors)
-        ])
+        ], {concurrency: "unbounded"})
 
         caNotificationsData.forEach(n => {
             if(n.created_at_tz != null) notifications.set(n.id, {

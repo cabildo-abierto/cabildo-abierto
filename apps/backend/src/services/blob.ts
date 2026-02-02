@@ -93,7 +93,10 @@ export function fetchTextBlobs(ctx: AppContext, blobs: BlobRef[], retries: numbe
             }
         }
 
-        const res = yield* Effect.all(pending.map(p => fetchTextBlob(ctx, p.blob, retries).pipe(Effect.catchTag("FetchBlobError", () => Effect.succeed(null)))))
+        const res = yield* Effect.all(
+            pending.map(p => fetchTextBlob(ctx, p.blob, retries).pipe(Effect.catchTag("FetchBlobError", () => Effect.succeed(null)))),
+            {concurrency: 8}
+        )
 
         for (let i = 0; i < pending.length; i++) {
             const r = res[i]

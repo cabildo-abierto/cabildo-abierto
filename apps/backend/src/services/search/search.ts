@@ -39,7 +39,10 @@ export function searchUsersInCA(ctx: AppContext, query: string, limit: number): 
             .limit(limit)
             .execute(),
         catch: () => new DBError()
-    }).pipe(Effect.map(res => res.map(r => r.did)))
+    }).pipe(
+        Effect.map(res => res.map(r => r.did)),
+        Effect.withSpan("searchUsersInCA")
+    )
 }
 
 
@@ -55,6 +58,7 @@ export const searchUsersInBsky = (
 
     const dataplane = yield* DataPlane
     const state = dataplane.getState()
+    yield* Effect.log(`storing bsky basic users ${data.actors.length}`)
     state.bskyBasicUsers = joinMaps(
         state.bskyBasicUsers,
         new Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>>(data.actors.map(a => [a.did, {
@@ -63,7 +67,23 @@ export const searchUsersInBsky = (
     )
 
     return data.actors.map(a => a.did)
-})
+}).pipe(Effect.withSpan("searchUsersInBsky"))
+
+
+function combineSearchResults(a: string[], b: string[], limit: number) {
+    const usersList: string[] = []
+    for(let i = 0; i < limit; i++){
+        if(a.length > i){
+            if(!usersList.includes(a[i]))
+                usersList.push(a[i])
+        }
+        if(b.length > i) {
+            if(!usersList.includes(b[i]))
+                usersList.push(b[i])
+        }
+    }
+    return usersList.slice(0, limit)
+}
 
 
 export const searchUsers: EffHandlerNoAuth<{
@@ -83,18 +103,7 @@ export const searchUsers: EffHandlerNoAuth<{
         searchUsersInBsky(agent, searchQuery, limit)
     ], {concurrency: "unbounded"})
 
-    let usersList: string[] = []
-    for(let i = 0; i < limit; i++){
-        if(caSearchResults.length > i){
-            if(!usersList.includes(caSearchResults[i]))
-                usersList.push(caSearchResults[i])
-        }
-        if(bskySearchResults.length > i) {
-            if(!usersList.includes(bskySearchResults[i]))
-                usersList.push(bskySearchResults[i])
-        }
-    }
-    usersList = usersList.slice(0, limit)
+    let usersList: string[] = combineSearchResults(caSearchResults, bskySearchResults, limit)
 
     yield* dataplane.fetchProfileViewHydrationData(usersList)
 

@@ -44,7 +44,7 @@ export function hydrateProfileView(ctx: AppContext, did: string): Effect.Effect<
         }
 
         const caDetailed = data.caUsersDetailed?.get(did)
-        const bsky = data.bskyBasicUsers?.get(did)
+        const bsky = data.bskyBasicUsers?.get(did) ?? data.bskyDetailedUsers?.get(did)
 
         yield* Effect.annotateCurrentSpan({
             bsky: bsky != null, caDetailed: caDetailed != null
@@ -115,7 +115,7 @@ export function hydrateProfileViewBasic(ctx: AppContext, did: string, warn: bool
         }
 
         const ca = state.caUsersDetailed?.get(did)
-        const bsky = state.bskyBasicUsers?.get(did)
+        const bsky = state.bskyBasicUsers?.get(did) ?? state.bskyDetailedUsers?.get(did)
 
         if(!bsky) {
             if(warn) {
