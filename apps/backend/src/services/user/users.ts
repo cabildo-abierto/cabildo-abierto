@@ -621,15 +621,27 @@ export const saveNewEmail: EffHandler<{email: string}, {}> = (ctx, agent, {email
         }
 
         yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .updateTable("User")
-                .set("email", email)
-                .where("did", "=", agent.did).execute(),
-            catch: error => {
-                return "No se encontró el usuario."
+            try: () => ctx.kysely.transaction().execute(async trx => {
+                await trx.updateTable("User")
+                    .set("email", email)
+                    .where("did", "=", agent.did)
+                    .execute()
+
+                await trx
+                    .updateTable("MailingListSubscription")
+                    .set("email", email)
+                    .where("userId", "=", agent.did)
+                    .execute()
+            }),
+            catch: () => {
+                return "Ocurrió un error al actualizar la dirección de correo."
             }
         })
-    }).pipe(Effect.flatMap(() => Effect.succeed({})), Effect.catchTag("CheckEmailError", () => Effect.fail("Error en la conexión.")))
+    }).pipe(
+        Effect.withSpan("saveNewEmail", {attributes: {email}}),
+        Effect.flatMap(() => Effect.succeed({})),
+        Effect.catchTag("CheckEmailError", () => Effect.fail("Error en la conexión."))
+    )
 }
 
 

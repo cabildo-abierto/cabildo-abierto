@@ -4,7 +4,12 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {cleanText} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
-import {DataPlane, FetchFromBskyError, joinMaps, makeDataPlane} from "#/services/hydration/dataplane.js";
+import {
+    DataPlane,
+    FetchFromBskyError,
+    joinMapsInPlace,
+    makeDataPlane
+} from "#/services/hydration/dataplane.js";
 import {Agent} from "#/utils/session-agent.js";
 import {stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js";
 import {$Typed} from "@atproto/api";
@@ -59,7 +64,7 @@ export const searchUsersInBsky = (
     const dataplane = yield* DataPlane
     const state = dataplane.getState()
     yield* Effect.log(`storing bsky basic users ${data.actors.length}`)
-    state.bskyBasicUsers = joinMaps(
+    joinMapsInPlace(
         state.bskyBasicUsers,
         new Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>>(data.actors.map(a => [a.did, {
             $type: "app.bsky.actor.defs#profileViewBasic", ...a

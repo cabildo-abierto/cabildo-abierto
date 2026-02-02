@@ -1,24 +1,25 @@
 import {FeedPipelineProps, GetSkeletonProps} from "#/services/feed/feed.js";
 import {EffHandler} from "#/utils/handler.js";
 import {
-    AppBskyFeedPost,
-    ArCabildoabiertoFeedArticle, defaultEnDiscusionFormat,
+    defaultEnDiscusionFormat,
     defaultEnDiscusionMetric,
     defaultEnDiscusionTime
 } from "@cabildo-abierto/api"
-import {isSelfLabels} from "@atproto/api/dist/client/types/com/atproto/label/defs.js";
-import {$Typed} from "@atproto/api";
+import {ComAtprotoLabelDefs} from "@atproto/api";
 import {sql} from "kysely";
 import {
     GetNextCursor,
     getNextFollowingFeedCursor,
     SkeletonQuery
 } from "#/services/feed/inicio/following.js";
-import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
-import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
 import {Effect} from "effect";
 import {DBError} from "#/services/write/article.js";
 import {FetchFromBskyError} from "#/services/hydration/dataplane.js";
+import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {AppContext} from "#/setup.js";
+import {SessionAgent} from "#/utils/session-agent.js";
+import {getUri, shortCollectionToCollection, splitUri} from "@cabildo-abierto/utils";
+import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
 
 
 export function getEnDiscusionStartDate(time: EnDiscusionTime) {
@@ -263,14 +264,16 @@ export const getEnDiscusionFeedPipeline = (
 }
 
 
-export const addToEnDiscusion: EffHandler<{
-    params: { collection: string, rkey: string }
-}, {}> = (ctx, agent, {params}) => {
+export class ATGetRecordError {
+    readonly _tag = "ATGetRecordError"
+}
+
+
+export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: string) => {
 
     return Effect.gen(function* () {
         // TO DO: Pasar a processUpdate
-        const {collection, rkey} = params
-        const did = agent.did
+        const {did, collection, rkey} = splitUri(uri)
 
         const res = yield* Effect.tryPromise({
             try: () => agent.bsky.com.atproto.repo.getRecord({
@@ -278,89 +281,67 @@ export const addToEnDiscusion: EffHandler<{
                 collection,
                 rkey
             }),
-            catch: () => "No se encontró el contenido."
+            catch: () => new ATGetRecordError()
         })
 
-        if (!res.success) {
-            return yield* Effect.fail("No se encontró el contenido.")
-        }
+        if (!res.success) return yield* Effect.fail(new ATGetRecordError())
 
         const record = res.data.value
 
-        const validatePost = AppBskyFeedPost.validateRecord(record)
-        const validateArticle = ArCabildoabiertoFeedArticle.validateRecord(record)
-
-        let validRecord: $Typed<AppBskyFeedPost.Record> | $Typed<ArCabildoabiertoFeedArticle.Record> | undefined
-        if (validatePost.success) {
-            validRecord = {...validatePost.value, $type: "app.bsky.feed.post"}
-        } else if (validateArticle.success) {
-            validRecord = {...validateArticle.value, $type: "ar.cabildoabierto.feed.article"}
-        }
-
-        if (validRecord) {
-            if (validRecord.labels && isSelfLabels(validRecord.labels)) {
-                validRecord.labels.values.push({val: "ca:en discusión"})
-            } else if (!validRecord.labels) {
-                validRecord.labels = {
-                    $type: "com.atproto.label.defs#selfLabels",
-                    values: [{val: "ca:en discusión"}]
-                }
-            }
-
-            const ref = yield* Effect.tryPromise({
-                try: () => agent.bsky.com.atproto.repo.putRecord({
-                    repo: did,
-                    collection,
-                    rkey,
-                    record: validRecord
-                }),
-                catch: () => "Ocurrió un error al agregar el contenido a En discusión."
-            })
-
-            if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
-                yield* new ArticleRecordProcessor(ctx).processValidated([{
-                    ref: {uri: ref.data.uri, cid: ref.data.cid},
-                    record: validRecord
-                }])
-            } else {
-                yield* new PostRecordProcessor(ctx).processValidated([{
-                    ref: {uri: ref.data.uri, cid: ref.data.cid},
-                    record: validRecord
-                }])
-            }
+        if(record.labels) {
+            (record.labels as ComAtprotoLabelDefs.SelfLabels).values.push({val: "ca:en discusión"})
         } else {
-            return yield* Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+            record.labels = {
+                $type: "com.atproto.label.defs#selfLabels",
+                values: [{val: "ca:en discusión"}]
+            }
         }
+
+        const ref = yield* Effect.tryPromise({
+            try: () => agent.bsky.com.atproto.repo.putRecord({
+                repo: did,
+                collection,
+                rkey,
+                record
+            }),
+            catch: () => "Ocurrió un error al agregar el contenido a En discusión."
+        })
+
+        const processor = getRecordProcessor(ctx, collection)
+        yield* processor.process([{
+            ref: {uri: ref.data.uri, cid: ref.data.cid},
+            record: record
+        }])
 
         return {}
     }).pipe(
-        Effect.catchTag("AddJobsError", () => {
-            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
-        }),
-        Effect.catchTag("UpdateRedisError", () => {
-            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
-        }),
-        Effect.catchTag("InvalidValueError", () => {
-            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
-        }),
-        Effect.catchTag("InsertRecordError", () => {
-            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
-        })
+        Effect.withSpan("addToEnDiscusion", {attributes: {uri}})
     )
 
 }
 
 
-export const removeFromEnDiscusion: EffHandler<{
+export const addToEnDiscusionHandler: EffHandler<{
     params: { collection: string, rkey: string }
 }, {}> = (
     ctx,
     agent,
     {params}
-) => Effect.gen(function* () {
-    // TO DO: Pasar a processUpdate
-    const {collection, rkey} = params
+) => {
     const did = agent.did
+    const {collection, rkey} = params
+    const uri = getUri(did, shortCollectionToCollection(collection), rkey)
+    return addToEnDiscusion(ctx, agent, uri).pipe(
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
+        })
+    )
+}
+
+
+const removeFromEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: string) => Effect.gen(function* () {
+    // TO DO: Pasar a processUpdate
+    const {did, collection, rkey} = splitUri(uri)
 
     const res = yield* Effect.tryPromise({
         try: () => agent.bsky.com.atproto.repo.getRecord({
@@ -371,28 +352,14 @@ export const removeFromEnDiscusion: EffHandler<{
         catch: () => new FetchFromBskyError()
     })
 
-    if (!res.success) {
-        return yield* Effect.fail("Ocurrió un error al obtener el contenido.")
-    }
+    if (!res.success) return yield* Effect.fail(new FetchFromBskyError())
 
     const record = res.data.value
 
-    const validatePost = AppBskyFeedPost.validateRecord(record)
-    const validateArticle = ArCabildoabiertoFeedArticle.validateRecord(record)
+    const labels = record.labels as ComAtprotoLabelDefs.SelfLabels | undefined
 
-    let validRecord: AppBskyFeedPost.Record | ArCabildoabiertoFeedArticle.Record | undefined
-    if (validatePost.success) {
-        validRecord = validatePost.value
-    } else if (validateArticle.success) {
-        validRecord = validateArticle.value
-    }
-
-    if (!validRecord) {
-        return yield* Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-    }
-
-    if (validRecord.labels && isSelfLabels(validRecord.labels)) {
-        validRecord.labels.values = validRecord.labels.values.filter(v => v.val != "ca:en discusión")
+    if (labels) {
+        (record.labels as ComAtprotoLabelDefs.SelfLabels).values = labels.values.filter(v => v.val != "ca:en discusión")
     }
 
     const ref = yield* Effect.tryPromise({
@@ -400,38 +367,37 @@ export const removeFromEnDiscusion: EffHandler<{
             repo: did,
             collection,
             rkey,
-            record: validRecord
+            record: record
         }),
-        catch: () => "Ocurrió un error al remover el contenido de En discusión."
+        catch: () => new ATCreateRecordError()
     })
 
-    if (ArCabildoabiertoFeedArticle.isRecord(validRecord)) {
-        yield* (new ArticleRecordProcessor(ctx).process([{
-            ref: {uri: ref.data.uri, cid: ref.data.cid},
-            record: validRecord
-        }]))
-    } else if (AppBskyFeedPost.isRecord(validRecord)) {
-        yield* (new PostRecordProcessor(ctx).process([{
-            ref: {uri: ref.data.uri, cid: ref.data.cid},
-            record: validRecord
-        }]))
-    }
+    const processor = getRecordProcessor(ctx, collection)
+
+    yield* processor.process([{
+        ref: {uri: ref.data.uri, cid: ref.data.cid},
+        record
+    }])
 
     return {}
 }).pipe(
-    Effect.catchTag("FetchFromBskyError", () => {
-        return Effect.fail("Ocurrió un error en la conexión con Bluesky.")
-    }),
-    Effect.catchTag("AddJobsError", () => {
-        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-    }),
-    Effect.catchTag("InsertRecordError", () => {
-        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-    }),
-    Effect.catchTag("UpdateRedisError", () => {
-        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-    }),
-    Effect.catchTag("InvalidValueError", () => {
-        return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-    })
+    Effect.withSpan("removeFromEnDiscusion", {attributes: {uri}})
 )
+
+
+export const removeFromEnDiscusionHandler: EffHandler<{
+    params: { collection: string, rkey: string }
+}, {}> = (
+    ctx,
+    agent,
+    {params}
+) => {
+    const did = agent.did
+    const {collection, rkey} = params
+    const uri = getUri(did, shortCollectionToCollection(collection), rkey)
+    return removeFromEnDiscusion(ctx, agent, uri).pipe(
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
+        })
+    )
+}

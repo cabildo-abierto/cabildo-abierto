@@ -174,7 +174,7 @@ function createPostAT({
         if (!elem.uri) {
             const ref = yield* Effect.tryPromise({
                 try: () => agent.bsky.post({...record}),
-                catch: () => "Ocurrió un error al crear la publicación"
+                catch: () => "Ocurrió un error al crear la publicación."
             })
             return {ref, record}
         } else {
@@ -242,11 +242,16 @@ function isContentReferenced(ctx: AppContext, uri: string): Effect.Effect<boolea
 
         if (!references) return yield* Effect.fail(new PostNotFoundError())
         return Boolean(references.reactions) || Boolean(references.replies) || Boolean(references.quotes)
-    })
+    }).pipe(Effect.withSpan("isContentReferenced", {attributes: {uri}}))
 }
 
 
-function preparePostEdit(ctx: AppContext, agent: SessionAgent, post: CreatePostProps, elem: CreatePostThreadElement): Effect.Effect<CreatePostProps, string | CheckContentReferencesError | PostNotFoundError | ATDeleteRecordError | ProcessDeleteError> {
+class CannotEditReferencedPostError {
+    readonly _tag = "CannotEditReferencedPostError"
+}
+
+
+function preparePostEdit(ctx: AppContext, agent: SessionAgent, post: CreatePostProps, elem: CreatePostThreadElement): Effect.Effect<CreatePostProps, string | CannotEditReferencedPostError | CheckContentReferencesError | PostNotFoundError | ATDeleteRecordError | ProcessDeleteError> {
     return Effect.gen(function* () {
         if (post.threadElements.length > 1) {
             return yield* Effect.fail("No es posible editar una publicación y al mismo tiempo crear un hilo.")
@@ -256,9 +261,10 @@ function preparePostEdit(ctx: AppContext, agent: SessionAgent, post: CreatePostP
         }
 
         const referenced = yield* isContentReferenced(ctx, elem.uri)
+        Effect.annotateCurrentSpan({referenced})
         if (referenced) {
             if (!post.forceEdit) {
-                return yield* Effect.fail("La publicación ya fue referenciada.")
+                return yield* Effect.fail(new CannotEditReferencedPostError())
             }
         } else {
             // edición de un post que todavía no fue referenciado
@@ -266,7 +272,7 @@ function preparePostEdit(ctx: AppContext, agent: SessionAgent, post: CreatePostP
             post.threadElements[0].uri = undefined
         }
         return post
-    })
+    }).pipe(Effect.withSpan("preparePostEdit", {attributes: {uri: elem.uri}}))
 }
 
 
@@ -316,11 +322,14 @@ export const createPost: EffHandler<CreatePostProps, ATProtoStrongRef[]> = (ctx,
                 }))
             }
         }),
-        Effect.catchTag("PostNotFoundError", () => {
-            return Effect.fail("No se encontró la publicación a editar.")
-        }),
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al crear la publicación.")
+        Effect.catchAll(error => {
+            if(typeof error != "string" && error._tag == "PostNotFoundError") {
+                return Effect.fail("No se encontró la publicación a editar.")
+            } else if(typeof error != "string" && error._tag == "CannotEditReferencedPostError") {
+                return Effect.fail("La publicación ya fue referenciada.")
+            } else {
+                return Effect.fail("Ocurrió un error al crear la publicación.")
+            }
         })
     )
 }

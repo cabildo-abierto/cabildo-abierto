@@ -190,7 +190,6 @@ export const ThreadEditor = ({
             }
         })
 
-
         const post: CreatePostProps = {
             reply,
             forceEdit: force,
@@ -200,6 +199,7 @@ export const ThreadEditor = ({
 
         const {error} = await handleSubmit(post)
         if (error) {
+            console.log("error", error)
             if (error.includes("La publicación ya fue referenciada")) {
                 setForceEditModalOpen(true)
                 return {}

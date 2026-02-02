@@ -131,7 +131,6 @@ export async function unsubscribe(ctx: AppContext, email: string) {
         .where("email", "=", email)
         .set("status", "Unsubscribed")
         .execute()
-    ctx.logger.pino.info({email}, "unsuscribed from mailing list")
 }
 
 async function checkUnsuscribeCode(ctx: AppContext, code: string) {

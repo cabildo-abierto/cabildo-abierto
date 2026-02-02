@@ -1,5 +1,5 @@
 import {AppContext} from "#/setup.js";
-import {dbHandleToDid, getCAUsersDids, HandleResolutionError} from "#/services/user/users.js";
+import {dbHandleToDid, HandleResolutionError} from "#/services/user/users.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {RepoReader} from "@atcute/car/v4"
 import {getServiceEndpointForDid} from "#/services/blob.js";
@@ -22,19 +22,6 @@ import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.j
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
 import {AddJobError} from "#/utils/errors.js";
-
-
-export function syncAllUsers(ctx: AppContext, mustUpdateCollections?: string[]) {
-    return Effect.gen(function* () {
-        let users = yield* getCAUsersDids(ctx)
-
-        for (let i = 0; i < users.length; i++) {
-            ctx.logger.pino.info(`Syncing user ${i+1} of ${users.length} (did: ${users[i]})`)
-            yield* ctx.redisCache.mirrorStatus.set(users[i], "InProcess", true)
-            yield* syncUser(ctx, users[i], mustUpdateCollections)
-        }
-    })
-}
 
 
 export async function getCAUsersAndFollows(ctx: AppContext) {
@@ -74,254 +61,309 @@ export class ProcessEventError {
 }
 
 
-export class RepoSync {
-    did: string
-    ctx: AppContext
+const maxRepoMBs = env.MAX_REPO_MBS
+
+export const allCollections = [
+    "app.bsky.feed.post",
+    "app.bsky.feed.like",
+    "app.bsky.feed.repost",
+    "app.bsky.graph.follow",
+    "app.bsky.actor.profile",
+    "ar.cabildoabierto.feed.article",
+    "ar.cabildoabierto.wiki.topicVersion",
+    "ar.cabildoabierto.data.dataset",
+    "ar.cabildoabierto.wiki.voteAccept",
+    "ar.cabildoabierto.wiki.voteReject",
+    "ar.cabildoabierto.actor.caProfile",
+    "ar.com.cabildoabierto.profile"
+]
+
+export type UserRepo = Map<string, RefAndRecord[]>
+
+type PresentRecords = Map<string, {cid: string | null, hasRecord: boolean}>
+
+
+function getPresentRecords(
+    ctx: AppContext,
+    did: string,
     collections: string[]
-    presentRecords: Map<string, {cid: string | null, hasRecord: boolean}> = new Map()
-
-    constructor(ctx: AppContext, did: string, collections?: string[]) {
-        this.ctx = ctx
-        this.did = did
-        this.collections = collections ? collections.map(shortCollectionToCollection) : allCollections
-    }
-
-    run(): Effect.Effect<void, SyncError> {
-        const {did, ctx, getPresentRecords, processRepo, processPendingEvents, updateHandle} = this
-
-        return Effect.gen(function* () {
-            const inCA = yield* isCAUser(ctx, did)
-
-            const mirrorStatus = yield* ctx.redisCache.mirrorStatus.get(did, inCA)
-            yield* Effect.annotateCurrentSpan({inCA, mirrorStatus})
-
-            if(mirrorStatus != "InProcess") return Effect.fail(new InvalidMirrorStatus())
-
-            const doc = yield* getServiceEndpointForDid(ctx, did)
-
-            yield* getPresentRecords()
-
-            yield* processRepo(doc)
-
-            yield* processPendingEvents()
-
-            yield* updateHandle()
-
-            yield* ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
-        }).pipe(
-            Effect.catchAll(() => {
-                return isCAUser(ctx, did).pipe(
-                    Effect.flatMap(inCA => ctx.redisCache.mirrorStatus.set(did, "Failed", inCA).pipe(Effect.flatMap(() => Effect.void)))
-                )
-            }),
-            Effect.withSpan("runSync", {
-                attributes: {
-                    did
-                }
-            })
-        )
-
-    }
-
-    updateHandle(): Effect.Effect<void, HandleResolutionError | UserNotFoundError> {
-        const {ctx, did} = this
-        return Effect.gen(function* () {
-            const handle = yield* ctx.resolver.resolveDidToHandle(did, false)
-            if(!handle) return yield* Effect.fail(new UserNotFoundError())
-            yield* Effect.tryPromise({
-                try: () => ctx.kysely
-                    .updateTable("User")
-                    .set("handle", handle)
-                    .where("did", "=", did)
-                    .execute(),
-                catch: () => new UserNotFoundError()
-            })
+): Effect.Effect<PresentRecords, DBError> {
+    return Effect.gen(function* () {
+        const refs = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Record")
+                .select([
+                    "uri",
+                    "cid",
+                    eb => eb("record", "is not", null).as("hasRecord")
+                ])
+                .where("authorId", "=", did)
+                .where("collection", "in", collections)
+                .execute(),
+            catch: () => new DBError()
         })
+
+        const presentRecords: PresentRecords = new Map()
+        for(const r of refs) {
+            presentRecords.set(r.uri, {
+                cid: r.cid,
+                hasRecord: !!(r.hasRecord)
+            })
+        }
+
+        return presentRecords
+    })
+}
+
+
+function updateHandle(
+    ctx: AppContext,
+    did: string
+): Effect.Effect<void, HandleResolutionError | UserNotFoundError> {
+    return Effect.gen(function* () {
+        const handle = yield* ctx.resolver.resolveDidToHandle(did, false)
+        if(!handle) return yield* Effect.fail(new UserNotFoundError())
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .updateTable("User")
+                .set("handle", handle)
+                .where("did", "=", did)
+                .execute(),
+            catch: () => new UserNotFoundError()
+        })
+    })
+}
+
+
+function docToUrl(doc: string, did: string): string {
+    return doc + "/xrpc/com.atproto.sync.getRepo?did=" + did
+}
+
+
+function maxRepoBytes(): number {
+    return maxRepoMBs * 1024 * 1024
+}
+
+
+function recordRequiresUpdate(
+    presentRecords: PresentRecords,
+    ref: ATProtoStrongRef
+): boolean {
+    const res = presentRecords.get(ref.uri)
+    const recordOk = !!res && res.cid == ref.cid && res.hasRecord
+    return !recordOk
+}
+
+
+function cleanOutdatedInDB(
+    ctx: AppContext,
+    presentRecords: PresentRecords,
+    repoSkeleton: ATProtoStrongRef[]
+): Effect.Effect<void, ProcessDeleteError> {
+    const repoSkeletonUris = new Set(repoSkeleton.map(x => x.uri))
+    const toDelete: string[] = []
+
+    for(const [uri] of presentRecords.entries()) {
+        if(!repoSkeletonUris.has(uri)) {
+            toDelete.push(uri)
+        }
     }
 
-    getPresentRecords(): Effect.Effect<void, DBError> {
-        const {ctx, did, collections, presentRecords} = this
-        return Effect.gen(function* () {
-            const refs = yield* Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("Record")
-                    .select([
-                        "uri",
-                        "cid",
-                        eb => eb("record", "is not", null).as("hasRecord")
-                    ])
-                    .where("authorId", "=", did)
-                    .where("collection", "in", collections)
-                    .execute(),
-                catch: () => new DBError()
-            })
-            for(const r of refs) {
-                presentRecords.set(r.uri, {
-                    cid: r.cid,
-                    hasRecord: !!(r.hasRecord)
-                })
+    return batchDeleteRecords(ctx, toDelete)
+}
+
+
+function processRepoBatch(
+    ctx: AppContext,
+    collections: string[],
+    batch: UserRepo
+): Effect.Effect<void, ProcessCreateError> {
+    return Effect.gen(function* () {
+        for (const collection of collections) {
+            const records: RefAndRecord[] = batch.get(collection) ?? []
+            if(records.length == 0) {
+                continue
+            }
+
+            yield* getRecordProcessor(ctx, collection).processInBatches(records)
+        }
+    })
+}
+
+
+function processRepo(
+    ctx: AppContext,
+    did: string,
+    doc: string,
+    collections: string[],
+    presentRecords: PresentRecords
+): Effect.Effect<void, FetchRepoError | ProcessCreateError | ProcessDeleteError | RepoTooLargeError> {
+    const collectionsSet = new Set(collections)
+    const url = docToUrl(doc, did)
+    const maxBytes = maxRepoBytes()
+
+    return Effect.gen(function* () {
+        const res = yield* Effect.tryPromise({
+            try: () => fetch(url),
+            catch: () => new FetchRepoError()
+        })
+
+        if (!res.ok) return yield* Effect.fail(new FetchRepoError())
+
+        const stream = res.body
+        if (!stream) return yield* Effect.fail(new FetchRepoError())
+
+        const reader = stream.getReader()
+        let receivedBytes = 0;
+        const limitedStream = new ReadableStream({
+            async start(controller) {
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+
+                    receivedBytes += value.byteLength;
+                    if (receivedBytes > maxBytes) {
+                        ctx.logger.pino.info(`${did} exceeded maximum size of ${maxRepoMBs} MBs (${receivedBytes / (1024 * 1024)}mbs received)`)
+                        controller.error(
+                            new Error(`Repo exceeded maximum size of ${maxRepoMBs} MB`)
+                        )
+                        return
+                    }
+
+                    controller.enqueue(value)
+                }
+                controller.close()
             }
         })
 
-    }
+        const repoSkeleton: ATProtoStrongRef[] = []
+        const repoReader = RepoReader.fromStream(limitedStream);
 
-    docToUrl(doc: string){
-        return doc + "/xrpc/com.atproto.sync.getRepo?did=" + this.did
-    }
+        const iterator = repoReader[Symbol.asyncIterator]()
 
-    maxRepoBytes() {
-        return maxRepoMBs * 1024 * 1024
-    }
+        let repoBatch: UserRepo = new Map(collections.map(c => ([c, []])))
+        const batchSize = 5000
+        let batchCount = 0
 
-    processRepo(doc: string): Effect.Effect<void, FetchRepoError | ProcessCreateError | ProcessDeleteError | RepoTooLargeError> {
-        const did = this.did
-        const ctx = this.ctx
-        const collections = this.collections
-        const collectionsSet = new Set(collections)
-        const url = this.docToUrl(doc)
-        const maxBytes = this.maxRepoBytes()
-        const {cleanOutdatedInDB, processRepoBatch, recordRequiresUpdate} = this
-
-        return Effect.gen(function* () {
+        while(true) {
             const res = yield* Effect.tryPromise({
-                try: () => fetch(url),
-                catch: () => new FetchRepoError()
+                try: () => iterator.next(),
+                catch: () => new RepoTooLargeError()
             })
+            if(res.done) break
+            const {collection, rkey, record, cid} = res.value
 
-            if (!res.ok) return yield* Effect.fail(new FetchRepoError())
+            const uri = getUri(did, collection, rkey);
+            if (collectionsSet.has(collection)) {
+                const cur = repoBatch.get(collection)
+                const e: RefAndRecord = {ref: {uri, cid: cid.$link}, record}
+                repoSkeleton.push({uri, cid: cid.$link})
 
-            const stream = res.body
-            if (!stream) return yield* Effect.fail(new FetchRepoError())
-
-            const reader = stream.getReader()
-            let receivedBytes = 0;
-            const limitedStream = new ReadableStream({
-                async start(controller) {
-                    while (true) {
-                        const {done, value} = await reader.read();
-                        if (done) break;
-
-                        receivedBytes += value.byteLength;
-                        if (receivedBytes > maxBytes) {
-                            ctx.logger.pino.info(`${did} exceeded maximum size of ${maxRepoMBs} MBs (${receivedBytes / (1024 * 1024)}mbs received)`)
-                            controller.error(
-                                new Error(`Repo exceeded maximum size of ${maxRepoMBs} MB`)
-                            )
-                            return
-                        }
-
-                        controller.enqueue(value)
+                if (recordRequiresUpdate(presentRecords, e.ref)) {
+                    if (!cur) {
+                        repoBatch.set(collection, [e])
+                    } else {
+                        cur.push(e)
                     }
-                    controller.close()
-                }
-            })
-
-            const repoSkeleton: ATProtoStrongRef[] = []
-            const repoReader = RepoReader.fromStream(limitedStream);
-
-            let repoBatch: UserRepo = new Map(collections.map(c => ([c, []])))
-            const batchSize = 5000
-            let batchCount = 0
-
-            while(true) {
-                const res = yield* Effect.tryPromise({
-                    try: () => repoReader[Symbol.asyncIterator]().next(),
-                    catch: () => new RepoTooLargeError()
-                })
-                if(res.done) break
-                const {collection, rkey, record, cid} = res.value
-
-                const uri = getUri(did, collection, rkey);
-                if (collectionsSet.has(collection)) {
-                    const cur = repoBatch.get(collection)
-                    const e: RefAndRecord = {ref: {uri, cid: cid.$link}, record}
-                    repoSkeleton.push({uri, cid: cid.$link})
-
-                    if (recordRequiresUpdate(e.ref)) {
-                        if (!cur) {
-                            repoBatch.set(collection, [e])
-                        } else {
-                            cur.push(e)
-                        }
-                        batchCount++
-                    }
-                }
-
-                if (batchCount == batchSize) {
-                    yield* processRepoBatch(repoBatch)
-                    batchCount = 0
-                    for (const c of collections) {
-                        const cur = repoBatch.get(c)
-                        if (cur) {
-                            cur.splice(0, cur.length)
-                        }
-                    }
+                    batchCount++
                 }
             }
 
-            if (batchCount > 0) {
-                yield* processRepoBatch(repoBatch)
-            }
-
-            yield* cleanOutdatedInDB(repoSkeleton)
-
-            return
-        })
-    }
-
-    cleanOutdatedInDB(repoSkeleton: ATProtoStrongRef[]): Effect.Effect<void, ProcessDeleteError> {
-        const repoSkeletonUris = new Set(repoSkeleton.map(x => x.uri))
-        const toDelete: string[] = []
-        for(const [uri] of this.presentRecords.entries()) {
-            if(!repoSkeletonUris.has(uri)) {
-                toDelete.push(uri)
+            if (batchCount == batchSize) {
+                yield* processRepoBatch(ctx, collections, repoBatch)
+                batchCount = 0
+                for (const c of collections) {
+                    const cur = repoBatch.get(c)
+                    if (cur) {
+                        cur.splice(0, cur.length)
+                    }
+                }
             }
         }
 
-        return batchDeleteRecords(
-            this.ctx,
-            toDelete
-        )
-    }
+        if (batchCount > 0) {
+            yield* processRepoBatch(ctx, collections, repoBatch)
+        }
 
-    recordRequiresUpdate(ref: ATProtoStrongRef) {
-        const res = this.presentRecords.get(ref.uri)
-        const recordOk = !!res && res.cid == ref.cid && res.hasRecord
-        return !recordOk
-    }
+        yield* cleanOutdatedInDB(ctx, presentRecords, repoSkeleton)
 
-    processRepoBatch(batch: UserRepo): Effect.Effect<void, ProcessCreateError> {
-        const {collections, ctx} = this
-        return Effect.gen(function* () {
-            for (const collection of collections) {
-                const records: RefAndRecord[] = batch.get(collection) ?? []
-                if(records.length == 0) {
-                    continue
-                }
-
-                yield* getRecordProcessor(ctx, collection).processInBatches(records)
-            }
-        })
-    }
-
-    processPendingEvents(): Effect.Effect<void, ProcessEventError | RedisCacheFetchError> {
-        const ctx = this.ctx
-        const did = this.did
-
-        return Effect.gen(function* () {
-            while(true){
-                const pending = yield* getPendingEvents(ctx, did)
-                if(pending.length == 0) break
-                yield* Effect.tryPromise({
-                    try: () => processEventsBatch(ctx, pending),
-                    catch: () => new ProcessEventError()
-                })
-            }
-        })
-    }
+        return
+    })
 }
 
-const maxRepoMBs = env.MAX_REPO_MBS
+
+function processPendingEvents(
+    ctx: AppContext,
+    did: string
+): Effect.Effect<void, ProcessEventError | RedisCacheFetchError> {
+    return Effect.gen(function* () {
+        while(true){
+            const pending = yield* getPendingEvents(ctx, did)
+            if(pending.length == 0) break
+            yield* Effect.tryPromise({
+                try: () => processEventsBatch(ctx, pending),
+                catch: () => new ProcessEventError()
+            })
+        }
+    })
+}
+
+
+function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotFoundError | DBError> {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .select("inCA")
+            .where("did", "=", did)
+            .executeTakeFirst(),
+        catch: () => new DBError()
+    }).pipe(Effect.flatMap(res => {
+        return res == null ? Effect.fail(new UserNotFoundError()) : Effect.succeed(!!(res && res.inCA))
+    }))
+}
+
+
+export const syncUser = (
+    ctx: AppContext,
+    did: string,
+    collections?: string[]
+): Effect.Effect<void, SyncError> => {
+    const normalizedCollections = collections
+        ? collections.map(shortCollectionToCollection)
+        : allCollections
+
+    return Effect.gen(function* () {
+        const inCA = yield* isCAUser(ctx, did)
+
+        const mirrorStatus = yield* ctx.redisCache.mirrorStatus.get(did, inCA)
+        yield* Effect.annotateCurrentSpan({inCA, mirrorStatus})
+
+        if(mirrorStatus != "InProcess") return yield* Effect.fail(new InvalidMirrorStatus(mirrorStatus))
+
+        const doc = yield* getServiceEndpointForDid(ctx, did)
+
+        const presentRecords = yield* getPresentRecords(ctx, did, normalizedCollections)
+
+        yield* processRepo(ctx, did, doc, normalizedCollections, presentRecords)
+
+        yield* processPendingEvents(ctx, did)
+
+        yield* updateHandle(ctx, did)
+
+        yield* ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
+    }).pipe(
+        Effect.catchAll(error => {
+            return isCAUser(ctx, did).pipe(
+                Effect.flatMap(inCA => ctx.redisCache.mirrorStatus.set(did, "Failed", inCA).pipe(Effect.flatMap(() => Effect.void)))
+            ).pipe(Effect.tap(Effect.annotateCurrentSpan({result: "failed", errorTag: error._tag})))
+        }),
+        Effect.withSpan("runSync", {
+            attributes: {
+                did
+            }
+        })
+    )
+}
 
 
 export async function getUserRepo(ctx: AppContext, did: string, doc: string, collections: string[]): Promise<{repo?: UserRepo, error?: string}> {
@@ -433,26 +475,6 @@ export async function addPendingEvent(ctx: AppContext, did: string, e: Jetstream
 }
 
 
-function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotFoundError | DBError> {
-    return Effect.tryPromise({
-        try: () => ctx.kysely
-            .selectFrom("User")
-            .select("inCA")
-            .where("did", "=", did)
-            .executeTakeFirst(),
-        catch: () => new DBError()
-    }).pipe(Effect.flatMap(res => {
-        return res == null ? Effect.fail(new UserNotFoundError()) : Effect.succeed(!!(res && res.inCA))
-    }))
-}
-
-
-export function syncUser(ctx: AppContext, did: string, collections?: string[]) {
-    const sync = new RepoSync(ctx, did, collections)
-    return sync.run()
-}
-
-
 export function syncUserJobHandler(ctx: AppContext, data: {
     handleOrDid?: string
     did?: string
@@ -471,24 +493,6 @@ export function syncUserJobHandler(ctx: AppContext, data: {
         attributes: {handleOrDid: handleOrDid ?? ""}
     }))
 }
-
-
-export const allCollections = [
-    "app.bsky.feed.post",
-    "app.bsky.feed.like",
-    "app.bsky.feed.repost",
-    "app.bsky.graph.follow",
-    "app.bsky.actor.profile",
-    "ar.cabildoabierto.feed.article",
-    "ar.cabildoabierto.wiki.topicVersion",
-    "ar.cabildoabierto.data.dataset",
-    "ar.cabildoabierto.wiki.voteAccept",
-    "ar.cabildoabierto.wiki.voteReject",
-    "ar.cabildoabierto.actor.caProfile",
-    "ar.com.cabildoabierto.profile"
-]
-
-export type UserRepo = Map<string, RefAndRecord[]>
 
 
 export const syncUserHandler: EffHandler<{
@@ -524,9 +528,7 @@ export const syncUserHandler: EffHandler<{
             attributes: {handleOrDid}
         })
     )
-
 }
-
 
 
 export const syncHandler: EffHandler<{}, {}> = (ctx, agent) => {
@@ -555,7 +557,6 @@ export const syncHandler: EffHandler<{}, {}> = (ctx, agent) => {
             return Effect.fail("Ocurrió un error al sincronizar la cuenta.")
         })
     )
-
 }
 
 

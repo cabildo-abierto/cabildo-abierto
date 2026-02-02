@@ -96,11 +96,6 @@ export type TopicMentionedProps = {
     props: unknown
 }
 
-
-export function joinMaps<T>(a?: Map<string, T>, b?: Map<string, T>): Map<string, T> {
-    return new Map([...a ?? [], ...b ?? []])
-}
-
 export function joinMapsInPlace<T>(a: Map<string, T>, b?: Map<string, T>) {
     if(b) for(const [key, value] of b.entries()) {
         a.set(key, value)
@@ -332,7 +327,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
         const entries: [string, string | null][] = texts.map((t, i) => [keys[i], t])
         const m = removeNullValues(new Map<string, string | null>(entries))
-        textBlobs = joinMaps(textBlobs, m)
+        joinMapsInPlace(textBlobs, m)
     })
 
     const fetchCAUsers = (dids: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
@@ -434,13 +429,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             profiles,
             Effect.map(profiles => toReadonlyArray(profiles)),
             Effect.tap(profiles => {
-                bskyDetailedUsers = joinMaps(
+                joinMapsInPlace(
                     bskyDetailedUsers,
                     new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewDetailed"}]))
                 )
-                bskyBasicUsers = joinMaps(
+                const newBasicProfiles = new Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>>(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewBasic"}]))
+                joinMapsInPlace(
                     bskyBasicUsers,
-                    new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewBasic"}]))
+                    newBasicProfiles
                 )
             })
         )
@@ -736,7 +732,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             }
         }
 
-        datasetContents = joinMaps(datasetContents, newDatasetContents)
+        joinMapsInPlace(datasetContents, newDatasetContents)
     })
 
     const fetchFilteredTopics = (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]): Effect.Effect<void, DBError> =>  Effect.gen(function* () {
@@ -845,7 +841,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
         const mapByUri = new Map(data.map(item => [item.uri, item]))
 
-        topicsByUri = joinMaps(topicsByUri, mapByUri)
+        joinMapsInPlace(topicsByUri, mapByUri)
     })
 
     const fetchFeedHydrationData = (skeleton: FeedSkeleton): Effect.Effect<void, DBError | FetchFromBskyError> => Effect.gen(function* () {

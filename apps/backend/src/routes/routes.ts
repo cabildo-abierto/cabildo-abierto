@@ -49,7 +49,10 @@ import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/meta
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
 import {createDataset} from '#/services/dataset/write.js';
 import {searchContents} from "#/services/feed/search.js";
-import {addToEnDiscusion, removeFromEnDiscusion} from "#/services/feed/inicio/discusion.js";
+import {
+    addToEnDiscusionHandler,
+    removeFromEnDiscusionHandler
+} from "#/services/feed/inicio/discusion.js";
 import {
     attemptMPVerification,
     cancelValidationRequest,
@@ -354,11 +357,11 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.post('/set-en-discusion/:collection/:rkey',
-        makeEffHandler(ctx, addToEnDiscusion)
+        makeEffHandler(ctx, addToEnDiscusionHandler)
     )
 
     router.post('/unset-en-discusion/:collection/:rkey',
-        makeEffHandler(ctx, removeFromEnDiscusion)
+        makeEffHandler(ctx, removeFromEnDiscusionHandler)
     )
 
     router.post(
