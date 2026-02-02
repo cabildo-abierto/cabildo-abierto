@@ -107,7 +107,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/repo/:handleOrDid", makeAdminHandler(ctx, getRepoCounts))
 
     router.post(
-        "/job/:id", makeAdminHandler(ctx, startJob)
+        "/job/:id", makeEffAdminHandler(ctx, startJob)
     )
 
     router.get("/access-requests", makeAdminHandler(ctx, getAccessRequests))

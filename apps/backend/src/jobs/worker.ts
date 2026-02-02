@@ -22,7 +22,7 @@ import {
 } from "#/services/wiki/contributions/contributions.js";
 import {createUserMonths} from "#/services/monetization/user-months.js";
 import {createNotificationsJob} from "#/services/notifications/notifications.js";
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {assignInviteCodesToUsers} from "#/services/user/access.js";
 import {resetContentsFormat, updateContentsNumWords, updateContentsText} from "#/services/wiki/content.js";
 import {updatePostLangs} from "#/services/admin/posts.js";
@@ -313,9 +313,9 @@ export class CAWorker {
             (data) => updateStat(ctx, data, false),
             false
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-all-stats",
-            () => Effect.runPromise(updateAllStats(ctx)),
+            () => updateAllStats(ctx),
             false
         )
         this.registerJob(
@@ -632,12 +632,18 @@ export class RedisCAWorker extends CAWorker {
 }
 
 
-export const startJob: CAHandler<{jobData: any, params: {id: string}}, {}> = async (ctx, app, data) => {
+export const startJob: EffHandler<{jobData: any, params: {id: string}}, {}> = (ctx, agent, data) => {
     const {id} = data.params
 
-    await ctx.worker?.addJob(id, data.jobData)
+    if(!ctx.worker) {
+        return Effect.fail("Ocurrió un error al agregar el trabajo.")
+    }
 
-    return {data: {}}
+    return ctx.worker.addJob(id, data.jobData)
+        .pipe(
+            Effect.flatMap(() => Effect.succeed({})),
+            Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al agregar el trabajo."))
+        )
 }
 
 
