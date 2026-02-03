@@ -41,10 +41,10 @@ export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: 
 export const deleteRecordsHandler: EffHandler<{ uris: string[], atproto: boolean }> = (ctx, agent, {uris, atproto}) => {
     return deleteRecords({ctx, agent, uris, atproto})
         .pipe(
-            Effect.catchTag("ATDeleteRecordError", error => {
+            Effect.catchTag("ATDeleteRecordError", () => {
                 return Effect.fail("Ocurrió un error al borrar los registros de ATProtocol.")
             }),
-            Effect.catchTag("ProcessDeleteError", error => {
+            Effect.catchTag("ProcessDeleteError", () => {
                 return Effect.fail("Ocurrió un error al borrar los registros de nuestra base de datos.")
             }),
             Effect.flatMap(() => Effect.succeed({}))
@@ -163,7 +163,7 @@ export function deleteRecordAT(agent: SessionAgent, uri: string): Effect.Effect<
             collection: getCollectionFromUri(uri)
         }),
         catch: () => new ATDeleteRecordError()
-    })
+    }).pipe(Effect.withSpan("deleteRecordAT", {attributes: {uri}}))
 }
 
 

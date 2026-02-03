@@ -1,9 +1,9 @@
 import {ATProtoStrongRef, CreatePostProps} from "@cabildo-abierto/api";
 import {BaseAgent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
-import {getCollectionFromUri, getDidFromUri, getUri, splitUri} from "@cabildo-abierto/utils";
+import {getCollectionFromUri, getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
-import {addReaction, removeReactionAT} from "#/services/reactions/reactions.js";
+import {addReaction, ATCreateLikeError, ATCreateRepostError, removeReactionAT} from "#/services/reactions/reactions.js";
 import {
     ArCabildoabiertoWikiVoteAccept,
     ArCabildoabiertoWikiVoteReject,
@@ -16,6 +16,8 @@ import {ATDeleteRecordError, deleteRecords} from "#/services/delete.js";
 import {Effect} from "effect";
 import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 import {DBError} from "#/services/write/article.js";
+import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
+import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 
 export type TopicVoteType = "ar.cabildoabierto.wiki.voteAccept" | "ar.cabildoabierto.wiki.voteReject"
 
@@ -65,9 +67,12 @@ export const createVoteRejectAT = (agent: SessionAgent, ref: ATProtoStrongRef, v
             repo: agent.did
         }),
         catch: () => new ATCreateRecordError()
-    }).pipe(Effect.flatMap(({data}) => {
-        return Effect.succeed({uri: data.uri, cid: data.cid})
-    }))
+    }).pipe(
+        Effect.flatMap(({data}) => {
+            return Effect.succeed({uri: data.uri, cid: data.cid})
+        }),
+        Effect.withSpan("createVoteRejectAT", {attributes: {ref, voteRejectProps}})
+    )
 }
 
 
@@ -76,103 +81,136 @@ export type VoteRejectProps = {
 }
 
 
-export const voteEdit: EffHandler<{
+export const voteEditHandler: EffHandler<{
     reason?: CreatePostProps,
     force?: boolean,
     params: { vote: string, rkey: string, did: string, cid: string }
 }, { uri: string }> = (
     ctx: AppContext, agent: SessionAgent, {reason, force, params}
 ) => {
-    return Effect.gen(function* () {
-        const {vote, rkey, did, cid} = params
-        if (vote != "accept" && vote != "reject") {
-            return yield* Effect.fail(`Voto inválido: ${vote}.`)
-        }
+    const {vote, rkey, did, cid} = params
+    const uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
+    const ref = {uri, cid}
 
-        if (vote == "accept" && reason) {
-            return yield* Effect.fail("Por ahora no se permiten justificaciones en votos positivos.")
-        }
+    if (vote != "accept" && vote != "reject") {
+        return Effect.fail(`Voto inválido: ${vote}.`)
+    }
 
-        if(vote == "reject" && !reason) {
-            return yield* Effect.fail("Los votos negativos requieren una justificación.")
-        }
-
-        const uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
-        const versionRef = {uri, cid}
-
-        const type: TopicVoteType = vote == "accept" ? "ar.cabildoabierto.wiki.voteAccept" : "ar.cabildoabierto.wiki.voteReject"
-
-        const existing = yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .selectFrom("Reaction")
-                .innerJoin("Record", "Record.uri", "Reaction.uri")
-                .select("Record.uri")
-                .where("Reaction.subjectId", "=", uri)
-                .where("Record.authorId", "=", agent.did)
-                .execute(),
-            catch: () => "Ocurrió un error al crear el voto."
-        })
-
-        if(existing.length > 0) {
-            // TO DO: Si llegase a haber más de una posiblemente haya que tener más cuidado.
-            // si ya existe una reacción del mismo tipo no hacemos nada
-            if(getCollectionFromUri(existing[0].uri) == "ar.cabildoabierto.wiki.voteAccept" && vote == "accept") {
-                return {uri: existing[0].uri}
-            } else if(getCollectionFromUri(existing[0].uri) == "ar.cabildoabierto.wiki.voteReject" && vote == "reject") {
-                return {uri: existing[0].uri}
-            } else if(vote == "reject") {
-                // está pasando de aceptar a rechazar
-                yield* cancelEditVoteHandler(ctx, agent, {params: splitUri(existing[0].uri)}).pipe(Effect.catchAll(() => {
-                    return Effect.fail("Ocurrió un error al cambiar el voto.")
-                }))
-
-            } else if(vote == "accept") {
-                // está pasando de rechazar a aceptar
-                if(!force) {
-                    return yield* Effect.fail(new NeedToDeleteReasonError())
-                }
-
-                yield* cancelEditVoteHandler(ctx, agent, {params: splitUri(existing[0].uri)}).pipe(Effect.catchAll(() => {
-                    return Effect.fail("Ocurrió un error al cambiar el voto.")
-                }))
-            }
-        }
-
-        if(reason) {
-            const data = yield* createPost(ctx, agent, reason!)
-                .pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al crear la justificación.")))
-
-            return yield* addReaction(
-                ctx,
-                agent,
-                versionRef,
-                type,
-                {
-                    reason: data[0]
-                }
-            )
-
-        } else {
-            return yield* addReaction(
-                ctx,
-                agent,
-                versionRef,
-                type
-            )
-        }
-    }).pipe(
+    return voteEdit(ctx, agent, vote, ref, reason, force).pipe(
         Effect.catchTag("NeedToDeleteReasonError", () => {
             return Effect.fail("Agregar un voto positivo eliminaría la justificación del voto de rechazo.")
         }),
         Effect.catchTag("ATCreateRecordError", () => Effect.fail("Ocurrió un error al crear el voto.")),
         Effect.catchTag("ATCreateRepostError", () => Effect.fail("Ocurrió un error al crear la republicación")), // obviamente no puede pasar esto
         Effect.catchTag("ATCreateLikeError", () => Effect.fail("Ocurrió un error al dar me gusta")),
-            Effect.catchTag("InvalidValueError", () => Effect.fail("Reacción inválida")),
+        Effect.catchTag("InvalidValueError", () => Effect.fail("Reacción inválida")),
         Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al crear el voto.")),
         Effect.catchTag("UpdateRedisError", () => Effect.fail("Ocurrió un error al crear el voto.")),
-        Effect.catchTag("InsertRecordError", () => Effect.fail("Ocurrió un error al crear el voto."))
+        Effect.catchTag("InsertRecordError", () => Effect.fail("Ocurrió un error al crear el voto.")),
     )
 }
+
+
+export const voteEdit = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    vote: "accept" | "reject",
+    ref: ATProtoStrongRef,
+    reason?: CreatePostProps,
+    force: boolean = false
+): Effect.Effect<{ uri: string },
+    string |
+    NeedToDeleteReasonError |
+    ATCreateRecordError |
+    InsertRecordError |
+    InvalidValueError |
+    UpdateRedisError |
+    AddJobError |
+    ATCreateLikeError |
+    ATCreateRepostError
+> => Effect.gen(function* () {
+    const {uri} = ref
+
+    yield* Effect.annotateCurrentSpan({
+        uri,
+        vote
+    })
+
+    const type: TopicVoteType = vote == "accept" ? "ar.cabildoabierto.wiki.voteAccept" : "ar.cabildoabierto.wiki.voteReject"
+
+    if (vote == "accept" && reason) {
+        return yield* Effect.fail("Por ahora no se permiten justificaciones en votos positivos.")
+    }
+
+    if (vote == "reject" && !reason) {
+        return yield* Effect.fail("Los votos negativos requieren una justificación.")
+    }
+
+    const existing = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Reaction")
+            .innerJoin("Record", "Record.uri", "Reaction.uri")
+            .select("Record.uri")
+            .where("Reaction.subjectId", "=", uri)
+            .where("Record.authorId", "=", agent.did)
+            .execute(),
+        catch: () => "Ocurrió un error al crear el voto."
+    })
+
+    yield* Effect.annotateCurrentSpan({existing})
+
+    if (existing.length > 0) {
+        // TO DO: Si llegase a haber más de una posiblemente haya que tener más cuidado.
+        // si ya existe una reacción del mismo tipo no hacemos nada
+        if (getCollectionFromUri(existing[0].uri) == "ar.cabildoabierto.wiki.voteAccept" && vote == "accept") {
+            return {uri: existing[0].uri}
+        } else if (getCollectionFromUri(existing[0].uri) == "ar.cabildoabierto.wiki.voteReject" && vote == "reject") {
+            return {uri: existing[0].uri}
+        } else if (vote == "reject") {
+            // está pasando de aceptar a rechazar
+            yield* cancelEditVote(ctx, agent, existing[0].uri, force).pipe(Effect.catchAll(() => {
+                return Effect.fail("Ocurrió un error al cambiar el voto.")
+            }))
+
+        } else if (vote == "accept") {
+            // está pasando de rechazar a aceptar
+            if (!force) {
+                return yield* Effect.fail(new NeedToDeleteReasonError())
+            }
+
+            yield* cancelEditVote(ctx, agent, existing[0].uri, force).pipe(Effect.catchAll(() => {
+                return Effect.fail("Ocurrió un error al cambiar el voto.")
+            }))
+        }
+    }
+
+    if (reason) {
+        const data = yield* createPost(ctx, agent, reason!)
+            .pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al crear la justificación.")))
+
+        return yield* addReaction(
+            ctx,
+            agent,
+            ref,
+            type,
+            {
+                reason: data[0]
+            }
+        )
+
+    } else {
+        return yield* addReaction(
+            ctx,
+            agent,
+            ref,
+            type
+        )
+    }
+}).pipe(
+    Effect.withSpan("voteEdit")
+)
+
+
 
 export const cancelEditVoteHandler: EffHandler<{
     params: { collection: string, rkey: string }
@@ -181,14 +219,14 @@ export const cancelEditVoteHandler: EffHandler<{
     const {collection, rkey} = params
     const uri = getUri(agent.did, collection, rkey)
     return cancelEditVote(ctx, agent, uri, force).pipe(
-        Effect.catchTag("NeedToDeleteReasonError", () => {
-            return Effect.fail("Cancelar este voto eliminaría la justificación de tu voto negativo.")
-        }),
-        Effect.catchTag("VoteNotFoundError", () => {
-            return Effect.fail("No se encontró el voto a cancelar.")
-        }),
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al cancelar el voto.")
+        Effect.catchAll(error => {
+            if(error._tag == "NeedToDeleteReasonError") {
+                return Effect.fail("Cancelar este voto eliminaría la justificación de tu voto negativo.")
+            } else if(error._tag == "VoteNotFoundError") {
+                return Effect.fail("No se encontró el voto a cancelar.")
+            } else {
+                return Effect.fail("Ocurrió un error al cancelar el voto.")
+            }
         })
     ).pipe(Effect.flatMap(() => Effect.succeed({})))
 }
@@ -220,6 +258,7 @@ export function cancelEditVote(ctx: AppContext, agent: SessionAgent, uri: string
                     .executeTakeFirstOrThrow(),
                 catch: () => new VoteNotFoundError()
             })
+            yield* Effect.annotateCurrentSpan({reason: reject.reasonId ?? "no reason"})
             if(reject.reasonId){
                 if(!force) {
                     return yield* Effect.fail(new NeedToDeleteReasonError())
@@ -238,7 +277,7 @@ export function cancelEditVote(ctx: AppContext, agent: SessionAgent, uri: string
         }
 
         return yield* removeReactionAT(ctx, agent, uri)
-    })
+    }).pipe(Effect.withSpan("cancelEditVote", {attributes: {uri, force}}))
 }
 
 

@@ -213,8 +213,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                 versionsStatus
             )
 
-            ctx.logger.pino.info({currentVersion, id}, "new current version")
-
             if (currentVersion == null) {
                 updates.push({
                     id,
@@ -262,7 +260,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     if(categoryUpdates.length > 0) {
         try {
             const newCategories = categoryUpdates.flatMap(u => u.categories)
-            ctx.logger.pino.info({newCategories}, "new topic categories")
             if(newCategories.length > 0){
                 await trx
                     .insertInto("TopicCategory")

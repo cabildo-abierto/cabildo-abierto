@@ -43,7 +43,7 @@ import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
 import {createTopicVersion} from "#/services/write/topic.js";
 import path from "path";
-import {cancelEditVoteHandler, getTopicVersionVotesHandler, voteEdit} from "#/services/wiki/votes.js";
+import {cancelEditVoteHandler, getTopicVersionVotesHandler, voteEditHandler} from "#/services/wiki/votes.js";
 import {adminRoutes} from './admin-routes.js';
 import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
@@ -328,7 +328,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/vote-edit/:vote/:did/:rkey/:cid',
-        makeEffHandler(ctx, voteEdit)
+        makeEffHandler(ctx, voteEditHandler)
     )
 
     router.post(

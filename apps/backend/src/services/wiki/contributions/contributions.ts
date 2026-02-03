@@ -6,11 +6,12 @@ import {decompress} from "@cabildo-abierto/editor-core";
 import {unique} from "@cabildo-abierto/utils";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {getNumWords} from "#/services/wiki/content.js";
-import { sql } from "kysely";
-import { EditorStatus } from "@cabildo-abierto/api";
+import {sql} from "kysely";
+import {EditorStatus} from "@cabildo-abierto/api";
 import {Effect} from "effect";
 import {DBError} from "#/services/write/article.js";
 import {FetchBlobError} from "#/services/blob.js";
+import {DBSelectError} from "#/services/user/validation.js";
 
 
 type TopicVersion = {
@@ -38,14 +39,14 @@ const getMarkdown = (v: TopicVersion): Effect.Effect<string | null, never, DataP
 
     const dataplane = yield* DataPlane
 
-    if(!v.text && v.textBlobId){
+    if (!v.text && v.textBlobId) {
         text = dataplane.getState().textBlobs.get(getBlobKey({
             cid: v.textBlobId,
             authorId: v.authorId
         }))!
         format = v.format
     }
-    if(text == null) return null
+    if (text == null) return null
 
     if (format == "markdown-compressed") {
         return decompress(text)
@@ -63,7 +64,7 @@ const getMarkdown = (v: TopicVersion): Effect.Effect<string | null, never, DataP
         }
     } else if (format == "plain-text") {
         return v.text
-    } else if(format == "markdown"){
+    } else if (format == "markdown") {
         return text
     } else {
         return null
@@ -71,14 +72,19 @@ const getMarkdown = (v: TopicVersion): Effect.Effect<string | null, never, DataP
 })
 
 
-export async function updateAllTopicContributions(ctx: AppContext) {
-    const topicIds = (await ctx.kysely
-        .selectFrom("Topic")
-        .select("id")
-        .execute()).map(t => t.id)
-    ctx.logger.pino.info({count: topicIds.length}, "updating topic contributions for topics")
-
-    await updateTopicContributions(ctx, topicIds)
+export function updateAllTopicContributions(ctx: AppContext) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Topic")
+            .select("id")
+            .execute().then(topics => topics.map(t => t.id)),
+        catch: () => new DBSelectError()
+    }).pipe(
+        Effect.flatMap(topicIds => {
+            return updateTopicContributions(ctx, topicIds)
+        }),
+        Effect.withSpan("updateAllTopicContributions")
+    )
 }
 
 
@@ -130,7 +136,8 @@ const fetchVersionsData = (
                 "u.editorStatus",
                 "r.created_at_tz as created_at",
                 eb => eb.fn.jsonAgg(
-                    sql<{ uri: string; editorStatus: string }>`json_build_object('uri', "Reaction"."uri", 'editorStatus', "ReactionAuthor"."editorStatus")`
+                    sql<{ uri: string; editorStatus: string }>`json_build_object
+                    ('uri', "Reaction"."uri", 'editorStatus', "ReactionAuthor"."editorStatus")`
                 ).filterWhere("Reaction.uri", "is not", null).as("reactions")
             ])
             .groupBy([
@@ -157,7 +164,9 @@ const fetchVersionsData = (
 
 export class DBInsertError {
     readonly _tag = "InsertError"
-    constructor(readonly message?: string) {}
+
+    constructor(readonly message?: string) {
+    }
 }
 
 
@@ -186,7 +195,7 @@ const applyUpdates = (
             catch: () => new DBInsertError("TopicVersion")
         })
     }
-    if(contentUpdates.length > 0) {
+    if (contentUpdates.length > 0) {
         yield* Effect.tryPromise({
             try: () => ctx.kysely
                 .insertInto("Content")
@@ -209,7 +218,10 @@ const getContributionUpdatesForVersionsOfTopic = (
     ctx: AppContext,
     topicId: string,
     topicVersions: TopicVersion[]
-): Effect.Effect<{versionUpdates: TopicVersionContrUpdate[], versionContentUpdates: ContentUpd[]}, never, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<{
+    versionUpdates: TopicVersionContrUpdate[],
+    versionContentUpdates: ContentUpd[]
+}, never, DataPlane> => Effect.gen(function* () {
     let prev = ""
     let accCharsAdded = 0
     let monetizedCharsAdded = 0
@@ -230,10 +242,10 @@ const getContributionUpdatesForVersionsOfTopic = (
         )
 
         acceptedMap.set(v.uri, status.accepted)
-        if(status.accepted) acceptedVersions++
+        if (status.accepted) acceptedVersions++
 
         let markdown = yield* getMarkdown(v)
-        if(markdown == null){
+        if (markdown == null) {
             ctx.logger.pino.warn({uri: v.uri}, "couldn't find markdown for topic version")
             markdown = ""
         }
@@ -243,7 +255,7 @@ const getContributionUpdatesForVersionsOfTopic = (
             markdown.split("\n\n")
         )
 
-        if(!status.accepted){
+        if (!status.accepted) {
             versionUpdates.push({
                 uri: v.uri,
                 charsAdded: d.charsAdded,
@@ -288,16 +300,16 @@ const getContributionUpdatesForVersionsOfTopic = (
         prevAccepted = v.uri
     }
 
-    if(versionUpdates.length != topicVersions.length) throw Error("Faltan updates!")
+    if (versionUpdates.length != topicVersions.length) throw Error("Faltan updates!")
 
     for (let i = 0; i < topicVersions.length; i++) {
         let monetized = 0
         const accepted = acceptedMap.get(versionUpdates[i].uri)
-        if(accepted){
-            if(topicVersions[i].authorship && monetizedCharsAdded > 0){
-                monetized += (versionUpdates[i].charsAdded / monetizedCharsAdded)*0.9
+        if (accepted) {
+            if (topicVersions[i].authorship && monetizedCharsAdded > 0) {
+                monetized += (versionUpdates[i].charsAdded / monetizedCharsAdded) * 0.9
             }
-            if(monetizedCharsAdded){
+            if (monetizedCharsAdded) {
                 monetized += 0.1 / acceptedVersions
             } else {
                 monetized += 1.0 / acceptedVersions
@@ -334,9 +346,9 @@ export const updateTopicContributions = (
     topicIds: string[]
 ): Effect.Effect<void, DBInsertError | DBError | FetchBlobError, DataPlane> => Effect.gen(function* () {
     const batchSize = 500
-    if(topicIds.length > batchSize){
-        for(let i = 0; i < topicIds.length; i += batchSize ){
-            yield* updateTopicContributions(ctx, topicIds.slice(i, i+batchSize))
+    if (topicIds.length > batchSize) {
+        for (let i = 0; i < topicIds.length; i += batchSize) {
+            yield* updateTopicContributions(ctx, topicIds.slice(i, i + batchSize))
         }
         return
     }
@@ -347,7 +359,7 @@ export const updateTopicContributions = (
 
     const blobRefs: BlobRef[] = versions.map(e => {
         if (!e.textBlobId) return null
-        if(e.text != null) return null
+        if (e.text != null) return null
         return {
             cid: e.textBlobId,
             authorId: e.authorId

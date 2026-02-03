@@ -437,6 +437,13 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
         return yield* Effect.fail(new NotFoundError(uri))
     }
 
+    const id = topic.id
+
+    yield* Effect.annotateCurrentSpan({
+        id,
+        reactions: topic.reactions?.length ?? 0
+    })
+
     let text: string | null = null
     let format: string | null = null
     if (topic.text == null) {
@@ -451,8 +458,6 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
         text = topic.text
         format = topic.dbFormat
     }
-
-    const id = topic.id
 
     const {text: transformedText, format: transformedFormat} = anyEditorStateToMarkdownOrLexical(text, format)
 
@@ -494,7 +499,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
     }
 
     return view
-})
+}).pipe(Effect.withSpan("getTopicVersion", {attributes: {uri, viewerDid}}))
 
 
 export const getTopicVersionHandler: EffHandlerNoAuth<{

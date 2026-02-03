@@ -13,6 +13,12 @@ import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.j
 
 export class InsertRecordError {
     readonly _tag = "InsertRecordError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: Error) {
+        this.name = error?.name
+        this.message = error?.message
+    }
 }
 
 export type ProcessCreateError = InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError
@@ -201,6 +207,7 @@ export class RecordProcessor<T> {
                     embeds: []
                 }
             }))
+            .onConflict(oc => oc.column("uri").doNothing())
             .execute()
         await trx
             .insertInto("Post")

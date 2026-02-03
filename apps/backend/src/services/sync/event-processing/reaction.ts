@@ -153,10 +153,13 @@ export class ReactionRecordProcessor extends RecordProcessor<ReactionRecord> {
         return pipe(
             Effect.tryPromise({
                 try: () => insertReactions,
-                catch: () => new InsertRecordError()
+                catch: error => {
+                    return new InsertRecordError(error instanceof Error ? error : undefined)
+                }
             }),
             Effect.tap(res => this.addJobs(res, records)),
-            Effect.map(() => records.length)
+            Effect.map(() => records.length),
+            Effect.withSpan("addRecordsToDB Reaction")
         )
     }
 

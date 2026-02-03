@@ -166,9 +166,13 @@ export class CAWorker {
             ),
             true
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-all-topic-contributions",
-            () => updateAllTopicContributions(ctx)
+            () => Effect.provideServiceEffect(
+                updateAllTopicContributions(ctx),
+                DataPlane,
+                makeDataPlane(ctx)
+            )
         )
         this.registerEffJob(
             "required-update-topic-contributions",

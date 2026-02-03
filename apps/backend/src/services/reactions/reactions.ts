@@ -27,12 +27,12 @@ export type ReactionRecord =
     | $Typed<ArCabildoabiertoWikiVoteReject.Record>
 
 
-class ATCreateLikeError {
+export class ATCreateLikeError {
     readonly _tag = "ATCreateLikeError"
 }
 
 
-class ATCreateRepostError {
+export class ATCreateRepostError {
     readonly _tag = "ATCreateRepostError"
 }
 
@@ -70,7 +70,8 @@ export const addReaction = (ctx: AppContext, agent: SessionAgent, ref: ATProtoSt
         const record: ReactionRecord = {
             $type: type,
             subject: ref,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            reason: voteRejectProps ? voteRejectProps.reason : undefined
         }
 
         const processor = new ReactionRecordProcessor(ctx)
