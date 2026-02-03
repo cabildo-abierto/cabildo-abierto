@@ -4,14 +4,12 @@ import {BaseButton} from "@/components/utils/base/base-button"
 
 
 
-export const PreventLeavePopup = ({navGuard}: {
-    navGuard: {
-        active: boolean,
-        accept: () => void,
-        reject: () => void
-    }
+export const PreventLeavePopup = ({active, accept, reject}: {
+    active: boolean,
+    accept: () => void,
+    reject: () => void
 }) => {
-    return <BaseFullscreenPopup open={navGuard.active}>
+    return <BaseFullscreenPopup open={active}>
         <div className={"flex flex-col p-8 space-y-8 text-[var(--text-light)]"}>
             <div className={"flex items-center space-x-1"}>
                 <WarningCircleIcon fontSize={"18"}/>
@@ -20,10 +18,10 @@ export const PreventLeavePopup = ({navGuard}: {
                 </div>
             </div>
             <div className={"flex justify-center space-x-2"}>
-                <BaseButton variant={"outlined"} size={"small"} onClick={navGuard.reject}>
+                <BaseButton variant={"outlined"} size={"small"} onClick={reject}>
                     Volver a editar
                 </BaseButton>
-                <BaseButton variant={"error"} size={"small"} onClick={navGuard.accept}>
+                <BaseButton variant={"error"} size={"small"} onClick={accept}>
                     Salir igualmente
                 </BaseButton>
             </div>

@@ -63,6 +63,17 @@ export function setupResolver(redis: RedisCache) {
 }
 
 
+async function addSyncUserJobsForAllUsers(ctx: AppContext, worker: CAWorker) {
+    return Effect.runPromiseExit(Effect.gen(function* () {
+        const caUsers = yield* getCAUsersDids(ctx)
+        for(const u of caUsers){
+            yield* ctx.redisCache.mirrorStatus.set(u, "InProcess", true)
+            yield* worker.addJob("sync-user", {handleOrDid: u}, 21)
+        }
+    }).pipe(Effect.withSpan("addSyncUserJobsForAllUsers")))
+}
+
+
 export async function setupAppContext(roles: Role[]) {
     const logger = new Logger([...roles, envName].join(":"))
     const kysely = setupKysely()
@@ -107,14 +118,7 @@ export async function setupAppContext(roles: Role[]) {
         await worker.setup(ctx)
 
         if(env.RUN_CRONS){
-            ctx.logger.pino.info("adding sync ca users jobs")
-            await Effect.runPromiseExit(Effect.gen(function* () {
-                const caUsers = yield* getCAUsersDids(ctx)
-                for(const u of caUsers){
-                    yield* ctx.redisCache.mirrorStatus.set(u, "InProcess", true)
-                    yield* worker.addJob("sync-user", {handleOrDid: u}, 21)
-                }
-            }))
+            await addSyncUserJobsForAllUsers(ctx, worker)
         }
 
         logger.pino.info("worker setup")

@@ -85,6 +85,7 @@
     "mercadopago": "^2.7.0",
     "morgan": "^1.10.0",
     "multiformats": "^9.9.0",
+    "nanoid": "^5.1.6",
     "nodemailer": "^7.0.9",
     "object-hash": "^3.0.0",
     "pg": "^8.16.0",

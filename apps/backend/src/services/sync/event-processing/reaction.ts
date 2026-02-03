@@ -54,9 +54,13 @@ export class ReactionRecordProcessor extends RecordProcessor<ReactionRecord> {
             await this.processRecordsBatch(trx, records)
 
             const subjects = records.map(r => ({uri: r.record.subject.uri, cid: r.record.subject.cid}))
+            await this.processDirtyRecordsBatch(trx, subjects)
+
             const reasons = records
-                .map(r => ArCabildoabiertoWikiVoteReject.isRecord(r.record) ? r.record.reason : null).filter(x => x != null)
-            await this.processDirtyRecordsBatch(trx, [...subjects, ...reasons])
+                .map(r => ArCabildoabiertoWikiVoteReject.isRecord(r.record) ? r.record.reason : null)
+                .filter(x => x != null)
+
+            await this.processDirtyPostsBatch(trx, reasons)
 
             const reactions = records.map(r => ({
                 uri: r.ref.uri,

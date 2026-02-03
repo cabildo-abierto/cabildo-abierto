@@ -186,6 +186,35 @@ export class RecordProcessor<T> {
     }
 
 
+    async processDirtyPostsBatch(trx: Transaction<DB>, refs: ATProtoStrongRef[]) {
+        refs = refs.filter(
+            r => getCollectionFromUri(r.uri) == "app.bsky.feed.post"
+        )
+        if(refs.length == 0) return
+        await this.processDirtyRecordsBatch(trx, refs)
+        await trx
+            .insertInto("Content")
+            .values(refs.map(r => {
+                return {
+                    uri: r.uri,
+                    selfLabels: [],
+                    embeds: []
+                }
+            }))
+            .execute()
+        await trx
+            .insertInto("Post")
+            .values(refs.map(r => {
+                return {
+                    uri: r.uri,
+                    langs: []
+                }
+            }))
+            .onConflict(oc => oc.column("uri").doNothing())
+            .execute()
+    }
+
+
     async processDirtyRecordsBatch(trx: Transaction<DB>, refs: ATProtoStrongRef[]) {
         if (refs.length == 0) return
 

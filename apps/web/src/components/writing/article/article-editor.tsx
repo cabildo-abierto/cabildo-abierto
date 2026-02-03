@@ -146,7 +146,7 @@ const ArticleEditor = ({draft, article}: {
                 setEditorState={setEditorState}
             />
         </div>
-        <PreventLeavePopup navGuard={navGuard}/>
+        <PreventLeavePopup {...navGuard}/>
     </div>
 }
 

@@ -3,6 +3,8 @@ import {AppContext} from "#/setup.js";
 import {isValidHandle} from "@atproto/syntax";
 import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
+import { customAlphabet } from "nanoid";
+
 import {range} from "@cabildo-abierto/utils";
 import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {AppBskyActorProfile} from "@atproto/api"
@@ -130,9 +132,12 @@ export function createCAUser(ctx: AppContext, agent: SessionAgent, code?: string
 export async function createInviteCodes(ctx: AppContext, count: number) {
     ctx.logger.pino.info(`creating ${count} invite codes.`)
     try {
+        const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toLowerCase();
+        const generateInviteCode = customAlphabet(alphabet, 8)
+
         const values = range(count).map(i => {
             return {
-                code: uuidv4()
+                code: generateInviteCode()
             }
         })
 
