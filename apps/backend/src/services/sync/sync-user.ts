@@ -351,6 +351,7 @@ export const syncUser = (
         yield* updateHandle(ctx, did)
 
         yield* ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
+        yield* Effect.annotateCurrentSpan({result: "success"})
     }).pipe(
         Effect.catchAll(error => {
             return isCAUser(ctx, did).pipe(

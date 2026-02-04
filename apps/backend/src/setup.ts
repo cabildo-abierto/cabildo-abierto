@@ -94,7 +94,7 @@ export async function setupAppContext(roles: Role[]) {
         logger
     )
 
-    const mirrorId = `mirror-${envName}`
+    const mirrorId = `mirror-${envName}-${env.DEV_NAME}`
     logger.pino.info({mirrorId}, "Mirror ID")
 
     const redisCache = new RedisCache(ioredis, mirrorId, logger)

@@ -46,13 +46,13 @@ export async function runTestJob(ctx: AppContext): Promise<void> {
 export const getServerStatus: CAHandler<{}, {status: ServerStatus}> = async (ctx, agent, params ) => {
     // chequeamos:
     // el worker completa un trabajo con prioridad baja
-    // el mirror está corriendo y procesando evento
+    // el mirror está corriendo y procesando eventos
 
     const ts = await getTimestamp(ctx, "test")
 
     const lastEventProcessed = await getTimestamp(ctx, `last-mirror-event-${ctx.mirrorId}`)
 
-    const threshold = new Date(Date.now() - 25*1000)
+    const threshold = new Date(Date.now() - 120*1000)
     const worker = ts != null && ts > threshold
     const mirror = lastEventProcessed != null && lastEventProcessed > threshold
 
