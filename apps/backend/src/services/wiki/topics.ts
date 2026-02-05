@@ -23,7 +23,7 @@ import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {Effect, Exit, pipe} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
@@ -267,14 +267,14 @@ export function dbUserToProfileViewBasic(author: {
 }
 
 
-export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effect.Effect<string, NotFoundError | DBError> => Effect.gen(function* () {
+export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effect.Effect<string, NotFoundError | DBSelectError> => Effect.gen(function* () {
     const res = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Topic")
             .select("currentVersionId")
             .where("id", "=", id)
             .executeTakeFirst(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     if (res && res.currentVersionId) {
@@ -305,7 +305,7 @@ export class InsufficientParamsError {
 }
 
 
-export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: string, rkey?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBError | NotFoundError | InsufficientParamsError> => Effect.gen(function* () {
+export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: string, rkey?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBSelectError | NotFoundError | InsufficientParamsError> => Effect.gen(function* () {
 
     let uri: string
     if(did && rkey) {
@@ -324,7 +324,7 @@ export const getTopicHandler: EffHandlerNoAuth<{ query: { i?: string, did?: stri
     const {i, did, rkey} = params.query
     return getTopic(ctx, agent, i, did, rkey).pipe(
         Effect.catchTag("InsufficientParamsError", () => Effect.fail("Parámetros inválidos")),
-        Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener el tema.")),
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el tema.")),
         Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el tema."))
     )
 }
@@ -381,7 +381,7 @@ function processTopicProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) 
 }
 
 
-export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBError | NotFoundError> => Effect.gen(function* () {
+export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBSelectError | NotFoundError> => Effect.gen(function* () {
 
     const authorId = getDidFromUri(uri)
 
@@ -430,7 +430,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .executeTakeFirst(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     if (!topic || !topic.cid) {
@@ -508,7 +508,7 @@ export const getTopicVersionHandler: EffHandlerNoAuth<{
     const {did, rkey} = params
     return getTopicVersion(ctx, getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey), agent.hasSession() ? agent.did : undefined).pipe(
         Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró la versión del tema.")),
-        Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener la versión del tema."))
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener la versión del tema."))
     )
 }
 

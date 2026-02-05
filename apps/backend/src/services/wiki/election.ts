@@ -7,7 +7,7 @@ import {AppContext} from "#/setup.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {getDataset, HydrationError, NotFoundError} from "#/services/dataset/read.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 
 export type TopicData = {
@@ -20,7 +20,7 @@ export type TopicData = {
 export const getTopicsDataForElectionVisualization = (
     ctx: AppContext,
     v: ArCabildoabiertoEmbedVisualization.Main
-): Effect.Effect<TopicData[], DBError | HydrationError | NotFoundError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<TopicData[], DBSelectError | HydrationError | NotFoundError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     if(!ArCabildoabiertoEmbedVisualization.isDatasetDataSource(v.dataSource)) return []
     if(!ArCabildoabiertoEmbedVisualization.isEleccion(v.spec)){
         return []
@@ -68,7 +68,7 @@ export const getTopicsDataForElectionVisualization = (
             ])
             .where("TopicVersion.topicId", "in", Array.from(topicIds))
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     return topicsData.map(t => ({

@@ -7,6 +7,10 @@ import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Effect} from "effect";
+import {JobToAdd} from "#/jobs/worker.js";
+
+
+
 
 
 export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeedArticle.Record> {
@@ -34,9 +38,10 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
             description: r.record.description
         }))
 
+        let jobs: JobToAdd[] = []
         const insertArticle = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
-            await processContentsBatch(this.ctx, trx, contents)
+            jobs.push(...await processContentsBatch(this.ctx, trx, contents))
 
             await trx
                 .insertInto("Article")
@@ -53,12 +58,29 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
 
         const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
 
-        const addJobs = this.ctx.worker ? Effect.all([
-            this.ctx.worker?.addJob("update-author-status", authors, 11),
-            this.ctx.worker?.addJob("update-following-feed-on-new-content",  records.map(r => r.ref.uri)),
-            this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
-            this.ctx.worker?.addJob("update-interactions-score", records.map(r => r.ref.uri), 11)
-        ], {concurrency: "unbounded"}) : Effect.void
+        jobs.push(
+            {
+                label: "update-author-status",
+                data: authors,
+                priority: 11
+            },
+            {
+                label: "update-following-feed-on-new-content",
+                data: records.map(r => r.ref.uri)
+            },
+            {
+                label: "update-contents-topic-mentions",
+                data: records.map(r => r.ref.uri),
+                priority: 11
+            },
+            {
+                label: "update-interactions-score",
+                data: records.map(r => r.ref.uri),
+                priority: 11
+            }
+        )
+
+        const addJobs = this.ctx.worker?.addJobs(jobs)
 
         return Effect.gen(function*() {
             yield* Effect.tryPromise({

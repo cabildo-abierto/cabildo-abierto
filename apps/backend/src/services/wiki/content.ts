@@ -7,7 +7,7 @@ import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getCollectionFromUri, getDidFromUri, isPost} from "@cabildo-abierto/utils";
 import {fetchTextBlobs} from "#/services/blob.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export function getNumWords(text: string, format: string) {
@@ -25,7 +25,7 @@ export function getNumWords(text: string, format: string) {
 }
 
 
-export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Effect<void, DBError> =>
+export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Effect<void, DBSelectError> =>
     Effect.gen(function* () {
     if (uris && uris.length == 0) return
     const batchSize = 50
@@ -35,14 +35,14 @@ export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Eff
             try: () => ctx.kysely
                 .selectFrom("Content")
                 .innerJoin("Record", "Record.uri", "Content.uri")
-                .select(["Content.uri", "textBlobId", "Record.record", "Content.format", "Content.text"])
+                .select(["Content.uri", "textBlobId", "Record.record", "Content.format", "Content.text", "Record.created_at_tz"])
                 .where("Record.collection", "in", longTextCollections)
                 .where("text", "is", null)
                 .orderBy("Record.created_at", "desc")
                 .$if(uris == null, qb => qb.limit(batchSize).offset(offset))
                 .$if(uris != null, qb => qb.where("Record.uri", "in", uris!.slice(offset, offset + batchSize)))
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
         offset += batchSize
 
@@ -50,7 +50,7 @@ export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Eff
 
         const texts = yield* getContentsText(ctx, contents, undefined, false)
 
-        yield* setContentsText(ctx, contents.map(c => c.uri), texts)
+        yield* setContentsText(ctx, contents, texts)
 
         if (contents.length < batchSize) {
             break
@@ -61,16 +61,22 @@ export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Eff
 
 const setContentsText = (
     ctx: AppContext,
-    uris: string[],
+    contents: {uri: string, created_at_tz: Date | null}[],
     texts: (TextAndFormat | null)[]
-): Effect.Effect<void, DBError> => Effect.gen(function* () {
+): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
+    contents = contents.filter(x => x.created_at_tz != null)
+    const uris = contents.map(c => c.uri)
+
     const values: {
         uri: string
         selfLabels: string[]
         embeds: any[]
         dbFormat: string
         text: string
+        created_at: Date
     }[] = texts.map((t, idx) => {
+        const created_at = contents[idx].created_at_tz
+        if(!created_at) return null
         if (!t) {
             t = {
                 text: "",
@@ -86,22 +92,40 @@ const setContentsText = (
             selfLabels: [],
             embeds: [],
             dbFormat: res.format,
-            text: res.text
+            text: res.text,
+            created_at
         }
     }).filter(x => x != null)
 
     if (values.length > 0) {
         yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .insertInto("Content")
-                .values(values)
-                .onConflict((oc) => oc.column("uri").doUpdateSet({
-                    text: eb => eb.ref("excluded.text"),
-                    dbFormat: eb => eb.ref("excluded.dbFormat")
-                }))
-                .execute(),
-            catch: () => new DBError()
+            try: () => ctx.kysely.transaction().execute(async trx => {
+                await trx.insertInto("Content")
+                    .values(values)
+                    .onConflict((oc) => oc.column("uri").doUpdateSet({
+                        text: eb => eb.ref("excluded.text"),
+                        dbFormat: eb => eb.ref("excluded.dbFormat")
+                    }))
+                    .execute()
+
+                await trx.insertInto("SearchableContent")
+                    .values(values.map(v => {
+                        return {
+                            text: v.text,
+                            collection: getCollectionFromUri(v.uri),
+                            uri: v.uri,
+                            created_at: v.created_at
+                        }
+                    }))
+                    .onConflict((oc) => oc.column("uri").doUpdateSet({
+                        text: eb => eb.ref("excluded.text")
+                    }))
+                    .execute()
+            })
+                ,
+            catch: () => new DBSelectError()
         })
+
     }
 })
 
@@ -205,16 +229,6 @@ export async function resetContentsFormat(ctx: AppContext) {
         if (contents.length < batchSize) break
     }
 
-}
-
-export type ContentProps = {
-    uri: string
-    CAIndexedAt: Date
-    text: string | null
-    textBlobId?: string | null
-    format: string | null
-    dbFormat: string | null
-    title: string | null
 }
 
 

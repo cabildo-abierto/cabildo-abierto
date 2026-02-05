@@ -28,7 +28,6 @@ export class DeleteProcessor {
         for (let j = 0; j < uris.length; j += batchSize) {
             const batchUris = uris.slice(j, j + batchSize)
             await this.process(batchUris)
-            this.ctx.logger.pino.info({collection: c, index: j, total: uris.length}, `delete batch done`)
         }
     }
 }

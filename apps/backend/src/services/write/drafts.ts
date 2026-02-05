@@ -11,8 +11,8 @@ import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
 import {S3GetSignedURLError} from "#/services/storage/storage.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 type DraftQueryResult = {
@@ -126,7 +126,7 @@ export const getDrafts: EffHandler<{}, DraftPreview[]> = (
         ])
         .where("authorId", "=", agent.did)
         .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const dataplane = yield* DataPlane
@@ -162,7 +162,7 @@ export const getDraft: EffHandler<{ params: { id: string } }, Draft> = (
             .where("authorId", "=", agent.did)
             .where("id", "=", params.id)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     if (res.length == 0) {

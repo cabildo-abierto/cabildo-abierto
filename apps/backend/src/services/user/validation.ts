@@ -7,7 +7,7 @@ import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import {acceptValidationRequestFromPayment} from "#/services/monetization/donations.js";
 import {Effect} from "effect";
-
+import {DBSelectError} from "#/utils/errors.js";
 
 
 type ValidationType = "Organizacion" | "Persona"
@@ -149,12 +149,6 @@ export const getPendingValidationRequestsCount: CAHandler<{}, {count: number}> =
         .executeTakeFirst()
 
     return {data: {count: result?.count ?? 0}}
-}
-
-
-export class DBSelectError {
-    readonly _tag = "DBSelectError"
-    constructor(readonly message?: string) {}
 }
 
 

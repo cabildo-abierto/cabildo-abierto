@@ -14,7 +14,7 @@ import {$Typed} from "@atproto/api";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {getObjectKey} from "#/utils/object.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 type TopicProp = ArCabildoabiertoWikiTopicVersion.TopicProp
 
@@ -76,7 +76,7 @@ export class HydrationError {
 }
 
 
-export const getDataset = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoDataDataset.DatasetView>, DBError | HydrationError | NotFoundError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+export const getDataset = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoDataDataset.DatasetView>, DBSelectError | HydrationError | NotFoundError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const dataplane = yield* DataPlane
 
     const dataset = yield* Effect.tryPromise({
@@ -85,7 +85,7 @@ export const getDataset = (ctx: AppContext, uri: string): Effect.Effect<$Typed<A
             .select("uri")
             .where("uri", "=", uri)
             .executeTakeFirst(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     if(!dataset) {
@@ -185,7 +185,7 @@ export const getTopicsDatasetHandler: EffHandlerNoAuth<TopicDatasetSpec, ArCabil
         }
 
         return dataset
-    }).pipe(Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener el conjunto de datos."))), DataPlane, makeDataPlane(ctx, agent))
+    }).pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el conjunto de datos."))), DataPlane, makeDataPlane(ctx, agent))
 }
 
 
@@ -198,7 +198,7 @@ export function getDatasetList(ctx: AppContext) {
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(res => res.map(r => r.uri)))
 }
 
@@ -282,7 +282,7 @@ export const getDatasets: EffHandlerNoAuth<{}, ArCabildoabiertoDataDataset.Datas
 
         return sortByKey(views, x => [new Date(x.createdAt).getTime()], listOrderDesc)
     }).pipe(
-        Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener los conjuntos de datos.")),
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener los conjuntos de datos.")),
         Effect.catchTag("FetchFromBskyError", () => Effect.fail("Ocurrió un error al obtener los conjuntos de datos.")),
     ), DataPlane, makeDataPlane(ctx, agent))
 }

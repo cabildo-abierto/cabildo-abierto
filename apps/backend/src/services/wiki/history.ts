@@ -11,7 +11,7 @@ import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export function getTopicVersionViewer(viewerDid: string, reactions: {uri: string}[]): ArCabildoabiertoWikiTopicVersion.VersionInHistory["viewer"] {
@@ -39,7 +39,7 @@ export const getTopicHistory = (
     ctx: AppContext,
     id: string,
     agent?: Agent
-): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicHistory, DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicHistory, DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const did = agent?.hasSession() ? agent.did : null
 
     const versions = yield* Effect.tryPromise({
@@ -87,7 +87,7 @@ export const getTopicHistory = (
             .where("TopicVersion.topicId", "=", id)
             .orderBy("created_at asc")
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const dataplane = yield* DataPlane

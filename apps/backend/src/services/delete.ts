@@ -7,7 +7,7 @@ import {batchDeleteRecords, ProcessDeleteError} from "#/services/sync/event-proc
 import {deleteDraft} from "#/services/write/drafts.js";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {
@@ -16,7 +16,7 @@ export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: 
     did: string,
     collections?: string[],
     atproto: boolean
-}): Effect.Effect<void, DBError | ProcessDeleteError | ATDeleteRecordError> {
+}): Effect.Effect<void, DBSelectError | ProcessDeleteError | ATDeleteRecordError> {
     return Effect.gen(function* () {
         const uris = yield* Effect.tryPromise({
             try: () => ctx.kysely
@@ -25,7 +25,7 @@ export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: 
                 .where("authorId", "=", did)
                 .$if(collections != null && collections.length > 0, qb => qb.where("collection", "in", collections!))
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         return yield* deleteRecords({
@@ -108,7 +108,7 @@ export class DeleteUserError {
 }
 
 
-export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBError | ProcessDeleteError | DeleteUserError> {
+export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DeleteUserError> {
     return Effect.gen(function* () {
         yield* deleteRecordsForAuthor({ctx, did: did, atproto: false})
 
@@ -175,7 +175,7 @@ export function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri:
                 .where("VoteReject.reasonId", "=", uri)
                 .select("VoteReject.uri")
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
         if(votes.length > 0) {
             yield* Effect.all(votes.map(vote => deleteRecord(ctx, agent, vote.uri)))
@@ -188,7 +188,7 @@ export function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri:
 }
 
 
-function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError | DBError> {
+function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError | DBSelectError> {
     const collection = getCollectionFromUri(uri)
     return Effect.gen(function* () {
         if (isPost(collection)) {

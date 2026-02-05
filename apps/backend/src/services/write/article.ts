@@ -12,6 +12,7 @@ import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export const createArticleAT = (agent: SessionAgent, article: CreateArticleProps): Effect.Effect<RefAndRecord<ArCabildoabiertoFeedArticle.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageBlobError> => {
@@ -64,11 +65,6 @@ export const createArticleAT = (agent: SessionAgent, article: CreateArticleProps
 }
 
 
-export class DBError {
-    readonly _tag = "DBError"
-}
-
-
 export const createArticle: EffHandler<CreateArticleProps> = (ctx, agent, article) => {
     return Effect.gen(function* () {
         let uri: string | undefined
@@ -86,7 +82,7 @@ export const createArticle: EffHandler<CreateArticleProps> = (ctx, agent, articl
                     .deleteFrom("Draft")
                     .where("id", "=", article.draftId!)
                     .execute(),
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             }) : Effect.void,
             new ArticleRecordProcessor(ctx).processValidated([res])
         ], {concurrency: "unbounded"})
@@ -117,7 +113,7 @@ export const createArticle: EffHandler<CreateArticleProps> = (ctx, agent, articl
 
         return {}
     }).pipe(
-        Effect.catchTag("DBError", () => {
+        Effect.catchTag("DBSelectError", () => {
             return Effect.fail("Ocurrió un error al crear el artículo.")
         }),
         Effect.catchTag("InsertRecordError", () => Effect.fail("El artículo se creó, pero hubo un error al procesarlo.")),

@@ -17,7 +17,7 @@ import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {UserNotFoundError} from "#/services/user/access.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
@@ -42,7 +42,7 @@ export class RepoTooLargeError {
 }
 
 
-type SyncError = FetchRepoError | RepoTooLargeError | ProcessDeleteError | ProcessCreateError | RedisCacheSetError | RedisCacheFetchError | ProcessEventError | DBError | UserNotFoundError | HandleResolutionError | InvalidMirrorStatus
+type SyncError = FetchRepoError | RepoTooLargeError | ProcessDeleteError | ProcessCreateError | RedisCacheSetError | RedisCacheFetchError | ProcessEventError | DBSelectError | UserNotFoundError | HandleResolutionError | InvalidMirrorStatus
 
 
 export class InvalidMirrorStatus {
@@ -87,7 +87,7 @@ function getPresentRecords(
     ctx: AppContext,
     did: string,
     collections: string[]
-): Effect.Effect<PresentRecords, DBError> {
+): Effect.Effect<PresentRecords, DBSelectError> {
     return Effect.gen(function* () {
         const refs = yield* Effect.tryPromise({
             try: () => ctx.kysely
@@ -100,7 +100,7 @@ function getPresentRecords(
                 .where("authorId", "=", did)
                 .where("collection", "in", collections)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         const presentRecords: PresentRecords = new Map()
@@ -309,14 +309,14 @@ function processPendingEvents(
 }
 
 
-function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotFoundError | DBError> {
+function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotFoundError | DBSelectError> {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("User")
             .select("inCA")
             .where("did", "=", did)
             .executeTakeFirst(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.flatMap(res => {
         return res == null ? Effect.fail(new UserNotFoundError()) : Effect.succeed(!!(res && res.inCA))
     }))
@@ -522,7 +522,7 @@ export const syncUserHandler: EffHandler<{
     }).pipe(
         Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al agregar un trabajo.")),
         Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al resolver el handle.")),
-        Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error en la base de datos.")),
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error en la base de datos.")),
         Effect.catchTag("UserNotFoundError", () => Effect.fail("No se encontró el usuario.")),
         Effect.catchTag("RedisCacheSetError", () => Effect.fail("Ocurrió un error con la cache.")),
         Effect.withSpan("syncUserHandler", {

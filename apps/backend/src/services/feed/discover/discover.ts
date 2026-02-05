@@ -1,7 +1,7 @@
 import {FeedPipelineProps, GetSkeletonProps} from "#/services/feed/feed.js";
 import {min} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 export class SessionRequiredError {
     readonly _tag = "SessionRequiredError"
@@ -24,7 +24,7 @@ const getDiscoverFeedSkeleton: GetSkeletonProps = (ctx, agent, cursor) => Effect
             .select(["UserInterest.topicCategoryId as id"])
             .where("UserInterest.userId", "=", agent.did)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     if(interests.length == 0) {
@@ -59,7 +59,7 @@ const getDiscoverFeedSkeleton: GetSkeletonProps = (ctx, agent, cursor) => Effect
             .distinct()
             .limit(25)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const newDateSince = min(skeleton, x => x.created_at?.getTime() ?? 0)?.created_at

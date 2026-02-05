@@ -6,7 +6,7 @@ import {Agent} from "#/utils/session-agent.js";
 import {getCollectionFromUri, getUri, isArticle, isPost} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {hydratePostView} from "#/services/hydration/post-view.js";
 
 
@@ -46,7 +46,7 @@ const getRepostsSkeleton = (
 ): Effect.Effect<{
     dids: string[];
     cursor?: string;
-}, DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+}, DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
 
     const collection = getCollectionFromUri(uri)
     const dataplane = yield* DataPlane
@@ -83,7 +83,7 @@ const getRepostsSkeleton = (
                 .select(["Record.authorId as did"])
                 .orderBy("Record.created_at_tz desc")
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
         return {
             dids: reactions.map((value) => value.did),

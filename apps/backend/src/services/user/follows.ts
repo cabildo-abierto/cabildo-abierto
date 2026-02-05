@@ -16,8 +16,10 @@ import {HandleResolutionError, unfollow} from "#/services/user/users.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {handleOrDidToDid} from "#/id-resolver.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {$Typed, AppBskyActorDefs} from "@atproto/api";
+import {ATDeleteRecordError} from "#/services/delete.js";
+import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 
 async function getFollowxFromCA(
     ctx: AppContext,
@@ -64,7 +66,7 @@ export const getFollowx = (
     {handleOrDid, kind}: {
     handleOrDid: string,
     kind: "follows" | "followers"
-}): Effect.Effect<ArCabildoabiertoActorDefs.ProfileViewBasic[], DBError | FetchFromBskyError | HandleResolutionError, DataPlane> => Effect.gen(function* () {
+}): Effect.Effect<ArCabildoabiertoActorDefs.ProfileViewBasic[], DBSelectError | FetchFromBskyError | HandleResolutionError, DataPlane> => Effect.gen(function* () {
     const data = yield* DataPlane
 
     const did = yield* handleOrDidToDid(ctx, handleOrDid)
@@ -84,7 +86,7 @@ export const getFollowx = (
 })
 
 
-export const getFollows: EffHandlerNoAuth<{
+export const getFollowsHandler: EffHandlerNoAuth<{
     params: { handleOrDid: string }
 }, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = (ctx, agent, {params}) => {
     return Effect.provideServiceEffect(
@@ -110,23 +112,23 @@ export const getFollowers: EffHandlerNoAuth<{
 }
 
 
-export const clearFollows = (ctx: AppContext, agent: SessionAgent): Effect.Effect<void, string> => {
+export const maybeClearFollows = (ctx: AppContext, agent: SessionAgent): Effect.Effect<void, FetchFromBskyError | ATDeleteRecordError | ProcessDeleteError> => {
     const bskyDid = "did:plc:z72i7hdynmk6r22z27h6tvur"
 
-    return getFollows(ctx, agent, {params: {handleOrDid: agent.did}}).pipe(
-        Effect.flatMap(follows => Effect.tryPromise({
-            try: async () => {
+    return Effect.tryPromise({
+        try: () => agent.bsky.app.bsky.graph.getFollows({actor: agent.did}),
+        catch: () => new FetchFromBskyError()
+    }).pipe(
+        Effect.flatMap(res => {
+            if(res.success) {
+                const follows = res.data.follows
                 if (follows && follows.length == 1 && follows[0].did == bskyDid && follows[0].viewer?.following) {
-                    await unfollow(ctx, agent, {followUri: follows[0].viewer.following})
+                    return unfollow(ctx, agent, follows[0].viewer.following)
                 }
-
-                return
-            },
-            catch: () => {
-                return "Ocurrió un error al limpiar los seguidores"
             }
+            return Effect.void
         })
-    ))
+    )
 }
 
 

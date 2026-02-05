@@ -21,8 +21,7 @@ import {isThreadViewPost, ThreadViewPost} from "@atproto/api/dist/client/types/a
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
-import {DBError} from "#/services/write/article.js";
-import {DBSelectError} from "#/services/user/validation.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 function threadViewPostToThreadSkeleton(thread: ThreadViewPost, isAncestor: boolean = false): ThreadSkeleton {
     return {
@@ -115,12 +114,12 @@ const getThreadSkeletonForPost = (
     ctx: AppContext,
     agent: Agent,
     uri: string
-): Effect.Effect<ThreadSkeleton, DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ThreadSkeleton, DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const [skeletonBsky, skeletonCA] = yield* Effect.all([
         getThreadRepliesSkeletonForPostFromBsky(ctx, agent, uri),
         Effect.tryPromise({
             try: () => getThreadRepliesSkeletonForPostFromCA(ctx, uri),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
     ], {concurrency: "unbounded"})
 
@@ -157,7 +156,7 @@ const getThreadSkeleton = (
     ctx: AppContext,
     agent: Agent,
     uri: string
-): Effect.Effect<ThreadSkeleton, DBSelectError | DBError | FetchFromBskyError | NotImplementedError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ThreadSkeleton, DBSelectError | DBSelectError | FetchFromBskyError | NotImplementedError, DataPlane> => Effect.gen(function* () {
     const collection = getCollectionFromUri(uri)
 
     if(isPost(collection)){

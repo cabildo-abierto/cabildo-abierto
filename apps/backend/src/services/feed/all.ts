@@ -3,7 +3,8 @@ import {min} from "@cabildo-abierto/utils";
 import {EffHandler} from "#/utils/handler.js";
 import {SessionRequiredError} from "#/services/feed/discover/discover.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+
+import {DBSelectError} from "#/utils/errors.js";
 
 const getAllCAFeedPipeline: GetSkeletonProps = (
     ctx, agent, cursor) => Effect.gen(function* () {
@@ -33,7 +34,7 @@ const getAllCAFeedPipeline: GetSkeletonProps = (
             .distinct()
             .limit(25)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const newDateSince = min(skeleton, x => x.created_at_tz?.getTime() ?? 0)?.created_at_tz

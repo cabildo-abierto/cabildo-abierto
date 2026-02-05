@@ -59,6 +59,8 @@ type CAJobHandler<T> = (data: T) => Promise<void>
 type EffJobHandlerOutput = Effect.Effect<void, string | {_tag: string}>
 type EffJobHandler<T> = (data: T) => EffJobHandlerOutput
 
+export type JobToAdd = {label: string, data: any, priority?: number}
+
 export type WorkerState = {
     counts: {
         waiting: number
@@ -370,6 +372,10 @@ export class CAWorker {
         throw Error("Sin implementar!")
     }
 
+    addJobs(jobs: JobToAdd[]): Effect.Effect<void, AddJobError> {
+        throw Error("Sin implementar!")
+    }
+
     async waitUntilReady() {
         throw Error("Sin implementar!")
     }
@@ -461,7 +467,15 @@ export class RedisCAWorker extends CAWorker {
                 }),
             catch: () => new AddJobError()
         })
+    }
 
+    addJobs(jobs: JobToAdd[]) {
+        return Effect.all(
+            jobs.map(j => {
+                return this.addJob(j.label, j.data, j.priority)
+            }),
+            {concurrency: 5}
+        )
     }
 
     async removeAllRepeatingJobs() {

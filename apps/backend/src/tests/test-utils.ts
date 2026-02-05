@@ -10,7 +10,7 @@ import {AppBskyFeedPost, AtpBaseClient} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {getRecordProcessor, ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 import {getCollectionFromUri, getUri} from "@cabildo-abierto/utils";
-import {CAWorker} from "#/jobs/worker.js";
+import {CAWorker, JobToAdd} from "#/jobs/worker.js";
 import {randomBytes} from "crypto";
 import * as path from 'path';
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -29,7 +29,8 @@ import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {Effect} from "effect";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
-import {DBSelectError} from "#/services/user/validation.js";
+
+import {DBSelectError} from "#/utils/errors.js";
 
 export const testTimeout = 40000
 
@@ -641,6 +642,10 @@ export class MockCAWorker extends CAWorker {
         })
 
         return Effect.void
+    }
+
+    addJobs(jobs: JobToAdd[]) {
+        return Effect.all(jobs.map(j => this.addJob(j.label, j.data, j.priority)), {concurrency: "unbounded"})
     }
 
     async runAllJobs() {

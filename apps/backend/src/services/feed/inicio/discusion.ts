@@ -13,7 +13,7 @@ import {
     SkeletonQuery
 } from "#/services/feed/inicio/following.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {AppContext} from "#/setup.js";
@@ -244,7 +244,7 @@ export const getEnDiscusionSkeleton: (
         try: () => getEnDiscusionSkeletonQuery(metric, time, format)(
             ctx, agent, cursor, undefined, limit
         ),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(res => {
         return {
             skeleton: res.map(r => ({post: r.uri})),

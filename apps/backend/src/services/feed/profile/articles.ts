@@ -1,6 +1,6 @@
 import {GetSkeletonProps} from "#/services/feed/feed.js";
-import {DBError} from "#/services/write/article.js";
 import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export const getArticlesProfileFeedSkeleton = (did: string) : GetSkeletonProps => {
@@ -14,7 +14,7 @@ export const getArticlesProfileFeedSkeleton = (did: string) : GetSkeletonProps =
                 .where("authorId", "=", did)
                 .$if(cursor != null, qb => qb.where("created_at", "<=", new Date(cursor!)))
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         }).pipe(Effect.map(skeleton => {
             return {
                 skeleton: skeleton.map(({uri, created_at}) => ({post: uri, created_at})),

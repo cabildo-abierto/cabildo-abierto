@@ -8,7 +8,8 @@ import {$Typed, AppBskyFeedDefs} from "@atproto/api";
 import {FeedFormatOption} from "#/services/feed/inicio/discusion.js";
 import {FeedViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
+
 
 export type RepostQueryResult = {
     uri?: string
@@ -69,7 +70,7 @@ export const getArticlesForFollowingFeed = (
     created_at: Date,
     contentId: string
     repostedContentId: string | null
-}[], DBError, DataPlane> => Effect.gen(function* () {
+}[], DBSelectError, DataPlane> => Effect.gen(function* () {
     const res = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("FollowingFeedIndex")
@@ -84,7 +85,7 @@ export const getArticlesForFollowingFeed = (
             .orderBy("FollowingFeedIndex.created_at", "desc")
             .limit(25)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const data = yield* DataPlane
@@ -316,7 +317,7 @@ const getFollowingFeedSkeletonOnlyCA = (
         try: () => (format == "Todos" ?
             followingFeedOnlyCABaseQueryAll(ctx, agent, limit, cursor) :
             followingFeedOnlyCABaseQueryArticles(ctx, agent, limit, cursor)),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     function queryToSkeletonElement(e: {

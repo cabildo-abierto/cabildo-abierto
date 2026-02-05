@@ -203,6 +203,7 @@ export class RecordProcessor<T> {
             .values(refs.map(r => {
                 return {
                     uri: r.uri,
+                    collection: getCollectionFromUri(r.uri),
                     selfLabels: [],
                     embeds: []
                 }

@@ -17,6 +17,7 @@ import {Effect, pipe} from "effect";
 
 import { DB } from "prisma/generated/types.js";
 import {AddJobError, InvalidValueError} from "#/utils/errors.js";
+import {JobToAdd} from "#/jobs/worker.js";
 
 
 export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> {
@@ -51,41 +52,33 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
 
         const insertTopics = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
-            await processContentsBatch(this.ctx, trx, contents)
+            const jobs = await processContentsBatch(this.ctx, trx, contents)
 
-            try {
-                await trx
-                    .insertInto("Topic")
-                    .values(topics.map(t => ({...t, synonyms: []})))
-                    .onConflict((oc) => oc.column("id").doUpdateSet({
-                        lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
+            await trx
+                .insertInto("Topic")
+                .values(topics.map(t => ({...t, synonyms: []})))
+                .onConflict((oc) => oc.column("id").doUpdateSet({
+                    lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
+                }))
+                .execute()
+
+            if(topicVersions.length > 0){
+                const inserted = await trx
+                    .insertInto("TopicVersion")
+                    .values(topicVersions)
+                    .onConflict(oc => oc.column("uri").doUpdateSet({
+                        topicId: eb => eb.ref("excluded.topicId"),
+                        message: (eb) => eb.ref("excluded.message"),
+                        props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
                     }))
+                    .returning(["topicId", "TopicVersion.uri"])
                     .execute()
-            } catch (err) {
-                this.ctx.logger.pino.error({error: err}, "Error processing topics")
-            }
 
-            try {
-                if(topicVersions.length > 0){
-                    const inserted = await trx
-                        .insertInto("TopicVersion")
-                        .values(topicVersions)
-                        .onConflict(oc => oc.column("uri").doUpdateSet({
-                            topicId: eb => eb.ref("excluded.topicId"),
-                            message: (eb) => eb.ref("excluded.message"),
-                            props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
-                        }))
-                        .returning(["topicId", "TopicVersion.uri"])
-                        .execute()
+                await updateTopicsCurrentVersionBatch(this.ctx, trx, inserted.map(t => t.topicId))
 
-                    await updateTopicsCurrentVersionBatch(this.ctx, trx, inserted.map(t => t.topicId))
-
-                    return inserted
-                } else {
-                    return []
-                }
-            } catch (err) {
-                this.ctx.logger.pino.error({error: err}, "error inserting topic versions")
+                return {inserted, jobs}
+            } else {
+                return {inserted: [], jobs}
             }
         })
 
@@ -94,8 +87,8 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 try: () => insertTopics,
                 catch: () => new InsertRecordError()
             }),
-            Effect.tap(inserted => {
-                return !reprocess ? this.createJobs(records, inserted, topics) : Effect.void
+            Effect.tap(({inserted, jobs}) => {
+                return !reprocess ? this.createJobs(records, inserted, topics, jobs) : Effect.void
             }),
             Effect.map(() => records.length)
         )
@@ -103,7 +96,8 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
 
     createJobs(
         records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
-        inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[]
+        inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[],
+        jobs: JobToAdd[]
     ): Effect.Effect<void, AddJobError> {
         const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
 
@@ -119,11 +113,24 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 return addUpdateContributionsJobForTopics(this.ctx, topics.map(t => t.id))
             }),
             Effect.flatMap(() => {
-                return Effect.all([
-                    this.ctx.worker?.addJob("update-author-status", authors, 11),
-                    this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
-                    this.ctx.worker?.addJob("update-topic-mentions", topics.map(t=> t.id), 11)
-                ], {concurrency: "unbounded"})
+                return this.ctx.worker?.addJobs([
+                    ...jobs,
+                    {
+                        label: "update-author-status",
+                        data: authors,
+                        priority: 11
+                    },
+                    {
+                        label: "update-contents-topic-mentions",
+                        data: records.map(r => r.ref.uri),
+                        priority: 11
+                    },
+                    {
+                        label: "update-topic-mentions",
+                        data: topics.map(t => t.id),
+                        priority: 11
+                    }
+                ])
             })
         )
 

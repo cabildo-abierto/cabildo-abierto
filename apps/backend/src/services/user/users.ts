@@ -25,12 +25,11 @@ import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
-import {DBError} from "#/services/write/article.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
-import {AddJobError} from "#/utils/errors.js";
+import {AddJobError, DBSelectError} from "#/utils/errors.js";
 
 
-export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBError> {
+export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBSelectError> {
     if (handleOrDid.startsWith("did")) {
         return Effect.succeed(handleOrDid)
     } else {
@@ -40,7 +39,7 @@ export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effe
                 .select("did")
                 .where("handle", "=", handleOrDid)
                 .executeTakeFirst(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
             .pipe(Effect.map(res => res?.did ?? null))
     }
@@ -52,7 +51,7 @@ export class HandleResolutionError {
 }
 
 
-export const getCAUsersDids = (ctx: AppContext): Effect.Effect<string[], DBError> => {
+export const getCAUsersDids = (ctx: AppContext): Effect.Effect<string[], DBSelectError> => {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("User")
@@ -60,7 +59,7 @@ export const getCAUsersDids = (ctx: AppContext): Effect.Effect<string[], DBError
             .where("inCA", "=", true)
             .where("hasAccess", "=", true)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(users => {
         return users.map(({did}) => did)
     }))
@@ -108,37 +107,64 @@ export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}
 }
 
 
-export const follow: CAHandler<{ followedDid: string }, { followUri: string }> = async (ctx, agent, {followedDid}) => {
-    try {
-        const res = await agent.bsky.follow(followedDid)
+export const followHandler: EffHandler<{ followedDid: string }, { followUri: string }> = (ctx, agent, {followedDid}) => follow(ctx, agent, followedDid).pipe(
+    Effect.catchAll(() => {
+        return Effect.fail("Ocurrió un error al seguir al usuario.")
+    })
+)
+
+
+export const follow = (ctx: AppContext, agent: SessionAgent, did: string) => {
+    return Effect.gen(function* () {
+        const res = yield* Effect.tryPromise({
+            try: () => agent.bsky.follow(did),
+            catch: () => new ATCreateRecordError()
+        })
         const record: AppBskyGraphFollow.Record = {
             $type: "app.bsky.graph.follow",
-            subject: followedDid,
+            subject: did,
             createdAt: new Date().toISOString()
         }
-        await new FollowRecordProcessor(ctx).processValidated([{ref: res, record}])
-        return {data: {followUri: res.uri}}
-    } catch {
-        return {error: "Error al seguir al usuario."}
-    }
+        yield* (new FollowRecordProcessor(ctx).processValidated([{ref: res, record}]))
+        return {followUri: res.uri}
+    }).pipe(
+        Effect.withSpan("follow", {attributes: {did}})
+    )
 }
 
 
-export const unfollow: CAHandler<{ followUri: string }> = async (ctx, agent, {followUri}) => {
-    try {
-        await deleteRecords({ctx, agent, uris: [followUri], atproto: true})
-        return {data: {}}
-    } catch (err) {
-        console.error(err)
-        return {error: "Error al dejar de seguir al usuario."}
-    }
+export const unfollowHandler: EffHandler<{ followUri: string }> = (ctx, agent, {followUri}) => {
+    return unfollow(ctx, agent, followUri).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al dejar de seguir al usuario."))
+    ).pipe(Effect.map(() => Effect.succeed({})))
 }
 
 
-export const getProfile: EffHandlerNoAuth<{ params: { handleOrDid: string } }, ArCabildoabiertoActorDefs.ProfileViewDetailed> = (ctx, agent, {params}) => {
+export const unfollow = (ctx: AppContext, agent: SessionAgent, followUri: string) => {
+    return deleteRecords({ctx, agent, uris: [followUri], atproto: true}).pipe(
+        Effect.withSpan("unfollow", {attributes: {followUri}})
+    )
+}
+
+
+export const getProfileHandler: EffHandlerNoAuth<{ params: { handleOrDid: string } }, ArCabildoabiertoActorDefs.ProfileViewDetailed> = (ctx, agent, {params}) => {
 
     return pipe(
-        handleOrDidToDid(ctx, params.handleOrDid),
+        getProfile(ctx, params.handleOrDid),
+        Effect.catchAll(error => {
+            if(error._tag == "UserNotFoundError") {
+                return Effect.fail("No se encontró el usuario")
+            }
+            return Effect.fail("Ocurrió un error al obtener el usuario.")
+        }),
+        Effect.provideServiceEffect(DataPlane, makeDataPlane(ctx, agent))
+    )
+}
+
+
+export const getProfile = (ctx: AppContext, handleOrDid: string) => {
+    return pipe(
+        handleOrDidToDid(ctx, handleOrDid),
         Effect.flatMap(did =>
             Effect.gen(function* () {
                 const dataplane = yield* DataPlane
@@ -154,13 +180,7 @@ export const getProfile: EffHandlerNoAuth<{ params: { handleOrDid: string } }, A
                 return profile
             })
         ),
-        Effect.catchTag("HandleResolutionError", () =>
-            Effect.fail(new UserNotFoundError())
-        ),
-        Effect.catchAll(error =>
-            Effect.fail("Ocurrió un error al obtener el usuario.")
-        ),
-        Effect.provideServiceEffect(DataPlane, makeDataPlane(ctx, agent))
+        Effect.withSpan("getProfile", {attributes: {handleOrDid}})
     )
 }
 
@@ -175,7 +195,7 @@ export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
 
 type SessionData = Omit<Session, "handle"> & {handle: string | null}
 
-export const getSessionData = (ctx: AppContext, did: string): Effect.Effect<SessionData, RedisCacheFetchError | UserNotFoundError | DBError> => {
+export const getSessionData = (ctx: AppContext, did: string): Effect.Effect<SessionData, RedisCacheFetchError | UserNotFoundError | DBSelectError> => {
 
     return Effect.gen(function* () {
         const [data, mirrorStatus] = yield* Effect.all([
@@ -203,7 +223,7 @@ export const getSessionData = (ctx: AppContext, did: string): Effect.Effect<Sess
                     ])
                     .where("did", "=", did)
                     .executeTakeFirst(),
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             }),
             ctx.redisCache.mirrorStatus.get(did, true)
         ], {concurrency: "unbounded"})

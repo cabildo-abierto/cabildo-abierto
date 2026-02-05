@@ -10,7 +10,7 @@ import {SessionAgent} from "#/utils/session-agent.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoNotificationListNotifications} from "@cabildo-abierto/api"
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export type NotificationQueryResult = {
@@ -93,7 +93,7 @@ export type NotificationsSkeleton = {
 const getCANotifications = (
     ctx: AppContext,
     agent: SessionAgent
-): Effect.Effect<ArCabildoabiertoNotificationListNotifications.Notification[], DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoNotificationListNotifications.Notification[], DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const dataplane = yield* DataPlane
 
     const [skeleton, lastSeen] = yield* Effect.all([
@@ -110,7 +110,7 @@ const getCANotifications = (
                 .orderBy("Notification.created_at_tz", "desc")
                 .limit(20)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         }),
         Effect.tryPromise({
             try: () => ctx.kysely
@@ -118,7 +118,7 @@ const getCANotifications = (
                 .select("lastSeenNotifications_tz")
                 .where("did", "=", agent.did)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
     ], {concurrency: "unbounded"})
 
@@ -141,7 +141,7 @@ function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
             .set("lastSeenNotifications_tz", new Date())
             .where("did", "=", agent.did)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 }
 

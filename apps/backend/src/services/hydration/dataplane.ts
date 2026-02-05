@@ -46,8 +46,9 @@ import {CAProfileDetailed, CAProfile} from "#/lib/types.js";
 import {getObjectKey} from "#/utils/object.js";
 import {Context, Effect, pipe, Stream} from "effect";
 import {toReadonlyArray} from "effect/Chunk";
-import {DBError} from "#/services/write/article.js";
 import {S3DownloadError, S3GetSignedURLError} from "../storage/storage.js";
+
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export type FeedElementQueryResult = {
@@ -137,16 +138,16 @@ export class FetchFromBskyError {
 export class DataPlane extends Context.Tag("DataPlane")<
     DataPlane,
     {
-    readonly fetchCAContentsAndBlobs: (uris: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
+    readonly fetchCAContentsAndBlobs: (uris: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchSignedStorageUrls: (paths: string[], bucket: string) => Effect.Effect<void, S3GetSignedURLError>
-    readonly fetchFeedHydrationData: (skeleton: FeedSkeleton) => Effect.Effect<void, DBError | FetchFromBskyError>
-    readonly fetchThreadHydrationData: (skeleton: ThreadSkeleton) => Effect.Effect<void, DBError | FetchFromBskyError>
-    readonly fetchNotificationsHydrationData: (skeleton: NotificationsSkeleton) => Effect.Effect<void, DBError | FetchFromBskyError>
+    readonly fetchFeedHydrationData: (skeleton: FeedSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
+    readonly fetchThreadHydrationData: (skeleton: ThreadSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
+    readonly fetchNotificationsHydrationData: (skeleton: NotificationsSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchProfileViewDetailedHydrationData: (dids: string[]) => Effect.Effect<void, ViewerStateFetchError | FetchFromCAError | FetchFromBskyError>
-    readonly fetchProfileViewHydrationData: (dids: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
-    readonly fetchProfileViewBasicHydrationData: (dids: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
-    readonly fetchDatasetsHydrationData: (uris: string[]) => Effect.Effect<void, FetchFromBskyError | DBError>
-    readonly fetchDatasetContents: (uris: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
+    readonly fetchProfileViewHydrationData: (dids: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
+    readonly fetchProfileViewBasicHydrationData: (dids: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
+    readonly fetchDatasetsHydrationData: (uris: string[]) => Effect.Effect<void, FetchFromBskyError | DBSelectError>
+    readonly fetchDatasetContents: (uris: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchFilesFromStorage: (filePaths: string[], bucket: string) => Effect.Effect<void, S3DownloadError>
     readonly storeFeedViewPosts: (feed: FeedViewPost[]) => void
     readonly saveDataFromPostThread: (thread: ThreadViewPost, includeParents: boolean, excludeChild?: string) => void
@@ -174,9 +175,9 @@ export class DataPlane extends Context.Tag("DataPlane")<
         signedStorageUrls: Map<string, Map<string, string>>
     }
     readonly storeRepost: (repost: RepostQueryResult & {subjectId: string}) => void
-    readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBError>
-    readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBError>
-    readonly fetchPostAndArticleViewsHydrationData: (uris: string[], dids?: string[]) => Effect.Effect<void, DBError | FetchFromBskyError>
+    readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBSelectError>
+    readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBSelectError>
+    readonly fetchPostAndArticleViewsHydrationData: (uris: string[], dids?: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly dpFetchTextBlobs: (blobs: BlobRef[]) => Effect.Effect<void, FetchBlobError>
 }>() {}
 
@@ -248,7 +249,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         return {datasets, filters}
     }
 
-    const fetchCAContents = (uris: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchCAContents = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         uris = uris.filter(u => !caContents?.has(u))
         if (uris.length == 0) return
 
@@ -296,7 +297,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
                 ])
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         contents.forEach(c => {
@@ -330,7 +331,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         joinMapsInPlace(textBlobs, m)
     })
 
-    const fetchCAUsers = (dids: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchCAUsers = (dids: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         dids = dids.filter(d => !caUsers.has(d) && !caUsersDetailed.has(d))
         if(dids.length == 0) return
         const agentDid = agent?.hasSession() ? agent.did : null
@@ -368,7 +369,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 ])
                 .where("inCA", "=", true)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         users.forEach(u => {
@@ -442,7 +443,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         )
     }).pipe(Effect.withSpan("fetchProfileViewDetailedFromBsky"))
 
-    const fetchProfileViewHydrationData = (dids: string[]): Effect.Effect<void, FetchFromBskyError | DBError> => Effect.gen(function* () {
+    const fetchProfileViewHydrationData = (dids: string[]): Effect.Effect<void, FetchFromBskyError | DBSelectError> => Effect.gen(function* () {
         dids = dids.filter(d => {
             if(profiles.has(d)) return false
             if(caUsers.has(d)) return false
@@ -544,7 +545,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         })
     })
 
-    const expandUrisWithRepliesQuotesAndReposts = (skeleton: FeedSkeleton): Effect.Effect<string[], DBError | FetchFromBskyError> => Effect.gen(function* () {
+    const expandUrisWithRepliesQuotesAndReposts = (skeleton: FeedSkeleton): Effect.Effect<string[], DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         const uris = skeleton.map(e => e.post)
         const repostUris = skeleton
             .map(e => e.reason && ArCabildoabiertoFeedDefs.isSkeletonReasonRepost(e.reason) ? e.reason.repost : null)
@@ -560,7 +561,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .select(["uri", "replyToId", "quoteToId", "rootId"])
                     .where("uri", "in", pUris)
                     .execute(),
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             }) : Effect.succeed([])
         ], {concurrency: "unbounded"}))[1]
 
@@ -592,7 +593,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         ].filter(x => x != null))
     })
 
-    const fetchPostAndArticleViewsHydrationData = (uris: string[], otherDids: string[] = []): Effect.Effect<void, DBError | FetchFromBskyError> => Effect.gen(function* () {
+    const fetchPostAndArticleViewsHydrationData = (uris: string[], otherDids: string[] = []): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         const required = uris.flatMap(u => requires.get(u)).filter(x => x != null)
         uris = unique([...uris, ...required])
         const dids = unique([...uris.map(getDidFromUri), ...otherDids])
@@ -606,7 +607,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         ], {concurrency: "unbounded"})
     })
 
-    const fetchThreadHydrationData = (skeleton: ThreadSkeleton): Effect.Effect<void, DBError | FetchFromBskyError> => {
+    const fetchThreadHydrationData = (skeleton: ThreadSkeleton): Effect.Effect<void, DBSelectError | FetchFromBskyError> => {
         let uris = getUrisFromThreadSkeleton(skeleton)
 
         const reqUris = uris
@@ -638,7 +639,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         )
     }
 
-    const fetchDatasetsHydrationData = (uris: string[]): Effect.Effect<void, FetchFromBskyError | DBError> => Effect.gen(function* () {
+    const fetchDatasetsHydrationData = (uris: string[]): Effect.Effect<void, FetchFromBskyError | DBSelectError> => Effect.gen(function* () {
         uris = uris.filter(u => !datasets?.has(u))
         if (uris.length == 0) return
 
@@ -673,7 +674,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         const [datasetsData] = yield* Effect.all([
             Effect.tryPromise({
                 try: () => datasetsQuery,
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             }),
             fetchProfileViewBasicHydrationData(dids)
         ], {concurrency: "unbounded"})
@@ -688,7 +689,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         }
     })
 
-    const fetchDatasetContents = (uris: string[]): Effect.Effect<void, DBError | FetchFromBskyError> => Effect.gen(function* () {
+    const fetchDatasetContents = (uris: string[]): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         uris = uris.filter(u => isDataset(getCollectionFromUri(u)))
         uris = uris.filter(u => !datasetContents?.has(u))
 
@@ -735,7 +736,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         joinMapsInPlace(datasetContents, newDatasetContents)
     })
 
-    const fetchFilteredTopics = (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]): Effect.Effect<void, DBError> =>  Effect.gen(function* () {
+    const fetchFilteredTopics = (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]): Effect.Effect<void, DBSelectError> =>  Effect.gen(function* () {
 
         const datasetsData = yield* Effect.all(manyFilters.map(filters => {
             const filtersByOperator = new Map<string, { column: string, operands: string[] }[]>()
@@ -777,7 +778,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 return Effect.tryPromise({
                     try: async () => (await query
                         .execute()) as { id: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[] }[],
-                    catch: () => new DBError()
+                    catch: () => new DBSelectError()
                 })
             } else {
                 return Effect.succeed(null)
@@ -792,7 +793,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
     })
 
-    const fetchCAContentsAndBlobs = (uris: string[]): Effect.Effect<void, DBError | FetchFromBskyError> => Effect.gen(function* () {
+    const fetchCAContentsAndBlobs = (uris: string[]): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         yield* fetchCAContents(uris)
 
         const contents = Array.from(caContents?.values() ?? [])
@@ -811,7 +812,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         ], {concurrency: "unbounded"})
     })
 
-    const fetchTopicsBasicByUris = (uris: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchTopicsBasicByUris = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         uris = uris.filter(u => !topicsByUri?.has(u))
         if (uris.length == 0) return
 
@@ -836,7 +837,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 ])
                 .where("TopicVersion.uri", "in", uris)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         const mapByUri = new Map(data.map(item => [item.uri, item]))
@@ -844,7 +845,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         joinMapsInPlace(topicsByUri, mapByUri)
     })
 
-    const fetchFeedHydrationData = (skeleton: FeedSkeleton): Effect.Effect<void, DBError | FetchFromBskyError> => Effect.gen(function* () {
+    const fetchFeedHydrationData = (skeleton: FeedSkeleton): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         const expandedUris = yield* expandUrisWithRepliesQuotesAndReposts(skeleton)
 
         yield* Effect.all([
@@ -854,7 +855,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         ], {concurrency: "unbounded"})
     })
 
-    const fetchRootCreationDate = (uris: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchRootCreationDate = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         uris = uris.filter(u => isPost(getCollectionFromUri(u)))
         if (uris.length == 0) return
 
@@ -865,7 +866,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 .select(["Post.uri", "Record.created_at"])
                 .where("Post.uri", "in", uris)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         rootCreationDatesData.forEach(r => {
@@ -874,7 +875,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     })
 
 
-    const fetchRepostsHydrationData = (uris: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchRepostsHydrationData = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         uris = uris.filter(u => getCollectionFromUri(u) == "app.bsky.feed.repost")
         if (uris.length > 0) {
             const reposts: RepostQueryResult[] = yield* Effect.tryPromise({
@@ -888,7 +889,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     ])
                     .where("Reaction.uri", "in", uris)
                     .execute(),
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             })
 
             reposts.forEach(r => {
@@ -904,7 +905,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         return textBlobs?.get(key) ?? null
     }
 
-    const fetchEngagement = (uris: string[]): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchEngagement = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         if (!agent.hasSession()) return
         if (uris.length == 0) return
 
@@ -921,7 +922,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 .where("Record.collection", "in", ["app.bsky.feed.like", "app.bsky.feed.repost"])
                 .where("Reaction.subjectId", "in", uris)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         reactions.forEach(l => {
@@ -980,7 +981,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         })
     }
 
-    const fetchTopicsMentioned = (uri: string): Effect.Effect<void, DBError> => Effect.gen(function* () {
+    const fetchTopicsMentioned = (uri: string): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
 
         const topics: TopicMentionedProps[] = yield* Effect.tryPromise({
             try: () => ctx.kysely
@@ -994,7 +995,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 ])
                 .where("Reference.referencingContentId", "=", uri)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         })
 
         if (!topicsMentioned) topicsMentioned = new Map()
@@ -1168,7 +1169,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         }
     })
 
-    const fetchNotificationsHydrationData = (skeleton: NotificationsSkeleton): Effect.Effect<void, DBError | FetchFromBskyError> => Effect.gen(function* () {
+    const fetchNotificationsHydrationData = (skeleton: NotificationsSkeleton): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         if (!agent.hasSession() || skeleton.length == 0) return
 
         const reqAuthors = skeleton.map(n => getDidFromUri(n.causedByRecordId))
@@ -1196,7 +1197,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .orderBy("Notification.created_at_tz", "desc")
                     .limit(20)
                     .execute(),
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             }),
             fetchProfileViewHydrationData(reqAuthors)
         ], {concurrency: "unbounded"})

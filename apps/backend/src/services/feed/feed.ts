@@ -14,39 +14,13 @@ import {discoverFeedPipeline, InvalidCursorError, SessionRequiredError} from "#/
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {DataPlane, makeDataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {articlesFeedPipeline} from "#/services/feed/inicio/articles.js";
-import {getProfile, getSessionData} from "#/services/user/users.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
-import {clearFollows} from "#/services/user/follows.js";
-import {DBError} from "#/services/write/article.js";
+import {maybeClearFollows} from "#/services/user/follows.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
-
-
-function maybeClearFollows(ctx: AppContext, agent: Agent): Effect.Effect<void, string> {
-    if(agent.hasSession()){
-        return pipe(
-            getSessionData(ctx, agent.did).pipe(
-                Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener la sesión."))
-            ),
-            Effect.flatMap(data => {
-                if(data && (!data.seenTutorial || !data.seenTutorial.home)){
-                    return getProfile(ctx, agent, {params: {handleOrDid: agent.did}})
-                } else {
-                    return Effect.succeed(null)
-                }
-            }),
-            Effect.flatMap(profile => {
-                return profile && profile.bskyFollowsCount == 1 ?
-                    clearFollows(ctx, agent) :
-                    Effect.void
-            })
-        )
-    } else {
-        return Effect.void
-    }
-}
 
 
 export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption, filter?: FollowingFeedFilter}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = (ctx, agent, {params, query}) => {
@@ -54,7 +28,7 @@ export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cu
     const {cursor, metric, time, filter, format} = query
 
     return pipe(
-        kind == "siguiendo" ? maybeClearFollows(ctx, agent) : Effect.void,
+        kind == "siguiendo" && agent.hasSession() ? maybeClearFollows(ctx, agent) : Effect.void,
         Effect.flatMap(() => {
             return Effect.tryPromise({
                 try: async () => {
@@ -87,7 +61,7 @@ export const getFeedByKind: EffHandlerNoAuth<{params: {kind: string}, query: {cu
 }
 
 
-export type GetSkeletonError = DBError | FetchFromBskyError | InvalidCursorError | SessionRequiredError
+export type GetSkeletonError = DBSelectError | FetchFromBskyError | InvalidCursorError | SessionRequiredError
 
 
 export type FeedSkeleton = ArCabildoabiertoFeedDefs.SkeletonFeedPost[]
@@ -113,7 +87,7 @@ export type GetFeedProps = {
     params?: { metric?: string, time?: string }
 }
 
-type GetFeedError = GetSkeletonError | DBError | FetchFromBskyError
+type GetFeedError = GetSkeletonError | DBSelectError | FetchFromBskyError
 
 export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> => {
     return Effect.provideServiceEffect(
@@ -127,7 +101,7 @@ export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Ef
                 feed: filteredFeed,
                 cursor: skRes.cursor
             }
-        }),
+        }).pipe(Effect.withSpan("getFeed", {attributes: {cursor, name: pipeline.debugName}})),
         DataPlane,
         makeDataPlane(ctx, agent)
     )

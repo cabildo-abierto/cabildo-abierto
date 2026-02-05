@@ -41,6 +41,6 @@ export const getCustomFeed: EffHandler<
         return yield* Effect.fail("Ocurrió un error al obtener el muro.")
     }
 }).pipe(
-    Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener el muro.")),
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el muro.")),
     Effect.catchTag("FetchFromBskyError", () => Effect.fail("Ocurrió un error al obtener el muro."))
 ), DataPlane, makeDataPlane(ctx, agent))

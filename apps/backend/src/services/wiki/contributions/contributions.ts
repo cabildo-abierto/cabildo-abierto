@@ -9,9 +9,8 @@ import {getNumWords} from "#/services/wiki/content.js";
 import {sql} from "kysely";
 import {EditorStatus} from "@cabildo-abierto/api";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {FetchBlobError} from "#/services/blob.js";
-import {DBSelectError} from "#/services/user/validation.js";
 
 
 type TopicVersion = {
@@ -112,7 +111,7 @@ type ContentUpd = {
 const fetchVersionsData = (
     ctx: AppContext,
     topicIds: string[]
-): Effect.Effect<TopicVersion[], DBError, DataPlane> => {
+): Effect.Effect<TopicVersion[], DBSelectError, DataPlane> => {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("TopicVersion as tv")
@@ -157,16 +156,8 @@ const fetchVersionsData = (
             .where("t.id", "in", topicIds)
             .orderBy("r.created_at_tz asc")
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
-}
-
-
-export class DBInsertError {
-    readonly _tag = "InsertError"
-
-    constructor(readonly message?: string) {
-    }
 }
 
 
@@ -333,7 +324,7 @@ export function updateTopicContributionsRequired(ctx: AppContext) {
             .where("TopicVersion.charsAdded", "is", null)
             .select("topicId")
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(
         Effect.map(tv => unique(tv.map(t => t.topicId))),
         Effect.flatMap(topicIds => updateTopicContributions(ctx, topicIds))
@@ -344,7 +335,7 @@ export function updateTopicContributionsRequired(ctx: AppContext) {
 export const updateTopicContributions = (
     ctx: AppContext,
     topicIds: string[]
-): Effect.Effect<void, DBInsertError | DBError | FetchBlobError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<void, DBInsertError | DBSelectError | FetchBlobError, DataPlane> => Effect.gen(function* () {
     const batchSize = 500
     if (topicIds.length > batchSize) {
         for (let i = 0; i < topicIds.length; i += batchSize) {

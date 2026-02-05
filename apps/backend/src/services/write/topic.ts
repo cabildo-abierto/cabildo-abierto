@@ -18,7 +18,7 @@ import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export class FetchError {
@@ -185,7 +185,7 @@ export class TopicAlreadyExistsError {
 }
 
 
-function checkTopicNotExists(ctx: AppContext, id: string): Effect.Effect<void, TopicAlreadyExistsError | DBError> {
+function checkTopicNotExists(ctx: AppContext, id: string): Effect.Effect<void, TopicAlreadyExistsError | DBSelectError> {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Topic")
@@ -197,7 +197,7 @@ function checkTopicNotExists(ctx: AppContext, id: string): Effect.Effect<void, T
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
             ))
             .executeTakeFirst(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.flatMap(exists => {
         return exists != null ?
             Effect.fail(new TopicAlreadyExistsError()) :
@@ -212,7 +212,7 @@ export const createTopicVersion: EffHandler<CreateTopicVersionProps> = (ctx, age
         if(params.text == undefined){
             yield* checkTopicNotExists(ctx, params.id)
                 .pipe(
-                    Effect.catchTag("DBError", () => Effect.fail("Error en la conexión")),
+                    Effect.catchTag("DBSelectError", () => Effect.fail("Error en la conexión")),
                     Effect.catchTag("TopicAlreadyExistsError", () => Effect.fail("Ya existe un tema con ese nombre."))
                 )
         }

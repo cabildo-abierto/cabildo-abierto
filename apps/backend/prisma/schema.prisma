@@ -92,12 +92,25 @@ model Content {
 
   caModeration ContentModerationStatus @default(Ok)
 
+  searchableContent SearchableContent?
+
   @@index([text_tsv], map: "content_text_fts_idx", type: Gin)
   @@index([created_at(sort: Desc)])
   @@index([created_at_tz(sort: Desc)])
   @@index([interactionsScore(sort: Desc), created_at(sort: Desc)])
   @@index([likesScore(sort: Desc), created_at(sort: Desc)])
   @@index([relativePopularityScore(sort: Desc), created_at(sort: Desc)])
+}
+
+model SearchableContent {
+  uri        String   @id
+  content    Content  @relation(fields: [uri], references: [uri], onDelete: Cascade)
+  text       String
+  collection String
+  created_at DateTime @db.Timestamptz(3)
+
+  @@index([collection, created_at(desc)])
+  @@index([created_at(desc)])
 }
 
 model DataBlock {

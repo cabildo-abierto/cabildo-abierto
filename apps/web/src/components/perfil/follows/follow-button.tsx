@@ -1,4 +1,4 @@
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api/dist"
+import {ArCabildoabiertoActorDefs, MainSearchOutput} from "@cabildo-abierto/api/dist"
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {AppBskyActorDefs} from "@atproto/api"
@@ -67,6 +67,31 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                             }
                         }
                     })
+                } else if(k[0] == "search") {
+                    qc.setQueryData(k, old => {
+                        if(!old) return old
+                        const value = old as {data?: MainSearchOutput}
+                        if(!value) return old
+                        if(value.data.kind == "Usuarios"){
+                            return {
+                                data: {
+                                    kind: value.data.kind,
+                                    value: {
+                                        cursor: value.data.value.cursor,
+                                        feed: produce(value.data.value.feed, draft => {
+                                            const index = value.data.value.feed
+                                                .findIndex(u => u.handle == handle)
+                                            if (index != -1) {
+                                                if(draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        } else {
+                            return old
+                        }
+                    })
                 }
             })
         })
@@ -120,6 +145,31 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                                     data.viewer.following = undefined
                                 }
                             }
+                        }
+                    })
+                } else if(k[0] == "search") {
+                    qc.setQueryData(k, old => {
+                        if(!old) return old
+                        const value = old as {data?: MainSearchOutput}
+                        if(!value) return old
+                        if(value.data.kind == "Usuarios"){
+                            return {
+                                data: {
+                                    kind: value.data.kind,
+                                    value: {
+                                        cursor: value.data.value.cursor,
+                                        feed: produce(value.data.value.feed, draft => {
+                                            const index = value.data.value.feed
+                                                .findIndex(u => u.handle == handle)
+                                            if (index != -1) {
+                                                if(draft[index].viewer) draft[index].viewer.following = null
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        } else {
+                            return old
                         }
                     })
                 }
@@ -179,6 +229,31 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                             }
                         }
                     })
+                } else if(k[0] == "search") {
+                    qc.setQueryData(k, old => {
+                        if(!old) return old
+                        const value = old as {data?: MainSearchOutput}
+                        if(!value) return old
+                        if(value.data.kind == "Usuarios"){
+                            return {
+                                data: {
+                                    kind: value.data.kind,
+                                    value: {
+                                        cursor: value.data.value.cursor,
+                                        feed: produce(value.data.value.feed, draft => {
+                                            const index = value.data.value.feed
+                                                .findIndex(u => u.handle == handle)
+                                            if (index != -1) {
+                                                if(draft[index].viewer) draft[index].viewer.following = followUri
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        } else {
+                            return old
+                        }
+                    })
                 }
             })
         })
@@ -190,7 +265,8 @@ const isQueryRelatedToFollow = (query: Query) => {
         query.queryKey[0] == "followers" ||
         query.queryKey[0] == "follows" ||
         query.queryKey[0] == "follow-suggestions" ||
-        query.queryKey[0] == "follow-suggestions-feed"
+        query.queryKey[0] == "follow-suggestions-feed" ||
+        query.queryKey[0] == "search"
 }
 
 
@@ -228,14 +304,7 @@ export function FollowButton({
             if (data.data?.followUri) {
                 setFollow(qc, handle, data.data.followUri)
             }
-        },
-        onSettled: async () => {
-            qc.invalidateQueries({
-                predicate: (query: Query) => {
-                    return isQueryRelatedToFollow(query)
-                }
-            })
-        },
+        }
     })
 
     const unfollowMutation = useMutation({
@@ -246,13 +315,6 @@ export function FollowButton({
             } catch (err) {
                 console.log("unfollowing failed", err)
             }
-        },
-        onSuccess: () => {
-            qc.invalidateQueries({
-                predicate: (query: Query) => {
-                    return isQueryRelatedToFollow(query)
-                }
-            })
         }
     })
 

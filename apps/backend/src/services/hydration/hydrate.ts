@@ -29,7 +29,7 @@ import {Effect} from "effect";
 import {DataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {NoSessionAgent, SessionAgent} from "#/utils/session-agent.js";
 import {hydratePostView} from "#/services/hydration/post-view.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export const hydrateViewer = (agent: SessionAgent | NoSessionAgent, uri: string): Effect.Effect<{
@@ -379,7 +379,7 @@ export const hydrateFeedViewContent = (ctx: AppContext, agent: SessionAgent | No
 export type BlobRef = { cid: string, authorId: string }
 
 
-export const hydrateFeed = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, skeleton: FeedSkeleton): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.FeedViewContent>[], DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+export const hydrateFeed = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, skeleton: FeedSkeleton): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.FeedViewContent>[], DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const dataplane = yield* DataPlane
     yield* dataplane.fetchFeedHydrationData(skeleton)
 

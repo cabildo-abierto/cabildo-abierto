@@ -1,6 +1,6 @@
 import {FeedPipelineProps, GetSkeletonProps} from "#/services/feed/feed.js";
 import {rootCreationDateSortKey} from "#/services/feed/utils.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {Effect} from "effect";
 
 const getArticlesFeedSkeleton: GetSkeletonProps = (ctx, agent) => {
@@ -11,7 +11,7 @@ const getArticlesFeedSkeleton: GetSkeletonProps = (ctx, agent) => {
             .select(["Record.uri"])
             .orderBy("Record.created_at_tz", "desc")
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(
         Effect.map(skeleton => {
             return {

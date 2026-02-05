@@ -15,7 +15,7 @@ import {createPost} from "#/services/write/post.js";
 import {ATDeleteRecordError, deleteRecords} from "#/services/delete.js";
 import {Effect} from "effect";
 import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 
@@ -285,7 +285,7 @@ export const getTopicVersionVotes = (
     ctx: AppContext,
     agent: BaseAgent,
     uri: string
-): Effect.Effect<ArCabildoabiertoWikiDefs.VoteView[], DBError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoWikiDefs.VoteView[], DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
 
     const reactions = yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -306,7 +306,7 @@ export const getTopicVersionVotes = (
             .orderBy("Record.created_at_tz desc")
             .distinctOn(["Record.authorId"])
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const votes = reactions

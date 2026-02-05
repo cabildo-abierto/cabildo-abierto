@@ -1,6 +1,6 @@
 import {GetSkeletonProps} from "#/services/feed/feed.js";
 import {min} from "@cabildo-abierto/utils";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 import {Effect} from "effect";
 
 
@@ -18,7 +18,7 @@ export const getEditsProfileFeedSkeleton = (did: string) : GetSkeletonProps => {
                 .where("Record.created_at_tz", "<", cursor_ts)
                 .limit(25)
                 .execute(),
-            catch: () => new DBError()
+            catch: () => new DBSelectError()
         }).pipe(Effect.map(skeleton => {
             return {
                 skeleton: skeleton.map(r => ({post: r.uri})),

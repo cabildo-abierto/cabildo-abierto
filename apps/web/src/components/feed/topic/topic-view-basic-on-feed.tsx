@@ -9,6 +9,7 @@ import ValidationIcon from "@/components/perfil/validation-icon";
 import BlueskyLogo from "@/components/utils/icons/bluesky-logo";
 import dynamic from "next/dynamic";
 import {splitUri} from "@cabildo-abierto/utils";
+import TopicSearchResult from "@/components/buscar/topic-search-result";
 
 
 const UserSummaryOnHover = dynamic(() => import("../../perfil/user-summary"), {
@@ -42,13 +43,15 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
                 </span>
             </div>
         </CustomLink>
-    } else {
+    } else if(topic.versionAuthor) {
         const inSearch = pathname.startsWith("/buscar")
 
         const author = topic.versionAuthor
         const verification = author.verification
 
-        return <CustomLink tag={"div"} href={topicUrl(topic.id, splitUri(topic.versionRef.uri))}>
+        const href = topicUrl(topic.id, topic.versionRef ? splitUri(topic.versionRef.uri) : undefined)
+
+        return <CustomLink tag={"div"} href={href}>
             <div className={"hover:bg-[var(--background-dark)] w-full text-[var(--text-light)] p-4 border-b"}>
                 <span>{inSearch ? "Tema" : "Edición del tema"}</span> <span
                 className={"font-semibold"}>{getTopicTitle(topic)}</span>
@@ -76,6 +79,8 @@ export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
                 </div>
             </div>
         </CustomLink>
+    } else {
+        return <TopicSearchResult topic={topic}/>
     }
 
 }

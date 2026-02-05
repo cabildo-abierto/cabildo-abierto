@@ -3,7 +3,7 @@ import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateFeedViewContent} from "#/services/hydration/hydrate.js";
 import {EffHandler} from "#/utils/handler.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 export const getPendingModeration: EffHandler<{}, PendingModeration> = (
@@ -20,7 +20,7 @@ export const getPendingModeration: EffHandler<{}, PendingModeration> = (
             .orderBy("created_at asc")
             .limit(25)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })
 
     const data = yield* DataPlane

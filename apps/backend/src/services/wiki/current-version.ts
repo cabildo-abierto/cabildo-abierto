@@ -11,10 +11,10 @@ import {produce} from "immer"
 import {jsonArrayFrom} from "kysely/helpers/postgres"
 import {Effect} from "effect";
 import {NotFoundError} from "#/services/dataset/read.js";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
-export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string): Effect.Effect<string, NotFoundError | DBError> {
+export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string): Effect.Effect<string, NotFoundError | DBSelectError> {
     const uris = [getUri(did, "ar.com.cabildoabierto.topic", rkey), getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)]
 
     return Effect.tryPromise({
@@ -23,7 +23,7 @@ export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey
             .select("topicId")
             .where("uri", "in", uris)
             .executeTakeFirst(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.flatMap(res => {
         return res ? Effect.succeed(res?.topicId) : Effect.fail(new NotFoundError())
     }))

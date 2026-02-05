@@ -34,10 +34,11 @@ import {getTopicCurrentVersionFromDB} from "#/services/wiki/topics.js";
 import {$Typed} from "@atproto/api";
 import {Effect} from "effect";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
-import {DBError} from "#/services/write/article.js";
+
+import {DBSelectError} from "#/utils/errors.js";
 
 
-const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<FeedSkeleton, DBError> => {
+const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<FeedSkeleton, DBSelectError> => {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Post")
@@ -50,7 +51,7 @@ const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<Fee
             .where("TopicVersion.topicId", "=", id)
             .orderBy("Record.created_at desc")
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(
         Effect.map(replies => replies.map(r => ({post: r.uri})))
     )
@@ -217,7 +218,7 @@ const getTopicMentionsSkeleton = (
         try: () => getTopicMentionsSkeletonQuery(
             id, metric, time, format
         )(ctx, agent, cursor, undefined, limit),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(skeleton => {
         return {
             skeleton: skeleton.map(x => ({post: x.uri})),
@@ -245,7 +246,7 @@ export function getTopicMentionsInTopics(ctx: AppContext, id: string) {
             .orderBy("created_at", "desc")
             .limit(25)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(topics => {
         return topics.map(t => {
             return {
@@ -265,7 +266,7 @@ type VoteBasicQueryResult = {
 }
 
 
-function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect<VoteBasicQueryResult[], DBError> {
+function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect<VoteBasicQueryResult[], DBSelectError> {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Reaction")
@@ -282,7 +283,7 @@ function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect
                 "Reason.uri as reasonUri"
             ])
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(votes => {
         return votes.map(v => {
             if (v.subjectId && v.subjectCreatedAt) {
@@ -345,7 +346,7 @@ const hydrateRepliesSkeleton = (
     agent: Agent,
     skeleton: FeedSkeleton,
     uri: string
-): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent[], DBError | FetchFromBskyError, DataPlane> =>
+): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent[], DBSelectError | FetchFromBskyError, DataPlane> =>
     Effect.gen(function* () {
         const dataplane = yield* DataPlane
         const [votes] = yield* Effect.all([
@@ -372,7 +373,7 @@ export const getTopicVersionReplies = (
     agent: Agent,
     id: string,
     uri: string
-): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent[], DBError | FetchFromBskyError, DataPlane> => {
+): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent[], DBSelectError | FetchFromBskyError, DataPlane> => {
     return getTopicRepliesSkeleton(ctx, id).pipe(
         Effect.flatMap(skeleton => hydrateRepliesSkeleton(
             ctx,
@@ -426,7 +427,7 @@ export const getTopicDiscussion: EffHandlerNoAuth<{
         Effect.catchTag("TopicCurrentVersionNotFoundError", () => Effect.fail("No se encontró la versión del tema.")),
         Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el tema.")),
         Effect.catchTag("FetchFromBskyError", () => Effect.fail("Ocurrió un error al obtener la discusión.")),
-        Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener la discusión."))
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener la discusión."))
     ), DataPlane, makeDataPlane(ctx, agent))
 }
 
@@ -512,7 +513,7 @@ export const getTopicMentionsInTopicsFeed: EffHandlerNoAuth<{ query: { i?: strin
         }
     }).pipe(
         Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el tema.")),
-        Effect.catchTag("DBError", () => Effect.fail("Ocurrió un error al obtener las menciones."))
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener las menciones."))
     )
 }
 
@@ -530,7 +531,7 @@ export const getTopicQuoteReplies: EffHandlerNoAuth<{
             .where("Post.replyToId", "=", uri)
             .select("uri")
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     })).map(p => ({post: p.uri}))
 
     const hydrated = yield* hydrateRepliesSkeleton(ctx, agent, skeleton, uri)
@@ -563,7 +564,7 @@ export const getAllTopicEditsFeed: EffHandlerNoAuth<{
                     .limit(25)
                     .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
                     .execute(),
-                catch: () => new DBError()
+                catch: () => new DBSelectError()
             }).pipe(Effect.map(edits => {
                 const latest = edits[edits.length - 1]
                 const newCursor = latest?.created_at_tz?.toISOString()

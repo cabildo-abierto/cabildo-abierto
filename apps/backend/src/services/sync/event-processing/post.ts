@@ -23,9 +23,7 @@ import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
 import {Effect, pipe} from "effect";
-
-
-import {AddJobError} from "#/utils/errors.js";
+import {JobToAdd} from "#/jobs/worker.js";
 
 
 export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record> {
@@ -45,7 +43,7 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
         await this.processDirtyRecordsBatch(trx, referencedRefs)
     }
 
-    async createContents(records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>){
+    async createContents(records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>): Promise<JobToAdd[]> {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => {
             let datasetsUsed: string[] = []
             if (ArCabildoabiertoEmbedVisualization.isMain(r.record.embed) && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(r.record.embed.dataSource)) {
@@ -64,7 +62,7 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
             }
         })
 
-        await processContentsBatch(this.ctx, trx, contents)
+        return await processContentsBatch(this.ctx, trx, contents)
     }
 
     getQuotedPostRef(r: AppBskyFeedPost.Record){
@@ -86,10 +84,10 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
     }
 
     addRecordsToDB(records: RefAndRecord<AppBskyFeedPost.Record>[], reprocess: boolean = false) {
-        const insertPosts = this.ctx.kysely.transaction().execute(async (trx) => {
+        const query = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
             await this.createReferences(records, trx)
-            await this.createContents(records, trx)
+            const jobs = await this.createContents(records, trx)
 
             const posts = records.map(({ref, record: r}) => {
                 return {
@@ -128,17 +126,19 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
                 )
                 .execute()
 
-            return posts
-                .filter(p => !existingSet.has(p.uri))
+            return {
+                posts: posts
+                .filter(p => !existingSet.has(p.uri)),
+                jobs
+            }
         })
 
         return pipe(
             Effect.tryPromise({
-                try: () => insertPosts,
-                catch: () => new InsertRecordError()
+                try: () => query,
+                catch: error => new InsertRecordError(error instanceof Error ? error : undefined)
             }),
-            Effect.tap(insertedPosts => {
-                const jobs: Effect.Effect<void, AddJobError>[] = []
+            Effect.tap(({posts: insertedPosts, jobs}) => {
 
                 if (insertedPosts && !reprocess) {
                     const parents = insertedPosts.map(i => i.replyToId)
@@ -150,28 +150,37 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
                     ].filter(x => x != null)
 
                     jobs.push(
-                        this.ctx.worker.addJob("update-interactions-score", interactions),
-                        this.createNotifications(insertedPosts),
-                        this.ctx.worker.addJob("update-contents-topic-mentions", insertedPosts.map(r => r.uri), 11),
+                        {
+                            label: "update-interactions-score",
+                            data: interactions
+                        },
+                        {
+                            label: "update-contents-topic-mentions",
+                            data: insertedPosts.map(r => r.uri),
+                            priority: 11
+                        },
+                        this.createNotifications(insertedPosts)
                     )
                 }
 
                 if(!reprocess) {
                     jobs.push(
-                        this.ctx.worker.addJob("update-following-feed-on-new-content",
-                            records.map(r => r.ref.uri))
+                        {
+                            label: "update-following-feed-on-new-content",
+                            data: records.map(r => r.ref.uri)
+                        }
                     )
                 }
 
-                return Effect.all(jobs, {concurrency: "unbounded"})
+                return this.ctx.worker.addJobs(jobs)
             }),
-            Effect.map(insertedPosts => insertedPosts.length)
+            Effect.map(({posts}) => posts.length)
         )
 
 
     }
 
-    createNotifications(posts: {replyToId: string | null, uri: string}[]): Effect.Effect<void, AddJobError> {
+    createNotifications(posts: {replyToId: string | null, uri: string}[]): JobToAdd {
         const notifications: NotificationJobData[] = []
         for(const p of posts) {
             if (p.replyToId) {
@@ -190,7 +199,11 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
                 }
             }
         }
-        return this.ctx.worker?.addJob("batch-create-notifications", notifications, 10)
+        return {
+            label: "batch-create-notifications",
+            data: notifications,
+            priority: 10
+        }
     }
 }
 

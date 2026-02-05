@@ -21,7 +21,7 @@ import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 export async function updateReferencesForNewContents(ctx: AppContext) {
     const lastUpdate = await getLastReferencesUpdate(ctx)
@@ -274,7 +274,7 @@ export class UpdatePopularitiesError {
 export const updatePopularitiesOnTopicsChange = (
     ctx: AppContext,
     topicIds: string[]
-): Effect.Effect<void, UpdatePopularitiesError | DBError> => Effect.gen(function* () {
+): Effect.Effect<void, UpdatePopularitiesError | DBSelectError> => Effect.gen(function* () {
     yield* updateContentsText(ctx)
 
     yield* Effect.tryPromise({
@@ -347,7 +347,7 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
 export const updatePopularitiesOnContentsChange = (
     ctx: AppContext,
     uris: string[]
-): Effect.Effect<void, UpdatePopularitiesError | DBError> => Effect.gen(function* () {
+): Effect.Effect<void, UpdatePopularitiesError | DBSelectError> => Effect.gen(function* () {
     yield* updateContentsText(ctx, uris)
 
     yield* Effect.tryPromise({

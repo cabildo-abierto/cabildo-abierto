@@ -5,7 +5,8 @@ import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
 import {Effect} from "effect";
-import {DBInsertError} from "#/services/wiki/contributions/contributions.js";
+
+import {DBInsertError} from "#/utils/errors.js";
 
 export type ReadChunk = {
     chunk: number

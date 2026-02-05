@@ -5,7 +5,7 @@ import {FeedSkeletonWithDate, getSkeletonFromTimeline} from "#/services/feed/ini
 import {DataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {mergeSort} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
-import {DBError} from "#/services/write/article.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 const getMainProfileFeedSkeletonBsky = (
@@ -33,7 +33,7 @@ export const getMainProfileFeedSkeletonCA = (
     ctx: AppContext,
     did: string,
     cursor?: string
-): Effect.Effect<FeedSkeletonWithDate, DBError> => {
+): Effect.Effect<FeedSkeletonWithDate, DBSelectError> => {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Record")
@@ -43,7 +43,7 @@ export const getMainProfileFeedSkeletonCA = (
             .$if(cursor != null, qb => qb.where("created_at", "<", new Date(cursor!)))
             .limit(25)
             .execute(),
-        catch: () => new DBError()
+        catch: () => new DBSelectError()
     }).pipe(Effect.map(sk => {
         return sk
             .map(({uri, created_at}) => {

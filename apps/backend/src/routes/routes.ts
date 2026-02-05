@@ -10,13 +10,13 @@ import {getFeedByKind} from "#/services/feed/feed.js";
 import {getProfileFeed} from "#/services/feed/profile/profile.js";
 import {
     deleteSession,
-    follow,
+    followHandler,
     getAccount,
-    getProfile,
+    getProfileHandler,
     getSession,
     saveNewEmail,
     setSeenTutorialHandler,
-    unfollow,
+    unfollowHandler,
     updateAlgorithmConfig,
     updateProfile
 } from "#/services/user/users.js";
@@ -48,7 +48,7 @@ import {adminRoutes} from './admin-routes.js';
 import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
 import {createDataset} from '#/services/dataset/write.js';
-import {searchContents} from "#/services/feed/search.js";
+import {mainSearch} from "#/services/feed/search.js";
 import {
     addToEnDiscusionHandler,
     removeFromEnDiscusionHandler
@@ -92,7 +92,7 @@ import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
-import {getFollowers, getFollows} from "#/services/user/follows.js";
+import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -150,12 +150,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/follow',
-        handler(makeHandler(ctx, follow))
+        handler(makeEffHandler(ctx, followHandler))
     )
 
     router.post(
         '/unfollow',
-        handler(makeHandler(ctx, unfollow))
+        handler(makeEffHandler(ctx, unfollowHandler))
     )
 
     router.post(
@@ -210,7 +210,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/profile/:handleOrDid',
-        handler(makeEffHandlerNoAuth(ctx, getProfile))
+        handler(makeEffHandlerNoAuth(ctx, getProfileHandler))
     )
 
     router.get("/test", makeHandlerNoAuth(ctx, serverStatusRouteHandler))
@@ -232,7 +232,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/follows/:handleOrDid',
-        makeEffHandlerNoAuth(ctx, getFollows)
+        makeEffHandlerNoAuth(ctx, getFollowsHandler)
     )
 
     router.get(
@@ -322,8 +322,8 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.get(
-        '/search-contents/:q',
-        makeEffHandlerNoAuth(ctx, searchContents)
+        '/search/:kind/:q',
+        makeEffHandlerNoAuth(ctx, mainSearch)
     )
 
     router.post(

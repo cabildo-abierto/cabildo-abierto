@@ -1,0 +1,42 @@
+                                              Table "public.Content"
+         Column          |              Type              | Collation | Nullable |             Default             
+-------------------------+--------------------------------+-----------+----------+---------------------------------
+ text                    | text                           |           |          | 
+ numWords                | integer                        |           |          | 
+ uri                     | text                           |           | not null | 
+ format                  | text                           |           |          | 
+ textBlobId              | text                           |           |          | 
+ selfLabels              | text[]                         |           |          | 
+ embeds                  | jsonb[]                        |           |          | 
+ dbFormat                | text                           |           |          | 
+ created_at              | timestamp(3) without time zone |           | not null | CURRENT_TIMESTAMP
+ interactionsScore       | integer                        |           |          | 
+ likesScore              | integer                        |           |          | 
+ relativePopularityScore | double precision               |           |          | 
+ text_tsv                | tsvector                       |           |          | 
+ created_at_tz           | timestamp(3) with time zone    |           |          | 
+ caModeration            | "ContentModerationStatus"      |           | not null | 'Ok'::"ContentModerationStatus"
+Indexes:
+    "Content_pkey" PRIMARY KEY, btree (uri)
+    "Content_created_at_idx" btree (created_at DESC)
+    "Content_created_at_tz_idx" btree (created_at_tz DESC)
+    "Content_interactionsScore_created_at_idx" btree ("interactionsScore" DESC, created_at DESC)
+    "Content_likesScore_created_at_idx" btree ("likesScore" DESC, created_at DESC)
+    "Content_relativePopularityScore_created_at_idx" btree ("relativePopularityScore" DESC, created_at DESC)
+    "content_text_fts_idx" gin (text_tsv)
+Foreign-key constraints:
+    "Content_textBlobId_fkey" FOREIGN KEY ("textBlobId") REFERENCES "Blob"(cid) ON UPDATE CASCADE ON DELETE SET NULL
+    "Content_uri_fkey" FOREIGN KEY (uri) REFERENCES "Record"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE ""Article"" CONSTRAINT "Article_uri_fkey" FOREIGN KEY (uri) REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""AssignedPayment"" CONSTRAINT "AssignedPayment_contentId_fkey" FOREIGN KEY ("contentId") REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""DiscoverFeedIndex"" CONSTRAINT "DiscoverFeedIndex_contentId_fkey" FOREIGN KEY ("contentId") REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""PaymentPromise"" CONSTRAINT "PaymentPromise_contentId_fkey" FOREIGN KEY ("contentId") REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""Post"" CONSTRAINT "Post_uri_fkey" FOREIGN KEY (uri) REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""ReadSession"" CONSTRAINT "ReadSession_readContentId_fkey" FOREIGN KEY ("readContentId") REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE ""Reference"" CONSTRAINT "Reference_referencingContentId_fkey" FOREIGN KEY ("referencingContentId") REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""TopicVersion"" CONSTRAINT "TopicVersion_uri_fkey" FOREIGN KEY (uri) REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE ""_ContentToDataset"" CONSTRAINT "_ContentToDataset_A_fkey" FOREIGN KEY ("A") REFERENCES "Content"(uri) ON UPDATE CASCADE ON DELETE CASCADE
+Triggers:
+    tsvectorupdate BEFORE INSERT OR UPDATE ON "Content" FOR EACH ROW EXECUTE FUNCTION content_text_tsv_trigger()
+
