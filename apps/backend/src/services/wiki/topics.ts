@@ -530,6 +530,7 @@ export const getAllTopics: CAHandlerNoAuth<{}, {topicId: string, uri: string}[]>
 type TopicWithEditors = {
     topicId: string
     editors: string[]
+    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
 }
 
 export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: string}}, TopicWithEditors[]> = async (ctx, agent, {params}) => {
@@ -538,12 +539,16 @@ export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: 
         [params.cat],
         "recent",
         "all",
-        undefined,
+        100000,
         agent.hasSession() ? agent.did : undefined
     ))
 
     return Exit.match(exit, {
         onSuccess: async topics => {
+
+            const topicsById = new Map<string, ArCabildoabiertoWikiTopicVersion.TopicViewBasic>()
+            for(const t of topics) topicsById.set(t.id, t)
+
             const editors = await ctx.kysely
                 .selectFrom("TopicVersion")
                 .innerJoin("Record", "Record.uri", "TopicVersion.uri")
@@ -560,12 +565,14 @@ export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: 
                 if(!cur) {
                     m.set(editor.topicId, {
                         topicId: editor.topicId,
-                        editors: [editor.handle]
+                        editors: [editor.handle],
+                        props: topicsById.get(editor.topicId)?.props ?? []
                     })
                 } else {
                     m.set(editor.topicId, {
                         topicId: editor.topicId,
-                        editors: [...cur.editors, editor.handle]
+                        editors: [...cur.editors, editor.handle],
+                        props: topicsById.get(editor.topicId)?.props ?? []
                     })
                 }
             })

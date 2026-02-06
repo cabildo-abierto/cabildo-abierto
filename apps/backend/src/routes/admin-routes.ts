@@ -37,6 +37,7 @@ import {sendBulkEmails} from "#/services/emails/sending.js";
 import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
 import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 import {getPendingModeration} from "#/services/moderation/status.js";
+import {batchEditHandler, editTopicHandler} from "#/services/wiki/batch-editing.js";
 
 
 export const adminRoutes = (ctx: AppContext): Router => {
@@ -77,7 +78,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
     )
 
     router.get(
-        "/topics",
+        "/all-topics/",
         makeAdminHandlerNoAuth(ctx, getAllTopics)
     )
 
@@ -211,6 +212,17 @@ export const adminRoutes = (ctx: AppContext): Router => {
         '/delete-records',
         makeEffAdminHandler(ctx, deleteRecordsHandler)
     )
+
+    router.post(
+        '/batch-edit',
+        makeEffAdminHandler(ctx, batchEditHandler)
+    )
+
+    router.post(
+        '/edit-topic',
+        makeEffAdminHandler(ctx, editTopicHandler)
+    )
+
 
     return router
 }

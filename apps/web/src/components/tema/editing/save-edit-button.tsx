@@ -9,22 +9,10 @@ import {SaveEditPopup} from "../save-edit-popup";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/mutations/updates";
 import { post } from "../../utils/react/fetch";
-import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion, EmbedContext} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api";
 import {ProcessedLexicalState} from "@/components/editor/selection/processed-lexical-state";
 import {editorStateToMarkdown} from "../../editor/markdown-transforms";
 import { compress } from "@cabildo-abierto/editor-core";
-
-
-export type CreateTopicVersionProps = {
-    id: string
-    text?: string
-    format?: string,
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
-    message?: string,
-    claimsAuthorship?: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    embedContexts?: EmbedContext[]
-}
 
 
 async function createTopicVersion(body: CreateTopicVersionProps) {

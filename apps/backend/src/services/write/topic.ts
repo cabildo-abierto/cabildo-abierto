@@ -4,7 +4,7 @@ import {
     ArCabildoabiertoWikiTopicVersion,
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
-    ArCabildoabiertoEmbedVisualization, EmbedContext
+    ArCabildoabiertoEmbedVisualization, EmbedContext, CreateTopicVersionProps
 } from "@cabildo-abierto/api"
 import {
     uploadBase64Blob,
@@ -19,6 +19,7 @@ import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 import {DBSelectError} from "#/utils/errors.js";
+import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
 
 export class FetchError {
@@ -168,18 +169,6 @@ export function createTopicVersionATProto(agent: SessionAgent, {id, text, format
 }
 
 
-type CreateTopicVersionProps = {
-    id: string
-    text?: string
-    format?: string,
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
-    message?: string,
-    claimsAuthorship?: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    embedContexts?: EmbedContext[]
-}
-
-
 export class TopicAlreadyExistsError {
     readonly _tag = "TopicAlreadyExistsError"
 }
@@ -206,25 +195,31 @@ function checkTopicNotExists(ctx: AppContext, id: string): Effect.Effect<void, T
 }
 
 
-export const createTopicVersion: EffHandler<CreateTopicVersionProps> = (ctx, agent, params) => {
-    return Effect.gen(function* () {
-
-        if(params.text == undefined){
-            yield* checkTopicNotExists(ctx, params.id)
-                .pipe(
-                    Effect.catchTag("DBSelectError", () => Effect.fail("Error en la conexión")),
-                    Effect.catchTag("TopicAlreadyExistsError", () => Effect.fail("Ya existe un tema con ese nombre."))
-                )
-        }
-
-        const {ref, record} = yield* createTopicVersionATProto(agent, params)
-            .pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al crear la versión del tema.")))
-
-        const processor = new TopicVersionRecordProcessor(ctx)
-
-        yield* processor.processValidated([{ref, record}]).pipe(
-            Effect.catchAll(() => Effect.fail("La versión del tema fue creada, pero ocurrió un error al procesarla."))
-        )
-        return {}
-    })
+export const createTopicVersionHandler: EffHandler<CreateTopicVersionProps> = (ctx, agent, params) => {
+    return createTopicVersion(ctx, agent, params).pipe(
+        Effect.catchAll(error => {
+            if(error._tag == "TopicAlreadyExistsError") {
+                return Effect.fail("Ya existe un tema con ese nombre.")
+            } else {
+                return Effect.fail("Ocurrió un error al crear el tema.")
+            }
+        }),
+        Effect.map(() => ({}))
+    )
 }
+
+
+export type CreateTopicVersionError = ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError
+
+
+export const createTopicVersion = (ctx: AppContext, agent: SessionAgent, props: CreateTopicVersionProps): Effect.Effect<void, CreateTopicVersionError> => Effect.gen(function* () {
+    if(props.text == undefined){
+        yield* checkTopicNotExists(ctx, props.id)
+    }
+
+    const {ref, record} = yield* createTopicVersionATProto(agent, props)
+
+    const processor = new TopicVersionRecordProcessor(ctx)
+
+    yield* processor.processValidated([{ref, record}])
+})

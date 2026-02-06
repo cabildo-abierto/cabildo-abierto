@@ -1,4 +1,4 @@
-import {areArraysEqual, gett} from "@cabildo-abierto/utils";
+import {gett, PropValue} from "@cabildo-abierto/utils";
 import {$Typed, EditorStatus} from "@cabildo-abierto/api";
 import { ArCabildoabiertoWikiTopicVersion } from "@cabildo-abierto/api";
 
@@ -9,31 +9,12 @@ export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp"
     "ar.cabildoabierto.wiki.topicVersion#numberProp" |
     "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 
-export type PropValue = ArCabildoabiertoWikiTopicVersion.TopicProp["value"]
-
 export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopicVersion.StringListProp> | $Typed<ArCabildoabiertoWikiTopicVersion.StringProp> | $Typed<ArCabildoabiertoWikiTopicVersion.DateProp> | $Typed<ArCabildoabiertoWikiTopicVersion.NumberProp> | $Typed<ArCabildoabiertoWikiTopicVersion.BooleanProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#numberProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#booleanProp"
-}
-
-export function propsEqualValue(a: PropValue, b: PropValue) {
-    if(a.$type != b.$type) return false
-    if(ArCabildoabiertoWikiTopicVersion.isStringListProp(a) && ArCabildoabiertoWikiTopicVersion.isStringListProp(b)){
-        return areArraysEqual(a.value, b.value)
-    } else if(ArCabildoabiertoWikiTopicVersion.isStringProp(a) && ArCabildoabiertoWikiTopicVersion.isStringProp(b)){
-        return a.value == b.value
-    } else if(ArCabildoabiertoWikiTopicVersion.isDateProp(a) && ArCabildoabiertoWikiTopicVersion.isDateProp(b)){
-        return a.value == b.value
-    } else if(ArCabildoabiertoWikiTopicVersion.isBooleanProp(a) && ArCabildoabiertoWikiTopicVersion.isBooleanProp(b)){
-        return a.value == b.value
-    } else if(ArCabildoabiertoWikiTopicVersion.isNumberProp(a) && ArCabildoabiertoWikiTopicVersion.isNumberProp(b)){
-        return a.value == b.value
-    } else {
-        throw Error(`Tipo de propiedad desconocido: ${a.$type} ${b.$type}`)
-    }
 }
 
 
