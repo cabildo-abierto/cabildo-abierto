@@ -1,6 +1,7 @@
-import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "../utils";
+import {isKnownProp} from "../utils";
 import 'dayjs/locale/es';
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {defaultPropValue} from "@/components/tema/props/topic-props-editing-panel";
 
 
 export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], topicId: string): ArCabildoabiertoWikiTopicVersion.TopicProp[] {
@@ -39,54 +40,4 @@ export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[],
         })
     }
     return newProps
-}
-
-
-export function propsEqual(props1: ArCabildoabiertoWikiTopicVersion.TopicProp[], props2: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
-    if (props1.length != props2.length) {
-        return false
-    }
-    for (let i = 0; i < props1.length; i++) {
-        if (props1[i].name != props2[i].name || !propsEqualValue(props1[i].value, props2[i].value)) {
-            return false
-        }
-    }
-    return true
-}
-
-
-export function defaultPropValue(name: string, type: PropValueType, topicId: string): PropValue {
-    if (name == "Título") {
-        return {
-            $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
-            value: topicId
-        }
-    } else if (type == "ar.cabildoabierto.wiki.topicVersion#stringProp") {
-        return {
-            $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
-            value: ""
-        }
-    } else if (type == "ar.cabildoabierto.wiki.topicVersion#stringListProp") {
-        return {
-            $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
-            value: []
-        }
-    } else if (type == "ar.cabildoabierto.wiki.topicVersion#dateProp") {
-        return {
-            $type: "ar.cabildoabierto.wiki.topicVersion#dateProp",
-            value: new Date().toISOString()
-        }
-    } else if (type == "ar.cabildoabierto.wiki.topicVersion#numberProp") {
-        return {
-            $type: "ar.cabildoabierto.wiki.topicVersion#numberProp",
-            value: 0
-        }
-    } else if (type == "ar.cabildoabierto.wiki.topicVersion#booleanProp") {
-        return {
-            $type: "ar.cabildoabierto.wiki.topicVersion#booleanProp",
-            value: false
-        }
-    } else {
-        throw Error("Tipo de datos desconocido: " + type)
-    }
 }

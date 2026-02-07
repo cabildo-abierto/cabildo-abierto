@@ -1,9 +1,12 @@
-import {CAHandlerNoAuth} from "#/utils/handler.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {getDidFromUri, getUri, isTopicVersion, splitUri} from "@cabildo-abierto/utils";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
+import {Effect} from "effect";
+
+import {DBInsertError} from "#/utils/errors.js";
 
 export type ReadChunk = {
     chunk: number
@@ -17,21 +20,21 @@ export type ReadChunksAttr = {
     totalChunks: number
 }
 
-export const storeReadSessionHandler: CAHandlerNoAuth<{
+export const storeReadSessionHandler: EffHandlerNoAuth<{
     chunks: ReadChunks
     totalChunks: number
     params: { did: string, collection: string, rkey: string }
-}> = async (ctx, agent, params) => {
+}> = (ctx, agent, params) => {
     const {did, collection, rkey} = params.params;
     const uri = getUri(did, collection, rkey);
 
-    const {error} =  await storeReadSession(ctx, agent, {
+    return storeReadSession(ctx, agent, {
         contentUri: uri,
         chunks: params.chunks,
         totalChunks: params.totalChunks
-    }, new Date())
-    if(error) return {error}
-    return {data: {}}
+    }, new Date()).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error la guardar la lectura."))
+    )
 }
 
 
@@ -42,12 +45,15 @@ export type ReadSession = {
 }
 
 
-export async function storeReadSession(ctx: AppContext, agent: Agent, readSession: ReadSession, created_at: Date) {
+export const storeReadSession = (
+    ctx: AppContext,
+    agent: Agent,
+    readSession: ReadSession,
+    created_at: Date) => Effect.gen(function* () {
     const {did, collection, rkey} = splitUri(readSession.contentUri)
-    ctx.logger.pino.info("storing read session")
     let topicId: string | null = null
     if(isTopicVersion(collection)){
-        topicId = await getTopicIdFromTopicVersionUri(ctx, did, rkey)
+        topicId = yield* getTopicIdFromTopicVersionUri(ctx, did, rkey)
     }
 
     const id = uuidv4()
@@ -65,15 +71,14 @@ export async function storeReadSession(ctx: AppContext, agent: Agent, readSessio
         created_at,
         created_at_tz: created_at
     }
-    try {
-        await ctx.kysely
+
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely
             .insertInto("ReadSession")
             .values([rs])
-            .execute()
+            .execute(),
+        catch: () => new DBInsertError("ReadSession")
+    })
 
-    } catch (error) {
-        ctx.logger.pino.error({rs, error}, "error creating a read session")
-        return {error: "Ocurrió un error al actualizar la base de datos."}
-    }
-    return {id}
-}
+    return id
+})

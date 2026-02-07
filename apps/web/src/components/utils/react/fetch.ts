@@ -46,6 +46,12 @@ export async function post<Body, Output>(route: string, body?: Body): PostOutput
         }
         return json
     } else {
+        try {
+            const json = await res.json()
+            if(json.error) {
+                return {error: json.error}
+            }
+        } catch {}
         return {error: "Error en la conexión."}
     }
 }

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {BlueskyLogin} from "./bluesky-login"
-import {useRouter, useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "./login-modal-provider";
@@ -131,6 +131,7 @@ export const LoginModal = ({
     const inviteCode = params.get("c")
     const router = useRouter()
     const {setLoginModalOpen} = useLoginModal()
+    const pathname = usePathname()
 
     return <LoginPanel
         open={open}
@@ -184,18 +185,18 @@ export const LoginModal = ({
                     </div>
 
                     <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
-                        <Note text={"text-sm"}>
+                        {!pathname.startsWith("/presentacion") && <Note text={"text-sm"}>
                             <Link
-                                href={"/apps/web/public"}
+                                href={"/presentacion"}
                                 target={"_blank"}
                                 onClick={(e) => {
                                     e.preventDefault()
-                                    router.push(inviteCode ? `/?c=${inviteCode}` : "/")
+                                    router.push(inviteCode ? `/presentacion?c=${inviteCode}` : "/presentacion")
                                 }}
                             >
                                 Conocer más sobre Cabildo Abierto
                             </Link>
-                        </Note>
+                        </Note>}
                         <Note
                             text={"text-xs"}
                         >

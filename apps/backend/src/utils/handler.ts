@@ -49,7 +49,7 @@ export function makeEffHandler<Params = {}, Output = {}>(
             yield* withUserAttributes(agent);
 
             if (!agent.hasSession()) {
-                return yield* Effect.fail("Unauthorized");
+                return yield* Effect.fail("Sin sesión");
             }
 
             const params = {
@@ -78,10 +78,10 @@ export function makeEffHandler<Params = {}, Output = {}>(
 
         Exit.match(exit, {
             onFailure: (cause) => {
-                const error = cause.toString();
+                const error = cause.toString().replace(/^Error: /, '');
 
                 if (error.includes("Unauthorized")) {
-                    res.status(401).json({ error: "Unauthorized" });
+                    res.status(401).json({ error: "Sin sesión" });
                 } else {
                     res.status(400).json({ error });
                 }
@@ -155,7 +155,7 @@ export function makeHandler<Params={}, Output={}>(ctx: AppContext, fn: CAHandler
             const json = await fn(ctx, agent, params)
             return res.json(json)
         } else {
-            return res.json({error: "Unauthorized"})
+            return res.json({error: "Sin sesión"})
         }
     }
 }

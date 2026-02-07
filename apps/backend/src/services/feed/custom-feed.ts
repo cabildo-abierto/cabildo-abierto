@@ -1,38 +1,46 @@
-import {CAHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 import {getUri} from "@cabildo-abierto/utils";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateFeedViewContent} from "#/services/hydration/hydrate.js";
 import {getSkeletonFromTimeline} from "#/services/feed/inicio/following.js";
 import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api";
+import {Effect} from "effect";
 
 
-export const getCustomFeed: CAHandler<{params: {did: string, rkey: string}, query?: {cursor?: string}}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = async (ctx, agent, {params, query}) => {
+export const getCustomFeed: EffHandler<
+    {params: {did: string, rkey: string}, query?: {cursor?: string}},
+    GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>
+> = (ctx, agent, {params, query}) => Effect.provideServiceEffect(Effect.gen(function* () {
+    const dataplane = yield* DataPlane
     const uri = getUri(params.did, "app.bsky.feed.generator", params.rkey)
 
-    const res = await agent.bsky.app.bsky.feed.getFeed({
-        feed: uri,
-        cursor: query?.cursor,
-        limit: 25
+    const res = yield* Effect.tryPromise({
+        try: () => agent.bsky.app.bsky.feed.getFeed({
+            feed: uri,
+            cursor: query?.cursor,
+            limit: 25
+        }),
+        catch: () => new FetchFromBskyError()
     })
 
     if(res.success) {
-        const dataplane = new Dataplane(ctx, agent)
-
         dataplane.storeFeedViewPosts(res.data.feed)
 
         const skeleton = getSkeletonFromTimeline(ctx, res.data.feed)
 
-        await dataplane.fetchFeedHydrationData(skeleton)
-        const feed = skeleton
-            .map(e => hydrateFeedViewContent(ctx, e, dataplane))
+        yield* dataplane.fetchFeedHydrationData(skeleton)
+        const feed = (yield* Effect.all(skeleton
+            .map(e => hydrateFeedViewContent(ctx, agent, e))))
             .filter(x => x != null)
+
         return {
-            data: {
-                feed,
-                cursor: res.data.cursor
-            }
+            feed,
+            cursor: res.data.cursor
         }
     } else {
-        return {error: "Ocurrió un error al obtener el muro."}
+        return yield* Effect.fail("Ocurrió un error al obtener el muro.")
     }
-}
+}).pipe(
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el muro.")),
+    Effect.catchTag("FetchFromBskyError", () => Effect.fail("Ocurrió un error al obtener el muro."))
+), DataPlane, makeDataPlane(ctx, agent))

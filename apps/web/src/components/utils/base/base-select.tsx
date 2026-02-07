@@ -13,18 +13,19 @@ import {cn} from "@/lib/utils";
 
 
 export function BaseSelect({
-                                       options,
-                                       value,
-                                       onChange,
-                                       optionNodes,
-                                       optionLabels,
-                                       label,
-                                       triggerClassName = "",
-                                       itemClassName,
-                                       contentClassName,
-    inPortal=false,
-    size="default"
-                                   }: {
+                               options,
+                               value,
+                               onChange,
+                               optionNodes,
+                               optionLabels,
+                               label,
+                               deselectOption = false,
+                               triggerClassName = "",
+                               itemClassName,
+                               contentClassName,
+                               inPortal = false,
+                               size = "default"
+                           }: {
     value: string
     options: string[]
     onChange: (v: string) => void
@@ -36,11 +37,17 @@ export function BaseSelect({
     contentClassName?: string
     inPortal?: boolean
     size?: "small" | "default"
+    deselectOption?: boolean
 }) {
-    const items = options?.map(o => ({
+
+    let items = options?.map(o => ({
         value: o,
         label: optionLabels ? optionLabels(o) : o
     })) ?? []
+
+    if (deselectOption && !items.some(i => i.value == null)) {
+        items = [{value: null, label: "Seleccionar..."}, ...items]
+    }
 
     return (
         <Select value={value} onValueChange={onChange}>

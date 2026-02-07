@@ -18,7 +18,7 @@ const traceExporter = new OTLPTraceExporter({
 
 export const NodeSdkLive = NodeSdk.layer(() => ({
     resource: {
-        serviceName: "ca-backend",
+        serviceName: process.env.SERVICE_NAME!,
         serviceVersion: "1.0.1",
         attributes: {
             "dev": process.env.DEV_NAME ?? "anonymous"

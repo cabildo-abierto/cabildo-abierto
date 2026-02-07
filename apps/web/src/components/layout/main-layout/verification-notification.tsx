@@ -8,7 +8,7 @@ import {post} from "../../utils/react/fetch";
 
 
 export const VerificationNotification = ({children}: {children: ReactNode}) => {
-    const {user} = useSession()
+    const {user, refetch} = useSession()
     const [open, setOpen] = useState(false)
 
     useEffect(() => {
@@ -20,6 +20,7 @@ export const VerificationNotification = ({children}: {children: ReactNode}) => {
     async function onClose() {
         const res = await post("/seen-tutorial/verification")
         setOpen(false)
+        await refetch()
         return res
     }
 
@@ -38,7 +39,7 @@ export const VerificationNotification = ({children}: {children: ReactNode}) => {
                     Pudimos verificar tu cuenta personal. Ya tenés la marca en tu perfil.
                 </Note>}
                 {user.validation == "persona" && <Note className={"max-w-[400px]"}>
-                    Además, a partir de ahora se va a remunerar a los autores que leas, aumentó tu nivel de permisos en la wiki y se te va a priorizar en las discusiones.
+                    Además, a partir de ahora se va a remunerar a los autores que leas, aumentó tu nivel de permisos en la edición de temas y se te va a priorizar en las discusiones.
                 </Note>}
                 {user.validation == "org" && <Note className={"max-w-[400px]"}>
                     Pudimos verificar tu cuenta de organización. Otros usuarios ya pueden ver la marca en tu perfil.

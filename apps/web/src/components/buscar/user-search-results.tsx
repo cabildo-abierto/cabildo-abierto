@@ -5,6 +5,7 @@ import UserSearchResult from "./user-search-result";
 import {useQuery} from "@tanstack/react-query";
 import {useDebounce} from "../utils/react/debounce";
 import {searchUsers} from "../writing/query-mentions";
+import {Note} from "@/components/utils/base/note";
 
 
 export const useSearchUsers = (
@@ -169,6 +170,9 @@ const UserSearchResults = ({
                                 )}
                             </div>
                         ))}
+                        {bskyResults.length == 0 && <Note className={"py-6 text-[var(--text-light)]"}>
+                            No se obtuvieron resultados.
+                        </Note>}
                     </>
                 )}
 

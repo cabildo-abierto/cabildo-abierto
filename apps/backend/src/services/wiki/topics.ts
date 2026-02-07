@@ -12,17 +12,18 @@ import {
 } from "@cabildo-abierto/api"
 import {Agent} from "#/utils/session-agent.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {$Typed} from "@atproto/api";
 import {getTopicSynonyms, getTopicTitle} from "#/services/wiki/utils.js";
 import {getTopicVersionViewer} from "#/services/wiki/history.js";
-import {stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js"
+import {NotFoundError, stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js"
 import {cleanText} from "@cabildo-abierto/utils";
 import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {Effect, Exit, pipe} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
@@ -49,17 +50,20 @@ export type TopicQueryResultBasic = {
 export type TopicVersionQueryResultBasic = TopicQueryResultBasic & {uri: string}
 
 
-export function hydrateTopicViewBasicFromUri(ctx: AppContext, uri: string, data: Dataplane): {data?: $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>, error?: string} {
+export const hydrateTopicViewBasicFromUri = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
+
     const q = data.topicsByUri.get(uri)
     if(!q) {
-        data.ctx.logger.pino.warn({uri}, "data for topic basic not found")
-        return {error: "No se pudo encontrar el tema."}
+        ctx.logger.pino.warn({uri}, "data for topic basic not found")
+        return null
     }
 
-    const author = hydrateProfileViewBasic(ctx, getDidFromUri(uri), data, false)
+    const author = yield* hydrateProfileViewBasic(ctx, getDidFromUri(uri), false)
 
-    return {data: topicQueryResultToTopicViewBasic(q, author ?? undefined)}
-}
+    return topicQueryResultToTopicViewBasic(q, author ?? undefined)
+})
 
 
 export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic, author?: ArCabildoabiertoActorDefs.ProfileViewBasic): $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> {
@@ -107,9 +111,7 @@ export function getTopics(
     limit: number = 50,
     cursor?: string
 ): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[], string> {
-    const dataplane = new Dataplane(ctx)
-
-    return pipe(
+    return Effect.provideServiceEffect(pipe(
         Effect.promise(() => {
             return ctx.kysely
                 .selectFrom('Topic')
@@ -145,18 +147,22 @@ export function getTopics(
                 .limit(limit)
                 .execute()
         }),
-        Effect.tap(topics => {
-            return Effect.promise(() => dataplane.fetchTopicsBasicByUris(topics.map(t => t.uri)))
-        }),
-        Effect.map(topics => {
-            return topics
-                .map(t => hydrateTopicViewBasicFromUri(ctx, t.uri, dataplane).data)
-                .filter(x => x != null)
+        Effect.tap(topics => Effect.gen(function* () {
+            const dataplane = yield* DataPlane
+            const uris = topics.map(t => t.uri)
+            return yield* dataplane.fetchTopicsBasicByUris(uris)
+        })),
+        Effect.flatMap(topics => {
+            return Effect.all(topics
+                .map(t => hydrateTopicViewBasicFromUri(
+                    ctx,
+                    t.uri)))
+                .pipe(Effect.map(results => results.filter(x => x != null)))
         }),
         Effect.catchAll(() => {
             return Effect.fail("Ocurrió un error al obtener los temas.")
         })
-    )
+    ), DataPlane, makeDataPlane(ctx))
 }
 
 
@@ -261,22 +267,22 @@ export function dbUserToProfileViewBasic(author: {
 }
 
 
-export const getTopicCurrentVersionFromDB = async (ctx: AppContext, id: string): Promise<{
-    data?: string | null,
-    error?: string
-}> => {
-    const res = await ctx.kysely
-        .selectFrom("Topic")
-        .select("currentVersionId")
-        .where("id", "=", id)
-        .executeTakeFirst()
+export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effect.Effect<string, NotFoundError | DBSelectError> => Effect.gen(function* () {
+    const res = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Topic")
+            .select("currentVersionId")
+            .where("id", "=", id)
+            .executeTakeFirst(),
+        catch: () => new DBSelectError()
+    })
 
-    if (res) {
-        return {data: res.currentVersionId}
+    if (res && res.currentVersionId) {
+        return res.currentVersionId
     } else {
-        return {error: `No se encontró el tema: ${id}`}
+        return yield* Effect.fail(new NotFoundError(id))
     }
-}
+})
 
 
 export function editorStatusToEsp(s: EditorStatus) {
@@ -294,29 +300,33 @@ export function editorStatusToEn(s: ArCabildoabiertoActorDefs.ProfileView["edito
 }
 
 
-export const getTopic = async (ctx: AppContext, agent: Agent, id?: string, did?: string, rkey?: string): Promise<{
-    data?: ArCabildoabiertoWikiTopicVersion.TopicView,
-    error?: string
-}> => {
+export class InsufficientParamsError {
+    readonly _tag = "InsufficientParamsError"
+}
+
+
+export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: string, rkey?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBSelectError | NotFoundError | InsufficientParamsError> => Effect.gen(function* () {
 
     let uri: string
     if(did && rkey) {
         uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
     } else if(id) {
-        const {data: currentVersionId, error} = await getTopicCurrentVersionFromDB(ctx, id)
-        if(!currentVersionId || error) return {error: "No se encontró el tema " + id + "."}
-        uri = currentVersionId
+        uri = yield* getTopicCurrentVersionFromDB(ctx, id)
     } else {
-        return {error: "Parámetros insuficientes."}
+        return yield* Effect.fail(new InsufficientParamsError())
     }
 
-    return await getTopicVersion(ctx, uri, agent.hasSession() ? agent.did : undefined)
-}
+    return yield* getTopicVersion(ctx, uri, agent.hasSession() ? agent.did : undefined)
+})
 
 
-export const getTopicHandler: CAHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string } }, ArCabildoabiertoWikiTopicVersion.TopicView> = async (ctx, agent, params) => {
+export const getTopicHandler: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string } }, ArCabildoabiertoWikiTopicVersion.TopicView> = (ctx, agent, params) => {
     const {i, did, rkey} = params.query
-    return getTopic(ctx, agent, i, did, rkey)
+    return getTopic(ctx, agent, i, did, rkey).pipe(
+        Effect.catchTag("InsufficientParamsError", () => Effect.fail("Parámetros inválidos")),
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el tema.")),
+        Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el tema."))
+    )
 }
 
 
@@ -371,67 +381,74 @@ function processTopicProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) 
 }
 
 
-export const getTopicVersion = async (ctx: AppContext, uri: string, viewerDid?: string): Promise<{
-    data?: ArCabildoabiertoWikiTopicVersion.TopicView,
-    error?: string
-}> => {
+export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBSelectError | NotFoundError> => Effect.gen(function* () {
+
     const authorId = getDidFromUri(uri)
 
-    const topic = await ctx.kysely
-        .selectFrom("TopicVersion")
-        .innerJoin("Record", "TopicVersion.uri", "Record.uri")
-        .innerJoin("Content", "TopicVersion.uri", "Content.uri")
-        .innerJoin("Topic", "Topic.id", "TopicVersion.topicId")
-        .innerJoin("User", "User.did", "Record.authorId")
-        .select([
-            "Record.uri",
-            "Record.cid",
-            "Record.created_at",
-            "Record.record",
-            "TopicVersion.props",
-            "Content.text",
-            "Content.format",
-            "Content.dbFormat",
-            "Content.textBlobId",
-            "Topic.id",
-            "Topic.protection",
-            "Topic.popularityScore",
-            "Topic.lastEdit",
-            "Topic.currentVersionId",
-            "User.editorStatus",
-            eb => eb
-                .selectFrom("Post as Reply")
-                .select(eb => eb.fn.count<number>("Reply.uri").as("count"))
-                .whereRef("Reply.replyToId", "=", "Record.uri").as("replyCount"),
-            eb => jsonArrayFrom(eb
-                .selectFrom("Reaction")
-                .whereRef("Reaction.subjectId", "=", "TopicVersion.uri")
-                .innerJoin("Record as ReactionRecord", "ReactionRecord.uri", "Reaction.uri")
-                .innerJoin("User as ReactionAuthor", "ReactionAuthor.did", "ReactionRecord.authorId")
-                .select([
-                    "Reaction.uri",
-                    "ReactionAuthor.editorStatus"
-                ])
-                .orderBy("ReactionRecord.authorId")
-                .orderBy("ReactionRecord.created_at_tz desc")
-                .distinctOn("ReactionRecord.authorId")
-            ).as("reactions")
-        ])
-        .where("TopicVersion.uri", "=", uri)
-        .where("Record.record", "is not", null)
-        .where("Record.cid", "is not", null)
-        .executeTakeFirst()
+    const topic = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("TopicVersion")
+            .innerJoin("Record", "TopicVersion.uri", "Record.uri")
+            .innerJoin("Content", "TopicVersion.uri", "Content.uri")
+            .innerJoin("Topic", "Topic.id", "TopicVersion.topicId")
+            .innerJoin("User", "User.did", "Record.authorId")
+            .select([
+                "Record.uri",
+                "Record.cid",
+                "Record.created_at",
+                "Record.record",
+                "TopicVersion.props",
+                "Content.text",
+                "Content.format",
+                "Content.dbFormat",
+                "Content.textBlobId",
+                "Topic.id",
+                "Topic.protection",
+                "Topic.popularityScore",
+                "Topic.lastEdit",
+                "Topic.currentVersionId",
+                "User.editorStatus",
+                eb => eb
+                    .selectFrom("Post as Reply")
+                    .select(eb => eb.fn.count<number>("Reply.uri").as("count"))
+                    .whereRef("Reply.replyToId", "=", "Record.uri").as("replyCount"),
+                eb => jsonArrayFrom(eb
+                    .selectFrom("Reaction")
+                    .whereRef("Reaction.subjectId", "=", "TopicVersion.uri")
+                    .innerJoin("Record as ReactionRecord", "ReactionRecord.uri", "Reaction.uri")
+                    .innerJoin("User as ReactionAuthor", "ReactionAuthor.did", "ReactionRecord.authorId")
+                    .select([
+                        "Reaction.uri",
+                        "ReactionAuthor.editorStatus"
+                    ])
+                    .orderBy("ReactionRecord.authorId")
+                    .orderBy("ReactionRecord.created_at_tz desc")
+                    .distinctOn("ReactionRecord.authorId")
+                ).as("reactions")
+            ])
+            .where("TopicVersion.uri", "=", uri)
+            .where("Record.record", "is not", null)
+            .where("Record.cid", "is not", null)
+            .executeTakeFirst(),
+        catch: () => new DBSelectError()
+    })
 
     if (!topic || !topic.cid) {
-        ctx.logger.pino.info({uri, topic}, "topic version not found")
-        return {error: "No se encontró la versión."}
+        return yield* Effect.fail(new NotFoundError(uri))
     }
+
+    const id = topic.id
+
+    yield* Effect.annotateCurrentSpan({
+        id,
+        reactions: topic.reactions?.length ?? 0
+    })
 
     let text: string | null = null
     let format: string | null = null
     if (topic.text == null) {
         if (topic.textBlobId) {
-            [text] = await fetchTextBlobs(
+            [text] = yield* fetchTextBlobs(
                 ctx,
                 [{cid: topic.textBlobId, authorId: authorId}]
             )
@@ -442,8 +459,6 @@ export const getTopicVersion = async (ctx: AppContext, uri: string, viewerDid?: 
         format = topic.dbFormat
     }
 
-    const id = topic.id
-
     const {text: transformedText, format: transformedFormat} = anyEditorStateToMarkdownOrLexical(text, format)
 
     let props = Array.isArray(topic.props) ? topic.props as ArCabildoabiertoWikiTopicVersion.TopicProp[] : []
@@ -451,7 +466,7 @@ export const getTopicVersion = async (ctx: AppContext, uri: string, viewerDid?: 
     props = processTopicProps(props)
 
     const record = topic.record ? JSON.parse(topic.record) as ArCabildoabiertoWikiTopicVersion.Record : undefined
-    const embeds = record ? hydrateEmbedViews(authorId, record.embeds ?? []) : []
+    const embeds = record != null ? hydrateEmbedViews(authorId, record.embeds ?? []) : []
 
     const status = getTopicVersionStatusFromReactions(
         ctx,
@@ -483,17 +498,18 @@ export const getTopicVersion = async (ctx: AppContext, uri: string, viewerDid?: 
         replyCount: topic.replyCount ?? undefined
     }
 
-    //ctx.logger.pino.info({view}, "returning topic view")
-
-    return {data: view}
-}
+    return view
+}).pipe(Effect.withSpan("getTopicVersion", {attributes: {uri, viewerDid}}))
 
 
-export const getTopicVersionHandler: CAHandlerNoAuth<{
+export const getTopicVersionHandler: EffHandlerNoAuth<{
     params: { did: string, rkey: string }
-}, ArCabildoabiertoWikiTopicVersion.TopicView> = async (ctx, agent, {params}) => {
+}, ArCabildoabiertoWikiTopicVersion.TopicView> = (ctx, agent, {params}) => {
     const {did, rkey} = params
-    return getTopicVersion(ctx, getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey), agent.hasSession() ? agent.did : undefined)
+    return getTopicVersion(ctx, getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey), agent.hasSession() ? agent.did : undefined).pipe(
+        Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró la versión del tema.")),
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener la versión del tema."))
+    )
 }
 
 
@@ -514,6 +530,7 @@ export const getAllTopics: CAHandlerNoAuth<{}, {topicId: string, uri: string}[]>
 type TopicWithEditors = {
     topicId: string
     editors: string[]
+    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
 }
 
 export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: string}}, TopicWithEditors[]> = async (ctx, agent, {params}) => {
@@ -522,12 +539,16 @@ export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: 
         [params.cat],
         "recent",
         "all",
-        undefined,
+        100000,
         agent.hasSession() ? agent.did : undefined
     ))
 
     return Exit.match(exit, {
         onSuccess: async topics => {
+
+            const topicsById = new Map<string, ArCabildoabiertoWikiTopicVersion.TopicViewBasic>()
+            for(const t of topics) topicsById.set(t.id, t)
+
             const editors = await ctx.kysely
                 .selectFrom("TopicVersion")
                 .innerJoin("Record", "Record.uri", "TopicVersion.uri")
@@ -544,12 +565,14 @@ export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: 
                 if(!cur) {
                     m.set(editor.topicId, {
                         topicId: editor.topicId,
-                        editors: [editor.handle]
+                        editors: [editor.handle],
+                        props: topicsById.get(editor.topicId)?.props ?? []
                     })
                 } else {
                     m.set(editor.topicId, {
                         topicId: editor.topicId,
-                        editors: [...cur.editors, editor.handle]
+                        editors: [...cur.editors, editor.handle],
+                        props: topicsById.get(editor.topicId)?.props ?? []
                     })
                 }
             })

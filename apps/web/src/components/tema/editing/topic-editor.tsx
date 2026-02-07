@@ -74,7 +74,7 @@ export const TopicEditor = ({
                 setEditor={setEditor}
                 setEditorState={setEditorState}
             />
-            <PreventLeavePopup navGuard={navGuard}/>
+            <PreventLeavePopup {...navGuard}/>
         </div>
-    }, [topic, setEditor, isMobile, props, setEditorState])
+    }, [topic, setEditor, isMobile, props, setEditorState, navGuard])
 }

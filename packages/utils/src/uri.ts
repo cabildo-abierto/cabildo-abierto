@@ -166,3 +166,30 @@ export function topicVersionUris(uris: string[]){
 
 
 export const articleCollections = ["ar.com.cabildoabierto.article", "ar.cabildoabierto.feed.article"]
+
+
+export type ArticleKind = "none" | "author" | "not-author" | "el-la"
+
+export function collectionToDisplay(c: string, article: ArticleKind = "none", topicId?: string){
+    const masc = isArticle(c) || isDataset(c)
+    let artStr: string
+    if(article == "none") artStr = ""
+    else if(article == "author") artStr = "tu "
+    else if(article == "not-author") artStr = masc ? "un " : "una "
+    else if(article == "el-la") artStr = masc ? "el " : "la "
+    else {
+        throw Error("Invalid article kind: " + article)
+    }
+
+    if(isPost(c)){
+        return artStr + (artStr ? "publicación" : "Publicación")
+    } else if (isArticle(c)){
+        return artStr + (artStr ? "artículo" : "Artículo")
+    } else if (isTopicVersion(c)){
+        return artStr + `versión ${topicId ? `del tema ${topicId}` : (article == "el-la" ? "del tema" : "de un tema")}`
+    } else if (isDataset(c)){
+        return artStr + (artStr ? "conjunto de datos" : "Conjunto de datos")
+    } else if (isVisualization(c)){
+        return artStr + (artStr ? "visualización" : "Visualización")
+    }
+}

@@ -3,12 +3,18 @@ import {AppContext} from "#/setup.js";
 import {isValidHandle} from "@atproto/syntax";
 import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
+import { customAlphabet } from "nanoid";
+
 import {range} from "@cabildo-abierto/utils";
 import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {AppBskyActorProfile} from "@atproto/api"
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
+import {ATCreateRecordError} from "#/services/wiki/votes.js";
+
+import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
 async function getCAStatus(ctx: AppContext, did: string): Promise<{inCA: boolean, hasAccess: boolean} | null> {
     return await ctx.kysely
@@ -69,66 +75,69 @@ export async function checkValidCode(ctx: AppContext, code: string, did: string)
 }
 
 
-export async function createCAUser(ctx: AppContext, agent: SessionAgent, code?: string) {
+export function createCAUser(ctx: AppContext, agent: SessionAgent, code?: string): Effect.Effect<void, DBSelectError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
     const did = agent.did
 
-    try {
-        await ctx.kysely
-            .insertInto("User")
-            .values([{did}])
-            .onConflict(oc => oc.column("did").doNothing())
-            .execute()
-    } catch (error) {
-        ctx.logger.pino.error({error}, "error inserting did for new ca user")
-    }
-    if(code){
-        const {error} = await assignInviteCode(ctx, agent, code)
-        if(error) ctx.logger.pino.error({error}, "error assigning invite code")
-        if(error) return {error}
-    }
+    return Effect.gen(function* () {
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("User")
+                .values([{did}])
+                .onConflict(oc => oc.column("did").doNothing())
+                .execute(),
+            catch: () => new DBSelectError()
+        })
 
-    const caProfileRecord: ArCabildoabiertoActorCaProfile.Record = {
-        $type: "ar.cabildoabierto.actor.caProfile",
-        createdAt: new Date().toISOString()
-    }
+        if(code){
+            yield* assignInviteCode(ctx, agent, code)
+        }
 
-    try {
-        const [{data}, {data: bskyProfile}] = await Promise.all([
-            agent.bsky.com.atproto.repo.putRecord({
-                repo: did,
-                collection: "ar.cabildoabierto.actor.caProfile",
-                rkey: "self",
-                record: caProfileRecord
+        const caProfileRecord: ArCabildoabiertoActorCaProfile.Record = {
+            $type: "ar.cabildoabierto.actor.caProfile",
+            createdAt: new Date().toISOString()
+        }
+
+        const [{data}, {data: bskyProfile}] = yield* Effect.all([
+            Effect.tryPromise({
+                try: () => agent.bsky.com.atproto.repo.putRecord({
+                    repo: did,
+                    collection: "ar.cabildoabierto.actor.caProfile",
+                    rkey: "self",
+                    record: caProfileRecord
+                }),
+                catch: () => new ATCreateRecordError()
             }),
-            agent.bsky.com.atproto.repo.getRecord({
-                repo: did,
-                collection: "app.bsky.actor.profile",
-                rkey: "self"
+            Effect.tryPromise({
+                try: () => agent.bsky.com.atproto.repo.getRecord({
+                    repo: did,
+                    collection: "app.bsky.actor.profile",
+                    rkey: "self"
+                }),
+                catch: () => new ATCreateRecordError()
             })
-        ])
+        ], {concurrency: "unbounded"})
 
         const refAndRecordCA = {ref: {uri: data.uri, cid: data.cid}, record: caProfileRecord}
         const refAndRecordBsky = {ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!}, record: bskyProfile.value as AppBskyActorProfile.Record}
-        await Promise.all([
+        yield* Effect.all([
             new CAProfileRecordProcessor(ctx)
                 .processValidated([refAndRecordCA]),
             new BskyProfileRecordProcessor(ctx)
                 .processValidated([refAndRecordBsky])
-        ])
-    } catch (err) {
-        ctx.logger.pino.error({err, caProfileRecord, did}, "error processing profiles for new user")
-    }
-
-    return {}
+        ], {concurrency: "unbounded"})
+    })
 }
 
 
 export async function createInviteCodes(ctx: AppContext, count: number) {
     ctx.logger.pino.info(`creating ${count} invite codes.`)
     try {
+        const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toLowerCase();
+        const generateInviteCode = customAlphabet(alphabet, 8)
+
         const values = range(count).map(i => {
             return {
-                code: uuidv4()
+                code: generateInviteCode()
             }
         })
 
@@ -150,58 +159,89 @@ export const createInviteCodesHandler: CAHandler<{query: {c: number}}, { inviteC
 }
 
 
-export async function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCode: string) {
+export class CodeNotFoundError {
+    readonly _tag = "CodeNotFoundError"
+}
+
+
+export class UserNotFoundError {
+    readonly _tag = "UserNotFoundError"
+}
+
+
+export class UsedCodeError {
+    readonly _tag = "UsedCodeError"
+}
+
+
+export class GrantAccessError {
+    readonly _tag = "GrantAccessError"
+}
+
+
+export type AssignInviteCodeError = CodeNotFoundError | UserNotFoundError | UsedCodeError | GrantAccessError
+
+
+export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCode: string): Effect.Effect<void, AssignInviteCodeError> {
     const did = agent.did
-    const [code, user] = await Promise.all([
-        ctx.kysely
-            .selectFrom("InviteCode")
-            .select(["usedByDid"])
-            .where("code", "=", inviteCode)
-            .executeTakeFirst(),
-        ctx.kysely
-            .selectFrom("User")
-            .leftJoin("InviteCode", "InviteCode.usedByDid", "User.did")
-            .select([
-                "inCA",
-                "hasAccess",
-                "code"
-            ])
-            .where("User.did", "=", did)
-            .executeTakeFirst(),
-    ])
-    if(!code) return {error: "No se encontró el código"}
-    if(!user) return {error: "No se encontró el usuario"}
 
-    if(user.code != null && user.inCA && user.hasAccess){
-        return {}
-    }
+    return Effect.gen(function* () {
+        const [code, user] = yield* Effect.all([
+            Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("InviteCode")
+                    .select(["usedByDid"])
+                    .where("code", "=", inviteCode)
+                    .executeTakeFirstOrThrow(),
+                catch: () => new CodeNotFoundError()
+            }),
+            Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("User")
+                    .leftJoin("InviteCode", "InviteCode.usedByDid", "User.did")
+                    .select([
+                        "inCA",
+                        "hasAccess",
+                        "code"
+                    ])
+                    .where("User.did", "=", did)
+                    .executeTakeFirstOrThrow(),
+                catch: () => new UserNotFoundError()
+            }),
+        ], {concurrency: "unbounded"})
 
-    if(code.usedByDid != null){
-        return {error: "El código ya fue usado."}
-    }
-
-    await ctx.kysely.transaction().execute(async trx => {
-        if(!user.code) {
-            await trx
-                .updateTable("InviteCode")
-                .set("usedAt", new Date())
-                .set("usedByDid", did)
-                .where("code", "=", inviteCode)
-                .execute()
+        if(user.code != null && user.inCA && user.hasAccess){
+            return
         }
 
-        if(!user.hasAccess){
-            await trx
-                .updateTable("User")
-                .set("hasAccess", true)
-                .set("inCA", true)
-                .where("did", "=", did)
-                .execute()
+        if(code.usedByDid != null){
+            return yield* Effect.fail(new UsedCodeError())
         }
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely.transaction().execute(async trx => {
+                if(!user.code) {
+                    await trx
+                        .updateTable("InviteCode")
+                        .set("usedAt", new Date())
+                        .set("usedByDid", did)
+                        .where("code", "=", inviteCode)
+                        .execute()
+                }
+
+                if(!user.hasAccess){
+                    await trx
+                        .updateTable("User")
+                        .set("hasAccess", true)
+                        .set("inCA", true)
+                        .where("did", "=", did)
+                        .execute()
+                }
+            }),
+            catch: () => new GrantAccessError()
+        })
     })
 
-
-    return {}
 }
 
 

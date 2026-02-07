@@ -10,7 +10,8 @@ export const AcceptButtonPanel = ({
                                       buttonText = "Aceptar",
                                       onClose,
                                       open,
-                                      backgroundShadow=false
+                                      backgroundShadow=false,
+    popupClassName
                                   }: {
     children: ReactNode
     className?: string
@@ -18,10 +19,12 @@ export const AcceptButtonPanel = ({
     onClose: StateButtonClickHandler
     open: boolean
     backgroundShadow?: boolean
+    popupClassName?: string
 }) => {
     return <BaseFullscreenPopup
         open={open}
         backgroundShadow={backgroundShadow}
+        className={popupClassName}
     >
         <div
             className={cn("bg-[var(--background-dark)] portal group pt-8 px-8 pb-4", className)}

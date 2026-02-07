@@ -5,6 +5,7 @@ import {ConfirmModal} from "../../utils/dialogs/confirm-modal";
 import {getCollectionWithArticle} from "./options-delete-button";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api";
 import {post} from "@/components/utils/react/fetch";
+import {useThreadWithNormalizedContent} from "@/queries/getters/useThread";
 
 
 function optimisticRemoveContentFromEnDiscusion(uri: string, qc: QueryClient) {
@@ -24,6 +25,7 @@ export const ConfirmEnDiscusionModal = ({
     enDiscusion: boolean
 }) => {
     const qc = useQueryClient()
+    const {refetch} = useThreadWithNormalizedContent(uri)
     const collection = getCollectionFromUri(uri)
 
     const addToEnDiscusion = async (uri: string) => {
@@ -39,10 +41,12 @@ export const ConfirmEnDiscusionModal = ({
     async function onConfirm() {
         if (!enDiscusion) {
             const {error} = await addToEnDiscusion(uri)
+            if(!error) await refetch()
             return {error}
         } else {
             optimisticRemoveContentFromEnDiscusion(uri, qc)
             const {error} = await removeFromEnDiscusion(uri)
+            if(!error) await refetch()
             return {error}
         }
     }

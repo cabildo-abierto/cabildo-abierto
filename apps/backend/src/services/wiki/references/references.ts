@@ -20,6 +20,8 @@ import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
+import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
 
 export async function updateReferencesForNewContents(ctx: AppContext) {
     const lastUpdate = await getLastReferencesUpdate(ctx)
@@ -28,7 +30,7 @@ export async function updateReferencesForNewContents(ctx: AppContext) {
     const batchSize = 500
     let curOffset = 0
 
-    const caUsers = await getCAUsersDids(ctx)
+    const caUsers = await Effect.runPromise(getCAUsersDids(ctx))
 
     while (true) {
         const contents: { uri: string }[] = await ctx.kysely
@@ -70,15 +72,13 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
                         .$if(topics != null, qb => qb.where("Topic.id", "in", topics!))
                         .select([
                             "Topic.id",
-                            sql<string>`unnest
-                                ("Topic"."synonyms")`.as("keyword")
+                            sql<string>`unnest("Topic"."synonyms")`.as("keyword")
                         ])
                         .as("UnnestedSynonyms")
                 )
                 .select([
                     "UnnestedSynonyms.id",
-                    sql`websearch_to_tsquery
-                        ('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
+                    sql`websearch_to_tsquery('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
                 ])
             )
             .selectFrom("Content")
@@ -266,34 +266,31 @@ export async function updateReferences(ctx: AppContext) {
 }
 
 
-export async function cleanNotCAReferences(ctx: AppContext) {
-    const caUsers = await getCAUsersDids(ctx)
-
-    await ctx.kysely
-        .deleteFrom("Reference")
-        .innerJoin("Record", "Reference.referencingContentId", "Record.uri")
-        .where("Record.authorId", "not in", caUsers)
-        .execute()
+export class UpdatePopularitiesError {
+    readonly _tag = "UpdatePopularitiesError"
 }
 
 
-export async function updatePopularitiesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
-    const t1 = Date.now()
-    await updateContentsText(ctx)
-    const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(ctx, undefined, topicIds)
-    const t3 = Date.now()
-    await updateTopicInteractionsOnNewReferences(ctx, newReferences)
-    const t4 = Date.now()
-    await updateTopicPopularities(ctx, topicIds)
-    const t5 = Date.now()
+export const updatePopularitiesOnTopicsChange = (
+    ctx: AppContext,
+    topicIds: string[]
+): Effect.Effect<void, UpdatePopularitiesError | DBSelectError> => Effect.gen(function* () {
+    yield* updateContentsText(ctx)
 
-    await updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
+    yield* Effect.tryPromise({
+        try: async () => {
+            // TO DO: Pasar a Effect
+            const newReferences = await updateReferencesForContentsAndTopics(ctx, undefined, topicIds)
+            await updateTopicInteractionsOnNewReferences(ctx, newReferences)
+            await updateTopicPopularities(ctx, topicIds)
 
-    await updateContentCategoriesOnTopicsChange(ctx, topicIds)
+            await updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
 
-    ctx.logger.logTimes(`update refs and pops on ${topicIds.length} topics`, [t1, t2, t3, t4, t5])
-}
+            await updateContentCategoriesOnTopicsChange(ctx, topicIds)
+        },
+        catch: () => new UpdatePopularitiesError()
+    })
+})
 
 
 export function findMentionsInText(text: string) {
@@ -342,51 +339,50 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
         }
     }
     if (data.length > 0) {
-        ctx.worker?.addJob("batch-create-notifications", data)
+        await Effect.runPromise(ctx.worker?.addJob("batch-create-notifications", data))
     }
 }
 
 
-export async function updatePopularitiesOnContentsChange(ctx: AppContext, uris: string[]) {
-    const t1 = Date.now()
-    await updateContentsText(ctx, uris)
-    const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(
-        ctx,
-        uris,
-        undefined
-    )
-    const t3 = Date.now()
-    const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(
-        ctx,
-        newReferences
-    )
-    const t4 = Date.now()
-    topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(
-        ctx,
-        uris
-    ))
-    const t5 = Date.now()
-    await updateTopicPopularities(
-        ctx,
-        topicsWithNewInteractions
-    )
-    const t6 = Date.now()
+export const updatePopularitiesOnContentsChange = (
+    ctx: AppContext,
+    uris: string[]
+): Effect.Effect<void, UpdatePopularitiesError | DBSelectError> => Effect.gen(function* () {
+    yield* updateContentsText(ctx, uris)
 
-    await createMentionNotifications(
-        ctx,
-        uris
-    )
-    const t7 = Date.now()
+    yield* Effect.tryPromise({
+        try: async () => {
+            const newReferences = await updateReferencesForContentsAndTopics(
+                ctx,
+                uris,
+                undefined
+            )
+            const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(
+                ctx,
+                newReferences
+            )
+            topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(
+                ctx,
+                uris
+            ))
+            await updateTopicPopularities(
+                ctx,
+                topicsWithNewInteractions
+            )
 
-    await updateDiscoverFeedIndex(
-        ctx,
-        uris
-    )
-    const t8 = Date.now()
+            await createMentionNotifications(
+                ctx,
+                uris
+            )
 
-    ctx.logger.logTimes(`update refs and pops on ${uris.length} contents`, [t1, t2, t3, t4, t5, t6, t7, t8])
-}
+            await updateDiscoverFeedIndex(
+                ctx,
+                uris
+            )
+        },
+        catch: () => new UpdatePopularitiesError()
+    })
+})
 
 
 export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
@@ -454,8 +450,7 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
     const matches = await ctx.kysely
         .with("Synonyms", eb => eb
             .selectFrom("Topic")
-            .select(["id", "currentVersionId", sql<string>`unnest
-                ("Topic"."synonyms")`.as("keyword")])
+            .select(["id", "currentVersionId", sql<string>`unnest("Topic"."synonyms")`.as("keyword")])
         )
         .selectFrom("Synonyms")
         .where(sql<boolean>`

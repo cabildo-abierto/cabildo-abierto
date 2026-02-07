@@ -12,8 +12,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
-import {CreateTopicVersionProps} from "../../tema/editing/save-edit-button";
+import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api"
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {queryTopics} from "@/components/writing/query-topics";
 import {post} from "@/components/utils/react/fetch";

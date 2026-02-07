@@ -4,6 +4,7 @@ import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import Image from "next/image"
 import {topicUrl} from "@/components/utils/react/url";
 import InfoPanel from "@/components/utils/base/info-panel";
+import {cn} from "@/lib/utils";
 
 
 export function getDescriptionForProp(propName: string) {
@@ -41,11 +42,15 @@ const TopicStringPropViewValue = ({name, value}: { name: string, value: string }
 }
 
 
-export const TopicPropView = ({p}: { p: ArCabildoabiertoWikiTopicVersion.TopicProp }) => {
-    if (p.name == "Título" || p.name == "Categorías") return null
+export const TopicPropView = ({p, className, showAll=false}: {
+    p: ArCabildoabiertoWikiTopicVersion.TopicProp
+    className?: string
+    showAll?: boolean
+}) => {
+    if (!showAll && (p.name == "Título" || p.name == "Categorías")) return null
     const {info, moreInfoHref} = getDescriptionForProp(p.name)
 
-    return <div className={"flex flex-col space-y-[2px]"}>
+    return <div className={cn("flex flex-col space-y-[2px]", className)}>
         <div className={"flex space-x-1 items-center"}>
             <div className={"text-sm text-[var(--text-light)]"}>
                 {p.name}

@@ -1,8 +1,8 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
-import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler, makeHandler} from "#/utils/handler.js";
-import {syncAllUsersHandler, syncUserHandler} from "#/services/sync/sync-user.js";
-import {deleteCollectionHandler, deleteUserHandler} from "#/services/delete.js";
+import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler} from "#/utils/handler.js";
+import {syncUserHandler} from "#/services/sync/sync-user.js";
+import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
 import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
@@ -16,7 +16,6 @@ import {
     getPendingValidationRequests,
     setValidationRequestResultHandler
 } from "#/services/user/validation.js";
-import {updateTopicContributionsHandler} from "#/services/wiki/contributions.js";
 import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
 import {getRegisteredJobs, startJob, getWorkerState} from "#/jobs/worker.js";
@@ -38,6 +37,7 @@ import {sendBulkEmails} from "#/services/emails/sending.js";
 import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
 import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 import {getPendingModeration} from "#/services/moderation/status.js";
+import {batchEditHandler, editTopicHandler} from "#/services/wiki/batch-editing.js";
 
 
 export const adminRoutes = (ctx: AppContext): Router => {
@@ -45,11 +45,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post(
         "/sync-user/:handleOrDid",
-        makeAdminHandler(ctx, syncUserHandler)
+        makeEffAdminHandler(ctx, syncUserHandler)
     )
     router.post(
         "/user/delete/:handleOrDid",
-        makeAdminHandler(ctx, deleteUserHandler)
+        makeEffAdminHandler(ctx, deleteUserHandler)
     )
 
     router.post(
@@ -77,13 +77,8 @@ export const adminRoutes = (ctx: AppContext): Router => {
         makeAdminHandlerNoAuth(ctx, getTopicsWhereTitleIsNotSetAsSynonym)
     )
 
-    router.post(
-        "/sync-all-users",
-        makeAdminHandler(ctx, syncAllUsersHandler)
-    )
-
     router.get(
-        "/topics",
+        "/all-topics/",
         makeAdminHandlerNoAuth(ctx, getAllTopics)
     )
 
@@ -102,20 +97,18 @@ export const adminRoutes = (ctx: AppContext): Router => {
         makeAdminHandler(ctx, createAccountInCabildoPDS)
     )
 
-    router.get("/pending-validation-requests", makeAdminHandler(ctx, getPendingValidationRequests))
+    router.get("/pending-validation-requests", makeEffAdminHandler(ctx, getPendingValidationRequests))
 
     router.post(
         "/validation-request/result", makeAdminHandler(ctx, setValidationRequestResultHandler)
     )
-
-    router.post('/update-topic-contributions/:id', makeHandler(ctx, updateTopicContributionsHandler))
 
     router.get("/stats-dashboard", makeAdminHandler(ctx, getStatsDashboard))
 
     router.get("/repo/:handleOrDid", makeAdminHandler(ctx, getRepoCounts))
 
     router.post(
-        "/job/:id", makeAdminHandler(ctx, startJob)
+        "/job/:id", makeEffAdminHandler(ctx, startJob)
     )
 
     router.get("/access-requests", makeAdminHandler(ctx, getAccessRequests))
@@ -212,8 +205,24 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get(
         '/pending-moderation',
-        makeAdminHandler(ctx, getPendingModeration)
+        makeEffAdminHandler(ctx, getPendingModeration)
     )
+
+    router.post(
+        '/delete-records',
+        makeEffAdminHandler(ctx, deleteRecordsHandler)
+    )
+
+    router.post(
+        '/batch-edit',
+        makeEffAdminHandler(ctx, batchEditHandler)
+    )
+
+    router.post(
+        '/edit-topic',
+        makeEffAdminHandler(ctx, editTopicHandler)
+    )
+
 
     return router
 }

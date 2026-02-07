@@ -3,23 +3,31 @@ import {RefAndRecord, SyncContentProps} from "#/services/sync/types.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
 import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kysely";
-import {DB} from "../../../../prisma/generated/types.js";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
+    InsertRecordError, ProcessCreateError,
     RecordProcessor
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
+import {Effect, pipe} from "effect";
+
+import { DB } from "prisma/generated/types.js";
+import {AddJobError, InvalidValueError} from "#/utils/errors.js";
+import {JobToAdd} from "#/jobs/worker.js";
 
 
 export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> {
 
     validateRecord = ArCabildoabiertoWikiTopicVersion.validateRecord
 
-    async addRecordsToDB(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], reprocess: boolean = false) {
+    addRecordsToDB(
+        records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+        reprocess: boolean = false
+    ): Effect.Effect<number, ProcessCreateError | InvalidValueError> {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -42,71 +50,90 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             authorship: r.record.claimsAuthorship ?? false
         }))
 
-        const inserted = await this.ctx.kysely.transaction().execute(async (trx) => {
+        const insertTopics = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
-            await processContentsBatch(this.ctx, trx, contents)
+            const jobs = await processContentsBatch(this.ctx, trx, contents)
 
-            try {
-                await trx
-                    .insertInto("Topic")
-                    .values(topics.map(t => ({...t, synonyms: []})))
-                    .onConflict((oc) => oc.column("id").doUpdateSet({
-                        lastEdit: sql`GREATEST
-                    ("Topic"."lastEdit", excluded."lastEdit")`
+            await trx
+                .insertInto("Topic")
+                .values(topics.map(t => ({...t, synonyms: []})))
+                .onConflict((oc) => oc.column("id").doUpdateSet({
+                    lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
+                }))
+                .execute()
+
+            if(topicVersions.length > 0){
+                const inserted = await trx
+                    .insertInto("TopicVersion")
+                    .values(topicVersions)
+                    .onConflict(oc => oc.column("uri").doUpdateSet({
+                        topicId: eb => eb.ref("excluded.topicId"),
+                        message: (eb) => eb.ref("excluded.message"),
+                        props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
                     }))
+                    .returning(["topicId", "TopicVersion.uri"])
                     .execute()
-            } catch (err) {
-                this.ctx.logger.pino.error({error: err}, "Error processing topics")
-            }
 
-            try {
-                if(topicVersions.length > 0){
-                    const inserted = await trx
-                        .insertInto("TopicVersion")
-                        .values(topicVersions)
-                        .onConflict(oc => oc.column("uri").doUpdateSet({
-                            topicId: eb => eb.ref("excluded.topicId"),
-                            message: (eb) => eb.ref("excluded.message"),
-                            props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
-                        }))
-                        .returning(["topicId", "TopicVersion.uri"])
-                        .execute()
+                await updateTopicsCurrentVersionBatch(this.ctx, trx, inserted.map(t => t.topicId))
 
-                    await updateTopicsCurrentVersionBatch(this.ctx, trx, inserted.map(t => t.topicId))
-
-                    return inserted
-                } else {
-                    return []
-                }
-            } catch (err) {
-                this.ctx.logger.pino.error({error: err}, "error inserting topic versions")
+                return {inserted, jobs}
+            } else {
+                return {inserted: [], jobs}
             }
         })
 
-        if(!reprocess){
-            await this.createJobs(records, inserted, topics)
-        }
+        return pipe(
+            Effect.tryPromise({
+                try: () => insertTopics,
+                catch: () => new InsertRecordError()
+            }),
+            Effect.tap(({inserted, jobs}) => {
+                return !reprocess ? this.createJobs(records, inserted, topics, jobs) : Effect.void
+            }),
+            Effect.map(() => records.length)
+        )
     }
 
-    async createJobs(records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[], inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[]) {
+    createJobs(
+        records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+        inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[],
+        jobs: JobToAdd[]
+    ): Effect.Effect<void, AddJobError> {
         const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
 
-        if (inserted) {
-            const data: NotificationJobData[] = inserted.map((i) => ({
-                uri: i.uri,
-                topics: i.topicId,
-                type: "TopicEdit"
-            }))
-            this.ctx.worker?.addJob("batch-create-notifications", data)
-        }
+        const data: NotificationJobData[] | null = inserted ? inserted.map((i) => ({
+            uri: i.uri,
+            topics: i.topicId,
+            type: "TopicEdit"
+        })) : null
 
-        await addUpdateContributionsJobForTopics(this.ctx, topics.map(t => t.id))
+        return pipe(
+            data ? this.ctx.worker?.addJob("batch-create-notifications", data) : Effect.void,
+            Effect.flatMap(() => {
+                return addUpdateContributionsJobForTopics(this.ctx, topics.map(t => t.id))
+            }),
+            Effect.flatMap(() => {
+                return this.ctx.worker?.addJobs([
+                    ...jobs,
+                    {
+                        label: "update-author-status",
+                        data: authors,
+                        priority: 11
+                    },
+                    {
+                        label: "update-contents-topic-mentions",
+                        data: records.map(r => r.ref.uri),
+                        priority: 11
+                    },
+                    {
+                        label: "update-topic-mentions",
+                        data: topics.map(t => t.id),
+                        priority: 11
+                    }
+                ])
+            })
+        )
 
-        await Promise.all([
-            this.ctx.worker?.addJob("update-author-status", authors, 11),
-            this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
-            this.ctx.worker?.addJob("update-topic-mentions", topics.map(t=> t.id), 11)
-        ])
     }
 }
 
@@ -134,11 +161,11 @@ function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabil
 }
 
 
-export async function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {
-    await ctx.worker?.addJob(
+export function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {
+    return ctx.worker ? ctx.worker.addJob(
         "update-topic-contributions",
         ids
-    )
+    ) : Effect.void
 }
 
 
@@ -209,8 +236,11 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
                 .execute()
 
             await updateTopicsCurrentVersionBatch(ctx, trx, topicIds.map(t => t.id))
-            await ctx.worker?.addJob("update-contents-topic-mentions", uris)
-            await ctx.worker?.addJob("update-topic-mentions", topicIds.map(t => t.id))
+
+            await Effect.runPromise(Effect.all([
+                ctx.worker.addJob("update-contents-topic-mentions", uris),
+                ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
+            ], {concurrency: "unbounded"}))
         } catch (err) {
             console.log(err)
             console.log("Error deleting topic versions")

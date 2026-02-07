@@ -3,6 +3,7 @@ import {AppContext} from "#/setup.js";
 import {getUnsentAccessRequestsCount} from "#/services/user/access.js";
 import {getPendingValidationRequestsCount} from "#/services/user/validation.js";
 import {getUnseenJobApplicationsCount} from "#/services/admin/jobs.js";
+import {Effect} from "effect";
 
 type ServerStatus = {
     worker: boolean
@@ -45,13 +46,13 @@ export async function runTestJob(ctx: AppContext): Promise<void> {
 export const getServerStatus: CAHandler<{}, {status: ServerStatus}> = async (ctx, agent, params ) => {
     // chequeamos:
     // el worker completa un trabajo con prioridad baja
-    // el mirror está corriendo y procesando evento
+    // el mirror está corriendo y procesando eventos
 
     const ts = await getTimestamp(ctx, "test")
 
     const lastEventProcessed = await getTimestamp(ctx, `last-mirror-event-${ctx.mirrorId}`)
 
-    const threshold = new Date(Date.now() - 25*1000)
+    const threshold = new Date(Date.now() - 120*1000)
     const worker = ts != null && ts > threshold
     const mirror = lastEventProcessed != null && lastEventProcessed > threshold
 
@@ -99,7 +100,7 @@ export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, a
         users.map(async u => ({
             did: u.did,
             handle: u.handle,
-            mirrorStatus: await ctx.redisCache.mirrorStatus.get(u.did, true),
+            mirrorStatus: await Effect.runPromise(ctx.redisCache.mirrorStatus.get(u.did, true)),
             CAProfile: u.created_at_tz ? { createdAt: u.created_at_tz } : null
         }))
     )

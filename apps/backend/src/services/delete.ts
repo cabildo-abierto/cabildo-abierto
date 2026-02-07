@@ -1,44 +1,67 @@
-import {getCollectionFromUri, getRkeyFromUri, getUri, isPost} from "@cabildo-abierto/utils";
+import {collectionToDisplay, getCollectionFromUri, getRkeyFromUri, getUri, isPost} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
-import {batchDeleteRecords} from "#/services/sync/event-processing/get-record-processor.js";
+import {batchDeleteRecords, ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 import {deleteDraft} from "#/services/write/drafts.js";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
-export async function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {ctx: AppContext, agent?: SessionAgent, did: string, collections?: string[], atproto: boolean}){
-    const uris = await ctx.kysely
-        .selectFrom("Record")
-        .select("uri")
-        .where("authorId", "=", did)
-        .$if(collections != null && collections.length > 0, qb => qb.where("collection", "in", collections!))
-        .execute()
+export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {
+    ctx: AppContext,
+    agent?: SessionAgent,
+    did: string,
+    collections?: string[],
+    atproto: boolean
+}): Effect.Effect<void, DBSelectError | ProcessDeleteError | ATDeleteRecordError> {
+    return Effect.gen(function* () {
+        const uris = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Record")
+                .select("uri")
+                .where("authorId", "=", did)
+                .$if(collections != null && collections.length > 0, qb => qb.where("collection", "in", collections!))
+                .execute(),
+            catch: () => new DBSelectError()
+        })
 
-    return await deleteRecords({
-        ctx,
-        agent,
-        uris: uris.map((r) => (r.uri)),
-        atproto
+        return yield* deleteRecords({
+            ctx,
+            agent,
+            uris: uris.map((r) => (r.uri)),
+            atproto
+        })
     })
 }
 
 
-export const deleteRecordsHandler: CAHandler<{uris: string[], atproto: boolean}> = async (ctx, agent, {uris, atproto}) => {
-    return await deleteRecords({ctx, agent, uris, atproto})
+export const deleteRecordsHandler: EffHandler<{ uris: string[], atproto: boolean }> = (ctx, agent, {uris, atproto}) => {
+    return deleteRecords({ctx, agent, uris, atproto})
+        .pipe(
+            Effect.catchTag("ATDeleteRecordError", () => {
+                return Effect.fail("Ocurrió un error al borrar los registros de ATProtocol.")
+            }),
+            Effect.catchTag("ProcessDeleteError", () => {
+                return Effect.fail("Ocurrió un error al borrar los registros de nuestra base de datos.")
+            }),
+            Effect.flatMap(() => Effect.succeed({}))
+        )
 }
 
 
-export const deleteCollectionHandler: CAHandler<{params: {collection: string}}, {}> = async (ctx, agent, {params}) => {
+export const deleteCollectionHandler: CAHandler<{
+    params: { collection: string }
+}, {}> = async (ctx, agent, {params}) => {
     const {collection} = params
     await ctx.worker?.addJob("delete-collection", {collection})
     return {data: {}}
 }
 
 
-export async function deleteCollection(ctx: AppContext, collection: string){
+export async function deleteCollection(ctx: AppContext, collection: string) {
     const uris = await ctx.kysely.selectFrom("Record")
         .select(["uri"])
         .where("collection", "=", collection)
@@ -47,50 +70,64 @@ export async function deleteCollection(ctx: AppContext, collection: string){
     await getDeleteProcessor(ctx, collection).process(uris.map(u => u.uri))
 }
 
+type DeleteRecordsProps = { ctx: AppContext, agent?: SessionAgent, uris: string[], atproto: boolean }
 
-export async function deleteRecords({ctx, agent, uris, atproto}: { ctx: AppContext, agent?: SessionAgent, uris: string[], atproto: boolean }): Promise<{error?: string}> {
-    if (atproto && agent) {
-        for (let i = 0; i < uris.length; i++) {
-            await deleteRecordAT(agent, uris[i])
+export function deleteRecords({
+                                  ctx,
+                                  agent,
+                                  uris,
+                                  atproto
+                              }: DeleteRecordsProps): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError> {
+    return Effect.gen(function* () {
+        if (atproto && agent) {
+            for (let i = 0; i < uris.length; i++) {
+                yield* deleteRecordAT(agent, uris[i])
+            }
         }
-    }
 
-    await batchDeleteRecords(ctx, uris)
-
-    return {}
+        yield* batchDeleteRecords(ctx, uris)
+    })
 }
 
 
-export const deleteUserHandler: CAHandler<{params: {handleOrDid: string}}> = async (ctx, agent, {params}) => {
-    const {handleOrDid} = params
-    const did = await Effect.runPromise(handleOrDidToDid(ctx, handleOrDid))
-    if(!did) return {error: "No se pudo resolver el handle."}
-    await deleteUser(ctx, did)
-    return {data: {}}
+export const deleteUserHandler: EffHandler<{ params: { handleOrDid: string } }> = (ctx, agent, {params}) => {
+    return Effect.gen(function* () {
+        const {handleOrDid} = params
+        const did = yield* handleOrDidToDid(ctx, handleOrDid)
+        yield* deleteUser(ctx, did)
+        return {}
+    }).pipe(
+        Effect.catchTag("HandleResolutionError", () => Effect.fail("Usuario no encontrado.")),
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al borrar el usuario."))
+    )
 }
 
 
-export async function deleteUser(ctx: AppContext, did: string) {
-    try {
-        await deleteRecordsForAuthor({ctx, did: did, atproto: false})
+export class DeleteUserError {
+    readonly _tag = "DeleteUserError"
+}
 
-        await ctx.kysely.transaction().execute(async trx => {
-            await trx.deleteFrom("ReadSession").where("userId", "=", did).execute()
-            await trx.deleteFrom("Notification").where("userNotifiedId", "=", did).execute()
-            await trx.deleteFrom("Blob").where("authorId", "=", did).execute()
-            await trx.deleteFrom("User").where("did", "=", did).execute()
+
+export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DeleteUserError> {
+    return Effect.gen(function* () {
+        yield* deleteRecordsForAuthor({ctx, did: did, atproto: false})
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely.transaction().execute(async trx => {
+                await trx.deleteFrom("ReadSession").where("userId", "=", did).execute()
+                await trx.deleteFrom("Notification").where("userNotifiedId", "=", did).execute()
+                await trx.deleteFrom("Blob").where("authorId", "=", did).execute()
+                await trx.deleteFrom("MailingListSubscription").where("userId", "=", did).execute()
+                await trx.deleteFrom("HasReacted").where("userId", "=", did).execute()
+                await trx.deleteFrom("UserMonth").where("userId", "=", did).execute()
+                await trx.deleteFrom("FollowingFeedIndex").where("readerId", "=", did).execute()
+                await trx.deleteFrom("FollowingFeedIndex").where("authorId", "=", did).execute()
+                await trx.deleteFrom("ModerationAction").where("userAffectedId", "=", did).execute()
+                await trx.deleteFrom("User").where("did", "=", did).execute()
+            }),
+            catch: () => new DeleteUserError()
         })
-    } catch (err) {
-        ctx.logger.pino.info({error: err, did}, "error deleting user, getting remaining ercords")
-
-        const records = await ctx.kysely
-            .selectFrom("Record")
-            .where("authorId", "=", did)
-            .select("uri")
-            .limit(10)
-            .execute()
-        ctx.logger.pino.info({error: err, did, remainingRecords: records}, "something went wrong when deleting a user")
-    }
+    })
     // TO DO: Revisar que cache hace falta actualizar
 }
 
@@ -113,57 +150,81 @@ export const deleteCAProfile: CAHandler<{}, {}> = async (ctx, agent, {}) => {
 }
 
 
-export async function deleteRecordAT(agent: SessionAgent, uri: string){
-    try {
-        await agent.bsky.com.atproto.repo.deleteRecord({
+export class ATDeleteRecordError {
+    readonly _tag = "ATDeleteRecordError"
+}
+
+
+export function deleteRecordAT(agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError> {
+    return Effect.tryPromise({
+        try: () => agent.bsky.com.atproto.repo.deleteRecord({
             repo: agent.did,
             rkey: getRkeyFromUri(uri),
             collection: getCollectionFromUri(uri)
+        }),
+        catch: () => new ATDeleteRecordError()
+    }).pipe(Effect.withSpan("deleteRecordAT", {attributes: {uri}}))
+}
+
+
+export function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri: string) {
+    return Effect.gen(function* () {
+        const votes = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("VoteReject")
+                .where("VoteReject.reasonId", "=", uri)
+                .select("VoteReject.uri")
+                .execute(),
+            catch: () => new DBSelectError()
         })
-    } catch {
-        console.warn("No se pudo borrar de ATProto", uri)
-    }
-}
-
-
-export async function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri: string) {
-    const votes = await ctx.kysely
-        .selectFrom("VoteReject")
-        .where("VoteReject.reasonId", "=", uri)
-        .select("VoteReject.uri")
-        .execute()
-    for(let i = 0; i < votes.length; i++){
-        const {error} = await deleteRecord(ctx, agent, votes[i].uri)
-        if(error) return {error}
-    }
-    return {}
-}
-
-
-async function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string) {
-    const collection = getCollectionFromUri(uri)
-    try {
-        if(isPost(collection)){
-            await deleteAssociatedVotes(ctx, agent, uri)
+        if(votes.length > 0) {
+            yield* Effect.all(votes.map(vote => deleteRecord(ctx, agent, vote.uri)))
         }
-        await deleteRecordAT(agent, uri)
-        await getDeleteProcessor(ctx, collection).process([uri])
-    } catch (error) {
-        ctx.logger.pino.error({error, uri}, "error deleting record")
-        return {error: "Algo salió mal."}
-    }
-    return {data: {}}
+    }).pipe(Effect.withSpan("deleteAssociatedVotes", {
+        attributes: {
+            uri
+        }
+    }))
 }
 
 
-export const deleteRecordHandler: CAHandler<{params: {rkey: string, collection: string}}> = async (ctx, agent, {params}) => {
+function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError | DBSelectError> {
+    const collection = getCollectionFromUri(uri)
+    return Effect.gen(function* () {
+        if (isPost(collection)) {
+            yield* deleteAssociatedVotes(ctx, agent, uri)
+        }
+        yield* deleteRecordAT(agent, uri)
+        yield* Effect.tryPromise({
+            try: () => getDeleteProcessor(ctx, collection).process([uri]),
+            catch: () => new ProcessDeleteError(collection)
+        })
+    }).pipe(Effect.withSpan("deleteRecord", {
+        attributes: {
+            uri
+        }
+    }))
+
+}
+
+
+export const deleteRecordHandler: EffHandler<{
+    params: { rkey: string, collection: string }
+}> = (ctx, agent, {params}) => {
     const {rkey, collection} = params
 
-    if(collection == "draft") {
-        await deleteDraft(ctx, agent, rkey)
+    if (collection == "draft") {
+        return Effect.tryPromise({
+            try: () => deleteDraft(ctx, agent, rkey),
+            catch: () => "Ocurrió un error al borrar el borrador."
+        }).pipe(Effect.flatMap(() => Effect.succeed({})))
+    } else {
+        const uri = getUri(agent.did, collection, rkey)
+
+        return deleteRecord(ctx, agent, uri).pipe(
+            Effect.catchAll(() => Effect.fail(`Ocurrió un error al borrar ${collectionToDisplay(collection, "el-la")}.`)),
+            Effect.flatMap(() => Effect.succeed({}))
+        )
     }
 
-    const uri = getUri(agent.did, collection, rkey)
-
-    return await deleteRecord(ctx, agent, uri)
 }

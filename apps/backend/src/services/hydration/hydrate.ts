@@ -18,7 +18,6 @@ import {
 } from "@cabildo-abierto/api"
 import {FeedSkeleton} from "#/services/feed/feed.js";
 import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
-import {Dataplane} from "#/services/hydration/dataplane.js";
 import {hydrateEmbedViews, hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
 import {hydrateDatasetView} from "#/services/dataset/read.js";
@@ -26,29 +25,38 @@ import {BlockedPost, isThreadViewPost, ThreadViewPost} from "@atproto/api/dist/c
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js"
 import removeMarkdown from "remove-markdown"
 import {AppContext} from "#/setup.js";
-import {PostViewHydrator} from "#/services/hydration/post-view.js";
+import {Effect} from "effect";
+import {DataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
+import {NoSessionAgent, SessionAgent} from "#/utils/session-agent.js";
+import {hydratePostView} from "#/services/hydration/post-view.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
-export function hydrateViewer(uri: string, data: Dataplane): { repost?: string, like?: string } {
+export const hydrateViewer = (agent: SessionAgent | NoSessionAgent, uri: string): Effect.Effect<{
+    repost?: string,
+    like?: string
+}, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
     const bskyPost = data.bskyPosts.get(uri)
-    const sessionDid = data.agent.hasSession() ? data.agent.did : null
-    if(!sessionDid) return {}
+    const sessionDid = agent.hasSession() ? agent.did : null
+    if (!sessionDid) return {}
 
     let repost: string | undefined = bskyPost?.viewer?.repost
-    if(!repost){
+    if (!repost) {
         const reposts = data.reposts.get(uri)
         reposts?.forEach(r => {
-            if(r.uri && getDidFromUri(r.uri) == sessionDid){
+            if (r.uri && getDidFromUri(r.uri) == sessionDid) {
                 repost = r.uri
             }
         })
     }
 
     let like: string | undefined = bskyPost?.viewer?.like
-    if(!like){
+    if (!like) {
         const likes = data.likes.get(uri)
         likes?.forEach(r => {
-            if(getDidFromUri(r) == sessionDid){
+            if (getDidFromUri(r) == sessionDid) {
                 like = r
             }
         })
@@ -59,27 +67,28 @@ export function hydrateViewer(uri: string, data: Dataplane): { repost?: string, 
         repost,
         like
     }
-}
+})
 
 
-export function hydrateFullArticleView(ctx: AppContext, uri: string, data: Dataplane): {
-    data?: $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
-    error?: string
-} {
+export const hydrateFullArticleView = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, uri: string): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.FullArticleView> | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
     const e = data.caContents?.get(uri)
-    if (!e) return {error: "Ocurrió un error al cargar el contenido."}
+    if (!e) return null
 
     const topicsMentioned = data.topicsMentioned?.get(uri) ?? []
 
     const authorId = getDidFromUri(e.uri)
-    const author = hydrateProfileViewBasic(ctx, authorId, data)
-    const viewer = hydrateViewer(e.uri, data)
+    const author = yield* hydrateProfileViewBasic(ctx, authorId)
+    const viewer = yield* hydrateViewer(agent, e.uri)
     if (!author) {
         ctx.logger.pino.error({authorId, uri}, "author not found during full article view hydration")
-        return {error: "Ocurrió un error al cargar el contenido."}
+        return null
     }
 
-    const record = e.record ? JSON.parse(e.record) as ArCabildoabiertoFeedArticle.Record : undefined
+    const record = e.record ?
+        JSON.parse(e.record) as ArCabildoabiertoFeedArticle.Record :
+        undefined
 
     let text: string | null = null
     let format: string | null = null
@@ -87,11 +96,11 @@ export function hydrateFullArticleView(ctx: AppContext, uri: string, data: Datap
         text = e.text
         format = e.dbFormat ?? null
     } else if (e?.textBlobId) {
-        text = data.getFetchedBlob({cid: e?.textBlobId, authorId})
+        text = dataplane.getFetchedBlob({cid: e?.textBlobId, authorId})
         format = e?.format ?? null
     }
 
-    if (text == null || !e || !e.title) return {error: "Ocurrió un error al cargar el contenido."}
+    if (text == null || !e || !e.title) return null
 
     const embeds = hydrateEmbedViews(author.did, record?.embeds ?? [])
     const {summary, summaryFormat} = getArticleSummary(text, format ?? undefined, e.articleDescription ?? undefined)
@@ -104,36 +113,38 @@ export function hydrateFullArticleView(ctx: AppContext, uri: string, data: Datap
         alt: e.title
     } : undefined
 
-    return {
-        data: {
-            $type: "ar.cabildoabierto.feed.defs#fullArticleView",
-            uri: e.uri,
-            cid: e.cid,
-            title: e.title,
-            text,
-            format: format ?? undefined,
-            summary,
-            summaryFormat,
-            author,
-            labels: dbLabelsToLabelsView(e.selfLabels ?? [], uri),
-            record: e.record ? JSON.parse(e.record) : {},
-            indexedAt: new Date(e.created_at).toISOString(),
-            likeCount: e.uniqueLikesCount,
-            repostCount: e.uniqueRepostsCount,
-            replyCount: e.repliesCount,
-            quoteCount: e.quotesCount,
-            viewer,
-            topicsMentioned: topicsMentioned.map(m => ({
-                count: m.count ?? 0,
-                title: getTopicTitle({id: m.id, props: m.props as ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined}),
-                id: m.id
-            })),
-            embeds,
-            editedAt: e.editedAt?.toISOString(),
-            preview: preview
-        }
+    const res: $Typed<ArCabildoabiertoFeedDefs.FullArticleView> = {
+        $type: "ar.cabildoabierto.feed.defs#fullArticleView",
+        uri: e.uri,
+        cid: e.cid,
+        title: e.title,
+        text,
+        format: format ?? undefined,
+        summary,
+        summaryFormat,
+        author,
+        labels: dbLabelsToLabelsView(e.selfLabels ?? [], uri),
+        record: e.record ? JSON.parse(e.record) : {},
+        indexedAt: new Date(e.created_at).toISOString(),
+        likeCount: e.uniqueLikesCount,
+        repostCount: e.uniqueRepostsCount,
+        replyCount: e.repliesCount,
+        quoteCount: e.quotesCount,
+        viewer,
+        topicsMentioned: topicsMentioned.map(m => ({
+            count: m.count ?? 0,
+            title: getTopicTitle({
+                id: m.id,
+                props: m.props as ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined
+            }),
+            id: m.id
+        })),
+        embeds,
+        editedAt: e.editedAt?.toISOString(),
+        preview: preview
     }
-}
+    return res
+})
 
 
 export function dbLabelsToLabelsView(labels: string[], uri: string) {
@@ -155,7 +166,7 @@ export function markdownToPlainText(md: string) {
 
 
 export function getArticleSummary(text: string | null, format: string | undefined, description: string | undefined) {
-    if(description) {
+    if (description) {
         return {
             summary: description,
             summaryFormat: "plain-text"
@@ -189,22 +200,21 @@ export function getArticlePreviewImage(authorId: string, previewCid: string | un
 }
 
 
-export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane): {
-    data?: $Typed<ArCabildoabiertoFeedDefs.ArticleView>
-    error?: string
-} {
+export const hydrateArticleView = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, uri: string): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.ArticleView> | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
     const e = data.caContents?.get(uri)
     if (!e) {
         ctx.logger.pino.error(`No se encontraron los datos para hidratar el artículo: ${uri}`)
-        return {error: "Ocurrió un error al cargar el contenido."}
+        return null
     }
 
-    const viewer = hydrateViewer(e.uri, data)
+    const viewer = yield* hydrateViewer(agent, e.uri)
     const authorId = getDidFromUri(e.uri)
-    const author = hydrateProfileViewBasic(ctx, authorId, data)
+    const author = yield* hydrateProfileViewBasic(ctx, authorId)
     if (!author) {
         console.log("No se enconctró el autor del contenido.", uri)
-        return {error: "No se encontró el autor del contenido."}
+        return null
     }
 
     let text: string | null = null
@@ -213,7 +223,7 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
         text = e.text
         format = e.dbFormat ?? null
     } else if (e.textBlobId) {
-        text = data.getFetchedBlob({cid: e?.textBlobId, authorId})
+        text = dataplane.getFetchedBlob({cid: e?.textBlobId, authorId})
         ctx.logger.pino.warn({
             uri: e.uri,
             textBlobId: e?.textBlobId,
@@ -229,7 +239,7 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
             uri,
             title: e.title
         }, "content not found")
-        return {error: "Ocurrió un error al cargar el artículo."}
+        return null
     }
 
     const {summary, summaryFormat} = getArticleSummary(text, format ?? undefined, e.articleDescription ?? undefined)
@@ -239,47 +249,47 @@ export function hydrateArticleView(ctx: AppContext, uri: string, data: Dataplane
     const preview = getArticlePreviewImage(authorId, previewCid ?? undefined, e.title)
 
     return {
-        data: {
-            $type: "ar.cabildoabierto.feed.defs#articleView",
-            uri: e.uri,
-            cid: e.cid,
-            title: e.title,
-            summary,
-            summaryFormat,
-            labels: dbLabelsToLabelsView(e.selfLabels ?? [], uri),
-            author,
-            record: e.record ? JSON.parse(e.record) : {},
-            indexedAt: e.created_at.toISOString(),
-            likeCount: e.uniqueLikesCount,
-            repostCount: e.uniqueRepostsCount,
-            replyCount: e.repliesCount,
-            quoteCount: e.quotesCount,
-            viewer,
-            preview
-        }
+        $type: "ar.cabildoabierto.feed.defs#articleView",
+        uri: e.uri,
+        cid: e.cid,
+        title: e.title,
+        summary,
+        summaryFormat,
+        labels: dbLabelsToLabelsView(e.selfLabels ?? [], uri),
+        author,
+        record: e.record ? JSON.parse(e.record) : {},
+        indexedAt: e.created_at.toISOString(),
+        likeCount: e.uniqueLikesCount,
+        repostCount: e.uniqueRepostsCount,
+        replyCount: e.repliesCount,
+        quoteCount: e.quotesCount,
+        viewer,
+        preview
     }
-}
+})
 
 
-export function hydrateContent(ctx: AppContext, uri: string, data: Dataplane, full: boolean = false): {
-    data?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> | $Typed<ArCabildoabiertoDataDataset.DatasetView>,
-    error?: string
-} {
+type Content = $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> | $Typed<ArCabildoabiertoDataDataset.DatasetView>
+
+
+export const hydrateContent = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, uri: string, full: boolean = false): Effect.Effect<Content | null, never, DataPlane> => Effect.gen(function* () {
     const collection = getCollectionFromUri(uri)
     if (isPost(collection)) {
-        return {data: new PostViewHydrator(ctx, data).hydrate(uri) ?? undefined}
+        return yield* hydratePostView(ctx, agent, uri)
     } else if (isArticle(collection)) {
-        return full ? hydrateFullArticleView(ctx, uri, data) : hydrateArticleView(ctx, uri, data)
+        return full ?
+            (yield* hydrateFullArticleView(ctx, agent, uri)) :
+            (yield* hydrateArticleView(ctx,  agent, uri))
     } else if (isTopicVersion(collection)) {
-        return hydrateTopicViewBasicFromUri(ctx, uri, data)
+        return yield* hydrateTopicViewBasicFromUri(ctx, uri)
     } else if (isDataset(collection)) {
-        const res = hydrateDatasetView(ctx, uri, data)
-        if (res) return {data: res}; else return {error: "No se pudo hidratar el dataset."}
+        const res = yield* hydrateDatasetView(ctx, uri)
+        return res ?? null
     } else {
         ctx.logger.pino.warn({collection}, "hydration not implemented")
-        return {error: "Hidratación no implementada para: " + collection}
+        return null
     }
-}
+})
 
 
 export function notFoundPost(uri: string): $Typed<AppBskyFeedDefs.NotFoundPost> {
@@ -291,10 +301,16 @@ export function notFoundPost(uri: string): $Typed<AppBskyFeedDefs.NotFoundPost> 
 }
 
 
-function hydrateFeedViewContentReason(ctx: AppContext, subjectUri: string, reason: ArCabildoabiertoFeedDefs.SkeletonFeedPost["reason"], data: Dataplane): ArCabildoabiertoFeedDefs.FeedViewContent["reason"] | null {
+const hydrateFeedViewContentReason = (
+    ctx: AppContext,
+    subjectUri: string,
+    reason: ArCabildoabiertoFeedDefs.SkeletonFeedPost["reason"]
+): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent["reason"] | null, never, DataPlane> => Effect.gen(function* () {
     if (!reason) return null
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
     if (ArCabildoabiertoFeedDefs.isSkeletonReasonRepost(reason)) {
-        const user = hydrateProfileViewBasic(ctx, getDidFromUri(reason.repost), data)
+        const user = yield* hydrateProfileViewBasic(ctx, getDidFromUri(reason.repost))
         if (!user) {
             ctx.logger.pino.warn({reason}, "no se encontró el usuario autor del repost")
             return null
@@ -318,54 +334,61 @@ function hydrateFeedViewContentReason(ctx: AppContext, subjectUri: string, reaso
     }
     ctx.logger.pino.warn({reason}, "failed to hydrate reason")
     return null
-}
+})
 
 
-export function hydrateFeedViewContent(ctx: AppContext, e: ArCabildoabiertoFeedDefs.SkeletonFeedPost, data: Dataplane): $Typed<ArCabildoabiertoFeedDefs.FeedViewContent> | null {
-    const reason = hydrateFeedViewContentReason(ctx, e.post, e.reason, data) ?? undefined
+export const hydrateFeedViewContent = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, e: ArCabildoabiertoFeedDefs.SkeletonFeedPost): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.FeedViewContent> | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
+    const reason = yield* hydrateFeedViewContentReason(ctx, e.post, e.reason)
 
     const childBsky = data.bskyPosts?.get(e.post)
     const reply = childBsky ? (childBsky.record as AppBskyFeedPost.Record).reply : null
 
-    const leaf = hydrateContent(ctx, e.post, data)
-    const parent = reply && !ArCabildoabiertoFeedDefs.isReasonRepost(reason) ? hydrateContent(ctx, reply.parent.uri, data) : null
-    const root = reply && !ArCabildoabiertoFeedDefs.isReasonRepost(reason) ? hydrateContent(ctx, reply.root.uri, data) : null
+    const leaf = yield* hydrateContent(ctx, agent, e.post)
+    const parent = reply && !ArCabildoabiertoFeedDefs.isReasonRepost(reason) ? yield* hydrateContent(ctx, agent, reply.parent.uri) : null
+    const root = reply && !ArCabildoabiertoFeedDefs.isReasonRepost(reason) ? yield* hydrateContent(ctx, agent, reply.root.uri) : null
 
-    if (!leaf.data || leaf.error) {
+    const isRepost = reason && reason.$type == "ar.cabildoabierto.feed.defs#reasonRepost"
+
+    if (!leaf) {
         ctx.logger.pino.warn({uri: e.post}, "content not found")
         return null
     } else if (!reply) {
-        return {
+        const res: $Typed<ArCabildoabiertoFeedDefs.FeedViewContent> = {
             $type: "ar.cabildoabierto.feed.defs#feedViewContent",
-            content: leaf.data,
-            reason
+            content: leaf,
+            reason: reason ?? undefined
         }
+        return res
     } else {
-        return {
+        const res: $Typed<ArCabildoabiertoFeedDefs.FeedViewContent> = {
             $type: "ar.cabildoabierto.feed.defs#feedViewContent",
-            content: leaf.data,
-            reason,
-            reply: {
-                parent: parent && parent.data ? parent.data : notFoundPost(reply.parent.uri),
-                root: root && root.data ? root.data : notFoundPost(reply.root.uri) // puede ser igual a parent, el frontend se ocupa
-            }
+            content: leaf,
+            reason: reason ?? undefined,
+            reply: !isRepost ? {
+                parent: parent && parent ? parent : notFoundPost(reply.parent.uri),
+                root: root ?? notFoundPost(reply.root.uri) // puede ser igual a parent, el frontend se ocupa
+            } : undefined
         }
+        return res
     }
-}
+})
 
 
 export type BlobRef = { cid: string, authorId: string }
 
 
-export async function hydrateFeed(ctx: AppContext, skeleton: FeedSkeleton, data: Dataplane): Promise<$Typed<ArCabildoabiertoFeedDefs.FeedViewContent>[]> {
-    await data.fetchFeedHydrationData(skeleton)
+export const hydrateFeed = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, skeleton: FeedSkeleton): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.FeedViewContent>[], DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    yield* dataplane.fetchFeedHydrationData(skeleton)
 
-    const feed = skeleton
-        .map((e) => (hydrateFeedViewContent(ctx, e, data)))
-        .filter(x => x != null)
+    const feed = yield* Effect.all(skeleton
+        .map((e) => (hydrateFeedViewContent(ctx, agent, e)))
+        .filter(x => x != null))
 
     return feed.filter(x => ArCabildoabiertoFeedDefs.isFeedViewContent(x))
-}
+})
 
 
 export type ThreadSkeleton = {
@@ -375,7 +398,11 @@ export type ThreadSkeleton = {
 }
 
 
-type ThreadViewContentReply = $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | $Typed<AppBskyFeedDefs.NotFoundPost> | $Typed<BlockedPost> | { $type: string }
+type ThreadViewContentReply =
+    $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<BlockedPost>
+    | { $type: string }
 
 
 export const threadRepliesSortKey = (authorId: string) => (r: ThreadViewContentReply) => {
@@ -393,8 +420,9 @@ export const threadPostRepliesSortKey = (authorId: string) => (r: ThreadViewPost
         [1, -new Date(r.post.indexedAt).getTime()] : [0, 0]
 }
 
-export function hydrateThreadViewContent(ctx: AppContext, skeleton: ThreadSkeleton, data: Dataplane, includeReplies: boolean = false, isMain: boolean = false): $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | null {
-    const content = hydrateContent(ctx, skeleton.post, data, isMain).data
+
+export const hydrateThreadViewContent = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, skeleton: ThreadSkeleton, includeReplies: boolean = false, isMain: boolean = false): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | null, never, DataPlane> => Effect.gen(function* () {
+    const content = yield* hydrateContent(ctx, agent, skeleton.post, isMain)
     if (!content) {
         ctx.logger.pino.error({uri: skeleton.post}, "content not found during thread hydration")
         return null
@@ -404,16 +432,16 @@ export function hydrateThreadViewContent(ctx: AppContext, skeleton: ThreadSkelet
 
     let replies: $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>[] | undefined
     if (includeReplies && skeleton.replies) {
-        replies = skeleton.replies
-            .map((r) => (hydrateThreadViewContent(ctx, r, data, true)))
-            .filter(x => x != null)
+        replies = (yield* Effect.all(skeleton.replies
+            .map((r) => (hydrateThreadViewContent(ctx, agent, r, true))))).filter(x => x != null)
 
         replies = sortByKey(replies, threadRepliesSortKey(authorDid), listOrderDesc)
     }
 
     let parent: $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | undefined
     if (skeleton.parent) {
-        const hydratedParent = hydrateThreadViewContent(ctx, skeleton.parent, data, false)
+        const hydratedParent = yield* hydrateThreadViewContent(
+            ctx, agent, skeleton.parent, false)
         if (hydratedParent) {
             parent = {
                 ...hydratedParent,
@@ -428,6 +456,4 @@ export function hydrateThreadViewContent(ctx: AppContext, skeleton: ThreadSkelet
         replies,
         parent
     }
-}
-
-
+})

@@ -5,6 +5,7 @@ import {getRecordProcessor} from "#/services/sync/event-processing/get-record-pr
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {isValidHandle} from "@atproto/syntax";
+import {Effect} from "effect";
 
 
 function newUser(ctx: AppContext, did: string, inCA: boolean) {
@@ -86,7 +87,7 @@ class CommitCreateOrUpdateEventProcessor extends CommitEventProcessor {
         for await (const [c, refAndRecords] of byCollection.entries()) {
             if(refAndRecords.length == 0) continue
             const recordProcessor = getRecordProcessor(this.ctx, c)
-            await recordProcessor.process(refAndRecords)
+            await Effect.runPromiseExit(recordProcessor.process(refAndRecords))
         }
     }
 }

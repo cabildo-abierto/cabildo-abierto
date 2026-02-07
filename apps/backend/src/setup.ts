@@ -13,6 +13,7 @@ import {env} from './lib/env.js';
 import {S3Storage} from './services/storage/storage.js';
 import {getCAUsersDids} from "#/services/user/users.js";
 import * as dotenv from 'dotenv';
+import {Effect} from "effect";
 dotenv.config();
 
 export type AppContext = {
@@ -22,7 +23,7 @@ export type AppContext = {
     ioredis: Redis
     redisCache: RedisCache
     mirrorId: string
-    worker: CAWorker | undefined
+    worker: CAWorker
     kysely: Kysely<DB>
     storage: S3Storage | undefined
 }
@@ -62,6 +63,17 @@ export function setupResolver(redis: RedisCache) {
 }
 
 
+async function addSyncUserJobsForAllUsers(ctx: AppContext, worker: CAWorker) {
+    return Effect.runPromiseExit(Effect.gen(function* () {
+        const caUsers = yield* getCAUsersDids(ctx)
+        for(const u of caUsers){
+            yield* ctx.redisCache.mirrorStatus.set(u, "InProcess", true)
+            yield* worker.addJob("sync-user", {handleOrDid: u}, 21)
+        }
+    }).pipe(Effect.withSpan("addSyncUserJobsForAllUsers")))
+}
+
+
 export async function setupAppContext(roles: Role[]) {
     const logger = new Logger([...roles, envName].join(":"))
     const kysely = setupKysely()
@@ -76,16 +88,13 @@ export async function setupAppContext(roles: Role[]) {
     const oauthClient = await createClient(ioredis)
     logger.pino.info("oauth client created")
 
-    let worker: CAWorker | undefined
-    if(roles.length > 0){
-        worker = new RedisCAWorker(
-            ioredis,
-            roles.includes("worker"),
-            logger
-        )
-    }
+    let worker: CAWorker = new RedisCAWorker(
+        ioredis,
+        roles.includes("worker"),
+        logger
+    )
 
-    const mirrorId = `mirror-${envName}`
+    const mirrorId = `mirror-${envName}-${env.DEV_NAME}`
     logger.pino.info({mirrorId}, "Mirror ID")
 
     const redisCache = new RedisCache(ioredis, mirrorId, logger)
@@ -109,12 +118,7 @@ export async function setupAppContext(roles: Role[]) {
         await worker.setup(ctx)
 
         if(env.RUN_CRONS){
-            ctx.logger.pino.info("adding sync ca users jobs")
-            const caUsers = await getCAUsersDids(ctx)
-            for(const u of caUsers){
-                await ctx.redisCache.mirrorStatus.set(u, "InProcess", true)
-                await worker.addJob("sync-user", {handleOrDid: u}, 21)
-            }
+            await addSyncUserJobsForAllUsers(ctx, worker)
         }
 
         logger.pino.info("worker setup")

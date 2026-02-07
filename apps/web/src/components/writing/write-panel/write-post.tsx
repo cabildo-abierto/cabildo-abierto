@@ -36,7 +36,6 @@ import {AddVisualizationButton} from "./add-visualization-button";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
 import {profileUrl} from "@/components/utils/react/url";
-import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
 import {AddThreadElementButton} from "@/components/writing/write-panel/add-thread-element-button";
 import {isThreadElementStateEmpty} from "@/components/writing/write-panel/write-panel-panel";
@@ -165,16 +164,26 @@ function getLinksFromEditor(editorState: EditorState) {
     return links
 }
 
-
-function useVisualizationInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
-    let initialState: ArCabildoabiertoEmbedVisualization.Main | null = null
+/*
+let initialState: ArCabildoabiertoEmbedVisualization.Main | null = null
     if (postView) {
         if (ArCabildoabiertoEmbedVisualization.isView(postView.embed)) {
             initialState = visualizationViewToMain(postView.embed)
         }
     }
+ */
 
-    const [visualization, setVisualization] = useState<ArCabildoabiertoEmbedVisualization.Main>(initialState)
+function useVisualizationInPostEditor(threadElementState: ThreadElementState, setThreadElementState: (
+    updater: (prev: ThreadElementState) => ThreadElementState
+) => void, postView?: ArCabildoabiertoFeedDefs.PostView) {
+    const visualization = threadElementState.visualization ?? null
+
+    function setVisualization(v: ArCabildoabiertoEmbedVisualization.Main | null) {
+        setThreadElementState(prev => ({
+            ...prev,
+            visualization: v
+        }))
+    }
 
     return {visualization, setVisualization}
 }
@@ -217,7 +226,7 @@ export const WritePost = ({
     const {text, images, editorState, externalEmbed} = threadElementState
     const externalEmbedView = externalEmbed?.view
     const {user} = useSession()
-    const {visualization, setVisualization} = useVisualizationInPostEditor(postView)
+    const {visualization, setVisualization} = useVisualizationInPostEditor(threadElementState, setThreadElementState, postView)
     const {
         onRemove
     } = useUpdateExternalEmbed(

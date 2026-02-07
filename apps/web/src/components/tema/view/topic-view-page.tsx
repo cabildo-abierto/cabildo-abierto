@@ -45,7 +45,7 @@ export const TopicViewPage = () => {
         <div
             className="absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"
         >
-            <EditTopicButton/>
+            <EditTopicButton topicId={topic.id}/>
             <TopicPropsPanel
                 topic={topic}
             />

@@ -1,4 +1,4 @@
-import {CAHandler, EffHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 import {
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages, CreateDraftParams, DraftPreview, Draft
@@ -7,10 +7,12 @@ import {v4 as uuidv4} from "uuid";
 import {getArticleSummary} from "#/services/hydration/hydrate.js";
 import {sql} from "kysely";
 import {FilePayload} from "@cabildo-abierto/api";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {Effect} from "effect";
+import {S3GetSignedURLError} from "#/services/storage/storage.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 type DraftQueryResult = {
@@ -36,9 +38,9 @@ function getDraftEmbedSbUrl(id: string, i: number | "preview") {
     return `${id}-${i}-0`
 }
 
-
-function hydrateDraftPreview(d: Omit<DraftQueryResult, "embeds">, dataplane: Dataplane): DraftPreview | null {
-    const signedUrls = dataplane.signedStorageUrls.get("draft-embeds")
+const hydrateDraftPreview = (d: Omit<DraftQueryResult, "embeds">): Effect.Effect<DraftPreview | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const signedUrls = dataplane.getState().signedStorageUrls.get("draft-embeds")
     return {
         id: d.id,
         createdAt: d.created_at,
@@ -48,10 +50,10 @@ function hydrateDraftPreview(d: Omit<DraftQueryResult, "embeds">, dataplane: Dat
         summary: getArticleSummary(d.text, "markdown", d.description ?? undefined).summary,
         previewImage: d.previewImage ? signedUrls?.get(d.previewImage) : undefined,
     }
-}
+})
 
 
-function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, dataplane: Dataplane): Draft | null {
+const hydrateDraft = (d: DraftQueryResult, signedUrls: Map<string, string>): Effect.Effect<Draft | null, never, DataPlane> => Effect.gen(function* () {
     const embeds: EmbedsInDB | null = d.embeds as EmbedsInDB | null
 
     let embedViews: ArCabildoabiertoFeedArticle.ArticleEmbedView[] | undefined = undefined
@@ -89,6 +91,8 @@ function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, data
         }
     }
 
+    const dataplane = yield* DataPlane
+
     return {
         id: d.id,
         createdAt: d.created_at,
@@ -98,12 +102,17 @@ function hydrateDraft(d: DraftQueryResult, signedUrls: Map<string, string>, data
         collection: d.collection,
         title: d.title ?? undefined,
         summary: getArticleSummary(d.text, "markdown", d.description ?? undefined).summary,
-        previewImage: d.previewImage ? dataplane.signedStorageUrls.get("draft-embeds")?.get(d.previewImage) : undefined
+        previewImage: d.previewImage ? dataplane.getState().signedStorageUrls.get("draft-embeds")?.get(d.previewImage) : undefined
     }
-}
+})
 
-export const getDrafts: CAHandler<{}, DraftPreview[]> = async (ctx, agent, {}) => {
-    const drafts: Omit<DraftQueryResult, "embeds">[] = await ctx.kysely
+
+export const getDrafts: EffHandler<{}, DraftPreview[]> = (
+    ctx, agent, {}
+) => Effect.provideServiceEffect(Effect.gen(function* () {
+
+    const drafts: Omit<DraftQueryResult, "embeds">[] = yield* Effect.tryPromise({
+        try: () => ctx.kysely
         .selectFrom("Draft")
         .select([
             "id",
@@ -116,36 +125,48 @@ export const getDrafts: CAHandler<{}, DraftPreview[]> = async (ctx, agent, {}) =
             "previewImage"
         ])
         .where("authorId", "=", agent.did)
-        .execute()
+        .execute(),
+        catch: () => new DBSelectError()
+    })
 
-    const dataplane = new Dataplane(ctx, agent)
+    const dataplane = yield* DataPlane
 
-    await dataplane.fetchSignedStorageUrls(drafts.map(d => d.previewImage).filter(x => x != null), "draft-embeds")
+    yield* dataplane.fetchSignedStorageUrls(drafts.map(d => d.previewImage).filter(x => x != null), "draft-embeds")
 
-    return {data: drafts.map(d => hydrateDraftPreview(d, dataplane)).filter(x => x != null)}
-}
+    const res = yield* Effect.all(drafts.map(d => hydrateDraftPreview(d)))
+
+    return res.filter(x => x != null)
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los borradores."))), DataPlane, makeDataPlane(ctx, agent))
 
 
-export const getDraft: CAHandler<{ params: { id: string } }, Draft> = async (ctx, agent, {params}) => {
-    const res: DraftQueryResult[] = await ctx.kysely
-        .selectFrom("Draft")
-        .select([
-            "id",
-            "created_at",
-            "lastUpdate",
-            "text",
-            "embeds",
-            "collection",
-            "title",
-            "description",
-            "previewImage"
-        ])
-        .where("authorId", "=", agent.did)
-        .where("id", "=", params.id)
-        .execute()
+export const getDraft: EffHandler<{ params: { id: string } }, Draft> = (
+    ctx,
+    agent,
+    {params}
+) => Effect.provideServiceEffect(Effect.gen(function* () {
+
+    const res: DraftQueryResult[] = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Draft")
+            .select([
+                "id",
+                "created_at",
+                "lastUpdate",
+                "text",
+                "embeds",
+                "collection",
+                "title",
+                "description",
+                "previewImage"
+            ])
+            .where("authorId", "=", agent.did)
+            .where("id", "=", params.id)
+            .execute(),
+        catch: () => new DBSelectError()
+    })
 
     if (res.length == 0) {
-        return {error: "No se encontró el borrador."}
+        return yield* Effect.fail("No se encontró el borrador.")
     }
 
     const draft = res[0]
@@ -154,7 +175,10 @@ export const getDraft: CAHandler<{ params: { id: string } }, Draft> = async (ctx
         const embeds = draft.embeds as EmbedsInDB
         if (embeds.sbPaths) {
             const sbPaths = embeds.sbPaths.flat().filter(x => x != null)
-            const {data} = await ctx.storage!.getSignedUrlsFromPaths(sbPaths, "draft-embeds")
+            const {data} = yield* Effect.tryPromise({
+                try: () => ctx.storage!.getSignedUrlsFromPaths(sbPaths, "draft-embeds"),
+                catch: () => new S3GetSignedURLError()
+            })
             if (data) {
                 data.forEach((r, i) => {
                     signedUrls.set(sbPaths[i], r)
@@ -163,18 +187,18 @@ export const getDraft: CAHandler<{ params: { id: string } }, Draft> = async (ctx
         }
     }
 
-    const dataplane = new Dataplane(ctx, agent)
+    const dataplane = yield* DataPlane
 
     if (draft.previewImage) {
-        await dataplane.fetchSignedStorageUrls([draft.previewImage], "draft-embeds")
+        yield* dataplane.fetchSignedStorageUrls([draft.previewImage], "draft-embeds")
     }
 
-    const hydratedDraft = hydrateDraft(draft, signedUrls, dataplane)
+    const hydratedDraft = yield* hydrateDraft(draft, signedUrls)
     if (!hydratedDraft) {
-        return {error: "Ocurrió un error al obtener el borrador."}
+        return yield* Effect.fail("Ocurrió un error al obtener el borrador.")
     }
-    return {data: hydratedDraft}
-}
+    return hydratedDraft
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el borrador."))), DataPlane, makeDataPlane(ctx, agent))
 
 
 class StoreDraftEmbedsError {

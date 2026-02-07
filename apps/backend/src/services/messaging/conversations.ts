@@ -1,4 +1,4 @@
-import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth, EffHandler} from "#/utils/handler.js";
 import {
     ConvoView,
     DeletedMessageView,
@@ -33,40 +33,59 @@ export type Conversation = {
     conversation: ConvoView
 }
 
-export const getConversation: CAHandler<{
-    params: { convoIdOrHandle: string }
-}, Conversation> = async (ctx, agent, {params}) => {
-    const chatAgent = agent.bsky.withProxy("bsky_chat", "did:web:api.bsky.chat")
-    const did = await Effect.runPromise(handleOrDidToDid(ctx, params.convoIdOrHandle))
 
-    if (did == null) {
-        const convoId = params.convoIdOrHandle
-        const [{data}, {data: convData}] = await Promise.all([
-            chatAgent.chat.bsky.convo.getMessages({convoId}),
-            chatAgent.chat.bsky.convo.getConvo({convoId})
-        ])
-        return {
-            data: {
+export class GetBskyConvoError {
+    readonly _tag = "GetBskyConvoError"
+}
+
+
+export const getConversation: EffHandler<{
+    params: { convoIdOrHandle: string }
+}, Conversation> = (ctx, agent, {params}) => {
+    const chatAgent = agent.bsky.withProxy("bsky_chat", "did:web:api.bsky.chat")
+
+    return Effect.gen(function* () {
+        const did = yield* handleOrDidToDid(ctx, params.convoIdOrHandle).pipe(Effect.catchAll(() => Effect.succeed(null)))
+
+        if (did == null) {
+            const convoId = params.convoIdOrHandle
+            const [{data}, {data: convData}] = yield* Effect.all([
+                Effect.tryPromise({
+                    try: () => chatAgent.chat.bsky.convo.getMessages({convoId}),
+                    catch: () => new GetBskyConvoError()
+                }),
+                Effect.tryPromise({
+                    try: () => chatAgent.chat.bsky.convo.getConvo({convoId}),
+                    catch: () => new GetBskyConvoError()
+                })
+            ], {concurrency: "unbounded"})
+            return {
                 messages: data.messages,
                 conversation: convData.convo
             }
-        }
-    } else {
-        const convoResponse = await chatAgent.chat.bsky.convo.getConvoForMembers({members: [did]})
-        if (!convoResponse.success) {
-            return {error: "No se encontró la conversación."}
-        }
-        const convo = convoResponse.data.convo
-        const convoId = convo.id
-        const messages = await chatAgent.chat.bsky.convo.getMessages({convoId})
-        return {
-            data: {
+        } else {
+            const convoResponse = yield* Effect.tryPromise({
+                try: () => chatAgent.chat.bsky.convo.getConvoForMembers({members: [did]}),
+                catch: () => new GetBskyConvoError()
+            })
+            if (!convoResponse.success) {
+                return yield* Effect.fail("No se encontró la conversación.")
+            }
+            const convo = convoResponse.data.convo
+            const convoId = convo.id
+            const messages = yield* Effect.tryPromise({
+                try: () => chatAgent.chat.bsky.convo.getMessages({convoId}),
+                catch: () => new GetBskyConvoError()
+            })
+            return {
                 messages: messages.data.messages,
                 conversation: convo
             }
         }
-    }
-
+    }).pipe(
+        Effect.catchTag("GetBskyConvoError", () => Effect.fail("Ocurrió un error en la conexión con Bluesky")),
+        Effect.withSpan("getConversation")
+    )
 }
 
 

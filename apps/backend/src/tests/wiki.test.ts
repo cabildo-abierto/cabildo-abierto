@@ -18,6 +18,7 @@ import {getTopicVersionVotes} from "#/services/wiki/votes.js";
 import {getTopicDiscussion} from "#/services/feed/topic.js";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {Effect} from "effect";
+import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 
 const testSuite = getSuiteId(__filename)
 
@@ -55,60 +56,67 @@ describe('Create topic vote', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     it("should add one to the counter", async () => {
-        const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
-        const topicVersion = await createTestTopicVersion(ctx!, user, testSuite)
+        const test = Effect.gen(function* () {
+            const user = yield* createTestUser(ctx!, "test.cabildo.ar", testSuite)
+            const topicVersion = yield* createTestTopicVersion(ctx!, user, testSuite)
 
-        await processRecordsInTest(ctx!, [topicVersion])
+            yield* processRecordsInTest(ctx!, [topicVersion])
 
-        const {data: topicView1} = await getTopicVersion(
-            ctx!, topicVersion.ref.uri, user)
+            const topicView1 = yield* getTopicVersion(
+                ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView1).not.toBeFalsy()
-        expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
+            expect(topicView1).not.toBeFalsy()
+            expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
 
-        const vote = await createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
+            const vote = yield* createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
 
-        const {data: topicView2} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
+            const topicView2 = yield* getTopicVersion(ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView2).not.toBeFalsy()
-        expect(topicView2!.status).not.toBeFalsy()
-        expect(topicView2!.status!.accepted).toEqual(true)
-        expect(topicView2!.status!.voteCounts.length).toEqual(1)
-        expect(topicView2!.status!.voteCounts[0].accepts).toEqual(1)
-        expect(topicView2!.status!.voteCounts[0].rejects).toEqual(0)
+            expect(topicView2).not.toBeFalsy()
+            expect(topicView2!.status).not.toBeFalsy()
+            expect(topicView2!.status!.accepted).toEqual(true)
+            expect(topicView2!.status!.voteCounts.length).toEqual(1)
+            expect(topicView2!.status!.voteCounts[0].accepts).toEqual(1)
+            expect(topicView2!.status!.voteCounts[0].rejects).toEqual(0)
 
-        // un segundo voto positivo
-        const vote2 = await createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
+            // un segundo voto positivo
+            const vote2 = yield* createTestAcceptVote(ctx!, user, topicVersion.ref, testSuite)
 
-        const {data: topicView3} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
-        expect(topicView3).not.toBeFalsy()
-        expect(topicView3!.status).not.toBeFalsy()
-        expect(topicView3!.status!.accepted).toEqual(true)
-        expect(topicView3!.status!.voteCounts.length).toEqual(1)
-        expect(topicView3!.status!.voteCounts[0].accepts).toEqual(1)
-        expect(topicView3!.status!.voteCounts[0].rejects).toEqual(0)
+            const topicView3 = yield* getTopicVersion(ctx!, topicVersion.ref.uri, user)
+            expect(topicView3).not.toBeFalsy()
+            expect(topicView3!.status).not.toBeFalsy()
+            expect(topicView3!.status!.accepted).toEqual(true)
+            expect(topicView3!.status!.voteCounts.length).toEqual(1)
+            expect(topicView3!.status!.voteCounts[0].accepts).toEqual(1)
+            expect(topicView3!.status!.voteCounts[0].rejects).toEqual(0)
 
-        const agent = new MockSessionAgent(user)
-        const votes = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
-        expect(votes).not.toBeFalsy()
-        expect(votes!.length).toEqual(1)
+            const agent = new MockSessionAgent(user)
+            const votes = yield* getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
+            expect(votes).not.toBeFalsy()
+            expect(votes!.length).toEqual(1)
 
-        await deleteRecordsInTest(ctx!, [vote.ref.uri])
+            yield* deleteRecordsInTest(ctx!, [vote.ref.uri])
 
-        const {data: topicView4} = await getTopicVersion(ctx!, topicVersion.ref.uri, user)
+            const topicView4 = yield* getTopicVersion(ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView4).not.toBeFalsy()
-        expect(topicView4!.status).not.toBeFalsy()
-        expect(topicView4!.status!.accepted).toEqual(true)
-        expect(topicView4!.status!.voteCounts.length).toEqual(1)
-        expect(topicView4!.status!.voteCounts[0].accepts).toEqual(1)
-        expect(topicView4!.status!.voteCounts[0].rejects).toEqual(0)
+            expect(topicView4).not.toBeFalsy()
+            expect(topicView4!.status).not.toBeFalsy()
+            expect(topicView4!.status!.accepted).toEqual(true)
+            expect(topicView4!.status!.voteCounts.length).toEqual(1)
+            expect(topicView4!.status!.voteCounts[0].accepts).toEqual(1)
+            expect(topicView4!.status!.voteCounts[0].rejects).toEqual(0)
 
-        await deleteRecordsInTest(ctx!, [vote2.ref.uri])
+            yield* deleteRecordsInTest(ctx!, [vote2.ref.uri])
 
-        const votes2 = await getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
-        expect(votes2).not.toBeFalsy()
-        expect(votes2!.length).toEqual(0)
+            const votes2 = yield* getTopicVersionVotes(ctx!, agent, topicVersion.ref.uri)
+            expect(votes2).not.toBeFalsy()
+            expect(votes2!.length).toEqual(0)
+        })
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
@@ -128,24 +136,32 @@ describe('Create topic version', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     it("should be created with the text", async () => {
-        const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
-        const topicVersion = await getTopicVersionRefAndRecord(
-            ctx!,
-            "tema de prueba",
-            "texto",
-            new Date(),
-            user,
-            testSuite
-        )
+        const test = Effect.gen(function* () {
+            const user = yield* createTestUser(ctx!, "test.cabildo.ar", testSuite)
+            const topicVersion = yield* getTopicVersionRefAndRecord(
+                ctx!,
+                "tema de prueba",
+                "texto",
+                new Date(),
+                user,
+                testSuite
+            )
 
-        await processRecordsInTest(ctx!, [topicVersion])
+            yield* processRecordsInTest(ctx!, [topicVersion])
 
-        const {data: topicView1} = await getTopicVersion(
-            ctx!, topicVersion.ref.uri, user)
+            const topicView1 = yield* getTopicVersion(
+                ctx!, topicVersion.ref.uri, user)
 
-        expect(topicView1).not.toBeFalsy()
-        expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
-        expect(topicView1!.text).toEqual("texto")
+            expect(topicView1).not.toBeFalsy()
+            expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
+            expect(topicView1!.text).toEqual("texto")
+        })
+
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
+        ))
     }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
@@ -165,51 +181,62 @@ describe('Get discussion', { timeout: 20000 }, () => {
     }, testTimeout)
 
     it("should return a post", async () => {
-        const user = await createTestUser(ctx!, "test.cabildo.ar", testSuite)
-        const topicVersion = await getTopicVersionRefAndRecord(
-            ctx!,
-            "tema de prueba",
-            "texto",
-            new Date(),
-            user,
-            testSuite
-        )
+        const test = Effect.gen(function* () {
+            const user = yield* createTestUser(ctx!, "test.cabildo.ar", testSuite)
+            const topicVersion = yield* getTopicVersionRefAndRecord(
+                ctx!,
+                "tema de prueba",
+                "texto",
+                new Date(),
+                user,
+                testSuite
+            )
 
-        await processRecordsInTest(ctx!, [topicVersion])
+            yield* processRecordsInTest(ctx!, [topicVersion])
 
-        const {data: topicView1} = await getTopicVersion(
-            ctx!, topicVersion.ref.uri, user)
+            const topicView1 = yield* getTopicVersion(
+                ctx!,
+                topicVersion.ref.uri,
+                user
+            )
 
-        expect(topicView1).not.toBeFalsy()
-        expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
+            expect(topicView1).not.toBeFalsy()
+            expect(topicView1!.currentVersion).toEqual(topicVersion.ref.uri)
 
-        const post = await getPostRefAndRecord(
-            "prueba 2",
-            new Date(),
-            testSuite,
-            {did: user},
-            topicVersion.ref
-        )
-        await processRecordsInTest(ctx!, [post])
+            const post = yield* getPostRefAndRecord(
+                "prueba 2",
+                new Date(),
+                testSuite,
+                {did: user},
+                topicVersion.ref
+            )
+            yield* processRecordsInTest(ctx!, [post])
 
-        const agent = new MockSessionAgent(user)
+            const agent = new MockSessionAgent(user)
 
-        const feed = await Effect.runPromise(getTopicDiscussion(
-            ctx!,
-            agent,
-            {
-                query: {
-                    i: "tema de prueba"
+            const feed = yield* getTopicDiscussion(
+                ctx!,
+                agent,
+                {
+                    query: {
+                        i: "tema de prueba"
+                    }
                 }
-            }
+            )
+            expect(feed).not.toBeFalsy()
+
+            const postOnFeed = feed.feed
+                .find(e => ArCabildoabiertoFeedDefs.isPostView(e.content) &&
+                    e.content.uri == post.ref.uri)
+
+            expect(postOnFeed).not.toBeFalsy()
+        })
+
+        return await Effect.runPromise(Effect.provideServiceEffect(
+            test,
+            DataPlane,
+            makeDataPlane(ctx!)
         ))
-        expect(feed).not.toBeFalsy()
-
-        const postOnFeed = feed.feed
-            .find(e => ArCabildoabiertoFeedDefs.isPostView(e.content) &&
-                e.content.uri == post.ref.uri)
-
-        expect(postOnFeed).not.toBeFalsy()
     }, {timeout: testTimeout})
 
     afterAll(async () => cleanUpAfterTests(ctx!))
