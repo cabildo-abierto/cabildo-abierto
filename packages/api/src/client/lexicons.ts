@@ -1858,16 +1858,32 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'object',
-        required: ['choices'],
+        required: ['id', 'choices'],
         properties: {
+          id: {
+            type: 'string',
+          },
           description: {
             type: 'string',
           },
           choices: {
             type: 'array',
             items: {
-              type: 'string',
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.embed.poll#pollChoice',
             },
+          },
+        },
+      },
+      pollChoice: {
+        type: 'object',
+        required: ['label', 'votes'],
+        properties: {
+          label: {
+            type: 'string',
+          },
+          votes: {
+            type: 'integer',
           },
         },
       },

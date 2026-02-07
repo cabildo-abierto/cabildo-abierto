@@ -16,8 +16,9 @@ const id = 'ar.cabildoabierto.embed.poll'
 
 export interface Main {
   $type?: 'ar.cabildoabierto.embed.poll'
+  id: string
   description?: string
-  choices: string[]
+  choices: PollChoice[]
 }
 
 const hashMain = 'main'
@@ -28,4 +29,20 @@ export function isMain<V>(v: V) {
 
 export function validateMain<V>(v: V) {
   return validate<Main & V>(v, id, hashMain)
+}
+
+export interface PollChoice {
+  $type?: 'ar.cabildoabierto.embed.poll#pollChoice'
+  label: string
+  votes: number
+}
+
+const hashPollChoice = 'pollChoice'
+
+export function isPollChoice<V>(v: V) {
+  return is$typed(v, id, hashPollChoice)
+}
+
+export function validatePollChoice<V>(v: V) {
+  return validate<PollChoice & V>(v, id, hashPollChoice)
 }
