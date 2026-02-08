@@ -462,81 +462,86 @@ type UpdateProfileProps = {
 }
 
 
-export const updateProfile: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
+export const updateProfileHandler: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
 
-    return Effect.gen(function* () {
-        const {success, data} = yield* Effect.tryPromise({
-            try: () => agent.bsky.com.atproto.repo.getRecord({
-                repo: agent.did,
-                collection: 'app.bsky.actor.profile',
-                rkey: "self"
-            }),
-            catch: () => "Ocurrió un error en la conexión con ATProtocol."
-        })
-
-        if(!success) {
-            return yield* Effect.fail("Error en la conexión.")
-        }
-
-        yield* Effect.log("Got current profile.")
-
-        const record = data.value as AppBskyActorProfile.Record
-
-        const avatarBlob: BlobRef | undefined = params.profilePic ? (yield* uploadBase64Blob(agent, params.profilePic)).ref : record.avatar
-        const bannerBlob: BlobRef | undefined = params.banner ? (yield* uploadBase64Blob(agent, params.banner)).ref : record.banner
-
-        yield* Effect.log("Avatar and banner uploaded correctly.")
-
-        const newRecord: AppBskyActorProfile.Record = {
-            ...record,
-            displayName: params.displayName ?? record.displayName,
-            description: params.description ?? record.description,
-            avatar: avatarBlob,
-            banner: bannerBlob
-        }
-        yield* Effect.tryPromise({
-            try: () => agent.bsky.com.atproto.repo.putRecord({
-                repo: agent.did,
-                collection: "app.bsky.actor.profile",
-                record: newRecord,
-                rkey: "self"
-            }),
-            catch: () => new ATCreateRecordError()
-        })
-
-        yield* Effect.log("Record created.")
-
-        if(data.cid){
-            const ref: ATProtoStrongRef = {
-                uri: data.uri,
-                cid: data.cid
+    return updateProfile(ctx, agent, params).pipe(
+        Effect.catchAll(error => {
+            if(typeof error == "string") {
+                return Effect.fail(error)
+            } else {
+                return Effect.fail("Ocurrió un error al actualizar el perfil.")
             }
-
-            yield* new BskyProfileRecordProcessor(ctx)
-                .processValidated([{ref, record}])
-        }
-
-        return {}
-    }).pipe(
-        Effect.catchTag("ATCreateRecordError", () => Effect.fail("Ocurrió un error al actualizar el perfil.")),
-        Effect.catchTag("InsertRecordError", () => Effect.fail("El perfil se actualizó, pero tuvimos un problema para procesarlo. Volvé a intentar o comunicate con el soporte.")),
-        Effect.catchTag("UploadImageFromBase64Error", () => Effect.fail("Ocurrió un error al subir una imagen.")),
-        Effect.catchTag("InvalidValueError", () => Effect.fail("Ocurrió un error al actualizar el perfil")),
-        Effect.catchTag("UpdateRedisError", () => Effect.fail("Ocurrió un error al actualizar el perfil")),
-        Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al actualizar el perfil")),
-        Effect.withSpan("updateProfile", {
-            attributes: {
-                displayName: params.displayName,
-                description: params.description,
-                banner: params.banner != null,
-                profilePic: params.profilePic != null
-            }
-        })
+        }),
+        Effect.map(() => ({}))
     )
 }
 
 
+export const updateProfile = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    profile: UpdateProfileProps
+) => Effect.gen(function* () {
+    const {success, data} = yield* Effect.tryPromise({
+        try: () => agent.bsky.com.atproto.repo.getRecord({
+            repo: agent.did,
+            collection: 'app.bsky.actor.profile',
+            rkey: "self"
+        }),
+        catch: () => "Ocurrió un error en la conexión con ATProtocol."
+    })
 
+    if(!success) {
+        return yield* Effect.fail("Error en la conexión.")
+    }
+
+    yield* Effect.log("Got current profile.")
+
+    const record = data.value as AppBskyActorProfile.Record
+
+    const avatarBlob: BlobRef | undefined = profile.profilePic ? (yield* uploadBase64Blob(agent, profile.profilePic)).ref : record.avatar
+    const bannerBlob: BlobRef | undefined = profile.banner ? (yield* uploadBase64Blob(agent, profile.banner)).ref : record.banner
+
+    yield* Effect.log("Avatar and banner uploaded correctly.")
+
+    const newRecord: AppBskyActorProfile.Record = {
+        ...record,
+        displayName: profile.displayName ?? record.displayName,
+        description: profile.description ?? record.description,
+        avatar: avatarBlob,
+        banner: bannerBlob
+    }
+    yield* Effect.tryPromise({
+        try: () => agent.bsky.com.atproto.repo.putRecord({
+            repo: agent.did,
+            collection: "app.bsky.actor.profile",
+            record: newRecord,
+            rkey: "self"
+        }),
+        catch: () => new ATCreateRecordError()
+    })
+
+    yield* Effect.log("Record created.")
+
+    if(data.cid){
+        const ref: ATProtoStrongRef = {
+            uri: data.uri,
+            cid: data.cid
+        }
+
+        yield* new BskyProfileRecordProcessor(ctx)
+            .processValidated([{ref, record}])
+    }
+}).pipe(
+    Effect.withSpan("updateProfile", {
+        attributes: {
+            displayName: profile.displayName,
+            description: profile.description,
+            banner: profile.banner != null,
+            profilePic: profile.profilePic != null
+        }
+    })
+)
 
 
 

@@ -2,12 +2,14 @@ import {processContentsBatch} from "#/services/sync/event-processing/content.js"
 import {isSelfLabels} from "@atproto/api/dist/client/types/com/atproto/label/defs.js";
 import {getDidFromUri, unique} from "@cabildo-abierto/utils";
 import {SyncContentProps} from "#/services/sync/types.js";
-import {ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Effect} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
+import {getPollId} from "#/services/write/topic.js";
+import {ValidationResult} from "@atproto/lexicon";
 
 
 
@@ -15,7 +17,31 @@ import {JobToAdd} from "#/jobs/worker.js";
 
 export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeedArticle.Record> {
 
-    validateRecord = ArCabildoabiertoFeedArticle.validateRecord
+    validateRecord(record: ArCabildoabiertoFeedArticle.Record) {
+        return Effect.gen(function* () {
+            const res = ArCabildoabiertoFeedArticle.validateRecord(record)
+            if(!res.success) {
+                return yield* Effect.succeed(res)
+            } else {
+                if(res.value.embeds) {
+                    const polls = res.value.embeds
+                        .map(e => e.value)
+                        .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
+                    for(const p of polls) {
+                        const id = yield* getPollId(p.poll)
+                        if(id != p.id) {
+                            const error: ValidationResult<ArCabildoabiertoFeedArticle.Record> = {
+                                success: false,
+                                error: new Error("Invalid poll.")
+                            }
+                            return yield* Effect.succeed(error)
+                        }
+                    }
+                }
+                return yield* Effect.succeed(res)
+            }
+        })
+    }
 
     addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoFeedArticle.Record}[], reprocess: boolean = false) {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({

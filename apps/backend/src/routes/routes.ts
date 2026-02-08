@@ -2,7 +2,7 @@ import express, {Router} from 'express'
 import {cookieOptions, handler, Session, sessionAgent} from "#/utils/session-agent.js";
 import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
 import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/search.js";
-import {createArticle} from "#/services/write/article.js";
+import {createArticleHandler} from "#/services/write/article.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
 import {createAccessRequest, getInviteCodesToShare, login} from "#/services/user/access.js";
@@ -18,7 +18,7 @@ import {
     setSeenTutorialHandler,
     unfollowHandler,
     updateAlgorithmConfig,
-    updateProfile
+    updateProfileHandler
 } from "#/services/user/users.js";
 import {createPost} from "#/services/write/post.js";
 import {addLike, removeLike, removeRepost, repost} from "#/services/reactions/reactions.js";
@@ -93,6 +93,7 @@ import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
+import {cancelVotePollHandler, getPollHandler, votePollHandler} from "#/services/polls/polls.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -160,7 +161,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/article',
-        handler(makeEffHandler(ctx, createArticle))
+        handler(makeEffHandler(ctx, createArticleHandler))
     )
 
     router.post(
@@ -376,7 +377,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/profile',
-        handler(makeEffHandler(ctx, updateProfile))
+        handler(makeEffHandler(ctx, updateProfileHandler))
     )
 
     router.post(
@@ -501,6 +502,12 @@ export const createRouter = (ctx: AppContext): Router => {
     router.get("/topic-feeds", makeEffHandler(ctx, getTopicFeeds))
 
     router.get("/custom-feed/:did/:rkey", makeEffHandler(ctx, getCustomFeed))
+
+    router.get("/poll/:id", makeEffHandler(ctx, getPollHandler))
+
+    router.post("/vote-poll", makeEffHandler(ctx, votePollHandler))
+
+    router.post("/cancel-vote-poll", makeEffHandler(ctx, cancelVotePollHandler))
 
     router.use(adminRoutes(ctx))
 

@@ -27,6 +27,7 @@ import {$Typed} from "@atproto/api";
 import {CID} from 'multiformats/cid'
 import {sha256} from 'multiformats/hashes/sha2'
 import * as dagCbor from '@ipld/dag-cbor'
+import {pollViewToMain} from "#/services/polls/polls.js";
 
 
 /***
@@ -92,22 +93,6 @@ export class CIDEncodeError {
 
 export class PollIdMismatchError {
     readonly _tag = "PollIdMismatchError"
-}
-
-
-function pollViewToMain(view: ArCabildoabiertoEmbedPoll.View): Effect.Effect<$Typed<ArCabildoabiertoEmbedPoll.Main>, CIDEncodeError | PollIdMismatchError> {
-    return getPollId(view.poll).pipe(Effect.flatMap(cid => {
-        if(view.id != "unpublished" && view.id != cid) {
-            return Effect.fail(new PollIdMismatchError())
-        }
-
-        return Effect.succeed({
-            $type: "ar.cabildoabierto.embed.poll",
-            poll: view.poll,
-            id: cid,
-            createdAt: view.createdAt
-        })
-    }))
 }
 
 

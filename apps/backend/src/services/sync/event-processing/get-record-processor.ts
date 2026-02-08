@@ -19,6 +19,7 @@ import {getCollectionFromUri} from "@cabildo-abierto/utils";
 import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
+import {PollVoteRecordProcessor} from "#/services/sync/event-processing/poll-vote.js";
 
 
 export function getRecordProcessor(ctx: AppContext, collection: string) {
@@ -34,7 +35,8 @@ export function getRecordProcessor(ctx: AppContext, collection: string) {
         "ar.cabildoabierto.wiki.voteAccept": VoteAcceptRecordProcessor,
         "ar.cabildoabierto.wiki.voteReject": VoteRejectRecordProcessor,
         "ar.cabildoabierto.data.dataset": DatasetRecordProcessor,
-        "app.bsky.feed.post": PostRecordProcessor
+        "app.bsky.feed.post": PostRecordProcessor,
+        "ar.cabildoabierto.embed.pollVote": PollVoteRecordProcessor
     }[collection]
 
     if (processor) {

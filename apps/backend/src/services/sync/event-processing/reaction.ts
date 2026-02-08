@@ -235,22 +235,30 @@ export class ReactionRecordProcessor extends RecordProcessor<ReactionRecord> {
 
 
 export class LikeRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = AppBskyFeedLike.validateRecord
+    validateRecord(record: AppBskyFeedLike.Record) {
+        return Effect.succeed(AppBskyFeedLike.validateRecord(record))
+    }
 }
 
 
 export class RepostRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = AppBskyFeedRepost.validateRecord
+    validateRecord(record: AppBskyFeedRepost.Record) {
+        return Effect.succeed(AppBskyFeedRepost.validateRecord(record))
+    }
 }
 
 
 export class VoteAcceptRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = ArCabildoabiertoWikiVoteAccept.validateRecord
+    validateRecord(record: ArCabildoabiertoWikiVoteAccept.Record) {
+        return Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record))
+    }
 }
 
 
 export class VoteRejectRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = ArCabildoabiertoWikiVoteReject.validateRecord
+    validateRecord(record: ArCabildoabiertoWikiVoteAccept.Record) {
+        return Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record))
+    }
 }
 
 

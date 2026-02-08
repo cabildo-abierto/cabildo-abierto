@@ -31,6 +31,7 @@ import {Effect} from "effect";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
 import {DBSelectError} from "#/utils/errors.js";
+import {CIDEncodeError} from "#/services/write/topic.js";
 
 export const testTimeout = 40000
 
@@ -115,7 +116,7 @@ export const createTestUser = (
     ctx: AppContext,
     handle: string,
     testSuite: string
-): Effect.Effect<string, RedisCacheSetError | GenerateCIDError | ProcessCreateError | RunJobError> => Effect.gen(function* () {
+): Effect.Effect<string, CIDEncodeError | RedisCacheSetError | GenerateCIDError | ProcessCreateError | RunJobError> => Effect.gen(function* () {
     const did = generateUserDid(testSuite)
     yield* Effect.tryPromise({
         try: () => ctx.redisCache.resolver.setHandle(did, handle),
@@ -460,7 +461,10 @@ export const createTestAcceptVote = (
 })
 
 
-export function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Main>, GenerateCIDError | ProcessCreateError | RunJobError | RedisCacheSetError> {
+export function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string): Effect.Effect<
+    RefAndRecord<ArCabildoabiertoWikiTopicVersion.Main>,
+    GenerateCIDError | ProcessCreateError | RunJobError | RedisCacheSetError | CIDEncodeError
+> {
     return getTopicVersionRefAndRecord(
         ctx!,
         "tema de prueba",

@@ -11,7 +11,9 @@ import {Effect} from "effect";
 
 export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoDataDataset.Record> {
 
-    validateRecord = ArCabildoabiertoDataDataset.validateRecord
+    validateRecord(record: ArCabildoabiertoDataDataset.Record) {
+        return Effect.succeed(ArCabildoabiertoDataDataset.validateRecord(record))
+    }
 
     addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoDataDataset.Record}[], reprocess: boolean = false) {
         const datasets = records.map(({ref, record: r}) => ({

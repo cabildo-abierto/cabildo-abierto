@@ -9,6 +9,7 @@ import {DB} from "prisma/generated/types.js";
 import {Effect, pipe} from "effect";
 
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+import {CIDEncodeError} from "#/services/write/topic.js";
 
 
 export class InsertRecordError {
@@ -21,7 +22,11 @@ export class InsertRecordError {
     }
 }
 
-export type ProcessCreateError = InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError
+export type ProcessCreateError = CIDEncodeError | InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError
+
+
+export type ValidationError = CIDEncodeError
+
 
 export class RecordProcessor<T> {
     ctx: AppContext
@@ -30,7 +35,7 @@ export class RecordProcessor<T> {
         this.ctx = ctx
     }
 
-    process(records: RefAndRecord[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError> {
+    process(records: RefAndRecord[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError | ValidationError> {
         if(records.length == 0) return Effect.succeed(0)
 
         return this.parseRecords(records).pipe(Effect.flatMap(validatedRecords => {
@@ -53,12 +58,12 @@ export class RecordProcessor<T> {
         )
     }
 
-    validateRecord(record: any): ValidationResult<T> {
+    validateRecord(record: any): Effect.Effect<ValidationResult<T>, ValidationError> {
         this.ctx.logger.pino.info({record}, "Warning: Validación sin implementar para este tipo de record.")
-        return {
+        return Effect.succeed({
             success: false,
             error: Error("Sin implementar")
-        }
+        })
     }
 
     addRecordsToDB(records: RefAndRecord<T>[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError | InvalidValueError> {
@@ -66,7 +71,7 @@ export class RecordProcessor<T> {
         return Effect.fail(new InvalidValueError(records[0].ref.uri))
     }
 
-    processInBatches(records: RefAndRecord[]): Effect.Effect<void, ProcessCreateError | UpdateRedisError | InvalidValueError> {
+    processInBatches(records: RefAndRecord[]): Effect.Effect<void, ProcessCreateError | UpdateRedisError | InvalidValueError | ValidationError> {
         if(records.length == 0) return Effect.void
 
         const batchSize = 1000
@@ -86,23 +91,25 @@ export class RecordProcessor<T> {
     parseRecords(records: RefAndRecord[]): Effect.Effect<{
         ref: ATProtoStrongRef,
         record: T
-    }[], never> {
-        return Effect.all(records.map(r => {
+    }[], ValidationError> {
+        const ctx = this.ctx
+        const validateRecord = this.validateRecord
+        return Effect.all(records.map(r => Effect.gen(function* () {
             const {ref, record} = r
-            const res = this.validateRecord(record)
+            const res = yield* validateRecord(record)
             if(res.success) {
-                return Effect.succeed({ref, record: res.value})
+                return yield* Effect.succeed({ref, record: res.value})
             } else {
-                const parsedRecord = parseRecord(this.ctx, record)
-                const res = this.validateRecord(parsedRecord)
+                const parsedRecord = parseRecord(ctx, record)
+                const res = yield* validateRecord(parsedRecord)
                 if(res.success) {
-                    return Effect.succeed({
+                    return yield* Effect.succeed({
                         ref,
                         record: res.value
                     })
                 } else {
                     // TO DO: Esto sobreescribe, habría que armar un resumen.
-                    return Effect.annotateCurrentSpan({
+                    return yield* Effect.annotateCurrentSpan({
                         reason: res.error.message,
                         stack: res.error.stack,
                         uri: ref.uri,
@@ -110,11 +117,10 @@ export class RecordProcessor<T> {
                     }).pipe(Effect.flatMap(() => Effect.succeed(null)))
                 }
             }
-        })).pipe(
+        }))).pipe(
             Effect.flatMap(results => Effect.succeed(results.filter(r => r != null))),
             Effect.withSpan("parseRecords")
-        )
-    }
+        )}
 
     async processRecordsBatch(trx: Transaction<DB>, records: { ref: ATProtoStrongRef, record: any }[]) {
         const data: {
@@ -223,7 +229,7 @@ export class RecordProcessor<T> {
     }
 
 
-    async processDirtyRecordsBatch(trx: Transaction<DB>, refs: ATProtoStrongRef[]) {
+    async processDirtyRecordsBatch(trx: Transaction<DB>, refs: {uri: string, cid?: string}[]) {
         if (refs.length == 0) return
 
         const users = refs.map(r => getDidFromUri(r.uri))

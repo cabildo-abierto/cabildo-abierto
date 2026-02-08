@@ -1,4 +1,4 @@
-import {ATProtoStrongRef} from "@cabildo-abierto/api";
+import {ArCabildoabiertoEmbedPoll, ATProtoStrongRef} from "@cabildo-abierto/api";
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
 import {
@@ -81,6 +81,25 @@ export const processContentsBatch = async (ctx: AppContext, trx: Transaction<DB>
                 .onConflict((oc) => oc.column("uri").doUpdateSet({
                     text: eb => eb.ref("excluded.text")
                 }))
+                .execute()
+        }
+
+        const polls = contentData
+            .flatMap(c => c.embeds.map(e => e.value))
+            .filter(x => ArCabildoabiertoEmbedPoll.isMain(x))
+
+        if(polls.length > 0) {
+            await trx
+                .insertInto("Poll")
+                .values(polls.map(p => ({
+                    id: p.id,
+                    choices: p.poll.choices.map(c => c.label),
+                    description: p.poll.description,
+                    createdAt: p.poll.createdAt,
+                    topicId: p.poll.containerRef.topicId,
+                    parentRecordId: p.poll.containerRef.uri,
+                })))
+                .onConflict((oc) => oc.column("id").doNothing())
                 .execute()
         }
     }

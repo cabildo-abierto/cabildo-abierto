@@ -4,7 +4,7 @@
   "defs": {
     "main": {
       "type": "object",
-      "required": ["id", "poll", "createdAt"],
+      "required": ["id", "poll"],
       "properties": {
         "id": {
           "type": "string",
@@ -13,11 +13,6 @@
         "poll": {
           "type": "ref",
           "ref": "#poll"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "datetime",
-          "description": "The declared time when this record was created."
         }
       }
     },
@@ -79,8 +74,7 @@
       "required": [
         "id",
         "poll",
-        "votes",
-        "createdAt"
+        "votes"
       ],
       "properties": {
         "id": {
@@ -89,10 +83,6 @@
         "poll": {
           "type": "ref",
           "ref": "#poll"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "datetime"
         },
         "viewer": {
           "type": "ref",

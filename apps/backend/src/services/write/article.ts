@@ -2,7 +2,13 @@ import {uploadImageBlob, UploadImageBlobError, uploadStringBlob, UploadStringBlo
 import {EffHandler} from "#/utils/handler.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {ArCabildoabiertoFeedArticle, CreateArticleProps, CreatePostThreadElement} from "@cabildo-abierto/api"
-import {FetchError, getEmbedsFromEmbedViews, ImageNotFoundError} from "#/services/write/topic.js";
+import {
+    CIDEncodeError,
+    FetchError,
+    getEmbedsFromEmbedViews,
+    ImageNotFoundError,
+    PollIdMismatchError
+} from "#/services/write/topic.js";
 import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
 import {getRkeyFromUri, splitUri} from "@cabildo-abierto/utils";
 import {createPost} from "#/services/write/post.js";
@@ -13,9 +19,16 @@ import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {DBSelectError, InvalidValueError} from "#/utils/errors.js";
+import {AppContext} from "#/setup.js";
 
 
-export const createArticleAT = (agent: SessionAgent, article: CreateArticleProps): Effect.Effect<RefAndRecord<ArCabildoabiertoFeedArticle.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageBlobError | InvalidValueError> => {
+export const createArticleAT = (
+    agent: SessionAgent,
+    article: CreateArticleProps
+): Effect.Effect<
+    RefAndRecord<ArCabildoabiertoFeedArticle.Record>,
+    ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | PollIdMismatchError | UploadImageBlobError | InvalidValueError | CIDEncodeError
+> => {
     return Effect.gen(function* () {
         const did = agent.did
         const text = article.text
@@ -65,60 +78,75 @@ export const createArticleAT = (agent: SessionAgent, article: CreateArticleProps
 }
 
 
-export const createArticle: EffHandler<CreateArticleProps> = (ctx, agent, article) => {
-    return Effect.gen(function* () {
-        let uri: string | undefined
-        let previewRef: BlobRef | undefined
+const createArticle = (ctx: AppContext, agent: SessionAgent, article: CreateArticleProps) => Effect.gen(function* () {
+    let uri: string | undefined
+    let previewRef: BlobRef | undefined
 
-        const res = yield* createArticleAT(agent, article).pipe(
-            Effect.catchAll(() => Effect.fail("Ocurrió un error al crear el artículo."))
-        )
+    const res = yield* createArticleAT(agent, article).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al crear el artículo."))
+    )
 
-        uri = res.ref.uri
-        previewRef = res.record.preview
-        yield* Effect.all([
-            article.draftId ? Effect.tryPromise({
-                try: () => ctx.kysely
-                    .deleteFrom("Draft")
-                    .where("id", "=", article.draftId!)
-                    .execute(),
-                catch: () => new DBSelectError()
-            }) : Effect.void,
-            new ArticleRecordProcessor(ctx).processValidated([res])
-        ], {concurrency: "unbounded"})
+    uri = res.ref.uri
+    previewRef = res.record.preview
+    yield* Effect.all([
+        article.draftId ? Effect.tryPromise({
+            try: () => ctx.kysely
+                .deleteFrom("Draft")
+                .where("id", "=", article.draftId!)
+                .execute(),
+            catch: () => new DBSelectError()
+        }) : Effect.void,
+        new ArticleRecordProcessor(ctx).processValidated([res])
+    ], {concurrency: "unbounded"})
 
-        if(article.bskyPostText != null) {
-            const {did, rkey} = splitUri(uri)
-            const elem: CreatePostThreadElement = {
-                text: article.bskyPostText,
-                externalEmbedView: {
-                    $type: "app.bsky.embed.external#view",
-                    external: {
-                        uri: `https://cabildoabierto.ar/c/${did}/article/${rkey}`,
-                        title: article.title,
-                        description: getArticleSummary(article.text, article.format, article.description).summary,
-                        thumb: previewRef ? getArticlePreviewImage(did, getCidFromBlobRef(previewRef), article.title)?.thumb : undefined
-                    }
+    if(article.bskyPostText != null) {
+        const {did, rkey} = splitUri(uri)
+        const elem: CreatePostThreadElement = {
+            text: article.bskyPostText,
+            externalEmbedView: {
+                $type: "app.bsky.embed.external#view",
+                external: {
+                    uri: `https://cabildoabierto.ar/c/${did}/article/${rkey}`,
+                    title: article.title,
+                    description: getArticleSummary(article.text, article.format, article.description).summary,
+                    thumb: previewRef ? getArticlePreviewImage(did, getCidFromBlobRef(previewRef), article.title)?.thumb : undefined
                 }
             }
-
-            yield* createPost(ctx, agent, {
-                threadElements: [
-                    elem
-                ],
-                forceEdit: false,
-                enDiscusion: false,
-            })
         }
 
-        return {}
-    }).pipe(
+        yield* createPost(ctx, agent, {
+            threadElements: [
+                elem
+            ],
+            forceEdit: false,
+            enDiscusion: false,
+        })
+    }
+
+    return {}
+}).pipe(Effect.withSpan("createArticle", {
+    attributes: {
+        title: article.title,
+        uri: article.uri,
+        draftId: article.draftId,
+        embeds: article.embeds?.map(e => e.value.$type) ?? []
+    }
+}))
+
+
+export const createArticleHandler: EffHandler<CreateArticleProps> = (
+    ctx,
+    agent,
+    article
+) => {
+    return createArticle(ctx, agent, article).pipe(
         Effect.catchTag("DBSelectError", () => {
             return Effect.fail("Ocurrió un error al crear el artículo.")
         }),
         Effect.catchTag("InsertRecordError", () => Effect.fail("El artículo se creó, pero hubo un error al procesarlo.")),
         Effect.catchTag("InvalidValueError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
         Effect.catchTag("UpdateRedisError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
-        Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al crear el artículo."))
+        Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
+        Effect.catchTag("CIDEncodeError", () => Effect.fail("Ocurrió un error al crear el artículo."))
     )
 }

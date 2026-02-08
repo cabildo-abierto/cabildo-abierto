@@ -19,8 +19,6 @@ export interface Main {
   /** Unique identifier of the poll. Should be a hash of the poll object. */
   id: string
   poll: Poll
-  /** The declared time when this record was created. */
-  createdAt: string
 }
 
 const hashMain = 'main'
@@ -87,7 +85,6 @@ export interface View {
   $type?: 'ar.cabildoabierto.embed.poll#view'
   id: string
   poll: Poll
-  createdAt: string
   viewer?: PollViewer
   votes: number[]
 }

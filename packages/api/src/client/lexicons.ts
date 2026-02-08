@@ -1858,7 +1858,7 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'object',
-        required: ['id', 'poll', 'createdAt'],
+        required: ['id', 'poll'],
         properties: {
           id: {
             type: 'string',
@@ -1868,11 +1868,6 @@ export const schemaDict = {
           poll: {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.embed.poll#poll',
-          },
-          createdAt: {
-            type: 'string',
-            format: 'datetime',
-            description: 'The declared time when this record was created.',
           },
         },
       },
@@ -1925,7 +1920,7 @@ export const schemaDict = {
       },
       view: {
         type: 'object',
-        required: ['id', 'poll', 'votes', 'createdAt'],
+        required: ['id', 'poll', 'votes'],
         properties: {
           id: {
             type: 'string',
@@ -1933,10 +1928,6 @@ export const schemaDict = {
           poll: {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.embed.poll#poll',
-          },
-          createdAt: {
-            type: 'string',
-            format: 'datetime',
           },
           viewer: {
             type: 'ref',

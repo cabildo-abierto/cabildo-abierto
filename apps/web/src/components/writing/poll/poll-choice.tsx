@@ -13,7 +13,7 @@ export const PollChoice = ({label, voted, votes, disabled = false, totalVotes, o
     return <button
         onClick={onSelect}
         disabled={disabled}
-        className={cn("rounded-xl border p-3 space-y-2", voted ? "border-[var(--text)]" : "")}
+        className={cn("rounded-xl border p-3 space-y-2", voted ? "border-[var(--text)]" : "", disabled ? "opacity-50" : "hover:bg-[var(--background-dark2)]")}
     >
         <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
@@ -33,7 +33,7 @@ export const PollChoice = ({label, voted, votes, disabled = false, totalVotes, o
 
         <div className="h-2 w-full rounded-full relative bg-[var(--text)] overflow-hidden">
             <div
-                className="h-full rounded-full absolute bg-[var(--accent)] transition-all"
+                className="h-full rounded-full absolute bg-[var(--primary)] transition-all"
                 style={{width: `${pct}%`}}
             />
         </div>

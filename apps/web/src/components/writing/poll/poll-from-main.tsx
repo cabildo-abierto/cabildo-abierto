@@ -6,7 +6,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {Poll} from "@/components/writing/poll/poll";
 
 
-function usePoll(pollId: string) {
+export function usePoll(pollId: string) {
     return useAPI<ArCabildoabiertoEmbedPoll.View>(`/poll/${pollId}`, ["poll", pollId])
 }
 

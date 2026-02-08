@@ -18,7 +18,7 @@ import {
     UploadImageFromURLError
 } from "#/services/blob.js";
 import {EffHandler} from "#/utils/handler.js";
-import {getParsedPostContent} from "#/services/write/rich-text.js";
+import {getParsedPostContent, ParsePostError} from "#/services/write/rich-text.js";
 import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
 import {AppContext} from "#/setup.js";
 import {ATDeleteRecordError, deleteRecordAT, deleteRecords} from "#/services/delete.js";
@@ -26,6 +26,7 @@ import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
 import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
+import {ATCreateRecordError} from "#/services/wiki/votes.js";
 
 function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord.Main> {
     return {
@@ -151,7 +152,10 @@ function createPostAT({
     post: CreatePostProps,
     index: number
     reply?: FastPostReplyProps
-}): Effect.Effect<{ ref: ATProtoStrongRef, record: AppBskyFeedPost.Record }, string> {
+}): Effect.Effect<
+    { ref: ATProtoStrongRef, record: AppBskyFeedPost.Record },
+    ATCreateRecordError | UploadImageBlobError | ParsePostError
+> {
     return Effect.gen(function* () {
         const elem = post.threadElements[index]
         const rt = yield* getParsedPostContent(agent, elem.text)
@@ -174,7 +178,7 @@ function createPostAT({
         if (!elem.uri) {
             const ref = yield* Effect.tryPromise({
                 try: () => agent.bsky.post({...record}),
-                catch: () => "Ocurrió un error al crear la publicación."
+                catch: () => new ATCreateRecordError()
             })
             return {ref, record}
         } else {
@@ -185,18 +189,12 @@ function createPostAT({
                     rkey: getRkeyFromUri(elem.uri!),
                     record: record,
                 }),
-                catch: () => "Ocurrió un error al actualizar la publicación"
+                catch: () => new ATCreateRecordError()
             })
             return {ref: {uri: data.uri, cid: data.cid}, record}
         }
     }).pipe(
-        Effect.withSpan("createPostAT"),
-        Effect.catchTag("ParsePostError", () => Effect.fail("Ocurrió un error al leer la publicación.")),
-        Effect.catchTags({
-            FetchImageURLError: () => Effect.fail("Ocurrió un error al subir las imágenes."),
-            UploadImageFromURLError: () => Effect.fail("Ocurrió un error al subir las imágenes."),
-            UploadImageFromBase64Error: () => Effect.fail("Ocurrió un error al subir las imágenes."),
-        }),
+        Effect.withSpan("createPostAT")
     )
 }
 

@@ -7,6 +7,7 @@ import {FollowDeleteProcessor} from "#/services/sync/event-processing/follow.js"
 import {CAProfileDeleteProcessor} from "#/services/sync/event-processing/profile.js";
 import {TopicVersionDeleteProcessor} from "#/services/sync/event-processing/topic.js";
 import {ReactionDeleteProcessor} from "#/services/sync/event-processing/reaction.js";
+import {PollVoteDeleteProcessor} from "#/services/sync/event-processing/poll-vote.js";
 
 export function getDeleteProcessor(ctx: AppContext, collection: string) {
     const processor = collectionToProcessorMap[collection]
@@ -33,4 +34,5 @@ const collectionToProcessorMap: Record<string, RecordProcessorConstructor> = {
     "app.bsky.feed.repost": ReactionDeleteProcessor,
     "ar.cabildoabierto.wiki.voteAccept": ReactionDeleteProcessor,
     "ar.cabildoabierto.wiki.voteReject": ReactionDeleteProcessor,
+    "ar.cabildoabierto.embed.pollVote": PollVoteDeleteProcessor,
 }

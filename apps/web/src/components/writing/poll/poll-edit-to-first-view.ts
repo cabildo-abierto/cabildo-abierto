@@ -5,7 +5,6 @@ import {ArCabildoabiertoEmbedPoll} from "@cabildo-abierto/api";
 
 export function pollEditStateToFirstView(poll: PollEditState): $Typed<ArCabildoabiertoEmbedPoll.View> {
     const choices = poll.choices.filter(c => c.trim().length > 0)
-    const createdAt = new Date().toISOString()
 
     return {
         $type: "ar.cabildoabierto.embed.poll#view",
@@ -20,9 +19,8 @@ export function pollEditStateToFirstView(poll: PollEditState): $Typed<ArCabildoa
                 }
             }),
             containerRef: {}, // se completa al guardar el contenido
-            createdAt
+            createdAt: new Date().toISOString()
         },
-        votes: choices.map(c => 0),
-        createdAt
+        votes: choices.map(c => 0)
     }
 }

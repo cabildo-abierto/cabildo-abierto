@@ -12,8 +12,9 @@ import {Effect} from "effect";
 
 
 export class CAProfileRecordProcessor extends RecordProcessor<ArCabildoabiertoActorCaProfile.Record> {
-
-    validateRecord = ArCabildoabiertoActorCaProfile.validateRecord
+    validateRecord(record: ArCabildoabiertoActorCaProfile.Record) {
+        return Effect.succeed(ArCabildoabiertoActorCaProfile.validateRecord(record))
+    }
 
     addRecordsToDB(records: RefAndRecord<ArCabildoabiertoActorCaProfile.Record>[], reprocess: boolean = false) {
         return processCAProfilesBatch(this.ctx, records)
@@ -49,11 +50,11 @@ export class CAProfileDeleteProcessor extends DeleteProcessor {
 
 export class OldCAProfileRecordProcessor extends RecordProcessor<any> {
 
-    validateRecord= (r: any): ValidationResult<any> => {
-        return {
+    validateRecord= (r: any): Effect.Effect<ValidationResult<any>, never> => {
+        return Effect.succeed({
             success: true,
             value: r
-        }
+        })
     }
 
     addRecordsToDB(records: {ref: ATProtoStrongRef, record: any}[], reprocess: boolean = false) {
@@ -96,7 +97,9 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
 
 export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProfile.Record> {
 
-    validateRecord = AppBskyActorProfile.validateRecord
+    validateRecord(record: AppBskyActorProfile.Record) {
+        return Effect.succeed(AppBskyActorProfile.validateRecord(record))
+    }
 
     addRecordsToDB(records: RefAndRecord<AppBskyActorProfile.Record>[], reprocess: boolean = false) {
         const ctx = this.ctx

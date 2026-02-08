@@ -7,7 +7,9 @@ import {Effect} from "effect";
 
 
 export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Record> {
-    validateRecord = AppBskyGraphFollow.validateRecord
+    validateRecord(record: AppBskyGraphFollow.Record) {
+        return Effect.succeed(AppBskyGraphFollow.validateRecord(record))
+    }
 
     addRecordsToDB(records: RefAndRecord<AppBskyGraphFollow.Record>[], reprocess: boolean = false) {
 

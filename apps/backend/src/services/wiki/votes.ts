@@ -18,6 +18,7 @@ import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-pr
 import {DBSelectError} from "#/utils/errors.js";
 import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+import {CIDEncodeError} from "#/services/write/topic.js";
 
 export type TopicVoteType = "ar.cabildoabierto.wiki.voteAccept" | "ar.cabildoabierto.wiki.voteReject"
 
@@ -97,16 +98,16 @@ export const voteEditHandler: EffHandler<{
     }
 
     return voteEdit(ctx, agent, vote, ref, reason, force).pipe(
-        Effect.catchTag("NeedToDeleteReasonError", () => {
-            return Effect.fail("Agregar un voto positivo eliminaría la justificación del voto de rechazo.")
-        }),
-        Effect.catchTag("ATCreateRecordError", () => Effect.fail("Ocurrió un error al crear el voto.")),
-        Effect.catchTag("ATCreateRepostError", () => Effect.fail("Ocurrió un error al crear la republicación")), // obviamente no puede pasar esto
-        Effect.catchTag("ATCreateLikeError", () => Effect.fail("Ocurrió un error al dar me gusta")),
-        Effect.catchTag("InvalidValueError", () => Effect.fail("Reacción inválida")),
-        Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al crear el voto.")),
-        Effect.catchTag("UpdateRedisError", () => Effect.fail("Ocurrió un error al crear el voto.")),
-        Effect.catchTag("InsertRecordError", () => Effect.fail("Ocurrió un error al crear el voto.")),
+        Effect.catchAll(error => {
+            if(typeof error == "string") return Effect.fail(error)
+            if(error._tag == "NeedToDeleteReasonError") {
+                return Effect.fail("Agregar un voto positivo eliminaría la justificación del voto de rechazo.")
+            } else if(error._tag == "InvalidValueError") {
+                return Effect.fail("Reacción inválida.")
+            } else {
+                return Effect.fail("Ocurrió un error al crear el voto.")
+            }
+        })
     )
 }
 
@@ -127,7 +128,8 @@ export const voteEdit = (
     UpdateRedisError |
     AddJobError |
     ATCreateLikeError |
-    ATCreateRepostError
+    ATCreateRepostError |
+    CIDEncodeError
 > => Effect.gen(function* () {
     const {uri} = ref
 

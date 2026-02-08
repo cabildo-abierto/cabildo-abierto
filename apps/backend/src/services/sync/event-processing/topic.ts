@@ -5,24 +5,50 @@ import {processContentsBatch} from "#/services/sync/event-processing/content.js"
 import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kysely";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
-    InsertRecordError, ProcessCreateError,
+    InsertRecordError,
+    ProcessCreateError,
     RecordProcessor
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {Effect, pipe} from "effect";
-
 import { DB } from "prisma/generated/types.js";
 import {AddJobError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
+import {getPollId} from "#/services/write/topic.js";
+import {ValidationResult} from "@atproto/lexicon";
 
 
 export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> {
 
-    validateRecord = ArCabildoabiertoWikiTopicVersion.validateRecord
+    validateRecord(record: ArCabildoabiertoWikiTopicVersion.Record) {
+        return Effect.gen(function* () {
+            const res = ArCabildoabiertoWikiTopicVersion.validateRecord(record)
+            if(!res.success) {
+                return yield* Effect.succeed(res)
+            } else {
+                if(res.value.embeds) {
+                    const polls = res.value.embeds
+                        .map(e => e.value)
+                        .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
+                    for(const p of polls) {
+                        const id = yield* getPollId(p.poll)
+                        if(id != p.id) {
+                            const error: ValidationResult<ArCabildoabiertoWikiTopicVersion.Record> = {
+                                success: false,
+                                error: new Error("Invalid poll.")
+                            }
+                            return yield* Effect.succeed(error)
+                        }
+                    }
+                }
+                return yield* Effect.succeed(res)
+            }
+        })
+    }
 
     addRecordsToDB(
         records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],

@@ -28,7 +28,9 @@ import {JobToAdd} from "#/jobs/worker.js";
 
 export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record> {
 
-    validateRecord = AppBskyFeedPost.validateRecord
+    validateRecord(record: AppBskyFeedPost.Record) {
+        return Effect.succeed(AppBskyFeedPost.validateRecord(record))
+    }
 
     async createReferences(records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>){
         const referencedRefs: ATProtoStrongRef[] = records.reduce((acc, r) => {
