@@ -1,0 +1,28 @@
+import {PollEditState} from "@/components/writing/poll/edit-poll";
+import {$Typed} from "@atproto/api";
+import {ArCabildoabiertoEmbedPoll} from "@cabildo-abierto/api";
+
+
+export function pollEditStateToFirstView(poll: PollEditState): $Typed<ArCabildoabiertoEmbedPoll.View> {
+    const choices = poll.choices.filter(c => c.trim().length > 0)
+    const createdAt = new Date().toISOString()
+
+    return {
+        $type: "ar.cabildoabierto.embed.poll#view",
+        id: "unpublished", // se completa al guardar el contenido
+        poll: {
+            $type: "ar.cabildoabierto.embed.poll#poll",
+            description: poll.description,
+            choices: choices.map(c => {
+                return {
+                    $type: "ar.cabildoabierto.embed.poll#pollChoice",
+                    label: c
+                }
+            }),
+            containerRef: {}, // se completa al guardar el contenido
+            createdAt
+        },
+        votes: choices.map(c => 0),
+        createdAt
+    }
+}

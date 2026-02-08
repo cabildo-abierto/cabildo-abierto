@@ -1,10 +1,13 @@
 import {SessionAgent} from "#/utils/session-agent.js";
 import {EffHandler} from "#/utils/handler.js";
 import {
-    ArCabildoabiertoWikiTopicVersion,
-    ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
-    ArCabildoabiertoEmbedVisualization, EmbedContext, CreateTopicVersionProps
+    ArCabildoabiertoEmbedPoll,
+    ArCabildoabiertoEmbedVisualization,
+    ArCabildoabiertoFeedArticle,
+    ArCabildoabiertoWikiTopicVersion,
+    CreateTopicVersionProps,
+    EmbedContext
 } from "@cabildo-abierto/api"
 import {
     uploadBase64Blob,
@@ -18,8 +21,51 @@ import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
-import {DBSelectError} from "#/utils/errors.js";
+import {DBSelectError, InvalidValueError} from "#/utils/errors.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {$Typed} from "@atproto/api";
+import {CID} from 'multiformats/cid'
+import {sha256} from 'multiformats/hashes/sha2'
+import * as dagCbor from '@ipld/dag-cbor'
+
+
+/***
+    Elimina todas las claves $type del objeto y sus hijos.
+ ***/
+function untype<T>(obj: $Typed<T> | Omit<$Typed<T>, "$type">): T {
+
+    return Object.fromEntries(
+        Object.entries(obj)
+            .map(([k, v]) => {
+                if(k == "$type") {
+                    return null
+                } else {
+                    if(v instanceof Object){
+                        return [k, untype(v)]
+                    } else {
+                        return [k, v]
+                    }
+                }
+            })
+            .filter(x => x != null)
+    )
+}
+
+
+export function getPollId(poll: ArCabildoabiertoEmbedPoll.Poll): Effect.Effect<string, CIDEncodeError> {
+    return Effect.tryPromise({
+        try: async () => {
+            const bytes = dagCbor.encode(untype(poll))
+            const hash = await sha256.digest(bytes)
+            return CID.create(1, dagCbor.code, hash)
+        },
+        catch: error => new CIDEncodeError(error)
+    }).pipe(
+        Effect.map(cid => {
+            return cid.toString()
+        })
+    )
+}
 
 
 export class FetchError {
@@ -31,7 +77,41 @@ export class ImageNotFoundError {
 }
 
 
-export function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): Effect.Effect<ArCabildoabiertoFeedArticle.ArticleEmbed[], FetchError | ImageNotFoundError | UploadImageFromBase64Error> {
+export class CIDEncodeError {
+    readonly _tag = "CIDEncodeError"
+    message: string | undefined
+    name: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.message = error.message
+            this.name = error.name
+        }
+    }
+}
+
+
+export class PollIdMismatchError {
+    readonly _tag = "PollIdMismatchError"
+}
+
+
+function pollViewToMain(view: ArCabildoabiertoEmbedPoll.View): Effect.Effect<$Typed<ArCabildoabiertoEmbedPoll.Main>, CIDEncodeError | PollIdMismatchError> {
+    return getPollId(view.poll).pipe(Effect.flatMap(cid => {
+        if(view.id != "unpublished" && view.id != cid) {
+            return Effect.fail(new PollIdMismatchError())
+        }
+
+        return Effect.succeed({
+            $type: "ar.cabildoabierto.embed.poll",
+            poll: view.poll,
+            id: cid,
+            createdAt: view.createdAt
+        })
+    }))
+}
+
+
+export function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): Effect.Effect<ArCabildoabiertoFeedArticle.ArticleEmbed[], FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidValueError | CIDEncodeError | PollIdMismatchError> {
 
     return Effect.gen(function* () {
         let embedMains: ArCabildoabiertoFeedArticle.ArticleEmbed[] = []
@@ -107,6 +187,14 @@ export function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoa
                         value: e.value,
                         index: e.index
                     })
+                } else if(ArCabildoabiertoEmbedPoll.isView(e.value)) {
+                    embedMains.push({
+                        $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                        value: yield* pollViewToMain(e.value),
+                        index: e.index
+                    })
+                } else {
+                    yield* Effect.fail(new InvalidValueError("Tipo de embed desconocido."))
                 }
             }
         }
@@ -121,7 +209,7 @@ export class InvalidTopicPropError {
 }
 
 
-export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError> {
+export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error | InvalidTopicPropError | PollIdMismatchError | CIDEncodeError> {
 
     return Effect.gen(function* () {
         let validatedProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined = undefined
@@ -165,7 +253,9 @@ export function createTopicVersionATProto(agent: SessionAgent, {id, text, format
             catch: () => new ATCreateRecordError()
         })
         return {ref: {uri: data.uri, cid: data.cid}, record}
-    })
+    }).pipe(
+        Effect.withSpan("createTopicVersionATProto", {attributes: {id, message, claimsAuthorship}})
+    )
 }
 
 
@@ -209,7 +299,7 @@ export const createTopicVersionHandler: EffHandler<CreateTopicVersionProps> = (c
 }
 
 
-export type CreateTopicVersionError = ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError
+export type CreateTopicVersionError = ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError | CIDEncodeError | PollIdMismatchError
 
 
 export const createTopicVersion = (ctx: AppContext, agent: SessionAgent, props: CreateTopicVersionProps): Effect.Effect<void, CreateTopicVersionError> => Effect.gen(function* () {

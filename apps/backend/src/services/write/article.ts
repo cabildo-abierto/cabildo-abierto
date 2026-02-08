@@ -12,10 +12,10 @@ import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {DBSelectError} from "#/utils/errors.js";
+import {DBSelectError, InvalidValueError} from "#/utils/errors.js";
 
 
-export const createArticleAT = (agent: SessionAgent, article: CreateArticleProps): Effect.Effect<RefAndRecord<ArCabildoabiertoFeedArticle.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageBlobError> => {
+export const createArticleAT = (agent: SessionAgent, article: CreateArticleProps): Effect.Effect<RefAndRecord<ArCabildoabiertoFeedArticle.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageBlobError | InvalidValueError> => {
     return Effect.gen(function* () {
         const did = agent.did
         const text = article.text

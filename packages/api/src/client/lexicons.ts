@@ -1858,10 +1858,31 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'object',
-        required: ['id', 'choices'],
+        required: ['id', 'poll', 'createdAt'],
         properties: {
           id: {
             type: 'string',
+            description:
+              'Unique identifier of the poll. Should be a hash of the poll object.',
+          },
+          poll: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.poll#poll',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+            description: 'The declared time when this record was created.',
+          },
+        },
+      },
+      poll: {
+        type: 'object',
+        required: ['choices', 'createdAt', 'containerRef'],
+        properties: {
+          containerRef: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.poll#pollContainerRef',
           },
           description: {
             type: 'string',
@@ -1873,17 +1894,106 @@ export const schemaDict = {
               ref: 'lex:ar.cabildoabierto.embed.poll#pollChoice',
             },
           },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+            description: 'The declared time when this poll was created.',
+          },
+        },
+      },
+      pollContainerRef: {
+        type: 'object',
+        required: [],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          topicId: {
+            type: 'string',
+          },
         },
       },
       pollChoice: {
         type: 'object',
-        required: ['label', 'votes'],
+        required: ['label'],
         properties: {
           label: {
             type: 'string',
           },
+        },
+      },
+      view: {
+        type: 'object',
+        required: ['id', 'poll', 'votes', 'createdAt'],
+        properties: {
+          id: {
+            type: 'string',
+          },
+          poll: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.poll#poll',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.embed.poll#pollViewer',
+          },
           votes: {
-            type: 'integer',
+            type: 'array',
+            items: {
+              type: 'integer',
+            },
+          },
+        },
+      },
+      pollViewer: {
+        type: 'object',
+        required: [],
+        properties: {
+          choice: {
+            type: 'string',
+          },
+          voteUri: {
+            type: 'string',
+            format: 'uri',
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoEmbedPollVote: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.embed.pollVote',
+    defs: {
+      main: {
+        type: 'record',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['subjectId', 'subjectPoll', 'choice', 'createdAt'],
+          properties: {
+            subjectId: {
+              type: 'string',
+              description: 'The id of the poll that was voted on.',
+            },
+            subjectPoll: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.embed.poll#poll',
+              description:
+                'A copy of the poll that was voted on. The hash of this object should match the id.',
+            },
+            choice: {
+              type: 'string',
+              description: 'The label of the choice that was voted for.',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+            },
           },
         },
       },
@@ -2537,6 +2647,8 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.embed.visualization',
               'lex:ar.cabildoabierto.embed.visualization#view',
               'lex:app.bsky.embed.images#view',
+              'lex:ar.cabildoabierto.embed.poll',
+              'lex:ar.cabildoabierto.embed.poll#view',
             ],
           },
           index: {
@@ -4379,6 +4491,7 @@ export const ids = {
   ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',
   ArCabildoabiertoEmbedPoll: 'ar.cabildoabierto.embed.poll',
+  ArCabildoabiertoEmbedPollVote: 'ar.cabildoabierto.embed.pollVote',
   ArCabildoabiertoEmbedRecord: 'ar.cabildoabierto.embed.record',
   ArCabildoabiertoEmbedRecordWithMedia:
     'ar.cabildoabierto.embed.recordWithMedia',

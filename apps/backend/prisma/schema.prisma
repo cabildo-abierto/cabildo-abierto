@@ -361,6 +361,9 @@ model Record {
 
   moderationProcesses RecordModerationProcess[]
 
+  pollVote PollVote?
+  polls    Poll[]
+
   @@index([authorId, collection, created_at(sort: Desc)])
   @@index([authorId, created_at(sort: Desc)])
   @@index([collection, authorId, created_at(sort: Desc)])
@@ -412,6 +415,8 @@ model Topic {
   TopicToCategory                                   TopicToCategory[]
   TopicVersion_TopicVersion_topicIdToTopic          TopicVersion[]    @relation("TopicVersion_topicIdToTopic")
   synonyms                                          String[]
+
+  polls Poll[]
 
   @@index([lastEdit_tz(sort: Desc)])
   @@index([popularityScoreLastDay(sort: Desc), lastEdit_tz(sort: Desc)])
@@ -810,6 +815,30 @@ model RecordModerationProcess {
 
   @@index([recordId])
   @@index([processedById])
+}
+
+// una poll existe mientras haya al menos un embed o voto en el protocolo que la referencie
+model Poll {
+  id             String   @id
+  description    String?
+  choices        String[]
+  createdAt      DateTime @db.Timestamptz(3)
+  topicId        String?
+  topic          Topic?   @relation(fields: [topicId], references: [id])
+  parentRecordId String?
+  parentRecord   Record?  @relation(fields: [parentRecordId], references: [uri])
+
+  votes PollVote[]
+}
+
+model PollVote {
+  uri    String @id
+  record Record @relation(fields: [uri], references: [uri])
+
+  pollId String?
+  poll   Poll?   @relation(fields: [pollId], references: [id])
+
+  choice String
 }
 
 enum ModerationMethod {

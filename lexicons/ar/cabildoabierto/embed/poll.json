@@ -4,10 +4,34 @@
   "defs": {
     "main": {
       "type": "object",
-      "required": ["id","choices"],
+      "required": ["id", "poll", "createdAt"],
       "properties": {
-        "id" : {
-          "type":  "string"
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the poll. Should be a hash of the poll object."
+        },
+        "poll": {
+          "type": "ref",
+          "ref": "#poll"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime",
+          "description": "The declared time when this record was created."
+        }
+      }
+    },
+    "poll": {
+      "type": "object",
+      "required": [
+        "choices",
+        "createdAt",
+        "containerRef"
+      ],
+      "properties": {
+        "containerRef": {
+          "type": "ref",
+          "ref": "#pollContainerRef"
         },
         "description": {
           "type": "string"
@@ -18,17 +42,82 @@
             "type": "ref",
             "ref": "#pollChoice"
           }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime",
+          "description": "The declared time when this poll was created."
+        }
+      }
+    },
+    "pollContainerRef": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "topicId": {
+          "type": "string"
         }
       }
     },
     "pollChoice": {
       "type": "object",
-      "required": ["label","votes"],
+      "required": [
+        "label"
+      ],
       "properties": {
-        "label": {"type": "string"},
-        "votes": {"type": "integer"}
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": [
+        "id",
+        "poll",
+        "votes",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "poll": {
+          "type": "ref",
+          "ref": "#poll"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "viewer": {
+          "type": "ref",
+          "ref": "#pollViewer"
+        },
+        "votes": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "pollViewer": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "choice": {
+          "type": "string"
+        },
+        "voteUri": {
+          "type": "string",
+          "format": "uri"
+        }
       }
     }
   }
-
 }

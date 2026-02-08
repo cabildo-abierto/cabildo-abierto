@@ -8,7 +8,8 @@ import {
     ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
     ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoActorDefs, EditorStatus
+    ArCabildoabiertoActorDefs, EditorStatus,
+    ArCabildoabiertoEmbedPoll
 } from "@cabildo-abierto/api"
 import {Agent} from "#/utils/session-agent.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
@@ -359,6 +360,16 @@ export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoFeed
             views.push({
                 $type: "ar.cabildoabierto.feed.article#articleEmbedView",
                 value: imagesView,
+                index: e.index
+            })
+        } else if(ArCabildoabiertoEmbedPoll.isMain(e.value)) {
+            views.push({
+                $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                value: {
+                    $type: "ar.cabildoabierto.embed.poll",
+                    poll: e.value.poll,
+                    id: e.value.id
+                },
                 index: e.index
             })
         }

@@ -25,6 +25,7 @@ import * as ArCabildoabiertoActorCaProfile from './types/ar/cabildoabierto/actor
 import * as ArCabildoabiertoActorDefs from './types/ar/cabildoabierto/actor/defs.js'
 import * as ArCabildoabiertoDataDataset from './types/ar/cabildoabierto/data/dataset.js'
 import * as ArCabildoabiertoEmbedPoll from './types/ar/cabildoabierto/embed/poll.js'
+import * as ArCabildoabiertoEmbedPollVote from './types/ar/cabildoabierto/embed/pollVote.js'
 import * as ArCabildoabiertoEmbedRecord from './types/ar/cabildoabierto/embed/record.js'
 import * as ArCabildoabiertoEmbedRecordWithMedia from './types/ar/cabildoabierto/embed/recordWithMedia.js'
 import * as ArCabildoabiertoEmbedSelectionQuote from './types/ar/cabildoabierto/embed/selectionQuote.js'
@@ -63,6 +64,7 @@ export * as ArCabildoabiertoActorCaProfile from './types/ar/cabildoabierto/actor
 export * as ArCabildoabiertoActorDefs from './types/ar/cabildoabierto/actor/defs.js'
 export * as ArCabildoabiertoDataDataset from './types/ar/cabildoabierto/data/dataset.js'
 export * as ArCabildoabiertoEmbedPoll from './types/ar/cabildoabierto/embed/poll.js'
+export * as ArCabildoabiertoEmbedPollVote from './types/ar/cabildoabierto/embed/pollVote.js'
 export * as ArCabildoabiertoEmbedRecord from './types/ar/cabildoabierto/embed/record.js'
 export * as ArCabildoabiertoEmbedRecordWithMedia from './types/ar/cabildoabierto/embed/recordWithMedia.js'
 export * as ArCabildoabiertoEmbedSelectionQuote from './types/ar/cabildoabierto/embed/selectionQuote.js'
@@ -477,9 +479,94 @@ export class ArCabildoabiertoDataDatasetRecord {
 
 export class ArCabildoabiertoEmbedNS {
   _client: XrpcClient
+  pollVote: ArCabildoabiertoEmbedPollVoteRecord
 
   constructor(client: XrpcClient) {
     this._client = client
+    this.pollVote = new ArCabildoabiertoEmbedPollVoteRecord(client)
+  }
+}
+
+export class ArCabildoabiertoEmbedPollVoteRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: ArCabildoabiertoEmbedPollVote.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'ar.cabildoabierto.embed.pollVote',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: ArCabildoabiertoEmbedPollVote.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'ar.cabildoabierto.embed.pollVote',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoEmbedPollVote.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.embed.pollVote'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoEmbedPollVote.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.embed.pollVote'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'ar.cabildoabierto.embed.pollVote', ...params },
+      { headers },
+    )
   }
 }
 

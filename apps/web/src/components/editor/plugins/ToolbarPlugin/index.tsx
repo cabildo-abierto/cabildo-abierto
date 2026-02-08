@@ -72,6 +72,8 @@ import QuotesIcon from "../../../utils/icons/quotes-icon";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/utils/ui/dropdown-menu";
 import {cn} from "@/lib/utils";
 import {BaseNotButton} from "@/components/utils/base/base-not-button";
+import {PollIcon} from "@/components/utils/icons/poll-icon";
+import {InsertPollModal} from "@/components/editor/insert-poll-modal";
 
 const InsertVisualizationDialog = dynamic(() => import("../EmbedPlugin/insert-visualization-dialog"), {ssr: false})
 const InsertImageModal = dynamic(() => import("@/components/writing/write-panel/insert-image-modal"), {ssr: false})
@@ -232,6 +234,7 @@ export default function ToolbarPlugin({
     const [insertTableModalOpen, setInsertTableModalOpen] = useState(false)
     const [isEditable, setIsEditable] = useState(() => editor.isEditable());
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
+    const [pollModalOpen, setPollModalOpen] = useState(false)
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const {isMobile, layoutConfig} = useLayoutConfig()
 
@@ -481,6 +484,15 @@ export default function ToolbarPlugin({
                 >
                     <VisualizationIcon fontSize={20}/>
                 </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => {
+                        setPollModalOpen(true)
+                    }}
+                    title="Insertar encuesta"
+                    aria-label="Insertar encuesta"
+                >
+                    <PollIcon fontSize={20}/>
+                </ToolbarButton>
 
                 {insertTableModalOpen && <InsertTableModal
                     open={insertTableModalOpen}
@@ -501,6 +513,13 @@ export default function ToolbarPlugin({
                     open={visualizationModalOpen}
                     onClose={() => {
                         setVisualizationModalOpen(false)
+                    }}
+                />}
+                {pollModalOpen && <InsertPollModal
+                    activeEditor={activeEditor}
+                    open={pollModalOpen}
+                    onClose={() => {
+                        setPollModalOpen(false)
                     }}
                 />}
             </div>

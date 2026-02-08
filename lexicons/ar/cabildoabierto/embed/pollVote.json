@@ -1,0 +1,33 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.embed.pollVote",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["subjectId", "subjectPoll", "choice", "createdAt"],
+        "properties": {
+          "subjectId": {
+            "type": "string",
+            "description": "The id of the poll that was voted on."
+          },
+          "subjectPoll": {
+            "type": "ref",
+            "ref": "ar.cabildoabierto.embed.poll#poll",
+            "description": "A copy of the poll that was voted on. The hash of this object should match the id."
+          },
+          "choice": {
+            "type": "string",
+            "description": "The label of the choice that was voted for."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

@@ -51,11 +51,17 @@ export const SaveEditButton = ({
         setGuardEnabled(false)
         if (editor) {
             const editorState = new ProcessedLexicalState(editor.getEditorState().toJSON())
+            const stateAsMarkdown = editorStateToMarkdown(editorState)
+
+            if(!stateAsMarkdown) {
+                return {error: "Ocurrió un error al procesar el contenido."}
+            }
+
             const {
                 markdown,
                 embeds,
                 embedContexts
-            } = editorStateToMarkdown(editorState)
+            } = stateAsMarkdown
 
             const {error} = await saveEditMutation.mutateAsync({
                 id: topic.id,

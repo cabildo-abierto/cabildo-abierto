@@ -1,6 +1,6 @@
 "use client"
 import {ArCabildoabiertoEmbedPoll} from "@cabildo-abierto/api"
-import {Poll} from "@/components/writing/poll";
+import {Poll} from "@/components/writing/poll/poll";
 
 
 export default function Page() {
