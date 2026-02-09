@@ -1,5 +1,4 @@
 import {AppContext} from "#/setup.js";
-import {getCollectionFromUri} from "@cabildo-abierto/utils";
 
 
 export class DeleteProcessor {
@@ -23,7 +22,6 @@ export class DeleteProcessor {
 
     async processInBatches(uris: string[]) {
         if(uris.length == 0) return
-        const c = getCollectionFromUri(uris[0])
         const batchSize = 5000
         for (let j = 0; j < uris.length; j += batchSize) {
             const batchUris = uris.slice(j, j + batchSize)

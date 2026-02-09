@@ -1967,6 +1967,19 @@ export const schemaDict = {
           },
         },
       },
+      view: {
+        type: 'object',
+        required: ['author', 'choice'],
+        properties: {
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          choice: {
+            type: 'string',
+          },
+        },
+      },
     },
   },
   ArCabildoabiertoEmbedRecord: {

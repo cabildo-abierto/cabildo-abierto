@@ -9,13 +9,15 @@ import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import {PollChoice} from "@/components/writing/poll/poll-choice";
 import { TrashIcon } from "@phosphor-icons/react";
 import {EditPollModal} from "@/components/editor/insert-poll-modal";
+import {PollVotes} from "@/components/writing/poll/poll-votes";
 
 
-export const Poll = ({onDelete, onSelectOption, onEdit, poll}: {
+export const Poll = ({onDelete, onSelectOption, onEdit, poll, pollId}: {
     onDelete?: () => void
     onEdit?: (v: $Typed<ArCabildoabiertoEmbedPoll.View>) => void
     poll: ArCabildoabiertoEmbedPoll.View
     onSelectOption?: (idx: number) => void
+    pollId?: string
 }) => {
     const [editing, setEditing] = useState(false)
     const choices = poll.poll.choices
@@ -72,6 +74,10 @@ export const Poll = ({onDelete, onSelectOption, onEdit, poll}: {
                         disabled={onSelectOption == null || onDelete != null || poll.viewer?.voteUri == "optimistic"}
                     />
                 })}
+
+                {pollId && <PollVotes
+                    pollId={pollId}
+                />}
             </div>
 
             {editing && <EditPollModal

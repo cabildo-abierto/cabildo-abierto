@@ -28,6 +28,19 @@
           }
         }
       }
+    },
+    "view": {
+      "type": "object",
+      "required": ["author", "choice"],
+      "properties": {
+        "author": {
+          "type": "ref",
+          "ref": "ar.cabildoabierto.actor.defs#profileViewBasic"
+        },
+        "choice": {
+          "type": "string"
+        }
+      }
     }
   }
 }

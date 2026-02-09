@@ -107,5 +107,6 @@ export const PollFromId = ({pollId, onDelete, onEdit}: {
         poll={poll}
         onDelete={onDelete}
         onEdit={onEdit}
+        pollId={pollId}
     />
 }

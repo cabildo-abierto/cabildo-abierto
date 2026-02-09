@@ -1,5 +1,5 @@
 import {EffHandler} from "#/utils/handler.js";
-import { ArCabildoabiertoEmbedPoll, ArCabildoabiertoEmbedPollVote } from "@cabildo-abierto/api";
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoEmbedPollVote } from "@cabildo-abierto/api";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 import {
@@ -23,6 +23,7 @@ import {deleteRecords} from "#/services/delete.js";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
 import {InsufficientParamsError} from "#/services/wiki/topics.js";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
+import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 
 
 export const getPollHandler: EffHandler<{params: {id: string}}, ArCabildoabiertoEmbedPoll.View> = (
@@ -257,3 +258,35 @@ const hydratePollView = (ctx: AppContext, agent: Agent, pollId: string): Effect.
     }
     return poll
 }).pipe(Effect.withSpan("hydratePollView", {attributes: {pollId}}))
+
+
+export const getPollVotes: EffHandler<
+    {params: {id: string}},
+    ArCabildoabiertoEmbedPollVote.View[]
+> = (
+    ctx,
+    agent,
+    {params}
+) => Effect.provideServiceEffect(Effect.gen(function* () {
+    const votes = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("PollVote")
+            .where("PollVote.pollId", "=", params.id)
+            .select(["uri", "choice"])
+            .execute(),
+        catch: () => new DBSelectError()
+    })
+
+    const dataplane = yield* DataPlane
+
+    yield* dataplane.fetchProfileViewBasicHydrationData(votes.map(v => getDidFromUri(v.uri)))
+
+    return (yield* Effect.all(votes.map(v => Effect.gen(function* () {
+        const author = yield* hydrateProfileViewBasic(ctx, getDidFromUri(v.uri))
+        if(!author) return null
+        return {
+            author,
+            choice: v.choice
+        }
+    })))).filter(x => x != null)
+}).pipe(Effect.withSpan("getPollVotes")).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los votos."))), DataPlane, makeDataPlane(ctx, agent))

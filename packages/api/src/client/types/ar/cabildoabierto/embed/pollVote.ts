@@ -10,6 +10,7 @@ import {
   type OmitKey,
 } from '../../../../util'
 import type * as ArCabildoabiertoEmbedPoll from './poll.js'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -40,4 +41,20 @@ export {
   type Main as Record,
   isMain as isRecord,
   validateMain as validateRecord,
+}
+
+export interface View {
+  $type?: 'ar.cabildoabierto.embed.pollVote#view'
+  author: ArCabildoabiertoActorDefs.ProfileViewBasic
+  choice: string
+}
+
+const hashView = 'view'
+
+export function isView<V>(v: V) {
+  return is$typed(v, id, hashView)
+}
+
+export function validateView<V>(v: V) {
+  return validate<View & V>(v, id, hashView)
 }
