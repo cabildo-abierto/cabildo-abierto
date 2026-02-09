@@ -25,7 +25,7 @@ const PollVotesModal = ({open, pollId, onClose}: {
         refetch()
     }, [poll])
 
-    if(!poll) return null
+    if (!poll) return null
 
     return <BaseFullscreenPopup open={open} closeButton={false}>
         <div className={"w-[400px] p-3 space-y-3"}>
@@ -51,11 +51,13 @@ const PollVotesModal = ({open, pollId, onClose}: {
                         <div className={"font-light text-[var(--text-light)] pb-2"}>
                             {c.label} ({votes.length})
                         </div>
-                        {votes.map((v, i) => {
-                            return <div key={i}>
-                                <ProfilePic user={v.author} className={"rounded-full h-6 w-6"}/>
-                            </div>
-                        })}
+                        <div className={"flex flex-wrap gap-1"}>
+                            {votes.map((v, i) => {
+                                return <div key={i}>
+                                    <ProfilePic user={v.author} className={"rounded-full h-6 w-6"}/>
+                                </div>
+                            })}
+                        </div>
                     </div>
                 })}
             </div>}

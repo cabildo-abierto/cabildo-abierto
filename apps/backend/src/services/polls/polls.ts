@@ -140,6 +140,7 @@ const deletePollVotes = (
             .selectFrom("PollVote")
             .where("pollId", "=", pollId)
             .innerJoin("Record", "Record.uri", "PollVote.uri")
+            .where("Record.authorId", "=", agent.did)
             .select(["PollVote.uri"])
             .execute(),
         catch: error => new DBSelectError(error)

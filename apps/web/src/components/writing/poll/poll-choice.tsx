@@ -19,7 +19,7 @@ export const PollChoice = ({label, voted, votes, disabled = false, totalVotes, o
             <div className="gap-2 max-w-[75%] text-left">
                 <span className={"font-medium"}>
                     {label}
-                </span> {voted && <span className="align-middle text-xs rounded-full bg-[var(--accent)] px-2 py-0.5">
+                </span> {voted && <span className="whitespace-nowrap align-middle text-xs rounded-full bg-[var(--accent)] px-2 py-0.5">
                     tu voto
                 </span>}
             </div>
