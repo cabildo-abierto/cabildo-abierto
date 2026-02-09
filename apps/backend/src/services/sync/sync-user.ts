@@ -7,9 +7,7 @@ import {getUri, shortCollectionToCollection} from "@cabildo-abierto/utils";
 import {EffHandler} from "#/utils/handler.js";
 import {processEventsBatch} from "#/services/sync/event-processing/event-processor.js";
 import {
-    batchDeleteRecords,
-    getRecordProcessor,
-    ProcessDeleteError
+    getRecordProcessor
 } from "#/services/sync/event-processing/get-record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
@@ -22,6 +20,7 @@ import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.j
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
 import {AddJobError} from "#/utils/errors.js";
+import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
 
 export async function getCAUsersAndFollows(ctx: AppContext) {
@@ -169,7 +168,7 @@ function cleanOutdatedInDB(
         }
     }
 
-    return batchDeleteRecords(ctx, toDelete)
+    return processDeletes(ctx, toDelete)
 }
 
 

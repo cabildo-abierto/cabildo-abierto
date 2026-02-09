@@ -2,10 +2,10 @@ import {AppContext} from "#/setup.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {getUri, isCAProfile} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
-import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {isValidHandle} from "@atproto/syntax";
 import {Effect} from "effect";
+import {processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
 
 function newUser(ctx: AppContext, did: string, inCA: boolean) {
@@ -97,25 +97,11 @@ class CommitDeleteEventProcessor extends CommitEventProcessor {
     async process(events: JetstreamEvent[]) {
         await super.process(events)
 
-        const byCollection = new Map<string, string[]>()
-        for(const c of events) {
-            if(c.kind == "commit" && c.commit.operation == "delete"){
-                const collection = c.commit.collection
-                const uri = getUri(c.did, c.commit.collection, c.commit.rkey)
+        const uris: string[] = events
+            .map(c => c.kind == "commit" && c.commit.operation == "delete" ? getUri(c.did, c.commit.collection, c.commit.rkey) : null)
+            .filter(x => x != null)
 
-                const cur = byCollection.get(collection)
-                if(!cur) {
-                    byCollection.set(collection, [uri])
-                } else {
-                    cur.push(uri)
-                }
-            }
-        }
-
-        for await (const [c, uris] of byCollection.entries()) {
-            const recordProcessor = getDeleteProcessor(this.ctx, c)
-            await recordProcessor.process(uris)
-        }
+        await Effect.runPromise(processDeletes(this.ctx, uris))
     }
 }
 

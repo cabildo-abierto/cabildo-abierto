@@ -25,7 +25,7 @@ import {ATDeleteRecordError, deleteRecordAT, deleteRecords} from "#/services/del
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
-import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
+import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 
 function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord.Main> {

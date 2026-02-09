@@ -14,11 +14,11 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {createPost} from "#/services/write/post.js";
 import {ATDeleteRecordError, deleteRecords} from "#/services/delete.js";
 import {Effect} from "effect";
-import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 import {DBSelectError} from "#/utils/errors.js";
 import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
+import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
 
 export type TopicVoteType = "ar.cabildoabierto.wiki.voteAccept" | "ar.cabildoabierto.wiki.voteReject"
 

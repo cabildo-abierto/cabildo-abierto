@@ -8,7 +8,7 @@ import {BaseAgent, bskyPublicAPI, SessionAgent} from "#/utils/session-agent.js";
 import {env} from "#/lib/env.js";
 import {AppBskyFeedPost, AtpBaseClient} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {getRecordProcessor, ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
+import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
 import {getCollectionFromUri, getUri} from "@cabildo-abierto/utils";
 import {CAWorker, JobToAdd} from "#/jobs/worker.js";
 import {randomBytes} from "crypto";
@@ -26,12 +26,12 @@ import {
 import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
-import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {Effect} from "effect";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
 import {DBSelectError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
+import {processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
 export const testTimeout = 40000
 
@@ -591,13 +591,9 @@ export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
 
 export const deleteRecordsInTest = (ctx: AppContext, records: string[]) => Effect.gen(function* () {
     yield* Effect.all(records.map(r => {
-        const c = getCollectionFromUri(r)
-        const processor = getDeleteProcessor(ctx, c)
-        return Effect.tryPromise({
-            try: () => processor.process([r]),
-            catch: () => new ProcessDeleteError(c)
-        })
+        return processDeletes(ctx, [r])
     }), {concurrency: 4})
+
     yield* Effect.tryPromise({
         try: () => ctx!.worker?.runAllJobs(), // TO DO: Pasar a Effect
         catch: () => "Error al correr los trabajos."

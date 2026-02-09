@@ -149,10 +149,10 @@ export class CAWorker {
         this.registerEffJob("sync-user", data => syncUserJobHandler(ctx, data).pipe(Effect.catchAll(() => Effect.fail("Error en en trabajo sync-user"))))
         this.registerJob("update-references", () => updateReferences(ctx))
         this.registerJob("update-engagement-counts", () => updateEngagementCounts(ctx))
-        this.registerJob("delete-collection", async (data) => {
-            await deleteCollection(ctx, (data as { collection: string }).collection)
+        this.registerEffJob("delete-collection", (data) => {
+            return deleteCollection(ctx, (data as { collection: string }).collection)
         })
-        this.registerJob("delete-collection", (data) => deleteCollection(ctx, (data as {
+        this.registerEffJob("delete-collection", (data) => deleteCollection(ctx, (data as {
             collection: string
         }).collection))
         this.registerJob(

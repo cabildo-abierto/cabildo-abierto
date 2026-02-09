@@ -19,7 +19,7 @@ import {handleOrDidToDid} from "#/id-resolver.js";
 import {DBSelectError} from "#/utils/errors.js";
 import {$Typed, AppBskyActorDefs} from "@atproto/api";
 import {ATDeleteRecordError} from "#/services/delete.js";
-import {ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
+import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
 
 async function getFollowxFromCA(
     ctx: AppContext,

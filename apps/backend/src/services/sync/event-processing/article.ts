@@ -10,6 +10,7 @@ import {Effect} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 
 
 
@@ -122,9 +123,9 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
 }
 
 
-export class ArticleDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]){
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+export const articleDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
             await trx
                 .deleteFrom("Notification")
                 .where("Notification.causedByRecordId", "in", uris)
@@ -184,9 +185,10 @@ export class ArticleDeleteProcessor extends DeleteProcessor {
                 .deleteFrom("Record")
                 .where("Record.uri", "in", uris)
                 .execute()
-        })
-        if(this.ctx.worker) {
-            await Effect.runPromise(this.ctx.worker.addJob("update-contents-topic-mentions", uris))
-        }
+        }),
+        catch: error => new DBDeleteError(error)
+    })
+    if(ctx.worker) {
+        yield* ctx.worker.addJob("update-contents-topic-mentions", uris)
     }
-}
+})

@@ -4,8 +4,9 @@ import {
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
-import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Effect} from "effect";
+import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
 
@@ -81,9 +82,10 @@ export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoData
     }
 }
 
-export class DatasetDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]){
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+
+export const datasetDeleteProcessor: DeleteProcessor = (ctx, uris) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
             await trx
                 .deleteFrom("DataBlock")
                 .where("DataBlock.datasetId", "in", uris)
@@ -96,6 +98,7 @@ export class DatasetDeleteProcessor extends DeleteProcessor {
                 .deleteFrom("Record")
                 .where("Record.uri", "in", uris)
                 .execute()
-        })
-    }
+        }),
+        catch: () => new DBDeleteError()
+    })
 }

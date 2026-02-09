@@ -9,6 +9,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {ValidationResult} from "@atproto/lexicon";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
 export class CAProfileRecordProcessor extends RecordProcessor<ArCabildoabiertoActorCaProfile.Record> {
@@ -22,29 +23,25 @@ export class CAProfileRecordProcessor extends RecordProcessor<ArCabildoabiertoAc
 }
 
 
-export class CAProfileDeleteProcessor extends DeleteProcessor {
+export const caProfileDeleteProcessor: DeleteProcessor = (ctx, uris) => {
+    const dids = uris.map(getDidFromUri)
 
-    async deleteRecordsFromDB(uris: string[]){
-        const dids = uris.map(getDidFromUri)
+    return Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
+            await trx
+                .deleteFrom("Record")
+                .where("Record.uri", "in", uris)
+                .execute()
 
-        try {
-            await this.ctx.kysely.transaction().execute(async (trx) => {
-                await trx
-                    .deleteFrom("Record")
-                    .where("Record.uri", "in", uris)
-                    .execute()
-
-                await trx
-                    .updateTable("User")
-                    .set("inCA", false)
-                    .set("hasAccess", false)
-                    .where("User.did", "in", dids)
-                    .execute()
-            })
-        } catch (error) {
-            this.ctx.logger.pino.error({error, uris}, "error deleting ca profiles")
-        }
-    }
+            await trx
+                .updateTable("User")
+                .set("inCA", false)
+                .set("hasAccess", false)
+                .where("User.did", "in", dids)
+                .execute()
+        }),
+        catch: error => new DBDeleteError(error)
+    })
 }
 
 

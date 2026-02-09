@@ -16,7 +16,7 @@ import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {Effect, pipe} from "effect";
 import { DB } from "prisma/generated/types.js";
-import {AddJobError, InvalidValueError} from "#/utils/errors.js";
+import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
@@ -172,40 +172,10 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
 }
 
 
-export class TopicVersionDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]){
-        await processDeleteTopicVersionsBatch(this.ctx, uris)
-    }
-}
+export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
+    const topicIds = yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
 
-
-function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopicVersion.Record }[]) {
-    const topics = new Map<string, { id: string, lastEdit: Date }>()
-    records.forEach(r => {
-        const id = r.record.id
-        const cur = topics.get(id)
-        const date = new Date(r.record.createdAt)
-        if (!cur) {
-            topics.set(id, {id, lastEdit: date})
-        } else {
-            topics.set(id, {id, lastEdit: cur.lastEdit > date ? cur.lastEdit : date})
-        }
-    })
-    return Array.from(topics.values())
-}
-
-
-export function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {
-    return ctx.worker ? ctx.worker.addJob(
-        "update-topic-contributions",
-        ids
-    ) : Effect.void
-}
-
-
-export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: string[]) {
-    await ctx.kysely.transaction().execute(async (trx) => {
-        try {
             const topicIds = await trx
                 .selectFrom("Topic")
                 .innerJoin("TopicVersion", "TopicVersion.topicId", "Topic.id")
@@ -271,15 +241,38 @@ export async function processDeleteTopicVersionsBatch(ctx: AppContext, uris: str
 
             await updateTopicsCurrentVersionBatch(ctx, trx, topicIds.map(t => t.id))
 
-            await Effect.runPromise(Effect.all([
-                ctx.worker.addJob("update-contents-topic-mentions", uris),
-                ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
-            ], {concurrency: "unbounded"}))
-        } catch (err) {
-            console.log(err)
-            console.log("Error deleting topic versions")
-            return
-        }
-
+            return topicIds
+        }),
+        catch: error => new DBDeleteError(error)
     })
+
+    yield* Effect.all([
+        ctx.worker.addJob("update-contents-topic-mentions", uris),
+        ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
+    ], {concurrency: "unbounded"})
+})
+
+
+
+function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopicVersion.Record }[]) {
+    const topics = new Map<string, { id: string, lastEdit: Date }>()
+    records.forEach(r => {
+        const id = r.record.id
+        const cur = topics.get(id)
+        const date = new Date(r.record.createdAt)
+        if (!cur) {
+            topics.set(id, {id, lastEdit: date})
+        } else {
+            topics.set(id, {id, lastEdit: cur.lastEdit > date ? cur.lastEdit : date})
+        }
+    })
+    return Array.from(topics.values())
+}
+
+
+export function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {
+    return ctx.worker ? ctx.worker.addJob(
+        "update-topic-contributions",
+        ids
+    ) : Effect.void
 }

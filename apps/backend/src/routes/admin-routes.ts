@@ -59,7 +59,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post(
         "/delete-collection/:collection",
-        makeAdminHandler(ctx, deleteCollectionHandler)
+        makeEffAdminHandler(ctx, deleteCollectionHandler)
     )
 
     router.get(

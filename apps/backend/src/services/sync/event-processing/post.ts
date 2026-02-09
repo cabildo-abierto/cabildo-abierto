@@ -19,11 +19,12 @@ import {
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
 import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
-import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
 import {Effect, pipe} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
+import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
 export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record> {
@@ -210,10 +211,10 @@ export class PostRecordProcessor extends RecordProcessor<AppBskyFeedPost.Record>
 }
 
 
-export class PostDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]){
-        const rootUris = await this.ctx.kysely.transaction().execute(async (trx) => {
-            const rootUris = await this.ctx.kysely
+export const postDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
+    const rootUris = yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
+            const rootUris = await ctx.kysely
                 .selectFrom("Post")
                 .where("uri", "in", uris)
                 .select(["Post.rootId"])
@@ -275,8 +276,9 @@ export class PostDeleteProcessor extends DeleteProcessor {
                 .execute()
 
             return rootUris
-        })
-        await Effect.runPromise(this.ctx.worker?.addJob("update-following-feed-on-deleted-content", rootUris.map(r => r.rootId).filter(x => x != null)))
-        await Effect.runPromise(this.ctx.worker?.addJob("update-contents-topic-mentions", uris))
-    }
-}
+        }),
+        catch: error => new DBDeleteError(error)
+    })
+    yield* ctx.worker.addJob("update-following-feed-on-deleted-content", rootUris.map(r => r.rootId).filter(x => x != null))
+    yield* ctx.worker.addJob("update-contents-topic-mentions", uris)
+})

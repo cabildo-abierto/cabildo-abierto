@@ -15,10 +15,7 @@ import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js"
 import {TopicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
 import {DatasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
 import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
-import {getCollectionFromUri} from "@cabildo-abierto/utils";
-import {getDeleteProcessor} from "#/services/sync/event-processing/get-delete-processor.js";
 import {AppContext} from "#/setup.js";
-import {Effect} from "effect";
 import {PollVoteRecordProcessor} from "#/services/sync/event-processing/poll-vote.js";
 
 
@@ -44,33 +41,4 @@ export function getRecordProcessor(ctx: AppContext, collection: string) {
     } else {
         return new RecordProcessor(ctx)
     }
-}
-
-
-export class ProcessDeleteError {
-    readonly _tag = "ProcessDeleteError"
-
-    constructor(readonly collection: string) {
-    }
-}
-
-
-export function batchDeleteRecords(ctx: AppContext, uris: string[]): Effect.Effect<void, ProcessDeleteError> {
-    return Effect.gen(function* () {
-        const byCollections = new Map<string, string[]>()
-        uris.forEach(r => {
-            const c = getCollectionFromUri(r)
-            byCollections.set(c, [...(byCollections.get(c) ?? []), r])
-        })
-        const entries = Array.from(byCollections.entries())
-        for (let i = 0; i < entries.length; i++) {
-            const [c, uris] = entries[i]
-            const processor = getDeleteProcessor(ctx, c)
-
-            yield* Effect.tryPromise({
-                try: () => processor.processInBatches(uris),
-                catch: () => new ProcessDeleteError(c)
-            })
-        }
-    })
 }

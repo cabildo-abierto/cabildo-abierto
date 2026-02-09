@@ -28,7 +28,20 @@ export class DBSelectError {
 }
 
 export class DBInsertError {
-    readonly _tag = "InsertError"
+    readonly _tag = "DBInsertError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
+}
+
+
+export class DBDeleteError {
+    readonly _tag = "DBDeleteError"
     name: string | undefined
     message: string | undefined
     constructor(error?: unknown) {

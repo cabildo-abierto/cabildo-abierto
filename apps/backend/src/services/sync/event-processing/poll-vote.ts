@@ -11,6 +11,7 @@ import {Effect, pipe} from "effect";
 import {ValidationResult} from "@atproto/lexicon";
 import {CIDEncodeError, getPollKey} from "#/services/write/topic.js";
 import {getPollContainerFromId, getPollKeyFromId} from "@cabildo-abierto/utils";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
 export class PollVoteRecordProcessor extends RecordProcessor<ArCabildoabiertoEmbedPollVote.Record> {
@@ -105,16 +106,14 @@ export class PollVoteRecordProcessor extends RecordProcessor<ArCabildoabiertoEmb
 }
 
 
-export class PollVoteDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]) {
-        uris = uris.filter(uri => getCollectionFromUri(uri) == "ar.cabildoabierto.embed.pollVote")
-        if (uris.length == 0) return
-
-        await this.ctx.kysely.transaction().execute(async (db) => {
+export const pollVoteDeleteProcessor: DeleteProcessor = (ctx, uris) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (db) => {
             await db.deleteFrom("TopicInteraction").where("recordId", "in", uris).execute()
             await db.deleteFrom("Notification").where("causedByRecordId", "in", uris).execute()
             await db.deleteFrom("PollVote").where("uri", "in", uris).execute()
             await db.deleteFrom("Record").where("uri", "in", uris).execute()
-        })
-    }
+        }),
+        catch: error => new DBDeleteError(error)
+    })
 }

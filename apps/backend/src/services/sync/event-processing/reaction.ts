@@ -20,12 +20,12 @@ import {
     ArCabildoabiertoWikiVoteAccept,
     ArCabildoabiertoWikiVoteReject
 } from "@cabildo-abierto/api"
-import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect, pipe} from "effect";
 
-import {AddJobError, InvalidValueError} from "#/utils/errors.js";
+import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
+import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 
 
 const columnMap: Record<ReactionType, keyof DB['Record']> = {
@@ -262,13 +262,12 @@ export class VoteRejectRecordProcessor extends ReactionRecordProcessor {
 }
 
 
-export class ReactionDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]) {
-        if (uris.length == 0) return
-        const type = getCollectionFromUri(uris[0])
-        if (!isReactionCollection(type)) return
+export const reactionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
+    const type = getCollectionFromUri(uris[0])
+    if (!isReactionCollection(type)) return
 
-        const {topicIds, subjectIds} = await this.ctx.kysely.transaction().execute(async (db) => {
+    const {topicIds, subjectIds} = yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (db) => {
             let subjectIds: { subjectId: string, uri: string }[] = []
             try {
                 subjectIds = (await db
@@ -278,13 +277,7 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                     .execute())
                     .map(e => e.subjectId != null ? {...e, subjectId: e.subjectId} : null)
                     .filter(x => x != null)
-            } catch (err) {
-                this.ctx.logger.pino.error({error: err, subjectIds}, "error getting subject ids")
-            }
-
-            if (subjectIds.length == 0) {
-                this.ctx.logger.pino.info("got no subject ids")
-            }
+            } catch {}
 
             if (subjectIds.length > 0) {
                 try {
@@ -301,10 +294,8 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                         .returning(["HasReacted.recordId"])
                         .execute()
 
-                    await this.batchDecrementReactionCounter(db, type, deletedSubjects.map(u => u.recordId))
-                } catch (error) {
-                    this.ctx.logger.pino.error({error}, "error deleting from has reacted")
-                }
+                    await batchDecrementReactionCounter(db, type, deletedSubjects.map(u => u.recordId))
+                } catch {}
             }
 
 
@@ -334,60 +325,59 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                         .select("topicId")
                         .where("uri", "in", subjectIds.map(s => s.subjectId))
                         .execute()).map(t => t.topicId)
-                } catch (error) {
-                    this.ctx.logger.pino.error({error}, "error getting topic ids")
-                }
+                } catch {}
 
                 if (topicIds.length > 0) {
-                    await updateTopicsCurrentVersionBatch(this.ctx, db, topicIds)
+                    await updateTopicsCurrentVersionBatch(ctx, db, topicIds)
                     return {topicIds, subjectIds}
                 }
             }
             return {subjectIds}
-        })
-        if (topicIds && topicIds.length > 0) {
-            await addUpdateContributionsJobForTopics(this.ctx, topicIds)
-        }
-        if (subjectIds && subjectIds.length > 0) {
-            const postsAndArticles = subjectIds
-                .filter(s => {
-                    const c = getCollectionFromUri(s.uri)
-                    return c == "app.bsky.feed.post" || c == "ar.cabildoabierto.feed.article"
-                })
-            await this.ctx.worker?.addJob(
-                "update-interactions-score",
-                postsAndArticles
-            )
+        }),
+        catch: () => new DBDeleteError()
+    })
+    if (topicIds && topicIds.length > 0) {
+        yield* addUpdateContributionsJobForTopics(ctx, topicIds)
+    }
+    if (subjectIds && subjectIds.length > 0) {
+        const postsAndArticles = subjectIds
+            .filter(s => {
+                const c = getCollectionFromUri(s.uri)
+                return c == "app.bsky.feed.post" || c == "ar.cabildoabierto.feed.article"
+            })
+        yield* ctx.worker.addJob(
+            "update-interactions-score",
+            postsAndArticles
+        )
 
-            const reposts = subjectIds.filter(r => isRepost(getCollectionFromUri(r.uri)))
-            if (reposts.length > 0) {
-                this.ctx.logger.pino.info({reposts}, "updating following feed after reposts deleted")
-                await this.ctx.worker?.addJob("update-following-feed-on-deleted-content", reposts.map(r => r.subjectId))
-            }
+        const reposts = subjectIds.filter(r => isRepost(getCollectionFromUri(r.uri)))
+        if (reposts.length > 0) {
+            yield* ctx.worker.addJob("update-following-feed-on-deleted-content", reposts.map(r => r.subjectId))
         }
     }
+})
 
-    async batchDecrementReactionCounter(
-        trx: Transaction<DB>,
-        type: ReactionType,
-        recordIds: string[]
-    ) {
-        const column = columnMap[type]
 
-        if (!column) {
-            throw new Error(`Unknown reaction type: ${type}`)
-        }
+async function batchDecrementReactionCounter(
+    trx: Transaction<DB>,
+    type: ReactionType,
+    recordIds: string[]
+) {
+    const column = columnMap[type]
 
-        if (recordIds.length == 0) return
-
-        await trx
-            .updateTable('Record')
-            .where('uri', 'in', recordIds)
-            .set((eb) => ({
-                [column]: eb(eb.ref(column), '-', 1)
-            }))
-            .execute()
+    if (!column) {
+        throw new Error(`Unknown reaction type: ${type}`)
     }
+
+    if (recordIds.length == 0) return
+
+    await trx
+        .updateTable('Record')
+        .where('uri', 'in', recordIds)
+        .set((eb) => ({
+            [column]: eb(eb.ref(column), '-', 1)
+        }))
+        .execute()
 }
 
 

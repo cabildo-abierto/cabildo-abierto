@@ -8,9 +8,9 @@ import {ATCreateRecordError, createVoteAcceptAT, createVoteRejectAT, VoteRejectP
 import {ATDeleteRecordError, deleteRecordAT} from "#/services/delete.js";
 import {ReactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
 import {Effect} from "effect";
-import {batchDeleteRecords, ProcessDeleteError} from "#/services/sync/event-processing/get-record-processor.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 import {InvalidValueError} from "#/utils/errors.js";
+import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
 
 export type ReactionType =
@@ -99,7 +99,11 @@ export const repost: EffHandler<ATProtoStrongRef, { uri: string }> = (ctx, agent
 }
 
 
-export const removeReactionAT = (ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError> => {
+export const removeReactionAT = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    uri: string
+): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError> => {
     return Effect.gen(function* () {
         const collection = getCollectionFromUri(uri)
         if (collection == "app.bsky.feed.like") {
@@ -117,7 +121,7 @@ export const removeReactionAT = (ctx: AppContext, agent: SessionAgent, uri: stri
         } else if (collection == "ar.cabildoabierto.wiki.voteReject") {
             yield* deleteRecordAT(agent, uri)
         }
-        yield* batchDeleteRecords(ctx, [uri])
+        yield* processDeletes(ctx, [uri])
     })
 }
 
