@@ -185,6 +185,12 @@ export function getEmbedsFromEmbedViews(
                         value: yield* pollViewToMain(e.value),
                         index: e.index
                     })
+                } else if(ArCabildoabiertoEmbedPoll.isMain(e.value)) {
+                    embedMains.push({
+                        $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                        value: e.value,
+                        index: e.index
+                    })
                 } else {
                     yield* Effect.fail(new InvalidValueError("Tipo de embed desconocido."))
                 }

@@ -73,7 +73,7 @@ export const PollVotes = ({pollId}: { pollId: string }) => {
                 onClick={() => {
                     setOpen(true)
                 }}
-                className={"rounded-[8px] border py-1 px-2 text-sm text-[13px] hover:bg-[var(--background-dark2)] text-[var(--text-light)]"}
+                className={"border py-0.5 px-1.5 text-sm text-[13px] hover:bg-[var(--background-dark2)] text-[var(--text-light)]"}
             >
                 Ver votos
             </button>

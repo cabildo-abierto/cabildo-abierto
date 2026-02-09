@@ -32,9 +32,9 @@ export const Poll = ({onDelete, onSelectOption, onEdit, poll, pollId}: {
 
     return (
         <div
-            className="w-full max-w-md rounded-2xl border bg-[var(--background-dark)] portal group p-4 shadow-sm space-y-4"
+            className="my-2 w-full border bg-[var(--background-dark)] portal group p-4 shadow-sm space-y-4"
         >
-            <div className={"flex justify-between"}>
+            <div className={"flex justify-between items-start"}>
                 <div className="space-y-1">
                     <div className="text-base font-semibold">
                         {poll.poll.description}
@@ -59,10 +59,15 @@ export const Poll = ({onDelete, onSelectOption, onEdit, poll, pollId}: {
                             <TrashIcon/>
                         </BaseIconButton>
                     </div>}
+                    {pollId && <div className={"w-20"}>
+                        <PollVotes
+                        pollId={pollId}
+                        />
+                    </div>}
                 </div>
             </div>
 
-            <div className="space-y-3 flex flex-col">
+            <div className="grid grid-cols-2 gap-3">
                 {choices.map((option, idx) => {
                     return <PollChoice
                         key={idx}
@@ -74,10 +79,6 @@ export const Poll = ({onDelete, onSelectOption, onEdit, poll, pollId}: {
                         disabled={onSelectOption == null || onDelete != null || poll.viewer?.voteUri == "optimistic"}
                     />
                 })}
-
-                {pollId && <PollVotes
-                    pollId={pollId}
-                />}
             </div>
 
             {editing && <EditPollModal

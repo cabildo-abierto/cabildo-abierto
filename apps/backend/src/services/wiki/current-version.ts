@@ -237,7 +237,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     }
 
     if (updates.length > 0) {
-        ctx.logger.pino.info({updates}, "applying current version update")
         try {
             await trx
                 .insertInto("Topic")
