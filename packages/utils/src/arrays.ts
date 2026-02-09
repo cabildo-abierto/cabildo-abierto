@@ -39,6 +39,7 @@ export function areSetsEqual<T>(a: Set<T>, b: Set<T>) {
 }
 
 export function areArraysEqual(a: any[], b: any[]) {
+    if(a == null || b == null) return a == b
     if (a.length != b.length) return false
     for (let i = 0; i < a.length; i++) {
         if (a[i] != b[i]) return false

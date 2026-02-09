@@ -9,7 +9,8 @@ import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect, pipe} from "effect";
 import {ValidationResult} from "@atproto/lexicon";
-import {CIDEncodeError, getPollId} from "#/services/write/topic.js";
+import {CIDEncodeError, getPollKey} from "#/services/write/topic.js";
+import {getPollContainerFromId, getPollKeyFromId} from "@cabildo-abierto/utils";
 
 
 export class PollVoteRecordProcessor extends RecordProcessor<ArCabildoabiertoEmbedPollVote.Record> {
@@ -18,8 +19,9 @@ export class PollVoteRecordProcessor extends RecordProcessor<ArCabildoabiertoEmb
             const res = ArCabildoabiertoEmbedPollVote.validateRecord(record)
             if(res.success) {
                 const poll = res.value.subjectPoll
-                const id = yield* getPollId(poll)
-                if(id == res.value.subjectId) {
+                const key = yield* getPollKey(poll)
+
+                if(key == getPollKeyFromId(res.value.subjectId)) {
                     return res
                 } else {
                     return {
@@ -46,8 +48,9 @@ export class PollVoteRecordProcessor extends RecordProcessor<ArCabildoabiertoEmb
 
             const containers = records
                 .map(r => {
-                    if(r.record.subjectPoll.containerRef.uri) {
-                        return {uri: r.record.subjectPoll.containerRef.uri}
+                    const container = getPollContainerFromId(r.record.subjectId)
+                    if(container.uri) {
+                        return {uri: container.uri}
                     } else {
                         return null
                     }
@@ -59,7 +62,7 @@ export class PollVoteRecordProcessor extends RecordProcessor<ArCabildoabiertoEmb
                 id: r.record.subjectId,
                 choices: r.record.subjectPoll.choices.map(c => c.label),
                 description: r.record.subjectPoll.description,
-                createdAt: r.record.subjectPoll.createdAt
+                createdAt: new Date()
             }))
 
             if(polls.length > 0) {

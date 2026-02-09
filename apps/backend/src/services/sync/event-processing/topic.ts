@@ -18,7 +18,7 @@ import {Effect, pipe} from "effect";
 import { DB } from "prisma/generated/types.js";
 import {AddJobError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
-import {getPollId} from "#/services/write/topic.js";
+import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
 
 
@@ -35,8 +35,8 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                         .map(e => e.value)
                         .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
                     for(const p of polls) {
-                        const id = yield* getPollId(p.poll)
-                        if(id != p.id) {
+                        const key = yield* getPollKey(p.poll)
+                        if(key != p.key) {
                             const error: ValidationResult<ArCabildoabiertoWikiTopicVersion.Record> = {
                                 success: false,
                                 error: new Error("Invalid poll.")
@@ -47,7 +47,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 }
                 return yield* Effect.succeed(res)
             }
-        })
+        }).pipe(Effect.withSpan("TopicVersionRecordProcessor.validateRecord"))
     }
 
     addRecordsToDB(
@@ -65,6 +65,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             },
             ref: r.ref
         }))
+        const topicIds = records.map(r => r.record.id)
 
         const topics = getUniqueTopicUpdates(records)
 
@@ -78,7 +79,13 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
 
         const insertTopics = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
-            const jobs = await processContentsBatch(this.ctx, trx, contents)
+            const jobs = await processContentsBatch(
+                this.ctx,
+                trx,
+                contents,
+                topicIds
+            )
+
 
             await trx
                 .insertInto("Topic")
@@ -116,7 +123,8 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             Effect.tap(({inserted, jobs}) => {
                 return !reprocess ? this.createJobs(records, inserted, topics, jobs) : Effect.void
             }),
-            Effect.map(() => records.length)
+            Effect.map(() => records.length),
+            Effect.withSpan("TopicVersionRecordProcessor.addRecordsToDB")
         )
     }
 

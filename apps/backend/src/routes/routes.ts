@@ -93,7 +93,7 @@ import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
-import {cancelVotePollHandler, getPollHandler, votePollHandler} from "#/services/polls/polls.js";
+import {cancelVotePollHandler, getPollHandler, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -508,6 +508,8 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post("/vote-poll", makeEffHandler(ctx, votePollHandler))
 
     router.post("/cancel-vote-poll", makeEffHandler(ctx, cancelVotePollHandler))
+
+    router.get("/topic-polls", makeEffHandler(ctx, getTopicPolls))
 
     router.use(adminRoutes(ctx))
 

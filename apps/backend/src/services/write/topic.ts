@@ -53,7 +53,7 @@ function untype<T>(obj: $Typed<T> | Omit<$Typed<T>, "$type">): T {
 }
 
 
-export function getPollId(poll: ArCabildoabiertoEmbedPoll.Poll): Effect.Effect<string, CIDEncodeError> {
+export function getPollKey(poll: ArCabildoabiertoEmbedPoll.Poll): Effect.Effect<string, CIDEncodeError> {
     return Effect.tryPromise({
         try: async () => {
             const bytes = dagCbor.encode(untype(poll))
@@ -96,7 +96,14 @@ export class PollIdMismatchError {
 }
 
 
-export function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): Effect.Effect<ArCabildoabiertoFeedArticle.ArticleEmbed[], FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidValueError | CIDEncodeError | PollIdMismatchError> {
+export function getEmbedsFromEmbedViews(
+    agent: SessionAgent,
+    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
+    embedContexts?: EmbedContext[]
+): Effect.Effect<
+    ArCabildoabiertoFeedArticle.ArticleEmbed[],
+    FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidValueError | CIDEncodeError | PollIdMismatchError
+> {
 
     return Effect.gen(function* () {
         let embedMains: ArCabildoabiertoFeedArticle.ArticleEmbed[] = []
@@ -184,7 +191,7 @@ export function getEmbedsFromEmbedViews(agent: SessionAgent, embeds?: ArCabildoa
             }
         }
         return embedMains
-    })
+    }).pipe(Effect.withSpan("getEmbedsFromEmbedViews"))
 }
 
 
@@ -215,7 +222,11 @@ export function createTopicVersionATProto(agent: SessionAgent, {id, text, format
             blob = yield* uploadStringBlob(agent, text)
         }
 
-        const embedMains = yield* getEmbedsFromEmbedViews(agent, embeds, embedContexts)
+        const embedMains = yield* getEmbedsFromEmbedViews(
+            agent,
+            embeds,
+            embedContexts
+        )
 
         const record: ArCabildoabiertoWikiTopicVersion.Record = {
             $type: "ar.cabildoabierto.wiki.topicVersion",

@@ -120,8 +120,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     topicIds = unique(topicIds)
     if (topicIds.length == 0) return
 
-    ctx.logger.pino.info({ids: topicIds.slice(0, 5)}, "updating topics current version")
-
     type VersionWithVotes = {
         topicId: string
         uri: string

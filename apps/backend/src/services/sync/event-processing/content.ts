@@ -5,19 +5,26 @@ import {
     SyncContentProps
 } from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
-import {getCollectionFromUri} from "@cabildo-abierto/utils";
+import {ContentContextRef, getCollectionFromUri, getPollId} from "@cabildo-abierto/utils";
 import {JobToAdd} from "#/jobs/worker.js";
 
 
-export const processContentsBatch = async (ctx: AppContext, trx: Transaction<DB>, records: {
-    ref: ATProtoStrongRef,
-    record: SyncContentProps
-}[]): Promise<JobToAdd[]> => {
+export const processContentsBatch = async (
+    ctx: AppContext,
+    trx: Transaction<DB>,
+    records: {
+        ref: ATProtoStrongRef,
+        record: SyncContentProps
+    }[],
+    topicIds?: string[]
+): Promise<JobToAdd[]> => {
     if (records.length == 0) return []
 
-    const blobData = records.map(c => {
-        return c.record.textBlob ?? null
-    }).filter(b => b != null)
+    const blobData = records
+        .map(c => {
+            return c.record.textBlob ?? null
+        })
+        .filter(b => b != null)
 
     if (blobData.length > 0) {
         await trx
@@ -85,20 +92,38 @@ export const processContentsBatch = async (ctx: AppContext, trx: Transaction<DB>
         }
 
         const polls = contentData
-            .flatMap(c => c.embeds.map(e => e.value))
-            .filter(x => ArCabildoabiertoEmbedPoll.isMain(x))
+            .flatMap((c, i) => c.embeds
+                .map(e => {
+                    if(ArCabildoabiertoEmbedPoll.isMain(e.value)){
+                        const container: ContentContextRef = topicIds ?
+                            {type: "topic", id: topicIds[i]} :
+                            {type: "uri", uri: c.uri}
+                        return {
+                            poll: e.value,
+                            container
+                        }
+                    } else {
+                        return null
+                    }
+                }))
+            .filter(x => x != null)
 
         if(polls.length > 0) {
             await trx
                 .insertInto("Poll")
-                .values(polls.map(p => ({
-                    id: p.id,
-                    choices: p.poll.choices.map(c => c.label),
-                    description: p.poll.description,
-                    createdAt: p.poll.createdAt,
-                    topicId: p.poll.containerRef.topicId,
-                    parentRecordId: p.poll.containerRef.uri,
-                })))
+                .values(polls.map(p => {
+                    const poll = p.poll
+                    const id = getPollId(poll.key, p.container)
+
+                    return {
+                        id,
+                        choices: poll.poll.choices.map(c => c.label),
+                        description: poll.poll.description,
+                        createdAt: new Date(),
+                        topicId: p.container.type == "topic" ? p.container.id : undefined,
+                        parentRecordId: p.container.type == "uri" ? p.container.uri : undefined,
+                    }
+                }))
                 .onConflict((oc) => oc.column("id").doNothing())
                 .execute()
         }

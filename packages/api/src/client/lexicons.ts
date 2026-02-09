@@ -1858,12 +1858,12 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'object',
-        required: ['id', 'poll'],
+        required: ['key', 'poll'],
         properties: {
-          id: {
+          key: {
             type: 'string',
             description:
-              'Unique identifier of the poll. Should be a hash of the poll object.',
+              'Unique identifier of the poll within its container, obtained as a hash of the poll object.',
           },
           poll: {
             type: 'ref',
@@ -1873,12 +1873,8 @@ export const schemaDict = {
       },
       poll: {
         type: 'object',
-        required: ['choices', 'createdAt', 'containerRef'],
+        required: ['choices'],
         properties: {
-          containerRef: {
-            type: 'ref',
-            ref: 'lex:ar.cabildoabierto.embed.poll#pollContainerRef',
-          },
           description: {
             type: 'string',
           },
@@ -1888,24 +1884,6 @@ export const schemaDict = {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.embed.poll#pollChoice',
             },
-          },
-          createdAt: {
-            type: 'string',
-            format: 'datetime',
-            description: 'The declared time when this poll was created.',
-          },
-        },
-      },
-      pollContainerRef: {
-        type: 'object',
-        required: [],
-        properties: {
-          uri: {
-            type: 'string',
-            format: 'uri',
-          },
-          topicId: {
-            type: 'string',
           },
         },
       },
@@ -1920,9 +1898,9 @@ export const schemaDict = {
       },
       view: {
         type: 'object',
-        required: ['id', 'poll', 'votes'],
+        required: ['key', 'poll', 'votes'],
         properties: {
-          id: {
+          key: {
             type: 'string',
           },
           poll: {
@@ -1969,7 +1947,8 @@ export const schemaDict = {
           properties: {
             subjectId: {
               type: 'string',
-              description: 'The id of the poll that was voted on.',
+              description:
+                'The id of the poll that was voted on. It can be either at://[did]/[collection]/[rkey]/[poll-key] or ca://[topicId]/[poll-key]',
             },
             subjectPoll: {
               type: 'ref',

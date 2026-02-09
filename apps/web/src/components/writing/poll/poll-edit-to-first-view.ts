@@ -8,7 +8,7 @@ export function pollEditStateToFirstView(poll: PollEditState): $Typed<ArCabildoa
 
     return {
         $type: "ar.cabildoabierto.embed.poll#view",
-        id: "unpublished", // se completa al guardar el contenido
+        key: "unpublished", // se completa al guardar el contenido
         poll: {
             $type: "ar.cabildoabierto.embed.poll#poll",
             description: poll.description,
@@ -17,10 +17,8 @@ export function pollEditStateToFirstView(poll: PollEditState): $Typed<ArCabildoa
                     $type: "ar.cabildoabierto.embed.poll#pollChoice",
                     label: c
                 }
-            }),
-            containerRef: {}, // se completa al guardar el contenido
-            createdAt: new Date().toISOString()
+            })
         },
-        votes: choices.map(c => 0)
+        votes: poll.votes ?? choices.map(c => 0)
     }
 }

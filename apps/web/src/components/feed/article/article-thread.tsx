@@ -8,6 +8,7 @@ import Article from "./article";
 import {useSession} from "@/components/auth/use-session";
 import {useLoginModal} from "../../auth/login-modal-provider";
 import {DiscussionButton} from "../../tema/view/discussion-button";
+import {ContentContextProvider} from "@/components/layout/contexts/content-context";
 
 
 const WritePanel = dynamic(() => import("../../writing/write-panel/write-panel"), {
@@ -50,7 +51,8 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
 
     if (!ArCabildoabiertoFeedDefs.isFullArticleView(thread.content)) return null
 
-    return <div className={"flex flex-col items-center"}>
+    return <ContentContextProvider content={{type: "uri", uri: thread.content.uri}}>
+        <div className={"flex flex-col items-center"}>
         <Article
             article={thread.content}
             pinnedReplies={pinnedReplies}
@@ -88,6 +90,7 @@ const ArticleThread = ({thread}: { thread: ArCabildoabiertoFeedDefs.ThreadViewCo
             }}
         />}
     </div>
+    </ContentContextProvider>
 }
 
 

@@ -4,11 +4,11 @@
   "defs": {
     "main": {
       "type": "object",
-      "required": ["id", "poll"],
+      "required": ["key", "poll"],
       "properties": {
-        "id": {
+        "key": {
           "type": "string",
-          "description": "Unique identifier of the poll. Should be a hash of the poll object."
+          "description": "Unique identifier of the poll within its container, obtained as a hash of the poll object."
         },
         "poll": {
           "type": "ref",
@@ -19,15 +19,9 @@
     "poll": {
       "type": "object",
       "required": [
-        "choices",
-        "createdAt",
-        "containerRef"
+        "choices"
       ],
       "properties": {
-        "containerRef": {
-          "type": "ref",
-          "ref": "#pollContainerRef"
-        },
         "description": {
           "type": "string"
         },
@@ -37,24 +31,6 @@
             "type": "ref",
             "ref": "#pollChoice"
           }
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "datetime",
-          "description": "The declared time when this poll was created."
-        }
-      }
-    },
-    "pollContainerRef": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "uri": {
-          "type": "string",
-          "format": "uri"
-        },
-        "topicId": {
-          "type": "string"
         }
       }
     },
@@ -72,12 +48,12 @@
     "view": {
       "type": "object",
       "required": [
-        "id",
+        "key",
         "poll",
         "votes"
       ],
       "properties": {
-        "id": {
+        "key": {
           "type": "string"
         },
         "poll": {

@@ -8,7 +8,7 @@ import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processi
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Effect} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
-import {getPollId} from "#/services/write/topic.js";
+import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
 
 
@@ -28,8 +28,8 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
                         .map(e => e.value)
                         .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
                     for(const p of polls) {
-                        const id = yield* getPollId(p.poll)
-                        if(id != p.id) {
+                        const key = yield* getPollKey(p.poll)
+                        if(key != p.key) {
                             const error: ValidationResult<ArCabildoabiertoFeedArticle.Record> = {
                                 success: false,
                                 error: new Error("Invalid poll.")

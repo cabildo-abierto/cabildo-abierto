@@ -3,6 +3,7 @@ import ArticleEditor, {ArticleEditorFromDraft} from "@/components/writing/articl
 import {ArticleEditorFromPublished} from "@/components/writing/article/article-editor-from-published";
 import {useSearchParams} from "next/navigation";
 import {NavigationGuardProvider} from "next-navigation-guard";
+import {ContentContextProvider} from "@/components/layout/contexts/content-context";
 
 
 const Page = () => {
@@ -10,22 +11,15 @@ const Page = () => {
     const i = searchParams.get("i")
     const r = searchParams.get("r")
 
-    if(typeof i == "string"){
-        return <NavigationGuardProvider>
-            <ArticleEditorFromDraft id={i}/>
-        </NavigationGuardProvider>
-    } else if(typeof r == "string"){
-        return <NavigationGuardProvider>
-            <ArticleEditorFromPublished
+    return <NavigationGuardProvider>
+        <ContentContextProvider content={{type: "uri", uri: "unpublished"}}>
+            {typeof i == "string" && <ArticleEditorFromDraft id={i}/>}
+            {typeof i != "string" && typeof r == "string" && <ArticleEditorFromPublished
                 rkey={r}
-            />
-        </NavigationGuardProvider>
-    } else {
-        return <NavigationGuardProvider>
-            <ArticleEditor/>
-        </NavigationGuardProvider>
-    }
-
+            />}
+            {typeof i != "string" && typeof r != "string" && <ArticleEditor/>}
+        </ContentContextProvider>
+    </NavigationGuardProvider>
 }
 
 export default Page

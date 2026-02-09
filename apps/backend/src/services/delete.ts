@@ -188,7 +188,10 @@ export function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri:
 }
 
 
-function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<void, ATDeleteRecordError | ProcessDeleteError | DBSelectError> {
+function deleteRecord(ctx: AppContext, agent: SessionAgent, uri: string): Effect.Effect<
+    void,
+    ATDeleteRecordError | ProcessDeleteError | DBSelectError
+> {
     const collection = getCollectionFromUri(uri)
     return Effect.gen(function* () {
         if (isPost(collection)) {
@@ -222,8 +225,8 @@ export const deleteRecordHandler: EffHandler<{
         const uri = getUri(agent.did, collection, rkey)
 
         return deleteRecord(ctx, agent, uri).pipe(
-            Effect.catchAll(() => Effect.fail(`Ocurrió un error al borrar ${collectionToDisplay(collection, "el-la")}.`)),
-            Effect.flatMap(() => Effect.succeed({}))
+            Effect.flatMap(() => Effect.succeed({})),
+        Effect.catchAll(() => Effect.fail(`Ocurrió un error al borrar ${collectionToDisplay(collection, "el-la")}.`))
         )
     }
 

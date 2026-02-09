@@ -11,7 +11,7 @@
         "properties": {
           "subjectId": {
             "type": "string",
-            "description": "The id of the poll that was voted on."
+            "description": "The id of the poll that was voted on. It can be either at://[did]/[collection]/[rkey]/[poll-key] or ca://[topicId]/[poll-key]"
           },
           "subjectPoll": {
             "type": "ref",

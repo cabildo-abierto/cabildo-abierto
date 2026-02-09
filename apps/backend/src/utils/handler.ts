@@ -202,7 +202,8 @@ export function isAdmin(did: string) {
         "did:plc:2356xofv4ntrbu42xeilxjnb",
         "did:plc:rup47j6oesjlf44wx4fizu4m",
         "did:plc:2dbz7h5m3iowpqc23ozltpje",
-        "did:plc:2semihha42b7efhu4ywv7whi"
+        "did:plc:2semihha42b7efhu4ywv7whi",
+        "did:plc:cpooyynmjuqtcyhujscrxme7"
     ].includes(did)
 }
 

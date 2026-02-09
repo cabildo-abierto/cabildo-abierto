@@ -368,7 +368,7 @@ export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoFeed
                 value: {
                     $type: "ar.cabildoabierto.embed.poll",
                     poll: e.value.poll,
-                    id: e.value.id
+                    key: e.value.key
                 },
                 index: e.index
             })

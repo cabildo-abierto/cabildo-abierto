@@ -2,7 +2,6 @@ import {BaseFullscreenPopup} from "@/components/utils/dialogs/base-fullscreen-po
 import {LexicalEditor} from "lexical";
 import {EditPoll, PollEditState} from "@/components/writing/poll/edit-poll";
 import {useState} from "react";
-import {CloseButton} from "@/components/utils/base/close-button";
 import {INSERT_EMBED_COMMAND} from "@/components/editor/plugins/EmbedPlugin";
 import {EmbedPayload} from "@/components/editor/nodes/EmbedNode";
 import {useErrors} from "@/components/layout/contexts/error-context";
@@ -30,17 +29,12 @@ export const EditPollModal = ({
         onClose={onClose}
         closeButton={false}
     >
-        <div className={"flex justify-between items-center py-1"}>
-            <h3 className={"text-left px-3"}>
-                Nueva encuesta
-            </h3>
-            <CloseButton onClose={onClose}/>
-        </div>
         <div className={"p-3"}>
             <EditPoll
                 poll={poll}
                 setPoll={setPoll}
                 onSave={() => {onSave(poll)}}
+                onClose={onClose}
             />
         </div>
     </BaseFullscreenPopup>

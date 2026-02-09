@@ -5,13 +5,15 @@ import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoEmbedVisualization} from "@ca
 import {$isEmbedNode, EmbedSpec} from "./EmbedNode";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
 import dynamic from "next/dynamic";
+import {PollFromId} from "@/components/writing/poll/poll-from-id";
+import {useContentContext} from "@/components/layout/contexts/content-context";
 import {Poll} from "@/components/writing/poll/poll";
-import {PollFromMain} from "@/components/writing/poll/poll-from-main";
+import {getPollId} from "@cabildo-abierto/utils";
+
 const PlotFromVisualizationMain = dynamic(
     () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
     ssr: false
 })
-
 
 
 export const EmbedNodeComp = ({
@@ -22,6 +24,7 @@ export const EmbedNodeComp = ({
     nodeKey: string
 }) => {
     const [editor] = useLexicalComposerContext()
+    const {contentRef} = useContentContext()
 
     const editable = editor.isEditable()
 
@@ -55,17 +58,21 @@ export const EmbedNodeComp = ({
             mainPostRef={null}
             onArticle={true}
         />
-    } else if(ArCabildoabiertoEmbedPoll.isView(embed)) {
-        return <Poll
-            poll={embed}
+    } else if(ArCabildoabiertoEmbedPoll.isView(embed) || ArCabildoabiertoEmbedPoll.isMain(embed)) {
+        if(embed.key == "unpublished") {
+            if(ArCabildoabiertoEmbedPoll.isView(embed)) {
+                return <Poll
+                    poll={embed}
+                    onEdit={editable ? onEdit : undefined}
+                />
+            }
+        }
+        const pollId = getPollId(embed.key, contentRef)
+
+        return <PollFromId
+            pollId={pollId}
             onDelete={onDelete}
             onEdit={editable ? onEdit : undefined}
-            activeEditor={editor}
-        />
-    } else if(ArCabildoabiertoEmbedPoll.isMain(embed)) {
-        return <PollFromMain
-            poll={embed}
-            activeEditor={editor}
         />
     }
 }

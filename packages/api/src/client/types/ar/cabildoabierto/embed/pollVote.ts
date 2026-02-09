@@ -17,7 +17,7 @@ const id = 'ar.cabildoabierto.embed.pollVote'
 
 export interface Main {
   $type: 'ar.cabildoabierto.embed.pollVote'
-  /** The id of the poll that was voted on. */
+  /** The id of the poll that was voted on. It can be either at://[did]/[collection]/[rkey]/[poll-key] or ca://[topicId]/[poll-key] */
   subjectId: string
   subjectPoll: ArCabildoabiertoEmbedPoll.Poll
   /** The label of the choice that was voted for. */

@@ -34,7 +34,11 @@ export const createArticleAT = (
         const text = article.text
         const blobRef = yield* uploadStringBlob(agent, text)
 
-        const embedMains = yield* getEmbedsFromEmbedViews(agent, article.embeds, article.embedContexts)
+        const embedMains = yield* getEmbedsFromEmbedViews(
+            agent,
+            article.embeds,
+            article.embedContexts
+        )
 
         const preview = article.previewImage ? yield* uploadImageBlob(agent, article.previewImage) : undefined
 

@@ -135,6 +135,19 @@ export class FetchFromBskyError {
 }
 
 
+export type PollQueryResult = {
+    description: string | null
+    choices: string[]
+    createdAt: Date
+    votes: {
+        uri: string
+        choice: string
+    }[]
+    topicId: string | null
+    parentRecordId: string | null
+}
+
+
 export class DataPlane extends Context.Tag("DataPlane")<
     DataPlane,
     {
@@ -173,12 +186,14 @@ export class DataPlane extends Context.Tag("DataPlane")<
         profiles: Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed>
         profileViewers: Map<string, AppBskyActorDefs.ViewerState>
         signedStorageUrls: Map<string, Map<string, string>>
+        polls: Map<string, PollQueryResult>
     }
     readonly storeRepost: (repost: RepostQueryResult & {subjectId: string}) => void
     readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBSelectError>
     readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBSelectError>
     readonly fetchPostAndArticleViewsHydrationData: (uris: string[], dids?: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly dpFetchTextBlobs: (blobs: BlobRef[]) => Effect.Effect<void, FetchBlobError>
+    readonly fetchPollsHydrationData: (ids: string[]) => Effect.Effect<void, DBSelectError>
 }>() {}
 
 
@@ -209,6 +224,8 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     const caUsers = new Map<string, CAProfile | "not-found">()
     const profiles = new Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed>()
     const profileViewers = new Map<string, AppBskyActorDefs.ViewerState>()
+
+    const polls = new Map<string, PollQueryResult>()
 
     const signedStorageUrls = new Map<string, Map<string, string>>()
 
@@ -1249,6 +1266,33 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         }
     })
 
+    const fetchPollsHydrationData = (ids: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
+        if(ids.length == 0) return
+        const res = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Poll")
+                .select([
+                    "id",
+                    "choices",
+                    "createdAt",
+                    "description",
+                    "topicId",
+                    "parentRecordId",
+                    eb => jsonArrayFrom(eb
+                        .selectFrom("PollVote")
+                        .innerJoin("Record", "Record.uri", "PollVote.uri")
+                        .whereRef("PollVote.pollId", "=", "Poll.id")
+                        .select(["PollVote.choice", "PollVote.uri"])
+                        .orderBy("created_at_tz desc")
+                    ).as("votes")
+                ])
+                .where("id", "in", ids)
+                .execute(),
+            catch: error => new DBSelectError(error)
+        })
+        res.forEach(r => polls.set(r.id, r))
+    }).pipe(Effect.withSpan("fetchPollsHydrationData", {attributes: {count: ids.length}}))
+
     return {
         fetchCAContentsAndBlobs,
         fetchSignedStorageUrls,
@@ -1279,7 +1323,8 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             caUsers,
             profiles,
             profileViewers,
-            signedStorageUrls
+            signedStorageUrls,
+            polls
         }),
         storeFeedViewPosts,
         saveDataFromPostThread,
@@ -1290,6 +1335,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         fetchProfileViewHydrationData,
         storeRepost,
         fetchPostAndArticleViewsHydrationData,
-        dpFetchTextBlobs
+        dpFetchTextBlobs,
+        fetchPollsHydrationData
     } as const
 })

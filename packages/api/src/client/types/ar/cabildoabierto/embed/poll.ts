@@ -16,8 +16,8 @@ const id = 'ar.cabildoabierto.embed.poll'
 
 export interface Main {
   $type?: 'ar.cabildoabierto.embed.poll'
-  /** Unique identifier of the poll. Should be a hash of the poll object. */
-  id: string
+  /** Unique identifier of the poll within its container, obtained as a hash of the poll object. */
+  key: string
   poll: Poll
 }
 
@@ -33,11 +33,8 @@ export function validateMain<V>(v: V) {
 
 export interface Poll {
   $type?: 'ar.cabildoabierto.embed.poll#poll'
-  containerRef: PollContainerRef
   description?: string
   choices: PollChoice[]
-  /** The declared time when this poll was created. */
-  createdAt: string
 }
 
 const hashPoll = 'poll'
@@ -48,22 +45,6 @@ export function isPoll<V>(v: V) {
 
 export function validatePoll<V>(v: V) {
   return validate<Poll & V>(v, id, hashPoll)
-}
-
-export interface PollContainerRef {
-  $type?: 'ar.cabildoabierto.embed.poll#pollContainerRef'
-  uri?: string
-  topicId?: string
-}
-
-const hashPollContainerRef = 'pollContainerRef'
-
-export function isPollContainerRef<V>(v: V) {
-  return is$typed(v, id, hashPollContainerRef)
-}
-
-export function validatePollContainerRef<V>(v: V) {
-  return validate<PollContainerRef & V>(v, id, hashPollContainerRef)
 }
 
 export interface PollChoice {
@@ -83,7 +64,7 @@ export function validatePollChoice<V>(v: V) {
 
 export interface View {
   $type?: 'ar.cabildoabierto.embed.poll#view'
-  id: string
+  key: string
   poll: Poll
   viewer?: PollViewer
   votes: number[]
