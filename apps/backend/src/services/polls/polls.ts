@@ -46,11 +46,12 @@ const normalizePollId = (
     id: string
 ): Effect.Effect<string, DBSelectError | NotFoundError> => Effect.gen(function* () {
     const container = getPollContainerFromId(id)
+    const key = getPollKeyFromId(id)
     if(container.uri) {
         const {did, collection, rkey} = splitUri(container.uri)
         if(collection == "ar.cabildoabierto.wiki.topicVersion") {
             const topicId = yield* getTopicIdFromTopicVersionUri(ctx, did, rkey)
-            return `ca://${topicId}`
+            return `ca://${encodeURIComponent(topicId)}/${key}`
         }
     }
     return id

@@ -44,7 +44,7 @@ export const Poll = ({onDelete, onSelectOption, onEdit, poll, pollId}: {
                     </div>
                 </div>
                 <div className={"flex space-x-2"}>
-                    {onEdit && poll.key == "unpublished" && <div>
+                    {onEdit && <div>
                         <BaseIconButton
                             size={"small"}
                             onClick={() => {
