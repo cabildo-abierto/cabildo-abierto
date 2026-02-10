@@ -116,7 +116,9 @@ const getThreadSkeletonForPost = (
     uri: string
 ): Effect.Effect<ThreadSkeleton, DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const [skeletonBsky, skeletonCA] = yield* Effect.all([
-        getThreadRepliesSkeletonForPostFromBsky(ctx, agent, uri),
+        getThreadRepliesSkeletonForPostFromBsky(ctx, agent, uri).pipe(
+            Effect.catchTag("FetchFromBskyError", () => Effect.succeed(null))
+        ),
         Effect.tryPromise({
             try: () => getThreadRepliesSkeletonForPostFromCA(ctx, uri),
             catch: () => new DBSelectError()
@@ -124,7 +126,7 @@ const getThreadSkeletonForPost = (
     ], {concurrency: "unbounded"})
 
     return skeletonBsky ?? skeletonCA
-})
+}).pipe(Effect.withSpan("getThreadSkeletonForPost", {attributes: {uri}}))
 
 
 export function getThreadSkeletonForArticle(ctx: AppContext, uri: string): Effect.Effect<ThreadSkeleton, DBSelectError> {
@@ -156,7 +158,7 @@ const getThreadSkeleton = (
     ctx: AppContext,
     agent: Agent,
     uri: string
-): Effect.Effect<ThreadSkeleton, DBSelectError | DBSelectError | FetchFromBskyError | NotImplementedError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ThreadSkeleton, DBSelectError | FetchFromBskyError | NotImplementedError, DataPlane> => Effect.gen(function* () {
     const collection = getCollectionFromUri(uri)
 
     if(isPost(collection)){
@@ -186,14 +188,8 @@ export const getThread: EffHandlerNoAuth<
 
     yield* data.fetchThreadHydrationData(skeleton)
 
-    const thread = yield* hydrateThreadViewContent(ctx, agent, skeleton, true, true)
-
-    if(!thread) {
-        return yield* Effect.fail("Ocurrió un error al obtener el hilo.")
-    }
-
-    return thread
-}).pipe(
+    return yield* hydrateThreadViewContent(ctx, agent, skeleton, true, true)
+}).pipe(Effect.withSpan("getThread", {attributes: {params}})).pipe(
     Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el hilo."))
 ), DataPlane, makeDataPlane(ctx, agent))
 

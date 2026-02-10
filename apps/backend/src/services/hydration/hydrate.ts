@@ -30,6 +30,7 @@ import {DataPlane, FetchFromBskyError} from "#/services/hydration/dataplane.js";
 import {NoSessionAgent, SessionAgent} from "#/utils/session-agent.js";
 import {hydratePostView} from "#/services/hydration/post-view.js";
 import {DBSelectError} from "#/utils/errors.js";
+import {HydrationDataUnavailableError} from "#/services/polls/polls.js";
 
 
 export const hydrateViewer = (agent: SessionAgent | NoSessionAgent, uri: string): Effect.Effect<{
@@ -272,7 +273,12 @@ export const hydrateArticleView = (ctx: AppContext, agent: SessionAgent | NoSess
 type Content = $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> | $Typed<ArCabildoabiertoDataDataset.DatasetView>
 
 
-export const hydrateContent = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, uri: string, full: boolean = false): Effect.Effect<Content | null, never, DataPlane> => Effect.gen(function* () {
+export const hydrateContent = (
+    ctx: AppContext,
+    agent: SessionAgent | NoSessionAgent,
+    uri: string,
+    full: boolean = false
+): Effect.Effect<Content | null, never, DataPlane> => Effect.gen(function* () {
     const collection = getCollectionFromUri(uri)
     if (isPost(collection)) {
         return yield* hydratePostView(ctx, agent, uri)
@@ -421,19 +427,28 @@ export const threadPostRepliesSortKey = (authorId: string) => (r: ThreadViewPost
 }
 
 
-export const hydrateThreadViewContent = (ctx: AppContext, agent: SessionAgent | NoSessionAgent, skeleton: ThreadSkeleton, includeReplies: boolean = false, isMain: boolean = false): Effect.Effect<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> | null, never, DataPlane> => Effect.gen(function* () {
+export const hydrateThreadViewContent = (
+    ctx: AppContext,
+    agent: SessionAgent | NoSessionAgent,
+    skeleton: ThreadSkeleton,
+    includeReplies: boolean = false,
+    isMain: boolean = false
+): Effect.Effect<
+    $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>,
+    HydrationDataUnavailableError,
+    DataPlane
+> => Effect.gen(function* () {
     const content = yield* hydrateContent(ctx, agent, skeleton.post, isMain)
     if (!content) {
-        ctx.logger.pino.error({uri: skeleton.post}, "content not found during thread hydration")
-        return null
+        return yield* Effect.fail(new HydrationDataUnavailableError())
     }
 
     const authorDid = getDidFromUri(skeleton.post)
 
     let replies: $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>[] | undefined
     if (includeReplies && skeleton.replies) {
-        replies = (yield* Effect.all(skeleton.replies
-            .map((r) => (hydrateThreadViewContent(ctx, agent, r, true))))).filter(x => x != null)
+        replies = yield* Effect.all(skeleton.replies
+            .map(r => hydrateThreadViewContent(ctx, agent, r, true)))
 
         replies = sortByKey(replies, threadRepliesSortKey(authorDid), listOrderDesc)
     }
@@ -442,18 +457,17 @@ export const hydrateThreadViewContent = (ctx: AppContext, agent: SessionAgent | 
     if (skeleton.parent) {
         const hydratedParent = yield* hydrateThreadViewContent(
             ctx, agent, skeleton.parent, false)
-        if (hydratedParent) {
-            parent = {
-                ...hydratedParent,
-                $type: "ar.cabildoabierto.feed.defs#threadViewContent"
-            }
+        parent = {
+            ...hydratedParent,
+            $type: "ar.cabildoabierto.feed.defs#threadViewContent"
         }
     }
 
-    return {
+    const thread: $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent> = {
         $type: "ar.cabildoabierto.feed.defs#threadViewContent",
         content,
         replies,
         parent
     }
-})
+    return thread
+}).pipe(Effect.withSpan("hydrateThreadViewContent", {attributes: {skeleton: skeleton.post}}))
