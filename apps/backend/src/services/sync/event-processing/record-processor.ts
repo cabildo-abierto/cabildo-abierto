@@ -119,7 +119,6 @@ export class RecordProcessor<T> {
             }
         }))).pipe(
             Effect.flatMap(results => Effect.succeed(results.filter(r => r != null))),
-            Effect.withSpan("parseRecords")
         )}
 
     async processRecordsBatch(trx: Transaction<DB>, records: { ref: ATProtoStrongRef, record: any }[]) {
