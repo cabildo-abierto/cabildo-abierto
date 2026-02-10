@@ -1,4 +1,4 @@
-import {EffHandler} from "#/utils/handler.js";
+import {EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoEmbedPollVote } from "@cabildo-abierto/api";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
@@ -26,7 +26,7 @@ import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 
 
-export const getPollHandler: EffHandler<{params: {id: string}}, ArCabildoabiertoEmbedPoll.View> = (
+export const getPollHandler: EffHandlerNoAuth<{params: {id: string}}, ArCabildoabiertoEmbedPoll.View> = (
     ctx,
     agent,
     {params}
@@ -191,7 +191,7 @@ export const cancelVotePollHandler: EffHandler<{pollId: string}, void> = (ctx, a
 )
 
 
-export const getTopicPolls: EffHandler<
+export const getTopicPolls: EffHandlerNoAuth<
     {query: {did?: string, rkey?: string, topicId?: string}},
     ArCabildoabiertoEmbedPoll.View[]
 > = (ctx, agent, {query}) => Effect.provideServiceEffect(Effect.gen(function* () {
@@ -264,7 +264,7 @@ const hydratePollView = (ctx: AppContext, agent: Agent, pollId: string): Effect.
 }).pipe(Effect.withSpan("hydratePollView", {attributes: {pollId}}))
 
 
-export const getPollVotes: EffHandler<
+export const getPollVotes: EffHandlerNoAuth<
     {params: {id: string}},
     ArCabildoabiertoEmbedPollVote.View[]
 > = (

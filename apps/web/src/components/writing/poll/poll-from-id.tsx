@@ -9,6 +9,8 @@ import {useAPI} from "@/components/utils/react/queries";
 import {Poll} from "@/components/writing/poll/poll";
 import {$Typed} from "@atproto/api";
 import {Note} from "@/components/utils/base/note";
+import {useSession} from "@/components/auth/use-session";
+import {useLoginModal} from "@/components/auth/login-modal-provider";
 
 function optimisticCancelPollVote(qc: QueryClient, pollId: string) {
     qc.setQueryData(["poll", pollId], (oldPoll: ArCabildoabiertoEmbedPoll.View | null) => {
@@ -58,6 +60,8 @@ export const PollFromId = ({pollId, onDelete, onEdit}: {
     const {refetch, data: poll, isLoading} = usePoll(pollId)
     const {addError} = useErrors()
     const qc = useQueryClient()
+    const {user} = useSession()
+    const {setLoginModalOpen} = useLoginModal()
 
     if(isLoading) {
         return <div className={"border p-3 rounded-2xl"}>
@@ -76,6 +80,11 @@ export const PollFromId = ({pollId, onDelete, onEdit}: {
     async function onSelectOption(idx: number) {
         const choices = poll.poll.choices
         const selectedIndex = poll.viewer?.choice ? choices.findIndex(c => c.label == poll.viewer.choice) : null
+
+        if(!user) {
+            setLoginModalOpen(true, true, "Iniciá sesión para participar en las encuestas.", false)
+            return
+        }
 
         if(selectedIndex == idx) {
             optimisticCancelPollVote(qc, pollId)

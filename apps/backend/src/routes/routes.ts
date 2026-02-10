@@ -503,15 +503,15 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/custom-feed/:did/:rkey", makeEffHandler(ctx, getCustomFeed))
 
-    router.get("/poll/:id", makeEffHandler(ctx, getPollHandler))
+    router.get("/poll/:id", makeEffHandlerNoAuth(ctx, getPollHandler))
 
     router.post("/vote-poll", makeEffHandler(ctx, votePollHandler))
 
     router.post("/cancel-vote-poll", makeEffHandler(ctx, cancelVotePollHandler))
 
-    router.get("/topic-polls", makeEffHandler(ctx, getTopicPolls))
+    router.get("/topic-polls", makeEffHandlerNoAuth(ctx, getTopicPolls))
 
-    router.get("/poll-votes/:id", makeEffHandler(ctx, getPollVotes))
+    router.get("/poll-votes/:id", makeEffHandlerNoAuth(ctx, getPollVotes))
 
     router.use(adminRoutes(ctx))
 
