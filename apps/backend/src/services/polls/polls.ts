@@ -100,6 +100,8 @@ const createPollVoteAT = (
     DataPlane
 > => Effect.gen(function* () {
 
+    pollId = yield* normalizePollId(ctx, pollId)
+
     const poll = yield* getPoll(ctx, agent, pollId)
     const choice = poll.poll.choices[choiceIdx].label
 
