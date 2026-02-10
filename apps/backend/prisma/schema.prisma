@@ -184,6 +184,7 @@ model HasReacted {
 
   @@unique([userId, recordId, reactionType])
   @@index([recordId])
+  @@index([reactionType, recordId, userId])
 }
 
 model InviteCode {

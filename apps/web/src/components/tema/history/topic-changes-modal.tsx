@@ -143,7 +143,7 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
     }, [data])
 
     if(isLoading) {
-        return <div className={"py-8"}>
+        return <div className={"py-8 min-[600px]:w-[600px]"}>
             <LoadingSpinner/>
         </div>
     } else if(!contentWithChanges) {
@@ -160,7 +160,7 @@ const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
         editorClassName: "relative article-content not-article-content min-h-[300px]",
     })
 
-    return <div className={"pr-2 pl-20"}>
+    return <div className={"pr-2 pl-20 min-[600px]:w-[600px]"}>
         <div className={"rounded pt-2"} id={`${prevRkey}:${rkey}`}>
             <CAEditor
                 settings={settings}
@@ -200,6 +200,7 @@ const VersionSelector = ({
     }
 
     return <BaseSelect
+        contentClassName={"z-[1900]"}
         options={range(0, history.versions.length).map(x => x.toString())}
         optionNodes={options}
         label={label}
@@ -224,6 +225,7 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
         open={open}
         onClose={onClose}
         closeButton={true}
+        className={"z-[1800]"}
     >
         <div className={"flex flex-col items-center space-y-2 uppercase"}>
             <h3 className={"text-base"}>Cambios</h3>
