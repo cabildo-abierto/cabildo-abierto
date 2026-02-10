@@ -93,6 +93,6 @@ export const TopicDiscussion = ({
             onClose={() => {setWritingReply(false)}}
             replyTo={replyToContent}
         />}
-        <DiscussionButton replyCount={topic.replyCount}/>
+        {discussion && <DiscussionButton replyCount={discussion.feed.length}/>}
     </div>
 }
