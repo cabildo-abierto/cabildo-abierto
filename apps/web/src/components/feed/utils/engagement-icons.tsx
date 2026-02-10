@@ -77,6 +77,7 @@ export const EngagementIcons = ({
                 showBluesky={showBsky}
                 setShowBluesky={setShowBsky}
                 iconSize={iconSize}
+                className={"z-[1600]"}
             />
         </div>
     </div>
