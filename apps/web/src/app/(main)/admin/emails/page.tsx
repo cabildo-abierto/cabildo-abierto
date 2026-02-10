@@ -307,6 +307,7 @@ function EmailPreview({email}: {email: SentEmail}) {
                 className="py-2 px-3 flex items-center gap-4 hover:bg-[var(--background-dark)] cursor-pointer"
                 onClick={() => setShowPreview(!showPreview)}
             >
+                <span className="font-mono text-xs flex-1">{email.senderEmail}</span>
                 <span className="font-mono text-xs flex-1">{email.recipientEmail}</span>
                 <SuccessBadge success={email.success} />
                 <span className="text-[var(--text-light)] text-sm">

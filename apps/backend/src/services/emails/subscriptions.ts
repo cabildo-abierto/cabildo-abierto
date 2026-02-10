@@ -74,6 +74,7 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
             "EmailSent.html",
             "EmailSent.text",
             "EmailSent.success",
+            "EmailSent.from",
             "EmailTemplate.name as templateName"
         ])
         .orderBy("EmailSent.sent_at", "desc")
@@ -95,7 +96,8 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
             html: email.html,
             text: email.text,
             success: email.success,
-            templateName: email.templateName
+            templateName: email.templateName,
+            senderEmail: email.from
         })
     }
 

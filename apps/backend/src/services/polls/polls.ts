@@ -276,16 +276,20 @@ export const getPollVotes: EffHandlerNoAuth<
         try: () => ctx.kysely
             .selectFrom("PollVote")
             .where("PollVote.pollId", "=", params.id)
-            .select(["uri", "choice"])
+            .innerJoin("Record", "Record.uri", "PollVote.uri")
+            .select(["Record.uri", "choice"])
+            .orderBy("Record.created_at_tz desc")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: error => new DBSelectError(error)
     })
+
+    const uniqueVotes = unique(votes, v => getDidFromUri(v.uri))
 
     const dataplane = yield* DataPlane
 
-    yield* dataplane.fetchProfileViewBasicHydrationData(votes.map(v => getDidFromUri(v.uri)))
+    yield* dataplane.fetchProfileViewBasicHydrationData(uniqueVotes.map(v => getDidFromUri(v.uri)))
 
-    return (yield* Effect.all(votes.map(v => Effect.gen(function* () {
+    return (yield* Effect.all(uniqueVotes.map(v => Effect.gen(function* () {
         const author = yield* hydrateProfileViewBasic(ctx, getDidFromUri(v.uri))
         if(!author) return null
         return {

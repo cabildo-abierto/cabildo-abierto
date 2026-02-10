@@ -365,7 +365,5 @@ export const createNotificationsJob = async (ctx: AppContext, data: Notification
         ...data.filter(d => d.type != "TopicVersionVote" && d.type != "TopicEdit" && d.type != "Mention")
     ]
 
-    ctx.logger.pino.info({data, fullNotifications}, "creating notifications")
-
     await createFullNotifications(ctx, fullNotifications)
 }
