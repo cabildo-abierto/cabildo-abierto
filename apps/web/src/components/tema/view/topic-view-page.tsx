@@ -82,9 +82,16 @@ export const TopicViewPage = () => {
             />
         </div>
         {curVersion != versionInView &&
-            <Link className={cn(isMobile ? "bottom-16 right-2" : "bottom-2", "fixed right-2 z-[200]")} href={topicUrl(topic.id)}><BaseButton variant={"outlined"}
-                                                                                                   size={"small"}>
+        <Link
+            className={cn(isMobile ? "bottom-16 right-2" : "bottom-2", "fixed right-2 z-[200]")}
+            href={topicUrl(topic.id)}
+        >
+            <BaseButton
+                variant={"outlined"}
+                size={"small"}
+            >
                 Ir a la versión actual del tema.
-            </BaseButton></Link>}
+            </BaseButton>
+        </Link>}
     </>
 }

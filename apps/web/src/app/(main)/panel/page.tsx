@@ -265,9 +265,9 @@ const Page = () => {
                                 <EditStatsCard topicVersion={a}/>
                             </div>
                         })}
-                        {data.edits.length == 0 && <div className={"text-center text-[var(--text-light)] py-16"}>
+                        {data.edits.length == 0 && <Note className={"py-16"}>
                             Todavía no editaste ningún tema.
-                        </div>}
+                        </Note>}
                     </div>)}
             </div>
         </div>}
