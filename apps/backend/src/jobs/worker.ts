@@ -128,7 +128,7 @@ export class CAWorker {
             const job = this.jobs[i]
             if (name.startsWith(job.name)) {
                 if (job.type == "eff") {
-                    await runtime.runPromiseExit(
+                    await runtime.runPromise(
                         job.effHandler(data).pipe(Effect.withSpan(`worker-job ${name}`))
                     )
                 } else {
@@ -427,7 +427,8 @@ export class RedisCAWorker extends CAWorker {
                 {
                     connection: ioredis,
                     lockDuration: 60 * 1000 * 5,
-                    concurrency: env.WORKER_CONCURRENCY
+                    concurrency: env.WORKER_CONCURRENCY,
+                    maxStalledCount: 3
                 }
             )
             this.worker.on('failed', (job, err) => {
@@ -463,6 +464,11 @@ export class RedisCAWorker extends CAWorker {
                     removeOnFail: {
                         age: 24 * 60 * 60, // trabajos fallidos por hasta 24hs
                         count: 500, // y hasta 500
+                    },
+                    attempts: 5,
+                    backoff: {
+                        type: 'exponential',
+                        delay: 5000
                     },
                 }),
             catch: () => new AddJobError()
