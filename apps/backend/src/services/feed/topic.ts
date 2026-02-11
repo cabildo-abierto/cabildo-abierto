@@ -53,7 +53,8 @@ const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<Fee
             .execute(),
         catch: () => new DBSelectError()
     }).pipe(
-        Effect.map(replies => replies.map(r => ({post: r.uri})))
+        Effect.map(replies => replies.map(r => ({post: r.uri}))),
+    Effect.withSpan("getTopicRepliesSkeleton")
     )
 }
 
@@ -341,7 +342,7 @@ function addVotesContextToDiscussionFeed(ctx: AppContext, uri: string, feed: $Ty
 }
 
 
-const hydrateRepliesSkeleton = (
+const getHydratedRepliesFromSkeleton = (
     ctx: AppContext,
     agent: Agent,
     skeleton: FeedSkeleton,
@@ -365,7 +366,7 @@ const hydrateRepliesSkeleton = (
             creationDateSortKey,
             listOrderDesc
         )
-    })
+    }).pipe(Effect.withSpan("getHydratedRepliesFromSkeleton", {attributes: {uri}}))
 
 
 export const getTopicVersionReplies = (
@@ -375,7 +376,7 @@ export const getTopicVersionReplies = (
     uri: string
 ): Effect.Effect<ArCabildoabiertoFeedDefs.FeedViewContent[], DBSelectError | FetchFromBskyError, DataPlane> => {
     return getTopicRepliesSkeleton(ctx, id).pipe(
-        Effect.flatMap(skeleton => hydrateRepliesSkeleton(
+        Effect.flatMap(skeleton => getHydratedRepliesFromSkeleton(
             ctx,
             agent,
             skeleton,
@@ -423,7 +424,7 @@ export const getTopicDiscussion: EffHandlerNoAuth<{
             feed: replies,
             cursor: undefined
         }
-    }).pipe(
+    }).pipe(Effect.withSpan("getTopicDiscussion", {attributes: {id, did, rkey}})).pipe(
         Effect.catchTag("TopicCurrentVersionNotFoundError", () => Effect.fail("No se encontró la versión del tema.")),
         Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el tema.")),
         Effect.catchTag("FetchFromBskyError", () => Effect.fail("Ocurrió un error al obtener la discusión.")),
@@ -534,7 +535,7 @@ export const getTopicQuoteReplies: EffHandlerNoAuth<{
         catch: () => new DBSelectError()
     })).map(p => ({post: p.uri}))
 
-    const hydrated = yield* hydrateRepliesSkeleton(ctx, agent, skeleton, uri)
+    const hydrated = yield* getHydratedRepliesFromSkeleton(ctx, agent, skeleton, uri)
 
     const posts: ArCabildoabiertoFeedDefs.PostView[] = hydrated
         .map(c => c.content)
