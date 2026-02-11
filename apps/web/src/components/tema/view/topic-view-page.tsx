@@ -7,6 +7,9 @@ import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import TopicNotFoundPage from "../topic-not-found-page";
 import {cn} from "@/lib/utils";
 import dynamic from "next/dynamic";
+import {BaseButton} from "@/components/utils/base/base-button";
+import {topicUrl} from "@/components/utils/react/url";
+import Link from "next/link";
 
 const TopicDiscussion = dynamic(() => import("./topic-discussion").then(mod => mod.TopicDiscussion), {
     ssr: false
@@ -35,42 +38,53 @@ export const TopicViewPage = () => {
         return <div className={"py-8"}>
             <LoadingSpinner/>
         </div>
-    } else if(!topic) {
+    } else if (!topic) {
         return <TopicNotFoundPage/>
     }
 
-    return <div
-        className={cn("mt-8 space-y-8 pb-32", isMobile && "pt-6")}
-    >
-        <div
-            className="absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"
-        >
-            <EditTopicButton topicId={topic.id}/>
-            <TopicPropsPanel
-                topic={topic}
-            />
-        </div>
+    const curVersion = topic.currentVersion
+    const versionInView = topic.uri
 
+    return <>
         <div
-            className={cn(
-            "space-y-8",
-                isMobile ? "px-4" : (!layoutConfig.spaceForRightSide ? "pr-4 " : ""), !layoutConfig.spaceForLeftSide && "pl-4")}
+            className={cn("space-y-8 pb-32", isMobile && "pt-6")}
         >
-            <TopicHeader topic={topic}/>
-
-            <div className={"pb-16"}>
-                <TopicContent
+            <div
+                className="absolute top-14 right-2 z-[200] space-y-2 flex flex-col items-end"
+            >
+                {curVersion == versionInView && <EditTopicButton topicId={topic.id}/>}
+                <TopicPropsPanel
                     topic={topic}
-                    pinnedReplies={pinnedReplies}
-                    setPinnedReplies={setPinnedReplies}
                 />
             </div>
-        </div>
 
-        <TopicDiscussion
-            topic={topic}
-            pinnedReplies={pinnedReplies}
-            setPinnedReplies={setPinnedReplies}
-        />
-    </div>
+            <div
+                className={cn(
+                    "space-y-8",
+                    isMobile ? "px-4" : (!layoutConfig.spaceForRightSide ? "pr-4 " : ""), !layoutConfig.spaceForLeftSide && "pl-4"
+                )}
+            >
+                <TopicHeader topic={topic}/>
+
+                <div className={"pb-16"}>
+                    <TopicContent
+                        topic={topic}
+                        pinnedReplies={pinnedReplies}
+                        setPinnedReplies={setPinnedReplies}
+                    />
+                </div>
+            </div>
+
+            <TopicDiscussion
+                topic={topic}
+                pinnedReplies={pinnedReplies}
+                setPinnedReplies={setPinnedReplies}
+            />
+        </div>
+        {curVersion != versionInView &&
+            <Link className={cn(isMobile ? "bottom-16 right-2" : "bottom-2", "fixed right-2 z-[200]")} href={topicUrl(topic.id)}><BaseButton variant={"outlined"}
+                                                                                                   size={"small"}>
+                Ir a la versión actual del tema.
+            </BaseButton></Link>}
+    </>
 }

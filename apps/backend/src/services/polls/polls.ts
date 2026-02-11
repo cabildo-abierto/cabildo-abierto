@@ -272,10 +272,12 @@ export const getPollVotes: EffHandlerNoAuth<
     agent,
     {params}
 ) => Effect.provideServiceEffect(Effect.gen(function* () {
+    const pollId = yield* normalizePollId(ctx, params.id)
+
     const votes = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("PollVote")
-            .where("PollVote.pollId", "=", params.id)
+            .where("PollVote.pollId", "=", pollId)
             .innerJoin("Record", "Record.uri", "PollVote.uri")
             .select(["Record.uri", "choice"])
             .orderBy("Record.created_at_tz desc")
