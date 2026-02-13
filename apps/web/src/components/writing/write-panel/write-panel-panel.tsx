@@ -91,7 +91,7 @@ const WritePanelPanel = ({
             overlayClassName={"z-[1399]"}
         >
             <div
-                className={cn("w-full bg-[var(--background-dark)] rounded pt-1 flex flex-col max-h-[80vh] overflow-y-auto custom-scrollbar", !isMobile ? "min-h-[334px] justify-between" : "mt-8")}>
+                className={cn("w-full group portal bg-[var(--background-dark)] rounded pt-1 flex flex-col max-h-[80vh] overflow-y-auto custom-scrollbar", !isMobile ? "min-h-[334px] justify-between" : "mt-8")}>
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {!isReply && !quotedPost ? <SelectionComponent
                         onSelection={onSelection}

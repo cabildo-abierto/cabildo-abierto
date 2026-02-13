@@ -72,6 +72,7 @@ export const BaseFullscreenPopup = ({
     sm:translate-y-[-50%]
     sm:border
     sm:h-auto
+    flex flex-col
     `, className)}
             onClick={e => {
                 e.stopPropagation()

@@ -1,16 +1,14 @@
-import { BaseFullscreenPopup } from "../utils/dialogs/base-fullscreen-popup"
+import {BaseFullscreenPopup} from "../utils/dialogs/base-fullscreen-popup"
 import {CreateTopic} from "../writing/write-panel/create-topic";
 
 
-
-const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
+const CreateTopicModal = ({open, onClose}: { open: boolean, onClose: () => void }) => {
 
     return <BaseFullscreenPopup
         open={open}
         closeButton={true}
         onClose={onClose}
         backgroundShadow={true}
-        className={"z-[1100]"}
     >
         <CreateTopic onClose={onClose} initialSelected={""}/>
     </BaseFullscreenPopup>

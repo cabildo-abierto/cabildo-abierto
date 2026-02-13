@@ -110,7 +110,7 @@ export default function TopbarMobile({setWritePanelOpen}: {
         {pathname.startsWith("/temas") && <div className={"h-12 flex justify-center w-full"}>
             <div
                 style={{maxWidth: layoutConfig.maxWidthCenter}}
-                className={"w-full h-full items-center"}
+                className={"px-1 w-full h-full items-center"}
             >
                 <TopicsPageHeader/>
             </div>

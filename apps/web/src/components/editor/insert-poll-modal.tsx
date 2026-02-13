@@ -29,7 +29,7 @@ export const EditPollModal = ({
         onClose={onClose}
         closeButton={false}
     >
-        <div className={"p-3"}>
+        <div className={""}>
             <EditPoll
                 poll={poll}
                 setPoll={setPoll}
