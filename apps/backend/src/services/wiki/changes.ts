@@ -1,5 +1,5 @@
 import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
-import {ArCabildoabiertoFeedArticle, ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorDefs, DiffParams, DiffOutput} from "@cabildo-abierto/api"
 import {diff, nodesCharDiff} from "#/services/wiki/diff.js";
 import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {getTopicVersion} from "#/services/wiki/topics.js";
@@ -9,7 +9,11 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {Effect} from "effect";
 
 
-export const getNewVersionDiff: CAHandlerNoAuth<{currentText: string, currentFormat: string, markdown: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbed[]}, {charsAdded: number, charsDeleted: number}> = async (ctx, agent, params) => {
+export const getNewVersionDiff: CAHandlerNoAuth<DiffParams, DiffOutput> = async (
+    ctx,
+    agent,
+    params
+) => {
     const nodes1 = anyEditorStateToNodesForDiff(params.currentText, params.currentFormat)
     const nodes2 = anyEditorStateToNodesForDiff(params.markdown, "markdown")
 

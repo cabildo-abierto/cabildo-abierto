@@ -60,9 +60,9 @@ export function useRepostMutation(uri: string) {
             qc.cancelQueries(filterQueriesCancelledByUriUpdate(uri))
             optimisticAddRepost(qc, repostedContent.uri)
         },
-        onSuccess: (data, variables, context) => {
-            if (data.data.uri) {
-                setCreatedRepost(qc, uri, data.data.uri)
+        onSuccess: (data) => {
+            if (data.success === true) {
+                setCreatedRepost(qc, uri, data.value.uri)
             }
         }
     })

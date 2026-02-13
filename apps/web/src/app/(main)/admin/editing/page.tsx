@@ -5,12 +5,10 @@ import {ArCabildoabiertoWikiTopicVersion, BatchEdit, EditPropsParams} from "@cab
 import {TopicPropView} from "@/components/tema/props/topic-prop-view";
 import {post} from "@/components/utils/react/fetch";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
-import {useErrors} from "@/components/layout/contexts/error-context";
 import {toast} from "sonner";
 import { StateButton } from "@/components/utils/base/state-button";
 
 const EditRow = ({r, message}: {r: any, message: string}) => {
-    const {addError} = useErrors()
     const [status, setStatus] = useState<"done" | "no changes" | "pending">("pending")
 
     return <div className={"flex space-x-4"}>
@@ -49,20 +47,19 @@ const EditRow = ({r, message}: {r: any, message: string}) => {
                         },
                         message
                     }
-                    const {error, data} = await post("/edit-topic", edit)
-                    if(error) {
-                        addError(error)
-                    }
-                    if(data != null) {
-                        if(data) {
+                    const res = await post<EditPropsParams, boolean>("/edit-topic", edit)
+                    if(res.success === false) {
+                        return {error: res.error}
+                    } else {
+                        if(res.value) {
                             toast("Se creó la versión!")
                             setStatus("done")
                         } else {
                             toast("No se necesitan cambios.")
                             setStatus("no changes")
                         }
+                        return {}
                     }
-                    return {}
                 }}
             >
                 Aplicar
@@ -105,8 +102,8 @@ export default function Page() {
                             propsToDelete: d.propsToDelete ?? []
                         }))
                     }
-                    const {error} = await post("/batch-edit", batch)
-                    return {error}
+                    const res = await post("/batch-edit", batch)
+                    if(res.success === true) return {}; else return {error: res.error}
                 }}
             >
                 Aplicar todo

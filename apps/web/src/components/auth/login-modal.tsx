@@ -55,9 +55,9 @@ const LoginModalAccessRequest = ({onBack}: {
     const [showRequestCreated, setShowRequestCreated] = useState<boolean>(false)
 
     async function onSendAccessRequest() {
-        const {error} = await post<{}, {}>("/access-request", {email, comment})
-        if (error) {
-            return {error}
+        const res = await post<{}, {}>("/access-request", {email, comment})
+        if (res.success === false) {
+            return {error: res.error}
         } else {
             setShowRequestCreated(true)
             setComment("")
@@ -74,10 +74,9 @@ const LoginModalAccessRequest = ({onBack}: {
             }}
             open={showRequestCreated}
         >
-            <div
-                className="text-[var(--text-light)] font-light p-5 max-w-[360px] text-center">
+            <Note className={"p-5 text-base max-w-[360px]"}>
                 ¡Listo! Ni bien podamos te enviamos la invitación. Gracias por tu interés.
-            </div>
+            </Note>
         </AcceptButtonPanel>
         <h2 className={"font-bold text-lg pb-2 text-center"}>Solicitar acceso</h2>
         <div className={"flex flex-col items-center space-y-4 pb-12"}>

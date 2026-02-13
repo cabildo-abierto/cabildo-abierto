@@ -52,20 +52,20 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
 
     const createDatasetMutation = useMutation({
         mutationFn: createDataset,
-        onSuccess: async ({data}) => {
+        onSuccess: async (res) => {
             qc.invalidateQueries({
                 predicate: query => query.queryKey.length > 0 && query.queryKey[0] == "datasets"
             })
-            if(data) {
+            if(res.success === true) {
                 qc.invalidateQueries({
-                    predicate: query => query.queryKey.length > 0 && query.queryKey[0] == "dataset" && query.queryKey[1] == data.uri
+                    predicate: query => query.queryKey.length > 0 && query.queryKey[0] == "dataset" && query.queryKey[1] == res.value.uri
                 })
             }
         },
     })
 
     async function onPublish(){
-        const {error, data} = await createDatasetMutation.mutateAsync({
+        const res = await createDatasetMutation.mutateAsync({
             name: newDataset.name,
             columns: newDataset.columns.map(c => c.name),
             description: newDataset.description,
@@ -73,9 +73,9 @@ export const DatasetEditor = ({dataset, filters, onCreated}: {
             format: "json",
             uri: dataset?.uri
         })
-        if(error) return {error}
+        if(res.success === false) return {error: res.error}
 
-        onCreated(data.uri)
+        onCreated(res.value.uri)
         return {}
     }
 

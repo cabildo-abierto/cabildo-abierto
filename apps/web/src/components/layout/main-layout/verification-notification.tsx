@@ -21,7 +21,7 @@ export const VerificationNotification = ({children}: {children: ReactNode}) => {
         const res = await post("/seen-tutorial/verification")
         setOpen(false)
         await refetch()
-        return res
+        return {error: res.success === false ? res.error : undefined}
     }
 
     return <>

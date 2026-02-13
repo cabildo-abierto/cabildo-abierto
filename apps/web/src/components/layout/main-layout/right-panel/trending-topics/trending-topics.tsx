@@ -86,7 +86,7 @@ export const TrendingTopicsPanel = () => {
         {topics ?
             <TrendingTopicsSlider
                 selected={selectedToTimePeriod(time)}
-                trendingArticles={topics}
+                trendingTopics={topics}
             /> :
             (isLoading ?
                     <LoadingTrendingTopicsSlider/> :

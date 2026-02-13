@@ -5,14 +5,14 @@ import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
-import {createCAUser, UserNotFoundError} from "#/services/user/access.js";
+import {AssignInviteCodeError, createCAUser, UserNotFoundError} from "#/services/user/access.js";
 import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
 import {
     Account,
     AlgorithmConfig,
     ArCabildoabiertoActorDefs,
     ATProtoStrongRef,
-    AuthorStatus,
+    AuthorStatus, MaybeSession,
     Session,
     ValidationState
 } from "@cabildo-abierto/api"
@@ -26,7 +26,9 @@ import {handleOrDidToDid} from "#/id-resolver.js";
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
-import {AddJobError, DBSelectError} from "#/utils/errors.js";
+import {AddJobError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+import {CIDEncodeError} from "#/services/write/topic.js";
+import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 
 
 export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBSelectError> {
@@ -148,7 +150,6 @@ export const unfollow = (ctx: AppContext, agent: SessionAgent, followUri: string
 
 
 export const getProfileHandler: EffHandlerNoAuth<{ params: { handleOrDid: string } }, ArCabildoabiertoActorDefs.ProfileViewDetailed> = (ctx, agent, {params}) => {
-
     return pipe(
         getProfile(ctx, params.handleOrDid),
         Effect.catchAll(error => {
@@ -195,7 +196,10 @@ export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
 
 type SessionData = Omit<Session, "handle"> & {handle: string | null}
 
-export const getSessionData = (ctx: AppContext, did: string): Effect.Effect<SessionData, RedisCacheFetchError | UserNotFoundError | DBSelectError> => {
+export const getSessionData = (
+    ctx: AppContext,
+    did: string
+): Effect.Effect<SessionData, RedisCacheFetchError | UserNotFoundError | DBSelectError> => {
 
     return Effect.gen(function* () {
         const [data, mirrorStatus] = yield* Effect.all([
@@ -231,6 +235,7 @@ export const getSessionData = (ctx: AppContext, did: string): Effect.Effect<Sess
         if(!data) return yield* Effect.fail(new UserNotFoundError())
 
         const sessionData: SessionData = {
+            active: true,
             authorStatus: data.authorStatus as AuthorStatus | null,
             did: did,
             handle: data.handle,
@@ -282,52 +287,93 @@ function startSyncIfDirty(ctx: AppContext, did: string): Effect.Effect<void, Add
 }
 
 
-export const getSession: EffHandlerNoAuth<{ params?: { code?: string } }, Session> = (ctx, agent, {params}) => {
+class UserCreationFailedError {
+    readonly _tag = "UserCreationFailedError"
+}
+
+
+class NoInviteCodeError {
+    readonly _tag = "NoInviteCodeError"
+}
+
+
+type GetSessionError = UserCreationFailedError |
+    DBSelectError |
+    RedisCacheFetchError |
+    RedisCacheSetError |
+    AssignInviteCodeError |
+    ATCreateRecordError |
+    NoInviteCodeError |
+    CIDEncodeError |
+    AddJobError |
+    InsertRecordError |
+    InvalidValueError |
+    UpdateRedisError
+
+
+export const getSession = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    code: string | null
+): Effect.Effect<Session, GetSessionError> => Effect.gen(function* () {
+
+    yield* startSyncIfDirty(ctx, agent.did)
+
+    const data = yield* getSessionData(ctx, agent.did)
+
+    yield* Effect.annotateCurrentSpan({data: data != null, hasAccess: data?.hasAccess})
+
+    if (data != null && isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
+        return data
+    } else if(data && data.hasAccess) {
+        // está en le DB y tiene acceso pero no está sincronizado o no tiene perfil de ca
+        yield* createCAUser(ctx, agent)
+
+        const newUserData = yield* getSessionData(ctx, agent.did)
+
+        if(!isFullSessionData(newUserData)) {
+            return yield* Effect.fail(new UserCreationFailedError())
+        }
+
+        return newUserData
+    } else if(code) {
+        // el usuario no está en la db (o está pero no tiene acceso) y logró iniciar sesión, creamos un nuevo usuario de CA
+        yield* createCAUser(ctx, agent, code)
+
+        const newUserData = yield* getSessionData(ctx, agent.did)
+
+        if(!isFullSessionData(newUserData)){
+            return yield* Effect.fail(new UserCreationFailedError())
+        }
+
+        return newUserData
+    } else {
+        return yield* Effect.fail(new NoInviteCodeError())
+    }
+}).pipe(Effect.withSpan("getSession", {attributes: {code, did: agent.did}}))
+
+
+export const getSessionHandler: EffHandlerNoAuth<{ params?: { code?: string } }, MaybeSession> = (
+    ctx,
+    agent,
+    {params}
+) => Effect.gen(function* () {
     const code = params?.code
 
     if (!agent.hasSession()) {
-        return Effect.fail("No session")
+        return {active: false}
     }
 
-    return Effect.gen(function* () {
-        yield* startSyncIfDirty(ctx, agent.did)
-
-        const data = yield* getSessionData(ctx, agent.did)
-
-        if (data != null && isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
-            return data
-        } else if(data && data.hasAccess) {
-            // está en le DB y tiene acceso pero no está sincronizado o no tiene perfil de ca
-            yield* createCAUser(ctx, agent)
-
-            const newUserData = yield* getSessionData(ctx, agent.did)
-
-            if(!isFullSessionData(newUserData)) {
-                return yield* Effect.fail("La cuenta tiene acceso, pero ocurrió un error al obtener los datos.")
-            }
-
-            return newUserData
-        } else if(code) {
-            // el usuario no está en la db (o está pero no tiene acceso) y logró iniciar sesión, creamos un nuevo usuario de CA
-            yield* createCAUser(ctx, agent, code)
-
-            const newUserData = yield* getSessionData(ctx, agent.did)
-
-            if(!isFullSessionData(newUserData)){
-                return yield* Effect.fail("Ocurrió un error al obtener los datos de la cuenta.")
-            }
-
-            return newUserData
-        } else {
-            return yield* Effect.fail("Necesitás un código de invitación para crear una cuenta.")
-        }
-    }).pipe(Effect.catchAll(error => {
-        return pipe(
-            Effect.promise(() => deleteSession(ctx, agent)),
-            Effect.flatMap(() => Effect.fail("Ocurrió un error al obtener la sesión."))
-        )
-    }))
-}
+    return yield* getSession(ctx, agent, code ?? null).pipe(
+        Effect.catchAll(() => Effect.gen(function* () {
+            yield* Effect.tryPromise({
+                try: () => deleteSession(ctx, agent),
+                catch: () => "Ocurrió un error al borrar la sesión"
+            })
+            return yield* Effect.fail("Ocurrió un error al obtener la sesión.")
+        }))
+    )
+})
 
 
 function storeBskyEmail(ctx: AppContext, bskyEmail: string, userId: string) {

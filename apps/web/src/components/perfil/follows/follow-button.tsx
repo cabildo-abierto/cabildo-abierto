@@ -301,8 +301,8 @@ export function FollowButton({
             }
         },
         onSuccess: (data) => {
-            if (data.data?.followUri) {
-                setFollow(qc, handle, data.data.followUri)
+            if (data.success) {
+                setFollow(qc, handle, data.value.followUri)
             }
         }
     })

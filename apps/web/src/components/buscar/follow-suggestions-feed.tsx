@@ -1,15 +1,13 @@
 import UserSearchResult from "./user-search-result";
 import Feed from "../feed/feed/feed";
-import { ArCabildoabiertoActorDefs } from "@cabildo-abierto/api";
+import {ArCabildoabiertoActorDefs, GetFeedOutput} from "@cabildo-abierto/api";
 import { get } from "@/components/utils/react/fetch";
 
 
 export const FollowSuggestionsFeed = () => {
-    async function getFollowSuggestions(cursor: string): Promise<{error?: string, data?: {feed: ArCabildoabiertoActorDefs.ProfileViewBasic[], cursor: string | null}}> {
+    async function getFollowSuggestions(cursor: string) {
         const limit = 25
-        const {error, data} = await get<{profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[], cursor?: string}>(`/follow-suggestions/${limit}/${cursor ?? 0}`)
-        if(error) return {error}
-        return {data: {feed: data.profiles, cursor: data.cursor}}
+        return get<GetFeedOutput<ArCabildoabiertoActorDefs.ProfileViewBasic>>(`/follow-suggestions/${limit}/${cursor ?? 0}`)
     }
 
     return <Feed<ArCabildoabiertoActorDefs.ProfileViewBasic>

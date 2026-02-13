@@ -25,7 +25,7 @@ export const useSearchUsers = (
         select: (data) => data,
     })
 
-    return {results, isLoading: isLoading || debouncedQuery != searchState.value, isError, error}
+    return {data: results, isLoading: isLoading || debouncedQuery != searchState.value, isError, error}
 }
 
 
@@ -46,7 +46,7 @@ const UserSearchResults = ({
     splitBluesky?: boolean
     goToProfile?: boolean
 }) => {
-    const {results, isLoading, isError} = useSearchUsers(searchState, showSearchButton ? 6 : 25)
+    const {data, isLoading, isError} = useSearchUsers(searchState, showSearchButton ? 6 : 25)
 
     if (searchState.value.length == 0) {
         return (
@@ -57,19 +57,6 @@ const UserSearchResults = ({
                 }
             >
                 Buscá un usuario
-            </div>
-        );
-    }
-
-    if (isError) {
-        return (
-            <div
-                className={
-                    "text-[var(--text-light)] text-center px-2 " +
-                    (showSearchButton ? "mt-2" : "mt-8")
-                }
-            >
-                Ocurrió un error al buscar
             </div>
         );
     }
@@ -88,7 +75,22 @@ const UserSearchResults = ({
         );
     }
 
-    if (results && results.length == 0) {
+    if (isError || !data || data.success === false) {
+        return (
+            <div
+                className={
+                    "text-[var(--text-light)] text-center px-2 " +
+                    (showSearchButton ? "mt-2" : "mt-8")
+                }
+            >
+                Ocurrió un error al buscar
+            </div>
+        );
+    }
+
+    const results = data.value
+
+    if (results.length == 0) {
         return (
             <div
                 className={
@@ -101,17 +103,17 @@ const UserSearchResults = ({
         );
     }
 
-    const rightIndex = maxCount != undefined ? maxCount : results?.length || 0;
+    const rightIndex = maxCount != undefined ? maxCount : results.length || 0;
 
-    const caResults = results?.filter((r) => r.caProfile != null) || [];
-    const bskyResults = results?.filter((r) => !r.caProfile) || [];
+    const caResults = results.filter((r) => r.caProfile != null) || [];
+    const bskyResults = results.filter((r) => !r.caProfile) || [];
 
     return (
         <div className="flex flex-col items-center bg-[var(--backgound)]">
             <div
                 className={"flex flex-col justify-center w-full " + (showSearchButton ? "border-l border-r border-b border-[var(--accent-dark)]" : "")}>
                 {showSearchButton &&
-                    results?.slice(0, rightIndex).map((user, index) => (
+                    results.slice(0, rightIndex).map((user, index) => (
                         <div key={index} className="">
                             {showSearchButton ? (
                                 <SmallUserSearchResult

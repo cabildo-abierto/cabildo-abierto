@@ -28,5 +28,5 @@ export const useSession = (
         }
     }, [res]);
 
-    return {...res, user: res.data}
+    return {...res, user: res.data && res.data.active ? res.data : null}
 }

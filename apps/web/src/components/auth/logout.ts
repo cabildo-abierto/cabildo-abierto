@@ -7,11 +7,12 @@ export const useLogout = () => {
     const qc = useQueryClient()
     const router = useRouter()
 
-    async function logout() {
-        const {error} = await post("/logout")
-        if(error) return {error}
+    async function logout(): Promise<{error?: string}> {
+        const res = await post("/logout")
+        if(res.success === false) return {error: res.error}
         qc.clear()
         router.push("/")
+        return {}
     }
 
     return {logout}

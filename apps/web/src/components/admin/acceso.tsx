@@ -55,18 +55,22 @@ const GenerateCode = () => {
     const createCodes = useCreateCodes()
 
     async function onGenerateCode() {
-        const {data, error} = await createCodes(1)
-        if (error) return {error}
-        if (data) {
-            setCode(data.inviteCodes[0])
+        const res = await createCodes(1)
+        if (res.success === false) {
+            return {error: res.error}
+        } else {
+            setCode(res.value.inviteCodes[0])
+            return {}
         }
-        return {}
     }
 
     return <div>
-        {code && <div className={"font-mono text-sm cursor-pointer"} onClick={() => {
-            copyCode(code)
-        }}>
+        {code && <div
+            className={"font-mono text-sm cursor-pointer"}
+            onClick={() => {
+                copyCode(code)
+            }}
+        >
             {code}
         </div>}
         {!code && <StateButton
@@ -120,8 +124,8 @@ export const AdminAcceso = () => {
                 <StateButton
                     size={"small"}
                     handleClick={async () => {
-                        const {error} = await deleteUser(handle)
-                        return {error}
+                        const res = await deleteUser(handle)
+                        return {error: res.success === false ? res.error : undefined}
                     }}
                 >
                     Eliminar
@@ -154,9 +158,13 @@ export const AdminAcceso = () => {
                 <StateButton
                     size={"small"}
                     handleClick={async () => {
-                        const {error, data} = await createCodes(codesAmount)
-                        setCodes(data.inviteCodes)
-                        return {error}
+                        const res = await createCodes(codesAmount)
+                        if(res.success === true) {
+                            setCodes(res.value.inviteCodes)
+                            return {}
+                        } else {
+                            return {error: res.error}
+                        }
                     }}
                 >
                     Generar códigos
@@ -205,9 +213,9 @@ export const AdminAcceso = () => {
                         <StateButton
                             size={"small"}
                             handleClick={async () => {
-                                const {error} = await post<{}, {}>(`/access-request-ignored/${a.id}`)
+                                const res = await post<{}, {}>(`/access-request-ignored/${a.id}`)
                                 refetch()
-                                return {error}
+                                return {error: res.success === false ? res.error : undefined}
                             }}
                         >
                             Ignorar
@@ -215,9 +223,9 @@ export const AdminAcceso = () => {
                         <StateButton
                             size={"small"}
                             handleClick={async () => {
-                                const {error} = await post<{}, {}>(`/access-request-sent/${a.id}`)
+                                const res = await post<{}, {}>(`/access-request-sent/${a.id}`)
                                 refetch()
-                                return {error}
+                                return {error: res.success === false ? res.error : undefined}
                             }}
                         >
                             Marcar como enviada

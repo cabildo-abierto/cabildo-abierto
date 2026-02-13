@@ -244,8 +244,8 @@ export const VoteEditButtons = ({
             }
         },
         onSuccess: (data) => {
-            if (data.data && data.data.uri) {
-                setCreatedAcceptVote(qc, topicId, versionRef.uri, data.data.uri)
+            if (data.success === true) {
+                setCreatedAcceptVote(qc, topicId, versionRef.uri, data.value.uri)
                 invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
             } else if(data.error && data.error.includes("eliminaría la justificación")) {
                 setOpenConfirmDeleteVote("accept")
@@ -273,7 +273,7 @@ export const VoteEditButtons = ({
         onMutate: () => {
         },
         onSuccess: async (data) => {
-            if (data.error) {
+            if (data.success === false) {
                 if (data.error.includes("eliminaría la justificación")) {
                     setOpenConfirmDeleteVote("cancel-reject")
                 } else {
@@ -350,10 +350,10 @@ export const VoteEditButtons = ({
             onConfirm={async () => {
                 if(openConfirmDeleteVote == "cancel-reject") {
                     const res = await cancelRejectEditMutation.mutateAsync({voteUri: rejectUri, force: true})
-                    return {error: res.error}
+                    return {error: res.success === false ? res.error : undefined}
                 } else {
                     const res = await acceptEditMutation.mutateAsync({ref: versionRef, force: true})
-                    return {error: res.error}
+                    return {error: res.success === false ? res.error : undefined}
                 }
             }}
             onClose={() => {

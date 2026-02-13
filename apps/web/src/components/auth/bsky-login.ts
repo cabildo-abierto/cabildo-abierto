@@ -3,7 +3,8 @@ import {isValidHandle} from "@atproto/syntax"
 import {useSession} from "./use-session";
 import {usePathname, useRouter} from "next/navigation";
 import * as React from "react";
-import {fetchBackend} from "@/components/utils/react/fetch";
+import {post} from "@/components/utils/react/fetch";
+import {LoginOutput, LoginParams} from "@cabildo-abierto/api";
 
 
 function getHandleFromInputs(handleStart: string, domain: string) {
@@ -31,9 +32,9 @@ export function useBlueskyLogin({
 
     useEffect(() => {
         const channel = new BroadcastChannel("auth_channel")
-        channel.onmessage = (event) => {
+        channel.onmessage = async (event) => {
             if (event.data === "auth-success") {
-                refetch()
+                await refetch()
                 if (pathname.startsWith("/presentacion")) {
                     router.push("/inicio")
                 }
@@ -61,30 +62,22 @@ export function useBlueskyLogin({
         }
 
         setIsLoading(true)
-        const res = await fetchBackend({
-            route: "/login",
-            method: "POST",
-            credentials: "include",
-            body: {handle, code: inviteCode},
-            redirect: "follow"
-        })
+        const res = await post<LoginParams, LoginOutput>(
+            "/login",
+            {handle, code: inviteCode},
+            "follow"
+        )
 
-        if (!res.ok) {
-            popup.close();
-            setError("Error de conexión.");
-            setIsLoading(false);
-            return;
+        console.log("login res", res)
+
+        if (res.success === false) {
+            popup.close()
+            setError(res.error)
+            setIsLoading(false)
+            return
         }
 
-        const body = await res.json();
-        if (body.error) {
-            popup.close();
-            setError(body.error);
-            setIsLoading(false);
-            return;
-        }
-
-        popup.location.href = body.data.url;
+        popup.location.href = res.value.url
         setIsLoading(false)
     }
 

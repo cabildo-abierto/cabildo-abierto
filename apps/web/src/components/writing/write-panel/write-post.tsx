@@ -94,14 +94,14 @@ function useUpdateExternalEmbed(
 
         const handler = setTimeout(() => {
             async function onNewExternalEmbed(url: string) {
-                const {data, error} = await post<{ url: string }, {
+                const res = await post<{ url: string }, {
                     title: string | null,
                     description: string | null,
                     thumbnail: string | null
                 }>("/metadata", {url})
 
-                if (!error) {
-                    const {title, description, thumbnail} = data
+                if (res.success === true) {
+                    const {title, description, thumbnail} = res.value
                     const embed: $Typed<AppBskyEmbedExternal.View> = {
                         $type: "app.bsky.embed.external#view",
                         external: {

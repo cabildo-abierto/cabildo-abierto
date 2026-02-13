@@ -154,10 +154,10 @@ const WritePanel = ({
 
     async function handleSubmit(body: CreatePostProps) {
         const res = await createPost({body})
-        if(res.data) {
+        if(res.success === true) {
             const originalUri = body.threadElements[0].uri
             invalidateQueriesAfterPostCreationSuccess(
-                res.data.uri,
+                res.value.uri,
                 replyTo,
                 author,
                 qc,
@@ -170,13 +170,15 @@ const WritePanel = ({
                 if(typeof did == "string" && typeof collection == "string" && typeof rkey == "string"){
                     collection = shortCollectionToCollection(collection)
                     const currentUri = getUri(did, collection, rkey)
-                    if(originalUri && originalUri != res.data.uri && originalUri == currentUri) {
-                        router.push(contentUrl(res.data.uri))
+                    if(originalUri && originalUri != res.value.uri && originalUri == currentUri) {
+                        router.push(contentUrl(res.value.uri))
                     }
                 }
             }
+            return {data: res.value}
+        } else {
+            return {error: res.error}
         }
-        return res
     }
 
     return <WritePanelPanel

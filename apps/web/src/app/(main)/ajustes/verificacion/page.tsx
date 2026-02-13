@@ -18,11 +18,13 @@ const Page = () => {
     const {isMobile} = useLayoutConfig()
 
     async function onCancel() {
-        const {error} = await post<{}, {}>("/validation-request/cancel", {})
-        if (!error) {
+        const res = await post<{}, {}>("/validation-request/cancel", {})
+        if (res.success === true) {
             qc.setQueryData(["validation-request"], {type: null})
+            return {}
+        } else {
+            return {error: res.error}
         }
-        return {error}
     }
 
     return <>

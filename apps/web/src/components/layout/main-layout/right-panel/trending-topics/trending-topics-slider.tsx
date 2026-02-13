@@ -67,8 +67,8 @@ export const TrendingTopicInSlider = ({
 }
 
 
-const TrendingTopicsSlider = ({selected, trendingArticles}: {
-    trendingArticles: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
+const TrendingTopicsSlider = ({selected, trendingTopics}: {
+    trendingTopics: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
     selected: TimePeriod
 }) => {
 
@@ -78,7 +78,7 @@ const TrendingTopicsSlider = ({selected, trendingArticles}: {
                 onWheel={e => {e.stopPropagation()}}
                 className="flex flex-col overflow-y-scroll max-h-[260px] no-scrollbar"
             >
-                {trendingArticles.map((topic, index) => {
+                {trendingTopics.map((topic, index) => {
                     return <TrendingTopicInSlider
                         key={index}
                         topic={topic}

@@ -177,13 +177,13 @@ export const AdminSync = () => {
                 <StateButton
                     handleClick={async () => {
                         if (collections.length == 1) {
-                            const {error} = await post("/job/reprocess-collection", {
+                            const res = await post("/job/reprocess-collection", {
                                 jobData: {
                                     collection: collections[0],
                                     onlyRecords
                                 }
                             })
-                            return {error}
+                            return {error: res.success === false ? res.error : undefined}
                         } else {
                             return {error: "Seleccioná una collection"}
                         }

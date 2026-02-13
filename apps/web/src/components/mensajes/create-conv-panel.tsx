@@ -24,16 +24,15 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
             router.push(chatUrl(conversations[idx].id))
         } else {
             setCreatingConv(true)
-            const {error, data} = await post<{}, { convoId: string }>(`/conversation/create/${did}`)
-            if (!error) {
-                if (data) {
-                    router.push(chatUrl(data.convoId))
-                }
+            const res = await post<{}, { convoId: string }>(`/conversation/create/${did}`)
+            if (res.success === true) {
+                router.push(chatUrl(res.value.convoId))
             } else {
-                if (error == "recipient requires incoming messages to come from someone they follow") {
+                // TO DO: Revisar que el error siga siendo así
+                if (res.error == "recipient requires incoming messages to come from someone they follow") {
                     setCreationError("El usuario elegido solo recibe mensajes de usuarios que sigue.")
                 } else {
-                    setCreationError(error)
+                    setCreationError(res.error)
                 }
                 setCreatingConv(false)
             }

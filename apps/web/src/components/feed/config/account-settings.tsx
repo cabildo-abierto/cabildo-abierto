@@ -50,8 +50,8 @@ const UnsubscribeButton = () => {
     const {refetch: refetchAccount} = useAccount()
 
     async function onUnsubscribe() {
-        const {error} = await post(`/unsubscribe`)
-        if (error) {
+        const res = await post(`/unsubscribe`)
+        if (res.success === false) {
             return {error: "Ocurrió un error al desuscribirte de la lista de correo."}
         }
         await refetchAccount()
@@ -83,12 +83,14 @@ const AccountEmail = () => {
     const [newEmail, setNewEmail] = useState("")
 
     async function onSaveNewEmail() {
-        const {error} = await post("/email", {email: newEmail})
-        if (!error) {
+        const res = await post("/email", {email: newEmail})
+        if (res.success === true) {
             await refetch()
             setAddingEmail(false)
+            return {}
+        } else {
+            return {error: res.error}
         }
-        return {error}
     }
 
     if (addingEmail) {
@@ -150,8 +152,8 @@ export const AccountSettings = () => {
     }
 
     async function onSubscribe() {
-        const {error} = await post("/subscribe")
-        if (error) {
+        const res= await post("/subscribe")
+        if (res.success === false) {
             return {error: "Ocurrió un error al suscribirte a la lista de correo."}
         }
         await refetchAccount()

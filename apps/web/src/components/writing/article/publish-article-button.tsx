@@ -76,7 +76,7 @@ export const PublishArticleButton = ({
         const { editorStateToMarkdown } = await import("../../editor/markdown-transforms");
         const {embeds, markdown, embedContexts} = editorStateToMarkdown(editorStateStr)
 
-        const {error} = await createArticle({
+        const res = await createArticle({
             text: markdown,
             format: "markdown",
             title,
@@ -89,7 +89,7 @@ export const PublishArticleButton = ({
             description,
             bskyPostText
         })
-        if (error) return {error}
+        if (res.success === false) return {error: res.error}
 
         qc.invalidateQueries({queryKey: ["session"]})
         qc.invalidateQueries({queryKey: ["drafts"]})

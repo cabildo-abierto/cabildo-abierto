@@ -44,10 +44,11 @@ export const SelectDonationPage = () => {
     }
 
     async function onClickContinue() {
-        const {data, error} = await createPreference(amount, verification)
-        if (error) return {error}
-        setPreferenceId(data.id)
-        return {}
+        const res = await createPreference(amount, verification)
+
+        if(res.success === true) setPreferenceId(res.value.id)
+
+        return {error: res.success === false ? res.error : undefined}
     }
 
     const maxAmount = 500000

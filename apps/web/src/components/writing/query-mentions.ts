@@ -1,6 +1,6 @@
 import {QueryMentionsProps} from "@/components/editor";
 import {get} from "../utils/react/fetch";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {APIResult, ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
 import {MentionProps} from "@/components/editor/ui/custom-mention-component";
 
 
@@ -15,17 +15,20 @@ function profileViewBasicToMentionProps(p: ArCabildoabiertoActorDefs.ProfileView
     }
 }
 
-export async function searchUsers(query: string, limit: number) {
+export async function searchUsers(query: string, limit: number): Promise<APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>> {
     if(encodeURIComponent(query).trim().length > 0){
-        const {data} = await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query) + `?limit=${limit}`)
-        return data ?? []
+        return await get<ArCabildoabiertoActorDefs.ProfileViewBasic[]>("/search-users/" + encodeURIComponent(query) + `?limit=${limit}`)
     } else {
-        return []
+        return {value: [], success: true}
     }
 }
 
 
 export const queryMentions: QueryMentionsProps = async (trigger, query) => {
     const data = await searchUsers(query, 5)
-    return data.map(profileViewBasicToMentionProps)
+    if(data.success === true) {
+        return data.value.map(profileViewBasicToMentionProps)
+    } else {
+        return []
+    }
 }

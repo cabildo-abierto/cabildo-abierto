@@ -13,7 +13,7 @@ import {
     followHandler,
     getAccount,
     getProfileHandler,
-    getSession,
+    getSessionHandler,
     saveNewEmail,
     setSeenTutorialHandler,
     unfollowHandler,
@@ -94,9 +94,23 @@ import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
+import {Effect, Exit} from "effect";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
+}
+
+
+export class OAuthError {
+    readonly _tag = "DBSelectError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
 }
 
 
@@ -116,18 +130,34 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post('/login', makeHandlerNoAuth(ctx, login))
 
     router.get('/oauth/callback', async (req, res) => {
-        if (!ctx.oauthClient) return
-        const params = new URLSearchParams(req.originalUrl.split('?')[1])
-        try {
-            const {session} = await ctx.oauthClient.callback(params)
-            const clientSession = await getIronSession<Session>(req, res, cookieOptions)
-            clientSession.did = session.did
-            await clientSession.save()
-        } catch (err) {
-            ctx.logger.pino.error({error: err, params}, 'oauth callback failed')
-            return res.redirect(env.FRONTEND_URL + '/login/error')
-        }
-        return res.redirect(env.FRONTEND_URL + '/login/ok')
+        const oauthClient = ctx.oauthClient
+        if (!oauthClient) return
+
+        const exit = await Effect.runPromiseExit(
+            Effect.tryPromise({
+                try: async () => {
+                    const params = new URLSearchParams(req.originalUrl.split('?')[1])
+                    const {session} = await oauthClient.callback(params)
+                    const clientSession = await getIronSession<Session>(req, res, cookieOptions)
+                    clientSession.did = session.did
+                    await clientSession.save()
+                },
+                catch: error => {
+                    return Effect.fail(new OAuthError(error))
+                }
+            }).pipe(Effect.withSpan("oauth-callback"))
+        )
+
+        return Exit.match(exit, {
+            onSuccess: () => {
+                ctx.logger.pino.info("redirecting to ok")
+                return res.redirect(env.FRONTEND_URL + '/login/ok')
+            },
+            onFailure: () => {
+                ctx.logger.pino.info("redirecting to error")
+                return res.redirect(env.FRONTEND_URL + '/login/error')
+            }
+        })
     })
 
     router.post('/logout', async (req, res) => {
@@ -218,12 +248,12 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/session',
-        handler(makeEffHandlerNoAuth(ctx, getSession))
+        handler(makeEffHandlerNoAuth(ctx, getSessionHandler))
     )
 
     router.get(
         '/session/:code',
-        handler(makeEffHandlerNoAuth(ctx, getSession))
+        handler(makeEffHandlerNoAuth(ctx, getSessionHandler))
     )
 
     router.get(

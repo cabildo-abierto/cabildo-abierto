@@ -128,9 +128,9 @@ export const AdminTrabajos = () => {
                                 <StateButton
                                     size={"small"}
                                     handleClick={async () => {
-                                        const {error} = await post<{}, {}>(`/job-application-seen/${a.id}`)
+                                        const res = await post<{}, {}>(`/job-application-seen/${a.id}`)
                                         refetch()
-                                        return {error}
+                                        return {error: res.success === false ? res.error : undefined}
                                     }}
                                 >
                                     Marcar como vista
@@ -139,9 +139,9 @@ export const AdminTrabajos = () => {
                             <StateButton
                                 size={"small"}
                                 handleClick={async () => {
-                                    const {error} = await post<{}, {}>(`/job-application-delete/${a.id}`)
+                                    const res = await post<{}, {}>(`/job-application-delete/${a.id}`)
                                     refetch()
-                                    return {error}
+                                    return {error: res.success === false ? res.error : undefined}
                                 }}
                                 endIcon={<TrashIcon />}
                             >

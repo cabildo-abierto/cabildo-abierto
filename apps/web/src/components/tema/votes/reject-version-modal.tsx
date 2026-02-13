@@ -37,14 +37,14 @@ export const RejectVersionModal = ({open, onClose, topicId, versionRef}: {
     const qc = useQueryClient()
 
     const onReject = async (p: CreatePostProps, force: boolean) => {
-        const {error, data} = await rejectEdit({
+        const res = await rejectEdit({
             ref: versionRef,
             reason: p,
             force
         })
-        if(error || !data) return {error: error ?? "Ocurrió un error al enviar el voto."}
+        if(res.success === false) return {error: res.error ?? "Ocurrió un error al enviar el voto."}
         optimisticRejectVote(qc, topicId, versionRef.uri, user)
-        setCreatedRejectVote(qc, topicId, versionRef.uri, data.uri)
+        setCreatedRejectVote(qc, topicId, versionRef.uri, res.value.uri)
         invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
         return {}
     }

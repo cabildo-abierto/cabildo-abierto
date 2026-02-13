@@ -71,13 +71,13 @@ const CreateTopicButtons = ({
     }
 
     async function onSubmit() {
-        const {error} = await createTopic(topicName)
+        const res = await createTopic(topicName)
 
-        if (error) {
-            if (error == "exists") {
+        if (res.success === false) {
+            if (res.error == "exists") {
                 return {error: "El tema ya existe."}
             } else {
-                return {error}
+                return {error: res.error}
             }
         }
 

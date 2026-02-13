@@ -17,8 +17,8 @@ const DeleteAccountModal = ({
     const {logout} = useLogout()
 
     async function onClick() {
-        const {error} = await post<{}, {}>("/delete-ca-profile", {})
-        if (error) return {error}
+        const res = await post<{}, {}>("/delete-ca-profile", {})
+        if (res.success === false) return {error: res.error}
         return await logout()
     }
 

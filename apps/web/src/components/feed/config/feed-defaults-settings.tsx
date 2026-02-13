@@ -64,14 +64,16 @@ export const FeedDefaultsSettings = () => {
     const qc = useQueryClient()
 
     async function onSave(config: AlgorithmConfig) {
-        const {error} = await post<AlgorithmConfig, {}>("/algorithm-config/", config)
-        if (!error) {
+        const res = await post<AlgorithmConfig, {}>("/algorithm-config/", config)
+        if (res.success === true) {
             qc.setQueryData(["session"], {
                 ...user,
                 algorithmConfig: config
             })
+            return {}
+        } else {
+            return {error: res.error}
         }
-        return {error}
     }
 
     const following = followingConfigToSelected(config.following)

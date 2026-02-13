@@ -88,22 +88,22 @@ export const PollFromId = ({pollId, onDelete, onEdit}: {
 
         if(selectedIndex == idx) {
             optimisticCancelPollVote(qc, pollId)
-            const {error} = await post("/cancel-vote-poll/", {
+            const res = await post("/cancel-vote-poll/", {
                 pollId
             })
-            if(error) {
-                addError(error)
+            if(res.success === false) {
+                addError(res.error)
             } else {
                 toast("Se canceló tu voto.")
             }
         } else {
             optimisticAddPollVote(qc, pollId, idx)
-            const {error} = await post("/vote-poll/", {
+            const res = await post("/vote-poll/", {
                 pollId,
                 choiceIdx: idx
             })
-            if(error) {
-                addError(error)
+            if(res.success === false) {
+                addError(res.error)
             } else {
                 toast("Se guardó tu voto.")
                 refetch()

@@ -142,8 +142,8 @@ export const ConfirmDeleteModal = ({
             }
         },
         onSuccess: async (res) => {
-            if(res.error) addError(res.error)
-            invalidateQueriesAfterDeleteSuccess(uri, qc, reply)
+            if(res.success === false) addError(res.error)
+            else invalidateQueriesAfterDeleteSuccess(uri, qc, reply)
         },
         onError: () => {
             addError("Algo salió mal")

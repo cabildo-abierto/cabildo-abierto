@@ -8,13 +8,13 @@ export const AdminWiki = () => {
     const [topicId, setTopicId] = useState("")
 
     async function onUpdateMentions() {
-        const {error} = await post("/job/update-topic-mentions", {jobData: [topicId]})
-        return {error}
+        const res = await post("/job/update-topic-mentions", {jobData: [topicId]})
+        return {error: res.success === false ? res.error : undefined}
     }
 
     async function onUpdateContributions() {
-        const {error} = await post("/job/update-topic-contributions", {jobData: [topicId]})
-        return {error}
+        const res = await post("/job/update-topic-contributions", {jobData: [topicId]})
+        return {error: res.success === false ? res.error : undefined}
     }
 
     return <div className={"flex flex-col space-y-4 items-center mt-8"}>
@@ -33,7 +33,5 @@ export const AdminWiki = () => {
         <BaseButton onClick={onUpdateContributions} variant={"outlined"} size={"small"}>
             Actualizar contribuciones
         </BaseButton>
-
     </div>
-
 }

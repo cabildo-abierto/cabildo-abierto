@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {FloppyDiskIcon} from "@phosphor-icons/react";
 import {LexicalEditor} from "lexical";
 import {useCallback, useState} from "react";
-import {SaveEditPopup} from "../save-edit-popup";
+import {SaveEditPopup} from "./save-edit-popup";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/mutations/updates";
 import { post } from "../../utils/react/fetch";
@@ -63,7 +63,7 @@ export const SaveEditButton = ({
                 embedContexts
             } = stateAsMarkdown
 
-            const {error} = await saveEditMutation.mutateAsync({
+            const res = await saveEditMutation.mutateAsync({
                 id: topic.id,
                 text: compress(markdown),
                 format: "markdown-compressed",
@@ -73,9 +73,9 @@ export const SaveEditButton = ({
                 embeds,
                 embedContexts
             })
-            if (error) return {error}
+            if (res.success === false) return {error: res.error}
         } else {
-            const {error} = await saveEditMutation.mutateAsync({
+            const res = await saveEditMutation.mutateAsync({
                 id: topic.id,
                 text: topic.text,
                 format: topic.format,
@@ -84,7 +84,7 @@ export const SaveEditButton = ({
                 props,
                 embeds: topic.embeds
             })
-            if (error) return {error}
+            if (res.success === false) return {error: res.error}
         }
 
         setSavingChanges(false)

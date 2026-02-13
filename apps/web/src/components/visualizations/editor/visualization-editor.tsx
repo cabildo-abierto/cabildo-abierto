@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../utils/dialogs/accept-button-panel";
-import {ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
+import {APIResult, ArCabildoabiertoDataDataset, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import VisualizationEditorSidebar from "./visualization-editor-sidebar";
 import {emptyChar} from "../../utils/utils";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
@@ -66,16 +66,16 @@ export function validateColumnFilters(filters: PlotConfigProps["filters"]): $Typ
     return validFilters
 }
 
-async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
+async function fetchTopicsDataset(filters: PlotConfigProps["filters"]): Promise<APIResult<ArCabildoabiertoDataDataset.TopicsDatasetView>> {
     const validFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[] = validateColumnFilters(filters)
 
     if (validFilters.length > 0) {
         return await post<TopicDatasetSpec, ArCabildoabiertoDataDataset.TopicsDatasetView>("/topics-dataset", {filters: validFilters})
     } else {
         if (filters.length == 0) {
-            return {error: "Agregá algún filtro."}
+            return {success: false, error: "Agregá algún filtro."}
         } else {
-            return {error: "El filtro es inválido."}
+            return {success: false, error: "El filtro es inválido."}
         }
     }
 }
@@ -83,9 +83,9 @@ async function fetchTopicsDataset(filters: PlotConfigProps["filters"]) {
 
 export const useTopicsDataset = (filters: PlotConfigProps["filters"], load: boolean = false) => {
     const queryFn = async () => {
-        const {error, data} = await fetchTopicsDataset(filters)
-        if (error) throw Error(error)
-        return {data}
+        const res = await fetchTopicsDataset(filters)
+        if (res.success === false) throw Error(res.error)
+        else return {data: res.value}
     }
 
     return useQuery({

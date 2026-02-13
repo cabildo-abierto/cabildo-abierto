@@ -1,5 +1,5 @@
 import {EffHandlerNoAuth} from "#/utils/handler.js";
-import {ArCabildoabiertoActorDefs, ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorDefs, ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api"
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {Agent} from "#/utils/session-agent.js";
@@ -197,7 +197,7 @@ export const getReposts: GetInteractionsType = (
 type GetQuotesType = EffHandlerNoAuth<{
     params: { did: string, rkey: string, collection: string },
     query: { limit?: string, cursor?: string }
-}, { posts: ArCabildoabiertoFeedDefs.PostView[], cursor?: string }>
+}, GetFeedOutput<ArCabildoabiertoFeedDefs.PostView>>
 
 
 export const getQuotes: GetQuotesType = (
@@ -217,7 +217,7 @@ export const getQuotes: GetQuotesType = (
     const posts = yield* Effect.all(uris.map(d => hydratePostView(ctx, agent, d)))
 
     return {
-        posts: posts.filter(x => x != null),
+        feed: posts.filter(x => x != null),
         cursor: cursor
     }
 }).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las citas."))), DataPlane, makeDataPlane(ctx, agent))

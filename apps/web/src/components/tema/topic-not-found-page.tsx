@@ -22,10 +22,9 @@ export default function TopicNotFoundPage() {
     const {createTopic} = useCreateTopic()
 
     const onSubmit = useCallback(async () => {
-        const {error} = await createTopic(id)
-        if (error) return {error}
+        const res = await createTopic(id)
+        if (res.success === false) return {error: res.error}
         qc.refetchQueries({queryKey: ["topic", id]})
-
         return {}
     }, [id])
 

@@ -1,5 +1,6 @@
 import { useSearch } from "./search-context";
 import {
+    APIResult,
     ArCabildoabiertoActorDefs,
     ArCabildoabiertoFeedDefs,
     ArCabildoabiertoWikiTopicVersion,
@@ -17,7 +18,7 @@ import UserSearchResult from "@/components/buscar/user-search-result";
 
 
 export function SearchResults(
-    {search, kind}: {search: (q: string, kind: SearchOption) => Promise<{data?: MainSearchOutput, error?: string}>, kind: SearchOption},
+    {search, kind}: {search: (q: string, kind: SearchOption) => Promise<APIResult<MainSearchOutput>>, kind: SearchOption},
 ) {
     const pathname = usePathname();
     const { searchState } = useSearch(`${pathname}::main`);
@@ -29,7 +30,7 @@ export function SearchResults(
         enabled: debouncedValue.length > 0
     });
 
-    if (searchState.value.length === 0) {
+    if (debouncedValue.length === 0) {
         return (
             <Note className={"pt-16 text-[var(--text-light)]"}>
                 {kind == "Publicaciones" && "Buscá en publicaciones de usuarios de Cabildo Abierto."}
@@ -45,11 +46,19 @@ export function SearchResults(
             <div className={"pt-32"}>
                 <LoadingSpinner />
             </div>
-        );
+        )
     }
 
-    if (data && data.data) {
-        const results = data.data.value.feed
+    if(!data) {
+        return <div className={"pt-32"}>
+            <Note>
+                Ocurrió un error al buscar.
+            </Note>
+        </div>
+    }
+
+    if (data && data.success === true) {
+        const results = data.value.value.feed
         return (
             <div>
                 {results.map(r => {

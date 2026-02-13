@@ -35,14 +35,14 @@ export default function Page() {
     const router = useRouter()
 
     async function onSend() {
-        const {error} = await post<JobApplication, {}>("/job-application", {
+        const res = await post<JobApplication, {}>("/job-application", {
             name,
             email,
             comment,
             CV,
             job: "especialista en comunicación"
         })
-        if (error) return {error}
+        if (res.success === false) return {error: res.error}
         setSent(true)
         return {}
     }

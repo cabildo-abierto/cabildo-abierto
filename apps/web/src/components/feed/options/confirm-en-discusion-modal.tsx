@@ -40,14 +40,22 @@ export const ConfirmEnDiscusionModal = ({
 
     async function onConfirm() {
         if (!enDiscusion) {
-            const {error} = await addToEnDiscusion(uri)
-            if(!error) await refetch()
-            return {error}
+            const res = await addToEnDiscusion(uri)
+            if(res.success === true) {
+                await refetch()
+                return {}
+            } else {
+                return {error: res.error}
+            }
         } else {
             optimisticRemoveContentFromEnDiscusion(uri, qc)
-            const {error} = await removeFromEnDiscusion(uri)
-            if(!error) await refetch()
-            return {error}
+            const res = await removeFromEnDiscusion(uri)
+            if(res.success === true) {
+                await refetch()
+                return {}
+            } else {
+                return {error: res.error}
+            }
         }
     }
 

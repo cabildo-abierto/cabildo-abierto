@@ -2,22 +2,21 @@ import {LexicalEditor} from "lexical";
 import {CustomLink as Link} from "@/components/utils/base/custom-link"
 import React, {useEffect, useMemo, useState} from "react";
 import InfoPanel from "@/components/utils/base/info-panel";
-import {NotEnoughPermissionsWarning} from "./permissions-warning";
+import {NotEnoughPermissionsWarning} from "../permissions-warning";
 import {StateButton} from "@/components/utils/base/state-button"
-import TickButton from "../utils/tick-button";
-import {ChangesCounterWithText} from "./changes-counter";
-import {AcceptButtonPanel} from "../utils/dialogs/accept-button-panel";
+import TickButton from "../../utils/tick-button";
+import {ChangesCounterWithText} from "../changes-counter";
+import {AcceptButtonPanel} from "../../utils/dialogs/accept-button-panel";
 import {topicUrl} from "@/components/utils/react/url";
-import {getTopicProtection, hasEditPermission} from "./utils";
+import {getTopicProtection, hasEditPermission} from "../utils";
 import {useSession} from "@/components/auth/use-session";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {BaseFullscreenPopup} from "../utils/dialogs/base-fullscreen-popup";
-import {post} from "../utils/react/fetch";
+import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
+import {post} from "../../utils/react/fetch";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
-import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
+import {APIResult, ArCabildoabiertoWikiTopicVersion, DiffOutput, DiffParams} from "@cabildo-abierto/api"
 import { BaseTextField } from "@/components/utils/base/base-text-field";
-import {editorStateToMarkdown} from "../editor/markdown-transforms";
+import {editorStateToMarkdown} from "../../editor/markdown-transforms";
 import { decompress } from "@cabildo-abierto/editor-core";
 
 
@@ -44,20 +43,21 @@ function topicTextToMarkdown(text: string, format: string) {
 }
 
 
-async function getNewVersionDiff(editor: LexicalEditor, topic: ArCabildoabiertoWikiTopicVersion.TopicView) {
+async function getNewVersionDiff(
+    editor: LexicalEditor,
+    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+): Promise<APIResult<DiffOutput>> {
     if(!editor) return {
-        data: {
+        value: {
             charsDeleted: 0,
             charsAdded: 0
-        }
+        },
+        success: true
     }
     const state = editor.getEditorState().toJSON()
     const md = editorStateToMarkdown(state)
 
     const {text: currentText, format: currentFormat} = topicTextToMarkdown(topic.text, topic.format)
-
-    type I = {currentText: string, currentFormat: string, markdown: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[]}
-    type O = {charsAdded: number, charsDeleted: number}
 
     const params = {
         ...md,
@@ -65,7 +65,7 @@ async function getNewVersionDiff(editor: LexicalEditor, topic: ArCabildoabiertoW
         currentFormat
     }
 
-    return await post<I, O>("/diff", params)
+    return await post<DiffParams, DiffOutput>("/diff", params)
 }
 
 
@@ -87,12 +87,12 @@ export const SaveEditPopup = ({
         async function fetchDiff(){
             try {
                 const d = await getNewVersionDiff(editor, topic)
-                if(d.data) {
+                if(d.success === true) {
                     setDiff({
                         isLoading: false,
-                        diff: d.data
+                        diff: d.value
                     })
-                } else if(d.error || !d){
+                } else {
                     setDiff({
                         isLoading: false,
                         error: d ? d.error : "Ocurrió un error en la conexión con el servidor."

@@ -45,13 +45,6 @@ function isPrefix(a: string[], b: string[]) {
     return b.length >= a.length && areArraysEqual(a, b.slice(0, a.length))
 }
 
-export async function cancelQueries(qc: QueryClient, queries: string[][]) {
-    await qc.cancelQueries({
-        predicate: query => {
-            return queries.some(q => isPrefix(q, query.queryKey as string[]))
-        }})
-}
-
 
 export async function invalidateQueries(qc: QueryClient, queries: string[][]) {
     await qc.invalidateQueries({

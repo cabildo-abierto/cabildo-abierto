@@ -8,7 +8,7 @@ import { customAlphabet } from "nanoid";
 import {range} from "@cabildo-abierto/utils";
 import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {AppBskyActorProfile} from "@atproto/api"
-import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorCaProfile, LoginOutput, LoginParams} from "@cabildo-abierto/api"
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
@@ -25,9 +25,13 @@ async function getCAStatus(ctx: AppContext, did: string): Promise<{inCA: boolean
 }
 
 
-export const login: CAHandlerNoAuth<{handle?: string, code?: string}> = async (ctx, agent, {handle, code}) => {
+export const login: CAHandlerNoAuth<LoginParams, LoginOutput> = async (
+    ctx,
+    agent,
+    {handle, code}
+) => {
 
-    if (!handle || !isValidHandle(handle.trim())) {
+    if (!isValidHandle(handle.trim())) {
         return {error: "Nombre de usuario inválido."}
     }
 
@@ -55,7 +59,10 @@ export const login: CAHandlerNoAuth<{handle?: string, code?: string}> = async (c
         const url = await ctx.oauthClient?.authorize(handle, {
             scope: 'atproto transition:generic transition:chat.bsky transition:email',
         })
-        return {data: {url}}
+        if(!url) {
+            return {error: "Ocurrió un error al iniciar sesión"}
+        }
+        return {data: {url: url.href}}
     } catch (err) {
         console.error(`Error authorizing ${handle}`, err)
         return {error: "Ocurrió un error al iniciar sesión."}
@@ -75,7 +82,11 @@ export async function checkValidCode(ctx: AppContext, code: string, did: string)
 }
 
 
-export function createCAUser(ctx: AppContext, agent: SessionAgent, code?: string): Effect.Effect<void, DBSelectError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
+export function createCAUser(
+    ctx: AppContext,
+    agent: SessionAgent,
+    code?: string
+): Effect.Effect<void, DBSelectError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
     const did = agent.did
 
     return Effect.gen(function* () {

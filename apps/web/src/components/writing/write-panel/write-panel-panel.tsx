@@ -16,6 +16,8 @@ import {LexicalSelection} from "@/components/editor/selection/lexical-selection"
 import {EditorState} from "lexical";
 import {ThreadEditor, ThreadElementState} from "@/components/writing/write-panel/thread-editor";
 import {getPlainText} from "@cabildo-abierto/editor-core";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
+import {cn} from "@/lib/utils";
 
 
 type WritePanelProps = {
@@ -52,6 +54,7 @@ const WritePanelPanel = ({
     const router = useRouter()
     const [hidden, setHidden] = useState(false)
     const isReply = replyTo != undefined
+    const {isMobile} = useIsMobile()
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)] text-sm">
@@ -83,12 +86,12 @@ const WritePanelPanel = ({
         <BaseFullscreenPopup
             hidden={hidden}
             open={open}
-            className="w-full max-w-[512px] sm:w-full"
+            className="w-full max-w-[512px] h-auto sm:w-full bg-transparent"
             backgroundShadow={replyTo == null && quotedPost == null && postView == null}
             overlayClassName={"z-[1399]"}
         >
             <div
-                className="w-full rounded pt-1 max-h-[80vh] min-h-[334px] flex flex-col justify-between overflow-y-auto custom-scrollbar">
+                className={cn("w-full bg-[var(--background-dark)] rounded pt-1 flex flex-col max-h-[80vh] overflow-y-auto custom-scrollbar", !isMobile ? "min-h-[334px] justify-between" : "mt-8")}>
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {!isReply && !quotedPost ? <SelectionComponent
                         onSelection={onSelection}

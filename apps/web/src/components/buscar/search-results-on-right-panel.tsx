@@ -23,8 +23,12 @@ type UserOrTopic =
 
 export async function searchUsersAndTopics(query: string, limit: number) {
     if (encodeURIComponent(query).trim().length > 0) {
-        const {data} = await get<UserOrTopic[]>("/search-users-and-topics/" + encodeURIComponent(query) + `?limit=${limit}`)
-        return data ?? []
+        const res = await get<UserOrTopic[]>("/search-users-and-topics/" + encodeURIComponent(query) + `?limit=${limit}`)
+        if(res.success === true) {
+            return res.value
+        } else {
+            return []
+        }
     } else {
         return []
     }

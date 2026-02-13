@@ -32,17 +32,9 @@ function getFeedRoute(config: FeedConfig, cursor?: string) {
 
 export function useGetFeed() {
 
-    function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>(config: FeedConfig):  GetFeedProps<T> {
-        return async (cursor) => {
-            const {
-                error,
-                data
-            } = await get<GetFeedOutput<T>>(getFeedRoute(config, cursor))
-            if (error) return {error}
-
-            return {
-                data: data
-            }
+    function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>(config: FeedConfig): GetFeedProps<T> {
+        return (cursor) => {
+            return get<GetFeedOutput<T>>(getFeedRoute(config, cursor))
         }
     }
 

@@ -33,7 +33,7 @@ export const SaveDraftArticleButton = ({
         const markdown = editorStateToMarkdown(editorState.toJSON())
 
         const saveTime = new Date()
-        const {error, data} = await post<CreateDraftParams, { id: string }>("/draft", {
+        const res = await post<CreateDraftParams, { id: string }>("/draft", {
             id: draftId ?? undefined,
             collection: "ar.cabildoabierto.feed.article",
             text: markdown.markdown,
@@ -43,17 +43,18 @@ export const SaveDraftArticleButton = ({
             description,
             previewImage
         })
-        if (data && data.id && !error) {
+        if (res.success === true) {
             const state = JSON.stringify(editorState.toJSON()) + `::${title}`
-            onSavedChanges(saveTime, data.id, state)
-            updateSearchParam("i", data.id)
+            onSavedChanges(saveTime, res.value.id, state)
+            updateSearchParam("i", res.value.id)
             await qc.cancelQueries({queryKey: ["drafts"]})
-            await qc.cancelQueries({queryKey: ["draft", data.id]})
-            await qc.invalidateQueries({queryKey: ["draft", data.id]})
+            await qc.cancelQueries({queryKey: ["draft", res.value.id]})
+            await qc.invalidateQueries({queryKey: ["draft", res.value.id]})
             await qc.invalidateQueries({queryKey: ["drafts"]})
             toast.success('Se guardó el borrador en Tus papeles')
+        } else {
+            return {error: res.error}
         }
-        return {error}
     }
 
     return <StateButton

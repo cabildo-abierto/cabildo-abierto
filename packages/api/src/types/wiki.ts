@@ -31,3 +31,7 @@ export type BatchEdit = {
     message: string
     topics: TopicForBatchEdit[]
 }
+
+
+export type DiffParams = {currentText: string, currentFormat: string, markdown: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[]}
+export type DiffOutput = {charsAdded: number, charsDeleted: number}
