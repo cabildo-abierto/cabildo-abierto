@@ -11,7 +11,7 @@ import {AppBskyActorProfile} from "@atproto/api"
 import {ArCabildoabiertoActorCaProfile, LoginOutput, LoginParams} from "@cabildo-abierto/api"
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {Effect} from "effect";
-import {DBSelectError} from "#/utils/errors.js";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
@@ -86,7 +86,7 @@ export function createCAUser(
     ctx: AppContext,
     agent: SessionAgent,
     code?: string
-): Effect.Effect<void, DBSelectError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
+): Effect.Effect<void, DBInsertError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
     const did = agent.did
 
     return Effect.gen(function* () {
@@ -96,7 +96,7 @@ export function createCAUser(
                 .values([{did}])
                 .onConflict(oc => oc.column("did").doNothing())
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBInsertError(error)
         })
 
         if(code){

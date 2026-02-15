@@ -4,6 +4,7 @@ import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {FieldError} from "@/components/utils/ui/field";
 import {Note} from "@/components/utils/base/note";
+import {useSession} from "@/components/auth/use-session";
 
 export const BlueskyLogin = ({
                                  inviteCode,
@@ -21,6 +22,7 @@ export const BlueskyLogin = ({
         domain,
         handleStart
     } = useBlueskyLogin({inviteCode, onLogin})
+    const {isFetching} = useSession()
 
     return <div className={"max-w-96 w-full"}>
         <form
@@ -65,7 +67,7 @@ export const BlueskyLogin = ({
             </div>
             <BaseButton
                 type="submit"
-                loading={isLoading}
+                loading={isLoading || isFetching}
                 variant="outlined"
                 className={"w-full"}
             >

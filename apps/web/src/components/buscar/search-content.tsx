@@ -28,7 +28,7 @@ const SearchContent = () => {
                 onSelection={setSelected}
                 options={searchOptions}
                 selected={selected}
-                optionsNodes={feedOptionNodes(40)}
+                optionsNodes={feedOptionNodes(40, undefined, "text-[12px] sm:text-[13px] mx-0")}
                 className="flex"
             />
         </div>

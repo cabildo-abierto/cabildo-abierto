@@ -99,7 +99,7 @@ function getPresentRecords(
                 .where("authorId", "=", did)
                 .where("collection", "in", collections)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         const presentRecords: PresentRecords = new Map()
@@ -111,7 +111,7 @@ function getPresentRecords(
         }
 
         return presentRecords
-    })
+    }).pipe(Effect.withSpan("getPresentRecords", {attributes: {did, collections}}))
 }
 
 
@@ -130,7 +130,7 @@ function updateHandle(
                 .execute(),
             catch: () => new UserNotFoundError()
         })
-    })
+    }).pipe(Effect.withSpan("updateHandle", {attributes: {did}}))
 }
 
 
@@ -287,7 +287,7 @@ function processRepo(
         yield* cleanOutdatedInDB(ctx, presentRecords, repoSkeleton)
 
         return
-    })
+    }).pipe(Effect.withSpan("processRepo", {attributes: {did}}))
 }
 
 
@@ -304,7 +304,7 @@ function processPendingEvents(
                 catch: () => new ProcessEventError()
             })
         }
-    })
+    }).pipe(Effect.withSpan("processPendingEvents"))
 }
 
 

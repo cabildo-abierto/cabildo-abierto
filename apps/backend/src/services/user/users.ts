@@ -26,7 +26,7 @@ import {handleOrDidToDid} from "#/id-resolver.js";
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
-import {AddJobError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+import {AddJobError, DBInsertError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 
@@ -199,7 +199,7 @@ type SessionData = Omit<Session, "handle"> & {handle: string | null}
 export const getSessionData = (
     ctx: AppContext,
     did: string
-): Effect.Effect<SessionData, RedisCacheFetchError | UserNotFoundError | DBSelectError> => {
+): Effect.Effect<SessionData | null, RedisCacheFetchError | DBSelectError> => {
 
     return Effect.gen(function* () {
         const [data, mirrorStatus] = yield* Effect.all([
@@ -232,7 +232,9 @@ export const getSessionData = (
             ctx.redisCache.mirrorStatus.get(did, true)
         ], {concurrency: "unbounded"})
 
-        if(!data) return yield* Effect.fail(new UserNotFoundError())
+        if(!data) {
+            return null
+        }
 
         const sessionData: SessionData = {
             active: true,
@@ -259,7 +261,9 @@ export const getSessionData = (
         }
 
         return sessionData
-    })
+    }).pipe(
+        Effect.withSpan("getSessionData", {attributes: {did}})
+    )
 }
 
 
@@ -276,17 +280,6 @@ function isFullSessionData(data: SessionData | null): data is Session {
 }
 
 
-function startSyncIfDirty(ctx: AppContext, did: string): Effect.Effect<void, AddJobError | RedisCacheSetError | RedisCacheFetchError> {
-    return Effect.gen(function* () {
-        const status = yield* ctx.redisCache.mirrorStatus.get(did, true)
-        if(status == "Dirty") {
-            yield* ctx.redisCache.mirrorStatus.set(did, "InProcess", true)
-            if(ctx.worker) yield* ctx.worker.addJob("sync-user", {handleOrDid: did}, 5)
-        }
-    })
-}
-
-
 class UserCreationFailedError {
     readonly _tag = "UserCreationFailedError"
 }
@@ -299,6 +292,7 @@ class NoInviteCodeError {
 
 type GetSessionError = UserCreationFailedError |
     DBSelectError |
+    DBInsertError |
     RedisCacheFetchError |
     RedisCacheSetError |
     AssignInviteCodeError |
@@ -316,33 +310,25 @@ export const getSession = (
     agent: SessionAgent,
     code: string | null
 ): Effect.Effect<Session, GetSessionError> => Effect.gen(function* () {
-
-    yield* startSyncIfDirty(ctx, agent.did)
+    const did = agent.did
 
     const data = yield* getSessionData(ctx, agent.did)
 
-    yield* Effect.annotateCurrentSpan({data: data != null, hasAccess: data?.hasAccess})
+    if(!data || data.mirrorStatus == "Dirty") {
+        yield* ctx.redisCache.mirrorStatus.set(did, "InProcess", true)
+        if(ctx.worker) yield* ctx.worker.addJob("sync-user", {handleOrDid: did}, 5)
+    }
 
-    if (data != null && isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
+    yield* Effect.annotateCurrentSpan({data: data != null, hasAccess: data?.hasAccess, mirrorStatus: data?.mirrorStatus})
+
+    if (isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
         return data
-    } else if(data && data.hasAccess) {
-        // está en le DB y tiene acceso pero no está sincronizado o no tiene perfil de ca
-        yield* createCAUser(ctx, agent)
+    } else if((data && data.hasAccess) || code) {
+        yield* createCAUser(ctx, agent, code ?? undefined)
 
         const newUserData = yield* getSessionData(ctx, agent.did)
 
         if(!isFullSessionData(newUserData)) {
-            return yield* Effect.fail(new UserCreationFailedError())
-        }
-
-        return newUserData
-    } else if(code) {
-        // el usuario no está en la db (o está pero no tiene acceso) y logró iniciar sesión, creamos un nuevo usuario de CA
-        yield* createCAUser(ctx, agent, code)
-
-        const newUserData = yield* getSessionData(ctx, agent.did)
-
-        if(!isFullSessionData(newUserData)){
             return yield* Effect.fail(new UserCreationFailedError())
         }
 
@@ -365,13 +351,9 @@ export const getSessionHandler: EffHandlerNoAuth<{ params?: { code?: string } },
     }
 
     return yield* getSession(ctx, agent, code ?? null).pipe(
-        Effect.catchAll(() => Effect.gen(function* () {
-            yield* Effect.tryPromise({
-                try: () => deleteSession(ctx, agent),
-                catch: () => "Ocurrió un error al borrar la sesión"
-            })
-            return yield* Effect.fail("Ocurrió un error al obtener la sesión.")
-        }))
+        Effect.catchAll(() => {
+            return  Effect.fail("Ocurrió un error al obtener la sesión.")
+        })
     )
 })
 

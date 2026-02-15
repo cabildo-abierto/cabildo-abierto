@@ -22,7 +22,8 @@ export const BaseFullscreenPopup = ({
                                         hidden = false,
                                         backgroundShadow = false,
     overlayClassName,
-    ariaLabelledBy="panel"
+    ariaLabelledBy="panel",
+    fullscreenOnMobile = true
                                     }: {
     open: boolean
     children: ReactNode
@@ -34,6 +35,7 @@ export const BaseFullscreenPopup = ({
     zIndex?: number
     overlayClassName?: string
     ariaLabelledBy?: string
+    fullscreenOnMobile?: boolean
 }) => {
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
     useEffect(() => {
@@ -55,25 +57,9 @@ export const BaseFullscreenPopup = ({
             className={cn("z-[1399]", overlayClassName)}
         />}
         <DialogContent
-            className={cn(
-                `
-    z-[1400]
-    fixed
-    w-screen
-    left-0
-    translate-x-0
-    translate-y-0
-    top-0
-    h-screen
-    sm:w-auto
-    sm:left-[50%] 
-    sm:top-[50%]
-    sm:translate-x-[-50%]
-    sm:translate-y-[-50%]
-    sm:border
-    sm:h-auto
-    flex flex-col
-    `, className)}
+            className={cn("z-[1400] flex flex-col", isMobile && fullscreenOnMobile ?
+                    "fixed w-screen left-0 translate-x-0 translate-y-0 top-0 h-screen" :
+                    "w-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border h-auto", className)}
             onClick={e => {
                 e.stopPropagation()
             }}

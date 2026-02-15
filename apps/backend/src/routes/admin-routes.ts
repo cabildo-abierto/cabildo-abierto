@@ -121,7 +121,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post("/clear-redis/:prefix", makeAdminHandler(ctx, clearRedisHandler))
 
-    router.get("/status", makeAdminHandler(ctx, getServerStatus))
+    router.get("/status", makeEffAdminHandler(ctx, getServerStatus))
 
     router.get("/sync-status", makeAdminHandler(ctx, getUsersSyncStatus))
 

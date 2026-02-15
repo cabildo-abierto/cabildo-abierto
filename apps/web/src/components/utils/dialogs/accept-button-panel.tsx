@@ -25,9 +25,10 @@ export const AcceptButtonPanel = ({
         open={open}
         backgroundShadow={backgroundShadow}
         className={popupClassName}
+        fullscreenOnMobile={false}
     >
         <div
-            className={cn("bg-[var(--background-dark)] portal group pt-8 px-8 pb-4", className)}
+            className={cn("bg-[var(--background-dark)] w-screen sm:w-auto portal group pt-8 px-8 pb-4", className)}
         >
             {children}
             <div className="flex justify-center pt-4 mb-1">

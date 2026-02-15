@@ -150,7 +150,6 @@ export const createRouter = (ctx: AppContext): Router => {
 
         return Exit.match(exit, {
             onSuccess: () => {
-                ctx.logger.pino.info("redirecting to ok")
                 return res.redirect(env.FRONTEND_URL + '/login/ok')
             },
             onFailure: () => {

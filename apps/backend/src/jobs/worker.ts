@@ -147,7 +147,7 @@ export class CAWorker {
     async setup(ctx: AppContext) {
         this.registerJob("update-categories-graph", () => updateCategoriesGraph(ctx))
         this.registerEffJob("sync-user", data => syncUserJobHandler(ctx, data).pipe(Effect.catchAll(() => Effect.fail("Error en en trabajo sync-user"))))
-        this.registerJob("update-references", () => updateReferences(ctx))
+        this.registerEffJob("update-references", () => updateReferences(ctx))
         this.registerJob("update-engagement-counts", () => updateEngagementCounts(ctx))
         this.registerEffJob("delete-collection", (data) => {
             return deleteCollection(ctx, (data as { collection: string }).collection)
@@ -197,7 +197,7 @@ export class CAWorker {
             "batch-jobs",
             () => this.batchJobs()
         )
-        this.registerJob(
+        this.registerEffJob(
             "test-job",
             () => runTestJob(ctx)
         )
@@ -274,11 +274,11 @@ export class CAWorker {
             data => updatePopularitiesOnNewReactions(ctx, data as string[]),
             true
         )
-        this.registerJob(
+        this.registerEffJob(
             "recreate-all-references",
             () => recreateAllReferences(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "recompute-all-topic-interactions-and-popularities",
             () => recomputeTopicInteractionsAndPopularities(ctx)
         )
@@ -286,11 +286,11 @@ export class CAWorker {
             "clear-all-redis",
             () => clearAllRedis(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-all-topics-popularities",
             () => updateAllTopicPopularities(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-all-content-categories",
             () => updateDiscoverFeedIndex(ctx)
         )

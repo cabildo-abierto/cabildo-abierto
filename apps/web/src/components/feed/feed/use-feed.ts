@@ -67,7 +67,6 @@ export function useFetchNextPage<T>(
     useEffect(() => {
         if(feedList.length == 0 || items.length == 0) {
             if(hasNextPage && !isFetchingNextPage) {
-                console.log("fetching next page (empty feed)")
                 fetchNextPage()
                 return
             } else {
@@ -81,7 +80,6 @@ export function useFetchNextPage<T>(
             hasNextPage &&
             !isFetchingNextPage && hasScrolledRef.current && !isFetching && !loadingStartContent
         ) {
-            console.log("fetching next page (not empty)")
             fetchNextPage()
         }
     }, [

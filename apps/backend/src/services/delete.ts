@@ -5,7 +5,7 @@ import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {deleteDraft} from "#/services/write/drafts.js";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
-import {DBSelectError} from "#/utils/errors.js";
+import {DBDeleteError, DBSelectError} from "#/utils/errors.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
 
@@ -114,12 +114,15 @@ export class DeleteUserError {
 }
 
 
-export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DeleteUserError> {
+export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DBDeleteError> {
     return Effect.gen(function* () {
         yield* deleteRecordsForAuthor({ctx, did: did, atproto: false})
 
         yield* Effect.tryPromise({
             try: () => ctx.kysely.transaction().execute(async trx => {
+                const id = await trx.selectFrom("MailingListSubscription").select("id").where("userId", "=", did).executeTakeFirst()
+                if(id) await trx.deleteFrom("EmailSent").where("recipientId", "=", id.id).execute()
+                await trx.deleteFrom("MailingListSubscription").where("userId", "=", did).execute()
                 await trx.deleteFrom("ReadSession").where("userId", "=", did).execute()
                 await trx.deleteFrom("Notification").where("userNotifiedId", "=", did).execute()
                 await trx.deleteFrom("Blob").where("authorId", "=", did).execute()
@@ -131,7 +134,7 @@ export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, AT
                 await trx.deleteFrom("ModerationAction").where("userAffectedId", "=", did).execute()
                 await trx.deleteFrom("User").where("did", "=", did).execute()
             }),
-            catch: () => new DeleteUserError()
+            catch: (error) => new DBDeleteError(error)
         })
     })
     // TO DO: Revisar que cache hace falta actualizar

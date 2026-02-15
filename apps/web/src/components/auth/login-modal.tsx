@@ -15,6 +15,8 @@ import {StateButton} from "@/components/utils/base/state-button";
 import {Logo} from "@/components/utils/icons/logo";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {topicUrl} from "@/components/utils/react/url";
+import {cn} from "@/lib/utils";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 const LoginPanel = ({children, onClickBack, onClose, open}: {
@@ -23,14 +25,15 @@ const LoginPanel = ({children, onClickBack, onClose, open}: {
     onClose?: () => void
     open: boolean
 }) => {
+    const {isMobile} = useIsMobile()
+
     return <BaseFullscreenPopup
         open={open}
         closeButton={false}
         backgroundShadow={true}
-        className={"top-0 h-screen translate-y-0 sm:h-auto"}
     >
         <div
-            className={"sm:w-[480px] px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}
+            className={cn("px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[480px]")}
         >
             <div
                 className={"flex w-full text-[var(--text-light)] mt-4 " + (onClickBack ? "justify-between" : "justify-end")}>

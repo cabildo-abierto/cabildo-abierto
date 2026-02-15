@@ -18,6 +18,8 @@ import {APIResult, ArCabildoabiertoWikiTopicVersion, DiffOutput, DiffParams} fro
 import { BaseTextField } from "@/components/utils/base/base-text-field";
 import {editorStateToMarkdown} from "../../editor/markdown-transforms";
 import { decompress } from "@cabildo-abierto/editor-core";
+import {cn} from "@/lib/utils";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 const EditMessageInput = ({value, setValue}: { value: string, setValue: (v: string) => void }) => {
@@ -82,6 +84,7 @@ export const SaveEditPopup = ({
     const {user} = useSession()
     const [editMsg, setEditMsg] = useState("")
     const [diff, setDiff] = useState<{isLoading: false, error?: string, diff?: {charsAdded: number, charsDeleted: number}} | {isLoading: true}>({isLoading: true})
+    const {isMobile} = useIsMobile()
 
     useEffect(() => {
         async function fetchDiff(){
@@ -143,8 +146,9 @@ export const SaveEditPopup = ({
             open={open}
             closeButton={true}
             onClose={onClose}
+            fullscreenOnMobile={false}
         >
-            <div className="py-4 lg:px-12 px-2 text-center sm:w-[450px]">
+            <div className={cn("p-4 lg:px-12 text-center", !isMobile && "w-[450px]")}>
 
                 <h2 className="pb-4 uppercase text-base">
                     Confirmar cambios
@@ -166,8 +170,10 @@ export const SaveEditPopup = ({
                     </div>
                 }
 
-                <div className="flex flex-col items-center mb-8 w-full min-w-[300px]">
+                <div className="flex justify-center mb-8 w-full">
+                    <div className={"w-full max-w-[400px]"}>
                     <EditMessageInput value={editMsg} setValue={setEditMsg}/>
+                    </div>
                 </div>
 
                 {!hasEditPermission(user, getTopicProtection(topic.props)) &&

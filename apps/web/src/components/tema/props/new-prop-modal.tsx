@@ -66,8 +66,9 @@ export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
         open={open}
         onClose={cleanAndClose}
         closeButton={true}
+        fullscreenOnMobile={false}
     >
-        <div className={"px-6 pb-6 space-y-4 flex flex-col max-w-[360px]"}>
+        <div className={"px-6 pb-6 space-y-4 flex flex-col w-screen min-[360px]:w-[360px]"}>
             <h3 className={"font-semibold uppercase text-sm"}>
                 Nueva propiedad
             </h3>

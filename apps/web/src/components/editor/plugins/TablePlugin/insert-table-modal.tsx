@@ -47,6 +47,7 @@ export default function InsertTableModal({
             closeButton={true}
             backgroundShadow={false}
             className={"bg-[var(--background-dark)] portal group"}
+            fullscreenOnMobile={false}
         >
             <div className={"flex flex-col space-y-8 p-4 items-center"}>
                 <div className={"flex space-x-4 pt-4"}>

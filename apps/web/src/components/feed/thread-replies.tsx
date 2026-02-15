@@ -15,6 +15,7 @@ type ThreadRepliesProps = {
 
 
 export default function ThreadReplies({parentRef, replies, setPinnedReplies}: ThreadRepliesProps) {
+
     if (!replies) return null
 
     return <>
@@ -34,7 +35,7 @@ export default function ThreadReplies({parentRef, replies, setPinnedReplies}: Th
             }
             const editedParent = parentRef && ArCabildoabiertoFeedDefs.isPostView(r.content) && parentRef.cid != (r.content.record as AppBskyFeedPost.Record)?.reply?.parent.cid
 
-            return <div key={r.content.uri} className={"w-full"}>
+            return <div key={r.content.uri} className={"min-[600px]:w-full w-screen"}>
                 <PostPreview
                     postView={r.content}
                     parentIsMainPost={true}

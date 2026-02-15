@@ -1,9 +1,10 @@
-import {CAHandler} from "#/utils/handler.js";
+import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {AppContext} from "#/setup.js";
 import {getUnsentAccessRequestsCount} from "#/services/user/access.js";
 import {getPendingValidationRequestsCount} from "#/services/user/validation.js";
 import {getUnseenJobApplicationsCount} from "#/services/admin/jobs.js";
 import {Effect} from "effect";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 
 type ServerStatus = {
     worker: boolean
@@ -11,54 +12,68 @@ type ServerStatus = {
 }
 
 
-export async function updateTimestamp(ctx: AppContext, id: string, date: Date) {
-    await ctx.kysely
-        .insertInto("Timestamps")
-        .values([{
-            id,
-            date: date,
-            date_tz: date,
-        }])
-        .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
-            date_tz: eb.ref("excluded.date_tz"),
-            date: eb.ref("excluded.date")
-        })))
-        .execute()
+export const updateTimestamp = (
+    ctx: AppContext,
+    id: string,
+    date: Date
+) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .insertInto("Timestamps")
+            .values([{
+                id,
+                date: date,
+                date_tz: date,
+            }])
+            .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
+                date_tz: eb.ref("excluded.date_tz"),
+                date: eb.ref("excluded.date")
+            })))
+            .execute(),
+        catch: error => new DBInsertError(error)
+    })
 }
 
 
-export async function getTimestamp(ctx: AppContext, id: string) {
-    const ts = await ctx.kysely
-        .selectFrom("Timestamps")
-        .select("date_tz")
-        .where("id", "=", id)
-        .executeTakeFirst()
-    return ts?.date_tz
+export const getTimestamp = (
+    ctx: AppContext,
+    id: string
+): Effect.Effect<Date | null, DBSelectError> => Effect.gen(function* () {
+    const ts = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Timestamps")
+            .select("date_tz")
+            .where("id", "=", id)
+            .executeTakeFirst(),
+        catch: error => new DBSelectError(error)
+    })
+    return ts?.date_tz ?? null
+})
+
+
+export function runTestJob(ctx: AppContext) {
+    return updateTimestamp(ctx, "test", new Date())
 }
 
 
-export async function runTestJob(ctx: AppContext): Promise<void> {
-    await updateTimestamp(ctx, "test", new Date())
-    ctx.logger.pino.info("test job run successfully")
-}
-
-
-export const getServerStatus: CAHandler<{}, {status: ServerStatus}> = async (ctx, agent, params ) => {
+export const getServerStatus: EffHandler<{}, {status: ServerStatus}> = (
+    ctx,
+    agent,
+    params ) => Effect.gen(function* () {
     // chequeamos:
     // el worker completa un trabajo con prioridad baja
     // el mirror está corriendo y procesando eventos
 
-    const ts = await getTimestamp(ctx, "test")
+    const ts = yield* getTimestamp(ctx, "test")
 
-    const lastEventProcessed = await getTimestamp(ctx, `last-mirror-event-${ctx.mirrorId}`)
+    const lastEventProcessed = yield* getTimestamp(ctx, `last-mirror-event-${ctx.mirrorId}`)
 
     const threshold = new Date(Date.now() - 120*1000)
     const worker = ts != null && ts > threshold
     const mirror = lastEventProcessed != null && lastEventProcessed > threshold
 
-    ctx.logger.pino.info({lastTestJob: ts, lastEventProcessed, worker, mirror, threshold, now: new Date()}, "server status")
-    return {data: {status: {worker, mirror}}}
-}
+    return {status: {worker, mirror}}
+}).pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al consultar el estado.")))
 
 
 export const getAdminNotificationCounts: CAHandler<{}, {unsentAccessRequests: number, pendingValidationRequests: number, unseenJobApplications: number}> = async (ctx, agent, {}) => {

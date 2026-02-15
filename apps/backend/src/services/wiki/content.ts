@@ -25,7 +25,10 @@ export function getNumWords(text: string, format: string) {
 }
 
 
-export const updateContentsText = (ctx: AppContext, uris?: string[]): Effect.Effect<void, DBSelectError> =>
+export const updateContentsText = (
+    ctx: AppContext,
+    uris?: string[]
+): Effect.Effect<void, DBSelectError> =>
     Effect.gen(function* () {
     if (uris && uris.length == 0) return
     const batchSize = 50

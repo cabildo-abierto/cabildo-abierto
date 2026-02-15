@@ -2,22 +2,30 @@ import {AppContext} from "#/setup.js";
 import {getTopicCategories} from "#/services/wiki/utils.js";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {unique} from "@cabildo-abierto/utils";
+import {Effect} from "effect";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 
 
 // actualizamos la tabla topicToCategory para estos temas y creamos las categorías nuevas
 // no se eliminan categorías anteriores
-export async function updateTopicsCategoriesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
+export const updateTopicsCategoriesOnTopicsChange = (
+    ctx: AppContext,
+    topicIds: string[]
+) => Effect.gen(function* () {
     if(topicIds.length === 0) return
 
-    const topics = await ctx.kysely
-        .selectFrom('Topic')
-        .leftJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
-        .select([
-            "id",
-            "TopicVersion.props"
-        ])
-        .where("Topic.id", "in", topicIds)
-        .execute()
+    const topics = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom('Topic')
+            .leftJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
+            .select([
+                "id",
+                "TopicVersion.props"
+            ])
+            .where("Topic.id", "in", topicIds)
+            .execute(),
+        catch: error => new DBSelectError(error)
+    })
 
     const topicCategories = topics.map((t) => ({
         topicId: t.id,
@@ -35,30 +43,32 @@ export async function updateTopicsCategoriesOnTopicsChange(ctx: AppContext, topi
         }))
     )
 
-    await ctx.kysely.transaction().execute(async (trx) => {
-        try {
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
+            try {
+                await trx
+                    .insertInto('TopicCategory')
+                    .values(allCategoryIds.map(id => ({id})))
+                    .onConflict((oc) => oc.column('id').doNothing())
+                    .execute()
+            } catch (err) {
+                ctx.logger.pino.error({error: err}, `Error inserting categories.`)
+            }
+
             await trx
-                .insertInto('TopicCategory')
-                .values(allCategoryIds.map(id => ({id})))
-                .onConflict((oc) => oc.column('id').doNothing())
+                .deleteFrom('TopicToCategory')
+                .where("topicId", "in", topicIds)
                 .execute()
-        } catch (err) {
-            ctx.logger.pino.error({error: err}, `Error inserting categories.`)
-        }
 
-        await trx
-            .deleteFrom('TopicToCategory')
-            .where("topicId", "in", topicIds)
-            .execute()
-
-        await trx
-            .insertInto("TopicToCategory")
-            .values(topicCategoryValues)
-            .onConflict((oc) => oc.columns(['topicId', 'categoryId']).doNothing())
-            .execute()
+            await trx
+                .insertInto("TopicToCategory")
+                .values(topicCategoryValues)
+                .onConflict((oc) => oc.columns(['topicId', 'categoryId']).doNothing())
+                .execute()
+        }),
+        catch: (error) => new DBInsertError(error)
     })
-}
-
+})
 
 
 export async function updateTopicsCategories(ctx: AppContext) {

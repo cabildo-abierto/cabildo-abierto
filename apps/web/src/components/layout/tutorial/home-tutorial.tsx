@@ -9,6 +9,7 @@ import {produce} from "immer";
 import {useLayoutConfig} from "../main-layout/layout-config-context";
 import { Session } from "@cabildo-abierto/api";
 import {post} from "@/components/utils/react/fetch";
+import {Paragraph} from "@/components/utils/base/paragraph";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -18,27 +19,27 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
         open={open}
         buttonText={"Aceptar"}
         onClose={onClose}
-        className={"py-4 px-4 sm:px-8"}
+        className={"py-4 px-4 sm:px-8 w-screen max-w-[500px]"}
         backgroundShadow={true}
     >
-        <div className={"flex flex-col items-center max-w-[500px] sm:text-base text-sm"}>
+        <div className={"flex flex-col items-center sm:text-base text-sm"}>
             <h2 className={"mb-4 py-2 text-xl"}>¡Te damos la bienvenida!</h2>
 
-            <div className={"font-light space-y-3"}>
-                <div>
+            <div className={"space-y-3"}>
+                <Paragraph>
                     Cabildo Abierto es una incipiente plataforma de discusión argentina.
-                </div>
-                <div>
+                </Paragraph>
+                <Paragraph>
                     Desde el equipo que la desarrolla intentamos que sirva como una herramienta para comunicarnos y
                     discutir a través de internet de formas más sanas y útiles.
-                </div>
-                <div>
+                </Paragraph>
+                <Paragraph>
                     Estamos en período de prueba. Ante cualquier comentario, escribinos a @cabildoabierto.ar o comentá en directamente en la plataforma.
-                </div>
-                {isMobile && <div className={""}>
+                </Paragraph>
+                {isMobile && <Paragraph>
                     <span className={"font-semibold"}>Tip:</span> Cabildo Abierto funciona un poco mejor desde una
                     computadora.
-                </div>}
+                </Paragraph>}
             </div>
         </div>
     </AcceptButtonPanel>
@@ -82,13 +83,15 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             />
             {runStatus == "guide" && <AcceptButtonPanel
                 buttonText={"Empezar"}
-                className={"max-w-[400px] font-light sm:text-base text-sm"}
+                className={"sm:max-w-[400px]"}
                 open={true}
                 onClose={() => {
                     setRunStatus("finished")
-                }}>
-                Para empezar, te recomendamos que busques usuarios para seguir, que explores los muros y sus
-                configuraciones y que recorras la sección de temas.
+                }}
+            >
+                <Paragraph>
+                    Para empezar, te recomendamos que busques usuarios para seguir, que explores los muros y que recorras la sección de temas.
+                </Paragraph>
             </AcceptButtonPanel>}
         </>
     )
