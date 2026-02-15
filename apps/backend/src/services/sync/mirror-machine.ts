@@ -78,7 +78,9 @@ export class MirrorMachine {
 
             if (hadEvents) {
                 this.ctx.logger.pino.info("updating last mirror event timestamp")
-                await updateTimestamp(this.ctx, `last-mirror-event-${this.ctx.mirrorId}`, date)
+                await Effect.runPromise(
+                    updateTimestamp(this.ctx, `last-mirror-event-${this.ctx.mirrorId}`, date)
+                )
             }
         }
     }

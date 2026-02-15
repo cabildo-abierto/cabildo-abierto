@@ -59,7 +59,7 @@ export const updateContentsText = (
             break
         }
     }
-})
+}).pipe(Effect.withSpan("updateContentsText", {attributes: {count: uris?.length ?? -1}}))
 
 
 const setContentsText = (

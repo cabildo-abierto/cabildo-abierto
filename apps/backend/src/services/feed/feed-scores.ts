@@ -1,25 +1,25 @@
 import {AppContext} from "#/setup.js";
 import { sql } from "kysely";
+import {Effect} from "effect";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 
 
-export async function updateInteractionsScore(ctx: AppContext, uris?: string[]) {
+export const updateInteractionsScore = (
+    ctx: AppContext,
+    uris?: string[]
+) => Effect.gen(function* () {
     if(uris && uris.length == 0) return
     const batchSize = 500
     let offset = 0
     const lastMonth = new Date(Date.now() - 1000*3600*24*30)
     while(true){
-        const t1 = Date.now()
-
         let batchUris: string[] | null = null
         if(uris != null){
             batchUris = uris.slice(offset, offset+batchSize)
         }
-        ctx.logger.pino.info({offset, batchSize, total: uris?.length}, `getting interactions scores for batch`)
 
-        let scores: {uri: string, likesScore: number, interactionsScore: number}[] = []
-
-        try {
-            scores = await ctx.kysely
+        const scores: {uri: string, likesScore: number, interactionsScore: number}[] = yield* Effect.tryPromise({
+            try: () => ctx.kysely
                 .selectFrom("Content")
                 .innerJoin("Record", "Record.uri", "Content.uri")
                 .where("Record.created_at_tz", ">", lastMonth)
@@ -110,34 +110,30 @@ export async function updateInteractionsScore(ctx: AppContext, uris?: string[]) 
                     ))
                 `.as("relativePopularityScore")
                 ])
-                .execute()
-        } catch (err) {
-            ctx.logger.pino.error({error: err}, "Error updating interactions scores")
-            return
-        }
-        const t2 = Date.now()
-
-        ctx.logger.pino.info(`inserting ${scores.length} scores`)
+                .execute(),
+            catch: (error) => new DBSelectError(error)
+        })
 
         if(scores.length > 0){
-            await ctx.kysely
-                .insertInto("Content")
-                .values(scores.map(s => ({
-                    ...s,
-                    embeds: [],
-                    selfLabels: []
-                })))
-                .onConflict(oc => oc.column("uri").doUpdateSet(eb => ({
-                    likesScore: eb.ref("excluded.likesScore"),
-                    interactionsScore: eb.ref("excluded.interactionsScore"),
-                    relativePopularityScore: eb.ref("excluded.relativePopularityScore")
-                })))
-                .execute()
+            yield* Effect.tryPromise({
+                try: () => ctx.kysely
+                    .insertInto("Content")
+                    .values(scores.map(s => ({
+                        ...s,
+                        embeds: [],
+                        selfLabels: []
+                    })))
+                    .onConflict(oc => oc.column("uri").doUpdateSet(eb => ({
+                        likesScore: eb.ref("excluded.likesScore"),
+                        interactionsScore: eb.ref("excluded.interactionsScore"),
+                        relativePopularityScore: eb.ref("excluded.relativePopularityScore")
+                    })))
+                    .execute(),
+                catch: (error) => new DBInsertError(error)
+            })
         }
 
-        const t3 = Date.now()
-        ctx.logger.logTimes("update interaction scores batch", [t1, t2, t3], {offset, size: scores.length, total: uris?.length})
         offset += batchSize
         if(scores.length < batchSize) break
     }
-}
+}).pipe(Effect.withSpan("updateInteractionsScore", {attributes: {count: uris?.length ?? -1}}))

@@ -46,6 +46,8 @@ export class RecordProcessor<T> {
     processValidated(records: RefAndRecord<T>[], reprocess: boolean = false): Effect.Effect<number, ProcessCreateError> {
         if(records.length == 0) return Effect.succeed(0)
 
+        const collection = getCollectionFromUri(records[0].ref.uri)
+
         return pipe(
             this.addRecordsToDB(records, reprocess),
             Effect.tap(() => {
@@ -54,7 +56,8 @@ export class RecordProcessor<T> {
                     catch: () => new UpdateRedisError()
                 }) : Effect.void
             }),
-            Effect.flatMap(processed => Effect.succeed(processed))
+            Effect.flatMap(processed => Effect.succeed(processed)),
+            Effect.withSpan(`processValidated ${collection}`)
         )
     }
 

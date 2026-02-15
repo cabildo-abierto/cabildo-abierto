@@ -314,7 +314,7 @@ export const getSession = (
 
     const data = yield* getSessionData(ctx, agent.did)
 
-    if(!data || data.mirrorStatus == "Dirty") {
+    if(!data || data.mirrorStatus == "Dirty" || data.mirrorStatus == "InProcess") {
         yield* ctx.redisCache.mirrorStatus.set(did, "InProcess", true)
         if(ctx.worker) yield* ctx.worker.addJob("sync-user", {handleOrDid: did}, 5)
     }

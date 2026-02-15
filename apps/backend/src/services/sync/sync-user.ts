@@ -337,7 +337,10 @@ export const syncUser = (
         const mirrorStatus = yield* ctx.redisCache.mirrorStatus.get(did, inCA)
         yield* Effect.annotateCurrentSpan({inCA, mirrorStatus})
 
-        if(mirrorStatus != "InProcess") return yield* Effect.fail(new InvalidMirrorStatus(mirrorStatus))
+        if(mirrorStatus != "InProcess") {
+            yield* Effect.annotateCurrentSpan({result: "not-in-process"})
+            return
+        }
 
         const doc = yield* getServiceEndpointForDid(ctx, did)
 
@@ -352,15 +355,16 @@ export const syncUser = (
         yield* ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
         yield* Effect.annotateCurrentSpan({result: "success"})
     }).pipe(
-        Effect.catchAll(error => {
-            return isCAUser(ctx, did).pipe(
-                Effect.flatMap(inCA => ctx.redisCache.mirrorStatus.set(did, "Failed", inCA).pipe(Effect.flatMap(() => Effect.void)))
-            ).pipe(Effect.tap(Effect.annotateCurrentSpan({result: "failed", errorTag: error._tag})))
-        }),
         Effect.withSpan("runSync", {
             attributes: {
                 did
             }
+        })
+    ).pipe(
+        Effect.catchAll(error => {
+            return isCAUser(ctx, did).pipe(
+                Effect.flatMap(inCA => ctx.redisCache.mirrorStatus.set(did, "Failed", inCA).pipe(Effect.flatMap(() => Effect.void)))
+            ).pipe(Effect.tap(Effect.annotateCurrentSpan({result: "failed", errorTag: error._tag})))
         })
     )
 }

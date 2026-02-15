@@ -28,7 +28,7 @@ export function getServiceEndpointForDid(ctx: AppContext, did: string): Effect.E
                 return Effect.fail(new ServiceEndpointResolutionError())
             }
         }),
-        Effect.withSpan("getServiceEndpoitnForDid", {attributes: {did}})
+        Effect.withSpan("getServiceEndpointForDid", {attributes: {did}})
     )
 }
 

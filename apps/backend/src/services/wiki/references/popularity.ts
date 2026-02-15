@@ -58,7 +58,7 @@ export const updateTopicPopularities = (
                 .orderBy("Record.created_at_tz desc")
                 .execute(),
             catch: (error) =>  new DBSelectError(error)
-        })
+        }).pipe(Effect.withSpan("SQL/get topic interactions"))
 
         ctx.logger.pino.info({batchInteractions}, "interactions")
 
@@ -119,7 +119,7 @@ export const updateTopicPopularities = (
                 }))
                 .execute(),
             catch: (error) => new DBInsertError(error)
-        })
+        }).pipe(Effect.withSpan("SQL/insert popularities"))
     }
 }).pipe(Effect.withSpan("updateTopicPopularities", {attributes: {count: topicIds.length}}))
 

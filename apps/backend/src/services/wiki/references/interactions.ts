@@ -107,7 +107,7 @@ export const updateTopicInteractionsOnNewReplies = (
         }),
         catch: error => new DBInsertError(error)
     })
-})
+}).pipe(Effect.withSpan("updateTopicInteractionsOnNewReplies", {attributes: {count: records.length}}))
 
 
 type InteractionToInsert = {
@@ -207,7 +207,7 @@ export const updateTopicInteractionsOnNewReferences = (
         catch: error =>  new DBDeleteError(error)
     })
     return interactions.map(i => i.referencedTopicId)
-})
+}).pipe(Effect.withSpan("updateTopicInteractionsOnNewReferences", {attributes: {count: references.length}}))
 
 
 export const getEditedTopics = (ctx: AppContext, since: Date) => Effect.gen(function* () {

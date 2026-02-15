@@ -141,7 +141,7 @@ export const getReferencesToInsert = (
     }
 
     return Array.from(refsMap.values())
-})
+}).pipe(Effect.withSpan("getReferencesToInsert", {attributes: {urisCount: uris?.length ?? -1, topicsCount: topics?.length ?? -1}}))
 
 
 const updateReferencesForContentsAndTopics = (
@@ -178,7 +178,7 @@ const updateReferencesForContentsAndTopics = (
         )
         return referencesToInsert.map(r => r.id)
     }
-})
+}).pipe(Effect.withSpan("updateReferencesForContentsAndTopics", {attributes: {contentsCount: contents?.length ?? -1, topicsCount: topics?.length ?? -1}}))
 
 
 export type ReferenceToInsert = {
@@ -233,7 +233,7 @@ const applyReferencesUpdate = (
         }),
         catch: error => new DBInsertError(error)
     })
-})
+}).pipe(Effect.withSpan("applyReferencesUpdate", {attributes: {referencesCount: referencesToInsert.length}}))
 
 
 export type TextAndFormat = { text: string, format: string | null }
@@ -345,7 +345,7 @@ const createMentionNotifications = (
     if (data.length > 0) {
         yield* ctx.worker?.addJob("batch-create-notifications", data)
     }
-})
+}).pipe(Effect.withSpan("createMentionNotifications", {attributes: {count: uris.length}}))
 
 
 export const updatePopularitiesOnContentsChange = (
@@ -381,7 +381,7 @@ export const updatePopularitiesOnContentsChange = (
         ctx,
         uris
     )
-})
+}).pipe(Effect.withSpan("updatePopularitiesOnContentsChange", {attributes: {count: uris.length}}))
 
 
 export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
@@ -565,7 +565,7 @@ export const updateDiscoverFeedIndex = (
             break
         }
     }
-})
+}).pipe(Effect.withSpan("updateDiscoverFeedIndex", {attributes: {count: uris?.length ?? -1}}))
 
 
 /***
@@ -584,4 +584,4 @@ export const updateContentCategoriesOnTopicsChange = (
     })
 
     yield* updateDiscoverFeedIndex(ctx, contents.map(c => c.referencingContentId))
-})
+}).pipe(Effect.withSpan("updateContentCategoriesOnTopicsChange", {attributes: {count: topicIds.length}}))

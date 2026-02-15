@@ -246,12 +246,12 @@ export class CAWorker {
             "update-records-created-at",
             () => updateRecordsCreatedAt(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-interactions-score",
             (data) => updateInteractionsScore(ctx, data),
             true
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-all-interactions-score",
             () => updateInteractionsScore(ctx)
         )
