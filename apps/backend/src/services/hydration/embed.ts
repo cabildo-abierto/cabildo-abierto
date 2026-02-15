@@ -132,6 +132,16 @@ const hydrateRecordEmbedViewFromUri = (ctx: AppContext, agent: SessionAgent | No
                     $type: "ar.cabildoabierto.embed.record#viewRecord"
                 }
             }
+        } else {
+            const embed: $Typed<ArCabildoabiertoEmbedRecord.View> = {
+                $type: "ar.cabildoabierto.embed.record#view",
+                record: {
+                    $type: "app.bsky.embed.record#viewNotFound",
+                    uri,
+                    notFound: true
+                }
+            }
+            return embed
         }
     } else {
         ctx.logger.pino.warn({collection}, `hydration not implemented for collection`)

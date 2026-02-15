@@ -91,7 +91,6 @@ export const getContentMetadata: CAHandlerNoAuth<{
             }
         }
     } else if (isPost(c)) {
-        ctx.logger.pino.info({uri}, "getting post metadata")
         try {
             const post = await ctx.kysely
                 .selectFrom("Content")
@@ -125,7 +124,6 @@ export const getContentMetadata: CAHandlerNoAuth<{
                 return {error: "No se encontró la publicación."}
             }
         } catch (error) {
-            ctx.logger.pino.error({error}, "error getting post metadata")
             return {error: "Ocurrió un error al obtener los metadatos."}
         }
     } else if (isDataset(c)) {
