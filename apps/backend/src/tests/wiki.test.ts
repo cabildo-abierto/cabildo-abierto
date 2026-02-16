@@ -15,10 +15,10 @@ import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import {getTopicVersion} from "#/services/wiki/topics.js";
 import {getTopicVersionVotes} from "#/services/wiki/votes.js";
-import {getTopicDiscussion} from "#/services/feed/topic.js";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {Effect} from "effect";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
+import {getTopicDiscussionHandler} from "#/services/wiki/discussion.js";
 
 const testSuite = getSuiteId(__filename)
 
@@ -214,7 +214,7 @@ describe('Get discussion', { timeout: 20000 }, () => {
 
             const agent = new MockSessionAgent(user)
 
-            const feed = yield* getTopicDiscussion(
+            const feed = yield* getTopicDiscussionHandler(
                 ctx!,
                 agent,
                 {
@@ -225,7 +225,7 @@ describe('Get discussion', { timeout: 20000 }, () => {
             )
             expect(feed).not.toBeFalsy()
 
-            const postOnFeed = feed.feed
+            const postOnFeed = feed
                 .find(e => ArCabildoabiertoFeedDefs.isPostView(e.content) &&
                     e.content.uri == post.ref.uri)
 

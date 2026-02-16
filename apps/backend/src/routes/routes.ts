@@ -34,10 +34,8 @@ import {
     getTopicsMentionedByContent
 } from "#/services/wiki/topics.js";
 import {
-    getTopicDiscussion,
     getTopicFeed,
-    getTopicMentionsInTopicsFeed,
-    getTopicQuoteReplies
+    getTopicMentionsInTopicsFeed
 } from "#/services/feed/topic.js";
 import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
@@ -95,6 +93,7 @@ import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
 import {Effect, Exit} from "effect";
+import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
@@ -292,7 +291,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic-discussion',
-        makeEffHandlerNoAuth(ctx, getTopicDiscussion)
+        makeEffHandlerNoAuth(ctx, getTopicDiscussionHandler)
     )
 
     router.get(

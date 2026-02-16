@@ -358,7 +358,6 @@ export const hydrateFeedViewContent = (ctx: AppContext, agent: SessionAgent | No
     const isRepost = reason && reason.$type == "ar.cabildoabierto.feed.defs#reasonRepost"
 
     if (!leaf) {
-        ctx.logger.pino.warn({uri: e.post}, "content not found")
         return null
     } else if (!reply) {
         const res: $Typed<ArCabildoabiertoFeedDefs.FeedViewContent> = {

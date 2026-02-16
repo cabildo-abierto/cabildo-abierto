@@ -5,16 +5,23 @@ import {smoothScrollTo} from "../utils/react/scroll";
 import {FeedEndText} from "./feed/feed-end-text";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {AppBskyFeedPost} from "@atproto/api";
+import {getCollectionFromUri, isTopicVersion} from "@cabildo-abierto/utils";
 
 
 type ThreadRepliesProps = {
     replies: ArCabildoabiertoFeedDefs.ThreadViewContent["replies"] | null
     setPinnedReplies?: Dispatch<SetStateAction<string[]>>
     parentRef?: ATProtoStrongRef
+    onClickQuote?: (cid: string) => void
 }
 
 
-export default function ThreadReplies({parentRef, replies, setPinnedReplies}: ThreadRepliesProps) {
+export default function ThreadReplies({
+    parentRef,
+    replies,
+    setPinnedReplies,
+    onClickQuote
+}: ThreadRepliesProps) {
 
     if (!replies) return null
 
@@ -24,24 +31,32 @@ export default function ThreadReplies({parentRef, replies, setPinnedReplies}: Th
                 return null
             }
 
-            function onClickQuote() {
-                if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
-                    setPinnedReplies([r.content.cid])
-                    const elem = document.getElementById("selection:" + r.content.cid)
-                    if (elem) {
-                        smoothScrollTo(elem)
+            const onClickQuoteHandler = () =>  {
+                if(onClickQuote) {
+                    if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
+                        onClickQuote(r.content.cid)
+                    }
+                } else {
+                    if (ArCabildoabiertoFeedDefs.isThreadViewContent(r) && ArCabildoabiertoFeedDefs.isPostView(r.content)) {
+                        setPinnedReplies([r.content.cid])
+                        const elem = document.getElementById("selection:" + r.content.cid)
+                        if (elem) {
+                            smoothScrollTo(elem)
+                        }
                     }
                 }
             }
+
             const editedParent = parentRef && ArCabildoabiertoFeedDefs.isPostView(r.content) && parentRef.cid != (r.content.record as AppBskyFeedPost.Record)?.reply?.parent.cid
 
             return <div key={r.content.uri} className={"min-[600px]:w-full w-screen"}>
                 <PostPreview
                     postView={r.content}
                     parentIsMainPost={true}
-                    onClickQuote={onClickQuote}
+                    onClickQuote={onClickQuoteHandler}
                     threadViewContent={r}
-                    editedParent={editedParent}
+                    editedParent={editedParent && !isTopicVersion(getCollectionFromUri(parentRef.uri))}
+                    pageRootUri={parentRef?.uri}
                 />
             </div>
         })}
