@@ -4,6 +4,7 @@ import {useLayoutConfig} from "../layout-config-context";
 import {useLoginModal} from "../../../auth/login-modal-provider";
 import {useSession} from "@/components/auth/use-session";
 import Link from "next/link";
+import {cn} from "@/lib/utils";
 
 
 type SidebarButtonProps = {
@@ -65,8 +66,9 @@ export const SidebarButton = ({
             }}
         >
             <BaseButton
+                variant={"default"}
                 size="large"
-                className={"flex py-0 text-[15px] [&_svg]:size-6 " + (showText ? " justify-start px-4 " : " justify-center px-2 ") + (showText && isMobile ? "w-full" : "")}
+                className={cn("flex py-0 text-[15px] [&_svg]:size-6", showText ? "justify-start px-4 " : "justify-center px-2", showText && isMobile ? "w-full" : "")}
                 onClick={handleClick}
                 disabled={disabled}
             >

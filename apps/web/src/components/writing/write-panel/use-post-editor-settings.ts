@@ -10,7 +10,7 @@ import {
     isTopicVersion,
     isVisualization,
 } from "@cabildo-abierto/utils";
-import {ThreadElementState} from "@/components/writing/write-panel/thread-editor";
+import {ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
 
 
 function getPlaceholder(replyToCollection: string | undefined, quotedCollection: string | undefined, isVoteReject: boolean) {

@@ -1,7 +1,7 @@
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {useState} from "react";
-import {CloseButtonIcon} from "@/components/utils/icons/close-button-icon";
 import {ConfirmModal} from "@/components/utils/dialogs/confirm-modal";
+import {TrashIcon} from "@phosphor-icons/react";
 
 
 export const DeleteThreadElement = ({onDelete}: {
@@ -16,7 +16,7 @@ export const DeleteThreadElement = ({onDelete}: {
             }}
             size={"small"}
         >
-            <CloseButtonIcon/>
+            <TrashIcon/>
         </BaseIconButton>
         {confirmDeleteModalOpen && <ConfirmModal
             title={`¿Descartar la publicación?`}

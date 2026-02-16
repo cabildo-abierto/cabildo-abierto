@@ -10,6 +10,7 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 default: "group-[.portal]:hover:bg-[var(--background-dark2)] hover:bg-[var(--background-dark)]",
+                text: "hover:text-[var(--text-light)]",
                 outlined:
                     "border border-[var(--accent-dark)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] group-[.portal]:bg-[var(--background-dark2)] group-[.portal]:hover:bg-[var(--background-dark3)]",
                 error:

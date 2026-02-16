@@ -111,6 +111,7 @@ export const TopicsPageHeader = () => {
         {newTopicOpen && createPortal(<CreateTopicModal
             open={newTopicOpen}
             onClose={() => setNewTopicOpen(false)}
+            onMenu={false}
         />, document.body)}
     </div>
 }

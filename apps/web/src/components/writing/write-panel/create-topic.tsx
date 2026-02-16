@@ -7,7 +7,6 @@ import TickButton from "../../utils/tick-button";
 import {StateButton} from "@/components/utils/base/state-button"
 import {getTopicTitle, validEntityName} from "../../tema/utils";
 import {useSession} from "@/components/auth/use-session";
-import {BaseButton} from "@/components/utils/base/base-button";
 import {useQueryClient} from "@tanstack/react-query";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
@@ -16,6 +15,8 @@ import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabild
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {queryTopics} from "@/components/writing/query-topics";
 import {post} from "@/components/utils/react/fetch";
+import {cn} from "@/lib/utils";
+
 
 export function useCreateTopic() {
 
@@ -114,7 +115,7 @@ const CreateTopicButtons = ({
             <StateButton
                 handleClick={onSubmit}
                 disabled={disabled}
-                size={"default"}
+                size={"small"}
                 variant={"outlined"}
             >
                 Crear tema
@@ -208,30 +209,28 @@ const CreateTopicInput = ({
 const CreateTopicOptions = ({
                                 onClose,
                                 setSelected
-
                             }: {
     onClose: () => void
     setSelected: (v: string) => void
 }) => {
-    return <div className={"flex justify-center items-center min-h-64 flex-grow "}>
-        <div className={"flex space-x-8 h-full items-center"}>
-            <Link href={"/temas?view=lista"} onClick={onClose}>
-                <BaseButton
-                    variant={"outlined"}
-                    className={"w-[150px]"}
-                >
-                    Editar un tema
-                </BaseButton>
-            </Link>
-            <BaseButton
-                variant={"outlined"}
-                onClick={() => {
-                    setSelected("new")
-                }}
-                className={"w-[150px]"}
-            >
-                Nuevo tema
-            </BaseButton>
+    const router = useRouter()
+    return <div className={"flex min-h-64 flex-grow "}>
+        <div
+            className={"border-r flex-1 hover:bg-[var(--background-dark2)] cursor-pointer text-center flex items-center justify-center font-light"}
+            onClick={() => {
+                router.push("/temas?view=lista")
+                onClose()
+            }}
+        >
+            Editar un tema
+        </div>
+        <div
+            onClick={() => {
+                setSelected("new")
+            }}
+            className={"flex-1 hover:bg-[var(--background-dark2)] cursor-pointer text-center flex items-center justify-center font-light"}
+        >
+            Nuevo tema
         </div>
     </div>
 }
@@ -240,11 +239,13 @@ const CreateTopicOptions = ({
 type CreateTopicProps = {
     onClose: () => void
     initialSelected?: string
+    onMenu: boolean
 }
 
 export const CreateTopic = ({
                                 onClose,
-                                initialSelected = "none"
+                                initialSelected = "none",
+    onMenu
                             }: CreateTopicProps) => {
     const user = useSession();
     const [topicName, setTopicName] = useState("");
@@ -261,7 +262,7 @@ export const CreateTopic = ({
 
     const disabled = !user.user || !validEntityName(topicName)
 
-    return <div className="space-y-3 p-4 flex-grow flex flex-col justify-between min-h-[250px]">
+    return <div className={cn("space-y-3 p-4 flex-grow flex flex-col justify-between min-h-[250px]", onMenu && "pt-12")}>
         <CreateTopicInput
             disabled={disabled}
             topicName={topicName}

@@ -11,6 +11,7 @@ import {CloseButton} from "../base/close-button";
 import {cn} from "@/lib/utils";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {produce} from "immer";
+import {BackButton} from "@/components/utils/base/back-button";
 
 
 export const BaseFullscreenPopup = ({
@@ -23,7 +24,8 @@ export const BaseFullscreenPopup = ({
                                         backgroundShadow = false,
     overlayClassName,
     ariaLabelledBy="panel",
-    fullscreenOnMobile = true
+    fullscreenOnMobile = true,
+    onBack
                                     }: {
     open: boolean
     children: ReactNode
@@ -36,6 +38,7 @@ export const BaseFullscreenPopup = ({
     overlayClassName?: string
     ariaLabelledBy?: string
     fullscreenOnMobile?: boolean
+    onBack?: () => void
 }) => {
     const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
     useEffect(() => {
@@ -59,7 +62,7 @@ export const BaseFullscreenPopup = ({
         <DialogContent
             className={cn("z-[1400] flex flex-col", isMobile && fullscreenOnMobile ?
                     "fixed w-screen left-0 translate-x-0 translate-y-0 top-0 h-screen" :
-                    "w-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border h-auto", className)}
+                    "w-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2", className)}
             onClick={e => {
                 e.stopPropagation()
             }}
@@ -70,7 +73,11 @@ export const BaseFullscreenPopup = ({
                 <DialogDescription>Descripción</DialogDescription>
             </VisuallyHidden>
             {closeButton && onClose && (
-                <div className="flex justify-end mr-1 mt-1">
+                <div className="flex justify-between items-center mx-1 mt-1">
+                    {onBack ? <BackButton
+                        onClick={onBack}
+                        size={"small"}
+                    /> : <div/>}
                     <CloseButton
                         onClose={onClose}
                         size={"small"}

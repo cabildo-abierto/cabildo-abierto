@@ -1,5 +1,4 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {StateButton} from "@/components/utils/base/state-button"
 import {ExtraChars} from "./extra-chars";
 import {
     areSetsEqual,
@@ -40,8 +39,9 @@ import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-e
 import {AddThreadElementButton} from "@/components/writing/write-panel/add-thread-element-button";
 import {isThreadElementStateEmpty} from "@/components/writing/write-panel/write-panel-panel";
 import {getPlainText} from "@cabildo-abierto/editor-core";
-import {ThreadElementState} from "@/components/writing/write-panel/thread-editor";
+import {ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
 import {DeleteThreadElement} from "@/components/writing/write-panel/delete-thread-element";
+import {cn} from "@/lib/utils";
 
 const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
@@ -280,13 +280,6 @@ export const WritePost = ({
 
     const charLimit = 300
 
-    let textLength = 0
-    try {
-        textLength = getTextLength(text)
-    } catch {}
-
-    const valid = (textLength > 0 && textLength <= 300) || (images && images.length > 0) || visualization != null
-
     useEffect(() => {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
@@ -321,7 +314,7 @@ export const WritePost = ({
             />
         </div>}
         <div
-            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
+            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-48"}
         >
             {replyTo != undefined && <WritePanelReplyPreview
                 replyTo={replyTo}
@@ -340,7 +333,7 @@ export const WritePost = ({
                         descriptionOnHover={false}
                     />
                 </Link>
-                <div className="sm:text-lg flex-1" key={editorKey}>
+                <div className={cn("sm:text-lg flex-1", !isOnlyElement && "pr-6")} key={editorKey}>
                     <CAEditor
                         setEditor={setEditor}
                         setEditorState={setEditorState}
@@ -375,16 +368,6 @@ export const WritePost = ({
                 />}
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
-                <StateButton
-                    variant={"outlined"}
-                    handleClick={async () => {
-                        return handleClickSubmit(false)
-                    }}
-                    disabled={!valid}
-                    size={"small"}
-                >
-                    {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
-                </StateButton>
             </div>
         </div>
         {visualizationModalOpen && <InsertVisualizationModal
