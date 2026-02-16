@@ -257,7 +257,7 @@ const WritePanelPanel = ({
         <BaseFullscreenPopup
             hidden={hidden}
             open={open}
-            className={cn("w-full max-w-[512px] h-auto sm:w-full bg-transparent", className)}
+            className={cn("w-full border max-w-[512px] h-auto sm:w-full bg-transparent", className)}
             backgroundShadow={replyTo == null && quotedPost == null && postView == null}
             overlayClassName={"z-[1399]"}
             fullscreenOnMobile={false}
@@ -333,8 +333,8 @@ const WritePanelPanel = ({
                     />}
                 </div>
             </div>}
-            {selected == null && <div className={"flex relative portal group h-[300px] bg-[var(--background-dark)]"}>
-                <div className={"absolute top-1 right-1"}>
+            {selected == null && <div className={"flex relative portal group h-[260px] bg-[var(--background-dark)]"}>
+                <div className={"absolute top-1 right-1 z-[2000]"}>
                     <CloseButton onClose={onClose} size={"small"}/>
                 </div>
                 <div className={"flex w-full"}>
@@ -342,7 +342,8 @@ const WritePanelPanel = ({
                         onClick={() => {
                             setSelected("Publicación")
                         }}
-                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}
+                    >
                         Publicación
                     </div>
                     <div
@@ -350,14 +351,14 @@ const WritePanelPanel = ({
                             router.push("/escribir/articulo");
                             onClose()
                         }}
-                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}>
                         Artículo
                     </div>
                     <div
                         onClick={() => {
                             setSelected("Tema")
                         }}
-                        className={"flex-1 hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}>
                         Tema
                     </div>
                 </div>

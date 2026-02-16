@@ -7,15 +7,14 @@ import TickButton from "../../utils/tick-button";
 import {StateButton} from "@/components/utils/base/state-button"
 import {getTopicTitle, validEntityName} from "../../tema/utils";
 import {useSession} from "@/components/auth/use-session";
-import {useQueryClient} from "@tanstack/react-query";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {CheckCircleIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
-import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api"
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {queryTopics} from "@/components/writing/query-topics";
 import {post} from "@/components/utils/react/fetch";
 import {cn} from "@/lib/utils";
+import {useDebounce} from "@/components/utils/react/debounce";
 
 
 export function useCreateTopic() {
@@ -47,29 +46,21 @@ export type CreateTopicSearchResults = ArCabildoabiertoWikiTopicVersion.TopicVie
 
 
 const CreateTopicButtons = ({
-                                setResults,
                                 topicName,
                                 goToArticle,
                                 onClose,
-                                results,
-                                disabled
+                                disabled,
+    setGoToArticle
                             }: {
     topicName: string
     goToArticle: boolean
     onClose: () => void
     disabled: boolean
-    results: CreateTopicSearchResults
-    setResults: (v: CreateTopicSearchResults) => void
+    setGoToArticle: (v: boolean) => void
 }) => {
     const {createTopic} = useCreateTopic()
     const router = useRouter()
     const qc = useQueryClient()
-
-    async function search(v: string) {
-        setResults("loading")
-        const topics = await queryTopics(v);
-        setResults(topics)
-    }
 
     async function onSubmit() {
         const res = await createTopic(topicName)
@@ -90,27 +81,15 @@ const CreateTopicButtons = ({
     }
 
     return <div className="space-x-2 w-full flex justify-between items-center">
-        <div className={"flex space-x-1 items-center"}>
-            {results != "loading" && topicName.length > 0 && <BaseIconButton
-                onClick={() => {
-                    search(topicName)
-                }}
-                size={"small"}
-            >
-                <MagnifyingGlassIcon weight={"bold"} color={"var(--text-light)"}/>
-            </BaseIconButton>}
-            {results == "loading" && <div>
-                <LoadingSpinner className={"w-4 h-4"}/>
+        <TickButton
+            ticked={goToArticle}
+            setTicked={setGoToArticle}
+            size={20}
+            color="var(--text-light)"
+            text={<div className="text-xs font-light">
+                Ir a la página del tema después de crearlo
             </div>}
-            {results != "loading" && results && results.length == 0 && <div
-                className={"flex space-x-1 text-center"}
-            >
-                <div className={"text-xs"}>
-                    No se encontraron temas similares.
-                </div>
-                <CheckCircleIcon weight={"fill"}/>
-            </div>}
-        </div>
+        />
         <div className={"space-x-2"}>
             <StateButton
                 handleClick={onSubmit}
@@ -132,16 +111,13 @@ export const CreateTopicResults = ({results, topicName, onClickTopic}: {
 }) => {
     return <div className={"text-[var(--text)] text-sm"}>
         {results != "loading" && results && results.length > 0 && <div className={"space-y-1"}>
-                <span className={"text-xs font-light"}>
-                    Los siguientes temas mencionan <span className={"font-semibold"}>{`"${topicName}"`}</span> en su título.
-                </span>
             <div className={"space-y-1 flex flex-col max-h-[250px] custom-scrollbar overflow-y-scroll pb-2"}>
                 {results.map(r => {
                     return <Link
                         href={topicUrl(r.id)}
                         key={r.id}
                         onClick={onClickTopic}
-                        className={"border border-[var(--accent-dark)] hover:bg-[var(--background-dark)] px-2 py-1"}
+                        className={"border border-[var(--accent-dark)] hover:bg-[var(--background-dark2)] px-2 py-1"}
                     >
                         {getTopicTitle(r)}
                     </Link>
@@ -155,8 +131,6 @@ export const CreateTopicResults = ({results, topicName, onClickTopic}: {
 const CreateTopicInput = ({
                               topicName,
                               setTopicName,
-                              results,
-                              setResults,
                               disabled,
                               goToArticle,
                               setGoToArticle,
@@ -164,28 +138,40 @@ const CreateTopicInput = ({
                           }: {
     topicName: string
     setTopicName: (t: string) => void
-    results: CreateTopicSearchResults
-    setResults: (v: CreateTopicSearchResults) => void
     disabled: boolean
     goToArticle: boolean
     setGoToArticle: (v: boolean) => void
     onClose: () => void
 }) => {
-    return <div className={"h-full space-y-3"}>
+    const debouncedName = useDebounce(topicName, 300)
+    async function search(v: string) {
+        return await queryTopics(v)
+    }
+
+    const { data: results, isLoading } = useQuery({
+        queryKey: ['search', "Temas", debouncedName],
+        queryFn: () => search(debouncedName),
+        enabled: debouncedName.length > 0
+    });
+
+    return <div className={"h-full space-y-1"}>
         <div className={"w-full"}>
             <BaseTextField
                 value={topicName}
                 onChange={(e) => {
-                    setTopicName(e.target.value);
-                    setResults(null)
+                    setTopicName(e.target.value)
                 }}
-                placeholder="Título del tema..."
+                placeholder="Escribí un título para el tema o buscá uno que ya exista..."
                 autoFocus={true}
-                inputClassName={"text-base py-1.5 px-3"}
+                inputClassName={"py-2"}
                 inputGroupClassName={"bg-[var(--background-dark)]"}
             />
         </div>
         {topicName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
+
+        {results && results.length > 0 && <div className={"text-xs font-light px-0.5 py-1"}>
+            Se encontraron {results.length} temas. Si alguno es lo que estás buscando, editalo en vez de crear uno nuevo.
+        </div>}
 
         {!disabled && <CreateTopicResults
             topicName={topicName}
@@ -193,44 +179,15 @@ const CreateTopicInput = ({
             onClickTopic={onClose}
         />}
 
-        <TickButton
-            ticked={goToArticle}
-            setTicked={setGoToArticle}
-            size={20}
-            color="var(--text-light)"
-            text={<div className="text-sm">
-                Ir a la página del tema después de crearlo
+        <div className={"flex space-x-1 items-center"}>
+            {isLoading && <div>
+                <LoadingSpinner className={"w-4 h-4"}/>
             </div>}
-        />
-    </div>
-}
-
-
-const CreateTopicOptions = ({
-                                onClose,
-                                setSelected
-                            }: {
-    onClose: () => void
-    setSelected: (v: string) => void
-}) => {
-    const router = useRouter()
-    return <div className={"flex min-h-64 flex-grow "}>
-        <div
-            className={"border-r flex-1 hover:bg-[var(--background-dark2)] cursor-pointer text-center flex items-center justify-center font-light"}
-            onClick={() => {
-                router.push("/temas?view=lista")
-                onClose()
-            }}
-        >
-            Editar un tema
-        </div>
-        <div
-            onClick={() => {
-                setSelected("new")
-            }}
-            className={"flex-1 hover:bg-[var(--background-dark2)] cursor-pointer text-center flex items-center justify-center font-light"}
-        >
-            Nuevo tema
+            {!isLoading && results && results.length == 0 && <div
+                className={"flex space-x-1 text-center text-xs font-light pl-1"}
+            >
+                No se encontraron temas similares, creá el tema para empezar la discusión.
+            </div>}
         </div>
     </div>
 }
@@ -238,48 +195,34 @@ const CreateTopicOptions = ({
 
 type CreateTopicProps = {
     onClose: () => void
-    initialSelected?: string
     onMenu: boolean
 }
 
 export const CreateTopic = ({
-                                onClose,
-                                initialSelected = "none",
+    onClose,
     onMenu
                             }: CreateTopicProps) => {
     const user = useSession();
     const [topicName, setTopicName] = useState("");
     const [goToArticle, setGoToArticle] = useState(true)
-    const [selected, setSelected] = useState(initialSelected)
-    const [results, setResults] = useState<CreateTopicSearchResults>(null)
-
-    if (selected == "none") {
-        return <CreateTopicOptions
-            onClose={onClose}
-            setSelected={setSelected}
-        />
-    }
 
     const disabled = !user.user || !validEntityName(topicName)
 
-    return <div className={cn("space-y-3 p-4 flex-grow flex flex-col justify-between min-h-[250px]", onMenu && "pt-12")}>
+    return <div className={cn("space-y-3 px-2 pb-2 flex-grow flex flex-col justify-between min-h-[250px]", onMenu && "pt-12")}>
         <CreateTopicInput
             disabled={disabled}
             topicName={topicName}
-            results={results}
-            setResults={setResults}
             setTopicName={setTopicName}
             goToArticle={goToArticle}
             setGoToArticle={setGoToArticle}
             onClose={onClose}
         />
         <CreateTopicButtons
-            results={results}
             onClose={onClose}
             topicName={topicName}
             goToArticle={goToArticle}
             disabled={disabled}
-            setResults={setResults}
+            setGoToArticle={setGoToArticle}
         />
     </div>
 }

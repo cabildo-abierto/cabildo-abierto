@@ -2,14 +2,16 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import React from "react";
-import {useLayoutConfig} from "../layout-config-context";
 import {cn} from "@/lib/utils";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 export const SidebarWriteButton = ({setWritePanelOpen, showText}: {
     showText: boolean,
     setWritePanelOpen: (v: boolean) => void
 }) => {
-    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    const {isMobile} = useIsMobile()
+    const {layoutState, setLayoutState} = useLayoutState()
 
     return <div className={cn("my-2 h-12 pl-2", showText && "pr-4 sm:w-[180px] w-full max-w-[300px]")}>
         {showText ? <BaseButton
@@ -19,8 +21,8 @@ export const SidebarWriteButton = ({setWritePanelOpen, showText}: {
                 onClick={() => {
                     setWritePanelOpen(true)
                     if (isMobile) {
-                        setLayoutConfig({
-                            ...layoutConfig,
+                        setLayoutState({
+                            ...layoutState,
                             openSidebar: false
                         })
                     }

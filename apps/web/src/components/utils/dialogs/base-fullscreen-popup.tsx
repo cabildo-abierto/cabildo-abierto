@@ -9,9 +9,10 @@ import {
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 import {CloseButton} from "../base/close-button";
 import {cn} from "@/lib/utils";
-import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {produce} from "immer";
 import {BackButton} from "@/components/utils/base/back-button";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 export const BaseFullscreenPopup = ({
@@ -40,14 +41,16 @@ export const BaseFullscreenPopup = ({
     fullscreenOnMobile?: boolean
     onBack?: () => void
 }) => {
-    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    const {layoutState, setLayoutState} = useLayoutState()
+    const {isMobile} = useIsMobile()
+
     useEffect(() => {
-        if(layoutConfig.openSidebar && isMobile && open) {
-            setLayoutConfig(produce(layoutConfig, draft => {
+        if(layoutState.openSidebar && isMobile && open) {
+            setLayoutState(produce(layoutState, draft => {
                 draft.openSidebar = false
             }))
         }
-    }, [layoutConfig, isMobile])
+    }, [layoutState, isMobile])
 
     if (hidden) return <div className={"hidden"}>{children}</div>
 

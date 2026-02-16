@@ -1,15 +1,15 @@
-import {useLayoutConfig} from "../layout-config-context";
 import {CustomLink as Link} from "@/components/utils/base/custom-link"
 import {topicUrl} from "@/components/utils/react/url";
 import React from "react";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
 
 
 export const SidebarBottom = () => {
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {layoutState, setLayoutState} = useLayoutState()
 
     function onClickLink() {
-        setLayoutConfig({
-            ...layoutConfig,
+        setLayoutState({
+            ...layoutState,
             openSidebar: false
         })
     }

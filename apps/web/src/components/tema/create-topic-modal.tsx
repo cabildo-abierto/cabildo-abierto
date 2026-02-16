@@ -21,7 +21,7 @@ const CreateTopicModal = ({
         backgroundShadow={true}
         onBack={onBack}
     >
-        <CreateTopic onClose={onClose} initialSelected={""} onMenu={onMenu}/>
+        <CreateTopic onClose={onClose} onMenu={onMenu}/>
     </BaseFullscreenPopup>
 };
 
