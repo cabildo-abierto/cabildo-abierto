@@ -34,7 +34,8 @@ export function useGetFeed() {
 
     function getFeed<T = ArCabildoabiertoFeedDefs.FeedViewContent>(config: FeedConfig): GetFeedProps<T> {
         return (cursor) => {
-            return get<GetFeedOutput<T>>(getFeedRoute(config, cursor))
+            const route = getFeedRoute(config, cursor)
+            return get<GetFeedOutput<T>>(route)
         }
     }
 

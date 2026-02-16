@@ -12,8 +12,7 @@ import BskyRichTextContent from "@/components/feed/post/bsky-rich-text-content";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {Note} from "@/components/utils/base/note";
 import {topicUrl} from "@/components/utils/react/url";
-import {useSession} from "@/components/auth/use-session";
-import {useLoginModal} from "@/components/auth/login-modal-provider";
+
 
 function getFeedName(feed: FeedView) {
     if (feed.type == "custom") {
@@ -44,8 +43,6 @@ export const FeedPreview = ({feed}: {
     const name = getFeedName(feed)
     const {description, descriptionFacets} = useFeedDescription(feed)
     const {addFeed} = useMainPageFeeds()
-    const {user} = useSession()
-    const {setLoginModalOpen} = useLoginModal()
 
     return <div className={"border-b p-4 flex justify-between items-center space-x-2"}>
         <div className={"flex-1"}>
@@ -114,11 +111,7 @@ export const FeedPreview = ({feed}: {
                 variant={"outlined"}
                 size={"small"}
                 onClick={() => {
-                    if(user) {
-                        addFeed(feedViewToConfig(feed))
-                    } else {
-                        setLoginModalOpen(true, true, "Iniciá sesión o creá una cuenta para empezar a configurar tu pantalla principal.")
-                    }
+                    addFeed(feedViewToConfig(feed))
                 }}
             >
                 <PlusIcon/>

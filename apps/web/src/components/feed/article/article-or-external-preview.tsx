@@ -37,10 +37,10 @@ export const ArticleOrExternalPreview = ({
 }: ArticleOrExternalPreviewProps) => {
 
     return <CustomLink
-        tag={"div"}
+        tag={"link"}
         href={onClick ? undefined : url}
         target={isArticle ? undefined : "_blank"}
-        className={cn("mt-1", (onClick || url) ? "cursor-pointer embed-panel" : "border border-[var(--accent)]")}
+        className={cn("mt-1", (onClick || url) ? "cursor-pointer block embed-panel" : "border border-[var(--accent)]")}
         onClick={onClick}
     >
         {thumb && thumb.length > 0 &&

@@ -31,6 +31,7 @@ const LoginPanel = ({children, onClickBack, onClose, open}: {
         open={open}
         closeButton={false}
         backgroundShadow={true}
+        className={"bg-[var(--background-dark)] border portal group"}
     >
         <div
             className={cn("px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[480px]")}
@@ -176,7 +177,7 @@ export const LoginModal = ({
                         {!inviteCode && <div className={"pt-4 w-full"}>
                             <BaseButton
                                 variant={"outlined"}
-                                className={"w-full"}
+                                className={"w-full text-[13px]"}
                                 onClick={() => {
                                     setAccessRequest(true)
                                 }}

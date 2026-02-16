@@ -1,4 +1,4 @@
-import {EffHandler} from "#/utils/handler.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {getUri} from "@cabildo-abierto/utils";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateFeedViewContent} from "#/services/hydration/hydrate.js";
@@ -7,7 +7,7 @@ import {ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api";
 import {Effect} from "effect";
 
 
-export const getCustomFeed: EffHandler<
+export const getCustomFeed: EffHandlerNoAuth<
     {params: {did: string, rkey: string}, query?: {cursor?: string}},
     GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>
 > = (ctx, agent, {params, query}) => Effect.provideServiceEffect(Effect.gen(function* () {

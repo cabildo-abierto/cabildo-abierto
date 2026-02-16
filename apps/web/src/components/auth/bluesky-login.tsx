@@ -69,7 +69,7 @@ export const BlueskyLogin = ({
                 type="submit"
                 loading={isLoading || isFetching}
                 variant="outlined"
-                className={"w-full"}
+                className={"w-full text-[13px]"}
             >
                 Iniciar sesión
             </BaseButton>

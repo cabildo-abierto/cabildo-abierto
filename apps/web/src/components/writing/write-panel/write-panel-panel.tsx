@@ -342,7 +342,7 @@ const WritePanelPanel = ({
                         onClick={() => {
                             setSelected("Publicación")
                         }}
-                        className={"flex-1  border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
                         Publicación
                     </div>
                     <div
@@ -350,14 +350,14 @@ const WritePanelPanel = ({
                             router.push("/escribir/articulo");
                             onClose()
                         }}
-                        className={"flex-1  border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
                         Artículo
                     </div>
                     <div
                         onClick={() => {
                             setSelected("Tema")
                         }}
-                        className={"flex-1  hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 hover:bg-[var(--background-dark2)] cursor-pointer font-light text-center items-center h-full flex justify-center"}>
                         Tema
                     </div>
                 </div>

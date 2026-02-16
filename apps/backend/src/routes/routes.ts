@@ -528,9 +528,9 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
 
-    router.get("/topic-feeds", makeEffHandler(ctx, getTopicFeeds))
+    router.get("/topic-feeds", makeEffHandlerNoAuth(ctx, getTopicFeeds))
 
-    router.get("/custom-feed/:did/:rkey", makeEffHandler(ctx, getCustomFeed))
+    router.get("/custom-feed/:did/:rkey", makeEffHandlerNoAuth(ctx, getCustomFeed))
 
     router.get("/poll/:id", makeEffHandlerNoAuth(ctx, getPollHandler))
 

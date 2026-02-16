@@ -1,4 +1,4 @@
-import {CAHandlerNoAuth, EffHandler} from "#/utils/handler.js";
+import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {getTopics} from "#/services/wiki/topics.js";
 import {searchTopics} from "#/services/search/search.js";
 import {FeedView, GetFeedOutput} from "@cabildo-abierto/api";
@@ -63,7 +63,7 @@ export const getCustomFeeds: CAHandlerNoAuth<{
 }
 
 
-export const getTopicFeeds: EffHandler<{
+export const getTopicFeeds: EffHandlerNoAuth<{
     query: { q?: string, c?: string | string[], cursor?: string, limit?: number }
 }, FeedView[]> = (ctx, agent, {query}) => {
     const q = query?.q

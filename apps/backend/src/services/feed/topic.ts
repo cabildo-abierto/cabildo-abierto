@@ -218,13 +218,16 @@ const getTopicMentionsSkeleton = (
         try: () => getTopicMentionsSkeletonQuery(
             id, metric, time, format
         )(ctx, agent, cursor, undefined, limit),
-        catch: () => new DBSelectError()
-    }).pipe(Effect.map(skeleton => {
-        return {
-            skeleton: skeleton.map(x => ({post: x.uri})),
-            cursor: getNextCursorEnDiscusion(metric, time, format)(cursor, skeleton, limit)
-        }
-    }))
+        catch: (error) => new DBSelectError(error)
+    }).pipe(
+        Effect.map(skeleton => {
+            return {
+                skeleton: skeleton.map(x => ({post: x.uri})),
+                cursor: getNextCursorEnDiscusion(metric, time, format)(cursor, skeleton, limit)
+            }
+        }),
+        Effect.withSpan("getTopicMentionsSkeleton", {attributes: {metric, time, format, cursor, id}})
+    )
 }
 
 
@@ -522,30 +525,30 @@ export const getTopicQuoteReplies: EffHandlerNoAuth<{
     params: { did: string, rkey: string }
 }, ArCabildoabiertoFeedDefs.PostView[]> = (ctx, agent, {params}) =>
     Effect.provideServiceEffect(Effect.gen(function* () {
-    const {did, rkey} = params
-    const uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
+        const {did, rkey} = params
+        const uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
 
-    const skeleton = (yield* Effect.tryPromise({
-        try: () => ctx.kysely
-            .selectFrom("Post")
-            .where("Post.replyToId", "=", uri)
-            .select("uri")
-            .execute(),
-        catch: () => new DBSelectError()
-    })).map(p => ({post: p.uri}))
+        const skeleton = (yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Post")
+                .where("Post.replyToId", "=", uri)
+                .select("uri")
+                .execute(),
+            catch: () => new DBSelectError()
+        })).map(p => ({post: p.uri}))
 
-    const hydrated = yield* hydrateRepliesSkeleton(ctx, agent, skeleton, uri)
+        const hydrated = yield* hydrateRepliesSkeleton(ctx, agent, skeleton, uri)
 
-    const posts: ArCabildoabiertoFeedDefs.PostView[] = hydrated
-        .map(c => c.content)
-        .filter(c => ArCabildoabiertoFeedDefs.isPostView(c))
-        .filter(c => ArCabildoabiertoEmbedSelectionQuote.isView(c.embed))
+        const posts: ArCabildoabiertoFeedDefs.PostView[] = hydrated
+            .map(c => c.content)
+            .filter(c => ArCabildoabiertoFeedDefs.isPostView(c))
+            .filter(c => ArCabildoabiertoEmbedSelectionQuote.isView(c.embed))
 
-    return posts
-}).pipe(
-    Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las respuestas con citas.")
-    )
-), DataPlane, makeDataPlane(ctx, agent))
+        return posts
+    }).pipe(
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las respuestas con citas.")
+        )
+    ), DataPlane, makeDataPlane(ctx, agent))
 
 
 export const getAllTopicEditsFeed: EffHandlerNoAuth<{
