@@ -17,6 +17,7 @@ import {createPortal} from "react-dom";
 import {useAPI} from "@/components/utils/react/queries";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import ShareIcon from "@/components/utils/icons/share-icon";
+import GettingStartedProgress from "./getting-started-progress";
 
 type ServerStatus = {
     worker: boolean
@@ -157,6 +158,10 @@ export const RightPanel = () => {
         </div>
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
+
+        {pathname.includes("inicio") && <div className={"w-[292px]"}>
+            <GettingStartedProgress/>
+        </div>}
 
         {isTrendingTopicsPath && <div className={"w-[292px]"}>
             <TrendingTopicsPanel/>
