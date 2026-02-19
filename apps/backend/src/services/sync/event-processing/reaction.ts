@@ -13,16 +13,19 @@ import {isReactionCollection} from "#/utils/type-utils.js";
 import {
     addUpdateContributionsJobForTopics
 } from "#/services/sync/event-processing/topic.js";
-import {DB} from "../../../../prisma/generated/types.js";
-import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {DB} from "prisma/generated/types.js";
+import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
 import {
     ArCabildoabiertoWikiVoteAccept,
     ArCabildoabiertoWikiVoteReject
 } from "@cabildo-abierto/api"
-import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {RefAndRecord} from "#/services/sync/types.js";
+import {Effect, pipe} from "effect";
+
+import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
+import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 
 
 const columnMap: Record<ReactionType, keyof DB['Record']> = {
@@ -37,161 +40,174 @@ function isLikeOrRepost(r: RefAndRecord) {
 }
 
 export class ReactionRecordProcessor extends RecordProcessor<ReactionRecord> {
-    async addRecordsToDB(records: RefAndRecord<ReactionRecord>[], reprocess: boolean = false) {
+    addRecordsToDB(records: RefAndRecord<ReactionRecord>[], reprocess: boolean = false) {
         records = records.filter(r => {
             return isReactionType(getCollectionFromUri(r.ref.uri))
         })
-        if(records.length == 0) {
-            return
-        }
+        if (records.length == 0) return Effect.succeed(0)
+
         const reactionType = getCollectionFromUri(records[0].ref.uri)
-        if(!isReactionType(reactionType)) return
-        try {
-            const res = await this.ctx.kysely.transaction().execute(async (trx) => {
+        if (!isReactionType(reactionType)) return Effect.fail(new InvalidValueError(`Reacción inválida: ${reactionType}`))
 
-                await this.processRecordsBatch(trx, records)
+        const insertReactions = this.ctx.kysely.transaction().execute(async (trx) => {
 
-                const subjects = records.map(r => ({uri: r.record.subject.uri, cid: r.record.subject.cid}))
-                const reasons = records
-                    .map(r => ArCabildoabiertoWikiVoteReject.isRecord(r.record) ? r.record.reason : null).filter(x => x != null)
-                await this.processDirtyRecordsBatch(trx, [...subjects, ...reasons])
+            await this.processRecordsBatch(trx, records)
 
-                const reactions = records.map(r => ({
-                    uri: r.ref.uri,
-                    subjectId: r.record.subject.uri,
-                    subjectCid: r.record.subject.cid
-                }))
+            const subjects = records.map(r => ({uri: r.record.subject.uri, cid: r.record.subject.cid}))
+            await this.processDirtyRecordsBatch(trx, subjects)
 
-                await trx
-                    .insertInto("Reaction")
-                    .values(reactions)
-                    .onConflict((oc) =>
-                        oc.column("uri").doUpdateSet({
-                            subjectId: eb => eb.ref('excluded.subjectId'),
-                            subjectCid: eb => eb.ref("excluded.subjectCid")
-                        })
-                    )
-                    .execute()
+            const reasons = records
+                .map(r => ArCabildoabiertoWikiVoteReject.isRecord(r.record) ? r.record.reason : null)
+                .filter(x => x != null)
 
-                const hasReacted = records.map(r => ({
-                    userId: getDidFromUri(r.ref.uri),
-                    recordId: r.record.subject.uri,
-                    reactionType: getCollectionFromUri(r.ref.uri),
-                    id: uuidv4()
-                }))
+            await this.processDirtyPostsBatch(trx, reasons)
 
-                const inserted = await trx
-                    .insertInto("HasReacted")
-                    .values(hasReacted)
-                    .onConflict(oc => oc.columns(["recordId", "reactionType", "userId"]).doNothing())
-                    .returning(['recordId'])
-                    .execute()
+            const reactions = records.map(r => ({
+                uri: r.ref.uri,
+                subjectId: r.record.subject.uri,
+                subjectCid: r.record.subject.cid
+            }))
 
-                await this.batchIncrementReactionCounter(trx, reactionType, inserted.map(r => r.recordId))
+            await trx
+                .insertInto("Reaction")
+                .values(reactions)
+                .onConflict((oc) =>
+                    oc.column("uri").doUpdateSet({
+                        subjectId: eb => eb.ref('excluded.subjectId'),
+                        subjectCid: eb => eb.ref("excluded.subjectCid")
+                    })
+                )
+                .execute()
 
-                if (isTopicVote(reactionType)) {
-                    if (reactionType == "ar.cabildoabierto.wiki.voteReject") {
-                        const votes: { uri: string, reasonId: string | undefined, labels: string[] }[] = records.map(r => {
-                            if (ArCabildoabiertoWikiVoteReject.isRecord(r.record)) {
-                                return {
-                                    uri: r.ref.uri,
-                                    reasonId: r.record.reason?.uri,
-                                    labels: []
-                                }
+            const hasReacted = records.map(r => ({
+                userId: getDidFromUri(r.ref.uri),
+                recordId: r.record.subject.uri,
+                reactionType: getCollectionFromUri(r.ref.uri),
+                id: uuidv4()
+            }))
+
+            const inserted = await trx
+                .insertInto("HasReacted")
+                .values(hasReacted)
+                .onConflict(oc => oc.columns(["recordId", "reactionType", "userId"]).doNothing())
+                .returning(['recordId'])
+                .execute()
+
+            await this.batchIncrementReactionCounter(trx, reactionType, inserted.map(r => r.recordId))
+
+            if (isTopicVote(reactionType)) {
+                if (reactionType == "ar.cabildoabierto.wiki.voteReject") {
+                    const votes: { uri: string, reasonId: string | undefined, labels: string[] }[] = records.map(r => {
+                        if (ArCabildoabiertoWikiVoteReject.isRecord(r.record)) {
+                            return {
+                                uri: r.ref.uri,
+                                reasonId: r.record.reason?.uri,
+                                labels: []
                             }
-                            return null
-                        }).filter(v => v != null)
-
-                        try {
-                            await trx
-                                .insertInto("VoteReject")
-                                .values(votes)
-                                .onConflict((oc) =>
-                                    oc.column("uri").doUpdateSet({
-                                        reasonId: (eb) => eb.ref('excluded.reasonId'),
-                                    })
-                                )
-                                .execute()
-                        } catch (err) {
-                            this.ctx.logger.pino.info({error: err}, "error inserting vote reject")
-                            throw err
                         }
-                    }
+                        return null
+                    }).filter(v => v != null)
 
-                    if(records.length > 0 && inserted.length > 0){
-                        let topicVotes = (await trx
-                            .selectFrom("TopicVersion")
-                            .innerJoin("Reaction", "TopicVersion.uri", "Reaction.subjectId")
-                            .select([
-                                "TopicVersion.topicId",
-                                "TopicVersion.uri",
-                                "Reaction.uri as reactionUri"
-                            ])
-                            .where("Reaction.uri", "in", records.map(r => r.ref.uri))
-                            .where("TopicVersion.uri", "in", inserted.map(r => r.recordId))
-                            .execute())
-                        const topicIdsList = unique(topicVotes.map(t => t.topicId))
-
-                        if(!reprocess) await updateTopicsCurrentVersionBatch(this.ctx, trx, topicIdsList)
-
-                        return {topicIdsList, topicVotes}
-                    } else {
-                        return {
-                            topicVotes: [],
-                            topicIdsList: []
-                        }
+                    try {
+                        await trx
+                            .insertInto("VoteReject")
+                            .values(votes)
+                            .onConflict((oc) =>
+                                oc.column("uri").doUpdateSet({
+                                    reasonId: (eb) => eb.ref('excluded.reasonId'),
+                                })
+                            )
+                            .execute()
+                    } catch (err) {
+                        this.ctx.logger.pino.info({error: err}, "error inserting vote reject")
+                        throw err
                     }
                 }
-            })
 
-            if (!reprocess) {
-                await this.addJobs(res, records)
+                if (records.length > 0 && inserted.length > 0) {
+                    let topicVotes = (await trx
+                        .selectFrom("TopicVersion")
+                        .innerJoin("Reaction", "TopicVersion.uri", "Reaction.subjectId")
+                        .select([
+                            "TopicVersion.topicId",
+                            "TopicVersion.uri",
+                            "Reaction.uri as reactionUri"
+                        ])
+                        .where("Reaction.uri", "in", records.map(r => r.ref.uri))
+                        .where("TopicVersion.uri", "in", inserted.map(r => r.recordId))
+                        .execute())
+                    const topicIdsList = unique(topicVotes.map(t => t.topicId))
+
+                    if (!reprocess) await updateTopicsCurrentVersionBatch(this.ctx, trx, topicIdsList)
+
+                    return {topicIdsList, topicVotes}
+                } else {
+                    return {
+                        topicVotes: [],
+                        topicIdsList: []
+                    }
+                }
             }
-        } catch (err) {
-            this.ctx.logger.pino.error({error: err}, "error processing reaction records")
-        }
+        })
 
+        return pipe(
+            Effect.tryPromise({
+                try: () => insertReactions,
+                catch: error => {
+                    return new InsertRecordError(error instanceof Error ? error : undefined)
+                }
+            }),
+            Effect.tap(res => this.addJobs(res, records)),
+            Effect.map(() => records.length),
+            Effect.withSpan("addRecordsToDB Reaction")
+        )
     }
 
-    async addJobs(
+    addJobs(
         res: {
             topicVotes: { reactionUri: string, uri: string, topicId: string }[]
             topicIdsList: string[]
         } | undefined,
         records: RefAndRecord<ReactionRecord>[]
-    ) {
-        const reposts = records
-            .map(r => r.ref.uri)
-            .filter(uri => isRepost(getCollectionFromUri(uri)))
-        if(reposts.length > 0){
-            await this.ctx.worker?.addJob("update-following-feed-on-new-content",  reposts)
-        }
+    ): Effect.Effect<void, AddJobError> {
+        const worker = this.ctx.worker
+        const ctx = this.ctx
+        if(!worker) return Effect.void
 
-        if (res) {
-            const data: NotificationJobData[] = res.topicVotes.map(t => ({
-                type: "TopicVersionVote",
-                uri: t.reactionUri,
-                subjectId: t.uri,
-                topic: t.topicId
-            }))
-            if(data.length > 0){
-                this.ctx.worker?.addJob("batch-create-notifications", data)
+        return Effect.gen(function* () {
+            const reposts = records
+                .map(r => r.ref.uri)
+                .filter(uri => isRepost(getCollectionFromUri(uri)))
+            if(reposts.length > 0){
+                yield* worker.addJob("update-following-feed-on-new-content",  reposts)
             }
-            if(res.topicIdsList.length > 0){
-                await addUpdateContributionsJobForTopics(this.ctx, res.topicIdsList)
+
+            if (res) {
+                const data: NotificationJobData[] = res.topicVotes.map(t => ({
+                    type: "TopicVersionVote",
+                    uri: t.reactionUri,
+                    subjectId: t.uri,
+                    topic: t.topicId
+                }))
+                if(data.length > 0){
+                    yield* worker.addJob("batch-create-notifications", data)
+                }
+                if(res.topicIdsList.length > 0){
+                    yield* addUpdateContributionsJobForTopics(ctx, res.topicIdsList)
+                }
             }
-        }
 
-        const likeAndRepostsSubjects = records
-            .filter(isLikeOrRepost)
-            .map(r => r.record.subject.uri)
+            const likeAndRepostsSubjects = records
+                .filter(isLikeOrRepost)
+                .map(r => r.record.subject.uri)
 
-        if (likeAndRepostsSubjects.length > 0) {
-            await this.ctx.worker?.addJob(
-                "update-interactions-score",
-                likeAndRepostsSubjects
-            )
-        }
+            if (likeAndRepostsSubjects.length > 0) {
+                yield* worker.addJob(
+                    "update-interactions-score",
+                    likeAndRepostsSubjects
+                )
+            }
+        })
     }
 
     async batchIncrementReactionCounter(
@@ -219,33 +235,40 @@ export class ReactionRecordProcessor extends RecordProcessor<ReactionRecord> {
 
 
 export class LikeRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = AppBskyFeedLike.validateRecord
+    validateRecord(record: AppBskyFeedLike.Record) {
+        return Effect.succeed(AppBskyFeedLike.validateRecord(record))
+    }
 }
 
 
 export class RepostRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = AppBskyFeedRepost.validateRecord
+    validateRecord(record: AppBskyFeedRepost.Record) {
+        return Effect.succeed(AppBskyFeedRepost.validateRecord(record))
+    }
 }
 
 
 export class VoteAcceptRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = ArCabildoabiertoWikiVoteAccept.validateRecord
+    validateRecord(record: ArCabildoabiertoWikiVoteAccept.Record) {
+        return Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record))
+    }
 }
 
 
 export class VoteRejectRecordProcessor extends ReactionRecordProcessor {
-    validateRecord = ArCabildoabiertoWikiVoteReject.validateRecord
+    validateRecord(record: ArCabildoabiertoWikiVoteAccept.Record) {
+        return Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record))
+    }
 }
 
 
-export class ReactionDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]) {
-        if (uris.length == 0) return
-        const type = getCollectionFromUri(uris[0])
-        if (!isReactionCollection(type)) return
+export const reactionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
+    const type = getCollectionFromUri(uris[0])
+    if (!isReactionCollection(type)) return
 
-        const {topicIds, subjectIds} = await this.ctx.kysely.transaction().execute(async (db) => {
-            let subjectIds: {subjectId: string, uri: string}[] = []
+    const {topicIds, subjectIds} = yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (db) => {
+            let subjectIds: { subjectId: string, uri: string }[] = []
             try {
                 subjectIds = (await db
                     .selectFrom("Reaction")
@@ -254,15 +277,9 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                     .execute())
                     .map(e => e.subjectId != null ? {...e, subjectId: e.subjectId} : null)
                     .filter(x => x != null)
-            } catch (err) {
-                this.ctx.logger.pino.error({error: err, subjectIds}, "error getting subject ids")
-            }
+            } catch {}
 
-            if (subjectIds.length == 0) {
-                this.ctx.logger.pino.info("got no subject ids")
-            }
-
-            if(subjectIds.length > 0){
+            if (subjectIds.length > 0) {
                 try {
                     const deletedSubjects = await db
                         .deleteFrom("HasReacted")
@@ -277,10 +294,8 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                         .returning(["HasReacted.recordId"])
                         .execute()
 
-                    await this.batchDecrementReactionCounter(db, type, deletedSubjects.map(u => u.recordId))
-                } catch (error) {
-                    this.ctx.logger.pino.error({error}, "error deleting from has reacted")
-                }
+                    await batchDecrementReactionCounter(db, type, deletedSubjects.map(u => u.recordId))
+                } catch {}
             }
 
 
@@ -310,60 +325,59 @@ export class ReactionDeleteProcessor extends DeleteProcessor {
                         .select("topicId")
                         .where("uri", "in", subjectIds.map(s => s.subjectId))
                         .execute()).map(t => t.topicId)
-                } catch (error) {
-                    this.ctx.logger.pino.error({error}, "error getting topic ids")
-                }
+                } catch {}
 
                 if (topicIds.length > 0) {
-                    await updateTopicsCurrentVersionBatch(this.ctx, db, topicIds)
+                    await updateTopicsCurrentVersionBatch(ctx, db, topicIds)
                     return {topicIds, subjectIds}
                 }
             }
             return {subjectIds}
-        })
-        if (topicIds && topicIds.length > 0) {
-            await addUpdateContributionsJobForTopics(this.ctx, topicIds)
-        }
-        if (subjectIds && subjectIds.length > 0) {
-            const postsAndArticles = subjectIds
-                .filter(s => {
+        }),
+        catch: () => new DBDeleteError()
+    })
+    if (topicIds && topicIds.length > 0) {
+        yield* addUpdateContributionsJobForTopics(ctx, topicIds)
+    }
+    if (subjectIds && subjectIds.length > 0) {
+        const postsAndArticles = subjectIds
+            .filter(s => {
                 const c = getCollectionFromUri(s.uri)
                 return c == "app.bsky.feed.post" || c == "ar.cabildoabierto.feed.article"
             })
-            await this.ctx.worker?.addJob(
-                "update-interactions-score",
-                postsAndArticles
-            )
+        yield* ctx.worker.addJob(
+            "update-interactions-score",
+            postsAndArticles
+        )
 
-            const reposts = subjectIds.filter(r  => isRepost(getCollectionFromUri(r.uri)))
-            if(reposts.length > 0) {
-                this.ctx.logger.pino.info({reposts}, "updating following feed after reposts deleted")
-                await this.ctx.worker?.addJob("update-following-feed-on-deleted-content", reposts.map(r => r.subjectId))
-            }
+        const reposts = subjectIds.filter(r => isRepost(getCollectionFromUri(r.uri)))
+        if (reposts.length > 0) {
+            yield* ctx.worker.addJob("update-following-feed-on-deleted-content", reposts.map(r => r.subjectId))
         }
     }
+})
 
-    async batchDecrementReactionCounter(
-        trx: Transaction<DB>,
-        type: ReactionType,
-        recordIds: string[]
-    ) {
-        const column = columnMap[type]
 
-        if (!column) {
-            throw new Error(`Unknown reaction type: ${type}`)
-        }
+async function batchDecrementReactionCounter(
+    trx: Transaction<DB>,
+    type: ReactionType,
+    recordIds: string[]
+) {
+    const column = columnMap[type]
 
-        if (recordIds.length == 0) return
-
-        await trx
-            .updateTable('Record')
-            .where('uri', 'in', recordIds)
-            .set((eb) => ({
-                [column]: eb(eb.ref(column), '-', 1)
-            }))
-            .execute()
+    if (!column) {
+        throw new Error(`Unknown reaction type: ${type}`)
     }
+
+    if (recordIds.length == 0) return
+
+    await trx
+        .updateTable('Record')
+        .where('uri', 'in', recordIds)
+        .set((eb) => ({
+            [column]: eb(eb.ref(column), '-', 1)
+        }))
+        .execute()
 }
 
 

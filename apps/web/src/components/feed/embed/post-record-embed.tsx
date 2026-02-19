@@ -21,6 +21,7 @@ import Image from "next/image";
 import {ArticleIcon} from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import {useTheme} from "@/components/layout/theme/theme-context";
+import { Note } from "@/components/utils/base/note";
 
 
 const UserSummaryOnHover = dynamic(() => import("../../perfil/user-summary"), {
@@ -271,9 +272,13 @@ export const PostRecordEmbed = ({embed, navigateOnClick=true, mainPostRef}: {
             mainPostRef={mainPostRef}
             navigateOnClick={navigateOnClick}
         />
+    } else if(AppBskyEmbedRecord.isViewNotFound(record)) {
+        return <Note className={"p-3 border text-left"}>
+            No se encontró el contenido
+        </Note>
     } else {
-        return <div className={"p-3 border font-light"}>
+        return <Note className={"p-3 border text-left"}>
             Ocurrió un error al mostrar el contenido
-        </div>
+        </Note>
     }
 }

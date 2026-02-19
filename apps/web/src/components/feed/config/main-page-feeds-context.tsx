@@ -129,7 +129,7 @@ export function MainPageFeedsProvider({ children }: {
     function select(i: number, ensureHome: boolean) {
         const newOpenFeeds = {...openFeeds, selected: i}
         setOpenFeeds(newOpenFeeds)
-        saveOpenTabsMutation.mutate({user, state: newOpenFeeds})
+        if(user) saveOpenTabsMutation.mutate({user, state: newOpenFeeds})
         if(ensureHome) {
             router.push("/inicio")
         }
@@ -178,7 +178,7 @@ export function MainPageFeedsProvider({ children }: {
 
     const config = openFeeds.selected != null && openFeeds.selected < openFeeds.tabs.length ? openFeeds.tabs[openFeeds.selected].config : null
 
-    const error: MainFeedConfigError | undefined = !user && ["siguiendo", "custom", "descubrir"].includes(config.subtype) ? "auth required" : undefined
+    const error: MainFeedConfigError | undefined = !user && ["siguiendo", "descubrir"].includes(config.subtype) ? "auth required" : undefined
 
     return (
         <MainPageFeedsContext.Provider

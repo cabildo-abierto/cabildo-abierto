@@ -12,7 +12,6 @@ export type LayoutConfigProps = {
     widthLeftSide: string
     widthRightSide: string
     defaultSidebarState: boolean
-    openSidebar: boolean
     widthLeftSideSmall: string,
     openRightPanel: boolean
     centerWidth?: string
@@ -47,7 +46,6 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthLeftSide: "220px",
         widthRightSide: "300px",
         widthLeftSideSmall: "80px",
-        openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true,
         sidebarKind: "background",
@@ -58,7 +56,6 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthLeftSide: "80px",
         widthRightSide: "300px",
         widthLeftSideSmall: "80px",
-        openSidebar: currentConfig?.openSidebar ?? true,
         openRightPanel: true,
         defaultSidebarState: true,
         sidebarKind: "background",
@@ -69,7 +66,6 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthLeftSide: "220px",
         widthRightSide: "300px",
         widthLeftSideSmall: "80px",
-        openSidebar: false,
         defaultSidebarState: false,
         openRightPanel: false,
         sidebarKind: "floating",
@@ -80,7 +76,6 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthLeftSide: "240px",
         widthRightSide: "300px",
         widthLeftSideSmall: "80px",
-        openSidebar: false,
         defaultSidebarState: false,
         openRightPanel: false,
         rightDisappearsFirst: true,
@@ -93,7 +88,6 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthRightSide: "0px",
         widthLeftSideSmall: "80px",
         defaultSidebarState: false,
-        openSidebar: currentConfig?.openSidebar ?? false,
         openRightPanel: false,
         sidebarKind: "floating",
         readingLayout: false
@@ -103,7 +97,6 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         widthLeftSide: "0px",
         widthRightSide: "0px",
         widthLeftSideSmall: "0px",
-        openSidebar: currentConfig?.openSidebar ?? false,
         defaultSidebarState: false,
         openRightPanel: false,
         rightDisappearsFirst: true,
@@ -202,15 +195,6 @@ export const LayoutConfigProvider: React.FC<{ children: ReactNode }> = ({childre
     const size = useWindowSize()
 
     const [layoutConfig, setLayoutConfig] = useState<LayoutConfigProps>(() => getLayoutConfig(pathname, size.width, undefined, isMobile))
-
-    useEffect(() => {
-        if ((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)) {
-            setLayoutConfig((prev) => ({
-                ...prev,
-                openSidebar: layoutConfig.spaceForLeftSide
-            }))
-        }
-    }, [layoutConfig?.defaultSidebarState, layoutConfig?.spaceForLeftSide])
 
     useEffect(() => {
         const config = getLayoutConfig(pathname, size.width, layoutConfig, isMobile)

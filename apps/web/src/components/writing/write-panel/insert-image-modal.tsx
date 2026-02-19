@@ -23,6 +23,7 @@ const InsertImageModal = ({open, onClose, onSubmit}: InsertImageModalProps) => {
         }}
         closeButton={true}
         backgroundShadow={false}
+        fullscreenOnMobile={false}
     >
         {!mode && <div className={"flex flex-col items-center justify-between space-y-4 pt-4 pb-8 px-8 w-96"}>
             <div className={"space-y-4 flex flex-col"}>

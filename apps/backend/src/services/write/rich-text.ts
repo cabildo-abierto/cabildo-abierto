@@ -1,5 +1,6 @@
 import {AppBskyRichtextFacet, RichText, UnicodeString} from "@atproto/api"
 import {SessionAgent} from "#/utils/session-agent.js";
+import {Effect} from "effect";
 
 // from https//github.com/bluesky-social/social-app
 export function toShortUrl(url: string): string {
@@ -51,12 +52,20 @@ export function shortenLinks(rt: RichText): RichText {
     return rt
 }
 
+export class ParsePostError {
+    readonly _tag = "ParsePostError"
+}
 
-export async function getParsedPostContent(agent: SessionAgent, text: string) {
-    let rt = new RichText({
-        text
+export function getParsedPostContent(agent: SessionAgent, text: string): Effect.Effect<RichText, ParsePostError> {
+    return Effect.gen(function* () {
+        let rt = new RichText({
+            text
+        })
+        Effect.tryPromise({
+            try: () => rt.detectFacets(agent.bsky),
+            catch: () => new ParsePostError()
+        })
+        rt = shortenLinks(rt)
+        return rt
     })
-    await rt.detectFacets(agent.bsky)
-    rt = shortenLinks(rt)
-    return rt
 }

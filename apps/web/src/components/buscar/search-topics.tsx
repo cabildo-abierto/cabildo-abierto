@@ -32,11 +32,11 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
                 return;
             }
             setResults("loading")
-            const {data: topics} = await searchTopics(debouncedValue, categories)
-            setResults(topics)
+            const res = await searchTopics(debouncedValue, categories)
+            if(res.success === true) setResults(res.value)
         }
 
-        search();
+        search()
     }, [categories, debouncedValue])
 
     if (searchState.value.length === 0 && searchState.searching) {

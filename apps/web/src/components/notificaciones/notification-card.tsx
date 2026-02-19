@@ -6,6 +6,7 @@ import {QuotesIcon} from "@phosphor-icons/react";
 import {ChatTextIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {
+    ArticleKind, collectionToDisplay,
     getCollectionFromUri,
     getDidFromUri,
 } from "@cabildo-abierto/utils";
@@ -15,7 +16,7 @@ import TopicsIcon from "@/components/utils/icons/topics-icon";
 import {ArCabildoabiertoNotificationListNotifications} from "@cabildo-abierto/api"
 import {RepostIcon} from "@/components/utils/icons/reposts-icon";
 import {getUsername} from "../perfil/utils";
-import {ArticleKind, collectionToDisplay, contentUrl, profileUrl, topicUrl} from "@/components/utils/react/url";
+import {contentUrl, profileUrl, topicUrl} from "@/components/utils/react/url";
 
 
 const Username = ({

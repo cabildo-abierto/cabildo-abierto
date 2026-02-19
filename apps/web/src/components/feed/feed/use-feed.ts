@@ -15,13 +15,13 @@ export function useFeed<T>(
     const {data: feed, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching} = useInfiniteQuery({
         queryKey,
         queryFn: async ({pageParam}) => {
-            const {data, error} = await getFeed(pageParam == "start" ? undefined : pageParam)
-            if (error) {
+            const res = await getFeed(pageParam == "start" ? undefined : pageParam)
+            if (res.success === false) {
                 throw new Error("Failed to fetch feed")
             }
             const newPage: FeedPage<T> = {
-                data: data.feed,
-                nextCursor: data.cursor
+                data: res.value.feed,
+                nextCursor: res.value.cursor
             }
             return newPage
         },
@@ -67,7 +67,6 @@ export function useFetchNextPage<T>(
     useEffect(() => {
         if(feedList.length == 0 || items.length == 0) {
             if(hasNextPage && !isFetchingNextPage) {
-                console.log("fetching next page (empty feed)")
                 fetchNextPage()
                 return
             } else {
@@ -81,7 +80,6 @@ export function useFetchNextPage<T>(
             hasNextPage &&
             !isFetchingNextPage && hasScrolledRef.current && !isFetching && !loadingStartContent
         ) {
-            console.log("fetching next page (not empty)")
             fetchNextPage()
         }
     }, [

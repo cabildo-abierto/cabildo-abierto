@@ -39,7 +39,7 @@ function optimisticDelete(qc: QueryClient, uri: string) {
     updateContentInQueries(qc, uri, c => null)
     updateTopicHistories(qc, uri, e => null)
     updateDatasets(qc, uri, e => null)
-    qc.setQueryData(["drafts"], drafts => (drafts as DraftPreview[]).filter(d => d.id != getRkeyFromUri(uri)))
+    qc.setQueryData(["drafts"], drafts => (drafts as DraftPreview[])?.filter(d => d.id != getRkeyFromUri(uri)))
 }
 
 const deleteRecord = async ({uri}: { uri: string }) => {
@@ -142,10 +142,8 @@ export const ConfirmDeleteModal = ({
             }
         },
         onSuccess: async (res) => {
-            if (res.error) {
-                console.error(res.error)
-            }
-            invalidateQueriesAfterDeleteSuccess(uri, qc, reply)
+            if(res.success === false) addError(res.error)
+            else invalidateQueriesAfterDeleteSuccess(uri, qc, reply)
         },
         onError: () => {
             addError("Algo salió mal")

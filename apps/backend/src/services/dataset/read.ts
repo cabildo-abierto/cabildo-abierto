@@ -4,20 +4,24 @@ import {
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoWikiTopicVersion
 } from "@cabildo-abierto/api"
-import {CAHandlerNoAuth} from "#/utils/handler.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
-import {Dataplane} from "#/services/hydration/dataplane.js";
+import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {sql} from "kysely";
 import {$Typed} from "@atproto/api";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {getObjectKey} from "#/utils/object.js";
+import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
 
 type TopicProp = ArCabildoabiertoWikiTopicVersion.TopicProp
 
-export function hydrateTopicsDatasetView(ctx: AppContext, filters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[], dataplane: Dataplane): $Typed<ArCabildoabiertoDataDataset.TopicsDatasetView> | null {
-    const topics = dataplane.topicsDatasets.get(getObjectKey(filters))
+export const hydrateTopicsDatasetView = (ctx: AppContext, filters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[]): Effect.Effect<$Typed<ArCabildoabiertoDataDataset.TopicsDatasetView> | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const state = dataplane.getState()
+    const topics = state.topicsDatasets.get(getObjectKey(filters))
     if(!topics) {
         ctx.logger.pino.warn({filters}, "no se encontró el dataset de temas")
         return null
@@ -58,38 +62,61 @@ export function hydrateTopicsDatasetView(ctx: AppContext, filters: $Typed<ArCabi
         data,
         columns
     }
+})
+
+
+export class NotFoundError {
+    readonly _tag = "NotFoundError"
+    constructor(readonly message?: string) {}
 }
 
 
-export async function getDataset(ctx: AppContext, uri: string) {
-    const dataplane = new Dataplane(ctx)
+export class HydrationError {
+    readonly _tag = "HydrationError"
+}
 
-    const dataset = await ctx.kysely
-        .selectFrom("Dataset")
-        .select("uri")
-        .where("uri", "=", uri)
-        .executeTakeFirst()
+
+export const getDataset = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoDataDataset.DatasetView>, DBSelectError | HydrationError | NotFoundError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+
+    const dataset = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Dataset")
+            .select("uri")
+            .where("uri", "=", uri)
+            .executeTakeFirst(),
+        catch: () => new DBSelectError()
+    })
+
     if(!dataset) {
-        return {error: "Ocurrió un error al obtener el dataset."}
+        return yield* Effect.fail(new NotFoundError())
     }
 
     // No se pueden paralelizar
-    await dataplane.fetchDatasetsHydrationData([uri])
-    await dataplane.fetchDatasetContents([uri])
+    yield* dataplane.fetchDatasetsHydrationData([uri])
+    yield* dataplane.fetchDatasetContents([uri])
 
-    const view = hydrateDatasetView(ctx, uri, dataplane)
-    if(!view) return {error: "Ocurrió un error al obtener el dataset."}
-    return {data: view}
-}
+    const view = yield* hydrateDatasetView(ctx, uri)
+    if(!view) return yield* Effect.fail(new HydrationError())
+    return view
+})
 
 
-export const getDatasetHandler: CAHandlerNoAuth<{
+export const getDatasetHandler: EffHandlerNoAuth<{
     params: { did: string, collection: string, rkey: string }
-}, ArCabildoabiertoDataDataset.DatasetView> = async (ctx, agent, {params}) => {
+}, ArCabildoabiertoDataDataset.DatasetView> = (ctx, agent, {params}) => {
     const {did, collection, rkey} = params
     const uri = getUri(did, collection, rkey)
 
-    return await getDataset(ctx, uri)
+    return Effect.provideServiceEffect(
+        getDataset(ctx, uri)
+            .pipe(
+                Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el conjunto de datos.")),
+                Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el conjunto de datos."))
+            ),
+        DataPlane,
+        makeDataPlane(ctx, agent)
+    )
 }
 
 type TopicDatasetSpec = {
@@ -115,9 +142,7 @@ export function stringListIsEmpty(name: string) {
 export function stringListIncludes(name: string, value: string) {
     const type = `ar.cabildoabierto.wiki.topicVersion#stringListProp`
     const path = `$[*] ? (@.name == "${name}" && @.value."$type" == "${type}" && exists(@.value.value[*] ? (@ == "${value}")))`;
-    return sql<boolean>`
-        jsonb_path_exists("props", ${path}::jsonpath)
-    `;
+    return sql<boolean>`jsonb_path_exists("props", ${path}::jsonpath)`;
 }
 
 
@@ -129,9 +154,7 @@ export function equalFilterCond(name: string, value: string) {
     } else {
         path = `$[*] ? (@.name == "${name}" && @.value.value == "${value}")`
     }
-    return sql<boolean>`
-        jsonb_path_exists("props", ${path}::jsonpath)
-        `;
+    return sql<boolean>`jsonb_path_exists("props", ${path}::jsonpath)`;
 }
 
 
@@ -144,44 +167,49 @@ export function inFilterCond(name: string, values: string[]) {
 
 
 
-export const getTopicsDatasetHandler: CAHandlerNoAuth<TopicDatasetSpec, ArCabildoabiertoDataDataset.TopicsDatasetView> = async (ctx, agent, params) => {
+export const getTopicsDatasetHandler: EffHandlerNoAuth<TopicDatasetSpec, ArCabildoabiertoDataDataset.TopicsDatasetView> = (ctx, agent, params) => {
     const filters = params.filters ? params.filters.filter(f => ArCabildoabiertoEmbedVisualization.isColumnFilter(f)): []
     if(filters.length == 0) {
-        return {error: "Aplicá al menos un filtro."}
+        return Effect.fail("Aplicá al menos un filtro.")
     }
 
-    const dataplane = new Dataplane(ctx, agent)
+    return Effect.provideServiceEffect(Effect.gen(function* () {
+        const dataplane = yield* DataPlane
 
-    await dataplane.fetchFilteredTopics([filters])
+        yield* dataplane.fetchFilteredTopics([filters])
 
-    const dataset = hydrateTopicsDatasetView(ctx, filters, dataplane)
+        const dataset = yield* hydrateTopicsDatasetView(ctx, filters)
 
-    if(!dataset) {
-        ctx.logger.pino.error("Error getting topics dataset")
-        return {error: "Ocurrió un error al obtener el conjunto de datos."}
-    }
+        if(!dataset) {
+            return yield* Effect.fail("Ocurrió un error al obtener el conjunto de datos.")
+        }
 
-    return {data: dataset}
+        return dataset
+    }).pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el conjunto de datos."))), DataPlane, makeDataPlane(ctx, agent))
 }
 
 
-export async function getDatasetList(ctx: AppContext) {
-    const res = await ctx.kysely
-        .selectFrom("Dataset")
-        .innerJoin("Record", "Record.uri", "Dataset.uri")
-        .select("Record.uri")
-        .where("Record.record", "is not", null)
-        .where("Record.cid", "is not", null)
-        .execute()
-    return res.map(r => r.uri)
+export function getDatasetList(ctx: AppContext) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Dataset")
+            .innerJoin("Record", "Record.uri", "Dataset.uri")
+            .select("Record.uri")
+            .where("Record.record", "is not", null)
+            .where("Record.cid", "is not", null)
+            .execute(),
+        catch: () => new DBSelectError()
+    }).pipe(Effect.map(res => res.map(r => r.uri)))
 }
 
 
-export const hydrateDatasetView = (ctx: AppContext, uri: string, data: Dataplane): $Typed<ArCabildoabiertoDataDataset.DatasetView> | null => {
+export const hydrateDatasetView = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoDataDataset.DatasetView> | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
     const d = data.datasets.get(uri)
     if(!d) return null
 
-    const basicView = hydrateDatasetViewBasic(ctx, uri, data)
+    const basicView = yield* hydrateDatasetViewBasic(ctx, uri)
     if(!basicView) return null
 
     const content = data.datasetContents.get(uri)
@@ -208,15 +236,17 @@ export const hydrateDatasetView = (ctx: AppContext, uri: string, data: Dataplane
         $type: "ar.cabildoabierto.data.dataset#datasetView",
         data: JSON.stringify(rows)
     }
-}
+})
 
 
-export const hydrateDatasetViewBasic = (ctx: AppContext, uri: string, data: Dataplane): ArCabildoabiertoDataDataset.DatasetViewBasic | null => {
+export const hydrateDatasetViewBasic = (ctx: AppContext, uri: string): Effect.Effect<ArCabildoabiertoDataDataset.DatasetViewBasic | null, never, DataPlane> => Effect.gen(function* () {
+    const dataplane = yield* DataPlane
+    const data = dataplane.getState()
     const d = data.datasets?.get(uri)
     if(!d) return null
 
     const authorId = getDidFromUri(uri)
-    const author = hydrateProfileViewBasic(ctx, authorId, data)
+    const author = yield* hydrateProfileViewBasic(ctx, authorId)
 
     if (d && author) {
         return {
@@ -235,19 +265,24 @@ export const hydrateDatasetViewBasic = (ctx: AppContext, uri: string, data: Data
         }
     }
     return null
-}
+})
 
 
-export const getDatasets: CAHandlerNoAuth<{}, ArCabildoabiertoDataDataset.DatasetViewBasic[]> = async (ctx, agent, {}) => {
-    const data = new Dataplane(ctx, agent)
+export const getDatasets: EffHandlerNoAuth<{}, ArCabildoabiertoDataDataset.DatasetViewBasic[]> = (ctx, agent, {}) => {
+    return Effect.provideServiceEffect(Effect.gen(function* () {
+        const dataplane = yield* DataPlane
 
-    const datasetList: string[] = await getDatasetList(ctx)
+        const datasetList: string[] = yield* getDatasetList(ctx)
 
-    await data.fetchDatasetsHydrationData(datasetList)
+        yield* dataplane.fetchDatasetsHydrationData(datasetList)
 
-    const views: ArCabildoabiertoDataDataset.DatasetViewBasic[] = datasetList
-        .map(d => hydrateDatasetViewBasic(ctx, d, data))
-        .filter(v => v != null)
+        const views: ArCabildoabiertoDataDataset.DatasetViewBasic[] = (yield* Effect.all(datasetList
+            .map(d => hydrateDatasetViewBasic(ctx, d))))
+            .filter(v => v != null)
 
-    return {data: sortByKey(views, x => [new Date(x.createdAt).getTime()], listOrderDesc)}
+        return sortByKey(views, x => [new Date(x.createdAt).getTime()], listOrderDesc)
+    }).pipe(
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener los conjuntos de datos.")),
+        Effect.catchTag("FetchFromBskyError", () => Effect.fail("Ocurrió un error al obtener los conjuntos de datos.")),
+    ), DataPlane, makeDataPlane(ctx, agent))
 }

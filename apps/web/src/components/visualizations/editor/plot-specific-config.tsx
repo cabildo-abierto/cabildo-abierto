@@ -10,6 +10,7 @@ import {ElectionVisualizationConfig} from "./election-visualization-config";
 
 import {PlotConfigProps} from "./types";
 import {BaseSelect} from "@/components/utils/base/base-select";
+import { Note } from "@/components/utils/base/note";
 
 
 type PlotSpecificConfigProps = {
@@ -37,6 +38,12 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
 
     if (!config.spec || !config.spec.$type) return null
 
+    if(columnOptions == null) {
+        return <Note>
+            Elegí un conjunto de datos primero
+        </Note>
+    }
+
     if (!datasets) return <div>
         <LoadingSpinner/>
     </div>
@@ -53,6 +60,7 @@ export const PlotSpecificConfig = ({config, setConfig}: PlotSpecificConfigProps)
             contentClassName={"z-[1501]"}
             options={columnOptions}
             label={"Eje x"}
+            deselectOption={true}
             value={config.spec.xAxis ?? ""}
             onChange={(v: string) => {
                 setConfig(produce(config, draft => {

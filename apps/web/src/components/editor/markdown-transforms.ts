@@ -1,7 +1,7 @@
 import {createHeadlessEditor} from "@lexical/headless"
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown"
 import {$generateNodesFromDOM} from "@lexical/html";
-import {ArCabildoabiertoEmbedVisualization, EmbedContext} from "@cabildo-abierto/api";
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoEmbedVisualization, EmbedContext} from "@cabildo-abierto/api";
 import {CA_TRANSFORMERS, MarkdownTransformer} from "@/components/editor/markdown-transformers/ca-transformers";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {
@@ -284,24 +284,14 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
             const index = markdownUpTo.length
             if (vNode.spec) {
                 const spec = JSON.parse(vNode.spec)
-                if (spec.$type == "ar.cabildoabierto.embed.visualization") {
+                if (ArCabildoabiertoEmbedVisualization.isMain(spec) || AppBskyEmbedImages.isView(spec) || ArCabildoabiertoEmbedPoll.isView(spec) || ArCabildoabiertoEmbedPoll.isMain(spec)) {
                     embeds.push({
                         $type: "ar.cabildoabierto.feed.article#articleEmbedView",
-                        value: {
-                            $type: "ar.cabildoabierto.embed.visualization",
-                            ...(spec as ArCabildoabiertoEmbedVisualization.Main)
-                        },
+                        value: spec,
                         index
                     })
-                } else if (spec.$type == "app.bsky.embed.images#view") {
-                    embeds.push({
-                        $type: "ar.cabildoabierto.feed.article#articleEmbedView",
-                        value: {
-                            $type: "app.bsky.embed.images#view",
-                            ...(spec as AppBskyEmbedImages.View)
-                        },
-                        index
-                    })
+                } else {
+                    return null
                 }
                 if (vNode.context) {
                     const context = JSON.parse(vNode.context) as EmbedContext

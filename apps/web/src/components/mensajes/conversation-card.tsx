@@ -12,7 +12,7 @@ export const ConversationCard = ({view}: { view: ChatBskyConvoDefs.ConvoView }) 
         className="border-b hover:bg-[var(--background-dark)] p-4 space-x-4 flex cursor-pointer"
         href={chatUrl(view.id)}
     >
-        <ProfilePic user={other} className={"rounded-full w-12 h-12"}/>
+        <ProfilePic user={other} className={"rounded-full w-12 h-12"} descriptionOnHover={false}/>
         <div className={"max-w-[80%]"}>
             <div className={"font-semibold"}>
                 {other.displayName ?? `@${other.handle}`}

@@ -59,6 +59,5 @@ export const useThreadWithNormalizedContent = (uri: string) => {
         }
     }, [res.data])
 
-
-    return {query: res, thread: newContent}
+    return {query: res, thread: newContent, refetch: res.refetch}
 }

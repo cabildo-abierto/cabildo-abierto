@@ -9,18 +9,24 @@ import {getTopicVersionStatusFromReactions} from "#/services/monetization/author
 import {Transaction} from "kysely"
 import {produce} from "immer"
 import {jsonArrayFrom} from "kysely/helpers/postgres"
+import {Effect} from "effect";
+import {NotFoundError} from "#/services/dataset/read.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 
-export async function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string) {
+export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey: string): Effect.Effect<string, NotFoundError | DBSelectError> {
     const uris = [getUri(did, "ar.com.cabildoabierto.topic", rkey), getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)]
 
-    const res = await ctx.kysely
-        .selectFrom("TopicVersion")
-        .select("topicId")
-        .where("uri", "in", uris)
-        .execute()
-
-    return res && res.length > 0 ? res[0].topicId : null
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("TopicVersion")
+            .select("topicId")
+            .where("uri", "in", uris)
+            .executeTakeFirst(),
+        catch: () => new DBSelectError()
+    }).pipe(Effect.flatMap(res => {
+        return res ? Effect.succeed(res?.topicId) : Effect.fail(new NotFoundError())
+    }))
 }
 
 
@@ -114,8 +120,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     topicIds = unique(topicIds)
     if (topicIds.length == 0) return
 
-    ctx.logger.pino.info({ids: topicIds.slice(0, 5)}, "updating topics current version")
-
     type VersionWithVotes = {
         topicId: string
         uri: string
@@ -207,8 +211,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                 versionsStatus
             )
 
-            ctx.logger.pino.info({currentVersion, id}, "new current version")
-
             if (currentVersion == null) {
                 updates.push({
                     id,
@@ -235,7 +237,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     }
 
     if (updates.length > 0) {
-        ctx.logger.pino.info({updates}, "applying current version update")
         try {
             await trx
                 .insertInto("Topic")
@@ -256,7 +257,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     if(categoryUpdates.length > 0) {
         try {
             const newCategories = categoryUpdates.flatMap(u => u.categories)
-            ctx.logger.pino.info({newCategories}, "new topic categories")
             if(newCategories.length > 0){
                 await trx
                     .insertInto("TopicCategory")

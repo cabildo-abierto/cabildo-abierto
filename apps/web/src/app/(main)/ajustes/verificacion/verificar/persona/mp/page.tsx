@@ -15,7 +15,7 @@ export default function Page() {
     const {refetch} = useSession()
 
     async function attemptMPVerification() {
-        return await post("/attempt-mp-verification")
+        return await post<{}, {}>("/attempt-mp-verification")
     }
 
     if (isLoading) return <div>
@@ -38,11 +38,11 @@ export default function Page() {
                     handleClick={async () => {
                         const res = await attemptMPVerification()
 
-                        if(!res.error) {
+                        if(res.success === false) {
                             refetch()
                         }
 
-                        return res
+                        return {}
                     }}
                 >
                     Verificar mi cuenta personal

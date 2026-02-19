@@ -7,7 +7,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {DateSince, localeDate} from "@/components/utils/base/date";
 import {AdminSection} from "@/components/admin/admin-section";
 import {cn} from "@/lib/utils";
-import {fetchBackend} from "@/components/utils/react/fetch";
+import {fetchBackend, post} from "@/components/utils/react/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 
 type Tab = "subscriptions" | "sent" | "templates" | "send" | "stats"
@@ -307,6 +307,7 @@ function EmailPreview({email}: {email: SentEmail}) {
                 className="py-2 px-3 flex items-center gap-4 hover:bg-[var(--background-dark)] cursor-pointer"
                 onClick={() => setShowPreview(!showPreview)}
             >
+                <span className="font-mono text-xs flex-1">{email.senderEmail}</span>
                 <span className="font-mono text-xs flex-1">{email.recipientEmail}</span>
                 <SuccessBadge success={email.success} />
                 <span className="text-[var(--text-light)] text-sm">
@@ -839,19 +840,13 @@ function SendEmailsView() {
                 replyTo: replyTo.length > 0 ? replyTo : undefined
             }
 
-            const res = await fetchBackend({
-                route: "/send-emails",
-                method: "POST",
-                body
-            })
+            const res = await post<SendEmailsParams, SendEmailsResponse>("/send-emails", body)
 
-            const json = await res.json()
-
-            if (json.error) {
-                setError(json.error)
+            if (res.success === false) {
+                setError(res.error)
                 setSendState("idle")
-            } else if (json.data) {
-                setSendResult(json.data)
+            } else {
+                setSendResult(res.value)
                 setSendState("done")
                 // Invalidate sent emails query to refresh
                 queryClient.invalidateQueries({queryKey: ["sent-emails"]})

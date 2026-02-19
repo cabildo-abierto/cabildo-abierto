@@ -1,5 +1,4 @@
 import React from "react"
-import {useLayoutConfig} from "../layout-config-context"
 import {SidebarContent} from "./sidebar-content"
 import {
     Sheet,
@@ -8,20 +7,23 @@ import {
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {produce} from "immer";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 export const SidebarMobile = ({
-                                  setWritePanelOpen
-                              }: {
+    setWritePanelOpen
+}: {
     setWritePanelOpen: (open: boolean) => void
 }) => {
-    const {layoutConfig, setLayoutConfig, isMobile} = useLayoutConfig()
+    const {isMobile} = useIsMobile()
+    const {layoutState, setLayoutState} = useLayoutState()
 
     if (!isMobile) return null
 
     return <Sheet
-        open={layoutConfig.openSidebar}
+        open={layoutState.openSidebar}
         onOpenChange={(open) => {
-            setLayoutConfig(produce(layoutConfig, draft => {
+            setLayoutState(produce(layoutState, draft => {
                 draft.openSidebar = open
             }))
         }}
@@ -64,7 +66,7 @@ export const SidebarMobile = ({
             >
                 <SidebarContent
                     onClose={() => {
-                        setLayoutConfig((prev) => ({...prev, openSidebar: false}))
+                        setLayoutState((prev) => ({...prev, openSidebar: false}))
                     }}
                     setWritePanelOpen={setWritePanelOpen}
                 />

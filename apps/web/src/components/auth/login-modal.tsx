@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {BlueskyLogin} from "./bluesky-login"
-import {useRouter, useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "./login-modal-provider";
@@ -15,6 +15,8 @@ import {StateButton} from "@/components/utils/base/state-button";
 import {Logo} from "@/components/utils/icons/logo";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {topicUrl} from "@/components/utils/react/url";
+import {cn} from "@/lib/utils";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 const LoginPanel = ({children, onClickBack, onClose, open}: {
@@ -23,14 +25,16 @@ const LoginPanel = ({children, onClickBack, onClose, open}: {
     onClose?: () => void
     open: boolean
 }) => {
+    const {isMobile} = useIsMobile()
+
     return <BaseFullscreenPopup
         open={open}
         closeButton={false}
         backgroundShadow={true}
-        className={"top-0 h-screen translate-y-0 sm:h-auto"}
+        className={"bg-[var(--background-dark)] border portal group"}
     >
         <div
-            className={"sm:w-[480px] px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen"}
+            className={cn("px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[480px]")}
         >
             <div
                 className={"flex w-full text-[var(--text-light)] mt-4 " + (onClickBack ? "justify-between" : "justify-end")}>
@@ -55,9 +59,9 @@ const LoginModalAccessRequest = ({onBack}: {
     const [showRequestCreated, setShowRequestCreated] = useState<boolean>(false)
 
     async function onSendAccessRequest() {
-        const {error} = await post<{}, {}>("/access-request", {email, comment})
-        if (error) {
-            return {error}
+        const res = await post<{}, {}>("/access-request", {email, comment})
+        if (res.success === false) {
+            return {error: res.error}
         } else {
             setShowRequestCreated(true)
             setComment("")
@@ -74,10 +78,9 @@ const LoginModalAccessRequest = ({onBack}: {
             }}
             open={showRequestCreated}
         >
-            <div
-                className="text-[var(--text-light)] font-light p-5 max-w-[360px] text-center">
+            <Note className={"p-5 text-base max-w-[360px]"}>
                 ¡Listo! Ni bien podamos te enviamos la invitación. Gracias por tu interés.
-            </div>
+            </Note>
         </AcceptButtonPanel>
         <h2 className={"font-bold text-lg pb-2 text-center"}>Solicitar acceso</h2>
         <div className={"flex flex-col items-center space-y-4 pb-12"}>
@@ -131,6 +134,7 @@ export const LoginModal = ({
     const inviteCode = params.get("c")
     const router = useRouter()
     const {setLoginModalOpen} = useLoginModal()
+    const pathname = usePathname()
 
     return <LoginPanel
         open={open}
@@ -173,7 +177,7 @@ export const LoginModal = ({
                         {!inviteCode && <div className={"pt-4 w-full"}>
                             <BaseButton
                                 variant={"outlined"}
-                                className={"w-full"}
+                                className={"w-full text-[13px]"}
                                 onClick={() => {
                                     setAccessRequest(true)
                                 }}
@@ -184,18 +188,18 @@ export const LoginModal = ({
                     </div>
 
                     <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
-                        <Note text={"text-sm"}>
+                        {!pathname.startsWith("/presentacion") && <Note text={"text-sm"}>
                             <Link
-                                href={"/apps/web/public"}
+                                href={"/presentacion"}
                                 target={"_blank"}
                                 onClick={(e) => {
                                     e.preventDefault()
-                                    router.push(inviteCode ? `/?c=${inviteCode}` : "/")
+                                    router.push(inviteCode ? `/presentacion?c=${inviteCode}` : "/presentacion")
                                 }}
                             >
                                 Conocer más sobre Cabildo Abierto
                             </Link>
-                        </Note>
+                        </Note>}
                         <Note
                             text={"text-xs"}
                         >

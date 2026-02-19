@@ -1,4 +1,5 @@
 import pino from "pino";
+import {env} from "#/lib/env.js";
 
 
 
@@ -6,7 +7,7 @@ export class Logger {
     pino: pino.Logger
 
     constructor(name: string) {
-        this.pino = pino({name})
+        this.pino = pino({name, level: env.NODE_ENV == "test" ? "silent" : "info"})
     }
 
     logTimes(msg: string, times: number[], object?: Record<string, unknown>){

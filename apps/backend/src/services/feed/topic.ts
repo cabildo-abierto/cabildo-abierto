@@ -1,19 +1,22 @@
-import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
-import {FeedPipelineProps, FeedSkeleton, getFeed, GetSkeletonProps} from "#/services/feed/feed.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
+import {
+    FeedPipelineProps,
+    getFeed,
+    GetSkeletonError,
+    GetSkeletonOutput,
+    GetSkeletonProps
+} from "#/services/feed/feed.js";
 import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
-import {creationDateSortKey} from "#/services/feed/utils.js";
-import {hydrateFeedViewContent} from "#/services/hydration/hydrate.js";
-import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
-import {Dataplane} from "#/services/hydration/dataplane.js";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
-import {getCollectionFromUri, getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {
-    ArCabildoabiertoWikiTopicVersion,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoEmbedSelectionQuote, defaultTopicMentionsMetric, defaultTopicMentionsTime,
-    defaultTopicMentionsFormat
+    ArCabildoabiertoWikiTopicVersion,
+    defaultTopicMentionsFormat,
+    defaultTopicMentionsMetric,
+    defaultTopicMentionsTime,
+    GetFeedOutput
 } from "@cabildo-abierto/api"
 import {
     EnDiscusionMetric,
@@ -24,25 +27,10 @@ import {
     getNextCursorEnDiscusion
 } from "#/services/feed/inicio/discusion.js";
 import {SkeletonQuery} from "#/services/feed/inicio/following.js";
-import {getTopicCurrentVersionFromDB} from "#/services/wiki/topics.js";
-import {$Typed} from "@atproto/api";
-import {Effect, pipe} from "effect";
+import {Effect} from "effect";
+import {DataPlane} from "#/services/hydration/dataplane.js";
 
-
-const getTopicRepliesSkeleton = async (ctx: AppContext, id: string) => {
-    const replies = await ctx.kysely
-        .selectFrom("Post")
-        .innerJoin("Record", "Record.uri", "Post.uri")
-        .innerJoin("Record as Parent", "Parent.uri", "Post.replyToId")
-        .innerJoin("TopicVersion", "TopicVersion.uri", "Parent.uri")
-        .select([
-            "Post.uri",
-        ])
-        .where("TopicVersion.topicId", "=", id)
-        .orderBy("Record.created_at desc")
-        .execute()
-    return replies.map(r => ({post: r.uri}))
-}
+import {DBSelectError} from "#/utils/errors.js";
 
 
 const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, time: EnDiscusionTime, format: FeedFormatOption) => SkeletonQuery<EnDiscusionSkeletonElement> = (id, metric, time, format) => {
@@ -50,18 +38,18 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
         const startDate = metric != "Recientes" ? getEnDiscusionStartDate(time) : new Date(0)
         const collections = format == "Artículos" ? ["ar.cabildoabierto.feed.article"] : ["ar.cabildoabierto.feed.article", "app.bsky.feed.post"]
 
-        if(limit == 0){
+        if (limit == 0) {
             return []
         }
 
-        if(metric == "Me gustas"){
-            const offsetFrom = from != null ? Number(from)+1 : 0
+        if (metric == "Me gustas") {
+            const offsetFrom = from != null ? Number(from) + 1 : 0
             const offsetTo = to != null ? Number(to) : undefined
-            if(offsetTo != null){
+            if (offsetTo != null) {
                 limit = Math.min(limit, offsetTo - offsetFrom)
             }
 
-            if(limit == 0) return []
+            if (limit == 0) return []
 
             const res = await ctx.kysely
                 .selectFrom("Reference")
@@ -81,14 +69,14 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 ...r,
                 score: -(i + offsetFrom)
             }))
-        } else if(metric == "Interacciones"){
-            const offsetFrom = from != null ? Number(from)+1 : 0
+        } else if (metric == "Interacciones") {
+            const offsetFrom = from != null ? Number(from) + 1 : 0
             const offsetTo = to != null ? Number(to) : undefined
-            if(offsetTo != null){
+            if (offsetTo != null) {
                 limit = Math.min(limit, offsetTo - offsetFrom)
             }
 
-            if(limit == 0) return []
+            if (limit == 0) return []
             const res = await ctx.kysely
                 .selectFrom("Content")
                 .innerJoin("Record", "Record.uri", "Content.uri")
@@ -111,14 +99,14 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 ...r,
                 score: -(i + offsetFrom)
             }))
-        } else if(metric == "Popularidad relativa"){
-            const offsetFrom = from != null ? Number(from)+1 : 0
+        } else if (metric == "Popularidad relativa") {
+            const offsetFrom = from != null ? Number(from) + 1 : 0
             const offsetTo = to != null ? Number(to) : undefined
-            if(offsetTo != null){
+            if (offsetTo != null) {
                 limit = Math.min(limit, offsetTo - offsetFrom)
             }
 
-            if(limit == 0) return []
+            if (limit == 0) return []
 
             const res = await ctx.kysely
                 .selectFrom("Content")
@@ -148,11 +136,11 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 ...r,
                 score: -(i + offsetFrom)
             }))
-        } else if(metric == "Recientes"){
+        } else if (metric == "Recientes") {
             const offsetFrom = from != null ? new Date(from) : undefined
             const offsetTo = to != null ? new Date(to) : undefined
 
-            if(offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
+            if (offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
 
             const t1 = Date.now()
 
@@ -189,344 +177,180 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
 }
 
 
-const getTopicMentionsSkeleton = async (
+const getTopicMentionsSkeleton = (
     ctx: AppContext,
     agent: Agent,
-    data: Dataplane,
     id: string,
     cursor: string | undefined,
     metric: EnDiscusionMetric,
     time: EnDiscusionTime,
     format: FeedFormatOption
-): Promise<{skeleton: FeedSkeleton, cursor: string | undefined}> => {
+): Effect.Effect<GetSkeletonOutput, GetSkeletonError, DataPlane> => {
 
     const limit = 25
 
-    const skeleton = await getTopicMentionsSkeletonQuery(
-        id, metric, time, format
-    )(ctx, agent, cursor, undefined, limit)
-
-    return {
-        skeleton: skeleton.map(x => ({post: x.uri})),
-        cursor: getNextCursorEnDiscusion(metric, time, format)(cursor, skeleton, limit)
-    }
-}
-
-
-export async function getTopicMentionsInTopics(ctx: AppContext, id: string){
-    const topics = await ctx.kysely
-        .selectFrom("TopicVersion")
-        .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-        .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
-        .select("topicId")
-        .where(eb => eb.exists(eb => eb
-            .selectFrom("Reference")
-            .where("Reference.referencedTopicId", "=", id)
-            .whereRef("Reference.referencingContentId", "=", "TopicVersion.uri")
-        ))
-        .where("TopicVersion.topicId", "!=", id)
-        .innerJoin("Topic", "Topic.currentVersionId", "TopicVersion.uri")
-        .select(["TopicVersion.topicId", "TopicVersion.props"])
-        .orderBy("created_at", "desc")
-        .limit(25)
-        .execute()
-
-    return topics.map(t => {
-        return {
-            id: t.topicId,
-            title: getTopicTitle({id: t.topicId, props: t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]})
-        }
-    })
-}
-
-
-type VoteBasicQueryResult = {
-    voteUri: string
-    topicVersionUri: string
-    topicVersionCreatedAt: Date
-    reasonUri: string | null
-}
-
-
-async function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Promise<VoteBasicQueryResult[]> {
-    const votes = await ctx.kysely
-        .selectFrom("Reaction")
-        .innerJoin("Record", "Record.uri", "Reaction.uri")
-        .innerJoin("Record as SubjectRecord", "SubjectRecord.uri", "Reaction.subjectId")
-        .where("Record.collection", "in", ["ar.cabildoabierto.wiki.voteAccept", "ar.cabildoabierto.wiki.voteReject"])
-        .where("Reaction.subjectId", "=", uri)
-        .leftJoin("VoteReject", "VoteReject.uri", "Reaction.uri")
-        .leftJoin("Post as Reason", "Reason.uri", "VoteReject.reasonId")
-        .select([
-            "Reaction.uri",
-            "Reaction.subjectId",
-            "SubjectRecord.created_at_tz as subjectCreatedAt",
-            "Reason.uri as reasonUri"
-        ])
-        .execute()
-    return votes.map(v => {
-        if(v.subjectId && v.subjectCreatedAt) {
+    return Effect.tryPromise({
+        try: () => getTopicMentionsSkeletonQuery(
+            id, metric, time, format
+        )(ctx, agent, cursor, undefined, limit),
+        catch: (error) => new DBSelectError(error)
+    }).pipe(
+        Effect.map(skeleton => {
             return {
-                voteUri: v.uri,
-                topicVersionUri: v.subjectId,
-                topicVersionCreatedAt: v.subjectCreatedAt,
-                reasonUri: v.reasonUri
+                skeleton: skeleton.map(x => ({post: x.uri})),
+                cursor: getNextCursorEnDiscusion(metric, time, format)(cursor, skeleton, limit)
             }
-        }
-        return null
-    }).filter(x => x != null)
-}
-
-
-function addVotesContextToDiscussionFeed(ctx: AppContext, uri: string, feed: $Typed<ArCabildoabiertoFeedDefs.FeedViewContent>[], votes: VoteBasicQueryResult[]): $Typed<ArCabildoabiertoFeedDefs.FeedViewContent>[] {
-    const authorVotingStates = new Map<string, "accept" | "reject">()
-    const reasonToVote = new Map<string, VoteBasicQueryResult>()
-    votes.forEach(v => {
-        if(v.topicVersionUri == uri) {
-            const accept = getCollectionFromUri(v.voteUri) == "ar.cabildoabierto.wiki.voteAccept"
-            authorVotingStates.set(getDidFromUri(v.voteUri), accept ? "accept" : "reject")
-        }
-        if(v.reasonUri){
-            reasonToVote.set(v.reasonUri, v)
-        }
-    })
-
-    return feed.map(e => {
-        if(!ArCabildoabiertoFeedDefs.isPostView(e.content)){
-            return e
-        } else {
-            const reason = reasonToVote.get(e.content.uri)
-            const authorState = authorVotingStates.get(e.content.author.did)
-            // información de qué voto está justificando este post
-            const voteContext: ArCabildoabiertoFeedDefs.PostView["voteContext"] = {
-                authorVotingState: authorState ?? "none",
-                vote: reason ? {
-                    uri: reason.voteUri,
-                    subject: reason.topicVersionUri,
-                    subjectCreatedAt: reason.topicVersionCreatedAt.toISOString()
-                } : undefined
-            }
-
-            return {
-                ...e,
-                content: {
-                    ...e.content,
-                    voteContext
-                }
-            }
-        }
-    })
-}
-
-
-async function hydrateRepliesSkeleton(ctx: AppContext, agent: Agent, skeleton: FeedSkeleton, uri: string){
-    const data = new Dataplane(ctx, agent)
-    const [votes] = await Promise.all([
-        getTopicVotesForDiscussion(ctx, uri),
-        data.fetchFeedHydrationData(skeleton),
-    ])
-
-    let feed = skeleton
-        .map((e) => (hydrateFeedViewContent(ctx, e, data)))
-        .filter(x => x != null)
-
-    feed = addVotesContextToDiscussionFeed(ctx, uri, feed, votes)
-
-    return sortByKey(
-        feed,
-        creationDateSortKey,
-        listOrderDesc
+        }),
+        Effect.withSpan("getTopicMentionsSkeleton", {attributes: {metric, time, format, cursor, id}})
     )
 }
 
 
-export const getTopicVersionReplies = async (
-    ctx: AppContext, agent: Agent, id: string, uri: string): Promise<{data?: ArCabildoabiertoFeedDefs.FeedViewContent[], error?: string}> => {
-    const skeleton = await getTopicRepliesSkeleton(ctx, id)
-    const res = await hydrateRepliesSkeleton(
-        ctx,
-        agent,
-        skeleton,
-        uri
-    )
-
-    return {data: res}
-}
-
-
-export const getTopicDiscussion: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string, cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption } }, {
-    feed: ArCabildoabiertoFeedDefs.FeedViewContent[],
-    cursor?: string
-}> = (ctx, agent, {query}) => {
-    let {i: id, did, rkey} = query
-
-    const uri: string | undefined = did && rkey ? getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey) : undefined
-
-    if(!id && (!did || !rkey)) {
-        return Effect.fail("Se requiere un id o un par did y rkey.")
-    }
-
-    return pipe(
-        Effect.promise(async () => {
-            if(id) {
-                return id
-            } else {
-                return await getTopicIdFromTopicVersionUri(ctx, did!, rkey!) ?? undefined
+export function getTopicMentionsInTopics(ctx: AppContext, id: string) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("TopicVersion")
+            .innerJoin("Record", "Record.uri", "TopicVersion.uri")
+            .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
+            .select("topicId")
+            .where(eb => eb.exists(eb => eb
+                .selectFrom("Reference")
+                .where("Reference.referencedTopicId", "=", id)
+                .whereRef("Reference.referencingContentId", "=", "TopicVersion.uri")
+            ))
+            .where("TopicVersion.topicId", "!=", id)
+            .innerJoin("Topic", "Topic.currentVersionId", "TopicVersion.uri")
+            .select(["TopicVersion.topicId", "TopicVersion.props"])
+            .orderBy("created_at", "desc")
+            .limit(25)
+            .execute(),
+        catch: () => new DBSelectError()
+    }).pipe(Effect.map(topics => {
+        return topics.map(t => {
+            return {
+                id: t.topicId,
+                title: getTopicTitle({id: t.topicId, props: t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]})
             }
-        }),
-        Effect.flatMap(id => {
-            return id ?
-                Effect.succeed(id) :
-                Effect.fail("No se encontró la versión del tema.")
-        }),
-        Effect.flatMap(id =>
-            Effect.all([
-                Effect.promise(async () => (uri ? uri : (await getTopicCurrentVersionFromDB(ctx, id))?.data)),
-                Effect.succeed(id)
-            ])
-        ),
-        Effect.flatMap(([uri, id]) => {
-            return Effect.promise(async () => {
-                if(!uri) {
-                    throw Error("No se encontró la versión actual del tema.")
-                }
-                const replies = await getTopicVersionReplies(ctx, agent, id, uri)
-                if(!replies.data) throw Error(replies.error)
-                return {
-                    feed: replies.data,
-                    cursor: undefined
-                }
-            })
         })
-    )
+    }))
 }
 
 
-export const getTopicFeed: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string, cursor?: string, metric?: EnDiscusionMetric, time?: EnDiscusionTime, format?: FeedFormatOption } }, {
+export const getTopicFeed: EffHandlerNoAuth<{
+    query: {
+        i?: string,
+        did?: string,
+        rkey?: string,
+        cursor?: string,
+        metric?: EnDiscusionMetric,
+        time?: EnDiscusionTime,
+        format?: FeedFormatOption
+    }
+}, {
     feed: ArCabildoabiertoFeedDefs.FeedViewContent[],
     cursor?: string
 }> = (ctx, agent, {query}) => {
     let {i: id, did, rkey, cursor, metric, time, format} = query
 
-    if(!id && (!did || !rkey)) {
+    if (!id && (!did || !rkey)) {
         return Effect.fail("Se requiere un id o un par did y rkey.")
     }
 
-    return pipe(
-        Effect.promise(async () => {
-            if(id) {
-                return id
-            } else {
-                return await getTopicIdFromTopicVersionUri(ctx, did!, rkey!) ?? undefined
-            }
-        }),
-        Effect.flatMap(id => {
-            return id ?
-                Effect.succeed(id) :
-                Effect.fail("No se encontró la versión del tema.")
-        }),
-        Effect.flatMap(id => {
-            const getSkeleton: GetSkeletonProps = async (ctx, agent, data, cursor) => {
-                return await getTopicMentionsSkeleton(
-                    ctx,
-                    agent,
-                    data,
-                    id,
-                    cursor,
-                    metric ?? defaultTopicMentionsMetric,
-                    time ?? defaultTopicMentionsTime,
-                    format ?? defaultTopicMentionsFormat
-                )
-            }
+    return Effect.gen(function* () {
+        const topicId = id ?? (yield* getTopicIdFromTopicVersionUri(ctx, did!, rkey!))
 
-            return getFeed({
+        const getSkeleton: GetSkeletonProps = (ctx, agent, cursor) => {
+            return getTopicMentionsSkeleton(
                 ctx,
                 agent,
-                pipeline: {
-                    getSkeleton,
-                    debugName: `topic:${metric}:${time}:${format}`
-                },
-                cursor
-            })
+                topicId,
+                cursor,
+                metric ?? defaultTopicMentionsMetric,
+                time ?? defaultTopicMentionsTime,
+                format ?? defaultTopicMentionsFormat
+            )
+        }
+
+        return yield* getFeed({
+            ctx,
+            agent,
+            pipeline: {
+                getSkeleton,
+                debugName: `topic:${metric}:${time}:${format}`
+            },
+            cursor
+        })
+    }).pipe(
+        Effect.catchTag("NotFoundError", () => {
+            return Effect.fail("No se encontró el tema.")
+        }),
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al obtener el muro.")
         })
     )
 }
 
 
-export const getTopicMentionsInTopicsFeed: CAHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string } }, {
-    feed: {id: string, title: string}[],
+export const getTopicMentionsInTopicsFeed: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string } }, {
+    feed: { id: string, title: string }[],
     cursor: string | undefined
-}> = async (ctx, agent, {query}) => {
+}> = (ctx, agent, {query}) => {
     let {i: id, did, rkey} = query
 
-    if(!id){
-        if(!did || !rkey){
-            return {error: "Se requiere un id o un par did y rkey."}
-        } else {
-            id = await getTopicIdFromTopicVersionUri(ctx, did, rkey) ?? undefined
-            if(!id){
-                return {error: "No se encontró esta versión del tema."}
+    return Effect.gen(function* () {
+        if (!id) {
+            if (!did || !rkey) {
+                return yield* Effect.fail("Se requiere un id o un par did y rkey.")
+            } else {
+                id = yield* getTopicIdFromTopicVersionUri(ctx, did, rkey) ?? undefined
+                if (!id) {
+                    return yield* Effect.fail("No se encontró esta versión del tema.")
+                }
             }
         }
-    }
 
-    const topicMentions = await getTopicMentionsInTopics(ctx, id)
+        const topicMentions = yield* getTopicMentionsInTopics(ctx, id)
 
-    return {
-        data: {
+        return {
             feed: topicMentions,
             cursor: undefined
         }
-    }
+    }).pipe(
+        Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el tema.")),
+        Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener las menciones."))
+    )
 }
 
 
-export const getTopicQuoteReplies: CAHandlerNoAuth<{params: {did: string, rkey: string}}, ArCabildoabiertoFeedDefs.PostView[]> = async (ctx, agent, {params}) => {
-    const {did, rkey} = params
-    const uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
-
-    const skeleton = (await ctx.kysely
-        .selectFrom("Post")
-        .where("Post.replyToId", "=", uri)
-        .select("uri")
-        .execute()).map(p => ({post: p.uri}))
-
-    const hydrated = await hydrateRepliesSkeleton(ctx, agent, skeleton, uri)
-
-    const posts: ArCabildoabiertoFeedDefs.PostView[] = hydrated
-        .map(c => c.content)
-        .filter(c => ArCabildoabiertoFeedDefs.isPostView(c))
-        .filter(c => ArCabildoabiertoEmbedSelectionQuote.isView(c.embed))
-
-    return {
-        data: posts
-    }
-}
-
-
-export const getAllTopicEditsFeed: EffHandlerNoAuth<{query: {cursor: string | undefined}}, {}> = (ctx, agent, {query}) => {
+export const getAllTopicEditsFeed: EffHandlerNoAuth<{
+    query: { cursor: string | undefined }
+}, GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>> = (ctx, agent, {query}) => {
     const {cursor} = query
 
     const pipeline: FeedPipelineProps = {
-        getSkeleton: async (ctx, agent, data, cursor) => {
-            const edits = await ctx.kysely
-                .selectFrom("TopicVersion")
-                .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                .select(["TopicVersion.uri", "Record.created_at_tz"])
-                .orderBy("Record.created_at_tz desc")
-                .limit(25)
-                .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
-                .execute()
+        getSkeleton: (ctx, agent, cursor) => {
+            return Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("TopicVersion")
+                    .innerJoin("Record", "Record.uri", "TopicVersion.uri")
+                    .select(["TopicVersion.uri", "Record.created_at_tz"])
+                    .orderBy("Record.created_at_tz desc")
+                    .limit(25)
+                    .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
+                    .execute(),
+                catch: () => new DBSelectError()
+            }).pipe(Effect.map(edits => {
+                const latest = edits[edits.length - 1]
+                const newCursor = latest?.created_at_tz?.toISOString()
 
-            const latest = edits[edits.length - 1]
-            const newCursor = latest?.created_at_tz?.toISOString()
-
-            return {
-                skeleton: edits.map(e => ({post: e.uri})),
-                cursor: newCursor
-            }
+                return {
+                    skeleton: edits.map(e => ({post: e.uri})),
+                    cursor: newCursor
+                }
+            }))
         }
     }
 
     return getFeed({ctx, agent, pipeline, cursor})
+        .pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el muro.")))
 }

@@ -28,7 +28,8 @@ export const ConfirmModal = ({
         onClose={() => {
             onClose()
         }}
-        className={"z-[1600]"}
+        fullscreenOnMobile={false}
+        className={"z-[1600] min-[340px]:min-w-[340px]"}
     >
         <div className={"px-8 pb-4 space-y-4"}>
             <div className={"space-y-2"}>

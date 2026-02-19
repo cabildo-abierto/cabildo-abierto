@@ -9,6 +9,7 @@ import {processEventsBatch} from "#/services/sync/event-processing/event-process
 import {LRUCache} from 'lru-cache'
 import {env} from "#/lib/env.js";
 import {updateTimestamp} from "#/services/admin/status.js";
+import {Effect} from "effect";
 
 function formatEventsPerSecond(events: number, elapsed: number) {
     return (events / (elapsed / 1000)).toFixed(2)
@@ -50,7 +51,7 @@ export class MirrorMachine {
     }
 
     async fetchUsers() {
-        const dids = await getCAUsersDids(this.ctx)
+        const dids = await Effect.runPromise(getCAUsersDids(this.ctx))
         let extendedUsers: string[] = []
         if (this.useExtended()) {
             extendedUsers = (await getCAUsersAndFollows(this.ctx)).map(x => x.did)
@@ -77,7 +78,9 @@ export class MirrorMachine {
 
             if (hadEvents) {
                 this.ctx.logger.pino.info("updating last mirror event timestamp")
-                await updateTimestamp(this.ctx, `last-mirror-event-${this.ctx.mirrorId}`, date)
+                await Effect.runPromise(
+                    updateTimestamp(this.ctx, `last-mirror-event-${this.ctx.mirrorId}`, date)
+                )
             }
         }
     }
@@ -178,7 +181,7 @@ export class MirrorMachine {
     }
 
     async processEvent(ctx: AppContext, e: JetstreamEvent, inCA: boolean) {
-        const mirrorStatus = await ctx.redisCache.mirrorStatus.get(e.did, inCA)
+        const mirrorStatus = await Effect.runPromise(ctx.redisCache.mirrorStatus.get(e.did, inCA))
 
         if (e.kind == "commit") {
             const uri = getUriFromCommitEvent(e)
@@ -193,7 +196,7 @@ export class MirrorMachine {
                 await processEventsBatch(ctx, [e])
             } catch (error) {
                 ctx.logger.pino.error({event: e, error}, "error processing event")
-                await ctx.redisCache.mirrorStatus.set(e.did, "Dirty", inCA)
+                await Effect.runPromise(ctx.redisCache.mirrorStatus.set(e.did, "Dirty", inCA))
             }
             const t2 = Date.now()
             ctx.logger.pino.info({
@@ -202,13 +205,13 @@ export class MirrorMachine {
                 `event processed`
             )
         } else if (mirrorStatus == "Dirty") {
-            await ctx.redisCache.mirrorStatus.set(e.did, "InProcess", inCA)
-            await ctx.worker?.addJob("sync-user", {
+            await Effect.runPromise(ctx.redisCache.mirrorStatus.set(e.did, "InProcess", inCA))
+            await Effect.runPromise(ctx.worker?.addJob("sync-user", {
                     handleOrDid: e.did,
                     collectionsMustUpdate: inCA ? undefined : ["app.bsky.graph.follow"]
                 },
                 inCA ? 5 : 15
-            )
+            ))
         } else if (mirrorStatus == "InProcess") {
             await addPendingEvent(ctx, e.did, e)
 
@@ -216,8 +219,8 @@ export class MirrorMachine {
             const last = this.lastRetry.get(e.did)
             if (!last || last.getTime() - Date.now() > 6 * 3600 * 1000) {
                 this.lastRetry.set(e.did, new Date())
-                await ctx.redisCache.mirrorStatus.set(e.did, "InProcess", inCA)
-                await ctx.worker?.addJob("sync-user", {handleOrDid: e.did})
+                await Effect.runPromise(ctx.redisCache.mirrorStatus.set(e.did, "InProcess", inCA))
+                await Effect.runPromise(ctx.worker?.addJob("sync-user", {handleOrDid: e.did}))
             }
         } else if (mirrorStatus == "Failed - Too Large") {
             this.tooLargeUsers.add(e.did)

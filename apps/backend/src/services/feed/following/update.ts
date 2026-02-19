@@ -1,6 +1,7 @@
 import {AppContext} from "#/setup.js";
 import {FeedIndexUpdater} from "#/services/feed/following/populate.js";
 import {getCAUsersDids} from "#/services/user/users.js";
+import {Effect} from "effect";
 
 
 export async function updateFollowingFeedOnFollowChange(ctx: AppContext, data: {follower: string, followed: string}[]) {
@@ -19,7 +20,7 @@ export async function updateFollowingFeedOnContentDelete(ctx: AppContext, rootUr
 
 export const updateAllFollowingFeeds = async (ctx: AppContext) => {
     const lastTwoMonths = new Date(Date.now() - 2*30*24*60*60*1000)
-    const dids = await getCAUsersDids(ctx)
+    const dids = await Effect.runPromise(getCAUsersDids(ctx))
     await new FeedIndexUpdater(ctx).populate(dids, lastTwoMonths)
 }
 

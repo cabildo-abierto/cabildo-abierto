@@ -73,6 +73,8 @@ export interface ArticleEmbedView {
     | $Typed<ArCabildoabiertoEmbedVisualization.Main>
     | $Typed<ArCabildoabiertoEmbedVisualization.View>
     | $Typed<AppBskyEmbedImages.View>
+    | $Typed<ArCabildoabiertoEmbedPoll.Main>
+    | $Typed<ArCabildoabiertoEmbedPoll.View>
     | { $type: string }
   index: number
 }

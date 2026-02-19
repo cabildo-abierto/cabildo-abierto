@@ -3,7 +3,7 @@ import {
     AppBskyFeedDefs,
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion, GetFeedOutput
+    ArCabildoabiertoWikiTopicVersion, GetFeedOutput, MainSearchOutput
 } from "@cabildo-abierto/api"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
@@ -41,24 +41,8 @@ import {InfiniteFeed} from "@/components/feed/types";
 //   [ok] si tiene quote: se lo elimina de quoted-by del quoteado
 
 
-export async function refetchQueries(qc: QueryClient, queries: string[][]) {
-    await qc.refetchQueries({
-        predicate: query => {
-            const res = queries.some(q => areArraysEqual(q, query.queryKey as string[]))
-            if(res) console.log("refetching", query.queryKey)
-            return res
-        }})
-}
-
 function isPrefix(a: string[], b: string[]) {
     return b.length >= a.length && areArraysEqual(a, b.slice(0, a.length))
-}
-
-export async function cancelQueries(qc: QueryClient, queries: string[][]) {
-    await qc.cancelQueries({
-        predicate: query => {
-            return queries.some(q => isPrefix(q, query.queryKey as string[]))
-        }})
 }
 
 
@@ -257,6 +241,22 @@ export function updateContentInQuery(queryKey: string[], qc: QueryClient, uri: s
         qc.setQueryData(k, old => {
             if(!old) return old
             return updatePostFeedElement(old as InfiniteFeed<ArCabildoabiertoFeedDefs.PostView>, uri, updater)
+        })
+    } else if(k[0] == "search") {
+        qc.setQueryData(k, old => {
+            if(!old) return old
+            const value = old as {data?: MainSearchOutput}
+            if(!value) return old
+            if(value.data.kind != "Usuarios"){
+                return {
+                    data: {
+                        kind: value.data.kind,
+                        value: updateElementInGetFeedOutput(value.data.value, uri, updater)
+                    }
+                }
+            } else {
+                return old
+            }
         })
     }
 }

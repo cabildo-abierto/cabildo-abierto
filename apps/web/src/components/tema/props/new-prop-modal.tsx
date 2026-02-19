@@ -7,7 +7,6 @@ import Link from "next/link";
 import {topicUrl} from "@/components/utils/react/url";
 import {BaseTextFieldWithSuggestions} from "@/components/utils/base/base-text-field-with-suggestions";
 import {useAPI} from "@/components/utils/react/queries";
-import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {BaseSelect} from "@/components/utils/base/base-select";
 import { Note } from "@/components/utils/base/note";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
@@ -67,11 +66,9 @@ export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
         open={open}
         onClose={cleanAndClose}
         closeButton={true}
+        fullscreenOnMobile={false}
     >
-        {isLoading && <div className={"my-16"}>
-            <LoadingSpinner/>
-        </div>}
-        {!isLoading && <div className={"px-6 pb-6 space-y-4 flex flex-col max-w-[360px]"}>
+        <div className={"px-6 pb-6 space-y-4 flex flex-col w-screen min-[360px]:w-[360px]"}>
             <h3 className={"font-semibold uppercase text-sm"}>
                 Nueva propiedad
             </h3>
@@ -86,7 +83,7 @@ export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
             </Link>
             </Note>
             <BaseTextFieldWithSuggestions
-                options={knownProps.map(c => c.name)}
+                options={!isLoading ? knownProps.map(c => c.name) : []}
                 value={name}
                 onChange={(e) => {
                     if (knownProps) {
@@ -133,6 +130,6 @@ export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
                     Aceptar
                 </BaseButton>
             </div>
-        </div>}
+        </div>
     </BaseFullscreenPopup>
 }

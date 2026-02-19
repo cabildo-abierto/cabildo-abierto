@@ -1,17 +1,17 @@
 import React from "react";
-import {useLayoutConfig} from "../layout-config-context";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
 
 
 export const OpenSidebarButton = () => {
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {layoutState, setLayoutState} = useLayoutState()
 
     return <BaseIconButton
         size={"large"}
         onClick={() => {
-            setLayoutConfig({
-                ...layoutConfig,
-                openSidebar: !layoutConfig.openSidebar
+            setLayoutState({
+                ...layoutState,
+                openSidebar: !layoutState.openSidebar
             })
         }}
         className={"p-[5px]"}

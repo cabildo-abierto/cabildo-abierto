@@ -4,7 +4,6 @@ import {
     isDataset,
     isPost,
     isTopicVersion,
-    isVisualization,
     splitUri
 } from "@cabildo-abierto/utils"
 
@@ -75,9 +74,6 @@ export function threadApiUrl(uri: string) {
 }
 
 
-export type ArticleKind = "none" | "author" | "not-author"
-
-
 
 export function collectionToShortCollection(collection: string) {
     if (isPost(collection)) {
@@ -93,25 +89,3 @@ export function collectionToShortCollection(collection: string) {
 }
 
 
-export function collectionToDisplay(c: string, article: ArticleKind = "none", topicId?: string){
-    const masc = isArticle(c) || isDataset(c)
-    let artStr: string
-    if(article == "none") artStr = ""
-    else if(article == "author") artStr = "tu "
-    else if(article == "not-author") artStr = masc ? "un " : "una "
-    else {
-        throw Error("Invalid article kind: " + article)
-    }
-
-    if(isPost(c)){
-        return artStr + (artStr ? "publicación" : "Publicación")
-    } else if (isArticle(c)){
-        return artStr + (artStr ? "artículo" : "Artículo")
-    } else if (isTopicVersion(c)){
-        return artStr + `versión ${topicId ? `del tema ${topicId}` : "de un tema"}`
-    } else if (isDataset(c)){
-        return artStr + (artStr ? "conjunto de datos" : "Conjunto de datos")
-    } else if (isVisualization(c)){
-        return artStr + (artStr ? "visualización" : "Visualización")
-    }
-}

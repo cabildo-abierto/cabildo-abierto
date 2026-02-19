@@ -11,6 +11,7 @@ export const DeleteAccountButton = () => {
 
     return <div>
         <BaseButton
+            size={"small"}
             startIcon={<TrashIcon/>}
             onClick={() => {setDeletingAccount(true)}}
             variant={"outlined"}

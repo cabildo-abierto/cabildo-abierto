@@ -14,9 +14,10 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useEffect, useRef, useState} from 'react';
-import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 import {smoothScrollTo} from "@/components/utils/react/scroll";
 import {cn} from "@/lib/utils";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 const HEADING_WIDTH = 30;
@@ -46,7 +47,7 @@ function TableOfContentsList({
     title?: string
     marginAboveEditor: number
 }) {
-    const {layoutConfig} = useLayoutConfig()
+    const {layoutState} = useLayoutState()
     const [selectedKey, setSelectedKey] = useState<string | null>('');
     const selectedIndex = useRef(0);
     const [editor] = useLexicalComposerContext()
@@ -54,7 +55,7 @@ function TableOfContentsList({
     const itemRefs = useRef<{[key: string]: HTMLDivElement | null}>({})
     const [hovered, setHovered] = useState(false)
 
-    const open = hovered && !layoutConfig.openSidebar
+    const open = hovered && !layoutState.openSidebar
 
     useEffect(() => {
         if (selectedKey && scrollContainerRef.current && itemRefs.current[selectedKey]) {
@@ -183,7 +184,7 @@ function TableOfContentsList({
         return () => document.removeEventListener('scroll', onScroll)
     }, [tableOfContents, editor])
 
-    if(layoutConfig.openSidebar) return null
+    if(layoutState.openSidebar) return null
 
     return <div
         onMouseEnter={() => {setHovered(true)}}
@@ -243,7 +244,7 @@ export default function TableOfContentsPlugin({title, marginAboveEditor}: {
     title?: string
     marginAboveEditor: number
 }) {
-    const {isMobile} = useLayoutConfig()
+    const {isMobile} = useIsMobile()
 
     if (isMobile) {
         return <></>

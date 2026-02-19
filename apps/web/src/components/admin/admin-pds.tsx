@@ -21,9 +21,9 @@ export const AdminPDS = () => {
     const [counts, setCounts] = useState<UserRepoCounts>(undefined)
 
     async function readRepo() {
-        const {data, error} = await get<UserRepoCounts>(`/repo/${handleOrDid}`)
-        if (error) return {error}
-        setCounts(data)
+        const res = await get<UserRepoCounts>(`/repo/${handleOrDid}`)
+        if (res.success === false) return {error: res.error}
+        setCounts(res.value)
         return {}
     }
 

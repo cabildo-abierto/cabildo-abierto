@@ -6,9 +6,9 @@ import {useSession} from "@/components/auth/use-session";
 
 
 const LoadingPage= ({children}: {children: ReactNode}) => {
-    const {isLoading, data} = useSession()
+    const {isLoading, user} = useSession()
 
-    if(isLoading && !data) {
+    if(isLoading && !user) {
         return <LoadingScreen/>
     }
 

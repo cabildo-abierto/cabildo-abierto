@@ -1,15 +1,19 @@
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getNodeByKey} from "lexical";
-import {AppBskyEmbedImages} from "@atproto/api"
-import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
+import {$Typed, AppBskyEmbedImages} from "@atproto/api"
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
 import {$isEmbedNode, EmbedSpec} from "./EmbedNode";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
 import dynamic from "next/dynamic";
+import {PollFromId} from "@/components/writing/poll/poll-from-id";
+import {useContentContext} from "@/components/layout/contexts/content-context";
+import {Poll} from "@/components/writing/poll/poll";
+import {getPollId} from "@cabildo-abierto/utils";
+
 const PlotFromVisualizationMain = dynamic(
     () => import("@/components/visualizations/editor/plot-from-visualization-main"), {
     ssr: false
 })
-
 
 
 export const EmbedNodeComp = ({
@@ -20,17 +24,22 @@ export const EmbedNodeComp = ({
     nodeKey: string
 }) => {
     const [editor] = useLexicalComposerContext()
+    const {contentRef} = useContentContext()
 
     const editable = editor.isEditable()
 
-    const onEdit = (v: ArCabildoabiertoEmbedVisualization.Main) => {
+    const onDelete = editable ? () => {
+        editor.update(() => {
+            const n = $getNodeByKey(nodeKey)
+            n.remove()
+        })
+    } : null
+
+    const onEdit = (v: $Typed<ArCabildoabiertoEmbedVisualization.Main> | $Typed<ArCabildoabiertoEmbedPoll.View>) => {
         editor.update(() => {
             const n = $getNodeByKey(nodeKey)
             if($isEmbedNode(n)){
-                n.setSpec({
-                    ...v,
-                    $type: "ar.cabildoabierto.embed.visualization",
-                })
+                n.setSpec(v)
             }
         })
     }
@@ -40,12 +49,7 @@ export const EmbedNodeComp = ({
             <PlotFromVisualizationMain
                 visualization={embed}
                 onEdit={editable ? onEdit : undefined}
-                onDelete={editable ? () => {
-                    editor.update(() => {
-                        const n = $getNodeByKey(nodeKey)
-                        n.remove()
-                    })
-                } : null}
+                onDelete={onDelete}
             />
         </div>
     } else if(AppBskyEmbedImages.isView(embed)){
@@ -53,6 +57,22 @@ export const EmbedNodeComp = ({
             embed={embed}
             mainPostRef={null}
             onArticle={true}
+        />
+    } else if(ArCabildoabiertoEmbedPoll.isView(embed) || ArCabildoabiertoEmbedPoll.isMain(embed)) {
+        if(embed.key == "unpublished") {
+            if(ArCabildoabiertoEmbedPoll.isView(embed)) {
+                return <Poll
+                    poll={embed}
+                    onEdit={editable ? onEdit : undefined}
+                />
+            }
+        }
+        const pollId = getPollId(embed.key, contentRef)
+
+        return <PollFromId
+            pollId={pollId}
+            onDelete={onDelete}
+            onEdit={editable ? onEdit : undefined}
         />
     }
 }

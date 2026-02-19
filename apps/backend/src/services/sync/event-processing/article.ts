@@ -1,19 +1,50 @@
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
 import {isSelfLabels} from "@atproto/api/dist/client/types/com/atproto/label/defs.js";
-import {getDidFromUri} from "@cabildo-abierto/utils";
+import {getDidFromUri, unique} from "@cabildo-abierto/utils";
 import {SyncContentProps} from "#/services/sync/types.js";
-import {ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
-import {unique} from "@cabildo-abierto/utils";
+import {Effect} from "effect";
+import {JobToAdd} from "#/jobs/worker.js";
+import {getPollKey} from "#/services/write/topic.js";
+import {ValidationResult} from "@atproto/lexicon";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
+
+
+
 
 
 export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeedArticle.Record> {
 
-    validateRecord = ArCabildoabiertoFeedArticle.validateRecord
+    validateRecord(record: ArCabildoabiertoFeedArticle.Record) {
+        return Effect.gen(function* () {
+            const res = ArCabildoabiertoFeedArticle.validateRecord(record)
+            if(!res.success) {
+                return yield* Effect.succeed(res)
+            } else {
+                if(res.value.embeds) {
+                    const polls = res.value.embeds
+                        .map(e => e.value)
+                        .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
+                    for(const p of polls) {
+                        const key = yield* getPollKey(p.poll)
+                        if(key != p.key) {
+                            const error: ValidationResult<ArCabildoabiertoFeedArticle.Record> = {
+                                success: false,
+                                error: new Error("Invalid poll.")
+                            }
+                            return yield* Effect.succeed(error)
+                        }
+                    }
+                }
+                return yield* Effect.succeed(res)
+            }
+        })
+    }
 
-    async addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoFeedArticle.Record}[], reprocess: boolean = false) {
+    addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoFeedArticle.Record}[], reprocess: boolean = false) {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -34,9 +65,10 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
             description: r.record.description
         }))
 
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+        let jobs: JobToAdd[] = []
+        const insertArticle = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
-            await processContentsBatch(this.ctx, trx, contents)
+            jobs.push(...await processContentsBatch(this.ctx, trx, contents))
 
             await trx
                 .insertInto("Article")
@@ -52,19 +84,48 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
         })
 
         const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
-        if(!reprocess) await Promise.all([
-            this.ctx.worker?.addJob("update-author-status", authors, 11),
-            this.ctx.worker?.addJob("update-following-feed-on-new-content",  records.map(r => r.ref.uri)),
-            this.ctx.worker?.addJob("update-contents-topic-mentions", records.map(r => r.ref.uri), 11),
-            this.ctx.worker?.addJob("update-interactions-score", records.map(r => r.ref.uri), 11)
-        ])
+
+        jobs.push(
+            {
+                label: "update-author-status",
+                data: authors,
+                priority: 11
+            },
+            {
+                label: "update-following-feed-on-new-content",
+                data: records.map(r => r.ref.uri)
+            },
+            {
+                label: "update-contents-topic-mentions",
+                data: records.map(r => r.ref.uri),
+                priority: 11
+            },
+            {
+                label: "update-interactions-score",
+                data: records.map(r => r.ref.uri),
+                priority: 11
+            }
+        )
+
+        const addJobs = this.ctx.worker?.addJobs(jobs)
+
+        return Effect.gen(function*() {
+            yield* Effect.tryPromise({
+                try: () => insertArticle,
+                catch: () => new InsertRecordError()
+            })
+
+            if(!reprocess) yield* addJobs
+
+            return records.length
+        })
     }
 }
 
 
-export class ArticleDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]){
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+export const articleDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
             await trx
                 .deleteFrom("Notification")
                 .where("Notification.causedByRecordId", "in", uris)
@@ -124,7 +185,10 @@ export class ArticleDeleteProcessor extends DeleteProcessor {
                 .deleteFrom("Record")
                 .where("Record.uri", "in", uris)
                 .execute()
-        })
-        await this.ctx.worker?.addJob("update-contents-topic-mentions", uris)
+        }),
+        catch: error => new DBDeleteError(error)
+    })
+    if(ctx.worker) {
+        yield* ctx.worker.addJob("update-contents-topic-mentions", uris)
     }
-}
+})

@@ -3,14 +3,16 @@ import {CustomLink as Link} from "@/components/utils/base/custom-link"
 import {useNextMeeting} from "@/queries/getters/useNextMeeting";
 import {useLayoutConfig} from "../layout-config-context";
 import {formatIsoDate} from "@cabildo-abierto/utils";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
 
 
 const NextMeetingInvite = () => {
     const {layoutConfig} = useLayoutConfig()
+    const {layoutState} = useLayoutState()
     const {data: meetingData} = useNextMeeting()
 
     if (!layoutConfig.spaceForRightSide) {
-        if (layoutConfig.openSidebar && meetingData && meetingData.show) {
+        if (layoutState.openSidebar && meetingData && meetingData.show) {
             return <div className={"bg-[var(--background-dark2)] mb-2 border rounded-lg p-2 text-xs"}>
                 <div className={"font-semibold"}>
                     {meetingData.title}

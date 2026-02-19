@@ -93,13 +93,13 @@ const ValidationRequest = ({request}: { request: ValidationRequestView }) => {
     const [dni, setDni] = useState<number | undefined>(undefined)
 
     async function onSubmit() {
-        const {error} = await post<ValidationRequestResultProps, {}>("/validation-request/result", {
+        const res = await post<ValidationRequestResultProps, {}>("/validation-request/result", {
             id: request.id,
             result,
             reason,
             dni
         })
-        return {error}
+        return {error: res.success === false ? res.error : undefined}
     }
 
     return <div className={"space-y-4"}>

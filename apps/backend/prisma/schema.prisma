@@ -92,12 +92,25 @@ model Content {
 
   caModeration ContentModerationStatus @default(Ok)
 
+  searchableContent SearchableContent?
+
   @@index([text_tsv], map: "content_text_fts_idx", type: Gin)
   @@index([created_at(sort: Desc)])
   @@index([created_at_tz(sort: Desc)])
   @@index([interactionsScore(sort: Desc), created_at(sort: Desc)])
   @@index([likesScore(sort: Desc), created_at(sort: Desc)])
   @@index([relativePopularityScore(sort: Desc), created_at(sort: Desc)])
+}
+
+model SearchableContent {
+  uri        String   @id
+  content    Content  @relation(fields: [uri], references: [uri], onDelete: Cascade)
+  text       String
+  collection String
+  created_at DateTime @db.Timestamptz(3)
+
+  @@index([collection, created_at(desc)])
+  @@index([created_at(desc)])
 }
 
 model DataBlock {
@@ -171,6 +184,7 @@ model HasReacted {
 
   @@unique([userId, recordId, reactionType])
   @@index([recordId])
+  @@index([reactionType, recordId, userId])
 }
 
 model InviteCode {
@@ -322,28 +336,34 @@ model Record {
 
   editedAt DateTime? @db.Timestamptz(3)
 
-  quotesCount                         Int                @default(0)
+  quotesCount                         Int            @default(0)
   Content                             Content?
   Dataset                             Dataset?
   Follow                              Follow?
   HasReacted                          HasReacted[]
   Notification                        Notification[]
-  Post_Post_quoteToIdToRecord         Post[]             @relation("Post_quoteToIdToRecord")
-  Post_Post_replyToIdToRecord         Post[]             @relation("Post_replyToIdToRecord")
-  Post_Post_rootIdToRecord            Post[]             @relation("Post_rootIdToRecord")
-  Reaction_Reaction_subjectIdToRecord Reaction[]         @relation("Reaction_subjectIdToRecord")
-  Reaction_Reaction_uriToRecord       Reaction?          @relation("Reaction_uriToRecord")
-  User_Record_authorIdToUser          User               @relation("Record_authorIdToUser", fields: [authorId], references: [did])
-  Record                              Record             @relation("RecordToRecord", fields: [uri], references: [uri])
-  other_Record                        Record?            @relation("RecordToRecord")
-  TopicInteraction                    TopicInteraction[]
-  User_User_CAProfileUriToRecord      User?              @relation("User_CAProfileUriToRecord")
+  Post_Post_quoteToIdToRecord         Post[]         @relation("Post_quoteToIdToRecord")
+  Post_Post_replyToIdToRecord         Post[]         @relation("Post_replyToIdToRecord")
+  Post_Post_rootIdToRecord            Post[]         @relation("Post_rootIdToRecord")
+  Reaction_Reaction_subjectIdToRecord Reaction[]     @relation("Reaction_subjectIdToRecord")
+  Reaction_Reaction_uriToRecord       Reaction?      @relation("Reaction_uriToRecord")
+  User_Record_authorIdToUser          User           @relation("Record_authorIdToUser", fields: [authorId], references: [did])
+
+  // T: no sé qué es esto, habría que borrarlo
+  Record       Record  @relation("RecordToRecord", fields: [uri], references: [uri])
+  other_Record Record? @relation("RecordToRecord")
+
+  TopicInteraction               TopicInteraction[]
+  User_User_CAProfileUriToRecord User?              @relation("User_CAProfileUriToRecord")
 
   followingFeedEntries    FollowingFeedIndex[]
   repliesInFollowingFeed  FollowingFeedIndex[] @relation("root")
   repostedInFollowingFeed FollowingFeedIndex[] @relation("repostInFollowingFeed")
 
   moderationProcesses RecordModerationProcess[]
+
+  pollVote PollVote?
+  polls    Poll[]
 
   @@index([authorId, collection, created_at(sort: Desc)])
   @@index([authorId, created_at(sort: Desc)])
@@ -396,6 +416,8 @@ model Topic {
   TopicToCategory                                   TopicToCategory[]
   TopicVersion_TopicVersion_topicIdToTopic          TopicVersion[]    @relation("TopicVersion_topicIdToTopic")
   synonyms                                          String[]
+
+  polls Poll[]
 
   @@index([lastEdit_tz(sort: Desc)])
   @@index([popularityScoreLastDay(sort: Desc), lastEdit_tz(sort: Desc)])
@@ -510,6 +532,7 @@ model FollowingFeedIndex {
   @@index([readerId, rootId, created_at(sort: Desc)])
   @@index([authorId])
   @@index([readerId, created_at(sort: Desc)])
+  @@index([repostedContentId]) // para borrar records más eficientemente
 }
 
 model DiscoverFeedIndex {
@@ -527,6 +550,7 @@ model User {
   did                                           String                   @id @db.VarChar(255)
   handle                                        String?
   email                                         String?
+  emailVerified                                 Boolean                  @default(false)
   mailingListSubs                               MailingListSubscription?
   created_at                                    DateTime                 @default(now())
   created_at_tz                                 DateTime?                @db.Timestamptz(3)
@@ -789,6 +813,33 @@ model RecordModerationProcess {
   processedById String?
   processedBy   User?                    @relation(fields: [processedById], references: [did])
   method        ModerationMethod?
+
+  @@index([recordId])
+  @@index([processedById])
+}
+
+// una poll existe mientras haya al menos un embed o voto en el protocolo que la referencie
+model Poll {
+  id             String   @id
+  description    String?
+  choices        String[]
+  createdAt      DateTime @db.Timestamptz(3)
+  topicId        String?
+  topic          Topic?   @relation(fields: [topicId], references: [id])
+  parentRecordId String?
+  parentRecord   Record?  @relation(fields: [parentRecordId], references: [uri])
+
+  votes PollVote[]
+}
+
+model PollVote {
+  uri    String @id
+  record Record @relation(fields: [uri], references: [uri])
+
+  pollId String?
+  poll   Poll?   @relation(fields: [pollId], references: [id])
+
+  choice String
 }
 
 enum ModerationMethod {

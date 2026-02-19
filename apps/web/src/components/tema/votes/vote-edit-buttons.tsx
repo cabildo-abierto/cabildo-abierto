@@ -18,10 +18,10 @@ import {BaseButtonProps} from "@/components/utils/base/base-button";
 
 
 // TO DO: Si votó reject advertir que lo va a eliminar
-async function acceptEdit(ref: ATProtoStrongRef) {
+async function acceptEdit({ref, force}: {ref: ATProtoStrongRef, force: boolean}) {
     return await post<{}, {
         uri: string
-    }>(`/vote-edit/accept/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`)
+    }>(`/vote-edit/accept/${getDidFromUri(ref.uri)}/${getRkeyFromUri(ref.uri)}/${ref.cid}`, {force})
 }
 
 
@@ -234,18 +234,27 @@ export const VoteEditButtons = ({
     const {user} = useSession()
     const {setLoginModalOpen} = useLoginModal()
     const {addError} = useErrors()
-    const [openConfirmDeleteVote, setOpenConfirmDeleteVote] = useState<boolean>(false)
+    const [openConfirmDeleteVote, setOpenConfirmDeleteVote] = useState<null | "cancel-reject" | "accept">(null)
 
     const acceptEditMutation = useMutation({
         mutationFn: acceptEdit,
         onMutate: () => {
-            optimisticAcceptVote(qc, topicId, versionRef.uri, user)
+            if(rejectUri == null) {
+                optimisticAcceptVote(qc, topicId, versionRef.uri, user)
+            }
         },
         onSuccess: (data) => {
-            if (data.data.uri) {
-                setCreatedAcceptVote(qc, topicId, versionRef.uri, data.data.uri)
+            if (data.success === true) {
+                setCreatedAcceptVote(qc, topicId, versionRef.uri, data.value.uri)
                 invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
+            } else if(data.error && data.error.includes("eliminaría la justificación")) {
+                setOpenConfirmDeleteVote("accept")
+            } else if(data.error) {
+                addError(data.error)
             }
+        },
+        onError: (err) => {
+            console.log("accept edit error", err)
         }
     })
 
@@ -264,9 +273,9 @@ export const VoteEditButtons = ({
         onMutate: () => {
         },
         onSuccess: async (data) => {
-            if (data.error) {
-                if (data.error.includes("borraría la justificación")) {
-                    setOpenConfirmDeleteVote(true)
+            if (data.success === false) {
+                if (data.error.includes("eliminaría la justificación")) {
+                    setOpenConfirmDeleteVote("cancel-reject")
                 } else {
                     addError(data.error)
                 }
@@ -277,11 +286,11 @@ export const VoteEditButtons = ({
         }
     })
 
-    async function onAcceptEdit() {
+    async function onAcceptEdit(force: boolean = false) {
         if (!user) {
             setLoginModalOpen(true)
         } else {
-            acceptEditMutation.mutate(versionRef)
+            acceptEditMutation.mutate({ref: versionRef, force})
         }
         return {}
     }
@@ -339,11 +348,16 @@ export const VoteEditButtons = ({
         />}
         {user && openConfirmDeleteVote && <ConfirmDeleteVoteModal
             onConfirm={async () => {
-                const res = await cancelRejectEditMutation.mutateAsync({voteUri: rejectUri, force: true})
-                return {error: res.error}
+                if(openConfirmDeleteVote == "cancel-reject") {
+                    const res = await cancelRejectEditMutation.mutateAsync({voteUri: rejectUri, force: true})
+                    return {error: res.success === false ? res.error : undefined}
+                } else {
+                    const res = await acceptEditMutation.mutateAsync({ref: versionRef, force: true})
+                    return {error: res.success === false ? res.error : undefined}
+                }
             }}
             onClose={() => {
-                setOpenConfirmDeleteVote(false)
+                setOpenConfirmDeleteVote(null)
             }}
         />}
     </div>

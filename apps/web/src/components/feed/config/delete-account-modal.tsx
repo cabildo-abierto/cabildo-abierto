@@ -4,6 +4,8 @@ import {useState} from "react";
 import { BaseTextField } from "@/components/utils/base/base-text-field";
 import {useLogout} from "@/components/auth/logout";
 import {post} from "@/components/utils/react/fetch";
+import {cn} from "@/lib/utils";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 const DeleteAccountModal = ({
@@ -15,10 +17,11 @@ const DeleteAccountModal = ({
 }) => {
     const [text, setText] = useState("")
     const {logout} = useLogout()
+    const {isMobile} = useIsMobile()
 
     async function onClick() {
-        const {error} = await post<{}, {}>("/delete-ca-profile", {})
-        if (error) return {error}
+        const res = await post<{}, {}>("/delete-ca-profile", {})
+        if (res.success === false) return {error: res.error}
         return await logout()
     }
 
@@ -27,7 +30,7 @@ const DeleteAccountModal = ({
         onClose={onClose}
         closeButton={true}
     >
-        <div className={"pb-4 flex flex-col items-center w-[400px] text-[var(--text-light)] px-8 space-y-4"}>
+        <div className={cn("pb-4 flex flex-col items-center text-[var(--text-light)] px-8 space-y-4", !isMobile && "w-[400px]")}>
             <h3>
                 Borrar cuenta
             </h3>

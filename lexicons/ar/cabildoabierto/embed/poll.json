@@ -4,11 +4,24 @@
   "defs": {
     "main": {
       "type": "object",
-      "required": ["id","choices"],
+      "required": ["key", "poll"],
       "properties": {
-        "id" : {
-          "type":  "string"
+        "key": {
+          "type": "string",
+          "description": "Unique identifier of the poll within its container, obtained as a hash of the poll object."
         },
+        "poll": {
+          "type": "ref",
+          "ref": "#poll"
+        }
+      }
+    },
+    "poll": {
+      "type": "object",
+      "required": [
+        "choices"
+      ],
+      "properties": {
         "description": {
           "type": "string"
         },
@@ -23,12 +36,54 @@
     },
     "pollChoice": {
       "type": "object",
-      "required": ["label","votes"],
+      "required": [
+        "label"
+      ],
       "properties": {
-        "label": {"type": "string"},
-        "votes": {"type": "integer"}
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": [
+        "key",
+        "poll",
+        "votes"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "poll": {
+          "type": "ref",
+          "ref": "#poll"
+        },
+        "viewer": {
+          "type": "ref",
+          "ref": "#pollViewer"
+        },
+        "votes": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "pollViewer": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "choice": {
+          "type": "string"
+        },
+        "voteUri": {
+          "type": "string",
+          "format": "uri"
+        }
       }
     }
   }
-
 }

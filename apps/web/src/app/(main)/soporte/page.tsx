@@ -23,13 +23,13 @@ const Page = () => {
                 router.push(chatUrl(conversations[idx].id))
             }
         } else {
-            const {data, error} = await post<{}, {convoId: string}>(`/conversation/create/${cabildoDid}`)
-            if(data){
-                router.push(chatUrl(data.convoId))
+            const res = await post<{}, {convoId: string}>(`/conversation/create/${cabildoDid}`)
+            if(res.success === true){
+                router.push(chatUrl(res.value.convoId))
             } else {
                 setStartingConv(false)
+                return {error: res.error}
             }
-            if(error) return {error}
         }
 
     }

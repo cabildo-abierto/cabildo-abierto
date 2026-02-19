@@ -16,11 +16,11 @@ async function searchTopicFeeds(query: string, categories: string[]) {
     const route = setSearchParams("/topic-feeds", {q: query.length > 0 ? query : undefined, c: categories})
     const res = await get<FeedView[]>(route)
 
-    if (res.data == null) {
+    if (res.success === false) {
         throw Error("Error al obtener los muros de temas.")
     }
 
-    return res.data
+    return res.value
 }
 
 

@@ -126,6 +126,7 @@ export const DatasetTableView = ({
     return <div
         className={"border border-[var(--accent-dark)] mb-4 custom-scrollbar overflow-x-auto overflow-y-auto text-sm grow "}
         style={{maxHeight, maxWidth}}
+        onWheel={(e) => {e.stopPropagation()}}
     >
         <div className={"flex justify-between pr-2 space-x-2 items-center"}>
             <div className={"w-64 p-1"}>

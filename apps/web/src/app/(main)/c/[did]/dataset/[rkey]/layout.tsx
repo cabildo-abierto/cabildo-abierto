@@ -11,9 +11,9 @@ export async function generateMetadata(
     const {did, rkey} = await params
     const collection = "ar.cabildoabierto.data.dataset"
     const route = `/content-metadata/${decodeURIComponent(did)}/${shortCollectionToCollection(collection)}/${rkey}`
-    const {data} = await get<MetadataParams>(route)
-    if(data){
-        return createMetadata(data)
+    const res = await get<MetadataParams>(route)
+    if(res.success === true){
+        return createMetadata(res.value)
     } else {
         return mainMetadata
     }

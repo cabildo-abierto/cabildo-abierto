@@ -1,19 +1,31 @@
 import {AppContext} from "#/setup.js";
 import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
 import {unique} from "@cabildo-abierto/utils";
-import {Dataplane, joinMaps} from "#/services/hydration/dataplane.js";
+import {
+    DataPlane,
+    FetchFromBskyError,
+    joinMapsInPlace,
+    makeDataPlane
+} from "#/services/hydration/dataplane.js";
 import {Agent, SessionAgent} from "#/utils/session-agent.js";
 import * as Effect from "effect/Effect";
-import {pipe} from "effect";
 import {
     ArCabildoabiertoActorDefs
 } from "@cabildo-abierto/api"
-import {unfollow} from "#/services/user/users.js";
+import {HandleResolutionError, unfollow} from "#/services/user/users.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {handleOrDidToDid} from "#/id-resolver.js";
+import {DBSelectError} from "#/utils/errors.js";
+import {$Typed, AppBskyActorDefs} from "@atproto/api";
+import {ATDeleteRecordError} from "#/services/delete.js";
+import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
 
-async function getFollowxFromCA(ctx: AppContext, did: string, data: Dataplane, kind: "follows" | "followers") {
+async function getFollowxFromCA(
+    ctx: AppContext,
+    did: string,
+    kind: "follows" | "followers"
+) {
     const dids = kind == "follows" ?
         await getCAFollowsDids(ctx, did) :
         await getCAFollowersDids(ctx, did)
@@ -22,87 +34,105 @@ async function getFollowxFromCA(ctx: AppContext, did: string, data: Dataplane, k
 }
 
 
-async function getFollowxFromBsky(agent: Agent, did: string, data: Dataplane, kind: "follows" | "followers") {
-    const users = kind == "follows" ?
-        (await agent.bsky.app.bsky.graph.getFollows({actor: did})).data.follows :
-        (await agent.bsky.app.bsky.graph.getFollowers({actor: did})).data.followers
+const getFollowxFromBsky = (
+    agent: Agent,
+    did: string,
+    kind: "follows" | "followers"
+): Effect.Effect<string[], FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    const users = yield* Effect.tryPromise({
+        try: async () => kind == "follows" ?
+            (await agent.bsky.app.bsky.graph.getFollows({actor: did})).data.follows :
+            (await agent.bsky.app.bsky.graph.getFollowers({actor: did})).data.followers,
+        catch: () => new FetchFromBskyError()
+    })
 
-    data.bskyBasicUsers = joinMaps(data.bskyBasicUsers,
-        new Map(users.map(u => [u.did, {
-            ...u,
-            $type: "app.bsky.actor.defs#profileViewBasic"
-        }])))
+    const data = (yield* DataPlane).getState()
+
+    const profiles: Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>> = new Map(users.map(u => [u.did, {
+        ...u,
+        $type: "app.bsky.actor.defs#profileViewBasic"
+    }]))
+    joinMapsInPlace(
+        data.bskyBasicUsers,
+        profiles
+    )
     return users.map(u => u.did)
-}
+})
 
 
-export const getFollowx = (ctx: AppContext, agent: Agent, {handleOrDid, kind}: {
+export const getFollowx = (
+    ctx: AppContext,
+    agent: Agent,
+    {handleOrDid, kind}: {
     handleOrDid: string,
     kind: "follows" | "followers"
-}): Effect.Effect<ArCabildoabiertoActorDefs.ProfileViewBasic[], string> => {
-    const data = new Dataplane(ctx, agent)
+}): Effect.Effect<ArCabildoabiertoActorDefs.ProfileViewBasic[], DBSelectError | FetchFromBskyError | HandleResolutionError, DataPlane> => Effect.gen(function* () {
+    const data = yield* DataPlane
 
-    return pipe(
-        handleOrDidToDid(ctx, handleOrDid),
-        Effect.flatMap(did => {
-            return Effect.all([
-                Effect.promise(() => getFollowxFromCA(ctx, did, data, kind)),
-                Effect.promise(() => getFollowxFromBsky(agent, did, data, kind))
-            ])
-        }),
-        Effect.map(([caUsers, bskyUsers]) => {
-            return unique([...caUsers, ...bskyUsers])
-        }),
-        Effect.tap(userList => {
-            return Effect.promise(() => data.fetchProfileViewHydrationData(userList))
-        }),
-        Effect.flatMap(userList => {
-            return Effect.succeed(userList.map(u => hydrateProfileViewBasic(ctx, u, data)).filter(u => u != null))
-        }),
-        Effect.catchAll(error => {
-            return Effect.fail("Usuario no encontrado.")
-        })
-    )
+    const did = yield* handleOrDidToDid(ctx, handleOrDid)
 
-}
+    const [caUsers, bskyUsers] = yield* Effect.all([
+        Effect.promise(() => getFollowxFromCA(ctx, did, kind)),
+        getFollowxFromBsky(agent, did, kind)
+    ], {concurrency: "unbounded"})
+
+    const userList = unique([...caUsers, ...bskyUsers])
+
+    yield* data.fetchProfileViewHydrationData(userList)
+
+    const users = yield* Effect.all(userList.map(u => hydrateProfileViewBasic(ctx, u)))
+
+    return users.filter(u => u != null)
+})
 
 
-export const getFollows: EffHandlerNoAuth<{
+export const getFollowsHandler: EffHandlerNoAuth<{
     params: { handleOrDid: string }
 }, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = (ctx, agent, {params}) => {
-    return getFollowx(ctx, agent, {handleOrDid: params.handleOrDid, kind: "follows"})
+    return Effect.provideServiceEffect(
+        getFollowx(ctx, agent, {handleOrDid: params.handleOrDid, kind: "follows"}).pipe(
+            Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los usuarios."))
+        ),
+        DataPlane,
+        makeDataPlane(ctx, agent)
+    )
 }
 
 
 export const getFollowers: EffHandlerNoAuth<{
     params: { handleOrDid: string }
 }, ArCabildoabiertoActorDefs.ProfileViewBasic[]> = (ctx, agent, {params}) => {
-    return getFollowx(ctx, agent, {handleOrDid: params.handleOrDid, kind: "followers"})
+    return Effect.provideServiceEffect(
+        getFollowx(ctx, agent, {handleOrDid: params.handleOrDid, kind: "followers"}).pipe(
+            Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los usuarios."))
+        ),
+        DataPlane,
+        makeDataPlane(ctx, agent)
+    )
 }
 
 
-export const clearFollows = (ctx: AppContext, agent: SessionAgent): Effect.Effect<void, string> => {
+export const maybeClearFollows = (ctx: AppContext, agent: SessionAgent): Effect.Effect<void, FetchFromBskyError | ATDeleteRecordError | ProcessDeleteError> => {
     const bskyDid = "did:plc:z72i7hdynmk6r22z27h6tvur"
 
-    return getFollows(ctx, agent, {params: {handleOrDid: agent.did}}).pipe(
-        Effect.flatMap(follows => Effect.tryPromise({
-            try: async () => {
+    return Effect.tryPromise({
+        try: () => agent.bsky.app.bsky.graph.getFollows({actor: agent.did}),
+        catch: () => new FetchFromBskyError()
+    }).pipe(
+        Effect.flatMap(res => {
+            if(res.success) {
+                const follows = res.data.follows
                 if (follows && follows.length == 1 && follows[0].did == bskyDid && follows[0].viewer?.following) {
-                    await unfollow(ctx, agent, {followUri: follows[0].viewer.following})
+                    return unfollow(ctx, agent, follows[0].viewer.following)
                 }
-
-                return
-            },
-            catch: error => {
-                return "Ocurrió un error al limpiar los seguidores"
             }
+            return Effect.void
         })
-    ))
+    )
 }
 
 
 export async function updateAllFollowCounters(ctx: AppContext) {
-
     const batchSize = 5
     let offset = 0
 
@@ -162,5 +192,32 @@ export async function updateAllFollowCounters(ctx: AppContext) {
         if(users.length < batchSize) {
             break
         }
+    }
+}
+
+
+export async function deleteNonCAFollows(ctx: AppContext) {
+    for(let i = 0; i < 20; i++) {
+        const t1 = Date.now()
+        const batchSize = 100000
+        await ctx.kysely.transaction().execute(async trx => {
+            const result = await trx
+                .deleteFrom("Follow")
+                .where("uri", "in", (eb) =>
+                    eb.selectFrom("Record")
+                        .innerJoin("User", "User.did", "Record.authorId")
+                        .select("Record.uri")
+                        .where("User.inCA", "=", false)
+                        .limit(batchSize)
+                )
+                .executeTakeFirst()
+
+            if (result.numDeletedRows === 0n) {
+                ctx.logger.pino.info("no follows to delete")
+                return
+            }
+        })
+        const t2 = Date.now()
+        ctx.logger.logTimes("deleted follows", [t1, t2], {count: batchSize, i})
     }
 }

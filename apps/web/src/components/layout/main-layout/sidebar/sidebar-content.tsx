@@ -1,6 +1,5 @@
 
 import {SidebarBottom} from "./sidebar-bottom";
-import { useLayoutConfig } from '../layout-config-context';
 import {useSession} from "@/components/auth/use-session";
 import {SidebarButtons} from "./sidebar-buttons";
 import NextMeetingInvite from "../right-panel/next-meeting-invite";
@@ -10,15 +9,18 @@ import { SidebarProfilePic } from "./sidebar-profile-pic";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {cn} from "@/lib/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
 
 
 export const SidebarContent = ({onClose, setWritePanelOpen}: {
     onClose: () => void
     setWritePanelOpen: (open: boolean) => void
 }) => {
-    const {layoutConfig, isMobile} = useLayoutConfig()
+    const {isMobile} = useIsMobile()
+    const {layoutState} = useLayoutState()
     const user = useSession()
-    const showText = layoutConfig.openSidebar
+    const showText = layoutState.openSidebar
     const {setLoginModalOpen} = useLoginModal()
 
     return (

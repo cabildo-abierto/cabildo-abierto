@@ -1,9 +1,10 @@
-import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth, EffHandler} from "#/utils/handler.js";
 import {MailSubscriptionsResponse, SentEmail, SentEmailsResponse} from "@cabildo-abierto/api";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import validator from 'validator';
 import {unique} from "@cabildo-abierto/utils";
+import {Effect} from "effect";
 
 
 export const getMailSubscriptions: CAHandler<{}, MailSubscriptionsResponse> = async (ctx) => {
@@ -73,6 +74,7 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
             "EmailSent.html",
             "EmailSent.text",
             "EmailSent.success",
+            "EmailSent.from",
             "EmailTemplate.name as templateName"
         ])
         .orderBy("EmailSent.sent_at", "desc")
@@ -94,7 +96,8 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
             html: email.html,
             text: email.text,
             success: email.success,
-            templateName: email.templateName
+            templateName: email.templateName,
+            senderEmail: email.from
         })
     }
 
@@ -130,7 +133,6 @@ export async function unsubscribe(ctx: AppContext, email: string) {
         .where("email", "=", email)
         .set("status", "Unsubscribed")
         .execute()
-    ctx.logger.pino.info({email}, "unsuscribed from mailing list")
 }
 
 async function checkUnsuscribeCode(ctx: AppContext, code: string) {
@@ -184,25 +186,26 @@ export const unsubscribeHandlerWithAuth: CAHandler<{}, {}> = async (ctx, agent) 
 }
 
 
-export const subscribeHandler: CAHandler<{}, {}> = async (ctx, agent) => {
-    const email = await ctx.kysely
-        .selectFrom("User")
-        .where("User.did", "=", agent.did)
-        .select(["email"])
-        .executeTakeFirst()
+export const subscribeHandler: EffHandler<{}, {}> = (ctx, agent) => {
 
-    if(!email || !email.email) {
-        return {error: "Correo desconocido."}
-    }
-
-    try {
-        await createMailingListSubscription(ctx, email.email, agent.did)
-    } catch (error) {
-        ctx.logger.pino.error({email, error}, "error on subscribe")
-        return {error: "Ocurrió un error en la suscipción."}
-    }
-
-    return {data: {}}
+    return Effect.gen(function* () {
+        const email = yield* Effect.tryPromise({
+            try: () => {
+                return ctx.kysely
+                    .selectFrom("User")
+                    .where("User.did", "=", agent.did)
+                    .select(["email"])
+                    .executeTakeFirst()
+            },
+            catch: () => "Ocurrió un error al crear la suscripción."
+        })
+        if(!email || !email.email) {
+            return yield* Effect.fail("Agregá primero un correo electrónico.")
+        }
+        yield* createMailingListSubscription(ctx, email.email, agent.did)
+            .pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al crear la suscripción.")))
+        return {}
+    })
 }
 
 
@@ -323,21 +326,86 @@ export async function addUsersDataToMailingListSubscriptions(ctx: AppContext) {
 }
 
 
+export class InvalidEmailError {
+    readonly _tag = "InvalidEmailError"
+}
 
-export async function createMailingListSubscription(ctx: AppContext, email: string, userId?: string) {
+export class UsedEmailError {
+    readonly _tag = "UsedEmailError"
+}
+
+export class CreateMailingListSubscriptionError {
+    readonly _tag = "CreateMailingListSubscriptionError"
+}
+
+
+export function createMailingListSubscription(ctx: AppContext, email: string, userId?: string): Effect.Effect<void, InvalidEmailError | CreateMailingListSubscriptionError | UsedEmailError> {
     const norm = normalizeEmail(email)
-    if(!isValidEmail(norm)) return
-    await ctx.kysely
-        .insertInto("MailingListSubscription")
-        .values({
-            id: uuidv4(),
-            email: norm,
-            emailOriginal: email,
-            status: "Subscribed",
-            userId: userId ?? null
-        })
-        .onConflict(oc => oc.column("email").doUpdateSet(eb => ({
-            status: "Subscribed"
-        })))
-        .execute()
+    if(!isValidEmail(norm)) return Effect.fail(new InvalidEmailError())
+
+    return Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async trx => {
+
+            const userSub = userId ? await trx.selectFrom("MailingListSubscription").select("id").where("userId", "=", userId).executeTakeFirst() : null
+
+            const emailSub = await trx.selectFrom("MailingListSubscription").where("email", "=", norm).select(["id", "userId"]).executeTakeFirst()
+
+            if(emailSub && emailSub.userId != userId) {
+                // otro usuario ya tiene este mail
+                throw Error("UsedEmailError")
+            }
+
+            if(userSub) {
+                // el usuario ya tiene una suscripción
+                await trx
+                    .updateTable("MailingListSubscription")
+                    .where("id", "=", userSub.id)
+                    .set("email", norm)
+                    .set("emailOriginal", email)
+                    .set("status", "Subscribed")
+                    .execute()
+            } else if(emailSub) {
+                // ya hay una suscripción con este mail y no tiene usuario
+                if(userId) {
+                    await trx
+                        .updateTable("MailingListSubscription")
+                        .where("id", "=", emailSub.id)
+                        .set("userId", userId)
+                        .set("status", "Subscribed")
+                        .execute()
+                } else {
+                    await trx
+                        .updateTable("MailingListSubscription")
+                        .where("id", "=", emailSub.id)
+                        .set("status", "Subscribed")
+                        .execute()
+                }
+            } else {
+                // no hay ninguna suscripción con este mail ni con este usuario
+                await ctx.kysely
+                    .insertInto("MailingListSubscription")
+                    .values({
+                        id: uuidv4(),
+                        email: norm,
+                        emailOriginal: email,
+                        status: "Subscribed",
+                        userId: userId ?? null
+                    })
+                    .execute()
+            }
+        }),
+        catch: error => {
+            if(error instanceof Error && error.message == "UsedEmailError") {
+                return new UsedEmailError()
+            } else {
+                return new CreateMailingListSubscriptionError()
+            }
+        }
+    }).pipe(Effect.withSpan("createMailingListSubscription", {
+        attributes: {
+            email,
+            userId,
+            norm
+        }
+    }))
 }

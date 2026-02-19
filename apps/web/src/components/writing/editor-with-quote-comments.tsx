@@ -57,7 +57,7 @@ export const EditorWithQuoteComments = ({
     clippedToHeight
 }: EditorWithQuoteCommentsProps) => {
     const [commentingQuote, setCommentingQuote] = useState<MarkdownSelection | LexicalSelection | null>(null)
-    const {layoutConfig} = useLayoutConfig()
+    const {layoutConfig, isMobile} = useLayoutConfig()
     const [rightCoordinates, setRightCoordinates] = useState<number>(null)
     const editorElement = useRef<HTMLDivElement>(null)
     const {user} = useSession()
@@ -89,7 +89,7 @@ export const EditorWithQuoteComments = ({
 
     // blockToUri es un mapa de índices de hijos de la raíz (en Lexical) a uris de respuestas
     const blockToUri = useMemo(() => {
-        if (!quoteReplies || quoteReplies.length == 0 || !editor) {
+        if (!quoteReplies || quoteReplies.length == 0 || !editor || isMobile) {
             return new Map<number, string[]>()
         }
 

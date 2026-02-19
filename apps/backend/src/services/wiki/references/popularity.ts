@@ -1,6 +1,7 @@
 import {AppContext} from "#/setup.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
-import {testUsers} from "#/services/admin/stats/stats.js";
+import {Effect} from "effect";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 
 
 // Testeo de popularidades:
@@ -13,40 +14,53 @@ import {testUsers} from "#/services/admin/stats/stats.js";
 // -- cuando se elimina un like la popularidad se reduce en 1
 // -- cuando se elimina un post que menciona y que fue likeado la popularidad se reduce en 2
 
-async function getHumanUsers(ctx: AppContext) {
-    const users = await ctx.kysely
-        .selectFrom("User")
-        .select("did")
-        .where("orgValidation", "is", null)
-        .where("handle", "not in", testUsers)
-        .execute()
+const getHumanUsers = (ctx: AppContext) => Effect.gen(function* () {
+    const users = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .select("did")
+            .where("orgValidation", "is", null)
+            .execute(),
+        catch: () => new DBSelectError()
+    })
 
     return new Set(users.map(u => u.did))
-}
+})
 
 
-export async function updateTopicPopularities(ctx: AppContext, topicIds: string[]) {
+/***
+    Actualiza la popularidad de una lista de temas asumiendo que sus TopicInteractions
+    ya fueron creadas.
+***/
+export const updateTopicPopularities = (
+    ctx: AppContext,
+    topicIds: string[]
+) => Effect.gen(function* () {
     if(topicIds && topicIds.length == 0) return
     const lastMonth = new Date(Date.now() - 1000*3600*24*30)
     const lastWeek = new Date(Date.now() - 1000*3600*24*7)
     const lastDay = new Date(Date.now() - 1000*3600*24)
 
-    const humanUsers = await getHumanUsers(ctx)
+    const humanUsers = yield* getHumanUsers(ctx)
 
 
     let batchSize = 2000
     for(let i = 0; i < topicIds.length; i+=batchSize){
         const batchIds = topicIds.slice(i, i+batchSize)
-        const t1 = Date.now()
-        const batchInteractions = await ctx.kysely
-            .selectFrom("TopicInteraction")
-            .innerJoin("Record", "Record.uri", "TopicInteraction.recordId")
-            .innerJoin("Reference", "Reference.id", "TopicInteraction.referenceId")
-            .where("Record.created_at", ">", lastMonth)
-            .where("Reference.referencedTopicId", "in", batchIds)
-            .select(["recordId", "Reference.referencedTopicId as topicId", "Record.created_at"])
-            .execute()
-        const t2 = Date.now()
+        const batchInteractions = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("TopicInteraction")
+                .innerJoin("Record", "Record.uri", "TopicInteraction.recordId")
+                .innerJoin("Reference", "Reference.id", "TopicInteraction.referenceId")
+                .where("Record.created_at_tz", ">", lastMonth)
+                .where("Reference.referencedTopicId", "in", batchIds)
+                .select(["recordId", "Reference.referencedTopicId as topicId", "Record.created_at_tz"])
+                .orderBy("Record.created_at_tz desc")
+                .execute(),
+            catch: (error) =>  new DBSelectError(error)
+        }).pipe(Effect.withSpan("SQL/get topic interactions"))
+
+        ctx.logger.pino.info({batchInteractions}, "interactions")
 
         const m = new Map<string, {
             interactionsLastDay: Set<string>
@@ -62,15 +76,16 @@ export async function updateTopicPopularities(ctx: AppContext, topicIds: string[
         })
 
         batchInteractions.forEach((d) => {
+            if(!d.created_at_tz) return
             let cur = m.get(d.topicId)!
             if(cur){
                 const authorId = getDidFromUri(d.recordId)
                 if(humanUsers.has(authorId)){
                     cur.interactionsLastMonth.add(authorId)
-                    if(d.created_at > lastWeek){
+                    if(d.created_at_tz > lastWeek){
                         cur.interactionsLastWeek.add(authorId)
                     }
-                    if(d.created_at > lastDay){
+                    if(d.created_at_tz > lastDay){
                         cur.interactionsLastDay.add(authorId)
                     }
 
@@ -86,29 +101,34 @@ export async function updateTopicPopularities(ctx: AppContext, topicIds: string[
             popularityScoreLastMonth: x[1].interactionsLastMonth.size
         }))
 
+        ctx.logger.pino.info({values, topicIds}, "values")
+
         if(values.length == 0) {
             ctx.logger.pino.info({batchCount: batchIds.length}, "no topics to update")
             continue
         }
 
-        await ctx.kysely
-            .insertInto("Topic")
-            .values(values.map(v => ({...v, synonyms: []})))
-            .onConflict((oc) => oc.column("id").doUpdateSet({
-                popularityScoreLastDay: eb => eb.ref("excluded.popularityScoreLastDay"),
-                popularityScoreLastWeek: eb => eb.ref("excluded.popularityScoreLastWeek"),
-                popularityScoreLastMonth: eb => eb.ref("excluded.popularityScoreLastMonth")
-            }))
-            .execute()
-        const t3 = Date.now()
-
-        ctx.logger.logTimes("update topic popularities batch", [t1, t2 ,t3], {topics: batchIds.length, total: topicIds.length})
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("Topic")
+                .values(values.map(v => ({...v, synonyms: []})))
+                .onConflict((oc) => oc.column("id").doUpdateSet({
+                    popularityScoreLastDay: eb => eb.ref("excluded.popularityScoreLastDay"),
+                    popularityScoreLastWeek: eb => eb.ref("excluded.popularityScoreLastWeek"),
+                    popularityScoreLastMonth: eb => eb.ref("excluded.popularityScoreLastMonth")
+                }))
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        }).pipe(Effect.withSpan("SQL/insert popularities"))
     }
-}
+}).pipe(Effect.withSpan("updateTopicPopularities", {attributes: {count: topicIds.length}}))
 
 
-export async function updateAllTopicPopularities(ctx: AppContext) {
-    const topics = await ctx.kysely.selectFrom("Topic").select("id").execute()
+export const updateAllTopicPopularities = (ctx: AppContext) => Effect.gen(function* () {
+    const topics = yield* Effect.tryPromise({
+        try: () => ctx.kysely.selectFrom("Topic").select("id").execute(),
+        catch: (error) => new DBSelectError(error)
+    })
 
-    await updateTopicPopularities(ctx, topics.map(t => t.id))
-}
+    yield* updateTopicPopularities(ctx, topics.map(t => t.id))
+})

@@ -27,6 +27,7 @@ export type SentEmail = {
     text: string
     success: boolean
     templateName: string
+    senderEmail: string
 }
 
 export type SentEmailsResponse = {

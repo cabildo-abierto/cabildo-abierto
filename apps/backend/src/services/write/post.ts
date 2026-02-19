@@ -11,14 +11,22 @@ import {
     CreatePostThreadElement,
     ImagePayloadForPostCreation, FastPostReplyProps
 } from "@cabildo-abierto/api"
-import {uploadImageBlob} from "#/services/blob.js";
-import {CAHandler} from "#/utils/handler.js";
-import {getParsedPostContent} from "#/services/write/rich-text.js";
+import {
+    FetchImageURLError,
+    uploadImageBlob, UploadImageBlobError,
+    UploadImageFromBase64Error,
+    UploadImageFromURLError
+} from "#/services/blob.js";
+import {EffHandler} from "#/utils/handler.js";
+import {getParsedPostContent, ParsePostError} from "#/services/write/rich-text.js";
 import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
 import {AppContext} from "#/setup.js";
-import {deleteRecordAT, deleteRecords} from "#/services/delete.js";
+import {ATDeleteRecordError, deleteRecordAT, deleteRecords} from "#/services/delete.js";
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 import {RefAndRecord} from "#/services/sync/types.js";
+import {Effect} from "effect";
+import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
+import {ATCreateRecordError} from "#/services/wiki/votes.js";
 
 function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord.Main> {
     return {
@@ -32,51 +40,54 @@ function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord
 }
 
 
-async function externalEmbedViewToMain(agent: SessionAgent, embed: AppBskyEmbedExternal.View) {
-    const external = embed.external
-    if (external.thumb) {
-        const {ref} = await uploadImageBlob(agent, {$type: "url", src: external.thumb})
-        return {
-            $type: "app.bsky.embed.external",
-            external: {
-                title: external.title ?? "",
-                description: external.description ?? "",
-                thumb: ref,
-                uri: external.uri
+function externalEmbedViewToMain(agent: SessionAgent, embed: AppBskyEmbedExternal.View): Effect.Effect<$Typed<AppBskyEmbedExternal.Main>, UploadImageBlobError> {
+    return Effect.gen(function* () {
+        const external = embed.external
+        if (external.thumb) {
+            const {ref} = yield* uploadImageBlob(agent, {$type: "url", src: external.thumb})
+            return {
+                $type: "app.bsky.embed.external",
+                external: {
+                    title: external.title ?? "",
+                    description: external.description ?? "",
+                    thumb: ref,
+                    uri: external.uri
+                }
+            }
+        } else {
+            return {
+                $type: "app.bsky.embed.external",
+                external: {
+                    title: external.title ?? "",
+                    description: external.description ?? "",
+                    uri: external.uri
+                }
             }
         }
-    } else {
-        return {
-            $type: "app.bsky.embed.external",
-            external: {
-                title: external.title ?? "",
-                description: external.description ?? "",
-                uri: external.uri
-            }
-        }
-    }
+    })
 }
 
 
-async function getImagesEmbed(agent: SessionAgent, images: ImagePayloadForPostCreation[]) {
-    const blobs = await Promise.all(images.map(image => uploadImageBlob(agent, image)))
+function getImagesEmbed(agent: SessionAgent, images: ImagePayloadForPostCreation[]): Effect.Effect<$Typed<AppBskyEmbedImages.Main>, UploadImageFromURLError | UploadImageFromBase64Error | FetchImageURLError> {
+    return Effect.gen(function* () {
+        const blobs = yield* Effect.all(images.map(image => uploadImageBlob(agent, image)), {concurrency: 3})
 
-    const imagesEmbed: AppBskyEmbedImages.Image[] = blobs.map((({ref, size}) => {
+        const imagesEmbed: AppBskyEmbedImages.Image[] = blobs.map((({ref, size}) => {
+            return {
+                alt: "",
+                image: ref,
+                aspectRatio: {
+                    width: size.width,
+                    height: size.height
+                }
+            }
+        }))
 
         return {
-            alt: "",
-            image: ref,
-            aspectRatio: {
-                width: size.width,
-                height: size.height
-            }
+            $type: "app.bsky.embed.images",
+            images: imagesEmbed
         }
-    }))
-
-    return {
-        $type: "app.bsky.embed.images",
-        images: imagesEmbed
-    }
+    })
 }
 
 
@@ -94,40 +105,42 @@ function getRecordWithMedia(quotedPost: ATProtoStrongRef, media: AppBskyEmbedRec
 }
 
 
-async function getPostEmbed(agent: SessionAgent, post: CreatePostThreadElement): Promise<AppBskyFeedPost.Record["embed"] | undefined> {
-    if (post.selection) {
-        return {
-            $type: "ar.cabildoabierto.embed.selectionQuote",
-            start: post.selection[0],
-            end: post.selection[1]
+function getPostEmbed(agent: SessionAgent, post: CreatePostThreadElement): Effect.Effect<AppBskyFeedPost.Record["embed"] | undefined, UploadImageBlobError> {
+    return Effect.gen(function* () {
+        if (post.selection) {
+            return {
+                $type: "ar.cabildoabierto.embed.selectionQuote",
+                start: post.selection[0],
+                end: post.selection[1]
+            }
+        } else if (post.images && post.images.length > 0) {
+            const imagesEmbed = yield* getImagesEmbed(agent, post.images)
+            if (!post.quotedPost) {
+                return imagesEmbed
+            } else {
+                return getRecordWithMedia(post.quotedPost, imagesEmbed)
+            }
+        } else if (post.externalEmbedView) {
+            const externalEmbed = yield* externalEmbedViewToMain(agent, post.externalEmbedView)
+            if (!post.quotedPost) {
+                return externalEmbed
+            } else {
+                return getRecordWithMedia(post.quotedPost, externalEmbed)
+            }
+        } else if (post.quotedPost) {
+            return createQuotePostEmbed(post.quotedPost)
+        } else if (post.visualization) {
+            return {
+                ...post.visualization,
+                $type: "ar.cabildoabierto.embed.visualization"
+            }
         }
-    } else if (post.images && post.images.length > 0) {
-        const imagesEmbed = await getImagesEmbed(agent, post.images)
-        if (!post.quotedPost) {
-            return imagesEmbed
-        } else {
-            return getRecordWithMedia(post.quotedPost, imagesEmbed)
-        }
-    } else if (post.externalEmbedView) {
-        const externalEmbed = await externalEmbedViewToMain(agent, post.externalEmbedView)
-        if (!post.quotedPost) {
-            return externalEmbed
-        } else {
-            return getRecordWithMedia(post.quotedPost, externalEmbed)
-        }
-    } else if (post.quotedPost) {
-        return createQuotePostEmbed(post.quotedPost)
-    } else if (post.visualization) {
-        return {
-            ...post.visualization,
-            $type: "ar.cabildoabierto.embed.visualization"
-        }
-    }
-    return undefined
+        return undefined
+    }).pipe(Effect.withSpan("getPostEmbed"))
 }
 
 
-async function createPostAT({
+function createPostAT({
                                        ctx,
                                        agent,
                                        post,
@@ -139,102 +152,142 @@ async function createPostAT({
     post: CreatePostProps,
     index: number
     reply?: FastPostReplyProps
-}): Promise<{ ref: ATProtoStrongRef, record: AppBskyFeedPost.Record }> {
-    const elem = post.threadElements[index]
-    const rt = await getParsedPostContent(agent, elem.text)
+}): Effect.Effect<
+    { ref: ATProtoStrongRef, record: AppBskyFeedPost.Record },
+    ATCreateRecordError | UploadImageBlobError | ParsePostError
+> {
+    return Effect.gen(function* () {
+        const elem = post.threadElements[index]
+        const rt = yield* getParsedPostContent(agent, elem.text)
 
-    const embed = await getPostEmbed(agent, post.threadElements[index])
+        const embed = yield* getPostEmbed(agent, post.threadElements[index])
 
-    let record: AppBskyFeedPost.Record = {
-        $type: "app.bsky.feed.post",
-        text: rt.text,
-        facets: rt.facets,
-        createdAt: new Date().toISOString(),
-        reply: post.reply ?? reply,
-        embed,
-        labels: post.enDiscusion && index == 0 ? {
-            $type: "com.atproto.label.defs#selfLabels",
-            values: [{val: "ca:en discusión"}]
-        } : undefined
-    }
-
-    if (!elem.uri) {
-        const ref = await agent.bsky.post({...record})
-        return {ref, record}
-    } else {
-        const {data} = await agent.bsky.com.atproto.repo.putRecord({
-            repo: getDidFromUri(elem.uri),
-            collection: 'app.bsky.feed.post',
-            rkey: getRkeyFromUri(elem.uri),
-            record: record,
-        })
-        return {ref: {uri: data.uri, cid: data.cid}, record}
-    }
-}
-
-
-export async function isContentReferenced(ctx: AppContext, uri: string) {
-    const references = await ctx.kysely
-        .selectFrom("Content")
-        .innerJoin("Record", "Content.uri", "Record.uri")
-        .select([
-            "Content.uri",
-            eb => eb.exists(eb
-                .selectFrom("Reaction")
-                .select(["uri"])
-                .whereRef("Reaction.subjectId", "=", "Content.uri")
-            ).as("reactions"),
-            eb => eb.exists(eb
-                .selectFrom("Post")
-                .select(["uri"])
-                .whereRef("Post.replyToId", "=", "Content.uri")
-            ).as("replies"),
-            eb => eb.exists(eb
-                .selectFrom("Post")
-                .select(["uri"])
-                .whereRef("Post.quoteToId", "=", "Content.uri")
-            ).as("quotes")
-        ])
-        .where("Content.uri", "=", uri)
-        .executeTakeFirst()
-
-    if (!references) return {error: "No se encontró la publicación que se está editando."}
-    return {
-        data: references.reactions || references.replies || references.quotes
-    }
-}
-
-
-export const createPost: CAHandler<CreatePostProps, ATProtoStrongRef[]> = async (ctx, agent, post) => {
-    ctx.logger.pino.info({post, author: agent.did}, "creating post")
-    if (post.threadElements.length == 0) {
-        return {error: "Hilo vacío."}
-    }
-    const elem = post.threadElements[0]
-    if (elem.uri) {
-        if (post.threadElements.length > 1) {
-            return {error: "No es posible editar una publicación y al mismo tiempo crear un hilo."}
+        let record: AppBskyFeedPost.Record = {
+            $type: "app.bsky.feed.post",
+            text: rt.text,
+            facets: rt.facets,
+            createdAt: new Date().toISOString(),
+            reply: post.reply ?? reply,
+            embed,
+            labels: post.enDiscusion && index == 0 ? {
+                $type: "com.atproto.label.defs#selfLabels",
+                values: [{val: "ca:en discusión"}]
+            } : undefined
         }
-        // se está editando un post
-        const {data: referenced, error} = await isContentReferenced(ctx, elem.uri)
-        if (error) return {error}
+
+        if (!elem.uri) {
+            const ref = yield* Effect.tryPromise({
+                try: () => agent.bsky.post({...record}),
+                catch: () => new ATCreateRecordError()
+            })
+            return {ref, record}
+        } else {
+            const {data} = yield* Effect.tryPromise({
+                try: () => agent.bsky.com.atproto.repo.putRecord({
+                    repo: getDidFromUri(elem.uri!),
+                    collection: 'app.bsky.feed.post',
+                    rkey: getRkeyFromUri(elem.uri!),
+                    record: record,
+                }),
+                catch: () => new ATCreateRecordError()
+            })
+            return {ref: {uri: data.uri, cid: data.cid}, record}
+        }
+    }).pipe(
+        Effect.withSpan("createPostAT")
+    )
+}
+
+
+class CheckContentReferencesError {
+    readonly _tag = "CheckContentReferencesError"
+}
+
+
+export class PostNotFoundError {
+    readonly _tag = "PostNotFoundError"
+}
+
+
+function isContentReferenced(ctx: AppContext, uri: string): Effect.Effect<boolean, CheckContentReferencesError | PostNotFoundError> {
+    return Effect.gen(function* () {
+        const references = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Content")
+                .innerJoin("Record", "Content.uri", "Record.uri")
+                .select([
+                    "Content.uri",
+                    eb => eb.exists(eb
+                        .selectFrom("Reaction")
+                        .select(["uri"])
+                        .whereRef("Reaction.subjectId", "=", "Content.uri")
+                    ).as("reactions"),
+                    eb => eb.exists(eb
+                        .selectFrom("Post")
+                        .select(["uri"])
+                        .whereRef("Post.replyToId", "=", "Content.uri")
+                    ).as("replies"),
+                    eb => eb.exists(eb
+                        .selectFrom("Post")
+                        .select(["uri"])
+                        .whereRef("Post.quoteToId", "=", "Content.uri")
+                    ).as("quotes")
+                ])
+                .where("Content.uri", "=", uri)
+                .executeTakeFirst(),
+            catch: () => new CheckContentReferencesError()
+        })
+
+        if (!references) return yield* Effect.fail(new PostNotFoundError())
+        return Boolean(references.reactions) || Boolean(references.replies) || Boolean(references.quotes)
+    }).pipe(Effect.withSpan("isContentReferenced", {attributes: {uri}}))
+}
+
+
+class CannotEditReferencedPostError {
+    readonly _tag = "CannotEditReferencedPostError"
+}
+
+
+function preparePostEdit(ctx: AppContext, agent: SessionAgent, post: CreatePostProps, elem: CreatePostThreadElement): Effect.Effect<CreatePostProps, string | CannotEditReferencedPostError | CheckContentReferencesError | PostNotFoundError | ATDeleteRecordError | ProcessDeleteError> {
+    return Effect.gen(function* () {
+        if (post.threadElements.length > 1) {
+            return yield* Effect.fail("No es posible editar una publicación y al mismo tiempo crear un hilo.")
+        }
+        if(!elem.uri) {
+            return post
+        }
+
+        const referenced = yield* isContentReferenced(ctx, elem.uri)
+        Effect.annotateCurrentSpan({referenced})
         if (referenced) {
             if (!post.forceEdit) {
-                return {error: "La publicación ya fue referenciada."}
+                return yield* Effect.fail(new CannotEditReferencedPostError())
             }
         } else {
-            ctx.logger.pino.info({uri: elem.uri}, "deleting edited post")
             // edición de un post que todavía no fue referenciado
-            const {error} = await deleteRecords({ctx, agent, uris: [elem.uri], atproto: true})
-            if (error) return {error: "Ocurrió un error al editar."}
+            yield* deleteRecords({ctx, agent, uris: [elem.uri], atproto: true})
             post.threadElements[0].uri = undefined
         }
-    }
+        return post
+    }).pipe(Effect.withSpan("preparePostEdit", {attributes: {uri: elem.uri}}))
+}
 
-    let refsAndRecords: RefAndRecord<AppBskyFeedPost.Record>[] = []
-    try {
+
+export const createPost: EffHandler<CreatePostProps, ATProtoStrongRef[]> = (ctx, agent, post) => {
+
+    return Effect.gen(function* () {
+        if (post.threadElements.length == 0) {
+            return yield* Effect.fail("El hilo tiene que tener al menos un elemento.")
+        }
+        const elem = post.threadElements[0]
+        if (elem.uri) {
+            post = yield* preparePostEdit(ctx, agent, post, elem)
+        }
+
+        let refsAndRecords: RefAndRecord<AppBskyFeedPost.Record>[] = []
         for (let i = 0; i < post.threadElements.length; i++) {
-            const refAndRecord = await createPostAT({
+            const refAndRecord = yield* createPostAT({
                 ctx,
                 agent,
                 post,
@@ -243,19 +296,38 @@ export const createPost: CAHandler<CreatePostProps, ATProtoStrongRef[]> = async 
                     parent: refsAndRecords[refsAndRecords.length-1].ref,
                     root: refsAndRecords[0].ref
                 } : undefined
-            })
+            }).pipe(Effect.catchAll(() => Effect.gen(function* () {
+                for (const {ref} of refsAndRecords) {
+                    yield* deleteRecordAT(agent, ref.uri)
+                }
+                return null
+            })))
+            if(!refAndRecord) return yield* Effect.fail("Ocurrió un error al crear la publicación.")
             refsAndRecords.push(refAndRecord)
         }
-    } catch (error) {
-        ctx.logger.pino.error({error}, "error creating post")
-        for (const {ref} of refsAndRecords) {
-            ctx.logger.pino.info({ref}, "deleting partial thread")
-            await deleteRecordAT(agent, ref.uri)
-        }
-        return {error: "Ocurrió un error al crear la publicación."}
-    }
 
-    await new PostRecordProcessor(ctx).processValidated(refsAndRecords)
+        const processor = new PostRecordProcessor(ctx)
+        yield* processor.processValidated(refsAndRecords).pipe(Effect.catchAll(() => Effect.fail("La publicación se creó, pero ocurrió un error al procesarla desde Cabildo Abierto.")))
 
-    return {data: refsAndRecords.map(r => r.ref)}
+        return refsAndRecords.map(r => r.ref)
+    }).pipe(
+        Effect.withSpan("createPost", {
+            attributes: {
+                ...post,
+                threadElements: post.threadElements.map(elem => ({
+                    ...elem,
+                    images: elem.images?.map(image => image.$type)
+                }))
+            }
+        }),
+        Effect.catchAll(error => {
+            if(typeof error != "string" && error._tag == "PostNotFoundError") {
+                return Effect.fail("No se encontró la publicación a editar.")
+            } else if(typeof error != "string" && error._tag == "CannotEditReferencedPostError") {
+                return Effect.fail("La publicación ya fue referenciada.")
+            } else {
+                return Effect.fail("Ocurrió un error al crear la publicación.")
+            }
+        })
+    )
 }

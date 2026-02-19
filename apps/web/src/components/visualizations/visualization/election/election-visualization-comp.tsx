@@ -1,7 +1,7 @@
 import {
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoWikiTopicVersion,
-    ArCabildoabiertoDataDataset
+    ArCabildoabiertoDataDataset, APIResult
 } from "@cabildo-abierto/api"
 import {ElectionVisualization} from "./election-visualization";
 import {useEffect, useRef, useState} from "react";
@@ -30,18 +30,18 @@ export type TopicData = {
 
 function useElectionVisualizationTopicsData(v: ArCabildoabiertoEmbedVisualization.Main) {
 
-    async function getElectionVisualizationTopicsData(v: ArCabildoabiertoEmbedVisualization.Main) {
+    async function getElectionVisualizationTopicsData(v: ArCabildoabiertoEmbedVisualization.Main): Promise<APIResult<TopicData[]>> {
         const valid = ArCabildoabiertoEmbedVisualization.validateMain(v)
         if(valid.success && ArCabildoabiertoEmbedVisualization.isEleccion(v.spec)){
             const candidateCol = v.spec
             const alianzaCol = v.spec.columnaTopicIdAlianza
             const districtCol = v.spec.columnaTopicIdDistrito
 
-            if(!candidateCol && !alianzaCol && !districtCol) return {data: []}
+            if(!candidateCol && !alianzaCol && !districtCol) return {value: [], success: true}
 
             return await post<{ v: ArCabildoabiertoEmbedVisualization.Main }, TopicData[]>("/election", {v})
         } else {
-            return {error: "Visualización inválida."}
+            return {success: false, error: "Visualización inválida."}
         }
     }
 
@@ -87,7 +87,7 @@ const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
         </div>
     }
 
-    if(!topicsData.data) {
+    if(topicsData.success === false) {
         if(topicsData.error == "Visualización inválida.") {
             return <Note className={"h-full flex items-center justify-center"}>
                 Completá la configuración.
@@ -109,7 +109,7 @@ const ElectionVisualizationComp = ({ spec, visualization }: Props) => {
                     dataset={dataset}
                     width={width}
                     height={500}
-                    topicsData={topicsData.data}
+                    topicsData={topicsData.value}
                 /> : <div><LoadingSpinner/></div>}
             </div>
             {caption && <PlotCaption caption={caption} />}

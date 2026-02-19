@@ -10,6 +10,7 @@ import FeedElement from "../feed/feed-element";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useSession} from "@/components/auth/use-session";
+import {cn} from "@/lib/utils";
 
 
 const ShowThreadButton = ({uri, handle}: { uri: string, handle?: string }) => {
@@ -171,8 +172,10 @@ export const PostPreview = ({
     const children = threadViewContent ? getChildrenFromThreadViewContent(threadViewContent) : null
     showingChildren = showingChildren || children && children.length > 0
 
-    return <div style={{maxWidth: layoutConfig.centerWidth}}
-                className={"flex flex-col w-full text-[15px] " + (onFeed ? "min-[680px]:min-w-[600px]" : "") + (!postView && feedViewContent && (root || parent) ? " border-b" : "")}>
+    return <div
+        style={{maxWidth: layoutConfig.centerWidth}}
+        className={cn("flex flex-col w-full text-[15px]", onFeed ? "min-[680px]:min-w-[600px]" : "", !postView && feedViewContent && (root || parent) ? " border-b" : "")}
+    >
         {feedViewContent && <PostPreviewParentAndRoot
             feedViewContent={feedViewContent}
             root={root}

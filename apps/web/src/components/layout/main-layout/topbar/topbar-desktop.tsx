@@ -1,4 +1,4 @@
-import {SearchPanelOnRightColumn} from "../right-panel/search-panel-on-right-column";
+import {SearchBarOnRigthColumn} from "../right-panel/search-bar-on-rigth-column";
 import React from "react";
 import {usePathname} from "next/navigation";
 import {OpenSidebarButton} from "./open-sidebar-button";
@@ -80,7 +80,7 @@ export default function TopbarDesktop() {
     </div>
 
     const rightPanel = !inSearchPage ? <div className={"w-[292px] h-12 flex items-center"}>
-        <SearchPanelOnRightColumn/>
+        <SearchBarOnRigthColumn/>
     </div> : null
 
     return <div className={"w-full h-12 z-[1000] bg-[var(--background)] fixed top-0 left-0 border-b border-[var(--accent-dark)]"}>

@@ -4,6 +4,7 @@ import {useDataset} from "@/queries/getters/useDataset";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useTopicsDataset} from "./visualization-editor";
 import {getDatasetVisualizationView} from "@/components/visualizations/visualization/utils";
+import {$Typed} from "@atproto/api";
 
 
 export const TopicsDatasetPlotFromMain = ({visualization, dataSource, height, width, onEdit, onDelete}: {
@@ -74,7 +75,7 @@ const PlotFromVisualizationMain = ({
     visualization: ArCabildoabiertoEmbedVisualization.Main
     height?: number | string
     width?: number | string
-    onEdit?: (v: ArCabildoabiertoEmbedVisualization.Main) => void
+    onEdit?: (v: $Typed<ArCabildoabiertoEmbedVisualization.Main>) => void
     onDelete?: () => void
 }) => {
     if (ArCabildoabiertoEmbedVisualization.isDatasetDataSource(visualization.dataSource)) {

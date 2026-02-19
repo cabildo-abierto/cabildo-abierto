@@ -5,9 +5,9 @@ import {topicUrl} from "@/components/utils/react/url";
 
 export async function queryTopics(query: string): Promise<TopicViewBasicWithUrl[]> {
     if (query.trim().length == 0 || query.startsWith("/")) return []
-    const {error, data} = await get<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(`/search-topics/${query}`)
-    if (error) return []
-    return data.map(x => ({
+    const res = await get<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(`/search-topics/${query}`)
+    if (res.success == false) return []
+    return res.value.map(x => ({
         ...x,
         url: topicUrl(x.id)
     }))

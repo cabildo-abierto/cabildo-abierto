@@ -9,9 +9,9 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const {did, rkey} = await params
     const route = `/content-metadata/${decodeURIComponent(did)}/ar.cabildoabierto.feed.article/${rkey}`
-    const {data} = await get<MetadataParams>(route)
-    if(data){
-        return createMetadata(data)
+    const res = await get<MetadataParams>(route)
+    if(res.success == true){
+        return createMetadata(res.value)
     } else {
         return mainMetadata
     }

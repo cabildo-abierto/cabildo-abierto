@@ -61,7 +61,27 @@ export type FeedTabView = {
     displayName: string
 }
 
+
+export type APISuccess<T> = {
+    success: true
+    value: T
+}
+
+
+export type APIError<T> = {
+    success: false
+    error: string
+}
+
+
+export type APIResult<T> = APISuccess<T> | APIError<T>
+
+
+export type MaybeSession = Session | {active: false}
+
+
 export type Session = {
+    active: true
     platformAdmin: boolean
     authorStatus: AuthorStatus | null
     editorStatus: EditorStatus
@@ -87,4 +107,15 @@ export type Session = {
 export type Account = {
     email?: string
     subscribedToEmailUpdates: boolean
+}
+
+
+export type LoginParams = {
+    handle: string
+    code?: string
+}
+
+
+export type LoginOutput = {
+    url: string
 }

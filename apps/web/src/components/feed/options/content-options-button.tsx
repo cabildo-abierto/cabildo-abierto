@@ -31,7 +31,7 @@ export const ContentOptionsButton = ({
                                          showBluesky,
                                          setShowBluesky,
                                          iconSize,
-    className
+                                         className
                                      }: {
     record?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     enDiscusion?: boolean
@@ -80,7 +80,9 @@ export const ContentOptionsButton = ({
                     <OptionsEnDiscusionButton
                         uri={record.uri}
                         enDiscusion={enDiscusion}
-                        onClick={() => {setEnDiscusionModalOpen(true)}}
+                        onClick={() => {
+                            setEnDiscusionModalOpen(true)
+                        }}
                     />
                     <OptionsEditContentButton
                         record={record}
@@ -97,7 +99,9 @@ export const ContentOptionsButton = ({
                     />
                     {record.author.caProfile != null && <TopicsMentionedOptionsButton
                         uri={record.uri}
-                        onClick={() => {setTopicsMentionedModalOpen(true)}}
+                        onClick={() => {
+                            setTopicsMentionedModalOpen(true)
+                        }}
                     />}
                 </div>
             </DropdownMenuContent>
@@ -133,7 +137,9 @@ export const ContentOptionsButton = ({
         {topicsMentionedModalOpen && <TopicsMentionedModal
             uri={record.uri}
             open={true}
-            onClose={() => {setTopicsMentionedModalOpen(false)}}
+            onClose={() => {
+                setTopicsMentionedModalOpen(false)
+            }}
         />}
     </>
 };

@@ -4,8 +4,11 @@ import {
     ArCabildoabiertoWikiTopicVersion
 } from "@cabildo-abierto/api";
 import {AppContext} from "#/setup.js";
-import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {getDataset} from "#/services/dataset/read.js";
+import {EffHandlerNoAuth} from "#/utils/handler.js";
+import {getDataset, HydrationError, NotFoundError} from "#/services/dataset/read.js";
+import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
+import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 
 export type TopicData = {
     id: string
@@ -14,7 +17,10 @@ export type TopicData = {
 }
 
 
-export const getTopicsDataForElectionVisualization = async (ctx: AppContext, v: ArCabildoabiertoEmbedVisualization.Main): Promise<TopicData[]> => {
+export const getTopicsDataForElectionVisualization = (
+    ctx: AppContext,
+    v: ArCabildoabiertoEmbedVisualization.Main
+): Effect.Effect<TopicData[], DBSelectError | HydrationError | NotFoundError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     if(!ArCabildoabiertoEmbedVisualization.isDatasetDataSource(v.dataSource)) return []
     if(!ArCabildoabiertoEmbedVisualization.isEleccion(v.spec)){
         return []
@@ -28,7 +34,7 @@ export const getTopicsDataForElectionVisualization = async (ctx: AppContext, v: 
 
     const datasetUri = v.dataSource.dataset
 
-    const {data} = await getDataset(
+    const data = yield* getDataset(
         ctx,
         datasetUri
     )
@@ -46,32 +52,41 @@ export const getTopicsDataForElectionVisualization = async (ctx: AppContext, v: 
 
     if(topicIds.size == 0) return []
 
-    const topicsData = await ctx.kysely
-        .selectFrom("Topic")
-        .innerJoin("TopicVersion", "Topic.currentVersionId", "TopicVersion.uri")
-        .select([
-            "Topic.id as id",
-            "TopicVersion.props",
-            eb => eb
-                .selectFrom("Post")
-                .innerJoin("TopicVersion as OtherTopicVersion", "Post.replyToId", "OtherTopicVersion.uri")
-                .whereRef("OtherTopicVersion.topicId", "=", "Topic.id")
-                .select(eb => eb.fn.count<number>("Post.uri").as("count"))
-            .as("repliesCount")
-        ])
-        .where("TopicVersion.topicId", "in", Array.from(topicIds))
-        .execute()
+    const topicsData = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Topic")
+            .innerJoin("TopicVersion", "Topic.currentVersionId", "TopicVersion.uri")
+            .select([
+                "Topic.id as id",
+                "TopicVersion.props",
+                eb => eb
+                    .selectFrom("Post")
+                    .innerJoin("TopicVersion as OtherTopicVersion", "Post.replyToId", "OtherTopicVersion.uri")
+                    .whereRef("OtherTopicVersion.topicId", "=", "Topic.id")
+                    .select(eb => eb.fn.count<number>("Post.uri").as("count"))
+                    .as("repliesCount")
+            ])
+            .where("TopicVersion.topicId", "in", Array.from(topicIds))
+            .execute(),
+        catch: () => new DBSelectError()
+    })
 
     return topicsData.map(t => ({
         id: t.id,
         props: t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[],
         repliesCount: t.repliesCount ?? 0,
     }))
-}
+})
 
 
-export const getTopicsDataForElectionVisualizationHandler: CAHandlerNoAuth<{v: ArCabildoabiertoEmbedVisualization.Main}, TopicData[]> = async (ctx, agent, params) => {
-    return {
-        data: await getTopicsDataForElectionVisualization(ctx, params.v)
-    }
+export const getTopicsDataForElectionVisualizationHandler: EffHandlerNoAuth<{v: ArCabildoabiertoEmbedVisualization.Main}, TopicData[]> = (
+    ctx,
+    agent,
+    params
+) => {
+    return Effect.provideServiceEffect(
+        getTopicsDataForElectionVisualization(ctx, params.v).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los datos para la visualización."))),
+        DataPlane,
+        makeDataPlane(ctx, agent)
+    )
 }

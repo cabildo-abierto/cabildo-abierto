@@ -15,9 +15,9 @@ export async function generateMetadata(
     const i = p?.i instanceof Array ? p?.i[0] : p?.i
     const enc = encodeParentheses(encodeURIComponent(i))
     const topicTitle = await get<{title: string}>(`/topic-title/${enc}`)
-    if(topicTitle.data){
+    if(topicTitle.success === true){
         return createMetadata({
-            title: topicTitle.data.title,
+            title: topicTitle.value.title,
             description: "Tema de discusión en Cabildo Abierto."
         })
     } else if(i){

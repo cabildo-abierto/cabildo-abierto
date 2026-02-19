@@ -30,10 +30,13 @@ export const useTopicsMentioned = (initialTitle?: string) => {
                         const mdText = editorStateToMarkdownNoEmbeds(editorStateStr);
                         let data: ArCabildoabiertoFeedDefs.TopicMention[] = []
                         if (mdText.length + title.length > 0) {
-                            data = (await post<{ title: string; text: string }, ArCabildoabiertoFeedDefs.TopicMention[]>(
+                            const res = await post<{ title: string; text: string }, ArCabildoabiertoFeedDefs.TopicMention[]>(
                                 `/get-topics-mentioned`,
                                 {title, text: mdText}
-                            )).data
+                            )
+                            if(res.success === true) {
+                                data = res.value
+                            }
                         }
                         if (data) {
                             setTopicsMentioned(data);

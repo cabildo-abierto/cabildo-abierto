@@ -61,32 +61,37 @@ export const SendButton = ({request}: {
     const [requestSent, setRequestSent] = useState(false)
     const qc = useQueryClient()
 
-    const res = validateSubmission(request)
+    const validationRes = validateSubmission(request)
 
     const onSubmit = useCallback(async () => {
-        if (res.success == true) {
-            const {error} = await post<ValidationRequestProps, {}>("/validation-request", res.request)
-            if (!error) {
+        if (validationRes.success === true) {
+            const res = await post<ValidationRequestProps, {}>(
+                "/validation-request",
+                validationRes.request
+            )
+            if (res.success === true) {
                 setRequestSent(true)
+                return {}
+            } else {
+                return {error: res.error}
             }
-            return {error}
         } else {
-            return {error: res.error}
+            return {error: validationRes.error}
         }
-    }, [res])
+    }, [validationRes])
 
     return <>
         <StateButton
             handleClick={onSubmit}
             variant={"outlined"}
-            disabled={res?.success != true}
+            disabled={validationRes.success != true}
         >
             Enviar
         </StateButton>
-        {requestSent && res.success && <AcceptButtonPanel
+        {requestSent && validationRes.success && <AcceptButtonPanel
             onClose={() => {
                 setRequestSent(false);
-                qc.setQueryData(["validation-request"], {type: res.request.tipo, result: "Pendiente"})
+                qc.setQueryData(["validation-request"], {type: validationRes.request.tipo, result: "Pendiente"})
             }}
             open={requestSent}
         >

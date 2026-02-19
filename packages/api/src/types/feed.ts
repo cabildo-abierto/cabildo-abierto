@@ -1,5 +1,6 @@
 import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption, FollowingFeedFilter} from "./session";
 import {AppBskyFeedDefs} from "@atproto/api";
+import { ArCabildoabiertoActorDefs, ArCabildoabiertoFeedDefs } from "../client";
 
 export type MainFeedConfig = {
     type: "main"
@@ -67,4 +68,17 @@ export type FeedView = {
 export type GetFeedOutput<T> = {
     feed: T[]
     cursor: string | undefined
+}
+
+
+export type SearchOption = "Publicaciones" | "Artículos" | "Temas" | "Usuarios"
+export const searchOptions: SearchOption[] = ["Publicaciones", "Artículos", "Temas", "Usuarios"]
+
+
+export type MainSearchOutput = {
+    kind: "Publicaciones" | "Artículos" | "Temas"
+    value: GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>
+} | {
+    kind: "Usuarios"
+    value: GetFeedOutput<ArCabildoabiertoActorDefs.ProfileView>
 }

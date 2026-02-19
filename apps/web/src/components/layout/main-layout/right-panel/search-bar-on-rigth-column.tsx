@@ -6,12 +6,13 @@ import {MagnifyingGlassIcon} from "@phosphor-icons/react";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 
 
-export const SearchPanelOnRightColumn = () => {
+export const SearchBarOnRigthColumn = () => {
     const pathname = usePathname()
     const {searchState, setSearchState} = useSearch(`${pathname}::main`)
     const router = useRouter()
 
     const handleSubmit = () => {
+        console.log("submitting", searchState.value)
         if (searchState.value.length > 0) {
             router.push("/buscar?q=" + encodeURIComponent(searchState.value));
         }
@@ -31,14 +32,20 @@ export const SearchPanelOnRightColumn = () => {
 
     return (
         <form
-            onSubmit={(e) => {e.preventDefault(); handleSubmit()}}
             className={"w-full"}
+            onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault()
+                    handleSubmit()
+                }
+            }}
         >
             <MainSearchBar
                 kind={"main"}
                 allowCloseWithNoText={minimize}
                 autoFocus={minimize}
             />
+            <button type="submit" hidden />
         </form>
     )
 }

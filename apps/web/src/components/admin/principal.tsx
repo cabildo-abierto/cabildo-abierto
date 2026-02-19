@@ -10,6 +10,7 @@ import {unique} from "@cabildo-abierto/utils";
 import {BaseTextFieldWithSuggestions} from "@/components/utils/base/base-text-field-with-suggestions";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {PrettyJSON} from "@/components/utils/pretty-json";
+import {useErrors} from "@/components/layout/contexts/error-context";
 
 function useRegisteredJobs() {
     return useAPI<string[]>("/registered-jobs", ["registered-jobs"])
@@ -19,6 +20,7 @@ export const AdminPost = () => {
     const [POSTRoute, setPOSTRoute] = useState("")
     const [GETRoute, setGETRoute] = useState("")
     const {data} = useRegisteredJobs()
+    const {addError} = useErrors()
     const [GETReqResult, setGETReqResult] = useState<{error?: string, data?: any} | null | "loading">(null)
 
     async function onSendPost(){
@@ -29,7 +31,11 @@ export const AdminPost = () => {
     async function onSendGet() {
         setGETReqResult("loading")
         const res = await get<any>(GETRoute)
-        setGETReqResult(res)
+        if(res.success === true) {
+            setGETReqResult(res.value)
+        } else {
+            addError(res.error)
+        }
         return {}
     }
 

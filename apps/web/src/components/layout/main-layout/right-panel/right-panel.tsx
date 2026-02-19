@@ -71,9 +71,10 @@ const NextMeetingOnRightPanel = () => {
 
 const InviteAndDonateButtons = () => {
     const pathname = usePathname()
+    const {user} = useSession()
 
     return <div className={"flex space-x-2"}>
-        {!pathname.includes("/ajustes/compartir") && <Link href={"/ajustes/compartir"}>
+        {user && !pathname.includes("/ajustes/compartir") && <Link href={"/ajustes/compartir"}>
             <BaseButton
                 startIcon={<ShareIcon/>}
                 size="small"

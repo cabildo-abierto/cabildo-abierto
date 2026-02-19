@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {ListEditor} from "@/components/utils/base/list-editor";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {isKnownProp, propsEqualValue, PropValue, PropValueType} from "../utils";
+import {PropValueType} from "../utils";
 import {useCategories} from "@/queries/getters/useTopics";
 import 'dayjs/locale/es';
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
@@ -16,6 +16,8 @@ import {BaseTextArea} from "@/components/utils/base/base-text-area";
 import {DatePropEditor} from "./date-prop-editor";
 import InfoPanel from "@/components/utils/base/info-panel";
 import {getDescriptionForProp} from "./topic-prop-view";
+import {addDefaults} from "@/components/tema/props/topic-prop-editor";
+import {propsEqualValue, PropValue} from "@cabildo-abierto/utils";
 
 const NewPropModal = dynamic(
     () => import("./new-prop-modal"),
@@ -47,7 +49,7 @@ export const TopicPropEditor = ({
                 </DescriptionOnHover>
                 {info && <InfoPanel text={info} moreInfoHref={moreInfoHref} iconFontSize={16}/>}
             </div>
-            {!isDefault && <BaseIconButton size={"small"}>
+            {!isDefault && <BaseIconButton size={"small"} onClick={deleteProp}>
                 <TrashIcon/>
             </BaseIconButton>}
         </div>
@@ -94,45 +96,6 @@ export const TopicPropEditor = ({
                 setProp={setProp}
             />}
     </div>
-}
-
-
-export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], topicId: string): ArCabildoabiertoWikiTopicVersion.TopicProp[] {
-    if (!props) props = []
-    const newProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
-    for (let i = 0; i < props.length; i++) {
-        const p = props[i]
-        const valid = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
-        if (!valid.success) {
-            if (isKnownProp(p.value)) {
-                newProps.push({
-                    ...p,
-                    value: defaultPropValue(p.name, p.value.$type, topicId)
-                })
-            }
-        } else {
-            newProps.push(p)
-        }
-    }
-    if (!props.some(p => p.name == "Título")) {
-        newProps.push({
-            name: "Título",
-            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringProp", value: topicId}
-        })
-    }
-    if (!props.some(p => p.name == "Categorías")) {
-        newProps.push({
-            name: "Categorías",
-            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: []}
-        })
-    }
-    if (!props.some(p => p.name == "Sinónimos")) {
-        newProps.push({
-            name: "Sinónimos",
-            value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: []}
-        })
-    }
-    return newProps
 }
 
 

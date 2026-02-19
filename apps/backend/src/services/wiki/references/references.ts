@@ -20,65 +20,71 @@ import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCategoriesOnTopicsChange} from "#/services/wiki/categories.js";
+import {Effect} from "effect";
+import {AddJobError, DBDeleteError, DBInsertError, DBSelectError, InvalidValueError} from "#/utils/errors.js";
 
-export async function updateReferencesForNewContents(ctx: AppContext) {
-    const lastUpdate = await getLastReferencesUpdate(ctx)
-    ctx.logger.pino.info({lastUpdate}, "updating references for new contents")
+
+export const updateReferencesForNewContents = (
+    ctx: AppContext
+): Effect.Effect<void, DBSelectError | DBInsertError | InvalidValueError> => Effect.gen(function* () {
+    const lastUpdate = yield* getLastReferencesUpdate(ctx)
 
     const batchSize = 500
     let curOffset = 0
 
-    const caUsers = await getCAUsersDids(ctx)
+    const caUsers = yield* getCAUsersDids(ctx)
 
     while (true) {
-        const contents: { uri: string }[] = await ctx.kysely
-            .selectFrom('Record')
-            .select([
-                'Record.uri',
-            ])
-            .innerJoin("Content", "Content.uri", "Record.uri")
-            .where("Content.text", "is not", null)
-            .where('Record.CAIndexedAt', '>=', lastUpdate)
-            .where("Record.authorId", "in", caUsers)
-            .orderBy('Record.CAIndexedAt', 'asc')
-            .limit(batchSize)
-            .offset(curOffset)
-            .execute()
+        const contents: { uri: string }[] = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom('Record')
+                .select([
+                    'Record.uri',
+                ])
+                .innerJoin("Content", "Content.uri", "Record.uri")
+                .where("Content.text", "is not", null)
+                .where('Record.CAIndexedAt', '>=', lastUpdate)
+                .where("Record.authorId", "in", caUsers)
+                .orderBy('Record.CAIndexedAt', 'asc')
+                .limit(batchSize)
+                .offset(curOffset)
+                .execute(),
+            catch: error => new DBSelectError(error)
+        })
 
         if (contents.length == 0) break
         curOffset += contents.length
-        ctx.logger.pino.info({count: contents.length, curOffset}, "updating references for new contents batch")
-        const t1 = Date.now()
-        await updateReferencesForContentsAndTopics(
+        yield* updateReferencesForContentsAndTopics(
             ctx,
             contents.map(c => c.uri),
             undefined
         )
-        const t2 = Date.now()
-        ctx.logger.logTimes("updating references for new contents batch", [t1, t2])
     }
-}
+})
 
 
-async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: string[]) {
-    try {
-        if (uris != undefined && uris.length == 0 || topics != undefined && topics.length == 0) return []
-        return await ctx.kysely
+const ftsReferencesQuery = (
+    ctx: AppContext,
+    uris?: string[],
+    topics?: string[]
+) => Effect.gen(function* () {
+    if (uris != undefined && uris.length == 0 || topics != undefined && topics.length == 0) return []
+
+    return yield* Effect.tryPromise({
+        try: () => ctx.kysely
             .with(wb => wb("Synonyms").materialized(), eb => eb
                 .selectFrom(
                     (eb) => eb.selectFrom("Topic")
                         .$if(topics != null, qb => qb.where("Topic.id", "in", topics!))
                         .select([
                             "Topic.id",
-                            sql<string>`unnest
-                                ("Topic"."synonyms")`.as("keyword")
+                            sql<string>`unnest("Topic"."synonyms")`.as("keyword")
                         ])
                         .as("UnnestedSynonyms")
                 )
                 .select([
                     "UnnestedSynonyms.id",
-                    sql`websearch_to_tsquery
-                        ('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
+                    sql`websearch_to_tsquery('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
                 ])
             )
             .selectFrom("Content")
@@ -97,22 +103,22 @@ async function ftsReferencesQuery(ctx: AppContext, uris?: string[], topics?: str
                 sql<number>`ts_rank_cd
                     ("Content"."text_tsv", "Synonyms"."query")`.as("rank")
             ])
-            .execute()
-    } catch (error) {
-        ctx.logger.pino.error({
-            error,
-            topics: topics?.slice(0, 5),
-            uris: uris?.slice(0, 5)
-        }, "error in ftsReferences query")
-        throw error
+            .execute(),
+        catch: error => new DBSelectError(error)
+    })
+})
+
+
+export const getReferencesToInsert = (
+    ctx: AppContext,
+    uris?: string[],
+    topics?: string[]
+): Effect.Effect<ReferenceToInsert[], DBSelectError | InvalidValueError> => Effect.gen(function* () {
+    if (!topics && !uris) {
+        return yield* Effect.fail(new InvalidValueError("Obtener las referencias para todos los contenidos y temas es muy caro!"))
     }
-}
 
-
-export async function getReferencesToInsert(ctx: AppContext, uris?: string[], topics?: string[]) {
-    if (!topics && !uris) throw Error("Obtener las referencias para todos los contenidos y temas es muy caro!")
-
-    const matches = await ftsReferencesQuery(ctx, uris, topics)
+    const matches = yield* ftsReferencesQuery(ctx, uris, topics)
 
     // entre cada par (tema, contenido) almacenamos a lo sumo una referencia
     const refsMap = new Map<string, ReferenceToInsert>()
@@ -121,7 +127,7 @@ export async function getReferencesToInsert(ctx: AppContext, uris?: string[], to
         const key = `${m.uri}:${m.id}`
         const cur = refsMap.get(key)
         if (!cur || !cur.relevance || cur.relevance < m.rank) {
-            if(m.created_at_tz) {
+            if (m.created_at_tz) {
                 refsMap.set(key, {
                     id: uuidv4(),
                     referencedTopicId: m.id,
@@ -135,28 +141,36 @@ export async function getReferencesToInsert(ctx: AppContext, uris?: string[], to
     }
 
     return Array.from(refsMap.values())
-}
+}).pipe(Effect.withSpan("getReferencesToInsert", {attributes: {urisCount: uris?.length ?? -1, topicsCount: topics?.length ?? -1}}))
 
 
-async function updateReferencesForContentsAndTopics(ctx: AppContext, contents?: string[], topics?: string[]): Promise<string[]> {
-    if (!topics && !contents) throw Error("Obtener las referencias para todos los contenidos y temas es muy caro!")
+const updateReferencesForContentsAndTopics = (
+    ctx: AppContext,
+    contents?: string[],
+    topics?: string[]
+): Effect.Effect<string[], DBSelectError | DBInsertError | InvalidValueError> => Effect.gen(function* () {
+    if (!topics && !contents) {
+        return yield* Effect.fail(
+            new InvalidValueError("Obtener las referencias para todos los contenidos y temas es muy caro!")
+        )
+    }
     const topicBs = 10
     const contentsBs = 500
     if (!contents && topics && topics.length > topicBs) {
         const newReferences: string[] = []
         for (let i = 0; i < topics.length; i += topicBs) {
-            newReferences.push(...await updateReferencesForContentsAndTopics(ctx, contents, topics.slice(i, i + topicBs)))
+            newReferences.push(...yield* updateReferencesForContentsAndTopics(ctx, contents, topics.slice(i, i + topicBs)))
         }
         return newReferences
     } else if (!topics && contents && contents.length > contentsBs) {
         const newReferences: string[] = []
         for (let i = 0; i < contents.length; i += contentsBs) {
-            newReferences.push(...await updateReferencesForContentsAndTopics(ctx, contents.slice(i, i + contentsBs), topics))
+            newReferences.push(...yield* updateReferencesForContentsAndTopics(ctx, contents.slice(i, i + contentsBs), topics))
         }
         return newReferences
     } else {
-        const referencesToInsert = await getReferencesToInsert(ctx, contents, topics)
-        await applyReferencesUpdate(
+        const referencesToInsert = yield* getReferencesToInsert(ctx, contents, topics)
+        yield* applyReferencesUpdate(
             ctx,
             referencesToInsert,
             contents,
@@ -164,7 +178,7 @@ async function updateReferencesForContentsAndTopics(ctx: AppContext, contents?: 
         )
         return referencesToInsert.map(r => r.id)
     }
-}
+}).pipe(Effect.withSpan("updateReferencesForContentsAndTopics", {attributes: {contentsCount: contents?.length ?? -1, topicsCount: topics?.length ?? -1}}))
 
 
 export type ReferenceToInsert = {
@@ -178,20 +192,21 @@ export type ReferenceToInsert = {
 }
 
 
-async function applyReferencesUpdate(ctx: AppContext, referencesToInsert: ReferenceToInsert[], contentUris?: string[], topicIds?: string[]) {
+const applyReferencesUpdate = (
+    ctx: AppContext,
+    referencesToInsert: ReferenceToInsert[],
+    contentUris?: string[],
+    topicIds?: string[]
+): Effect.Effect<void, DBInsertError> => Effect.gen(function* () {
     // asumimos que referencesToInsert tiene todas las referencias en el producto cartesiano
     // entre contentIds y topicIds
     // si contentIds es undefined son todos los contenidos y lo mismo con topicIds
     if (contentUris != null && contentUris.length == 0 || topicIds != null && topicIds.length == 0) return
 
-    try {
-        const date = new Date()
-        ctx.logger.pino.info(
-            {count: referencesToInsert.length},
-            "applying references update"
-        )
+    const date = new Date()
 
-        await ctx.kysely.transaction().execute(async trx => {
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async trx => {
             if (referencesToInsert.length > 0) {
                 await trx
                     .insertInto("Reference")
@@ -208,38 +223,35 @@ async function applyReferencesUpdate(ctx: AppContext, referencesToInsert: Refere
                 .where("touched_tz", "<", date)
                 .$if(
                     contentUris != null,
-                    qb => qb.where("Reference.referencingContentId", "in", contentUris!))
+                    qb => qb.where("Reference.referencingContentId", "in", contentUris!)
+                )
                 .$if(
                     topicIds != null,
-                    qb => qb.where("Reference.referencedTopicId", "in", topicIds!))
+                    qb => qb.where("Reference.referencedTopicId", "in", topicIds!)
+                )
                 .execute()
-        })
-    } catch (e) {
-        ctx.logger.pino.error({error: e}, "error applying references update")
-        throw e
-    }
-}
+        }),
+        catch: error => new DBInsertError(error)
+    })
+}).pipe(Effect.withSpan("applyReferencesUpdate", {attributes: {referencesCount: referencesToInsert.length}}))
+
 
 export type TextAndFormat = { text: string, format: string | null }
 
-export async function getLastReferencesUpdate(ctx: AppContext) {
-    return (await getTimestamp(ctx, "last-references-update")) ?? new Date(0)
+export const getLastReferencesUpdate = (ctx: AppContext) => Effect.gen(function* () {
+    return (yield* getTimestamp(ctx, "last-references-update")) ?? new Date(0)
+})
+
+
+export const setLastReferencesUpdate = (ctx: AppContext, date: Date) => {
+    return updateTimestamp(ctx, "last-references-update", date)
 }
 
 
-export async function setLastReferencesUpdate(ctx: AppContext, date: Date) {
-    ctx.logger.pino.info({date}, "setting last references update")
-    await updateTimestamp(ctx, "last-references-update", date)
-}
+export const updateReferencesForNewTopics = (ctx: AppContext) => Effect.gen(function* () {
+    const lastUpdate = yield* getLastReferencesUpdate(ctx)
 
-
-export async function updateReferencesForNewTopics(ctx: AppContext) {
-    const lastUpdate = await getLastReferencesUpdate(ctx)
-
-    ctx.logger.pino.info({lastUpdate}, "updating references for new topics")
-    const topicIds = await getEditedTopics(ctx, lastUpdate)
-
-    ctx.logger.pino.info({count: topicIds.length, head: topicIds.slice(0, 5)}, "edited topics")
+    const topicIds = yield* getEditedTopics(ctx, lastUpdate)
 
     if (topicIds.length == 0) {
         return
@@ -247,53 +259,36 @@ export async function updateReferencesForNewTopics(ctx: AppContext) {
 
     const bs = 10
     for (let i = 0; i < topicIds.length; i += bs) {
-        ctx.logger.pino.info({newTopics: topicIds.length, bs}, "updating references for new topics batch")
-        const t1 = Date.now()
-        await updateReferencesForContentsAndTopics(ctx, undefined, topicIds.slice(i, i + bs))
-        const t2 = Date.now()
-        ctx.logger.logTimes("updating references for new topics batch", [t1, t2])
+        yield* updateReferencesForContentsAndTopics(ctx, undefined, topicIds.slice(i, i + bs))
     }
-}
+})
 
 
-export async function updateReferences(ctx: AppContext) {
+export const updateReferences = (ctx: AppContext): Effect.Effect<void, DBSelectError | DBInsertError | InvalidValueError> => Effect.gen(function* () {
     const updateTime = new Date()
 
-    await updateReferencesForNewContents(ctx)
-    await updateReferencesForNewTopics(ctx)
+    yield* updateReferencesForNewContents(ctx)
+    yield* updateReferencesForNewTopics(ctx)
 
-    await setLastReferencesUpdate(ctx, updateTime)
-}
-
-
-export async function cleanNotCAReferences(ctx: AppContext) {
-    const caUsers = await getCAUsersDids(ctx)
-
-    await ctx.kysely
-        .deleteFrom("Reference")
-        .innerJoin("Record", "Reference.referencingContentId", "Record.uri")
-        .where("Record.authorId", "not in", caUsers)
-        .execute()
-}
+    yield* setLastReferencesUpdate(ctx, updateTime)
+})
 
 
-export async function updatePopularitiesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
-    const t1 = Date.now()
-    await updateContentsText(ctx)
-    const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(ctx, undefined, topicIds)
-    const t3 = Date.now()
-    await updateTopicInteractionsOnNewReferences(ctx, newReferences)
-    const t4 = Date.now()
-    await updateTopicPopularities(ctx, topicIds)
-    const t5 = Date.now()
+export const updatePopularitiesOnTopicsChange = (
+    ctx: AppContext,
+    topicIds: string[]
+): Effect.Effect<void, DBDeleteError | DBSelectError | DBInsertError | InvalidValueError> => Effect.gen(function* () {
+    yield* updateContentsText(ctx)
 
-    await updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
+    const newReferences = yield* updateReferencesForContentsAndTopics(ctx, undefined, topicIds)
 
-    await updateContentCategoriesOnTopicsChange(ctx, topicIds)
+    yield* updateTopicInteractionsOnNewReferences(ctx, newReferences)
+    yield* updateTopicPopularities(ctx, topicIds)
 
-    ctx.logger.logTimes(`update refs and pops on ${topicIds.length} topics`, [t1, t2, t3, t4, t5])
-}
+    yield* updateTopicsCategoriesOnTopicsChange(ctx, topicIds)
+
+    yield* updateContentCategoriesOnTopicsChange(ctx, topicIds)
+})
 
 
 export function findMentionsInText(text: string) {
@@ -307,7 +302,10 @@ export function findMentionsInText(text: string) {
 }
 
 
-async function createMentionNotifications(ctx: AppContext, uris: string[]) {
+const createMentionNotifications = (
+    ctx: AppContext,
+    uris: string[]
+) => Effect.gen(function* () {
     const filteredUris = uris.filter(u => {
         const c = getCollectionFromUri(u)
         return isArticle(c) || isTopicVersion(c)
@@ -315,11 +313,14 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
 
     if (filteredUris.length == 0) return
 
-    const texts = await ctx.kysely
-        .selectFrom("Content")
-        .where("Content.uri", "in", filteredUris)
-        .select(["Content.text", "Content.dbFormat", "Content.uri"])
-        .execute()
+    const texts = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Content")
+            .where("Content.uri", "in", filteredUris)
+            .select(["Content.text", "Content.dbFormat", "Content.uri"])
+            .execute(),
+        catch: (error) => new DBSelectError(error)
+    })
 
     const data: NotificationJobData[] = []
     for (let i = 0; i < texts.length; i++) {
@@ -342,51 +343,45 @@ async function createMentionNotifications(ctx: AppContext, uris: string[]) {
         }
     }
     if (data.length > 0) {
-        ctx.worker?.addJob("batch-create-notifications", data)
+        yield* ctx.worker?.addJob("batch-create-notifications", data)
     }
-}
+}).pipe(Effect.withSpan("createMentionNotifications", {attributes: {count: uris.length}}))
 
 
-export async function updatePopularitiesOnContentsChange(ctx: AppContext, uris: string[]) {
-    const t1 = Date.now()
-    await updateContentsText(ctx, uris)
-    const t2 = Date.now()
-    const newReferences = await updateReferencesForContentsAndTopics(
+export const updatePopularitiesOnContentsChange = (
+    ctx: AppContext,
+    uris: string[]
+): Effect.Effect<void, DBInsertError | DBSelectError | AddJobError | InvalidValueError | DBDeleteError> => Effect.gen(function* () {
+    yield* updateContentsText(ctx, uris)
+
+    const newReferences = yield* updateReferencesForContentsAndTopics(
         ctx,
         uris,
         undefined
     )
-    const t3 = Date.now()
-    const topicsWithNewInteractions = await updateTopicInteractionsOnNewReferences(
+    const topicsWithNewInteractions = yield* updateTopicInteractionsOnNewReferences(
         ctx,
         newReferences
     )
-    const t4 = Date.now()
-    topicsWithNewInteractions.push(...await updateTopicInteractionsOnNewReplies(
+    topicsWithNewInteractions.push(...yield* updateTopicInteractionsOnNewReplies(
         ctx,
         uris
     ))
-    const t5 = Date.now()
-    await updateTopicPopularities(
+    yield* updateTopicPopularities(
         ctx,
         topicsWithNewInteractions
     )
-    const t6 = Date.now()
 
-    await createMentionNotifications(
+    yield* createMentionNotifications(
         ctx,
         uris
     )
-    const t7 = Date.now()
 
-    await updateDiscoverFeedIndex(
+    yield* updateDiscoverFeedIndex(
         ctx,
         uris
     )
-    const t8 = Date.now()
-
-    ctx.logger.logTimes(`update refs and pops on ${uris.length} contents`, [t1, t2, t3, t4, t5, t6, t7, t8])
-}
+}).pipe(Effect.withSpan("updatePopularitiesOnContentsChange", {attributes: {count: uris.length}}))
 
 
 export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
@@ -404,58 +399,60 @@ export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: st
 }
 
 
-export async function recreateAllReferences(ctx: AppContext, since: Date = new Date(0)) {
-    const current = await getLastReferencesUpdate(ctx)
+export const recreateAllReferences = (
+    ctx: AppContext,
+    since: Date = new Date(0)
+) => Effect.gen(function* () {
+    const current = yield* getLastReferencesUpdate(ctx)
     ctx.logger.pino.info({current}, "last references update was")
-    await updateContentsText(ctx)
-    await setLastReferencesUpdate(ctx, since)
+    yield* updateContentsText(ctx)
+    yield* setLastReferencesUpdate(ctx, since)
     const startDate = new Date()
-    await updateReferencesForNewContents(ctx)
-    await setLastReferencesUpdate(ctx, startDate)
-}
+    yield* updateReferencesForNewContents(ctx)
+    yield* setLastReferencesUpdate(ctx, startDate)
+})
 
 
-export async function recomputeTopicInteractionsAndPopularities(ctx: AppContext, since: Date = new Date(0)) {
+export const recomputeTopicInteractionsAndPopularities = (
+    ctx: AppContext,
+    since: Date = new Date(0)
+) => Effect.gen(function* () {
     let offset = 0
     const bs = 2000
 
     while (true) {
-        const t1 = Date.now()
-        const references = await ctx.kysely
-            .selectFrom("Reference")
-            .innerJoin("Record", "Record.uri", "Reference.referencingContentId")
-            .select(["id", "referencedTopicId"])
-            .limit(bs)
-            .offset(offset)
-            .where("Record.created_at", ">", since)
-            .execute()
-        const t2 = Date.now()
+        const references = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("Reference")
+                .innerJoin("Record", "Record.uri", "Reference.referencingContentId")
+                .select(["id", "referencedTopicId"])
+                .limit(bs)
+                .offset(offset)
+                .where("Record.created_at", ">", since)
+                .execute(),
+            catch: (error) => new DBSelectError(error)
+        })
         if (references.length == 0) break
 
-        await updateTopicInteractionsOnNewReferences(ctx, references.map(r => r.id))
-        const t3 = Date.now()
+        yield* updateTopicInteractionsOnNewReferences(ctx, references.map(r => r.id))
         const topics = references.map(r => r.referencedTopicId)
-        await updateTopicPopularities(ctx, topics)
-        const t4 = Date.now()
+        yield* updateTopicPopularities(ctx, topics)
 
-        ctx.logger.logTimes("recomputing topic interactions and popularities batch", [t1, t2, t3, t4], {offset})
         offset += bs
         if (references.length < bs) break
     }
-}
+})
 
 
 export async function getTopicsReferencedInText(ctx: AppContext, text: string): Promise<ArCabildoabiertoFeedDefs.TopicMention[]> {
     if (!text.trim()) return []
 
-    const text_tsv = sql`to_tsvector
-        ('public.spanish_simple_unaccent', ${text})`;
+    const text_tsv = sql`to_tsvector('public.spanish_simple_unaccent', ${text})`;
 
     const matches = await ctx.kysely
         .with("Synonyms", eb => eb
             .selectFrom("Topic")
-            .select(["id", "currentVersionId", sql<string>`unnest
-                ("Topic"."synonyms")`.as("keyword")])
+            .select(["id", "currentVersionId", sql<string>`unnest("Topic"."synonyms")`.as("keyword")])
         )
         .selectFrom("Synonyms")
         .where(sql<boolean>`
@@ -492,16 +489,18 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
 }
 
 
-export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) {
+export const updateDiscoverFeedIndex = (
+    ctx: AppContext,
+    uris?: string[]
+) => Effect.gen(function* () {
     const batchSize = 2000
     let offset = 0
 
     if (uris != null && uris.length == 0) return
 
     while (true) {
-        ctx.logger.pino.info({offset}, "batch")
-        try {
-            const contents = await ctx.kysely
+        const contents = yield* Effect.tryPromise({
+            try: () => ctx.kysely
                 .selectFrom("Content")
                 .innerJoin("Record", "Record.uri", "Content.uri")
                 .where("Record.collection", "in", ["ar.cabildoabierto.feed.article", "app.bsky.feed.post"])
@@ -520,30 +519,33 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
                     ).as("mentionedTopicsProps")
                 ])
                 .orderBy("Record.created_at_tz desc")
-                .execute()
+                .execute(),
+            catch: (error) => new DBSelectError(error)
+        })
 
-            if (contents.length == 0) break
+        if (contents.length == 0) break
 
-            const values: { categoryId: string, contentId: string, created_at: Date }[] = []
-            for (const c of contents) {
-                const cats = unique(c.mentionedTopicsProps.flatMap(p => {
-                    return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
-                }))
-                for (const cat of cats) {
-                    if (c.created_at_tz) {
-                        values.push({
-                            categoryId: cat,
-                            contentId: c.uri,
-                            created_at: c.created_at_tz
-                        })
-                    } else {
-                        ctx.logger.pino.warn({uri: c.uri}, "content has no created at tz")
-                    }
+        const values: { categoryId: string, contentId: string, created_at: Date }[] = []
+        for (const c of contents) {
+            const cats = unique(c.mentionedTopicsProps.flatMap(p => {
+                return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+            }))
+            for (const cat of cats) {
+                if (c.created_at_tz) {
+                    values.push({
+                        categoryId: cat,
+                        contentId: c.uri,
+                        created_at: c.created_at_tz
+                    })
+                } else {
+                    ctx.logger.pino.warn({uri: c.uri}, "content has no created at tz")
                 }
             }
+        }
 
-            if (values.length > 0) {
-                await ctx.kysely.transaction().execute(async trx => {
+        if (values.length > 0) {
+            yield* Effect.tryPromise({
+                try: () => ctx.kysely.transaction().execute(async trx => {
                     await trx
                         .deleteFrom("DiscoverFeedIndex")
                         .where("contentId", "in", unique(values.map(v => v.contentId)))
@@ -553,80 +555,33 @@ export async function updateDiscoverFeedIndex(ctx: AppContext, uris?: string[]) 
                         .insertInto("DiscoverFeedIndex")
                         .values(values)
                         .execute()
-                })
-            }
+                }),
+                catch: (error) => new DBInsertError(error)
+            })
+        }
 
-            offset += batchSize
-            if (contents.length < batchSize || uris != null) {
-                break
-            }
-        } catch (error) {
-            ctx.logger.pino.error({error, offset, batchSize}, "error updating discover feed index")
-            throw error
+        offset += batchSize
+        if (contents.length < batchSize || uris != null) {
+            break
         }
     }
-}
+}).pipe(Effect.withSpan("updateDiscoverFeedIndex", {attributes: {count: uris?.length ?? -1}}))
 
 
 /***
  actualizamos las categorías de todos los contenidos que mencionen a algún tema de la lista
  */
-export async function updateContentCategoriesOnTopicsChange(ctx: AppContext, topicIds: string[]) {
-    const contents = await ctx.kysely.selectFrom("Reference")
-        .where("referencedTopicId", "in", topicIds)
-        .select("Reference.referencingContentId")
-        .execute()
+export const updateContentCategoriesOnTopicsChange = (
+    ctx: AppContext,
+    topicIds: string[]
+) => Effect.gen(function* () {
+    const contents = yield* Effect.tryPromise({
+        try: () => ctx.kysely.selectFrom("Reference")
+            .where("referencedTopicId", "in", topicIds)
+            .select("Reference.referencingContentId")
+            .execute(),
+        catch: error => new DBSelectError(error)
+    })
 
-    await updateDiscoverFeedIndex(ctx, contents.map(c => c.referencingContentId))
-}
-
-
-export async function updateReferencesCreatedAt(ctx: AppContext) {
-    let offset = 0
-    const bs = 5000
-
-    while (true) {
-        ctx.logger.pino.info({offset, bs}, "updating references created at")
-        const res = await ctx.kysely
-            .selectFrom("Reference")
-            .innerJoin("Record", "Record.uri", "Reference.referencingContentId")
-            .select([
-                "Reference.id",
-                "Record.created_at_tz",
-                "Reference.referencingContentId",
-                "Reference.referencingContentCreatedAt",
-                "Reference.referencedTopicId"
-            ])
-            .where("Reference.referencingContentCreatedAt", "<", new Date(Date.now() - 1000 * 60 * 60 * 24 * 365 * 20))
-            .limit(bs)
-            .offset(offset)
-            .execute()
-        if (res.length == 0) break
-
-        const values: ({
-            id: string,
-            referencingContentCreatedAt: Date,
-            type: "Strong" | "Weak",
-            referencingContentId: string
-            referencedTopicId: string
-        } | null)[] = res
-            .map(r => r.created_at_tz != null ? {
-                id: r.id,
-                referencingContentCreatedAt: r.created_at_tz,
-                type: "Weak",
-                referencingContentId: r.referencingContentId,
-                referencedTopicId: r.referencedTopicId
-            } : null)
-
-        await ctx.kysely
-            .insertInto("Reference")
-            .values(values.filter(x => x != null))
-            .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
-                referencingContentCreatedAt: eb.ref("excluded.referencingContentCreatedAt")
-            })))
-            .execute()
-
-        if (res.length < bs) break
-        offset += bs
-    }
-}
+    yield* updateDiscoverFeedIndex(ctx, contents.map(c => c.referencingContentId))
+}).pipe(Effect.withSpan("updateContentCategoriesOnTopicsChange", {attributes: {count: topicIds.length}}))

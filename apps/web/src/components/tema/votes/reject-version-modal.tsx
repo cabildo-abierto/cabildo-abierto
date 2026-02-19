@@ -1,9 +1,5 @@
 import React from 'react';
-import InfoPanel from '@/components/utils/base/info-panel';
-import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
-import {CloseButton} from "@/components/utils/base/close-button";
-import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useSession} from "@/components/auth/use-session";
 import {
     invalidateQueriesAfterVoteUpdate,
@@ -13,7 +9,7 @@ import {getDidFromUri, getRkeyFromUri} from '@cabildo-abierto/utils';
 import {post} from "../../utils/react/fetch";
 import {useQueryClient} from "@tanstack/react-query";
 import {CreatePostProps} from "@cabildo-abierto/api";
-import {ThreadEditor} from "@/components/writing/write-panel/thread-editor";
+import WritePanelPanel from "@/components/writing/write-panel/write-panel-panel";
 
 
 async function rejectEdit({ref, reason, force}: { ref: ATProtoStrongRef, force: boolean, reason: CreatePostProps }) {
@@ -32,56 +28,32 @@ export const RejectVersionModal = ({open, onClose, topicId, versionRef}: {
     versionRef: ATProtoStrongRef
     topicId: string
 }) => {
-    const {isMobile} = useLayoutConfig()
     const {user} = useSession()
     const qc = useQueryClient()
 
     const onReject = async (p: CreatePostProps, force: boolean) => {
-        const {error, data} = await rejectEdit({
+        const res = await rejectEdit({
             ref: versionRef,
             reason: p,
             force
         })
-        if(error || !data) return {error: error ?? "Ocurrió un error al enviar el voto."}
+        if(res.success === false) return {error: res.error ?? "Ocurrió un error al enviar el voto."}
         optimisticRejectVote(qc, topicId, versionRef.uri, user)
-        setCreatedRejectVote(qc, topicId, versionRef.uri, data.uri)
+        setCreatedRejectVote(qc, topicId, versionRef.uri, res.value.uri)
         invalidateQueriesAfterVoteUpdate(qc, versionRef.uri, topicId)
         return {}
     }
 
-    return <BaseFullscreenPopup
+    return <WritePanelPanel
+        replyTo={{$type: "com.atproto.repo.strongRef", ...versionRef}}
+        isVoteReject={true}
         open={open}
-        closeButton={false}
+        onClose={onClose}
+        handleSubmit={async (p) => {
+            const res = await onReject(p, false)
+            onClose()
+            return res
+        }}
         className={"z-[1502]"}
-    >
-        <div className={"flex flex-col items-center " + (isMobile ? "w-screen" : "w-[500px]")}>
-            <div className={"flex justify-between items-center w-full p-1"}>
-                <div className={"flex space-x-1 items-center pl-1"}>
-                    <h3 className={"text-sm uppercase"}>
-                        Rechazar versión
-                    </h3>
-                    <InfoPanel
-                        iconFontSize={16}
-                        text={"Se va a agregar un voto de rechazo a esta versión y una publicación en la discusión del tema con tu justificación."}
-                    />
-                </div>
-                <div>
-                    <CloseButton onClose={onClose} size={"small"}/>
-                </div>
-            </div>
-            <div className="w-full">
-                <ThreadEditor
-                    replyTo={{$type: "com.atproto.repo.strongRef", ...versionRef}}
-                    setHidden={(v) => {}}
-                    handleSubmit={async (p) => {
-                        const res = await onReject(p, false)
-                        onClose()
-                        return res
-                    }}
-                    isVoteReject={true}
-                    onClose={() => {}}
-                />
-            </div>
-        </div>
-    </BaseFullscreenPopup>
+    />
 }

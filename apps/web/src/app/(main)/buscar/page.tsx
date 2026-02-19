@@ -22,9 +22,9 @@ const Page = () => {
     const searching = searchState.searching && searchState.value && searchState.value.length > 0
 
     return <div className={"flex flex-col items-center pb-16"}>
-        {searching && <div className={"w-full"}>
+        <div className={"w-full"}>
             <SearchContent/>
-        </div>}
+        </div>
         {!searching && <div className={"sm:py-32 py-8 text-[var(--text)] opacity-[0.05]"}>
             <MagnifyingGlassIcon fontSize={!layoutConfig.spaceForRightSide ? 128 : 256} weight={"bold"}/>
         </div>}

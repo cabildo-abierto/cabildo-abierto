@@ -77,7 +77,9 @@
             "refs": [
               "ar.cabildoabierto.embed.visualization",
               "ar.cabildoabierto.embed.visualization#view",
-              "app.bsky.embed.images#view"
+              "app.bsky.embed.images#view",
+              "ar.cabildoabierto.embed.poll",
+              "ar.cabildoabierto.embed.poll#view"
             ]
           },
           "index": {

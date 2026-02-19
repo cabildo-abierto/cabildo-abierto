@@ -3,16 +3,20 @@ import {
 } from "@cabildo-abierto/utils";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
-import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
 
 export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoDataDataset.Record> {
 
-    validateRecord = ArCabildoabiertoDataDataset.validateRecord
+    validateRecord(record: ArCabildoabiertoDataDataset.Record) {
+        return Effect.succeed(ArCabildoabiertoDataDataset.validateRecord(record))
+    }
 
-    async addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoDataDataset.Record}[], reprocess: boolean = false) {
+    addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoDataDataset.Record}[], reprocess: boolean = false) {
         const datasets = records.map(({ref, record: r}) => ({
             uri: ref.uri,
             columns: r.columns.map(({name}: { name: string }) => (name)),
@@ -35,7 +39,8 @@ export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoData
             })) ?? []
         )
 
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+
+        const insertRecords = this.ctx.kysely.transaction().execute(async (trx) => {
             await this.processRecordsBatch(trx, records)
 
             await trx
@@ -66,13 +71,21 @@ export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoData
                 .values(blocks)
                 .onConflict((oc) => oc.column("cid").doNothing())
                 .execute()
+
+            return records.length
+        })
+
+        return Effect.tryPromise({
+            try: () => insertRecords,
+            catch: () => new InsertRecordError()
         })
     }
 }
 
-export class DatasetDeleteProcessor extends DeleteProcessor {
-    async deleteRecordsFromDB(uris: string[]){
-        await this.ctx.kysely.transaction().execute(async (trx) => {
+
+export const datasetDeleteProcessor: DeleteProcessor = (ctx, uris) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely.transaction().execute(async (trx) => {
             await trx
                 .deleteFrom("DataBlock")
                 .where("DataBlock.datasetId", "in", uris)
@@ -85,6 +98,7 @@ export class DatasetDeleteProcessor extends DeleteProcessor {
                 .deleteFrom("Record")
                 .where("Record.uri", "in", uris)
                 .execute()
-        })
-    }
+        }),
+        catch: () => new DBDeleteError()
+    })
 }

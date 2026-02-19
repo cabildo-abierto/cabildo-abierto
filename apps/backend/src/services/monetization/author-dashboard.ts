@@ -4,9 +4,8 @@ import {ArCabildoabiertoWikiTopicVersion, EditorStatus} from "@cabildo-abierto/a
 import {sql} from "kysely";
 import {getSessionData} from "#/services/user/users.js";
 import {isVersionAccepted} from "#/services/wiki/current-version.js";
-import {getCollectionFromUri, getDidFromUri} from "@cabildo-abierto/utils";
+import {getCollectionFromUri, getDidFromUri, orderNumberDesc, sortByKey, sum} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
-import {orderNumberDesc, sortByKey, sum} from "@cabildo-abierto/utils";
 import {ReadChunks, ReadChunksAttr} from "#/services/monetization/read-tracking.js";
 import {FULL_READ_DURATION, joinManyChunks} from "#/services/monetization/get-users-with-read-sessions.js";
 
@@ -251,7 +250,7 @@ export function getReadPercentageFromChunks(chunks: ReadChunks, totalChunks: num
 }
 
 
-function getAvgReadFraction(readSessions: any[] | undefined, did: string) {
+function getAvgReadFraction(ctx: AppContext, readSessions: any[] | undefined, did: string) {
     if(!readSessions) return null
     const sessionsByUser = new Map<string, ReadChunksAttr[]>()
     readSessions.forEach(s => {
@@ -261,7 +260,7 @@ function getAvgReadFraction(readSessions: any[] | undefined, did: string) {
         ])
     })
 
-    return sum(Array.from(sessionsByUser.entries()).filter(([readerDid, s]) => s.length > 0 && readerDid != did), ([did, s]) => {
+    return sum(Array.from(sessionsByUser.entries()).filter(([readerDid, s]) => s.length > 0 && readerDid != did), ([readerDid, s]) => {
         const allUserChunks = s.map(s => s.chunks)
         const chunks = joinManyChunks(allUserChunks)
         return getReadPercentageFromChunks(chunks, s[0].totalChunks)
@@ -339,8 +338,8 @@ async function getArticlesForDashboardQuery(ctx: AppContext, did: string): Promi
     })
 
     return sortByKey(Array.from(m.values()).map(a => {
-        const seenBy = new Set(a.readSessions?.map(a => a.userId))
-        seenBy.delete(did)
+        const allReadSessions = a.readSessions?.filter(a => a.userId != did)
+        const seenBy = new Set(allReadSessions?.map(a => a.userId))
 
         const verifiedReadSessions = a.readSessions?.filter(r => r.verified)
         const seenByVerified = new Set<string>(
@@ -348,8 +347,8 @@ async function getArticlesForDashboardQuery(ctx: AppContext, did: string): Promi
         )
         seenByVerified.delete(did)
 
-        const avgReadFraction = getAvgReadFraction(a.readSessions, did)
-        const avgReadFractionVerified = getAvgReadFraction(verifiedReadSessions, did)
+        const avgReadFraction = getAvgReadFraction(ctx, allReadSessions, did)
+        const avgReadFractionVerified = getAvgReadFraction(ctx, verifiedReadSessions, did)
 
         return {
             uri: a.uri,

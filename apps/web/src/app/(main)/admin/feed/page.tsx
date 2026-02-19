@@ -28,51 +28,19 @@ const AdminFeedSection = ({name, children}: { name: string, children: ReactNode 
 export default function Page() {
 
     const getFeed = async (cursor?: string) => {
-        const {
-            error,
-            data
-        } = await get<GetFeedOutput<FeedViewContent>>("/all-ca-feed" + (cursor ? "?cursor=" + cursor : ""))
-        if (error) return {error}
-
-        return {
-            data: data
-        }
+        return get<GetFeedOutput<FeedViewContent>>("/all-ca-feed" + (cursor ? "?cursor=" + cursor : ""))
     }
 
     const getEnDiscusionFeed = async (cursor?: string) => {
-        const {
-            error,
-            data
-        } = await get<GetFeedOutput<FeedViewContent>>("/feed/discusion?metric=Recientes" + (cursor ? "&cursor=" + cursor : ""))
-        if (error) return {error}
-
-        return {
-            data: data
-        }
+        return get<GetFeedOutput<FeedViewContent>>("/feed/discusion?metric=Recientes" + (cursor ? "&cursor=" + cursor : ""))
     }
 
     const getArticlesFeed = async (cursor?: string) => {
-        const {
-            error,
-            data
-        } = await get<GetFeedOutput<FeedViewContent>>("/feed/articulos?metric=Recientes" + (cursor ? "&cursor=" + cursor : ""))
-        if (error) return {error}
-
-        return {
-            data: data
-        }
+        return get<GetFeedOutput<FeedViewContent>>("/feed/articulos?metric=Recientes" + (cursor ? "&cursor=" + cursor : ""))
     }
 
     const getAllTopicEditsFeed = async (cursor?: string) => {
-        const {
-            error,
-            data
-        } = await get<GetFeedOutput<FeedViewContent>>("/all-topic-edits-feed" + (cursor ? "?cursor=" + cursor : ""))
-        if (error) return {error}
-
-        return {
-            data: data
-        }
+        return get<GetFeedOutput<FeedViewContent>>("/all-topic-edits-feed" + (cursor ? "?cursor=" + cursor : ""))
     }
 
     return <div className={"flex flex-col space-y-8 items-center"}>

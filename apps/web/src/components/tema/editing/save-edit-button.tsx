@@ -5,26 +5,14 @@ import {useRouter} from "next/navigation";
 import {FloppyDiskIcon} from "@phosphor-icons/react";
 import {LexicalEditor} from "lexical";
 import {useCallback, useState} from "react";
-import {SaveEditPopup} from "../save-edit-popup";
+import {SaveEditPopup} from "./save-edit-popup";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/mutations/updates";
 import { post } from "../../utils/react/fetch";
-import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion, EmbedContext} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api";
 import {ProcessedLexicalState} from "@/components/editor/selection/processed-lexical-state";
 import {editorStateToMarkdown} from "../../editor/markdown-transforms";
 import { compress } from "@cabildo-abierto/editor-core";
-
-
-export type CreateTopicVersionProps = {
-    id: string
-    text?: string
-    format?: string,
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
-    message?: string,
-    claimsAuthorship?: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
-    embedContexts?: EmbedContext[]
-}
 
 
 async function createTopicVersion(body: CreateTopicVersionProps) {
@@ -63,13 +51,19 @@ export const SaveEditButton = ({
         setGuardEnabled(false)
         if (editor) {
             const editorState = new ProcessedLexicalState(editor.getEditorState().toJSON())
+            const stateAsMarkdown = editorStateToMarkdown(editorState)
+
+            if(!stateAsMarkdown) {
+                return {error: "Ocurrió un error al procesar el contenido."}
+            }
+
             const {
                 markdown,
                 embeds,
                 embedContexts
-            } = editorStateToMarkdown(editorState)
+            } = stateAsMarkdown
 
-            const {error} = await saveEditMutation.mutateAsync({
+            const res = await saveEditMutation.mutateAsync({
                 id: topic.id,
                 text: compress(markdown),
                 format: "markdown-compressed",
@@ -79,9 +73,9 @@ export const SaveEditButton = ({
                 embeds,
                 embedContexts
             })
-            if (error) return {error}
+            if (res.success === false) return {error: res.error}
         } else {
-            const {error} = await saveEditMutation.mutateAsync({
+            const res = await saveEditMutation.mutateAsync({
                 id: topic.id,
                 text: topic.text,
                 format: topic.format,
@@ -90,7 +84,7 @@ export const SaveEditButton = ({
                 props,
                 embeds: topic.embeds
             })
-            if (error) return {error}
+            if (res.success === false) return {error: res.error}
         }
 
         setSavingChanges(false)

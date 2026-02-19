@@ -62,7 +62,7 @@ const MainPageContent = () => {
                     className="text-[var(--text-light)] font-semibold">{config.title}</span>
                 </div>
             </Link>}
-        {(config.subtype == "discusion" || user) &&
+        {((config.subtype != "siguiendo" && config.subtype != "descubrir") || user) &&
             <div className={config.type == "topic" ? "pt-12" : ""}>
                 <FeedViewContentFeed
                     getFeed={getFeed(config)}

@@ -69,13 +69,13 @@ export const EditProfileModalWithProfile = ({open, onClose, profile}: Props & {p
     const qc = useQueryClient()
 
     async function onSubmit() {
-        const {error} = await post<UpdateProfileProps, {}>("/profile", {
+        const res = await post<UpdateProfileProps, {}>("/profile", {
             displayName: displayName != profile.displayName ? displayName : undefined,
             banner: banner && banner.$type == "file" ? banner.base64 : undefined,
             profilePic: profilePic && profilePic.$type == "file" ? profilePic.base64 : undefined,
             description: description != profile.description ? description : undefined
         })
-        if (error) return {error}
+        if (res.success === false) return {error: res.error}
         qc.invalidateQueries({queryKey: ["profile", profile.handle]})
         qc.invalidateQueries({queryKey: ["session"]})
         onClose()

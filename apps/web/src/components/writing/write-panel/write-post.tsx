@@ -1,5 +1,4 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {StateButton} from "@/components/utils/base/state-button"
 import {ExtraChars} from "./extra-chars";
 import {
     areSetsEqual,
@@ -36,13 +35,13 @@ import {AddVisualizationButton} from "./add-visualization-button";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
 import {profileUrl} from "@/components/utils/react/url";
-import {visualizationViewToMain} from "@/components/visualizations/visualization/utils";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
 import {AddThreadElementButton} from "@/components/writing/write-panel/add-thread-element-button";
 import {isThreadElementStateEmpty} from "@/components/writing/write-panel/write-panel-panel";
 import {getPlainText} from "@cabildo-abierto/editor-core";
-import {ThreadElementState} from "@/components/writing/write-panel/thread-editor";
+import {ThreadElementState} from "@/components/writing/write-panel/write-panel-panel";
 import {DeleteThreadElement} from "@/components/writing/write-panel/delete-thread-element";
+import {cn} from "@/lib/utils";
 
 const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
@@ -95,14 +94,14 @@ function useUpdateExternalEmbed(
 
         const handler = setTimeout(() => {
             async function onNewExternalEmbed(url: string) {
-                const {data, error} = await post<{ url: string }, {
+                const res = await post<{ url: string }, {
                     title: string | null,
                     description: string | null,
                     thumbnail: string | null
                 }>("/metadata", {url})
 
-                if (!error) {
-                    const {title, description, thumbnail} = data
+                if (res.success === true) {
+                    const {title, description, thumbnail} = res.value
                     const embed: $Typed<AppBskyEmbedExternal.View> = {
                         $type: "app.bsky.embed.external#view",
                         external: {
@@ -165,16 +164,26 @@ function getLinksFromEditor(editorState: EditorState) {
     return links
 }
 
-
-function useVisualizationInPostEditor(postView?: ArCabildoabiertoFeedDefs.PostView) {
-    let initialState: ArCabildoabiertoEmbedVisualization.Main | null = null
+/*
+let initialState: ArCabildoabiertoEmbedVisualization.Main | null = null
     if (postView) {
         if (ArCabildoabiertoEmbedVisualization.isView(postView.embed)) {
             initialState = visualizationViewToMain(postView.embed)
         }
     }
+ */
 
-    const [visualization, setVisualization] = useState<ArCabildoabiertoEmbedVisualization.Main>(initialState)
+function useVisualizationInPostEditor(threadElementState: ThreadElementState, setThreadElementState: (
+    updater: (prev: ThreadElementState) => ThreadElementState
+) => void, postView?: ArCabildoabiertoFeedDefs.PostView) {
+    const visualization = threadElementState.visualization ?? null
+
+    function setVisualization(v: ArCabildoabiertoEmbedVisualization.Main | null) {
+        setThreadElementState(prev => ({
+            ...prev,
+            visualization: v
+        }))
+    }
 
     return {visualization, setVisualization}
 }
@@ -217,7 +226,7 @@ export const WritePost = ({
     const {text, images, editorState, externalEmbed} = threadElementState
     const externalEmbedView = externalEmbed?.view
     const {user} = useSession()
-    const {visualization, setVisualization} = useVisualizationInPostEditor(postView)
+    const {visualization, setVisualization} = useVisualizationInPostEditor(threadElementState, setThreadElementState, postView)
     const {
         onRemove
     } = useUpdateExternalEmbed(
@@ -271,13 +280,6 @@ export const WritePost = ({
 
     const charLimit = 300
 
-    let textLength = 0
-    try {
-        textLength = getTextLength(text)
-    } catch {}
-
-    const valid = (textLength > 0 && textLength <= 300) || (images && images.length > 0) || visualization != null
-
     useEffect(() => {
         setLastTextChange(new Date())
     }, [editorState, setLastTextChange])
@@ -312,7 +314,7 @@ export const WritePost = ({
             />
         </div>}
         <div
-            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-64"}
+            className={"px-2 w-full pb-2 flex-grow flex flex-col space-y-4 min-h-48"}
         >
             {replyTo != undefined && <WritePanelReplyPreview
                 replyTo={replyTo}
@@ -331,7 +333,7 @@ export const WritePost = ({
                         descriptionOnHover={false}
                     />
                 </Link>
-                <div className="sm:text-lg flex-1" key={editorKey}>
+                <div className={cn("sm:text-lg flex-1", !isOnlyElement && "pr-6")} key={editorKey}>
                     <CAEditor
                         setEditor={setEditor}
                         setEditorState={setEditorState}
@@ -366,16 +368,6 @@ export const WritePost = ({
                 />}
                 <TopicsMentionedSmall mentions={topicsMentioned}/>
                 <AddToEnDiscusionButton enDiscusion={enDiscusion} setEnDiscusion={setEnDiscusion}/>
-                <StateButton
-                    variant={"outlined"}
-                    handleClick={async () => {
-                        return handleClickSubmit(false)
-                    }}
-                    disabled={!valid}
-                    size={"small"}
-                >
-                    {postView ? "Confirmar cambios" : isReply ? (isVoteReject ? "Confirmar" : "Responder") : "Publicar"}
-                </StateButton>
             </div>
         </div>
         {visualizationModalOpen && <InsertVisualizationModal

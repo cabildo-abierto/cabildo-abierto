@@ -37,6 +37,7 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         setErrors(errors.toSpliced(i))
                     }}
                     open={true}
+                    popupClassName={"z-[3000]"}
                 >
                     <div className={"font-bold text-lg"}>
                         :(

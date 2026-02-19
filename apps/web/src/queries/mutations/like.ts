@@ -1,6 +1,6 @@
 import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
-import {postOrArticle} from "../../utils/type-utils";
+import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
 import {
     updateContentInQueries
@@ -71,9 +71,9 @@ export function useLikeMutation(uri: string) {
         onMutate: (likedContent) => {
             optimisticAddLike(qc, likedContent.uri)
         },
-        onSuccess: (data, variables, context) => {
-            if (data.data.uri) {
-                setCreatedLike(qc, uri, data.data.uri)
+        onSuccess: (data) => {
+            if (data.success === true) {
+                setCreatedLike(qc, uri, data.value.uri)
             }
         }
     })

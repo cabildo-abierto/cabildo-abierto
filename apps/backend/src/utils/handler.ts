@@ -8,7 +8,11 @@ import {runtime} from "#/instrumentation.js";
 
 export type CAHandlerNoAuth<Params={}, Output={}> = (ctx: AppContext, agent: Agent, params: Params) => CAHandlerOutput<Output>
 
-export type EffHandlerNoAuth<Params={}, Output={}> = (ctx: AppContext, agent: Agent, params: Params) => Effect.Effect<Output, string>
+export type EffHandlerNoAuth<Params={}, Output={}> = (
+    ctx: AppContext,
+    agent: Agent,
+    params: Params
+) => Effect.Effect<Output, string>
 
 export type EffHandler<Params={}, Output={}> = (ctx: AppContext, agent: SessionAgent, params: Params) => Effect.Effect<Output, string>
 
@@ -31,7 +35,7 @@ const withUserAttributes = (agent: Agent) =>
                 ...(agent.did ? { "user.did": agent.did } : {}),
             }
             : { "user.authenticated": false }
-    );
+    )
 
 
 export function makeEffHandler<Params = {}, Output = {}>(
@@ -39,56 +43,57 @@ export function makeEffHandler<Params = {}, Output = {}>(
     fn: EffHandler<Params, Output>
 ): express.Handler {
     return async (req, res) => {
-        const spanName = `${req.method} ${req.route?.path || req.path}`;
+        const spanName = `${req.method} ${req.route?.path || req.path}`
 
         const program = Effect.gen(function* () {
-            yield* withHttpAttributes(req);
+            yield* withHttpAttributes(req)
 
             const agent = yield* Effect.promise(() => sessionAgent(req, res, ctx));
 
-            yield* withUserAttributes(agent);
+            yield* withUserAttributes(agent)
 
             if (!agent.hasSession()) {
-                return yield* Effect.fail("Unauthorized");
+                return {
+                    success: false,
+                    error: "Sin sesión"
+                }
             }
 
             const params = {
                 ...req.body,
                 params: req.params,
                 query: req.query,
-            } as Params;
+            } as Params
 
             yield* Effect.annotateCurrentSpan({
                 params: JSON.stringify(req.params),
                 query: JSON.stringify(req.query)
             })
 
-            return yield* fn(ctx, agent, params);
+            return {
+                success: true,
+                value: yield* fn(ctx, agent, params)
+            }
         }).pipe(
             Effect.withSpan(spanName, {
                 attributes: {
                     "span.kind": "server",
                 },
             })
-        );
+        )
 
         const exit = await runtime.runPromiseExit(
             program
-        );
+        )
 
         Exit.match(exit, {
             onFailure: (cause) => {
-                const error = cause.toString();
-
-                if (error.includes("Unauthorized")) {
-                    res.status(401).json({ error: "Unauthorized" });
-                } else {
-                    res.status(400).json({ error });
-                }
+                const error = cause.toString().replace(/^Error: /, '')
+                res.status(400).json({ error, success: false })
             },
             onSuccess: (data) => {
-                res.json({ data });
-            },
+                res.json(data)
+            }
         })
     }
 }
@@ -135,11 +140,11 @@ export function makeEffHandlerNoAuth<Params = {}, Output = {}>(
         Exit.match(exit, {
             onFailure: (cause) => {
                 const error = cause.toString();
-                res.status(400).json({ error });
+                res.status(400).json({ success: false, error });
             },
             onSuccess: (data) => {
-                res.json({ data });
-            },
+                res.json({ success: true, value: data });
+            }
         });
     };
 }
@@ -153,9 +158,13 @@ export function makeHandler<Params={}, Output={}>(ctx: AppContext, fn: CAHandler
         const agent = await sessionAgent(req, res, ctx)
         if(agent.hasSession()) {
             const json = await fn(ctx, agent, params)
-            return res.json(json)
+            if(json.error) {
+                return res.json({success: false, error: json.error})
+            } else {
+                return res.json({success: true, value: json.data})
+            }
         } else {
-            return res.json({error: "Unauthorized"})
+            return res.json({success: false, error: "Sin sesión"})
         }
     }
 }
@@ -166,7 +175,11 @@ export function makeHandlerNoAuth<Params={}, Output={}>(ctx: AppContext, fn: CAH
         const params = {...req.body, params: req.params, query: req.query} as Params
         const agent = await sessionAgent(req, res, ctx)
         const json = await fn(ctx, agent, params)
-        return res.json(json)
+        if(json.error) {
+            return res.json({success: false, error: json.error})
+        } else {
+            return res.json({success: true, value: json.data})
+        }
     }
 }
 
@@ -174,11 +187,11 @@ export function makeHandlerNoAuth<Params={}, Output={}>(ctx: AppContext, fn: CAH
 export function makeAdminHandler<P, Q>(ctx: AppContext, handler: CAHandler<P, Q>): express.Handler {
     const adminOnlyHandler: CAHandler<P, Q> = async (ctx, agent, params) => {
         if (isAdmin(agent.did)) {
-            return handler(ctx, agent, params);
+            return handler(ctx, agent, params)
         } else {
-            return {error: "Necesitás permisos de administrador para realizar esta acción."};
+            return {success: false, error: "Necesitás permisos de administrador para realizar esta acción."};
         }
-    };
+    }
 
     return makeHandler(ctx, adminOnlyHandler);
 }
@@ -202,7 +215,8 @@ export function isAdmin(did: string) {
         "did:plc:2356xofv4ntrbu42xeilxjnb",
         "did:plc:rup47j6oesjlf44wx4fizu4m",
         "did:plc:2dbz7h5m3iowpqc23ozltpje",
-        "did:plc:2semihha42b7efhu4ywv7whi"
+        "did:plc:2semihha42b7efhu4ywv7whi",
+        "did:plc:cpooyynmjuqtcyhujscrxme7"
     ].includes(did)
 }
 

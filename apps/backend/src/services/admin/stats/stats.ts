@@ -7,6 +7,10 @@ import {StatsDashboard, StatsDashboardUser} from "@cabildo-abierto/api";
 import {sql} from "kysely";
 import {AppContext} from "#/setup.js";
 import {v4 as uuidv4} from "uuid";
+import {Effect} from "effect";
+
+
+import {AddJobError} from "#/utils/errors.js";
 
 
 export const testUsers = [
@@ -140,10 +144,11 @@ export async function updateStat(ctx: AppContext, label: string, reset: boolean)
 }
 
 
-export async function updateAllStats(ctx: AppContext) {
-    for(const label of ["new-payment-promises", "wau"]) {
-        await ctx.worker?.addJob("update-stat", label)
-    }
+export function updateAllStats(ctx: AppContext): Effect.Effect<void, AddJobError> {
+    if(!ctx.worker) return Effect.void
+
+    return Effect.all(["new-payment-promises", "wau"]
+        .map(label => ctx.worker!.addJob("update-stat", label)))
 }
 
 

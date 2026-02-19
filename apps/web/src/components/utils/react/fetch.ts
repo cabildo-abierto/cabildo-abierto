@@ -1,4 +1,5 @@
 import {backendUrl} from "@/lib/fetch";
+import {APIResult} from "@cabildo-abierto/api";
 
 
 type FetchBackendProps = {
@@ -31,22 +32,18 @@ export const fetchBackend = async ({
 }
 
 
-export async function post<Body, Output>(route: string, body?: Body): PostOutput<Output> {
+export async function post<Body, Output={}>(route: string, body?: Body, redirect?: "follow" | "error" | "manual"): PostOutput<Output> {
     const res = await fetchBackend({
         route,
         method: "POST",
         credentials: "include",
-        body
+        body,
+        redirect
     })
     if (res.ok) {
-        const json = await res.json()
-        if (json.error && (json.error == "No session" || json.error == "Unauthorized")) {
-            // window.location.href = "/login"
-            return {error: "Iniciá sesión"}
-        }
-        return json
+        return await res.json()
     } else {
-        return {error: "Error en la conexión."}
+        return {success: false, error: "Error en la conexión."}
     }
 }
 
@@ -58,19 +55,14 @@ export async function get<Output>(route: string): PostOutput<Output> {
         credentials: "include"
     })
     if (res.ok) {
-        const json = await res.json()
-        if (json.error && (json.error == "No session" || json.error == "Unauthorized")) {
-            // window.location.href = "/login"
-            return {error: "Iniciá sesión"}
-        }
-        return json
+        return await res.json()
     } else {
-        return {error: "Error en la conexión"}
+        return {success: false, error: "Error en la conexión"}
     }
 }
 
 
-export type PostOutput<Output> = Promise<{ error?: string, data?: Output }>
+export type PostOutput<Output> = Promise<APIResult<Output>>
 
 
 export function setSearchParams(baseUrl: string, params: {[key: string]: string | string[] | undefined}): string {

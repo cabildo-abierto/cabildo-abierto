@@ -5,7 +5,7 @@ import {ListEditor} from "@/components/utils/base/list-editor";
 import {collectionsList} from "./acceso";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {DateSince} from "@/components/utils/base/date";
-import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
+import {sortByKey} from "@cabildo-abierto/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {useUsersSyncStatus, UserSyncStatus} from "@/queries/getters/admin";
 import {StateButton} from "@/components/utils/base/state-button";
@@ -80,7 +80,7 @@ export const AdminSync = () => {
     }
     
     const sortedUsers = syncData 
-        ? sortByKey(syncData, u => [new Date(u.CAProfile?.createdAt ?? 0).getTime()], listOrderDesc)
+        ? sortByKey(syncData, u => u.handle, (a: string, b: string) => a < b ? -1 : 1)
         : []
     
     // Count statuses for summary
@@ -137,9 +137,10 @@ export const AdminSync = () => {
                             </div>
                         ))}
                     </div>
-                    
-                    {/* Users table */}
-                    <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+
+                    <div
+                        className="max-h-[500px] overflow-y-scroll overscroll-y-contain"
+                    >
                         <table className="w-full min-w-[500px]">
                             <thead className="sticky top-0 bg-[var(--background-dark)]">
                                 <tr className="border-b border-[var(--background-dark2)]">
@@ -176,13 +177,13 @@ export const AdminSync = () => {
                 <StateButton
                     handleClick={async () => {
                         if (collections.length == 1) {
-                            const {error} = await post("/job/reprocess-collection", {
+                            const res = await post("/job/reprocess-collection", {
                                 jobData: {
                                     collection: collections[0],
                                     onlyRecords
                                 }
                             })
-                            return {error}
+                            return {error: res.success === false ? res.error : undefined}
                         } else {
                             return {error: "Seleccioná una collection"}
                         }

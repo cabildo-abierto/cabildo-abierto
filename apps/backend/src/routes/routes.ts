@@ -2,7 +2,7 @@ import express, {Router} from 'express'
 import {cookieOptions, handler, Session, sessionAgent} from "#/utils/session-agent.js";
 import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
 import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/search.js";
-import {createArticle} from "#/services/write/article.js";
+import {createArticleHandler} from "#/services/write/article.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
 import {createAccessRequest, getInviteCodesToShare, login} from "#/services/user/access.js";
@@ -10,14 +10,15 @@ import {getFeedByKind} from "#/services/feed/feed.js";
 import {getProfileFeed} from "#/services/feed/profile/profile.js";
 import {
     deleteSession,
-    follow,
+    followHandler,
     getAccount,
-    getProfile,
-    getSession,
+    getProfileHandler,
+    getSessionHandler,
+    saveNewEmail,
     setSeenTutorialHandler,
-    unfollow,
+    unfollowHandler,
     updateAlgorithmConfig,
-    updateProfile
+    updateProfileHandler
 } from "#/services/user/users.js";
 import {createPost} from "#/services/write/post.js";
 import {addLike, removeLike, removeRepost, repost} from "#/services/reactions/reactions.js";
@@ -33,22 +34,23 @@ import {
     getTopicsMentionedByContent
 } from "#/services/wiki/topics.js";
 import {
-    getTopicDiscussion,
     getTopicFeed,
-    getTopicMentionsInTopicsFeed,
-    getTopicQuoteReplies
+    getTopicMentionsInTopicsFeed
 } from "#/services/feed/topic.js";
-import {deleteCAProfile, deleteRecordHandler, deleteRecordsHandler} from "#/services/delete.js";
+import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
-import {createTopicVersion} from "#/services/write/topic.js";
+import {createTopicVersionHandler} from "#/services/write/topic.js";
 import path from "path";
-import {cancelEditVote, getTopicVersionVotesHandler, voteEdit} from "#/services/wiki/votes.js";
+import {cancelEditVoteHandler, getTopicVersionVotesHandler, voteEditHandler} from "#/services/wiki/votes.js";
 import {adminRoutes} from './admin-routes.js';
 import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
 import {createDataset} from '#/services/dataset/write.js';
-import {searchContents} from "#/services/feed/search.js";
-import {addToEnDiscusion, removeFromEnDiscusion} from "#/services/feed/inicio/discusion.js";
+import {mainSearch} from "#/services/feed/search.js";
+import {
+    addToEnDiscusionHandler,
+    removeFromEnDiscusionHandler
+} from "#/services/feed/inicio/discusion.js";
 import {
     attemptMPVerification,
     cancelValidationRequest,
@@ -88,10 +90,26 @@ import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/
 import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
 import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
-import {getFollowers, getFollows} from "#/services/user/follows.js";
+import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
+import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
+import {Effect, Exit} from "effect";
+import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
+}
+
+
+export class OAuthError {
+    readonly _tag = "DBSelectError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
 }
 
 
@@ -111,18 +129,33 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post('/login', makeHandlerNoAuth(ctx, login))
 
     router.get('/oauth/callback', async (req, res) => {
-        if (!ctx.oauthClient) return
-        const params = new URLSearchParams(req.originalUrl.split('?')[1])
-        try {
-            const {session} = await ctx.oauthClient.callback(params)
-            const clientSession = await getIronSession<Session>(req, res, cookieOptions)
-            clientSession.did = session.did
-            await clientSession.save()
-        } catch (err) {
-            ctx.logger.pino.error({error: err, params}, 'oauth callback failed')
-            return res.redirect(env.FRONTEND_URL + '/login/error')
-        }
-        return res.redirect(env.FRONTEND_URL + '/login/ok')
+        const oauthClient = ctx.oauthClient
+        if (!oauthClient) return
+
+        const exit = await Effect.runPromiseExit(
+            Effect.tryPromise({
+                try: async () => {
+                    const params = new URLSearchParams(req.originalUrl.split('?')[1])
+                    const {session} = await oauthClient.callback(params)
+                    const clientSession = await getIronSession<Session>(req, res, cookieOptions)
+                    clientSession.did = session.did
+                    await clientSession.save()
+                },
+                catch: error => {
+                    return Effect.fail(new OAuthError(error))
+                }
+            }).pipe(Effect.withSpan("oauth-callback"))
+        )
+
+        return Exit.match(exit, {
+            onSuccess: () => {
+                return res.redirect(env.FRONTEND_URL + '/login/ok')
+            },
+            onFailure: () => {
+                ctx.logger.pino.info("redirecting to error")
+                return res.redirect(env.FRONTEND_URL + '/login/error')
+            }
+        })
     })
 
     router.post('/logout', async (req, res) => {
@@ -146,52 +179,52 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/follow',
-        handler(makeHandler(ctx, follow))
+        handler(makeEffHandler(ctx, followHandler))
     )
 
     router.post(
         '/unfollow',
-        handler(makeHandler(ctx, unfollow))
+        handler(makeEffHandler(ctx, unfollowHandler))
     )
 
     router.post(
         '/article',
-        handler(makeHandler(ctx, createArticle))
+        handler(makeEffHandler(ctx, createArticleHandler))
     )
 
     router.post(
         '/post',
-        handler(makeHandler(ctx, createPost))
+        handler(makeEffHandler(ctx, createPost))
     )
 
     router.get(
         '/search-users/:query',
-        handler(makeHandlerNoAuth(ctx, searchUsers))
+        handler(makeEffHandlerNoAuth(ctx, searchUsers))
     )
 
     router.get(
         '/search-users-and-topics/:query',
-        handler(makeHandlerNoAuth(ctx, searchUsersAndTopics))
+        handler(makeEffHandlerNoAuth(ctx, searchUsersAndTopics))
     )
 
     router.post(
         '/like',
-        handler(makeHandler(ctx, addLike))
+        handler(makeEffHandler(ctx, addLike))
     )
 
     router.post(
         '/remove-like/:rkey',
-        handler(makeHandler(ctx, removeLike))
+        handler(makeEffHandler(ctx, removeLike))
     )
 
     router.post(
         '/repost',
-        handler(makeHandler(ctx, repost))
+        handler(makeEffHandler(ctx, repost))
     )
 
     router.post(
         '/remove-repost/:rkey',
-        handler(makeHandler(ctx, removeRepost))
+        handler(makeEffHandler(ctx, removeRepost))
     )
 
     router.get(
@@ -206,19 +239,19 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/profile/:handleOrDid',
-        handler(makeEffHandlerNoAuth(ctx, getProfile))
+        handler(makeEffHandlerNoAuth(ctx, getProfileHandler))
     )
 
     router.get("/test", makeHandlerNoAuth(ctx, serverStatusRouteHandler))
 
     router.get(
         '/session',
-        handler(makeEffHandlerNoAuth(ctx, getSession))
+        handler(makeEffHandlerNoAuth(ctx, getSessionHandler))
     )
 
     router.get(
         '/session/:code',
-        handler(makeEffHandlerNoAuth(ctx, getSession))
+        handler(makeEffHandlerNoAuth(ctx, getSessionHandler))
     )
 
     router.get(
@@ -228,7 +261,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/follows/:handleOrDid',
-        makeEffHandlerNoAuth(ctx, getFollows)
+        makeEffHandlerNoAuth(ctx, getFollowsHandler)
     )
 
     router.get(
@@ -238,17 +271,17 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic',
-        makeHandlerNoAuth(ctx, getTopicHandler)
+        makeEffHandlerNoAuth(ctx, getTopicHandler)
     )
 
     router.post(
         '/topic-version',
-        makeHandler(ctx, createTopicVersion)
+        makeEffHandler(ctx, createTopicVersionHandler)
     )
 
     router.get(
         '/topic-version/:did/:rkey',
-        makeHandlerNoAuth(ctx, getTopicVersionHandler)
+        makeEffHandlerNoAuth(ctx, getTopicVersionHandler)
     )
 
     router.get(
@@ -258,28 +291,28 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get(
         '/topic-discussion',
-        makeEffHandlerNoAuth(ctx, getTopicDiscussion)
+        makeEffHandlerNoAuth(ctx, getTopicDiscussionHandler)
     )
 
     router.get(
         '/topic-mentions-in-topics-feed',
-        makeHandlerNoAuth(ctx, getTopicMentionsInTopicsFeed)
+        makeEffHandlerNoAuth(ctx, getTopicMentionsInTopicsFeed)
     )
 
     router.get(
         '/topic-quote-replies/:did/:rkey',
-        makeHandlerNoAuth(ctx, getTopicQuoteReplies)
+        makeEffHandlerNoAuth(ctx, getTopicQuoteReplies)
     )
 
 
     router.get(
         '/topic-history/:id',
-        makeHandlerNoAuth(ctx, getTopicHistoryHandler)
+        makeEffHandlerNoAuth(ctx, getTopicHistoryHandler)
     )
 
     router.get(
         '/topic-version-changes/:curDid/:curRkey/:prevDid/:prevRkey',
-        makeHandlerNoAuth(ctx, getTopicVersionChanges)
+        makeEffHandlerNoAuth(ctx, getTopicVersionChanges)
     )
 
     router.post(
@@ -288,13 +321,8 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.post(
-        '/delete-records',
-        makeHandler(ctx, deleteRecordsHandler)
-    )
-
-    router.post(
         '/delete-record/:collection/:rkey',
-        makeHandler(ctx, deleteRecordHandler)
+        makeEffHandler(ctx, deleteRecordHandler)
     )
 
     router.get(
@@ -323,18 +351,18 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.get(
-        '/search-contents/:q',
-        makeEffHandlerNoAuth(ctx, searchContents)
+        '/search/:kind/:q',
+        makeEffHandlerNoAuth(ctx, mainSearch)
     )
 
     router.post(
         '/vote-edit/:vote/:did/:rkey/:cid',
-        makeHandler(ctx, voteEdit)
+        makeEffHandler(ctx, voteEditHandler)
     )
 
     router.post(
         '/cancel-edit-vote/:collection/:rkey',
-        makeHandler(ctx, cancelEditVote)
+        makeEffHandler(ctx, cancelEditVoteHandler)
     )
 
     router.post('/seen-tutorial/:tutorial',
@@ -342,27 +370,27 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.get('/datasets',
-        makeHandlerNoAuth(ctx, getDatasets)
+        makeEffHandlerNoAuth(ctx, getDatasets)
     )
 
     router.get('/dataset/:did/:collection/:rkey',
-        makeHandlerNoAuth(ctx, getDatasetHandler)
+        makeEffHandlerNoAuth(ctx, getDatasetHandler)
     )
 
     router.post('/topics-dataset',
-        makeHandlerNoAuth(ctx, getTopicsDatasetHandler)
+        makeEffHandlerNoAuth(ctx, getTopicsDatasetHandler)
     )
 
     router.post('/dataset',
-        makeHandler(ctx, createDataset)
+        makeEffHandler(ctx, createDataset)
     )
 
     router.post('/set-en-discusion/:collection/:rkey',
-        makeHandler(ctx, addToEnDiscusion)
+        makeEffHandler(ctx, addToEnDiscusionHandler)
     )
 
     router.post('/unset-en-discusion/:collection/:rkey',
-        makeHandler(ctx, removeFromEnDiscusion)
+        makeEffHandler(ctx, removeFromEnDiscusionHandler)
     )
 
     router.post(
@@ -377,7 +405,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/profile',
-        handler(makeHandler(ctx, updateProfile))
+        handler(makeEffHandler(ctx, updateProfileHandler))
     )
 
     router.post(
@@ -407,17 +435,17 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post('/notify-payment', makeHandlerNoAuth(ctx, processPayment))
 
-    router.post('/read-session/:did/:collection/:rkey', makeHandlerNoAuth(ctx, storeReadSessionHandler))
+    router.post('/read-session/:did/:collection/:rkey', makeEffHandlerNoAuth(ctx, storeReadSessionHandler))
 
     router.get("/topic-title/:id", makeHandlerNoAuth(ctx, getTopicTitleHandler))
 
-    router.get("/notifications/list", makeHandler(ctx, getNotifications))
+    router.get("/notifications/list", makeEffHandler(ctx, getNotifications))
 
     router.get("/notifications/unread-count", makeHandler(ctx, getUnreadNotificationsCount))
 
     router.get("/conversations/list", makeHandler(ctx, getConversations))
 
-    router.get("/conversation/:convoIdOrHandle", makeHandler(ctx, getConversation))
+    router.get("/conversation/:convoIdOrHandle", makeEffHandler(ctx, getConversation))
 
     router.post("/send-message", makeHandler(ctx, sendMessage))
 
@@ -427,9 +455,9 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/access-request", makeHandlerNoAuth(ctx, createAccessRequest))
 
-    router.get('/drafts', makeHandler(ctx, getDrafts))
+    router.get('/drafts', makeEffHandler(ctx, getDrafts))
 
-    router.get('/draft/:id', makeHandler(ctx, getDraft))
+    router.get('/draft/:id', makeEffHandler(ctx, getDraft))
 
     router.post('/draft', makeEffHandler(ctx, saveDraft))
 
@@ -445,13 +473,13 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/delete-ca-profile", makeHandler(ctx, deleteCAProfile))
 
-    router.get("/follow-suggestions/:limit/:cursor", makeHandler(ctx, getFollowSuggestions))
+    router.get("/follow-suggestions/:limit/:cursor", makeEffHandler(ctx, getFollowSuggestions))
 
-    router.get("/likes/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getLikes))
+    router.get("/likes/:did/:collection/:rkey", makeEffHandlerNoAuth(ctx, getLikes))
 
-    router.get("/reposts/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getReposts))
+    router.get("/reposts/:did/:collection/:rkey", makeEffHandlerNoAuth(ctx, getReposts))
 
-    router.get("/quotes/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getQuotes))
+    router.get("/quotes/:did/:collection/:rkey", makeEffHandlerNoAuth(ctx, getQuotes))
 
     router.post("/not-interested/:subject", makeHandler(ctx, setNotInterested))
 
@@ -464,11 +492,11 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/unsubscribe", makeHandler(ctx, unsubscribeHandlerWithAuth))
 
-    router.post("/subscribe", makeHandler(ctx, subscribeHandler))
+    router.post("/subscribe", makeEffHandler(ctx, subscribeHandler))
 
-    router.get("/votes/:did/:rkey", makeHandlerNoAuth(ctx, getTopicVersionVotesHandler))
+    router.get("/votes/:did/:rkey", makeEffHandlerNoAuth(ctx, getTopicVersionVotesHandler))
 
-    router.post("/election", makeHandlerNoAuth(ctx, getTopicsDataForElectionVisualizationHandler))
+    router.post("/election", makeEffHandlerNoAuth(ctx, getTopicsDataForElectionVisualizationHandler))
 
     router.get("/known-props", makeHandlerNoAuth(ctx, getKnownPropsHandler))
 
@@ -479,7 +507,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/attempt-mp-verification", makeHandler(ctx, attemptMPVerification))
 
-    router.post("/sync", makeHandler(ctx, syncHandler))
+    router.post("/sync", makeEffHandler(ctx, syncHandler))
 
     router.get("/interests", makeHandler(ctx, getInterestsHandler))
 
@@ -495,11 +523,23 @@ export const createRouter = (ctx: AppContext): Router => {
         })
     })
 
+    router.post("/email", makeEffHandler(ctx, saveNewEmail))
+
     router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
 
-    router.get("/topic-feeds", makeEffHandler(ctx, getTopicFeeds))
+    router.get("/topic-feeds", makeEffHandlerNoAuth(ctx, getTopicFeeds))
 
-    router.get("/custom-feed/:did/:rkey", makeHandler(ctx, getCustomFeed))
+    router.get("/custom-feed/:did/:rkey", makeEffHandlerNoAuth(ctx, getCustomFeed))
+
+    router.get("/poll/:id", makeEffHandlerNoAuth(ctx, getPollHandler))
+
+    router.post("/vote-poll", makeEffHandler(ctx, votePollHandler))
+
+    router.post("/cancel-vote-poll", makeEffHandler(ctx, cancelVotePollHandler))
+
+    router.get("/topic-polls", makeEffHandlerNoAuth(ctx, getTopicPolls))
+
+    router.get("/poll-votes/:id", makeEffHandlerNoAuth(ctx, getPollVotes))
 
     router.use(adminRoutes(ctx))
 
