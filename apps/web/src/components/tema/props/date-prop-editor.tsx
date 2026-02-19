@@ -12,16 +12,18 @@ import {
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {Switch} from "@/components/utils/ui/switch";
 import {useState} from "react";
+import {cn} from "@/lib/utils";
 
 function formatTime(date: Date) {
     return date.toTimeString().split(' ')[0]
 }
 
-export function DateAndTimePicker({value, onChange, label, time = true}: {
+export function DateAndTimePicker({value, onChange, label, time = true, buttonClassName = "w-32"}: {
     value: Date
     onChange: (value: Date) => void
-    label: boolean
+    label?: string
     time?: boolean
+    buttonClassName?: string
 }) {
     const [open, setOpen] = React.useState(false)
 
@@ -29,14 +31,14 @@ export function DateAndTimePicker({value, onChange, label, time = true}: {
         <div className="flex gap-4">
             <div className="flex flex-col gap-1">
                 {label && <Label htmlFor="date-picker" className="px-1">
-                    Fecha
+                    {label}
                 </Label>}
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button
                             size={"default"}
                             id="date-picker"
-                            className="w-32 border border-[var(--accent-dark)] justify-between font-normal"
+                            className={cn("border border-[var(--accent-dark)] justify-between font-normal", buttonClassName)}
                         >
                             {value ? value.toLocaleDateString() : new Date().toLocaleDateString()}
                             <ChevronDownIcon/>
@@ -99,7 +101,6 @@ export const DatePropEditor = ({date, setProp, propName}: {
 
     return <div className={"flex space-x-2 items-center"}>
         <DateAndTimePicker
-            label={false}
             value={date}
             onChange={(d) => {
                 setProp({

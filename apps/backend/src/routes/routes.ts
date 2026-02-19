@@ -1,11 +1,15 @@
 import express, {Router} from 'express'
-import {cookieOptions, handler, Session, sessionAgent} from "#/utils/session-agent.js";
+import {handler, sessionAgent} from "#/utils/session-agent.js";
 import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
 import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/search.js";
 import {createArticleHandler} from "#/services/write/article.js";
-import {getIronSession} from "iron-session";
-import {env} from "#/lib/env.js";
-import {createAccessRequest, getInviteCodesToShare, login} from "#/services/user/access.js";
+import {
+    createAccessRequest,
+    getInviteCodesToShare,
+    loginHandler,
+    oauthCallbackHandler,
+    signupHandler
+} from "#/services/user/access.js";
 import {getFeedByKind} from "#/services/feed/feed.js";
 import {getProfileFeed} from "#/services/feed/profile/profile.js";
 import {
@@ -92,24 +96,10 @@ import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
-import {Effect, Exit} from "effect";
 import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}
-}
-
-
-export class OAuthError {
-    readonly _tag = "DBSelectError"
-    name: string | undefined
-    message: string | undefined
-    constructor(error?: unknown) {
-        if(error && error instanceof Error) {
-            this.name = error?.name
-            this.message = error?.message
-        }
-    }
 }
 
 
@@ -126,37 +116,9 @@ export const createRouter = (ctx: AppContext): Router => {
         return res.sendFile(path.join(process.cwd(), 'public', 'version.txt'))
     })
 
-    router.post('/login', makeHandlerNoAuth(ctx, login))
+    router.post('/login', makeEffHandlerNoAuth(ctx, loginHandler))
 
-    router.get('/oauth/callback', async (req, res) => {
-        const oauthClient = ctx.oauthClient
-        if (!oauthClient) return
-
-        const exit = await Effect.runPromiseExit(
-            Effect.tryPromise({
-                try: async () => {
-                    const params = new URLSearchParams(req.originalUrl.split('?')[1])
-                    const {session} = await oauthClient.callback(params)
-                    const clientSession = await getIronSession<Session>(req, res, cookieOptions)
-                    clientSession.did = session.did
-                    await clientSession.save()
-                },
-                catch: error => {
-                    return Effect.fail(new OAuthError(error))
-                }
-            }).pipe(Effect.withSpan("oauth-callback"))
-        )
-
-        return Exit.match(exit, {
-            onSuccess: () => {
-                return res.redirect(env.FRONTEND_URL + '/login/ok')
-            },
-            onFailure: () => {
-                ctx.logger.pino.info("redirecting to error")
-                return res.redirect(env.FRONTEND_URL + '/login/error')
-            }
-        })
-    })
+    router.get('/oauth/callback', oauthCallbackHandler(ctx))
 
     router.post('/logout', async (req, res) => {
         const agent = await sessionAgent(req, res, ctx)
@@ -166,6 +128,8 @@ export const createRouter = (ctx: AppContext): Router => {
 
         return res.status(200).json({})
     })
+
+    router.post("/signup", makeEffHandlerNoAuth(ctx, signupHandler))
 
     router.get(
         '/feed/:kind',

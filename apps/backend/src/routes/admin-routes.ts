@@ -3,7 +3,10 @@ import type {AppContext} from '#/setup.js'
 import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler} from "#/utils/handler.js";
 import {syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
-import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
+import {
+    backfillInviteCodes,
+    createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent
+} from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
     getAllTopics,
@@ -222,6 +225,9 @@ export const adminRoutes = (ctx: AppContext): Router => {
         '/edit-topic',
         makeEffAdminHandler(ctx, editTopicHandler)
     )
+
+
+    router.post("/backfill-invites", makeEffAdminHandler(ctx, backfillInviteCodes))
 
 
     return router

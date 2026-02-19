@@ -119,3 +119,15 @@ export type LoginParams = {
 export type LoginOutput = {
     url: string
 }
+
+export type SignupParams = {
+    handle: string
+    email: string
+    dateOfBirth: Date
+    password: string
+}
+
+
+export type SignupOutput = {
+    did: string
+}

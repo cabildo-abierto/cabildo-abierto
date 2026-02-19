@@ -335,7 +335,7 @@ export default function Page() {
                             />
                         </UIDemoSection>
                         <UIDemoSection title={"Calendario"}>
-                            <DateAndTimePicker value={date} onChange={setDate} label={true}/>
+                            <DateAndTimePicker value={date} onChange={setDate} label={"Fecha"}/>
                         </UIDemoSection>
                         <UIDemoSection title={"Nota"}>
                             <Note>

@@ -3,6 +3,7 @@ import {usePathname} from "next/navigation";
 import {createPortal} from "react-dom";
 import dynamic from "next/dynamic";
 import {ConfirmModal} from "@/components/utils/dialogs/confirm-modal";
+import {LoginModalPage} from "@/components/auth/login-modal";
 
 
 const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginModal), {ssr: false})
@@ -24,7 +25,7 @@ export const useLoginModal = () => {
 
 
 export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [accessRequest, setAccessRequest] = useState<boolean>(false)
+    const [page, setPage] = useState<LoginModalPage>("login")
     const [loginModalOpen, setLoginModalOpen] = useState(false)
     const [allowsClose, setAllowsClose] = useState(false)
     const [showingMsg, setShowingMsg] = useState<string | null>(null)
@@ -48,7 +49,9 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
         } else {
             setLoginModalOpen(open)
         }
-        setAccessRequest(trial)
+        if(trial) {
+            setPage("access request")
+        }
     }
 
     return (
@@ -57,8 +60,8 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
             {portalRoot && createPortal(<LoginModal
                 open={loginModalOpen}
                 onClose={allowsClose ? () => {setLoginModalOpen(false)} : undefined}
-                accessRequest={accessRequest}
-                setAccessRequest={setAccessRequest}
+                page={page}
+                setPage={setPage}
             />, portalRoot)}
             {showingMsg && createPortal(<ConfirmModal
                 onClose={() => {setShowingMsg(null)}}

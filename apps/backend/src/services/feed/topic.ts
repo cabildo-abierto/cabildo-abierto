@@ -142,8 +142,6 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
 
             if (offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
 
-            const t1 = Date.now()
-
             const res = await ctx.kysely
                 .selectFrom("Reference")
                 .innerJoin("Record", "Record.uri", "Reference.referencingContentId")
@@ -158,12 +156,6 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 .orderBy('Reference.referencingContentCreatedAt', 'desc')
                 .limit(limit)
                 .execute()
-
-            const t2 = Date.now()
-
-            ctx.logger.logTimes("topic mentions skeleton", [t1, t2], {
-                id, collections, offsetFrom, offsetTo, limit
-            })
 
             return res.map(r => ({
                 uri: r.uri,

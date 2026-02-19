@@ -1,85 +1,316 @@
-import {SessionAgent} from "#/utils/session-agent.js";
+import {Agent, BaseAgent, cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import {isValidHandle} from "@atproto/syntax";
-import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
-import { customAlphabet } from "nanoid";
-
+import {customAlphabet} from "nanoid";
 import {range} from "@cabildo-abierto/utils";
 import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
-import {AppBskyActorProfile} from "@atproto/api"
-import {ArCabildoabiertoActorCaProfile, LoginOutput, LoginParams} from "@cabildo-abierto/api"
+import {AppBskyActorProfile, AtpBaseClient} from "@atproto/api"
+import {
+    ArCabildoabiertoActorCaProfile,
+    LoginOutput,
+    LoginParams,
+    Session, SignupOutput,
+    SignupParams
+} from "@cabildo-abierto/api"
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
-import {Effect} from "effect";
-import {DBInsertError, DBSelectError} from "#/utils/errors.js";
+import {Effect, Exit} from "effect";
+import {DBInsertError, DBSelectError, InvalidValueError} from "#/utils/errors.js";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
-
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {getIronSession} from "iron-session";
+import {env} from "#/lib/env.js";
+import {Request, Response} from "express";
+import {ComAtprotoServerCreateAccount} from "@atproto/api";
 
-async function getCAStatus(ctx: AppContext, did: string): Promise<{inCA: boolean, hasAccess: boolean} | null> {
-    return await ctx.kysely
-        .selectFrom("User")
-        .select(["inCA", "hasAccess"])
-        .where("did", "=", did)
-        .executeTakeFirst() ?? null
+
+function getCAStatus(ctx: AppContext, did: string): Effect.Effect<{
+    inCA: boolean,
+    hasAccess: boolean
+} | undefined, DBSelectError> {
+    return Effect.tryPromise({
+        try: () => {
+            return ctx.kysely
+                .selectFrom("User")
+                .select(["inCA", "hasAccess"])
+                .where("did", "=", did)
+                .executeTakeFirst()
+        },
+        catch: (error) => new DBSelectError(error)
+    })
 }
 
 
-export const login: CAHandlerNoAuth<LoginParams, LoginOutput> = async (
+export class OAuthAuthorizationError {
+    readonly _tag = "OAuthAuthorizationError"
+}
+
+
+/***
+ acá empieza el proceso de login
+ ***/
+export const loginHandler: EffHandlerNoAuth<LoginParams, LoginOutput> = (
     ctx,
     agent,
     {handle, code}
-) => {
+) => login(ctx, agent, handle, code).pipe(
+    Effect.catchTag("InvalidValueError", () => Effect.fail("El nombre de usuario es inválido.")),
+    Effect.catchTag("InvalidCodeError", () => Effect.fail("El código de invitación es inválido.")),
+    Effect.catchTag("UsedCodeError", () => Effect.fail("El código de invitación ya fue usado.")),
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
+    Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
+    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error en la conexión con ATProtocol.")),
+    Effect.catchTag("AlreadyLoggedInError", () => Effect.fail("Hay una sesión activa.")),
+    Effect.catchTag("NoInviteCodeError", () => Effect.fail("Necesitás un código de invitación para crear una cuenta."))
+)
+
+
+export class AlreadyLoggedInError {
+    readonly _tag = "AlreadyLoggedInError"
+}
+
+
+export class NoInviteCodeError {
+    readonly _tag = "NoInviteCodeError"
+}
+
+
+const login = (
+    ctx: AppContext,
+    agent: Agent,
+    handle: string,
+    code?: string
+) => Effect.gen(function* () {
+
+    if (agent.hasSession()) {
+        return yield* Effect.fail(new AlreadyLoggedInError())
+    }
 
     if (!isValidHandle(handle.trim())) {
-        return {error: "Nombre de usuario inválido."}
+        return yield* Effect.fail(new InvalidValueError("Nombre de usuario inválido."))
     }
 
     handle = handle.trim()
 
-    const did = await Effect.runPromise(ctx.resolver.resolveHandleToDid(handle))
-    if(!did) return {error: "No se encontró el usuario."}
+    const did = yield* ctx.resolver.resolveHandleToDid(handle)
 
-    const status = await getCAStatus(ctx, did)
+    const status = yield* getCAStatus(ctx, did)
 
-    if(!status || !status.inCA || !status.hasAccess){
-        if(code){
-            const {error} = await checkValidCode(ctx, code, did)
-            if(error){
-                return {error}
-            } else {
-                // continuamos con el login y usamos el código si el login termina bien
-            }
+    if (!status || !status.inCA || !status.hasAccess) {
+        if (code) {
+            yield* checkValidCode(ctx, code, did)
         } else {
-            return {error: "Necesitás un código de invitación para crear un usuario nuevo."}
+            return yield* Effect.fail(new NoInviteCodeError())
         }
     }
 
-    try {
-        const url = await ctx.oauthClient?.authorize(handle, {
+    const oauthCli = ctx.oauthClient
+
+    if (!oauthCli) return yield* Effect.fail("Ocurrió un error al iniciar sesión.")
+
+    const url = yield* Effect.tryPromise({
+        try: () => oauthCli.authorize(handle, {
             scope: 'atproto transition:generic transition:chat.bsky transition:email',
-        })
-        if(!url) {
-            return {error: "Ocurrió un error al iniciar sesión"}
+        }),
+        catch: () => new OAuthAuthorizationError()
+    })
+
+    return {url: url.href}
+}).pipe(Effect.withSpan("login", {attributes: {handle, code}}))
+
+
+export class OAuthError {
+    readonly _tag = "OAuthError"
+    name: string | undefined
+    message: string | undefined
+
+    constructor(error?: unknown) {
+        if (error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
         }
-        return {data: {url: url.href}}
-    } catch (err) {
-        console.error(`Error authorizing ${handle}`, err)
-        return {error: "Ocurrió un error al iniciar sesión."}
     }
 }
 
 
-export async function checkValidCode(ctx: AppContext, code: string, did: string){
-    const res = await ctx.kysely
-        .selectFrom("InviteCode")
-        .select(["code", "usedByDid"])
-        .where("code", "=", code)
-        .executeTakeFirst()
-    if(!res) return {error: "El código de invitación es inválido."}
-    if(res.usedByDid && res.usedByDid != did) return {error: "El código de invitación ya fue usado."}
-    return {}
+export const oauthCallbackHandler = (
+    ctx: AppContext
+) => async (req: Request, res: Response) => {
+    const oauthClient = ctx.oauthClient
+    if (!oauthClient) return
+
+    const exit = await Effect.runPromiseExit(
+        Effect.tryPromise({
+            try: async () => {
+                const params = new URLSearchParams(req.originalUrl.split('?')[1])
+                const {session} = await oauthClient.callback(params)
+                const clientSession = await getIronSession<Session>(req, res, cookieOptions)
+                clientSession.did = session.did
+                await clientSession.save()
+            },
+            catch: error => {
+                return Effect.fail(new OAuthError(error))
+            }
+        }).pipe(Effect.withSpan("oauth-callback"))
+    )
+
+    return Exit.match(exit, {
+        onSuccess: () => {
+            return res.redirect(env.FRONTEND_URL + '/login/ok')
+        },
+        onFailure: () => {
+            ctx.logger.pino.info("redirecting to error")
+            return res.redirect(env.FRONTEND_URL + '/login/error')
+        }
+    })
 }
+
+
+export class InvalidCodeError {
+    readonly _tag = "InvalidCodeError"
+}
+
+
+const checkValidCode = (
+    ctx: AppContext,
+    code: string,
+    did: string
+): Effect.Effect<void, DBSelectError | InvalidCodeError | UsedCodeError> => Effect.gen(function* () {
+    const res = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("InviteCode")
+            .select(["code", "usedByDid"])
+            .where("code", "=", code)
+            .executeTakeFirst(),
+        catch: (error) => new DBSelectError(error)
+    })
+    if (!res) return yield* Effect.fail(new InvalidCodeError())
+    if (res.usedByDid && res.usedByDid != did) return yield* Effect.fail(new UsedCodeError())
+})
+
+
+export class CreateAccountError {
+    readonly _tag = "CreateAccountError"
+}
+
+
+export class GetInviteCodeError {
+    readonly _tag = "GetInviteCodeError"
+    constructor(readonly message?: string) {}
+}
+
+
+const signup = (
+    ctx: AppContext,
+    agent: BaseAgent,
+    data: SignupParams
+): Effect.Effect<SignupOutput, CreateAccountError | GetInviteCodeError> => Effect.gen(function* () {
+    ctx.logger.pino.info({data}, "signup")
+    if (agent.hasSession()) {
+        return {did: agent.did}
+    } else {
+        const CAPdsAgent = new AtpBaseClient("https://cabildo.ar")
+
+        const inviteCode = ""
+
+        const params: ComAtprotoServerCreateAccount.InputSchema = {
+            email: data.email,
+            handle: data.handle,
+            inviteCode,
+            password: data.password
+        }
+
+        const res = yield* Effect.tryPromise({
+            try: () => CAPdsAgent.com.atproto.server.createAccount(params),
+            catch: () => new CreateAccountError()
+        })
+
+        if (!res.success) {
+            return yield* Effect.fail(new CreateAccountError())
+        }
+
+        const did = res.data.did
+        return {did}
+    }
+}).pipe(Effect.withSpan("signup", {attributes: {data}}))
+
+
+export const signupHandler: EffHandlerNoAuth<SignupParams, SignupOutput> = (
+    ctx, agent, data
+) =>
+    signup(ctx, agent, data).pipe(
+        Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta")),
+        Effect.catchTag("GetInviteCodeError", () => Effect.fail("Ocurrió un error al crear la cuenta"))
+    )
+
+
+export const backfillInviteCodes: EffHandler<{}, {}> = (ctx, agent) => Effect.gen(function* () {
+    const codes = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("InviteCode")
+            .select("code")
+            .where("InviteCode.pdsInvite", "is", null)
+            .limit(5)
+            .execute(),
+        catch: (error) => new DBSelectError(error)
+    })
+
+    const basicAuth = Buffer.from(`admin:${env.PDS_PASSWORD}`).toString("base64");
+
+    const resCode = yield* Effect.tryPromise({
+        try: () => fetch("https://cabildo.ar/xrpc/com.atproto.server.createInviteCodes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Basic ${basicAuth}`,
+            },
+            body: JSON.stringify({
+                codeCount: codes.length,
+                useCount: 1,
+            }),
+        }),
+        catch: (error) => new GetInviteCodeError(error instanceof Error ? `${error.name}:${error.message}` : undefined)
+    })
+
+    if(resCode.ok) {
+        const data = (yield* Effect.tryPromise({
+            try: () => resCode.json(),
+            catch: () => new GetInviteCodeError("json failed")
+        })) as {codes: {account: string, codes: string[]}[]}
+        ctx.logger.pino.info({data}, "got codes")
+
+        if(data.codes.length == 0) {
+            return yield* Effect.fail("No se obtuvo la cantidad correcta de códigos.")
+        }
+
+        const pdsCodes = data.codes[0].codes
+
+        if(pdsCodes.length != codes.length) {
+            return yield* Effect.fail("No se obtuvo la cantidad correcta de códigos.")
+        }
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("InviteCode")
+                .values(pdsCodes.map((c, i) => ({
+                    pdsInvite: c,
+                    code: codes[i].code
+                })))
+                .onConflict(oc => oc.column("code").doNothing())
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
+    } else {
+        return yield* Effect.fail(new GetInviteCodeError())
+    }
+
+    return {}
+}).pipe(
+    Effect.withSpan("backfillInviteCodes")
+).pipe(
+    Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los códigos de invitación."))
+)
 
 
 export function createCAUser(
@@ -99,7 +330,7 @@ export function createCAUser(
             catch: (error) => new DBInsertError(error)
         })
 
-        if(code){
+        if (code) {
             yield* assignInviteCode(ctx, agent, code)
         }
 
@@ -129,7 +360,10 @@ export function createCAUser(
         ], {concurrency: "unbounded"})
 
         const refAndRecordCA = {ref: {uri: data.uri, cid: data.cid}, record: caProfileRecord}
-        const refAndRecordBsky = {ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!}, record: bskyProfile.value as AppBskyActorProfile.Record}
+        const refAndRecordBsky = {
+            ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!},
+            record: bskyProfile.value as AppBskyActorProfile.Record
+        }
         yield* Effect.all([
             new CAProfileRecordProcessor(ctx)
                 .processValidated([refAndRecordCA]),
@@ -165,7 +399,9 @@ export async function createInviteCodes(ctx: AppContext, count: number) {
 }
 
 
-export const createInviteCodesHandler: CAHandler<{query: {c: number}}, { inviteCodes: string[] }> = async (ctx, agent, {query}) => {
+export const createInviteCodesHandler: CAHandler<{ query: { c: number } }, {
+    inviteCodes: string[]
+}> = async (ctx, agent, {query}) => {
     return await createInviteCodes(ctx, query.c)
 }
 
@@ -221,17 +457,17 @@ export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCod
             }),
         ], {concurrency: "unbounded"})
 
-        if(user.code != null && user.inCA && user.hasAccess){
+        if (user.code != null && user.inCA && user.hasAccess) {
             return
         }
 
-        if(code.usedByDid != null){
+        if (code.usedByDid != null) {
             return yield* Effect.fail(new UsedCodeError())
         }
 
         yield* Effect.tryPromise({
             try: () => ctx.kysely.transaction().execute(async trx => {
-                if(!user.code) {
+                if (!user.code) {
                     await trx
                         .updateTable("InviteCode")
                         .set("usedAt", new Date())
@@ -240,7 +476,7 @@ export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCod
                         .execute()
                 }
 
-                if(!user.hasAccess){
+                if (!user.hasAccess) {
                     await trx
                         .updateTable("User")
                         .set("hasAccess", true)
@@ -256,7 +492,10 @@ export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCod
 }
 
 
-export const createAccessRequest: CAHandlerNoAuth<{email: string, comment: string}, {}> = async (ctx, agent, params) => {
+export const createAccessRequest: CAHandlerNoAuth<{
+    email: string,
+    comment: string
+}, {}> = async (ctx, agent, params) => {
 
     try {
         await ctx.kysely.insertInto("AccessRequest").values([{
@@ -298,7 +537,7 @@ export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx, age
     return {data: requests}
 }
 
-export const getUnsentAccessRequestsCount: CAHandler<{}, {count: number}> = async (ctx, agent, {}) => {
+export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = async (ctx, agent, {}) => {
     const result = await ctx.kysely
         .selectFrom("AccessRequest")
         .select(eb => eb.fn.count<number>("id").as("count"))
@@ -310,7 +549,7 @@ export const getUnsentAccessRequestsCount: CAHandler<{}, {count: number}> = asyn
 }
 
 
-export const markAccessRequestSent: CAHandler<{params: {id: string}}, {}> = async (ctx, agent, {params} ) => {
+export const markAccessRequestSent: CAHandler<{ params: { id: string } }, {}> = async (ctx, agent, {params}) => {
     await ctx.kysely
         .updateTable("AccessRequest")
         .set("sentInviteAt", new Date())
@@ -321,7 +560,7 @@ export const markAccessRequestSent: CAHandler<{params: {id: string}}, {}> = asyn
     return {data: {}}
 }
 
-export const markAccessRequestIgnored: CAHandler<{params: {id: string}}, {}> = async (ctx, agent, {params} ) => {
+export const markAccessRequestIgnored: CAHandler<{ params: { id: string } }, {}> = async (ctx, agent, {params}) => {
     await ctx.kysely
         .updateTable("AccessRequest")
         .set("markedIgnored", true)
@@ -332,7 +571,7 @@ export const markAccessRequestIgnored: CAHandler<{params: {id: string}}, {}> = a
 }
 
 
-export const getInviteCodesToShare: CAHandler<{}, {code: string}[]> = async (ctx, agent, {}) => {
+export const getInviteCodesToShare: CAHandler<{}, { code: string }[]> = async (ctx, agent, {}) => {
     const codes = await ctx.kysely
         .selectFrom("InviteCode")
         .select("code")
@@ -340,19 +579,19 @@ export const getInviteCodesToShare: CAHandler<{}, {code: string}[]> = async (ctx
         .where("usedByDid", "is", null)
         .execute()
 
-    if(codes.length == 0){
+    if (codes.length == 0) {
         const allCodes = await ctx.kysely
             .selectFrom("InviteCode")
             .select("code")
             .where("recommenderId", "=", agent.did)
             .execute()
-        if(allCodes.length < 3){
+        if (allCodes.length < 3) {
             const values: {
                 code: string
                 recommenderId: string
                 created_at: Date
             }[] = []
-            for(let i = 0; i < 3 - allCodes.length; i++){
+            for (let i = 0; i < 3 - allCodes.length; i++) {
                 const code = uuidv4()
                 values.push({
                     code,
@@ -360,7 +599,7 @@ export const getInviteCodesToShare: CAHandler<{}, {code: string}[]> = async (ctx
                     created_at: new Date()
                 })
             }
-            if(values.length > 0){
+            if (values.length > 0) {
                 await ctx.kysely
                     .insertInto("InviteCode")
                     .values(values)
@@ -398,7 +637,7 @@ export const assignInviteCodesToUsers = async (ctx: AppContext) => {
             created_at: Date
         }[] = []
         users.forEach(u => {
-            for(let i = 0; i < 3 - u.codeCount; i++){
+            for (let i = 0; i < 3 - u.codeCount; i++) {
                 const code = uuidv4()
                 values.push({
                     code,
@@ -407,7 +646,7 @@ export const assignInviteCodesToUsers = async (ctx: AppContext) => {
                 })
             }
         })
-        if(values.length > 0){
+        if (values.length > 0) {
             await db
                 .insertInto("InviteCode")
                 .values(values)

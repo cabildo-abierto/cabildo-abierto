@@ -45,7 +45,7 @@ export function useBlueskyLogin({
     }, [refetch])
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
         setError(null)
 
         const handle = getHandleFromInputs(handleStart, domain)
@@ -67,8 +67,6 @@ export function useBlueskyLogin({
             {handle, code: inviteCode},
             "follow"
         )
-
-        console.log("login res", res)
 
         if (res.success === false) {
             popup.close()

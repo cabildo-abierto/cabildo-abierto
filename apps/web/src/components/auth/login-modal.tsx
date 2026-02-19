@@ -17,6 +17,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {topicUrl} from "@/components/utils/react/url";
 import {cn} from "@/lib/utils";
 import {useIsMobile} from "@/components/utils/use-is-mobile";
+import {SignUpPage} from "@/components/auth/sign-up-page";
 
 
 const LoginPanel = ({children, onClickBack, onClose, open}: {
@@ -117,18 +118,18 @@ const LoginModalAccessRequest = ({onBack}: {
     </div>
 }
 
-
+export type LoginModalPage = "login" | "sign up" | "access request"
 
 export const LoginModal = ({
                                open,
                                onClose,
-    accessRequest,
-    setAccessRequest
+    page,
+    setPage
                            }: {
     open: boolean;
-    onClose?: () => void;
-    accessRequest: boolean
-    setAccessRequest: (v: boolean) => void
+    onClose?: () => void
+    page: LoginModalPage
+    setPage: (v: LoginModalPage) => void
 }) => {
     const params = useSearchParams()
     const inviteCode = params.get("c")
@@ -139,14 +140,14 @@ export const LoginModal = ({
     return <LoginPanel
         open={open}
         onClose={onClose}
-        onClickBack={accessRequest ? () => {
-            setAccessRequest(false)
+        onClickBack={page == "access request" ? () => {
+            setPage("login")
         } : undefined}
     >
-        {accessRequest && <LoginModalAccessRequest
-            onBack={() => {setAccessRequest(false)}}
+        {page == "access request" && <LoginModalAccessRequest
+            onBack={() => {setPage("login")}}
         />}
-        {!accessRequest && <div className={"space-y-4 flex flex-col items-center pt-4"}>
+        {page == "login" && <div className={"space-y-4 flex flex-col items-center pt-4"}>
             <div className="space-y-4 flex flex-col items-center">
                 <Logo width={64} height={64}/>
                 <h1 className={"text-lg font-bold uppercase"}>Iniciar sesión</h1>
@@ -174,7 +175,19 @@ export const LoginModal = ({
                             }}
                         />
 
-                        {!inviteCode && <div className={"pt-4 w-full"}>
+                        <div className={"pt-4 w-full"}>
+                            <BaseButton
+                                variant={"outlined"}
+                                className={"w-full text-[13px]"}
+                                onClick={() => {
+                                    setPage("sign up")
+                                }}
+                            >
+                                Crear una cuenta
+                            </BaseButton>
+                        </div>
+
+                        {/*!inviteCode && <div className={"pt-4 w-full"}>
                             <BaseButton
                                 variant={"outlined"}
                                 className={"w-full text-[13px]"}
@@ -184,7 +197,7 @@ export const LoginModal = ({
                             >
                                 Participar en el acceso anticipado
                             </BaseButton>
-                        </div>}
+                        </div>*/}
                     </div>
 
                     <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
@@ -219,5 +232,9 @@ export const LoginModal = ({
                 </div>
             </div>
         </div>}
+        {page == "sign up" && <SignUpPage
+            inviteCode={inviteCode}
+            setPage={setPage}
+        />}
     </LoginPanel>
 }
