@@ -1,5 +1,14 @@
 "use client"
 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/utils/ui/select"
+
+import type { DropdownProps } from "react-day-picker"
 import * as React from "react"
 import {
     ChevronDownIcon,
@@ -69,14 +78,6 @@ function Calendar({
                 dropdowns: cn(
                     "flex h-[--cell-size] w-full items-center justify-center gap-1.5 text-sm font-medium",
                     defaultClassNames.dropdowns
-                ),
-                dropdown_root: cn(
-                    "has-focus:border-ring has-focus:ring-ring/50 has-focus:ring-[3px] relative bg-[var(--background-dark2)] cursor-pointer border",
-                    defaultClassNames.dropdown_root
-                ),
-                dropdown: cn(
-                    "bg-popover absolute inset-0 opacity-0",
-                    defaultClassNames.dropdown
                 ),
                 caption_label: cn(
                     "select-none font-medium",
@@ -166,6 +167,7 @@ function Calendar({
                         </td>
                     )
                 },
+                Dropdown: CalendarDropdown,
                 ...components,
             }}
             {...props}
@@ -182,9 +184,6 @@ function CalendarDayButton({
     const defaultClassNames = getDefaultClassNames()
 
     const ref = React.useRef<HTMLButtonElement>(null)
-    React.useEffect(() => {
-        if (modifiers.focused) ref.current?.focus()
-    }, [modifiers.focused])
 
     return (
         <Button
@@ -207,6 +206,42 @@ function CalendarDayButton({
             )}
             {...props}
         />
+    )
+}
+
+function CalendarDropdown(props: DropdownProps) {
+    const { value, onChange, options } = props
+
+    return (
+        <Select
+            value={value?.toString()}
+            onValueChange={(val) => {
+                if (onChange) {
+                    // simulate native select change event
+                    const event = {
+                        target: { value: val },
+                    } as React.ChangeEvent<HTMLSelectElement>
+
+                    onChange(event)
+                }
+            }}
+        >
+            <SelectTrigger className="h-8 w-[110px] bg-[var(--background-dark2)] border">
+                <SelectValue />
+            </SelectTrigger>
+
+            <SelectContent className="z-[3000]">
+                {options?.map((option) => (
+                    <SelectItem
+                        key={option.value}
+                        value={option.value.toString()}
+                        disabled={option.disabled}
+                    >
+                        {option.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
     )
 }
 

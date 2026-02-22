@@ -1,8 +1,10 @@
-import {CAHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 import {SendEmailResult, SendEmailsParams, SendEmailsResponse} from "@cabildo-abierto/api";
 import {createInviteCodes} from "#/services/user/access.js";
 import {v4 as uuidv4} from "uuid";
 import {EmailSender} from "#/services/emails/email-sender.js";
+import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
 
 
 function getInviteLink(code: string) {
@@ -16,47 +18,67 @@ async function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = async (ctx, agent, params) => {
+
+export class SendEmailError {
+    readonly _tag = "SendEmailError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
+}
+
+export const sendBulkEmails: EffHandler<SendEmailsParams, SendEmailsResponse> = (
+    ctx, agent, params) => Effect.gen(function* () {
     const {templateId, target, emails: inputEmails} = params
 
     // Validate inputs
     if (!templateId) {
-        return {error: "Se requiere un template"}
+        return yield* Effect.fail("Se requiere un template")
     }
 
     if (target === "single" || target === "list") {
         if (!inputEmails || inputEmails.length === 0) {
-            return {error: "Se requiere al menos un email"}
+            return yield* Effect.fail("Se requiere al menos un email")
         }
     }
 
     // Get template
-    const template = await ctx.kysely
-        .selectFrom("EmailTemplate")
-        .select(["id", "name", "subject", "html", "text"])
-        .where("id", "=", templateId)
-        .executeTakeFirst()
+    const template = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("EmailTemplate")
+            .select(["id", "name", "subject", "html", "text"])
+            .where("id", "=", templateId)
+            .executeTakeFirst(),
+        catch: (error) => new DBSelectError(error)
+    })
 
     if (!template) {
-        return {error: "Plantilla no encontrada"}
+        return yield* Effect.fail("Plantilla no encontrada")
     }
 
     // Get recipient emails based on target
     let recipientEmails: string[]
 
     if (target === "all_subscribers") {
-        const subscribers = await ctx.kysely
-            .selectFrom("MailingListSubscription")
-            .select("email")
-            .where("status", "=", "Subscribed")
-            .execute()
+        const subscribers = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("MailingListSubscription")
+                .select("email")
+                .where("status", "=", "Subscribed")
+                .execute(),
+            catch: (error) => new DBSelectError(error)
+        })
         recipientEmails = subscribers.map(s => s.email)
     } else {
         recipientEmails = inputEmails!
     }
 
     if (recipientEmails.length === 0) {
-        return {error: "No hay destinatarios"}
+        return yield* Effect.fail("No hay destinatarios")
     }
 
     // Check if template uses invite_link
@@ -65,11 +87,13 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
     // Generate invite codes if needed
     let inviteCodes: string[] = []
     if (needsInviteCodes) {
-        const codesResult = await createInviteCodes(ctx, recipientEmails.length)
-        if (codesResult.error || !codesResult.data) {
-            return {error: codesResult.error ?? "Error al crear códigos de invitación"}
-        }
-        inviteCodes = codesResult.data.inviteCodes
+        inviteCodes = yield* createInviteCodes(
+            ctx,
+            agent,
+            recipientEmails.length
+        ).pipe(
+            Effect.catchAll(() => Effect.fail("Error al crear los códigos de invitación."))
+        )
     }
 
     const emailSender = new EmailSender(ctx)
@@ -82,19 +106,19 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
         const batch = recipientEmails.slice(i, i + BATCH_SIZE)
         const batchCodes = needsInviteCodes ? inviteCodes.slice(i, i + BATCH_SIZE) : []
 
-        const batchPromises = batch.map(async (email, batchIndex) => {
-            try {
-                const emailSentId = uuidv4()
+        const batchResults = yield* Effect.all(batch.map((email, batchIndex) => Effect.gen(function* () {
+            const emailSentId = uuidv4()
 
-                const invite_link = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
+            const invite_link = needsInviteCodes ? getInviteLink(batchCodes[batchIndex]) : undefined
 
-                const vars: {[key: string]: string} = {
-                    unsubscribe_link: emailSender.getUnsubscribeLink(emailSentId).unsubscribeUIUrl
-                }
-                if(invite_link) vars.invite_link = invite_link
+            const vars: { [key: string]: string } = {
+                unsubscribe_link: emailSender.getUnsubscribeLink(emailSentId).unsubscribeUIUrl
+            }
+            if (invite_link) vars.invite_link = invite_link
 
-                // Send email with List-Unsubscribe headers
-                await emailSender.sendMail({
+            // Send email with List-Unsubscribe headers
+            yield* Effect.tryPromise({
+                try: () => emailSender.sendMail({
                     from,
                     to: email,
                     emailId: emailSentId,
@@ -103,33 +127,27 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
                     template,
                     vars,
                     unsubscribe: true
-                })
+                }),
+                catch: (error) => new SendEmailError()
+            })
 
-                ctx.logger.pino.info({email, templateName: template.name, emailSentId}, "Email sent successfully")
+            ctx.logger.pino.info({email, templateName: template.name, emailSentId}, "Email sent successfully")
 
-                return {
-                    email,
-                    success: true,
-                    emailSentId
-                } as SendEmailResult
+            return {
+                email,
+                success: true,
+                emailSentId
+            } as SendEmailResult
+        })))
 
-            } catch (error) {
-                ctx.logger.pino.error({error, email, templateName: template.name}, "Error sending email")
-
-                return {
-                    email,
-                    success: false,
-                    error: error instanceof Error ? error.message : "Error desconocido"
-                } as SendEmailResult
-            }
-        })
-
-        const batchResults = await Promise.all(batchPromises)
         results.push(...batchResults)
 
         // Add delay between batches (except for last batch)
         if (i + BATCH_SIZE < recipientEmails.length) {
-            await delay(BATCH_DELAY_MS)
+            yield* Effect.tryPromise({
+                try: () => delay(BATCH_DELAY_MS),
+                catch: () => "Ocurrió un error al esperar entre batches."
+            })
         }
     }
 
@@ -144,10 +162,11 @@ export const sendBulkEmails: CAHandler<SendEmailsParams, SendEmailsResponse> = a
     }, "Bulk email send completed")
 
     return {
-        data: {
-            results,
-            totalSent,
-            totalFailed
-        }
+        results,
+        totalSent,
+        totalFailed
     }
-}
+}).pipe(
+    Effect.catchTag("SendEmailError", () => Effect.fail("Ocurrió un error al enviar uno de los correos.")),
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al enviar los correos."))
+)

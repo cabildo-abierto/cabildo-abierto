@@ -17,12 +17,13 @@ import {
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
 import {Effect, Exit} from "effect";
 import {DBInsertError, DBSelectError, InvalidValueError} from "#/utils/errors.js";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
 import {Request, Response} from "express";
 import {ComAtprotoServerCreateAccount} from "@atproto/api";
+import {RefAndRecord} from "#/services/sync/types.js";
 
 
 function getCAStatus(ctx: AppContext, did: string): Effect.Effect<{
@@ -44,6 +45,14 @@ function getCAStatus(ctx: AppContext, did: string): Effect.Effect<{
 
 export class OAuthAuthorizationError {
     readonly _tag = "OAuthAuthorizationError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
 }
 
 
@@ -113,7 +122,7 @@ const login = (
         try: () => oauthCli.authorize(handle, {
             scope: 'atproto transition:generic transition:chat.bsky transition:email',
         }),
-        catch: () => new OAuthAuthorizationError()
+        catch: (error) => new OAuthAuthorizationError(error)
     })
 
     return {url: url.href}
@@ -192,6 +201,14 @@ const checkValidCode = (
 
 export class CreateAccountError {
     readonly _tag = "CreateAccountError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
 }
 
 
@@ -205,53 +222,84 @@ const signup = (
     ctx: AppContext,
     agent: BaseAgent,
     data: SignupParams
-): Effect.Effect<SignupOutput, CreateAccountError | GetInviteCodeError> => Effect.gen(function* () {
+): Effect.Effect<SignupOutput, NoInviteCodeError | OAuthAuthorizationError | CreateAccountError | GetInviteCodeError | DBSelectError> => Effect.gen(function* () {
     ctx.logger.pino.info({data}, "signup")
     if (agent.hasSession()) {
         return {did: agent.did}
     } else {
+        const oauthClient = ctx.oauthClient
+        if(!oauthClient) {
+            return yield* Effect.fail(new CreateAccountError())
+        }
+
         const CAPdsAgent = new AtpBaseClient("https://cabildo.ar")
 
-        const inviteCode = ""
+        if(!data.code) {
+            return yield* Effect.fail(new NoInviteCodeError())
+        }
+
+        const inviteCode = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("InviteCode")
+                .select(["code", "pdsInvite"])
+                .where("code", "=", data.code)
+                .executeTakeFirst(),
+            catch: (error) => new DBSelectError(error)
+        })
+
+        if(!inviteCode || !inviteCode.pdsInvite) {
+            return yield* Effect.fail(new GetInviteCodeError())
+        }
 
         const params: ComAtprotoServerCreateAccount.InputSchema = {
             email: data.email,
             handle: data.handle,
-            inviteCode,
+            inviteCode: inviteCode.pdsInvite,
             password: data.password
         }
 
         const res = yield* Effect.tryPromise({
             try: () => CAPdsAgent.com.atproto.server.createAccount(params),
-            catch: () => new CreateAccountError()
+            catch: (error) => new CreateAccountError(error)
         })
 
         if (!res.success) {
             return yield* Effect.fail(new CreateAccountError())
         }
 
-        const did = res.data.did
-        return {did}
+        const authorizeUrl = yield* Effect.tryPromise({
+            try: () => oauthClient.authorize(res.data.did),
+            catch: (error) => new OAuthAuthorizationError(error)
+        })
+
+        return {did: res.data.did, redirectUrl: authorizeUrl.href}
     }
 }).pipe(Effect.withSpan("signup", {attributes: {data}}))
 
 
 export const signupHandler: EffHandlerNoAuth<SignupParams, SignupOutput> = (
-    ctx, agent, data
-) =>
-    signup(ctx, agent, data).pipe(
-        Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta")),
-        Effect.catchTag("GetInviteCodeError", () => Effect.fail("Ocurrió un error al crear la cuenta"))
-    )
+    ctx, agent, params
+) => signup(ctx, agent, params).pipe(
+    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error al iniciar la sesión")),
+    Effect.catchTag("NoInviteCodeError", () => Effect.fail("Necesitás un código de invitación.")),
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta")),
+    Effect.catchTag("GetInviteCodeError", () => Effect.fail("Necesitás un código de invitación."))
+)
 
 
-export const backfillInviteCodes: EffHandler<{}, {}> = (ctx, agent) => Effect.gen(function* () {
+
+export const backfillInviteCodes: EffHandler<{}, {}> = (
+    ctx,
+    agent
+) => Effect.gen(function* () {
     const codes = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("InviteCode")
             .select("code")
             .where("InviteCode.pdsInvite", "is", null)
-            .limit(5)
+            .where("InviteCode.usedByDid", "is", null)
+            .limit(100)
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
@@ -278,7 +326,6 @@ export const backfillInviteCodes: EffHandler<{}, {}> = (ctx, agent) => Effect.ge
             try: () => resCode.json(),
             catch: () => new GetInviteCodeError("json failed")
         })) as {codes: {account: string, codes: string[]}[]}
-        ctx.logger.pino.info({data}, "got codes")
 
         if(data.codes.length == 0) {
             return yield* Effect.fail("No se obtuvo la cantidad correcta de códigos.")
@@ -290,17 +337,24 @@ export const backfillInviteCodes: EffHandler<{}, {}> = (ctx, agent) => Effect.ge
             return yield* Effect.fail("No se obtuvo la cantidad correcta de códigos.")
         }
 
+        const values = pdsCodes.map((c, i) => ({
+            pdsInvite: c,
+            code: codes[i].code
+        }))
+
+        ctx.logger.pino.info({values}, "inserting values")
+
         yield* Effect.tryPromise({
             try: () => ctx.kysely
                 .insertInto("InviteCode")
-                .values(pdsCodes.map((c, i) => ({
-                    pdsInvite: c,
-                    code: codes[i].code
+                .values(values)
+                .onConflict(oc => oc.column("code").doUpdateSet(eb => ({
+                    pdsInvite: eb.ref("excluded.pdsInvite")
                 })))
-                .onConflict(oc => oc.column("code").doNothing())
                 .execute(),
             catch: (error) => new DBInsertError(error)
         })
+        ctx.logger.pino.info(`inserted ${pdsCodes.length} codes`)
     } else {
         return yield* Effect.fail(new GetInviteCodeError())
     }
@@ -317,7 +371,7 @@ export function createCAUser(
     ctx: AppContext,
     agent: SessionAgent,
     code?: string
-): Effect.Effect<void, DBInsertError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
+): Effect.Effect<void, DBInsertError | ATGetRecordError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
     const did = agent.did
 
     return Effect.gen(function* () {
@@ -339,7 +393,7 @@ export function createCAUser(
             createdAt: new Date().toISOString()
         }
 
-        const [{data}, {data: bskyProfile}] = yield* Effect.all([
+        const [caProfileRes, bskyProfileRes] = yield* Effect.all([
             Effect.tryPromise({
                 try: () => agent.bsky.com.atproto.repo.putRecord({
                     repo: did,
@@ -347,7 +401,7 @@ export function createCAUser(
                     rkey: "self",
                     record: caProfileRecord
                 }),
-                catch: () => new ATCreateRecordError()
+                catch: (error) => new ATCreateRecordError(error)
             }),
             Effect.tryPromise({
                 try: () => agent.bsky.com.atproto.repo.getRecord({
@@ -355,54 +409,108 @@ export function createCAUser(
                     collection: "app.bsky.actor.profile",
                     rkey: "self"
                 }),
-                catch: () => new ATCreateRecordError()
-            })
+                catch: (error) => new ATGetRecordError(error)
+            }).pipe(
+                Effect.catchTag("ATGetRecordError", (error) => {
+                    if(error.message?.includes("Could not locate record")) {
+                        return Effect.succeed(null)
+                    } else {
+                        return Effect.fail(error)
+                    }
+                })
+            )
         ], {concurrency: "unbounded"})
 
-        const refAndRecordCA = {ref: {uri: data.uri, cid: data.cid}, record: caProfileRecord}
-        const refAndRecordBsky = {
-            ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!},
-            record: bskyProfile.value as AppBskyActorProfile.Record
+        if(!caProfileRes.success) {
+            return yield* Effect.fail(new ATCreateRecordError())
         }
-        yield* Effect.all([
+
+        const {data} = caProfileRes
+
+        const refAndRecordCA = {ref: {uri: data.uri, cid: data.cid}, record: caProfileRecord}
+
+        const effects: Effect.Effect<void, ProcessCreateError | ATCreateRecordError>[] = [
             new CAProfileRecordProcessor(ctx)
-                .processValidated([refAndRecordCA]),
-            new BskyProfileRecordProcessor(ctx)
-                .processValidated([refAndRecordBsky])
-        ], {concurrency: "unbounded"})
+                .processValidated([refAndRecordCA])
+        ]
+
+        if(bskyProfileRes && bskyProfileRes.success) {
+            const bskyProfile = bskyProfileRes.data
+            const refAndRecordBsky = {
+                ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!},
+                record: bskyProfile.value as AppBskyActorProfile.Record
+            }
+            effects.push(new BskyProfileRecordProcessor(ctx)
+                .processValidated([refAndRecordBsky]))
+        } else {
+            const bskyProfile: AppBskyActorProfile.Record = {
+                $type: "app.bsky.actor.profile",
+                createdAt: new Date().toISOString()
+            }
+            const res = yield* Effect.tryPromise({
+                try: () => agent.bsky.com.atproto.repo.putRecord({
+                    repo: did,
+                    collection: "app.bsky.actor.profile",
+                    rkey: "self",
+                    record: bskyProfile
+                }),
+                catch: (error) => new ATCreateRecordError(error)
+            })
+            if(res.success) {
+                const refAndRecordBsky: RefAndRecord<AppBskyActorProfile.Record> = {
+                    ref: {
+                        uri: res.data.uri,
+                        cid: res.data.cid
+                    },
+                    record: bskyProfile
+                }
+                effects.push(
+                    new BskyProfileRecordProcessor(ctx)
+                        .processValidated([refAndRecordBsky])
+                )
+            }
+        }
+
+        yield* Effect.all(effects, {concurrency: "unbounded"})
     })
 }
 
 
-export async function createInviteCodes(ctx: AppContext, count: number) {
-    ctx.logger.pino.info(`creating ${count} invite codes.`)
-    try {
-        const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toLowerCase();
-        const generateInviteCode = customAlphabet(alphabet, 8)
+export const createInviteCodes = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    count: number) => Effect.gen(function* () {
 
-        const values = range(count).map(i => {
-            return {
-                code: generateInviteCode()
-            }
-        })
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toLowerCase();
+    const generateInviteCode = customAlphabet(alphabet, 8)
 
-        await ctx.kysely
+    const values = range(count).map(i => {
+        return {
+            code: generateInviteCode()
+        }
+    })
+
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely
             .insertInto("InviteCode")
             .values(values)
-            .execute()
+            .execute(),
+        catch: (error) => new DBInsertError(error)
+    })
 
-        return {data: {inviteCodes: values.map(c => c.code)}}
-    } catch (err) {
-        ctx.logger.pino.error({error: err}, `error creating invite codes`)
-        return {error: "Ocurrió un error al crear los códigos de invitación"}
-    }
-}
+    yield* backfillInviteCodes(ctx, agent, {})
+
+    return values.map(c => c.code)
+})
 
 
-export const createInviteCodesHandler: CAHandler<{ query: { c: number } }, {
+export const createInviteCodesHandler: EffHandler<{ query: { c: number } }, {
     inviteCodes: string[]
-}> = async (ctx, agent, {query}) => {
-    return await createInviteCodes(ctx, query.c)
+}> = (ctx, agent, {query}) => {
+    return createInviteCodes(ctx, agent, query.c).pipe(
+        Effect.map(inviteCodes => ({inviteCodes})),
+        Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación."))
+    )
 }
 
 

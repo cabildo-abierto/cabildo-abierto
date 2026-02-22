@@ -15,8 +15,6 @@ export const createClient = async (redis: Redis, logger: Logger) => {
         ? `${publicUrl}/client-metadata.json`
         : `http://localhost?redirect_uri=${enc(redirect_uri)}&scope=${enc('atproto transition:generic transition:chat.bsky transition:email')}`
 
-    logger.pino.info({client_id, redirect_uri}, "creating oauth client")
-
     return new NodeOAuthClient({
         clientMetadata: {
             client_name: 'Cabildo Abierto',

@@ -29,7 +29,7 @@ export const ConfirmModal = ({
             onClose()
         }}
         fullscreenOnMobile={false}
-        className={"z-[1600] min-[340px]:min-w-[340px]"}
+        className={"z-[1600] min-[340px]:min-w-[340px] border bg-[var(--background-dark)] group portal"}
     >
         <div className={"px-8 pb-4 space-y-4"}>
             <div className={"space-y-2"}>

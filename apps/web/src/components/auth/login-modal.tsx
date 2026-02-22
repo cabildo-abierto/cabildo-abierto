@@ -35,7 +35,7 @@ const LoginPanel = ({children, onClickBack, onClose, open}: {
         className={"bg-[var(--background-dark)] border portal group"}
     >
         <div
-            className={cn("px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[480px]")}
+            className={cn("px-4 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[520px]")}
         >
             <div
                 className={"flex w-full text-[var(--text-light)] mt-4 " + (onClickBack ? "justify-between" : "justify-end")}>
@@ -150,21 +150,16 @@ export const LoginModal = ({
         {page == "login" && <div className={"space-y-4 flex flex-col items-center pt-4"}>
             <div className="space-y-4 flex flex-col items-center">
                 <Logo width={64} height={64}/>
-                <h1 className={"text-lg font-bold uppercase"}>Iniciar sesión</h1>
+                <h1 className={"text-lg font-font-semibold uppercase"}>Iniciar sesión</h1>
             </div>
 
             <div className="flex justify-center sm:px-8">
                 <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
                     {inviteCode && <div
                         className={"flex flex-col space-y-4 items-center max-w-80 text-center"}>
-                        <div className={"text-base"}>
+                        <div className={"text-base font-light"}>
                             ¡Recibiste un código de invitación!
                         </div>
-                        <Note text={"text-sm"}>
-                            Si ya tenés una cuenta de Bluesky, iniciá sesión directamente. Si no, <Link
-                            className={"link2"} target={"_blank"} href={"https://bsky.app"}>creala primero acá</Link> y
-                            después volvé a esta página.
-                        </Note>
                     </div>}
 
                     <div className={"max-w-[360px]"}>
@@ -175,7 +170,7 @@ export const LoginModal = ({
                             }}
                         />
 
-                        <div className={"pt-4 w-full"}>
+                        {inviteCode && <div className={"pt-4 w-full"}>
                             <BaseButton
                                 variant={"outlined"}
                                 className={"w-full text-[13px]"}
@@ -185,19 +180,19 @@ export const LoginModal = ({
                             >
                                 Crear una cuenta
                             </BaseButton>
-                        </div>
+                        </div>}
 
-                        {/*!inviteCode && <div className={"pt-4 w-full"}>
+                        {!inviteCode && <div className={"pt-4 w-full"}>
                             <BaseButton
                                 variant={"outlined"}
                                 className={"w-full text-[13px]"}
                                 onClick={() => {
-                                    setAccessRequest(true)
+                                    setPage("access request")
                                 }}
                             >
                                 Participar en el acceso anticipado
                             </BaseButton>
-                        </div>*/}
+                        </div>}
                     </div>
 
                     <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>

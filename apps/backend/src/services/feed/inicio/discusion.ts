@@ -15,7 +15,7 @@ import {
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 import {FetchFromBskyError} from "#/services/hydration/dataplane.js";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {getUri, shortCollectionToCollection, splitUri} from "@cabildo-abierto/utils";
@@ -264,11 +264,6 @@ export const getEnDiscusionFeedPipeline = (
 }
 
 
-export class ATGetRecordError {
-    readonly _tag = "ATGetRecordError"
-}
-
-
 export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: string) => {
 
     return Effect.gen(function* () {
@@ -281,7 +276,7 @@ export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: stri
                 collection,
                 rkey
             }),
-            catch: () => new ATGetRecordError()
+            catch: (error) => new ATGetRecordError(error)
         })
 
         if (!res.success) return yield* Effect.fail(new ATGetRecordError())

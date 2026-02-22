@@ -367,6 +367,8 @@ model Record {
   pollVote PollVote?
   polls    Poll[]
 
+  bskyProfileFor User?
+
   @@index([authorId, collection, created_at(sort: Desc)])
   @@index([authorId, created_at(sort: Desc)])
   @@index([collection, authorId, created_at(sort: Desc)])
@@ -606,6 +608,9 @@ model User {
 
   caFollowingCount Int @default(0)
   caFollowersCount Int @default(0)
+
+  bskyProfileUri String? @unique
+  bskyProfile    Record? @relation(fields: [bskyProfileUri], references: [uri])
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
