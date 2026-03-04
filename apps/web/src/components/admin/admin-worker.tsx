@@ -71,7 +71,7 @@ function ActiveJobsTable({jobs}: {jobs: WorkerState["activeJobs"]}) {
                 </thead>
                 <tbody>
                     {jobs.map((job, i) => (
-                        <tr key={job.id ?? i} className="border-b border-[var(--background-dark2)] hover:bg-[var(--background-dark2)]">
+                        <tr key={i} className="border-b border-[var(--background-dark2)] hover:bg-[var(--background-dark2)]">
                             <td className="py-2 px-3 text-sm font-mono">{job.id?.slice(0, 8) ?? "-"}</td>
                             <td className="py-2 px-3 text-sm">{job.name}</td>
                             <td className="py-2 px-3"><JobStatusBadge status="active"/></td>
@@ -109,7 +109,7 @@ function FailedJobsTable({jobs}: {jobs: WorkerState["failedJobs"]}) {
                 </thead>
                 <tbody>
                     {jobs.map((job, i) => (
-                        <tr key={job.id ?? i} className="border-b border-[var(--background-dark2)] hover:bg-[var(--background-dark2)]">
+                        <tr key={i} className="border-b border-[var(--background-dark2)] hover:bg-[var(--background-dark2)]">
                             <td className="py-2 px-3 text-sm font-mono">{job.id?.slice(0, 8) ?? "-"}</td>
                             <td className="py-2 px-3 text-sm">{job.name}</td>
                             <td className="py-2 px-3"><JobStatusBadge status="failed"/></td>
@@ -145,7 +145,7 @@ function ScheduledJobsTable({jobs}: {jobs: WorkerState["scheduledJobs"]}) {
                 </thead>
                 <tbody>
                     {jobs.map((job, i) => (
-                        <tr key={job.name ?? i} className="border-b border-[var(--background-dark2)] hover:bg-[var(--background-dark2)]">
+                        <tr key={i} className="border-b border-[var(--background-dark2)] hover:bg-[var(--background-dark2)]">
                             <td className="py-2 px-3 text-sm">{job.name ?? "-"}</td>
                             <td className="py-2 px-3 text-sm text-[var(--text-light)]">
                                 {job.every ? formatDuration(job.every) : "-"}
@@ -165,8 +165,8 @@ function ScheduledJobsTable({jobs}: {jobs: WorkerState["scheduledJobs"]}) {
 function RegisteredJobsList({jobs}: {jobs: string[]}) {
     return (
         <div className="flex flex-wrap gap-2">
-            {jobs.map(job => (
-                <span key={job} className="bg-[var(--background-dark2)] px-2 py-1 rounded text-xs">
+            {jobs.map((job, i) => (
+                <span key={i} className="bg-[var(--background-dark2)] px-2 py-1 rounded text-xs">
                     {job}
                 </span>
             ))}

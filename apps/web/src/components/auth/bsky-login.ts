@@ -68,8 +68,6 @@ export function useBlueskyLogin({
             "follow"
         )
 
-        console.log("login res", res)
-
         if (res.success === false) {
             popup.close()
             setError(res.error)

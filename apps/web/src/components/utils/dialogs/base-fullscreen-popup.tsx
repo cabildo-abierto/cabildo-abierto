@@ -65,7 +65,7 @@ export const BaseFullscreenPopup = ({
         <DialogContent
             className={cn("z-[1400] flex flex-col", isMobile && fullscreenOnMobile ?
                     "fixed w-screen left-0 translate-x-0 translate-y-0 top-0 h-screen" :
-                    "w-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2", className)}
+                    "w-auto left-1/2 top-1/2 -translate-x-1/2 border -translate-y-1/2", className)}
             onClick={e => {
                 e.stopPropagation()
             }}

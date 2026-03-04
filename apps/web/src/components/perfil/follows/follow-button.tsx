@@ -344,26 +344,26 @@ export function FollowButton({
 
     const followText = profile.viewer?.followedBy && !dense ? "Seguir también" : "Seguir"
 
-    return <div className="flex items-center">
-        {profile.viewer?.following ?
-            <StateButton
-                handleClick={onUnfollow}
-                variant="outlined"
-                size={"small"}
-                startIcon={!dense && <CheckIcon/>}
-                className={cn("pressed", dense ? "px-[5px] py-[1px]" : undefined)}
-                disabled={profile.viewer?.following == "optimistic-follow"}
-            >
-                Siguiendo
-            </StateButton> :
-            <StateButton
-                handleClick={onFollow}
-                variant="outlined"
-                size={"small"}
-                startIcon={!dense && <PlusIcon/>}
-                className={dense ? "px-[5px] py-[1px]" : undefined}
-            >
-                {followText}
-            </StateButton>}
-    </div>
+    if(profile.viewer?.following) {
+        return <StateButton
+            handleClick={onUnfollow}
+            variant="outlined"
+            size={"small"}
+            startIcon={!dense && <CheckIcon/>}
+            className={cn("pressed flex", dense ? "px-[5px] py-[1px]" : "py-[4px]")}
+            disabled={profile.viewer?.following == "optimistic-follow"}
+        >
+            Siguiendo
+        </StateButton>
+    } else {
+        return <StateButton
+            handleClick={onFollow}
+            variant="outlined"
+            size={"small"}
+            startIcon={!dense && <PlusIcon/>}
+            className={cn("flex", dense ? "px-[5px] py-[1px]" : "py-[4px]")}
+        >
+            {followText}
+        </StateButton>
+    }
 }
