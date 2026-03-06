@@ -18,7 +18,7 @@ export const DetailsContent = ({detail, uri}: {detail: DetailType, uri:string}) 
         queryKey={["details-content", detail, uri]}
         FeedElement={({content}) => {
             return <div key={content.did}>
-                <UserSearchResult user={content}/>
+                <UserSearchResult user={{...content, $type: "ar.cabildoabierto.actor.defs#profileView"}}/>
             </div>
         }}
         getFeedElementKey={u => u.did}

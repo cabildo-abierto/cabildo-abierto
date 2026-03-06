@@ -1,4 +1,4 @@
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {FollowSuggestionsOutput} from "@cabildo-abierto/api"
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {hydrateProfileView} from "#/services/hydration/profile.js";
@@ -156,7 +156,7 @@ export const getFollowSuggestionsToAvoid = (
 
 export const getFollowSuggestions: EffHandler<
     {params: {limit: string, cursor?: string}},
-    {feed: ArCabildoabiertoActorDefs.ProfileView[], cursor?: string}
+    FollowSuggestionsOutput
 > = (ctx, agent, {params}) => Effect.provideServiceEffect(
     Effect.gen(function* () {
     const [ranking, avoid] = yield* Effect.all([

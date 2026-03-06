@@ -43,7 +43,7 @@ export default function FollowSuggestions() {
             </div>}
             {data && data.feed.map(u => {
                 return <FollowSuggestionSmallView
-                    user={u}
+                    user={{...u, $type: "ar.cabildoabierto.actor.defs#profileView"}}
                     key={u.did}
                 />
             })}
