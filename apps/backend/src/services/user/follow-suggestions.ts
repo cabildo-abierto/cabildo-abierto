@@ -7,6 +7,8 @@ import {AppContext} from "#/setup.js";
 import {v4 as uuidv4} from 'uuid'
 import {getCAUsersDids} from "#/services/user/users.js";
 import {Effect} from "effect";
+import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
+import {DBSelectError} from "#/utils/errors.js";
 
 /*
     1. Tomamos un conjunto de usuarios recomendadores. Los recomendadores son los seguidos del usuario o, si tiene muy pocos, todos los usuarios de CA.
@@ -19,71 +21,79 @@ import {Effect} from "effect";
 */
 
 
-async function getRecommendationRankingForUser(ctx: AppContext, did: string, ignoreCache: boolean = false): Promise<string[]> {
+const getRecommendationRankingForUser = (
+    ctx: AppContext,
+    did: string,
+    ignoreCache: boolean = false
+): Effect.Effect<string[], RedisCacheFetchError | RedisCacheSetError | DBSelectError> => Effect.gen(function* () {
     if(!ignoreCache){
-        const inCache = await ctx.redisCache.followSuggestions.get(did)
+        const inCache = yield* Effect.tryPromise({
+            try: () => ctx.redisCache.followSuggestions.get(did),
+            catch: () => new RedisCacheFetchError()
+        })
         if(inCache != null) return inCache
     }
 
     const lastTwoWeeks = new Date(Date.now() - 1000*3600*24*14)
-    const recommendations = await ctx.kysely
-        .with("Follows", db => db
-            .selectFrom("Follow")
-            .innerJoin("Record", "Record.uri", "Follow.uri")
-            .where("Record.authorId", "=", did)
-            .select(["Follow.userFollowedId"])
-        )
-        .with("Recommenders", db =>
-            db.selectFrom("Follows")
-                .select("userFollowedId as did")
-                .where(
-                    eb => eb(
-                        eb => eb.selectFrom("Follows").select(eb => eb.fn.count<number>("userFollowedId").as("count")),
-                        ">=",
-                        3
+    const recommendations = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .with("Follows", db => db
+                .selectFrom("Follow")
+                .innerJoin("Record", "Record.uri", "Follow.uri")
+                .where("Record.authorId", "=", did)
+                .select(["Follow.userFollowedId"])
+            )
+            .with("Recommenders", db =>
+                db.selectFrom("Follows")
+                    .select("userFollowedId as did")
+                    .where(
+                        eb => eb(
+                            eb => eb.selectFrom("Follows").select(eb => eb.fn.count<number>("userFollowedId").as("count")),
+                            ">=",
+                            3
+                        )
+                    )
+                    .unionAll(
+                        db.selectFrom("User")
+                            .where(
+                                eb => eb(
+                                    eb => eb.selectFrom("Follows").select(eb => eb.fn.count<number>("userFollowedId").as("count")),
+                                    "<",
+                                    3
+                                )
+                            )
+                            .where("inCA", "=", true)
+                            .select("did")
+                    )
+                    .limit(1000)
+            )
+            .selectFrom("User as Candidate") // los candidatos son todas las personas seguidas por algun seguido de agent.did
+            .innerJoin("Follow as Recommendation", "Recommendation.userFollowedId", "Candidate.did")
+            .innerJoin("Record as RecommendationRecord", "RecommendationRecord.uri", "Recommendation.uri")
+            .innerJoin("Recommenders", "Recommenders.did", "RecommendationRecord.authorId")
+
+            // no es seguido por el usuario logueado
+            .leftJoin("Follows", "Follows.userFollowedId", "Candidate.did")
+            .where("Follows.userFollowedId", "is", null)
+
+            // no es el usuario logueado
+            .where("Candidate.did", "!=", did)
+
+            // no está marcado como not interested
+            .where(eb =>
+                eb.not(
+                    eb.exists(
+                        eb.selectFrom("NotInterested")
+                            .select("id")
+                            .whereRef("NotInterested.subjectId", "=", "Candidate.did")
+                            .where("NotInterested.authorId", "=", did)
                     )
                 )
-                .unionAll(
-                    db.selectFrom("User")
-                        .where(
-                            eb => eb(
-                                eb => eb.selectFrom("Follows").select(eb => eb.fn.count<number>("userFollowedId").as("count")),
-                                "<",
-                                3
-                            )
-                        )
-                        .where("inCA", "=", true)
-                        .select("did")
-                )
-                .limit(1000)
-        )
-        .selectFrom("User as Candidate") // los candidatos son todas las personas seguidas por algun seguido de agent.did
-        .innerJoin("Follow as Recommendation", "Recommendation.userFollowedId", "Candidate.did")
-        .innerJoin("Record as RecommendationRecord", "RecommendationRecord.uri", "Recommendation.uri")
-        .innerJoin("Recommenders", "Recommenders.did", "RecommendationRecord.authorId")
-
-        // no es seguido por el usuario logueado
-        .leftJoin("Follows", "Follows.userFollowedId", "Candidate.did")
-        .where("Follows.userFollowedId", "is", null)
-
-        // no es el usuario logueado
-        .where("Candidate.did", "!=", did)
-
-        // no está marcado como not interested
-        .where(eb =>
-            eb.not(
-                eb.exists(
-                    eb.selectFrom("NotInterested")
-                        .select("id")
-                        .whereRef("NotInterested.subjectId", "=", "Candidate.did")
-                        .where("NotInterested.authorId", "=", did)
-                )
             )
-        )
 
-        .select([
-            "Candidate.did",
-            sql<number>`
+            .select([
+                "Candidate.did",
+                sql<number>`
                 (count("Candidate"."did")::float / (select count(*) from "Recommenders"))
                 + CASE 
                 WHEN EXISTS (
@@ -102,49 +112,56 @@ async function getRecommendationRankingForUser(ctx: AppContext, did: string, ign
                 END
                 + CASE WHEN "Candidate"."inCA" THEN 0.25 ELSE 0 END
             `.as("score")
-        ])
-        .groupBy(["Candidate.did"])
-        .orderBy(["score desc", "Candidate.did asc"])
-        .limit(300)
-        .execute()
+            ])
+            .groupBy(["Candidate.did"])
+            .orderBy(["score desc", "Candidate.did asc"])
+            .limit(300)
+            .execute(),
+        catch: (error) => new DBSelectError(error)
+    })
 
     const dids = recommendations.map(r => r.did)
 
-    await ctx.redisCache.followSuggestions.set(did, dids)
+    yield* Effect.tryPromise({
+        try: () => ctx.redisCache.followSuggestions.set(did, dids),
+        catch: () => new DBSelectError()
+    })
     return dids
-}
+}).pipe(Effect.withSpan("getRecommendationRankingForUser"))
 
 
-export async function getFollowSuggestionsToAvoid(ctx: AppContext, did: string) {
-    return new Set((await ctx.kysely
-        .selectFrom("NotInterested")
-        .select("subjectId as did")
-        .where("authorId", "=", did)
-        .unionAll(eb => eb
-            .selectFrom("Follow")
-            .innerJoin("User", "User.did", "Follow.userFollowedId")
-            .innerJoin("Record", "Record.uri", "Follow.uri")
-            .where("Record.authorId", "=", did)
-            .select("User.did")
-        )
-        .execute()).map(x => x.did))
-}
+export const getFollowSuggestionsToAvoid = (
+    ctx: AppContext,
+    did: string
+) => Effect.gen(function* () {
+    const data = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("NotInterested")
+            .select("subjectId as did")
+            .where("authorId", "=", did)
+            .unionAll(eb => eb
+                .selectFrom("Follow")
+                .innerJoin("User", "User.did", "Follow.userFollowedId")
+                .innerJoin("Record", "Record.uri", "Follow.uri")
+                .where("Record.authorId", "=", did)
+                .select("User.did")
+            )
+            .execute(),
+        catch: (error) => new DBSelectError(error)
+    })
+
+    return new Set((data).map(x => x.did))
+}).pipe(Effect.withSpan("getFollowSuggestionsToAvoid"))
 
 
 export const getFollowSuggestions: EffHandler<
     {params: {limit: string, cursor?: string}},
-    {profiles: ArCabildoabiertoActorDefs.ProfileView[], cursor?: string}
+    {feed: ArCabildoabiertoActorDefs.ProfileView[], cursor?: string}
 > = (ctx, agent, {params}) => Effect.provideServiceEffect(
     Effect.gen(function* () {
     const [ranking, avoid] = yield* Effect.all([
-        Effect.tryPromise({
-            try: () => getRecommendationRankingForUser(ctx, agent.did),
-            catch: () => "Ocurrió un error al obtener las recomendaciones."
-        }),
-        Effect.tryPromise({
-            try: () => getFollowSuggestionsToAvoid(ctx, agent.did),
-            catch: () => "Ocurrió un error al obtener las recomendaciones."
-        })
+        getRecommendationRankingForUser(ctx, agent.did),
+        getFollowSuggestionsToAvoid(ctx, agent.did)
     ], {concurrency: "unbounded"})
 
     const limit = parseInt(params.limit)
@@ -160,6 +177,8 @@ export const getFollowSuggestions: EffHandler<
         nextIndex++
     }
 
+    yield* Effect.annotateCurrentSpan("dids", dids.length)
+
     const dataplane = yield* DataPlane
     yield* dataplane.fetchProfileViewHydrationData(dids)
 
@@ -170,7 +189,7 @@ export const getFollowSuggestions: EffHandler<
     const cursor = nextIndex >= ranking.length ? undefined : nextIndex.toString()
 
     return {
-        profiles: profiles,
+        feed: profiles,
         cursor
     }
 }).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las recomendaciones."))), DataPlane, makeDataPlane(ctx, agent))

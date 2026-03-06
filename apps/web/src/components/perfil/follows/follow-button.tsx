@@ -34,7 +34,8 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
-                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[])
+                            .findIndex(u => u.handle == handle)
                         if (index != -1) {
                             if(draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
                         }
@@ -42,6 +43,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                 } else if(k[0] == "follow-suggestions"){
                     if (!old) return old
                     return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
+                        if(!draft.profiles) return
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             if(!draft.profiles[index].viewer) {
@@ -54,6 +56,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     if(!old) return old
                     return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
                         for(let i = 0; i < draft.pages.length; i++){
+                            if(!draft.pages[i].data) continue
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
                                 const data = draft.pages[i].data[index]
@@ -129,6 +132,7 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                 } else if(k[0] == "follow-suggestions"){
                     if (!old) return old
                     return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
+                        if(!draft.profiles) return
                         const index = draft.profiles.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             if(draft.profiles[index].viewer) draft.profiles[index].viewer.following = undefined
@@ -313,7 +317,7 @@ export function FollowButton({
             try {
                 optimisticUnfollow(qc, handle)
             } catch (err) {
-                console.log("unfollowing failed", err)
+                console.log("unfollow failed", err)
             }
         }
     })

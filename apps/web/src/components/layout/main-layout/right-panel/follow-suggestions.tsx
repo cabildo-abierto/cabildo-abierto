@@ -29,7 +29,7 @@ const LoadingFollowSuggestion = () => {
 export default function FollowSuggestions() {
     let {data, isLoading} = useFollowSuggestions(3)
 
-    if (data && (!data.profiles || data.profiles.length == 0)) return null
+    if (data && (!data.feed || data.feed.length == 0)) return null
 
     return <div className={"right-panel-panel w-full h-full"}>
         <div className={"flex px-3 py-2 items-center text-xs font-bold uppercase"}>
@@ -41,7 +41,7 @@ export default function FollowSuggestions() {
                 <LoadingFollowSuggestion/>
                 <LoadingFollowSuggestion/>
             </div>}
-            {data && data.profiles.map(u => {
+            {data && data.feed.map(u => {
                 return <FollowSuggestionSmallView
                     user={u}
                     key={u.did}
