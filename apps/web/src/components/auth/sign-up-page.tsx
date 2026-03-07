@@ -6,7 +6,7 @@ import {LoginModalPage} from "@/components/auth/login-modal";
 import Link from "next/link";
 import {topicUrl} from "@/components/utils/react/url";
 import {useState} from "react";
-import {AtIcon, EyeClosedIcon, EyeIcon} from "@phosphor-icons/react";
+import {AtIcon, CheckCircleIcon, EyeClosedIcon, EyeIcon, XCircleIcon} from "@phosphor-icons/react";
 import {isValidHandle} from "@atproto/syntax";
 import {DateAndTimePicker} from "@/components/tema/props/date-prop-editor";
 import {post} from "@/components/utils/react/fetch";
@@ -15,16 +15,27 @@ import {StateButton, StateButtonClickHandler} from "@/components/utils/base/stat
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {isValidEmail} from "@/components/feed/config/account-settings";
 import {ErrorMsg} from "@/components/utils/utils";
-import {useRouter} from "next/navigation";
+import {getPasswordStrength} from "@cabildo-abierto/utils";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
+import {useLoginModal} from "@/components/auth/login-modal-provider";
+import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
 
+
+const pwStrLabel = [
+    "muy débil",
+    "débil",
+    "regular",
+    "fuerte",
+    "muy fuerte"
+]
 
 
 const SignUpForm = ({
-                              data,
-                              setData,
-                              onClickBack,
-                              onSubmit
-                          }: {
+                        data,
+                        setData,
+                        onClickBack,
+                        onSubmit
+                    }: {
     data: SignupParams
     setData: (d: SignupParams) => void
     onClickBack: () => void
@@ -33,7 +44,8 @@ const SignUpForm = ({
     const [pwVisible, setPwVisible] = useState<boolean>(false)
     const validHandle = isValidHandle(data.handle)
     const validEmail = isValidEmail(data.email)
-    const validPw = data.password.length > 0
+    const pwStr = getPasswordStrength(data.password)
+    const validPw = data.password.length > 0 && pwStr >= 3
     const valid = validHandle && validEmail && validPw
 
     return <div className={"py-4 w-full flex flex-col items-center"}>
@@ -67,6 +79,18 @@ const SignUpForm = ({
                 </BaseIconButton>}
             />
 
+            {data.password.length > 0 && <Note className={"text-xs text-left flex space-x-1"}>
+                <div>
+                    La contraseña es
+                </div>
+                <div className={"font-medium"}>{pwStrLabel[pwStr]}</div>
+                .
+                <div className={"flex"}>
+                    {pwStr > 2 ? <CheckCircleIcon fontSize={14} className={"text-green-800"}/> :
+                        <XCircleIcon fontSize={14} className={"text-red-800"}/>}
+                </div>
+            </Note>}
+
             <DateAndTimePicker
                 time={false}
                 value={data.dateOfBirth}
@@ -92,7 +116,7 @@ const SignUpForm = ({
                 text={"El nombre de usuario es inválido."}
             />}
 
-            {validHandle && <Note className={"text-xs"}>
+            {validHandle && <Note className={"text-xs break-all"}>
                 Tu nombre de usuario va a ser <span className={"font-medium"}>{data.handle}</span>
             </Note>}
 
@@ -126,7 +150,8 @@ export const SignUpPage = ({
     inviteCode?: string
     setPage: (v: LoginModalPage) => void
 }) => {
-    const router = useRouter()
+    const {setCreatedAccount} = useLoginModal()
+    const {isMobile} = useIsMobile()
     const [data, setData] = useState<SignupParams>({
         handle: "",
         email: "",
@@ -134,52 +159,69 @@ export const SignUpPage = ({
         password: "",
         code: inviteCode
     })
+    const [accountCreatedModalOpen, setAccountCreatedModalOpen] = useState<boolean>(false)
 
     async function onSubmit() {
         const res = await post<SignupParams, SignupOutput>("/signup", data)
-        if(res.success === true && res.value.redirectUrl) {
-            router.push(res.value.redirectUrl)
+        if (res.success === true) {
+            setAccountCreatedModalOpen(true)
         }
         return res.success === true ? {} : {error: res.error}
     }
 
-    return <div className={"space-y-4 flex flex-col items-center pt-4"}>
-        <div className="space-y-4 flex flex-col items-center">
-            <Logo width={64} height={64}/>
-            <h1 className={"text-lg font-semibold uppercase"}>Registro</h1>
-        </div>
+    return <>
+        <div className={"space-y-4 flex flex-col items-center pt-4"}>
+            <div className="space-y-4 flex flex-col items-center">
+                <Logo width={isMobile ? 48 : 64} height={isMobile ? 48 : 64}/>
+                <h1 className={"text-lg font-semibold uppercase"}>Registro</h1>
+            </div>
 
-        <div className="flex justify-center sm:px-8">
-            <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
-                <div className={""}>
-                    <SignUpForm
-                        data={data}
-                        setData={setData}
-                        onClickBack={() => {
-                            setPage("login")
-                        }}
-                        onSubmit={onSubmit}
-                    />
-                </div>
+            <div className="flex justify-center sm:px-8">
+                <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
+                    <div className={""}>
+                        <SignUpForm
+                            data={data}
+                            setData={setData}
+                            onClickBack={() => {
+                                setPage("login")
+                            }}
+                            onSubmit={onSubmit}
+                        />
+                    </div>
 
-                <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
-                    <Note
-                        text={"text-xs"}
-                    >
-                        Al crear la cuenta aceptás los <Link
-                        target="_blank"
-                        className="hover:underline hover:text-[var(--text)]"
-                        href={topicUrl("Cabildo Abierto: Términos y condiciones")}
-                    >
-                        Términos y condiciones</Link> y la <Link
-                        target="_blank"
-                        className="hover:underline hover:text-[var(--text)]"
-                        href={topicUrl("Cabildo Abierto: Política de privacidad")}>
-                        Política
-                        de privacidad</Link>, ¡leelos!.
-                    </Note>
+                    <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
+                        <Note
+                            text={"text-xs"}
+                        >
+                            Al crear la cuenta aceptás los <Link
+                            target="_blank"
+                            className="hover:underline hover:text-[var(--text)]"
+                            href={topicUrl("Cabildo Abierto: Términos y condiciones")}
+                        >
+                            Términos y condiciones</Link> y la <Link
+                            target="_blank"
+                            className="hover:underline hover:text-[var(--text)]"
+                            href={topicUrl("Cabildo Abierto: Política de privacidad")}>
+                            Política
+                            de privacidad</Link>, ¡leelos!.
+                        </Note>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+        <AcceptButtonPanel onClose={() => {
+            setAccountCreatedModalOpen(false);
+            setCreatedAccount(data.handle)
+            setPage("login")
+        }} open={accountCreatedModalOpen}>
+            <div className={"text-center space-y-2 p-8"}>
+                <div className={"font-medium text-lg"}>
+                    ¡Se creó tu cuenta!
+                </div>
+                <Note>
+                    Ya podés usarla para iniciar sesión.
+                </Note>
+            </div>
+        </AcceptButtonPanel>
+    </>
 }

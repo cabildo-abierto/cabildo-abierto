@@ -2,6 +2,7 @@ import {useEffect} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {RefetchInterval, useAPI} from "@/components/utils/react/queries";
 import {Session} from "@cabildo-abierto/api";
+import {useLogout} from "@/components/auth/logout";
 
 
 export const useSession = (
@@ -9,6 +10,7 @@ export const useSession = (
     key: string = "session",
     refetchInterval: RefetchInterval<Session> = false) => {
     const qc = useQueryClient()
+    const {logout} = useLogout()
 
     const res = useAPI<Session>(
         "/session" + (inviteCode ? "/" + inviteCode : ""),
@@ -25,6 +27,12 @@ export const useSession = (
                     return res.data
                 })
             }
+        }
+    }, [res]);
+
+    useEffect(() => {
+        if(res.error) {
+            logout()
         }
     }, [res]);
 

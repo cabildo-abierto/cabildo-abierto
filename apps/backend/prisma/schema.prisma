@@ -560,6 +560,7 @@ model User {
   created_at_tz                                 DateTime?                @db.Timestamptz(3)
   editorStatus                                  EditorStatus             @default(Beginner)
   hasAccess                                     Boolean                  @default(false)
+  dateOfBirth                                   DateTime?                @db.Date
   avatar                                        String?
   banner                                        String?
   description                                   String?

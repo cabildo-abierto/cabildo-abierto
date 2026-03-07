@@ -14,9 +14,9 @@ import {
     Session, SignupOutput,
     SignupParams
 } from "@cabildo-abierto/api"
-import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
+import {createMailingListSubscription, isValidEmail} from "#/services/emails/subscriptions.js";
 import {Effect, Exit} from "effect";
-import {DBInsertError, DBSelectError, InvalidValueError} from "#/utils/errors.js";
+import {DBInsertError, DBSelectError, DBUpdateError, InvalidValueError} from "#/utils/errors.js";
 import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 import {getIronSession} from "iron-session";
@@ -24,6 +24,8 @@ import {env} from "#/lib/env.js";
 import {Request, Response} from "express";
 import {ComAtprotoServerCreateAccount} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
+import {HandleResolutionError} from "#/services/user/users.js";
+import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 
 
 function getCAStatus(ctx: AppContext, did: string): Effect.Effect<{
@@ -64,6 +66,9 @@ export const loginHandler: EffHandlerNoAuth<LoginParams, LoginOutput> = (
     agent,
     {handle, code}
 ) => login(ctx, agent, handle, code).pipe(
+    Effect.catchTag("UserNotFoundError", () => Effect.fail("No se encontró el usuario.")),
+    Effect.catchTag("RedisCacheFetchError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
+    Effect.catchTag("RedisCacheSetError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
     Effect.catchTag("InvalidValueError", () => Effect.fail("El nombre de usuario es inválido.")),
     Effect.catchTag("InvalidCodeError", () => Effect.fail("El código de invitación es inválido.")),
     Effect.catchTag("UsedCodeError", () => Effect.fail("El código de invitación ya fue usado.")),
@@ -91,18 +96,22 @@ const login = (
     handle: string,
     code?: string
 ) => Effect.gen(function* () {
+    ctx.logger.pino.info({handle, code}, "logging in")
 
     if (agent.hasSession()) {
         return yield* Effect.fail(new AlreadyLoggedInError())
     }
 
     if (!isValidHandle(handle.trim())) {
-        return yield* Effect.fail(new InvalidValueError("Nombre de usuario inválido."))
+        return yield* Effect.fail(new InvalidValueError("handle"))
     }
 
     handle = handle.trim()
 
     const did = yield* ctx.resolver.resolveHandleToDid(handle)
+    if(!did) {
+        return yield* Effect.fail(new UserNotFoundError())
+    }
 
     const status = yield* getCAStatus(ctx, did)
 
@@ -184,7 +193,7 @@ export class InvalidCodeError {
 const checkValidCode = (
     ctx: AppContext,
     code: string,
-    did: string
+    did?: string
 ): Effect.Effect<void, DBSelectError | InvalidCodeError | UsedCodeError> => Effect.gen(function* () {
     const res = yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -218,15 +227,77 @@ export class GetInviteCodeError {
 }
 
 
+const checkEmailExists = (ctx: AppContext, email: string) => Effect.gen(function* () {
+    const rows = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
+            .where(eb => eb.or([
+                eb("User.email", "=", email),
+                eb("MailingListSubscription.email", "=", email)
+            ]))
+            .execute(),
+        catch: (error) => new DBSelectError(error)
+    })
+
+    return rows.length > 0
+})
+
+
+const registerUserInDB = (
+    ctx: AppContext,
+    data: {did: string, code: string, email: string, handle: string}
+) => Effect.gen(function* () {
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .insertInto("User")
+            .values([{
+                did: data.did,
+                handle: data.handle,
+                email: data.email
+            }])
+            .onConflict(oc => oc
+                .column("did")
+                .doUpdateSet(eb => ({
+                handle: eb.ref("excluded.handle"),
+                email: eb.ref("excluded.email")
+            })))
+            .execute(),
+        catch: (error) => new DBInsertError(error)
+    })
+
+    yield* assignInviteCode(ctx, data.did, data.code)
+})
+
+
 const signup = (
     ctx: AppContext,
     agent: BaseAgent,
     data: SignupParams
-): Effect.Effect<SignupOutput, NoInviteCodeError | OAuthAuthorizationError | CreateAccountError | GetInviteCodeError | DBSelectError> => Effect.gen(function* () {
-    ctx.logger.pino.info({data}, "signup")
+): Effect.Effect<SignupOutput, NoInviteCodeError | InvalidCodeError | DBUpdateError | UserNotFoundError | UsedCodeError | CodeNotFoundError | DBInsertError | HandleResolutionError | RedisCacheFetchError | RedisCacheSetError | InvalidValueError | OAuthAuthorizationError | CreateAccountError | GetInviteCodeError | DBSelectError> => Effect.gen(function* () {
     if (agent.hasSession()) {
         return {did: agent.did}
     } else {
+        const validHandle = isValidHandle(data.handle)
+        if(!validHandle) {
+            return yield* Effect.fail(new InvalidValueError("handle"))
+        }
+
+        const validEmail = isValidEmail(data.email)
+        if(!validEmail) {
+            return yield* Effect.fail(new InvalidValueError("email"))
+        }
+
+        const emailExists = yield* checkEmailExists(ctx, data.email)
+        if(emailExists) {
+            return yield* Effect.fail(new InvalidValueError("email-exists"))
+        }
+
+        const did = yield* ctx.resolver.resolveHandleToDid(data.handle)
+        if(did) {
+            return yield* Effect.fail(new InvalidValueError("handle-exists"))
+        }
+
         const oauthClient = ctx.oauthClient
         if(!oauthClient) {
             return yield* Effect.fail(new CreateAccountError())
@@ -237,6 +308,8 @@ const signup = (
         if(!data.code) {
             return yield* Effect.fail(new NoInviteCodeError())
         }
+
+        yield* checkValidCode(ctx, data.code)
 
         const inviteCode = yield* Effect.tryPromise({
             try: () => ctx.kysely
@@ -267,12 +340,9 @@ const signup = (
             return yield* Effect.fail(new CreateAccountError())
         }
 
-        const authorizeUrl = yield* Effect.tryPromise({
-            try: () => oauthClient.authorize(res.data.did),
-            catch: (error) => new OAuthAuthorizationError(error)
-        })
+        yield* registerUserInDB(ctx, {did: res.data.did, email: data.email, code: data.code, handle: data.handle})
 
-        return {did: res.data.did, redirectUrl: authorizeUrl.href}
+        return {did: res.data.did}
     }
 }).pipe(Effect.withSpan("signup", {attributes: {data}}))
 
@@ -280,11 +350,33 @@ const signup = (
 export const signupHandler: EffHandlerNoAuth<SignupParams, SignupOutput> = (
     ctx, agent, params
 ) => signup(ctx, agent, params).pipe(
-    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error al iniciar la sesión")),
+    Effect.catchTag("InvalidValueError", (error) => {
+        if(error.message == "handle") {
+            return Effect.fail("Nombre de usuario inválido.")
+        } else if(error.message == "email-exists") {
+            return Effect.fail("El correo ya fue usado.")
+        } else if(error.message == "handle-exists") {
+            return Effect.fail("El nombre de usuario ya fue usado.")
+        } else if(error.message == "email") {
+            return Effect.fail("Ingresá una dirección de correo válida.")
+        } else {
+            return Effect.fail("Ocurrió un error al crear la cuenta.")
+        }
+    }),
+    Effect.catchTag("InvalidCodeError", () => Effect.fail("El código de invitación es inválido.")),
+    Effect.catchTag("UserNotFoundError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("DBUpdateError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("RedisCacheFetchError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("RedisCacheSetError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
     Effect.catchTag("NoInviteCodeError", () => Effect.fail("Necesitás un código de invitación.")),
     Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
-    Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta")),
-    Effect.catchTag("GetInviteCodeError", () => Effect.fail("Necesitás un código de invitación."))
+    Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("GetInviteCodeError", () => Effect.fail("Necesitás un código de invitación.")),
+    Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("UsedCodeError", () => Effect.fail("El código de invitación ya fue usado.")),
+    Effect.catchTag("CodeNotFoundError", () => Effect.fail("El código de invitación es inválido.")),
 )
 
 
@@ -385,7 +477,7 @@ export function createCAUser(
         })
 
         if (code) {
-            yield* assignInviteCode(ctx, agent, code)
+            yield* assignInviteCode(ctx, agent.did, code)
         }
 
         const caProfileRecord: ArCabildoabiertoActorCaProfile.Record = {
@@ -529,41 +621,47 @@ export class UsedCodeError {
 }
 
 
-export class GrantAccessError {
-    readonly _tag = "GrantAccessError"
-}
+export type AssignInviteCodeError = CodeNotFoundError | UserNotFoundError | UsedCodeError | DBUpdateError
 
 
-export type AssignInviteCodeError = CodeNotFoundError | UserNotFoundError | UsedCodeError | GrantAccessError
+const checkInviteCode = (
+    ctx: AppContext,
+    did: string,
+    inviteCode: string
+) => Effect.gen(function*  () {
+    const [code, user] = yield* Effect.all([
+        Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("InviteCode")
+                .select(["usedByDid"])
+                .where("code", "=", inviteCode)
+                .executeTakeFirstOrThrow(),
+            catch: () => new CodeNotFoundError()
+        }),
+        Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("User")
+                .leftJoin("InviteCode", "InviteCode.usedByDid", "User.did")
+                .select([
+                    "inCA",
+                    "hasAccess",
+                    "code"
+                ])
+                .where("User.did", "=", did)
+                .executeTakeFirstOrThrow(),
+            catch: () => new UserNotFoundError()
+        }),
+    ], {concurrency: "unbounded"})
+    return {code, user}
+})
 
 
-export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCode: string): Effect.Effect<void, AssignInviteCodeError> {
-    const did = agent.did
+export function assignInviteCode(ctx: AppContext, did: string, inviteCode: string): Effect.Effect<
+    void, AssignInviteCodeError
+> {
 
     return Effect.gen(function* () {
-        const [code, user] = yield* Effect.all([
-            Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("InviteCode")
-                    .select(["usedByDid"])
-                    .where("code", "=", inviteCode)
-                    .executeTakeFirstOrThrow(),
-                catch: () => new CodeNotFoundError()
-            }),
-            Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("User")
-                    .leftJoin("InviteCode", "InviteCode.usedByDid", "User.did")
-                    .select([
-                        "inCA",
-                        "hasAccess",
-                        "code"
-                    ])
-                    .where("User.did", "=", did)
-                    .executeTakeFirstOrThrow(),
-                catch: () => new UserNotFoundError()
-            }),
-        ], {concurrency: "unbounded"})
+        const {user, code} = yield* checkInviteCode(ctx, did, inviteCode)
 
         if (user.code != null && user.inCA && user.hasAccess) {
             return
@@ -593,7 +691,7 @@ export function assignInviteCode(ctx: AppContext, agent: SessionAgent, inviteCod
                         .execute()
                 }
             }),
-            catch: () => new GrantAccessError()
+            catch: (error) => new DBUpdateError(error)
         })
     })
 

@@ -122,19 +122,15 @@ export type LoginModalPage = "login" | "sign up" | "access request"
 
 export const LoginModal = ({
                                open,
-                               onClose,
-    page,
-    setPage
+                               onClose
                            }: {
     open: boolean;
     onClose?: () => void
-    page: LoginModalPage
-    setPage: (v: LoginModalPage) => void
 }) => {
     const params = useSearchParams()
     const inviteCode = params.get("c")
     const router = useRouter()
-    const {setLoginModalOpen} = useLoginModal()
+    const {setLoginModalOpen, page, setPage, createdAccount} = useLoginModal()
     const pathname = usePathname()
 
     return <LoginPanel
@@ -155,10 +151,13 @@ export const LoginModal = ({
 
             <div className="flex justify-center sm:px-8">
                 <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
-                    {inviteCode && <div
-                        className={"flex flex-col space-y-4 items-center max-w-80 text-center"}>
+                    {inviteCode && !createdAccount && <div
+                        className={"flex flex-col space-y-1 items-center max-w-80 text-center"}>
                         <div className={"text-base font-light"}>
                             ¡Recibiste un código de invitación!
+                        </div>
+                        <div className={"text-xs font-light"}>
+                            Podés usarlo con una cuenta de ATProtocol (ej. Bluesky) si tenés una o crear una cuenta nueva. <Link className={"underline hover:text-[var(--text-light)]"} href={topicUrl("Cabildo Abierto: Relación con Bluesky y descentralización")}>Más información.</Link>
                         </div>
                     </div>}
 
@@ -195,7 +194,7 @@ export const LoginModal = ({
                         </div>}
                     </div>
 
-                    <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
+                    <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-12 items-center text-center"}>
                         {!pathname.startsWith("/presentacion") && <Note text={"text-sm"}>
                             <Link
                                 href={"/presentacion"}

@@ -7,6 +7,7 @@ import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {DBDeleteError, DBSelectError} from "#/utils/errors.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
+import {UserNotFoundError} from "#/services/user/access.js";
 
 
 export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {
@@ -100,9 +101,11 @@ export const deleteUserHandler: EffHandler<{ params: { handleOrDid: string } }> 
     return Effect.gen(function* () {
         const {handleOrDid} = params
         const did = yield* handleOrDidToDid(ctx, handleOrDid)
+        if(!did) return yield* Effect.fail(new UserNotFoundError())
         yield* deleteUser(ctx, did)
         return {}
     }).pipe(
+        Effect.catchTag("UserNotFoundError", () => Effect.fail("Usuario no encontrado.")),
         Effect.catchTag("HandleResolutionError", () => Effect.fail("Usuario no encontrado.")),
         Effect.catchAll(() => Effect.fail("Ocurrió un error al borrar el usuario."))
     )

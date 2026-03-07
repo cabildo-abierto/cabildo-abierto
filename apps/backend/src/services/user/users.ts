@@ -164,27 +164,22 @@ export const getProfileHandler: EffHandlerNoAuth<{ params: { handleOrDid: string
 }
 
 
-export const getProfile = (ctx: AppContext, handleOrDid: string) => {
-    return pipe(
-        handleOrDidToDid(ctx, handleOrDid),
-        Effect.flatMap(did =>
-            Effect.gen(function* () {
-                const dataplane = yield* DataPlane
+export const getProfile = (ctx: AppContext, handleOrDid: string) => Effect.gen(function* () {
+    const did = yield* handleOrDidToDid(ctx, handleOrDid)
 
-                yield* dataplane.fetchProfileViewDetailedHydrationData([did])
+    if(!did) return yield* Effect.fail(new UserNotFoundError())
 
-                const profile = yield* hydrateProfileViewDetailed(ctx, did)
+    const dataplane = yield* DataPlane
 
-                if (!profile) {
-                    return yield* Effect.fail(new UserNotFoundError())
-                }
+    yield* dataplane.fetchProfileViewDetailedHydrationData([did])
 
-                return profile
-            })
-        ),
-        Effect.withSpan("getProfile", {attributes: {handleOrDid}})
-    )
-}
+    const profile = yield* hydrateProfileViewDetailed(ctx, did)
+
+    if (!profile) {
+        return yield* Effect.fail(new UserNotFoundError())
+    }
+    return profile
+}).pipe(Effect.withSpan("getProfile", {attributes: {handleOrDid}}))
 
 
 export async function deleteSession(ctx: AppContext, agent: SessionAgent) {

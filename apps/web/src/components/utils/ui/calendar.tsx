@@ -39,7 +39,7 @@ function Calendar({
             locale={es}
             showOutsideDays={showOutsideDays}
             className={cn(
-                "group/calendar p-3 [--cell-size:2rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+                "group/calendar p-2 [--cell-size:2rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
                 String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
                 String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
                 className
@@ -58,25 +58,25 @@ function Calendar({
                 ),
                 month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
                 nav: cn(
-                    "absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
+                    "absolute inset-x-0 top-0 flex w-full items-center justify-between pt-1 gap-1",
                     defaultClassNames.nav
                 ),
                 button_previous: cn(
                     buttonVariants({variant: buttonVariant}),
-                    "h-[--cell-size] w-[--cell-size] select-none p-0 aria-disabled:opacity-50",
+                    "w-6 h-6 select-none p-0 aria-disabled:opacity-50",
                     defaultClassNames.button_previous
                 ),
                 button_next: cn(
                     buttonVariants({variant: buttonVariant}),
-                    "h-[--cell-size] w-[--cell-size] select-none p-0 aria-disabled:opacity-50",
+                    "w-6 h-6 select-none p-0 aria-disabled:opacity-50",
                     defaultClassNames.button_next
                 ),
                 month_caption: cn(
-                    "flex h-[--cell-size] w-full items-center justify-center px-[--cell-size]",
+                    "flex w-full items-center justify-center px-7 items-center",
                     defaultClassNames.month_caption
                 ),
                 dropdowns: cn(
-                    "flex h-[--cell-size] w-full items-center justify-center gap-1.5 text-sm font-medium",
+                    "flex w-full items-center justify-center gap-1.5 text-sm font-medium",
                     defaultClassNames.dropdowns
                 ),
                 caption_label: cn(
@@ -86,8 +86,9 @@ function Calendar({
                         : "[&>svg]:text-muted-foreground flex h-8 items-center gap-1 rounded-md pl-2 pr-1 text-sm [&>svg]:size-3.5",
                     defaultClassNames.caption_label
                 ),
+                months_dropdown: "max-w-8",
                 table: "w-full border-collapse",
-                weekdays: cn("flex", defaultClassNames.weekdays),
+                weekdays: cn("flex", defaultClassNames.weekdays, "px-0"),
                 weekday: cn(
                     "text-muted-foreground flex-1 select-none rounded-md text-[0.8rem] font-normal",
                     defaultClassNames.weekday
@@ -97,6 +98,7 @@ function Calendar({
                     "w-[--cell-size] select-none",
                     defaultClassNames.week_number_header
                 ),
+                day_button: "text-[12px] p-0",
                 week_number: cn(
                     "text-muted-foreground select-none text-[0.8rem]",
                     defaultClassNames.week_number
@@ -226,7 +228,7 @@ function CalendarDropdown(props: DropdownProps) {
                 }
             }}
         >
-            <SelectTrigger className="h-8 w-[110px] bg-[var(--background-dark2)] border">
+            <SelectTrigger className="h-8 w-[70px] bg-[var(--background-dark2)] border">
                 <SelectValue />
             </SelectTrigger>
 

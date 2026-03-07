@@ -235,7 +235,7 @@ function normalizeEmail(email: string) {
     return email.trim().toLowerCase()
 }
 
-function isValidEmail(email: string) {
+export function isValidEmail(email: string) {
     return validator.isEmail(email, {
         allow_utf8_local_part: false,
         require_tld: true,
