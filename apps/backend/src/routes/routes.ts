@@ -14,6 +14,7 @@ import {
     getAccount,
     getProfileHandler,
     getSessionHandler,
+    getUserGuideStatus,
     saveNewEmail,
     setSeenTutorialHandler,
     unfollowHandler,
@@ -540,6 +541,8 @@ export const createRouter = (ctx: AppContext): Router => {
     router.get("/topic-polls", makeEffHandlerNoAuth(ctx, getTopicPolls))
 
     router.get("/poll-votes/:id", makeEffHandlerNoAuth(ctx, getPollVotes))
+
+    router.get("/user-guide-status", makeEffHandler(ctx, getUserGuideStatus))
 
     router.use(adminRoutes(ctx))
 

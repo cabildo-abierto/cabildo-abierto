@@ -12,8 +12,8 @@ import {
     AlgorithmConfig,
     ArCabildoabiertoActorDefs,
     ATProtoStrongRef,
-    AuthorStatus, MaybeSession,
-    Session,
+    AuthorStatus, Goal, MaybeSession,
+    Session, UserGuideStatus,
     ValidationState
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
@@ -488,6 +488,23 @@ type UpdateProfileProps = {
     banner?: string
     profilePic?: string
 }
+
+export const getUserGuideStatus: EffHandlerNoAuth<{}, UserGuideStatus> = (
+    ctx,
+    agent
+) => Effect.gen(function* () {
+    const goalsDefault: Goal[] = [
+        {label: "Seguir personas", progress: 0},
+        {label: "Leer un tema", progress: 0},
+        {label: "Editar un tema", progress: 0},
+        {label: "Crear un tema", progress: 0},
+        {label: "Escribir un articulo", progress: 0},
+        {label: "Comentar en un tema", progress: 0},
+        {label: "Votar en una encuesta", progress: 0},
+    ];
+
+    return goalsDefault
+})
 
 
 export const updateProfileHandler: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
