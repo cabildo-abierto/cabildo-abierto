@@ -123,7 +123,7 @@ const UserSearchResults = ({
                                 />
                             ) : (
                                 <UserSearchResult
-                                    user={user}
+                                    user={{...user, $type: "ar.cabildoabierto.actor.defs#profileViewBasic"}}
                                     showFollowButton={showFollowButton}
                                     goToProfile={goToProfile}
                                     onClick={onClickResult}
@@ -137,7 +137,7 @@ const UserSearchResults = ({
                         {caResults.map((user, index) => (
                             <div key={index}>
                                 <UserSearchResult
-                                    user={user}
+                                    user={{...user, $type: "ar.cabildoabierto.actor.defs#profileViewBasic"}}
                                     showFollowButton={showFollowButton}
                                     goToProfile={goToProfile}
                                     onClick={onClickResult}
@@ -164,7 +164,7 @@ const UserSearchResults = ({
                                     />
                                 ) : (
                                     <UserSearchResult
-                                        user={user}
+                                        user={{...user, $type: "ar.cabildoabierto.actor.defs#profileViewBasic"}}
                                         showFollowButton={showFollowButton}
                                         goToProfile={goToProfile}
                                         onClick={onClickResult}

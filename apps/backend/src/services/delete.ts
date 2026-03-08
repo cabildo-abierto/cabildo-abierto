@@ -10,10 +10,10 @@ import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processi
 import {UserNotFoundError} from "#/services/user/access.js";
 
 
-export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {
+export function deleteRecordsForAuthors({ctx, agent, dids, collections, atproto}: {
     ctx: AppContext,
     agent?: SessionAgent,
-    did: string,
+    dids: string[],
     collections?: string[],
     atproto: boolean
 }): Effect.Effect<void, DBSelectError | ProcessDeleteError | ATDeleteRecordError> {
@@ -22,7 +22,7 @@ export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: 
             try: () => ctx.kysely
                 .selectFrom("Record")
                 .select("uri")
-                .where("authorId", "=", did)
+                .where("authorId", "in", dids)
                 .$if(collections != null && collections.length > 0, qb => qb.where("collection", "in", collections!))
                 .execute(),
             catch: () => new DBSelectError()
@@ -102,7 +102,7 @@ export const deleteUserHandler: EffHandler<{ params: { handleOrDid: string } }> 
         const {handleOrDid} = params
         const did = yield* handleOrDidToDid(ctx, handleOrDid)
         if(!did) return yield* Effect.fail(new UserNotFoundError())
-        yield* deleteUser(ctx, did)
+        yield* deleteUsers(ctx, [did])
         return {}
     }).pipe(
         Effect.catchTag("UserNotFoundError", () => Effect.fail("Usuario no encontrado.")),
@@ -117,25 +117,27 @@ export class DeleteUserError {
 }
 
 
-export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DBDeleteError> {
+export function deleteUsers(ctx: AppContext, dids: string[]): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DBDeleteError> {
     return Effect.gen(function* () {
-        yield* deleteRecordsForAuthor({ctx, did: did, atproto: false})
+        if(dids.length == 0) return
+
+        yield* deleteRecordsForAuthors({ctx, dids, atproto: false})
 
         yield* Effect.tryPromise({
             try: () => ctx.kysely.transaction().execute(async trx => {
-                const id = await trx.selectFrom("MailingListSubscription").select("id").where("userId", "=", did).executeTakeFirst()
-                if(id) await trx.deleteFrom("EmailSent").where("recipientId", "=", id.id).execute()
-                await trx.deleteFrom("MailingListSubscription").where("userId", "=", did).execute()
-                await trx.deleteFrom("ReadSession").where("userId", "=", did).execute()
-                await trx.deleteFrom("Notification").where("userNotifiedId", "=", did).execute()
-                await trx.deleteFrom("Blob").where("authorId", "=", did).execute()
-                await trx.deleteFrom("MailingListSubscription").where("userId", "=", did).execute()
-                await trx.deleteFrom("HasReacted").where("userId", "=", did).execute()
-                await trx.deleteFrom("UserMonth").where("userId", "=", did).execute()
-                await trx.deleteFrom("FollowingFeedIndex").where("readerId", "=", did).execute()
-                await trx.deleteFrom("FollowingFeedIndex").where("authorId", "=", did).execute()
-                await trx.deleteFrom("ModerationAction").where("userAffectedId", "=", did).execute()
-                await trx.deleteFrom("User").where("did", "=", did).execute()
+                const ids = await trx.selectFrom("MailingListSubscription").select("id").where("userId", "in", dids).execute()
+                if(ids.length > 0) await trx.deleteFrom("EmailSent").where("recipientId", "in", ids.map(x => x.id)).execute()
+                await trx.deleteFrom("MailingListSubscription").where("userId", "in", dids).execute()
+                await trx.deleteFrom("ReadSession").where("userId", "in", dids).execute()
+                await trx.deleteFrom("Notification").where("userNotifiedId", "in", dids).execute()
+                await trx.deleteFrom("Blob").where("authorId", "in", dids).execute()
+                await trx.deleteFrom("MailingListSubscription").where("userId", "in", dids).execute()
+                await trx.deleteFrom("HasReacted").where("userId", "in", dids).execute()
+                await trx.deleteFrom("UserMonth").where("userId", "in", dids).execute()
+                await trx.deleteFrom("FollowingFeedIndex").where("readerId", "in", dids).execute()
+                await trx.deleteFrom("FollowingFeedIndex").where("authorId", "in", dids).execute()
+                await trx.deleteFrom("ModerationAction").where("userAffectedId", "in", dids).execute()
+                await trx.deleteFrom("User").where("did", "in", dids).execute()
             }),
             catch: (error) => new DBDeleteError(error)
         })

@@ -97,6 +97,7 @@ import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
 import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
+import {pauseWorker, resumeWorker } from "#/jobs/worker.js";
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
     return {data: "live"}

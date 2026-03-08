@@ -98,9 +98,13 @@ function ProfileHeader({
                 {isOwner && <div className={"pt-2 pr-1"}>
                     <EditProfileButton/>
                 </div>}
-                {!isOwner && <div className={"pt-2 pr-1 flex justify-end space-x-2"}>
-                    <MessageButton handle={profile.handle}/>
-                    <FollowButton handle={profile.handle} profile={profile}/>
+                {!isOwner && <div className={"pt-2 pr-1 flex justify-end items-center space-x-2"}>
+                    <div className={""}>
+                        <MessageButton handle={profile.handle}/>
+                    </div>
+                    <div className={""}>
+                        <FollowButton handle={profile.handle} profile={profile}/>
+                    </div>
                 </div>}
             </div>
         </div>

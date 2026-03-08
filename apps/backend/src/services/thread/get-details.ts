@@ -1,5 +1,4 @@
 import {EffHandlerNoAuth} from "#/utils/handler.js";
-import {ArCabildoabiertoActorDefs, ArCabildoabiertoFeedDefs, GetFeedOutput} from "@cabildo-abierto/api"
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {Agent} from "#/utils/session-agent.js";
@@ -8,6 +7,7 @@ import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 import {hydratePostView} from "#/services/hydration/post-view.js";
+import {GetInteractionsOutput, GetQuotesOutput} from "@cabildo-abierto/api";
 
 
 const getLikesSkeleton = (
@@ -130,7 +130,7 @@ const getQuotesSkeleton = (
 type GetInteractionsType = EffHandlerNoAuth<{
     params: { did: string, rkey: string, collection: string },
     query: { limit?: string, cursor?: string }
-}, { profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[], cursor?: string }>
+}, GetInteractionsOutput>
 
 
 export const getLikes: GetInteractionsType = (
@@ -157,7 +157,7 @@ export const getLikes: GetInteractionsType = (
     const profiles = yield* Effect.all(dids.map(d => hydrateProfileViewBasic(ctx, d)))
 
     return {
-        profiles: profiles.filter(x => x != null),
+        feed: profiles.filter(x => x != null),
         cursor: cursor
     }
 }).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los me gustas."))), DataPlane, makeDataPlane(ctx, agent))
@@ -187,17 +187,16 @@ export const getReposts: GetInteractionsType = (
     const profiles = yield* Effect.all(dids.map(d => hydrateProfileViewBasic(ctx, d)))
 
     return {
-        profiles: profiles.filter(x => x != null),
+        feed: profiles.filter(x => x != null),
         cursor: cursor
     }
 }).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los me gustas."))), DataPlane, makeDataPlane(ctx, agent))
 
 
-
 type GetQuotesType = EffHandlerNoAuth<{
     params: { did: string, rkey: string, collection: string },
     query: { limit?: string, cursor?: string }
-}, GetFeedOutput<ArCabildoabiertoFeedDefs.PostView>>
+}, GetQuotesOutput>
 
 
 export const getQuotes: GetQuotesType = (

@@ -49,6 +49,8 @@ import {Effect} from "effect";
 import {AddJobError} from "#/utils/errors.js";
 import {runtime} from "#/instrumentation.js";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
+import {runClean} from "#/services/user/clean.js";
+import {WorkerState} from "@cabildo-abierto/api";
 
 const mins = 60 * 1000
 const seconds = 1000
@@ -60,36 +62,6 @@ type EffJobHandlerOutput = Effect.Effect<void, string | {_tag: string}>
 type EffJobHandler<T> = (data: T) => EffJobHandlerOutput
 
 export type JobToAdd = {label: string, data: any, priority?: number}
-
-export type WorkerState = {
-    counts: {
-        waiting: number
-        active: number
-        completed: number
-        failed: number
-        delayed: number
-        prioritized: number
-    }
-    activeJobs: {
-        id: string | undefined
-        name: string
-        timestamp: number | undefined
-        processedOn: number | undefined
-    }[]
-    failedJobs: {
-        id: string | undefined
-        name: string
-        failedReason: string | undefined
-        timestamp: number | undefined
-        finishedOn: number | undefined
-    }[]
-    scheduledJobs: {
-        name: string | undefined
-        every: number | undefined
-        next: number | undefined
-    }[]
-    registeredJobs: string[]
-}
 
 type CAJobDefinition<T> = {
     name: string
@@ -329,6 +301,11 @@ export class CAWorker {
             (data: {uri: string, context: string}[]) => startContentModeration(ctx, data),
             true
         )
+        this.registerEffJob(
+            "run-clean",
+            () => runClean(ctx),
+            false
+        )
 
         this.logger.pino.info("worker jobs registered")
 
@@ -345,6 +322,8 @@ export class CAWorker {
             await this.addRepeatingJob("update-all-interactions-score", 30 * mins, 30 * mins + 23)
             await this.addRepeatingJob("update-all-topics-popularities", 30 * mins, 30 * mins + 26)
             await this.addRepeatingJob("test-job", 20 * seconds, 20 * seconds, 14)
+            await this.addRepeatingJob("run-clean", 60 * seconds, 10 * seconds, 13)
+
         } else {
             await this.addRepeatingJob("batch-jobs", mins / 2, 0, 1)
             await this.addRepeatingJob("test-job", 20 * seconds, 20 * seconds, 14)
@@ -393,6 +372,18 @@ export class CAWorker {
     }
 
     async clear() {
+        throw Error("Sin implementar!")
+    }
+
+    async pause() {
+        throw Error("Sin implementar!")
+    }
+
+    async resume() {
+        throw Error("Sin implementar!")
+    }
+
+    async isPaused(): Promise<boolean> {
         throw Error("Sin implementar!")
     }
 }
@@ -448,6 +439,7 @@ export class RedisCAWorker extends CAWorker {
 
     async setup(ctx: AppContext) {
         await super.setup(ctx)
+        await this.ioredis.del("ca:worker:paused")
     }
 
     // priority va de 1 a 2097152, más bajo significa mayor prioridad
@@ -609,7 +601,7 @@ export class RedisCAWorker extends CAWorker {
     }
 
     async getState(): Promise<WorkerState> {
-        const [counts, activeJobs, failedJobs, schedulers] = await Promise.all([
+        const [counts, activeJobs, delayedJobs, waitingJobs, prioritizedJobs, failedJobs, schedulers] = await Promise.all([
             this.queue.getJobCounts(
                 'waiting',
                 'active',
@@ -619,6 +611,9 @@ export class RedisCAWorker extends CAWorker {
                 'prioritized'
             ),
             this.queue.getJobs(['active'], 0, 50),
+            this.queue.getJobs(['delayed'], 0, 50),
+            this.queue.getJobs(['waiting'], 0, 50),
+            this.queue.getJobs(['prioritized'], 0, 50),
             this.queue.getJobs(['failed'], 0, 50),
             this.queue.getJobSchedulers()
         ])
@@ -632,6 +627,24 @@ export class RedisCAWorker extends CAWorker {
                 delayed: counts.delayed ?? 0,
                 prioritized: counts.prioritized ?? 0
             },
+            delayedJobs: delayedJobs.filter(j => j != null).map(j => ({
+                id: j.id,
+                name: j.name,
+                timestamp: j.timestamp,
+                processedOn: j.processedOn
+            })),
+            prioritizedJobs: prioritizedJobs.filter(j => j != null).map(j => ({
+                id: j.id,
+                name: j.name,
+                timestamp: j.timestamp,
+                processedOn: j.processedOn
+            })),
+            waitingJobs: waitingJobs.filter(j => j != null).map(j => ({
+                id: j.id,
+                name: j.name,
+                timestamp: j.timestamp,
+                processedOn: j.processedOn
+            })),
             activeJobs: activeJobs.filter(j => j != null).map(j => ({
                 id: j.id,
                 name: j.name,
@@ -650,8 +663,21 @@ export class RedisCAWorker extends CAWorker {
                 every: s.every,
                 next: s.next
             })),
-            registeredJobs: this.jobs.map(j => j.name)
+            registeredJobs: this.jobs.map(j => j.name),
+            paused: await this.isPaused()
         }
+    }
+
+    async pause() {
+        await this.queue.pause()
+    }
+
+    async resume() {
+        await this.queue.resume()
+    }
+
+    async isPaused() {
+        return await this.queue.isPaused()
     }
 }
 
@@ -684,3 +710,21 @@ export const getWorkerState: CAHandler<{}, WorkerState> = async (ctx, agent, {})
     }
     return { data: await ctx.worker.getState() }
 }
+
+
+export const pauseWorker: EffHandler<{}, {}> = (ctx, agent) => Effect.gen(function* () {
+    yield* Effect.tryPromise({
+        try: () => ctx.worker?.pause(),
+        catch: () => "Ocurrió un error al pausar el worker."
+    })
+    return {}
+})
+
+
+export const resumeWorker: EffHandler<{}, {}> = (ctx, agent) => Effect.gen(function* () {
+    yield* Effect.tryPromise({
+        try: () => ctx.worker?.resume(),
+        catch: () => "Ocurrió un error al pausar el worker."
+    })
+    return {}
+})

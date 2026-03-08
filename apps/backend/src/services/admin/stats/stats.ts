@@ -51,7 +51,7 @@ export async function computePaymentPromiseStats(ctx: AppContext, reset: boolean
         d <= yesterday;
         d.setDate(d.getDate() + 1)
     ) {
-        if(existing.some(s => s.date.getUTCDate() == d.getUTCDate())) continue
+        if(existing.some(s => new Date(s.date).toISOString() == new Date(d).toISOString())) continue
         ctx.logger.pino.info(`computing npp for day ${d}`)
         const [{ npp }] = await ctx.kysely
             .selectFrom('AssignedPayment')

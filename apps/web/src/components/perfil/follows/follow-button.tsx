@@ -1,4 +1,9 @@
-import {ArCabildoabiertoActorDefs, MainSearchOutput} from "@cabildo-abierto/api/dist"
+import {
+    ArCabildoabiertoActorDefs,
+    FollowSuggestionsOutput,
+    GetInteractionsOutput,
+    MainSearchOutput
+} from "@cabildo-abierto/api/dist"
 import {Query, QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {AppBskyActorDefs} from "@atproto/api"
@@ -12,6 +17,7 @@ import {post} from "@/components/utils/react/fetch";
 
 
 function optimisticFollow(qc: QueryClient, handle: string) {
+    console.log("optimistic follow", handle)
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
         .forEach(q => {
@@ -23,41 +29,44 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
-                        if(draft.viewer) draft.viewer.following = "optimistic-follow"
-                        if(draft.bskyFollowersCount != null) {
+                        if (draft.viewer) draft.viewer.following = "optimistic-follow"
+                        if (draft.bskyFollowersCount != null) {
                             draft.bskyFollowersCount++
                         }
-                        if(draft.followersCount != null) {
+                        if (draft.followersCount != null) {
                             draft.followersCount++
                         }
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
-                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[])
+                            .findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if(draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
+                            if (draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
                         }
                     })
-                } else if(k[0] == "follow-suggestions"){
+                } else if (k[0] == "follow-suggestions") {
                     if (!old) return old
-                    return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
-                        const index = draft.profiles.findIndex(u => u.handle == handle)
+                    return produce(old as FollowSuggestionsOutput, draft => {
+                        if (!draft || !draft.feed) return
+                        const index = draft.feed.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if(!draft.profiles[index].viewer) {
-                                draft.profiles[index].viewer = {}
+                            if (!draft.feed[index].viewer) {
+                                draft.feed[index].viewer = {}
                             }
-                            draft.profiles[index].viewer.following = "optimistic-follow"
+                            draft.feed[index].viewer.following = "optimistic-follow"
                         }
                     })
-                } else if(k[0] == "follow-suggestions-feed") {
-                    if(!old) return old
+                } else if (k[0] == "follow-suggestions-feed") {
+                    if (!old) return old
                     return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
-                        for(let i = 0; i < draft.pages.length; i++){
+                        for (let i = 0; i < draft.pages.length; i++) {
+                            if (!draft.pages[i].data) continue
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
                                 const data = draft.pages[i].data[index]
-                                if(!data.viewer){
+                                if (!data.viewer) {
                                     data.viewer = {
                                         following: "optimistic-follow"
                                     }
@@ -67,12 +76,12 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                             }
                         }
                     })
-                } else if(k[0] == "search") {
+                } else if (k[0] == "search") {
                     qc.setQueryData(k, old => {
-                        if(!old) return old
-                        const value = old as {data?: MainSearchOutput}
-                        if(!value) return old
-                        if(value.data.kind == "Usuarios"){
+                        if (!old) return old
+                        const value = old as { data?: MainSearchOutput }
+                        if (!value) return old
+                        if (value.data.kind == "Usuarios") {
                             return {
                                 data: {
                                     kind: value.data.kind,
@@ -82,7 +91,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                                             const index = value.data.value.feed
                                                 .findIndex(u => u.handle == handle)
                                             if (index != -1) {
-                                                if(draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
+                                                if (draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
                                             }
                                         })
                                     }
@@ -91,6 +100,22 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                         } else {
                             return old
                         }
+                    })
+                } else if (k[0] == "details-content" && (k[1] == "likes" || k[1] == "reposts")) {
+                    console.log("updating query")
+                    qc.setQueryData(k, old => {
+                        if (!old) return old
+                        const value = old as InfiniteFeed<GetInteractionsOutput["feed"][number]>
+                        return produce(value, draft => {
+                            for (const p of draft.pages) {
+                                for (const u of p.data) {
+                                    if (u.handle == handle) {
+                                        if (u.viewer) u.viewer.following = "optimistic-follow"
+                                        else u.viewer = {following: "optimistic-follow"}
+                                    }
+                                }
+                            }
+                        })
                     })
                 }
             })
@@ -99,6 +124,7 @@ function optimisticFollow(qc: QueryClient, handle: string) {
 
 
 function optimisticUnfollow(qc: QueryClient, handle: string) {
+    console.log("optimistic unfollow", handle)
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
         .forEach(q => {
@@ -107,14 +133,16 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
 
                 const k = q.queryKey
 
+                console.log("k", k)
+
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
-                        if(draft.viewer) draft.viewer.following = undefined
-                        if(draft.bskyFollowersCount != null) {
+                        if (draft.viewer) draft.viewer.following = undefined
+                        if (draft.bskyFollowersCount != null) {
                             draft.bskyFollowersCount--
                         }
-                        if(draft.followersCount != null) {
+                        if (draft.followersCount != null) {
                             draft.followersCount--
                         }
                     })
@@ -123,53 +151,63 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
                         const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if(draft[index].viewer) draft[index].viewer.following = undefined
+                            if (draft[index].viewer) draft[index].viewer.following = undefined
                         }
                     })
-                } else if(k[0] == "follow-suggestions"){
+                } else if (k[0] == "follow-suggestions") {
                     if (!old) return old
-                    return produce(old as {profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[]}, draft => {
-                        const index = draft.profiles.findIndex(u => u.handle == handle)
+                    return produce(old as FollowSuggestionsOutput, draft => {
+                        if (!draft.feed) return
+                        const index = draft.feed.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if(draft.profiles[index].viewer) draft.profiles[index].viewer.following = undefined
+                            if (draft.feed[index].viewer) draft.feed[index].viewer.following = undefined
                         }
                     })
-                } else if(k[0] == "follow-suggestions-feed") {
-                    if(!old) return old
+                } else if (k[0] == "follow-suggestions-feed") {
+                    if (!old) return old
                     return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
-                        for(let i = 0; i < draft.pages.length; i++){
+                        for (let i = 0; i < draft.pages.length; i++) {
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
                                 const data = draft.pages[i].data[index]
-                                if(data.viewer) {
+                                if (data.viewer) {
                                     data.viewer.following = undefined
                                 }
                             }
                         }
                     })
-                } else if(k[0] == "search") {
-                    qc.setQueryData(k, old => {
-                        if(!old) return old
-                        const value = old as {data?: MainSearchOutput}
-                        if(!value) return old
-                        if(value.data.kind == "Usuarios"){
-                            return {
-                                data: {
-                                    kind: value.data.kind,
-                                    value: {
-                                        cursor: value.data.value.cursor,
-                                        feed: produce(value.data.value.feed, draft => {
-                                            const index = value.data.value.feed
-                                                .findIndex(u => u.handle == handle)
-                                            if (index != -1) {
-                                                if(draft[index].viewer) draft[index].viewer.following = null
-                                            }
-                                        })
-                                    }
+                } else if (k[0] == "search") {
+                    if (!old) return old
+                    const value = old as { data?: MainSearchOutput }
+                    if (value.data.kind == "Usuarios") {
+                        return {
+                            data: {
+                                kind: value.data.kind,
+                                value: {
+                                    cursor: value.data.value.cursor,
+                                    feed: produce(value.data.value.feed, draft => {
+                                        const index = value.data.value.feed
+                                            .findIndex(u => u.handle == handle)
+                                        if (index != -1) {
+                                            if (draft[index].viewer) draft[index].viewer.following = null
+                                        }
+                                    })
                                 }
                             }
-                        } else {
-                            return old
+                        }
+                    } else {
+                        return old
+                    }
+                } else if (k[0] == "details-content" && (k[1] == "likes" || k[1] == "reposts")) {
+                    console.log("updating query")
+                    const value = old as InfiniteFeed<GetInteractionsOutput["feed"][number]>
+                    return produce(value, draft => {
+                        for (const p of draft.pages) {
+                            for (const u of p.data) {
+                                if (u.handle == handle) {
+                                    if (u.viewer) u.viewer.following = null
+                                }
+                            }
                         }
                     })
                 }
@@ -190,7 +228,7 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewDetailed, draft => {
-                        if(draft.viewer) {
+                        if (draft.viewer) {
                             draft.viewer.following = followUri
                         } else {
                             draft.viewer = {
@@ -203,7 +241,7 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                     return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
                         const index = draft.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if(draft[index].viewer) {
+                            if (draft[index].viewer) {
                                 draft[index].viewer.following = followUri
                             } else {
                                 draft[index].viewer = {
@@ -212,14 +250,14 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                             }
                         }
                     })
-                } else if(k[0] == "follow-suggestions-feed") {
-                    if(!old) return old
-                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
-                        for(let i = 0; i < draft.pages.length; i++){
+                } else if (k[0] == "follow-suggestions-feed") {
+                    if (!old) return old
+                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileView>, draft => {
+                        for (let i = 0; i < draft.pages.length; i++) {
                             const index = draft.pages[i].data.findIndex(u => u.handle == handle)
                             if (index != -1) {
                                 const data = draft.pages[i].data[index]
-                                if(data.viewer) {
+                                if (data.viewer) {
                                     data.viewer.following = followUri
                                 } else {
                                     data.viewer = {
@@ -229,12 +267,12 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                             }
                         }
                     })
-                } else if(k[0] == "search") {
+                } else if (k[0] == "search") {
                     qc.setQueryData(k, old => {
-                        if(!old) return old
-                        const value = old as {data?: MainSearchOutput}
-                        if(!value) return old
-                        if(value.data.kind == "Usuarios"){
+                        if (!old) return old
+                        const value = old as { data?: MainSearchOutput }
+                        if (!value) return old
+                        if (value.data.kind == "Usuarios") {
                             return {
                                 data: {
                                     kind: value.data.kind,
@@ -244,7 +282,7 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                                             const index = value.data.value.feed
                                                 .findIndex(u => u.handle == handle)
                                             if (index != -1) {
-                                                if(draft[index].viewer) draft[index].viewer.following = followUri
+                                                if (draft[index].viewer) draft[index].viewer.following = followUri
                                             }
                                         })
                                     }
@@ -252,6 +290,27 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                             }
                         } else {
                             return old
+                        }
+                    })
+                } else if (k[0] == "follow-suggestions") {
+                    if (!old) return old
+                    return produce(old as FollowSuggestionsOutput, draft => {
+                        if (!draft.feed) return
+                        const index = draft.feed.findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            if (draft.feed[index].viewer) draft.feed[index].viewer.following = followUri
+                        }
+                    })
+                } else if (k[0] == "details-content" && (k[1] == "likes" || k[1] == "reposts")) {
+                    console.log("updating query")
+                    const value = old as InfiniteFeed<GetInteractionsOutput["feed"][number]>
+                    return produce(value, draft => {
+                        for (const p of draft.pages) {
+                            for (const u of p.data) {
+                                if (u.handle == handle) {
+                                    if (u.viewer) u.viewer.following = followUri
+                                }
+                            }
                         }
                     })
                 }
@@ -266,17 +325,18 @@ const isQueryRelatedToFollow = (query: Query) => {
         query.queryKey[0] == "follows" ||
         query.queryKey[0] == "follow-suggestions" ||
         query.queryKey[0] == "follow-suggestions-feed" ||
-        query.queryKey[0] == "search"
+        query.queryKey[0] == "search" ||
+        query.queryKey[0] == "details-content" && (query.queryKey[1] == "likes" || query.queryKey[1] == "reposts")
 }
 
 
 export function FollowButton({
                                  handle,
                                  profile,
-                                 dense=false
-}: {
+                                 dense = false
+                             }: {
     handle: string
-    profile: AppBskyActorDefs.ProfileViewDetailed | AppBskyActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewDetailed
+    profile: AppBskyActorDefs.ProfileViewDetailed | AppBskyActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewBasic | ArCabildoabiertoActorDefs.ProfileViewDetailed | ArCabildoabiertoActorDefs.ProfileView
     dense?: boolean
 }) {
     const qc = useQueryClient()
@@ -302,7 +362,11 @@ export function FollowButton({
         },
         onSuccess: (data) => {
             if (data.success) {
-                setFollow(qc, handle, data.value.followUri)
+                try {
+                    setFollow(qc, handle, data.value.followUri)
+                } catch (err) {
+                    console.log("setFollow failed", err)
+                }
             }
         }
     })
@@ -313,13 +377,13 @@ export function FollowButton({
             try {
                 optimisticUnfollow(qc, handle)
             } catch (err) {
-                console.log("unfollowing failed", err)
+                console.log("unfollow failed", err)
             }
         }
     })
 
     const onUnfollow = async () => {
-        if(user) {
+        if (user) {
             if (profile.viewer && profile.viewer.following) {
                 unfollowMutation.mutate({followUri: profile.viewer.following})
             }
@@ -330,7 +394,7 @@ export function FollowButton({
     }
 
     const onFollow = async () => {
-        if(user) {
+        if (user) {
             followMutation.mutate({did: profile.did})
         } else {
             setLoginModalOpen(true)
@@ -344,26 +408,26 @@ export function FollowButton({
 
     const followText = profile.viewer?.followedBy && !dense ? "Seguir también" : "Seguir"
 
-    return <div className="flex items-center">
-        {profile.viewer?.following ?
-            <StateButton
-                handleClick={onUnfollow}
-                variant="outlined"
-                size={"small"}
-                startIcon={!dense && <CheckIcon/>}
-                className={cn("pressed", dense ? "px-[5px] py-[1px]" : undefined)}
-                disabled={profile.viewer?.following == "optimistic-follow"}
-            >
-                Siguiendo
-            </StateButton> :
-            <StateButton
-                handleClick={onFollow}
-                variant="outlined"
-                size={"small"}
-                startIcon={!dense && <PlusIcon/>}
-                className={dense ? "px-[5px] py-[1px]" : undefined}
-            >
-                {followText}
-            </StateButton>}
-    </div>
+    if (profile.viewer?.following) {
+        return <StateButton
+            handleClick={onUnfollow}
+            variant="outlined"
+            size={"small"}
+            startIcon={!dense && <CheckIcon/>}
+            className={cn("pressed flex", dense ? "px-[5px] py-[1px]" : "py-[4px]")}
+            disabled={profile.viewer?.following == "optimistic-follow"}
+        >
+            Siguiendo
+        </StateButton>
+    } else {
+        return <StateButton
+            handleClick={onFollow}
+            variant="outlined"
+            size={"small"}
+            startIcon={!dense && <PlusIcon/>}
+            className={cn("flex", dense ? "px-[5px] py-[1px]" : "py-[4px]")}
+        >
+            {followText}
+        </StateButton>
+    }
 }

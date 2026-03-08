@@ -34,7 +34,7 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
         </div>}
         {data.map((user) => {
             return <div key={user.did}>
-                <UserSearchResult user={user}/>
+                <UserSearchResult user={{...user, $type: "ar.cabildoabierto.actor.defs#profileView"}}/>
             </div>
         })}
         {bskyCount > 50 && <div className={"py-8 text-sm text-center text-[var(--text-light)] font-light"}>

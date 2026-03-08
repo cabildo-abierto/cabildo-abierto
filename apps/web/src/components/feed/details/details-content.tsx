@@ -1,7 +1,7 @@
 import UserSearchResult from "../../buscar/user-search-result";
 import Feed from "../feed/feed";
 import {splitUri} from "@cabildo-abierto/utils";
-import {ArCabildoabiertoActorDefs, GetFeedOutput} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorDefs, GetInteractionsOutput} from "@cabildo-abierto/api"
 import { get } from "@/components/utils/react/fetch";
 
 export type DetailType = "likes" | "reposts"
@@ -11,14 +11,14 @@ export const DetailsContent = ({detail, uri}: {detail: DetailType, uri:string}) 
 
     async function getDetails(cursor: string) {
         const {did, collection, rkey} = splitUri(uri)
-        return await get<GetFeedOutput<ArCabildoabiertoActorDefs.ProfileViewBasic>>(`/${detail}/${did}/${collection}/${rkey}?limit=25${cursor ? "&cursor=" + encodeURIComponent(cursor) : ""}`)
+        return await get<GetInteractionsOutput>(`/${detail}/${did}/${collection}/${rkey}?limit=25${cursor ? "&cursor=" + encodeURIComponent(cursor) : ""}`)
     }
 
     return <Feed<ArCabildoabiertoActorDefs.ProfileViewBasic>
         queryKey={["details-content", detail, uri]}
         FeedElement={({content}) => {
             return <div key={content.did}>
-                <UserSearchResult user={content}/>
+                <UserSearchResult user={{...content, $type: "ar.cabildoabierto.actor.defs#profileViewBasic"}}/>
             </div>
         }}
         getFeedElementKey={u => u.did}

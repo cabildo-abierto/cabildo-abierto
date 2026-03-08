@@ -26,7 +26,8 @@ export function useFeed<T>(
             return newPage
         },
         getNextPageParam: lastPage => {
-            return lastPage.data.length > 0 ? lastPage.nextCursor : undefined
+            if(lastPage && !lastPage.data) console.log(lastPage)
+            return lastPage && lastPage.data && lastPage.data.length > 0 ? lastPage.nextCursor : undefined
         },
         initialPageParam: "start",
         staleTime: 1000 * 60 * 5,
