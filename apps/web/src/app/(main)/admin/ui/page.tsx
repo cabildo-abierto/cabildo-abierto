@@ -21,7 +21,6 @@ import {Label} from "@radix-ui/react-label";
 import {useTheme} from "@/components/layout/theme/theme-context";
 import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import DonateIcon from "@/components/utils/icons/donate-icon";
-import {DateAndTimePicker} from "@/components/tema/props/date-prop-editor";
 import {StateButton} from "@/components/utils/base/state-button"
 import {randomBernoulli} from "d3-random";
 import { Note } from "@/components/utils/base/note";
@@ -31,6 +30,7 @@ import {PlotConfigProps} from "@/components/visualizations/editor/types";
 import {TTOption} from "@cabildo-abierto/api";
 import dynamic from "next/dynamic";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
+import {DateAndTimePicker} from "@/components/utils/date-and-time-picker";
 
 const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 

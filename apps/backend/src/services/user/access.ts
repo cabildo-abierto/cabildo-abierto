@@ -246,7 +246,7 @@ const checkEmailExists = (ctx: AppContext, email: string) => Effect.gen(function
 
 const registerUserInDB = (
     ctx: AppContext,
-    data: {did: string, code: string, email: string, handle: string}
+    data: {did: string, code: string, email: string, handle: string, dateOfBirth: Date}
 ) => Effect.gen(function* () {
     yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -254,7 +254,8 @@ const registerUserInDB = (
             .values([{
                 did: data.did,
                 handle: data.handle,
-                email: data.email
+                email: data.email,
+                dateOfBirth: dateTimeToDateString(new Date(data.dateOfBirth))
             }])
             .onConflict(oc => oc
                 .column("did")
@@ -268,6 +269,11 @@ const registerUserInDB = (
 
     yield* assignInviteCode(ctx, data.did, data.code)
 })
+
+
+function dateTimeToDateString(date: Date) {
+    return date.toISOString().split("T")[0]
+}
 
 
 const signup = (
@@ -340,7 +346,13 @@ const signup = (
             return yield* Effect.fail(new CreateAccountError())
         }
 
-        yield* registerUserInDB(ctx, {did: res.data.did, email: data.email, code: data.code, handle: data.handle})
+        yield* registerUserInDB(ctx, {
+            did: res.data.did,
+            email: data.email,
+            code: data.code,
+            handle: data.handle,
+            dateOfBirth: data.dateOfBirth
+        })
 
         return {did: res.data.did}
     }
@@ -373,7 +385,7 @@ Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al
     Effect.catchTag("NoInviteCodeError", () => Effect.fail("Necesitás un código de invitación.")),
     Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
     Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
-    Effect.catchTag("GetInviteCodeError", () => Effect.fail("Necesitás un código de invitación.")),
+    Effect.catchTag("GetInviteCodeError", () => Effect.fail("El código de invitación es inválido.")),
     Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
     Effect.catchTag("UsedCodeError", () => Effect.fail("El código de invitación ya fue usado.")),
     Effect.catchTag("CodeNotFoundError", () => Effect.fail("El código de invitación es inválido.")),
@@ -395,6 +407,8 @@ export const backfillInviteCodes: EffHandler<{}, {}> = (
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
+
+    ctx.logger.pino.info({codes: codes.length}, "codes to backfill")
 
     const basicAuth = Buffer.from(`admin:${env.PDS_PASSWORD}`).toString("base64");
 
@@ -433,8 +447,6 @@ export const backfillInviteCodes: EffHandler<{}, {}> = (
             pdsInvite: c,
             code: codes[i].code
         }))
-
-        ctx.logger.pino.info({values}, "inserting values")
 
         yield* Effect.tryPromise({
             try: () => ctx.kysely

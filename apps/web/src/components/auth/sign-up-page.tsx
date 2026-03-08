@@ -8,7 +8,6 @@ import {topicUrl} from "@/components/utils/react/url";
 import {useState} from "react";
 import {AtIcon, CheckCircleIcon, EyeClosedIcon, EyeIcon, XCircleIcon} from "@phosphor-icons/react";
 import {isValidHandle} from "@atproto/syntax";
-import {DateAndTimePicker} from "@/components/tema/props/date-prop-editor";
 import {post} from "@/components/utils/react/fetch";
 import {SignupOutput, SignupParams} from "@cabildo-abierto/api";
 import {StateButton, StateButtonClickHandler} from "@/components/utils/base/state-button";
@@ -19,6 +18,7 @@ import {getPasswordStrength} from "@cabildo-abierto/utils";
 import {useIsMobile} from "@/components/utils/use-is-mobile";
 import {useLoginModal} from "@/components/auth/login-modal-provider";
 import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
+import {DateAndTimePicker} from "@/components/utils/date-and-time-picker";
 
 
 const pwStrLabel = [
