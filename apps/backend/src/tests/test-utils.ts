@@ -2,7 +2,7 @@ import {RedisCache, RedisCacheSetError} from "#/services/redis/cache.js";
 import {AppContext, setupKysely, setupRedis, setupResolver} from "#/setup.js";
 import {Logger} from "#/utils/logger.js";
 import {AppBskyActorProfile, AppBskyFeedLike, AppBskyFeedRepost, AppBskyGraphFollow} from "@atproto/api";
-import {deleteUser} from "#/services/delete.js";
+import {deleteUsers} from "#/services/delete.js";
 import {sql} from "kysely";
 import {BaseAgent, bskyPublicAPI, SessionAgent} from "#/utils/session-agent.js";
 import {env} from "#/lib/env.js";
@@ -557,19 +557,16 @@ export function getLikeRefAndRecord(ref: ATProtoStrongRef, created_at: Date = ne
 }
 
 
-export function deleteUsersInTest(ctx: AppContext, dids: string[]) {
-    return Effect.all(dids.map(did => deleteUser(ctx, did)),
-        {concurrency: 2}).pipe(
-        Effect.flatMap(() => {
-            return ctx.worker ?
-                Effect.tryPromise({
-                    try: () => ctx.worker!.runAllJobs(),
-                    catch: () => "Error al correr los trabajos."
-                })
-                : Effect.void
+export const deleteUsersInTest = (ctx: AppContext, dids: string[]) => Effect.gen(function* () {
+    yield* deleteUsers(ctx, dids)
+
+    if(ctx.worker) {
+        yield* Effect.tryPromise({
+            try: () => ctx.worker!.runAllJobs(),
+            catch: () => "Error al correr los trabajos."
         })
-    )
-}
+    }
+})
 
 
 export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {

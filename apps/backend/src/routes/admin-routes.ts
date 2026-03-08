@@ -1,6 +1,11 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
-import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler} from "#/utils/handler.js";
+import {
+    isAdmin,
+    makeAdminHandler,
+    makeAdminHandlerNoAuth,
+    makeEffAdminHandler
+} from "#/utils/handler.js";
 import {syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
 import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
@@ -18,7 +23,7 @@ import {
 } from "#/services/user/validation.js";
 import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
-import {getRegisteredJobs, startJob, getWorkerState} from "#/jobs/worker.js";
+import {getRegisteredJobs, startJob, getWorkerState, pauseWorker, resumeWorker} from "#/jobs/worker.js";
 import {clearRedisHandler} from "#/services/redis/cache.js";
 import {getAdminNotificationCounts, getServerStatus, getUsersSyncStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
@@ -134,6 +139,10 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/registered-jobs", makeAdminHandler(ctx, getRegisteredJobs))
 
     router.get("/worker-state", makeAdminHandler(ctx, getWorkerState))
+
+    router.post("/pause-worker", makeEffAdminHandler(ctx, pauseWorker))
+
+    router.post("/resume-worker", makeEffAdminHandler(ctx, resumeWorker))
 
     router.get("/top-authors", makeAdminHandler(ctx, getTopAuthors))
 

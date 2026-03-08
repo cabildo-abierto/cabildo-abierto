@@ -63,3 +63,53 @@ export type ValidationRequestView = {
     documentacion: FilePayload[]
     comentarios?: string
 })
+
+
+export type WorkerState = {
+    counts: {
+        waiting: number
+        active: number
+        completed: number
+        failed: number
+        delayed: number
+        prioritized: number
+    }
+    waitingJobs: {
+        id: string | undefined
+        name: string
+        timestamp: number | undefined
+        processedOn: number | undefined
+    }[]
+    prioritizedJobs: {
+        id: string | undefined
+        name: string
+        timestamp: number | undefined
+        processedOn: number | undefined
+    }[]
+    delayedJobs: {
+        id: string | undefined
+        name: string
+        timestamp: number | undefined
+        processedOn: number | undefined
+    }[]
+    activeJobs: {
+        id: string | undefined
+        name: string
+        timestamp: number | undefined
+        processedOn: number | undefined
+    }[]
+    failedJobs: {
+        id: string | undefined
+        name: string
+        failedReason: string | undefined
+        timestamp: number | undefined
+        finishedOn: number | undefined
+    }[]
+    scheduledJobs: {
+        name: string | undefined
+        every: number | undefined
+        next: number | undefined
+    }[]
+    registeredJobs: string[]
+    paused: boolean
+}
