@@ -12,14 +12,6 @@ export type MPValidationRequestProps = {
     metodo: "mp"
 }
 
-export type Goal = {
-    label: string
-    progress: number
-    detail?: string
-}
-
-export type UserGuideStatus = Goal[]
-
 export type OrgValidationRequestProps = {
     tipo: "org"
     tipoOrg: OrgType
@@ -30,3 +22,11 @@ export type OrgValidationRequestProps = {
 }
 
 export type ValidationRequestProps = DNIValidationRequestProps | MPValidationRequestProps | OrgValidationRequestProps
+
+export type Goal = {
+    label: string
+    progress: number
+    detail?: string
+}
+
+export type UserGuideStatus = Goal[]

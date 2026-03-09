@@ -489,10 +489,16 @@ type UpdateProfileProps = {
     profilePic?: string
 }
 
-export const getUserGuideStatus: EffHandlerNoAuth<{}, UserGuideStatus> = (
+export const getUserGuideStatus: EffHandler<{}, UserGuideStatus> = (
     ctx,
     agent
 ) => Effect.gen(function* () {
+    const data = await ctx.kysely
+        .selectFrom("User")
+        .where("did", "=", agent.did)
+        .execute()
+
+
     const goalsDefault: Goal[] = [
         {label: "Seguir personas", progress: 0},
         {label: "Leer un tema", progress: 0},
