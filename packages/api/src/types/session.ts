@@ -124,7 +124,8 @@ export type LoginOutput = {
 export type SignupParams = {
     handle: string
     email: string
-    dateOfBirth: Date
+    /** YYYY-MM-DD  */
+    dateOfBirth: string
     password: string
     code: string
 }

@@ -40,7 +40,6 @@ export async function post<Body, Output={}>(route: string, body?: Body, redirect
         body,
         redirect
     })
-    console.log("res", res)
     if (res.ok) {
         return await res.json()
     } else {

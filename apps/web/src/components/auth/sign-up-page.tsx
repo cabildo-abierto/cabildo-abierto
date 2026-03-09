@@ -21,6 +21,14 @@ import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel"
 import {DateAndTimePicker} from "@/components/utils/date-and-time-picker";
 
 
+/** Format Date to YYYY-MM-DD using local date (avoids timezone issues for date-of-birth) */
+function formatDateOnly(date: Date): string {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, "0")
+    const d = String(date.getDate()).padStart(2, "0")
+    return `${y}-${m}-${d}`
+}
+
 const pwStrLabel = [
     "muy débil",
     "débil",
@@ -93,9 +101,9 @@ const SignUpForm = ({
 
             <DateAndTimePicker
                 time={false}
-                value={data.dateOfBirth}
-                onChange={e => {
-                    setData({...data, dateOfBirth: e})
+                value={data.dateOfBirth ? new Date(data.dateOfBirth + "T12:00:00") : new Date()}
+                onChange={date => {
+                    setData({...data, dateOfBirth: formatDateOnly(date)})
                 }}
                 label={"Fecha de nacimiento"}
                 buttonClassName={"w-72"}
@@ -155,7 +163,7 @@ export const SignUpPage = ({
     const [data, setData] = useState<SignupParams>({
         handle: "",
         email: "",
-        dateOfBirth: new Date(Date.now() - 18 * (365 * 24 + 1) * 60 * 60 * 1000),
+        dateOfBirth: formatDateOnly(new Date(Date.now() - 18 * (365 * 24 + 1) * 60 * 60 * 1000)),
         password: "",
         code: inviteCode
     })

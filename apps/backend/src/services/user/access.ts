@@ -246,7 +246,7 @@ const checkEmailExists = (ctx: AppContext, email: string) => Effect.gen(function
 
 const registerUserInDB = (
     ctx: AppContext,
-    data: {did: string, code: string, email: string, handle: string, dateOfBirth: Date}
+    data: {did: string, code: string, email: string, handle: string, dateOfBirth: string}
 ) => Effect.gen(function* () {
     yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -255,7 +255,7 @@ const registerUserInDB = (
                 did: data.did,
                 handle: data.handle,
                 email: data.email,
-                dateOfBirth: dateTimeToDateString(new Date(data.dateOfBirth))
+                dateOfBirth: data.dateOfBirth
             }])
             .onConflict(oc => oc
                 .column("did")
@@ -269,11 +269,6 @@ const registerUserInDB = (
 
     yield* assignInviteCode(ctx, data.did, data.code)
 })
-
-
-function dateTimeToDateString(date: Date) {
-    return date.toISOString().split("T")[0]
-}
 
 
 const signup = (
@@ -292,6 +287,11 @@ const signup = (
         const validEmail = isValidEmail(data.email)
         if(!validEmail) {
             return yield* Effect.fail(new InvalidValueError("email"))
+        }
+
+        const validDateOfBirth = /^\d{4}-\d{2}-\d{2}$/.test(data.dateOfBirth)
+        if(!validDateOfBirth || data.dateOfBirth > new Date().toISOString().split("T")[0]) {
+            return yield* Effect.fail(new InvalidValueError("dateOfBirth"))
         }
 
         const emailExists = yield* checkEmailExists(ctx, data.email)
@@ -369,6 +369,8 @@ export const signupHandler: EffHandlerNoAuth<SignupParams, SignupOutput> = (
             return Effect.fail("El correo ya fue usado.")
         } else if(error.message == "handle-exists") {
             return Effect.fail("El nombre de usuario ya fue usado.")
+        } else if(error.message == "dateOfBirth") {
+            return Effect.fail("Fecha de nacimiento inválida.")
         } else if(error.message == "email") {
             return Effect.fail("Ingresá una dirección de correo válida.")
         } else {
