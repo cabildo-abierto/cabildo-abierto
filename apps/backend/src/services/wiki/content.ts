@@ -41,7 +41,7 @@ export const updateContentsText = (
                 .select(["Content.uri", "textBlobId", "Record.record", "Content.format", "Content.text", "Record.created_at_tz"])
                 .where("Record.collection", "in", longTextCollections)
                 .where("text", "is", null)
-                .orderBy("Record.created_at", "desc")
+                .orderBy("Record.created_at_tz", "desc")
                 .$if(uris == null, qb => qb.limit(batchSize).offset(offset))
                 .$if(uris != null, qb => qb.where("Record.uri", "in", uris!.slice(offset, offset + batchSize)))
                 .execute(),

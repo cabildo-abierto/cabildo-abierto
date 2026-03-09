@@ -406,7 +406,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
             .select([
                 "Record.uri",
                 "Record.cid",
-                "Record.created_at",
+                "Record.created_at_tz",
                 "Record.record",
                 "TopicVersion.props",
                 "Content.text",
@@ -437,6 +437,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])
+            .where("Record.created_at_tz", "is not", null)
             .where("TopicVersion.uri", "=", uri)
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
@@ -499,8 +500,8 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
         text: transformedText,
         format: transformedFormat,
         props,
-        createdAt: topic.created_at.toISOString(),
-        lastEdit: topic.lastEdit?.toISOString() ?? topic.created_at.toISOString(),
+        createdAt: topic.created_at_tz!.toISOString(),
+        lastEdit: topic.lastEdit?.toISOString() ?? topic.created_at_tz!.toISOString(),
         currentVersion: topic.currentVersionId ?? undefined,
         record: topic.record ? JSON.parse(topic.record) : undefined,
         embeds,

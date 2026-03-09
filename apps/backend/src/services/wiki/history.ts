@@ -85,7 +85,7 @@ export const getTopicHistory = (
             .where("Record.cid", "is not", null)
             .where("Record.record", "is not", null)
             .where("TopicVersion.topicId", "=", id)
-            .orderBy("created_at asc")
+            .orderBy("created_at_tz asc")
             .execute(),
         catch: () => new DBSelectError()
     })

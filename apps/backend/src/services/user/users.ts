@@ -84,7 +84,16 @@ export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}
         const users = await ctx.kysely
             .selectFrom("User")
             .leftJoin("InviteCode", "InviteCode.usedByDid", "User.did")
-            .select(["did", "handle", "displayName", "hasAccess", "CAProfileUri", "User.created_at", "inCA", "InviteCode.code"])
+            .select([
+                "did",
+                "handle",
+                "displayName",
+                "hasAccess",
+                "CAProfileUri",
+                "User.created_at_tz as created_at",
+                "inCA",
+                "InviteCode.code"
+            ])
             .where(eb => eb.or([
                 eb("InviteCode.code", "is not", null),
                 eb("User.inCA", "=", true),
@@ -223,7 +232,7 @@ export const getSessionData = (
                         "algorithmConfig",
                         "authorStatus",
                         "CAProfileUri",
-                        "inCA",
+                        "inCA"
                     ])
                     .where("did", "=", did)
                     .executeTakeFirst(),

@@ -116,7 +116,7 @@ export const getDrafts: EffHandler<{}, DraftPreview[]> = (
         .selectFrom("Draft")
         .select([
             "id",
-            "created_at",
+            "created_at_tz as created_at",
             "lastUpdate",
             "text",
             "collection",
@@ -150,7 +150,7 @@ export const getDraft: EffHandler<{ params: { id: string } }, Draft> = (
             .selectFrom("Draft")
             .select([
                 "id",
-                "created_at",
+                "created_at_tz as created_at",
                 "lastUpdate",
                 "text",
                 "embeds",

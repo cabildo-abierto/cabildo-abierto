@@ -73,26 +73,21 @@ const getEnDiscusionSkeletonQuery: (
                 .selectFrom('Content')
                 .innerJoin('Record', 'Record.uri', 'Content.uri')
                 .where('Record.collection', 'in', collections)
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
-                .where("Record.created_at", ">", startDate)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .where("Record.created_at_tz", ">", startDate)
                 .select([
                     "Content.uri",
-                    "Content.created_at as createdAt"
+                    "Content.created_at_tz as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
-                .orderBy(["likesScore desc", "Content.created_at desc"])
+                .orderBy(["likesScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Interacciones") {
@@ -106,28 +101,24 @@ const getEnDiscusionSkeletonQuery: (
             const res = await ctx.kysely
                 .selectFrom('Record')
                 .where('Record.collection', 'in', collections)
-                .where("Record.created_at", ">", startDate)
+                .where("Record.created_at_tz", ">", startDate)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
                 .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
+                ${label}]::text[]`)
                 .select([
                     "Content.uri",
-                    "Content.created_at as createdAt"
+                    "Content.created_at_tz as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
                 .where("interactionsScore", "is not", null)
-                .orderBy(["interactionsScore desc", "Content.created_at desc"])
+                .orderBy(["interactionsScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Popularidad relativa") {
@@ -141,27 +132,22 @@ const getEnDiscusionSkeletonQuery: (
 
             const res = await ctx.kysely.selectFrom('Record')
                 .where('Record.collection', 'in', collections)
-                .where("Record.created_at", ">", startDate)
+                .where("Record.created_at_tz", ">", startDate)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
-                .select(eb => [
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .select([
                     'Record.uri',
-                    "Record.created_at as createdAt"
+                    "Record.created_at_tz as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
-                .orderBy(["relativePopularityScore desc", "Content.created_at desc"])
+                .orderBy(["relativePopularityScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Recientes") {
@@ -173,21 +159,15 @@ const getEnDiscusionSkeletonQuery: (
             const res = await ctx.kysely.with("EnDiscusionContent", eb => eb.selectFrom('Record')
                 .where('Record.collection', 'in', collections)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
                 .orderBy("Record.authorId")
-                .orderBy("Record.created_at desc")
+                .orderBy("Record.created_at_tz desc")
                 .distinctOn("Record.authorId")
                 .where("Content.caModeration", "=", "Ok")
                 .select([
                     'Record.uri',
                     "Record.authorId",
-                    "Record.created_at as createdAt"
+                    "Record.created_at_tz as createdAt"
                 ]))
                 .selectFrom("EnDiscusionContent")
                 .select([
@@ -201,7 +181,7 @@ const getEnDiscusionSkeletonQuery: (
                 .execute()
             return res.map(r => ({
                 uri: r.uri,
-                createdAt: r.createdAt ?? new Date(),
+                createdAt: r.createdAt!,
                 score: r.createdAt?.getTime() ?? 0
             }))
         } else {

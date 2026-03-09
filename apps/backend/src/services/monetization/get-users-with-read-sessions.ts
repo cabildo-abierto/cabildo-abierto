@@ -62,11 +62,11 @@ export async function getUsersWithReadSessions(
                     .whereRef("ReadSession.userId", "=", "User.did")
                     .select([
                         "readContentId",
-                        "created_at",
+                        "created_at_tz",
                         "readChunks"
                     ])
-                    .where("created_at", ">", after)
-                    .orderBy("created_at asc")
+                    .where("created_at_tz", ">", after)
+                    .orderBy("created_at_tz asc")
                 ).as("readSessions")
             ])
             .where("User.inCA", "=", true)
@@ -79,6 +79,10 @@ export async function getUsersWithReadSessions(
             if (u.handle != null) {
                 valid.push({
                     ...u,
+                    readSessions: u.readSessions.map(rs => ({
+                        ...rs,
+                        created_at: rs.created_at_tz!
+                    })),
                     handle: u.handle
                 })
             }

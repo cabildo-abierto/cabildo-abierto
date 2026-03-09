@@ -13,7 +13,8 @@ function newUser(ctx: AppContext, did: string, inCA: boolean) {
         return ctx.kysely.insertInto("User")
             .values([{
                 did,
-                inCA: true
+                inCA: true,
+                created_at_tz: new Date()
             }])
             .onConflict(oc => oc.column("did").doUpdateSet(eb => ({
                 inCA: eb => eb.ref("excluded.inCA")
@@ -22,7 +23,8 @@ function newUser(ctx: AppContext, did: string, inCA: boolean) {
     } else {
         return ctx.kysely.insertInto("User")
             .values([{
-                did
+                did,
+                created_at_tz: new Date()
             }])
             .onConflict(oc => oc.column("did").doNothing())
             .execute()

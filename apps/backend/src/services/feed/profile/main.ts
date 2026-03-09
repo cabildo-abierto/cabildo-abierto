@@ -40,7 +40,7 @@ export const getMainProfileFeedSkeletonCA = (
             .select(["uri", "created_at_tz as created_at"])
             .where("authorId", "=", did)
             .where("collection", "=", "ar.cabildoabierto.feed.article")
-            .$if(cursor != null, qb => qb.where("created_at", "<", new Date(cursor!)))
+            .$if(cursor != null, qb => qb.where("created_at_tz", "<", new Date(cursor!)))
             .limit(25)
             .execute(),
         catch: () => new DBSelectError()

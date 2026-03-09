@@ -112,11 +112,6 @@ export const deleteUserHandler: EffHandler<{ params: { handleOrDid: string } }> 
 }
 
 
-export class DeleteUserError {
-    readonly _tag = "DeleteUserError"
-}
-
-
 export function deleteUsers(ctx: AppContext, dids: string[]): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DBDeleteError> {
     return Effect.gen(function* () {
         if(dids.length == 0) return

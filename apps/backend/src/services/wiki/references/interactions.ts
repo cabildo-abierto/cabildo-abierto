@@ -220,12 +220,12 @@ export const getEditedTopics = (ctx: AppContext, since: Date) => Effect.gen(func
                     .selectFrom("TopicVersion")
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
                     .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                    .where("Record.created_at", ">", since)
+                    .where("Record.created_at_tz", ">", since)
                 ),
                 eb.exists(eb
                     .selectFrom("Reaction")
                     .innerJoin("Record", "Reaction.subjectId", "Record.uri")
-                    .where("Record.created_at", ">", since)
+                    .where("Record.created_at_tz", ">", since)
                     .innerJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
                 )

@@ -93,7 +93,7 @@ export function createCAUser(
         yield* Effect.tryPromise({
             try: () => ctx.kysely
                 .insertInto("User")
-                .values([{did}])
+                .values([{did, created_at_tz: new Date()}])
                 .onConflict(oc => oc.column("did").doNothing())
                 .execute(),
             catch: (error) => new DBInsertError(error)

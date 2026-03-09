@@ -29,7 +29,7 @@ import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {Effect} from "effect";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
-import {DBSelectError} from "#/utils/errors.js";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
@@ -116,12 +116,27 @@ export const createTestUser = (
     ctx: AppContext,
     handle: string,
     testSuite: string
-): Effect.Effect<string, CIDEncodeError | RedisCacheSetError | GenerateCIDError | ProcessCreateError | RunJobError> => Effect.gen(function* () {
+): Effect.Effect<string, CIDEncodeError | DBInsertError | RedisCacheSetError | GenerateCIDError | ProcessCreateError | RunJobError> => Effect.gen(function* () {
     const did = generateUserDid(testSuite)
     yield* Effect.tryPromise({
         try: () => ctx.redisCache.resolver.setHandle(did, handle),
         catch: () => new RedisCacheSetError()
     })
+
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely.insertInto("User")
+            .values([{
+                did,
+                created_at: new Date(),
+                created_at_tz: new Date(),
+                handle,
+                hasAccess: true,
+                inCA: true
+            }])
+            .execute(),
+        catch: (error) => new DBInsertError(error)
+    })
+
     const caProfile = yield* getCAProfileRefAndRecord(did, testSuite)
     const bskyProfile = yield* getBskyProfileRefAndRecord(did, testSuite)
 
@@ -207,8 +222,6 @@ export async function cleanUPTestDataFromDB(ctx: AppContext, testSuite: string) 
         .select("did")
         .where("did", "ilike", `%${testSuite}%`)
         .execute()
-
-    ctx.logger.pino.info({testUsers, testSuite}, "clearing test users")
 
     await Effect.runPromise(deleteUsersInTest(ctx, testUsers.map(t => t.did)))
 }

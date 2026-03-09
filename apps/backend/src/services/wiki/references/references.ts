@@ -428,7 +428,7 @@ export const recomputeTopicInteractionsAndPopularities = (
                 .select(["id", "referencedTopicId"])
                 .limit(bs)
                 .offset(offset)
-                .where("Record.created_at", ">", since)
+                .where("Record.created_at_tz", ">", since)
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })

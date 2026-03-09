@@ -30,13 +30,17 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
         const t1 = Date.now()
         const records = await ctx.kysely
             .selectFrom("Record")
-            .select(["Record.uri", "Record.cid", "Record.record"])
+            .select([
+                "Record.uri",
+                "Record.cid",
+                "Record.record"
+            ])
             .where("collection", "=", collection)
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .limit(bs)
             .offset(offset)
-            .orderBy("created_at asc")
+            .orderBy("created_at_tz asc")
             .execute()
         const t2 = Date.now()
 

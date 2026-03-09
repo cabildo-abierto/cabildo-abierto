@@ -362,7 +362,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "handle",
                     "displayName",
                     "avatar",
-                    "created_at",
+                    "created_at_tz",
                     "orgValidation",
                     "userValidationHash",
                     "editorStatus",
@@ -390,14 +390,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         })
 
         users.forEach(u => {
-            if(u.handle) {
+            if(u.handle && u.created_at_tz) {
                 caUsers.set(u.did, {
                     did: u.did,
                     caProfile: u.CAProfileUri,
                     handle: u.handle,
                     avatar: u.avatar,
                     displayName: u.displayName,
-                    createdAt: u.created_at,
+                    createdAt: u.created_at_tz,
                     verification: getValidationState(u),
                     editorStatus: u.editorStatus,
                     description: u.description,
@@ -880,14 +880,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             try: () => ctx.kysely
                 .selectFrom("Post")
                 .innerJoin("Record", "Record.uri", "Post.rootId")
-                .select(["Post.uri", "Record.created_at"])
+                .select(["Post.uri", "Record.created_at_tz as created_at"])
                 .where("Post.uri", "in", uris)
                 .execute(),
             catch: () => new DBSelectError()
         })
 
         rootCreationDatesData.forEach(r => {
-            rootCreationDates.set(r.uri, r.created_at)
+            rootCreationDates.set(r.uri, r.created_at!)
         })
     })
 

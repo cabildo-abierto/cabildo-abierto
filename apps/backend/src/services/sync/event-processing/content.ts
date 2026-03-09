@@ -132,7 +132,7 @@ export const processContentsBatch = async (
     if (contentDatasetLinks.length > 0) {
         // TO DO: Borrar datasets que se dejaron de usar
         await trx
-            .insertInto('_ContentToDataset')
+            .insertInto("_ContentToDataset")
             .values(contentDatasetLinks)
             .onConflict(oc => oc.columns(['A', 'B']).doNothing())
             .execute()

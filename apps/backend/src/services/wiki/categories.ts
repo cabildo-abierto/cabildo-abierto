@@ -47,7 +47,7 @@ export const updateTopicsCategoriesOnTopicsChange = (
         try: () => ctx.kysely.transaction().execute(async (trx) => {
             try {
                 await trx
-                    .insertInto('TopicCategory')
+                    .insertInto("TopicCategory")
                     .values(allCategoryIds.map(id => ({id})))
                     .onConflict((oc) => oc.column('id').doNothing())
                     .execute()
@@ -101,7 +101,7 @@ export async function updateTopicsCategories(ctx: AppContext) {
     await ctx.kysely.transaction().execute(async (trx) => {
         try {
             await trx
-                .insertInto('TopicCategory')
+                .insertInto("TopicCategory")
                 .values(allCategoryIds.map(id => ({id})))
                 .onConflict((oc) => oc.column('id').doNothing())
                 .execute();
@@ -139,7 +139,7 @@ export async function updateTopicsCategories(ctx: AppContext) {
             ctx.logger.pino.info(`Batch ${i}.`)
             try {
                 await trx
-                    .insertInto('TopicToCategory')
+                    .insertInto("TopicToCategory")
                     .values(topicCategoryValues.slice(i, i + batchSize))
                     .onConflict((oc) => oc.columns(['topicId', 'categoryId']).doNothing())
                     .execute();

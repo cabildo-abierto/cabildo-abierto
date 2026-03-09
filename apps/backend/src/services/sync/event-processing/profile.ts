@@ -65,7 +65,7 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
             did: getDidFromUri(r.ref.uri),
             CAProfileUri: r.ref.uri,
             inCA: true,
-            created_at_tz: r.record.created_at
+            created_at_tz: r.record.created_at ?? new Date()
         }
     })
 
@@ -108,7 +108,7 @@ export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProf
                 avatar?: string
                 banner?: string
                 handle?: string
-                created_at_tz?: Date
+                created_at_tz: Date
             }[] = yield* Effect.all(records.map(({ref, record: r}) => {
                 const did = getDidFromUri(ref.uri)
                 const avatarCid = r.avatar ? getCidFromBlobRef(r.avatar) : undefined
@@ -126,7 +126,7 @@ export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProf
                         avatar,
                         banner,
                         handle,
-                        created_at_tz: r.createdAt ? new Date(r.createdAt) : undefined
+                        created_at_tz: r.createdAt ? new Date(r.createdAt) : new Date()
                     }
                 })
             }))

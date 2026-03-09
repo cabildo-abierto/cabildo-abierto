@@ -53,7 +53,7 @@ type TopicVersionQueryResult = {
     topicId: string,
     props: unknown,
     contribution: string | null,
-    created_at: Date
+    created_at_tz: Date | null
     reactions: unknown
     protection: EditorStatus
     editorStatus: EditorStatus
@@ -130,7 +130,7 @@ async function getTopicsForDashboard(ctx: AppContext, did: string): Promise<Topi
             'TopicVersion.topicId',
             'TopicVersion.contribution',
             'Topic.protection',
-            'Record.created_at',
+            'Record.created_at_tz',
             'TopicCurrentVersion.props',
             "Author.editorStatus",
             sql`
@@ -146,12 +146,12 @@ async function getTopicsForDashboard(ctx: AppContext, did: string): Promise<Topi
                 `.as('reactions'),
             eb => eb.fn.count<number>("ReadSession.userId")
                 .distinct()
-                .filterWhereRef('ReadSession.created_at', '>', 'Record.created_at')
+                .filterWhereRef('ReadSession.created_at_tz', '>', 'Record.created_at_tz')
                 .filterWhereRef("ReadSession.userId", "!=", "Record.authorId")
                 .as("seenBy"),
             eb => eb.fn.count<number>("ReadSession.userId")
                 .distinct()
-                .filterWhereRef('ReadSession.created_at', '>', 'Record.created_at')
+                .filterWhereRef('ReadSession.created_at_tz', '>', 'Record.created_at_tz')
                 .filterWhereRef("ReadSession.userId", "!=", "Record.authorId")
                 .filterWhere("Reader.userValidationHash", "is not", null)
                 .as("seenByVerified"),
@@ -165,17 +165,18 @@ async function getTopicsForDashboard(ctx: AppContext, did: string): Promise<Topi
             'TopicVersion.uri',
             'TopicVersion.topicId',
             'TopicVersion.contribution',
-            'Record.created_at',
             'TopicCurrentVersion.props',
             "Topic.protection",
-            "Author.editorStatus"
+            "Author.editorStatus",
+            "Record.created_at_tz"
         ])
-        .orderBy("Record.created_at", "asc")
+        .where("Record.created_at_tz", "is not", null)
+        .orderBy("Record.created_at_tz", "asc")
         .execute()
 }
 
 
-async function getTopicsForDashboardQuery(ctx: AppContext, did: string) {
+async function getTopicsForDashboardQuery(ctx: AppContext, did: string): Promise<{error?: string, data?: EditedTopicStats[]}> {
     const [edits, user] = await Promise.all([
         getTopicsForDashboard(ctx, did),
         getSessionData(ctx, did)
@@ -193,7 +194,7 @@ async function getTopicsForDashboardQuery(ctx: AppContext, did: string) {
         }
     })
 
-    const editStats = Array.from(byTopics.entries()).map(([id, t]) => {
+    const editStats: EditedTopicStats[] = Array.from(byTopics.entries()).map(([id, t]) => {
         const title = getTopicTitle({id: t[0].topicId, props: t[0].props as ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined})
 
         let contribution: number | null = 0
@@ -223,8 +224,8 @@ async function getTopicsForDashboardQuery(ctx: AppContext, did: string) {
         return {
             topicId: id,
             edits_count: t.length,
-            first_edit: t[0].created_at,
-            last_edit: t[t.length - 1].created_at,
+            first_edit: t[0].created_at_tz!,
+            last_edit: t[t.length - 1].created_at_tz!,
             topicTitle: title,
             income: sum(t, x => x.income ?? 0),
             acceptedCount,
@@ -279,7 +280,7 @@ async function getArticlesForDashboardQuery(ctx: AppContext, did: string): Promi
             .select([
                 "Article.uri",
                 "Article.title",
-                "Record.created_at",
+                "Record.created_at_tz as created_at",
                 "ReadSession.readChunks",
                 "ReadSession.userId",
                 "Reader.userValidationHash",
@@ -321,7 +322,7 @@ async function getArticlesForDashboardQuery(ctx: AppContext, did: string): Promi
         m.set(r.uri, {
             uri: r.uri,
             title: r.title,
-            created_at: r.created_at,
+            created_at: r.created_at!,
             readSessions,
             income: null,
             uniqueLikesCount: r.uniqueLikesCount

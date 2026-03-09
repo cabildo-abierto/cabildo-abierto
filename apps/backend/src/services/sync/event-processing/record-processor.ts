@@ -163,7 +163,7 @@ export class RecordProcessor<T> {
         try {
             if(data.length > 0){
                 await trx
-                    .insertInto('Record')
+                    .insertInto("Record")
                     .values(data)
                     .onConflict((oc) =>
                         oc.column("uri").doUpdateSet((eb) => ({
@@ -194,7 +194,7 @@ export class RecordProcessor<T> {
         dids = unique(dids)
         await trx
             .insertInto("User")
-            .values(dids.map(did => ({did})))
+            .values(dids.map(did => ({did, created_at_tz: new Date()})))
             .onConflict((oc) => oc.column("did").doNothing())
             .execute()
     }
@@ -243,7 +243,8 @@ export class RecordProcessor<T> {
             collection: getCollectionFromUri(uri),
             authorId: getDidFromUri(uri),
             cid,
-            record: null
+            record: null,
+            created_at_tz: new Date()
         }))
 
         if (data.length == 0) return

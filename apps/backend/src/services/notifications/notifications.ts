@@ -255,13 +255,13 @@ async function getTopicEditsFullNotifications(ctx: AppContext, data: TopicEditNo
             qb
                 .selectFrom('TopicVersion')
                 .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                .select(['Record.uri', 'topicId', "Record.created_at"])
+                .select(['Record.uri', 'topicId', "Record.created_at_tz"])
                 .where('Record.uri', 'in', data.map(d => d.uri))
         )
         .selectFrom("InputVersions")
         .innerJoin('TopicVersion as tv', 'InputVersions.topicId', 'tv.topicId')
         .innerJoin("Record as tvRecord", "tvRecord.uri", "InputVersions.uri")
-        .whereRef("InputVersions.created_at", ">", "tvRecord.created_at")
+        .whereRef("InputVersions.created_at_tz", ">", "tvRecord.created_at_tz")
         .select([
             'InputVersions.uri as causeUri',
             'tv.uri as notifiedVersionUri',
