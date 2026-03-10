@@ -8,7 +8,10 @@ import {
 } from "#/utils/handler.js";
 import {syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
-import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
+import {
+    backfillInviteCodes,
+    createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent
+} from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
     getAllTopics,
@@ -59,7 +62,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post(
         "/invite-code/create",
-        makeAdminHandler(ctx, createInviteCodesHandler)
+        makeEffAdminHandler(ctx, createInviteCodesHandler)
     )
 
     router.post(
@@ -161,7 +164,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.post("/email-template/:id/delete", makeAdminHandler(ctx, deleteEmailTemplate))
 
     // Send emails
-    router.post("/send-emails", makeAdminHandler(ctx, sendBulkEmails))
+    router.post("/send-emails", makeEffAdminHandler(ctx, sendBulkEmails))
 
     // SMTP2GO stats
     router.get("/smtp2go-stats", makeAdminHandler(ctx, getSMTP2GOStats))
@@ -231,6 +234,12 @@ export const adminRoutes = (ctx: AppContext): Router => {
         '/edit-topic',
         makeEffAdminHandler(ctx, editTopicHandler)
     )
+
+
+    router.post("/backfill-invites", makeEffAdminHandler(
+        ctx,
+        backfillInviteCodes
+    ))
 
 
     return router

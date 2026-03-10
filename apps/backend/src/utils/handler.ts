@@ -89,7 +89,7 @@ export function makeEffHandler<Params = {}, Output = {}>(
         Exit.match(exit, {
             onFailure: (cause) => {
                 const error = cause.toString().replace(/^Error: /, '')
-                res.status(400).json({ error, success: false })
+                res.json({ error, success: false })
             },
             onSuccess: (data) => {
                 res.json(data)
@@ -139,8 +139,8 @@ export function makeEffHandlerNoAuth<Params = {}, Output = {}>(
 
         Exit.match(exit, {
             onFailure: (cause) => {
-                const error = cause.toString();
-                res.status(400).json({ success: false, error });
+                const error = cause.toString().replace(/^Error: /, '')
+                res.json({ success: false, error });
             },
             onSuccess: (data) => {
                 res.json({ success: true, value: data });

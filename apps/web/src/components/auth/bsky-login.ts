@@ -5,6 +5,7 @@ import {usePathname, useRouter} from "next/navigation";
 import * as React from "react";
 import {post} from "@/components/utils/react/fetch";
 import {LoginOutput, LoginParams} from "@cabildo-abierto/api";
+import {useLoginModal} from "@/components/auth/login-modal-provider";
 
 
 function getHandleFromInputs(handleStart: string, domain: string) {
@@ -26,9 +27,16 @@ export function useBlueskyLogin({
     const [isLoading, setIsLoading] = useState(false)
     const {refetch} = useSession(inviteCode)
     const [handleStart, setHandleStart] = useState("")
-    const [domain, setDomain] = useState(".bsky.social")
+    const {createdAccount} = useLoginModal()
+    const [domain, setDomain] = useState(".cabildo.ar")
     const pathname = usePathname()
     const router = useRouter()
+
+    useEffect(() => {
+        if(createdAccount && handleStart.length == 0) {
+            setHandleStart(createdAccount.replace(".cabildo.ar", ""))
+        }
+    }, [createdAccount]);
 
     useEffect(() => {
         const channel = new BroadcastChannel("auth_channel")
@@ -45,7 +53,7 @@ export function useBlueskyLogin({
     }, [refetch])
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
         setError(null)
 
         const handle = getHandleFromInputs(handleStart, domain)

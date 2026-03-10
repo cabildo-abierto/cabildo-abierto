@@ -5,6 +5,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {FieldError} from "@/components/utils/ui/field";
 import {Note} from "@/components/utils/base/note";
 import {useSession} from "@/components/auth/use-session";
+import {BaseSelect} from "@/components/utils/base/base-select";
 
 export const BlueskyLogin = ({
                                  inviteCode,
@@ -31,7 +32,7 @@ export const BlueskyLogin = ({
             onSubmit={handleSubmit}
             className={"space-y-4"}
         >
-            <div className={"space-y-2"}>
+            <div className={"space-y-2 flex flex-col items-center"}>
                 <div className={"flex space-x-2 items-center"}>
                     <BaseTextField
                         name="ca_username"
@@ -43,20 +44,31 @@ export const BlueskyLogin = ({
                         onChange={(e) => {
                             setHandleStart(e.target.value)
                         }}
+                        inputClassName={"h-9"}
                         startIcon={<span className={"text-[var(--text-light)] pt-[2px]"}><AtIcon/></span>}
                     />
-                    <BaseTextField
-                        id="domain"
+                    {[".cabildo.ar", ".bsky.social"].includes(domain) ? <BaseSelect
                         label="Dominio"
-                        placeholder=".bsky.social"
-                        autoFocus={false}
-                        autoComplete="off"
                         value={domain}
+                        onChange={(e) => {
+                            setDomain(e == "otro" ? "" : e);
+                        }}
+                        size={"small"}
+                        options={[".cabildo.ar", ".bsky.social", "otro"]}
+                        triggerClassName={"w-32 h-[37px]"}
+                        contentClassName={"z-[2000]"}
+                        itemClassName={"h-[37px]"}
+                        className={"max-w-32"}
+                    /> : <BaseTextField
+                        label={"Dominio"}
+                        value={domain}
+                        autoFocus={true}
                         onChange={(e) => {
                             setDomain(e.target.value)
                         }}
-                        className={"w-40"}
-                    />
+                        inputClassName={"h-9"}
+                        className={"w-[206px]"}
+                    />}
                 </div>
                 {error && <FieldError>
                     {error}

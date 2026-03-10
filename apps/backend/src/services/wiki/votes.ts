@@ -26,9 +26,29 @@ export function isTopicVote(collection: string): collection is TopicVoteType {
     return collection == "ar.cabildoabierto.wiki.voteAccept" || collection == "ar.cabildoabierto.wiki.voteReject"
 }
 
-
 export class ATCreateRecordError {
     readonly _tag = "ATCreateRecordError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
+}
+
+
+export class ATGetRecordError {
+    readonly _tag = "ATGetRecordError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
 }
 
 

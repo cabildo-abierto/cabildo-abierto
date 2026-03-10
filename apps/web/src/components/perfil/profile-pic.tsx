@@ -3,6 +3,7 @@ import {profileUrl} from "@/components/utils/react/url";
 import UserSummaryOnHover from "./user-summary";
 import {useState} from "react";
 import {CustomLink} from "@/components/utils/base/custom-link";
+import {defaultProfilePic} from "@/components/perfil/utils";
 
 type ProfilePicProps = {
     descriptionOnHover?: boolean
@@ -12,7 +13,7 @@ type ProfilePicProps = {
 }
 
 export const ProfilePic = ({user, clickable = true, className, descriptionOnHover = true}: ProfilePicProps) => {
-    const [imgSrc, setImgSrc] = useState(user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.handle)}`)
+    const [imgSrc, setImgSrc] = useState(user.avatar || defaultProfilePic(user.handle))
 
     const pic = (
         <div>

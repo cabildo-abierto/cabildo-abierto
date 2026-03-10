@@ -26,7 +26,8 @@ export const BaseFullscreenPopup = ({
     overlayClassName,
     ariaLabelledBy="panel",
     fullscreenOnMobile = true,
-    onBack
+    onBack,
+    modal=true
                                     }: {
     open: boolean
     children: ReactNode
@@ -40,6 +41,7 @@ export const BaseFullscreenPopup = ({
     ariaLabelledBy?: string
     fullscreenOnMobile?: boolean
     onBack?: () => void
+    modal?: boolean
 }) => {
     const {layoutState, setLayoutState} = useLayoutState()
     const {isMobile} = useIsMobile()
@@ -57,7 +59,7 @@ export const BaseFullscreenPopup = ({
 
     return <Dialog
         open={open}
-        modal={true}
+        modal={modal}
     >
         {backgroundShadow && <DialogOverlay
             className={cn("z-[1399]", overlayClassName)}

@@ -20,6 +20,8 @@ import {DBSelectError} from "#/utils/errors.js";
 import {$Typed, AppBskyActorDefs} from "@atproto/api";
 import {ATDeleteRecordError} from "#/services/delete.js";
 import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
+import {UserNotFoundError} from "#/services/user/access.js";
+import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 
 async function getFollowxFromCA(
     ctx: AppContext,
@@ -66,10 +68,13 @@ export const getFollowx = (
     {handleOrDid, kind}: {
     handleOrDid: string,
     kind: "follows" | "followers"
-}): Effect.Effect<ArCabildoabiertoActorDefs.ProfileViewBasic[], DBSelectError | FetchFromBskyError | HandleResolutionError, DataPlane> => Effect.gen(function* () {
+}): Effect.Effect<ArCabildoabiertoActorDefs.ProfileViewBasic[], UserNotFoundError | RedisCacheSetError | RedisCacheFetchError | DBSelectError | FetchFromBskyError | HandleResolutionError, DataPlane> => Effect.gen(function* () {
     const data = yield* DataPlane
 
     const did = yield* handleOrDidToDid(ctx, handleOrDid)
+    if(!did) {
+        return yield* Effect.fail(new UserNotFoundError())
+    }
 
     const [caUsers, bskyUsers] = yield* Effect.all([
         Effect.promise(() => getFollowxFromCA(ctx, did, kind)),

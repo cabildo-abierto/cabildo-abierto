@@ -509,6 +509,10 @@ export const syncUserHandler: EffHandler<{
     return Effect.gen(function* () {
         const did = yield* handleOrDidToDid(ctx, handleOrDid)
 
+        if(!did) {
+            return yield* Effect.fail(`Usuario no encontrado: ${did}.`)
+        }
+
         const inCA = yield* isCAUser(ctx, did)
         yield* Effect.annotateCurrentSpan({inCA})
 
@@ -528,6 +532,7 @@ export const syncUserHandler: EffHandler<{
         Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error en la base de datos.")),
         Effect.catchTag("UserNotFoundError", () => Effect.fail("No se encontró el usuario.")),
         Effect.catchTag("RedisCacheSetError", () => Effect.fail("Ocurrió un error con la cache.")),
+        Effect.catchTag("RedisCacheFetchError", () => Effect.fail("Ocurrió un error con la cache.")),
         Effect.withSpan("syncUserHandler", {
             attributes: {handleOrDid}
         })

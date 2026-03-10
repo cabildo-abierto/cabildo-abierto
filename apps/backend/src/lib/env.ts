@@ -29,5 +29,8 @@ export const env = cleanEnv(process.env, {
     MIRROR_EXTENDED_USERS: bool({devDefault: false}),
     WORKER_CONCURRENCY: num({devDefault: 1}),
     DEV_NAME: str(),
-    SERVICE_NAME: str()
+    SERVICE_NAME: str(),
+
+    PDS_PASSWORD: str(),
+    CA_ACCOUNT_PASSWORD: str()
 })

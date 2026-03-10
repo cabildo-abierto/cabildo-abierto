@@ -21,6 +21,7 @@ import ArticleIcon from "@/components/utils/icons/article-icon";
 import {EditProfileButton} from "./edit-profile-button";
 import {ProfileTODOs} from "./profile-todos";
 import {bskyProfileUrl} from "@/components/utils/react/url";
+import {defaultProfilePic} from "@/components/perfil/utils";
 
 const FullscreenImageViewer = dynamic(() => import('../utils/images/fullscreen-image-viewer'));
 
@@ -75,28 +76,24 @@ function ProfileHeader({
                 </div>
             }
             <div className={"flex justify-between pr-1"}>
-                {profile.avatar ? <>
-                    <FullscreenImageViewer
-                        images={[profile.avatar]}
-                        viewing={viewingProfilePic}
-                        setViewing={setViewingProfilePic}
-                        maxHeight={isMobile ? "95vw" : "70vh"}
-                        maxWidth={isMobile ? "95vw" : "70vh"}
-                        className={"rounded-full h-full object-contain"}
-                    />
-                    <Image
-                        src={profile.avatar}
-                        width={400}
-                        height={400}
-                        alt={profile.handle + " avatar"}
-                        className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border-2 border-[var(--background)] cursor-pointer"
-                        onClick={() => {
-                            setViewingProfilePic(0)
-                        }}
-                    />
-                </> : <div
-                    className={"w-24 h-24 bg-[var(--background-dark)] rounded-full border-2 border-[var(--background)] ml-6 mt-[-48px]"}
-                />}
+                <FullscreenImageViewer
+                    images={[profile.avatar ?? defaultProfilePic(profile.handle)]}
+                    viewing={viewingProfilePic}
+                    setViewing={setViewingProfilePic}
+                    maxHeight={isMobile ? "95vw" : "70vh"}
+                    maxWidth={isMobile ? "95vw" : "70vh"}
+                    className={"rounded-full h-full object-contain"}
+                />
+                <Image
+                    src={profile.avatar ?? defaultProfilePic(profile.handle)}
+                    width={400}
+                    height={400}
+                    alt={profile.handle + " avatar"}
+                    className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border-2 border-[var(--background)] cursor-pointer"
+                    onClick={() => {
+                        setViewingProfilePic(0)
+                    }}
+                />
 
                 {isOwner && <div className={"pt-2 pr-1"}>
                     <EditProfileButton/>

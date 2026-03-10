@@ -102,6 +102,7 @@ export type Session = {
     mirrorStatus: MirrorStatus
     pinnedFeeds: FeedTabView[]
     caProfile: string | null
+    bskyProfile: string | null
 }
 
 export type Account = {
@@ -118,4 +119,19 @@ export type LoginParams = {
 
 export type LoginOutput = {
     url: string
+}
+
+export type SignupParams = {
+    handle: string
+    email: string
+    /** YYYY-MM-DD  */
+    dateOfBirth: string
+    password: string
+    code: string
+}
+
+
+export type SignupOutput = {
+    did: string
+    redirectUrl?: string
 }

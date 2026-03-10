@@ -24,7 +24,7 @@ export const AcceptButtonPanel = ({
     return <BaseFullscreenPopup
         open={open}
         backgroundShadow={backgroundShadow}
-        className={popupClassName}
+        className={cn(popupClassName, "border")}
         fullscreenOnMobile={false}
     >
         <div

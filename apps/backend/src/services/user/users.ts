@@ -24,11 +24,12 @@ import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 import {AddJobError, DBInsertError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
+import {getUri} from "@cabildo-abierto/utils";
 
 
 export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBSelectError> {
@@ -172,27 +173,22 @@ export const getProfileHandler: EffHandlerNoAuth<{ params: { handleOrDid: string
 }
 
 
-export const getProfile = (ctx: AppContext, handleOrDid: string) => {
-    return pipe(
-        handleOrDidToDid(ctx, handleOrDid),
-        Effect.flatMap(did =>
-            Effect.gen(function* () {
-                const dataplane = yield* DataPlane
+export const getProfile = (ctx: AppContext, handleOrDid: string) => Effect.gen(function* () {
+    const did = yield* handleOrDidToDid(ctx, handleOrDid)
 
-                yield* dataplane.fetchProfileViewDetailedHydrationData([did])
+    if(!did) return yield* Effect.fail(new UserNotFoundError())
 
-                const profile = yield* hydrateProfileViewDetailed(ctx, did)
+    const dataplane = yield* DataPlane
 
-                if (!profile) {
-                    return yield* Effect.fail(new UserNotFoundError())
-                }
+    yield* dataplane.fetchProfileViewDetailedHydrationData([did])
 
-                return profile
-            })
-        ),
-        Effect.withSpan("getProfile", {attributes: {handleOrDid}})
-    )
-}
+    const profile = yield* hydrateProfileViewDetailed(ctx, did)
+
+    if (!profile) {
+        return yield* Effect.fail(new UserNotFoundError())
+    }
+    return profile
+}).pipe(Effect.withSpan("getProfile", {attributes: {handleOrDid}}))
 
 
 export async function deleteSession(ctx: AppContext, agent: SessionAgent) {
@@ -211,7 +207,7 @@ export const getSessionData = (
 ): Effect.Effect<SessionData | null, RedisCacheFetchError | DBSelectError> => {
 
     return Effect.gen(function* () {
-        const [data, mirrorStatus] = yield* Effect.all([
+        const [data, mirrorStatus, bskyProfile] = yield* Effect.all([
             Effect.tryPromise({
                 try: () => ctx.kysely
                     .selectFrom("User")
@@ -238,7 +234,15 @@ export const getSessionData = (
                     .executeTakeFirst(),
                 catch: () => new DBSelectError()
             }),
-            ctx.redisCache.mirrorStatus.get(did, true)
+            ctx.redisCache.mirrorStatus.get(did, true),
+            Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("Record")
+                    .select("uri")
+                    .where("Record.uri", "=", getUri(did, "app.bsky.actor.profile", "self"))
+                    .executeTakeFirst(),
+                catch: (error) => new DBSelectError(error)
+            })
         ], {concurrency: "unbounded"})
 
         if(!data) {
@@ -266,7 +270,8 @@ export const getSessionData = (
             validation: getValidationState(data),
             algorithmConfig: (data.algorithmConfig ?? {}) as AlgorithmConfig,
             mirrorStatus: data.inCA ? mirrorStatus : "Dirty",
-            pinnedFeeds: []
+            pinnedFeeds: [],
+            bskyProfile: bskyProfile?.uri ?? null
         }
 
         return sessionData
@@ -311,7 +316,8 @@ type GetSessionError = UserCreationFailedError |
     AddJobError |
     InsertRecordError |
     InvalidValueError |
-    UpdateRedisError
+    UpdateRedisError |
+    ATGetRecordError
 
 
 export const getSession = (
@@ -330,7 +336,7 @@ export const getSession = (
 
     yield* Effect.annotateCurrentSpan({data: data != null, hasAccess: data?.hasAccess, mirrorStatus: data?.mirrorStatus})
 
-    if (isFullSessionData(data) && data.hasAccess && data.caProfile != null) {
+    if (isFullSessionData(data) && data.hasAccess && data.caProfile != null && data.bskyProfile != null) {
         return data
     } else if((data && data.hasAccess) || code) {
         yield* createCAUser(ctx, agent, code ?? undefined)
@@ -502,12 +508,8 @@ type UpdateProfileProps = {
 export const updateProfileHandler: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
 
     return updateProfile(ctx, agent, params).pipe(
-        Effect.catchAll(error => {
-            if(typeof error == "string") {
-                return Effect.fail(error)
-            } else {
-                return Effect.fail("Ocurrió un error al actualizar el perfil.")
-            }
+        Effect.catchAll(() => {
+            return Effect.fail("Ocurrió un error al actualizar el perfil.")
         }),
         Effect.map(() => ({}))
     )
@@ -519,22 +521,22 @@ export const updateProfile = (
     agent: SessionAgent,
     profile: UpdateProfileProps
 ) => Effect.gen(function* () {
-    const {success, data} = yield* Effect.tryPromise({
+    const res = yield* Effect.tryPromise({
         try: () => agent.bsky.com.atproto.repo.getRecord({
             repo: agent.did,
             collection: 'app.bsky.actor.profile',
             rkey: "self"
         }),
-        catch: () => "Ocurrió un error en la conexión con ATProtocol."
+        catch: (error) => new ATGetRecordError(error)
     })
 
-    if(!success) {
-        return yield* Effect.fail("Error en la conexión.")
+    if(!res.success) {
+        return yield* Effect.fail(new ATGetRecordError())
     }
 
     yield* Effect.log("Got current profile.")
 
-    const record = data.value as AppBskyActorProfile.Record
+    const record = res.data.value as AppBskyActorProfile.Record
 
     const avatarBlob: BlobRef | undefined = profile.profilePic ? (yield* uploadBase64Blob(agent, profile.profilePic)).ref : record.avatar
     const bannerBlob: BlobRef | undefined = profile.banner ? (yield* uploadBase64Blob(agent, profile.banner)).ref : record.banner
@@ -560,10 +562,10 @@ export const updateProfile = (
 
     yield* Effect.log("Record created.")
 
-    if(data.cid){
+    if(res.data.cid){
         const ref: ATProtoStrongRef = {
-            uri: data.uri,
-            cid: data.cid
+            uri: res.data.uri,
+            cid: res.data.cid
         }
 
         yield* new BskyProfileRecordProcessor(ctx)

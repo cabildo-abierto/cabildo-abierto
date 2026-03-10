@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {BlueskyLogin} from "./bluesky-login"
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "./login-modal-provider";
@@ -17,6 +17,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {topicUrl} from "@/components/utils/react/url";
 import {cn} from "@/lib/utils";
 import {useIsMobile} from "@/components/utils/use-is-mobile";
+import {SignUpPage} from "@/components/auth/sign-up-page";
 
 
 const LoginPanel = ({children, onClickBack, onClose, open}: {
@@ -34,7 +35,7 @@ const LoginPanel = ({children, onClickBack, onClose, open}: {
         className={"bg-[var(--background-dark)] border portal group"}
     >
         <div
-            className={cn("px-4 space-y-16 sm:space-y-0 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[480px]")}
+            className={cn("px-4 sm:h-auto flex flex-col items-center w-screen h-screen", !isMobile && "w-[520px]")}
         >
             <div
                 className={"flex w-full text-[var(--text-light)] mt-4 " + (onClickBack ? "justify-between" : "justify-end")}>
@@ -117,53 +118,50 @@ const LoginModalAccessRequest = ({onBack}: {
     </div>
 }
 
-
+export type LoginModalPage = "login" | "sign up" | "access request"
 
 export const LoginModal = ({
                                open,
-                               onClose,
-    accessRequest,
-    setAccessRequest
+                               onClose
                            }: {
     open: boolean;
-    onClose?: () => void;
-    accessRequest: boolean
-    setAccessRequest: (v: boolean) => void
+    onClose?: () => void
 }) => {
     const params = useSearchParams()
     const inviteCode = params.get("c")
-    const router = useRouter()
-    const {setLoginModalOpen} = useLoginModal()
-    const pathname = usePathname()
+    const {setLoginModalOpen, page, setPage, createdAccount} = useLoginModal()
 
     return <LoginPanel
         open={open}
         onClose={onClose}
-        onClickBack={accessRequest ? () => {
-            setAccessRequest(false)
+        onClickBack={page == "access request" ? () => {
+            setPage("login")
         } : undefined}
     >
-        {accessRequest && <LoginModalAccessRequest
-            onBack={() => {setAccessRequest(false)}}
+        {page == "access request" && <LoginModalAccessRequest
+            onBack={() => {
+                setPage("login")
+            }}
         />}
-        {!accessRequest && <div className={"space-y-4 flex flex-col items-center pt-4"}>
+        {page == "login" && <div className={"space-y-4 flex flex-col items-center pt-4"}>
             <div className="space-y-4 flex flex-col items-center">
                 <Logo width={64} height={64}/>
-                <h1 className={"text-lg font-bold uppercase"}>Iniciar sesión</h1>
+                <h1 className={"text-lg font-font-semibold uppercase"}>Iniciar sesión</h1>
             </div>
 
             <div className="flex justify-center sm:px-8">
                 <div className="w-full flex flex-col items-center space-y-4 px-2 mb-4">
-                    {inviteCode && <div
-                        className={"flex flex-col space-y-4 items-center max-w-80 text-center"}>
-                        <div className={"text-base"}>
+                    {inviteCode && !createdAccount && <div
+                        className={"flex flex-col space-y-1 items-center max-w-80 text-center"}>
+                        <div className={"text-base font-light"}>
                             ¡Recibiste un código de invitación!
                         </div>
-                        <Note text={"text-sm"}>
-                            Si ya tenés una cuenta de Bluesky, iniciá sesión directamente. Si no, <Link
-                            className={"link2"} target={"_blank"} href={"https://bsky.app"}>creala primero acá</Link> y
-                            después volvé a esta página.
-                        </Note>
+                        <div className={"text-xs font-light"}>
+                            Podés usarlo con una cuenta de ATProtocol (ej. Bluesky) si tenés una o crear una cuenta
+                            nueva. <Link className={"underline hover:text-[var(--text-light)]"}
+                                         href={topicUrl("Cabildo Abierto: Relación con Bluesky y descentralización")}>Más
+                            información.</Link>
+                        </div>
                     </div>}
 
                     <div className={"max-w-[360px]"}>
@@ -174,12 +172,24 @@ export const LoginModal = ({
                             }}
                         />
 
+                        {inviteCode && <div className={"pt-4 w-full"}>
+                            <BaseButton
+                                variant={"outlined"}
+                                className={"w-full text-[13px]"}
+                                onClick={() => {
+                                    setPage("sign up")
+                                }}
+                            >
+                                Crear una cuenta
+                            </BaseButton>
+                        </div>}
+
                         {!inviteCode && <div className={"pt-4 w-full"}>
                             <BaseButton
                                 variant={"outlined"}
                                 className={"w-full text-[13px]"}
                                 onClick={() => {
-                                    setAccessRequest(true)
+                                    setPage("access request")
                                 }}
                             >
                                 Participar en el acceso anticipado
@@ -187,19 +197,7 @@ export const LoginModal = ({
                         </div>}
                     </div>
 
-                    <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
-                        {!pathname.startsWith("/presentacion") && <Note text={"text-sm"}>
-                            <Link
-                                href={"/presentacion"}
-                                target={"_blank"}
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    router.push(inviteCode ? `/presentacion?c=${inviteCode}` : "/presentacion")
-                                }}
-                            >
-                                Conocer más sobre Cabildo Abierto
-                            </Link>
-                        </Note>}
+                    <div className={"font-extralight flex flex-col space-y-4 pb-12 items-center text-center"}>
                         <Note
                             text={"text-xs"}
                         >
@@ -219,5 +217,9 @@ export const LoginModal = ({
                 </div>
             </div>
         </div>}
+        {page == "sign up" && <SignUpPage
+            inviteCode={inviteCode}
+            setPage={setPage}
+        />}
     </LoginPanel>
 }
