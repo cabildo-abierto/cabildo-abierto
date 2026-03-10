@@ -219,24 +219,21 @@ export const SignUpPage = ({
                             }}
                             open={viewProviderOptions}
                         >
-                            <div className={"font-light space-y-3 text-sm max-w-lg"}>
+                            <div className={"font-light space-y-3 text-sm max-w-md"}>
                                 <h3 className={""}>
                                     Tus datos, tu decisión
                                 </h3>
-                                <Paragraph className={"text-sm"}>
+                                <Paragraph>
                                     Cabildo Abierto es parte de una red abierta en la que podés elegir tu proveedor de
-                                    almacenamiento. Tenés varias opciones:
+                                    almacenamiento. Tenés varias opciones.
                                 </Paragraph>
-                                <Paragraph className={"text-sm"}>
+                                <Paragraph>
                                     <ul className={"ml-5 space-y-1"}>
                                         <li>
                                             Crear tu cuenta en Cabildo Abierto. Nosotros guardamos tus datos.
                                         </li>
                                         <li>
-                                            Crear tu cuenta en otro proveedor y usarla en Cabildo Abierto. Algunos
-                                            comunes son <Link href={"https://bsky.app"}>Bluesky</Link>, <Link
-                                            href={"https://eurosky.tech"}>Eurosky</Link> o <Link
-                                            href={"https://blacksky.community"}>Blacksky</Link>.
+                                            Crear tu cuenta en otro proveedor y usarla en Cabildo Abierto.
                                         </li>
                                         <li>
                                             <Link href={"https://atproto.com/guides/self-hosting"}>Crear tu propio
@@ -245,25 +242,8 @@ export const SignUpPage = ({
                                         </li>
                                     </ul>
                                 </Paragraph>
-                                <Paragraph className={"text-sm"}>
-                                    <p>
-                                            <span className={"font-medium"}>
-                                            ¿Qué efecto tiene esta decisión?
-                                        </span>
-                                    </p>
-                                    <p>
-                                        Una de las cosas buenas de esta red de redes (llamada <Link
-                                        href={topicUrl("ATProtocol")}>ATProtocol</Link>) es que tu experiencia tanto en
-                                        Cabildo Abierto como en Bluesky o cualquier otra plataforma de la red va a ser a
-                                        grandes rasgos la misma sin importar dónde estén almacenados tus datos.
-                                        Además, siempre está la opción de migrar más adelante.
-                                    </p>
-                                    <p>
-                                        Sin embargo, el proveedor es importante porque (1) es quien cuida tus datos (si
-                                        falla, se pueden llegar a perder) y (2) es quien decide en última instancia si
-                                        guardar o no tus datos, según las leyes que apliquen en el lugar de origen del
-                                        servidor y según sus propias reglas.
-                                    </p>
+                                <Paragraph>
+                                    Podés leer nuestra guía con preguntas frecuentes sobre este tema <Link href={topicUrl("Cabildo Abierto: Almacenamiento de datos personales")}>acá</Link>.
                                 </Paragraph>
                             </div>
                         </AcceptButtonPanel>

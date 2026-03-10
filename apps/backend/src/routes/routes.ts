@@ -418,7 +418,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/conversation/read/:convoId", makeHandler(ctx, markConversationRead))
 
-    router.post("/access-request", makeHandlerNoAuth(ctx, createAccessRequest))
+    router.post("/access-request", makeEffHandlerNoAuth(ctx, createAccessRequest))
 
     router.get('/drafts', makeEffHandler(ctx, getDrafts))
 

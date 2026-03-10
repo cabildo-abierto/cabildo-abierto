@@ -1,10 +1,8 @@
 import {Agent, BaseAgent, cookieOptions, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import {isValidHandle} from "@atproto/syntax";
-import {CAHandler, CAHandlerNoAuth, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
-import {customAlphabet} from "nanoid";
-import {range} from "@cabildo-abierto/utils";
 import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {AppBskyActorProfile, AtpBaseClient} from "@atproto/api"
 import {
@@ -415,8 +413,7 @@ Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al
 
 
 export const backfillInviteCodes: EffHandler<{}, {}> = (
-    ctx,
-    agent
+    ctx
 ) => Effect.gen(function* () {
     const codes = yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -601,32 +598,71 @@ export function createCAUser(
 }
 
 
+export const createPDSInviteCodes = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    count: number
+) => Effect.gen(function* () {
+    const basicAuth = Buffer.from(`admin:${env.PDS_PASSWORD}`).toString("base64");
+
+    const resCode = yield* Effect.tryPromise({
+        try: () => fetch("https://cabildo.ar/xrpc/com.atproto.server.createInviteCodes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Basic ${basicAuth}`,
+            },
+            body: JSON.stringify({
+                codeCount: Number(count),
+                useCount: 1,
+            }),
+        }),
+        catch: (error) => new GetInviteCodeError(error instanceof Error ? `${error.name}:${error.message}` : undefined)
+    })
+
+    if(resCode.ok) {
+        const data = (yield* Effect.tryPromise({
+            try: () => resCode.json(),
+            catch: () => new GetInviteCodeError("json failed")
+        })) as {codes: {account: string, codes: string[]}[]}
+
+        if(data.codes.length == 0) {
+            return yield* Effect.fail("No se obtuvo la cantidad correcta de códigos.")
+        }
+
+        const pdsCodes = data.codes[0].codes
+
+        if(pdsCodes.length != count) {
+            return yield* Effect.fail("No se obtuvo la cantidad correcta de códigos.")
+        }
+
+        return pdsCodes
+    } else {
+        return yield* Effect.fail(new GetInviteCodeError("res not ok"))
+    }
+})
+
+
 export const createInviteCodes = (
     ctx: AppContext,
     agent: SessionAgent,
     count: number) => Effect.gen(function* () {
 
-    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toLowerCase();
-    const generateInviteCode = customAlphabet(alphabet, 8)
-
-    const values = range(count).map(i => {
-        return {
-            code: generateInviteCode()
-        }
-    })
+    const values = yield* createPDSInviteCodes(ctx, agent, count)
 
     yield* Effect.tryPromise({
         try: () => ctx.kysely
             .insertInto("InviteCode")
-            .values(values)
+            .values(values.map(v => ({
+                code: v,
+                pdsInvite: v
+            })))
             .execute(),
         catch: (error) => new DBInsertError(error)
     })
 
-    yield* backfillInviteCodes(ctx, agent, {})
-
-    return values.map(c => c.code)
-})
+    return values
+}).pipe(Effect.withSpan("createInviteCodes"))
 
 
 export const createInviteCodesHandler: EffHandler<{ query: { c: number } }, {
@@ -634,6 +670,7 @@ export const createInviteCodesHandler: EffHandler<{ query: { c: number } }, {
 }> = (ctx, agent, {query}) => {
     return createInviteCodes(ctx, agent, query.c).pipe(
         Effect.map(inviteCodes => ({inviteCodes})),
+        Effect.catchTag("GetInviteCodeError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación.")),
         Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación."))
     )
 }
@@ -732,25 +769,29 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
 }
 
 
-export const createAccessRequest: CAHandlerNoAuth<{
+export const createAccessRequest: EffHandlerNoAuth<{
     email: string,
     comment: string
-}, {}> = async (ctx, agent, params) => {
+}, {}> = (ctx, agent, params) => Effect.gen(function* () {
 
-    try {
-        await ctx.kysely.insertInto("AccessRequest").values([{
+    yield* Effect.tryPromise({
+        try: () => ctx.kysely.insertInto("AccessRequest").values([{
             email: params.email,
             comment: params.comment,
             id: uuidv4()
-        }]).execute()
+        }]).execute(),
+        catch: (error) => new DBInsertError(error)
+    })
 
-        await createMailingListSubscription(ctx, params.email)
-    } catch {
-        return {error: "Ocurrió un error al crear la solicitud :("}
-    }
+    yield* createMailingListSubscription(ctx, params.email)
 
-    return {data: {}}
-}
+    return {}
+}).pipe(
+    Effect.catchTag("InvalidEmailError", () => Effect.fail("Ingresá un correo electrónico válido.")),
+    Effect.catchTag("UsedEmailError", () => Effect.succeed({})),
+    Effect.catchTag("CreateMailingListSubscriptionError", () => Effect.fail("Ocurrió un error al crear la solicitud de acceso.")),
+    Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear la solicitud de acceso.")),
+)
 
 type AccessRequest = {
     id: string
@@ -761,7 +802,7 @@ type AccessRequest = {
     markedIgnored: boolean
 }
 
-export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx, agent, {}) => {
+export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx) => {
     const requests: AccessRequest[] = await ctx.kysely
         .selectFrom("AccessRequest")
         .select([
@@ -777,7 +818,7 @@ export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx, age
     return {data: requests}
 }
 
-export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = async (ctx, agent, {}) => {
+export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = async (ctx) => {
     const result = await ctx.kysely
         .selectFrom("AccessRequest")
         .select(eb => eb.fn.count<number>("id").as("count"))
