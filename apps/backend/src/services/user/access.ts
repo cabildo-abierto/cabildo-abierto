@@ -66,7 +66,7 @@ export const loginHandler: EffHandlerNoAuth<LoginParams, LoginOutput> = (
     agent,
     {handle, code}
 ) => login(ctx, agent, handle, code).pipe(
-    Effect.catchTag("UserNotFoundError", () => Effect.fail("No se encontró el usuario.")),
+    Effect.catchTag("UserNotFoundError", (error) => error.message == "maybe-domain" ? Effect.fail(`¿Quizás el dominio sea ${handle.includes(".cabildo.ar") ? ".bsky.social" : ".cabildo.ar"}?`) : Effect.fail("No se encontró el usuario.")),
     Effect.catchTag("RedisCacheFetchError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
     Effect.catchTag("RedisCacheSetError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
     Effect.catchTag("InvalidValueError", () => Effect.fail("El nombre de usuario es inválido.")),
@@ -90,6 +90,17 @@ export class NoInviteCodeError {
 }
 
 
+function getAltHandle(handle: string) {
+    if(handle.includes(".cabildo.ar")){
+        return handle.replace(".cabildo.ar", ".bsky.social")
+    } else if(handle.includes(".bsky.social")) {
+        return handle.replace(".bsky.social", ".cabildo.ar")
+    } else {
+        return handle
+    }
+}
+
+
 const login = (
     ctx: AppContext,
     agent: Agent,
@@ -110,6 +121,14 @@ const login = (
 
     const did = yield* ctx.resolver.resolveHandleToDid(handle)
     if(!did) {
+        const altHandle = getAltHandle(handle)
+        if(altHandle != handle) {
+            const did2 = yield* ctx.resolver.resolveHandleToDid(altHandle)
+            if(did2) {
+                return yield* Effect.fail(new UserNotFoundError("maybe-domain"))
+            }
+        }
+
         return yield* Effect.fail(new UserNotFoundError())
     }
 
@@ -627,6 +646,7 @@ export class CodeNotFoundError {
 
 export class UserNotFoundError {
     readonly _tag = "UserNotFoundError"
+    constructor(readonly message?: string) {}
 }
 
 

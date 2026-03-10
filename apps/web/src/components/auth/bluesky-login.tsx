@@ -32,7 +32,7 @@ export const BlueskyLogin = ({
             onSubmit={handleSubmit}
             className={"space-y-4"}
         >
-            <div className={"space-y-2"}>
+            <div className={"space-y-2 flex flex-col items-center"}>
                 <div className={"flex space-x-2 items-center"}>
                     <BaseTextField
                         name="ca_username"

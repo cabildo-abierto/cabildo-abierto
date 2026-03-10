@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {BlueskyLogin} from "./bluesky-login"
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {useSearchParams} from "next/navigation";
 import {ReactNode, useState} from "react";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useLoginModal} from "./login-modal-provider";
@@ -129,9 +129,7 @@ export const LoginModal = ({
 }) => {
     const params = useSearchParams()
     const inviteCode = params.get("c")
-    const router = useRouter()
     const {setLoginModalOpen, page, setPage, createdAccount} = useLoginModal()
-    const pathname = usePathname()
 
     return <LoginPanel
         open={open}
@@ -141,7 +139,9 @@ export const LoginModal = ({
         } : undefined}
     >
         {page == "access request" && <LoginModalAccessRequest
-            onBack={() => {setPage("login")}}
+            onBack={() => {
+                setPage("login")
+            }}
         />}
         {page == "login" && <div className={"space-y-4 flex flex-col items-center pt-4"}>
             <div className="space-y-4 flex flex-col items-center">
@@ -157,7 +157,10 @@ export const LoginModal = ({
                             ¡Recibiste un código de invitación!
                         </div>
                         <div className={"text-xs font-light"}>
-                            Podés usarlo con una cuenta de ATProtocol (ej. Bluesky) si tenés una o crear una cuenta nueva. <Link className={"underline hover:text-[var(--text-light)]"} href={topicUrl("Cabildo Abierto: Relación con Bluesky y descentralización")}>Más información.</Link>
+                            Podés usarlo con una cuenta de ATProtocol (ej. Bluesky) si tenés una o crear una cuenta
+                            nueva. <Link className={"underline hover:text-[var(--text-light)]"}
+                                         href={topicUrl("Cabildo Abierto: Relación con Bluesky y descentralización")}>Más
+                            información.</Link>
                         </div>
                     </div>}
 
@@ -194,19 +197,7 @@ export const LoginModal = ({
                         </div>}
                     </div>
 
-                    <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-12 items-center text-center"}>
-                        {!pathname.startsWith("/presentacion") && <Note text={"text-sm"}>
-                            <Link
-                                href={"/presentacion"}
-                                target={"_blank"}
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    router.push(inviteCode ? `/presentacion?c=${inviteCode}` : "/presentacion")
-                                }}
-                            >
-                                Conocer más sobre Cabildo Abierto
-                            </Link>
-                        </Note>}
+                    <div className={"font-extralight flex flex-col space-y-4 pb-12 items-center text-center"}>
                         <Note
                             text={"text-xs"}
                         >

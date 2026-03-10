@@ -19,6 +19,7 @@ import {useIsMobile} from "@/components/utils/use-is-mobile";
 import {useLoginModal} from "@/components/auth/login-modal-provider";
 import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
 import {DateAndTimePicker} from "@/components/utils/date-and-time-picker";
+import {Paragraph} from "@/components/utils/base/paragraph";
 
 
 /** Format Date to YYYY-MM-DD using local date (avoids timezone issues for date-of-birth) */
@@ -167,6 +168,7 @@ export const SignUpPage = ({
         password: "",
         code: inviteCode
     })
+    const [viewProviderOptions, setViewProviderOptions] = useState<boolean>(false)
     const [accountCreatedModalOpen, setAccountCreatedModalOpen] = useState<boolean>(false)
 
     async function onSubmit() {
@@ -197,9 +199,77 @@ export const SignUpPage = ({
                         />
                     </div>
 
-                    <div className={"font-extralight pt-2 flex flex-col space-y-4 pb-2 items-center text-center"}>
+                    <div className={"font-extralight flex flex-col space-y-4 pb-2 items-center text-center"}>
+                        <div
+                            onClick={() => {
+                                setViewProviderOptions(true)
+                            }}
+                        >
+                            <Note
+                                className={""}
+                            >
+                            <span className={"text-xs underline hover:text-[var(--text-light)] cursor-pointer"}>
+                                Usar otro proveedor de almacenamiento
+                            </span>
+                            </Note>
+                        </div>
+                        <AcceptButtonPanel
+                            onClose={() => {
+                                setViewProviderOptions(false)
+                            }}
+                            open={viewProviderOptions}
+                        >
+                            <div className={"font-light space-y-3 text-sm max-w-lg"}>
+                                <h3 className={""}>
+                                    Tus datos, tu decisión
+                                </h3>
+                                <Paragraph className={"text-sm"}>
+                                    Cabildo Abierto es parte de una red abierta en la que podés elegir tu proveedor de
+                                    almacenamiento. Tenés varias opciones:
+                                </Paragraph>
+                                <Paragraph className={"text-sm"}>
+                                    <ul className={"ml-5 space-y-1"}>
+                                        <li>
+                                            Crear tu cuenta en Cabildo Abierto. Nosotros guardamos tus datos.
+                                        </li>
+                                        <li>
+                                            Crear tu cuenta en otro proveedor y usarla en Cabildo Abierto. Algunos
+                                            comunes son <Link href={"https://bsky.app"}>Bluesky</Link>, <Link
+                                            href={"https://eurosky.tech"}>Eurosky</Link> o <Link
+                                            href={"https://blacksky.community"}>Blacksky</Link>.
+                                        </li>
+                                        <li>
+                                            <Link href={"https://atproto.com/guides/self-hosting"}>Crear tu propio
+                                                servidor</Link> y almacenar tus datos donde quieras (requiere algunos
+                                            conocimientos de programación).
+                                        </li>
+                                    </ul>
+                                </Paragraph>
+                                <Paragraph className={"text-sm"}>
+                                    <p>
+                                            <span className={"font-medium"}>
+                                            ¿Qué efecto tiene esta decisión?
+                                        </span>
+                                    </p>
+                                    <p>
+                                        Una de las cosas buenas de esta red de redes (llamada <Link
+                                        href={topicUrl("ATProtocol")}>ATProtocol</Link>) es que tu experiencia tanto en
+                                        Cabildo Abierto como en Bluesky o cualquier otra plataforma de la red va a ser a
+                                        grandes rasgos la misma sin importar dónde estén almacenados tus datos.
+                                        Además, siempre está la opción de migrar más adelante.
+                                    </p>
+                                    <p>
+                                        Sin embargo, el proveedor es importante porque (1) es quien cuida tus datos (si
+                                        falla, se pueden llegar a perder) y (2) es quien decide en última instancia si
+                                        guardar o no tus datos, según las leyes que apliquen en el lugar de origen del
+                                        servidor y según sus propias reglas.
+                                    </p>
+                                </Paragraph>
+                            </div>
+                        </AcceptButtonPanel>
+
                         <Note
-                            text={"text-xs"}
+                            className={"text-xs"}
                         >
                             Al crear la cuenta aceptás los <Link
                             target="_blank"
