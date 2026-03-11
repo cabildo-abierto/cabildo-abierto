@@ -3,6 +3,7 @@ import {SendEmailResult, SendEmailsParams, SendEmailsResponse} from "@cabildo-ab
 import {createInviteCodes} from "#/services/user/access.js";
 import {v4 as uuidv4} from "uuid";
 import {EmailSender} from "#/services/emails/email-sender.js";
+import {getSubscriberEmailsNotReceivedTemplate} from "#/services/emails/subscriptions.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 
@@ -73,6 +74,11 @@ export const sendBulkEmails: EffHandler<SendEmailsParams, SendEmailsResponse> = 
             catch: (error) => new DBSelectError(error)
         })
         recipientEmails = subscribers.map(s => s.email)
+    } else if (target === "not_received_template") {
+        recipientEmails = yield* Effect.tryPromise({
+            try: () => getSubscriberEmailsNotReceivedTemplate(ctx, templateId),
+            catch: (error) => new DBSelectError(error)
+        })
     } else {
         recipientEmails = inputEmails!
     }

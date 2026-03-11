@@ -49,8 +49,11 @@ export type EmailTemplatesResponse = {
     templates: EmailTemplate[]
 }
 
-// Send emails types
-export type SendEmailsTarget = "single" | "list" | "all_subscribers"
+export type SendEmailsTarget = "single" | "list" | "all_subscribers" | "not_received_template"
+
+export type SubscribersNotReceivedTemplateResponse = {
+    count: number
+}
 
 export type SendEmailsParams = {
     templateId: string

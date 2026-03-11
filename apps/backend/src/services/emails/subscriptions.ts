@@ -1,5 +1,5 @@
 import {CAHandler, CAHandlerNoAuth, EffHandler} from "#/utils/handler.js";
-import {MailSubscriptionsResponse, SentEmail, SentEmailsResponse} from "@cabildo-abierto/api";
+import {MailSubscriptionsResponse, SentEmail, SentEmailsResponse, SubscribersNotReceivedTemplateResponse} from "@cabildo-abierto/api";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
 import validator from 'validator';
@@ -107,6 +107,56 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
             totalCount: emails.length
         }
     }
+}
+
+
+export const getSubscribersNotReceivedTemplate: CAHandler<
+    { query: { templateId?: string | string[] } },
+    SubscribersNotReceivedTemplateResponse
+> = async (ctx, agent, {query}) => {
+    const templateId = typeof query.templateId === "string" ? query.templateId : Array.isArray(query.templateId) ? query.templateId[0] : undefined
+    if (!templateId) {
+        return {error: "Se requiere templateId"}
+    }
+
+    const subscribers = await ctx.kysely
+        .selectFrom("MailingListSubscription")
+        .select("MailingListSubscription.email")
+        .where("MailingListSubscription.status", "=", "Subscribed")
+        .where(({not, exists, selectFrom}) =>
+            not(exists(
+                selectFrom("EmailSent")
+                    .whereRef("EmailSent.recipientId", "=", "MailingListSubscription.id")
+                    .where("EmailSent.templateId", "=", templateId)
+            ))
+        )
+        .execute()
+
+    return {
+        data: {
+            count: subscribers.length
+        }
+    }
+}
+
+
+export async function getSubscriberEmailsNotReceivedTemplate(
+    ctx: AppContext,
+    templateId: string
+): Promise<string[]> {
+    const subscribers = await ctx.kysely
+        .selectFrom("MailingListSubscription")
+        .select("MailingListSubscription.email")
+        .where("MailingListSubscription.status", "=", "Subscribed")
+        .where(({not, exists, selectFrom}) =>
+            not(exists(
+                selectFrom("EmailSent")
+                    .whereRef("EmailSent.recipientId", "=", "MailingListSubscription.id")
+                    .where("EmailSent.templateId", "=", templateId)
+            ))
+        )
+        .execute()
+    return subscribers.map(s => s.email)
 }
 
 

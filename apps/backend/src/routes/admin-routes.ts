@@ -33,7 +33,7 @@ import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/find-users.js";
 import {getAllCAFeed} from "#/services/feed/all.js";
-import {getMailSubscriptions, getSentEmails} from "#/services/emails/subscriptions.js"
+import {getMailSubscriptions, getSentEmails, getSubscribersNotReceivedTemplate} from "#/services/emails/subscriptions.js"
 import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
 import {
     createEmailTemplate,
@@ -156,6 +156,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/mail-subscriptions", makeAdminHandler(ctx, getMailSubscriptions))
 
     router.get("/sent-emails", makeAdminHandler(ctx, getSentEmails))
+    router.get("/subscribers-not-received-template", makeAdminHandler(ctx, getSubscribersNotReceivedTemplate))
 
     // Email templates CRUD
     router.get("/email-templates", makeAdminHandler(ctx, getEmailTemplates))

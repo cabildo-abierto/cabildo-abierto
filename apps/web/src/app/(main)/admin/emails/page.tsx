@@ -2,13 +2,13 @@
 
 import {useState} from "react";
 import {useAPI} from "@/components/utils/react/queries";
-import {MailSubscriptionsResponse, SentEmailsResponse, SentEmail, EmailTemplatesResponse, EmailTemplate, SendEmailsParams, SendEmailsResponse, SendEmailsTarget, SMTP2GOStatsResponse} from "@cabildo-abierto/api";
+import {MailSubscriptionsResponse, SentEmailsResponse, SentEmail, EmailTemplatesResponse, EmailTemplate, SendEmailsParams, SendEmailsResponse, SendEmailsTarget, SMTP2GOStatsResponse, SubscribersNotReceivedTemplateResponse} from "@cabildo-abierto/api";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {DateSince, localeDate} from "@/components/utils/base/date";
 import {AdminSection} from "@/components/admin/admin-section";
 import {cn} from "@/lib/utils";
-import {fetchBackend, post} from "@/components/utils/react/fetch";
-import {useQueryClient} from "@tanstack/react-query";
+import {fetchBackend, get, post, setSearchParams} from "@/components/utils/react/fetch";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
 
 type Tab = "subscriptions" | "sent" | "templates" | "send" | "stats"
 
@@ -26,6 +26,20 @@ function useEmailTemplates(enabled: boolean) {
 
 function useSMTP2GOStats(enabled: boolean) {
     return useAPI<SMTP2GOStatsResponse>("/smtp2go-stats", ["smtp2go-stats"], 60000, enabled) // Cache for 1 minute
+}
+
+function useSubscribersNotReceivedTemplate(templateId: string, enabled: boolean) {
+    return useQuery({
+        queryKey: ["subscribers-not-received-template", templateId],
+        queryFn: async () => {
+            const res = await get<SubscribersNotReceivedTemplateResponse>(
+                setSearchParams("/subscribers-not-received-template", {templateId})
+            )
+            if (res.success === true) return res.value
+            throw new Error(res.error)
+        },
+        enabled: enabled && !!templateId
+    })
 }
 
 function TabButton({active, onClick, children}: {active: boolean, onClick: () => void, children: React.ReactNode}) {
@@ -783,6 +797,11 @@ function SendEmailsView() {
 
     const [selectedTemplateId, setSelectedTemplateId] = useState<string>("")
     const [targetType, setTargetType] = useState<SendEmailsTarget>("single")
+
+    const {data: notReceivedData, isLoading: notReceivedLoading} = useSubscribersNotReceivedTemplate(
+        selectedTemplateId,
+        targetType === "not_received_template"
+    )
     const [emailsInput, setEmailsInput] = useState("")
     const [showPreview, setShowPreview] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
@@ -810,11 +829,14 @@ function SendEmailsView() {
                 return parsedEmails.length
             case "all_subscribers":
                 return subscriptionsData?.counts.subscribed ?? 0
+            case "not_received_template":
+                return notReceivedData?.count ?? 0
         }
     }
 
     const recipientCount = getRecipientCount()
-    const canSend = selectedTemplate && recipientCount > 0 && sendState === "idle"
+    const canSend = selectedTemplate && recipientCount > 0 && sendState === "idle" &&
+        (targetType !== "not_received_template" || !notReceivedLoading)
 
     // Check if template uses invite_link
     const templateUsesInviteLink = selectedTemplate && (
@@ -834,7 +856,7 @@ function SendEmailsView() {
             const body: SendEmailsParams = {
                 templateId: selectedTemplateId,
                 target: targetType,
-                emails: targetType !== "all_subscribers" ? parsedEmails : undefined,
+                emails: (targetType === "single" || targetType === "list") ? parsedEmails : undefined,
                 fromName: nameFrom,
                 fromEmail: emailFrom,
                 replyTo: replyTo.length > 0 ? replyTo : undefined
@@ -994,6 +1016,20 @@ function SendEmailsView() {
                                 )}
                             >
                                 Todos los suscriptos ({subscriptionsData.counts.subscribed})
+                            </button>
+                            <button
+                                onClick={() => setTargetType("not_received_template")}
+                                disabled={sendState === "sending" || !selectedTemplateId}
+                                className={cn(
+                                    "px-3 py-2 text-sm rounded border transition-colors",
+                                    targetType === "not_received_template"
+                                        ? "border-[var(--text)] bg-[var(--background-dark3)]"
+                                        : "border-[var(--background-dark3)] hover:bg-[var(--background-dark)]"
+                                )}
+                            >
+                                {targetType === "not_received_template" && notReceivedLoading
+                                    ? "Cargando..."
+                                    : `Todos los que no hayan recibido esta plantilla${targetType === "not_received_template" && notReceivedData ? ` (${notReceivedData.count})` : ""}`}
                             </button>
                         </div>
                     </div>
