@@ -4,8 +4,8 @@ import React, {useState} from "react";
 import {useAPI} from "@/components/utils/react/queries";
 import {Goal, UserGuideStatus} from "@cabildo-abierto/api";
 
-const ProgressRow = ({label, progress, detail}: Goal) => {
-    const clamped = Math.min(Math.max(progress, 0), 100)
+const ProgressRow = ({label, progress, objective, detail}: Goal) => {
+    const clamped = Math.min(Math.max(progress, 0)/objective * 100, 100)
     return (
         <div className={"space-y-1"}>
             <div className={"flex items-center justify-between text-[13px]"}>
@@ -55,6 +55,7 @@ const GettingStartedProgress = () => {
                         key={goal.label}
                         label={goal.label}
                         progress={goal.progress}
+                        objective={goal.objective}
                         detail={goal.detail}
                     />
                 ))}

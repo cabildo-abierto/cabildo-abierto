@@ -26,6 +26,7 @@ export type ValidationRequestProps = DNIValidationRequestProps | MPValidationReq
 export type Goal = {
     label: string
     progress: number
+    objective: number
     detail?: string
 }
 

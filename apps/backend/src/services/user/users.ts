@@ -493,24 +493,57 @@ export const getUserGuideStatus: EffHandler<{}, UserGuideStatus> = (
     ctx,
     agent
 ) => Effect.gen(function* () {
-    const data = await ctx.kysely
-        .selectFrom("User")
-        .where("did", "=", agent.did)
-        .execute()
+    const data = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .select([
+                "User.did",
+                (eb) =>
+                    eb
+                        .selectFrom("Record")
+                        .whereRef("Record.authorId", "=", "User.did")
+                        .innerJoin("Follow", "Follow.uri", "Record.uri")
+                        .innerJoin("User as UserFollowed", "UserFollowed.did", "Follow.userFollowedId")
+                        .where("UserFollowed.inCA", "=", true)
+                        .select(eb.fn.countAll<number>().as("count"))
+                        .as("followsCount"),
+                (eb) =>
+                    eb
+                        .selectFrom("Record")
+                        .innerJoin("Article", "Article.uri", "Record.uri")
+                        .select(eb.fn.countAll<number>().as("count"))
+                        .whereRef("Record.authorId", "=", "User.did")
+                        .where("Record.collection", "=", "ar.cabildoabierto.feed.article")
+                        .as("articlesCount"),
+                (eb) =>
+                    eb
+                        .selectFrom("Record")
+                        .innerJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
+                        .select(eb.fn.countAll<number>().as("count"))
+                        .whereRef("Record.authorId", "=", "User.did")
+                        .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
+                        .as("editsCount"),
+                /*HAY QUE HACER QUE NO APAREZCA LA GUÍA DE INICIO SI NO ESTÁ INICIADA LA SESIÓN Y COMPLETAR LAS QUERYS QUE FALTAN*/
+
+            ])
+            .where("User.did", "=", agent.did)
+            .executeTakeFirstOrThrow(),
+        catch: (error) => new DBSelectError(error)
+    })
 
 
-    const goalsDefault: Goal[] = [
-        {label: "Seguir personas", progress: 0},
-        {label: "Leer un tema", progress: 0},
-        {label: "Editar un tema", progress: 0},
-        {label: "Crear un tema", progress: 0},
-        {label: "Escribir un articulo", progress: 0},
-        {label: "Comentar en un tema", progress: 0},
-        {label: "Votar en una encuesta", progress: 0},
+    const goals: Goal[] = [
+        {label: "Seguir personas", progress: data.followsCount ? data.followsCount : 0, objective: 10},
+        {label: "Leer un tema", progress: 0, objective: 1},
+        {label: "Editar un tema", progress: data.editsCount ? data.editsCount : 0, objective: 1},
+        //{label: "Crear un tema", progress: 0, objective: 1},
+        {label: "Escribir un articulo", progress: data.articlesCount ? data.articlesCount : 0, objective: 1},
+        {label: "Comentar en un tema", progress: 0, objective: 1},
+        {label: "Votar en una encuesta", progress: 0, objective: 1},
     ];
 
-    return goalsDefault
-})
+    return goals
+}).pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener la guía de inicio.")))
 
 
 export const updateProfileHandler: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
