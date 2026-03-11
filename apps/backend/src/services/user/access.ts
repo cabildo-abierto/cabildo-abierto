@@ -403,7 +403,13 @@ Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al
     Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
     Effect.catchTag("NoInviteCodeError", () => Effect.fail("Necesitás un código de invitación.")),
     Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
-    Effect.catchTag("CreateAccountError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
+    Effect.catchTag("CreateAccountError", (error) => {
+        if(error.message == "Handle too long") {
+            return Effect.fail("El nombre de usuario es demasiado largo.")
+        } else {
+            return Effect.fail("Ocurrió un error al crear la cuenta.")
+        }
+    }),
     Effect.catchTag("GetInviteCodeError", () => Effect.fail("El código de invitación es inválido.")),
     Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear la cuenta.")),
     Effect.catchTag("UsedCodeError", () => Effect.fail("El código de invitación ya fue usado.")),

@@ -32,5 +32,4 @@ export const env = cleanEnv(process.env, {
     SERVICE_NAME: str(),
 
     PDS_PASSWORD: str(),
-    CA_ACCOUNT_PASSWORD: str()
 })
