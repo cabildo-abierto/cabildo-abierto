@@ -30,10 +30,30 @@ function useUserGuideStatus() {
         30000)
 }
 
+function sortGoals(goals: Goal[]) {
+    return [...goals].sort((a, b) => {
+        const aRatio = a.objective > 0 ? Math.min(a.progress / a.objective, 1) : 0
+        const bRatio = b.objective > 0 ? Math.min(b.progress / b.objective, 1) : 0
+        const aComplete = aRatio >= 1
+        const bComplete = bRatio >= 1
+
+        if (aComplete !== bComplete) {
+            return aComplete ? 1 : -1
+        }
+
+        if (bRatio !== aRatio) {
+            return bRatio - aRatio
+        }
+
+        return a.label.localeCompare(b.label)
+    })
+}
+
 const GettingStartedProgress = () => {
     const [collapsed, setCollapsed] = useState(false)
     const [showAll, setShowAll] = useState(false)
-    let {data: goals, isLoading} = useUserGuideStatus()
+    const {data, isLoading} = useUserGuideStatus()
+    const goals = sortGoals(data ?? [])
 
     return (
         <div className={"panel p-4 space-y-3"}>

@@ -303,17 +303,23 @@ export function FollowButton({
         onSuccess: (data) => {
             if (data.success) {
                 setFollow(qc, handle, data.value.followUri)
+                qc.invalidateQueries({queryKey: ["user-guide-status"]})
             }
         }
     })
 
     const unfollowMutation = useMutation({
         mutationFn: unfollow,
-        onMutate: (f) => {
+        onMutate: () => {
             try {
                 optimisticUnfollow(qc, handle)
             } catch (err) {
                 console.log("unfollowing failed", err)
+            }
+        },
+        onSuccess: (data) => {
+            if (data.success) {
+                qc.invalidateQueries({queryKey: ["user-guide-status"]})
             }
         }
     })

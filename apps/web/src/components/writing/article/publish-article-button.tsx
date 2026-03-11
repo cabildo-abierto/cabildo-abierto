@@ -93,6 +93,7 @@ export const PublishArticleButton = ({
 
         qc.invalidateQueries({queryKey: ["session"]})
         qc.invalidateQueries({queryKey: ["drafts"]})
+        qc.invalidateQueries({queryKey: ["user-guide-status"]})
         qc.invalidateQueries({
             predicate: query => {
                 return query.queryKey.length == 3 && query.queryKey[0] == "profile-feed" && query.queryKey[2] == "articles"

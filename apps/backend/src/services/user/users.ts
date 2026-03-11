@@ -79,7 +79,7 @@ type UserAccessStatus = {
 }
 
 
-export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}) => {
+export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, _agent, {}) => {
     try {
         const users = await ctx.kysely
             .selectFrom("User")
@@ -523,7 +523,29 @@ export const getUserGuideStatus: EffHandler<{}, UserGuideStatus> = (
                         .whereRef("Record.authorId", "=", "User.did")
                         .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
                         .as("editsCount"),
-                /*HAY QUE HACER QUE NO APAREZCA LA GUÍA DE INICIO SI NO ESTÁ INICIADA LA SESIÓN Y COMPLETAR LAS QUERYS QUE FALTAN*/
+                (eb) =>
+                    eb
+                        .selectFrom("ReadSession")
+                        .select(eb.fn.countAll<number>().as("count"))
+                        .whereRef("ReadSession.userId", "=", "User.did")
+                        .where("ReadSession.topicId", "is not", null)
+                        .as("readTopicsCount"),
+                (eb) =>
+                    eb
+                        .selectFrom("Record")
+                        .innerJoin("Post", "Post.uri", "Record.uri")
+                        .innerJoin("Record as ParentRecord", "ParentRecord.uri", "Post.replyToId")
+                        .select(eb.fn.countAll<number>().as("count"))
+                        .whereRef("Record.authorId", "=", "User.did")
+                        .where("ParentRecord.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
+                        .as("commentsCount"),
+                (eb) =>
+                    eb
+                        .selectFrom("PollVote")
+                        .innerJoin("Record", "Record.uri", "PollVote.uri")
+                        .select(eb.fn.countAll<number>().as("count"))
+                        .whereRef("Record.authorId", "=", "User.did")
+                        .as("pollVotesCount"),
 
             ])
             .where("User.did", "=", agent.did)
@@ -534,12 +556,12 @@ export const getUserGuideStatus: EffHandler<{}, UserGuideStatus> = (
 
     const goals: Goal[] = [
         {label: "Seguir personas", progress: data.followsCount ? data.followsCount : 0, objective: 10},
-        {label: "Leer un tema", progress: 0, objective: 1},
+        {label: "Leer un tema", progress: data.readTopicsCount ? data.readTopicsCount : 0, objective: 1},
         {label: "Editar un tema", progress: data.editsCount ? data.editsCount : 0, objective: 1},
         //{label: "Crear un tema", progress: 0, objective: 1},
         {label: "Escribir un articulo", progress: data.articlesCount ? data.articlesCount : 0, objective: 1},
-        {label: "Comentar en un tema", progress: 0, objective: 1},
-        {label: "Votar en una encuesta", progress: 0, objective: 1},
+        {label: "Comentar en un tema", progress: data.commentsCount ? data.commentsCount : 0, objective: 1},
+        {label: "Votar en una encuesta", progress: data.pollVotesCount ? data.pollVotesCount : 0, objective: 1},
     ];
 
     return goals
@@ -712,7 +734,7 @@ function checkEmailUsed(ctx: AppContext, email: string): Effect.Effect<boolean, 
                 .select("did")
                 .where("email", "=", email)
                 .executeTakeFirst(),
-            catch: error => new CheckEmailError()
+            catch: () => new CheckEmailError()
         })
         return user != null
     })

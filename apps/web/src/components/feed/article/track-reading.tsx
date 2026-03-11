@@ -2,6 +2,7 @@ import {RefObject, useCallback, useEffect, useRef, useState} from "react";
 import {post} from "../../utils/react/fetch";
 import {splitUri} from "@cabildo-abierto/utils";
 import {usePathname, useSearchParams} from 'next/navigation'
+import {useQueryClient} from "@tanstack/react-query";
 
 type ReadChunks = {
     chunk: number
@@ -45,6 +46,7 @@ export const useTrackReading = (
     clippedToHeight: number | null,
     setReadChunks?: (r: Map<number, number>) => void,
 ) => {
+    const qc = useQueryClient()
     const readChunks = useRef<Map<number, number>>(new Map())
     const lastActivity = useRef(Date.now())
     const idle = useRef(false)
@@ -53,6 +55,15 @@ export const useTrackReading = (
     const searchParams = useSearchParams()
     const [sentInitialView, setSentInitialView] = useState(false)
     const [totalChunks, setTotalChunks] = useState<number | null>(null)
+    const invalidatedGuide = useRef(false)
+
+    const sendReadChunksAndRefreshGuide = useCallback(async (chunks: Map<number, number>, chunkCount: number) => {
+        await sendReadChunks(uri, chunks, chunkCount)
+        if (!invalidatedGuide.current) {
+            invalidatedGuide.current = true
+            qc.invalidateQueries({queryKey: ["user-guide-status"]})
+        }
+    }, [uri, qc])
 
     useEffect(() => {
         const v = getTotalChunks(articleRef.current)
@@ -62,13 +73,18 @@ export const useTrackReading = (
     }, [articleRef.current, articleRef]);
 
     useEffect(() => {
+        invalidatedGuide.current = false
+        setSentInitialView(false)
+    }, [uri])
+
+    useEffect(() => {
         if(totalChunks != null){
             if(!sentInitialView){
-                sendReadChunks(uri, new Map([[0, 0]]), totalChunks)
+                sendReadChunksAndRefreshGuide(new Map([[0, 0]]), totalChunks)
                 setSentInitialView(true)
             }
         }
-    }, [articleRef.current, sentInitialView]);
+    }, [articleRef.current, sentInitialView, totalChunks, sendReadChunksAndRefreshGuide]);
 
     const updateActivity = () => {
         lastActivity.current = Date.now();
@@ -148,7 +164,7 @@ export const useTrackReading = (
         if (totalChunks != null) {
             const handleUnload = () => {
                 recordReading();
-                sendReadChunks(uri, readChunks.current, totalChunks)
+                sendReadChunksAndRefreshGuide(readChunks.current, totalChunks)
                 readChunks.current = new Map()
             };
             window.addEventListener("beforeunload", handleUnload);
@@ -159,7 +175,7 @@ export const useTrackReading = (
                 window.removeEventListener("pagehide", handleUnload);
             };
         }
-    }, [totalChunks, clippedToHeight]);
+    }, [totalChunks, clippedToHeight, recordReading, sendReadChunksAndRefreshGuide]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -172,7 +188,7 @@ export const useTrackReading = (
     }, [clippedToHeight]);
 
     useEffect(() => {
-        if (!totalChunks != null) {
+        if (totalChunks != null) {
             const sendInterval = FLUSH_INTERVAL;
             let lastSent = Date.now();
 
@@ -181,7 +197,7 @@ export const useTrackReading = (
                 const copy = new Map(readChunks.current);
 
                 if (now - lastSent >= sendInterval && copy.size > 0) {
-                    sendReadChunks(uri, copy, totalChunks)
+                    sendReadChunksAndRefreshGuide(copy, totalChunks)
                     readChunks.current = new Map()
                     lastSent = now;
                 }
@@ -189,18 +205,18 @@ export const useTrackReading = (
 
             return () => clearInterval(interval);
         }
-    }, [totalChunks, clippedToHeight]);
+    }, [totalChunks, clippedToHeight, sendReadChunksAndRefreshGuide]);
 
     useEffect(() => {
         if (totalChunks != null) {
             return () => {
                 if (readChunks.current.size > 0) {
-                    sendReadChunks(uri, readChunks.current, totalChunks);
+                    sendReadChunksAndRefreshGuide(readChunks.current, totalChunks);
                     readChunks.current = new Map()
                 }
             };
         }
-    }, [pathname, searchParams, totalChunks, clippedToHeight])
+    }, [pathname, searchParams, totalChunks, clippedToHeight, sendReadChunksAndRefreshGuide])
 
     return totalChunks
 };

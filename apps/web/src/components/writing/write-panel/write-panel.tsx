@@ -164,6 +164,7 @@ const WritePanel = ({
                 originalUri,
                 quotedPost
             )
+            qc.invalidateQueries({queryKey: ["user-guide-status"]})
             if(pathname.startsWith("/c/")){
                 const params = pathname.split("/c/")[1]
                 let [did, collection, rkey] = params.split("/")

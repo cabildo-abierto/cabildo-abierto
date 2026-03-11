@@ -160,7 +160,7 @@ export const RightPanel = () => {
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
 
-        {pathname.includes("inicio") && <div className={"w-[292px]"}>
+        {user && pathname.includes("inicio") && <div className={"w-[292px]"}>
             <GettingStartedProgress/>
         </div>}
 
