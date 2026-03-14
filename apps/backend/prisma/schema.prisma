@@ -73,7 +73,7 @@ model Content {
   embeds                  Json[]
   dbFormat                String?
   created_at              DateTime                 @default(now())
-  created_at_tz           DateTime?                @db.Timestamptz(3)
+  created_at_tz           DateTime?                @default(now()) @db.Timestamptz(3)
   interactionsScore       Int?
   likesScore              Int?
   relativePopularityScore Float?
@@ -95,11 +95,10 @@ model Content {
   searchableContent SearchableContent?
 
   @@index([text_tsv], map: "content_text_fts_idx", type: Gin)
-  @@index([created_at(sort: Desc)])
   @@index([created_at_tz(sort: Desc)])
-  @@index([interactionsScore(sort: Desc), created_at(sort: Desc)])
-  @@index([likesScore(sort: Desc), created_at(sort: Desc)])
-  @@index([relativePopularityScore(sort: Desc), created_at(sort: Desc)])
+  @@index([interactionsScore(sort: Desc), created_at_tz(sort: Desc)])
+  @@index([likesScore(sort: Desc), created_at_tz(sort: Desc)])
+  @@index([relativePopularityScore(sort: Desc), created_at_tz(sort: Desc)])
 }
 
 model SearchableContent {
@@ -323,7 +322,7 @@ model Record {
   rkey               String
   authorId           String
   created_at         DateTime  @default(now())
-  created_at_tz      DateTime? @db.Timestamptz(3)
+  created_at_tz      DateTime? @default(now()) @db.Timestamptz(3)
   record             String?
   cid                String?
   uniqueLikesCount   Int       @default(0)
@@ -331,10 +330,10 @@ model Record {
   uniqueAcceptsCount Int       @default(0)
   uniqueRejectsCount Int       @default(0)
   CAIndexedAt        DateTime  @default(now())
-  CAIndexedAt_tz     DateTime? @db.Timestamptz(3)
+  CAIndexedAt_tz     DateTime? @default(now()) @db.Timestamptz(3)
 
   lastUpdatedAt    DateTime  @default(now())
-  lastUpdatedAt_tz DateTime? @db.Timestamptz(3)
+  lastUpdatedAt_tz DateTime? @default(now()) @db.Timestamptz(3)
 
   editedAt DateTime? @db.Timestamptz(3)
 
@@ -369,11 +368,6 @@ model Record {
 
   bskyProfileFor User?
 
-  @@index([authorId, collection, created_at(sort: Desc)])
-  @@index([authorId, created_at(sort: Desc)])
-  @@index([collection, authorId, created_at(sort: Desc)])
-  @@index([collection, created_at(sort: Desc)])
-  @@index([created_at(sort: Desc)])
   @@index([authorId, collection, created_at_tz(sort: Desc)])
   @@index([authorId, created_at_tz(sort: Desc)])
   @@index([collection, authorId, created_at_tz(sort: Desc)])
@@ -557,7 +551,7 @@ model User {
   emailVerified                                 Boolean                  @default(false)
   mailingListSubs                               MailingListSubscription?
   created_at                                    DateTime                 @default(now())
-  created_at_tz                                 DateTime?                @db.Timestamptz(3)
+  created_at_tz                                 DateTime?                @default(now()) @db.Timestamptz(3)
   editorStatus                                  EditorStatus             @default(Beginner)
   hasAccess                                     Boolean                  @default(false)
   dateOfBirth                                   DateTime?                @db.Date
@@ -615,7 +609,6 @@ model User {
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
-  @@index([created_at])
   @@index([created_at_tz])
   @@index([did, inCA])
   @@index([handle])
