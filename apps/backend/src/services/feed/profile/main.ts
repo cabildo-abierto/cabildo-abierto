@@ -43,7 +43,7 @@ export const getMainProfileFeedSkeletonCA = (
             .$if(cursor != null, qb => qb.where("created_at_tz", "<", new Date(cursor!)))
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(sk => {
         return sk
             .map(({uri, created_at}) => {

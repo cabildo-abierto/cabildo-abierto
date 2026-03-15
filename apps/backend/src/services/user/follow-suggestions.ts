@@ -124,7 +124,7 @@ const getRecommendationRankingForUser = (
 
     yield* Effect.tryPromise({
         try: () => ctx.redisCache.followSuggestions.set(did, dids),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
     return dids
 }).pipe(Effect.withSpan("getRecommendationRankingForUser"))

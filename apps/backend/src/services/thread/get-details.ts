@@ -83,7 +83,7 @@ const getRepostsSkeleton = (
                 .select(["Record.authorId as did"])
                 .orderBy("Record.created_at_tz desc")
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
         return {
             dids: reactions.map((value) => value.did),

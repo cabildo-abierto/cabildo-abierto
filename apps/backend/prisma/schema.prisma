@@ -205,13 +205,13 @@ model InviteCode {
 }
 
 model Meeting {
-  id          String   @id
-  date        DateTime
-  date_tz     DateTime @db.Timestamptz(3)
+  id          String    @id
+  date        DateTime?
+  date_tz     DateTime  @db.Timestamptz(3)
   title       String
   url         String
   description String
-  show        Boolean  @default(false)
+  show        Boolean   @default(false)
 
   @@index([show])
 }
@@ -349,10 +349,6 @@ model Record {
   Reaction_Reaction_subjectIdToRecord Reaction[]     @relation("Reaction_subjectIdToRecord")
   Reaction_Reaction_uriToRecord       Reaction?      @relation("Reaction_uriToRecord")
   User_Record_authorIdToUser          User           @relation("Record_authorIdToUser", fields: [authorId], references: [did])
-
-  // T: no sé qué es esto, habría que borrarlo
-  Record       Record  @relation("RecordToRecord", fields: [uri], references: [uri])
-  other_Record Record? @relation("RecordToRecord")
 
   TopicInteraction               TopicInteraction[]
   User_User_CAProfileUriToRecord User?              @relation("User_CAProfileUriToRecord")
@@ -531,6 +527,7 @@ model FollowingFeedIndex {
   @@index([authorId])
   @@index([readerId, created_at(sort: Desc)])
   @@index([repostedContentId]) // para borrar records más eficientemente
+  @@index([contentId])
 }
 
 model DiscoverFeedIndex {
@@ -607,6 +604,8 @@ model User {
   bskyProfileUri String? @unique
   bskyProfile    Record? @relation(fields: [bskyProfileUri], references: [uri])
 
+  events Event[]
+
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
   @@index([created_at_tz])
@@ -676,8 +675,16 @@ model VoteReject {
 
 model Timestamps {
   id      String    @id
-  date    DateTime
+  date    DateTime?
   date_tz DateTime? @db.Timestamptz(3)
+}
+
+model Event {
+  id     String   @id
+  date   DateTime @db.Timestamptz()
+  userId String?
+  user   User?    @relation(fields: [userId], references: [did])
+  label  String
 }
 
 model JobApplication {

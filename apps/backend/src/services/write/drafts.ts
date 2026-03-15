@@ -117,7 +117,7 @@ export const getDrafts: EffHandler<{}, DraftPreview[]> = (
         .select([
             "id",
             "created_at_tz as created_at",
-            "lastUpdate",
+            "lastUpdate_tz as lastUpdate",
             "text",
             "collection",
             "title",
@@ -126,7 +126,7 @@ export const getDrafts: EffHandler<{}, DraftPreview[]> = (
         ])
         .where("authorId", "=", agent.did)
         .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const dataplane = yield* DataPlane
@@ -151,7 +151,7 @@ export const getDraft: EffHandler<{ params: { id: string } }, Draft> = (
             .select([
                 "id",
                 "created_at_tz as created_at",
-                "lastUpdate",
+                "lastUpdate_tz as lastUpdate",
                 "text",
                 "embeds",
                 "collection",
@@ -162,7 +162,7 @@ export const getDraft: EffHandler<{ params: { id: string } }, Draft> = (
             .where("authorId", "=", agent.did)
             .where("id", "=", params.id)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if (res.length == 0) {
@@ -296,15 +296,15 @@ export const saveDraft: EffHandler<CreateDraftParams, { id: string }> = (ctx, ag
                     embeds: embeds,
                     title: params.title,
                     collection: params.collection,
-                    lastUpdate: new Date(),
-                    created_at: new Date(),
+                    lastUpdate_tz: new Date(),
+                    created_at_tz: new Date(),
                     authorId: agent.did,
                     previewImage,
                     description: params.description
                 }])
                 .onConflict((oc) => oc.column("id").doUpdateSet({
                     collection: eb => eb.ref("excluded.collection"), // no debería cambiar pero bueno
-                    lastUpdate: eb => eb.ref("excluded.lastUpdate"),
+                    lastUpdate_tz: eb => eb.ref("excluded.lastUpdate_tz"),
                     text: eb => eb.ref("excluded.text"),
                     title: eb => eb.ref("excluded.title"),
                     embeds: sql`excluded.embeds`,
@@ -312,7 +312,7 @@ export const saveDraft: EffHandler<CreateDraftParams, { id: string }> = (ctx, ag
                     previewImage: eb => eb.ref("excluded.previewImage")
                 }))
                 .execute(),
-            catch: error => {
+            catch: () => {
                 return "Ocurrió un error al guardar el borrador."
             }
         })

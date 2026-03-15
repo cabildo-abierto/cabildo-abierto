@@ -20,14 +20,14 @@ export type DonationHistory = Donation[]
 export const getDonationHistory: CAHandler<{}, DonationHistory> = async (ctx, agent, {}) => {
     const subscriptions = await ctx.kysely
         .selectFrom("Donation")
-        .select(["created_at", "amount"])
+        .select(["created_at_tz", "amount"])
         .where("userById", "=", agent.did)
         .where("transactionId", "is not", null)
         .execute()
 
     return {
         data: subscriptions.map(s => ({
-            date: s.created_at,
+            date: s.created_at_tz,
             amount: s.amount
         }))
     }
@@ -155,7 +155,7 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
                 .insertInto("Donation")
                 .values([{
                     id: uuidv4(),
-                    created_at: new Date(),
+                    created_at_tz: new Date(),
                     userById: agent.hasSession() ? agentDid : undefined,
                     amount: amount,
                     mpPreferenceId: result.id

@@ -753,7 +753,7 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
                 if (!user.code) {
                     await trx
                         .updateTable("InviteCode")
-                        .set("usedAt", new Date())
+                        .set("usedAt_tz", new Date())
                         .set("usedByDid", did)
                         .where("code", "=", inviteCode)
                         .execute()
@@ -814,8 +814,8 @@ export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx) => 
         .select([
             "email",
             "comment",
-            "created_at as createdAt",
-            "sentInviteAt",
+            "created_at_tz as createdAt",
+            "sentInviteAt_tz as sentInviteAt",
             "id",
             "markedIgnored"
         ])
@@ -828,7 +828,7 @@ export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = as
     const result = await ctx.kysely
         .selectFrom("AccessRequest")
         .select(eb => eb.fn.count<number>("id").as("count"))
-        .where("sentInviteAt", "is", null)
+        .where("sentInviteAt_tz", "is", null)
         .where("markedIgnored", "=", false)
         .executeTakeFirst()
 
@@ -839,7 +839,6 @@ export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = as
 export const markAccessRequestSent: CAHandler<{ params: { id: string } }, {}> = async (ctx, agent, {params}) => {
     await ctx.kysely
         .updateTable("AccessRequest")
-        .set("sentInviteAt", new Date())
         .set("sentInviteAt_tz", new Date())
         .where("id", "=", params.id)
         .execute()

@@ -53,19 +53,6 @@ export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Re
 
 
 export const followDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
-
-    const expl = yield* Effect.tryPromise({
-        try: () => ctx.kysely
-            .deleteFrom("Record")
-            .where("Record.uri", "in", uris)
-            .explain('json', sql`analyze`),
-        catch: (error) => new DBDeleteError(error)
-    })
-
-    ctx.logger.pino.info({expl}, "explanation")
-
-    return
-
     const follows = yield* Effect.tryPromise({
         try: () => ctx.kysely.transaction().execute(async (trx) => {
             const follows = await trx.selectFrom("Follow")

@@ -127,7 +127,6 @@ export const createTestUser = (
         try: () => ctx.kysely.insertInto("User")
             .values([{
                 did,
-                created_at: new Date(),
                 created_at_tz: new Date(),
                 handle,
                 hasAccess: true,

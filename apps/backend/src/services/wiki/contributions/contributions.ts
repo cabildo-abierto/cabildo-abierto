@@ -77,7 +77,7 @@ export function updateAllTopicContributions(ctx: AppContext) {
             .selectFrom("Topic")
             .select("id")
             .execute().then(topics => topics.map(t => t.id)),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.flatMap(topicIds => {
             return updateTopicContributions(ctx, topicIds)
@@ -156,7 +156,7 @@ const fetchVersionsData = (
             .where("t.id", "in", topicIds)
             .orderBy("r.created_at_tz asc")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 }
 
@@ -324,7 +324,7 @@ export function updateTopicContributionsRequired(ctx: AppContext) {
             .where("TopicVersion.charsAdded", "is", null)
             .select("topicId")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.map(tv => unique(tv.map(t => t.topicId))),
         Effect.flatMap(topicIds => updateTopicContributions(ctx, topicIds))

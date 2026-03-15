@@ -40,10 +40,7 @@ export const cleanRecords = (ctx: AppContext) => Effect.gen(function* () {
         catch: (error) => new DBSelectError(error)
     })
 
-    ctx.logger.pino.info(`deleting ${follows.length} follows`)
     yield* deleteRecords({ctx, uris: follows.map(u => u.uri), atproto: false})
-
-    ctx.logger.pino.info(`done deleting ${follows.length} follows`)
 }).pipe(Effect.withSpan("cleanRecords"))
 
 

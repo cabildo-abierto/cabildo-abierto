@@ -85,7 +85,7 @@ export const getDataset = (ctx: AppContext, uri: string): Effect.Effect<$Typed<A
             .select("uri")
             .where("uri", "=", uri)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if(!dataset) {
@@ -198,7 +198,7 @@ export function getDatasetList(ctx: AppContext) {
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(res => res.map(r => r.uri)))
 }
 

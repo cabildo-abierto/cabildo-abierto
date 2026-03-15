@@ -110,7 +110,7 @@ const getCANotifications = (
                 .orderBy("Notification.created_at_tz", "desc")
                 .limit(20)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         }),
         Effect.tryPromise({
             try: () => ctx.kysely
@@ -118,7 +118,7 @@ const getCANotifications = (
                 .select("lastSeenNotifications_tz")
                 .where("did", "=", agent.did)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
     ], {concurrency: "unbounded"})
 
@@ -137,11 +137,10 @@ function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .updateTable("User")
-            .set("lastSeenNotifications", new Date())
             .set("lastSeenNotifications_tz", new Date())
             .where("did", "=", agent.did)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 }
 
@@ -201,10 +200,10 @@ export const getUnreadNotificationsCount: CAHandler<{}, number> = async (ctx, ag
         .selectFrom('Notification')
         .select(({fn}) => [fn.count('id').as('count')])
         .where('userNotifiedId', '=', agent.did)
-        .where('created_at', '>', (eb) =>
+        .where('created_at_tz', '>', (eb) =>
             eb
                 .selectFrom('User')
-                .select('lastSeenNotifications')
+                .select('lastSeenNotifications_tz')
                 .where('did', '=', agent.did)
         )
         .executeTakeFirst()

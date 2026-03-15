@@ -223,7 +223,7 @@ async function countTopicsInEachCategory(ctx: AppContext) {
             fn.count<number>("TopicToCategory.topicId").as("count")
         ])
         .where("Topic.currentVersionId", "is not", null)
-        .where("Topic.lastEdit", "is not", null)
+        .where("Topic.lastEdit_tz", "is not", null)
         .groupBy("TopicToCategory.categoryId")
         .execute()
 }
@@ -275,7 +275,7 @@ export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effec
             .select("currentVersionId")
             .where("id", "=", id)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if (res && res.currentVersionId) {
@@ -416,7 +416,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                 "Topic.id",
                 "Topic.protection",
                 "Topic.popularityScore",
-                "Topic.lastEdit",
+                "Topic.lastEdit_tz as lastEdit",
                 "Topic.currentVersionId",
                 "User.editorStatus",
                 eb => eb
@@ -442,7 +442,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if (!topic || !topic.cid) {

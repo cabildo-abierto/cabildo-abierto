@@ -85,7 +85,7 @@ export const getArticlesForFollowingFeed = (
             .orderBy("FollowingFeedIndex.created_at", "desc")
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const data = yield* DataPlane
@@ -317,7 +317,7 @@ const getFollowingFeedSkeletonOnlyCA = (
         try: () => (format == "Todos" ?
             followingFeedOnlyCABaseQueryAll(ctx, agent, limit, cursor) :
             followingFeedOnlyCABaseQueryArticles(ctx, agent, limit, cursor)),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     function queryToSkeletonElement(e: {

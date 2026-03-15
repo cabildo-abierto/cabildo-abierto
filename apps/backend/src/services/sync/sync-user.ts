@@ -315,7 +315,7 @@ function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotF
             .select("inCA")
             .where("did", "=", did)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.flatMap(res => {
         return res == null ? Effect.fail(new UserNotFoundError()) : Effect.succeed(!!(res && res.inCA))
     }))
@@ -612,7 +612,7 @@ export async function updateRecordsCreatedAt(ctx: AppContext) {
                     authorId: ""
                 })))
                 .onConflict(oc => oc.column("uri").doUpdateSet(eb => ({
-                    created_at: eb.ref("excluded.created_at")
+                    created_at_tz: eb.ref("excluded.created_at_tz")
                 })))
                 .execute()
         }

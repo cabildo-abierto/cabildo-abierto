@@ -51,7 +51,6 @@ export const processContentsBatch = async (
             format: r.format,
             selfLabels: r.selfLabels ?? [],
             embeds: c.record.embeds ?? [],
-            created_at,
             created_at_tz: created_at
         }
     })
@@ -65,13 +64,12 @@ export const processContentsBatch = async (
                     textBlobId: (eb) => eb.ref('excluded.textBlobId'),
                     format: (eb) => eb.ref('excluded.format'),
                     selfLabels: (eb) => eb.ref('excluded.selfLabels'),
-                    created_at: (eb) => eb.ref('excluded.created_at'),
                     created_at_tz: (eb) => eb.ref('excluded.created_at_tz'),
                 })
             )
             .execute()
 
-        const textAv: {text: string, created_at: Date, uri: string}[] = contentData
+        const textAv: {text: string, created_at_tz: Date, uri: string}[] = contentData
             .map(x => x.text ? {...x, text: x.text} : null)
             .filter(x => x != null)
         if(textAv.length > 0) {
@@ -80,7 +78,7 @@ export const processContentsBatch = async (
                 .values(textAv.map(t => {
                     return {
                         text: t.text,
-                        created_at: t.created_at,
+                        created_at: t.created_at_tz,
                         collection: getCollectionFromUri(t.uri),
                         uri: t.uri
                     }

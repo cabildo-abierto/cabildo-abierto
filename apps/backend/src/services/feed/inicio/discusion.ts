@@ -224,7 +224,7 @@ export const getEnDiscusionSkeleton: (
         try: () => getEnDiscusionSkeletonQuery(metric, time, format)(
             ctx, agent, cursor, undefined, limit
         ),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(res => {
         return {
             skeleton: res.map(r => ({post: r.uri})),

@@ -122,7 +122,7 @@ const getThreadSkeletonForPost = (
         ),
         Effect.tryPromise({
             try: () => getThreadRepliesSkeletonForPostFromCA(ctx, uri),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
     ], {concurrency: "unbounded"})
 
@@ -137,7 +137,7 @@ export function getThreadSkeletonForArticle(ctx: AppContext, uri: string): Effec
             .where("Post.replyToId", "=", uri)
             .select("uri")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.map(replies => {
             return {

@@ -25,7 +25,7 @@ export function deleteRecordsForAuthors({ctx, agent, dids, collections, atproto}
                 .where("authorId", "in", dids)
                 .$if(collections != null && collections.length > 0, qb => qb.where("collection", "in", collections!))
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         return yield* deleteRecords({
@@ -184,7 +184,7 @@ export function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri:
                 .where("VoteReject.reasonId", "=", uri)
                 .select("VoteReject.uri")
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
         if(votes.length > 0) {
             yield* Effect.all(votes.map(vote => deleteRecord(ctx, agent, vote.uri)))

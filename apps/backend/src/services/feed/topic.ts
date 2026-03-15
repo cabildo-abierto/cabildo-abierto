@@ -223,7 +223,7 @@ export function getTopicMentionsInTopics(ctx: AppContext, id: string) {
             .orderBy("created_at_tz", "desc")
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(topics => {
         return topics.map(t => {
             return {
@@ -337,7 +337,7 @@ export const getAllTopicEditsFeed: EffHandlerNoAuth<{
                     .limit(25)
                     .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
                     .execute(),
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             }).pipe(Effect.map(edits => {
                 const latest = edits[edits.length - 1]
                 const newCursor = latest?.created_at_tz?.toISOString()

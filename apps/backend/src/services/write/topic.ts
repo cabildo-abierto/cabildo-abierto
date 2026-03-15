@@ -278,7 +278,7 @@ function checkTopicNotExists(ctx: AppContext, id: string): Effect.Effect<void, T
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
             ))
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.flatMap(exists => {
         return exists != null ?
             Effect.fail(new TopicAlreadyExistsError()) :

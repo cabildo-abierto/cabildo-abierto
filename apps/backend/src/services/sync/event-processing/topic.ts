@@ -91,7 +91,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 .insertInto("Topic")
                 .values(topics.map(t => ({...t, synonyms: []})))
                 .onConflict((oc) => oc.column("id").doUpdateSet({
-                    lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
+                    lastEdit_tz: sql`GREATEST("Topic"."lastEdit_tz", excluded."lastEdit_tz")`
                 }))
                 .execute()
 
@@ -255,15 +255,15 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
 
 
 function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopicVersion.Record }[]) {
-    const topics = new Map<string, { id: string, lastEdit: Date }>()
+    const topics = new Map<string, { id: string, lastEdit_tz: Date }>()
     records.forEach(r => {
         const id = r.record.id
         const cur = topics.get(id)
         const date = new Date(r.record.createdAt)
         if (!cur) {
-            topics.set(id, {id, lastEdit: date})
+            topics.set(id, {id, lastEdit_tz: date})
         } else {
-            topics.set(id, {id, lastEdit: cur.lastEdit > date ? cur.lastEdit : date})
+            topics.set(id, {id, lastEdit_tz: cur.lastEdit_tz > date ? cur.lastEdit_tz : date})
         }
     })
     return Array.from(topics.values())

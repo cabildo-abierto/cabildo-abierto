@@ -34,7 +34,7 @@ const getAllCAFeedPipeline: GetSkeletonProps = (
             .distinct()
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const newDateSince = min(skeleton, x => x.created_at_tz?.getTime() ?? 0)?.created_at_tz

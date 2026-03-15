@@ -281,7 +281,6 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 .select([
                     "Record.uri",
                     "Record.cid",
-                    "Record.created_at",
                     "Record.created_at_tz",
                     "Record.uniqueLikesCount",
                     "Record.uniqueRepostsCount",
@@ -314,14 +313,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
                 ])
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         contents.forEach(c => {
             if (c.cid) {
                 caContents.set(c.uri, {
                     ...c,
-                    created_at: c.created_at_tz ?? c.created_at,
+                    created_at: c.created_at_tz ?? new Date(),
                     repliesCount: c.repliesCount ? Number(c.repliesCount) : 0,
                     quotesCount: c.quotesCount ? Number(c.quotesCount) : 0,
                     cid: c.cid,
@@ -386,7 +385,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 ])
                 .where("inCA", "=", true)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         users.forEach(u => {
@@ -578,7 +577,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .select(["uri", "replyToId", "quoteToId", "rootId"])
                     .where("uri", "in", pUris)
                     .execute(),
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             }) : Effect.succeed([])
         ], {concurrency: "unbounded"}))[1]
 
@@ -668,7 +667,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             .select([
                 "Dataset.uri",
                 "Record.cid",
-                "Record.created_at",
+                "Record.created_at_tz as created_at",
                 "Dataset.title",
                 "Dataset.columns",
                 "Dataset.description",
@@ -691,7 +690,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         const [datasetsData] = yield* Effect.all([
             Effect.tryPromise({
                 try: () => datasetsQuery,
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             }),
             fetchProfileViewBasicHydrationData(dids)
         ], {concurrency: "unbounded"})
@@ -700,6 +699,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             if (d.cid) {
                 datasets.set(d.uri, {
                     ...d,
+                    created_at: d.created_at ?? new Date(),
                     cid: d.cid
                 })
             }
@@ -795,7 +795,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 return Effect.tryPromise({
                     try: async () => (await query
                         .execute()) as { id: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[] }[],
-                    catch: () => new DBSelectError()
+                    catch: (error) => new DBSelectError(error)
                 })
             } else {
                 return Effect.succeed(null)
@@ -847,14 +847,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "Topic.popularityScoreLastDay",
                     "Topic.popularityScoreLastWeek",
                     "Topic.popularityScoreLastMonth",
-                    "Topic.lastEdit",
+                    "Topic.lastEdit_tz as lastEdit",
                     "CurrentVersion.props",
                     "Content.numWords",
                     "Record.created_at_tz as created_at"
                 ])
                 .where("TopicVersion.uri", "in", uris)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         const mapByUri = new Map(data.map(item => [item.uri, item]))
@@ -883,7 +883,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 .select(["Post.uri", "Record.created_at_tz as created_at"])
                 .where("Post.uri", "in", uris)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         rootCreationDatesData.forEach(r => {
@@ -901,12 +901,12 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .innerJoin("Record", "Reaction.uri", "Record.uri")
                     .select([
                         "Record.uri",
-                        "Record.created_at",
+                        "Record.created_at_tz as created_at",
                         "Reaction.subjectId"
                     ])
                     .where("Reaction.uri", "in", uris)
                     .execute(),
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             })
 
             reposts.forEach(r => {
@@ -939,7 +939,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 .where("Record.collection", "in", ["app.bsky.feed.like", "app.bsky.feed.repost"])
                 .where("Reaction.subjectId", "in", uris)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         reactions.forEach(l => {
@@ -1012,7 +1012,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 ])
                 .where("Reference.referencingContentId", "=", uri)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         if (!topicsMentioned) topicsMentioned = new Map()
@@ -1214,7 +1214,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .orderBy("Notification.created_at_tz", "desc")
                     .limit(20)
                     .execute(),
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             }),
             fetchProfileViewHydrationData(reqAuthors)
         ], {concurrency: "unbounded"})

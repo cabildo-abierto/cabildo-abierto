@@ -42,7 +42,7 @@ export function searchUsersInCA(ctx: AppContext, query: string, limit: number): 
             .orderBy("match_score desc")
             .limit(limit)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.map(res => res.map(r => r.did)),
         Effect.withSpan("searchUsersInCA")

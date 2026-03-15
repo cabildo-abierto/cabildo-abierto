@@ -51,7 +51,6 @@ export const getTopicHistory = (
             .select([
                 "Record.uri",
                 "Record.cid",
-                "Record.created_at",
                 "Record.created_at_tz",
                 "diff",
                 "charsAdded",
@@ -87,7 +86,7 @@ export const getTopicHistory = (
             .where("TopicVersion.topicId", "=", id)
             .orderBy("created_at_tz asc")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const dataplane = yield* DataPlane
@@ -125,7 +124,7 @@ export const getTopicHistory = (
             addedChars: v.charsAdded ?? undefined,
             removedChars: v.charsDeleted ?? undefined,
             props,
-            createdAt: v.created_at_tz ? v.created_at_tz.toISOString() : v.created_at.toISOString(),
+            createdAt: v.created_at_tz?.toISOString() ?? new Date().toISOString(),
             contribution: {
                 monetized: (v.monetizedContribution ?? 0).toString(),
                 all: (v.charsContribution ?? 0).toString()

@@ -130,12 +130,10 @@ export class RecordProcessor<T> {
             cid: string,
             rkey: string,
             collection: string,
-            created_at?: Date,
             authorId: string
             record: string
-            CAIndexedAt: Date
             CAIndexedAt_tz: Date
-            lastUpdatedAt: Date
+            lastUpdatedAt_tz: Date
             created_at_tz?: Date
         }[] = []
 
@@ -147,12 +145,10 @@ export class RecordProcessor<T> {
                 cid: ref.cid,
                 rkey,
                 collection,
-                created_at: record.createdAt ? new Date(record.createdAt) : undefined,
                 authorId: did,
                 record: JSON.stringify(record),
-                CAIndexedAt: new Date(),
                 CAIndexedAt_tz: new Date(),
-                lastUpdatedAt: new Date(),
+                lastUpdatedAt_tz: new Date(),
                 created_at_tz: record.createdAt ? new Date(record.createdAt) : new Date()
             })
         })
@@ -170,11 +166,10 @@ export class RecordProcessor<T> {
                             cid: eb.ref('excluded.cid'),
                             rkey: eb.ref('excluded.rkey'),
                             collection: eb.ref('excluded.collection'),
-                            created_at: eb.ref('excluded.created_at'),
                             created_at_tz: eb.ref('excluded.created_at_tz'),
                             authorId: eb.ref('excluded.authorId'),
                             record: eb.ref('excluded.record'),
-                            lastUpdatedAt: eb.ref('excluded.lastUpdatedAt'), // CAIndexedAt no se actualiza
+                            lastUpdatedAt_tz: eb.ref('excluded.lastUpdatedAt_tz'), // CAIndexedAt no se actualiza
                             editedAt: eb.case()
                                 .when("Record.cid", "!=", eb.ref("excluded.cid"))
                                 .then(new Date()).else(eb.ref("Record.editedAt")).end()

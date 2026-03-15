@@ -328,7 +328,7 @@ export const getTopicVersionVotes = (
             .orderBy("Record.created_at_tz desc")
             .distinctOn(["Record.authorId"])
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const votes = reactions

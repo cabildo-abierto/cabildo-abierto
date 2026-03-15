@@ -24,7 +24,7 @@ const getDiscoverFeedSkeleton: GetSkeletonProps = (ctx, agent, cursor) => Effect
             .select(["UserInterest.topicCategoryId as id"])
             .where("UserInterest.userId", "=", agent.did)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if(interests.length == 0) {
@@ -59,7 +59,7 @@ const getDiscoverFeedSkeleton: GetSkeletonProps = (ctx, agent, cursor) => Effect
             .distinct()
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const newDateSince = min(skeleton, x => x.created_at?.getTime() ?? 0)?.created_at

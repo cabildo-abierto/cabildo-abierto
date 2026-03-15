@@ -28,8 +28,7 @@ export function getNumWords(text: string, format: string) {
 export const updateContentsText = (
     ctx: AppContext,
     uris?: string[]
-): Effect.Effect<void, DBSelectError> =>
-    Effect.gen(function* () {
+): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
     if (uris && uris.length == 0) return
     const batchSize = 50
     let offset = 0
@@ -38,14 +37,21 @@ export const updateContentsText = (
             try: () => ctx.kysely
                 .selectFrom("Content")
                 .innerJoin("Record", "Record.uri", "Content.uri")
-                .select(["Content.uri", "textBlobId", "Record.record", "Content.format", "Content.text", "Record.created_at_tz"])
+                .select([
+                    "Content.uri",
+                    "textBlobId",
+                    "Record.record",
+                    "Content.format",
+                    "Content.text",
+                    "Record.created_at_tz"
+                ])
                 .where("Record.collection", "in", longTextCollections)
                 .where("text", "is", null)
                 .orderBy("Record.created_at_tz", "desc")
                 .$if(uris == null, qb => qb.limit(batchSize).offset(offset))
                 .$if(uris != null, qb => qb.where("Record.uri", "in", uris!.slice(offset, offset + batchSize)))
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
         offset += batchSize
 
@@ -76,10 +82,10 @@ const setContentsText = (
         embeds: any[]
         dbFormat: string
         text: string
-        created_at: Date
+        created_at_tz: Date
     }[] = texts.map((t, idx) => {
-        const created_at = contents[idx].created_at_tz
-        if(!created_at) return null
+        const created_at_tz = contents[idx].created_at_tz
+        if(!created_at_tz) return null
         if (!t) {
             t = {
                 text: "",
@@ -96,7 +102,7 @@ const setContentsText = (
             embeds: [],
             dbFormat: res.format,
             text: res.text,
-            created_at
+            created_at_tz: created_at_tz
         }
     }).filter(x => x != null)
 
@@ -117,7 +123,7 @@ const setContentsText = (
                             text: v.text,
                             collection: getCollectionFromUri(v.uri),
                             uri: v.uri,
-                            created_at: v.created_at
+                            created_at: v.created_at_tz
                         }
                     }))
                     .onConflict((oc) => oc.column("uri").doUpdateSet({
@@ -126,7 +132,7 @@ const setContentsText = (
                     .execute()
             })
                 ,
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
     }

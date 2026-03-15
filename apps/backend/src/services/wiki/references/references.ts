@@ -43,9 +43,9 @@ export const updateReferencesForNewContents = (
                 ])
                 .innerJoin("Content", "Content.uri", "Record.uri")
                 .where("Content.text", "is not", null)
-                .where('Record.CAIndexedAt', '>=', lastUpdate)
+                .where('Record.CAIndexedAt_tz', '>=', lastUpdate)
                 .where("Record.authorId", "in", caUsers)
-                .orderBy('Record.CAIndexedAt', 'asc')
+                .orderBy('Record.CAIndexedAt_tz', 'asc')
                 .limit(batchSize)
                 .offset(curOffset)
                 .execute(),

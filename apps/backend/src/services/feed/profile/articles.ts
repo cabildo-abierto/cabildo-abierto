@@ -14,7 +14,7 @@ export const getArticlesProfileFeedSkeleton = (did: string) : GetSkeletonProps =
                 .where("authorId", "=", did)
                 .$if(cursor != null, qb => qb.where("created_at_tz", "<=", new Date(cursor!)))
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         }).pipe(Effect.map(skeleton => {
             return {
                 skeleton: skeleton.map(({uri, created_at}) => ({post: uri, created_at})),

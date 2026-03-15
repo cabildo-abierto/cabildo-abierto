@@ -98,7 +98,7 @@ const createArticle = (ctx: AppContext, agent: SessionAgent, article: CreateArti
                 .deleteFrom("Draft")
                 .where("id", "=", article.draftId!)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         }) : Effect.void,
         new ArticleRecordProcessor(ctx).processValidated([res])
     ], {concurrency: "unbounded"})

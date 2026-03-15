@@ -21,7 +21,7 @@ const getHumanUsers = (ctx: AppContext) => Effect.gen(function* () {
             .select("did")
             .where("orgValidation", "is", null)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     return new Set(users.map(u => u.did))

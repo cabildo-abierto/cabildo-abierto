@@ -211,7 +211,7 @@ export const getTopicPolls: EffHandlerNoAuth<
             .select(["id"])
             .orderBy("createdAt desc")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const dataplane = yield* DataPlane

@@ -42,7 +42,7 @@ export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effe
                 .select("did")
                 .where("handle", "=", handleOrDid)
                 .executeTakeFirst(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
             .pipe(Effect.map(res => res?.did ?? null))
     }
@@ -62,7 +62,7 @@ export const getCAUsersDids = (ctx: AppContext): Effect.Effect<string[], DBSelec
             .where("inCA", "=", true)
             .where("hasAccess", "=", true)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(users => {
         return users.map(({did}) => did)
     }))
@@ -232,7 +232,7 @@ export const getSessionData = (
                     ])
                     .where("did", "=", did)
                     .executeTakeFirst(),
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             }),
             ctx.redisCache.mirrorStatus.get(did, true),
             Effect.tryPromise({
