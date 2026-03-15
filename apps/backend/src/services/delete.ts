@@ -126,7 +126,6 @@ export function deleteUsers(ctx: AppContext, dids: string[]): Effect.Effect<void
                 await trx.deleteFrom("ReadSession").where("userId", "in", dids).execute()
                 await trx.deleteFrom("Notification").where("userNotifiedId", "in", dids).execute()
                 await trx.deleteFrom("Blob").where("authorId", "in", dids).execute()
-                await trx.deleteFrom("MailingListSubscription").where("userId", "in", dids).execute()
                 await trx.deleteFrom("HasReacted").where("userId", "in", dids).execute()
                 await trx.deleteFrom("UserMonth").where("userId", "in", dids).execute()
                 await trx.deleteFrom("FollowingFeedIndex").where("readerId", "in", dids).execute()

@@ -51,6 +51,8 @@ model Blob {
   User      User       @relation(fields: [authorId], references: [did])
   Content   Content[]
   DataBlock DataBlock?
+
+  @@index([authorId])
 }
 
 model CategoryLink {
@@ -728,6 +730,8 @@ model EmailSent {
   replyTo     String?
   templateId  String
   template    EmailTemplate           @relation(fields: [templateId], references: [id])
+
+  @@index([recipientId])
 }
 
 model EmailTemplate {
@@ -805,6 +809,8 @@ model ModerationAction {
   created_at     DateTime             @default(now()) @db.Timestamptz(3)
   date_start     DateTime             @default(now()) @db.Timestamptz(3)
   date_end       DateTime?            @db.Timestamptz(3)
+
+  @@index([userAffectedId])
 }
 
 enum ModerationActionType {
