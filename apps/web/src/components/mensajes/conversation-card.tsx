@@ -3,13 +3,18 @@ import {useSession} from "@/components/auth/use-session";
 import Link from "next/link";
 import {chatUrl} from "@/components/utils/react/url";
 import {ProfilePic} from "@/components/perfil/profile-pic";
+import {cn} from "@/lib/utils";
 
 
 export const ConversationCard = ({view}: { view: ChatBskyConvoDefs.ConvoView }) => {
     const {user} = useSession()
     const other = view.members.filter(x => x.did != user.did)[0]
+
     return <Link
-        className="border-b hover:bg-[var(--background-dark)] p-4 space-x-4 flex cursor-pointer"
+        className={cn(
+            "border-b hover:bg-[var(--background-dark)] p-4 space-x-4 flex cursor-pointer",
+            view.unreadCount > 0 ? "bg-[var(--background-dark)] hover:bg-[var(--background-dark2)]" : ""
+        )}
         href={chatUrl(view.id)}
     >
         <ProfilePic user={other} className={"rounded-full w-12 h-12"} descriptionOnHover={false}/>

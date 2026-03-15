@@ -227,7 +227,7 @@ export const SignUpPage = ({
                                     Cabildo Abierto es parte de una red abierta en la que podés elegir tu proveedor de
                                     almacenamiento. Tenés varias opciones.
                                 </Paragraph>
-                                <Paragraph>
+                                <div className={"note font-light text-left text-base"}>
                                     <ul className={"ml-5 space-y-1"}>
                                         <li>
                                             Crear tu cuenta en Cabildo Abierto. Nosotros guardamos tus datos.
@@ -241,7 +241,7 @@ export const SignUpPage = ({
                                             conocimientos de programación).
                                         </li>
                                     </ul>
-                                </Paragraph>
+                                </div>
                                 <Paragraph>
                                     Podés leer nuestra guía con preguntas frecuentes sobre este tema <Link href={topicUrl("Cabildo Abierto: Almacenamiento de datos personales")}>acá</Link>.
                                 </Paragraph>
