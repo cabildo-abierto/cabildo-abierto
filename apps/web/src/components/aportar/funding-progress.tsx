@@ -19,7 +19,7 @@ const FundingProgress = () => {
             <div className="flex items-center w-full space-x-1">
                 <div className="w-full bg-[var(--background-dark3)] rounded-2xl h-8 overflow-hidden shadow-inner relative">
                     <div
-                        className={`h-full ${progressColor} text-center font-bold flex items-center justify-center`}
+                        className={`h-full ${progressColor} text-center font-bold flex items-center justify-center transition-all duration-700 ease-out`}
                         style={{width: `${state == "loading" ? 0 : progress}%`}}
                     />
                     {state != "loading" && <div className="absolute inset-0 flex items-center justify-center text-[var(--text)] font-semibold">
@@ -27,12 +27,12 @@ const FundingProgress = () => {
                     </div>}
                 </div>
             </div>
-            <div className="mt-2">
+            {state != "loading" && <div className="mt-2">
                 <Note>
                     {state == "good" && "¡Vamos bien! Aportá para ayudar a que Cabildo Abierto crezca."}
                     {state != "good" && "¡Necesitamos tu aporte!"}
                 </Note>
-            </div>
+            </div>}
         </div>
     );
 };

@@ -7,7 +7,7 @@ import {isVersionAccepted} from "#/services/wiki/current-version.js";
 import {getCollectionFromUri, getDidFromUri, orderNumberDesc, sortByKey, sum} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {ReadChunks, ReadChunksAttr} from "#/services/monetization/read-tracking.js";
-import {FULL_READ_DURATION, joinManyChunks} from "#/services/monetization/get-users-with-read-sessions.js";
+import {FULL_READ_DURATION, joinManyChunks} from "#/services/monetization/read-sessions.js";
 
 type ArticleStats = {
     uri: string

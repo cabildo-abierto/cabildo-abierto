@@ -1,14 +1,14 @@
-import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
+import {CAHandler, CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {MercadoPagoConfig, Payment, Preference} from "mercadopago";
 import {AppContext} from "#/setup.js";
-import {getUsersWithReadSessions, UserWithReadSessions} from "#/services/monetization/get-users-with-read-sessions.js";
-import {count} from "@cabildo-abierto/utils";
 import {v4 as uuidv4} from "uuid";
 import {env} from "#/lib/env.js";
 import {
     createValidationRequest,
     setValidationRequestResult
 } from "#/services/user/validation.js";
+import {Effect} from "effect";
+import {DBSelectError} from "#/utils/errors.js";
 
 type Donation = {
     date: Date
@@ -44,66 +44,82 @@ export function getMonthlyValue() {
 }
 
 
-export function isWeeklyActiveUser(ctx: AppContext, u: UserWithReadSessions, at: Date = new Date()): boolean {
-    const lastWeekStart = new Date(at.getTime() - 1000 * 3600 * 24 * 7)
-    const recentSessions = u.readSessions
-        .filter(x => new Date(x.created_at) > lastWeekStart && new Date(x.created_at) < at)
-
-    return recentSessions.length > 0
-}
-
-
-export function isMonthlyActiveUser(u: UserWithReadSessions, at: Date = new Date()): boolean {
-    const lastMonthStart = new Date(at.getTime() - 1000 * 3600 * 24 * 30)
-    const recentSessions = u.readSessions
-        .filter(x => x.created_at > lastMonthStart && x.created_at < at)
-    return recentSessions.length > 0
-}
-
-
-export async function getMonthlyActiveUsers(ctx: AppContext) {
+export const getMonthlyActiveUsers = (
+    ctx: AppContext,
+    verified: boolean
+) => Effect.gen(function* () {
     // Se consideran usuarios activos todos los usuarios que:
     //  - Sean cuenta de persona verificada
-    //  - Hayan tenido al menos una read session en la última semana
-    const users = await getUsersWithReadSessions(ctx)
-    return count(users, isMonthlyActiveUser)
+    //  - Hayan tenido al menos una read session en el último mes
+    const lastMonthStart = new Date(Date.now() - 1000 * 3600 * 24 * 30)
+
+    const result = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("User")
+            .select((eb) => eb.fn.count<number>("User.did").as("count"))
+            .where("User.inCA", "=", true)
+            .where("User.hasAccess", "=", true)
+            .$if(verified, (qb) =>
+                qb.where("User.userValidationHash", "is not", null)
+            )
+            .where((eb) =>
+                eb.exists(eb
+                    .selectFrom("ReadSession")
+                    .select("ReadSession.userId")
+                    .whereRef("ReadSession.userId", "=", "User.did")
+                    .where("ReadSession.created_at_tz", ">", lastMonthStart)
+                )
+            )
+            .executeTakeFirstOrThrow(),
+        catch: (error) => new DBSelectError(error)
+    })
+
+    return result.count
+})
+
+
+export const getGrossIncome = (ctx: AppContext) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Donation")
+            .where("Donation.transactionId", "is not", null)
+            .select((eb) => eb.fn.sum<number>("amount").as("total"))
+            .executeTakeFirstOrThrow().then(x => x.total),
+        catch: (error) => new DBSelectError(error)
+    })
 }
 
-export async function getGrossIncome(ctx: AppContext): Promise<number> {
-    const result = await ctx.kysely
-        .selectFrom("Donation")
-        .where("Donation.transactionId", "is not", null)
-        .select((eb) => eb.fn.sum<number>("amount").as("total"))
-        .executeTakeFirstOrThrow()
-
-    return result.total
-}
-
-export async function getTotalSpending(ctx: AppContext): Promise<number> {
-    const result = await ctx.kysely
-        .selectFrom("UserMonth")
-        .select((eb) => eb.fn.sum<number>("value").as("total"))
-        .where("UserMonth.wasActive", "=", true)
-        .executeTakeFirstOrThrow()
-
-    return result.total ?? 0
+export const getTotalSpending = (ctx: AppContext) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("UserMonth")
+            .select((eb) => eb.fn.sum<number>("value").as("total"))
+            .where("UserMonth.wasActive", "=", true)
+            .executeTakeFirstOrThrow().then(x => x.total ?? 0),
+        catch: (error) => new DBSelectError(error)
+    })
 }
 
 
-export const getFundingStateHandler: CAHandlerNoAuth<{}, number> = async (ctx, agent, {}) => {
-    const [mau, grossIncome, incomeSpent] = await Promise.all([
-        getMonthlyActiveUsers(ctx),
+export const getFundingStateHandler: EffHandlerNoAuth<{}, number> = (
+    ctx) => Effect.gen(function* () {
+    const [mau, grossIncome, incomeSpent] = yield* Effect.all([
+        getMonthlyActiveUsers(ctx, true),
         getGrossIncome(ctx),
         getTotalSpending(ctx)
-    ])
+    ], {concurrency: "unbounded"})
+
     const monthlyValue = getMonthlyValue()
     const months = 6
 
     const state = Math.max(Math.min((grossIncome - incomeSpent) / (mau * monthlyValue * months), 1), 0) * 100
-    ctx.logger.pino.info({monthlyValue, mau, grossIncome, incomeSpent, months, state}, "funding state")
+    yield* Effect.annotateCurrentSpan({monthlyValue, mau, grossIncome, incomeSpent, months, state})
 
-    return {data: state}
-}
+    return state
+}).pipe(
+    Effect.withSpan("getFundingState"),
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el estado del financiamiento."))
+)
 
 
 export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: boolean }, { id: string }> = async (ctx, agent, {amount, verification}) => {

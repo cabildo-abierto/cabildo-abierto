@@ -394,7 +394,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get('/monthly-value', makeHandlerNoAuth(ctx, getMonthlyValueHandler))
 
-    router.get('/funding-state', makeHandlerNoAuth(ctx, getFundingStateHandler))
+    router.get('/funding-state', makeEffHandlerNoAuth(ctx, getFundingStateHandler))
 
     router.post('/donate/create-preference', makeHandlerNoAuth(ctx, createPreference))
 
