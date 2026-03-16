@@ -2,6 +2,7 @@
 
 import React, {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
+import {usePathname} from "next/navigation";
 
 export type LayoutStateProps = {
     openSidebar: boolean
@@ -26,6 +27,7 @@ export const useLayoutState = () => {
 export const LayoutStateProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     const {layoutConfig} = useLayoutConfig()
     const [layoutState, setLayoutState] = useState<LayoutStateProps>({openSidebar: layoutConfig.defaultSidebarState})
+    const pathname = usePathname()
 
     useEffect(() => {
         if ((!layoutConfig.spaceForLeftSide && layoutState.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutState.openSidebar && layoutConfig.defaultSidebarState)) {
@@ -35,6 +37,12 @@ export const LayoutStateProvider: React.FC<{ children: ReactNode }> = ({children
             }))
         }
     }, [layoutConfig?.defaultSidebarState, layoutConfig?.spaceForLeftSide])
+
+    useEffect(() => {
+        if(layoutState.openSidebar != layoutConfig.defaultSidebarState) {
+            setLayoutState({ openSidebar: layoutConfig.defaultSidebarState})
+        }
+    }, [layoutConfig, pathname]);
 
     return (
         <LayoutStateContext.Provider value={{layoutState, setLayoutState}}>
