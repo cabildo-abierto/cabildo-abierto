@@ -226,14 +226,13 @@ export const GraphView = ({
                         </svg>
                         <div className="absolute bottom-2 right-2 z-10 flex space-x-2">
                             <BaseIconButton
-                                size={"small"}
-                                className="bg-gray-200 p-2 rounded hover:bg-gray-300"
+                                size={"default"}
                                 onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}
                             >
                                 <PlusCircleIcon/>
                             </BaseIconButton>
                             <BaseIconButton
-                                size={"small"}
+                                size={"default"}
                                 onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}
                             >
                                 <MinusCircleIcon/>
