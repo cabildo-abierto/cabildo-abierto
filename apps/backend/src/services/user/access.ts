@@ -118,6 +118,8 @@ const login = (
     handle = handle.trim()
 
     const did = yield* ctx.resolver.resolveHandleToDid(handle)
+    yield* Effect.annotateCurrentSpan("did", did)
+
     if(!did) {
         const altHandle = getAltHandle(handle)
         if(altHandle != handle) {
@@ -131,6 +133,7 @@ const login = (
     }
 
     const status = yield* getCAStatus(ctx, did)
+    yield* Effect.annotateCurrentSpan("ca-status", status)
 
     if (!status || !status.inCA || !status.hasAccess) {
         if (code) {
