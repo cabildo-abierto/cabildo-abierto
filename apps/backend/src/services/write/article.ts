@@ -9,7 +9,8 @@ import {
     ImageNotFoundError,
     PollIdMismatchError
 } from "#/services/write/topic.js";
-import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
+import {articleRecordProcessor} from "#/services/sync/event-processing/article.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {getRkeyFromUri, splitUri} from "@cabildo-abierto/utils";
 import {createPost} from "#/services/write/post.js";
 import {getArticlePreviewImage, getArticleSummary} from "#/services/hydration/hydrate.js";
@@ -100,7 +101,7 @@ const createArticle = (ctx: AppContext, agent: SessionAgent, article: CreateArti
                 .execute(),
             catch: (error) => new DBSelectError(error)
         }) : Effect.void,
-        new ArticleRecordProcessor(ctx).processValidated([res])
+        processValidatedRecords(ctx, [res], articleRecordProcessor)
     ], {concurrency: "unbounded"})
 
     if(article.bskyPostText != null) {

@@ -18,6 +18,7 @@ import {CIDEncodeError, getPollKey, PollIdMismatchError} from "#/services/write/
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {$Typed} from "@atproto/api";
 import {deleteRecords} from "#/services/delete.js";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
@@ -166,8 +167,10 @@ export const votePollHandler: EffHandler<{pollId: string, choiceIdx: number}, vo
 
     const refAndRecord = yield* createPollVoteAT(ctx, agent, pollId, choiceIdx)
 
-    yield* getRecordProcessor(ctx, getCollectionFromUri(refAndRecord.ref.uri)).processValidated(
-        [refAndRecord]
+    yield* processValidatedRecords(
+        ctx,
+        [refAndRecord],
+        getRecordProcessor(ctx, getCollectionFromUri(refAndRecord.ref.uri))
     )
 
     return {}

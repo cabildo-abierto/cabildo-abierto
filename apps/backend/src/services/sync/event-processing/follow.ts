@@ -1,29 +1,31 @@
 import {AppBskyGraphFollow} from "@atproto/api"
-import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
-import {RefAndRecord} from "#/services/sync/types.js";
+import {
+    addRecordsToDBBatch,
+    createUsersBatch,
+    InsertRecordError,
+    RecordProcessor
+} from "#/services/sync/event-processing/record-processor.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
-import {DBDeleteError, DBSelectError} from "#/utils/errors.js";
-import {sql} from "kysely";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
-export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Record> {
-    validateRecord(record: AppBskyGraphFollow.Record) {
+export const followRecordProcessor: RecordProcessor<AppBskyGraphFollow.Record> = {
+    validator: (ctx, record: AppBskyGraphFollow.Record) => {
         return Effect.succeed(AppBskyGraphFollow.validateRecord(record))
-    }
+    },
 
-    addRecordsToDB(records: RefAndRecord<AppBskyGraphFollow.Record>[], reprocess: boolean = false) {
-
+    addRecordsToDB: (ctx, records, reprocess = false) => {
         const follows = records.map(r => ({
             uri: r.ref.uri,
             userFollowedId: r.record.subject,
             authorId: getDidFromUri(r.ref.uri)
         }))
 
-        const insertRecords = this.ctx.kysely.transaction().execute(async (trx) => {
-            await this.processRecordsBatch(trx, records)
-            await this.createUsersBatch(trx, records.map(r => r.record.subject))
+        const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
+            await addRecordsToDBBatch(trx, records)
+            await createUsersBatch(trx, records.map(r => r.record.subject))
 
             await trx
                 .insertInto("Follow")
@@ -37,7 +39,7 @@ export class FollowRecordProcessor extends RecordProcessor<AppBskyGraphFollow.Re
             return records.length
         })
 
-        const addJobs = !reprocess ? this.ctx.worker?.addJob("update-following-feed-on-follow-change", follows.map(f => ({
+        const addJobs = !reprocess ? ctx.worker?.addJob("update-following-feed-on-follow-change", follows.map(f => ({
             follower: getDidFromUri(f.uri),
             followed: f.userFollowedId
         }))) : undefined

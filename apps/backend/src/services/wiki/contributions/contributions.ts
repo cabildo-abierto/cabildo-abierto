@@ -310,8 +310,6 @@ const getContributionUpdatesForVersionsOfTopic = (
         const chars = accCharsAdded == 0 ? 1.0 / 0 : versionUpdates[i].charsAdded / accCharsAdded
         versionUpdates[i].monetizedContribution = monetized
         versionUpdates[i].charsContribution = chars
-
-        ctx.logger.pino.info({uri: topicVersions[i].uri, monetized, chars}, "contribution of version")
     }
 
     return {versionUpdates, versionContentUpdates}

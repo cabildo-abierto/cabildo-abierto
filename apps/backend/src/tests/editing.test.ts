@@ -1,6 +1,6 @@
 import {
     cleanUpAfterTests,
-    cleanUPTestDataFromDB,
+    cleanUpTestDataFromDB,
     createTestContext, getArticleRefAndRecord,
     getPostRefAndRecord, getSuiteId, processRecordsInTest, testTimeout
 } from "#/tests/test-utils.js";
@@ -21,7 +21,7 @@ describe('Edit post', {timeout: testTimeout}, () => {
     })
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     })
 
@@ -83,7 +83,7 @@ describe('Edit article', {timeout: testTimeout}, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 

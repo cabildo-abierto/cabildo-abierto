@@ -9,6 +9,7 @@ import {processEventsBatch} from "#/services/sync/event-processing/event-process
 import {
     getRecordProcessor
 } from "#/services/sync/event-processing/get-record-processor.js";
+import {processInBatches} from "#/services/sync/event-processing/record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
@@ -184,9 +185,9 @@ function processRepoBatch(
                 continue
             }
 
-            yield* getRecordProcessor(ctx, collection).processInBatches(records)
+            yield* processInBatches(ctx, records, getRecordProcessor(ctx, collection))
         }
-    })
+    }) as Effect.Effect<void, ProcessCreateError, never>
 }
 
 

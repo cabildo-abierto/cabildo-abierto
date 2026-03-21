@@ -84,7 +84,7 @@ const ftsReferencesQuery = (
                 )
                 .select([
                     "UnnestedSynonyms.id",
-                    sql`websearch_to_tsquery('public.spanish_simple_unaccent', "UnnestedSynonyms"."keyword")`.as("query")
+                    sql`websearch_to_tsquery('public.spanish_simple_unaccent', '"' || REPLACE("UnnestedSynonyms"."keyword", '"', '""') || '"')`.as("query")
                 ])
             )
             .selectFrom("Content")
@@ -100,8 +100,7 @@ const ftsReferencesQuery = (
                 "Synonyms.id",
                 "Content.uri",
                 "Record.created_at_tz",
-                sql<number>`ts_rank_cd
-                    ("Content"."text_tsv", "Synonyms"."query")`.as("rank")
+                sql<number>`ts_rank_cd("Content"."text_tsv", "Synonyms"."query")`.as("rank")
             ])
             .execute(),
         catch: error => new DBSelectError(error)
@@ -218,7 +217,7 @@ const applyReferencesUpdate = (
                     })))
                     .execute()
             }
-            await trx
+            const res = await trx
                 .deleteFrom("Reference")
                 .where("touched_tz", "<", date)
                 .$if(
@@ -327,7 +326,6 @@ const createMentionNotifications = (
         const res = anyEditorStateToMarkdownOrLexical(texts[i].text, texts[i].dbFormat)
         if (res.format == "markdown") {
             const mentions = findMentionsInText(res.text)
-            ctx.logger.pino.info({...texts[i], mentions: Array.from(mentions)}, "looking for mentions in text")
             for (const m of mentions) {
                 data.push({
                     type: "Mention",
@@ -447,7 +445,6 @@ export const recomputeTopicInteractionsAndPopularities = (
 export async function getTopicsReferencedInText(ctx: AppContext, text: string): Promise<ArCabildoabiertoFeedDefs.TopicMention[]> {
     if (!text.trim()) return []
 
-
     const matches = await ctx.kysely
         .with("Synonyms", eb => eb
             .selectFrom("Topic")
@@ -459,14 +456,14 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
         )
         .selectFrom("Synonyms")
         .where(sql<boolean>`
-            to_tsvector('public.spanish_simple_unaccent', ${text}) @@ websearch_to_tsquery('public.spanish_simple_unaccent', "Synonyms"."keyword")
+            to_tsvector('public.spanish_simple_unaccent', ${text}) @@ websearch_to_tsquery('public.spanish_simple_unaccent', '"' || REPLACE("Synonyms"."keyword", '"', '""') || '"')
         `)
         .innerJoin("TopicVersion", "TopicVersion.uri", "Synonyms.currentVersionId")
         .select([
             'Synonyms.id as topicId',
             'Synonyms.keyword',
             "TopicVersion.props",
-            sql<number>`ts_rank_cd(to_tsvector('public.spanish_simple_unaccent', ${text}), websearch_to_tsquery('public.spanish_simple_unaccent',"Synonyms"."keyword"))`.as('rank')
+            sql<number>`ts_rank_cd(to_tsvector('public.spanish_simple_unaccent', ${text}), websearch_to_tsquery('public.spanish_simple_unaccent', '"' || REPLACE("Synonyms"."keyword", '"', '""') || '"'))`.as('rank')
         ])
         .execute()
 

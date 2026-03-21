@@ -1,44 +1,50 @@
 import {RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
 import {
-    BskyProfileRecordProcessor,
-    CAProfileRecordProcessor,
-    OldCAProfileRecordProcessor
+    bskyProfileRecordProcessor,
+    caProfileRecordProcessor,
+    oldCAProfileRecordProcessor,
 } from "#/services/sync/event-processing/profile.js";
 import {
-    LikeRecordProcessor,
-    RepostRecordProcessor,
-    VoteAcceptRecordProcessor,
-    VoteRejectRecordProcessor
+    likeRecordProcessor,
+    repostRecordProcessor,
+    voteAcceptRecordProcessor,
+    voteRejectRecordProcessor
 } from "#/services/sync/event-processing/reaction.js";
-import {ArticleRecordProcessor} from "#/services/sync/event-processing/article.js";
-import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js";
-import {TopicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
-import {DatasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
-import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
+import {articleRecordProcessor} from "#/services/sync/event-processing/article.js";
+import {followRecordProcessor} from "#/services/sync/event-processing/follow.js";
+import {topicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
+import {datasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
+import {postRecordProcessor} from "#/services/sync/event-processing/post.js";
 import {AppContext} from "#/setup.js";
-import {PollVoteRecordProcessor} from "#/services/sync/event-processing/poll-vote.js";
+import {pollVoteRecordProcessor} from "#/services/sync/event-processing/poll-vote.js";
+import {Effect} from "effect";
 
 
-export function getRecordProcessor(ctx: AppContext, collection: string) {
-    const processor = {
-        "app.bsky.actor.profile": BskyProfileRecordProcessor,
-        "app.bsky.feed.like": LikeRecordProcessor,
-        "ar.cabildoabierto.feed.article": ArticleRecordProcessor,
-        "app.bsky.feed.repost": RepostRecordProcessor,
-        "app.bsky.graph.follow": FollowRecordProcessor,
-        "ar.cabildoabierto.actor.caProfile": CAProfileRecordProcessor,
-        "ar.com.cabildoabierto.profile": OldCAProfileRecordProcessor,
-        "ar.cabildoabierto.wiki.topicVersion": TopicVersionRecordProcessor,
-        "ar.cabildoabierto.wiki.voteAccept": VoteAcceptRecordProcessor,
-        "ar.cabildoabierto.wiki.voteReject": VoteRejectRecordProcessor,
-        "ar.cabildoabierto.data.dataset": DatasetRecordProcessor,
-        "app.bsky.feed.post": PostRecordProcessor,
-        "ar.cabildoabierto.embed.pollVote": PollVoteRecordProcessor
-    }[collection]
-
-    if (processor) {
-        return new processor(ctx)
-    } else {
-        return new RecordProcessor(ctx)
+const emptyProcessor: RecordProcessor = {
+    validator: (ctx, record) => {
+        return Effect.succeed({success: true, value: record})
+    },
+    addRecordsToDB: (ctx, records, reprocess) => {
+        return Effect.succeed(0)
     }
+}
+
+
+export function getRecordProcessor(ctx: AppContext, collection: string): RecordProcessor {
+    const processors: Record<string, RecordProcessor> = {
+        "app.bsky.actor.profile": bskyProfileRecordProcessor,
+        "app.bsky.feed.like": likeRecordProcessor,
+        "ar.cabildoabierto.feed.article": articleRecordProcessor,
+        "app.bsky.feed.repost": repostRecordProcessor,
+        "app.bsky.graph.follow": followRecordProcessor,
+        "ar.cabildoabierto.actor.caProfile": caProfileRecordProcessor,
+        "ar.com.cabildoabierto.profile": oldCAProfileRecordProcessor,
+        "ar.cabildoabierto.wiki.topicVersion": topicVersionRecordProcessor,
+        "ar.cabildoabierto.wiki.voteAccept": voteAcceptRecordProcessor,
+        "ar.cabildoabierto.wiki.voteReject": voteRejectRecordProcessor,
+        "ar.cabildoabierto.data.dataset": datasetRecordProcessor,
+        "app.bsky.feed.post": postRecordProcessor,
+        "ar.cabildoabierto.embed.pollVote": pollVoteRecordProcessor
+    }
+    return processors[collection] ?? emptyProcessor
 }

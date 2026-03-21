@@ -27,7 +27,7 @@ import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {Effect} from "effect";
-import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {ProcessCreateError, processInBatches} from "#/services/sync/event-processing/record-processor.js";
 
 import {DBDeleteError, DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
@@ -217,8 +217,8 @@ export const getFollowRefAndRecord = (
 })
 
 
-export async function cleanUPTestDataFromDB(ctx: AppContext, testSuite: string) {
-    const [testUsers, allUsers, testTopics] = await Promise.all([
+export async function cleanUpTestDataFromDB(ctx: AppContext, testSuite: string) {
+    const [testUsers, allUsers] = await Promise.all([
         ctx.kysely
         .selectFrom("User")
         .select("did")
@@ -227,18 +227,12 @@ export async function cleanUPTestDataFromDB(ctx: AppContext, testSuite: string) 
         ctx.kysely
             .selectFrom("User")
             .select("did")
-            .execute(),
-        ctx.kysely
-            .selectFrom("Topic")
-            .select("id")
             .execute()
     ])
-
-    ctx.logger.pino.info({testUsers, testTopics, allUsers, testSuite}, "cleaning up test data!")
-    console.log("cleaning up test data")
+    ctx.logger.pino.info({testUsers, allUsers}, "cleaning up test data")
 
     await Effect.runPromise(deleteUsersInTest(ctx, testUsers.map(t => t.did)))
-    await Effect.runPromise(deleteTopicsInTest(ctx, testTopics.map(t => t.id)))
+    await Effect.runPromise(deleteEmptyTopics(ctx))
 }
 
 export async function cleanUpAfterTests(ctx: AppContext) {
@@ -626,11 +620,20 @@ export function getLikeRefAndRecord(ref: ATProtoStrongRef, created_at: Date = ne
 }
 
 
-export const deleteTopicsInTest = (
-    ctx: AppContext,
-    topics: string[]
+export const deleteEmptyTopics = (
+    ctx: AppContext
 ) => Effect.gen(function* () {
+
+    const topics = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Topic")
+            .select("id")
+            .where(eb => eb.not(eb.exists(eb.selectFrom("TopicVersion").whereRef("TopicVersion.topicId", "=", "Topic.id"))))
+            .execute().then(res => res.map(t => t.id)),
+        catch: (error) => new DBSelectError(error)
+    })
     if(topics.length == 0) return
+
     yield* Effect.tryPromise({
         try: async () => {
             await ctx.kysely
@@ -656,7 +659,6 @@ export const deleteTopicsInTest = (
 
 
 export const deleteUsersInTest = (ctx: AppContext, dids: string[]) => Effect.gen(function* () {
-    ctx.logger.pino.info({dids}, "deleting users")
     yield* deleteUsers(ctx, dids)
 
     if(ctx.worker) {
@@ -673,8 +675,7 @@ export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
     return Effect.all(
         records.map(r => {
             const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
-            ctx.logger.pino.info({uri: r.ref.uri}, "processing record")
-            return processor.process([r])
+            return processInBatches(ctx, [r], processor)
         }),
         {concurrency: 4}
     ).pipe(Effect.tap(
@@ -739,8 +740,6 @@ export class MockCAWorker extends CAWorker {
     }[] = []
 
     addJob(name: string, data: any, priority: number = 10) {
-        this.logger.pino.info({name}, "job added")
-
         this.queue.push({
             name,
             priority,

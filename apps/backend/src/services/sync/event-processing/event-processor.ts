@@ -2,6 +2,7 @@ import {AppContext} from "#/setup.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {getUri, isCAProfile} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {processRecords} from "#/services/sync/event-processing/record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {isValidHandle} from "@atproto/syntax";
 import {Effect} from "effect";
@@ -89,7 +90,7 @@ class CommitCreateOrUpdateEventProcessor extends CommitEventProcessor {
         for await (const [c, refAndRecords] of byCollection.entries()) {
             if(refAndRecords.length == 0) continue
             const recordProcessor = getRecordProcessor(this.ctx, c)
-            await Effect.runPromiseExit(recordProcessor.process(refAndRecords))
+            await Effect.runPromiseExit(processRecords(this.ctx, refAndRecords, recordProcessor))
         }
     }
 }

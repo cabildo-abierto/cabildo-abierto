@@ -465,13 +465,11 @@ export class FeedIndexUpdater {
         const posts = uris.filter(u => isPost(getCollectionFromUri(u)))
         const reposts = uris.filter(u => isRepost(getCollectionFromUri(u)))
 
-        const t1 = Date.now()
         const values = (await Promise.all([
             this.getUpdatesFromRepostUris(reposts),
             this.getUpdatesFromPostUris(posts),
             this.getUpdatesFromArticleUris(articles)
         ])).flat()
-        const t2 = Date.now()
 
         if (values.length > 0) {
             await this.ctx.kysely.transaction().execute(async trx => {
@@ -483,8 +481,6 @@ export class FeedIndexUpdater {
                 // await this.keepLatestWithRoot(trx, unique(values.map(v => v.readerId)))
             })
         }
-        const t3 = Date.now()
-        this.ctx.logger.logTimes("keep latest with root", [t1, t2, t3])
     }
 
     /*async keepLatestWithRoot(trx: Transaction<DB>, readersId?: string[]) {

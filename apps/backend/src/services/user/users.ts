@@ -18,8 +18,9 @@ import {
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {uploadBase64Blob} from "#/services/blob.js";
-import {BskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
-import {FollowRecordProcessor} from "#/services/sync/event-processing/follow.js";
+import {bskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
+import {followRecordProcessor} from "#/services/sync/event-processing/follow.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
@@ -137,7 +138,7 @@ export const follow = (ctx: AppContext, agent: SessionAgent, did: string) => {
             subject: did,
             createdAt: new Date().toISOString()
         }
-        yield* (new FollowRecordProcessor(ctx).processValidated([{ref: res, record}]))
+        yield* processValidatedRecords(ctx, [{ref: res, record}], followRecordProcessor)
         return {followUri: res.uri}
     }).pipe(
         Effect.withSpan("follow", {attributes: {did}})
@@ -506,11 +507,8 @@ type UpdateProfileProps = {
 
 
 export const updateProfileHandler: EffHandler<UpdateProfileProps> = (ctx, agent, params) => {
-
     return updateProfile(ctx, agent, params).pipe(
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al actualizar el perfil.")
-        }),
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al actualizar el perfil.")),
         Effect.map(() => ({}))
     )
 }
@@ -568,8 +566,7 @@ export const updateProfile = (
             cid: res.data.cid
         }
 
-        yield* new BskyProfileRecordProcessor(ctx)
-            .processValidated([{ref, record}])
+        yield* processValidatedRecords(ctx, [{ref, record}], bskyProfileRecordProcessor)
     }
 }).pipe(
     Effect.withSpan("updateProfile", {

@@ -20,6 +20,7 @@ import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {getUri, shortCollectionToCollection, splitUri} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {processRecords} from "#/services/sync/event-processing/record-processor.js";
 
 
 export function getEnDiscusionStartDate(time: EnDiscusionTime) {
@@ -283,10 +284,10 @@ export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: stri
         })
 
         const processor = getRecordProcessor(ctx, collection)
-        yield* processor.process([{
+        yield* processRecords(ctx, [{
             ref: {uri: ref.data.uri, cid: ref.data.cid},
             record: record
-        }])
+        }], processor)
 
         return {}
     }).pipe(
@@ -307,9 +308,8 @@ export const addToEnDiscusionHandler: EffHandler<{
     const {collection, rkey} = params
     const uri = getUri(did, shortCollectionToCollection(collection), rkey)
     return addToEnDiscusion(ctx, agent, uri).pipe(
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
-        })
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")),
+        Effect.map(() => ({}))
     )
 }
 
@@ -349,10 +349,10 @@ const removeFromEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: string
 
     const processor = getRecordProcessor(ctx, collection)
 
-    yield* processor.process([{
+    yield* processRecords(ctx, [{
         ref: {uri: ref.data.uri, cid: ref.data.cid},
         record
-    }])
+    }], processor)
 
     return {}
 }).pipe(
@@ -371,8 +371,7 @@ export const removeFromEnDiscusionHandler: EffHandler<{
     const {collection, rkey} = params
     const uri = getUri(did, shortCollectionToCollection(collection), rkey)
     return removeFromEnDiscusion(ctx, agent, uri).pipe(
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-        })
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al remover el contenido de En discusión.")),
+        Effect.map(() => ({}))
     )
 }

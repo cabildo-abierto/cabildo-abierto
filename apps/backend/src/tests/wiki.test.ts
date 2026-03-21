@@ -1,6 +1,6 @@
 import {
     cleanUpAfterTests,
-    cleanUPTestDataFromDB,
+    cleanUpTestDataFromDB,
     createTestAcceptVote,
     createTestContext,
     createTestTopicVersion,
@@ -55,7 +55,7 @@ describe('Create topic vote', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -135,7 +135,7 @@ describe('Create topic version', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -180,7 +180,7 @@ describe('Get discussion', { timeout: 20000 }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -256,7 +256,7 @@ describe('mentions detection', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -290,8 +290,6 @@ describe('mentions detection', { timeout: testTimeout }, () => {
             .select("id")
             .execute()
 
-        ctx!.logger.pino.info({insertedTopics}, "inserted topics")
-
         expect(insertedTopics.map(t => t.id).sort()).toEqual(topics.map(t => t.id).sort())
 
         const mentions = await getTopicsReferencedInText(ctx!, text)
@@ -301,35 +299,43 @@ describe('mentions detection', { timeout: testTimeout }, () => {
         expect(detectedIds).toEqual(expectedSorted)
     }
 
-    /*it("detects topic when text contains exact synonym", async () => {
+    it("detects topic when text contains exact synonym", async () => {
         await runMentionsTestCase(
             [{ id: "hola", synonyms: ["hola", "buen día", "hello"] }, { id: "chau", synonyms: ["chau", "adios", "goodbye"]}],
             "hello adios",
             ["hola", "chau"]
         )
-    })*/
+    })
 
     it("one letter", async () => {
         await runMentionsTestCase(
-            [{ id: "a", synonyms: ["b"] }],
-            "b",
-            ["a"]
+            [{ id: "topic", synonyms: ["a"] }],
+            "a",
+            ["topic"]
         )
     })
 
-    /*it("detects topic when text contains exact synonym one letter", async () => {
+    it("detects topic when text contains exact synonym one letter", async () => {
         await runMentionsTestCase(
-            [{ id: "a", synonyms: ["a", "c"] }, { id: "b", synonyms: ["b", "d"]}],
+            [{ id: "topic a", synonyms: ["a", "c"] }, { id: "topic b", synonyms: ["b", "d"]}],
             "c d",
-            ["a", "b"]
+            ["topic a", "topic b"]
         )
-    })*/
+    })
 
-    /*it("detects topic with two word synonym", async () => {
+    it("partial synonym presence shouldn not match", async () => {
         await runMentionsTestCase(
-            [{ id: "a", synonyms: ["a b", "c"] }],
+            [{ id: "topic a", synonyms: ["hello goodbye"] }],
+            "hello",
+            []
+        )
+    })
+
+    it("detects topic with two word synonym", async () => {
+        await runMentionsTestCase(
+            [{ id: "topic", synonyms: ["a b", "c"] }],
             "a b",
-            ["a"]
+            ["topic"]
         )
     })
 
@@ -361,7 +367,7 @@ describe('mentions detection', { timeout: testTimeout }, () => {
             "ley 12",
             ["ley 12"]
         )
-    })*/
+    })
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })

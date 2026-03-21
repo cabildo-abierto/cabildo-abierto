@@ -1,5 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {addRecordsToDBBatch, processRecords} from "#/services/sync/event-processing/record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
 
@@ -61,10 +62,10 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
 
         if(onlyRecords) {
             await ctx.kysely.transaction().execute(async trx => {
-                await processor.processRecordsBatch(trx, refAndRecords)
+                await addRecordsToDBBatch(trx, refAndRecords)
             })
         } else {
-            await Effect.runPromiseExit(processor.process(refAndRecords, true))
+            await Effect.runPromiseExit(processRecords(ctx, refAndRecords, processor, true))
         }
         const t3 = Date.now()
 

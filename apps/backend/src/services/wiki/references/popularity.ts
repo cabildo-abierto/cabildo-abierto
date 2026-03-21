@@ -60,8 +60,6 @@ export const updateTopicPopularities = (
             catch: (error) =>  new DBSelectError(error)
         }).pipe(Effect.withSpan("SQL/get topic interactions"))
 
-        ctx.logger.pino.info({batchInteractions}, "interactions")
-
         const m = new Map<string, {
             interactionsLastDay: Set<string>
             interactionsLastWeek: Set<string>
@@ -100,8 +98,6 @@ export const updateTopicPopularities = (
             popularityScoreLastWeek: x[1].interactionsLastWeek.size,
             popularityScoreLastMonth: x[1].interactionsLastMonth.size
         }))
-
-        ctx.logger.pino.info({values, topicIds}, "values")
 
         if(values.length == 0) {
             ctx.logger.pino.info({batchCount: batchIds.length}, "no topics to update")

@@ -16,7 +16,8 @@ import {
     UploadStringBlobError
 } from "#/services/blob.js";
 import {BlobRef} from "@atproto/lexicon";
-import {TopicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
+import {topicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
@@ -311,7 +312,5 @@ export const createTopicVersion = (ctx: AppContext, agent: SessionAgent, props: 
 
     const {ref, record} = yield* createTopicVersionATProto(agent, props)
 
-    const processor = new TopicVersionRecordProcessor(ctx)
-
-    yield* processor.processValidated([{ref, record}])
+    yield* processValidatedRecords(ctx, [{ref, record}], topicVersionRecordProcessor)
 })

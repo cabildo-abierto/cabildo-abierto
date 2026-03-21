@@ -3,20 +3,24 @@ import {
 } from "@cabildo-abierto/utils";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
-import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {
+    addRecordsToDBBatch,
+    InsertRecordError,
+    RecordProcessor
+} from "#/services/sync/event-processing/record-processor.js";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {DBDeleteError} from "#/utils/errors.js";
+import {RefAndRecord} from "#/services/sync/types.js";
+import {AppContext} from "#/setup.js";
 
 
-
-export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoDataDataset.Record> {
-
-    validateRecord(record: ArCabildoabiertoDataDataset.Record) {
+export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset.Record> = {
+    validator: (ctx, record: ArCabildoabiertoDataDataset.Record) => {
         return Effect.succeed(ArCabildoabiertoDataDataset.validateRecord(record))
-    }
+    },
 
-    addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoDataDataset.Record}[], reprocess: boolean = false) {
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoDataDataset.Record>[], reprocess = false) => {
         const datasets = records.map(({ref, record: r}) => ({
             uri: ref.uri,
             columns: r.columns.map(({name}: { name: string }) => (name)),
@@ -40,8 +44,8 @@ export class DatasetRecordProcessor extends RecordProcessor<ArCabildoabiertoData
         )
 
 
-        const insertRecords = this.ctx.kysely.transaction().execute(async (trx) => {
-            await this.processRecordsBatch(trx, records)
+        const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
+            await addRecordsToDBBatch(trx, records)
 
             await trx
                 .insertInto("Dataset")

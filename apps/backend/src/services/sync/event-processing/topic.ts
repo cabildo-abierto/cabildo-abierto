@@ -7,36 +7,40 @@ import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
+    addRecordsToDBBatch,
     InsertRecordError,
     ProcessCreateError,
-    RecordProcessor
+    RecordProcessor,
+    ValidationError
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {Effect, pipe} from "effect";
-import { DB } from "prisma/generated/types.js";
+import {DB} from "prisma/generated/types.js";
 import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
 
 
-export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> {
-
-    validateRecord(record: ArCabildoabiertoWikiTopicVersion.Record) {
+export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> = {
+    validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopicVersion.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopicVersion.Record>, ValidationError> => {
+        const logger = ctx.logger
         return Effect.gen(function* () {
             const res = ArCabildoabiertoWikiTopicVersion.validateRecord(record)
-            if(!res.success) {
+            if (!res.success) {
+                logger.pino.info({res, error: res.error.message}, "invalid topic version")
                 return yield* Effect.succeed(res)
             } else {
-                if(res.value.embeds) {
+                if (res.value.embeds) {
                     const polls = res.value.embeds
                         .map(e => e.value)
                         .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
-                    for(const p of polls) {
+                    for (const p of polls) {
                         const key = yield* getPollKey(p.poll)
-                        if(key != p.key) {
+                        if (key != p.key) {
+                            logger.pino.info({res}, "invalid topic version (poll)")
                             const error: ValidationResult<ArCabildoabiertoWikiTopicVersion.Record> = {
                                 success: false,
                                 error: new Error("Invalid poll.")
@@ -48,12 +52,12 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 return yield* Effect.succeed(res)
             }
         }).pipe(Effect.withSpan("TopicVersionRecordProcessor.validateRecord"))
-    }
-
-    addRecordsToDB(
+    },
+    addRecordsToDB: (
+        ctx: AppContext,
         records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
         reprocess: boolean = false
-    ): Effect.Effect<number, ProcessCreateError | InvalidValueError> {
+    ): Effect.Effect<number, ProcessCreateError | InvalidValueError> => {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -77,10 +81,10 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
             authorship: r.record.claimsAuthorship ?? false
         }))
 
-        const insertTopics = this.ctx.kysely.transaction().execute(async (trx) => {
-            await this.processRecordsBatch(trx, records)
+        const insertTopics = ctx.kysely.transaction().execute(async (trx) => {
+            await addRecordsToDBBatch(trx, records)
             const jobs = await processContentsBatch(
-                this.ctx,
+                ctx,
                 trx,
                 contents,
                 topicIds
@@ -95,7 +99,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 }))
                 .execute()
 
-            if(topicVersions.length > 0){
+            if (topicVersions.length > 0) {
                 const inserted = await trx
                     .insertInto("TopicVersion")
                     .values(topicVersions)
@@ -107,7 +111,7 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                     .returning(["topicId", "TopicVersion.uri"])
                     .execute()
 
-                await updateTopicsCurrentVersionBatch(this.ctx, trx, inserted.map(t => t.topicId))
+                await updateTopicsCurrentVersionBatch(ctx, trx, inserted.map(t => t.topicId))
 
                 return {inserted, jobs}
             } else {
@@ -121,56 +125,56 @@ export class TopicVersionRecordProcessor extends RecordProcessor<ArCabildoabiert
                 catch: () => new InsertRecordError()
             }),
             Effect.tap(({inserted, jobs}) => {
-                return !reprocess ? this.createJobs(records, inserted, topics, jobs) : Effect.void
+                return !reprocess ? createJobs(ctx, records, inserted, topics, jobs) : Effect.void
             }),
             Effect.map(() => records.length),
             Effect.withSpan("TopicVersionRecordProcessor.addRecordsToDB")
         )
     }
-
-    createJobs(
-        records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
-        inserted: {uri: string, topicId: string}[] | undefined, topics: {id: string}[],
-        jobs: JobToAdd[]
-    ): Effect.Effect<void, AddJobError> {
-        const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
-
-        const data: NotificationJobData[] | null = inserted ? inserted.map((i) => ({
-            uri: i.uri,
-            topics: i.topicId,
-            type: "TopicEdit"
-        })) : null
-
-        return pipe(
-            data ? this.ctx.worker?.addJob("batch-create-notifications", data) : Effect.void,
-            Effect.flatMap(() => {
-                return addUpdateContributionsJobForTopics(this.ctx, topics.map(t => t.id))
-            }),
-            Effect.flatMap(() => {
-                return this.ctx.worker?.addJobs([
-                    ...jobs,
-                    {
-                        label: "update-author-status",
-                        data: authors,
-                        priority: 11
-                    },
-                    {
-                        label: "update-contents-topic-mentions",
-                        data: records.map(r => r.ref.uri),
-                        priority: 11
-                    },
-                    {
-                        label: "update-topic-mentions",
-                        data: topics.map(t => t.id),
-                        priority: 11
-                    }
-                ])
-            })
-        )
-
-    }
 }
 
+
+const createJobs = (
+    ctx: AppContext,
+    records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+    inserted: { uri: string, topicId: string }[] | undefined, topics: { id: string }[],
+    jobs: JobToAdd[]
+): Effect.Effect<void, AddJobError> => {
+    const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
+
+    const data: NotificationJobData[] | null = inserted ? inserted.map((i) => ({
+        uri: i.uri,
+        topics: i.topicId,
+        type: "TopicEdit"
+    })) : null
+
+    return pipe(
+        data ? ctx.worker?.addJob("batch-create-notifications", data) : Effect.void,
+        Effect.flatMap(() => {
+            return addUpdateContributionsJobForTopics(ctx, topics.map(t => t.id))
+        }),
+        Effect.flatMap(() => {
+            return ctx.worker?.addJobs([
+                ...jobs,
+                {
+                    label: "update-author-status",
+                    data: authors,
+                    priority: 11
+                },
+                {
+                    label: "update-contents-topic-mentions",
+                    data: records.map(r => r.ref.uri),
+                    priority: 11
+                },
+                {
+                    label: "update-topic-mentions",
+                    data: topics.map(t => t.id),
+                    priority: 11
+                }
+            ])
+        })
+    )
+}
 
 export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
     const topicIds = yield* Effect.tryPromise({
@@ -251,7 +255,6 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
         ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
     ], {concurrency: "unbounded"})
 })
-
 
 
 function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopicVersion.Record }[]) {

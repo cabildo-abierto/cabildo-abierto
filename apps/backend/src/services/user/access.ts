@@ -3,7 +3,8 @@ import {AppContext} from "#/setup.js";
 import {isValidHandle} from "@atproto/syntax";
 import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
-import {BskyProfileRecordProcessor, CAProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
+import {bskyProfileRecordProcessor, caProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {AppBskyActorProfile, AtpBaseClient} from "@atproto/api"
 import {
     ArCabildoabiertoActorCaProfile,
@@ -561,8 +562,7 @@ export function createCAUser(
         const refAndRecordCA = {ref: {uri: data.uri, cid: data.cid}, record: caProfileRecord}
 
         const effects: Effect.Effect<void, ProcessCreateError | ATCreateRecordError>[] = [
-            new CAProfileRecordProcessor(ctx)
-                .processValidated([refAndRecordCA])
+            processValidatedRecords(ctx, [refAndRecordCA], caProfileRecordProcessor)
         ]
 
         if(bskyProfileRes && bskyProfileRes.success) {
@@ -571,8 +571,7 @@ export function createCAUser(
                 ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!},
                 record: bskyProfile.value as AppBskyActorProfile.Record
             }
-            effects.push(new BskyProfileRecordProcessor(ctx)
-                .processValidated([refAndRecordBsky]))
+            effects.push(processValidatedRecords(ctx, [refAndRecordBsky], bskyProfileRecordProcessor))
         } else {
             const bskyProfile: AppBskyActorProfile.Record = {
                 $type: "app.bsky.actor.profile",
@@ -596,8 +595,7 @@ export function createCAUser(
                     record: bskyProfile
                 }
                 effects.push(
-                    new BskyProfileRecordProcessor(ctx)
-                        .processValidated([refAndRecordBsky])
+                    processValidatedRecords(ctx, [refAndRecordBsky], bskyProfileRecordProcessor)
                 )
             }
         }
