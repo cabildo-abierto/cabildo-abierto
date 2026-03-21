@@ -1,6 +1,6 @@
 "use client"
 
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useMemo, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {AcceptButtonPanel} from "../../utils/dialogs/accept-button-panel";
 import {useSession} from "@/components/auth/use-session";
@@ -10,6 +10,12 @@ import {useLayoutConfig} from "../main-layout/layout-config-context";
 import { Session } from "@cabildo-abierto/api";
 import {post} from "@/components/utils/react/fetch";
 import {Paragraph} from "@/components/utils/base/paragraph";
+import {SearchBar} from "@/components/utils/base/search-bar";
+import {useProfile} from "@/components/perfil/use-profile";
+import {useSearchUsers} from "@/components/buscar/user-search-results";
+import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
+import {ProfilePic} from "@/components/perfil/profile-pic";
+import {FollowButton} from "@/components/perfil/follows";
 
 
 const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void }) => {
@@ -45,6 +51,104 @@ const WelcomeMessage = ({open, onClose}: { open: boolean, onClose: () => void })
     </AcceptButtonPanel>
 }
 
+
+const FirstFollowsMessage = ({open, onClose}: {
+    open: boolean
+    onClose: () => void
+}) => {
+    const {user} = useSession()
+    const {data: profile} = useProfile(user.handle)
+    const {data: caProfile} = useProfile("cabildoabierto.ar")
+    const {data: bskyProfile} = useProfile("bsky.app")
+    const [searchState, setSearchState] = useState({searching: false, value: ""})
+    const {data: results, isLoading} = useSearchUsers(searchState, 25)
+    const qc = useQueryClient()
+
+    const resultsWithSuggestions = useMemo(() => {
+        if (!results && caProfile && bskyProfile) {
+            return {
+                success: true,
+                value: [
+                    caProfile,
+                    bskyProfile
+                ]
+            }
+        }
+        return results
+    }, [results, searchState, caProfile, bskyProfile])
+
+    if (!profile) {
+        return null
+    }
+
+    function onFinishIntro() {
+        qc.refetchQueries({
+            predicate: query => {
+                const k = query.queryKey
+                const res = Array.isArray(k) && k.length >= 2 && k[0] == "main-feed" && k[1] == "siguiendo"
+                if (res) console.log("refetching query", k); else console.log("not refetching query", k)
+                return res
+            }
+        })
+        onClose()
+    }
+
+    return <AcceptButtonPanel
+        open={open}
+        buttonText={"Aceptar"}
+        onClose={onFinishIntro}
+        className={"py-4 flex flex-col items-center px-4 sm:px-8"}
+    >
+        <div className={"flex flex-col items-center min-[500px]:w-[400px] h-[70vh]"}>
+            <h2 className={"my-4 text-base w-full sm:text-lg"}>Elegí algunos usuarios para seguir</h2>
+
+            <div className={"w-full"}>
+                <SearchBar
+                    searchValue={searchState.value}
+                    setSearchValue={v => {
+                        setSearchState({value: v, searching: searchState.searching})
+                    }}
+                    setSearching={v => {
+                        if (v) setSearchState({value: searchState.value, searching: true})
+                        else setSearchState({value: "", searching: false})
+                    }}
+                />
+            </div>
+
+            <div className="flex flex-wrap w-full h-full max-w-full sm:max-w-[400px] overflow-y-auto no-scrollbar mt-4">
+                {(isLoading || !bskyProfile || !caProfile) && <LoadingSpinner/>}
+                {resultsWithSuggestions?.success && resultsWithSuggestions.value.map(r => (
+                    <div
+                        key={r.did}
+                        className="w-1/2 min-[400px]:w-1/3 p-1 box-border"
+                    >
+                        <div
+                            className="bg-[var(--background-dark2)] p-2 w-full aspect-[0.82] flex flex-col items-center justify-between space-y-1 text-center overflow-hidden"
+                        >
+                            <div className={"pointer-events-none mb-2"}>
+                                <ProfilePic user={r} className="w-14 h-14 rounded-full" descriptionOnHover={false}/>
+                            </div>
+                            <div className="text-sm px-1 truncate max-w-full whitespace-nowrap">
+                                {r.displayName}
+                            </div>
+                            <div
+                                className="text-xs px-1 truncate max-w-full whitespace-nowrap text-[var(--text-light)]">
+                                @{r.handle}
+                            </div>
+                            <FollowButton
+                                handle={r.handle}
+                                profile={r}
+                                dense={true}
+                            />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </AcceptButtonPanel>
+}
+
+
 const RunTutorial = ({children}: { children: ReactNode }) => {
     const [runStatus, setRunStatus] = useState<"not started" | "welcome" | "guide" | "follows" | "finished">("welcome")
     const {user} = useSession()
@@ -78,21 +182,28 @@ const RunTutorial = ({children}: { children: ReactNode }) => {
             <WelcomeMessage
                 open={runStatus == "welcome"}
                 onClose={() => {
-                    setRunStatus("guide")
+                    setRunStatus("follows")
                 }}
             />
             {runStatus == "guide" && <AcceptButtonPanel
                 buttonText={"Empezar"}
-                className={"sm:max-w-[400px]"}
+                className={"sm:max-w-[400px] flex flex-col items-center"}
                 open={true}
                 onClose={() => {
                     setRunStatus("finished")
                 }}
             >
+                <div className={"text-center text-lg font-medium mb-4"}>
+                    ¡Todo listo!
+                </div>
                 <Paragraph>
-                    Para empezar, te recomendamos que busques usuarios para seguir, que explores los muros y que recorras la sección de temas.
+                    Para empezar, te recomendamos que explores los muros y recorras la sección de temas.
                 </Paragraph>
             </AcceptButtonPanel>}
+            <FirstFollowsMessage
+                open={runStatus == "follows"}
+                onClose={() => {setRunStatus("guide")}}
+            />
         </>
     )
 }

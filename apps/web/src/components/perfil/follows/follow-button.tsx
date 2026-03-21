@@ -1,4 +1,5 @@
 import {
+    APIResult,
     ArCabildoabiertoActorDefs,
     FollowSuggestionsOutput,
     GetInteractionsOutput,
@@ -17,7 +18,6 @@ import {post} from "@/components/utils/react/fetch";
 
 
 function optimisticFollow(qc: QueryClient, handle: string) {
-    console.log("optimistic follow", handle)
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
         .forEach(q => {
@@ -39,11 +39,12 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
-                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
-                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[])
+                    return produce(old as APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>, draft => {
+                        if(!draft.success) return
+                        const index = draft.value
                             .findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if (draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
+                            if (draft.value[index].viewer) draft.value[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if (k[0] == "follow-suggestions") {
@@ -102,7 +103,6 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                         }
                     })
                 } else if (k[0] == "details-content" && (k[1] == "likes" || k[1] == "reposts")) {
-                    console.log("updating query")
                     qc.setQueryData(k, old => {
                         if (!old) return old
                         const value = old as InfiniteFeed<GetInteractionsOutput["feed"][number]>
@@ -148,10 +148,11 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
-                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
-                        const index = (old as ArCabildoabiertoActorDefs.ProfileViewBasic[]).findIndex(u => u.handle == handle)
+                    return produce(old as APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>, draft => {
+                        if(!draft.success) return
+                        const index = draft.value.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if (draft[index].viewer) draft[index].viewer.following = undefined
+                            if (draft.value[index].viewer) draft.value[index].viewer.following = undefined
                         }
                     })
                 } else if (k[0] == "follow-suggestions") {
@@ -238,13 +239,14 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                     })
                 } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
                     if (!old) return old
-                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
-                        const index = draft.findIndex(u => u.handle == handle)
+                    return produce(old as APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>, draft => {
+                        if(!draft.success) return
+                        const index = draft.value.findIndex(u => u.handle == handle)
                         if (index != -1) {
-                            if (draft[index].viewer) {
-                                draft[index].viewer.following = followUri
+                            if (draft.value[index].viewer) {
+                                draft.value[index].viewer.following = followUri
                             } else {
-                                draft[index].viewer = {
+                                draft.value[index].viewer = {
                                     following: followUri
                                 }
                             }
