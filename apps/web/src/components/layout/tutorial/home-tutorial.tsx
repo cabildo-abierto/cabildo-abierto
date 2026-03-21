@@ -7,7 +7,7 @@ import {useSession} from "@/components/auth/use-session";
 import {useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
 import {useLayoutConfig} from "../main-layout/layout-config-context";
-import { Session } from "@cabildo-abierto/api";
+import {Session} from "@cabildo-abierto/api";
 import {post} from "@/components/utils/react/fetch";
 import {Paragraph} from "@/components/utils/base/paragraph";
 import {SearchBar} from "@/components/utils/base/search-bar";
@@ -85,9 +85,7 @@ const FirstFollowsMessage = ({open, onClose}: {
         qc.refetchQueries({
             predicate: query => {
                 const k = query.queryKey
-                const res = Array.isArray(k) && k.length >= 2 && k[0] == "main-feed" && k[1] == "siguiendo"
-                if (res) console.log("refetching query", k); else console.log("not refetching query", k)
-                return res
+                return Array.isArray(k) && k.length >= 2 && k[0] == "main-feed" && k[1] == "siguiendo"
             }
         })
         onClose()

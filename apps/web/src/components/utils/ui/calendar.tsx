@@ -202,7 +202,7 @@ function CalendarDayButton({
             data-range-end={modifiers.range_end}
             data-range-middle={modifiers.range_middle}
             className={cn(
-                "text-sm data-[range-start=true]:text-[var(--text-light)] data-[range-end=true]:text-[var(--text-light)] data-[selected-single=true]:bg-[var(--background-dark2)] data-[selected-single=true]:font-semibold data-[range-middle=true]:bg-[var(--background-dark)] group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 flex aspect-square h-auto w-full min-w-[--cell-size] flex-col gap-1 font-normal leading-none data-[range-end=true]:rounded-md data-[range-middle=true]:rounded-none  group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] [&>span]:text-xs [&>span]:opacity-70",
+                "text-sm data-[range-start=true]:text-[var(--text-light)] data-[range-end=true]:text-[var(--text-light)] data-[selected-single=true]:bg-[var(--background-dark2)] data-[selected-single=true]:font-semibold data-[range-middle=true]:bg-[var(--background-dark)] flex aspect-square h-auto w-full min-w-[--cell-size] flex-col gap-1 font-normal leading-none data-[range-end=true]:rounded-md data-[range-middle=true]:rounded-none [&>span]:text-xs [&>span]:opacity-70",
                 defaultClassNames.day,
                 className
             )}
