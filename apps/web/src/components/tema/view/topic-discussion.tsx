@@ -1,7 +1,7 @@
 import React, {Dispatch, SetStateAction, useCallback, useState} from "react";
 import {useSession} from "@/components/auth/use-session";
 import {smoothScrollTo} from "../../utils/react/scroll";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopicVersion, TopicDiscussionOutput} from "@cabildo-abierto/api";
 import {TopicVotesOnFeed} from "../votes/topic-votes-on-feed";
 import {ReplyButton} from "../../feed/utils/reply-button";
 import WritePanel, {ReplyToContent} from "../../writing/write-panel/write-panel";
@@ -10,12 +10,11 @@ import {useAPI} from "@/components/utils/react/queries";
 import {LoadingFeed} from "../../feed/feed/loading-feed";
 import {splitUri} from "@cabildo-abierto/utils";
 import ThreadReplies from "@/components/feed/thread-replies";
-import {$Typed} from "@atproto/api";
 
 
 function useTopicDiscussion(uri: string) {
     const {did, rkey} = splitUri(uri)
-    return useAPI<$Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>[]>(
+    return useAPI<TopicDiscussionOutput>(
         `/topic-discussion?did=${did}&rkey=${rkey}`, ["topic-discussion", uri]
     )
 }

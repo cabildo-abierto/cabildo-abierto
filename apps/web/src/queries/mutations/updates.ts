@@ -3,7 +3,7 @@ import {
     AppBskyFeedDefs,
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion, GetFeedOutput, MainSearchOutput
+    ArCabildoabiertoWikiTopicVersion, GetFeedOutput, MainSearchOutput, TopicDiscussionOutput
 } from "@cabildo-abierto/api"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
@@ -201,6 +201,16 @@ function updateElementInGetFeedOutput(f: GetFeedOutput<ArCabildoabiertoFeedDefs.
 }
 
 
+function updateElementInThreadViewContentList(l: ArCabildoabiertoFeedDefs.ThreadViewContent[], uri: string, updater: QueryContentUpdater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]>) {
+    l.forEach(x => {
+        updateThreadViewContentQuery(uri, {
+            ...x,
+            $type: "ar.cabildoabierto.feed.defs#threadViewContent"
+        }, updater)
+    })
+}
+
+
 export function updateContentInQuery(queryKey: string[], qc: QueryClient, uri: string, updater: QueryContentUpdater<ArCabildoabiertoFeedDefs.FeedViewContent["content"]>) {
     const k = queryKey
     if(k[0] == "thread"){
@@ -217,8 +227,8 @@ export function updateContentInQuery(queryKey: string[], qc: QueryClient, uri: s
     } else if(k[0] == "topic-discussion") {
         qc.setQueryData(k, old => {
             if (!old) return old
-            const f = old as GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>
-            return updateElementInGetFeedOutput(f, uri, updater)
+            const f = old as TopicDiscussionOutput
+            return updateElementInThreadViewContentList(f, uri, updater)
         })
     } else if(k[0] == "topic-quote-replies") {
         qc.setQueryData(k, old => {

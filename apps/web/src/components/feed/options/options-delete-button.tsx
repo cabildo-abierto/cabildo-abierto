@@ -119,12 +119,14 @@ export const ConfirmDeleteModal = ({
                                        uri,
                                        reply,
                                        onClose,
-                                       open
+                                       open,
+    title
                                    }: {
     uri?: string
     reply?: AppBskyFeedPost.ReplyRef
     onClose: () => void
     open: boolean
+    title?: string
 }) => {
     const qc = useQueryClient()
     const collection = getCollectionFromUri(uri)
@@ -151,7 +153,7 @@ export const ConfirmDeleteModal = ({
     })
 
     return <ConfirmModal
-        title={`¿Querés borrar ${getCollectionWithArticle(collection)}?`}
+        title={title ?? `¿Querés borrar ${getCollectionWithArticle(collection)}?`}
         text={getDeleteContentMessage(collection)}
         open={open}
         onConfirm={async () => {

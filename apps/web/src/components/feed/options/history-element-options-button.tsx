@@ -61,6 +61,7 @@ export const HistoryElementOptionsButton = ({
                 setDeleteModalOpen(false)
             }}
             open={true}
+            title={record.replyCount > 0 ? "Borrar esta edición haría que se pierdan las respuestas que recibió. ¿Querés continuar igualmente?" : undefined}
         />}
     </>
 };
