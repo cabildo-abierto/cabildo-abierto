@@ -447,24 +447,26 @@ export const recomputeTopicInteractionsAndPopularities = (
 export async function getTopicsReferencedInText(ctx: AppContext, text: string): Promise<ArCabildoabiertoFeedDefs.TopicMention[]> {
     if (!text.trim()) return []
 
-    const text_tsv = sql`to_tsvector('public.spanish_simple_unaccent', ${text})`;
 
     const matches = await ctx.kysely
         .with("Synonyms", eb => eb
             .selectFrom("Topic")
-            .select(["id", "currentVersionId", sql<string>`unnest("Topic"."synonyms")`.as("keyword")])
+            .select([
+                "id",
+                "currentVersionId",
+                sql<string>`unnest("Topic"."synonyms")`.as("keyword")
+            ])
         )
         .selectFrom("Synonyms")
         .where(sql<boolean>`
-            ${text_tsv} @@ websearch_to_tsquery('public.spanish_simple_unaccent', "Synonyms"."keyword")
+            to_tsvector('public.spanish_simple_unaccent', ${text}) @@ websearch_to_tsquery('public.spanish_simple_unaccent', "Synonyms"."keyword")
         `)
         .innerJoin("TopicVersion", "TopicVersion.uri", "Synonyms.currentVersionId")
         .select([
             'Synonyms.id as topicId',
             'Synonyms.keyword',
             "TopicVersion.props",
-            sql<number>`ts_rank_cd
-            (${text_tsv}, websearch_to_tsquery('public.spanish_simple_unaccent',"Synonyms"."keyword"))`.as('rank')
+            sql<number>`ts_rank_cd(to_tsvector('public.spanish_simple_unaccent', ${text}), websearch_to_tsquery('public.spanish_simple_unaccent',"Synonyms"."keyword"))`.as('rank')
         ])
         .execute()
 

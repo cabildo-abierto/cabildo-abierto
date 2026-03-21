@@ -29,7 +29,7 @@ import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {Effect} from "effect";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 
-import {DBInsertError, DBSelectError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
@@ -162,6 +162,8 @@ export async function createTestContext(): Promise<AppContext> {
         oauthClient: undefined
     }
 
+    await ctx.worker.setup(ctx)
+
     const result = await sql<{ dbName: string }>`SELECT current_database() as "dbName"`.execute(ctx.kysely);
 
     if(result.rows[0].dbName != "ca-sql-dev") throw Error(`Los tests deberían correrse sobre la base de datos de desarrollo! ${result.rows[0].dbName}`)
@@ -216,13 +218,27 @@ export const getFollowRefAndRecord = (
 
 
 export async function cleanUPTestDataFromDB(ctx: AppContext, testSuite: string) {
-    const testUsers = await ctx.kysely
+    const [testUsers, allUsers, testTopics] = await Promise.all([
+        ctx.kysely
         .selectFrom("User")
         .select("did")
         .where("did", "ilike", `%${testSuite}%`)
-        .execute()
+        .execute(),
+        ctx.kysely
+            .selectFrom("User")
+            .select("did")
+            .execute(),
+        ctx.kysely
+            .selectFrom("Topic")
+            .select("id")
+            .execute()
+    ])
+
+    ctx.logger.pino.info({testUsers, testTopics, allUsers, testSuite}, "cleaning up test data!")
+    console.log("cleaning up test data")
 
     await Effect.runPromise(deleteUsersInTest(ctx, testUsers.map(t => t.did)))
+    await Effect.runPromise(deleteTopicsInTest(ctx, testTopics.map(t => t.id)))
 }
 
 export async function cleanUpAfterTests(ctx: AppContext) {
@@ -378,7 +394,8 @@ const getTopicVersionRecord = (
     topicId: string,
     text: string,
     created_at: Date,
-    authorId: string
+    authorId: string,
+    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
 ): Effect.Effect<ArCabildoabiertoWikiTopicVersion.Record, GenerateCIDError | RedisCacheSetError> => Effect.gen(function* ()  {
     const cid = yield* generateCid(text)
     const mimeType = "text/plain"
@@ -399,6 +416,7 @@ const getTopicVersionRecord = (
         text: blob,
         format: "markdown",
         createdAt: created_at.toISOString(),
+        ...(props && props.length > 0 && { props }),
     }
 })
 
@@ -410,6 +428,45 @@ export function getTopicVersionRefAndRecord(ctx: AppContext, topicId: string, te
         text,
         created_at,
         authorId
+    )
+
+    return record.pipe(Effect.flatMap(record => getRefAndRecord(
+        record,
+        testSuite,
+        {
+            did: authorId,
+            collection: "ar.cabildoabierto.wiki.topicVersion"
+        }
+    )))
+}
+
+
+/** Creates a topic version with synonyms for testing mentions detection. */
+export function getTopicVersionRefAndRecordWithSynonyms(
+    ctx: AppContext,
+    topicId: string,
+    text: string,
+    synonyms: string[],
+    created_at: Date,
+    authorId: string,
+    testSuite: string
+) {
+    const props: ArCabildoabiertoWikiTopicVersion.TopicProp[] = [
+        {
+            name: "Sinónimos",
+            value: {
+                $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
+                value: synonyms,
+            },
+        },
+    ]
+    const record = getTopicVersionRecord(
+        ctx,
+        topicId,
+        text,
+        created_at,
+        authorId,
+        props
     )
 
     return record.pipe(Effect.flatMap(record => getRefAndRecord(
@@ -569,7 +626,37 @@ export function getLikeRefAndRecord(ref: ATProtoStrongRef, created_at: Date = ne
 }
 
 
+export const deleteTopicsInTest = (
+    ctx: AppContext,
+    topics: string[]
+) => Effect.gen(function* () {
+    if(topics.length == 0) return
+    yield* Effect.tryPromise({
+        try: async () => {
+            await ctx.kysely
+                .deleteFrom("Poll")
+                .where("Poll.topicId", "in", topics)
+                .execute()
+            await ctx.kysely
+                .deleteFrom("TopicToCategory")
+                .where("TopicToCategory.topicId", "in", topics)
+                .execute()
+            await ctx.kysely
+                .deleteFrom("Reference")
+                .where("Reference.referencedTopicId", "in", topics)
+                .execute()
+            await ctx.kysely
+                .deleteFrom("Topic")
+                .where("Topic.id", "in", topics)
+                .execute()
+        },
+        catch: (error) => new DBDeleteError(error)
+    })
+})
+
+
 export const deleteUsersInTest = (ctx: AppContext, dids: string[]) => Effect.gen(function* () {
+    ctx.logger.pino.info({dids}, "deleting users")
     yield* deleteUsers(ctx, dids)
 
     if(ctx.worker) {
@@ -586,6 +673,7 @@ export function processRecordsInTest(ctx: AppContext, records: RefAndRecord[]) {
     return Effect.all(
         records.map(r => {
             const processor = getRecordProcessor(ctx, getCollectionFromUri(r.ref.uri))
+            ctx.logger.pino.info({uri: r.ref.uri}, "processing record")
             return processor.process([r])
         }),
         {concurrency: 4}
@@ -616,6 +704,15 @@ export async function getRecord(ctx: AppContext, uri: string){
         .where("Record.uri", "=", uri)
         .selectAll()
         .executeTakeFirst()
+}
+
+
+export async function resetTestDB() {
+    const ctx = await createTestContext()
+    const users = await ctx.kysely.selectFrom("User").select("did").execute()
+    await Effect.runPromise(deleteUsersInTest(ctx, users.map(u => u.did)))
+    const users2 = await ctx.kysely.selectFrom("User").select("did").execute()
+    ctx.logger.pino.info({users2}, "users remaining")
 }
 
 

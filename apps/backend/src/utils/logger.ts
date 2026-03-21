@@ -1,13 +1,38 @@
 import pino from "pino";
+import {prettyFactory} from "pino-pretty";
+import {Writable} from "stream";
 import {env} from "#/lib/env.js";
 
-
+function createConsoleLogDestination(): Writable {
+    const prettify = prettyFactory({sync: true, colorize: true});
+    return new Writable({
+        write(chunk, _enc, cb) {
+            try {
+                console.log(prettify(chunk.toString()));
+            } catch {
+                console.log(chunk.toString());
+            }
+            cb();
+        },
+    });
+}
 
 export class Logger {
-    pino: pino.Logger
+    pino: pino.Logger;
 
     constructor(name: string) {
-        this.pino = pino({name, level: env.NODE_ENV == "test" ? "silent" : "info"})
+        const level =
+            env.NODE_ENV === "test"
+                ? process.env.LOG_IN_TESTS === "true"
+                    ? "info"
+                    : "silent"
+                : "info";
+
+        const logInTests = env.NODE_ENV === "test" && process.env.LOG_IN_TESTS === "true";
+
+        this.pino = logInTests
+            ? pino({name, level}, createConsoleLogDestination())
+            : pino({name, level});
     }
 
     logTimes(msg: string, times: number[], object?: Record<string, unknown>){

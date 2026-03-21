@@ -7,8 +7,9 @@ import { BatchSpanProcessor, ConsoleSpanExporter, SimpleSpanProcessor } from "@o
 
 dotenv.config();
 
+const LOG_IN_TEST = false
 const isTest = process.env.NODE_ENV === 'test';
-const traceExporter = isTest
+const traceExporter = isTest && LOG_IN_TEST
     ? new ConsoleSpanExporter()
     : new OTLPTraceExporter({
         url: 'https://us-east-1.aws.edge.axiom.co/v1/traces',
@@ -17,7 +18,7 @@ const traceExporter = isTest
             'X-Axiom-Dataset': 'cabildo-abierto'
         }
     });
-const spanProcessor = isTest
+const spanProcessor = isTest && LOG_IN_TEST
     ? new SimpleSpanProcessor(traceExporter)
     : new BatchSpanProcessor(traceExporter);
 
