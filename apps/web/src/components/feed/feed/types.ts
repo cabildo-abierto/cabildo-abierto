@@ -19,4 +19,5 @@ export type FeedProps<T> = {
     estimateSize?: number
     overscan?: number
     feedMerger?: FeedMerger<T>
+    endTextClassName?: string
 }

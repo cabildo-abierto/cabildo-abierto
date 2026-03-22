@@ -1,7 +1,7 @@
 import {ContentOptionsButton} from "@/components/feed/options/content-options-button"
 import {ReplyCounter} from "./reply-counter"
 import {getCollectionFromUri} from "@cabildo-abierto/utils";
-import React, {useState} from "react";
+import React from "react";
 import {$Typed} from "@cabildo-abierto/api";
 import {RepostCounter} from "./repost-counter";
 import {LikeCounter} from "./like-counter";
@@ -9,6 +9,7 @@ import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {EngagementDetails} from "./engagement-details";
 import {BaseButtonProps} from "@/components/utils/base/base-button";
 import {cn} from "@/lib/utils";
+import {useShowBsky} from "@/lib/hooks/show-bsky";
 
 
 type EngagementIconsProps = {
@@ -30,7 +31,7 @@ export const EngagementIcons = ({
                                     showDetails = false,
                                     textClassName
                                 }: EngagementIconsProps) => {
-    const [showBsky, setShowBsky] = useState(false)
+    const {showBsky} = useShowBsky()
 
     return <div>
         {showDetails && <EngagementDetails
@@ -74,8 +75,6 @@ export const EngagementIcons = ({
             <ContentOptionsButton
                 record={content}
                 enDiscusion={enDiscusion}
-                showBluesky={showBsky}
-                setShowBluesky={setShowBsky}
                 iconSize={iconSize}
                 className={"z-[1600]"}
             />

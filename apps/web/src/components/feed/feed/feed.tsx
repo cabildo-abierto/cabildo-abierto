@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import {useWindowVirtualizer} from '@tanstack/react-virtual';
 import {FeedProps} from "./types";
 import {useFeed, useFetchNextPage} from "./use-feed";
 import {LoadingFeed} from "./loading-feed";
@@ -16,13 +16,14 @@ function Feed<T>({
                      getFeedElementKey,
                      LoadingFeedContent,
                      FeedElement,
-                     enabled=true,
-                     estimateSize=500,
-                     overscan=4,
+                     enabled = true,
+                     estimateSize = 500,
+                     overscan = 4,
                      startContent,
                      isLoadingStartContent,
                      loadingStartContent,
-                     feedMerger=defaultFeedMerger
+                     feedMerger = defaultFeedMerger,
+                     endTextClassName
                  }: FeedProps<T>) {
     const {data: feed, fetchNextPage, loading, hasNextPage, isFetching, isFetchingNextPage, feedList} = useFeed(
         getFeed,
@@ -66,9 +67,9 @@ function Feed<T>({
                 }}
             >
                 {items.map((c) => {
-                    const isEnd = c.index == count-1
+                    const isEnd = c.index == count - 1
                     const isStart = c.index == 0 && startContent != null
-                    const feedListIndex = c.index-(startContent ? 1 : 0)
+                    const feedListIndex = c.index - (startContent ? 1 : 0)
                     return <div
                         key={isEnd ? "end" : isStart ? "start" : getFeedElementKey(feedList[feedListIndex])}
                         data-index={c.index}
@@ -82,7 +83,10 @@ function Feed<T>({
                                     <LoadingFeed loadingFeedContent={LoadingFeedContent}/>
                                 }
                                 {feed && !hasNextPage && (endText || noResultsText) &&
-                                    <FeedEndText text={feedList.length > 0 ? endText : noResultsText}/>}
+                                    <FeedEndText
+                                        text={feedList.length > 0 ? endText : noResultsText}
+                                        className={endTextClassName}
+                                    />}
                             </div>)}
                     </div>
                 })}

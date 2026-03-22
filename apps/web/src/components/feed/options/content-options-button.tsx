@@ -28,15 +28,11 @@ const WritePanel = dynamic(() => import('../../writing/write-panel/write-panel')
 export const ContentOptionsButton = ({
                                          record,
                                          enDiscusion = false,
-                                         showBluesky,
-                                         setShowBluesky,
                                          iconSize,
                                          className
                                      }: {
     record?: $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView>
     enDiscusion?: boolean
-    showBluesky?: boolean
-    setShowBluesky?: (v: boolean) => void
     iconSize?: BaseButtonProps["size"]
     className?: string
 }) => {
@@ -46,6 +42,8 @@ export const ContentOptionsButton = ({
     const [topicsMentionedModalOpen, setTopicsMentionedModalOpen] = useState(false)
 
     const reply = ArCabildoabiertoFeedDefs.isPostView(record) && record.record && "reply" in record.record ? (record.record as AppBskyFeedPost.Record).reply : undefined
+
+    const isArticle = ArCabildoabiertoFeedDefs.isArticleView(record) || ArCabildoabiertoFeedDefs.isFullArticleView(record)
 
     return <>
         <DropdownMenu>
@@ -89,10 +87,7 @@ export const ContentOptionsButton = ({
                         setEditingPost={setEditingPost}
                     />
                     <OptionsOpenInBlueskyButton uri={record.uri}/>
-                    <OptionsBlueskyReactionsButton
-                        showBluesky={showBluesky}
-                        setShowBluesky={setShowBluesky}
-                    />
+                    {!isArticle && <OptionsBlueskyReactionsButton/>}
                     <OptionsShareButton
                         uri={record.uri}
                         handle={record.author.handle}
