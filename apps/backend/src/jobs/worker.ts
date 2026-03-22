@@ -26,6 +26,7 @@ import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {assignInviteCodesToUsers} from "#/services/user/access.js";
 import {resetContentsFormat, updateContentsNumWords, updateContentsText} from "#/services/wiki/content.js";
 import {updatePostLangs} from "#/services/admin/posts.js";
+import {updateAllFollowCounters} from "#/services/user/follows.js";
 import {updateFollowSuggestions} from "#/services/user/follow-suggestions.js";
 import {updateInteractionsScore} from "#/services/feed/feed-scores.js";
 import {updateAllTopicsCurrentVersions} from "#/services/wiki/current-version.js";
@@ -213,6 +214,10 @@ export class CAWorker {
         this.registerJob(
             "update-follow-suggestions",
             () => updateFollowSuggestions(ctx)
+        )
+        this.registerJob(
+            "update-all-follow-counters",
+            () => updateAllFollowCounters(ctx)
         )
         this.registerJob(
             "update-records-created-at",

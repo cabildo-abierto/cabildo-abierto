@@ -1,6 +1,8 @@
 import {AppContext} from "#/setup.js";
 import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
-import {unique} from "@cabildo-abierto/utils";
+import {getDidFromUri, unique} from "@cabildo-abierto/utils";
+import {sql, Transaction} from "kysely";
+import {DB} from "prisma/generated/types.js";
 import {
     DataPlane,
     FetchFromBskyError,
@@ -117,6 +119,100 @@ export const getFollowers: EffHandlerNoAuth<{
 }
 
 
+export type FollowForCounter = { uri: string; userFollowedId: string | null; authorId?: string | null }
+
+
+async function getFollowedInCADids(trx: Transaction<DB>, dids: string[]): Promise<Set<string>> {
+    if (dids.length === 0) return new Set()
+    const users = await trx
+        .selectFrom("User")
+        .where("did", "in", dids)
+        .where("inCA", "=", true)
+        .select("did")
+        .execute()
+    return new Set(users.map((u) => u.did))
+}
+
+export async function incrementCaFollowCounters(
+    trx: Transaction<DB>,
+    follows: FollowForCounter[]
+): Promise<void> {
+    const validFollows = follows.filter(
+        (f) => f.userFollowedId != null && (f.authorId ?? getDidFromUri(f.uri)) != null
+    )
+    if (validFollows.length === 0) return
+
+    const followedDids = unique(validFollows.map((f) => f.userFollowedId!))
+    const followedInCA = await getFollowedInCADids(trx, followedDids)
+
+    const toIncrement = validFollows.filter((f) => followedInCA.has(f.userFollowedId!))
+    if (toIncrement.length === 0) return
+
+    const followerCounts = new Map<string, number>()
+    const followedCounts = new Map<string, number>()
+    for (const f of toIncrement) {
+        const follower = f.authorId ?? getDidFromUri(f.uri)
+        const followed = f.userFollowedId!
+        followerCounts.set(follower, (followerCounts.get(follower) ?? 0) + 1)
+        followedCounts.set(followed, (followedCounts.get(followed) ?? 0) + 1)
+    }
+
+    for (const [did, delta] of followerCounts) {
+        await trx
+            .updateTable("User")
+            .set((eb) => ({ caFollowingCount: eb("caFollowingCount", "+", delta) }))
+            .where("did", "=", did)
+            .execute()
+    }
+    for (const [did, delta] of followedCounts) {
+        await trx
+            .updateTable("User")
+            .set((eb) => ({ caFollowersCount: eb("caFollowersCount", "+", delta) }))
+            .where("did", "=", did)
+            .execute()
+    }
+}
+
+export async function decrementCaFollowCounters(
+    trx: Transaction<DB>,
+    follows: FollowForCounter[]
+): Promise<void> {
+    const validFollows = follows.filter(
+        (f) => f.userFollowedId != null && (f.authorId ?? getDidFromUri(f.uri)) != null
+    )
+    if (validFollows.length === 0) return
+
+    const followedDids = unique(validFollows.map((f) => f.userFollowedId!))
+    const followedInCA = await getFollowedInCADids(trx, followedDids)
+
+    const toDecrement = validFollows.filter((f) => followedInCA.has(f.userFollowedId!))
+    if (toDecrement.length === 0) return
+
+    const followerCounts = new Map<string, number>()
+    const followedCounts = new Map<string, number>()
+    for (const f of toDecrement) {
+        const follower = f.authorId ?? getDidFromUri(f.uri)
+        const followed = f.userFollowedId!
+        followerCounts.set(follower, (followerCounts.get(follower) ?? 0) + 1)
+        followedCounts.set(followed, (followedCounts.get(followed) ?? 0) + 1)
+    }
+
+    for (const [did, delta] of followerCounts) {
+        await trx
+            .updateTable("User")
+            .set({ caFollowingCount: sql`greatest(0, "caFollowingCount" - ${delta})` })
+            .where("did", "=", did)
+            .execute()
+    }
+    for (const [did, delta] of followedCounts) {
+        await trx
+            .updateTable("User")
+            .set({ caFollowersCount: sql`greatest(0, "caFollowersCount" - ${delta})` })
+            .where("did", "=", did)
+            .execute()
+    }
+}
+
 export const maybeClearFollows = (ctx: AppContext, agent: SessionAgent): Effect.Effect<void, FetchFromBskyError | ATDeleteRecordError | ProcessDeleteError> => {
     const bskyDid = "did:plc:z72i7hdynmk6r22z27h6tvur"
 
@@ -173,22 +269,24 @@ export async function updateAllFollowCounters(ctx: AppContext) {
                 .orderBy("User.created_at_tz asc")
                 .execute()
 
-            await ctx.kysely
-                .insertInto("User")
-                .values(users.map(u => {
-                    return {
-                        did: u.did,
-                        caFollowingCount: u.followsCount ?? 0,
-                        caFollowersCount: u.followersCount ?? 0
-                    }
-                }))
-                .onConflict(oc => oc
-                .column("did")
-                .doUpdateSet(eb => ({
-                    caFollowersCount: eb.ref("excluded.caFollowersCount"),
-                    caFollowingCount: eb.ref("excluded.caFollowingCount")
-                })))
-                .execute()
+            if(users.length > 0) {
+                await ctx.kysely
+                    .insertInto("User")
+                    .values(users.map(u => {
+                        return {
+                            did: u.did,
+                            caFollowingCount: u.followsCount ?? 0,
+                            caFollowersCount: u.followersCount ?? 0
+                        }
+                    }))
+                    .onConflict(oc => oc
+                        .column("did")
+                        .doUpdateSet(eb => ({
+                            caFollowersCount: eb.ref("excluded.caFollowersCount"),
+                            caFollowingCount: eb.ref("excluded.caFollowingCount")
+                        })))
+                    .execute()
+            }
 
             return users
         })

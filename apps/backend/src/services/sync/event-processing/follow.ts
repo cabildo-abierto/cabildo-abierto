@@ -9,6 +9,10 @@ import {getDidFromUri} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {DBDeleteError} from "#/utils/errors.js";
+import {
+    incrementCaFollowCounters,
+    decrementCaFollowCounters
+} from "#/services/user/follows.js";
 
 
 export const followRecordProcessor: RecordProcessor<AppBskyGraphFollow.Record> = {
@@ -27,15 +31,15 @@ export const followRecordProcessor: RecordProcessor<AppBskyGraphFollow.Record> =
             await addRecordsToDBBatch(trx, records)
             await createUsersBatch(trx, records.map(r => r.record.subject))
 
-            await trx
+            const insertedFollows = await trx
                 .insertInto("Follow")
                 .values(follows)
-                .onConflict((oc) =>
-                    oc.column("uri").doUpdateSet({
-                        userFollowedId: (eb) => eb.ref('excluded.userFollowedId'),
-                    })
-                )
+                .onConflict((oc) => oc.column("uri").doNothing())
+                .returning(["uri", "userFollowedId", "authorId"])
                 .execute()
+
+            await incrementCaFollowCounters(trx, insertedFollows)
+
             return records.length
         })
 
@@ -59,8 +63,10 @@ export const followDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(
         try: () => ctx.kysely.transaction().execute(async (trx) => {
             const follows = await trx.selectFrom("Follow")
                 .where("Follow.uri", "in", uris)
-                .select(["Follow.userFollowedId", "Follow.uri"])
+                .select(["Follow.userFollowedId", "Follow.uri", "Follow.authorId"])
                 .execute()
+
+            await decrementCaFollowCounters(trx, follows)
 
             await trx
                 .deleteFrom("Follow")
@@ -78,7 +84,7 @@ export const followDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(
     })
 
     yield* ctx.worker.addJob("update-following-feed-on-follow-change", follows.map(f => ({
-        follower: getDidFromUri(f.uri),
+        follower: f.authorId ?? getDidFromUri(f.uri),
         followed: f.userFollowedId
     })).filter(x => x.followed != null))
 })

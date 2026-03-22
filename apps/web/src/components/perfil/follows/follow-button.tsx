@@ -37,14 +37,22 @@ function optimisticFollow(qc: QueryClient, handle: string) {
                             draft.followersCount++
                         }
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
+                } else if (k[0] == "user-search") {
                     if (!old) return old
                     return produce(old as APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>, draft => {
-                        if(!draft.success) return
+                        if (!draft.success) return
                         const index = draft.value
                             .findIndex(u => u.handle == handle)
                         if (index != -1) {
                             if (draft.value[index].viewer) draft.value[index].viewer.following = "optimistic-follow"
+                        }
+                    })
+                } else if (k[0] == "followers" || k[0] == "follows") {
+                    if(!old) return old
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
+                        const index = draft.findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            if (draft[index].viewer) draft[index].viewer.following = "optimistic-follow"
                         }
                     })
                 } else if (k[0] == "follow-suggestions") {
@@ -124,7 +132,6 @@ function optimisticFollow(qc: QueryClient, handle: string) {
 
 
 function optimisticUnfollow(qc: QueryClient, handle: string) {
-    console.log("optimistic unfollow", handle)
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && isQueryRelatedToFollow(q))
         .forEach(q => {
@@ -132,8 +139,6 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                 if (!old) return old
 
                 const k = q.queryKey
-
-                console.log("k", k)
 
                 if (k[0] == "profile" && k[1] == handle) {
                     if (!old) return old
@@ -146,13 +151,21 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                             draft.followersCount--
                         }
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
+                } else if (k[0] == "user-search") {
                     if (!old) return old
                     return produce(old as APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>, draft => {
-                        if(!draft.success) return
+                        if (!draft.success) return
                         const index = draft.value.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             if (draft.value[index].viewer) draft.value[index].viewer.following = undefined
+                        }
+                    })
+                } else if (k[0] == "followers" || k[0] == "follows") {
+                    if (!old) return old
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
+                        const index = draft.findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            if (draft[index].viewer) draft[index].viewer.following = undefined
                         }
                     })
                 } else if (k[0] == "follow-suggestions") {
@@ -200,7 +213,6 @@ function optimisticUnfollow(qc: QueryClient, handle: string) {
                         return old
                     }
                 } else if (k[0] == "details-content" && (k[1] == "likes" || k[1] == "reposts")) {
-                    console.log("updating query")
                     const value = old as InfiniteFeed<GetInteractionsOutput["feed"][number]>
                     return produce(value, draft => {
                         for (const p of draft.pages) {
@@ -237,10 +249,10 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                             }
                         }
                     })
-                } else if (k[0] == "user-search" || k[0] == "followers" || k[0] == "follows") {
+                } else if (k[0] == "user-search") {
                     if (!old) return old
                     return produce(old as APIResult<ArCabildoabiertoActorDefs.ProfileViewBasic[]>, draft => {
-                        if(!draft.success) return
+                        if (!draft.success) return
                         const index = draft.value.findIndex(u => u.handle == handle)
                         if (index != -1) {
                             if (draft.value[index].viewer) {
@@ -252,6 +264,21 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                             }
                         }
                     })
+                } else if(k[0] == "followers" || k[0] == "follows") {
+                    if (!old) return old
+                    return produce(old as ArCabildoabiertoActorDefs.ProfileViewBasic[], draft => {
+                        const index = draft.findIndex(u => u.handle == handle)
+                        if (index != -1) {
+                            if (draft[index].viewer) {
+                                draft[index].viewer.following = followUri
+                            } else {
+                                draft[index].viewer = {
+                                    following: followUri
+                                }
+                            }
+                        }
+                    })
+
                 } else if (k[0] == "follow-suggestions-feed") {
                     if (!old) return old
                     return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileView>, draft => {
@@ -304,7 +331,6 @@ function setFollow(qc: QueryClient, handle: string, followUri: string) {
                         }
                     })
                 } else if (k[0] == "details-content" && (k[1] == "likes" || k[1] == "reposts")) {
-                    console.log("updating query")
                     const value = old as InfiniteFeed<GetInteractionsOutput["feed"][number]>
                     return produce(value, draft => {
                         for (const p of draft.pages) {

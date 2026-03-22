@@ -25,7 +25,7 @@ export const Followx = ({handle, kind}: { handle: string, kind: FollowKind }) =>
     const bskyCount = kind == "seguidores" ? profile.bskyFollowersCount : profile.bskyFollowsCount
 
     return <div>
-        {profile && <div className={"w-full p-2 sm:text-base text-sm border-b text-[var(--text-light)]"}>
+        {profile && <div className={"w-full p-2 text-sm border-b text-[var(--text-light)]"}>
             {caCount != null && <><FollowCount count={caCount} kind={kind}/> <span>
                 en Cabildo Abierto,
             </span> </>}<FollowCount count={bskyCount} kind={kind}/> <span>
