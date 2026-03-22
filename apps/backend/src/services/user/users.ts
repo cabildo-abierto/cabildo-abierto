@@ -395,7 +395,7 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
                 try: () => ctx.kysely
                     .selectFrom("User")
                     .leftJoin("MailingListSubscription", "MailingListSubscription.userId", "User.did")
-                    .select(["User.email", "MailingListSubscription.id as subsId", "MailingListSubscription.status"])
+                    .select(["User.email", "User.emailVerified", "MailingListSubscription.id as subsId", "MailingListSubscription.status"])
                     .where("did", "=", agent.did)
                     .execute(),
                 catch: () => "Error al obtener los datos del correo del usuario."
@@ -411,7 +411,7 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
         }
 
 
-        const {email, subsId, status} = caData[0]
+        const {email, emailVerified, subsId, status} = caData[0]
         const subscribed = subsId != null && status == "Subscribed"
 
         const bskyEmail = bskySession.data.email
@@ -429,6 +429,7 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
 
         return {
             email: email ?? bskyEmail,
+            emailVerified: emailVerified ?? false,
             subscribedToEmailUpdates: subscribed
         }
     }).pipe(
@@ -684,7 +685,7 @@ export const saveNewEmail: EffHandler<{email: string}, {}> = (ctx, agent, {email
         yield* Effect.tryPromise({
             try: () => ctx.kysely.transaction().execute(async trx => {
                 await trx.updateTable("User")
-                    .set("email", email)
+                    .set({email, emailVerified: false})
                     .where("did", "=", agent.did)
                     .execute()
 

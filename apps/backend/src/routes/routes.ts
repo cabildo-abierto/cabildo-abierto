@@ -24,6 +24,7 @@ import {
     updateAlgorithmConfig,
     updateProfileHandler
 } from "#/services/user/users.js";
+import {sendVerificationEmail, verifyEmailFromToken} from "#/services/user/email-verification.js";
 import {createPost} from "#/services/write/post.js";
 import {addLike, removeLike, removeRepost, repost} from "#/services/reactions/reactions.js";
 import {getThread} from "#/services/thread/thread.js";
@@ -489,6 +490,10 @@ export const createRouter = (ctx: AppContext): Router => {
     })
 
     router.post("/email", makeEffHandler(ctx, saveNewEmail))
+
+    router.post("/send-verification-email", makeEffHandler(ctx, sendVerificationEmail))
+
+    router.get("/verify-email", makeEffHandler(ctx, verifyEmailFromToken))
 
     router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
 

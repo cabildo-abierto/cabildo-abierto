@@ -46,6 +46,7 @@ import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "
 import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 import {getPendingModeration} from "#/services/moderation/status.js";
 import {batchEditHandler, editTopicHandler} from "#/services/wiki/batch-editing.js";
+import {unverifyOwnEmail} from "#/services/user/email-verification.js";
 
 
 export const adminRoutes = (ctx: AppContext): Router => {
@@ -54,6 +55,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.post(
         "/sync-user/:handleOrDid",
         makeEffAdminHandler(ctx, syncUserHandler)
+    )
+
+    router.post(
+        "/unverify-email",
+        makeEffAdminHandler(ctx, unverifyOwnEmail)
     )
     router.post(
         "/user/delete/:handleOrDid",

@@ -606,7 +606,8 @@ model User {
   bskyProfileUri String? @unique
   bskyProfile    Record? @relation(fields: [bskyProfileUri], references: [uri])
 
-  events Event[]
+  events                  Event[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
@@ -854,6 +855,18 @@ model PollVote {
   poll   Poll?   @relation(fields: [pollId], references: [id])
 
   choice String
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [did], onDelete: Cascade)
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([userId])
+  @@index([token])
 }
 
 enum ModerationMethod {

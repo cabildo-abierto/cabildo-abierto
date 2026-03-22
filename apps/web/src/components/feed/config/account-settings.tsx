@@ -15,6 +15,8 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {CloseButton} from "@/components/utils/base/close-button";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {FloppyDiskIcon} from "@phosphor-icons/react";
+import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
+import {Paragraph} from "@/components/utils/base/paragraph";
 
 
 const useAccount = () => {
@@ -77,10 +79,33 @@ export function isValidEmail(email: string) {
 }
 
 
+const VERIFICATION_COOLDOWN_SECONDS = 30
+
 const AccountEmail = () => {
     const {account, refetch} = useAccount()
     const [addingEmail, setAddingEmail] = useState(false)
     const [newEmail, setNewEmail] = useState("")
+    const [lastSendAt, setLastSendAt] = useState<number | null>(null)
+    const [cooldownRemaining, setCooldownRemaining] = useState(0)
+    const [showEmailSentPopup, setShowEmailSentPopup] = useState(false)
+    const [sent, setSent] = useState(false)
+
+    React.useEffect(() => {
+        if (lastSendAt === null) return
+        const updateCooldown = () => {
+            const elapsed = (Date.now() - lastSendAt) / 1000
+            const remaining = Math.ceil(VERIFICATION_COOLDOWN_SECONDS - elapsed)
+            if (remaining <= 0) {
+                setCooldownRemaining(0)
+                setLastSendAt(null)
+                return
+            }
+            setCooldownRemaining(remaining)
+        }
+        updateCooldown()
+        const interval = setInterval(updateCooldown, 1000)
+        return () => clearInterval(interval)
+    }, [lastSendAt])
 
     async function onSaveNewEmail() {
         const res = await post("/email", {email: newEmail})
@@ -92,6 +117,23 @@ const AccountEmail = () => {
             return {error: res.error}
         }
     }
+
+    async function onSendVerification() {
+        const res = await post("/send-verification-email")
+        if (res.success === true) {
+            setLastSendAt(Date.now())
+            setShowEmailSentPopup(true)
+            setSent(true)
+            return {}
+        } else {
+            if (res.error?.includes("30 segundos")) {
+                setLastSendAt(Date.now())
+            }
+            return {error: res.error}
+        }
+    }
+
+    const canSendVerification = cooldownRemaining === 0
 
     if (addingEmail) {
         return <div className={"flex space-x-2"}>
@@ -118,11 +160,46 @@ const AccountEmail = () => {
             />
         </div>
     } else if (account.email) {
-        return <div>
+        return <div className={"space-y-1"}>
             <Note className={"text-left"}>
-                {account.email}. <button onClick={() => setAddingEmail(true)}
-                                         className={"underline hover:text-[var(--text-light)]"}>Cambiar</button>.
+                {account.email}.
+                {" "}
+                <button onClick={() => setAddingEmail(true)}
+                       className={"underline hover:text-[var(--text-light)]"}>
+                    Cambiar
+                </button>.
+                {" "}
             </Note>
+            {account.emailVerified
+                ? <Note className={"text-left"}>Correo verificado.</Note>
+                : <> <StateButton
+                    handleClick={onSendVerification}
+                    size={"small"}
+                    variant={"outlined"}
+                    disabled={!canSendVerification}
+                    className={"py-1 text-xs"}
+                    textClassName={"normal-case"}
+                >
+                    {canSendVerification ? (!sent ? "Verificar correo" : "Volver a enviar") : `Podés enviar otro en ${cooldownRemaining} s`}
+                </StateButton></>
+            }
+            {showEmailSentPopup && (
+                <AcceptButtonPanel
+                    open={showEmailSentPopup}
+                    onClose={async () => {
+                        setShowEmailSentPopup(false)
+                        return {}
+                    }}
+                    className={"max-w-[400px]"}
+                >
+                    <div className="space-y-2">
+                        <h2 className="font-semibold text-lg">Enviamos un correo de verificación</h2>
+                        <Paragraph>
+                            Revisá tu bandeja de entrada (y la carpeta de spam) y hacé clic en el enlace para verificar tu correo.
+                        </Paragraph>
+                    </div>
+                </AcceptButtonPanel>
+            )}
         </div>
     } else {
         return <div>
@@ -176,6 +253,26 @@ export const AccountSettings = () => {
         </SettingsElement>
         {account && <SettingsElement label={"Correo"}>
             <AccountEmail/>
+            {user.platformAdmin && account.email && account.emailVerified && (
+                <div className="mt-2">
+                    <StateButton
+                        handleClick={async () => {
+                            const res = await post("/unverify-email")
+                            if (res.success === true) {
+                                await refetchAccount()
+                                return {}
+                            }
+                            return {error: res.error}
+                        }}
+                        size={"small"}
+                        variant={"outlined"}
+                        className="text-xs"
+                        textClassName="normal-case"
+                    >
+                        (Admin) Desverificar correo
+                    </StateButton>
+                </div>
+            )}
         </SettingsElement>}
         {account && <SettingsElement label={"Novedades por correo"}>
             {account.email && (account.subscribedToEmailUpdates ? <UnsubscribeButton/> :
