@@ -107,6 +107,8 @@ function addReactionJobs(
         if (likeAndRepostsSubjects.length > 0) {
             yield* worker.addJob("update-interactions-score", likeAndRepostsSubjects)
         }
+
+        yield* worker.addJob("update-topic-popularities-on-reactions", records.map(r => r.ref.uri))
     })
 }
 
@@ -225,8 +227,6 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
     )
 }
 
-
-/** Used when reaction type is known at call site (e.g. from sync by collection) */
 export const likeRecordProcessor: RecordProcessor<AppBskyFeedLike.Record> = {
     validator: (ctx, record: AppBskyFeedLike.Record) => Effect.succeed(AppBskyFeedLike.validateRecord(record)),
     addRecordsToDB: addReactionRecordsToDB as RecordProcessor<AppBskyFeedLike.Record>["addRecordsToDB"]
@@ -248,7 +248,6 @@ export const voteRejectRecordProcessor: RecordProcessor<ArCabildoabiertoWikiVote
 }
 
 
-/** Used when reaction type comes from record $type (e.g. addReaction in reactions.ts) */
 export const reactionRecordProcessor: RecordProcessor<ReactionRecord> = {
     validator: (ctx, record: ReactionRecord) => {
         const $type = record.$type
@@ -334,7 +333,7 @@ export const reactionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.ge
             }
             return {topicIds: [] as string[], subjectIds}
         }),
-        catch: () => new DBDeleteError()
+        catch: (error) => new DBDeleteError(error)
     })
     if (topicIds && topicIds.length > 0) {
         yield* addUpdateContributionsJobForTopics(ctx, topicIds)

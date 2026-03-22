@@ -241,7 +241,7 @@ export class CAWorker {
             (data) => updatePopularitiesOnContentsChange(ctx, data as string[]),
             true
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-topic-popularities-on-reactions",
             data => updatePopularitiesOnNewReactions(ctx, data as string[]),
             true
@@ -505,8 +505,6 @@ export class RedisCAWorker extends CAWorker {
     }
 
     async batchJobs() {
-        const t1 = Date.now()
-
         const allJobs = await this.queue.getJobs(['waiting', 'delayed', 'prioritized', 'waiting-children', 'wait', 'repeat']);
         this.logger.pino.info({count: allJobs.length}, `batching jobs`)
         const batchSize = 500
@@ -517,8 +515,6 @@ export class RedisCAWorker extends CAWorker {
                     await this.batchJobsWithName(job.name, allJobs, batchSize)
                 }
             }
-
-            this.logger.logTimes("jobs batched", [t1, Date.now()])
         } catch (err) {
             this.logger.pino.error(err, "error batching jobs")
         }
@@ -540,7 +536,6 @@ export class RedisCAWorker extends CAWorker {
 
         const jobData = jobsRequireBatching.flatMap(job => job.data)
 
-        this.logger.pino.info({count: jobsRequireBatching.length, name}, `removing jobs`)
         await Promise.all(jobsRequireBatching.map(async job => {
             try {
                 await job.remove()

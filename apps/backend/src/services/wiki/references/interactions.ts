@@ -22,43 +22,50 @@ import {Effect} from "effect";
 //   se eliminan automáticamente sus interacciones
 
 
-export async function updateTopicInteractionsOnNewReactions(ctx: AppContext, records: string[]): Promise<string[]> {
-    records = records
-        .filter(r => isReactionCollection(getCollectionFromUri(r)))
-    if (records.length == 0) return []
+export function updateTopicInteractionsOnNewReactions(ctx: AppContext, records: string[]): Effect.Effect<string[], DBSelectError> {
+    return Effect.gen(function* () {
+        records = records
+            .filter(r => isReactionCollection(getCollectionFromUri(r)))
+        if (records.length == 0) return []
 
-    const bs = 500
-    if (records.length > bs) {
-        const topicsWithNewInteractions: string[] = []
-        for (let i = 0; i < records.length; i += bs) {
-            topicsWithNewInteractions.push(
-                ...await updateTopicInteractionsOnNewReactions(ctx, records.slice(i, i + bs))
-            )
+        const bs = 500
+        if (records.length > bs) {
+            const topicsWithNewInteractions: string[] = []
+            for (let i = 0; i < records.length; i += bs) {
+                topicsWithNewInteractions.push(
+                    ...yield* updateTopicInteractionsOnNewReactions(ctx, records.slice(i, i + bs))
+                )
+            }
+            return topicsWithNewInteractions
         }
-        return topicsWithNewInteractions
-    }
 
-    return await ctx.kysely.transaction().execute(async trx => {
-        const interactions = await trx
-            .selectFrom("TopicInteraction")
-            .innerJoin("Reaction", "Reaction.subjectId", "TopicInteraction.recordId")
-            .innerJoin("Reference", "Reference.id", "TopicInteraction.referenceId")
-            .where("Reaction.uri", "in", records)
-            .select(["referenceId", "Reaction.uri as recordId", "Reference.referencedTopicId"])
-            .execute()
+        return yield* Effect.tryPromise({
+            try: () => ctx.kysely.transaction().execute(async trx => {
+                const interactions = await trx
+                    .selectFrom("TopicInteraction")
+                    .innerJoin("Reaction", "Reaction.subjectId", "TopicInteraction.recordId")
+                    .innerJoin("Reference", "Reference.id", "TopicInteraction.referenceId")
+                    .where("Reaction.uri", "in", records)
+                    .select(["referenceId", "Reaction.uri as recordId", "Reference.referencedTopicId"])
+                    .execute()
 
-        await ctx.kysely
-            .insertInto("TopicInteraction")
-            .values(interactions.map(i => ({
-                referenceId: i.referenceId,
-                recordId: i.recordId,
-                id: uuidv4(),
-                touched: new Date(),
-            })))
-            .onConflict(oc => oc.columns(["recordId", "referenceId"]).doNothing())
-            .execute()
+                if(interactions.length == 0) return []
 
-        return interactions.map(i => i.referencedTopicId)
+                await trx
+                    .insertInto("TopicInteraction")
+                    .values(interactions.map(i => ({
+                        referenceId: i.referenceId,
+                        recordId: i.recordId,
+                        id: uuidv4(),
+                        touched: new Date(),
+                    })))
+                    .onConflict(oc => oc.columns(["recordId", "referenceId"]).doNothing())
+                    .execute()
+
+                return interactions.map(i => i.referencedTopicId)
+            }),
+            catch: (error) => new DBSelectError(error)
+        })
     })
 }
 

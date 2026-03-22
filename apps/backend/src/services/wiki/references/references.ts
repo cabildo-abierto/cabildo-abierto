@@ -217,7 +217,7 @@ const applyReferencesUpdate = (
                     })))
                     .execute()
             }
-            const res = await trx
+            await trx
                 .deleteFrom("Reference")
                 .where("touched_tz", "<", date)
                 .$if(
@@ -382,18 +382,15 @@ export const updatePopularitiesOnContentsChange = (
 }).pipe(Effect.withSpan("updatePopularitiesOnContentsChange", {attributes: {count: uris.length}}))
 
 
-export async function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
-    uris = uris.filter(r => isReactionCollection(getCollectionFromUri(r)))
-    if (uris.length == 0) return
+export function updatePopularitiesOnNewReactions(ctx: AppContext, uris: string[]) {
+    return Effect.gen(function* () {
+        uris = uris.filter(r => isReactionCollection(getCollectionFromUri(r)))
+        if (uris.length == 0) return
 
-    const t1 = Date.now()
-    const topicsWithNewInteractions = await updateTopicInteractionsOnNewReactions(ctx, uris)
-    const t2 = Date.now()
+        const topicsWithNewInteractions = yield* updateTopicInteractionsOnNewReactions(ctx, uris)
 
-    await updateTopicPopularities(ctx, topicsWithNewInteractions)
-    const t3 = Date.now()
-
-    ctx.logger.logTimes("update-popularities-on-new-reactions", [t1, t2, t3])
+        yield* updateTopicPopularities(ctx, topicsWithNewInteractions)
+    })
 }
 
 
