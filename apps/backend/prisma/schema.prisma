@@ -607,7 +607,8 @@ model User {
   bskyProfile    Record? @relation(fields: [bskyProfileUri], references: [uri])
 
   events                  Event[]
-  emailVerificationTokens EmailVerificationToken[]
+  emailVerificationTokens  EmailVerificationToken[]
+  recoverPasswordTokens  RecoverPasswordToken[]
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
@@ -858,6 +859,18 @@ model PollVote {
 }
 
 model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [did], onDelete: Cascade)
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model RecoverPasswordToken {
   id        String   @id @default(cuid())
   token     String   @unique
   userId    String

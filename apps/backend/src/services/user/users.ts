@@ -17,7 +17,7 @@ import {
     ValidationState
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
-import {uploadBase64Blob} from "#/services/blob.js";
+import {getServiceEndpointForDid, uploadBase64Blob} from "#/services/blob.js";
 import {bskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {followRecordProcessor} from "#/services/sync/event-processing/follow.js";
 import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
@@ -390,7 +390,7 @@ function storeBskyEmail(ctx: AppContext, bskyEmail: string, userId: string) {
 
 export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
     return Effect.gen(function* () {
-        const [caData, bskySession] = yield* Effect.all([
+        const [caData, bskySession, endpoint] = yield* Effect.all([
             Effect.tryPromise({
                 try: () => ctx.kysely
                     .selectFrom("User")
@@ -403,7 +403,8 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
             Effect.tryPromise({
                 try: () => agent.bsky.com.atproto.server.getSession(),
                 catch: () => "Error al obtener la sesión de Bluesky."
-            })
+            }),
+            getServiceEndpointForDid(ctx, agent.did)
         ], {concurrency: "unbounded"})
 
         if (caData.length == 0) {
@@ -424,13 +425,15 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
             email,
             subscriptionId: subsId,
             status,
-            bskyEmail
+            bskyEmail,
+            endpoint
         })
 
         return {
             email: email ?? bskyEmail,
             emailVerified: emailVerified ?? false,
-            subscribedToEmailUpdates: subscribed
+            subscribedToEmailUpdates: subscribed,
+            endpoint
         }
     }).pipe(
         Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener los datos de la cuenta")),

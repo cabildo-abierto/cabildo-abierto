@@ -105,7 +105,7 @@ function useRightPanelConfig() {
         )
         && !pathname.startsWith("/perfil/cuentas-sugeridas")
 
-    const isDonatePath = !pathname.startsWith("/aportar")
+    const isDonatePath = pathname.startsWith("/inicio")
 
     const isTrendingTopicsPath = isFollowSuggestionsPath
 

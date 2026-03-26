@@ -25,6 +25,12 @@ import {
     updateProfileHandler
 } from "#/services/user/users.js";
 import {sendVerificationEmail, verifyEmailFromToken} from "#/services/user/email-verification.js";
+import {
+    requestPasswordRecovery,
+    resetPassword,
+    sendAccountRecoveryEmail,
+    verifyRecoverPasswordToken
+} from "#/services/user/recovery.js";
 import {createPost} from "#/services/write/post.js";
 import {addLike, removeLike, removeRepost, repost} from "#/services/reactions/reactions.js";
 import {getThread} from "#/services/thread/thread.js";
@@ -494,6 +500,11 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post("/send-verification-email", makeEffHandler(ctx, sendVerificationEmail))
 
     router.get("/verify-email", makeEffHandler(ctx, verifyEmailFromToken))
+
+    router.post("/request-password-recovery", handler(makeEffHandlerNoAuth(ctx, requestPasswordRecovery)))
+    router.get("/recover-password-token", handler(makeEffHandlerNoAuth(ctx, verifyRecoverPasswordToken)))
+    router.post("/reset-password", handler(makeEffHandlerNoAuth(ctx, resetPassword)))
+    router.post("/send-account-recovery-email", handler(makeEffHandlerNoAuth(ctx, sendAccountRecoveryEmail)))
 
     router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
 

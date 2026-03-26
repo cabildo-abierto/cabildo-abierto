@@ -142,6 +142,39 @@ export function searchTopicsSkeleton(ctx: AppContext, query: string, categories?
 
     const tsVector = sql`to_tsvector('public.spanish_simple_unaccent', title)`;
 
+    ctx.kysely
+        .with('topics_with_titles', (eb) =>
+            eb.selectFrom('Topic')
+                .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
+                .select([
+                    'Topic.id',
+                    eb => eb.fn.coalesce(
+                        eb.cast<string>(eb.fn('jsonb_path_query_first', [
+                            eb.ref('TopicVersion.props'),
+                            eb.val('$[*] ? (@.name == "Título").value.value')
+                        ]), "text"),
+                        eb.cast(eb.ref('Topic.id'), 'text')
+                    ).as('title'),
+                    "TopicVersion.uri",
+                    "TopicVersion.props"
+                ])
+        )
+        .selectFrom('topics_with_titles')
+        .select(["id", "title", "uri"])
+        .select(eb => [
+            sql<number>`ts_rank(${tsVector}, ${tsQuery}, 1)`.as('match_score')
+        ])
+        .$if(categories != null, qb => qb.where(eb => categories!.includes("Sin categoría") ?
+            eb.val(stringListIsEmpty("Categorías")) :
+            eb.and(categories!.map(c => stringListIncludes("Categorías", c)))))
+        .where(eb => sql`${tsVector} @@ ${tsQuery}`)
+        .where(sql<number>`ts_rank(${tsVector}, ${tsQuery}, 1)`, ">", 0)
+        .orderBy('match_score', 'desc')
+        .limit(limit ?? 20)
+        .execute()
+
+
+
     return Effect.tryPromise({
         try: () => ctx.kysely
             .with('topics_with_titles', (eb) =>

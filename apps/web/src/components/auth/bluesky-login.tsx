@@ -6,6 +6,7 @@ import {FieldError} from "@/components/utils/ui/field";
 import {Note} from "@/components/utils/base/note";
 import {useSession} from "@/components/auth/use-session";
 import {BaseSelect} from "@/components/utils/base/base-select";
+import Link from "next/link";
 
 export const BlueskyLogin = ({
                                  inviteCode,
@@ -75,6 +76,11 @@ export const BlueskyLogin = ({
                 </FieldError>}
                 <Note text={"text-xs"}>
                     Tu cuenta de Cabildo Abierto y Bluesky es la misma.
+                </Note>
+                <Note text={"text-xs"}>
+                    <Link href={"/recuperacion"}>
+                        Olvidé mi cuenta o contraseña
+                    </Link>.
                 </Note>
             </div>
             <BaseButton

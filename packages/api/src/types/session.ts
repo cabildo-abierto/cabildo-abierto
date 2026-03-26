@@ -109,6 +109,7 @@ export type Account = {
     email?: string
     emailVerified?: boolean
     subscribedToEmailUpdates: boolean
+    endpoint: string | null
 }
 
 

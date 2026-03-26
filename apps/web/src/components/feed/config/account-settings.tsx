@@ -14,7 +14,7 @@ import {Note} from "@/components/utils/base/note";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {CloseButton} from "@/components/utils/base/close-button";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
-import {FloppyDiskIcon} from "@phosphor-icons/react";
+import {CheckCircleIcon, FloppyDiskIcon} from "@phosphor-icons/react";
 import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
 import {Paragraph} from "@/components/utils/base/paragraph";
 
@@ -171,7 +171,7 @@ const AccountEmail = () => {
                 {" "}
             </Note>
             {account.emailVerified
-                ? <Note className={"text-left"}>Correo verificado.</Note>
+                ? <Note className={"text-left flex items-center space-x-1"}><span>Correo verificado.</span><CheckCircleIcon/></Note>
                 : <> <StateButton
                     handleClick={onSendVerification}
                     size={"small"}
@@ -249,30 +249,16 @@ export const AccountSettings = () => {
             </Note>
         </SettingsElement>
         <SettingsElement label={"Contraseña"}>
-            <ChangeFromBluesky/>
+            {account.endpoint.endsWith("bsky.network") && <ChangeFromBluesky/>}
+            {account.endpoint == "https://cabildo.ar" && <Note className={"text-left"}>
+                <Link href={"/recuperacion/clave"}>Cambiar contraseña</Link>.
+            </Note>}
+            {account.endpoint != "https://cabildo.ar" && !account.endpoint.endsWith("bsky.network") && <Note className={"text-left"}>
+                Podés cambiar tu contraseña desde tu proveedor de alojamiento.
+            </Note>}
         </SettingsElement>
         {account && <SettingsElement label={"Correo"}>
             <AccountEmail/>
-            {user.platformAdmin && account.email && account.emailVerified && (
-                <div className="mt-2">
-                    <StateButton
-                        handleClick={async () => {
-                            const res = await post("/unverify-email")
-                            if (res.success === true) {
-                                await refetchAccount()
-                                return {}
-                            }
-                            return {error: res.error}
-                        }}
-                        size={"small"}
-                        variant={"outlined"}
-                        className="text-xs"
-                        textClassName="normal-case"
-                    >
-                        (Admin) Desverificar correo
-                    </StateButton>
-                </div>
-            )}
         </SettingsElement>}
         {account && <SettingsElement label={"Novedades por correo"}>
             {account.email && (account.subscribedToEmailUpdates ? <UnsubscribeButton/> :
@@ -297,8 +283,17 @@ export const AccountSettings = () => {
             </Link>}
             </Note>
         </SettingsElement>
+        <SettingsElement label={"Alojamiento"}>
+            {account.endpoint && <Note className={"text-left"}>
+                Tu cuenta está alojada en <Link href={account.endpoint} className={"text-[var(--text-light)]"}>
+                {account.endpoint}</Link>.
+            </Note>}
+            {!account.endpoint && <Note className={"text-left"}>
+                Ocurrió un error al obtener el servidor de tu cuenta.
+            </Note>}
+        </SettingsElement>
 
-        <div className={"mt-4 flex justify-start"}>
+        <div className={"pt-4 flex justify-start"}>
             <CloseSessionButton/>
         </div>
         <div className={"mt-4 flex justify-start"}>
