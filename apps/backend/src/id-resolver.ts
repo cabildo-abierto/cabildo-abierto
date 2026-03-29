@@ -18,10 +18,25 @@ export interface BidirectionalResolver {
     resolveHandleToDid(handle: string): Effect.Effect<string | null, HandleResolutionError | RedisCacheFetchError | RedisCacheSetError>
 
     resolveDidToHandle(did: string, useCache: boolean): Effect.Effect<string, HandleResolutionError>
+
+    resolveHandleToDidDNS(handle: string): Effect.Effect<string | null, HandleResolutionError>
+    resolveHandleToDidHTTP(handle: string): Effect.Effect<string | null, HandleResolutionError>
 }
 
 export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache): BidirectionalResolver {
     return {
+        resolveHandleToDidDNS(handle: string) {
+            return Effect.tryPromise({
+                try: () => resolver.handle.resolveDns(handle).then(x => x ?? null),
+                catch: (e) => new HandleResolutionError(e)
+            })
+        },
+        resolveHandleToDidHTTP(handle: string) {
+            return Effect.tryPromise({
+                try: () => resolver.handle.resolveHttp(handle).then(x => x ?? null),
+                catch: (e) => new HandleResolutionError(e)
+            })
+        },
         resolveDidToHandle(did: string, useCache: boolean = true): Effect.Effect<string, HandleResolutionError> {
             return Effect.gen(function* () {
                 const handle = yield* Effect.tryPromise({

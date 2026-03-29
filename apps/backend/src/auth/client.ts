@@ -1,5 +1,6 @@
 import {NodeOAuthClient} from '@atproto/oauth-client-node'
 import {createSessionLock, SessionStore, StateStore} from './storage.js'
+import {ATPROTO_OAUTH_SCOPE} from './oauth-scope.js'
 import {env} from "#/lib/env.js";
 import {type Redis} from "ioredis/built/index.js";
 import {Logger} from "#/utils/logger.js";
@@ -13,7 +14,9 @@ export const createClient = async (redis: Redis, logger: Logger) => {
 
     const client_id = publicUrl
         ? `${publicUrl}/client-metadata.json`
-        : `http://localhost?redirect_uri=${enc(redirect_uri)}&scope=${enc('atproto transition:generic transition:chat.bsky transition:email')}`
+        : `http://localhost?redirect_uri=${enc(redirect_uri)}&scope=${enc(ATPROTO_OAUTH_SCOPE)}`
+
+    logger.pino.info({client_id}, "client id")
 
     return new NodeOAuthClient({
         clientMetadata: {
@@ -21,7 +24,7 @@ export const createClient = async (redis: Redis, logger: Logger) => {
             client_id: client_id,
             application_type: 'web',
             grant_types: ['authorization_code', 'refresh_token'],
-            scope: 'atproto transition:generic transition:chat.bsky transition:email',
+            scope: ATPROTO_OAUTH_SCOPE,
             response_types: ['code'],
             redirect_uris: [redirect_uri],
             dpop_bound_access_tokens: true,

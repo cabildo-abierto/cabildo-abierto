@@ -20,6 +20,7 @@ import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
+import {ATPROTO_OAUTH_SCOPE} from "#/auth/oauth-scope.js";
 import {Request, Response} from "express";
 import {ComAtprotoServerCreateAccount} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
@@ -150,7 +151,7 @@ const login = (
 
     const url = yield* Effect.tryPromise({
         try: () => oauthCli.authorize(handle, {
-            scope: 'atproto transition:generic transition:chat.bsky transition:email',
+            scope: ATPROTO_OAUTH_SCOPE,
         }),
         catch: (error) => new OAuthAuthorizationError(error)
     })

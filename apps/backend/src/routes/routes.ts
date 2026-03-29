@@ -104,6 +104,7 @@ import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
 import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
+import {changeHandle, verifyCustomDomainHandle} from "#/services/user/handle.js";
 
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
@@ -496,6 +497,10 @@ export const createRouter = (ctx: AppContext): Router => {
     })
 
     router.post("/email", makeEffHandler(ctx, saveNewEmail))
+
+    router.post("/handle", makeEffHandler(ctx, changeHandle))
+
+    router.post("/handle/verify-domain", makeEffHandler(ctx, verifyCustomDomainHandle))
 
     router.post("/send-verification-email", makeEffHandler(ctx, sendVerificationEmail))
 

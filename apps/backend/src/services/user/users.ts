@@ -12,7 +12,8 @@ import {
     AlgorithmConfig,
     ArCabildoabiertoActorDefs,
     ATProtoStrongRef,
-    AuthorStatus, MaybeSession,
+    AuthorStatus,
+    MaybeSession,
     Session,
     ValidationState
 } from "@cabildo-abierto/api"
@@ -20,7 +21,7 @@ import {BlobRef} from "@atproto/lexicon";
 import {getServiceEndpointForDid, uploadBase64Blob} from "#/services/blob.js";
 import {bskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 import {followRecordProcessor} from "#/services/sync/event-processing/follow.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
+import {InsertRecordError, processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
@@ -29,7 +30,6 @@ import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 import {AddJobError, DBInsertError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
-import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 import {getUri} from "@cabildo-abierto/utils";
 
 
@@ -49,9 +49,16 @@ export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effe
     }
 }
 
-
 export class HandleResolutionError {
     readonly _tag = "HandleResolutionError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
 }
 
 
@@ -673,7 +680,6 @@ function checkEmailUsed(ctx: AppContext, email: string): Effect.Effect<boolean, 
         return user != null
     })
 }
-
 
 
 export const saveNewEmail: EffHandler<{email: string}, {}> = (ctx, agent, {email}) => {
