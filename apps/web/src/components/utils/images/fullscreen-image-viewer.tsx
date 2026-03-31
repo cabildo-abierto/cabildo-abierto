@@ -28,7 +28,7 @@ const FullscreenImageViewer = ({
     useEffect(() => {
         if (viewing === null) return;
 
-        const handleKeyDown = (e) => {
+        const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 setViewing(null);
             } else if (e.key === 'ArrowLeft' && viewing > 0) {
@@ -98,7 +98,6 @@ const FullscreenImageViewer = ({
                     onClose={() => {
                         setViewing(null)
                     }}
-                    className={"hover:bg-transparent"}
                 />
             </div>
         </div>

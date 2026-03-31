@@ -65,6 +65,11 @@ export async function startContentModeration(ctx: AppContext, contents: {uri: st
                 method: eb.ref("excluded.method"),
                 result: eb.ref("excluded.result")
             })))
+            .onConflict(oc => oc.column("recordId").doUpdateSet(() => ({
+                method: "Automatic",
+                processed_at: new Date(),
+                result: "Ok"
+            })))
             .execute()
     }
 }

@@ -46,16 +46,18 @@ const getRecommendationRankingForUser = (
             .with("Recommenders", db =>
                 db.selectFrom("Follows")
                     .select("userFollowedId as did")
-                    .where(
+                    .where( // si los follows del usuario son más de 3, los recommenders son las cuentas a las que sigue
                         eb => eb(
                             eb => eb.selectFrom("Follows").select(eb => eb.fn.count<number>("userFollowedId").as("count")),
                             ">=",
                             3
                         )
                     )
+                    .innerJoin("User as FollowedUser", "FollowedUser.did", "Follows.userFollowedId")
+                    .where("FollowedUser.inCA", "=", true)
                     .unionAll(
                         db.selectFrom("User")
-                            .where(
+                            .where( // si el usuario sigue a menos de 3 personas, los recommenders son todos los usuarios de CA
                                 eb => eb(
                                     eb => eb.selectFrom("Follows").select(eb => eb.fn.count<number>("userFollowedId").as("count")),
                                     "<",
@@ -93,25 +95,18 @@ const getRecommendationRankingForUser = (
 
             .select([
                 "Candidate.did",
-                sql<number>`
-                (count("Candidate"."did")::float / (select count(*) from "Recommenders"))
-                + CASE 
-                WHEN EXISTS (
-                    SELECT 1 FROM "Record" 
-                    WHERE "Record"."authorId" = "Candidate"."did" 
-                    AND "Record"."created_at" > ${lastTwoWeeks}
-                AND "Record"."collection" = 'ar.cabildoabierto.feed.article'
-                ) THEN 0.25 ELSE 0
-                END
-                + CASE 
-                WHEN EXISTS (
-                    SELECT 1 FROM "Record" 
-                    WHERE "Record"."authorId" = "Candidate"."did" 
-                    AND "Record"."created_at" > ${lastTwoWeeks}
-                ) THEN 0.25 ELSE 0
-                END
-                + CASE WHEN "Candidate"."inCA" THEN 0.25 ELSE 0 END
-            `.as("score")
+                sql<number>`(count("Candidate"."did")::float / (select count(*) from "Recommenders")) + CASE 
+                    WHEN EXISTS (
+                        SELECT 1 FROM "Record" 
+                        WHERE "Record"."authorId" = "Candidate"."did" 
+                        AND "Record"."created_at" > ${lastTwoWeeks}
+                    AND "Record"."collection" = 'ar.cabildoabierto.feed.article'
+                    ) THEN 0.25 ELSE 0 END + CASE WHEN EXISTS (
+                        SELECT 1 FROM "Record" 
+                        WHERE "Record"."authorId" = "Candidate"."did" 
+                        AND "Record"."created_at" > ${lastTwoWeeks}
+                    ) THEN 0.25 ELSE 0 END + CASE WHEN "Candidate"."inCA" THEN 0.25 ELSE 0 END
+                `.as("score")
             ])
             .groupBy(["Candidate.did"])
             .orderBy(["score desc", "Candidate.did asc"])
@@ -211,21 +206,25 @@ export const setNotInterested: CAHandler<{params: {subject: string}}> = async (c
 }
 
 
-export async function updateFollowSuggestions(ctx: AppContext){
-    let dids = await ctx.redisCache.followSuggestionsDirty.getDirty()
+export const updateFollowSuggestions = (ctx: AppContext): Effect.Effect<
+    void,
+    RedisCacheFetchError | RedisCacheSetError | DBSelectError
+> => Effect.gen(function* () {
+    let dids = yield* Effect.tryPromise({
+        try: () => ctx.redisCache.followSuggestionsDirty.getDirty(),
+        catch: () => new RedisCacheFetchError()
+    })
 
-    const caUsers = new Set(await Effect.runPromise(getCAUsersDids(ctx)))
+    const caUsers = new Set(yield* getCAUsersDids(ctx))
 
     dids = dids.filter(d => caUsers.has(d))
-    ctx.logger.pino.info({count: dids.length}, `updating follow suggestions`)
 
     for(let i = 0; i < dids.length; i++) {
         const did = dids[i]
-        const t1 = Date.now()
-        await ctx.redisCache.onEvent("follow-suggestions-ready", [did])
-        const t2 = Date.now()
-        await getRecommendationRankingForUser(ctx, did, true)
-        const t3 = Date.now()
-        ctx.logger.logTimes(`updated follow-suggestions`, [t1, t2, t3], {i, total: dids.length, did})
+        yield* Effect.tryPromise({
+            try: () => ctx.redisCache.onEvent("follow-suggestions-ready", [did]),
+            catch: () => new RedisCacheSetError()
+        })
+        yield* getRecommendationRankingForUser(ctx, did, true)
     }
-}
+}).pipe(Effect.withSpan("updateFollowSuggestions"))

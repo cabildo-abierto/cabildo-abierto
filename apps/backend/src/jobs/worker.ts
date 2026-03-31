@@ -211,7 +211,7 @@ export class CAWorker {
             "update-topics-current-versions",
             () => updateAllTopicsCurrentVersions(ctx)
         )
-        this.registerJob(
+        this.registerEffJob(
             "update-follow-suggestions",
             () => updateFollowSuggestions(ctx)
         )

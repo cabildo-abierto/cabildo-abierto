@@ -51,6 +51,11 @@ import {S3DownloadError, S3GetSignedURLError} from "../storage/storage.js";
 import {DBSelectError} from "#/utils/errors.js";
 
 
+export const av = (m: Map<string, any> | null, k:  string) => {
+    const v = m?.get(k)
+    return v != null && v != "not-found"
+}
+
 export type FeedElementQueryResult = {
     uri: string
     cid: string
@@ -217,13 +222,13 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     const topicsDatasets = new Map<string, { id: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[] }[]>()
     const rootCreationDates = new Map<string, Date>()
 
-    let bskyBasicUsers = new Map<string, $Typed<ProfileViewBasic>>()
-    let bskyDetailedUsers = new Map<string, $Typed<ProfileViewDetailed>>()
+    let bskyProfileViewBasicData = new Map<string, $Typed<ProfileViewBasic>>()
+    let bskyProfileViewDetailedData = new Map<string, $Typed<ProfileViewDetailed>>()
 
-    const caUsersDetailed = new Map<string, CAProfileDetailed | "not-found">()
-    const caUsers = new Map<string, CAProfile | "not-found">()
-    const profiles = new Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed>()
-    const profileViewers = new Map<string, AppBskyActorDefs.ViewerState>()
+    const caProfileDetailedData = new Map<string, CAProfileDetailed | "not-found">()
+    const caProfileData = new Map<string, CAProfile | "not-found">()
+    const caProfileViewDetailedData = new Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed>()
+    const viewerStateData = new Map<string, AppBskyActorDefs.ViewerState>()
 
     const polls = new Map<string, PollQueryResult>()
 
@@ -267,7 +272,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     }
 
     const fetchCAContents = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        uris = uris.filter(u => !caContents?.has(u))
+        uris = uris.filter(u => !av(caContents, u))
         if (uris.length == 0) return
 
         const contents = yield* Effect.tryPromise({
@@ -348,7 +353,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     })
 
     const fetchCAUsers = (dids: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        dids = dids.filter(d => !caUsers.has(d) && !caUsersDetailed.has(d))
+        dids = dids.filter(d => !av(caProfileData, d) && !av(caProfileDetailedData, d))
         if(dids.length == 0) return
         const agentDid = agent?.hasSession() ? agent.did : null
         const users = yield* Effect.tryPromise({
@@ -390,7 +395,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
         users.forEach(u => {
             if(u.handle && u.created_at_tz) {
-                caUsers.set(u.did, {
+                caProfileData.set(u.did, {
                     did: u.did,
                     caProfile: u.CAProfileUri,
                     handle: u.handle,
@@ -408,14 +413,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             }
         })
         for(const d of dids) {
-            if(!caUsers.has(d)){
-                caUsers.set(d, "not-found")
+            if(!av(caProfileData, d)){
+                caProfileData.set(d, "not-found")
             }
         }
     }).pipe(Effect.withSpan("fetchCAUsers"))
 
     const fetchProfileViewDetailedHydrationDataFromBsky = (dids: string[]): Effect.Effect<void, FetchFromBskyError> => Effect.gen(function* () {
-        dids = unique(dids.filter(d => !bskyDetailedUsers.has(d)))
+        dids = unique(dids.filter(d => !av(bskyProfileViewDetailedData, d)))
 
         yield* Effect.annotateCurrentSpan({
             didsCount: dids.length
@@ -447,12 +452,12 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             Effect.map(profiles => toReadonlyArray(profiles)),
             Effect.tap(profiles => {
                 joinMapsInPlace(
-                    bskyDetailedUsers,
+                    bskyProfileViewDetailedData,
                     new Map(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewDetailed"}]))
                 )
                 const newBasicProfiles = new Map<string, $Typed<AppBskyActorDefs.ProfileViewBasic>>(profiles.map(v => [v.did, {...v, $type: "app.bsky.actor.defs#profileViewBasic"}]))
                 joinMapsInPlace(
-                    bskyBasicUsers,
+                    bskyProfileViewBasicData,
                     newBasicProfiles
                 )
             })
@@ -461,9 +466,9 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
     const fetchProfileViewHydrationData = (dids: string[]): Effect.Effect<void, FetchFromBskyError | DBSelectError> => Effect.gen(function* () {
         dids = dids.filter(d => {
-            if(profiles.has(d)) return false
-            if(caUsers.has(d)) return false
-            return !(caUsersDetailed.has(d) && (bskyBasicUsers.has(d) || bskyDetailedUsers.has(d)))
+            if(av(caProfileViewDetailedData, d)) return false
+            if(av(caProfileData, d)) return false
+            return !(av(caProfileDetailedData, d) && (av(bskyProfileViewBasicData, d) || av(bskyProfileViewDetailedData, d)))
         })
 
         dids = unique(dids)
@@ -475,7 +480,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         // TO DO (!): Esto asume que todos los usuarios de CA están sincronizados. Hay que asegurarlo.
         yield* fetchCAUsers(dids)
 
-        const bskyUsers = dids.filter(d => !caUsers.has(d))
+        const bskyUsers = dids.filter(d => !av(caProfileData, d))
         yield* fetchProfileViewDetailedHydrationDataFromBsky(bskyUsers)
     })
 
@@ -487,7 +492,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
     const storeBskyPost = (uri: string, post: AppBskyFeedDefs.PostView) => {
         bskyPosts.set(uri, post)
-        bskyBasicUsers.set(getDidFromUri(uri), {
+        bskyProfileViewBasicData.set(getDidFromUri(uri), {
             ...post.author,
             $type: "app.bsky.actor.defs#profileViewBasic"
         })
@@ -538,7 +543,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
     const fetchBskyPosts = (uris: string[]): Effect.Effect<void, FetchFromBskyError> => Effect.gen(function* () {
         if(!agent) return
-        uris = uris.filter(u => !bskyPosts?.has(u))
+        uris = uris.filter(u => !av(bskyPosts, u))
 
         const postsList = postUris(uris)
         if (postsList.length == 0) return
@@ -656,7 +661,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     }
 
     const fetchDatasetsHydrationData = (uris: string[]): Effect.Effect<void, FetchFromBskyError | DBSelectError> => Effect.gen(function* () {
-        uris = uris.filter(u => !datasets?.has(u))
+        uris = uris.filter(u => !av(datasets, u))
         if (uris.length == 0) return
 
         const datasetsQuery = ctx.kysely
@@ -708,7 +713,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
     const fetchDatasetContents = (uris: string[]): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         uris = uris.filter(u => isDataset(getCollectionFromUri(u)))
-        uris = uris.filter(u => !datasetContents?.has(u))
+        uris = uris.filter(u => !av(datasetContents, u))
 
         if (uris.length == 0) return
 
@@ -830,7 +835,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     })
 
     const fetchTopicsBasicByUris = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        uris = uris.filter(u => !topicsByUri?.has(u))
+        uris = uris.filter(u => !av(topicsByUri, u))
         if (uris.length == 0) return
 
         const data: TopicVersionQueryResultBasic[] = yield* Effect.tryPromise({
@@ -945,10 +950,10 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         reactions.forEach(l => {
             if (l.subjectId) {
                 if (getCollectionFromUri(l.uri) == "app.bsky.feed.like") {
-                    if (!likes.has(l.subjectId)) storeLike(l.subjectId, l.uri)
+                    if (!av(likes, l.subjectId)) storeLike(l.subjectId, l.uri)
                 }
                 if (getCollectionFromUri(l.uri) == "app.bsky.feed.repost") {
-                    if (!reposts.has(l.subjectId)) storeRepost({
+                    if (!av(reposts, l.subjectId)) storeRepost({
                         uri: l.uri,
                         created_at: null,
                         subjectId: l.subjectId
@@ -969,7 +974,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     }
 
     function storeBskyBasicUser(user: ProfileViewBasic) {
-        bskyBasicUsers.set(user.did, {
+        bskyProfileViewBasicData.set(user.did, {
             ...user,
             $type: "app.bsky.actor.defs#profileViewBasic"
         })
@@ -1020,7 +1025,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     })
 
     const fetchProfileViewDetailedHydrationDataFromCA = (dids: string[]): Effect.Effect<void, FetchFromCAError> => Effect.gen(function* () {
-        dids = unique(dids.filter(d => !caUsersDetailed.has(d)))
+        dids = unique(dids.filter(d => !av(caProfileDetailedData, d)))
 
         yield* Effect.annotateCurrentSpan({didsCount: dids.length})
 
@@ -1077,12 +1082,12 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 }).filter(x => x != null)
 
                 formattedProfiles.forEach(p => {
-                    caUsersDetailed.set(p.did, p)
+                    caProfileDetailedData.set(p.did, p)
                 })
 
                 for(const d of dids) {
-                    if(!caUsersDetailed.has(d)){
-                        caUsersDetailed.set(d, "not-found")
+                    if(!av(caProfileDetailedData, d)){
+                        caProfileDetailedData.set(d, "not-found")
                     }
                 }
 
@@ -1094,7 +1099,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     const fetchProfilesViewerState = (dids: string[]): Effect.Effect<void, ViewerStateFetchError> => {
         if(!agent.hasSession()) {
             dids.forEach(d => {
-                profileViewers.set(d, {})
+                viewerStateData.set(d, {})
             })
             return Effect.void
         }
@@ -1126,7 +1131,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     const following = follows.find(f => getDidFromUri(f.uri) == agent.did)
                     const followedBy = follows.find(f => getDidFromUri(f.uri) == did)
 
-                    profileViewers.set(did, {
+                    viewerStateData.set(did, {
                         following: following ? following.uri : undefined,
                         followedBy: followedBy ? followedBy.uri : undefined
                     })
@@ -1232,7 +1237,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     }
 
     const fetchSignedStorageUrls = (paths: string[], bucket: string): Effect.Effect<void, S3GetSignedURLError> => Effect.gen(function* () {
-        paths = paths.filter(p => !signedStorageUrls.has(p))
+        paths = paths.filter(p => !av(signedStorageUrls, p))
         if(paths.length == 0) return
         if(!ctx.storage) return
         const urls = yield* Effect.tryPromise({
@@ -1240,7 +1245,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             catch: () => new S3GetSignedURLError()
         })
         if(urls) {
-            if(!signedStorageUrls.has(bucket)) {
+            if(!av(signedStorageUrls, bucket)) {
                 signedStorageUrls.set(bucket, new Map<string, string>)
             }
             const cur = signedStorageUrls.get(bucket)!
@@ -1301,12 +1306,12 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             notifications,
             topicsDatasets,
             rootCreationDates,
-            bskyBasicUsers,
-            bskyDetailedUsers,
-            caUsersDetailed,
-            caUsers,
-            profiles,
-            profileViewers,
+            bskyBasicUsers: bskyProfileViewBasicData,
+            bskyDetailedUsers: bskyProfileViewDetailedData,
+            caUsersDetailed: caProfileDetailedData,
+            caUsers: caProfileData,
+            profiles: caProfileViewDetailedData,
+            profileViewers: viewerStateData,
             signedStorageUrls,
             polls
         }),
