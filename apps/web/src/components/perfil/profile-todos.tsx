@@ -2,6 +2,7 @@ import {useState} from "react";
 import dynamic from "next/dynamic";
 import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
 import {CheckSquareIcon} from "@phosphor-icons/react";
+import {getPendingProfileObjectiveLabels} from "./profile-objectives";
 
 const EditProfileMobile = dynamic(() => import('./edit-profile-modal'))
 
@@ -10,24 +11,7 @@ export const ProfileTODOs = ({profile}: {
     profile: ArCabildoabiertoActorDefs.ProfileViewDetailed,
 }) => {
     const [editingProfile, setEditingProfile] = useState(false)
-
-    const todos: string[] = []
-
-    if (!profile.displayName) {
-        todos.push("Agregá un nombre")
-    }
-
-    if (!profile.avatar) {
-        todos.push("Agregá una foto de perfil")
-    }
-
-    if (!profile.description || profile.description.length == 0) {
-        todos.push("Agregá una descripción")
-    }
-
-    if (!profile.banner) {
-        todos.push("Agregá una foto de portada")
-    }
+    const todos = getPendingProfileObjectiveLabels(profile)
 
     return <div className={"space-y-1 w-full"}>
         {todos.map((t, i) => {

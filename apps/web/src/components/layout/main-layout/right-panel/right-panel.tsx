@@ -17,7 +17,6 @@ import {createPortal} from "react-dom";
 import {useAPI} from "@/components/utils/react/queries";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import ShareIcon from "@/components/utils/icons/share-icon";
-import GettingStartedProgress from "./getting-started-progress";
 
 type ServerStatus = {
     worker: boolean
@@ -134,7 +133,6 @@ export const RightPanel = () => {
     const searching = searchState.searching && searchState.value.length > 0
 
     const searchHref = searchState.value.length > 0 ? "/buscar?q=" + encodeURIComponent(searchState.value) : null
-
     if (!layoutConfig.openRightPanel) {
         return searching && !inSearchPage && createPortal(<div className={"z-[1500] fixed right-2 top-14"}>
             <div className={"w-[292px]"}>
@@ -159,10 +157,6 @@ export const RightPanel = () => {
         </div>
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
-
-        {user && pathname.includes("inicio") && <div className={"w-[292px]"}>
-            <GettingStartedProgress/>
-        </div>}
 
         {isTrendingTopicsPath && <div className={"w-[292px]"}>
             <TrendingTopicsPanel/>
