@@ -10,6 +10,7 @@ export const defaultEnDiscusionTime: EnDiscusionTime = "Último mes"
 export const defaultEnDiscusionFormat: FeedFormatOption = "Todos"
 
 
+export const topicsPageSortOptions = ["Último día", "Última semana", "Último mes", "Último año", "Ediciones recientes"]
 export const enDiscusionMetricOptions: EnDiscusionMetric[] = ["Me gustas", "Interacciones", "Popularidad relativa", "Recientes"]
 export const enDiscusionTimeOptions: EnDiscusionTime[] = ["Último día", "Última semana", "Último mes", "Último año"]
 export const feedFormatOptions: FeedFormatOption[] = ["Todos", "Artículos"]

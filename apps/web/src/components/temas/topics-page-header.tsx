@@ -6,20 +6,16 @@ import {GraphIcon, ListBulletsIcon, PlusIcon} from "@phosphor-icons/react"
 import dynamic from "next/dynamic";
 import MainSearchBar from "../buscar/main-search-bar";
 import {useSearch} from "../buscar/search-context";
-import TopicsSortSelector from "./topic-sort-selector";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {useLayoutConfig} from "../layout/main-layout/layout-config-context";
-import {useTopicsPageParams} from "../feed/config/topics";
 import { cn } from "@/lib/utils"
 import {createPortal} from "react-dom";
-import {updateSearchParam} from "@/components/utils/react/search-params";
 
 const CreateTopicModal = dynamic(() => import("../tema/create-topic-modal"))
 
 type TopicsViewOption = "mapa" | "lista"
 
 export const TopicsPageHeader = () => {
-    const {sortedBy} = useTopicsPageParams()
     const [newTopicOpen, setNewTopicOpen] = useState(false)
     const searchParams = useSearchParams()
     const {isMobile} = useLayoutConfig()
@@ -55,10 +51,6 @@ export const TopicsPageHeader = () => {
         )
     }
 
-    function setSortedBy(v: string) {
-        updateSearchParam("s", v)
-    }
-
     const searchBar = <MainSearchBar
         autoFocus={false}
         allowCloseWithNoText={true}
@@ -79,11 +71,6 @@ export const TopicsPageHeader = () => {
                 selected={currentView}
                 optionsNodes={optionsNodes}
                 className={"flex " + (isMobile ? "space-x-1" : "space-x-2")}
-            />
-            <TopicsSortSelector
-                sortedBy={sortedBy}
-                setSortedBy={setSortedBy}
-                disabled={currentView == "mapa"}
             />
         </div>
 

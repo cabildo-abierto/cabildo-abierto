@@ -11,7 +11,7 @@ import {updateSearchParam} from "@/components/utils/react/search-params";
 
 const Temas = () => {
     const searchParams = useSearchParams()
-    const {categories, sortedBy, multipleEnabled} = useTopicsPageParams()
+    const {categories, multipleEnabled} = useTopicsPageParams()
 
     function setCategories(newCats: string[]) {
         updateSearchParam("c", newCats)
@@ -34,7 +34,10 @@ const Temas = () => {
             </div>
         </div>
         {view == "mapa" && <TopicsMapView categories={categories}/>}
-        {(!view || view == "lista") && <TopicsListView categories={categories} sortedBy={sortedBy} setCategories={setCategories}/>}
+        {(!view || view == "lista") && <TopicsListView
+            categories={categories}
+            setCategories={setCategories}
+        />}
     </TopicsPageTutorial>
 }
 

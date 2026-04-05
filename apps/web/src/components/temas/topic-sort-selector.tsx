@@ -8,7 +8,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/utils/ui/dropdown-menu"
 import {BaseNotIconButton} from "@/components/utils/base/base-not-icon-button";
-import { TTOption } from "@cabildo-abierto/api";
+import {topicsPageSortOptions, TTOption} from "@cabildo-abierto/api";
+import {updateSearchParam} from "@/components/utils/react/search-params";
+import {useTopicsPageParams} from "@/components/feed/config/topics";
+import {Select} from "@/components/utils/ui/select";
+import {BaseSelect} from "@/components/utils/base/base-select";
+import {PrettyJSON} from "@/components/utils/pretty-json";
 
 
 function ttLabelToOption(label: string): TTOption {
@@ -26,39 +31,37 @@ function ttLabelToOption(label: string): TTOption {
 }
 
 
-const TopicsSortSelector = ({sortedBy, setSortedBy, disabled}: {
-    sortedBy: TTOption
-    setSortedBy: (s: TTOption) => void
-    disabled: boolean
-}) => {
+function ttOptionToLabel(option: TTOption): string {
+    if(option == "Ediciones recientes") {
+        return option
+    } else if(option == "Última semana") {
+        return "Populares última semana"
+    } else if(option == "Último año") {
+        return "Populares último año"
+    } else if(option == "Último día") {
+        return "Populares último día"
+    } else if(option == "Último mes") {
+        return "Populares último mes"
+    }
+}
 
-    return <DropdownMenu>
-        <DropdownMenuTrigger>
-            <DescriptionOnHover description="Ordenar">
-                <BaseNotIconButton
-                    id={"topics-sort-selector"}
-                >
-                    <ArrowsDownUpIcon fontSize={20}/>
-                </BaseNotIconButton>
-            </DescriptionOnHover>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align={"start"} className={"z-[1002]"}>
-            {["Populares último día", "Populares última semana", "Populares último mes", "Ediciones recientes"].map((s, index) => {
-                const selected = ttLabelToOption(s) == sortedBy
-                return <DropdownMenuItem
-                    key={index}
-                    onClick={() => {
-                        setSortedBy(ttLabelToOption(s))
-                    }}
-                >
-                        <span className={selected ? "font-semibold" : ""}
-                        >
-                            {s}
-                        </span>
-                </DropdownMenuItem>
-            })}
-        </DropdownMenuContent>
-    </DropdownMenu>
+
+const TopicsSortSelector = () => {
+    const {sortedBy} = useTopicsPageParams()
+
+    function setSortedBy(v: string) {
+        updateSearchParam("s", v)
+    }
+
+    return <div className={"w-48"}>
+        <BaseSelect
+            value={sortedBy}
+            options={topicsPageSortOptions}
+            onChange={setSortedBy}
+            optionLabels={ttOptionToLabel}
+            size={"small"}
+        />
+    </div>
 }
 
 
