@@ -154,6 +154,14 @@ export const deleteCAProfile: CAHandler<{}, {}> = async (ctx, agent, {}) => {
         repo: agent.did
     })
     ctx.logger.pino.info({commit: res2.data.commit}, "Commit 2")
+    await ctx.kysely.deleteFrom("InviteCodeUsedBy")
+        .where("userId", "=", agent.did)
+        .execute()
+    await ctx.kysely.updateTable("InviteCode")
+        .where("usedByDid", "=", agent.did)
+        .set("usedAt", null)
+        .set("usedByDid", null)
+        .execute()
     return {}
 }
 

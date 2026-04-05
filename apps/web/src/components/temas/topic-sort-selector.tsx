@@ -1,34 +1,8 @@
-import {ArrowsDownUpIcon} from "@phosphor-icons/react";
-import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import React from "react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/utils/ui/dropdown-menu"
-import {BaseNotIconButton} from "@/components/utils/base/base-not-icon-button";
 import {topicsPageSortOptions, TTOption} from "@cabildo-abierto/api";
 import {updateSearchParam} from "@/components/utils/react/search-params";
 import {useTopicsPageParams} from "@/components/feed/config/topics";
-import {Select} from "@/components/utils/ui/select";
 import {BaseSelect} from "@/components/utils/base/base-select";
-import {PrettyJSON} from "@/components/utils/pretty-json";
-
-
-function ttLabelToOption(label: string): TTOption {
-    if (label == "Populares último día") {
-        return "Último día"
-    } else if (label == "Populares última semana") {
-        return "Última semana"
-    } else if (label == "Populares último mes") {
-        return "Último mes"
-    } else if (label == "Ediciones recientes") {
-        return "Ediciones recientes"
-    } else {
-        return "Última semana"
-    }
-}
 
 
 function ttOptionToLabel(option: TTOption): string {

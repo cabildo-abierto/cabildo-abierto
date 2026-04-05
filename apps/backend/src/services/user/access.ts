@@ -219,14 +219,20 @@ const checkValidCode = (
 ): Effect.Effect<void, DBSelectError | InvalidCodeError | UsedCodeError> => Effect.gen(function* () {
     const res = yield* Effect.tryPromise({
         try: () => ctx.kysely
-            .selectFrom("InviteCode")
-            .select(["code", "usedByDid"])
-            .where("code", "=", code)
-            .executeTakeFirst(),
+            .selectFrom("InviteCodeUsedBy")
+            .innerJoin("InviteCode", "InviteCode.code", "InviteCodeUsedBy.code")
+            .select(["InviteCodeUsedBy.code", "userId", "uses"])
+            .where("InviteCodeUsedBy.code", "=", code)
+            .execute(),
         catch: (error) => new DBSelectError(error)
     })
     if (!res) return yield* Effect.fail(new InvalidCodeError())
-    if (res.usedByDid && res.usedByDid != did) return yield* Effect.fail(new UsedCodeError())
+    if(res.some(r => r.userId == did)) {
+        return
+    }
+    if(res.length > 0 && res.length >= res[0].uses) {
+        return yield* Effect.fail(new UsedCodeError())
+    }
 })
 
 
@@ -609,7 +615,8 @@ export function createCAUser(
 export const createPDSInviteCodes = (
     ctx: AppContext,
     agent: SessionAgent,
-    count: number
+    count: number,
+    uses: number = 1
 ) => Effect.gen(function* () {
     const basicAuth = Buffer.from(`admin:${env.PDS_PASSWORD}`).toString("base64");
 
@@ -622,7 +629,7 @@ export const createPDSInviteCodes = (
             },
             body: JSON.stringify({
                 codeCount: Number(count),
-                useCount: 1,
+                useCount: Number(uses),
             }),
         }),
         catch: (error) => new GetInviteCodeError(error instanceof Error ? `${error.name}:${error.message}` : undefined)
@@ -646,6 +653,7 @@ export const createPDSInviteCodes = (
 
         return pdsCodes
     } else {
+        yield* Effect.annotateCurrentSpan({resCode})
         return yield* Effect.fail(new GetInviteCodeError("res not ok"))
     }
 })
@@ -654,16 +662,18 @@ export const createPDSInviteCodes = (
 export const createInviteCodes = (
     ctx: AppContext,
     agent: SessionAgent,
-    count: number) => Effect.gen(function* () {
+    count: number,
+    uses: number = 1) => Effect.gen(function* () {
 
-    const values = yield* createPDSInviteCodes(ctx, agent, count)
+    const values = yield* createPDSInviteCodes(ctx, agent, count, uses)
 
     yield* Effect.tryPromise({
         try: () => ctx.kysely
             .insertInto("InviteCode")
             .values(values.map(v => ({
                 code: v,
-                pdsInvite: v
+                pdsInvite: v,
+                uses
             })))
             .execute(),
         catch: (error) => new DBInsertError(error)
@@ -673,10 +683,10 @@ export const createInviteCodes = (
 }).pipe(Effect.withSpan("createInviteCodes"))
 
 
-export const createInviteCodesHandler: EffHandler<{ query: { c: number } }, {
+export const createInviteCodesHandler: EffHandler<{ query: { c: number, u: number } }, {
     inviteCodes: string[]
 }> = (ctx, agent, {query}) => {
-    return createInviteCodes(ctx, agent, query.c).pipe(
+    return createInviteCodes(ctx, agent, query.c, query.u).pipe(
         Effect.map(inviteCodes => ({inviteCodes})),
         Effect.catchTag("GetInviteCodeError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación.")),
         Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación."))
@@ -708,13 +718,14 @@ const checkInviteCode = (
     did: string,
     inviteCode: string
 ) => Effect.gen(function*  () {
-    const [code, user] = yield* Effect.all([
+    const [codeUses, user] = yield* Effect.all([
         Effect.tryPromise({
             try: () => ctx.kysely
-                .selectFrom("InviteCode")
-                .select(["usedByDid"])
-                .where("code", "=", inviteCode)
-                .executeTakeFirstOrThrow(),
+                .selectFrom("InviteCodeUsedBy")
+                .innerJoin("InviteCode", "InviteCode.code", "InviteCodeUsedBy.code")
+                .select(["InviteCodeUsedBy.userId", "InviteCode.uses"])
+                .where("InviteCodeUsedBy.code", "=", inviteCode)
+                .execute(),
             catch: () => new CodeNotFoundError()
         }),
         Effect.tryPromise({
@@ -731,7 +742,7 @@ const checkInviteCode = (
             catch: () => new UserNotFoundError()
         }),
     ], {concurrency: "unbounded"})
-    return {code, user}
+    return {codeUses, user}
 })
 
 
@@ -740,13 +751,13 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
 > {
 
     return Effect.gen(function* () {
-        const {user, code} = yield* checkInviteCode(ctx, did, inviteCode)
+        const {user, codeUses} = yield* checkInviteCode(ctx, did, inviteCode)
 
         if (user.code != null && user.inCA && user.hasAccess) {
             return
         }
 
-        if (code.usedByDid != null) {
+        if (codeUses.length > 0 && codeUses.length >= codeUses[0].uses) {
             return yield* Effect.fail(new UsedCodeError())
         }
 
@@ -758,6 +769,15 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
                         .set("usedAt_tz", new Date())
                         .set("usedByDid", did)
                         .where("code", "=", inviteCode)
+                        .execute()
+
+                    await trx
+                        .insertInto("InviteCodeUsedBy")
+                        .values([{
+                            code: inviteCode,
+                            userId: did
+                        }])
+                        .onConflict(oc => oc.doNothing())
                         .execute()
                 }
 

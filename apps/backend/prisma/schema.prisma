@@ -202,8 +202,24 @@ model InviteCode {
   User_InviteCode_usedByDidToUser     User?          @relation("InviteCode_usedByDidToUser", fields: [usedByDid], references: [did])
   pdsInvite                           String?
 
+  uses Int @default(1)
+
+  users InviteCodeUsedBy[]
+
   @@index([recommenderId])
   @@index([usedByDid])
+}
+
+model InviteCodeUsedBy {
+  code    String
+  codeRel InviteCode @relation(fields: [code], references: [code])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [did])
+
+  usedAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([code, userId])
 }
 
 model Meeting {
@@ -607,8 +623,10 @@ model User {
   bskyProfile    Record? @relation(fields: [bskyProfileUri], references: [uri])
 
   events                  Event[]
-  emailVerificationTokens  EmailVerificationToken[]
-  recoverPasswordTokens  RecoverPasswordToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  recoverPasswordTokens   RecoverPasswordToken[]
+
+  codesUsed InviteCodeUsedBy[]
 
   @@index([CAProfileUri])
   @@index([articleLastMonth, did])
