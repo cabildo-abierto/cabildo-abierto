@@ -51,7 +51,7 @@ export async function computePaymentPromiseStats(ctx: AppContext, reset: boolean
         d <= yesterday;
         d.setDate(d.getDate() + 1)
     ) {
-        if(existing.some(s => s.date.getUTCDate() == d.getUTCDate())) continue
+        if(existing.some(s => new Date(s.date).toISOString() == new Date(d).toISOString())) continue
         ctx.logger.pino.info(`computing npp for day ${d}`)
         const [{ npp }] = await ctx.kysely
             .selectFrom('AssignedPayment')
@@ -165,7 +165,6 @@ async function getStatsDashboardUsers(ctx: AppContext){
             "handle",
             "authorStatus",
             "User.created_at_tz",
-            "User.created_at",
             "CAProfileRecord.created_at_tz as ca_created_at",
             "email",
             "userValidationHash",
@@ -227,7 +226,7 @@ export const getStatsDashboard: CAHandler<{}, StatsDashboard> = async (ctx, agen
         handle: u.handle,
         did: u.did,
         email: u.email,
-        created_at: u.created_at_tz ?? u.created_at,
+        created_at: u.created_at_tz ?? new Date(),
         authorStatus: u.authorStatus as string,
         lastReadSession: u.lastReadSession.length > 0 ? new Date(u.lastReadSession[0].created_at_tz ?? 0) : null,
         verification: getValidationState(u),

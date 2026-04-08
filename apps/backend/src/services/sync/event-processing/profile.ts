@@ -1,24 +1,26 @@
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {AppBskyActorProfile} from "@atproto/api"
-import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {
+    addRecordsToDBBatch,
+    InsertRecordError,
+    RecordProcessor
+} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {ValidationResult} from "@atproto/lexicon";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
 import {DBDeleteError} from "#/utils/errors.js";
 
 
-export class CAProfileRecordProcessor extends RecordProcessor<ArCabildoabiertoActorCaProfile.Record> {
-    validateRecord(record: ArCabildoabiertoActorCaProfile.Record) {
+export const caProfileRecordProcessor: RecordProcessor<ArCabildoabiertoActorCaProfile.Record> = {
+    validator: (ctx, record: ArCabildoabiertoActorCaProfile.Record) => {
         return Effect.succeed(ArCabildoabiertoActorCaProfile.validateRecord(record))
-    }
+    },
 
-    addRecordsToDB(records: RefAndRecord<ArCabildoabiertoActorCaProfile.Record>[], reprocess: boolean = false) {
-        return processCAProfilesBatch(this.ctx, records)
+    addRecordsToDB: (ctx, records, reprocess = false) => {
+        return processCAProfilesBatch(ctx, records)
     }
 }
 
@@ -45,17 +47,17 @@ export const caProfileDeleteProcessor: DeleteProcessor = (ctx, uris) => {
 }
 
 
-export class OldCAProfileRecordProcessor extends RecordProcessor<any> {
+export const oldCAProfileRecordProcessor: RecordProcessor<any> = {
 
-    validateRecord= (r: any): Effect.Effect<ValidationResult<any>, never> => {
+    validator: (ctx, r: any) => {
         return Effect.succeed({
             success: true,
             value: r
         })
-    }
+    },
 
-    addRecordsToDB(records: {ref: ATProtoStrongRef, record: any}[], reprocess: boolean = false) {
-        return processCAProfilesBatch(this.ctx, records)
+    addRecordsToDB: (ctx, records, reprocess: boolean = false) => {
+        return processCAProfilesBatch(ctx, records)
     }
 }
 
@@ -65,12 +67,12 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
             did: getDidFromUri(r.ref.uri),
             CAProfileUri: r.ref.uri,
             inCA: true,
-            created_at_tz: r.record.created_at
+            created_at_tz: r.record.created_at ?? new Date()
         }
     })
 
     const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
-        await new RecordProcessor(ctx).processRecordsBatch(trx, records)
+        await addRecordsToDBBatch(trx, records)
 
         await trx
             .insertInto("User")
@@ -92,14 +94,10 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
 }
 
 
-export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProfile.Record> {
+export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Record> = {
+    validator: (ctx, record) => Effect.succeed(AppBskyActorProfile.validateRecord(record)),
 
-    validateRecord(record: AppBskyActorProfile.Record) {
-        return Effect.succeed(AppBskyActorProfile.validateRecord(record))
-    }
-
-    addRecordsToDB(records: RefAndRecord<AppBskyActorProfile.Record>[], reprocess: boolean = false) {
-        const ctx = this.ctx
+    addRecordsToDB: (ctx, records, reprocess: boolean = false) => {
         return Effect.gen(function*() {
             const values: {
                 did: string
@@ -108,7 +106,7 @@ export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProf
                 avatar?: string
                 banner?: string
                 handle?: string
-                created_at_tz?: Date
+                created_at_tz: Date
             }[] = yield* Effect.all(records.map(({ref, record: r}) => {
                 const did = getDidFromUri(ref.uri)
                 const avatarCid = r.avatar ? getCidFromBlobRef(r.avatar) : undefined
@@ -126,7 +124,7 @@ export class BskyProfileRecordProcessor extends RecordProcessor<AppBskyActorProf
                         avatar,
                         banner,
                         handle,
-                        created_at_tz: r.createdAt ? new Date(r.createdAt) : undefined
+                        created_at_tz: r.createdAt ? new Date(r.createdAt) : new Date()
                     }
                 })
             }))

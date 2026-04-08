@@ -11,7 +11,6 @@ import {MarkdownSelection} from "@/components/editor/selection/markdown-selectio
 import {LexicalSelection} from "@/components/editor/selection/lexical-selection";
 import {EditorState} from "lexical";
 import {getPlainText} from "@cabildo-abierto/editor-core";
-import {useIsMobile} from "@/components/utils/use-is-mobile";
 import {cn} from "@/lib/utils";
 import {WritePanelTopbar} from "@/components/writing/write-panel/write-panel-topbar";
 import {WritePost} from "@/components/writing/write-panel/write-post";
@@ -177,7 +176,6 @@ const WritePanelPanel = ({
                          }: WritePanelProps) => {
     const [selected, setSelected] = useState<string | null>(replyTo || quotedPost || postView || selection ? "Publicación" : null)
     const [hidden, setHidden] = useState(false)
-    const {isMobile} = useIsMobile()
     const [nextEditorKey, setNextEditorKey] = useState(1)
     const initialThreadElementState = useInitialThreadElementState(0, postView)
     const [thread, setThread] = useState<ThreadElementState[]>([initialThreadElementState])
@@ -263,7 +261,7 @@ const WritePanelPanel = ({
             fullscreenOnMobile={false}
         >
             {selected == "Publicación" && <div
-                className={cn("w-full group portal bg-[var(--background-dark)] pt-1 flex flex-col max-h-[80vh] overflow-y-auto custom-scrollbar", !isMobile ? "" : "mt-8")}
+                className={cn("w-full group portal bg-[var(--background-dark)] pt-1 flex flex-col max-h-[80vh] overflow-y-auto custom-scrollbar")}
             >
                 <WritePanelTopbar
                     onClose={onClose}
@@ -342,7 +340,7 @@ const WritePanelPanel = ({
                         onClick={() => {
                             setSelected("Publicación")
                         }}
-                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}
+                        className={"flex-1 hover:border-none border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}
                     >
                         Publicación
                     </div>
@@ -351,14 +349,14 @@ const WritePanelPanel = ({
                             router.push("/escribir/articulo");
                             onClose()
                         }}
-                        className={"flex-1 border-r hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 border-r hover:border-none hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}>
                         Artículo
                     </div>
                     <div
                         onClick={() => {
                             setSelected("Tema")
                         }}
-                        className={"flex-1 hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}>
+                        className={"flex-1 hover:border-none hover:bg-[var(--background-dark2)] cursor-pointer font-light hover:scale-105 text-center items-center h-full flex justify-center"}>
                         Tema
                     </div>
                 </div>

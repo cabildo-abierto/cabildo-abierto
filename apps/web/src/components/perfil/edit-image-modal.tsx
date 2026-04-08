@@ -6,6 +6,7 @@ import {BaseFullscreenPopup} from "../utils/dialogs/base-fullscreen-popup";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {ImagePayload} from "@cabildo-abierto/api";
 import {Slider} from "@/components/utils/ui/slider";
+import {Paragraph} from "../utils/base/paragraph";
 
 const getCroppedImg = (
     imageSrc: string,
@@ -112,7 +113,13 @@ const EditImageModal = ({
             className={"z-[1600]"}
         >
             <div className="flex flex-col px-4 w-[400px]">
-                <h3 className="text-base uppercase font-bold mb-4">Recortar imagen</h3>
+                <div className={"mb-4"}>
+                    <h3 className="text-lg font-bold">Recortar imágen</h3>
+
+                    <Paragraph className={"text-sm"}>
+                        Elegí cómo recortar la imagen.
+                    </Paragraph>
+                </div>
 
                 <div className="relative h-[400px]">
                     <Cropper
@@ -128,7 +135,7 @@ const EditImageModal = ({
                     />
                 </div>
 
-                <div className="pb-4 pt-8 flex flex-col space-y-8 items-center">
+                <div className="pb-4 pt-8 flex flex-col space-y-12 items-center">
                     <div className={"w-full px-8 space-y-[6px]"}>
                         <div className={"text-center text-xs text-[var(--text-light)]"}>
                             Zoom

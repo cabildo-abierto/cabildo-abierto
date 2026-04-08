@@ -7,19 +7,18 @@ import {CloseButton} from "@/components/utils/base/close-button";
 import {post} from "../utils/react/fetch";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {produce} from "immer";
-import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api"
+import {ArCabildoabiertoActorDefs, FollowSuggestionsOutput} from "@cabildo-abierto/api"
 import ValidationIcon from "../perfil/validation-icon";
 import UserSummaryOnHover from "../perfil/user-summary";
 import {InfiniteFeed} from "@/components/feed/types";
 import {profileUrl} from "@/components/utils/react/url";
 import {CustomLink} from "@/components/utils/base/custom-link";
 import {ReadOnlyEditor} from "@/components/utils/base/read-only-editor";
+import {$Typed} from "@atproto/api";
 
 
 type UserSearchResultProps = {
-    user: ArCabildoabiertoActorDefs.ProfileViewBasic & {
-        description?: string
-    }
+    user: $Typed<ArCabildoabiertoActorDefs.ProfileView> | $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic>
     showFollowButton?: boolean
     goToProfile?: boolean
     onClick?: (did: string) => (void | Promise<void>)
@@ -34,11 +33,11 @@ function optimisticSetNotInterested(qc: QueryClient, subject: string) {
                 if (!old) return old
 
                 if (q.queryKey[0] == "follow-suggestions") {
-                    return produce(old as { profiles: ArCabildoabiertoActorDefs.ProfileViewBasic[] }, draft => {
-                        draft.profiles = draft.profiles.filter(x => x.did != subject)
+                    return produce(old as FollowSuggestionsOutput, draft => {
+                        draft.feed = draft.feed.filter(x => x.did != subject)
                     })
                 } else if (q.queryKey[0] == "follow-suggestions-feed") {
-                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileViewBasic>, draft => {
+                    return produce(old as InfiniteFeed<ArCabildoabiertoActorDefs.ProfileView>, draft => {
                         for (let i = 0; i < draft.pages.length; i++) {
                             draft.pages[i].data = draft.pages[i].data
                                 .filter(x => x.did != subject)
@@ -65,12 +64,12 @@ const NotInterestedButton = ({subject}: { subject: string }) => {
 
 
 const UserSearchResult = ({
-                              user,
-                              showFollowButton = true,
-                              goToProfile = true,
-                              onClick,
-                              isSuggestion = false
-                          }: UserSearchResultProps) => {
+    user,
+    showFollowButton = true,
+    goToProfile = true,
+    onClick,
+    isSuggestion = false
+}: UserSearchResultProps) => {
     const {isMobile} = useLayoutConfig()
 
     return <CustomLink
@@ -93,22 +92,22 @@ const UserSearchResult = ({
         <div className={"space-y-[-3px] " + (isSuggestion ? "w-[55%]" : "w-[60%]")}>
             <UserSummaryOnHover handle={user.handle}>
                 <div className={"flex items-center space-x-1"}>
-                <div className={"truncate"}>
-                    {user.displayName ? user.displayName : <>@{user.handle}</>}
+                    <div className={"truncate"}>
+                        {user.displayName ? user.displayName : <>@{user.handle}</>}
+                    </div>
+                    {user.caProfile && <div className={"pb-[2px]"}>
+                        <ValidationIcon fontSize={18} handle={user.handle} verification={user.verification}/>
+                    </div>}
+                    {!user.caProfile && <BlueskyLogo fontSize={12}/>}
                 </div>
-                {user.caProfile && <div className={"pb-[2px]"}>
-                    <ValidationIcon fontSize={18} handle={user.handle} verification={user.verification}/>
-                </div>}
-                {!user.caProfile && <BlueskyLogo fontSize={12}/>}
-            </div>
             </UserSummaryOnHover>
             {user.displayName &&
-            <UserSummaryOnHover handle={user.handle}>
-                <div className="text-[var(--text-light)] text-sm truncate text-ellipsis">
-                    @{user.handle}
-                </div>
-            </UserSummaryOnHover>}
-            {user.description && user.description.length > 0 && <div
+                <UserSummaryOnHover handle={user.handle}>
+                    <div className="text-[var(--text-light)] text-sm truncate text-ellipsis">
+                        @{user.handle}
+                    </div>
+                </UserSummaryOnHover>}
+            {ArCabildoabiertoActorDefs.isProfileView(user) && user.description && user.description.length > 0 && <div
                 className={"text-sm pt-1 line-clamp-2"}>
                 <ReadOnlyEditor
                     text={user.description}

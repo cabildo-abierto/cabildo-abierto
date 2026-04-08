@@ -12,6 +12,8 @@ import {useLayoutConfig} from "../layout/main-layout/layout-config-context";
 import {ArCabildoabiertoWikiTopicVersion, Session} from "@cabildo-abierto/api"
 import {useSession} from "@/components/auth/use-session";
 import {CustomLink} from "@/components/utils/base/custom-link";
+import {useSearch} from "@/components/buscar/search-context";
+import {usePathname} from "next/navigation";
 
 
 const TopicNumWords = ({numWords}: {numWords: number}) => {
@@ -35,7 +37,8 @@ const TopicSearchResult = ({topic, index, time}: {
 }) => {
     const {isMobile} = useLayoutConfig()
     const {user} = useSession()
-
+    const pathname = usePathname()
+    const {setSearchState} = useSearch(`${pathname}::topics`)
     const categories = getTopicCategories(topic.props)
 
     const unseenUpdate = hasUnseenUpdate(user, topic)
@@ -46,6 +49,7 @@ const TopicSearchResult = ({topic, index, time}: {
             href={topicUrl(topic.id)}
             className={"px-3 py-4 w-full flex justify-between hover:bg-[var(--background-dark)] bg-[var(--background)] cursor-pointer"}
             id={"topic-search-result"}
+            onClick={() => {setSearchState({value: "", searching: false})}}
         >
             <div className={"sm:max-w-[70%] w-full flex items-start flex-col sm:space-y-2"}>
                 <div className={"flex space-x-1 items-center text-xs text-[var(--text-light)]"}>

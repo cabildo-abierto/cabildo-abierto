@@ -1,5 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {addRecordsToDBBatch, processRecords} from "#/services/sync/event-processing/record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
 
@@ -30,13 +31,17 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
         const t1 = Date.now()
         const records = await ctx.kysely
             .selectFrom("Record")
-            .select(["Record.uri", "Record.cid", "Record.record"])
+            .select([
+                "Record.uri",
+                "Record.cid",
+                "Record.record"
+            ])
             .where("collection", "=", collection)
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .limit(bs)
             .offset(offset)
-            .orderBy("created_at asc")
+            .orderBy("created_at_tz asc")
             .execute()
         const t2 = Date.now()
 
@@ -57,10 +62,10 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
 
         if(onlyRecords) {
             await ctx.kysely.transaction().execute(async trx => {
-                await processor.processRecordsBatch(trx, refAndRecords)
+                await addRecordsToDBBatch(trx, refAndRecords)
             })
         } else {
-            await Effect.runPromiseExit(processor.process(refAndRecords, true))
+            await Effect.runPromiseExit(processRecords(ctx, refAndRecords, processor, true))
         }
         const t3 = Date.now()
 

@@ -75,7 +75,7 @@ const editTopicInBatch = (ctx: AppContext, agent: SessionAgent, t: TopicForBatch
             .innerJoin("TopicVersion", "Topic.currentVersionId", "TopicVersion.uri")
             .select(["id", "props"]).where("id", "=", t.id)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if(searchResults.length == 0 && !topic) {

@@ -4,21 +4,23 @@ import {getDidFromUri, unique} from "@cabildo-abierto/utils";
 import {SyncContentProps} from "#/services/sync/types.js";
 import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {InsertRecordError, RecordProcessor} from "#/services/sync/event-processing/record-processor.js";
+import {
+    addRecordsToDBBatch,
+    InsertRecordError,
+    RecordProcessor
+} from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Effect} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
-import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
+import {DBDeleteError} from "#/utils/errors.js";
+import {RefAndRecord} from "#/services/sync/types.js";
+import {AppContext} from "#/setup.js";
 
 
-
-
-
-export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeedArticle.Record> {
-
-    validateRecord(record: ArCabildoabiertoFeedArticle.Record) {
+export const articleRecordProcessor: RecordProcessor<ArCabildoabiertoFeedArticle.Record> = {
+    validator: (ctx, record: ArCabildoabiertoFeedArticle.Record) => {
         return Effect.gen(function* () {
             const res = ArCabildoabiertoFeedArticle.validateRecord(record)
             if(!res.success) {
@@ -42,9 +44,9 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
                 return yield* Effect.succeed(res)
             }
         })
-    }
+    },
 
-    addRecordsToDB(records: {ref: ATProtoStrongRef, record: ArCabildoabiertoFeedArticle.Record}[], reprocess: boolean = false) {
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoFeedArticle.Record>[], reprocess = false) => {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -66,9 +68,9 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
         }))
 
         let jobs: JobToAdd[] = []
-        const insertArticle = this.ctx.kysely.transaction().execute(async (trx) => {
-            await this.processRecordsBatch(trx, records)
-            jobs.push(...await processContentsBatch(this.ctx, trx, contents))
+        const insertArticle = ctx.kysely.transaction().execute(async (trx) => {
+            await addRecordsToDBBatch(trx, records)
+            jobs.push(...await processContentsBatch(ctx, trx, contents))
 
             await trx
                 .insertInto("Article")
@@ -107,7 +109,7 @@ export class ArticleRecordProcessor extends RecordProcessor<ArCabildoabiertoFeed
             }
         )
 
-        const addJobs = this.ctx.worker?.addJobs(jobs)
+        const addJobs = ctx.worker?.addJobs(jobs)
 
         return Effect.gen(function*() {
             yield* Effect.tryPromise({

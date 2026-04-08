@@ -8,6 +8,8 @@ import Link from "next/link";
 
 import {smoothScrollTo} from "../../utils/react/scroll";
 import {ArCabildoabiertoWikiTopicVersion, TTOption} from "@cabildo-abierto/api";
+import {useTopicsPageParams} from "@/components/feed/config/topics";
+import TopicsSortSelector from "@/components/temas/topic-sort-selector";
 
 
 const TopicSearchResult = dynamic(() => import("../../buscar/topic-search-result"))
@@ -36,11 +38,11 @@ const LoadingCategoryTopics = () => {
 }
 
 
-export const CategoryTopics = ({sortedBy, categories}: {
-    sortedBy: TTOption
+export const CategoryTopics = ({categories}: {
     categories: string[]
     onSearchPage?: boolean
 }) => {
+    const {sortedBy} = useTopicsPageParams()
     const time = ttOptionToTimePeriod(sortedBy)
     const {data: topics, error, isLoading} = useTopics(
         categories,
@@ -48,15 +50,18 @@ export const CategoryTopics = ({sortedBy, categories}: {
         time
     )
 
-    if (isLoading) return <LoadingCategoryTopics/>
-    if (!topics) return <ErrorPage>{error?.message ?? "Ocurrió un error al cargar los temas."}</ErrorPage>
+    if (error) return <ErrorPage>{error?.message ?? "Ocurrió un error al cargar los temas."}</ErrorPage>
 
-    const endText = topics.length == 50 ? <div className={"text-sm text-[var(--text-light)] link px-4"}>
+    const endText = topics && topics.length == 50 ? <div className={"text-sm text-[var(--text-light)] link px-4"}>
         Se muestran los primeros {topics.length} resultados. Para ver más temas usá la <Link href={"/temas?view=mapa"}>vista de mapa</Link> o el <Link href={"/temas"} onClick={(e) => {e.preventDefault(); smoothScrollTo(0)}}>buscador</Link>.
     </div> : null
 
-    return <div className="flex flex-col items-center w-full" key={sortedBy + categories.join("-")}>
-        <StaticFeed
+    return <div className="flex space-y-2 flex-col items-center w-full" key={sortedBy + categories.join("-")}>
+        {isLoading &&  <LoadingCategoryTopics/>}
+        {topics && <div className={"w-full flex px-2"}>
+            <TopicsSortSelector/>
+        </div>}
+        {topics && <StaticFeed
             initialContents={topics}
             FeedElement={({content: t, index}: {content: ArCabildoabiertoWikiTopicVersion.TopicViewBasic, index?: number}) =>
                 <TopicSearchResult topic={t} index={index} time={time}/>
@@ -64,6 +69,6 @@ export const CategoryTopics = ({sortedBy, categories}: {
             noResultsText={"No se encontró ningún tema."}
             endText={endText}
             getFeedElementKey={(e: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {return `${e.id}:${time}`}}
-        />
+        />}
     </div>
 }

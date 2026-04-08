@@ -2,6 +2,7 @@ import {AppContext} from "#/setup.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {getUri, isCAProfile} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {processRecords} from "#/services/sync/event-processing/record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {isValidHandle} from "@atproto/syntax";
 import {Effect} from "effect";
@@ -13,7 +14,8 @@ function newUser(ctx: AppContext, did: string, inCA: boolean) {
         return ctx.kysely.insertInto("User")
             .values([{
                 did,
-                inCA: true
+                inCA: true,
+                created_at_tz: new Date()
             }])
             .onConflict(oc => oc.column("did").doUpdateSet(eb => ({
                 inCA: eb => eb.ref("excluded.inCA")
@@ -22,7 +24,8 @@ function newUser(ctx: AppContext, did: string, inCA: boolean) {
     } else {
         return ctx.kysely.insertInto("User")
             .values([{
-                did
+                did,
+                created_at_tz: new Date()
             }])
             .onConflict(oc => oc.column("did").doNothing())
             .execute()
@@ -87,7 +90,7 @@ class CommitCreateOrUpdateEventProcessor extends CommitEventProcessor {
         for await (const [c, refAndRecords] of byCollection.entries()) {
             if(refAndRecords.length == 0) continue
             const recordProcessor = getRecordProcessor(this.ctx, c)
-            await Effect.runPromiseExit(recordProcessor.process(refAndRecords))
+            await Effect.runPromiseExit(processRecords(this.ctx, refAndRecords, recordProcessor))
         }
     }
 }

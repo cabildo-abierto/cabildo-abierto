@@ -1,6 +1,5 @@
 import {IdResolver, MemoryCache} from '@atproto/identity'
 import {RedisCache, RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
-import {pipe} from "effect";
 import {HandleResolutionError} from "#/services/user/users.js";
 import {AppContext} from "#/setup.js";
 import * as Effect from "effect/Effect";
@@ -16,13 +15,28 @@ export function createIdResolver() {
 }
 
 export interface BidirectionalResolver {
-    resolveHandleToDid(handle: string): Effect.Effect<string, HandleResolutionError>
+    resolveHandleToDid(handle: string): Effect.Effect<string | null, HandleResolutionError | RedisCacheFetchError | RedisCacheSetError>
 
     resolveDidToHandle(did: string, useCache: boolean): Effect.Effect<string, HandleResolutionError>
+
+    resolveHandleToDidDNS(handle: string): Effect.Effect<string | null, HandleResolutionError>
+    resolveHandleToDidHTTP(handle: string): Effect.Effect<string | null, HandleResolutionError>
 }
 
 export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCache): BidirectionalResolver {
     return {
+        resolveHandleToDidDNS(handle: string) {
+            return Effect.tryPromise({
+                try: () => resolver.handle.resolveDns(handle).then(x => x ?? null),
+                catch: (e) => new HandleResolutionError(e)
+            })
+        },
+        resolveHandleToDidHTTP(handle: string) {
+            return Effect.tryPromise({
+                try: () => resolver.handle.resolveHttp(handle).then(x => x ?? null),
+                catch: (e) => new HandleResolutionError(e)
+            })
+        },
         resolveDidToHandle(did: string, useCache: boolean = true): Effect.Effect<string, HandleResolutionError> {
             return Effect.gen(function* () {
                 const handle = yield* Effect.tryPromise({
@@ -54,37 +68,39 @@ export function createBidirectionalResolver(resolver: IdResolver, redis: RedisCa
             })
         },
 
-        resolveHandleToDid(handle: string): Effect.Effect<string, HandleResolutionError> {
-            return pipe(
-                Effect.promise(() => redis.resolver.getDid(handle)),
-                Effect.flatMap(did => {
-                    return did ?
-                        Effect.succeed(did) :
-                        Effect.promise(() => resolver.handle.resolveDns(handle))
-                }),
-                Effect.flatMap(did => {
-                    return did ?
-                        Effect.succeed(did) :
-                        Effect.promise(() => resolver.handle.resolveHttp(handle))
-                }),
-                Effect.tap(did =>  {
-                    return did ? Effect.promise(() => redis.resolver.setHandle(did, handle)) : Effect.void
-                }),
-                Effect.flatMap(did => {
-                    return did ?
-                        Effect.succeed(did) :
-                        Effect.fail(new HandleResolutionError())
-                }),
-                Effect.catchAll(error => Effect.fail(new HandleResolutionError())),
-                Effect.withSpan("resolveHandleToDid", {
-                    attributes: {handle}
+        resolveHandleToDid(handle: string): Effect.Effect<string | null, HandleResolutionError | RedisCacheFetchError | RedisCacheSetError> {
+            return Effect.gen(function* () {
+                let did = yield* Effect.tryPromise({
+                    try: () => redis.resolver.getDid(handle),
+                    catch: () => new RedisCacheFetchError()
                 })
+                if(!did) {
+                    did = (yield* Effect.tryPromise({
+                        try: () => resolver.handle.resolveDns(handle),
+                        catch: () => new HandleResolutionError()
+                    })) ?? null
+                }
+                if(!did) {
+                    did = (yield* Effect.tryPromise({
+                        try: () => resolver.handle.resolveHttp(handle),
+                        catch: () => new HandleResolutionError()
+                    })) ?? null
+                }
+                if(did) {
+                    yield* Effect.tryPromise({
+                        try: () => redis.resolver.setHandle(did, handle),
+                        catch: () => new RedisCacheSetError()
+                    })
+                }
+                return did ?? null
+            }).pipe(
+                Effect.withSpan("resolveHandleToDid", {attributes: {handle}})
             )
         }
     }
 }
 
-export const handleOrDidToDid = (ctx: AppContext, handleOrDid: string): Effect.Effect<string, HandleResolutionError> => {
+export const handleOrDidToDid = (ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, HandleResolutionError | RedisCacheSetError | RedisCacheFetchError> => {
     if (handleOrDid.startsWith("did")) {
         return Effect.succeed(handleOrDid)
     } else {

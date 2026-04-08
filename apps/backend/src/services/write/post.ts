@@ -19,7 +19,8 @@ import {
 } from "#/services/blob.js";
 import {EffHandler} from "#/utils/handler.js";
 import {getParsedPostContent, ParsePostError} from "#/services/write/rich-text.js";
-import {PostRecordProcessor} from "#/services/sync/event-processing/post.js";
+import {postRecordProcessor} from "#/services/sync/event-processing/post.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {AppContext} from "#/setup.js";
 import {ATDeleteRecordError, deleteRecordAT, deleteRecords} from "#/services/delete.js";
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
@@ -306,8 +307,7 @@ export const createPost: EffHandler<CreatePostProps, ATProtoStrongRef[]> = (ctx,
             refsAndRecords.push(refAndRecord)
         }
 
-        const processor = new PostRecordProcessor(ctx)
-        yield* processor.processValidated(refsAndRecords).pipe(Effect.catchAll(() => Effect.fail("La publicación se creó, pero ocurrió un error al procesarla desde Cabildo Abierto.")))
+        yield* processValidatedRecords(ctx, refsAndRecords, postRecordProcessor).pipe(Effect.catchAll(() => Effect.fail("La publicación se creó, pero ocurrió un error al procesarla desde Cabildo Abierto.")))
 
         return refsAndRecords.map(r => r.ref)
     }).pipe(

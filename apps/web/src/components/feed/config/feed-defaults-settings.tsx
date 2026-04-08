@@ -322,10 +322,9 @@ export const FeedDefaultsSettings = () => {
                 </div>
             </div>}
         />
-        <Note>
-            Todas las configuraciones también se pueden cambiar temporalmente al estar viendo el contenido. Si querés
-            una configuración que no ves acá, <Link
-            href={topicUrl("Cabildo Abierto: Solicitudes de usuarios")}>sugerila</Link>.
+        <Note className={"text-start"}>
+            Si querés una configuración que no ves acá, podés <Link
+            href={topicUrl("Cabildo Abierto: Solicitudes de usuarios")}>sugerirla acá</Link>.
         </Note>
     </div>
 }

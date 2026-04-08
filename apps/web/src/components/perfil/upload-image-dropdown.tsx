@@ -16,6 +16,7 @@ export const UploadImageDropdown = ({
 }) => {
     const [editingImage, setEditingImage] = useState<any | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const [dropdownOpen, setDropdownOpen] = useState(false)
 
     const onSubmit = useCallback((i: any) => {
         if (crop !== "none") {
@@ -43,14 +44,14 @@ export const UploadImageDropdown = ({
                 crop={crop}
             />}
 
-            <DropdownMenu>
+            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger>
                     {children}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={"z-[1500]"}>
                     <DropdownMenuItem
                         tabIndex={-1}
-                        onSelect={handleMenuItemSelect as any}
+                        onSelect={(e) => {handleMenuItemSelect(e);}}
                     >
                         <div>
                             <UploadFileIcon fontSize={18} weight={"light"}/>
@@ -63,7 +64,10 @@ export const UploadImageDropdown = ({
                             ref={fileInputRef}
                             type={"file"}
                             accept={"image/*"}
-                            onChange={loadImage}
+                            onChange={async (e) => {
+                                await loadImage(e)
+                                setDropdownOpen(false)
+                            }}
                             multiple={false}
                         />
                     </DropdownMenuItem>

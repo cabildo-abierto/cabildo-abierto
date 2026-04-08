@@ -1,24 +1,19 @@
 import ViewsIcon from "@/components/utils/icons/views-icon";
 import ViewsDisabledIcon from "@/components/utils/icons/views-disabled-icon";
 import {DropdownMenuItem} from "@/components/utils/ui/dropdown-menu";
+import {useShowBsky} from "@/lib/hooks/show-bsky";
 
 
-export default function OptionsBlueskyReactionsButton({
-                                                          showBluesky,
-                                                          setShowBluesky
-                                                      }: {
-    showBluesky: boolean;
-    setShowBluesky?: (showBluesky: boolean) => void;
-}) {
-    if (!setShowBluesky) return null
+export default function OptionsBlueskyReactionsButton() {
+    const {showBsky, setShowBsky} = useShowBsky()
 
     return <DropdownMenuItem
         onSelect={() => {
-            setShowBluesky(!showBluesky)
+            setShowBsky(!showBsky)
         }}
     >
         <div>
-            {!showBluesky ? <ViewsIcon fontSize={20}/> : <ViewsDisabledIcon fontSize={20}/>}
+            {!showBsky ? <ViewsIcon fontSize={20}/> : <ViewsDisabledIcon fontSize={20}/>}
         </div>
         <div>
             Reacciones en Bluesky

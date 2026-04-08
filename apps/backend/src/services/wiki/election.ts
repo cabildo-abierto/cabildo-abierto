@@ -68,7 +68,7 @@ export const getTopicsDataForElectionVisualization = (
             ])
             .where("TopicVersion.topicId", "in", Array.from(topicIds))
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     return topicsData.map(t => ({

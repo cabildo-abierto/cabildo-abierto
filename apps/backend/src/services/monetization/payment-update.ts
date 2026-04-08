@@ -12,13 +12,13 @@ export async function updatePayments(ctx: AppContext) {
         .select([
             "id",
             "Record.uri",
-            "Record.created_at as recordCreatedAt"
+            "Record.created_at_tz as recordCreatedAt"
         ])
         .where("PaymentPromise.status", "=", "Pending")
         .execute()
     for(let i = 0; i < promises.length; i++){
         const p = promises[i]
-        if(p.recordCreatedAt < oneMonthAgo){
+        if(p.recordCreatedAt! < oneMonthAgo){
             await ctx.kysely
                 .updateTable("PaymentPromise")
                 .set("status", "Confirmed")

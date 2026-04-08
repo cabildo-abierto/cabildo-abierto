@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 
 export function localeDate(date: Date, includeCurrentYear: boolean=false, includeSeconds: boolean=false, includeHours: boolean=false, includeMinutes: boolean=false) {
-    let dateFormat = dayjs(date).year() !== 2025 || includeCurrentYear
+    let dateFormat = dayjs(date).year() !== new Date().getFullYear() || includeCurrentYear
         ? "D [de] MMMM [de] YYYY"
         : "D [de] MMMM"
 

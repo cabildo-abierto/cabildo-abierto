@@ -8,7 +8,7 @@ import { ArCabildoabiertoActorDefs } from "@cabildo-abierto/api";
 export const FollowSuggestionSmallView = ({
     user
                                           }: {
-    user: ArCabildoabiertoActorDefs.ProfileViewBasic
+    user: ArCabildoabiertoActorDefs.ProfileView
 }) => {
     return <CustomLink
         tag={"div"}

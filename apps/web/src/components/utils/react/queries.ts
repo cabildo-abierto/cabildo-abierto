@@ -12,14 +12,15 @@ export function useAPI<T>(
     enabled: boolean = true,
     refetchInterval: RefetchInterval<T> = false
 ) {
-    return useQuery<T>({
+    return useQuery<T, Error>({
         queryKey: key,
         queryFn: async () => {
             const res = await get<T>(route)
             if(res.success === true) {
                 return res.value
+            } else {
+                throw new Error(res.error)
             }
-            return null
         },
         staleTime,
         enabled,

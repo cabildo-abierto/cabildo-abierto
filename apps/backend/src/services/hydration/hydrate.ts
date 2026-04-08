@@ -393,7 +393,7 @@ export const hydrateFeed = (ctx: AppContext, agent: SessionAgent | NoSessionAgen
         .filter(x => x != null))
 
     return feed.filter(x => ArCabildoabiertoFeedDefs.isFeedViewContent(x))
-})
+}).pipe(Effect.withSpan("hydrateFeed"))
 
 
 export type ThreadSkeleton = {

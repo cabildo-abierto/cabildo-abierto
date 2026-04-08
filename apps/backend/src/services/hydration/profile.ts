@@ -51,6 +51,7 @@ export function hydrateProfileView(ctx: AppContext, did: string): Effect.Effect<
         })
 
         if(!bsky) {
+            ctx.logger.pino.warn({did, bsky: bsky != null, caDetailed: caDetailed != null, profile: profile != null, viewer: viewer != null, ca: ca != null}, "failed to hydrate profile view")
             return null
         }
 

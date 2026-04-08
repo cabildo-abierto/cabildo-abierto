@@ -24,7 +24,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
 }) => {
     const [guideOpen, setGuideOpen] = useState(false)
     const {isMobile} = useIsMobile()
-    const {layoutState} = useLayoutState()
+    const {layoutState, setLayoutState} = useLayoutState()
     const user = useSession()
     const pathname = usePathname()
     const showText = layoutState.openSidebar
@@ -75,7 +75,12 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 variant="outlined"
                                 size={isMobile ? "default" : "small"}
                                 className={"h-8"}
-                                onClick={() => {setLoginModalOpen(true)}}
+                                onClick={() => {
+                                    setLoginModalOpen(true);
+                                    if(isMobile) {
+                                        setLayoutState({...layoutState, openSidebar: false})
+                                    }
+                                }}
                             >
                                 Iniciar sesión
                             </BaseButton>}

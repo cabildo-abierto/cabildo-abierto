@@ -1,6 +1,6 @@
 import {
     cleanUpAfterTests,
-    cleanUPTestDataFromDB,
+    cleanUpTestDataFromDB,
     createTestAcceptVote,
     createTestContext,
     createTestTopicVersion,
@@ -8,13 +8,17 @@ import {
     deleteRecordsInTest,
     getPostRefAndRecord,
     getSuiteId,
-    getTopicVersionRefAndRecord, MockSessionAgent,
-    processRecordsInTest, testTimeout
+    getTopicVersionRefAndRecord,
+    getTopicVersionRefAndRecordWithSynonyms,
+    MockSessionAgent,
+    processRecordsInTest,
+    testTimeout
 } from "#/tests/test-utils.js";
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import {getTopicVersion} from "#/services/wiki/topics.js";
 import {getTopicVersionVotes} from "#/services/wiki/votes.js";
+import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {Effect} from "effect";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
@@ -51,7 +55,7 @@ describe('Create topic vote', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -131,7 +135,7 @@ describe('Create topic version', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -176,7 +180,7 @@ describe('Get discussion', { timeout: 20000 }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 
@@ -238,6 +242,132 @@ describe('Get discussion', { timeout: 20000 }, () => {
             makeDataPlane(ctx!)
         ))
     }, {timeout: testTimeout})
+
+    afterAll(async () => cleanUpAfterTests(ctx!))
+})
+
+
+describe('mentions detection', { timeout: testTimeout }, () => {
+    let ctx: AppContext | undefined
+
+    beforeAll(async () => {
+        ctx = await createTestContext()
+        await ctx.worker?.setup(ctx)
+    }, testTimeout)
+
+    beforeEach(async () => {
+        await cleanUpTestDataFromDB(ctx!, testSuite)
+        await ctx!.worker?.clear()
+    }, testTimeout)
+
+    async function runMentionsTestCase(
+        topics: { id: string; synonyms: string[] }[],
+        text: string,
+        expectedTopicIds: string[]
+    ) {
+        const user = await Effect.runPromise(createTestUser(ctx!, "test.cabildo.ar", testSuite))
+
+        const topicVersions = await Effect.runPromise(
+            Effect.all(
+            topics.map((t) =>
+                getTopicVersionRefAndRecordWithSynonyms(
+                    ctx!,
+                    t.id,
+                    `Descripción de ${t.id}`,
+                    t.synonyms,
+                    new Date(),
+                    user,
+                    testSuite
+                )
+            ),
+            {concurrency: "unbounded"})
+        )
+
+        await Effect.runPromise(processRecordsInTest(ctx!, topicVersions))
+
+        const insertedTopics = await ctx!.kysely
+            .selectFrom("Topic")
+            .select("id")
+            .execute()
+
+        expect(insertedTopics.map(t => t.id).sort()).toEqual(topics.map(t => t.id).sort())
+
+        const mentions = await getTopicsReferencedInText(ctx!, text)
+        const detectedIds = mentions.map((m) => m.id).sort()
+        const expectedSorted = [...expectedTopicIds].sort()
+
+        expect(detectedIds).toEqual(expectedSorted)
+    }
+
+    it("detects topic when text contains exact synonym", async () => {
+        await runMentionsTestCase(
+            [{ id: "hola", synonyms: ["hola", "buen día", "hello"] }, { id: "chau", synonyms: ["chau", "adios", "goodbye"]}],
+            "hello adios",
+            ["hola", "chau"]
+        )
+    })
+
+    it("one letter", async () => {
+        await runMentionsTestCase(
+            [{ id: "topic", synonyms: ["a"] }],
+            "a",
+            ["topic"]
+        )
+    })
+
+    it("detects topic when text contains exact synonym one letter", async () => {
+        await runMentionsTestCase(
+            [{ id: "topic a", synonyms: ["a", "c"] }, { id: "topic b", synonyms: ["b", "d"]}],
+            "c d",
+            ["topic a", "topic b"]
+        )
+    })
+
+    it("partial synonym presence shouldn not match", async () => {
+        await runMentionsTestCase(
+            [{ id: "topic a", synonyms: ["hello goodbye"] }],
+            "hello",
+            []
+        )
+    })
+
+    it("detects topic with two word synonym", async () => {
+        await runMentionsTestCase(
+            [{ id: "topic", synonyms: ["a b", "c"] }],
+            "a b",
+            ["topic"]
+        )
+    })
+
+    it("two word synonym must appear contiguously", async () => {
+        await runMentionsTestCase(
+            [{ id: "hola", synonyms: ["buen día", "hola"] }],
+            "buen mmmm día",
+            []
+        )
+    })
+
+    it("law detection 1", async () => {
+        await runMentionsTestCase(
+            [
+                { id: "ley 12345", synonyms: ["ley 12.345"] },
+                { id: "ley 12", synonyms: ["ley 12"] },
+            ],
+            "ley 12.345",
+            ["ley 12345"]
+        )
+    })
+
+    it("law detection 2", async () => {
+        await runMentionsTestCase(
+            [
+                { id: "ley 12345", synonyms: ["ley 12.345"] },
+                { id: "ley 12", synonyms: ["ley 12"] },
+            ],
+            "ley 12",
+            ["ley 12"]
+        )
+    })
 
     afterAll(async () => cleanUpAfterTests(ctx!))
 })

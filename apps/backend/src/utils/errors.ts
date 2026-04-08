@@ -51,3 +51,16 @@ export class DBDeleteError {
         }
     }
 }
+
+
+export class DBUpdateError {
+    readonly _tag = "DBUpdateError"
+    name: string | undefined
+    message: string | undefined
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
+    }
+}

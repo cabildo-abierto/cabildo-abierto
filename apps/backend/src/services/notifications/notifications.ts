@@ -110,7 +110,7 @@ const getCANotifications = (
                 .orderBy("Notification.created_at_tz", "desc")
                 .limit(20)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         }),
         Effect.tryPromise({
             try: () => ctx.kysely
@@ -118,7 +118,7 @@ const getCANotifications = (
                 .select("lastSeenNotifications_tz")
                 .where("did", "=", agent.did)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
     ], {concurrency: "unbounded"})
 
@@ -137,11 +137,10 @@ function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
     return Effect.tryPromise({
         try: () => ctx.kysely
             .updateTable("User")
-            .set("lastSeenNotifications", new Date())
             .set("lastSeenNotifications_tz", new Date())
             .where("did", "=", agent.did)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 }
 
@@ -201,10 +200,10 @@ export const getUnreadNotificationsCount: CAHandler<{}, number> = async (ctx, ag
         .selectFrom('Notification')
         .select(({fn}) => [fn.count('id').as('count')])
         .where('userNotifiedId', '=', agent.did)
-        .where('created_at', '>', (eb) =>
+        .where('created_at_tz', '>', (eb) =>
             eb
                 .selectFrom('User')
-                .select('lastSeenNotifications')
+                .select('lastSeenNotifications_tz')
                 .where('did', '=', agent.did)
         )
         .executeTakeFirst()
@@ -255,13 +254,13 @@ async function getTopicEditsFullNotifications(ctx: AppContext, data: TopicEditNo
             qb
                 .selectFrom('TopicVersion')
                 .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                .select(['Record.uri', 'topicId', "Record.created_at"])
+                .select(['Record.uri', 'topicId', "Record.created_at_tz"])
                 .where('Record.uri', 'in', data.map(d => d.uri))
         )
         .selectFrom("InputVersions")
         .innerJoin('TopicVersion as tv', 'InputVersions.topicId', 'tv.topicId')
         .innerJoin("Record as tvRecord", "tvRecord.uri", "InputVersions.uri")
-        .whereRef("InputVersions.created_at", ">", "tvRecord.created_at")
+        .whereRef("InputVersions.created_at_tz", ">", "tvRecord.created_at_tz")
         .select([
             'InputVersions.uri as causeUri',
             'tv.uri as notifiedVersionUri',

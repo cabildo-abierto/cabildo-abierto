@@ -69,7 +69,11 @@ export function useLikeMutation(uri: string) {
     const addLikeMutation = useMutation({
         mutationFn: addLike,
         onMutate: (likedContent) => {
-            optimisticAddLike(qc, likedContent.uri)
+            try {
+                optimisticAddLike(qc, likedContent.uri)
+            } catch (error) {
+                console.error("Error al agregar el me gusta:", error)
+            }
         },
         onSuccess: (data) => {
             if (data.success === true) {

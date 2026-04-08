@@ -15,11 +15,12 @@ import {
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 import {FetchFromBskyError} from "#/services/hydration/dataplane.js";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {getUri, shortCollectionToCollection, splitUri} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
+import {processRecords} from "#/services/sync/event-processing/record-processor.js";
 
 
 export function getEnDiscusionStartDate(time: EnDiscusionTime) {
@@ -73,26 +74,21 @@ const getEnDiscusionSkeletonQuery: (
                 .selectFrom('Content')
                 .innerJoin('Record', 'Record.uri', 'Content.uri')
                 .where('Record.collection', 'in', collections)
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
-                .where("Record.created_at", ">", startDate)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .where("Record.created_at_tz", ">", startDate)
                 .select([
                     "Content.uri",
-                    "Content.created_at as createdAt"
+                    "Content.created_at_tz as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
-                .orderBy(["likesScore desc", "Content.created_at desc"])
+                .orderBy(["likesScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Interacciones") {
@@ -106,28 +102,24 @@ const getEnDiscusionSkeletonQuery: (
             const res = await ctx.kysely
                 .selectFrom('Record')
                 .where('Record.collection', 'in', collections)
-                .where("Record.created_at", ">", startDate)
+                .where("Record.created_at_tz", ">", startDate)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
                 .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
+                ${label}]::text[]`)
                 .select([
                     "Content.uri",
-                    "Content.created_at as createdAt"
+                    "Content.created_at_tz as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
                 .where("interactionsScore", "is not", null)
-                .orderBy(["interactionsScore desc", "Content.created_at desc"])
+                .orderBy(["interactionsScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Popularidad relativa") {
@@ -141,27 +133,22 @@ const getEnDiscusionSkeletonQuery: (
 
             const res = await ctx.kysely.selectFrom('Record')
                 .where('Record.collection', 'in', collections)
-                .where("Record.created_at", ">", startDate)
+                .where("Record.created_at_tz", ">", startDate)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
-                .select(eb => [
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
+                .select([
                     'Record.uri',
-                    "Record.created_at as createdAt"
+                    "Record.created_at_tz as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
-                .orderBy(["relativePopularityScore desc", "Content.created_at desc"])
+                .orderBy(["relativePopularityScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Recientes") {
@@ -173,21 +160,15 @@ const getEnDiscusionSkeletonQuery: (
             const res = await ctx.kysely.with("EnDiscusionContent", eb => eb.selectFrom('Record')
                 .where('Record.collection', 'in', collections)
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
-                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[
-                ${label}
-                ]
-                ::
-                text
-                [
-                ]`)
+                .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
                 .orderBy("Record.authorId")
-                .orderBy("Record.created_at desc")
+                .orderBy("Record.created_at_tz desc")
                 .distinctOn("Record.authorId")
                 .where("Content.caModeration", "=", "Ok")
                 .select([
                     'Record.uri',
                     "Record.authorId",
-                    "Record.created_at as createdAt"
+                    "Record.created_at_tz as createdAt"
                 ]))
                 .selectFrom("EnDiscusionContent")
                 .select([
@@ -201,7 +182,7 @@ const getEnDiscusionSkeletonQuery: (
                 .execute()
             return res.map(r => ({
                 uri: r.uri,
-                createdAt: r.createdAt ?? new Date(),
+                createdAt: r.createdAt!,
                 score: r.createdAt?.getTime() ?? 0
             }))
         } else {
@@ -244,7 +225,7 @@ export const getEnDiscusionSkeleton: (
         try: () => getEnDiscusionSkeletonQuery(metric, time, format)(
             ctx, agent, cursor, undefined, limit
         ),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(res => {
         return {
             skeleton: res.map(r => ({post: r.uri})),
@@ -264,11 +245,6 @@ export const getEnDiscusionFeedPipeline = (
 }
 
 
-export class ATGetRecordError {
-    readonly _tag = "ATGetRecordError"
-}
-
-
 export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: string) => {
 
     return Effect.gen(function* () {
@@ -281,7 +257,7 @@ export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: stri
                 collection,
                 rkey
             }),
-            catch: () => new ATGetRecordError()
+            catch: (error) => new ATGetRecordError(error)
         })
 
         if (!res.success) return yield* Effect.fail(new ATGetRecordError())
@@ -308,10 +284,10 @@ export const addToEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: stri
         })
 
         const processor = getRecordProcessor(ctx, collection)
-        yield* processor.process([{
+        yield* processRecords(ctx, [{
             ref: {uri: ref.data.uri, cid: ref.data.cid},
             record: record
-        }])
+        }], processor)
 
         return {}
     }).pipe(
@@ -332,9 +308,8 @@ export const addToEnDiscusionHandler: EffHandler<{
     const {collection, rkey} = params
     const uri = getUri(did, shortCollectionToCollection(collection), rkey)
     return addToEnDiscusion(ctx, agent, uri).pipe(
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")
-        })
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al agregar el contenido a En discusión.")),
+        Effect.map(() => ({}))
     )
 }
 
@@ -374,10 +349,10 @@ const removeFromEnDiscusion = (ctx: AppContext, agent: SessionAgent, uri: string
 
     const processor = getRecordProcessor(ctx, collection)
 
-    yield* processor.process([{
+    yield* processRecords(ctx, [{
         ref: {uri: ref.data.uri, cid: ref.data.cid},
         record
-    }])
+    }], processor)
 
     return {}
 }).pipe(
@@ -396,8 +371,7 @@ export const removeFromEnDiscusionHandler: EffHandler<{
     const {collection, rkey} = params
     const uri = getUri(did, shortCollectionToCollection(collection), rkey)
     return removeFromEnDiscusion(ctx, agent, uri).pipe(
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al remover el contenido de En discusión.")
-        })
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al remover el contenido de En discusión.")),
+        Effect.map(() => ({}))
     )
 }

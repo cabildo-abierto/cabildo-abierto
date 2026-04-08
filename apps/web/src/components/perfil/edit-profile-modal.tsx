@@ -16,6 +16,7 @@ import {CloseButton} from "@/components/utils/base/close-button";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useProfile} from "@/components/perfil/use-profile";
 import {post} from "@/components/utils/react/fetch";
+import {defaultProfilePic} from "@/components/perfil/utils";
 
 type Props = {
     open: boolean,
@@ -84,6 +85,8 @@ export const EditProfileModalWithProfile = ({open, onClose, profile}: Props & {p
 
     const isValid = validDescription(description)
 
+    const profilePicSrc = profilePic?.src ?? defaultProfilePic(profile.handle)
+
     return <BaseFullscreenPopup
         open={open}
         onClose={onClose}
@@ -129,14 +132,14 @@ export const EditProfileModalWithProfile = ({open, onClose, profile}: Props & {p
             <UploadImageDropdown crop="circle" setImage={setProfilePic}>
                 <div className={"relative"}>
                     <Image
-                        src={profilePic.src}
+                        src={profilePicSrc}
                         width={400}
                         height={400}
                         alt={profile.handle + " avatar"}
                         className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
                     />
                     <FullscreenImageViewer
-                        images={[profilePic.src]}
+                        images={[profilePicSrc]}
                         viewing={viewingProfilePic}
                         setViewing={setViewingProfilePic}
                         className={"rounded-full w-full max-w-[80vw] sm:max-w-[500px] aspect-square"}

@@ -1,4 +1,6 @@
+import { ArCabildoabiertoActorDefs } from "../client";
 import {FilePayload, OrgType} from "./admin";
+import {GetFeedOutput} from "./feed";
 
 export type DNIValidationRequestProps = {
     tipo: "persona"
@@ -22,6 +24,9 @@ export type OrgValidationRequestProps = {
 }
 
 export type ValidationRequestProps = DNIValidationRequestProps | MPValidationRequestProps | OrgValidationRequestProps
+
+
+export type FollowSuggestionsOutput = GetFeedOutput<ArCabildoabiertoActorDefs.ProfileView>
 
 export type Goal = {
     label: string

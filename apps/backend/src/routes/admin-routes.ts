@@ -1,9 +1,17 @@
 import express, {Router} from 'express'
 import type {AppContext} from '#/setup.js'
-import {isAdmin, makeAdminHandler, makeAdminHandlerNoAuth, makeEffAdminHandler} from "#/utils/handler.js";
+import {
+    isAdmin,
+    makeAdminHandler,
+    makeAdminHandlerNoAuth,
+    makeEffAdminHandler
+} from "#/utils/handler.js";
 import {syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
-import {createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent} from "#/services/user/access.js";
+import {
+    backfillInviteCodes,
+    createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent
+} from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
     getAllTopics,
@@ -18,14 +26,14 @@ import {
 } from "#/services/user/validation.js";
 import {getReadSessionsPlot, getStatsDashboard} from "#/services/admin/stats/stats.js";
 import {getRepoCounts} from "#/services/admin/repo.js";
-import {getRegisteredJobs, startJob, getWorkerState} from "#/jobs/worker.js";
+import {getRegisteredJobs, startJob, getWorkerState, pauseWorker, resumeWorker} from "#/jobs/worker.js";
 import {clearRedisHandler} from "#/services/redis/cache.js";
 import {getAdminNotificationCounts, getServerStatus, getUsersSyncStatus} from "#/services/admin/status.js";
 import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
 import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/find-users.js";
 import {getAllCAFeed} from "#/services/feed/all.js";
-import {getMailSubscriptions, getSentEmails} from "#/services/emails/subscriptions.js"
+import {getMailSubscriptions, getSentEmails, getSubscribersNotReceivedTemplate} from "#/services/emails/subscriptions.js"
 import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
 import {
     createEmailTemplate,
@@ -38,6 +46,7 @@ import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "
 import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 import {getPendingModeration} from "#/services/moderation/status.js";
 import {batchEditHandler, editTopicHandler} from "#/services/wiki/batch-editing.js";
+import {unverifyOwnEmail} from "#/services/user/email-verification.js";
 
 
 export const adminRoutes = (ctx: AppContext): Router => {
@@ -47,6 +56,11 @@ export const adminRoutes = (ctx: AppContext): Router => {
         "/sync-user/:handleOrDid",
         makeEffAdminHandler(ctx, syncUserHandler)
     )
+
+    router.post(
+        "/unverify-email",
+        makeEffAdminHandler(ctx, unverifyOwnEmail)
+    )
     router.post(
         "/user/delete/:handleOrDid",
         makeEffAdminHandler(ctx, deleteUserHandler)
@@ -54,7 +68,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.post(
         "/invite-code/create",
-        makeAdminHandler(ctx, createInviteCodesHandler)
+        makeEffAdminHandler(ctx, createInviteCodesHandler)
     )
 
     router.post(
@@ -135,6 +149,10 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get("/worker-state", makeAdminHandler(ctx, getWorkerState))
 
+    router.post("/pause-worker", makeEffAdminHandler(ctx, pauseWorker))
+
+    router.post("/resume-worker", makeEffAdminHandler(ctx, resumeWorker))
+
     router.get("/top-authors", makeAdminHandler(ctx, getTopAuthors))
 
     router.get("/all-ca-feed", makeEffAdminHandler(ctx, getAllCAFeed))
@@ -144,6 +162,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get("/mail-subscriptions", makeAdminHandler(ctx, getMailSubscriptions))
 
     router.get("/sent-emails", makeAdminHandler(ctx, getSentEmails))
+    router.get("/subscribers-not-received-template", makeAdminHandler(ctx, getSubscribersNotReceivedTemplate))
 
     // Email templates CRUD
     router.get("/email-templates", makeAdminHandler(ctx, getEmailTemplates))
@@ -152,7 +171,7 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.post("/email-template/:id/delete", makeAdminHandler(ctx, deleteEmailTemplate))
 
     // Send emails
-    router.post("/send-emails", makeAdminHandler(ctx, sendBulkEmails))
+    router.post("/send-emails", makeEffAdminHandler(ctx, sendBulkEmails))
 
     // SMTP2GO stats
     router.get("/smtp2go-stats", makeAdminHandler(ctx, getSMTP2GOStats))
@@ -222,6 +241,12 @@ export const adminRoutes = (ctx: AppContext): Router => {
         '/edit-topic',
         makeEffAdminHandler(ctx, editTopicHandler)
     )
+
+
+    router.post("/backfill-invites", makeEffAdminHandler(
+        ctx,
+        backfillInviteCodes
+    ))
 
 
     return router

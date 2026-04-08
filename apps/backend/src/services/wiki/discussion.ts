@@ -58,7 +58,7 @@ const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<Thr
                 "Post.replyToId"
             ])
             .where("TopicVersion.topicId", "=", id)
-            .orderBy("Record.created_at desc")
+            .orderBy("Record.created_at_tz desc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
@@ -93,7 +93,7 @@ function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect
                 "Reason.uri as reasonUri"
             ])
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(votes => {
         return votes.map(v => {
             if (v.subjectId && v.subjectCreatedAt) {
@@ -258,7 +258,7 @@ export const getTopicQuoteReplies: EffHandlerNoAuth<{
                 .where("Post.replyToId", "=", uri)
                 .select("uri")
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })).map(p => ({post: p.uri}))
 
         const hydrated = yield* getHydratedTopicRepliesSkeleton(ctx, agent, skeleton, uri)

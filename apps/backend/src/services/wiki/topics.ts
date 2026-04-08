@@ -223,7 +223,7 @@ async function countTopicsInEachCategory(ctx: AppContext) {
             fn.count<number>("TopicToCategory.topicId").as("count")
         ])
         .where("Topic.currentVersionId", "is not", null)
-        .where("Topic.lastEdit", "is not", null)
+        .where("Topic.lastEdit_tz", "is not", null)
         .groupBy("TopicToCategory.categoryId")
         .execute()
 }
@@ -275,7 +275,7 @@ export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effec
             .select("currentVersionId")
             .where("id", "=", id)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if (res && res.currentVersionId) {
@@ -406,7 +406,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
             .select([
                 "Record.uri",
                 "Record.cid",
-                "Record.created_at",
+                "Record.created_at_tz",
                 "Record.record",
                 "TopicVersion.props",
                 "Content.text",
@@ -416,7 +416,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                 "Topic.id",
                 "Topic.protection",
                 "Topic.popularityScore",
-                "Topic.lastEdit",
+                "Topic.lastEdit_tz as lastEdit",
                 "Topic.currentVersionId",
                 "User.editorStatus",
                 eb => eb
@@ -437,11 +437,12 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])
+            .where("Record.created_at_tz", "is not", null)
             .where("TopicVersion.uri", "=", uri)
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     if (!topic || !topic.cid) {
@@ -499,8 +500,8 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
         text: transformedText,
         format: transformedFormat,
         props,
-        createdAt: topic.created_at.toISOString(),
-        lastEdit: topic.lastEdit?.toISOString() ?? topic.created_at.toISOString(),
+        createdAt: topic.created_at_tz!.toISOString(),
+        lastEdit: topic.lastEdit?.toISOString() ?? topic.created_at_tz!.toISOString(),
         currentVersion: topic.currentVersionId ?? undefined,
         record: topic.record ? JSON.parse(topic.record) : undefined,
         embeds,

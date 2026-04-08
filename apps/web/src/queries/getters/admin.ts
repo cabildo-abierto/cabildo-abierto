@@ -1,5 +1,5 @@
 import {useAPI} from "@/components/utils/react/queries";
-import {ValidationRequestView} from "@cabildo-abierto/api";
+import {ValidationRequestView, WorkerState} from "@cabildo-abierto/api";
 
 
 type AccessRequest = {
@@ -62,37 +62,6 @@ export type JobApplication = {
 
 export function useJobApplications() {
     return useAPI<JobApplication[]>("/job-applications", ["job-applications"])
-}
-
-
-export type WorkerState = {
-    counts: {
-        waiting: number
-        active: number
-        completed: number
-        failed: number
-        delayed: number
-        prioritized: number
-    }
-    activeJobs: {
-        id: string | undefined
-        name: string
-        timestamp: number | undefined
-        processedOn: number | undefined
-    }[]
-    failedJobs: {
-        id: string | undefined
-        name: string
-        failedReason: string | undefined
-        timestamp: number | undefined
-        finishedOn: number | undefined
-    }[]
-    scheduledJobs: {
-        name: string | undefined
-        every: number | undefined
-        next: number | undefined
-    }[]
-    registeredJobs: string[]
 }
 
 export function useWorkerState() {

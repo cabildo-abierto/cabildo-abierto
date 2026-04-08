@@ -54,7 +54,7 @@ export const ArticleOrExternalPreview = ({
                 />
             </div>}
         <div className={cn(thumb ? "border-t px-2 pt-2 pb-1" : "pb-1 px-2 pt-2")}>
-            <div className="text-[15px] font-semibold break-all">
+            <div className="text-[15px] font-semibold break-all line-clamp-3 text-ellipsis">
                 {title ?? url}
             </div>
             <div className="text-sm line-clamp-2 pb-1">

@@ -139,10 +139,11 @@ export const AdminSync = () => {
                     </div>
 
                     <div
+                        onWheelCapture={(e) => e.stopPropagation()}
                         className="max-h-[500px] overflow-y-scroll overscroll-y-contain"
                     >
                         <table className="w-full min-w-[500px]">
-                            <thead className="sticky top-0 bg-[var(--background-dark)]">
+                            <thead className="sticky top-0 bg-[var(--background-dark)] z-[100]">
                                 <tr className="border-b border-[var(--background-dark2)]">
                                     <th className="py-2 px-3 text-left text-sm font-medium text-[var(--text-light)]">Usuario</th>
                                     <th className="py-2 px-3 text-left text-sm font-medium text-[var(--text-light)]">Creado</th>

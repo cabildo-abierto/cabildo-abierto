@@ -33,7 +33,7 @@ export const storeReadSessionHandler: EffHandlerNoAuth<{
         chunks: params.chunks,
         totalChunks: params.totalChunks
     }, new Date()).pipe(
-        Effect.catchAll(() => Effect.fail("Ocurrió un error la guardar la lectura."))
+        Effect.catchAll(() => Effect.fail("Ocurrió un error al guardar la lectura."))
     )
 }
 
@@ -81,4 +81,4 @@ export const storeReadSession = (
     })
 
     return id
-})
+}).pipe(Effect.withSpan("storeReadSession"))

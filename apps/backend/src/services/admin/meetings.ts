@@ -18,9 +18,9 @@ export const getNextMeeting: CAHandlerNoAuth<{}, NextMeeting> = async (ctx, agen
 
     const meetings = await ctx.kysely
         .selectFrom("Meeting")
-        .select(["Meeting.date", "Meeting.title", "Meeting.description", "Meeting.url", "Meeting.show"])
-        .where("Meeting.date", ">", new Date(Date.now()-1000*36000))
-        .orderBy("Meeting.date", "desc")
+        .select(["Meeting.date_tz", "Meeting.title", "Meeting.description", "Meeting.url", "Meeting.show"])
+        .where("Meeting.date_tz", ">", new Date(Date.now()-1000*36000))
+        .orderBy("Meeting.date_tz", "desc")
         .limit(1)
         .execute()
     if(meetings && meetings.length > 0){
@@ -28,7 +28,7 @@ export const getNextMeeting: CAHandlerNoAuth<{}, NextMeeting> = async (ctx, agen
         if(next.show){
             const data: NextMeeting = {
                 show: true,
-                date: next.date,
+                date: next.date_tz,
                 title: next.title,
                 description: next.description,
                 url: next.url

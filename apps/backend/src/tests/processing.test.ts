@@ -7,7 +7,7 @@ import {
 } from "#/services/monetization/read-tracking.js";
 import {
     cleanUpAfterTests,
-    cleanUPTestDataFromDB,
+    cleanUpTestDataFromDB,
     createTestContext,
     generateUserDid, getFollowRefAndRecord, getLikeRefAndRecord,
     getPostRefAndRecord,
@@ -29,7 +29,7 @@ describe('Process follow', {timeout: testTimeout}, () => {
     beforeAll(async () => {
         ctx = await createTestContext()
 
-        await cleanUPTestDataFromDB(ctx, testSuite)
+        await cleanUpTestDataFromDB(ctx, testSuite)
     }, testTimeout)
 
     it("should create a record", async () => {
@@ -80,7 +80,7 @@ describe('Create read session', {timeout: testTimeout}, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
     }, testTimeout)
 
     it("should create a read session", {timeout: testTimeout}, async () => {

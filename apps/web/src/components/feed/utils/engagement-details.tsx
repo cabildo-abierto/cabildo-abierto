@@ -28,7 +28,7 @@ export const EngagementDetails = ({
             label={"republicaciones"}
             labelSing={"republicación"}
             showBsky={showBsky}
-            url={contentUrl(content.uri, handle) + "/republicaciones"}
+            url={contentUrl(content.uri, handle) + "/republicaciones" + (showBsky ? "?todos=true"  : "")}
         />
 
         <Details
@@ -37,7 +37,7 @@ export const EngagementDetails = ({
             label={"me gustas"}
             labelSing={"me gusta"}
             showBsky={showBsky}
-            url={contentUrl(content.uri, handle) + "/me-gustas"}
+            url={contentUrl(content.uri, handle) + "/me-gustas" + (showBsky ? "?todos=true"  : "")}
         />
 
         <Details
@@ -46,7 +46,7 @@ export const EngagementDetails = ({
             label={"citas"}
             labelSing={"cita"}
             showBsky={showBsky}
-            url={contentUrl(content.uri, handle) + "/citas"}
+            url={contentUrl(content.uri, handle) + "/citas" + (showBsky ? "?todos=true"  : "")}
         />
     </div>
 }
@@ -62,7 +62,7 @@ const Details = ({count, countBsky, label, labelSing, url, showBsky}: {
 
     const shownCount = showBsky ? countBsky : count
 
-    if(shownCount == 0) return
+    if(shownCount == null || shownCount == 0) return
 
     return <Link
         href={url}

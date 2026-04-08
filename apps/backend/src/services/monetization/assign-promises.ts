@@ -4,7 +4,7 @@ import {getCollectionFromUri, isArticle, isTopicVersion} from "@cabildo-abierto/
 import {v4 as uuidv4} from "uuid";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {ReadChunks, ReadChunksAttr} from "#/services/monetization/read-tracking.js";
-import {FULL_READ_DURATION, joinManyChunks} from "#/services/monetization/get-users-with-read-sessions.js";
+import {FULL_READ_DURATION, joinManyChunks} from "#/services/monetization/read-sessions.js";
 
 
 type UserMonth = {

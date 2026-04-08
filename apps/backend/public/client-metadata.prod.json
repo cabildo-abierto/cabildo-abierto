@@ -3,7 +3,7 @@
   "client_name": "Cabildo Abierto",
   "application_type": "web",
   "grant_types": ["authorization_code", "refresh_token"],
-  "scope": "atproto transition:generic transition:chat.bsky transition:email",
+  "scope": "atproto transition:generic transition:chat.bsky transition:email identity:handle",
   "response_types": ["code"],
   "redirect_uris": ["https://api.cabildoabierto.ar/oauth/callback"],
   "dpop_bound_access_tokens": true,

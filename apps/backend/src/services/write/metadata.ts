@@ -110,7 +110,6 @@ export const getContentMetadata: CAHandlerNoAuth<{
                 }
             } else {
                 const posts = await agent.bsky.app.bsky.feed.getPosts({uris: [uri]})
-                ctx.logger.pino.info({uri, posts}, "getting post from bsky")
                 if(posts.success) {
                     const post = posts.data.posts[0]
                     const data = {
@@ -123,7 +122,7 @@ export const getContentMetadata: CAHandlerNoAuth<{
                 ctx.logger.pino.warn({uri}, "post metadata not found")
                 return {error: "No se encontró la publicación."}
             }
-        } catch (error) {
+        } catch {
             return {error: "Ocurrió un error al obtener los metadatos."}
         }
     } else if (isDataset(c)) {

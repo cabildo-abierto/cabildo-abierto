@@ -22,6 +22,7 @@ import {listOrderDesc, sortByKey} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {DBSelectError} from "#/utils/errors.js";
+import {UserNotFoundError} from "#/services/user/access.js";
 
 function threadViewPostToThreadSkeleton(thread: ThreadViewPost, isAncestor: boolean = false): ThreadSkeleton {
     return {
@@ -121,7 +122,7 @@ const getThreadSkeletonForPost = (
         ),
         Effect.tryPromise({
             try: () => getThreadRepliesSkeletonForPostFromCA(ctx, uri),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
     ], {concurrency: "unbounded"})
 
@@ -136,7 +137,7 @@ export function getThreadSkeletonForArticle(ctx: AppContext, uri: string): Effec
             .where("Post.replyToId", "=", uri)
             .select("uri")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.map(replies => {
             return {
@@ -182,6 +183,9 @@ export const getThread: EffHandlerNoAuth<
     const data = yield* DataPlane
 
     const did = yield* handleOrDidToDid(ctx, handleOrDid)
+    if(!did) {
+        return yield* Effect.fail(new UserNotFoundError())
+    }
 
     const uri = getUri(did, collection, rkey)
     const skeleton = yield* getThreadSkeleton(ctx, agent, uri)

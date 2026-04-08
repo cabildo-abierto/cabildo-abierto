@@ -77,7 +77,7 @@ export function updateAllTopicContributions(ctx: AppContext) {
             .selectFrom("Topic")
             .select("id")
             .execute().then(topics => topics.map(t => t.id)),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.flatMap(topicIds => {
             return updateTopicContributions(ctx, topicIds)
@@ -156,7 +156,7 @@ const fetchVersionsData = (
             .where("t.id", "in", topicIds)
             .orderBy("r.created_at_tz asc")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 }
 
@@ -310,8 +310,6 @@ const getContributionUpdatesForVersionsOfTopic = (
         const chars = accCharsAdded == 0 ? 1.0 / 0 : versionUpdates[i].charsAdded / accCharsAdded
         versionUpdates[i].monetizedContribution = monetized
         versionUpdates[i].charsContribution = chars
-
-        ctx.logger.pino.info({uri: topicVersions[i].uri, monetized, chars}, "contribution of version")
     }
 
     return {versionUpdates, versionContentUpdates}
@@ -324,7 +322,7 @@ export function updateTopicContributionsRequired(ctx: AppContext) {
             .where("TopicVersion.charsAdded", "is", null)
             .select("topicId")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.map(tv => unique(tv.map(t => t.topicId))),
         Effect.flatMap(topicIds => updateTopicContributions(ctx, topicIds))

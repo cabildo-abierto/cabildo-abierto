@@ -23,7 +23,7 @@ export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey
             .select("topicId")
             .where("uri", "in", uris)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.flatMap(res => {
         return res ? Effect.succeed(res?.topicId) : Effect.fail(new NotFoundError())
     }))
@@ -244,7 +244,6 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                 .onConflict((oc) =>
                     oc.column("id").doUpdateSet({
                         currentVersionId: (eb) => eb.ref('excluded.currentVersionId'),
-                        lastEdit: (eb) => eb.ref('excluded.lastEdit'),
                         lastEdit_tz: (eb) => eb.ref('excluded.lastEdit_tz')
                     })
                 )

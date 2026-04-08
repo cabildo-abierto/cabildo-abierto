@@ -84,7 +84,7 @@ const getSearchContentsSkeleton: (q: string, kind: "Publicaciones" | "Artículos
                         .execute()
                 }
             },
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         }).pipe(
             Effect.map(uris => {
                 return {

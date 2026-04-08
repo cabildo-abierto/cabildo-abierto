@@ -33,7 +33,12 @@ import {DataPlane} from "#/services/hydration/dataplane.js";
 import {DBSelectError} from "#/utils/errors.js";
 
 
-const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, time: EnDiscusionTime, format: FeedFormatOption) => SkeletonQuery<EnDiscusionSkeletonElement> = (id, metric, time, format) => {
+const getTopicMentionsSkeletonQuery: (
+    id: string,
+    metric: EnDiscusionMetric,
+    time: EnDiscusionTime,
+    format: FeedFormatOption
+) => SkeletonQuery<EnDiscusionSkeletonElement> = (id, metric, time, format) => {
     return async (ctx, agent, from, to, limit) => {
         const startDate = metric != "Recientes" ? getEnDiscusionStartDate(time) : new Date(0)
         const collections = format == "Artículos" ? ["ar.cabildoabierto.feed.article"] : ["ar.cabildoabierto.feed.article", "app.bsky.feed.post"]
@@ -84,7 +89,7 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 .leftJoin("Post", "Post.uri", "Record.uri")
                 .where("Reference.referencedTopicId", "=", id)
                 .where("Record.collection", "in", collections)
-                .where("Record.created_at", ">", startDate)
+                .where("Record.created_at_tz", ">", startDate)
                 .where("interactionsScore", "is not", null)
                 .select([
                     "Reference.referencingContentId as uri",
@@ -122,18 +127,20 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                     eb("TopicVersion.topicId", "!=", id),
                     eb("TopicVersion.uri", "is", null)
                 ]))
-                .where("Record.created_at", ">", startDate)
+                .where("Record.created_at_tz", ">", startDate)
+                .where("Record.created_at_tz", "is not", null)
                 .select([
                     'Record.uri',
-                    "Record.created_at as createdAt"
+                    "Record.created_at_tz as createdAt"
                 ])
-                .orderBy(["relativePopularityScore desc", "Content.created_at desc"])
+                .orderBy(["relativePopularityScore desc", "Content.created_at_tz desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
 
             return res.map((r, i) => ({
                 ...r,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Recientes") {
@@ -141,8 +148,6 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
             const offsetTo = to != null ? new Date(to) : undefined
 
             if (offsetFrom && offsetTo && offsetFrom.getTime() <= offsetTo.getTime()) return []
-
-            const t1 = Date.now()
 
             const res = await ctx.kysely
                 .selectFrom("Reference")
@@ -158,12 +163,6 @@ const getTopicMentionsSkeletonQuery: (id: string, metric: EnDiscusionMetric, tim
                 .orderBy('Reference.referencingContentCreatedAt', 'desc')
                 .limit(limit)
                 .execute()
-
-            const t2 = Date.now()
-
-            ctx.logger.logTimes("topic mentions skeleton", [t1, t2], {
-                id, collections, offsetFrom, offsetTo, limit
-            })
 
             return res.map(r => ({
                 uri: r.uri,
@@ -221,10 +220,10 @@ export function getTopicMentionsInTopics(ctx: AppContext, id: string) {
             .where("TopicVersion.topicId", "!=", id)
             .innerJoin("Topic", "Topic.currentVersionId", "TopicVersion.uri")
             .select(["TopicVersion.topicId", "TopicVersion.props"])
-            .orderBy("created_at", "desc")
+            .orderBy("created_at_tz", "desc")
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.map(topics => {
         return topics.map(t => {
             return {
@@ -338,7 +337,7 @@ export const getAllTopicEditsFeed: EffHandlerNoAuth<{
                     .limit(25)
                     .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
                     .execute(),
-                catch: () => new DBSelectError()
+                catch: (error) => new DBSelectError(error)
             }).pipe(Effect.map(edits => {
                 const latest = edits[edits.length - 1]
                 const newCursor = latest?.created_at_tz?.toISOString()

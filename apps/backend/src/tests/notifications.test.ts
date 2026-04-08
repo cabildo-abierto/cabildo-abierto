@@ -1,6 +1,6 @@
 import {
     cleanUpAfterTests,
-    cleanUPTestDataFromDB,
+    cleanUpTestDataFromDB,
     createTestContext,
     getSuiteId, testTimeout
 } from "#/tests/test-utils.js";
@@ -19,7 +19,7 @@ describe('Detect mention notifications', { timeout: 30000 }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 

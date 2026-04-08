@@ -92,7 +92,7 @@ type GetFeedError = GetSkeletonError | DBSelectError | FetchFromBskyError
 export const getFeed = ({ctx, agent, pipeline, cursor}: GetFeedProps): Effect.Effect<GetFeedOutput<ArCabildoabiertoFeedDefs.FeedViewContent>, GetFeedError> => {
     return Effect.provideServiceEffect(
         Effect.gen(function* () {
-            const skRes = yield* pipeline.getSkeleton(ctx, agent, cursor)
+            const skRes = yield* pipeline.getSkeleton(ctx, agent, cursor).pipe(Effect.withSpan("getSkeleton"))
             const skeleton = skRes.skeleton
             const feed = yield* hydrateFeed(ctx, agent, skeleton)
             const sortedFeed = pipeline.sortKey ? sortByKey(feed, pipeline.sortKey, listOrderDesc) : feed

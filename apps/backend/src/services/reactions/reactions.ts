@@ -6,7 +6,8 @@ import {$Typed, AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
 import {SessionAgent} from "#/utils/session-agent.js";
 import {ATCreateRecordError, createVoteAcceptAT, createVoteRejectAT, VoteRejectProps} from "#/services/wiki/votes.js";
 import {ATDeleteRecordError, deleteRecordAT} from "#/services/delete.js";
-import {ReactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
+import {reactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {Effect} from "effect";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 import {InvalidValueError} from "#/utils/errors.js";
@@ -74,8 +75,7 @@ export const addReaction = (ctx: AppContext, agent: SessionAgent, ref: ATProtoSt
             reason: voteRejectProps ? voteRejectProps.reason : undefined
         }
 
-        const processor = new ReactionRecordProcessor(ctx)
-        yield* processor.processValidated([{ref: res, record}])
+        yield* processValidatedRecords(ctx, [{ref: res, record}], reactionRecordProcessor)
         return {uri: res.uri}
     })
 }

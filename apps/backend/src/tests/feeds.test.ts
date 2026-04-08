@@ -3,7 +3,7 @@ import {
     checkIsFollowing,
     checkRecordExists,
     cleanUpAfterTests,
-    cleanUPTestDataFromDB,
+    cleanUpTestDataFromDB,
     createTestContext, createTestUser, getArticleRefAndRecord, getFollowRefAndRecord, getPostRefAndRecord,
     getRepostRefAndRecord,
     getSuiteId, processRecordsInTest, testTimeout
@@ -24,7 +24,7 @@ describe('Following feed index', { timeout: testTimeout }, () => {
     }, testTimeout)
 
     beforeEach(async () => {
-        await cleanUPTestDataFromDB(ctx!, testSuite)
+        await cleanUpTestDataFromDB(ctx!, testSuite)
         await ctx!.worker?.clear()
     }, testTimeout)
 

@@ -10,6 +10,7 @@ import {
     SelectValue,
 } from "../ui/select"
 import {cn} from "@/lib/utils";
+import {Label} from "@/components/utils/ui/label";
 
 
 export function BaseSelect({
@@ -24,7 +25,8 @@ export function BaseSelect({
                                itemClassName,
                                contentClassName,
                                inPortal = false,
-                               size = "default"
+                               size = "default",
+                               className
                            }: {
     value: string
     options: string[]
@@ -38,6 +40,7 @@ export function BaseSelect({
     inPortal?: boolean
     size?: "small" | "default"
     deselectOption?: boolean
+    className?: string
 }) {
 
     let items = options?.map(o => ({
@@ -51,32 +54,37 @@ export function BaseSelect({
 
     return (
         <Select value={value} onValueChange={onChange}>
-            <SelectTrigger
-                className={cn(triggerClassName,
-                    size == "default" ? "text-[13px] py-[8px]" : "")}
-            >
-                <SelectValue placeholder={label}/>
-            </SelectTrigger>
-            <SelectContent
-                className={cn(
-                    "z-[1002]",
-                    contentClassName,
-                    inPortal ? "portal group" : ""
-                )}
-            >
-                <SelectGroup>
-                    {items?.map(({label, value: v}) => {
-                        return <div key={v}>
-                            <SelectItem
-                                className={cn(itemClassName, size == "default" ? "text-[13px] py-[8px]" : "")}
-                                value={v}
-                            >
-                                {label}
-                            </SelectItem>
-                        </div>
-                    })}
-                </SelectGroup>
-            </SelectContent>
+            <div className={cn("flex flex-col gap-y-[4px]", className)}>
+                {label && <Label className={"ml-0.5 pt-[2px]"}>{label}</Label>}
+                <SelectTrigger
+                    className={cn(
+                        triggerClassName,
+                        size == "default" ? "text-[13px] py-[8px]" : ""
+                    )}
+                >
+                    <SelectValue placeholder={label}/>
+                </SelectTrigger>
+                <SelectContent
+                    className={cn(
+                        "z-[1002]",
+                        contentClassName,
+                        inPortal ? "portal group" : ""
+                    )}
+                >
+                    <SelectGroup>
+                        {items?.map(({label, value: v}) => {
+                            return <div key={v}>
+                                <SelectItem
+                                    className={cn(itemClassName, size == "default" ? "text-[13px] py-[8px]" : "")}
+                                    value={v}
+                                >
+                                    {label}
+                                </SelectItem>
+                            </div>
+                        })}
+                    </SelectGroup>
+                </SelectContent>
+            </div>
         </Select>
     );
 }

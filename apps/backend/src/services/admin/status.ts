@@ -22,12 +22,10 @@ export const updateTimestamp = (
             .insertInto("Timestamps")
             .values([{
                 id,
-                date: date,
                 date_tz: date,
             }])
             .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
-                date_tz: eb.ref("excluded.date_tz"),
-                date: eb.ref("excluded.date")
+                date_tz: eb.ref("excluded.date_tz")
             })))
             .execute(),
         catch: error => new DBInsertError(error)

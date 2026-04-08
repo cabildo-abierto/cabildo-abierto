@@ -3,7 +3,8 @@ import {uploadStringBlob} from "#/services/blob.js";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {compress} from "@cabildo-abierto/editor-core";
-import {DatasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
+import {datasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
+import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
@@ -90,7 +91,7 @@ export const createDataset: EffHandler<CreateDatasetProps, {uri: string}> = (ctx
     return Effect.gen(function* () {
         const {record, ref} = yield* createDatasetATProto(ctx, agent, params)
 
-        yield* new DatasetRecordProcessor(ctx).processValidated([{ref, record}]).pipe(Effect.catchAll(() => Effect.fail("Se publicó el conjunto de datos pero tuvimos un inconveniente al procesarlo.")))
+        yield* processValidatedRecords(ctx, [{ref, record}], datasetRecordProcessor).pipe(Effect.catchAll(() => Effect.fail("Se publicó el conjunto de datos pero tuvimos un inconveniente al procesarlo.")))
 
         return {uri: ref.uri}
     })

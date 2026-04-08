@@ -11,7 +11,7 @@ const getArticlesFeedSkeleton: GetSkeletonProps = (ctx, agent) => {
             .select(["Record.uri"])
             .orderBy("Record.created_at_tz", "desc")
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(
         Effect.map(skeleton => {
             return {

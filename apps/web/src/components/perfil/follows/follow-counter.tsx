@@ -20,7 +20,7 @@ export const ProfileCount = ({count, label, url}: {
     label: string,
     url?: string
 }) => {
-    return <span className="sm:text-base text-sm">
+    return <span className="">
         <span className="font-bold">
             {count != undefined ? rounder(count) : "?"}
         </span> {url && <Link className={"text-[var(--text-light)] hover:underline"} href={url}>

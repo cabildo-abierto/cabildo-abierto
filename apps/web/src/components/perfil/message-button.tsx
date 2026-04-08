@@ -29,29 +29,26 @@ export function MessageButton({
         return null
     }
 
-    return <div className="flex items-center">
-        {disabled &&
-            <DescriptionOnHover
-                description={chatAvailability && !chatAvailability.canChat && `@${handle} no acepta mensajes directos.`}>
-                <BaseIconButton
-                    disabled={true}
-                    size="small"
-                    variant="outlined"
-                >
-                    <MessagesIcon weight='light'/>
-                </BaseIconButton>
-            </DescriptionOnHover>
-        }
-        {!disabled &&
-            <Link href={`/mensajes/${handle}`}>
-                <BaseIconButton
-                    disabled={false}
-                    size="small"
-                    variant="outlined"
-                >
-                    <MessagesIcon weight='light'/>
-                </BaseIconButton>
-            </Link>
-        }
-    </div>
+    if(disabled) {
+        return <DescriptionOnHover
+            description={chatAvailability && !chatAvailability.canChat && `@${handle} no acepta mensajes directos.`}>
+            <BaseIconButton
+                disabled={true}
+                size="small"
+                variant="outlined"
+            >
+                <MessagesIcon weight='light'/>
+            </BaseIconButton>
+        </DescriptionOnHover>
+    } else {
+        return <Link href={`/mensajes/${handle}`} className={"flex"}>
+            <BaseIconButton
+                disabled={false}
+                size="small"
+                variant="outlined"
+            >
+                <MessagesIcon weight='light'/>
+            </BaseIconButton>
+        </Link>
+    }
 }

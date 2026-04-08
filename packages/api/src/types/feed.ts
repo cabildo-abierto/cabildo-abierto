@@ -82,3 +82,8 @@ export type MainSearchOutput = {
     kind: "Usuarios"
     value: GetFeedOutput<ArCabildoabiertoActorDefs.ProfileView>
 }
+
+
+export type GetInteractionsOutput = GetFeedOutput<ArCabildoabiertoActorDefs.ProfileViewBasic>
+
+export type GetQuotesOutput = GetFeedOutput<ArCabildoabiertoFeedDefs.PostView>

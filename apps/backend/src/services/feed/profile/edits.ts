@@ -18,7 +18,7 @@ export const getEditsProfileFeedSkeleton = (did: string) : GetSkeletonProps => {
                 .where("Record.created_at_tz", "<", cursor_ts)
                 .limit(25)
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         }).pipe(Effect.map(skeleton => {
             return {
                 skeleton: skeleton.map(r => ({post: r.uri})),

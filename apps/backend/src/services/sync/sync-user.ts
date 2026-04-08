@@ -9,6 +9,7 @@ import {processEventsBatch} from "#/services/sync/event-processing/event-process
 import {
     getRecordProcessor
 } from "#/services/sync/event-processing/get-record-processor.js";
+import {processInBatches} from "#/services/sync/event-processing/record-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
@@ -184,9 +185,9 @@ function processRepoBatch(
                 continue
             }
 
-            yield* getRecordProcessor(ctx, collection).processInBatches(records)
+            yield* processInBatches(ctx, records, getRecordProcessor(ctx, collection))
         }
-    })
+    }) as Effect.Effect<void, ProcessCreateError, never>
 }
 
 
@@ -315,7 +316,7 @@ function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotF
             .select("inCA")
             .where("did", "=", did)
             .executeTakeFirst(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     }).pipe(Effect.flatMap(res => {
         return res == null ? Effect.fail(new UserNotFoundError()) : Effect.succeed(!!(res && res.inCA))
     }))
@@ -509,6 +510,10 @@ export const syncUserHandler: EffHandler<{
     return Effect.gen(function* () {
         const did = yield* handleOrDidToDid(ctx, handleOrDid)
 
+        if(!did) {
+            return yield* Effect.fail(`Usuario no encontrado: ${did}.`)
+        }
+
         const inCA = yield* isCAUser(ctx, did)
         yield* Effect.annotateCurrentSpan({inCA})
 
@@ -528,6 +533,7 @@ export const syncUserHandler: EffHandler<{
         Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error en la base de datos.")),
         Effect.catchTag("UserNotFoundError", () => Effect.fail("No se encontró el usuario.")),
         Effect.catchTag("RedisCacheSetError", () => Effect.fail("Ocurrió un error con la cache.")),
+        Effect.catchTag("RedisCacheFetchError", () => Effect.fail("Ocurrió un error con la cache.")),
         Effect.withSpan("syncUserHandler", {
             attributes: {handleOrDid}
         })
@@ -607,7 +613,7 @@ export async function updateRecordsCreatedAt(ctx: AppContext) {
                     authorId: ""
                 })))
                 .onConflict(oc => oc.column("uri").doUpdateSet(eb => ({
-                    created_at: eb.ref("excluded.created_at")
+                    created_at_tz: eb.ref("excluded.created_at_tz")
                 })))
                 .execute()
         }

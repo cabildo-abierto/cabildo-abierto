@@ -3,6 +3,7 @@ import {usePathname} from "next/navigation";
 import {createPortal} from "react-dom";
 import dynamic from "next/dynamic";
 import {ConfirmModal} from "@/components/utils/dialogs/confirm-modal";
+import {LoginModalPage} from "@/components/auth/login-modal";
 
 
 const LoginModal = dynamic(() => import("./login-modal").then(mod => mod.LoginModal), {ssr: false})
@@ -11,6 +12,10 @@ const LoginModalContext = createContext<{
     loginModalOpen: boolean
     allowsClose: boolean
     setLoginModalOpen: (v: boolean, w?: boolean, msg?: string, trial?: boolean) => void
+    createdAccount: string | null
+    setCreatedAccount: (v: string | null) => void
+    page: LoginModalPage
+    setPage: (v: LoginModalPage) => void
 } | undefined>(undefined)
 
 
@@ -24,12 +29,13 @@ export const useLoginModal = () => {
 
 
 export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [accessRequest, setAccessRequest] = useState<boolean>(false)
+    const [page, setPage] = useState<LoginModalPage>("login")
     const [loginModalOpen, setLoginModalOpen] = useState(false)
     const [allowsClose, setAllowsClose] = useState(false)
     const [showingMsg, setShowingMsg] = useState<string | null>(null)
     const pathname = usePathname()
     const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null)
+    const [createdAccount, setCreatedAccount] = useState<string | null>(null)
 
     useEffect(() => {
         setPortalRoot(document.body)
@@ -41,6 +47,14 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }, [pathname])
 
+    useEffect(() => {
+        if(!loginModalOpen) {
+            if(page != "login") {
+                setPage("login")
+            }
+        }
+    }, [loginModalOpen]);
+
     function onSetLoginModalOpen(open: boolean, w: boolean = true, msg?: string, trial: boolean = false) {
         setAllowsClose(w)
         if(msg) {
@@ -48,17 +62,18 @@ export const LoginModalProvider: React.FC<{ children: ReactNode }> = ({ children
         } else {
             setLoginModalOpen(open)
         }
-        setAccessRequest(trial)
+        if(trial) {
+            setPage("access request")
+        }
     }
 
     return (
-        <LoginModalContext.Provider value={{ loginModalOpen, allowsClose, setLoginModalOpen: onSetLoginModalOpen }}>
+        <LoginModalContext.Provider value={{
+            createdAccount, setCreatedAccount, page, setPage, loginModalOpen, allowsClose, setLoginModalOpen: onSetLoginModalOpen }}>
             {children}
             {portalRoot && createPortal(<LoginModal
                 open={loginModalOpen}
                 onClose={allowsClose ? () => {setLoginModalOpen(false)} : undefined}
-                accessRequest={accessRequest}
-                setAccessRequest={setAccessRequest}
             />, portalRoot)}
             {showingMsg && createPortal(<ConfirmModal
                 onClose={() => {setShowingMsg(null)}}

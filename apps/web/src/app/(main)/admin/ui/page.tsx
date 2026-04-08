@@ -2,7 +2,6 @@
 import {BaseButton} from "@/components/utils/base/base-button";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import HomeIcon from "@/components/utils/icons/home-icon";
-import TopicSortSelector from "@/components/temas/topic-sort-selector";
 import React, {ReactNode, useEffect, useState} from "react";
 import {TrendingTopicsConfig} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics-config";
 import {SelectPlotType} from "@/components/visualizations/editor/config-panel";
@@ -21,16 +20,15 @@ import {Label} from "@radix-ui/react-label";
 import {useTheme} from "@/components/layout/theme/theme-context";
 import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import DonateIcon from "@/components/utils/icons/donate-icon";
-import {DateAndTimePicker} from "@/components/tema/props/date-prop-editor";
 import {StateButton} from "@/components/utils/base/state-button"
 import {randomBernoulli} from "d3-random";
 import { Note } from "@/components/utils/base/note";
 import Link from "next/link";
 import {TrendingTopicInSlider} from "@/components/layout/main-layout/right-panel/trending-topics/trending-topics-slider";
 import {PlotConfigProps} from "@/components/visualizations/editor/types";
-import {TTOption} from "@cabildo-abierto/api";
 import dynamic from "next/dynamic";
 import {usePostEditorSettings} from "@/components/writing/write-panel/use-post-editor-settings";
+import {DateAndTimePicker} from "@/components/utils/date-and-time-picker";
 
 const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod => mod.CAEditor), {ssr: false})
 
@@ -134,7 +132,6 @@ const PaletteDashboard = () => {
 
 
 export default function Page() {
-    const [sortedBy, setSortedBy] = useState<TTOption>("Último día")
     const [time, setTime] = useState<string>("día")
     const [category, setCategory] = useState<string>("")
     const [config, setConfig] = useState<PlotConfigProps>({})
@@ -295,12 +292,6 @@ export default function Page() {
                                 </div>
                             </DescriptionOnHover>
                         </UIDemoSection>
-                        <UIDemoSection title={"Dropdown"}>
-                            <TopicSortSelector
-                                sortedBy={sortedBy}
-                                setSortedBy={setSortedBy} disabled={false}
-                            />
-                        </UIDemoSection>
                         <UIDemoSection title={"Editar perfil"}>
                             <EditProfileButton/>
                         </UIDemoSection>
@@ -335,7 +326,7 @@ export default function Page() {
                             />
                         </UIDemoSection>
                         <UIDemoSection title={"Calendario"}>
-                            <DateAndTimePicker value={date} onChange={setDate} label={true}/>
+                            <DateAndTimePicker value={date} onChange={setDate} label={"Fecha"}/>
                         </UIDemoSection>
                         <UIDemoSection title={"Nota"}>
                             <Note>

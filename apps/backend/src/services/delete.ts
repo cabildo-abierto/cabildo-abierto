@@ -7,12 +7,13 @@ import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {DBDeleteError, DBSelectError} from "#/utils/errors.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
+import {UserNotFoundError} from "#/services/user/access.js";
 
 
-export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: {
+export function deleteRecordsForAuthors({ctx, agent, dids, collections, atproto}: {
     ctx: AppContext,
     agent?: SessionAgent,
-    did: string,
+    dids: string[],
     collections?: string[],
     atproto: boolean
 }): Effect.Effect<void, DBSelectError | ProcessDeleteError | ATDeleteRecordError> {
@@ -21,10 +22,10 @@ export function deleteRecordsForAuthor({ctx, agent, did, collections, atproto}: 
             try: () => ctx.kysely
                 .selectFrom("Record")
                 .select("uri")
-                .where("authorId", "=", did)
+                .where("authorId", "in", dids)
                 .$if(collections != null && collections.length > 0, qb => qb.where("collection", "in", collections!))
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
 
         return yield* deleteRecords({
@@ -100,39 +101,37 @@ export const deleteUserHandler: EffHandler<{ params: { handleOrDid: string } }> 
     return Effect.gen(function* () {
         const {handleOrDid} = params
         const did = yield* handleOrDidToDid(ctx, handleOrDid)
-        yield* deleteUser(ctx, did)
+        if(!did) return yield* Effect.fail(new UserNotFoundError())
+        yield* deleteUsers(ctx, [did])
         return {}
     }).pipe(
+        Effect.catchTag("UserNotFoundError", () => Effect.fail("Usuario no encontrado.")),
         Effect.catchTag("HandleResolutionError", () => Effect.fail("Usuario no encontrado.")),
         Effect.catchAll(() => Effect.fail("Ocurrió un error al borrar el usuario."))
     )
 }
 
 
-export class DeleteUserError {
-    readonly _tag = "DeleteUserError"
-}
-
-
-export function deleteUser(ctx: AppContext, did: string): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DBDeleteError> {
+export function deleteUsers(ctx: AppContext, dids: string[]): Effect.Effect<void, ATDeleteRecordError | DBSelectError | ProcessDeleteError | DBDeleteError> {
     return Effect.gen(function* () {
-        yield* deleteRecordsForAuthor({ctx, did: did, atproto: false})
+        if(dids.length == 0) return
+
+        yield* deleteRecordsForAuthors({ctx, dids, atproto: false})
 
         yield* Effect.tryPromise({
             try: () => ctx.kysely.transaction().execute(async trx => {
-                const id = await trx.selectFrom("MailingListSubscription").select("id").where("userId", "=", did).executeTakeFirst()
-                if(id) await trx.deleteFrom("EmailSent").where("recipientId", "=", id.id).execute()
-                await trx.deleteFrom("MailingListSubscription").where("userId", "=", did).execute()
-                await trx.deleteFrom("ReadSession").where("userId", "=", did).execute()
-                await trx.deleteFrom("Notification").where("userNotifiedId", "=", did).execute()
-                await trx.deleteFrom("Blob").where("authorId", "=", did).execute()
-                await trx.deleteFrom("MailingListSubscription").where("userId", "=", did).execute()
-                await trx.deleteFrom("HasReacted").where("userId", "=", did).execute()
-                await trx.deleteFrom("UserMonth").where("userId", "=", did).execute()
-                await trx.deleteFrom("FollowingFeedIndex").where("readerId", "=", did).execute()
-                await trx.deleteFrom("FollowingFeedIndex").where("authorId", "=", did).execute()
-                await trx.deleteFrom("ModerationAction").where("userAffectedId", "=", did).execute()
-                await trx.deleteFrom("User").where("did", "=", did).execute()
+                const ids = await trx.selectFrom("MailingListSubscription").select("id").where("userId", "in", dids).execute()
+                if(ids.length > 0) await trx.deleteFrom("EmailSent").where("recipientId", "in", ids.map(x => x.id)).execute()
+                await trx.deleteFrom("MailingListSubscription").where("userId", "in", dids).execute()
+                await trx.deleteFrom("ReadSession").where("userId", "in", dids).execute()
+                await trx.deleteFrom("Notification").where("userNotifiedId", "in", dids).execute()
+                await trx.deleteFrom("Blob").where("authorId", "in", dids).execute()
+                await trx.deleteFrom("HasReacted").where("userId", "in", dids).execute()
+                await trx.deleteFrom("UserMonth").where("userId", "in", dids).execute()
+                await trx.deleteFrom("FollowingFeedIndex").where("readerId", "in", dids).execute()
+                await trx.deleteFrom("FollowingFeedIndex").where("authorId", "in", dids).execute()
+                await trx.deleteFrom("ModerationAction").where("userAffectedId", "in", dids).execute()
+                await trx.deleteFrom("User").where("did", "in", dids).execute()
             }),
             catch: (error) => new DBDeleteError(error)
         })
@@ -155,6 +154,14 @@ export const deleteCAProfile: CAHandler<{}, {}> = async (ctx, agent, {}) => {
         repo: agent.did
     })
     ctx.logger.pino.info({commit: res2.data.commit}, "Commit 2")
+    await ctx.kysely.deleteFrom("InviteCodeUsedBy")
+        .where("userId", "=", agent.did)
+        .execute()
+    await ctx.kysely.updateTable("InviteCode")
+        .where("usedByDid", "=", agent.did)
+        .set("usedAt", null)
+        .set("usedByDid", null)
+        .execute()
     return {}
 }
 
@@ -184,7 +191,7 @@ export function deleteAssociatedVotes(ctx: AppContext, agent: SessionAgent, uri:
                 .where("VoteReject.reasonId", "=", uri)
                 .select("VoteReject.uri")
                 .execute(),
-            catch: () => new DBSelectError()
+            catch: (error) => new DBSelectError(error)
         })
         if(votes.length > 0) {
             yield* Effect.all(votes.map(vote => deleteRecord(ctx, agent, vote.uri)))

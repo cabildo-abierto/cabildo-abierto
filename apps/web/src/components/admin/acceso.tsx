@@ -43,8 +43,8 @@ async function copyCode(c: string) {
 
 
 function useCreateCodes() {
-    return async (count: number) => {
-        return await post<{}, { inviteCodes: string[] }>(`/invite-code/create?c=${count}`)
+    return async (count: number, codeUses: number) => {
+        return await post<{}, { inviteCodes: string[] }>(`/invite-code/create?c=${count}&u=${codeUses}`)
     }
 }
 
@@ -55,7 +55,7 @@ const GenerateCode = () => {
     const createCodes = useCreateCodes()
 
     async function onGenerateCode() {
-        const res = await createCodes(1)
+        const res = await createCodes(1, 1)
         if (res.success === false) {
             return {error: res.error}
         } else {
@@ -85,6 +85,7 @@ const GenerateCode = () => {
 export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")
     const [codesAmount, setCodesAmount] = useState<number>(0)
+    const [codeUses, setCodeUses] = useState<number>(0)
     const [codes, setCodes] = useState([])
     const [collections, setCollections] = useState<string[]>([])
     const {data: accessRequests, refetch} = useAccessRequests()
@@ -146,30 +147,40 @@ export const AdminAcceso = () => {
             <div className={"w-48"}>
                 <BaseTextField
                     type={"number"}
-                    placeholder={"cantidad"}
+                    label={"Cantidad"}
+                    placeholder={"1"}
                     value={codesAmount}
                     onChange={(e) => {
                         setCodesAmount(Number(e.target.value))
                     }}
                 />
             </div>
-
-            <div>
-                <StateButton
-                    size={"small"}
-                    handleClick={async () => {
-                        const res = await createCodes(codesAmount)
-                        if(res.success === true) {
-                            setCodes(res.value.inviteCodes)
-                            return {}
-                        } else {
-                            return {error: res.error}
-                        }
+            <div className={"w-48"}>
+                <BaseTextField
+                    type={"number"}
+                    label={"Usos"}
+                    placeholder={"1"}
+                    value={codeUses}
+                    onChange={(e) => {
+                        setCodeUses(Number(e.target.value))
                     }}
-                >
-                    Generar códigos
-                </StateButton>
+                />
             </div>
+
+            <StateButton
+                size={"small"}
+                handleClick={async () => {
+                    const res = await createCodes(codesAmount, codeUses)
+                    if(res.success === true) {
+                        setCodes(res.value.inviteCodes)
+                        return {}
+                    } else {
+                        return {error: res.error}
+                    }
+                }}
+            >
+                Generar códigos
+            </StateButton>
         </div>
 
         <AdminSection title={"Códigos de acceso"}>

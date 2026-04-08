@@ -30,7 +30,7 @@ export const LikeCounter = ({
         if(user){
             addLikeMutation.mutate({uri: content.uri, cid: content.cid})
         } else {
-            setLoginModalOpen(true)
+            setLoginModalOpen(true, undefined, "Iniciá sesión para dar me gustas.")
         }
     }
 

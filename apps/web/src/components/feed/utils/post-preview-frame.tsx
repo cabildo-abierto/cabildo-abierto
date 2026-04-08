@@ -85,7 +85,11 @@ export const PostPreviewFrame = ({
     return <CustomLink
         tag={"div"}
         id={"discussion:" + postView.uri}
-        className={"flex flex-col " + (borderBelow ? "border-b" : "") + (engagementIcons ? " hover:bg-[var(--background-dark)] cursor-pointer" : "")}
+        className={cn(
+            "flex flex-col outline-none focus-visible:outline-none",
+            borderBelow && "border-b",
+            engagementIcons && "hover:bg-[var(--background-dark)] cursor-pointer",
+        )}
         onClick={!isOptimistic && engagementIcons ? onClick : undefined}
         href={!isOptimistic && engagementIcons ? url : undefined}
     >

@@ -85,7 +85,7 @@ export async function setupAppContext(roles: Role[]) {
     const ioredis = setupRedis(0)
     logger.pino.info("redis client created")
 
-    const oauthClient = await createClient(ioredis)
+    const oauthClient = await createClient(ioredis, logger)
     logger.pino.info("oauth client created")
 
     let worker: CAWorker = new RedisCAWorker(

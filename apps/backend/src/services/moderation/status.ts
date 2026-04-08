@@ -20,7 +20,7 @@ export const getPendingModeration: EffHandler<{}, PendingModeration> = (
             .orderBy("created_at asc")
             .limit(25)
             .execute(),
-        catch: () => new DBSelectError()
+        catch: (error) => new DBSelectError(error)
     })
 
     const data = yield* DataPlane
