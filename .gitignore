@@ -10,3 +10,4 @@ out
 tunnel*.sh
 *.html
 *.txt
+pnpm-lock.yaml
