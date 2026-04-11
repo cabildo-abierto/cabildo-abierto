@@ -560,55 +560,57 @@ model DiscoverFeedIndex {
 }
 
 model User {
-  did                                           String                   @id @db.VarChar(255)
-  handle                                        String?
-  email                                         String?
-  emailVerified                                 Boolean                  @default(false)
-  mailingListSubs                               MailingListSubscription?
-  created_at                                    DateTime                 @default(now())
-  created_at_tz                                 DateTime?                @default(now()) @db.Timestamptz(3)
-  editorStatus                                  EditorStatus             @default(Beginner)
-  hasAccess                                     Boolean                  @default(false)
-  dateOfBirth                                   DateTime?                @db.Date
-  avatar                                        String?
-  banner                                        String?
-  description                                   String?
-  displayName                                   String?
-  inCA                                          Boolean                  @default(false)
-  platformAdmin                                 Boolean                  @default(false)
-  CAProfileUri                                  String?                  @unique
-  seenTutorial                                  Boolean                  @default(false)
-  orgValidation                                 String?
-  userValidationHash                            String?                  @unique
-  lastSeenNotifications                         DateTime                 @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone"))
-  lastSeenNotifications_tz                      DateTime?                @default(dbgenerated("'1970-01-01 00:00:00+00'::timestamp with time zone")) @db.Timestamptz(3)
-  moderationState                               ModerationState          @default(Ok)
-  seenTopicMaximizedTutorial                    Boolean                  @default(false)
-  seenTopicMinimizedTutorial                    Boolean                  @default(false)
-  seenTopicsTutorial                            Boolean                  @default(false)
-  seenVerifiedNotification                      Boolean                  @default(false)
-  algorithmConfig                               Json?
-  authorStatus                                  Json?
-  articleLastMonth                              Boolean                  @default(false)
-  postLastTwoWeeks                              Boolean                  @default(false)
+  did                String                   @id @db.VarChar(255)
+  handle             String?
+  email              String?
+  emailVerified      Boolean                  @default(false)
+  mailingListSubs    MailingListSubscription?
+  created_at         DateTime                 @default(now())
+  created_at_tz      DateTime?                @default(now()) @db.Timestamptz(3)
+  editorStatus       EditorStatus             @default(Beginner)
+  hasAccess          Boolean                  @default(false)
+  dateOfBirth        DateTime?                @db.Date
+  avatar             String?
+  banner             String?
+  description        String?
+  displayName        String?
+  inCA               Boolean                  @default(false)
+  platformAdmin      Boolean                  @default(false)
+  CAProfileUri       String?                  @unique
+  orgValidation      String?
+  userValidationHash String?                  @unique
+  moderationState    ModerationState          @default(Ok)
+
+  seenTutorial               Boolean   @default(false) // could be moved to Event
+  lastSeenNotifications      DateTime  @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) // could be moved to Event
+  lastSeenNotifications_tz   DateTime? @default(dbgenerated("'1970-01-01 00:00:00+00'::timestamp with time zone")) @db.Timestamptz(3) // could be moved to Event
+  seenTopicMaximizedTutorial Boolean   @default(false) // could be moved to Event
+  seenTopicMinimizedTutorial Boolean   @default(false) // could be moved to Event
+  seenTopicsTutorial         Boolean   @default(false) // could be moved to Event
+  seenVerifiedNotification   Boolean   @default(false) // could be moved to Event
+
+  algorithmConfig Json? // could be moved to userconfig
+
+  authorStatus Json?
+
   Blob                                          Blob[]
   Donation                                      Donation[]
   Draft                                         Draft[]
-  Follow                                        Follow[]                 @relation("follow")
+  Follow                                        Follow[]           @relation("follow")
   Followers                                     Follow[]
   HasReacted                                    HasReacted[]
-  InviteCode_InviteCode_recommenderIdToUser     InviteCode[]             @relation("InviteCode_recommenderIdToUser")
-  InviteCode_InviteCode_usedByDidToUser         InviteCode?              @relation("InviteCode_usedByDidToUser")
-  NotInterested_NotInterested_authorIdToUser    NotInterested[]          @relation("NotInterested_authorIdToUser")
-  NotInterested_NotInterested_subjectIdToUser   NotInterested[]          @relation("NotInterested_subjectIdToUser")
+  InviteCode_InviteCode_recommenderIdToUser     InviteCode[]       @relation("InviteCode_recommenderIdToUser")
+  InviteCode_InviteCode_usedByDidToUser         InviteCode?        @relation("InviteCode_usedByDidToUser")
+  NotInterested_NotInterested_authorIdToUser    NotInterested[]    @relation("NotInterested_authorIdToUser")
+  NotInterested_NotInterested_subjectIdToUser   NotInterested[]    @relation("NotInterested_subjectIdToUser")
   Notification                                  Notification[]
-  ReadSession_ReadSession_contentAuthorIdToUser ReadSession[]            @relation("ReadSession_contentAuthorIdToUser")
-  ReadSession_ReadSession_userIdToUser          ReadSession[]            @relation("ReadSession_userIdToUser")
-  Record_Record_authorIdToUser                  Record[]                 @relation("Record_authorIdToUser")
-  Record_User_CAProfileUriToRecord              Record?                  @relation("User_CAProfileUriToRecord", fields: [CAProfileUri], references: [uri])
+  ReadSession_ReadSession_contentAuthorIdToUser ReadSession[]      @relation("ReadSession_contentAuthorIdToUser")
+  ReadSession_ReadSession_userIdToUser          ReadSession[]      @relation("ReadSession_userIdToUser")
+  Record_Record_authorIdToUser                  Record[]           @relation("Record_authorIdToUser")
+  Record_User_CAProfileUriToRecord              Record?            @relation("User_CAProfileUriToRecord", fields: [CAProfileUri], references: [uri])
   UserMonth                                     UserMonth[]
   ValidationRequest                             ValidationRequest?
-  interests                                     UserInterest[]           @relation("UserInterests")
+  interests                                     UserInterest[]     @relation("UserInterests")
 
   followingFeed                 FollowingFeedIndex[] @relation("followingFeed")
   contentsInOthersFollowingFeed FollowingFeedIndex[]
@@ -622,19 +624,37 @@ model User {
   bskyProfileUri String? @unique
   bskyProfile    Record? @relation(fields: [bskyProfileUri], references: [uri])
 
-  events                  Event[]
   emailVerificationTokens EmailVerificationToken[]
   recoverPasswordTokens   RecoverPasswordToken[]
 
   codesUsed InviteCodeUsedBy[]
 
+  events           Event[]
+  userConfigValues UserConfigValue[]
+
   @@index([CAProfileUri])
-  @@index([articleLastMonth, did])
   @@index([created_at_tz])
   @@index([did, inCA])
   @@index([handle])
   @@index([inCA, did])
-  @@index([postLastTwoWeeks, did])
+}
+
+model UserConfig {
+  id               String            @id
+  label            String
+  userConfigValues UserConfigValue[]
+  default          String
+}
+
+model UserConfigValue {
+  id       String     @id
+  value    String
+  userId   String
+  user     User       @relation(fields: [userId], references: [did])
+  configId String
+  config   UserConfig @relation(fields: [configId], references: [id])
+
+  @@unique([configId, userId])
 }
 
 model UserMonth {

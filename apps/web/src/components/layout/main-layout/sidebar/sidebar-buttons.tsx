@@ -36,8 +36,8 @@ export const SidebarButtons = ({showText, onClose, setWritePanelOpen}: {
     const pathname = usePathname()
 
     let unreadMessagesCount = undefined
-    if (conversations) {
-        unreadMessagesCount = sum(conversations, c => c.unreadCount)
+    if (conversations && conversations.authorized) {
+        unreadMessagesCount = sum(conversations.conversations, c => c.unreadCount)
     }
 
     const iconFontSize = isMobile ? 26 : 24

@@ -1,13 +1,11 @@
-import {CAHandler, EffHandler} from "#/utils/handler.js";
+import {EffHandler} from "#/utils/handler.js";
 import {AppContext} from "#/setup.js";
 import {v4 as uuidv4} from "uuid";
 import {NotificationType} from "../../../prisma/generated/types.js";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {sortByKey, unique} from "@cabildo-abierto/utils";
-import {sortDatesDescending} from "@cabildo-abierto/utils";
+import {getDidFromUri, sortByKey, sortDatesDescending, unique} from "@cabildo-abierto/utils";
 import {SessionAgent} from "#/utils/session-agent.js";
-import {getDidFromUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoNotificationListNotifications} from "@cabildo-abierto/api"
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
@@ -173,17 +171,18 @@ export const getNotifications: EffHandler<{}, ArCabildoabiertoNotificationListNo
         $type: "ar.cabildoabierto.notification.listNotifications#notification"
     }))
 
-    const notifications = sortByKey(
+    return sortByKey(
         [...bskyNotifications, ...caNotifications],
         a => a.indexedAt,
         sortDatesDescending
     )
-
-    return notifications
 }).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las notificaciones."))), DataPlane, makeDataPlane(ctx, agent))
 
 
-export const getUnreadNotificationsCount: CAHandler<{}, number> = async (ctx, agent, {}) => {
+export const getUnreadNotificationsCount: EffHandler<{}, number> =  (
+    ctx,
+    agent,
+    {}) => Effect.gen(function* () {
     // queremos la cantidad de notificaciones no leídas entre CA y Bluesky
     // el punto clave es la timestamp de última lectura
     // va a haber dos timesamps:
@@ -194,24 +193,30 @@ export const getUnreadNotificationsCount: CAHandler<{}, number> = async (ctx, ag
     // en consecuencia, al ver las notificaciones en CA puede ser que se intercalen notificaciones leídas con no leídas
     // si la última lectura en Bluesky fue más reciente que la última lectura en CA
 
-    const {data} = await agent.bsky.app.bsky.notification.getUnreadCount()
+    const {data} = yield* Effect.tryPromise({
+        try: () => agent.bsky.app.bsky.notification.getUnreadCount(),
+        catch: (error) => "Ocurrió un error al obtener las notificaciones."
+    })
 
-    const result = await ctx.kysely
-        .selectFrom('Notification')
-        .select(({fn}) => [fn.count('id').as('count')])
-        .where('userNotifiedId', '=', agent.did)
-        .where('created_at_tz', '>', (eb) =>
-            eb
-                .selectFrom('User')
-                .select('lastSeenNotifications_tz')
-                .where('did', '=', agent.did)
-        )
-        .executeTakeFirst()
+    const result = yield* Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom('Notification')
+            .select(({fn}) => [fn.count('id').as('count')])
+            .where('userNotifiedId', '=', agent.did)
+            .where('created_at_tz', '>', (eb) =>
+                eb
+                    .selectFrom('User')
+                    .select('lastSeenNotifications_tz')
+                    .where('did', '=', agent.did)
+            )
+            .executeTakeFirst(),
+        catch: (error) => new DBSelectError(error)
+    })
 
     const caUnreadCount = Number(result?.count ?? 0)
 
-    return {data: data.count + caUnreadCount}
-}
+    return data.count + caUnreadCount
+}).pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener las notificaciones.")))
 
 
 export type NotificationJobData = (Omit<FullNotification, "type"> & {type: "Reply"}) | TopicVersionVoteNotification | TopicEditNotification | MentionNotification

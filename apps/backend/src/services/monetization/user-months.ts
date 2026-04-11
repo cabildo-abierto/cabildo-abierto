@@ -15,8 +15,8 @@ function addOneMonth(date: Date) {
 
 function getNewUserMonths(ctx: AppContext, user: {
     did: string
-    validations: { created_at_tz: Date | null }[]
-    months: { monthEnd: Date }[]
+    validations: { created_at_tz: Date | string | null }[]
+    months: { monthEnd: Date | string }[]
 }) {
     const validations = user.validations
         .map(x => x.created_at_tz)
@@ -24,9 +24,9 @@ function getNewUserMonths(ctx: AppContext, user: {
     if (validations.length > 0) {
         let newMonthStart: Date
         if (user.months.length > 0) {
-            newMonthStart = user.months[0].monthEnd
+            newMonthStart = new Date(user.months[0].monthEnd)
         } else {
-            newMonthStart = min(validations, v => v.getTime())!
+            newMonthStart = new Date(min(validations, v => new Date(v).getTime())!)
         }
         const now = new Date()
         let newMonthEnd = addOneMonth(newMonthStart)
@@ -53,7 +53,6 @@ export async function createUserMonths(ctx: AppContext) {
     // Los UserMonths se crean una vez terminado el mes
     ctx.logger.pino.info("Creating user months")
 
-    const t1 = Date.now()
     const users = await ctx.kysely
         .selectFrom("User")
         .where("User.userValidationHash", "is not", null)
@@ -81,9 +80,10 @@ export async function createUserMonths(ctx: AppContext) {
         ])
         .where("User.userValidationHash", "is not", null)
         .execute()
-    const t2 = Date.now()
 
-    const newMonths = users.flatMap(u => getNewUserMonths(ctx, u))
+    const newMonths = users
+        .flatMap(u => getNewUserMonths(
+            ctx, u))
 
     if (newMonths.length == 0) {
         ctx.logger.pino.info("no new months to create")
@@ -134,17 +134,11 @@ export async function createUserMonths(ctx: AppContext) {
             value: active ? value : 0
         }
     })
-    const t3 = Date.now()
-
-    ctx.logger.pino.info(values, "creating new user months")
 
     await ctx.kysely
         .insertInto("UserMonth")
         .values(values)
         .execute()
-    const t4 = Date.now()
-
-    ctx.logger.logTimes("done creating new user months", [t1, t2, t3, t4])
 }
 
 

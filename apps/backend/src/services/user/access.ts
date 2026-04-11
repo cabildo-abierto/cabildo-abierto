@@ -149,9 +149,11 @@ const login = (
 
     if (!oauthCli) return yield* Effect.fail("Ocurrió un error al iniciar sesión.")
 
+    const scope = yield* getUserConfig(ctx, did, "at_scope")
+
     const url = yield* Effect.tryPromise({
         try: () => oauthCli.authorize(handle, {
-            scope: ATPROTO_OAUTH_SCOPE,
+            scope,
         }),
         catch: (error) => new OAuthAuthorizationError(error)
     })
@@ -962,3 +964,79 @@ export const assignInviteCodesToUsers = async (ctx: AppContext) => {
         }
     })
 }
+
+
+export function updateUserConfig(ctx: AppContext, did: string, configId: string, value: string) {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .insertInto("UserConfigValue")
+            .values([{
+                id: uuidv4(),
+                userId: did,
+                configId: configId,
+                value: value
+            }])
+            .onConflict(oc => oc.columns(["userId", "configId"]).doUpdateSet(eb => ({
+                value: value
+            })))
+            .execute(),
+        catch: (error) => new DBUpdateError(error)
+    })
+}
+
+
+export function getUserConfig(ctx: AppContext, did: string, configId: string): Effect.Effect<string, DBSelectError> {
+    return Effect.gen(function* () {
+        const res = yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .selectFrom("UserConfig")
+                .leftJoin("UserConfigValue", join =>
+                    join
+                        .onRef("UserConfigValue.configId", "=","UserConfig.id")
+                        .on("UserConfigValue.userId", "=", did)
+                )
+                .where("UserConfig.id", "=", configId)
+                .select(eb => eb.fn.coalesce("UserConfigValue.value", "UserConfig.default").as("value"))
+                .executeTakeFirstOrThrow(),
+            catch: (error) => new DBSelectError(error)
+        })
+        yield* Effect.annotateCurrentSpan("value", res.value)
+        yield* Effect.annotateCurrentSpan("did", did)
+        yield* Effect.annotateCurrentSpan("configId", configId)
+        return res.value
+    })
+}
+
+
+export const updateATPermissions: EffHandler<{scope: string}, {url: string}> = (
+    ctx,
+    agent,
+    {scope}
+) => Effect.gen(function* () {
+    const oauthCli = ctx.oauthClient
+
+    if (!oauthCli) return yield* Effect.fail("Ocurrió un error con la sesión.")
+
+    const handle = yield* ctx.resolver.resolveDidToHandle(agent.did, true)
+
+    const url = yield* Effect.tryPromise({
+        try: () => oauthCli.authorize(handle, {
+            scope,
+        }),
+        catch: (error) => new OAuthAuthorizationError(error)
+    })
+
+    yield* updateUserConfig(ctx, agent.did, "at_scope", scope)
+
+    return {url: url.href}
+}).pipe(Effect.withSpan("grantChatAccess")).pipe(
+    Effect.catchTag("DBUpdateError", () => Effect.fail("Ocurrió un error al actualizar los permisos.")),
+    Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al conectar con tu cuenta.")),
+    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error al conectar con tu cuenta."))
+)
+
+
+export const getUserConfigHandler: EffHandler<{params: {id: string}}, {value: string}> = (ctx, agent, {params}) =>
+    getUserConfig(ctx, agent.did, params.id)
+        .pipe(Effect.map(value => ({value})))
+        .pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener la configuración.")))

@@ -19,7 +19,8 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
     const [creationError, setCreationError] = useState<string | null>(null)
 
     async function onClickResult(did: string) {
-        const idx = conversations.findIndex(c => c.members.some(m => m.did == did))
+        if(!conversations.authorized) return
+        const idx = conversations.conversations.findIndex(c => c.members.some(m => m.did == did))
         if (idx != -1) {
             router.push(chatUrl(conversations[idx].id))
         } else {
@@ -38,6 +39,8 @@ const CreateConvPanel = ({open, onClose}: { open: boolean, onClose: () => void }
             }
         }
     }
+
+    if(!conversations || !conversations.authorized) return null
 
     return <BaseFullscreenPopup
         className="z-[1500]"
