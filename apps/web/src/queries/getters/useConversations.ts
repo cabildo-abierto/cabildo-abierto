@@ -1,10 +1,11 @@
 import {useAPI} from "@/components/utils/react/queries";
 import {ChatBskyConvoDefs} from "@atproto/api";
 import {$Typed} from "@atproto/api";
+import {GetConversationsOutput} from "@cabildo-abierto/api";
 
 
 export function useConversations() {
-    return useAPI<ChatBskyConvoDefs.ConvoView[]>("/conversations/list", ["conversations"])
+    return useAPI<GetConversationsOutput>("/conversations/list", ["conversations"])
 }
 
 export type Conversation = {

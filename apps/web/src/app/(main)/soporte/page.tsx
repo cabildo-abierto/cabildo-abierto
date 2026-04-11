@@ -13,15 +13,17 @@ const cabildoDid = "did:plc:2semihha42b7efhu4ywv7whi"
 const Page = () => {
     const router = useRouter()
     const [startingConv, setStartingConv] = useState<boolean>(false)
-    const {data: conversations} = useConversations()
+    const {data} = useConversations()
 
     async function startConversation() {
+        if(!data || !data.authorized) {
+            router.push("/mensajes")
+            return
+        }
         setStartingConv(true)
-        if(conversations){
-            const idx = conversations.findIndex(c => c.members.some(m => m.did == cabildoDid))
-            if(idx != -1) {
-                router.push(chatUrl(conversations[idx].id))
-            }
+        const idx = data.conversations.findIndex(c => c.members.some(m => m.did == cabildoDid))
+        if(idx != -1) {
+            router.push(chatUrl(data.conversations[idx].id))
         } else {
             const res = await post<{}, {convoId: string}>(`/conversation/create/${cabildoDid}`)
             if(res.success === true){
@@ -31,7 +33,6 @@ const Page = () => {
                 return {error: res.error}
             }
         }
-
     }
 
     if(startingConv){

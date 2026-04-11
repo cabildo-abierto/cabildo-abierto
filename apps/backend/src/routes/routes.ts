@@ -6,9 +6,10 @@ import {createArticleHandler} from "#/services/write/article.js";
 import {
     createAccessRequest,
     getInviteCodesToShare,
+    updateATPermissions,
     loginHandler,
     oauthCallbackHandler,
-    signupHandler
+    signupHandler, getUserConfigHandler
 } from "#/services/user/access.js";
 import {getFeedByKind} from "#/services/feed/feed.js";
 import {getProfileFeed} from "#/services/feed/profile/profile.js";
@@ -414,9 +415,9 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/notifications/list", makeEffHandler(ctx, getNotifications))
 
-    router.get("/notifications/unread-count", makeHandler(ctx, getUnreadNotificationsCount))
+    router.get("/notifications/unread-count", makeEffHandler(ctx, getUnreadNotificationsCount))
 
-    router.get("/conversations/list", makeHandler(ctx, getConversations))
+    router.get("/conversations/list", makeEffHandler(ctx, getConversations))
 
     router.get("/conversation/:convoIdOrHandle", makeEffHandler(ctx, getConversation))
 
@@ -526,6 +527,10 @@ export const createRouter = (ctx: AppContext): Router => {
     router.get("/topic-polls", makeEffHandlerNoAuth(ctx, getTopicPolls))
 
     router.get("/poll-votes/:id", makeEffHandlerNoAuth(ctx, getPollVotes))
+
+    router.post("/update-permissions", makeEffHandler(ctx, updateATPermissions))
+
+    router.get("/config/:id", makeEffHandler(ctx, getUserConfigHandler))
 
     router.use(adminRoutes(ctx))
 

@@ -8,15 +8,50 @@ import {
 import {$Typed, ChatBskyConvoGetConvoAvailability} from "@atproto/api";
 import {Effect} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
+import {XRPCError} from "@atproto/xrpc";
+import {getUserConfig} from "#/services/user/access.js";
+import {GetConversationsOutput} from "@cabildo-abierto/api";
 
 
-export const getConversations: CAHandler<{}, ConvoView[]> = async (ctx, agent, params) => {
+export const getConversations: EffHandler<{}, GetConversationsOutput> = (
+    ctx, agent, params) => Effect.gen(function* () {
+    const scope = yield* getUserConfig(ctx, agent.did, "at_scope")
+
+    if(!scope.includes("transition:chat.bsky")) {
+        const out: GetConversationsOutput = {authorized: false}
+        return out
+    }
+
     const chatAgent = agent.bsky.withProxy("bsky_chat", "did:web:api.bsky.chat")
 
-    const {data} = await chatAgent.chat.bsky.convo.listConvos()
+    const res = yield* Effect.tryPromise({
+        try: () => chatAgent.chat.bsky.convo.listConvos(),
+        catch: (error) => {
+            if(error instanceof XRPCError) {
+                console.log(error.name, error.message)
+            }
+            if(error instanceof XRPCError && error.message.includes("Missing required scope")) {
+                return "permissions"
+            } else {
+                return "Ocurrió un error al obtener las conversaciones."
+            }
+        }
+    }).pipe(Effect.catchAll(error => {
+        if(error == "permissions") {
+            return Effect.succeed(null)
+        } else {
+            return Effect.fail(error)
+        }
+    }))
 
-    return {data: data.convos}
-}
+    const out: GetConversationsOutput = !res ? {authorized: false} : {
+        authorized: true,
+        conversations: res.data.convos
+    }
+    return out
+}).pipe(
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener las conversaciones."))
+)
 
 type SendMessageParams = { message: MessageInput, convoId: string }
 

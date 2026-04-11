@@ -7,7 +7,7 @@ const contentRedirectMap: Record<string, string> = {
     "ar.cabildoabierto.data.dataset": "dataset",
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
 
     const segments = url.pathname.split("/").filter(Boolean)

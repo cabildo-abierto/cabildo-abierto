@@ -23,11 +23,12 @@ export const BaseFullscreenPopup = ({
                                         className,
                                         hidden = false,
                                         backgroundShadow = false,
-    overlayClassName,
-    ariaLabelledBy="panel",
-    fullscreenOnMobile = true,
-    onBack,
-    modal=true
+                                        overlayClassName,
+                                        ariaLabelledBy = "panel",
+                                        fullscreenOnMobile = true,
+                                        onBack,
+                                        modal = true,
+                                        title
                                     }: {
     open: boolean
     children: ReactNode
@@ -42,12 +43,13 @@ export const BaseFullscreenPopup = ({
     fullscreenOnMobile?: boolean
     onBack?: () => void
     modal?: boolean
+    title?: string
 }) => {
     const {layoutState, setLayoutState} = useLayoutState()
     const {isMobile} = useIsMobile()
 
     useEffect(() => {
-        if(layoutState.openSidebar && isMobile && open) {
+        if (layoutState.openSidebar && isMobile && open) {
             setLayoutState(produce(layoutState, draft => {
                 draft.openSidebar = false
             }))
@@ -66,8 +68,8 @@ export const BaseFullscreenPopup = ({
         />}
         <DialogContent
             className={cn("z-[1400] flex flex-col", isMobile && fullscreenOnMobile ?
-                    "fixed w-screen left-0 translate-x-0 translate-y-0 top-0 h-screen" :
-                    "w-auto left-1/2 top-1/2 -translate-x-1/2 border -translate-y-1/2", className)}
+                "fixed w-screen left-0 translate-x-0 translate-y-0 top-0 h-screen" :
+                "w-auto left-1/2 top-1/2 -translate-x-1/2 border -translate-y-1/2", className)}
             onClick={e => {
                 e.stopPropagation()
             }}
@@ -79,10 +81,15 @@ export const BaseFullscreenPopup = ({
             </VisuallyHidden>
             {closeButton && onClose && (
                 <div className="flex justify-between items-center mx-1 mt-1">
-                    {onBack ? <BackButton
-                        onClick={onBack}
-                        size={"small"}
-                    /> : <div/>}
+                    <div className={"flex items-center"}>
+                        {onBack ? <BackButton
+                            onClick={onBack}
+                            size={"small"}
+                        /> : <div/>}
+                        {title && <h2 className={"text-lg"}>
+                            {title}
+                        </h2>}
+                    </div>
                     <CloseButton
                         onClose={onClose}
                         size={"small"}

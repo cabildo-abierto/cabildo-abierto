@@ -6,7 +6,8 @@ injectWorkspacePackages: true
 
 overrides:
   '@isaacs/brace-expansion@<=5.0.0': '>=5.0.1'
-  ajv@<6.14.0: '>=6.14.0'
+  # ajv 6.x only goes up to 6.12.6. Do not use `>=6.12.6` here — that range includes ajv 8 and breaks ESLint/@eslint/eslintrc.
+  ajv@>=6.0.0 <6.12.6: 6.12.6
   axios@>=1.0.0 <=1.13.4: '>=1.13.5'
   basic-ftp@<5.2.0: '>=5.2.0'
   brace-expansion@<1.1.13: '>=1.1.13'
@@ -42,7 +43,8 @@ overrides:
   next@>=9.5.0 <15.5.13: '>=15.5.13'
   nodemailer@<8.0.4: '>=8.0.4'
   nodemailer@<=8.0.4: '>=8.0.5'
-  path-to-regexp@<0.1.13: '>=0.1.13'
+  # Keep 0.1.x: '>=0.1.13' matches path-to-regexp 8.x and breaks Express 4's router.
+  path-to-regexp@<0.1.13: '~0.1.12'
   picomatch@<2.3.2: '>=2.3.2'
   qs@>=6.7.0 <=6.14.1: '>=6.14.2'
   rollup@>=4.0.0 <4.59.0: '>=4.59.0'
@@ -52,3 +54,5 @@ overrides:
   undici@>=6.0.0 <6.24.0: '>=6.24.0'
   undici@>=7.0.0 <7.24.0: '>=7.24.0'
   undici@>=7.17.0 <7.24.0: '>=7.24.0'
+  # Stay on Next 15: peers like next-navigation-guard allow >=15.5.13, which otherwise resolves to Next 16.
+  next: 15.5.14
