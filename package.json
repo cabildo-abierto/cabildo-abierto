@@ -19,6 +19,11 @@
   "dependencies": {
     "turbo": "latest"
   },
+  "pnpm": {
+    "overrides": {
+      "vite": "7.3.2"
+    }
+  },
   "devDependencies": {
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
