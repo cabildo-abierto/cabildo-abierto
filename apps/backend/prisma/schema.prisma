@@ -655,6 +655,7 @@ model UserConfigValue {
   config   UserConfig @relation(fields: [configId], references: [id])
 
   @@unique([configId, userId])
+  @@index([userId, configId])
 }
 
 model UserMonth {
@@ -721,12 +722,24 @@ model Timestamps {
   date_tz DateTime? @db.Timestamptz(3)
 }
 
+model EventType {
+  id     String  @id
+  name   String?
+  events Event[]
+}
+
 model Event {
   id     String   @id
   date   DateTime @db.Timestamptz()
   userId String?
   user   User?    @relation(fields: [userId], references: [did])
-  label  String
+
+  eventTypeId String
+  eventType   EventType @relation(fields: [eventTypeId], references: [id])
+
+  @@index([userId])
+  @@index([eventTypeId])
+  @@index([userId, eventTypeId])
 }
 
 model JobApplication {

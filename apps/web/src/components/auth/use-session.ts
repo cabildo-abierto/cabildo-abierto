@@ -23,18 +23,16 @@ export const useSession = (
     useEffect(() => {
         if (res.data) {
             if (key == "session") {
-                qc.setQueryData(["sidebar-session"], old => {
-                    return res.data
-                })
+                qc.setQueryData(["sidebar-session"], res.data)
             }
         }
-    }, [res]);
+    }, [res.data, key, qc]);
 
     useEffect(() => {
         if(res.error) {
             logout()
         }
-    }, [res]);
+    }, [res.error]);
 
     return {...res, user: res.data && res.data.active ? res.data : null}
 }

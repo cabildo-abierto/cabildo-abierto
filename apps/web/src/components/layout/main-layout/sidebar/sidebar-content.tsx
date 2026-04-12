@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {SidebarBottom} from "./sidebar-bottom";
 import {useSession} from "@/components/auth/use-session";
 import {SidebarButtons} from "./sidebar-buttons";
@@ -11,37 +11,17 @@ import {cn} from "@/lib/utils";
 import {BaseButton} from "@/components/utils/base/base-button";
 import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
 import {useIsMobile} from "@/components/utils/use-is-mobile";
-import {usePathname} from "next/navigation";
-import GettingStartedProgress, {
-    CircularMissionProgress,
-    useGettingStartedProgressData
-} from "../right-panel/getting-started-progress";
 
 
 export const SidebarContent = ({onClose, setWritePanelOpen}: {
     onClose: () => void
     setWritePanelOpen: (open: boolean) => void
 }) => {
-    const [guideOpen, setGuideOpen] = useState(false)
     const {isMobile} = useIsMobile()
     const {layoutState, setLayoutState} = useLayoutState()
     const user = useSession()
-    const pathname = usePathname()
     const showText = layoutState.openSidebar
     const {setLoginModalOpen} = useLoginModal()
-    const {goals, completedMissions, isLoading} = useGettingStartedProgressData()
-    const pathnameSegments = pathname.split("/").filter(Boolean)
-    const profileHandle = pathnameSegments[0] === "perfil" && pathnameSegments.length === 2
-        ? decodeURIComponent(pathnameSegments[1])
-        : null
-    const showGettingStartedProgress = Boolean(
-        showText
-        && user.user && (
-            pathname.includes("inicio")
-            || profileHandle === user.user.handle
-        )
-    )
-    const showGuideToggle = showGettingStartedProgress && !isLoading && goals.length > 0
 
     return (
         <>
@@ -52,14 +32,11 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                     <div
                         className={"flex pb-8 h-full flex-col [@media(min-height:600px)]:space-y-2 [@media(min-height:520px)]:space-y-1 space-y-[2px]"}
                     >
-                        {user.user && <div className={"space-y-2 mb-3 " + (showText ? "px-4" : "")}>
+                        {user.user && <div
+                            className={cn("space-y-2 mb-3", showText ? "px-4" : "")}
+                        >
                             <div className={"flex items-start justify-between gap-2"}>
                                 <SidebarProfilePic showText={showText}/>
-                                {showGuideToggle && <CircularMissionProgress
-                                    completed={completedMissions}
-                                    total={goals.length}
-                                    onClick={() => setGuideOpen(prev => !prev)}
-                                />}
                             </div>
                             <div className={isMobile && showText ? "" : "hidden"}>
                                 <div className={"font-bold [@media(min-height:600px)]:text-xl [@media(min-height:520px)]:text-lg text-base"}>
@@ -78,7 +55,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 onClick={() => {
                                     setLoginModalOpen(true);
                                     if(isMobile) {
-                                        setLayoutState({...layoutState, openSidebar: false})
+                                        setLayoutState((prev) => ({...prev, openSidebar: false}))
                                     }
                                 }}
                             >
@@ -97,7 +74,6 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                             setWritePanelOpen={setWritePanelOpen}
                         />
                         <NextMeetingInvite/>
-                        {showGettingStartedProgress && guideOpen && <GettingStartedProgress/>}
                         {isMobile && <div className={"px-4 space-y-4 h-full"}>
                             <hr className={" border-[1px] border-[var(--text)]"}/>
                             <div className={"text-xs h-full"}>

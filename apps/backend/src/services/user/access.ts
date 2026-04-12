@@ -20,7 +20,6 @@ import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
 import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
-import {ATPROTO_OAUTH_SCOPE} from "#/auth/oauth-scope.js";
 import {Request, Response} from "express";
 import {ComAtprotoServerCreateAccount} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
@@ -74,7 +73,7 @@ export const loginHandler: EffHandlerNoAuth<LoginParams, LoginOutput> = (
     Effect.catchTag("UsedCodeError", () => Effect.fail("El código de invitación ya fue usado.")),
     Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
     Effect.catchTag("HandleResolutionError", () => Effect.fail("Ocurrió un error al iniciar sesión.")),
-    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error en la conexión con ATProtocol.")),
+    Effect.catchTag("OAuthAuthorizationError", () => Effect.fail("Ocurrió un error en la conexión con la Atmósfera.")),
     Effect.catchTag("AlreadyLoggedInError", () => Effect.fail("Hay una sesión activa.")),
     Effect.catchTag("NoInviteCodeError", () => Effect.fail("Necesitás un código de invitación para crear una cuenta."))
 )

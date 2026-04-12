@@ -8,6 +8,10 @@ import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {post} from "../../../utils/react/fetch";
 import {profileUrl} from "@/components/utils/react/url";
 import {dimOnHoverClassName} from "@/components/utils/base/dim-on-hover-link";
+import {
+    GettingStartedProgressSmall, useUserGuideStatus
+} from "@/components/layout/main-layout/right-panel/getting-started-progress";
+import {cn} from "@/lib/utils";
 
 
 export const SidebarProfilePic = ({showText}) => {
@@ -23,6 +27,7 @@ export const SidebarProfilePic = ({showText}) => {
                 return 10000
             }
         })
+    const {guidePage} = useUserGuideStatus()
 
     if (!user) return null
 
@@ -41,8 +46,13 @@ export const SidebarProfilePic = ({showText}) => {
 
     return <div className={"flex w-full"}>
         <div
-            className={(!showText ? "pl-4 min-h-12 justify-end " : " relative ") + (isMobile ? "flex space-x-2 items-end" : "flex flex-col space-y-1 h-16 items-center")}>
-            {showText && user.mirrorStatus != "Sync" && <div className={"absolute top-0 right-0 "}>
+            className={cn(
+                "relative",
+                !showText ? "pl-4 min-h-12 justify-end " : " relative ",
+                isMobile ? "flex space-x-2 items-end" : "flex flex-col space-y-1 h-16 items-center"
+            )}
+        >
+            {showText && user.mirrorStatus != "Sync" && <div className={"absolute top-[2px] right-[-2px] "}>
                 {user.mirrorStatus == "InProcess" && <DescriptionOnHover
                     description={"Estamos cargando los datos de tu cuenta. Puede que algunas funcionalidades no funcionen hasta que esto termine. Si tarda demasiado, escribinos."}>
                     <HourglassIcon className={"cursor-pointer"} fontSize={"12"} color={"var(--text-light)"}/>
@@ -63,10 +73,13 @@ export const SidebarProfilePic = ({showText}) => {
                     descriptionOnHover={false}
                 />
             </Link>
-            {(showText && !isVerified(user.validation) ?
+            {showText && !isVerified(user.validation) ?
                 <div className={"h-4"}>
                     <VerifyAccountButton verification={user.validation}/></div> :
-                <div className={"h-4"}/>)}
+                <div className={"h-4"}/>}
+            {showText && guidePage && <div className={"absolute top-[-2px] left-[-2px]"}>
+                <GettingStartedProgressSmall/>
+            </div>}
         </div>
     </div>
 }

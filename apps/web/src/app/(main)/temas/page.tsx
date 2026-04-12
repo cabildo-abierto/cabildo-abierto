@@ -37,7 +37,10 @@ const Temas = () => {
             categories={categories}
             setCategories={setCategories}
         />}
-        {(!view || view == "lista") && <TopicsListView categories={categories} sortedBy={sortedBy} setCategories={setCategories}/>}
+        {(!view || view == "lista") && <TopicsListView
+            categories={categories}
+            setCategories={setCategories}
+        />}
     </>
 }
 

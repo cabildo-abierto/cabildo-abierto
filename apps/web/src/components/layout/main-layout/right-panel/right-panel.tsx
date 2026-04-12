@@ -13,6 +13,10 @@ import {useSearch} from "../../../buscar/search-context";
 import SearchResultsOnRightPanel from "../../../buscar/search-results-on-right-panel";
 import {useSession} from "@/components/auth/use-session";
 import {useLayoutConfig} from "../layout-config-context";
+import {useLayoutState} from "../layout-state-context";
+import GettingStartedProgress, {
+    useUserGuideStatus,
+} from "./getting-started-progress";
 import {createPortal} from "react-dom";
 import {useAPI} from "@/components/utils/react/queries";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
@@ -126,6 +130,8 @@ export const RightPanel = () => {
     const {searchState} = useSearch(`${pathname}::main`)
     const {inSearchPage} = useInSearchPage()
     const {layoutConfig} = useLayoutConfig()
+    const {layoutState} = useLayoutState()
+    const {guidePage} = useUserGuideStatus()
     const {isFollowSuggestionsPath, isTrendingTopicsPath, isDonatePath} = useRightPanelConfig()
 
     const showSearchButton = searchState.searching && searchState.value.length > 0
@@ -157,6 +163,12 @@ export const RightPanel = () => {
         </div>
 
         {pathname.includes("inicio") && <NextMeetingOnRightPanel/>}
+
+        {guidePage && layoutState.gettingStartedGuideOpen && (
+            <div className={"w-[292px]"}>
+                <GettingStartedProgress/>
+            </div>
+        )}
 
         {isTrendingTopicsPath && <div className={"w-[292px]"}>
             <TrendingTopicsPanel/>

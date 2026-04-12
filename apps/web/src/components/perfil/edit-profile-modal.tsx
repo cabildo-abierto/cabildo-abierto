@@ -29,6 +29,8 @@ type UpdateProfileProps = {
     description?: string
     banner?: string
     profilePic?: string
+    removeBanner?: boolean
+    removeProfilePic?: boolean
 }
 
 
@@ -67,14 +69,28 @@ export const EditProfileModalWithProfile = ({open, onClose, profile}: Props & {p
         $type: "url",
         src: profile.avatar
     } : undefined)
+    const [removeBanner, setRemoveBanner] = useState(false)
+    const [removeProfilePic, setRemoveProfilePic] = useState(false)
     const qc = useQueryClient()
+
+    function onBannerChange(image: ImagePayload | undefined) {
+        setBanner(image)
+        setRemoveBanner(false)
+    }
+
+    function onProfilePicChange(image: ImagePayload | undefined) {
+        setProfilePic(image)
+        setRemoveProfilePic(false)
+    }
 
     async function onSubmit() {
         const res = await post<UpdateProfileProps, {}>("/profile", {
             displayName: displayName != profile.displayName ? displayName : undefined,
             banner: banner && banner.$type == "file" ? banner.base64 : undefined,
             profilePic: profilePic && profilePic.$type == "file" ? profilePic.base64 : undefined,
-            description: description != profile.description ? description : undefined
+            description: description != profile.description ? description : undefined,
+            removeBanner: removeBanner ? true : undefined,
+            removeProfilePic: removeProfilePic ? true : undefined
         })
         if (res.success === false) return {error: res.error}
         qc.invalidateQueries({queryKey: ["profile", profile.handle]})
@@ -111,7 +127,14 @@ export const EditProfileModalWithProfile = ({open, onClose, profile}: Props & {p
                 </StateButton>
             </div>
         </div>
-        <UploadImageDropdown crop="rectangle" setImage={setBanner}>
+        <UploadImageDropdown
+            crop="rectangle"
+            setImage={onBannerChange}
+            onDelete={() => {
+                setBanner(undefined)
+                setRemoveBanner(true)
+            }}
+        >
             <div className={"relative"}>
                 {banner ?
                     <Image
@@ -129,7 +152,14 @@ export const EditProfileModalWithProfile = ({open, onClose, profile}: Props & {p
             </div>
         </UploadImageDropdown>
         <div className={"flex"}>
-            <UploadImageDropdown crop="circle" setImage={setProfilePic}>
+            <UploadImageDropdown
+                crop="circle"
+                setImage={onProfilePicChange}
+                onDelete={() => {
+                    setProfilePic(undefined)
+                    setRemoveProfilePic(true)
+                }}
+            >
                 <div className={"relative"}>
                     <Image
                         src={profilePicSrc}
