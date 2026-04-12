@@ -90,6 +90,7 @@ export const SaveEditButton = ({
         setSavingChanges(false)
         router.push(topicUrl(topic.id, undefined))
         qc.invalidateQueries({queryKey: ["session"]})
+        qc.invalidateQueries({queryKey: ["user-guide-status"]})
         return {}
     }, [props, editor, topic])
 

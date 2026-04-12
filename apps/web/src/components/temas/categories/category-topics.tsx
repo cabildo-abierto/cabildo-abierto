@@ -56,8 +56,11 @@ export const CategoryTopics = ({categories}: {
         Se muestran los primeros {topics.length} resultados. Para ver más temas usá la <Link href={"/temas?view=mapa"}>vista de mapa</Link> o el <Link href={"/temas"} onClick={(e) => {e.preventDefault(); smoothScrollTo(0)}}>buscador</Link>.
     </div> : null
 
-    return <div className="flex space-y-2 flex-col items-center w-full" key={sortedBy + categories.join("-")}>
-        {isLoading &&  <LoadingCategoryTopics/>}
+    return <div
+        className="flex space-y-2 flex-col items-center w-full"
+        key={sortedBy + categories.join("-")}
+    >
+        {isLoading && <LoadingCategoryTopics/>}
         {topics && <div className={"w-full flex px-2"}>
             <TopicsSortSelector/>
         </div>}

@@ -17,6 +17,7 @@ export const SidebarDesktop = ({onClose, setWritePanelOpen}: {
     }
 
     return <div
+        onWheelCapture={(e) => {e.stopPropagation()}}
         className={cn("fixed bg-[var(--background)] overflow-auto custom-scrollbar h-[calc(100vh-48px)] z-[1001] top-12", !layoutConfig.spaceForLeftSide && layoutState.openSidebar && "border-r border-[var(--accent-dark)] custom-scrollbar")}
     >
         <SidebarContent

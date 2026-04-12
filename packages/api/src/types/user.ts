@@ -27,3 +27,20 @@ export type ValidationRequestProps = DNIValidationRequestProps | MPValidationReq
 
 
 export type FollowSuggestionsOutput = GetFeedOutput<ArCabildoabiertoActorDefs.ProfileView>
+
+export type UserGuideGoal = {
+    label: string
+    progress: number
+    objective: number
+    detail?: string
+}
+
+export type UserGuideStatus = UserGuideGoal[]
+
+export type CreateUserEventBody = {
+    eventId: string
+}
+
+export type CreateUserEventOutput = {
+    id: string
+}

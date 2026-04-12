@@ -106,6 +106,8 @@ import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
 import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
 import {changeHandle, verifyCustomDomainHandle} from "#/services/user/handle.js";
+import { getUserGuideStatus } from "#/services/user/user-guide.js";
+import {recordUserEventHandler} from "#/services/user/events.js";
 
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
@@ -531,6 +533,10 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post("/update-permissions", makeEffHandler(ctx, updateATPermissions))
 
     router.get("/config/:id", makeEffHandler(ctx, getUserConfigHandler))
+
+    router.get("/user-guide-status", makeEffHandler(ctx, getUserGuideStatus))
+
+    router.post("/event", makeEffHandler(ctx, recordUserEventHandler))
 
     router.use(adminRoutes(ctx))
 

@@ -94,6 +94,7 @@ export const PollFromId = ({pollId, onDelete, onEdit}: {
             if(res.success === false) {
                 addError(res.error)
             } else {
+                qc.invalidateQueries({queryKey: ["user-guide-status"]})
                 toast("Se canceló tu voto.")
             }
         } else {
@@ -105,6 +106,7 @@ export const PollFromId = ({pollId, onDelete, onEdit}: {
             if(res.success === false) {
                 addError(res.error)
             } else {
+                qc.invalidateQueries({queryKey: ["user-guide-status"]})
                 toast("Se guardó tu voto.")
                 refetch()
             }

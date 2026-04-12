@@ -1,4 +1,4 @@
-
+import React from "react";
 import {SidebarBottom} from "./sidebar-bottom";
 import {useSession} from "@/components/auth/use-session";
 import {SidebarButtons} from "./sidebar-buttons";
@@ -32,8 +32,12 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                     <div
                         className={"flex pb-8 h-full flex-col [@media(min-height:600px)]:space-y-2 [@media(min-height:520px)]:space-y-1 space-y-[2px]"}
                     >
-                        {user.user && <div className={"space-y-2 mb-3 " + (showText ? "px-4" : "")}>
-                            <SidebarProfilePic showText={showText}/>
+                        {user.user && <div
+                            className={cn("space-y-2 mb-3", showText ? "px-4" : "")}
+                        >
+                            <div className={"flex items-start justify-between gap-2"}>
+                                <SidebarProfilePic showText={showText}/>
+                            </div>
                             <div className={isMobile && showText ? "" : "hidden"}>
                                 <div className={"font-bold [@media(min-height:600px)]:text-xl [@media(min-height:520px)]:text-lg text-base"}>
                                     {user.user.displayName ?? "@" + user.user.handle}
@@ -51,7 +55,7 @@ export const SidebarContent = ({onClose, setWritePanelOpen}: {
                                 onClick={() => {
                                     setLoginModalOpen(true);
                                     if(isMobile) {
-                                        setLayoutState({...layoutState, openSidebar: false})
+                                        setLayoutState((prev) => ({...prev, openSidebar: false}))
                                     }
                                 }}
                             >

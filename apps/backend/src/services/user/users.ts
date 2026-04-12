@@ -514,6 +514,8 @@ type UpdateProfileProps = {
     description?: string
     banner?: string
     profilePic?: string
+    removeBanner?: boolean
+    removeProfilePic?: boolean
 }
 
 
@@ -547,8 +549,12 @@ export const updateProfile = (
 
     const record = res.data.value as AppBskyActorProfile.Record
 
-    const avatarBlob: BlobRef | undefined = profile.profilePic ? (yield* uploadBase64Blob(agent, profile.profilePic)).ref : record.avatar
-    const bannerBlob: BlobRef | undefined = profile.banner ? (yield* uploadBase64Blob(agent, profile.banner)).ref : record.banner
+    const avatarBlob: BlobRef | undefined = profile.removeProfilePic ?
+        undefined :
+        (profile.profilePic ? (yield* uploadBase64Blob(agent, profile.profilePic)).ref : record.avatar)
+    const bannerBlob: BlobRef | undefined = profile.removeBanner ?
+        undefined :
+        (profile.banner ? (yield* uploadBase64Blob(agent, profile.banner)).ref : record.banner)
 
     yield* Effect.log("Avatar and banner uploaded correctly.")
 
@@ -675,7 +681,7 @@ function checkEmailUsed(ctx: AppContext, email: string): Effect.Effect<boolean, 
                 .select("did")
                 .where("email", "=", email)
                 .executeTakeFirst(),
-            catch: error => new CheckEmailError()
+            catch: () => new CheckEmailError()
         })
         return user != null
     })
