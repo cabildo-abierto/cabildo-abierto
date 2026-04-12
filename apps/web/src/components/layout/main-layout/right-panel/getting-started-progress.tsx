@@ -11,6 +11,7 @@ import VisualizationIcon from "@/components/utils/icons/visualization-icon";
 import {AcceptButtonPanel} from "@/components/utils/dialogs/accept-button-panel";
 import {cn} from "@/lib/utils";
 import {Paragraph} from "@/components/utils/base/paragraph";
+import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context";
 
 
 type ProgressCircleProps = {
@@ -204,11 +205,12 @@ export const GettingStartedProgressSmall = () => {
 
 export function useUserGuideStatus() {
     const {user} = useSession()
+    const {isMobile} = useLayoutConfig()
     const {data: userGuideStatus, isLoading} = useAPI<UserGuideStatus>("/user-guide-status", ["user-guide-status"])
     const pathname = usePathname()
 
     const guidePage = Boolean(
-        user && (
+        user && !isMobile && (
             pathname.includes("/inicio")
             || pathname.startsWith("/perfil") &&
             (pathname.includes(user.did) || pathname.includes(user.handle))
@@ -262,7 +264,7 @@ const GettingStartedProgress = () => {
     return (
         <div className={cn(
             "border border-[var(--accent-dark)] space-y-3 transition-all duration-500",
-            isHighlighted ? "bg-[var(--background-dark)]" : "")}
+            isHighlighted ? "bg-[var(--background-dark)]" : "bg-[var(--background)]")}
         >
             <div className={"flex items-center justify-between pt-3 px-4"}>
                 <div className={"text-xs font-bold uppercase"}>

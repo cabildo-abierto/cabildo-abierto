@@ -41,12 +41,10 @@ export const LayoutStateProvider: React.FC<{ children: ReactNode }> = ({children
     useEffect(() => {
         try {
             const v = localStorage.getItem(LAYOUT_GETTING_STARTED_GUIDE_OPEN_KEY)
-            if (v === "true" || v === "false") {
-                setLayoutState((prev) => ({
-                    ...prev,
-                    gettingStartedGuideOpen: v === "true",
-                }))
-            }
+            setLayoutState((prev) => ({
+                ...prev,
+                gettingStartedGuideOpen: v !== "false",
+            }))
         } finally {
             setGettingStartedGuideHydrated(true)
         }
