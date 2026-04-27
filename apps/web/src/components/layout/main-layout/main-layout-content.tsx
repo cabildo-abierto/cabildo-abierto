@@ -10,11 +10,7 @@ import FloatingWriteButton from "../../writing/floating-write-button";
 import {usePathname} from "next/navigation";
 import {useTopbarHeight} from "./topbar/topbar-height";
 import TopbarDesktop from "./topbar/topbar-desktop";
-import ThreeColumnsLayout from "./three-columns-layout";
-import {SidebarDesktop} from "./sidebar/sidebar-desktop";
 import {cn} from "@/lib/utils";
-import {pxToNumber} from "@cabildo-abierto/utils";
-import {RightPanel} from "./right-panel/right-panel";
 import {useSearch} from "../../buscar/search-context";
 
 const WritePanel = dynamic(() => import("../../writing/write-panel/write-panel"),
@@ -70,32 +66,17 @@ export const MainLayoutContent = ({children}: { children: ReactNode }) => {
         <div className={cn(!isMobile && "pt-12")}>
             {isMobile && <TopbarMobile setWritePanelOpen={onSetWritePanelOpen}/>}
             {!isMobile && <TopbarDesktop/>}
-            <ThreeColumnsLayout
-                leftPanel={!isMobile && <SidebarDesktop
-                    onClose={() => {
-                    }}
-                    setWritePanelOpen={onSetWritePanelOpen}
-                />}
-                rightPanel={!isMobile && <div
-                    ref={rightPanelRef}
-                    className={cn("no-scrollbar overflow-y-auto max-h-[calc(100vh-48px)]", layoutConfig.readingLayout ? "right-0 fixed" : "sticky top-12")}
-                    style={{width: layoutConfig.openRightPanel && layoutConfig.spaceForRightSide ? pxToNumber(layoutConfig.widthRightSide) : 0}}
-                >
-                    <RightPanel/>
-                </div>}
+            <div
+                className={"flex justify-center"}
+                style={{paddingTop: isMobile ? topbarHeight : undefined}}
             >
                 <div
-                    className={"flex justify-center"}
-                    style={{paddingTop: isMobile ? topbarHeight : undefined}}
+                    className={"w-full"}
+                    style={{maxWidth: layoutConfig.maxWidthCenter}}
                 >
-                    <div
-                        className={"w-full"}
-                        style={{maxWidth: layoutConfig.maxWidthCenter}}
-                    >
-                        {children}
-                    </div>
+                    {children}
                 </div>
-            </ThreeColumnsLayout>
+            </div>
             {isMobile && <BottomBarMobile/>}
             {isMobile && (pathname.startsWith("/inicio") || pathname.startsWith("/perfil")) &&
                 <FloatingWriteButton onClick={() => {

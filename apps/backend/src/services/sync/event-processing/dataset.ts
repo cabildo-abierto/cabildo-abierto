@@ -81,7 +81,7 @@ export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset
 
         return Effect.tryPromise({
             try: () => insertRecords,
-            catch: () => new InsertRecordError()
+            catch: (error) => new InsertRecordError(error)
         })
     }
 }

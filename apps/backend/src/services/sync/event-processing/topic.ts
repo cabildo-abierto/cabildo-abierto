@@ -26,11 +26,9 @@ import {ValidationResult} from "@atproto/lexicon";
 
 export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> = {
     validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopicVersion.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopicVersion.Record>, ValidationError> => {
-        const logger = ctx.logger
         return Effect.gen(function* () {
             const res = ArCabildoabiertoWikiTopicVersion.validateRecord(record)
             if (!res.success) {
-                logger.pino.info({res, error: res.error.message}, "invalid topic version")
                 return yield* Effect.succeed(res)
             } else {
                 if (res.value.embeds) {
@@ -40,7 +38,6 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
                     for (const p of polls) {
                         const key = yield* getPollKey(p.poll)
                         if (key != p.key) {
-                            logger.pino.info({res}, "invalid topic version (poll)")
                             const error: ValidationResult<ArCabildoabiertoWikiTopicVersion.Record> = {
                                 success: false,
                                 error: new Error("Invalid poll.")
@@ -83,13 +80,6 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
 
         const insertTopics = ctx.kysely.transaction().execute(async (trx) => {
             await addRecordsToDBBatch(trx, records)
-            const jobs = await processContentsBatch(
-                ctx,
-                trx,
-                contents,
-                topicIds
-            )
-
 
             await trx
                 .insertInto("Topic")
@@ -98,6 +88,13 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
                     lastEdit_tz: sql`GREATEST("Topic"."lastEdit_tz", excluded."lastEdit_tz")`
                 }))
                 .execute()
+
+            const jobs = await processContentsBatch(
+                ctx,
+                trx,
+                contents,
+                topicIds
+            )
 
             if (topicVersions.length > 0) {
                 const inserted = await trx
@@ -122,7 +119,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
         return pipe(
             Effect.tryPromise({
                 try: () => insertTopics,
-                catch: () => new InsertRecordError()
+                catch: (error) => new InsertRecordError(error)
             }),
             Effect.tap(({inserted, jobs}) => {
                 return !reprocess ? createJobs(ctx, records, inserted, topics, jobs) : Effect.void

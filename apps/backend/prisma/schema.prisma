@@ -12,21 +12,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model AccessRequest {
-  id              String      @id
-  created_at      DateTime    @default(now())
-  created_at_tz   DateTime    @default(now()) @db.Timestamptz(3)
-  email           String
-  comment         String
-  sentInviteAt    DateTime?
-  sentInviteAt_tz DateTime?   @db.Timestamptz(3)
-  inviteCodeId    String?     @unique
-  InviteCode      InviteCode? @relation(fields: [inviteCodeId], references: [code])
-  markedIgnored   Boolean     @default(false)
-
-  @@index([inviteCodeId])
-}
-
 model Article {
   title        String
   uri          String  @id

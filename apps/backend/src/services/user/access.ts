@@ -106,8 +106,6 @@ const login = (
     handle: string,
     code?: string
 ) => Effect.gen(function* () {
-    ctx.logger.pino.info({handle, code}, "logging in")
-
     if (agent.hasSession()) {
         return yield* Effect.fail(new AlreadyLoggedInError())
     }
@@ -614,8 +612,6 @@ export function createCAUser(
 
 
 export const createPDSInviteCodes = (
-    ctx: AppContext,
-    agent: SessionAgent,
     count: number,
     uses: number = 1
 ) => Effect.gen(function* () {
@@ -662,11 +658,10 @@ export const createPDSInviteCodes = (
 
 export const createInviteCodes = (
     ctx: AppContext,
-    agent: SessionAgent,
     count: number,
     uses: number = 1) => Effect.gen(function* () {
 
-    const values = yield* createPDSInviteCodes(ctx, agent, count, uses)
+    const values = yield* createPDSInviteCodes(count, uses)
 
     yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -687,7 +682,7 @@ export const createInviteCodes = (
 export const createInviteCodesHandler: EffHandler<{ query: { c: number, u: number } }, {
     inviteCodes: string[]
 }> = (ctx, agent, {query}) => {
-    return createInviteCodes(ctx, agent, query.c, query.u).pipe(
+    return createInviteCodes(ctx, query.c, query.u).pipe(
         Effect.map(inviteCodes => ({inviteCodes})),
         Effect.catchTag("GetInviteCodeError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación.")),
         Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear los códigos de invitación."))

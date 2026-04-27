@@ -10,6 +10,7 @@ export const darkThemePalette = {
   "accent-dark2": '#d7d7d7',
 
   "background": 'rgb(14, 17, 19)',
+  "background-sdark": "rgb(19, 22, 25)",
   "background-dark": 'rgb(24, 28, 31)',
   "background-dark2": 'rgb(42, 50, 54)',
   "background-dark3": 'rgb(51, 61, 66)',
@@ -22,6 +23,10 @@ export const darkThemePalette = {
   "green": "#66ff66",
   "green-dark": "#4dc04d",
   "green-dark2": "#358435",
+
+  "yellow": "#ffdf7a",
+  "yellow-dark": "#e8c43a",
+  "yellow-dark2": "#f5d25c",
 
   "like": "#EC4899",
   "repost": "#5CEFAA"
@@ -40,6 +45,7 @@ export const lightThemePalette = {
   "accent-dark2": '#282828',
 
   "background": 'rgb(255,255,247)',
+  "background-sdark": "rgb(248, 248, 240)",
   "background-dark": 'rgb(242,242,234)',
   "background-dark2": 'rgb(229,229,221)',
   "background-dark3": 'rgb(212,212,205)',
@@ -52,6 +58,10 @@ export const lightThemePalette = {
   "green": "rgb(102, 255, 102)",
   "green-dark": "rgb(77, 192, 77)",
   "green-dark2": "rgb(53, 132, 53)",
+
+  "yellow": "rgb(202, 138, 4)",
+  "yellow-dark": "rgb(161, 98, 7)",
+  "yellow-dark2": "rgb(133, 77, 14)",
 
   "like": "rgb(236, 72, 153)",
   "repost": "rgb(19, 195, 113)"

@@ -855,7 +855,16 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "Topic.lastEdit_tz as lastEdit",
                     "CurrentVersion.props",
                     "Content.numWords",
-                    "Record.created_at_tz as created_at"
+                    "Record.created_at_tz as created_at",
+                    eb => eb.selectFrom("Post")
+                        .whereRef("Post.replyToId", "=", "TopicVersion.uri")
+                        .select(eb => eb.fn.count<number>("Post.uri").as("replyCount"))
+                        .as("replyCount"),
+                    eb => eb
+                        .selectFrom("TopicVersion as edit")
+                        .whereRef("edit.topicId", "=", "TopicVersion.topicId")
+                        .select(eb => eb.fn.count<number>("edit.uri").as("editsCount"))
+                        .as("editsCount")
                 ])
                 .where("TopicVersion.uri", "in", uris)
                 .execute(),
@@ -865,7 +874,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         const mapByUri = new Map(data.map(item => [item.uri, item]))
 
         joinMapsInPlace(topicsByUri, mapByUri)
-    })
+    }).pipe(Effect.withSpan("fetchTopicsBasicByUris"))
 
     const fetchFeedHydrationData = (skeleton: FeedSkeleton): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
         const expandedUris = yield* expandUrisWithRepliesQuotesAndReposts(skeleton)

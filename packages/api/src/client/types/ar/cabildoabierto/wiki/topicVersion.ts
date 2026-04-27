@@ -276,6 +276,12 @@ export interface TopicViewBasic {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicViewBasic'
   id: string
   props?: TopicProp[]
+  replyCount?: number
+  voteCount?: number
+  documentsCount?: number
+  editsCount?: number
+  visCount?: number
+  pollsCount?: number
   popularity?: TopicPopularity
   lastEdit?: string
   currentVersionCreatedAt?: string

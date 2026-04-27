@@ -24,15 +24,13 @@ export default function TopicPopularityIndicator({counts, selected}: {
         return null
     }
 
-    if(count == 0) return null
-
     return <DescriptionOnHover
         description={`${count} persona${count == 1 ? " participó" : "s participaron"} en la discusión sobre el tema en ${periodText}.`}
         moreInfoHref={topicUrl("Cabildo Abierto: Popularidad de temas")}
     >
         <div className={"text-[var(--text-light)] space-x-[1px] text-xs flex items-center"} id={"topic-popularity"}>
             <div>{count}</div>
-            <div className={"pt-[2px]"}>
+            <div className={"pb-[2px]"}>
                 <ValidationIcon
                     fontSize={12}
                     verification={"person"}

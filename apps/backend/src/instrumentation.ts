@@ -3,14 +3,17 @@ import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentation
 import { NodeSdk } from "@effect/opentelemetry";
 import {make} from "effect/ManagedRuntime"
 import * as dotenv from 'dotenv';
-import { BatchSpanProcessor, ConsoleSpanExporter, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { BatchSpanProcessor, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { PrettyConsoleSpanExporter } from "#/pretty-console-span-exporter.js";
 
 dotenv.config();
 
 const LOG_IN_TEST = false
 const isTest = process.env.NODE_ENV === 'test';
-const traceExporter = isTest && LOG_IN_TEST
-    ? new ConsoleSpanExporter()
+const logToConsole = process.env.LOG_TO_CONSOLE == "1" || isTest && LOG_IN_TEST
+console.log("logToConsole", logToConsole)
+const traceExporter = logToConsole
+    ? new PrettyConsoleSpanExporter()
     : new OTLPTraceExporter({
         url: 'https://us-east-1.aws.edge.axiom.co/v1/traces',
         headers: {
@@ -18,7 +21,7 @@ const traceExporter = isTest && LOG_IN_TEST
             'X-Axiom-Dataset': 'cabildo-abierto'
         }
     });
-const spanProcessor = isTest && LOG_IN_TEST
+const spanProcessor = logToConsole
     ? new SimpleSpanProcessor(traceExporter)
     : new BatchSpanProcessor(traceExporter);
 

@@ -95,7 +95,6 @@ export const sendBulkEmails: EffHandler<SendEmailsParams, SendEmailsResponse> = 
     if (needsInviteCodes) {
         inviteCodes = yield* createInviteCodes(
             ctx,
-            agent,
             recipientEmails.length
         ).pipe(
             Effect.catchAll(() => Effect.fail("Error al crear los códigos de invitación."))

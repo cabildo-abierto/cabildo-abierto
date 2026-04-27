@@ -13,6 +13,15 @@ import MainSearchBar from "../../../buscar/main-search-bar";
 import {TopicTopbarRight} from "../../../tema/topic-topbar-right";
 import {TopbarTopicFeed} from "../../../tema/mentions-feed/topbar-topic-feed";
 import ThreeColumnsLayout from "../three-columns-layout";
+import {BaseIconButton} from "@/components/utils/base/base-icon-button";
+import {SignInIcon, SquaresFourIcon} from "@phosphor-icons/react";
+import Link from "next/link";
+import {useSession} from "@/components/auth/use-session";
+import {ProfilePic} from "@/components/perfil/profile-pic";
+import {BaseButton} from "@/components/utils/base/base-button";
+import {useIsMobile} from "@/components/utils/use-is-mobile";
+import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
+import {useLoginModal} from "@/components/auth/login-modal-provider";
 
 
 const TopbarCenter = () => {
@@ -72,23 +81,31 @@ const TopbarCenter = () => {
 
 
 export default function TopbarDesktop() {
-    const pathname = usePathname()
-    const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas")
+    const {user} = useSession()
+    const {isMobile} = useIsMobile()
+    const {setLayoutState} = useLayoutState()
+    const {setLoginModalOpen} = useLoginModal()
 
-    const leftPanel = <div className={"px-3 h-12 flex items-center"}>
-        <OpenSidebarButton/>
-    </div>
-
-    const rightPanel = !inSearchPage ? <div className={"w-[292px] h-12 flex items-center"}>
-        <SearchBarOnRigthColumn/>
-    </div> : null
-
-    return <div className={"w-full h-12 z-[1000] bg-[var(--background)] fixed top-0 left-0 border-b border-[var(--accent-dark)]"}>
-        <ThreeColumnsLayout
-            leftPanel={leftPanel}
-            rightPanel={rightPanel}
+    return <div className={"flex justify-between items-center h-12 fixed z-[1500] top-0 left-0 w-full py-3 pl-3 pr-5"}>
+        <Link href={"/inicio"}>
+            <BaseIconButton>
+                <SquaresFourIcon/>
+            </BaseIconButton>
+        </Link>
+        {user && <ProfilePic user={user} className={"hover:scale-105 h-5 w-5 rounded-full"} descriptionOnHover={false}/>}
+        {!user && <BaseButton
+            startIcon={<SignInIcon/>}
+            variant="outlined"
+            size={isMobile ? "default" : "small"}
+            className={"h-8"}
+            onClick={() => {
+                setLoginModalOpen(true);
+                if(isMobile) {
+                    setLayoutState((prev) => ({...prev, openSidebar: false}))
+                }
+            }}
         >
-            <TopbarCenter/>
-        </ThreeColumnsLayout>
+            Iniciar sesión
+        </BaseButton>}
     </div>
 }

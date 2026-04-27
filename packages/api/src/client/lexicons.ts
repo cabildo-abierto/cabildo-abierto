@@ -3694,6 +3694,24 @@ export const schemaDict = {
               ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
             },
           },
+          replyCount: {
+            type: 'integer',
+          },
+          voteCount: {
+            type: 'integer',
+          },
+          documentsCount: {
+            type: 'integer',
+          },
+          editsCount: {
+            type: 'integer',
+          },
+          visCount: {
+            type: 'integer',
+          },
+          pollsCount: {
+            type: 'integer',
+          },
           popularity: {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicPopularity',

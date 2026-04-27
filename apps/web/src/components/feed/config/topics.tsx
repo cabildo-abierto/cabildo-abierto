@@ -2,6 +2,7 @@ import {useSession} from "@/components/auth/use-session";
 import {stringToEnum} from "@cabildo-abierto/utils";
 import {useSearchParams} from "next/navigation";
 import {topicsPageSortOptions} from "@cabildo-abierto/api";
+import {updateSearchParam} from "@/components/utils/react/search-params";
 
 
 export function useTopicsPageParams() {
@@ -13,6 +14,15 @@ export function useTopicsPageParams() {
         topicsPageSortOptions,
         user?.algorithmConfig?.tt?.time ?? "Última semana")
     const multipleEnabled = searchParams.get("m") == "true"
+    const view = searchParams.get("view")
 
-    return {categories, sortedBy, multipleEnabled}
+    function setCategories(newCats: string[]) {
+        updateSearchParam("c", newCats)
+    }
+
+    function setMultipleEnabled(enabled: boolean) {
+        updateSearchParam("m", enabled ? "true" : "false")
+    }
+
+    return {categories, sortedBy, multipleEnabled, setCategories, setMultipleEnabled, view}
 }

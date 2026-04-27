@@ -50,7 +50,7 @@ export const followRecordProcessor: RecordProcessor<AppBskyGraphFollow.Record> =
 
         return Effect.tryPromise({
             try: () => insertRecords,
-            catch: () => new InsertRecordError()
+            catch: (error) => new InsertRecordError(error)
         }).pipe(
             Effect.tap(() => addJobs)
         )

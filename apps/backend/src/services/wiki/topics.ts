@@ -45,6 +45,8 @@ export type TopicQueryResultBasic = {
     created_at?: Date | null
     uri: string | null
     cid: string | null
+    replyCount: number | null
+    editsCount: number | null
 }
 
 
@@ -99,7 +101,9 @@ export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic, autho
             cid: t.cid
         } : undefined,
         versionAuthor: author,
-        versionCreatedAt: t.created_at?.toISOString()
+        versionCreatedAt: t.created_at?.toISOString(),
+        replyCount: t.replyCount ?? 0,
+        editsCount: t.editsCount ?? 0,
     }
 }
 

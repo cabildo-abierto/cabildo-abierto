@@ -11,7 +11,7 @@ import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 
 
 export const caProfileRecordProcessor: RecordProcessor<ArCabildoabiertoActorCaProfile.Record> = {
@@ -89,7 +89,7 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
 
     return Effect.tryPromise({
         try: () => insertRecords,
-        catch: () => new InsertRecordError()
+        catch: (error) => new InsertRecordError(error)
     })
 }
 
@@ -142,7 +142,7 @@ export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Rec
                         description: eb => eb.ref("excluded.description")
                     })))
                     .execute(),
-                catch: () => new InsertRecordError()
+                catch: (error) => new InsertRecordError(error)
             })
 
             return values.length

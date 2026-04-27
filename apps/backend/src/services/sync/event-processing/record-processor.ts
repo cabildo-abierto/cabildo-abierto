@@ -16,9 +16,11 @@ export class InsertRecordError {
     readonly _tag = "InsertRecordError"
     name: string | undefined
     message: string | undefined
-    constructor(error?: Error) {
-        this.name = error?.name
-        this.message = error?.message
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
     }
 }
 
@@ -42,22 +44,22 @@ export const processRecords = <T>(
     records: RefAndRecord[],
     processor: RecordProcessor<T>,
     reprocess: boolean = false,
-): Effect.Effect<number, ProcessCreateError | ValidationError> => {
-    if(records.length == 0) return Effect.succeed(0)
+): Effect.Effect<number, ProcessCreateError | ValidationError> => Effect.gen(function* () {
+    if(records.length == 0) return 0
 
-    return parseRecords(
+    const validatedRecords = yield* parseRecords(
         ctx,
         records,
         processor.validator
-    ).pipe(Effect.flatMap(validatedRecords => {
-        return processValidatedRecords(
-            ctx,
-            validatedRecords,
-            processor,
-            reprocess
-        )
-    }))
-}
+    )
+    ctx.logger.pino.info({count: records.length, collection: getCollectionFromUri(records[0].ref.uri), valid: validatedRecords.length}, "processing records")
+    return yield* processValidatedRecords(
+        ctx,
+        validatedRecords,
+        processor,
+        reprocess
+    )
+})
 
 
 export const processInBatches = <T>(

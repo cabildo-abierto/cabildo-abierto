@@ -28,35 +28,35 @@ export const getFormattedTimeSince = (date: Date) => {
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
     if (seconds < 60) {
-        return `${seconds} s`
+        return {count: seconds, unit: "s"}
     }
 
     const minutes = Math.floor(seconds / 60)
     if (minutes < 60) {
-        return `${minutes} mins`
+        return {count: minutes, unit: "m"}
     }
 
     const hours = Math.floor(minutes / 60)
     if (hours < 24) {
-        return `${hours} h`
+        return {count: hours, unit: "h"}
     }
 
     const days = Math.floor(hours / 24)
     if (days < 30) {
-        return `${days} d`
+        return {count: days, unit: "d"}
     }
 
     const months = Math.floor(days / 30)
     if (months == 1){
-        return `${months} mes`
+        return {count: months, unit: "mes"}
     }
 
     if (months < 12) {
-        return `${months} meses`
+        return {count: months, unit: "meses"}
     }
 
     const years = Math.floor(days / 365)
-    return `${years} a`
+    return {count: years, unit: "a"}
 };
 
 
@@ -70,6 +70,6 @@ export function DateSince({ date, title=true }: { date: Date | string, title?: b
     return <span
         title={title ? formatIsoDate(new Date(date), true) : undefined}
     >
-        {timeSince}
+        {timeSince.count} <span className={"font-extralight"}>{timeSince.unit}</span>
     </span>
 }

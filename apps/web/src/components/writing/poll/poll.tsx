@@ -32,7 +32,7 @@ export const Poll = ({onDelete, onSelectOption, onEdit, poll, pollId}: {
 
     return (
         <div
-            className="my-2 w-full border bg-[var(--background-dark)] portal group p-4 shadow-sm space-y-4"
+            className="my-2 w-full bg-[var(--background-sdark)] portal group p-4 shadow-sm space-y-4"
         >
             <div className={"flex justify-between items-start"}>
                 <div className="space-y-1">

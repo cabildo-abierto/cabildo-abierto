@@ -72,7 +72,7 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
         readingLayout: true
     }
     const maximizedTopicConfig: LayoutConfigProps = {
-        maxWidthCenter: "800px",
+        maxWidthCenter: null,
         widthLeftSide: "240px",
         widthRightSide: "300px",
         widthLeftSideSmall: "80px",
@@ -107,10 +107,10 @@ function getLayoutConfig(pathname: string, windowWidth: number, currentConfig?: 
     let config: LayoutConfigProps
     if (isMobile) {
         config = mobileConfig
-    } else if (pathname.startsWith("/temas")) {
+    } else if (pathname.startsWith("/inicio")) {
         config = {
             ...feedConfig,
-            maxWidthCenter: "800px"
+            maxWidthCenter: null
         }
     } else if (pathname.startsWith("/tema") && !pathname.startsWith("/tema/menciones")) {
         config = maximizedTopicConfig
