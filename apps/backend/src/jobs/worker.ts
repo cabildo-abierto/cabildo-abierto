@@ -28,7 +28,6 @@ import {resetContentsFormat, updateContentsNumWords, updateContentsText} from "#
 import {updatePostLangs} from "#/services/admin/posts.js";
 import {updateAllFollowCounters} from "#/services/user/follows.js";
 import {updateFollowSuggestions} from "#/services/user/follow-suggestions.js";
-import {updateInteractionsScore} from "#/services/feed/feed-scores.js";
 import {updateAllTopicsCurrentVersions} from "#/services/wiki/current-version.js";
 import {Logger} from "#/utils/logger.js";
 import {env} from "#/lib/env.js";
@@ -222,15 +221,6 @@ export class CAWorker {
         this.registerJob(
             "update-records-created-at",
             () => updateRecordsCreatedAt(ctx)
-        )
-        this.registerEffJob(
-            "update-interactions-score",
-            (data) => updateInteractionsScore(ctx, data),
-            true
-        )
-        this.registerEffJob(
-            "update-all-interactions-score",
-            () => updateInteractionsScore(ctx)
         )
         this.registerJob(
             "reprocess-collection",

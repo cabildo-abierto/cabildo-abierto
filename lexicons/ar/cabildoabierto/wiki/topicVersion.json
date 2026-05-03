@@ -22,18 +22,18 @@
               "minLength": 1,
               "maxLength": 50
             },
-            "props": {
-              "type": "array",
-              "items": {
-                "type": "ref",
-                "ref": "#topicProp"
-              }
-            },
             "embeds": {
               "type": "array",
               "items": {
                 "type": "ref",
                 "ref": "ar.cabildoabierto.feed.article#articleEmbed"
+              }
+            },
+            "props": {
+              "type": "array",
+              "items": {
+                "type": "ref",
+                "ref": "#topicProp"
               }
             },
             "message": {

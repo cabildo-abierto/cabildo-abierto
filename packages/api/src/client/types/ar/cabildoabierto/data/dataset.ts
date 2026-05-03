@@ -23,6 +23,7 @@ export interface Main {
   createdAt: string
   columns: Column[]
   data?: DataBlock[]
+  dataUrl?: string
   [k: string]: unknown
 }
 

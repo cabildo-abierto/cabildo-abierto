@@ -35,6 +35,8 @@ export interface Poll {
   $type?: 'ar.cabildoabierto.embed.poll#poll'
   description?: string
   choices: PollChoice[]
+  createdAt?: string
+  closeDate?: string
 }
 
 const hashPoll = 'poll'
@@ -68,6 +70,8 @@ export interface View {
   poll: Poll
   viewer?: PollViewer
   votes: number[]
+  createdAt?: string
+  closeDate?: string
 }
 
 const hashView = 'view'

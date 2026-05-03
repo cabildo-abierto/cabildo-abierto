@@ -22,8 +22,8 @@ export interface Main {
   id: string
   text?: BlobRef
   format?: string
-  props?: TopicProp[]
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
+  props?: TopicProp[]
   message?: string
   createdAt: string
   claimsAuthorship?: boolean

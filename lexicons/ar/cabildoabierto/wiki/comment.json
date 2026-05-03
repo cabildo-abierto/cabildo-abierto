@@ -1,0 +1,50 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.wiki.comment",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Un registro que contiene un comentario en un tema.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["text", "createdAt"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 3000
+          },
+          "facets": {
+            "type": "array",
+            "description": "Menciones y urls en el formato de Bluesky.",
+            "items": { "type": "ref", "ref": "app.bsky.richtext.facet" }
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "ar.cabildoabierto.feed.article#articleEmbed"
+            }
+          },
+          "reply": { "type": "ref", "ref": "#replyRef" },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Fecha de creación del comentario declarada por el autor."
+          },
+          "isChallenge": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "replyRef": {
+      "type": "object",
+      "required": ["root", "parent"],
+      "properties": {
+        "root": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+        "parent": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+      }
+    }
+  }
+}

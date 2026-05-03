@@ -9,18 +9,17 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'ar.cabildoabierto.actor.caProfile'
+const id = 'ar.cabildoabierto.wiki.vote'
 
 export interface Main {
-  $type: 'ar.cabildoabierto.actor.caProfile'
-  createdAt?: string
-  displayName?: string
-  description?: string
-  /** Foto de perfil. */
-  avatar?: BlobRef
+  $type: 'ar.cabildoabierto.wiki.vote'
+  subject: ComAtprotoRepoStrongRef.Main
+  createdAt: string
+  label?: Label
   [k: string]: unknown
 }
 
@@ -39,3 +38,5 @@ export {
   isMain as isRecord,
   validateMain as validateRecord,
 }
+
+export type Label = 'approve' | 'reject' | 'upvote' | 'downvote' | (string & {})

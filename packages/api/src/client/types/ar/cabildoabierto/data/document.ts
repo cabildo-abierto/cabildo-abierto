@@ -12,15 +12,17 @@ import {
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'ar.cabildoabierto.actor.caProfile'
+const id = 'ar.cabildoabierto.data.document'
 
 export interface Main {
-  $type: 'ar.cabildoabierto.actor.caProfile'
-  createdAt?: string
-  displayName?: string
+  $type: 'ar.cabildoabierto.data.document'
+  name: string
   description?: string
-  /** Foto de perfil. */
-  avatar?: BlobRef
+  /** Client-declared timestamp when this post was originally created. */
+  createdAt: string
+  blob?: BlobRef
+  url?: string
+  format?: string
   [k: string]: unknown
 }
 

@@ -1,0 +1,37 @@
+{
+    "lexicon": 1,
+    "id": "ar.cabildoabierto.wiki.vote",
+    "defs": {
+      "main": {
+        "type": "record",
+        "key": "tid",
+        "record": {
+          "type": "object",
+          "required": ["subject", "createdAt"],
+          "properties": {
+            "subject": {
+              "type": "ref",
+              "ref": "com.atproto.repo.strongRef"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "label": {
+              "type": "ref",
+              "ref": "#label"
+            }
+          }
+        }
+      },
+      "label": {
+        "type": "string",
+        "knownValues": [
+          "approve",
+          "reject",
+          "upvote",
+          "downvote"
+        ]
+      }
+    }
+  }

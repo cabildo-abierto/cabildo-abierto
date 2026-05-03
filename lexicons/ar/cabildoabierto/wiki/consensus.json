@@ -1,0 +1,67 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.wiki.consensus",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Un registro que contiene una propuesta de consenso en un tema.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["title", "body", "topicId", "consensusId", "createdAt"],
+        "properties": {
+          "topicId": {
+            "type": "string"
+          },
+          "consensusId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 3000
+          },
+          "facets": {
+            "type": "array",
+            "description": "Menciones y urls en el formato de Bluesky.",
+            "items": { "type": "ref", "ref": "app.bsky.richtext.facet" }
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "ar.cabildoabierto.feed.article#articleEmbed"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Fecha de creación del comentario declarada por el autor."
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Fecha a la cual se asocia el consenso cuando describe un evento."
+          }
+        }
+      }
+    },
+    "replyRef": {
+      "type": "object",
+      "required": ["root", "parent"],
+      "properties": {
+        "root": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+        "parent": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+      }
+    }
+  }
+}

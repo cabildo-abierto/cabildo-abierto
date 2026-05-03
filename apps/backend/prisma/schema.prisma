@@ -12,24 +12,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Article {
-  title        String
-  uri          String  @id
-  Content      Content @relation(fields: [uri], references: [uri])
-  previewImage String?
-  description  String?
-}
-
-model AuthSession {
-  key     String @id
-  session String
-}
-
-model AuthState {
-  key   String @id
-  state String
-}
-
 model Blob {
   cid       String     @id
   authorId  String
@@ -40,42 +22,26 @@ model Blob {
   @@index([authorId])
 }
 
-model CategoryLink {
-  idCategoryA                                           String
-  idCategoryB                                           String
-  TopicCategory_CategoryLink_idCategoryAToTopicCategory TopicCategory @relation("CategoryLink_idCategoryAToTopicCategory", fields: [idCategoryA], references: [id])
-  TopicCategory_CategoryLink_idCategoryBToTopicCategory TopicCategory @relation("CategoryLink_idCategoryBToTopicCategory", fields: [idCategoryB], references: [id])
-
-  @@id([idCategoryA, idCategoryB])
-}
-
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model Content {
-  text                    String?
-  numWords                Int?
-  uri                     String                   @id
-  format                  String?
-  textBlobId              String?
-  selfLabels              String[]
-  embeds                  Json[]
-  dbFormat                String?
-  created_at              DateTime                 @default(now())
-  created_at_tz           DateTime?                @default(now()) @db.Timestamptz(3)
-  interactionsScore       Int?
-  likesScore              Int?
-  relativePopularityScore Float?
-  Article                 Article?
-  Blob                    Blob?                    @relation(fields: [textBlobId], references: [cid])
-  Record                  Record                   @relation(fields: [uri], references: [uri])
-  PaymentPromise          PaymentPromise[]
-  AssignedPayments        AssignedPayment[]
-  Post                    Post?
-  ReadSession             ReadSession[]
-  Reference               Reference[]
-  TopicVersion            TopicVersion?
-  Dataset                 Dataset[]
-  text_tsv                Unsupported("tsvector")?
-  inDiscoverFeed          DiscoverFeedIndex[]
+  text           String?
+  numWords       Int?
+  uri            String                   @id
+  format         String?
+  textBlobId     String?
+  selfLabels     String[]
+  embeds         Json[]
+  dbFormat       String?
+  created_at_tz  DateTime?                @default(now()) @db.Timestamptz(3)
+  Blob           Blob?                    @relation(fields: [textBlobId], references: [cid])
+  Record         Record                   @relation(fields: [uri], references: [uri])
+  Post           Post?
+  ReadSession    ReadSession[]
+  Reference      Reference[]
+  TopicVersion   TopicVersion?
+  Dataset        Dataset[]
+  text_tsv       Unsupported("tsvector")?
+  inDiscoverFeed DiscoverFeedIndex[]
 
   caModeration ContentModerationStatus @default(Ok)
 
