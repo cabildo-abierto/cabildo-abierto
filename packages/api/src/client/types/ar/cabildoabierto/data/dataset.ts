@@ -21,9 +21,11 @@ export interface Main {
   description?: string
   /** Client-declared timestamp when this post was originally created. */
   createdAt: string
+  /** Una declaración del formato en el que se encuentran los datos. Por defecto, json. */
+  format?: 'json' | 'csv' | (string & {})
   columns: Column[]
-  data?: DataBlock[]
-  dataUrl?: string
+  blob?: BlobRef
+  url?: string
   [k: string]: unknown
 }
 
@@ -56,22 +58,6 @@ export function isColumn<V>(v: V) {
 
 export function validateColumn<V>(v: V) {
   return validate<Column & V>(v, id, hashColumn)
-}
-
-export interface DataBlock {
-  $type?: 'ar.cabildoabierto.data.dataset#dataBlock'
-  blob: BlobRef
-  format?: string
-}
-
-const hashDataBlock = 'dataBlock'
-
-export function isDataBlock<V>(v: V) {
-  return is$typed(v, id, hashDataBlock)
-}
-
-export function validateDataBlock<V>(v: V) {
-  return validate<DataBlock & V>(v, id, hashDataBlock)
 }
 
 export interface DatasetViewBasic {

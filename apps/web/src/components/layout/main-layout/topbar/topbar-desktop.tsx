@@ -1,20 +1,14 @@
-import {SearchBarOnRigthColumn} from "../right-panel/search-bar-on-rigth-column";
 import React from "react";
-import {usePathname} from "next/navigation";
-import {OpenSidebarButton} from "./open-sidebar-button";
-import {MainFeedHeader} from "../../../feed/feed/main-feed-header";
-import NewConvButton from "../../../mensajes/new-conv-button";
-import {TopicsPageHeader} from "../../../temas/topics-page-header";
-import {TopbarConversation} from "../../../mensajes/topbar-conversation";
-import {InfoPanelUserSuggestions} from "../../../perfil/info-panel-user-suggestions";
-import {useDefaultBackURL, useTopbarTitle} from "./topbar-title";
-import {BackButton} from "@/components/utils/base/back-button";
-import MainSearchBar from "../../../buscar/main-search-bar";
-import {TopicTopbarRight} from "../../../tema/topic-topbar-right";
-import {TopbarTopicFeed} from "../../../tema/mentions-feed/topbar-topic-feed";
-import ThreeColumnsLayout from "../three-columns-layout";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
-import {SignInIcon, SquaresFourIcon} from "@phosphor-icons/react";
+import {
+    DesktopIcon,
+    GearSixIcon,
+    MoonIcon, PowerIcon,
+    SignInIcon,
+    SquaresFourIcon,
+    SunIcon,
+    UserCircleIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import {useSession} from "@/components/auth/use-session";
 import {ProfilePic} from "@/components/perfil/profile-pic";
@@ -22,63 +16,33 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {useIsMobile} from "@/components/utils/use-is-mobile";
 import {useLayoutState} from "@/components/layout/main-layout/layout-state-context";
 import {useLoginModal} from "@/components/auth/login-modal-provider";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/utils/ui/dropdown-menu";
+import {useTheme, type ThemeMode} from "@/components/layout/theme/theme-context";
+import {profileUrl} from "@/components/utils/react/url";
+import NotificationsIcon from "@/components/utils/icons/notifications-icon";
 
-
-const TopbarCenter = () => {
-    const {defaultURL} = useDefaultBackURL()
-    const {title, className: titleClassName} = useTopbarTitle()
-    const pathname = usePathname()
-
-    const backButton = pathname.startsWith("/c/") ||
-        pathname.startsWith("/tema") && !pathname.startsWith("/temas") ||
-        pathname.startsWith("/aportar") ||
-        pathname.startsWith("/escribir/articulo") ||
-        pathname.startsWith("/perfil") ||
-        pathname.startsWith("/ajustes")
-
-    const showTitle = !pathname.startsWith("/buscar") && !pathname.startsWith("/mensajes/") && !pathname.startsWith("/tema/menciones")
-
-    return <div className={"h-12 flex justify-between space-x-2 items-center"}>
-        {title && showTitle && <div className={"font-bold uppercase flex space-x-2 items-center"}>
-            {backButton && <BackButton
-                behavior={"ca-back"}
-                size={"default"}
-                defaultURL={defaultURL}
-            />}
-            <div className={titleClassName}>
-                {title}
-            </div>
-        </div>}
-
-        {pathname.startsWith("/inicio") && <MainFeedHeader/>}
-
-        {pathname.startsWith("/buscar") && <div className={"w-full px-2"}>
-            <MainSearchBar
-                autoFocus={true}
-            />
-        </div>}
-
-        {pathname.startsWith("/perfil/cuentas-sugeridas") && <div className={"flex-1 flex justify-end"}>
-            <InfoPanelUserSuggestions/>
-        </div>}
-
-        {pathname.startsWith("/mensajes") && !pathname.startsWith("/mensajes/") && <div>
-            <NewConvButton/>
-        </div>}
-
-        {pathname.startsWith("/temas") && <TopicsPageHeader/>}
-
-        {pathname.startsWith("/mensajes/") && <TopbarConversation/>}
-
-        {pathname.startsWith("/tema/menciones") && <TopbarTopicFeed/>}
-
-        {pathname.startsWith("/tema") && !pathname.startsWith("/temas") &&
-            <div className={"pr-2"}>
-                <TopicTopbarRight/>
-            </div>}
-    </div>
+function ThemeModeButtons() {
+    const {mode, setMode} = useTheme()
+    return (
+        <div className="flex gap-1 p-1 bg-[var(--background-dark)]">
+            <BaseIconButton size={"small"} className={mode == "light" ? "bg-[var(--background-dark2)]" : ""} onClick={() => setMode("light")}>
+                <SunIcon weight="bold"/>
+            </BaseIconButton>
+            <BaseIconButton size={"small"} className={mode == "dark" ? "bg-[var(--background-dark2)]" : ""} onClick={() => setMode("dark")}>
+                <MoonIcon weight="bold"/>
+            </BaseIconButton>
+            <BaseIconButton size={"small"} className={mode == "system" ? "bg-[var(--background-dark2)]" : ""}  onClick={() => setMode("system")}>
+                <DesktopIcon weight="bold"/>
+            </BaseIconButton>
+        </div>
+    )
 }
-
 
 export default function TopbarDesktop() {
     const {user} = useSession()
@@ -87,12 +51,51 @@ export default function TopbarDesktop() {
     const {setLoginModalOpen} = useLoginModal()
 
     return <div className={"flex justify-between items-center h-12 fixed z-[1500] top-0 left-0 w-full py-3 pl-3 pr-5"}>
-        <Link href={"/inicio"}>
+        <div className={"flex items-center gap-x-4"}>
+            <Link href={"/inicio"}>
+                <BaseIconButton>
+                    <SquaresFourIcon/>
+                </BaseIconButton>
+            </Link>
             <BaseIconButton>
-                <SquaresFourIcon/>
+                <NotificationsIcon/>
             </BaseIconButton>
-        </Link>
-        {user && <ProfilePic user={user} className={"hover:scale-105 h-5 w-5 rounded-full"} descriptionOnHover={false}/>}
+        </div>
+
+        {user && (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button
+                        className="rounded-full"
+                    >
+                        <ProfilePic user={user} className={"hover:scale-105 h-5 w-5 rounded-full"} descriptionOnHover={false} clickable={false}/>
+                    </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={8} className="z-[1501] portal group min-w-[11rem] p-0">
+                    <DropdownMenuItem asChild>
+                        <Link href={profileUrl(user.handle)}>
+                            <UserCircleIcon weight="bold"/>
+                            Perfil
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href="/ajustes">
+                            <GearSixIcon weight="bold"/>
+                            Configuración
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="m-0 bg-[var(--accent)]"/>
+                    <ThemeModeButtons/>
+                    <DropdownMenuSeparator className="m-0 bg-[var(--accent)]"/>
+                    <DropdownMenuItem asChild>
+                        <Link href="/ajustes">
+                            <PowerIcon weight="bold"/>
+                            Cerrar sesión
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        )}
         {!user && <BaseButton
             startIcon={<SignInIcon/>}
             variant="outlined"

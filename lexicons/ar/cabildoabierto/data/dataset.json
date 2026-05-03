@@ -22,6 +22,14 @@
             "format": "datetime",
             "description": "Client-declared timestamp when this post was originally created."
           },
+          "format": {
+            "type": "string",
+            "description": "Una declaración del formato en el que se encuentran los datos. Por defecto, json.",
+            "knownValues": [
+              "json",
+              "csv"
+            ]
+          },
           "columns": {
             "type": "array",
             "items": {
@@ -30,14 +38,10 @@
             },
             "minLength": 1
           },
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "ref",
-              "ref": "#dataBlock"
-            }
+          "blob": {
+            "type": "blob"
           },
-          "dataUrl": {
+          "url": {
             "type": "string"
           }
         }
@@ -51,18 +55,6 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 120
-        }
-      }
-    },
-    "dataBlock": {
-      "type": "object",
-      "required": ["blob"],
-      "properties": {
-        "blob": {
-          "type": "blob"
-        },
-        "format": {
-          "type": "string"
         }
       }
     },

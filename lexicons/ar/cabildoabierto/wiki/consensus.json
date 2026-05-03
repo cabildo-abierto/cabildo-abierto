@@ -21,8 +21,7 @@
             "maxLength": 140
           },
           "body": {
-            "type": "string",
-            "maxLength": 3000
+            "type": "string"
           },
           "facets": {
             "type": "array",

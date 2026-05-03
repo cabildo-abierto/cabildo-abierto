@@ -1,7 +1,7 @@
 import express, {Router} from 'express'
 import {handler, sessionAgent} from "#/utils/session-agent.js";
 import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
-import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/search.js";
+import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/users.js";
 import {createArticleHandler} from "#/services/write/article.js";
 import {
     createAccessRequest,
@@ -58,7 +58,7 @@ import {adminRoutes} from './admin-routes.js';
 import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
 import {createDataset} from '#/services/dataset/write.js';
-import {mainSearch} from "#/services/feed/search.js";
+import {mainSearch} from "#/services/search/contents.js";
 import {
     addToEnDiscusionHandler,
     removeFromEnDiscusionHandler

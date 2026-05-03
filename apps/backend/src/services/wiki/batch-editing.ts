@@ -6,7 +6,7 @@ import {
     CreateTopicVersionProps, EditPropsParams, EmbedContext, TopicForBatchEdit
 } from "@cabildo-abierto/api";
 import {Effect} from "effect";
-import {searchTopicsSkeleton} from "#/services/search/search.js";
+import {searchTopicsSkeleton} from "#/services/search/users.js";
 import {createTopicVersion, CreateTopicVersionError} from "#/services/write/topic.js";
 import {getTopic, InsufficientParamsError} from "#/services/wiki/topics.js";
 import {AppBskyEmbedImages} from "@atproto/api"

@@ -26,6 +26,7 @@ import * as ArCabildoabiertoActorDefs from './types/ar/cabildoabierto/actor/defs
 import * as ArCabildoabiertoDataDataset from './types/ar/cabildoabierto/data/dataset.js'
 import * as ArCabildoabiertoDataDocument from './types/ar/cabildoabierto/data/document.js'
 import * as ArCabildoabiertoEmbedPoll from './types/ar/cabildoabierto/embed/poll.js'
+import * as ArCabildoabiertoEmbedPollVote from './types/ar/cabildoabierto/embed/pollVote.js'
 import * as ArCabildoabiertoEmbedRecord from './types/ar/cabildoabierto/embed/record.js'
 import * as ArCabildoabiertoEmbedSelectionQuote from './types/ar/cabildoabierto/embed/selectionQuote.js'
 import * as ArCabildoabiertoEmbedVisualization from './types/ar/cabildoabierto/embed/visualization.js'
@@ -33,10 +34,8 @@ import * as ArCabildoabiertoNotificationListNotifications from './types/ar/cabil
 import * as ArCabildoabiertoWikiComment from './types/ar/cabildoabierto/wiki/comment.js'
 import * as ArCabildoabiertoWikiConsensus from './types/ar/cabildoabierto/wiki/consensus.js'
 import * as ArCabildoabiertoWikiDefs from './types/ar/cabildoabierto/wiki/defs.js'
-import * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion.js'
+import * as ArCabildoabiertoWikiTopic from './types/ar/cabildoabierto/wiki/topic.js'
 import * as ArCabildoabiertoWikiVote from './types/ar/cabildoabierto/wiki/vote.js'
-import * as ArCabildoabiertoWikiVoteAccept from './types/ar/cabildoabierto/wiki/voteAccept.js'
-import * as ArCabildoabiertoWikiVoteReject from './types/ar/cabildoabierto/wiki/voteReject.js'
 import * as ComAtprotoLabelDefs from './types/com/atproto/label/defs.js'
 import * as ComAtprotoRepoCreateRecord from './types/com/atproto/repo/createRecord.js'
 import * as ComAtprotoRepoDefs from './types/com/atproto/repo/defs.js'
@@ -63,6 +62,7 @@ export * as ArCabildoabiertoActorDefs from './types/ar/cabildoabierto/actor/defs
 export * as ArCabildoabiertoDataDataset from './types/ar/cabildoabierto/data/dataset.js'
 export * as ArCabildoabiertoDataDocument from './types/ar/cabildoabierto/data/document.js'
 export * as ArCabildoabiertoEmbedPoll from './types/ar/cabildoabierto/embed/poll.js'
+export * as ArCabildoabiertoEmbedPollVote from './types/ar/cabildoabierto/embed/pollVote.js'
 export * as ArCabildoabiertoEmbedRecord from './types/ar/cabildoabierto/embed/record.js'
 export * as ArCabildoabiertoEmbedSelectionQuote from './types/ar/cabildoabierto/embed/selectionQuote.js'
 export * as ArCabildoabiertoEmbedVisualization from './types/ar/cabildoabierto/embed/visualization.js'
@@ -70,10 +70,8 @@ export * as ArCabildoabiertoNotificationListNotifications from './types/ar/cabil
 export * as ArCabildoabiertoWikiComment from './types/ar/cabildoabierto/wiki/comment.js'
 export * as ArCabildoabiertoWikiConsensus from './types/ar/cabildoabierto/wiki/consensus.js'
 export * as ArCabildoabiertoWikiDefs from './types/ar/cabildoabierto/wiki/defs.js'
-export * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion.js'
+export * as ArCabildoabiertoWikiTopic from './types/ar/cabildoabierto/wiki/topic.js'
 export * as ArCabildoabiertoWikiVote from './types/ar/cabildoabierto/wiki/vote.js'
-export * as ArCabildoabiertoWikiVoteAccept from './types/ar/cabildoabierto/wiki/voteAccept.js'
-export * as ArCabildoabiertoWikiVoteReject from './types/ar/cabildoabierto/wiki/voteReject.js'
 export * as ComAtprotoLabelDefs from './types/com/atproto/label/defs.js'
 export * as ComAtprotoRepoCreateRecord from './types/com/atproto/repo/createRecord.js'
 export * as ComAtprotoRepoDefs from './types/com/atproto/repo/defs.js'
@@ -558,9 +556,94 @@ export class ArCabildoabiertoDataDocumentRecord {
 
 export class ArCabildoabiertoEmbedNS {
   _client: XrpcClient
+  pollVote: ArCabildoabiertoEmbedPollVoteRecord
 
   constructor(client: XrpcClient) {
     this._client = client
+    this.pollVote = new ArCabildoabiertoEmbedPollVoteRecord(client)
+  }
+}
+
+export class ArCabildoabiertoEmbedPollVoteRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: ArCabildoabiertoEmbedPollVote.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'ar.cabildoabierto.embed.pollVote',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: ArCabildoabiertoEmbedPollVote.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'ar.cabildoabierto.embed.pollVote',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoEmbedPollVote.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.embed.pollVote'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ArCabildoabiertoEmbedPollVote.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'ar.cabildoabierto.embed.pollVote'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'ar.cabildoabierto.embed.pollVote', ...params },
+      { headers },
+    )
   }
 }
 
@@ -588,19 +671,15 @@ export class ArCabildoabiertoWikiNS {
   _client: XrpcClient
   comment: ArCabildoabiertoWikiCommentRecord
   consensus: ArCabildoabiertoWikiConsensusRecord
-  topicVersion: ArCabildoabiertoWikiTopicVersionRecord
+  topic: ArCabildoabiertoWikiTopicRecord
   vote: ArCabildoabiertoWikiVoteRecord
-  voteAccept: ArCabildoabiertoWikiVoteAcceptRecord
-  voteReject: ArCabildoabiertoWikiVoteRejectRecord
 
   constructor(client: XrpcClient) {
     this._client = client
     this.comment = new ArCabildoabiertoWikiCommentRecord(client)
     this.consensus = new ArCabildoabiertoWikiConsensusRecord(client)
-    this.topicVersion = new ArCabildoabiertoWikiTopicVersionRecord(client)
+    this.topic = new ArCabildoabiertoWikiTopicRecord(client)
     this.vote = new ArCabildoabiertoWikiVoteRecord(client)
-    this.voteAccept = new ArCabildoabiertoWikiVoteAcceptRecord(client)
-    this.voteReject = new ArCabildoabiertoWikiVoteRejectRecord(client)
   }
 }
 
@@ -770,7 +849,7 @@ export class ArCabildoabiertoWikiConsensusRecord {
   }
 }
 
-export class ArCabildoabiertoWikiTopicVersionRecord {
+export class ArCabildoabiertoWikiTopicRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -781,10 +860,10 @@ export class ArCabildoabiertoWikiTopicVersionRecord {
     params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
     cursor?: string
-    records: { uri: string; value: ArCabildoabiertoWikiTopicVersion.Record }[]
+    records: { uri: string; value: ArCabildoabiertoWikiTopic.Record }[]
   }> {
     const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'ar.cabildoabierto.wiki.topicVersion',
+      collection: 'ar.cabildoabierto.wiki.topic',
       ...params,
     })
     return res.data
@@ -795,10 +874,10 @@ export class ArCabildoabiertoWikiTopicVersionRecord {
   ): Promise<{
     uri: string
     cid: string
-    value: ArCabildoabiertoWikiTopicVersion.Record
+    value: ArCabildoabiertoWikiTopic.Record
   }> {
     const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'ar.cabildoabierto.wiki.topicVersion',
+      collection: 'ar.cabildoabierto.wiki.topic',
       ...params,
     })
     return res.data
@@ -809,10 +888,10 @@ export class ArCabildoabiertoWikiTopicVersionRecord {
       ComAtprotoRepoCreateRecord.InputSchema,
       'collection' | 'record'
     >,
-    record: Un$Typed<ArCabildoabiertoWikiTopicVersion.Record>,
+    record: Un$Typed<ArCabildoabiertoWikiTopic.Record>,
     headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.topicVersion'
+    const collection = 'ar.cabildoabierto.wiki.topic'
     const res = await this._client.call(
       'com.atproto.repo.createRecord',
       undefined,
@@ -827,10 +906,10 @@ export class ArCabildoabiertoWikiTopicVersionRecord {
       ComAtprotoRepoPutRecord.InputSchema,
       'collection' | 'record'
     >,
-    record: Un$Typed<ArCabildoabiertoWikiTopicVersion.Record>,
+    record: Un$Typed<ArCabildoabiertoWikiTopic.Record>,
     headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.topicVersion'
+    const collection = 'ar.cabildoabierto.wiki.topic'
     const res = await this._client.call(
       'com.atproto.repo.putRecord',
       undefined,
@@ -847,7 +926,7 @@ export class ArCabildoabiertoWikiTopicVersionRecord {
     await this._client.call(
       'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: 'ar.cabildoabierto.wiki.topicVersion', ...params },
+      { collection: 'ar.cabildoabierto.wiki.topic', ...params },
       { headers },
     )
   }
@@ -931,172 +1010,6 @@ export class ArCabildoabiertoWikiVoteRecord {
       'com.atproto.repo.deleteRecord',
       undefined,
       { collection: 'ar.cabildoabierto.wiki.vote', ...params },
-      { headers },
-    )
-  }
-}
-
-export class ArCabildoabiertoWikiVoteAcceptRecord {
-  _client: XrpcClient
-
-  constructor(client: XrpcClient) {
-    this._client = client
-  }
-
-  async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
-  ): Promise<{
-    cursor?: string
-    records: { uri: string; value: ArCabildoabiertoWikiVoteAccept.Record }[]
-  }> {
-    const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'ar.cabildoabierto.wiki.voteAccept',
-      ...params,
-    })
-    return res.data
-  }
-
-  async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
-  ): Promise<{
-    uri: string
-    cid: string
-    value: ArCabildoabiertoWikiVoteAccept.Record
-  }> {
-    const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'ar.cabildoabierto.wiki.voteAccept',
-      ...params,
-    })
-    return res.data
-  }
-
-  async create(
-    params: OmitKey<
-      ComAtprotoRepoCreateRecord.InputSchema,
-      'collection' | 'record'
-    >,
-    record: Un$Typed<ArCabildoabiertoWikiVoteAccept.Record>,
-    headers?: Record<string, string>,
-  ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.voteAccept'
-    const res = await this._client.call(
-      'com.atproto.repo.createRecord',
-      undefined,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: 'application/json', headers },
-    )
-    return res.data
-  }
-
-  async put(
-    params: OmitKey<
-      ComAtprotoRepoPutRecord.InputSchema,
-      'collection' | 'record'
-    >,
-    record: Un$Typed<ArCabildoabiertoWikiVoteAccept.Record>,
-    headers?: Record<string, string>,
-  ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.voteAccept'
-    const res = await this._client.call(
-      'com.atproto.repo.putRecord',
-      undefined,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: 'application/json', headers },
-    )
-    return res.data
-  }
-
-  async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
-    headers?: Record<string, string>,
-  ): Promise<void> {
-    await this._client.call(
-      'com.atproto.repo.deleteRecord',
-      undefined,
-      { collection: 'ar.cabildoabierto.wiki.voteAccept', ...params },
-      { headers },
-    )
-  }
-}
-
-export class ArCabildoabiertoWikiVoteRejectRecord {
-  _client: XrpcClient
-
-  constructor(client: XrpcClient) {
-    this._client = client
-  }
-
-  async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
-  ): Promise<{
-    cursor?: string
-    records: { uri: string; value: ArCabildoabiertoWikiVoteReject.Record }[]
-  }> {
-    const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'ar.cabildoabierto.wiki.voteReject',
-      ...params,
-    })
-    return res.data
-  }
-
-  async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
-  ): Promise<{
-    uri: string
-    cid: string
-    value: ArCabildoabiertoWikiVoteReject.Record
-  }> {
-    const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'ar.cabildoabierto.wiki.voteReject',
-      ...params,
-    })
-    return res.data
-  }
-
-  async create(
-    params: OmitKey<
-      ComAtprotoRepoCreateRecord.InputSchema,
-      'collection' | 'record'
-    >,
-    record: Un$Typed<ArCabildoabiertoWikiVoteReject.Record>,
-    headers?: Record<string, string>,
-  ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.voteReject'
-    const res = await this._client.call(
-      'com.atproto.repo.createRecord',
-      undefined,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: 'application/json', headers },
-    )
-    return res.data
-  }
-
-  async put(
-    params: OmitKey<
-      ComAtprotoRepoPutRecord.InputSchema,
-      'collection' | 'record'
-    >,
-    record: Un$Typed<ArCabildoabiertoWikiVoteReject.Record>,
-    headers?: Record<string, string>,
-  ): Promise<{ uri: string; cid: string }> {
-    const collection = 'ar.cabildoabierto.wiki.voteReject'
-    const res = await this._client.call(
-      'com.atproto.repo.putRecord',
-      undefined,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: 'application/json', headers },
-    )
-    return res.data
-  }
-
-  async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
-    headers?: Record<string, string>,
-  ): Promise<void> {
-    await this._client.call(
-      'com.atproto.repo.deleteRecord',
-      undefined,
-      { collection: 'ar.cabildoabierto.wiki.voteReject', ...params },
       { headers },
     )
   }

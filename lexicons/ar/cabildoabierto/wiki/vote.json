@@ -5,6 +5,7 @@
       "main": {
         "type": "record",
         "key": "tid",
+        "description": "Un voto sobre un consenso, fuente o comentario en la wiki.",
         "record": {
           "type": "object",
           "required": ["subject", "createdAt"],

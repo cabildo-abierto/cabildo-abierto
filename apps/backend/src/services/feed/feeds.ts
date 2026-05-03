@@ -1,6 +1,6 @@
 import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {getTopics} from "#/services/wiki/topics.js";
-import {searchTopics} from "#/services/search/search.js";
+import {searchTopics} from "#/services/search/users.js";
 import {FeedView, GetFeedOutput} from "@cabildo-abierto/api";
 import {getTopicSynonyms, getTopicTitle} from "#/services/wiki/utils.js";
 import {Agent} from "#/utils/session-agent.js";
