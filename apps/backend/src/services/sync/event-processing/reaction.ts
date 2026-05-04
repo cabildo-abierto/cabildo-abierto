@@ -4,7 +4,7 @@ import {
     isRepost
 } from "@cabildo-abierto/utils";
 import {Transaction} from "kysely";
-import {ReactionRecord, ReactionType} from "#/services/reactions/reactions.js";
+import {ReactionRecord, ReactionType} from "#/services/votes/votes.js";
 import {v4 as uuidv4} from 'uuid'
 import {isTopicVote} from "#/services/wiki/votes.js";
 import {unique} from "@cabildo-abierto/utils";

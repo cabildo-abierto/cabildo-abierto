@@ -1,11 +1,11 @@
-import {ArCabildoabiertoFeedArticle, EmbedContext, ImagePayload} from ".."
+import {ArCabildoabiertoWikiEmbed, EmbedContext, ImagePayload} from ".."
 
 export type CreateDraftParams = {
     id?: string
     collection: "ar.cabildoabierto.feed.article" | "app.bsky.feed.post"
     text: string
     title: string
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    embeds?: ArCabildoabiertoWikiEmbed.View[]
     embedContexts?: EmbedContext[]
     description: string | null
     previewImage: ImagePayload
@@ -15,7 +15,7 @@ export type Draft = {
     text: string
     summary: string
     title?: string
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    embeds?: ArCabildoabiertoWikiEmbed.View[]
     embedContexts?: EmbedContext[]
     collection: string
     createdAt: Date

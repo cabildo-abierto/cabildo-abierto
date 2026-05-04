@@ -41,7 +41,7 @@
           "type": "array",
           "items": {
             "type": "ref",
-            "ref": "ar.cabildoabierto.feed.article#articleEmbedView"
+            "ref": "ar.cabildoabierto.wiki.embed#view"
           }
         },
         "quotedContentAuthor": {

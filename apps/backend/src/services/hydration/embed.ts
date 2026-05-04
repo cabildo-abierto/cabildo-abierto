@@ -19,7 +19,7 @@ import {
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoEmbedRecord,
     ArCabildoabiertoEmbedRecordWithMedia,
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopic,
     ArCabildoabiertoFeedArticle
 } from "@cabildo-abierto/api"
 import { Effect } from "effect";
@@ -203,7 +203,7 @@ const hydrateSelectionQuoteEmbedView = (ctx: AppContext, embed: ArCabildoabierto
             return null
         }
 
-        const record = caData.record ? JSON.parse(caData.record) as ArCabildoabiertoFeedArticle.Record | ArCabildoabiertoWikiTopicVersion.Record : null
+        const record = caData.record ? JSON.parse(caData.record) as ArCabildoabiertoFeedArticle.Record | ArCabildoabiertoWikiTopic.Record : null
 
         let text: string | null = null
         let format: string | null = null
@@ -226,7 +226,7 @@ const hydrateSelectionQuoteEmbedView = (ctx: AppContext, embed: ArCabildoabierto
         } else if (isTopicVersion(collection) && caData.topicId) {
             title = getTopicTitle({
                 id: caData.topicId,
-                props: caData.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
+                props: caData.props as ArCabildoabiertoWikiTopic.TopicProp[]
             })
         }
         if (!title) {

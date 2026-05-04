@@ -13,15 +13,17 @@ datasource db {
 }
 
 model Record {
-  uri        String    @id @unique
-  cid        String?
-  collection String
-  rkey       String
-  authorId   String
-  indexedAt  DateTime  @db.Timestamptz(3)
-  createdAt  DateTime? @db.Timestamptz(3)
-  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
-  deleted    Boolean   @default(false)
+  uri              String    @id @unique
+  cid              String?
+  collection       String
+  rkey             String
+  authorId         String
+  indexedAt        DateTime  @db.Timestamptz(3)
+  createdAt        DateTime  @db.Timestamptz(3)
+  trustedCreatedAt DateTime? @db.Timestamptz(3)
+
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  deleted   Boolean  @default(false)
 
   record Json?
 
@@ -30,7 +32,6 @@ model Record {
   dataset    Dataset?
   reaction   Reaction?    @relation("Reaction_uriToRecord")
   hasReacted HasReacted[]
-  profileOf  User?        @relation("User_CAProfileUriToRecord")
   polls      Poll[]
 
   notificationsGenerated Notification[]
@@ -64,6 +65,8 @@ model Blob {
 
 model Consensus {
   id                String             @id
+  topicId           String
+  topic             Topic              @relation(fields: [topicId], references: [id])
   currentVersionUri String             @unique
   currentVersion    ConsensusVersion   @relation("currentVersion", fields: [currentVersionUri], references: [uri])
   versions          ConsensusVersion[] @relation("consensusVersions")
@@ -277,8 +280,8 @@ model Topic {
   currentVersion   TopicVersion?     @relation("Topic_currentVersionIdToTopicVersion", fields: [currentVersionId], references: [uri])
   category         TopicToCategory[]
   topicVersions    TopicVersion[]    @relation("TopicVersion_topicIdToTopic")
-
-  polls Poll[]
+  consensus        Consensus[]
+  polls            Poll[]
 }
 
 // categoría de temas, con sus links con otras categorías para el grafo
@@ -343,6 +346,10 @@ model User {
   did    String  @id @db.VarChar(255)
   handle String?
 
+  avatar      String?
+  description String?
+  displayName String?
+
   email           String?
   emailVerified   Boolean                  @default(false)
   mailingListSubs MailingListSubscription?
@@ -352,13 +359,8 @@ model User {
   hasAccess   Boolean   @default(false)
   dateOfBirth DateTime? @db.Date
 
-  avatar      String?
-  description String?
-  displayName String?
-
   inCA               Boolean         @default(false)
   platformAdmin      Boolean         @default(false)
-  CAProfileUri       String?         @unique
   orgValidation      String?
   userValidationHash String?         @unique
   moderationState    ModerationState @default(Ok)
@@ -371,7 +373,6 @@ model User {
   inviteUsed         InviteCode?          @relation("InviteCode_usedByDidToUser")
   notifications      Notification[]
   records            Record[]             @relation("Record_authorIdToUser")
-  caProfileRecord    Record?              @relation("User_CAProfileUriToRecord", fields: [CAProfileUri], references: [uri])
   validationRequests VerificationRequest?
   interests          UserInterest[]       @relation("UserInterests")
 
@@ -385,7 +386,6 @@ model User {
   events           Event[]
   userConfigValues UserConfigValue[]
 
-  @@index([CAProfileUri])
   @@index([createdAt])
   @@index([did, inCA])
   @@index([handle])

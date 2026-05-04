@@ -5,7 +5,7 @@ import {processContentsBatch} from "#/services/sync/event-processing/content.js"
 import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kysely";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopic, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
     addRecordsToDBBatch,
     InsertRecordError,
@@ -24,10 +24,10 @@ import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
 
 
-export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> = {
-    validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopicVersion.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopicVersion.Record>, ValidationError> => {
+export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTopic.Record> = {
+    validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopic.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopic.Record>, ValidationError> => {
         return Effect.gen(function* () {
-            const res = ArCabildoabiertoWikiTopicVersion.validateRecord(record)
+            const res = ArCabildoabiertoWikiTopic.validateRecord(record)
             if (!res.success) {
                 return yield* Effect.succeed(res)
             } else {
@@ -38,7 +38,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
                     for (const p of polls) {
                         const key = yield* getPollKey(p.poll)
                         if (key != p.key) {
-                            const error: ValidationResult<ArCabildoabiertoWikiTopicVersion.Record> = {
+                            const error: ValidationResult<ArCabildoabiertoWikiTopic.Record> = {
                                 success: false,
                                 error: new Error("Invalid poll.")
                             }
@@ -52,7 +52,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
     },
     addRecordsToDB: (
         ctx: AppContext,
-        records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+        records: RefAndRecord<ArCabildoabiertoWikiTopic.Record>[],
         reprocess: boolean = false
     ): Effect.Effect<number, ProcessCreateError | InvalidValueError> => {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
@@ -133,7 +133,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
 
 const createJobs = (
     ctx: AppContext,
-    records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+    records: RefAndRecord<ArCabildoabiertoWikiTopic.Record>[],
     inserted: { uri: string, topicId: string }[] | undefined, topics: { id: string }[],
     jobs: JobToAdd[]
 ): Effect.Effect<void, AddJobError> => {
@@ -254,7 +254,7 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
 })
 
 
-function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopicVersion.Record }[]) {
+function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopic.Record }[]) {
     const topics = new Map<string, { id: string, lastEdit_tz: Date }>()
     records.forEach(r => {
         const id = r.record.id

@@ -11,7 +11,7 @@ import {
 import {updateTopicPopularities} from "#/services/wiki/references/popularity.js";
 import {updateContentsText} from "#/services/wiki/content.js";
 import {getTimestamp, updateTimestamp} from "#/services/admin/status.js";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {getTopicCategories, getTopicTitle} from "#/services/wiki/utils.js";
 import {getCollectionFromUri, isArticle, isTopicVersion} from "@cabildo-abierto/utils";
 import {isReactionCollection} from "#/utils/type-utils.js";
@@ -474,7 +474,7 @@ export async function getTopicsReferencedInText(ctx: AppContext, text: string): 
                 count: match.rank,
                 title: getTopicTitle({
                     id: match.topicId,
-                    props: match.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
+                    props: match.props as ArCabildoabiertoWikiTopic.TopicProp[]
                 }),
             })
         }
@@ -524,7 +524,7 @@ export const updateDiscoverFeedIndex = (
         const values: { categoryId: string, contentId: string, created_at: Date }[] = []
         for (const c of contents) {
             const cats = unique(c.mentionedTopicsProps.flatMap(p => {
-                return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+                return getTopicCategories(p.props as ArCabildoabiertoWikiTopic.TopicProp[])
             }))
             for (const cat of cats) {
                 if (c.created_at_tz) {

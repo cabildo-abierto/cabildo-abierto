@@ -1,6 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {getTopicCategories} from "#/services/wiki/utils.js";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {unique} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {DBInsertError, DBSelectError} from "#/utils/errors.js";
@@ -29,7 +29,7 @@ export const updateTopicsCategoriesOnTopicsChange = (
 
     const topicCategories = topics.map((t) => ({
         topicId: t.id,
-        categoryIds: getTopicCategories(t.props as unknown as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+        categoryIds: getTopicCategories(t.props as unknown as ArCabildoabiertoWikiTopic.TopicProp[])
     }))
 
     const allCategoryIds = unique(topicCategories.flatMap(({categoryIds}) => categoryIds))
@@ -83,7 +83,7 @@ export async function updateTopicsCategories(ctx: AppContext) {
 
     const topicCategories = topics.map((t) => ({
         topicId: t.id,
-        categoryIds: getTopicCategories(t.props as unknown as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+        categoryIds: getTopicCategories(t.props as unknown as ArCabildoabiertoWikiTopic.TopicProp[])
     }))
 
     const t1 = Date.now();

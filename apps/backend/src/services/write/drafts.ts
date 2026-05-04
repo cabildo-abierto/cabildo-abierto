@@ -29,7 +29,7 @@ type DraftQueryResult = {
 
 
 type EmbedsInDB = {
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    embeds?: ArCabildoabiertoWikiEmbed.EmbedView[]
     sbPaths?: (string | null)[][]
 }
 
@@ -56,7 +56,7 @@ const hydrateDraftPreview = (d: Omit<DraftQueryResult, "embeds">): Effect.Effect
 const hydrateDraft = (d: DraftQueryResult, signedUrls: Map<string, string>): Effect.Effect<Draft | null, never, DataPlane> => Effect.gen(function* () {
     const embeds: EmbedsInDB | null = d.embeds as EmbedsInDB | null
 
-    let embedViews: ArCabildoabiertoFeedArticle.ArticleEmbedView[] | undefined = undefined
+    let embedViews: ArCabildoabiertoWikiEmbed.EmbedView[] | undefined = undefined
     if (embeds && embeds.embeds && embeds.sbPaths && embeds.embeds.length == embeds.sbPaths.length) {
         embedViews = []
         for (let i = 0; i < embeds.embeds?.length; i++) {

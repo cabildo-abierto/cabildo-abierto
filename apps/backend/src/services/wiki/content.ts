@@ -2,7 +2,7 @@ import {AppContext} from "#/setup.js";
 import {TextAndFormat} from "#/services/wiki/references/references.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
 import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
-import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getCollectionFromUri, getDidFromUri, isPost} from "@cabildo-abierto/utils";
 import {fetchTextBlobs} from "#/services/blob.js";
@@ -209,7 +209,7 @@ export async function resetContentsFormat(ctx: AppContext) {
 
         const values = contents.map(c => {
             const recordStr = c.record
-            const record = recordStr ? JSON.parse(recordStr) as ArCabildoabiertoFeedArticle.Record | ArCabildoabiertoWikiTopicVersion.Record : null
+            const record = recordStr ? JSON.parse(recordStr) as ArCabildoabiertoFeedArticle.Record | ArCabildoabiertoWikiTopic.Record : null
             if (!record) {
                 console.log("Warning: " + c.uri + " no tiene el registro.")
                 return null

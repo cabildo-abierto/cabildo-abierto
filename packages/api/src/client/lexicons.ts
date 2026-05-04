@@ -1905,154 +1905,6 @@ export const schemaDict = {
       },
     },
   },
-  ArCabildoabiertoEmbedRecord: {
-    lexicon: 1,
-    id: 'ar.cabildoabierto.embed.record',
-    description:
-      'Una representación de un registro embebido (ej. en un post). Se usa para citar posts o artículos completos.',
-    defs: {
-      view: {
-        type: 'object',
-        required: ['record'],
-        properties: {
-          record: {
-            type: 'union',
-            refs: [
-              'lex:ar.cabildoabierto.embed.record#viewRecord',
-              'lex:ar.cabildoabierto.embed.record#viewArticleRecord',
-              'lex:app.bsky.embed.record#viewNotFound',
-              'lex:app.bsky.embed.record#viewBlocked',
-              'lex:app.bsky.embed.record#viewDetached',
-            ],
-          },
-        },
-      },
-      viewRecord: {
-        type: 'object',
-        required: ['uri', 'cid', 'author', 'value', 'indexedAt'],
-        properties: {
-          uri: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          cid: {
-            type: 'string',
-            format: 'cid',
-          },
-          author: {
-            type: 'ref',
-            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
-          },
-          value: {
-            type: 'unknown',
-            description: 'The record data itself.',
-          },
-          labels: {
-            type: 'array',
-            items: {
-              type: 'ref',
-              ref: 'lex:com.atproto.label.defs#label',
-            },
-          },
-          replyCount: {
-            type: 'integer',
-          },
-          repostCount: {
-            type: 'integer',
-          },
-          likeCount: {
-            type: 'integer',
-          },
-          quoteCount: {
-            type: 'integer',
-          },
-          embeds: {
-            type: 'array',
-            items: {
-              type: 'union',
-              refs: [
-                'lex:app.bsky.embed.images#view',
-                'lex:app.bsky.embed.video#view',
-                'lex:app.bsky.embed.external#view',
-                'lex:ar.cabildoabierto.embed.record#view',
-                'lex:ar.cabildoabierto.embed.recordWithMedia#view',
-              ],
-            },
-          },
-          indexedAt: {
-            type: 'string',
-            format: 'datetime',
-          },
-        },
-      },
-      viewArticleRecord: {
-        type: 'object',
-        required: ['uri', 'cid', 'author', 'value', 'indexedAt'],
-        properties: {
-          uri: {
-            type: 'string',
-            format: 'at-uri',
-          },
-          cid: {
-            type: 'string',
-            format: 'cid',
-          },
-          author: {
-            type: 'ref',
-            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
-          },
-          value: {
-            type: 'unknown',
-            description: 'The record data itself.',
-          },
-          labels: {
-            type: 'array',
-            items: {
-              type: 'ref',
-              ref: 'lex:com.atproto.label.defs#label',
-            },
-          },
-          replyCount: {
-            type: 'integer',
-          },
-          repostCount: {
-            type: 'integer',
-          },
-          likeCount: {
-            type: 'integer',
-          },
-          quoteCount: {
-            type: 'integer',
-          },
-          embeds: {
-            type: 'array',
-            items: {
-              type: 'union',
-              refs: [
-                'lex:app.bsky.embed.images#view',
-                'lex:app.bsky.embed.video#view',
-                'lex:app.bsky.embed.external#view',
-                'lex:ar.cabildoabierto.embed.record#view',
-                'lex:ar.cabildoabierto.embed.recordWithMedia#view',
-              ],
-            },
-          },
-          preview: {
-            type: 'ref',
-            ref: 'lex:app.bsky.embed.images#viewImage',
-          },
-          indexedAt: {
-            type: 'string',
-            format: 'datetime',
-          },
-          summary: {
-            type: 'string',
-            description: 'El resumen del artículo que se muestra en el muro.',
-          },
-        },
-      },
-    },
-  },
   ArCabildoabiertoEmbedSelectionQuote: {
     lexicon: 1,
     id: 'ar.cabildoabierto.embed.selectionQuote',
@@ -2101,7 +1953,7 @@ export const schemaDict = {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.feed.article#articleEmbedView',
+              ref: 'lex:ar.cabildoabierto.wiki.embed#view',
             },
           },
           quotedContentAuthor: {
@@ -2607,7 +2459,7 @@ export const schemaDict = {
               type: 'array',
               items: {
                 type: 'ref',
-                ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+                ref: 'lex:ar.cabildoabierto.wiki.embed',
               },
             },
             reply: {
@@ -2637,6 +2489,43 @@ export const schemaDict = {
           parent: {
             type: 'ref',
             ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+      view: {
+        type: 'object',
+        required: [],
+        properties: {
+          text: {
+            type: 'string',
+          },
+          facets: {
+            type: 'array',
+            description: 'Menciones y urls en el formato de Bluesky.',
+            items: {
+              type: 'ref',
+              ref: 'lex:app.bsky.richtext.facet',
+            },
+          },
+          embeds: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.embed#view',
+            },
+          },
+          reply: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.comment#replyRef',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+            description:
+              'Fecha de creación del comentario declarada por el autor.',
+          },
+          isChallenge: {
+            type: 'boolean',
           },
         },
       },
@@ -2680,7 +2569,7 @@ export const schemaDict = {
               type: 'array',
               items: {
                 type: 'ref',
-                ref: 'lex:ar.cabildoabierto.feed.article#articleEmbed',
+                ref: 'lex:ar.cabildoabierto.wiki.embed',
               },
             },
             createdAt: {
@@ -2743,6 +2632,48 @@ export const schemaDict = {
           subject: {
             type: 'ref',
             ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+    },
+  },
+  ArCabildoabiertoWikiEmbed: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.wiki.embed',
+    defs: {
+      main: {
+        type: 'object',
+        required: ['value', 'index'],
+        properties: {
+          value: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization',
+              'lex:app.bsky.embed.images',
+              'lex:ar.cabildoabierto.embed.poll',
+            ],
+          },
+          index: {
+            type: 'integer',
+          },
+        },
+      },
+      view: {
+        type: 'object',
+        required: ['value', 'index'],
+        properties: {
+          value: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.embed.visualization',
+              'lex:ar.cabildoabierto.embed.visualization#view',
+              'lex:app.bsky.embed.images#view',
+              'lex:ar.cabildoabierto.embed.poll',
+              'lex:ar.cabildoabierto.embed.poll#view',
+            ],
+          },
+          index: {
+            type: 'integer',
           },
         },
       },
@@ -3181,7 +3112,7 @@ export const schemaDict = {
       },
       label: {
         type: 'string',
-        knownValues: ['approve', 'reject', 'upvote', 'downvote'],
+        knownValues: ['accept', 'reject', 'upvote', 'downvote'],
       },
     },
   },
@@ -3834,7 +3765,6 @@ export const ids = {
   ArCabildoabiertoDataDocument: 'ar.cabildoabierto.data.document',
   ArCabildoabiertoEmbedPoll: 'ar.cabildoabierto.embed.poll',
   ArCabildoabiertoEmbedPollVote: 'ar.cabildoabierto.embed.pollVote',
-  ArCabildoabiertoEmbedRecord: 'ar.cabildoabierto.embed.record',
   ArCabildoabiertoEmbedSelectionQuote: 'ar.cabildoabierto.embed.selectionQuote',
   ArCabildoabiertoEmbedVisualization: 'ar.cabildoabierto.embed.visualization',
   ArCabildoabiertoNotificationListNotifications:
@@ -3842,6 +3772,7 @@ export const ids = {
   ArCabildoabiertoWikiComment: 'ar.cabildoabierto.wiki.comment',
   ArCabildoabiertoWikiConsensus: 'ar.cabildoabierto.wiki.consensus',
   ArCabildoabiertoWikiDefs: 'ar.cabildoabierto.wiki.defs',
+  ArCabildoabiertoWikiEmbed: 'ar.cabildoabierto.wiki.embed',
   ArCabildoabiertoWikiTopic: 'ar.cabildoabierto.wiki.topic',
   ArCabildoabiertoWikiVote: 'ar.cabildoabierto.wiki.vote',
   ComAtprotoLabelDefs: 'com.atproto.label.defs',

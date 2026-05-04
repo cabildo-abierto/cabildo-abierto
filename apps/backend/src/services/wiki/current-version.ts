@@ -1,11 +1,11 @@
 import {max, unique} from "@cabildo-abierto/utils"
-import {ArCabildoabiertoWikiTopicVersion, EditorStatus} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic, EditorStatus} from "@cabildo-abierto/api"
 import {getUri} from "@cabildo-abierto/utils"
 import {CAHandlerNoAuth} from "#/utils/handler.js"
 import {getTopicCategories, getTopicTitle} from "#/services/wiki/utils.js"
 import {AppContext} from "#/setup.js"
 import {DB} from "../../../prisma/generated/types.js"
-import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js"
+import {getTopicVersionStatusFromReactions} from "#/services/votes/votes.js";
 import {Transaction} from "kysely"
 import {produce} from "immer"
 import {jsonArrayFrom} from "kysely/helpers/postgres"
@@ -30,7 +30,7 @@ export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey
 }
 
 
-function addAuthorVoteToVoteCounts(authorStatus: EditorStatus, voteCounts?: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus["voteCounts"]): ArCabildoabiertoWikiTopicVersion.TopicVersionStatus["voteCounts"] {
+function addAuthorVoteToVoteCounts(authorStatus: EditorStatus, voteCounts?: ArCabildoabiertoWikiTopic.TopicVersionStatus["voteCounts"]): ArCabildoabiertoWikiTopic.TopicVersionStatus["voteCounts"] {
     if (voteCounts) {
         return produce(voteCounts, draft => {
             const idx = voteCounts
@@ -68,7 +68,7 @@ export function isVersionAccepted(
     ctx: AppContext,
     authorStatus: EditorStatus,
     protection: EditorStatus,
-    voteCounts?: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus["voteCounts"]
+    voteCounts?: ArCabildoabiertoWikiTopic.TopicVersionStatus["voteCounts"]
 ) {
     // TO DO (!) considerar la protección
     const voteCountsWithAuthor = addAuthorVoteToVoteCounts(
@@ -83,7 +83,7 @@ export function isVersionAccepted(
 }
 
 
-export function getTopicCurrentVersion(status: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus[]): number | null {
+export function getTopicCurrentVersion(status: ArCabildoabiertoWikiTopic.TopicVersionStatus[]): number | null {
     for (let i = status.length - 1; i >= 0; i--) {
         if(status[i].accepted) return i
     }
@@ -110,7 +110,7 @@ export const getTopicTitleHandler: CAHandlerNoAuth<{ params: { id: string } }, {
     }
     return {
         data: {
-            title: getTopicTitle({id: topic.id, props: topic.props as ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined})
+            title: getTopicTitle({id: topic.id, props: topic.props as ArCabildoabiertoWikiTopic.TopicProp[] | undefined})
         }
     }
 }
@@ -229,7 +229,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                     })
                     categoryUpdates.push({
                         id,
-                        categories: getTopicCategories(versions[currentVersion].props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
+                        categories: getTopicCategories(versions[currentVersion].props as ArCabildoabiertoWikiTopic.TopicProp[])
                     })
                 }
             }

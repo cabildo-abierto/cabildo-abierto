@@ -22,7 +22,7 @@
             "type": "array",
             "items": {
               "type": "ref",
-              "ref": "ar.cabildoabierto.feed.article#articleEmbed"
+              "ref": "ar.cabildoabierto.wiki.embed"
             }
           },
           "reply": { "type": "ref", "ref": "#replyRef" },
@@ -43,6 +43,36 @@
       "properties": {
         "root": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
         "parent": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "facets": {
+          "type": "array",
+          "description": "Menciones y urls en el formato de Bluesky.",
+          "items": { "type": "ref", "ref": "app.bsky.richtext.facet" }
+        },
+        "embeds": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "ar.cabildoabierto.wiki.embed#view"
+          }
+        },
+        "reply": { "type": "ref", "ref": "#replyRef" },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime",
+          "description": "Fecha de creación del comentario declarada por el autor."
+        },
+        "isChallenge": {
+          "type": "boolean"
+        }
       }
     }
   }

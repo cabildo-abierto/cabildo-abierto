@@ -29,10 +29,7 @@ import {getRepoCounts} from "#/services/admin/repo.js";
 import {getRegisteredJobs, startJob, getWorkerState, pauseWorker, resumeWorker} from "#/jobs/worker.js";
 import {clearRedisHandler} from "#/services/redis/cache.js";
 import {getAdminNotificationCounts, getServerStatus, getUsersSyncStatus} from "#/services/admin/status.js";
-import {getUserMonthPayments, getUserMonthsStats} from "#/services/monetization/user-months.js";
-import {getTopAuthors} from "#/services/monetization/author-dashboard.js";
 import {findUsersInFollows} from "#/services/admin/find-users.js";
-import {getAllCAFeed} from "#/services/feed/all.js";
 import {getMailSubscriptions, getSentEmails, getSubscribersNotReceivedTemplate} from "#/services/emails/subscriptions.js"
 import {getSMTP2GOStats} from "#/services/emails/smtp2go.js";
 import {
@@ -43,13 +40,12 @@ import {
 } from "#/services/emails/template.js";
 import {sendBulkEmails} from "#/services/emails/sending.js";
 import {deleteJobApplication, getJobApplications, markJobApplicationSeen} from "#/services/admin/jobs.js";
-import { getAllTopicEditsFeed } from "#/services/feed/topic.js";
 import {getPendingModeration} from "#/services/moderation/status.js";
 import {batchEditHandler, editTopicHandler} from "#/services/wiki/batch-editing.js";
 import {unverifyOwnEmail} from "#/services/user/email-verification.js";
 
 
-export const adminRoutes = (ctx: AppContext): Router => {
+export const adminRouter = (ctx: AppContext): Router => {
     const router = express.Router()
 
     router.post(
@@ -139,10 +135,6 @@ export const adminRoutes = (ctx: AppContext): Router => {
 
     router.get("/sync-status", makeAdminHandler(ctx, getUsersSyncStatus))
 
-    router.get("/user-months", makeAdminHandler(ctx, getUserMonthsStats))
-
-    router.get("/user-month-payments/:id", makeAdminHandler(ctx, getUserMonthPayments))
-
     router.get("/read-sessions-plot", makeAdminHandler(ctx, getReadSessionsPlot))
 
     router.get("/registered-jobs", makeAdminHandler(ctx, getRegisteredJobs))
@@ -152,10 +144,6 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.post("/pause-worker", makeEffAdminHandler(ctx, pauseWorker))
 
     router.post("/resume-worker", makeEffAdminHandler(ctx, resumeWorker))
-
-    router.get("/top-authors", makeAdminHandler(ctx, getTopAuthors))
-
-    router.get("/all-ca-feed", makeEffAdminHandler(ctx, getAllCAFeed))
 
     router.post("/find-users/:handle", makeAdminHandler(ctx, findUsersInFollows))
 
@@ -216,11 +204,6 @@ export const adminRoutes = (ctx: AppContext): Router => {
         res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`)
         res.send(data.file)
     })
-
-    router.get(
-        '/all-topic-edits-feed',
-        makeEffAdminHandler(ctx, getAllTopicEditsFeed)
-    )
 
     router.get(
         '/pending-moderation',

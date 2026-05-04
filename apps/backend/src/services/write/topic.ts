@@ -5,7 +5,7 @@ import {
     ArCabildoabiertoEmbedPoll,
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoFeedArticle,
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopic,
     CreateTopicVersionProps,
     EmbedContext
 } from "@cabildo-abierto/api"
@@ -99,7 +99,7 @@ export class PollIdMismatchError {
 
 export function getEmbedsFromEmbedViews(
     agent: SessionAgent,
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
+    embeds?: ArCabildoabiertoWikiEmbed.EmbedView[],
     embedContexts?: EmbedContext[]
 ): Effect.Effect<
     ArCabildoabiertoFeedArticle.ArticleEmbed[],
@@ -208,14 +208,14 @@ export class InvalidTopicPropError {
 }
 
 
-export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error | InvalidTopicPropError | PollIdMismatchError | CIDEncodeError> {
+export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopic.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error | InvalidTopicPropError | PollIdMismatchError | CIDEncodeError> {
 
     return Effect.gen(function* () {
-        let validatedProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined = undefined
+        let validatedProps: ArCabildoabiertoWikiTopic.TopicProp[] | undefined = undefined
         if(props){
             validatedProps = []
             for(let i = 0; i < props.length; i++){
-                const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(props[i])
+                const res = ArCabildoabiertoWikiTopic.validateTopicProp(props[i])
                 if(!res.success){
                     return yield* Effect.fail(new InvalidTopicPropError(props[i].name))
                 } else {
@@ -235,7 +235,7 @@ export function createTopicVersionATProto(agent: SessionAgent, {id, text, format
             embedContexts
         )
 
-        const record: ArCabildoabiertoWikiTopicVersion.Record = {
+        const record: ArCabildoabiertoWikiTopic.Record = {
             $type: "ar.cabildoabierto.wiki.topicVersion",
             text: text && blob ? blob : undefined,
             format,

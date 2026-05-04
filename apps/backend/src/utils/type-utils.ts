@@ -1,5 +1,5 @@
 import {$Typed} from "@atproto/api";
-import {ReactionType} from "#/services/reactions/reactions.js";
+import {ReactionType} from "#/services/votes/votes.js";
 import {
     ArCabildoabiertoFeedDefs
 } from "@cabildo-abierto/api"

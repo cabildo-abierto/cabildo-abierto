@@ -1,15 +1,11 @@
-import {EditorStatus, ValidationState} from "@cabildo-abierto/api";
+import {VerificationState} from "@cabildo-abierto/api";
 
 
 export type CAProfileDetailed = {
     did: string
-    caProfile: string | null
-    followersCount: number | null
-    followsCount: number | null
-    articlesCount: number
     editsCount: number
-    editorStatus: EditorStatus
-    verification: ValidationState
+    consensusCount: number
+    verification: VerificationState
 }
 
 
@@ -19,14 +15,8 @@ export type CAProfile = {
     handle: string
     displayName: string | null
     createdAt: Date
-    caProfile: string | null
-    editorStatus: EditorStatus
-    verification: ValidationState
+    verification: VerificationState
     description: string | null
-    viewer: {
-        following: string | null,
-        followedBy: string | null
-    }
 }
 
 

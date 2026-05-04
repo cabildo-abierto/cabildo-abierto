@@ -13,7 +13,7 @@ import {LexicalSelection} from "@/components/editor/selection/lexical-selection"
 import {ProcessedLexicalState} from "@/components/editor/selection/processed-lexical-state";
 import {contentUrl} from "@/components/utils/react/url";
 
-async function validSelectionForComment(text: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
+async function validSelectionForComment(text: string, embeds: ArCabildoabiertoWikiEmbed.EmbedView[], format: string, selection: MarkdownSelection | LexicalSelection): Promise<MarkdownSelection | null> {
     try {
         const markdown = anyEditorStateToMarkdown(text, format, embeds)
         const state = markdownToEditorState(
@@ -49,7 +49,7 @@ type SelectionQuoteProps = {
     showContext?: boolean
     quotedContent: string
     quotedText: string
-    quotedContentEmbeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    quotedContentEmbeds?: ArCabildoabiertoWikiEmbed.EmbedView[]
     quotedContentAuthor?: ArCabildoabiertoActorDefs.ProfileViewBasic
     quotedTextFormat?: string
     quotedContentTitle?: string

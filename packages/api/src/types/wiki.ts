@@ -1,4 +1,4 @@
-import { ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopicVersion } from "../client";
+import { ArCabildoabiertoWikiEmbed, ArCabildoabiertoWikiTopic } from "../client";
 import {EmbedContext} from "./editor";
 
 
@@ -6,17 +6,17 @@ export type CreateTopicVersionProps = {
     id: string
     text?: string
     format?: string,
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props?: ArCabildoabiertoWikiTopic.TopicProp[]
     message?: string,
     claimsAuthorship?: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    embeds?: ArCabildoabiertoWikiEmbed.View[]
     embedContexts?: EmbedContext[]
 }
 
 
 export type TopicForBatchEdit = {
     id: string
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props: ArCabildoabiertoWikiTopic.TopicProp[]
     propsToDelete: string[]
 }
 
@@ -33,5 +33,5 @@ export type BatchEdit = {
 }
 
 
-export type DiffParams = {currentText: string, currentFormat: string, markdown: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[]}
+export type DiffParams = {currentText: string, currentFormat: string, markdown: string, embeds: ArCabildoabiertoWikiEmbed.View[]}
 export type DiffOutput = {charsAdded: number, charsDeleted: number}

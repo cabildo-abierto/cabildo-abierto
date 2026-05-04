@@ -1,4 +1,4 @@
-import { AppBskyEmbedExternal, ArCabildoabiertoEmbedVisualization, ArCabildoabiertoFeedArticle } from "../client";
+import { AppBskyEmbedExternal, ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiEmbed } from "../client";
 import {$Typed} from "../client/util";
 
 
@@ -32,7 +32,7 @@ export type CreateArticleProps = {
     format: string
     text: string
     enDiscusion: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    embeds?: ArCabildoabiertoWikiEmbed.View[]
     embedContexts?: EmbedContext[]
     draftId?: string
     uri?: string

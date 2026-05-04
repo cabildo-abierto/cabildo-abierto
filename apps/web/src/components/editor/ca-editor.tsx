@@ -76,7 +76,7 @@ export type SettingsProps = {
     allowVisualizations: boolean
     markdownShortcuts: boolean
     shouldPreserveNewLines: boolean
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    embeds?: ArCabildoabiertoWikiEmbed.EmbedView[]
     embedContexts?: EmbedContext[]
 
     useSuperscript: boolean

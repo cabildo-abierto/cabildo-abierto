@@ -1,5 +1,5 @@
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
-import { ValidationState } from "@cabildo-abierto/api";
+import { VerificationState } from "@cabildo-abierto/api";
 import {CheckCircleIcon, UserCircleIcon} from "@phosphor-icons/react";
 import {topicUrl} from "@/components/utils/react/url";
 
@@ -12,7 +12,7 @@ const ValidationIcon = ({
 }: {
     fontSize?: number
     handle?: string
-    verification: ValidationState
+    verification: VerificationState
     color?: string
 }) => {
     const moreInfoHref = topicUrl("Cabildo Abierto: Verificación de cuentas")

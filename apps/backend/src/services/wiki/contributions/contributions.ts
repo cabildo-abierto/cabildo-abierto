@@ -4,7 +4,7 @@ import {BlobRef} from "#/services/hydration/hydrate.js";
 import {nodesCharDiff} from "#/services/wiki/diff.js";
 import {decompress} from "@cabildo-abierto/editor-core";
 import {unique} from "@cabildo-abierto/utils";
-import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
+import {getTopicVersionStatusFromReactions} from "#/services/votes/votes.js";
 import {getNumWords} from "#/services/wiki/content.js";
 import {sql} from "kysely";
 import {EditorStatus} from "@cabildo-abierto/api";

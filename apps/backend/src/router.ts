@@ -1,39 +1,21 @@
 import express, {Router} from 'express'
-import {handler, sessionAgent} from "#/utils/session-agent.js";
+import {handler} from "#/utils/session-agent.js";
 import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
-import {searchTopics, searchUsers, searchUsersAndTopics} from "#/services/search/users.js";
-import {createArticleHandler} from "#/services/write/article.js";
+import {searchTopics} from "#/services/search/users.js";
 import {
     createAccessRequest,
     getInviteCodesToShare,
     updateATPermissions,
-    loginHandler,
-    oauthCallbackHandler,
-    signupHandler, getUserConfigHandler
+    getUserConfigHandler
 } from "#/services/user/access.js";
-import {getFeedByKind} from "#/services/feed/feed.js";
-import {getProfileFeed} from "#/services/feed/profile/profile.js";
 import {
-    deleteSession,
-    followHandler,
     getAccount,
     getProfileHandler,
     getSessionHandler,
-    saveNewEmail,
     setSeenTutorialHandler,
-    unfollowHandler,
     updateAlgorithmConfig,
     updateProfileHandler
 } from "#/services/user/users.js";
-import {sendVerificationEmail, verifyEmailFromToken} from "#/services/user/email-verification.js";
-import {
-    requestPasswordRecovery,
-    resetPassword,
-    sendAccountRecoveryEmail,
-    verifyRecoverPasswordToken
-} from "#/services/user/recovery.js";
-import {createPost} from "#/services/write/post.js";
-import {addLike, removeLike, removeRepost, repost} from "#/services/reactions/reactions.js";
 import {getThread} from "#/services/thread/thread.js";
 import {getLikes, getReposts, getQuotes} from "#/services/thread/get-details.js";
 import {
@@ -45,69 +27,48 @@ import {
     getTopicsMentioned,
     getTopicsMentionedByContent
 } from "#/services/wiki/topics.js";
-import {
-    getTopicFeed,
-    getTopicMentionsInTopicsFeed
-} from "#/services/feed/topic.js";
 import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
 import {createTopicVersionHandler} from "#/services/write/topic.js";
 import path from "path";
-import {cancelEditVoteHandler, getTopicVersionVotesHandler, voteEditHandler} from "#/services/wiki/votes.js";
-import {adminRoutes} from './admin-routes.js';
+import {cancelEditVoteHandler, getTopicVersionVotesHandler, wikiVoteHandler} from "#/services/votes/votes.js";
+import {adminRouter} from './services/admin/router.js';
 import {fetchURLMetadataHandler, getContentMetadata} from '#/services/write/metadata.js';
 import {getDatasetHandler, getDatasets, getTopicsDatasetHandler} from '#/services/dataset/read.js';
 import {createDataset} from '#/services/dataset/write.js';
-import {mainSearch} from "#/services/search/contents.js";
-import {
-    addToEnDiscusionHandler,
-    removeFromEnDiscusionHandler
-} from "#/services/feed/inicio/discusion.js";
 import {
     attemptMPVerification,
     cancelValidationRequest,
-    createValidationRequest,
+    createVerificationRequest,
     getValidationRequest
 } from '#/services/user/validation.js';
 import {
     createPreference,
     getDonationHistory,
-    getFundingStateHandler,
     getMonthlyValueHandler,
     processPayment
-} from '#/services/monetization/donations.js';
-import {storeReadSessionHandler} from '#/services/monetization/read-tracking.js';
+} from '#/services/donations/donations.js';
 import {getTopicTitleHandler} from '#/services/wiki/current-version.js';
 import {getTopicHistoryHandler} from "#/services/wiki/history.js";
 import {getNewVersionDiff, getTopicVersionChanges} from '#/services/wiki/changes.js';
 import {getNotifications, getUnreadNotificationsCount} from '#/services/notifications/notifications.js';
-import {
-    createConversation,
-    getChatAvailability,
-    getConversation,
-    getConversations,
-    markConversationRead,
-    sendMessage
-} from "#/services/messaging/conversations.js";
 import {getDraft, getDrafts, saveDraft} from '#/services/write/drafts.js';
 import {getNextMeeting} from '#/services/admin/meetings.js';
-import {getAuthorDashboardHandler} from '#/services/monetization/author-dashboard.js';
 import {getFollowSuggestions, setNotInterested} from '#/services/user/follow-suggestions.js';
 import {AppContext} from "#/setup.js";
 import {jobApplicationHandler} from '#/services/admin/jobs.js';
 import {getTopicsDataForElectionVisualizationHandler} from "#/services/wiki/election.js";
 import {getKnownPropsHandler} from "#/services/wiki/known-props.js";
 import {syncHandler} from "#/services/sync/sync-user.js";
-import {getInterestsHandler, newInterestHandler, removeInterestHandler} from "#/services/feed/discover/interests.js";
-import {getCustomFeeds, getTopicFeeds} from "#/services/feed/feeds.js";
-import {getCustomFeed} from "#/services/feed/custom-feed.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
 import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
-import {changeHandle, verifyCustomDomainHandle} from "#/services/user/handle.js";
 import { getUserGuideStatus } from "#/services/user/user-guide.js";
 import {recordUserEventHandler} from "#/services/user/events.js";
+import {searchRouter} from "#/services/search/router.js";
+import {authRouter} from "#/services/auth/router.js";
+import { getInterestsHandler, newInterestHandler, removeInterestHandler } from "./services/user/interests.js";
 
 
 const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent, {}) => {
@@ -118,90 +79,10 @@ const serverStatusRouteHandler: CAHandlerNoAuth<{}, string> = async (ctx, agent,
 export const createRouter = (ctx: AppContext): Router => {
     const router = express.Router()
 
-    router.get('/client-metadata.json', (req, res, next) => {
-        res.setHeader('Content-Type', 'application/json')
-        return res.sendFile(path.join(process.cwd(), 'public', 'client-metadata.json'))
-    })
-
     router.get('/version.txt', (req, res, next) => {
         res.setHeader('Content-Type', 'text/plain')
         return res.sendFile(path.join(process.cwd(), 'public', 'version.txt'))
     })
-
-    router.post('/login', makeEffHandlerNoAuth(ctx, loginHandler))
-
-    router.get('/oauth/callback', oauthCallbackHandler(ctx))
-
-    router.post('/logout', async (req, res) => {
-        const agent = await sessionAgent(req, res, ctx)
-        if (agent.hasSession()) {
-            await deleteSession(ctx, agent)
-        }
-
-        return res.status(200).json({})
-    })
-
-    router.post("/signup", makeEffHandlerNoAuth(ctx, signupHandler))
-
-    router.get(
-        '/feed/:kind',
-        handler(makeEffHandlerNoAuth(ctx, getFeedByKind))
-    )
-
-    router.get(
-        '/profile-feed/:handleOrDid/:kind',
-        handler(makeEffHandlerNoAuth(ctx, getProfileFeed))
-    )
-
-    router.post(
-        '/follow',
-        handler(makeEffHandler(ctx, followHandler))
-    )
-
-    router.post(
-        '/unfollow',
-        handler(makeEffHandler(ctx, unfollowHandler))
-    )
-
-    router.post(
-        '/article',
-        handler(makeEffHandler(ctx, createArticleHandler))
-    )
-
-    router.post(
-        '/post',
-        handler(makeEffHandler(ctx, createPost))
-    )
-
-    router.get(
-        '/search-users/:query',
-        handler(makeEffHandlerNoAuth(ctx, searchUsers))
-    )
-
-    router.get(
-        '/search-users-and-topics/:query',
-        handler(makeEffHandlerNoAuth(ctx, searchUsersAndTopics))
-    )
-
-    router.post(
-        '/like',
-        handler(makeEffHandler(ctx, addLike))
-    )
-
-    router.post(
-        '/remove-like/:rkey',
-        handler(makeEffHandler(ctx, removeLike))
-    )
-
-    router.post(
-        '/repost',
-        handler(makeEffHandler(ctx, repost))
-    )
-
-    router.post(
-        '/remove-repost/:rkey',
-        handler(makeEffHandler(ctx, removeRepost))
-    )
 
     router.get(
         '/thread/:handleOrDid/:collection/:rkey',
@@ -261,18 +142,8 @@ export const createRouter = (ctx: AppContext): Router => {
     )
 
     router.get(
-        '/topic-feed',
-        makeEffHandlerNoAuth(ctx, getTopicFeed)
-    )
-
-    router.get(
         '/topic-discussion',
         makeEffHandlerNoAuth(ctx, getTopicDiscussionHandler)
-    )
-
-    router.get(
-        '/topic-mentions-in-topics-feed',
-        makeEffHandlerNoAuth(ctx, getTopicMentionsInTopicsFeed)
     )
 
     router.get(
@@ -326,14 +197,9 @@ export const createRouter = (ctx: AppContext): Router => {
         makeEffHandlerNoAuth(ctx, searchTopics)
     )
 
-    router.get(
-        '/search/:kind/:q',
-        makeEffHandlerNoAuth(ctx, mainSearch)
-    )
-
     router.post(
         '/vote-edit/:vote/:did/:rkey/:cid',
-        makeEffHandler(ctx, voteEditHandler)
+        makeEffHandler(ctx, wikiVoteHandler)
     )
 
     router.post(
@@ -361,14 +227,6 @@ export const createRouter = (ctx: AppContext): Router => {
         makeEffHandler(ctx, createDataset)
     )
 
-    router.post('/set-en-discusion/:collection/:rkey',
-        makeEffHandler(ctx, addToEnDiscusionHandler)
-    )
-
-    router.post('/unset-en-discusion/:collection/:rkey',
-        makeEffHandler(ctx, removeFromEnDiscusionHandler)
-    )
-
     router.post(
         '/get-topics-mentioned',
         makeHandlerNoAuth(ctx, getTopicsMentioned)
@@ -386,7 +244,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post(
         '/validation-request',
-        handler(makeHandler(ctx, createValidationRequest))
+        handler(makeHandler(ctx, createVerificationRequest))
     )
 
     router.get(
@@ -405,29 +263,15 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get('/monthly-value', makeHandlerNoAuth(ctx, getMonthlyValueHandler))
 
-    router.get('/funding-state', makeEffHandlerNoAuth(ctx, getFundingStateHandler))
-
     router.post('/donate/create-preference', makeHandlerNoAuth(ctx, createPreference))
 
     router.post('/notify-payment', makeHandlerNoAuth(ctx, processPayment))
-
-    router.post('/read-session/:did/:collection/:rkey', makeEffHandlerNoAuth(ctx, storeReadSessionHandler))
 
     router.get("/topic-title/:id", makeHandlerNoAuth(ctx, getTopicTitleHandler))
 
     router.get("/notifications/list", makeEffHandler(ctx, getNotifications))
 
     router.get("/notifications/unread-count", makeEffHandler(ctx, getUnreadNotificationsCount))
-
-    router.get("/conversations/list", makeEffHandler(ctx, getConversations))
-
-    router.get("/conversation/:convoIdOrHandle", makeEffHandler(ctx, getConversation))
-
-    router.post("/send-message", makeHandler(ctx, sendMessage))
-
-    router.post("/conversation/create/:did", makeHandler(ctx, createConversation))
-
-    router.post("/conversation/read/:convoId", makeHandler(ctx, markConversationRead))
 
     router.post("/access-request", makeEffHandlerNoAuth(ctx, createAccessRequest))
 
@@ -444,8 +288,6 @@ export const createRouter = (ctx: AppContext): Router => {
     router.get("/content-metadata/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getContentMetadata))
 
     router.post("/algorithm-config", makeHandler(ctx, updateAlgorithmConfig))
-
-    router.get("/author-dashboard", makeHandler(ctx, getAuthorDashboardHandler))
 
     router.post("/delete-ca-profile", makeHandler(ctx, deleteCAProfile))
 
@@ -476,11 +318,6 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/known-props", makeHandlerNoAuth(ctx, getKnownPropsHandler))
 
-    router.get("/chat-availability/:handle", makeHandlerNoAuth(
-        ctx,
-        getChatAvailability
-    ))
-
     router.post("/attempt-mp-verification", makeHandler(ctx, attemptMPVerification))
 
     router.post("/sync", makeEffHandler(ctx, syncHandler))
@@ -498,27 +335,6 @@ export const createRouter = (ctx: AppContext): Router => {
             timestamp: Date.now()
         })
     })
-
-    router.post("/email", makeEffHandler(ctx, saveNewEmail))
-
-    router.post("/handle", makeEffHandler(ctx, changeHandle))
-
-    router.post("/handle/verify-domain", makeEffHandler(ctx, verifyCustomDomainHandle))
-
-    router.post("/send-verification-email", makeEffHandler(ctx, sendVerificationEmail))
-
-    router.get("/verify-email", makeEffHandler(ctx, verifyEmailFromToken))
-
-    router.post("/request-password-recovery", handler(makeEffHandlerNoAuth(ctx, requestPasswordRecovery)))
-    router.get("/recover-password-token", handler(makeEffHandlerNoAuth(ctx, verifyRecoverPasswordToken)))
-    router.post("/reset-password", handler(makeEffHandlerNoAuth(ctx, resetPassword)))
-    router.post("/send-account-recovery-email", handler(makeEffHandlerNoAuth(ctx, sendAccountRecoveryEmail)))
-
-    router.get("/custom-feeds", makeHandlerNoAuth(ctx, getCustomFeeds))
-
-    router.get("/topic-feeds", makeEffHandlerNoAuth(ctx, getTopicFeeds))
-
-    router.get("/custom-feed/:did/:rkey", makeEffHandlerNoAuth(ctx, getCustomFeed))
 
     router.get("/poll/:id", makeEffHandlerNoAuth(ctx, getPollHandler))
 
@@ -538,7 +354,10 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.post("/event", makeEffHandler(ctx, recordUserEventHandler))
 
-    router.use(adminRoutes(ctx))
+    router.use(adminRouter(ctx))
+    router.use(authRouter(ctx))
+    router.use(searchRouter(ctx))
+
 
     return router
 }

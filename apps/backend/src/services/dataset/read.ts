@@ -2,7 +2,7 @@ import {decompress} from "@cabildo-abierto/editor-core";
 import {
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api"
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
@@ -16,7 +16,7 @@ import {getObjectKey} from "#/utils/object.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 
-type TopicProp = ArCabildoabiertoWikiTopicVersion.TopicProp
+type TopicProp = ArCabildoabiertoWikiTopic.TopicProp
 
 export const hydrateTopicsDatasetView = (ctx: AppContext, filters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[]): Effect.Effect<$Typed<ArCabildoabiertoDataDataset.TopicsDatasetView> | null, never, DataPlane> => Effect.gen(function* () {
     const dataplane = yield* DataPlane
@@ -45,7 +45,7 @@ export const hydrateTopicsDatasetView = (ctx: AppContext, filters: $Typed<ArCabi
 
             if(props){
                 props.forEach(p => {
-                    const valid = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
+                    const valid = ArCabildoabiertoWikiTopic.validateTopicProp(p)
                     if(valid.success && "value" in valid.value.value){
                         row[p.name] = valid.value.value.value
                     }

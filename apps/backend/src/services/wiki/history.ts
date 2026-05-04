@@ -1,7 +1,7 @@
 import {EffHandlerNoAuth} from "#/utils/handler.js"
 import {Agent} from "#/utils/session-agent.js"
 import {
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopic,
 } from "@cabildo-abierto/api"
 import {getCollectionFromUri, getDidFromUri} from "@cabildo-abierto/utils"
 import {editorStatusToEn} from "#/services/wiki/topics.js"
@@ -9,12 +9,12 @@ import {AppContext} from "#/setup.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
+import {getTopicVersionStatusFromReactions} from "#/services/votes/votes.js";
 
 
-export function getTopicVersionViewer(viewerDid: string, reactions: {uri: string}[]): ArCabildoabiertoWikiTopicVersion.VersionInHistory["viewer"] {
+export function getTopicVersionViewer(viewerDid: string, reactions: {uri: string}[]): ArCabildoabiertoWikiTopic.VersionInHistory["viewer"] {
     let accept: string | undefined
     let reject: string | undefined
 
@@ -39,7 +39,7 @@ export const getTopicHistory = (
     ctx: AppContext,
     id: string,
     agent?: Agent
-): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicHistory, DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoWikiTopic.TopicHistory, DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
     const did = agent?.hasSession() ? agent.did : null
 
     const versions = yield* Effect.tryPromise({
@@ -108,9 +108,9 @@ export const getTopicHistory = (
             editorStatusToEn(author.editorStatus),
             v.protection)
 
-        const props = Array.isArray(v.props) ? v.props as unknown as ArCabildoabiertoWikiTopicVersion.TopicProp[] : []
+        const props = Array.isArray(v.props) ? v.props as unknown as ArCabildoabiertoWikiTopic.TopicProp[] : []
 
-        const view: ArCabildoabiertoWikiTopicVersion.VersionInHistory = {
+        const view: ArCabildoabiertoWikiTopic.VersionInHistory = {
             $type: "ar.cabildoabierto.wiki.topicVersion#versionInHistory",
             uri: v.uri,
             cid: v.cid,
@@ -136,7 +136,7 @@ export const getTopicHistory = (
         return view
     })))
 
-    const topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory = {
+    const topicHistory: ArCabildoabiertoWikiTopic.TopicHistory = {
         id,
         versions: versionViews.filter(v => v != null)
     }
@@ -145,7 +145,7 @@ export const getTopicHistory = (
 
 export const getTopicHistoryHandler: EffHandlerNoAuth<{
     params: { id: string }
-}, ArCabildoabiertoWikiTopicVersion.TopicHistory> = (ctx, agent, {params}) => {
+}, ArCabildoabiertoWikiTopic.TopicHistory> = (ctx, agent, {params}) => {
     const {id} = params
     return Effect.provideServiceEffect(
         getTopicHistory(ctx, id, agent).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener el historial de versiones."))),

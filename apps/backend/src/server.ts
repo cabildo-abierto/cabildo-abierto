@@ -3,7 +3,7 @@ import events from 'node:events'
 import type http from 'node:http'
 import express, {type Express} from 'express'
 import {env} from '#/lib/env.js'
-import {createRouter} from '#/routes/routes.js'
+import {createRouter} from '#/router.js'
 import cors from 'cors'
 import {MirrorMachine} from "#/services/sync/mirror-machine.js";
 import {AppContext, Role, setupAppContext} from "#/setup.js";

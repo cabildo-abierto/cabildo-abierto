@@ -10,7 +10,7 @@ import {
   type OmitKey,
 } from '../../../../util'
 import type * as AppBskyRichtextFacet from '../../../app/bsky/richtext/facet.js'
-import type * as ArCabildoabiertoFeedArticle from '../feed/article.js'
+import type * as ArCabildoabiertoWikiEmbed from './embed.js'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
@@ -22,7 +22,7 @@ export interface Main {
   text: string
   /** Menciones y urls en el formato de Bluesky. */
   facets?: AppBskyRichtextFacet.Main[]
-  embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
+  embeds?: ArCabildoabiertoWikiEmbed.Main[]
   reply?: ReplyRef
   /** Fecha de creación del comentario declarada por el autor. */
   createdAt: string
@@ -60,4 +60,26 @@ export function isReplyRef<V>(v: V) {
 
 export function validateReplyRef<V>(v: V) {
   return validate<ReplyRef & V>(v, id, hashReplyRef)
+}
+
+export interface View {
+  $type?: 'ar.cabildoabierto.wiki.comment#view'
+  text?: string
+  /** Menciones y urls en el formato de Bluesky. */
+  facets?: AppBskyRichtextFacet.Main[]
+  embeds?: ArCabildoabiertoWikiEmbed.View[]
+  reply?: ReplyRef
+  /** Fecha de creación del comentario declarada por el autor. */
+  createdAt?: string
+  isChallenge?: boolean
+}
+
+const hashView = 'view'
+
+export function isView<V>(v: V) {
+  return is$typed(v, id, hashView)
+}
+
+export function validateView<V>(v: V) {
+  return validate<View & V>(v, id, hashView)
 }

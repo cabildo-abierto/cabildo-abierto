@@ -7,7 +7,7 @@ export type Consensus = {
     title: string
     /** Texto plano en markdown (sin títulos `#`): párrafos, enlaces `[t](url)` y embeds por índice. */
     bodyMarkdown: string
-    bodyEmbeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
+    bodyEmbeds: ArCabildoabiertoWikiEmbed.EmbedView[]
     acceptVotes: number
     rejectVotes: number
     opinions: number
@@ -17,7 +17,7 @@ export type Consensus = {
 }
 
 /** Misma visualización por sectores que en el tema «Inflación» (dataset INDEC agregado en CA). */
-const PROTOTYPE_IPC_POR_SECTOR_VIS: ArCabildoabiertoFeedArticle.ArticleEmbedView["value"] = {
+const PROTOTYPE_IPC_POR_SECTOR_VIS: ArCabildoabiertoWikiEmbed.EmbedView["value"] = {
     $type: "ar.cabildoabierto.embed.visualization",
     caption: "Inflación (IPC) por sectores a nivel nacional (2016 a junio 2025)",
     dataSource: {

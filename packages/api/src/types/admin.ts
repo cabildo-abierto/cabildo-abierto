@@ -1,5 +1,5 @@
 import { ArCabildoabiertoActorDefs } from "../client";
-import {ValidationState} from "./session";
+import {VerificationState} from "./session";
 
 export type StatsDashboard = {
     counts: {
@@ -34,7 +34,7 @@ export type StatsDashboardUser = {
     ca_created_at: Date | null
     authorStatus: string | null
     lastReadSession: Date | null
-    verification: ValidationState
+    verification: VerificationState
 }
 
 

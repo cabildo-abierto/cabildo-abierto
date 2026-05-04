@@ -14,7 +14,7 @@ import {
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoFeedArticle,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api"
 import {FeedSkeleton} from "#/services/feed/feed.js";
 import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
@@ -136,7 +136,7 @@ export const hydrateFullArticleView = (ctx: AppContext, agent: SessionAgent | No
             count: m.count ?? 0,
             title: getTopicTitle({
                 id: m.id,
-                props: m.props as ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined
+                props: m.props as ArCabildoabiertoWikiTopic.TopicProp[] | undefined
             }),
             id: m.id
         })),
@@ -270,7 +270,7 @@ export const hydrateArticleView = (ctx: AppContext, agent: SessionAgent | NoSess
 })
 
 
-type Content = $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> | $Typed<ArCabildoabiertoDataDataset.DatasetView>
+type Content = $Typed<ArCabildoabiertoFeedDefs.PostView> | $Typed<ArCabildoabiertoFeedDefs.ArticleView> | $Typed<ArCabildoabiertoFeedDefs.FullArticleView> | $Typed<ArCabildoabiertoWikiTopic.TopicViewBasic> | $Typed<ArCabildoabiertoDataDataset.DatasetView>
 
 
 export const hydrateContent = (

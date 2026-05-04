@@ -1,12 +1,9 @@
-import {CAHandler, CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
-import {MercadoPagoConfig, Payment, Preference} from "mercadopago";
+import {CAHandler, CAHandlerNoAuth} from "#/utils/handler.js";
+import {MercadoPagoConfig, Preference} from "mercadopago";
 import {AppContext} from "#/setup.js";
 import {v4 as uuidv4} from "uuid";
 import {env} from "#/lib/env.js";
-import {
-    createValidationRequest,
-    setValidationRequestResult
-} from "#/services/user/validation.js";
+import {acceptVerificationRequestFromPayment, createVerificationRequest} from "#/services/user/validation.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 
@@ -17,17 +14,17 @@ type Donation = {
 
 export type DonationHistory = Donation[]
 
-export const getDonationHistory: CAHandler<{}, DonationHistory> = async (ctx, agent, {}) => {
+export const getDonationHistory: CAHandler<{}, DonationHistory> = async (ctx, agent) => {
     const subscriptions = await ctx.kysely
         .selectFrom("Donation")
-        .select(["created_at_tz", "amount"])
+        .select(["createdAt", "amount"])
         .where("userById", "=", agent.did)
         .where("transactionId", "is not", null)
         .execute()
 
     return {
         data: subscriptions.map(s => ({
-            date: s.created_at_tz,
+            date: s.createdAt,
             amount: s.amount
         }))
     }
@@ -64,10 +61,10 @@ export const getMonthlyActiveUsers = (
             )
             .where((eb) =>
                 eb.exists(eb
-                    .selectFrom("ReadSession")
-                    .select("ReadSession.userId")
-                    .whereRef("ReadSession.userId", "=", "User.did")
-                    .where("ReadSession.created_at_tz", ">", lastMonthStart)
+                    .selectFrom("Record")
+                    .select("Record.uri")
+                    .whereRef("Record.authorId", "=", "User.did")
+                    .where("Record.createdAt", ">", lastMonthStart)
                 )
             )
             .executeTakeFirstOrThrow(),
@@ -76,50 +73,6 @@ export const getMonthlyActiveUsers = (
 
     return result.count
 })
-
-
-export const getGrossIncome = (ctx: AppContext) => {
-    return Effect.tryPromise({
-        try: () => ctx.kysely
-            .selectFrom("Donation")
-            .where("Donation.transactionId", "is not", null)
-            .select((eb) => eb.fn.sum<number>("amount").as("total"))
-            .executeTakeFirstOrThrow().then(x => x.total),
-        catch: (error) => new DBSelectError(error)
-    })
-}
-
-export const getTotalSpending = (ctx: AppContext) => {
-    return Effect.tryPromise({
-        try: () => ctx.kysely
-            .selectFrom("UserMonth")
-            .select((eb) => eb.fn.sum<number>("value").as("total"))
-            .where("UserMonth.wasActive", "=", true)
-            .executeTakeFirstOrThrow().then(x => x.total ?? 0),
-        catch: (error) => new DBSelectError(error)
-    })
-}
-
-
-export const getFundingStateHandler: EffHandlerNoAuth<{}, number> = (
-    ctx) => Effect.gen(function* () {
-    const [mau, grossIncome, incomeSpent] = yield* Effect.all([
-        getMonthlyActiveUsers(ctx, true),
-        getGrossIncome(ctx),
-        getTotalSpending(ctx)
-    ], {concurrency: "unbounded"})
-
-    const monthlyValue = getMonthlyValue()
-    const months = 6
-
-    const state = Math.max(Math.min((grossIncome - incomeSpent) / (mau * monthlyValue * months), 1), 0) * 100
-    yield* Effect.annotateCurrentSpan({monthlyValue, mau, grossIncome, incomeSpent, months, state})
-
-    return state
-}).pipe(
-    Effect.withSpan("getFundingState"),
-    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener el estado del financiamiento."))
-)
 
 
 export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: boolean }, { id: string }> = async (ctx, agent, {amount, verification}) => {
@@ -171,7 +124,7 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
                 .insertInto("Donation")
                 .values([{
                     id: uuidv4(),
-                    created_at_tz: new Date(),
+                    createdAt: new Date(),
                     userById: agent.hasSession() ? agentDid : undefined,
                     amount: amount,
                     mpPreferenceId: result.id
@@ -179,7 +132,7 @@ export const createPreference: CAHandlerNoAuth<{ amount: number, verification?: 
                 .execute()
 
             if(verification && agent.hasSession()) {
-                await createValidationRequest(ctx, agent, {
+                await createVerificationRequest(ctx, agent, {
                     tipo: "persona",
                     metodo: "mp"
                 })
@@ -275,7 +228,7 @@ export const processPayment: CAHandlerNoAuth<MPNotificationBody, {}> = async (ct
             .execute()
 
         if(donation.userById){
-            await acceptValidationRequestFromPayment(ctx, donation.userById, paymentDetails.paymentId)
+            await acceptVerificationRequestFromPayment(ctx, donation.userById, paymentDetails.paymentId)
         }
 
     } else {
@@ -287,58 +240,3 @@ export const processPayment: CAHandlerNoAuth<MPNotificationBody, {}> = async (ct
 }
 
 
-export async function acceptValidationRequestFromPayment(ctx: AppContext, userId: string, paymentId: string): Promise<{error?: string}> {
-    const request = await ctx.kysely
-        .selectFrom("ValidationRequest")
-        .select(["id", "result"])
-        .where("ValidationRequest.result", "!=", "Aceptada")
-        .where("userId", "=", userId)
-        .executeTakeFirst()
-
-    if(request) {
-        const client = new MercadoPagoConfig({
-            accessToken: process.env.MP_ACCESS_TOKEN!,
-            options: { timeout: 5000 },
-        })
-
-        const payment = new Payment(client)
-        const res = await payment.get({id: paymentId})
-
-        let dni: number | undefined = undefined
-        const id = res.payer?.identification
-        if(id) {
-            if(id.type == "CUIT" || id.type == "CUIL"){
-                try {
-                    const dniStr = id.number?.slice(1, id.number.length-2)
-                    if(!dniStr) {
-                        return {error: "Ocurrió un error al procesar el CUIT."}
-                    }
-                    dni = parseInt(dniStr)
-                } catch {
-                    return {error: "Ocurrió un error al procesar el CUIT."}
-                }
-            } else {
-                return {error: `Tipo de identificación desconocido: ${id.type}`}
-            }
-        } else {
-            return {error: "No se pudo obtener la identificación."}
-        }
-
-        if(dni) {
-            await setValidationRequestResult(
-                ctx,
-                {
-                    id: request.id,
-                    result: "accept",
-                    reason: "found payment",
-                    dni
-                }
-            )
-            return {}
-        } else {
-            return {error: "No se pudo obtener la identificación."}
-        }
-    } else {
-        return {error: "No se encontró la solicitud."}
-    }
-}

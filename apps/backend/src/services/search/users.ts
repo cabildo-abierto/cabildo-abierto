@@ -1,5 +1,5 @@
 import {EffHandlerNoAuth} from "#/utils/handler.js";
-import {AppBskyActorDefs, ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {AppBskyActorDefs, ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {hydrateProfileView, hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {cleanText} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
@@ -213,7 +213,7 @@ export function searchTopicsSkeleton(ctx: AppContext, query: string, categories?
 
 export const searchTopics: EffHandlerNoAuth<
     {params: {q: string}, query: {c: string | string[] | undefined, cursor?: string, limit?: number}},
-    ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
+    ArCabildoabiertoWikiTopic.TopicViewBasic[]
 > = (ctx, agent, {params, query}) => Effect.provideServiceEffect(Effect.gen(function* () {
     let {q} = params;
     const categories = query.c == undefined ? undefined : (typeof query.c == "string" ? [query.c] : query.c);
@@ -238,7 +238,7 @@ export const searchTopics: EffHandlerNoAuth<
     Effect.withSpan("searchTopics", {attributes: params})
 ), DataPlane, makeDataPlane(ctx, agent))
 
-type UserOrTopicBasic = $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+type UserOrTopicBasic = $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic> | $Typed<ArCabildoabiertoWikiTopic.TopicViewBasic>
 
 function calculateScore(query: string, text: string): number {
     return dice(cleanText(query), cleanText(text))

@@ -1,0 +1,43 @@
+{
+  "lexicon": 1,
+  "id": "ar.cabildoabierto.wiki.embed",
+  "defs": {
+    "main": {
+      "type": "object",
+      "required": ["value", "index"],
+      "properties": {
+        "value": {
+          "type": "union",
+          "refs": [
+            "ar.cabildoabierto.embed.visualization",
+            "app.bsky.embed.images",
+            "ar.cabildoabierto.embed.poll"
+          ]
+        },
+        "index": {
+          "type": "integer"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": ["value", "index"],
+      "properties": {
+        "value": {
+          "type": "union",
+          "refs": [
+            "ar.cabildoabierto.embed.visualization",
+            "ar.cabildoabierto.embed.visualization#view",
+            "app.bsky.embed.images#view",
+            "ar.cabildoabierto.embed.poll",
+            "ar.cabildoabierto.embed.poll#view"
+          ]
+        },
+        "index": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
+

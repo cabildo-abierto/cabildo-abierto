@@ -1,5 +1,3 @@
-import {AppBskyFeedDefs} from "@atproto/api"
-import {FeedConfig} from "./feed";
 
 export type AuthorStatus = {
     isAuthor: boolean
@@ -7,54 +5,12 @@ export type AuthorStatus = {
 }
 
 
-export type FeedFormatOption = "Todos" | "Artículos"
-export type EnDiscusionMetric = "Me gustas" | "Interacciones" | "Popularidad relativa" | "Recientes"
-export type EnDiscusionTime = "Último día" | "Última semana" | "Último mes" | "Último año"
-export type FollowingFeedFilter = "Todos" | "Solo Cabildo Abierto"
-export type TTOption = EnDiscusionTime | "Ediciones recientes"
-
-
-export type FeedTab =  {
-    config: FeedConfig
-    id: string
-    pinned: boolean
-    createdAt: Date
-}
-
-
-export type MainPageFeedsState = {
-    tabs: FeedTab[]
-    selected: number | null
-}
-
-
-export type AlgorithmConfig = {
-    following?: {
-        filter?: FollowingFeedFilter
-        format?: FeedFormatOption
-    }
-    enDiscusion?: {
-        time?: EnDiscusionTime
-        metric?: EnDiscusionMetric
-        format?: FeedFormatOption
-    }
-    topicMentions?: {
-        time?: EnDiscusionTime
-        metric?: EnDiscusionMetric
-        format?: FeedFormatOption
-    }
-    mainPageFeeds?: MainPageFeedsState
-    tt?: {
-        time?: TTOption
-    }
-}
+export type AlgorithmConfig = {}
 
 
 export type MirrorStatus = "Sync" | "Dirty" | "InProcess" | "Failed" | "Failed - Too Large"
 
-export type EditorStatus = "Beginner" | "Editor" | "Administrator"
-
-export type ValidationState = "org" | "persona" | string | null
+export type VerificationState = "org" | "persona" | string | null
 
 export type FeedTabView = {
     idOrUri: string
@@ -84,7 +40,6 @@ export type Session = {
     active: true
     platformAdmin: boolean
     authorStatus: AuthorStatus | null
-    editorStatus: EditorStatus
     seenTutorial: {
         topics: boolean
         home: boolean
@@ -97,7 +52,7 @@ export type Session = {
     avatar: string | null
     did: string
     hasAccess: boolean
-    validation: ValidationState
+    validation: VerificationState
     algorithmConfig: AlgorithmConfig
     mirrorStatus: MirrorStatus
     pinnedFeeds: FeedTabView[]

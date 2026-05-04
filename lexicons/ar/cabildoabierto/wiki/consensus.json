@@ -32,7 +32,7 @@
             "type": "array",
             "items": {
               "type": "ref",
-              "ref": "ar.cabildoabierto.feed.article#articleEmbed"
+              "ref": "ar.cabildoabierto.wiki.embed"
             }
           },
           "createdAt": {

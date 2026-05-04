@@ -68,7 +68,7 @@ export function getInitialData(
     text: string | EditorState,
     format: string,
     shouldPreserveNewLines: boolean = false,
-    embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
+    embeds?: ArCabildoabiertoWikiEmbed.EmbedView[],
     topicMentions: boolean = false,
     transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): InitialEditorStateType {

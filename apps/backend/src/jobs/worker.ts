@@ -9,10 +9,8 @@ import {
     updateDiscoverFeedIndex,
     updatePopularitiesOnContentsChange,
     updatePopularitiesOnNewReactions,
-    updatePopularitiesOnTopicsChange,
-    updateReferences
+    updatePopularitiesOnTopicsChange
 } from "#/services/wiki/references/references.js";
-import {updateEngagementCounts} from "#/services/feed/get-user-engagement.js";
 import {deleteCollection} from "#/services/delete.js";
 import {updateTopicsCategories} from "#/services/wiki/categories.js";
 import {
@@ -20,7 +18,6 @@ import {
     updateTopicContributions,
     updateTopicContributionsRequired
 } from "#/services/wiki/contributions/contributions.js";
-import {createUserMonths} from "#/services/monetization/user-months.js";
 import {createNotificationsJob} from "#/services/notifications/notifications.js";
 import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {assignInviteCodesToUsers} from "#/services/user/access.js";
@@ -36,13 +33,6 @@ import {runTestJob} from "#/services/admin/status.js";
 import {clearAllRedis} from "#/services/redis/cache.js";
 import {type Redis} from "ioredis/built/index.js"
 import {updateAllTopicPopularities} from "#/services/wiki/references/popularity.js";
-import {assignPayments} from "#/services/monetization/payments.js";
-import {
-    updateAllFollowingFeeds,
-    updateFollowingFeedOnContentDelete,
-    updateFollowingFeedOnFollowChange,
-    updateFollowingFeedOnNewContent
-} from "#/services/feed/following/update.js";
 import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
 import {startContentModeration} from "#/services/moderation/start.js";
 import {Effect} from "effect";
@@ -119,8 +109,6 @@ export class CAWorker {
     async setup(ctx: AppContext) {
         this.registerJob("update-categories-graph", () => updateCategoriesGraph(ctx))
         this.registerEffJob("sync-user", data => syncUserJobHandler(ctx, data).pipe(Effect.catchAll(() => Effect.fail("Error en en trabajo sync-user"))))
-        this.registerEffJob("update-references", () => updateReferences(ctx))
-        this.registerJob("update-engagement-counts", () => updateEngagementCounts(ctx))
         this.registerEffJob("delete-collection", (data) => {
             return deleteCollection(ctx, (data as { collection: string }).collection)
         })
@@ -155,10 +143,6 @@ export class CAWorker {
                 DataPlane,
                 makeDataPlane(ctx)
             )
-        )
-        this.registerJob(
-            "create-user-months",
-            () => createUserMonths(ctx)
         )
         this.registerJob(
             "batch-create-notifications",
@@ -201,10 +185,6 @@ export class CAWorker {
             "update-author-status",
             (data) => updateAuthorStatus(ctx, data),
             true
-        )
-        this.registerJob(
-            "assign-payments",
-            () => assignPayments(ctx)
         )
         this.registerJob(
             "update-topics-current-versions",
@@ -260,26 +240,6 @@ export class CAWorker {
         this.registerEffJob(
             "update-all-content-categories",
             () => updateDiscoverFeedIndex(ctx)
-        )
-        this.registerJob(
-            "update-following-feed-on-new-content",
-            (data) => updateFollowingFeedOnNewContent(ctx, data as string[]),
-            true
-        )
-        this.registerJob(
-            "update-following-feed-on-deleted-content",
-            (data) => updateFollowingFeedOnContentDelete(ctx, data as string[]),
-            true
-        )
-        this.registerJob(
-            "update-following-feed-on-follow-change",
-            (data) => updateFollowingFeedOnFollowChange(ctx, data as {follower: string, followed: string}[]),
-            true
-        )
-        this.registerJob(
-            "update-all-following-feeds",
-            () => updateAllFollowingFeeds(ctx),
-            true
         )
         this.registerJob(
             "update-stat",

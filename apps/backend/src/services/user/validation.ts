@@ -5,16 +5,16 @@ import {OrgType, ValidationRequestProps, ValidationRequestView} from "@cabildo-a
 import {createHash} from "crypto";
 import {v4 as uuidv4} from "uuid";
 import {AppContext} from "#/setup.js";
-import {acceptValidationRequestFromPayment} from "#/services/monetization/donations.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
+import {MercadoPagoConfig, Payment} from "mercadopago";
 
 
 type ValidationType = "Organizacion" | "Persona"
 type ValidationRequestResult = "Aceptada" | "Rechazada" | "Pendiente"
 
 
-export const createValidationRequest: CAHandler<ValidationRequestProps, {}> = async (ctx, agent, request) => {
+export const createVerificationRequest: CAHandler<ValidationRequestProps, {}> = async (ctx, agent, request) => {
     if(!ctx.storage) return {error: "Error al guardar."}
     try {
         let data: {
@@ -325,6 +325,64 @@ export const setValidationRequestResultHandler: CAHandler<ValidationRequestResul
 }
 
 
+export async function acceptVerificationRequestFromPayment(ctx: AppContext, userId: string, paymentId: string): Promise<{
+    error?: string
+}> {
+    const request = await ctx.kysely
+        .selectFrom("VerificationRequest")
+        .select(["id", "result"])
+        .where("VerificationRequest.result", "!=", "Aceptada")
+        .where("userId", "=", userId)
+        .executeTakeFirst()
+
+    if (request) {
+        const client = new MercadoPagoConfig({
+            accessToken: process.env.MP_ACCESS_TOKEN!,
+            options: {timeout: 5000},
+        })
+
+        const payment = new Payment(client)
+        const res = await payment.get({id: paymentId})
+
+        let dni: number | undefined = undefined
+        const id = res.payer?.identification
+        if (id) {
+            if (id.type == "CUIT" || id.type == "CUIL") {
+                try {
+                    const dniStr = id.number?.slice(1, id.number.length - 2)
+                    if (!dniStr) {
+                        return {error: "Ocurrió un error al procesar el CUIT."}
+                    }
+                    dni = parseInt(dniStr)
+                } catch {
+                    return {error: "Ocurrió un error al procesar el CUIT."}
+                }
+            } else {
+                return {error: `Tipo de identificación desconocido: ${id.type}`}
+            }
+        } else {
+            return {error: "No se pudo obtener la identificación."}
+        }
+
+        if (dni) {
+            await setValidationRequestResult(
+                ctx,
+                {
+                    id: request.id,
+                    result: "accept",
+                    reason: "found payment",
+                    dni
+                }
+            )
+            return {}
+        } else {
+            return {error: "No se pudo obtener la identificación."}
+        }
+    } else {
+        return {error: "No se encontró la solicitud."}
+    }
+}
+
 export const attemptMPVerification: CAHandler<{}, {}> = async (ctx, agent, {}) => {
 
     const data = await ctx.kysely
@@ -335,7 +393,7 @@ export const attemptMPVerification: CAHandler<{}, {}> = async (ctx, agent, {}) =
         ])
         .execute()
 
-    const {error} = await createValidationRequest(
+    const {error} = await createVerificationRequest(
         ctx,
         agent,
         {tipo: "persona", metodo: "mp"}
@@ -350,7 +408,7 @@ export const attemptMPVerification: CAHandler<{}, {}> = async (ctx, agent, {}) =
     for(let i = 0; i < data.length; i++) {
         const transactionId = data[i].transactionId
         if(!transactionId) continue
-        const {error} = await acceptValidationRequestFromPayment(
+        const {error} = await acceptVerificationRequestFromPayment(
             ctx,
             agent.did,
             transactionId

@@ -1,7 +1,7 @@
 
 import {
     ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api";
 import {AppContext} from "#/setup.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
@@ -12,7 +12,7 @@ import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration
 
 export type TopicData = {
     id: string
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props: ArCabildoabiertoWikiTopic.TopicProp[]
     repliesCount: number
 }
 
@@ -73,7 +73,7 @@ export const getTopicsDataForElectionVisualization = (
 
     return topicsData.map(t => ({
         id: t.id,
-        props: t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[],
+        props: t.props as ArCabildoabiertoWikiTopic.TopicProp[],
         repliesCount: t.repliesCount ?? 0,
     }))
 })

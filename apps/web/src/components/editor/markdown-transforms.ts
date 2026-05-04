@@ -136,7 +136,7 @@ export function markdownToEditorState(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
     shouldMergeAdjacentLines: boolean = true,
-    embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = [],
+    embeds: ArCabildoabiertoWikiEmbed.EmbedView[] = [],
     embedContexts: EmbedContext[] = [],
     transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): SerializedEditorState {
@@ -262,7 +262,7 @@ export function htmlToEditorStateStr(text: string) {
 
 export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): {
     markdown: string;
-    embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
+    embeds: ArCabildoabiertoWikiEmbed.EmbedView[],
     embedContexts: EmbedContext[]
 } | null {
     /***
@@ -272,7 +272,7 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
      * ***/
     state = ProcessedLexicalState.fromMaybeProcessed(state)
     const markdown = editorStateToMarkdownNoEmbeds(state);
-    const embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = [];
+    const embeds: ArCabildoabiertoWikiEmbed.EmbedView[] = [];
     const contexts: EmbedContext[] = []
 
     for (let i = 0; i < state.state.root.children.length; i++) {
@@ -306,9 +306,9 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
     return {markdown, embeds, embedContexts: contexts}
 }
 
-export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[], embedContexts?: EmbedContext[]): {
+export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArCabildoabiertoWikiEmbed.EmbedView[], embedContexts?: EmbedContext[]): {
     markdown: string,
-    embeds: ArCabildoabiertoFeedArticle.ArticleEmbedView[],
+    embeds: ArCabildoabiertoWikiEmbed.EmbedView[],
     embedContexts: EmbedContext[]
 } {
     if (format == "markdown") {

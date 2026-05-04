@@ -28,7 +28,7 @@
       "label": {
         "type": "string",
         "knownValues": [
-          "approve",
+          "accept",
           "reject",
           "upvote",
           "downvote"

@@ -1,6 +1,6 @@
 import {gett, PropValue} from "@cabildo-abierto/utils";
 import {$Typed, EditorStatus} from "@cabildo-abierto/api";
-import { ArCabildoabiertoWikiTopicVersion } from "@cabildo-abierto/api";
+import { ArCabildoabiertoWikiTopic } from "@cabildo-abierto/api";
 
 
 export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" |
@@ -9,7 +9,7 @@ export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp"
     "ar.cabildoabierto.wiki.topicVersion#numberProp" |
     "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 
-export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopicVersion.StringListProp> | $Typed<ArCabildoabiertoWikiTopicVersion.StringProp> | $Typed<ArCabildoabiertoWikiTopicVersion.DateProp> | $Typed<ArCabildoabiertoWikiTopicVersion.NumberProp> | $Typed<ArCabildoabiertoWikiTopicVersion.BooleanProp> {
+export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopic.StringListProp> | $Typed<ArCabildoabiertoWikiTopicVersion.StringProp> | $Typed<ArCabildoabiertoWikiTopicVersion.DateProp> | $Typed<ArCabildoabiertoWikiTopicVersion.NumberProp> | $Typed<ArCabildoabiertoWikiTopicVersion.BooleanProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp" ||
@@ -18,7 +18,7 @@ export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopic
 }
 
 
-export function getTopicCategories(props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]): string[] {
+export function getTopicCategories(props?: ArCabildoabiertoWikiTopic.TopicProp[]): string[] {
     const c = getTopicProp("Categorías", props)
     return c && ArCabildoabiertoWikiTopicVersion.isStringListProp(c.value) ? c.value.value : []
 }

@@ -3,13 +3,12 @@ import {getDidFromUri, getUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {
-    ArCabildoabiertoWikiTopicVersion,
-    ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoFeedArticle,
     AppBskyEmbedImages,
     ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoActorDefs, EditorStatus,
-    ArCabildoabiertoEmbedPoll
+    ArCabildoabiertoActorDefs,
+    ArCabildoabiertoEmbedPoll,
+    ArCabildoabiertoWikiTopic,
+    ArCabildoabiertoWikiEmbed
 } from "@cabildo-abierto/api"
 import {Agent} from "#/utils/session-agent.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
@@ -21,24 +20,19 @@ import {NotFoundError, stringListIncludes, stringListIsEmpty} from "#/services/d
 import {cleanText} from "@cabildo-abierto/utils";
 import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
-import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {Effect, Exit, pipe} from "effect";
+import {Effect, Exit} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
 
 export type TimePeriod = "day" | "week" | "month" | "all"
 
-export const getTrendingTopics: EffHandlerNoAuth<{params: {time: TimePeriod}, query: {cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
+export const getTrendingTopics: EffHandlerNoAuth<{params: {time: TimePeriod}, query: {cursor?: string, limit?: number}}, ArCabildoabiertoWikiTopic.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
     return getTopics(ctx, [], "popular", params.time, query?.limit ?? 10, query?.cursor);
 }
 
 
 export type TopicQueryResultBasic = {
     id: string
-    lastEdit: Date | null
-    popularityScoreLastDay: number
-    popularityScoreLastWeek: number
-    popularityScoreLastMonth: number
     props: unknown
     numWords: number | null
     lastRead?: Date | null
@@ -47,13 +41,14 @@ export type TopicQueryResultBasic = {
     cid: string | null
     replyCount: number | null
     editsCount: number | null
+    consensusCount: number | null
 }
 
 
 export type TopicVersionQueryResultBasic = TopicQueryResultBasic & {uri: string}
 
 
-export const hydrateTopicViewBasicFromUri = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> | null, never, DataPlane> => Effect.gen(function* () {
+export const hydrateTopicViewBasicFromUri = (ctx: AppContext, uri: string): Effect.Effect<$Typed<ArCabildoabiertoWikiTopic.TopicViewBasic> | null, never, DataPlane> => Effect.gen(function* () {
     const dataplane = yield* DataPlane
     const data = dataplane.getState()
 
@@ -69,23 +64,26 @@ export const hydrateTopicViewBasicFromUri = (ctx: AppContext, uri: string): Effe
 })
 
 
-export function topicQueryResultToTopicViewBasic(t: TopicQueryResultBasic, author?: ArCabildoabiertoActorDefs.ProfileViewBasic): $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic> {
-    let props: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
+export function topicQueryResultToTopicViewBasic(
+    t: TopicQueryResultBasic,
+    author?: ArCabildoabiertoActorDefs.ProfileViewBasic
+): $Typed<ArCabildoabiertoWikiTopic.TopicViewBasic> {
+    let props: ArCabildoabiertoWikiTopic.TopicProp[] = []
 
     if(t.props){
-        props = t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
+        props = t.props as ArCabildoabiertoWikiTopic.TopicProp[]
     } else {
         props.push({
             name: "Título",
             value: {
-                $type: "ar.cabildoabierto.wiki.topicVersion#stringProp",
+                $type: "ar.cabildoabierto.wiki.topic#stringProp",
                 value: t.id
             }
         })
     }
 
     return {
-        $type: "ar.cabildoabierto.wiki.topicVersion#topicViewBasic",
+        $type: "ar.cabildoabierto.wiki.topic#topicViewBasic",
         id: t.id,
         lastEdit: t.lastEdit?.toISOString() ?? undefined,
         popularity: {
@@ -115,66 +113,52 @@ export function getTopics(
     time: TimePeriod,
     limit: number = 50,
     cursor?: string
-): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[], string> {
-    return Effect.provideServiceEffect(pipe(
-        Effect.promise(() => {
-            return ctx.kysely
-                .selectFrom('Topic')
-                .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
-                .select([
-                    "id",
-                    "TopicVersion.uri"
-                ])
-                .where("Topic.lastEdit_tz", "is not", null)
-                .innerJoin("Record", "TopicVersion.uri", "Record.uri")
-                .where("Record.record", "is not", null)
-                .where("Record.cid", "is not", null)
-                .$if(categories && categories.length > 0, qb => qb.where(categories.includes("Sin categoría") ?
-                    stringListIsEmpty("Categorías") :
-                    (eb) =>
-                        eb.and(categories.map(c => stringListIncludes("Categorías", c))
-                        )
-                ))
-                .$if(
-                    sortedBy == "popular" && (time == "all" || time == "month"),
-                    qb => qb
-                        .orderBy("popularityScoreLastMonth desc")
-                        .orderBy("lastEdit_tz desc")
-                )
-                .$if(sortedBy == "popular" && time == "week", qb => qb
-                    .orderBy("popularityScoreLastWeek desc")
-                    .orderBy("lastEdit_tz desc"))
-                .$if(sortedBy == "popular" && time == "day", qb => qb
-                    .orderBy("popularityScoreLastDay desc")
-                    .orderBy("lastEdit_tz desc"))
-                .$if(sortedBy == "recent", qb => qb
-                    .orderBy("lastEdit_tz desc"))
-                .limit(limit)
-                .execute()
-        }),
-        Effect.tap(topics => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoWikiTopic.TopicViewBasic[], string> {
+    return Effect.provideServiceEffect(Effect.gen(function* () {
+        const topics = yield* Effect.tryPromise({
+            try: () => {
+                return ctx.kysely
+                    .selectFrom('Topic')
+                    .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
+                    .select([
+                        "id",
+                        "TopicVersion.uri"
+                    ])
+                    .innerJoin("Record", "TopicVersion.uri", "Record.uri")
+                    .where("Record.record", "is not", null)
+                    .where("Record.cid", "is not", null)
+                    .$if(categories && categories.length > 0, qb => qb.where(categories.includes("Sin categoría") ?
+                        stringListIsEmpty("Categorías") :
+                        (eb) =>
+                            eb.and(categories.map(c => stringListIncludes("Categorías", c))
+                            )
+                    ))
+                    .limit(limit)
+                    .execute()
+            },
+            catch: (error) => new DBSelectError(error)
+        })
+        yield* Effect.gen(function* () {
             const dataplane = yield* DataPlane
             const uris = topics.map(t => t.uri)
             return yield* dataplane.fetchTopicsBasicByUris(uris)
-        })),
-        Effect.flatMap(topics => {
-            return Effect.all(topics
-                .map(t => hydrateTopicViewBasicFromUri(
-                    ctx,
-                    t.uri)))
-                .pipe(Effect.map(results => results.filter(x => x != null)))
-        }),
-        Effect.catchAll(() => {
-            return Effect.fail("Ocurrió un error al obtener los temas.")
         })
-    ), DataPlane, makeDataPlane(ctx))
+        const hydrated = yield* Effect.all(topics
+            .map(t => hydrateTopicViewBasicFromUri(
+                ctx,
+                t.uri)))
+
+        return hydrated.filter(x => x != null)
+    }).pipe(Effect.catchAll(() => {
+        return Effect.fail("Ocurrió un error al obtener los temas.")
+    })), DataPlane, makeDataPlane(ctx))
 }
 
 
 export const getTopicsHandler: EffHandlerNoAuth<{
     params: { sort: string, time: string },
     query: { c: string[] | string, cursor?: string, limit?: number }
-}, ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
+}, ArCabildoabiertoWikiTopic.TopicViewBasic[]> = (ctx, agent, {params, query}) => {
     let {sort, time} = params
     const {c} = query
     const categories = Array.isArray(c) ? c : c ? [c] : []
@@ -206,14 +190,12 @@ export const getCategories: CAHandlerNoAuth<{}, string[]> = async (ctx, _, {}) =
 
 
 async function countTopicsNoCategories(ctx: AppContext) {
-
     return ctx.kysely
         .selectFrom("Topic")
         .leftJoin("TopicToCategory", "Topic.id", "TopicToCategory.topicId")
         .select(({ fn }) => [fn.count<number>("Topic.id").as("count")])
         .where("TopicToCategory.categoryId", "is", null)
         .where("Topic.currentVersionId", "is not", null)
-        .where("Topic.lastEdit_tz", "is not", null)
         .execute()
 }
 
@@ -227,7 +209,6 @@ async function countTopicsInEachCategory(ctx: AppContext) {
             fn.count<number>("TopicToCategory.topicId").as("count")
         ])
         .where("Topic.currentVersionId", "is not", null)
-        .where("Topic.lastEdit_tz", "is not", null)
         .groupBy("TopicToCategory.categoryId")
         .execute()
 }
@@ -290,27 +271,12 @@ export const getTopicCurrentVersionFromDB = (ctx: AppContext, id: string): Effec
 })
 
 
-export function editorStatusToEsp(s: EditorStatus) {
-    if(s == "Editor") return s
-    else if(s == "Beginner") return "Editor principiante"
-    else if(s == "Administrator") return "Administrador"
-}
-
-
-export function editorStatusToEn(s: ArCabildoabiertoActorDefs.ProfileView["editorStatus"]): EditorStatus {
-    if(s == "Editor") return "Editor"
-    else if(s == "Editor principiante") return "Beginner"
-    else if(s == "Administrador") return "Administrator"
-    throw Error(`unknown editor status ${s}`)
-}
-
-
 export class InsufficientParamsError {
     readonly _tag = "InsufficientParamsError"
 }
 
 
-export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: string, rkey?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBSelectError | NotFoundError | InsufficientParamsError> => Effect.gen(function* () {
+export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: string, rkey?: string): Effect.Effect<ArCabildoabiertoWikiTopic.TopicView, DBSelectError | NotFoundError | InsufficientParamsError> => Effect.gen(function* () {
 
     let uri: string
     if(did && rkey) {
@@ -325,7 +291,7 @@ export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: strin
 })
 
 
-export const getTopicHandler: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string } }, ArCabildoabiertoWikiTopicVersion.TopicView> = (ctx, agent, params) => {
+export const getTopicHandler: EffHandlerNoAuth<{ query: { i?: string, did?: string, rkey?: string } }, ArCabildoabiertoWikiTopic.TopicView> = (ctx, agent, params) => {
     const {i, did, rkey} = params.query
     return getTopic(ctx, agent, i, did, rkey).pipe(
         Effect.catchTag("InsufficientParamsError", () => Effect.fail("Parámetros inválidos")),
@@ -335,8 +301,8 @@ export const getTopicHandler: EffHandlerNoAuth<{ query: { i?: string, did?: stri
 }
 
 
-export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoFeedArticle.ArticleEmbed[]): ArCabildoabiertoFeedArticle.ArticleEmbedView[] {
-    const views: ArCabildoabiertoFeedArticle.ArticleEmbedView[] = []
+export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoWikiEmbed.Embed[]): ArCabildoabiertoWikiEmbed.EmbedView[] {
+    const views: ArCabildoabiertoWikiEmbed.EmbedView[] = []
     for(let i = 0; i < embeds.length; i++) {
         const e = embeds[i]
         if(ArCabildoabiertoEmbedVisualization.isMain(e.value)){
@@ -382,9 +348,9 @@ export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoFeed
 }
 
 
-function processTopicProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
+function processTopicProps(props: ArCabildoabiertoWikiTopic.TopicProp[]) {
     const names = new Set<string>()
-    let newProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
+    let newProps: ArCabildoabiertoWikiTopic.TopicProp[] = []
     props.forEach(p => {
         if(names.has(p.name)){
             return
@@ -396,7 +362,7 @@ function processTopicProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) 
 }
 
 
-export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string): Effect.Effect<ArCabildoabiertoWikiTopicVersion.TopicView, DBSelectError | NotFoundError> => Effect.gen(function* () {
+export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string): Effect.Effect<ArCabildoabiertoWikiTopic.TopicView, DBSelectError | NotFoundError> => Effect.gen(function* () {
 
     const authorId = getDidFromUri(uri)
 
@@ -410,17 +376,10 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
             .select([
                 "Record.uri",
                 "Record.cid",
-                "Record.created_at_tz",
+                "Record.createdAt",
                 "Record.record",
                 "TopicVersion.props",
-                "Content.text",
-                "Content.format",
-                "Content.dbFormat",
-                "Content.textBlobId",
                 "Topic.id",
-                "Topic.protection",
-                "Topic.popularityScore",
-                "Topic.lastEdit_tz as lastEdit",
                 "Topic.currentVersionId",
                 "User.editorStatus",
                 eb => eb
@@ -477,11 +436,11 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
 
     const {text: transformedText, format: transformedFormat} = anyEditorStateToMarkdownOrLexical(text, format)
 
-    let props = Array.isArray(topic.props) ? topic.props as ArCabildoabiertoWikiTopicVersion.TopicProp[] : []
+    let props = Array.isArray(topic.props) ? topic.props as ArCabildoabiertoWikiTopic.TopicProp[] : []
 
     props = processTopicProps(props)
 
-    const record = topic.record ? JSON.parse(topic.record) as ArCabildoabiertoWikiTopicVersion.Record : undefined
+    const record = topic.record ? JSON.parse(topic.record) as ArCabildoabiertoWikiTopic.Record : undefined
     const embeds = record != null ? hydrateEmbedViews(authorId, record.embeds ?? []) : []
 
     const status = getTopicVersionStatusFromReactions(
@@ -496,7 +455,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
         topic.reactions
     )
 
-    const view: ArCabildoabiertoWikiTopicVersion.TopicView = {
+    const view: ArCabildoabiertoWikiTopic.TopicView = {
         $type: "ar.cabildoabierto.wiki.topicVersion#topicView",
         id,
         uri: topic.uri,
@@ -520,7 +479,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
 
 export const getTopicVersionHandler: EffHandlerNoAuth<{
     params: { did: string, rkey: string }
-}, ArCabildoabiertoWikiTopicVersion.TopicView> = (ctx, agent, {params}) => {
+}, ArCabildoabiertoWikiTopic.TopicView> = (ctx, agent, {params}) => {
     const {did, rkey} = params
     return getTopicVersion(ctx, getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey), agent.hasSession() ? agent.did : undefined).pipe(
         Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró la versión del tema.")),
@@ -546,7 +505,7 @@ export const getAllTopics: CAHandlerNoAuth<{}, {topicId: string, uri: string}[]>
 type TopicWithEditors = {
     topicId: string
     editors: string[]
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props: ArCabildoabiertoWikiTopic.TopicProp[]
 }
 
 export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: string}}, TopicWithEditors[]> = async (ctx, agent, {params}) => {
@@ -562,7 +521,7 @@ export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: 
     return Exit.match(exit, {
         onSuccess: async topics => {
 
-            const topicsById = new Map<string, ArCabildoabiertoWikiTopicVersion.TopicViewBasic>()
+            const topicsById = new Map<string, ArCabildoabiertoWikiTopic.TopicViewBasic>()
             for(const t of topics) topicsById.set(t.id, t)
 
             const editors = await ctx.kysely
@@ -612,7 +571,7 @@ export const getTopicsWhereTitleIsNotSetAsSynonym: CAHandlerNoAuth<{}, string[]>
     const data = topics.filter(t => {
         const synonyms = getTopicSynonyms({
             id: t.id,
-            props: t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
+            props: t.props as ArCabildoabiertoWikiTopic.TopicProp[]
         })
         return !synonyms.some(s => {
             return cleanText(t.id).includes(cleanText(s))
@@ -637,7 +596,7 @@ export const getTopicsMentionedByContent: CAHandlerNoAuth<{params: {did: string,
     const data: ArCabildoabiertoFeedDefs.TopicMention[] = res.map(r => {
         return {
             $type: "ar.cabildoabierto.feed.defs#topicMention",
-            title: getTopicTitle({id: r.id, props: r.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]}),
+            title: getTopicTitle({id: r.id, props: r.props as ArCabildoabiertoWikiTopic.TopicProp[]}),
             count: r.count ?? 0,
             id: r.id
         }

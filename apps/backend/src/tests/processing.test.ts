@@ -4,7 +4,7 @@ import {
     ReadChunks,
     ReadSession,
     storeReadSession
-} from "#/services/monetization/read-tracking.js";
+} from "#/services/donations/read-tracking.js";
 import {
     cleanUpAfterTests,
     cleanUpTestDataFromDB,

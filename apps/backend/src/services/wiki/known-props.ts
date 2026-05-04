@@ -1,6 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {CAHandlerNoAuth} from "#/utils/handler.js";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 
 
 export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp" |
@@ -32,7 +32,7 @@ async function getKnownProps(ctx: AppContext) {
 
     const res = new Map<string, PropValueType>()
     props.forEach(t => {
-        const topicProps = t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
+        const topicProps = t.props as ArCabildoabiertoWikiTopic.TopicProp[]
         topicProps.forEach(p => {
             res.set(p.name, p.value.$type as PropValueType)
         })

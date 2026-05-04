@@ -2,7 +2,7 @@ import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {
     ArCabildoabiertoFeedArticle,
-    ArCabildoabiertoWikiTopicVersion, BatchEdit,
+    ArCabildoabiertoWikiTopic, BatchEdit,
     CreateTopicVersionProps, EditPropsParams, EmbedContext, TopicForBatchEdit
 } from "@cabildo-abierto/api";
 import {Effect} from "effect";
@@ -49,8 +49,8 @@ export const editTopicHandler: EffHandler<EditPropsParams, boolean> = (ctx, agen
 }
 
 
-function editProps(curProps: ArCabildoabiertoWikiTopicVersion.TopicProp[], newProps: ArCabildoabiertoWikiTopicVersion.TopicProp[], propsToDelete: string[]) {
-    const newPropsMap = new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>()
+function editProps(curProps: ArCabildoabiertoWikiTopic.TopicProp[], newProps: ArCabildoabiertoWikiTopic.TopicProp[], propsToDelete: string[]) {
+    const newPropsMap = new Map<string, ArCabildoabiertoWikiTopic.TopicProp>()
     for(const p of curProps) {
         newPropsMap.set(p.name, p)
     }
@@ -157,7 +157,7 @@ export const fetchImageAsBase64 = (imageUrl: string): Effect.Effect<string, Fetc
 const recreateEmbedContext = (
     ctx: AppContext,
     agent: SessionAgent,
-    embed: ArCabildoabiertoFeedArticle.ArticleEmbedView
+    embed: ArCabildoabiertoWikiEmbed.EmbedView
 ): Effect.Effect<EmbedContext, MultipleImagesInEmbedError | FetchImageURLError> => Effect.gen(function* () {
     if(AppBskyEmbedImages.isView(embed.value)) {
         if(embed.value.images.length > 0) return yield* Effect.fail(new MultipleImagesInEmbedError())

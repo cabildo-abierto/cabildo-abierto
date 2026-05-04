@@ -39,4 +39,4 @@ export {
   validateMain as validateRecord,
 }
 
-export type Label = 'approve' | 'reject' | 'upvote' | 'downvote' | (string & {})
+export type Label = 'accept' | 'reject' | 'upvote' | 'downvote' | (string & {})

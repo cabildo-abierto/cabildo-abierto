@@ -15,7 +15,7 @@ import {
     AuthorStatus,
     MaybeSession,
     Session,
-    ValidationState
+    VerificationState
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {getServiceEndpointForDid, uploadBase64Blob} from "#/services/blob.js";
@@ -292,7 +292,7 @@ export const getSessionData = (
 export function getValidationState(user: {
     userValidationHash: string | null,
     orgValidation: string | null
-}): ValidationState {
+}): VerificationState {
     return user.userValidationHash ? "persona" : (user.orgValidation ? "org" : null)
 }
 

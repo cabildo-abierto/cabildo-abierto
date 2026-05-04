@@ -4,42 +4,32 @@ import {ProfileViewBasic, ProfileViewDetailed} from "@atproto/api/dist/client/ty
 import {
     BlobRef, ThreadSkeleton
 } from "#/services/hydration/hydrate.js";
-import {FeedSkeleton} from "#/services/feed/feed.js";
 import {removeNullValues, unique} from "@cabildo-abierto/utils";
 import {
     getCollectionFromUri,
     getDidFromUri,
-    isArticle,
     isDataset,
-    isPost,
-    postUris,
-    topicVersionUris
+    isPost
 } from "@cabildo-abierto/utils";
 import {AppBskyFeedDefs} from "@atproto/api"
 import {$Typed, AtpBaseClient} from "@atproto/api";
 import {TopicVersionQueryResultBasic} from "#/services/wiki/topics.js";
 import {
-    AppBskyFeedPost,
-    ArCabildoabiertoFeedDefs,
     ArCabildoabiertoActorDefs,
-    ArCabildoabiertoWikiTopicVersion,
-    ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoFeedArticle
+    ArCabildoabiertoWikiTopic,
+    ArCabildoabiertoEmbedVisualization
 } from "@cabildo-abierto/api"
-import {AppBskyEmbedRecord, AppBskyEmbedRecordWithMedia} from "@atproto/api"
 import {
     FeedViewPost,
     isPostView,
     isThreadViewPost,
-    PostView, ThreadViewPost
+    ThreadViewPost
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
 import {FetchBlobError, fetchTextBlobs} from "#/services/blob.js";
 import {env} from "#/lib/env.js";
-import {RepostQueryResult} from "#/services/feed/inicio/following.js";
 import {NotificationQueryResult, NotificationsSkeleton} from "#/services/notifications/notifications.js";
 import {equalFilterCond, inFilterCond, stringListIncludes} from "#/services/dataset/read.js";
 import {jsonArrayFrom} from 'kysely/helpers/postgres'
-import {getUrisFromThreadSkeleton} from "#/services/thread/thread.js";
 import {getValidationState} from "#/services/user/users.js";
 import {AppBskyActorDefs} from "@atproto/api"
 import {CAProfileDetailed, CAProfile} from "#/lib/types.js";
@@ -84,15 +74,13 @@ export type FeedElementQueryResult = {
 export type DatasetQueryResult = {
     uri: string
     cid: string
-    created_at: Date
+    createdAt: Date
     title: string
     description: string | null
     columns: string[]
-    dataBlocks: {
-        cid: string
-        format: string | null
-    }[]
-    editedAt: Date | null
+    blobCid: string | null
+    url: string | null
+    format: string | null
 }
 
 
@@ -158,7 +146,6 @@ export class DataPlane extends Context.Tag("DataPlane")<
     {
     readonly fetchCAContentsAndBlobs: (uris: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchSignedStorageUrls: (paths: string[], bucket: string) => Effect.Effect<void, S3GetSignedURLError>
-    readonly fetchFeedHydrationData: (skeleton: FeedSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchThreadHydrationData: (skeleton: ThreadSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchNotificationsHydrationData: (skeleton: NotificationsSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchProfileViewDetailedHydrationData: (dids: string[]) => Effect.Effect<void, ViewerStateFetchError | FetchFromCAError | FetchFromBskyError>
@@ -173,8 +160,6 @@ export class DataPlane extends Context.Tag("DataPlane")<
     readonly getState: () => {
         caContents: Map<string, FeedElementQueryResult>
         bskyPosts: Map<string, AppBskyFeedDefs.PostView>
-        likes: Map<string, string[]>
-        reposts: Map<string, RepostQueryResult[]>
         topicsByUri: Map<string, TopicVersionQueryResultBasic>
         textBlobs: Map<string, string>
         datasets: Map<string, DatasetQueryResult>
@@ -182,7 +167,7 @@ export class DataPlane extends Context.Tag("DataPlane")<
         topicsMentioned: Map<string, TopicMentionedProps[]>
         s3files: Map<string, string>
         notifications: Map<string, NotificationQueryResult>
-        topicsDatasets: Map<string, { id: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[] }[]>
+        topicsDatasets: Map<string, { id: string, props: ArCabildoabiertoWikiTopic.TopicProp[] }[]>
         rootCreationDates: Map<string, Date>
         bskyBasicUsers: Map<string, $Typed<ProfileViewBasic>>
         bskyDetailedUsers: Map<string, $Typed<ProfileViewDetailed>>
@@ -193,7 +178,6 @@ export class DataPlane extends Context.Tag("DataPlane")<
         signedStorageUrls: Map<string, Map<string, string>>
         polls: Map<string, PollQueryResult>
     }
-    readonly storeRepost: (repost: RepostQueryResult & {subjectId: string}) => void
     readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBSelectError>
     readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBSelectError>
     readonly fetchPostAndArticleViewsHydrationData: (uris: string[], dids?: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
@@ -208,18 +192,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         new AtpBaseClient(bskyPublicAPI)
     )
     const caContents = new Map<string, FeedElementQueryResult>()
-    const bskyPosts = new Map<string, AppBskyFeedDefs.PostView>()
-    const likes = new Map<string, string[]>()
-    const reposts = new Map<string, RepostQueryResult[]>() // mapea uri del post a información del repost asociado
     let topicsByUri = new Map<string, TopicVersionQueryResultBasic>()
     let textBlobs = new Map<string, string>()
     const datasets = new Map<string, DatasetQueryResult>()
     let datasetContents = new Map<string, string[]>()
     let topicsMentioned = new Map<string, TopicMentionedProps[]>()
     const s3files = new Map<string, string>()
-    const requires = new Map<string, string[]>() // mapea un uri a una lista de uris que sabemos que ese contenido requiere que fetcheemos
     const notifications = new Map<string, NotificationQueryResult>()
-    const topicsDatasets = new Map<string, { id: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[] }[]>()
+    const topicsDatasets = new Map<string, { id: string, props: ArCabildoabiertoWikiTopic.TopicProp[] }[]>()
     const rootCreationDates = new Map<string, Date>()
 
     let bskyProfileViewBasicData = new Map<string, $Typed<ProfileViewBasic>>()
@@ -233,109 +213,6 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     const polls = new Map<string, PollQueryResult>()
 
     const signedStorageUrls = new Map<string, Map<string, string>>()
-
-    function getDatasetsToFetch(contents: FeedElementQueryResult[]) {
-        const datasets = contents.reduce((acc, cur) => {
-            return [...acc, ...(cur.datasetsUsed.map(d => d.uri) ?? [])]
-        }, [] as string[])
-
-        const filters = contents.reduce((acc, cur) => {
-            const filtersInContent: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][] = []
-            const record = cur.record ? JSON.parse(cur.record) : null
-            if (!record) return acc
-
-            const collection = getCollectionFromUri(cur.uri)
-
-            if (isArticle(collection)) {
-                const articleRecord = record as ArCabildoabiertoFeedArticle.Record
-                if (articleRecord.embeds) {
-                    articleRecord.embeds.forEach(e => {
-                        if (ArCabildoabiertoEmbedVisualization.isMain(e.value)) {
-                            if (e.value.filters) {
-                                filtersInContent.push(e.value.filters.filter(ArCabildoabiertoEmbedVisualization.isColumnFilter))
-                            }
-                        }
-                    })
-                }
-            } else if (isPost(collection)) {
-                const postRecord = record as AppBskyFeedPost.Record
-                if (postRecord.embed && ArCabildoabiertoEmbedVisualization.isMain(postRecord.embed)) {
-                    if (postRecord.embed.filters) {
-                        filtersInContent.push(postRecord.embed.filters.filter(ArCabildoabiertoEmbedVisualization.isColumnFilter))
-                    }
-                }
-            }
-            return [...acc, ...filtersInContent]
-        }, [] as $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][])
-
-        return {datasets, filters}
-    }
-
-    const fetchCAContents = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        uris = uris.filter(u => !av(caContents, u))
-        if (uris.length == 0) return
-
-        const contents = yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .selectFrom("Record")
-                .where("Record.uri", "in", uris)
-                .leftJoin("Content", "Content.uri", "Record.uri")
-                .leftJoin("Article", "Article.uri", "Record.uri")
-                .leftJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
-
-                .select([
-                    "Record.uri",
-                    "Record.cid",
-                    "Record.created_at_tz",
-                    "Record.uniqueLikesCount",
-                    "Record.uniqueRepostsCount",
-                    eb => eb
-                        .selectFrom("Post as Reply")
-                        .select(eb => eb.fn.count<number>("Reply.uri").as("count"))
-                        .whereRef("Reply.replyToId", "=", "Record.uri").as("repliesCount"),
-                    eb => eb
-                        .selectFrom("Post as Quote")
-                        .select(eb => eb.fn.count<number>("Quote.uri").as("count"))
-                        .whereRef("Quote.quoteToId", "=", "Record.uri").as("quotesCount"),
-                    "Record.record",
-                    "Content.text",
-                    "Content.selfLabels",
-                    "Content.embeds",
-                    "Content.dbFormat",
-                    "Content.format",
-                    "Content.textBlobId",
-                    "Article.title",
-                    "Article.description",
-                    "Article.previewImage",
-                    "TopicVersion.topicId",
-                    "TopicVersion.props",
-                    "Record.editedAt",
-                    eb => jsonArrayFrom(eb
-                        .selectFrom("_ContentToDataset")
-                        .select("_ContentToDataset.B as uri")
-                        .whereRef("_ContentToDataset.A", "=", "Content.uri")
-                    ).as("datasetsUsed")
-
-                ])
-                .execute(),
-            catch: (error) => new DBSelectError(error)
-        })
-
-        contents.forEach(c => {
-            if (c.cid) {
-                caContents.set(c.uri, {
-                    ...c,
-                    created_at: c.created_at_tz ?? new Date(),
-                    repliesCount: c.repliesCount ? Number(c.repliesCount) : 0,
-                    quotesCount: c.quotesCount ? Number(c.quotesCount) : 0,
-                    cid: c.cid,
-                    selfLabels: c.selfLabels ?? [],
-                    articleDescription: c.description,
-                    articlePreviewImage: c.previewImage
-                })
-            }
-        })
-    })
 
     const dpFetchTextBlobs = (blobs: BlobRef[]) => Effect.gen(function* () {
         if(blobs.length == 0) return
@@ -355,38 +232,19 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     const fetchCAUsers = (dids: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
         dids = dids.filter(d => !av(caProfileData, d) && !av(caProfileDetailedData, d))
         if(dids.length == 0) return
-        const agentDid = agent?.hasSession() ? agent.did : null
         const users = yield* Effect.tryPromise({
             try: () => ctx.kysely
                 .selectFrom("User")
                 .where("User.did", "in", dids)
                 .select([
                     "did",
-                    "CAProfileUri",
                     "handle",
                     "displayName",
+                    "description",
                     "avatar",
-                    "created_at_tz",
+                    "createdAt",
                     "orgValidation",
                     "userValidationHash",
-                    "editorStatus",
-                    "description",
-                    eb => eb
-                        .selectFrom("Follow")
-                        .where("Follow.userFollowedId", "=", agentDid ?? "no did")
-                        .innerJoin("Record", "Record.uri", "Follow.uri")
-                        .whereRef("Record.authorId", "=", "User.did")
-                        .select("Follow.uri")
-                        .limit(1)
-                        .as("followedBy"),
-                    eb => eb
-                        .selectFrom("Follow")
-                        .whereRef("Follow.userFollowedId", "=", "User.did")
-                        .innerJoin("Record", "Record.uri", "Follow.uri")
-                        .where("Record.authorId", "=", agentDid ?? "no did")
-                        .select("Follow.uri")
-                        .limit(1)
-                        .as("following")
                 ])
                 .where("inCA", "=", true)
                 .execute(),
@@ -394,21 +252,15 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         })
 
         users.forEach(u => {
-            if(u.handle && u.created_at_tz) {
+            if(u.handle) {
                 caProfileData.set(u.did, {
                     did: u.did,
-                    caProfile: u.CAProfileUri,
                     handle: u.handle,
                     avatar: u.avatar,
                     displayName: u.displayName,
-                    createdAt: u.created_at_tz,
+                    createdAt: u.createdAt,
                     verification: getValidationState(u),
-                    editorStatus: u.editorStatus,
-                    description: u.description,
-                    viewer: {
-                        following: u.following,
-                        followedBy: u.followedBy
-                    }
+                    description: u.description
                 })
             }
         })
@@ -484,180 +336,8 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         yield* fetchProfileViewDetailedHydrationDataFromBsky(bskyUsers)
     })
 
-
-    const fetchProfileViewBasicHydrationData = (dids: string[]) =>  {
+    const fetchProfileViewBasicHydrationData = (dids: string[]) => {
         return fetchProfileViewHydrationData(dids) // la única diferencia es la descripción
-    }
-
-
-    const storeBskyPost = (uri: string, post: AppBskyFeedDefs.PostView) => {
-        bskyPosts.set(uri, post)
-        bskyProfileViewBasicData.set(getDidFromUri(uri), {
-            ...post.author,
-            $type: "app.bsky.actor.defs#profileViewBasic"
-        })
-        if (post.embed && AppBskyEmbedRecord.isView(post.embed) && AppBskyEmbedRecord.isViewRecord(post.embed.record)) {
-            const record = post.embed.record
-            const collection = getCollectionFromUri(record.uri)
-
-            if (isPost(collection)) {
-                storeBskyPost(record.uri, {
-                    ...record,
-                    uri: record.uri,
-                    cid: record.cid,
-                    $type: "app.bsky.feed.defs#postView",
-                    author: {
-                        ...record.author
-                    },
-                    indexedAt: record.indexedAt,
-                    record: record.value,
-                    embed: record.embeds && record.embeds.length > 0 ? record.embeds[0] : undefined
-                })
-            }
-        } else if (post.embed && AppBskyEmbedRecordWithMedia.isView(post.embed)) {
-            const recordView = post.embed.record
-            if (AppBskyEmbedRecord.isViewRecord(recordView.record)) {
-                const record = recordView.record
-                storeBskyPost(record.uri, {
-                    ...record,
-                    uri: record.uri,
-                    cid: record.cid,
-                    $type: "app.bsky.feed.defs#postView",
-                    author: {
-                        ...record.author
-                    },
-                    indexedAt: record.indexedAt,
-                    record: record.value,
-                    embed: record.embeds && record.embeds.length > 0 ? record.embeds[0] : undefined
-                })
-            }
-        } else if (post.embed && AppBskyEmbedRecord.isView(post.embed) && AppBskyEmbedRecord.isViewNotFound(post.embed.record)) {
-            const uri = post.embed.record.uri
-            const collection = getCollectionFromUri(uri)
-            if (isArticle(collection)) {
-                requires.set(post.uri, [...(requires.get(post.uri) ?? []), uri])
-            }
-        }
-    }
-
-
-    const fetchBskyPosts = (uris: string[]): Effect.Effect<void, FetchFromBskyError> => Effect.gen(function* () {
-        if(!agent) return
-        uris = uris.filter(u => !av(bskyPosts, u))
-
-        const postsList = postUris(uris)
-        if (postsList.length == 0) return
-
-        const batches: string[][] = []
-        for (let i = 0; i < postsList.length; i += 25) {
-            batches.push(postsList.slice(i, i + 25))
-        }
-        let postViews: PostView[] = []
-        for (const b of batches) {
-            const res = yield* Effect.tryPromise({
-                try: () => agent.bsky.app.bsky.feed.getPosts({uris: b}),
-                catch: () => new FetchFromBskyError()
-            })
-            postViews.push(...res.data.posts)
-        }
-
-        postViews.forEach(p => {
-            storeBskyPost(p.uri, p)
-        })
-    })
-
-    const expandUrisWithRepliesQuotesAndReposts = (skeleton: FeedSkeleton): Effect.Effect<string[], DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
-        const uris = skeleton.map(e => e.post)
-        const repostUris = skeleton
-            .map(e => e.reason && ArCabildoabiertoFeedDefs.isSkeletonReasonRepost(e.reason) ? e.reason.repost : null)
-            .filter(x => x != null)
-
-        const pUris = postUris(uris)
-
-        const caPosts = (yield* Effect.all([
-            fetchBskyPosts(pUris),
-            pUris.length > 0 ? Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("Post")
-                    .select(["uri", "replyToId", "quoteToId", "rootId"])
-                    .where("uri", "in", pUris)
-                    .execute(),
-                catch: (error) => new DBSelectError(error)
-            }) : Effect.succeed([])
-        ], {concurrency: "unbounded"}))[1]
-
-        const bskyPostsData = pUris
-            .map(u => bskyPosts?.get(u))
-            .filter(x => x != null)
-
-        return unique([
-            ...uris,
-            ...repostUris,
-            ...caPosts.map(p => p.replyToId),
-            ...caPosts.map(p => p.rootId),
-            ...caPosts.map(p => p.quoteToId),
-            ...bskyPostsData.flatMap(p => {
-                const record = p.record as AppBskyFeedPost.Record
-                const res = [
-                    record.reply?.root?.uri,
-                    record.reply?.parent?.uri,
-                ]
-
-                if(AppBskyEmbedRecord.isMain(record.embed)){
-                    res.push(record.embed.record.uri)
-                } else if(AppBskyEmbedRecordWithMedia.isMain(record.embed)){
-                    res.push(record.embed.record.record.uri)
-                }
-
-                return res
-            })
-        ].filter(x => x != null))
-    })
-
-    const fetchPostAndArticleViewsHydrationData = (uris: string[], otherDids: string[] = []): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
-        const required = uris.flatMap(u => requires.get(u)).filter(x => x != null)
-        uris = unique([...uris, ...required])
-        const dids = unique([...uris.map(getDidFromUri), ...otherDids])
-
-        yield* Effect.all([
-            fetchBskyPosts(postUris(uris)),
-            fetchCAContentsAndBlobs(uris),
-            fetchEngagement(uris),
-            fetchTopicsBasicByUris(topicVersionUris(uris)),
-            fetchProfileViewBasicHydrationData(dids)
-        ], {concurrency: "unbounded"})
-    })
-
-    const fetchThreadHydrationData = (skeleton: ThreadSkeleton): Effect.Effect<void, DBSelectError | FetchFromBskyError> => {
-        let uris = getUrisFromThreadSkeleton(skeleton)
-
-        const reqUris = uris
-            .map(u => requires.get(u))
-            .filter(x => x != null)
-            .flatMap(x => x)
-
-        uris = unique([...uris, ...reqUris])
-
-        uris.forEach(u => {
-            const r = requires.get(u)
-            if (r) uris.push()
-        })
-
-        const c = getCollectionFromUri(skeleton.post)
-
-        return pipe(
-            expandUrisWithRepliesQuotesAndReposts(uris.map(u => ({post: u}))),
-            Effect.flatMap(uris => {
-                const dids = uris.map(u => getDidFromUri(u))
-                return Effect.all([
-                    fetchPostAndArticleViewsHydrationData(uris),
-                    fetchProfileViewBasicHydrationData(dids),
-                    isArticle(c) ? fetchTopicsMentioned(skeleton.post) : Effect.void,
-                    isDataset(c) ? fetchDatasetsHydrationData([skeleton.post]) : Effect.void,
-                    isDataset(c) ? fetchDatasetContents([skeleton.post]) : Effect.void
-                ], {concurrency: "unbounded"})
-            })
-        )
     }
 
     const fetchDatasetsHydrationData = (uris: string[]): Effect.Effect<void, FetchFromBskyError | DBSelectError> => Effect.gen(function* () {
@@ -667,25 +347,19 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         const datasetsQuery = ctx.kysely
             .selectFrom("Dataset")
             .innerJoin("Record", "Record.uri", "Dataset.uri")
+            .leftJoin("Blob", "Dataset.blobCid", "Blob.cid")
             .where("Record.cid", "is not", null)
             .where("Record.record", "is not", null)
             .select([
                 "Dataset.uri",
                 "Record.cid",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt",
                 "Dataset.title",
                 "Dataset.columns",
                 "Dataset.description",
-                eb => jsonArrayFrom(eb
-                    .selectFrom("DataBlock")
-                    .innerJoin("Blob", "DataBlock.cid", "Blob.cid")
-                    .whereRef("DataBlock.datasetId", "=", "Dataset.uri")
-                    .select([
-                        "Blob.cid",
-                        "DataBlock.format"
-                    ])
-                ).as("dataBlocks"),
-                "Record.editedAt"
+                "Dataset.url",
+                "Dataset.blobCid",
+                "Dataset.format"
             ])
             .where("Dataset.uri", "in", uris)
             .execute()
@@ -704,7 +378,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             if (d.cid) {
                 datasets.set(d.uri, {
                     ...d,
-                    created_at: d.created_at ?? new Date(),
+                    createdAt: d.createdAt!,
                     cid: d.cid
                 })
             }
@@ -726,18 +400,15 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             const d = datasets?.get(uri)
             if (!d) return
 
-            const authorId = getDidFromUri(uri)
-            const blocks = d.dataBlocks
-
-            blobs.push(...blocks.map(b => {
-                return {
+            if(d.blobCid) {
+                blobs.push({
                     blobRef: {
-                        cid: b.cid,
-                        authorId
+                        cid: d.blobCid,
+                        authorId: getDidFromUri(d.uri)
                     },
                     datasetUri: uri
-                }
-            }))
+                })
+            }
         }
 
         const contents = (yield* fetchTextBlobs(ctx, blobs.map(b => b.blobRef)))
@@ -771,7 +442,8 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             })
 
             if (filtersByOperator.size > 0) {
-                let query = ctx.kysely
+                return Effect.fail(new DBSelectError())
+                /*let query = ctx.kysely
                     .selectFrom('Topic')
                     .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
                     .select(['id', 'TopicVersion.props'])
@@ -799,9 +471,9 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
 
                 return Effect.tryPromise({
                     try: async () => (await query
-                        .execute()) as { id: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[] }[],
+                        .execute()) as { id: string, props: ArCabildoabiertoWikiTopic.TopicProp[] }[],
                     catch: (error) => new DBSelectError(error)
-                })
+                })*/
             } else {
                 return Effect.succeed(null)
             }
@@ -813,25 +485,6 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             }
         })
 
-    })
-
-    const fetchCAContentsAndBlobs = (uris: string[]): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
-        yield* fetchCAContents(uris)
-
-        const contents = Array.from(caContents?.values() ?? [])
-
-        const blobRefs = blobRefsFromContents(contents
-            .filter(c => c.text == null)
-        )
-
-        const {datasets, filters} = getDatasetsToFetch(contents)
-
-        yield* Effect.all([
-            fetchDatasetsHydrationData(datasets),
-            fetchDatasetContents(datasets),
-            dpFetchTextBlobs(blobRefs),
-            fetchFilteredTopics(filters)
-        ], {concurrency: "unbounded"})
     })
 
     const fetchTopicsBasicByUris = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
@@ -849,22 +502,22 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "TopicVersion.uri",
                     "Record.cid",
                     "Topic.id",
-                    "Topic.popularityScoreLastDay",
-                    "Topic.popularityScoreLastWeek",
-                    "Topic.popularityScoreLastMonth",
-                    "Topic.lastEdit_tz as lastEdit",
-                    "CurrentVersion.props",
-                    "Content.numWords",
-                    "Record.created_at_tz as created_at",
-                    eb => eb.selectFrom("Post")
-                        .whereRef("Post.replyToId", "=", "TopicVersion.uri")
-                        .select(eb => eb.fn.count<number>("Post.uri").as("replyCount"))
+                    "CurrentVersion.props", // TO DO (!)
+                    "Record.createdAt",
+                    eb => eb.selectFrom("Comment")
+                        .whereRef("Comment.replyToId", "=", "TopicVersion.uri")
+                        .select(eb => eb.fn.count<number>("Comment.uri").as("replyCount"))
                         .as("replyCount"),
                     eb => eb
                         .selectFrom("TopicVersion as edit")
                         .whereRef("edit.topicId", "=", "TopicVersion.topicId")
                         .select(eb => eb.fn.count<number>("edit.uri").as("editsCount"))
-                        .as("editsCount")
+                        .as("editsCount"),
+                    eb => eb
+                        .selectFrom("Consensus")
+                        .whereRef("Consensus.topicId", "=", "TopicVersion.topicId")
+                        .select(eb => eb.fn.count<number>("Consensus.id").as("consensusCount"))
+                        .as("consensusCount")
                 ])
                 .where("TopicVersion.uri", "in", uris)
                 .execute(),
@@ -876,164 +529,13 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         joinMapsInPlace(topicsByUri, mapByUri)
     }).pipe(Effect.withSpan("fetchTopicsBasicByUris"))
 
-    const fetchFeedHydrationData = (skeleton: FeedSkeleton): Effect.Effect<void, DBSelectError | FetchFromBskyError> => Effect.gen(function* () {
-        const expandedUris = yield* expandUrisWithRepliesQuotesAndReposts(skeleton)
-
-        yield* Effect.all([
-            fetchPostAndArticleViewsHydrationData(expandedUris),
-            fetchRepostsHydrationData(expandedUris),
-            fetchRootCreationDate(skeleton.map(s => s.post))
-        ], {concurrency: "unbounded"})
-    })
-
-    const fetchRootCreationDate = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        uris = uris.filter(u => isPost(getCollectionFromUri(u)))
-        if (uris.length == 0) return
-
-        const rootCreationDatesData = yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .selectFrom("Post")
-                .innerJoin("Record", "Record.uri", "Post.rootId")
-                .select(["Post.uri", "Record.created_at_tz as created_at"])
-                .where("Post.uri", "in", uris)
-                .execute(),
-            catch: (error) => new DBSelectError(error)
-        })
-
-        rootCreationDatesData.forEach(r => {
-            rootCreationDates.set(r.uri, r.created_at!)
-        })
-    })
-
-
-    const fetchRepostsHydrationData = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        uris = uris.filter(u => getCollectionFromUri(u) == "app.bsky.feed.repost")
-        if (uris.length > 0) {
-            const reposts: RepostQueryResult[] = yield* Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("Reaction")
-                    .innerJoin("Record", "Reaction.uri", "Record.uri")
-                    .select([
-                        "Record.uri",
-                        "Record.created_at_tz as created_at",
-                        "Reaction.subjectId"
-                    ])
-                    .where("Reaction.uri", "in", uris)
-                    .execute(),
-                catch: (error) => new DBSelectError(error)
-            })
-
-            reposts.forEach(r => {
-                if (r.subjectId) {
-                    storeRepost({...r, subjectId: r.subjectId})
-                }
-            })
-        }
-    })
 
     const getFetchedBlob = (blob: BlobRef): string | null => {
         const key = getBlobKey(blob)
         return textBlobs?.get(key) ?? null
     }
 
-    const fetchEngagement = (uris: string[]): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-        if (!agent.hasSession()) return
-        if (uris.length == 0) return
-
-        const did = agent.did
-        const reactions = yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .selectFrom("Reaction")
-                .innerJoin("Record", "Record.uri", "Reaction.uri")
-                .select([
-                    "Reaction.uri",
-                    "Reaction.subjectId"
-                ])
-                .where("Record.authorId", "=", did)
-                .where("Record.collection", "in", ["app.bsky.feed.like", "app.bsky.feed.repost"])
-                .where("Reaction.subjectId", "in", uris)
-                .execute(),
-            catch: (error) => new DBSelectError(error)
-        })
-
-        reactions.forEach(l => {
-            if (l.subjectId) {
-                if (getCollectionFromUri(l.uri) == "app.bsky.feed.like") {
-                    if (!av(likes, l.subjectId)) storeLike(l.subjectId, l.uri)
-                }
-                if (getCollectionFromUri(l.uri) == "app.bsky.feed.repost") {
-                    if (!av(reposts, l.subjectId)) storeRepost({
-                        uri: l.uri,
-                        created_at: null,
-                        subjectId: l.subjectId
-                    })
-                }
-            }
-        })
-    })
-
-    function storeLike(subjectId: string, likeUri: string) {
-        const cur = likes.get(subjectId) ?? []
-        likes.set(subjectId, [...cur, likeUri])
-    }
-
-    function storeRepost(repost: RepostQueryResult & {subjectId: string}) {
-        const cur = reposts.get(repost.subjectId) ?? []
-        reposts.set(repost.subjectId, [...cur, repost])
-    }
-
-    function storeBskyBasicUser(user: ProfileViewBasic) {
-        bskyProfileViewBasicData.set(user.did, {
-            ...user,
-            $type: "app.bsky.actor.defs#profileViewBasic"
-        })
-    }
-
-    function storeFeedViewPosts(feed: FeedViewPost[]) {
-        feed.forEach(f => {
-            storeBskyPost(f.post.uri, f.post)
-            if (f.reply) {
-                if (isPostView(f.reply.parent)) {
-                    storeBskyPost(f.reply.parent.uri, f.reply.parent)
-                }
-                if (isPostView(f.reply.root)) {
-                    storeBskyPost(f.reply.root.uri, f.reply.root)
-                }
-            }
-            if (f.reason) {
-                if (AppBskyFeedDefs.isReasonRepost(f.reason) && f.post.uri) {
-                    storeBskyBasicUser(f.reason.by)
-                    storeRepost({
-                        created_at: new Date(f.reason.indexedAt),
-                        subjectId: f.post.uri
-                    })
-                }
-            }
-        })
-    }
-
-    const fetchTopicsMentioned = (uri: string): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-
-        const topics: TopicMentionedProps[] = yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .selectFrom("Reference")
-                .innerJoin("Topic", "Reference.referencedTopicId", "Topic.id")
-                .innerJoin("TopicVersion", "Topic.currentVersionId", "TopicVersion.uri")
-                .select([
-                    "relevance as count",
-                    "Topic.id",
-                    "TopicVersion.props"
-                ])
-                .where("Reference.referencingContentId", "=", uri)
-                .execute(),
-            catch: (error) => new DBSelectError(error)
-        })
-
-        if (!topicsMentioned) topicsMentioned = new Map()
-        topicsMentioned.set(uri, topics)
-    })
-
-    const fetchProfileViewDetailedHydrationDataFromCA = (dids: string[]): Effect.Effect<void, FetchFromCAError> => Effect.gen(function* () {
+    const fetchProfileViewDetailedHydrationData = (dids: string[]): Effect.Effect<void, FetchFromCAError> => Effect.gen(function* () {
         dids = unique(dids.filter(d => !av(caProfileDetailedData, d)))
 
         yield* Effect.annotateCurrentSpan({didsCount: dids.length})
@@ -1046,20 +548,16 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .selectFrom("User")
                     .select([
                         "User.did",
-                        "User.CAProfileUri",
-                        "editorStatus",
                         "userValidationHash",
                         "orgValidation",
-                        "User.caFollowingCount",
-                        "User.caFollowersCount",
                         (eb) =>
                             eb
                                 .selectFrom("Record")
-                                .innerJoin("Article", "Article.uri", "Record.uri")
+                                .innerJoin("ConsensusVersion", "ConsensusVersion.uri", "Record.uri")
                                 .select(eb.fn.countAll<number>().as("count"))
                                 .whereRef("Record.authorId", "=", "User.did")
-                                .where("Record.collection", "=", "ar.cabildoabierto.feed.article")
-                                .as("articlesCount"),
+                                .where("Record.collection", "=", "ar.cabildoabierto.wiki.consensus")
+                                .as("consensusCount"),
                         (eb) =>
                             eb
                                 .selectFrom("Record")
@@ -1075,19 +573,12 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             }),
             Effect.map(profiles => {
                 const formattedProfiles: CAProfileDetailed[] = profiles.map(profile => {
-                    if(profile.CAProfileUri){
-                        return {
-                            did: profile.did,
-                            editorStatus: profile.editorStatus,
-                            caProfile: profile.CAProfileUri,
-                            followsCount: profile.caFollowingCount,
-                            followersCount: profile.caFollowersCount,
-                            articlesCount: profile.articlesCount ?? 0,
-                            editsCount: profile.editsCount ?? 0,
-                            verification: getValidationState(profile)
-                        }
+                    return {
+                        did: profile.did,
+                        editsCount: profile.editsCount ?? 0,
+                        consensusCount: profile.consensusCount ?? 0,
+                        verification: getValidationState(profile)
                     }
-                    return null
                 }).filter(x => x != null)
 
                 formattedProfiles.forEach(p => {
@@ -1103,66 +594,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 return formattedProfiles
             })
         )
-    }).pipe(Effect.withSpan("fetchProfileViewDetailedHydrationDataFromCA"))
-
-    const fetchProfilesViewerState = (dids: string[]): Effect.Effect<void, ViewerStateFetchError> => {
-        if(!agent.hasSession()) {
-            dids.forEach(d => {
-                viewerStateData.set(d, {})
-            })
-            return Effect.void
-        }
-
-        return pipe(
-            Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("Follow")
-                    .innerJoin("Record", "Record.uri", "Follow.uri")
-                    .select("Follow.uri")
-                    .where(eb => eb.or([
-                        eb.and([
-                            eb("Follow.userFollowedId", "in", dids),
-                            eb("Record.authorId", "=", agent.did),
-                        ]),
-                        eb.and([
-                            eb("Follow.userFollowedId", "=", agent.did),
-                            eb("Record.authorId", "in", dids)
-                        ])
-                    ]))
-                    .execute(),
-                catch: (error) => {
-                    const message = error instanceof Error ? error.message : String(error)
-                    return new ViewerStateFetchError(message)
-                }
-            }),
-            Effect.tap(follows => {
-                dids.forEach(did => {
-                    const following = follows.find(f => getDidFromUri(f.uri) == agent.did)
-                    const followedBy = follows.find(f => getDidFromUri(f.uri) == did)
-
-                    viewerStateData.set(did, {
-                        following: following ? following.uri : undefined,
-                        followedBy: followedBy ? followedBy.uri : undefined
-                    })
-                })
-            })
-        )
-    }
-
-    const fetchProfileViewDetailedHydrationData = (dids: string[]): Effect.Effect<void, ViewerStateFetchError | FetchFromCAError | FetchFromBskyError> => {
-        if(dids.length === 0) return Effect.void
-
-        return pipe(
-            fetchProfilesViewerState(dids),
-            Effect.flatMap(() =>
-                Effect.all([
-                    fetchProfileViewDetailedHydrationDataFromCA(dids),
-                    fetchProfileViewDetailedHydrationDataFromBsky(dids)
-                ], {concurrency: "unbounded"})
-            ),
-            Effect.withSpan("fetchProfileViewDetailedHydrationData")
-        )
-    }
+    }).pipe(Effect.withSpan("fetchProfileViewDetailedHydrationData"))
 
     const fetchFilesFromStorage = (filePaths: string[], bucket: string): Effect.Effect<void, S3DownloadError> => Effect.gen(function* () {
         if(!ctx.storage) return

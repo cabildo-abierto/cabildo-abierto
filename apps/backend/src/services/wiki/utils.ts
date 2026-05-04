@@ -1,12 +1,12 @@
 
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {gett, unique} from "@cabildo-abierto/utils";
 import {cleanText} from "@cabildo-abierto/utils";
 
 
-export function getTopicCategories(props?: ArCabildoabiertoWikiTopicVersion.TopicProp[], topicCategories?: string[], currentVersionCategories?: string): string[] {
+export function getTopicCategories(props?: ArCabildoabiertoWikiTopic.TopicProp[], topicCategories?: string[], currentVersionCategories?: string): string[] {
     const c = getTopicProp("Categorías", props)
-    const propsCategories = c && ArCabildoabiertoWikiTopicVersion.isStringListProp(c.value) ? c.value.value : []
+    const propsCategories = c && ArCabildoabiertoWikiTopic.isStringListProp(c.value) ? c.value.value : []
 
     return unique([
         ...propsCategories,
@@ -16,7 +16,7 @@ export function getTopicCategories(props?: ArCabildoabiertoWikiTopicVersion.Topi
 }
 
 
-export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]): ArCabildoabiertoWikiTopicVersion.TopicProp | null {
+export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopic.TopicProp[]): ArCabildoabiertoWikiTopic.TopicProp | null {
     const d = getPropsDict(props)
     if(d.has(prop)){
         return gett(d, prop)
@@ -26,20 +26,20 @@ export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopicVers
 }
 
 
-export function getTopicTitle(topic: {id: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]}): string {
+export function getTopicTitle(topic: {id: string, props?: ArCabildoabiertoWikiTopic.TopicProp[]}): string {
     const t = getTopicProp("Título", topic.props)
-    return t && ArCabildoabiertoWikiTopicVersion.isStringProp(t.value) ? t.value.value : topic.id
+    return t && ArCabildoabiertoWikiTopic.isStringProp(t.value) ? t.value.value : topic.id
 }
 
 
-export function getTopicSynonyms(topic: {id: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]}): string[] {
+export function getTopicSynonyms(topic: {id: string, props?: ArCabildoabiertoWikiTopic.TopicProp[]}): string[] {
     const s = getTopicProp("Sinónimos", topic.props)
 
-    return s && ArCabildoabiertoWikiTopicVersion.isStringListProp(s.value) ? unique(s.value.value, cleanText) : []
+    return s && ArCabildoabiertoWikiTopic.isStringListProp(s.value) ? unique(s.value.value, cleanText) : []
 }
 
 
-export function getPropsDict(props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
-    if(!props) return new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>()
-    return new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>(props.map(p => [p.name, p]))
+export function getPropsDict(props?: ArCabildoabiertoWikiTopic.TopicProp[]) {
+    if(!props) return new Map<string, ArCabildoabiertoWikiTopic.TopicProp>()
+    return new Map<string, ArCabildoabiertoWikiTopic.TopicProp>(props.map(p => [p.name, p]))
 }
