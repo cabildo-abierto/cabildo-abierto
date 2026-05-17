@@ -37,12 +37,12 @@ const LandingTopbar = () => {
                 <Logo width={32} height={32}/>
 
                 <div className="flex-1 flex justify-end">
-                    <GoToLoginButton
+                    {/*<GoToLoginButton
                         inviteClassName="text-[11px] text-[var(--text-light)]"
                         textClassName={cn("text-[12px] transition-colors duration-300")}
                         text="Entrar"
                         variant={scrollState == "etc" ? "black" : "white"}
-                    />
+                    />*/}
                 </div>
             </div>
         </div>

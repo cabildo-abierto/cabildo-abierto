@@ -1,21 +1,12 @@
-import {Logo} from '@/components/utils/icons/logo';
-import {ScrollToButton} from "../utils/scroll-to-button";
 import {topicUrl} from "@/components/utils/react/url";
 import BlueskyLogo from "@/components/utils/icons/bluesky-logo";
 import {GithubLogoIcon} from "@phosphor-icons/react";
 import {ReactNode} from "react";
 import {cn} from "@/lib/utils";
-import {dimOnHoverClassName, DimOnHoverLink} from "@/components/utils/base/dim-on-hover-link";
-import Image from "next/image"
-import {useTheme} from "@/components/layout/theme/theme-context";
+import {DimOnHoverLink} from "@/components/utils/base/dim-on-hover-link";
 
 const FooterLeftSide = () => {
     return <div className="flex flex-col justify-between items-start space-y-16 min-w-24">
-        <ScrollToButton>
-            <div className={dimOnHoverClassName}>
-                <Logo width={40} height={40}/>
-            </div>
-        </ScrollToButton>
         <div className="flex space-x-1 items-center">
             <DimOnHoverLink
                 target="_blank"
@@ -64,10 +55,9 @@ export const FooterRightSide = ({showCA}: { showCA: boolean }) => {
             </div>}
 
             <div className="flex flex-col space-y-1">
-                <div className={"uppercase"}>Contacto</div>
-                <FooterLink href="mailto:soporte@cabildoabierto.ar">
-                    soporte@cabildoabierto.ar
-                </FooterLink>
+                <div>
+                    Podés escribirnos a
+                </div>
                 <FooterLink href="mailto:soporte@cabildoabierto.ar">
                     contacto@cabildoabierto.ar
                 </FooterLink>
@@ -81,21 +71,10 @@ export default function Footer({showCA = true, className}: {
     showCA?: boolean
     className?: string
 }) {
-    const {currentTheme} = useTheme()
     return <div
         className={cn("flex justify-between px-8 md:px-16 lg:px-32 space-x-4 sm:space-x-12 py-16 relative bg-[var(--background)] ", className)}
     >
         <FooterLeftSide/>
-        <FooterRightSide showCA={showCA}/>
-
-        <div className={"absolute bottom-0 right-[8vw]"}>
-            <Image
-                src={"/presentacion/puertas.png"}
-                alt={"Puertas del cabildo"}
-                width={500}
-                height={150}
-                className={cn("w-32", currentTheme == "dark" ? "invert" : "")}
-            />
-        </div>
+        <FooterRightSide showCA={false}/>
     </div>
 }

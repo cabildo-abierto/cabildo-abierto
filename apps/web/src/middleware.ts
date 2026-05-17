@@ -12,6 +12,11 @@ export async function middleware(request: NextRequest) {
 
     const segments = url.pathname.split("/").filter(Boolean)
 
+    if(url.pathname != "/presentacion") {
+        url.pathname = "/presentacion"
+        return NextResponse.redirect(url)
+    }
+
     if (segments.length == 4 && segments[0] == "c") {
         const did = segments[1];
         const collection = segments[2];
