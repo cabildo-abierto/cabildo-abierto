@@ -1,4 +1,4 @@
-import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoEmbedVisualization, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {Plotter} from "../plotter";
 import {cleanText, count, unique} from "@cabildo-abierto/utils";
 import {TopicData} from "./election-visualization-comp";
@@ -172,30 +172,30 @@ export function getCargo(p: string | null): Cargo {
 }
 
 
-function getStringListProp(name: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[]): string[] | null {
+function getStringListProp(name: string, props: ArCabildoabiertoWikiTopic.TopicProp[]): string[] | null {
     const prop = getTopicProp(name, props)
     if(!prop) return null
-    if(ArCabildoabiertoWikiTopicVersion.isStringListProp(prop.value)) {
+    if(ArCabildoabiertoWikiTopic.isStringListProp(prop.value)) {
         return prop.value.value
     }
     return null
 }
 
 
-function getNumberProp(name: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[]): number | null {
+function getNumberProp(name: string, props: ArCabildoabiertoWikiTopic.TopicProp[]): number | null {
     const prop = getTopicProp(name, props)
     if(!prop) return null
-    if(ArCabildoabiertoWikiTopicVersion.isNumberProp(prop.value)) {
+    if(ArCabildoabiertoWikiTopic.isNumberProp(prop.value)) {
         return prop.value.value
     }
     return null
 }
 
 
-function getStringProp(name: string, props: ArCabildoabiertoWikiTopicVersion.TopicProp[]): string | null {
+function getStringProp(name: string, props: ArCabildoabiertoWikiTopic.TopicProp[]): string | null {
     const prop = getTopicProp(name, props)
     if(!prop) return null
-    if(ArCabildoabiertoWikiTopicVersion.isStringProp(prop.value)) {
+    if(ArCabildoabiertoWikiTopic.isStringProp(prop.value)) {
         return prop.value.value
     }
     return null

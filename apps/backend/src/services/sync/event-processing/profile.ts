@@ -1,26 +1,47 @@
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
-import {AppBskyActorProfile} from "@atproto/api"
-import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {
-    addRecordsToDBBatch,
     InsertRecordError,
-    RecordProcessor
-} from "#/services/sync/event-processing/record-processor.js";
+    Processing
+} from "#/services/record/processing.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
-import {RefAndRecord} from "#/services/sync/types.js";
-import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
-import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
+import {DBDeleteError} from "#/utils/errors.js";
 
 
-export const caProfileRecordProcessor: RecordProcessor<ArCabildoabiertoActorCaProfile.Record> = {
+export const caProfileRecordProcessor: Processing<ArCabildoabiertoActorCaProfile.Record> = {
     validator: (ctx, record: ArCabildoabiertoActorCaProfile.Record) => {
         return Effect.succeed(ArCabildoabiertoActorCaProfile.validateRecord(record))
     },
 
     addRecordsToDB: (ctx, records, reprocess = false) => {
-        return processCAProfilesBatch(ctx, records)
+        const values = records.map(r => {
+            return {
+                did: getDidFromUri(r.ref.uri),
+                inCA: true,
+                recordCreatedAt: r.record.createdAt ?? null,
+                displayName: r.record.displayName
+            }
+        })
+
+        const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
+
+            await trx
+                .insertInto("User")
+                .values(values)
+                .onConflict(oc => oc.column("did").doUpdateSet(() => ({
+                    inCA: eb => eb.ref("excluded.inCA"),
+                    recordCreatedAt: eb => eb.ref("excluded.recordCreatedAt")
+                })))
+                .execute()
+
+            return values.length
+        })
+
+        return Effect.tryPromise({
+            try: () => insertRecords,
+            catch: (error) => new InsertRecordError(error)
+        })
     }
 }
 
@@ -44,117 +65,4 @@ export const caProfileDeleteProcessor: DeleteProcessor = (ctx, uris) => {
         }),
         catch: error => new DBDeleteError(error)
     })
-}
-
-
-export const oldCAProfileRecordProcessor: RecordProcessor<any> = {
-
-    validator: (ctx, r: any) => {
-        return Effect.succeed({
-            success: true,
-            value: r
-        })
-    },
-
-    addRecordsToDB: (ctx, records, reprocess: boolean = false) => {
-        return processCAProfilesBatch(ctx, records)
-    }
-}
-
-function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effect.Effect<number, InsertRecordError> {
-    const values = records.map(r => {
-        return {
-            did: getDidFromUri(r.ref.uri),
-            CAProfileUri: r.ref.uri,
-            inCA: true,
-            created_at_tz: r.record.created_at ?? new Date()
-        }
-    })
-
-    const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
-        await addRecordsToDBBatch(trx, records)
-
-        await trx
-            .insertInto("User")
-            .values(values)
-            .onConflict(oc => oc.column("did").doUpdateSet(() => ({
-                CAProfileUri: eb => eb.ref("excluded.CAProfileUri"),
-                inCA: eb => eb.ref("excluded.inCA"),
-                created_at_tz: eb => eb.ref("excluded.created_at_tz")
-            })))
-            .execute()
-
-        return values.length
-    })
-
-    return Effect.tryPromise({
-        try: () => insertRecords,
-        catch: (error) => new InsertRecordError(error)
-    })
-}
-
-
-export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Record> = {
-    validator: (ctx, record) => Effect.succeed(AppBskyActorProfile.validateRecord(record)),
-
-    addRecordsToDB: (ctx, records, reprocess: boolean = false) => {
-        return Effect.gen(function*() {
-            const values: {
-                did: string
-                description?: string
-                displayName?: string
-                avatar?: string
-                banner?: string
-                handle?: string
-                created_at_tz: Date
-            }[] = yield* Effect.all(records.map(({ref, record: r}) => {
-                const did = getDidFromUri(ref.uri)
-                const avatarCid = r.avatar ? getCidFromBlobRef(r.avatar) : undefined
-                const avatar = avatarCid ? avatarUrl(did, avatarCid) : undefined
-                const bannerCid = r.banner ? getCidFromBlobRef(r.banner) : undefined
-                const banner = bannerCid ? bannerUrl(did, bannerCid) : undefined
-
-                return Effect.gen(function* () {
-                    const handle = yield* ctx.resolver.resolveDidToHandle(did, true)
-
-                    return {
-                        did: did,
-                        description: r.description != null ? r.description : undefined,
-                        displayName: r.displayName != null ? r.displayName : undefined,
-                        avatar,
-                        banner,
-                        handle,
-                        created_at_tz: r.createdAt ? new Date(r.createdAt) : new Date()
-                    }
-                })
-            }))
-
-            yield* Effect.tryPromise({
-                try: () => ctx.kysely
-                    .insertInto("User")
-                    .values(values)
-                    .onConflict(oc => oc.column("did").doUpdateSet(() => ({
-                        handle: eb => eb.ref("excluded.handle"),
-                        avatar: eb => eb.ref("excluded.avatar"),
-                        banner: eb => eb.ref("excluded.banner"),
-                        displayName: eb => eb.ref("excluded.displayName"),
-                        created_at_tz: eb => eb.ref("excluded.created_at_tz"),
-                        description: eb => eb.ref("excluded.description")
-                    })))
-                    .execute(),
-                catch: (error) => new InsertRecordError(error)
-            })
-
-            return values.length
-        }).pipe(Effect.catchTag("HandleResolutionError", () => Effect.fail(new InsertRecordError())))
-    }
-}
-
-
-function avatarUrl(did: string, cid: string) {
-    return "https://cdn.bsky.app/img/avatar/plain/" + did + "/" + cid + "@jpeg"
-}
-
-function bannerUrl(did: string, cid: string) {
-    return "https://cdn.bsky.app/img/banner/plain/" + did + "/" + cid + "@jpeg"
 }

@@ -15,7 +15,6 @@ import {
 } from "lexical";
 import {$dfs} from "@lexical/utils";
 import {$isSidenoteNode} from "./nodes/SidenoteNode";
-import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api";
 import {SerializedEmbedNode} from "./nodes/EmbedNode";
 import {ProcessedLexicalState} from "./selection/processed-lexical-state";
 import {LexicalPointer} from "./selection/lexical-selection";
@@ -136,7 +135,7 @@ export function markdownToEditorState(
     markdown: string,
     shouldPreserveNewLines: boolean = true,
     shouldMergeAdjacentLines: boolean = true,
-    embeds: ArCabildoabiertoWikiEmbed.EmbedView[] = [],
+    embeds: ArCabildoabiertoWikiEmbed.View[] = [],
     embedContexts: EmbedContext[] = [],
     transformers: MarkdownTransformer[] = CA_TRANSFORMERS
 ): SerializedEditorState {
@@ -262,7 +261,7 @@ export function htmlToEditorStateStr(text: string) {
 
 export function editorStateToMarkdown(state: ProcessedLexicalState | string | SerializedEditorState): {
     markdown: string;
-    embeds: ArCabildoabiertoWikiEmbed.EmbedView[],
+    embeds: ArCabildoabiertoWikiEmbed.View[],
     embedContexts: EmbedContext[]
 } | null {
     /***
@@ -272,7 +271,7 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
      * ***/
     state = ProcessedLexicalState.fromMaybeProcessed(state)
     const markdown = editorStateToMarkdownNoEmbeds(state);
-    const embeds: ArCabildoabiertoWikiEmbed.EmbedView[] = [];
+    const embeds: ArCabildoabiertoWikiEmbed.View[] = [];
     const contexts: EmbedContext[] = []
 
     for (let i = 0; i < state.state.root.children.length; i++) {
@@ -306,9 +305,9 @@ export function editorStateToMarkdown(state: ProcessedLexicalState | string | Se
     return {markdown, embeds, embedContexts: contexts}
 }
 
-export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArCabildoabiertoWikiEmbed.EmbedView[], embedContexts?: EmbedContext[]): {
+export function anyEditorStateToMarkdown(text: string, format: string, embeds?: ArCabildoabiertoWikiEmbed.View[], embedContexts?: EmbedContext[]): {
     markdown: string,
-    embeds: ArCabildoabiertoWikiEmbed.EmbedView[],
+    embeds: ArCabildoabiertoWikiEmbed.View[],
     embedContexts: EmbedContext[]
 } {
     if (format == "markdown") {

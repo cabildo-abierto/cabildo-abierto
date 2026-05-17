@@ -7,17 +7,22 @@ import {topicUrl} from "@/components/utils/react/url";
 import TopicPopularityIndicator from "@/components/tema/topic-popularity-indicator";
 import {WriteButtonIcon} from "@/components/utils/icons/write-button-icon";
 import {InactiveCommentIcon} from "@/components/utils/icons/inactive-comment-icon";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
-import {useState} from "react";
+import React, {useState} from "react";
 import {cn} from "@/lib/utils";
-import {ListDashesIcon} from "@phosphor-icons/react";
+import {ListDashesIcon, PlusIcon} from "@phosphor-icons/react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/utils/ui/popover";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
+import {BaseIconButton} from "@/components/utils/base/base-icon-button";
+import {useSession} from "@/components/auth/use-session";
+import WritePanel from "@/components/writing/write-panel/write-panel";
+import {BaseFullscreenPopup} from "@/components/utils/dialogs/base-fullscreen-popup";
+import {CreateTopic} from "@/components/writing/write-panel/create-topic";
 
 
 const TopicCard = ({topic: t, i, timePeriod}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic, i: number, timePeriod: TimePeriod
+    topic: ArCabildoabiertoWikiTopic.TopicViewBasic, i: number, timePeriod: TimePeriod
 }) => {
     return <CustomLink
         tag={"div"}
@@ -164,10 +169,21 @@ const CategorySelectorButton = ({selectedCategories, setSelectedCategories}: {
 }
 
 
+const NewTopicPanel = ({open, onClose}: {open: boolean, onClose: () => void}) => {
+    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} className={"lg:min-w-[500px]"}>
+        <div className={"p-4"}>
+            <CreateTopic onClose={onClose} onMenu={false}/>
+        </div>
+    </BaseFullscreenPopup>
+}
+
+
 const Temas = () => {
     const maxCount = 6
     const [timePeriod, setTimePeriod] = useState<TimePeriod>("week")
     const [selectedCategories, setSelectedCategories] = useState<string[]>(["Política", "Ciencia y tecnología", "Sociedad", "Economía"])
+    const [writePanelOpen, setWritePanelOpen] = useState<boolean>(false)
+    const {user} = useSession()
 
     return <div className={""}>
         <div className={"flex space-x-16 pl-16"}>
@@ -192,6 +208,12 @@ const Temas = () => {
                     setSelectedCategories={setSelectedCategories}
                 />
             </div>
+
+            {user && <div>
+                <BaseIconButton onClick={() => {setWritePanelOpen(true)}}>
+                    <PlusIcon/>
+                </BaseIconButton>
+            </div>}
         </div>
         <div className={"pl-16 pt-4 space-y-12 pb-32"}>
             {["Global", ...selectedCategories].map(c => {
@@ -205,6 +227,14 @@ const Temas = () => {
                 />
             })}
         </div>
+        {
+            writePanelOpen && user && <NewTopicPanel
+                open={writePanelOpen}
+                onClose={() => {
+                    setWritePanelOpen(false)
+                }}
+            />
+        }
     </div>
 }
 

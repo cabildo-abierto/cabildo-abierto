@@ -16,7 +16,7 @@ import {Poll} from "@/components/writing/poll/poll"
 import {getEditorSettings} from "@/components/writing/settings"
 import {InactiveCommentIcon} from "@/components/utils/icons/inactive-comment-icon"
 import {useTopicPageParams} from "@/components/tema/use-topic-page-params"
-import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic"
+import {useTopic} from "@/queries/getters/useTopic"
 import {cn} from "@/lib/utils"
 import {useLayoutConfig} from "@/components/layout/main-layout/layout-config-context"
 import {BaseButton} from "@/components/utils/base/base-button";
@@ -34,7 +34,7 @@ export type Consensus = {
     title: string
     /** Texto plano en markdown (sin títulos `#`): párrafos, enlaces `[t](url)` y embeds por índice. */
     bodyMarkdown: string
-    bodyEmbeds: ArCabildoabiertoWikiEmbed.EmbedView[]
+    bodyEmbeds: ArCabildoabiertoWikiEmbed.View[]
     acceptVotes: number
     rejectVotes: number
     opinions: number
@@ -44,7 +44,7 @@ export type Consensus = {
 }
 
 /** Misma visualización por sectores que en el tema «Inflación» (dataset INDEC agregado en CA). */
-const PROTOTYPE_IPC_POR_SECTOR_VIS: ArCabildoabiertoWikiEmbed.EmbedView["value"] = {
+const PROTOTYPE_IPC_POR_SECTOR_VIS: ArCabildoabiertoWikiEmbed.View["value"] = {
     $type: "ar.cabildoabierto.embed.visualization",
     caption: "Inflación (IPC) por sectores a nivel nacional (2016 a junio 2025)",
     dataSource: {
@@ -657,7 +657,7 @@ const Consensus = ({c}: {c: Consensus}) => {
 
 const ConsensusList = () => {
     const {topicId, did, rkey} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
 
     const [activeTab, setActiveTab] = useState<ConsensusTab>("accepted")
 
@@ -747,7 +747,7 @@ const ConsensusList = () => {
 
 const Polls = () => {
     const {topicId, did, rkey} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
 
     const polls = useMemo(() => {
         if (!topic || topic === "loading") return []
@@ -815,7 +815,7 @@ const SourceCard = ({source}: { source: TopicSourceMock }) => {
 
 const Sources = () => {
     const {topicId, did, rkey} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
 
     const sources = useMemo(() => {
         if (!topic || topic === "loading") return []
@@ -906,7 +906,7 @@ const OpinionBranch = ({node}: { node: OpinionThreadMock }) => {
 
 const Opinions = () => {
     const {topicId, did, rkey} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
 
     const roots = useMemo(() => {
         if (!topic || topic === "loading") return []
@@ -933,7 +933,7 @@ const Opinions = () => {
 
 export const NewTopicPage = () => {
     const {topicId, did, rkey} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
     const {isMobile, layoutConfig} = useLayoutConfig()
 
     if (!topic || topic === "loading") return null

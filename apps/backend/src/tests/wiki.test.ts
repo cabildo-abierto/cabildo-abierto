@@ -16,13 +16,13 @@ import {
 } from "#/tests/test-utils.js";
 import {AppContext} from "#/setup.js";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import {getTopicVersion} from "#/services/wiki/topics.js";
-import {getTopicVersionVotes} from "#/services/wiki/votes.js";
+import {getTopicVersion} from "#/services/wiki/topic.js";
+import {getTopicVersionVotes} from "#/services/votes/votes.js";
 import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {Effect} from "effect";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
-import {getTopicDiscussionHandler} from "#/services/wiki/discussion.js";
+import {getTopicDiscussionHandler} from "#/services/discussion/discussion.js";
 
 const testSuite = getSuiteId(__filename)
 

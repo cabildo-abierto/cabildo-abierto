@@ -11,6 +11,8 @@ import {
 } from '../../../../util'
 import type * as ArCabildoabiertoActorDefs from '../actor/defs.js'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
+import type * as ArCabildoabiertoWikiComment from './comment.js'
+import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -32,4 +34,34 @@ export function isVoteView<V>(v: V) {
 
 export function validateVoteView<V>(v: V) {
   return validate<VoteView & V>(v, id, hashVoteView)
+}
+
+export interface ThreadViewContent {
+  $type?: 'ar.cabildoabierto.wiki.defs#threadViewContent'
+  content:
+    | $Typed<ArCabildoabiertoWikiComment.View>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  parent?:
+    | $Typed<ThreadViewContent>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  replies?: (
+    | $Typed<ThreadViewContent>
+    | $Typed<AppBskyFeedDefs.NotFoundPost>
+    | $Typed<AppBskyFeedDefs.BlockedPost>
+    | { $type: string }
+  )[]
+}
+
+const hashThreadViewContent = 'threadViewContent'
+
+export function isThreadViewContent<V>(v: V) {
+  return is$typed(v, id, hashThreadViewContent)
+}
+
+export function validateThreadViewContent<V>(v: V) {
+  return validate<ThreadViewContent & V>(v, id, hashThreadViewContent)
 }

@@ -1,6 +1,6 @@
 import {$Typed} from "@cabildo-abierto/api";
 import {
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api";
 import {BaseButtonProps} from "@/components/utils/base/base-button";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuTrigger} from "@/components/utils/ui/dropdown-menu";
@@ -16,7 +16,7 @@ export const HistoryElementOptionsButton = ({
                                          iconSize,
                                          className
                                      }: {
-    record?: $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory>
+    record?: $Typed<ArCabildoabiertoWikiTopic.VersionInHistory>
     iconSize?: BaseButtonProps["size"]
     className?: string
 }) => {

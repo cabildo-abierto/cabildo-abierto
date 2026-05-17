@@ -4,11 +4,11 @@ import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {compress} from "@cabildo-abierto/editor-core";
 import {datasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
+import {processValidatedRecords} from "#/services/record/processing.js";
 import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError} from "#/services/votes/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {EffHandler} from "#/utils/handler.js";
 

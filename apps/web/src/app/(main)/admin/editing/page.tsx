@@ -1,7 +1,7 @@
 "use client"
 import {UploadFileButton} from "@/components/utils/upload-file-button";
 import {useState} from "react";
-import {ArCabildoabiertoWikiTopicVersion, BatchEdit, EditPropsParams} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic, BatchEdit, EditPropsParams} from "@cabildo-abierto/api";
 import {TopicPropView} from "@/components/tema/props/topic-prop-view";
 import {post} from "@/components/utils/react/fetch";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
@@ -17,7 +17,7 @@ const EditRow = ({r, message}: {r: any, message: string}) => {
                 {r.id}
             </div>
             {r.props.map(p => {
-                const prop = p as ArCabildoabiertoWikiTopicVersion.TopicProp
+                const prop = p as ArCabildoabiertoWikiTopic.TopicProp
                 return <TopicPropView
                     p={prop}
                     key={p.name}

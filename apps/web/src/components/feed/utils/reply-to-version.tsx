@@ -2,7 +2,7 @@ import Link from "next/link";
 import {splitUri} from "@cabildo-abierto/utils";
 import {AppBskyFeedPost} from "@atproto/api";
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
-import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
+import {useTopic} from "@/queries/getters/useTopic";
 import {formatIsoDate, formatIsoDateShort} from "@cabildo-abierto/utils";
 import {topicUrl} from "@/components/utils/react/url";
 
@@ -12,7 +12,7 @@ export const ReplyToVersion = ({postView, pageRootUri}: {
     pageRootUri: string
 }) => {
     const {did, rkey} = splitUri(pageRootUri)
-    const {topic} = useTopicWithNormalizedContent(undefined, did, rkey)
+    const {topic} = useTopic(undefined, did, rkey)
     if (pageRootUri && postView.rootCreationDate && topic && topic != "loading") {
         const record = postView.record as AppBskyFeedPost.Record
         if (record.reply && record.reply.root) {

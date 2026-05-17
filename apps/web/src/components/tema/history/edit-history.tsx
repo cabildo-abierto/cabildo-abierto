@@ -4,11 +4,11 @@ import {useTopicHistory} from "@/queries/getters/useTopic";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {ErrorPage} from "../../utils/error-page";
 import {TopicContributor} from "@/lib/types";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {HistoryElement} from "./history-element";
 
 
-function getTopicContributors(history: ArCabildoabiertoWikiTopicVersion.TopicHistory): TopicContributor[] {
+function getTopicContributors(history: ArCabildoabiertoWikiTopic.TopicHistory): TopicContributor[] {
     const authors = new Map<string, TopicContributor>()
 
     history.versions.forEach(v => {
@@ -62,7 +62,7 @@ const TopicVersionAuthors = ({topicVersionAuthors}: { topicVersionAuthors: Topic
 
 
 export const EditHistory = ({topic, className, onClose}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
     className?: string
     onClose?: () => void
 }) => {

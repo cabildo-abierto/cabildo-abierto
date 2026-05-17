@@ -6,9 +6,8 @@ import {
 import {
     addRecordsToDBBatch,
     InsertRecordError,
-    processDirtyRecordsBatch,
-    RecordProcessor
-} from "#/services/sync/event-processing/record-processor.js";
+    Processing
+} from "#/services/record/processing.js";
 import {ArCabildoabiertoEmbedPollVote} from "@cabildo-abierto/api"
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
@@ -17,9 +16,10 @@ import {ValidationResult} from "@atproto/lexicon";
 import {CIDEncodeError, getPollKey} from "#/services/write/topic.js";
 import {DBDeleteError} from "#/utils/errors.js";
 import {AppContext} from "#/setup.js";
+import {processDirtyRecordsBatch} from "#/services/record/creation.js";
 
 
-export const pollVoteRecordProcessor: RecordProcessor<ArCabildoabiertoEmbedPollVote.Record> = {
+export const pollVoteRecordProcessor: Processing<ArCabildoabiertoEmbedPollVote.Record> = {
     validator: (ctx, record: ArCabildoabiertoEmbedPollVote.Record): Effect.Effect<ValidationResult<ArCabildoabiertoEmbedPollVote.Record>, CIDEncodeError> => {
         return Effect.gen(function* () {
             const res = ArCabildoabiertoEmbedPollVote.validateRecord(record)

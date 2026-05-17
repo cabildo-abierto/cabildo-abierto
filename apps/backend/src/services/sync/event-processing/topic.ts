@@ -1,18 +1,15 @@
 import {AppContext} from "#/setup.js";
-import {RefAndRecord, SyncContentProps} from "#/services/sync/types.js";
-import {getDidFromUri} from "@cabildo-abierto/utils";
-import {processContentsBatch} from "#/services/sync/event-processing/content.js";
-import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kysely";
+import {RefAndRecord} from "#/services/sync/types.js";
+import {ExpressionBuilder, OnConflictDatabase, OnConflictTables} from "kysely";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
-import {getCidFromBlobRef} from "#/services/sync/utils.js";
-import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopic, ATProtoStrongRef} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {
     addRecordsToDBBatch,
     InsertRecordError,
     ProcessCreateError,
-    RecordProcessor,
+    Processing,
     ValidationError
-} from "#/services/sync/event-processing/record-processor.js";
+} from "#/services/record/processing.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
@@ -20,62 +17,45 @@ import {Effect, pipe} from "effect";
 import {DB} from "prisma/generated/types.js";
 import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
-import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
 
 
-export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTopic.Record> = {
-    validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopic.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopic.Record>, ValidationError> => {
-        return Effect.gen(function* () {
-            const res = ArCabildoabiertoWikiTopic.validateRecord(record)
-            if (!res.success) {
-                return yield* Effect.succeed(res)
-            } else {
-                if (res.value.embeds) {
-                    const polls = res.value.embeds
-                        .map(e => e.value)
-                        .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
-                    for (const p of polls) {
-                        const key = yield* getPollKey(p.poll)
-                        if (key != p.key) {
-                            const error: ValidationResult<ArCabildoabiertoWikiTopic.Record> = {
-                                success: false,
-                                error: new Error("Invalid poll.")
-                            }
-                            return yield* Effect.succeed(error)
-                        }
-                    }
+/*function validateEmbeds() {
+    if (res.value.embeds) {
+        const polls = res.value.embeds
+            .map(e => e.value)
+            .filter(e => ArCabildoabiertoEmbedPoll.isMain(e))
+        for (const p of polls) {
+            const key = yield* getPollKey(p.poll)
+            if (key != p.key) {
+                const error: ValidationResult<ArCabildoabiertoWikiTopic.Record> = {
+                    success: false,
+                    error: new Error("Invalid poll.")
                 }
-                return yield* Effect.succeed(res)
+                return yield* Effect.succeed(error)
             }
-        }).pipe(Effect.withSpan("TopicVersionRecordProcessor.validateRecord"))
+        }
+    }
+}*/
+
+
+export const topicRecordProcessor: Processing<ArCabildoabiertoWikiTopic.Record> = {
+    validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopic.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopic.Record>, ValidationError> => {
+        return Effect.succeed(ArCabildoabiertoWikiTopic.validateRecord(record))
     },
     addRecordsToDB: (
         ctx: AppContext,
         records: RefAndRecord<ArCabildoabiertoWikiTopic.Record>[],
         reprocess: boolean = false
     ): Effect.Effect<number, ProcessCreateError | InvalidValueError> => {
-        const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
-            record: {
-                format: r.record.format,
-                textBlob: r.record.text ? {
-                    cid: getCidFromBlobRef(r.record.text),
-                    authorId: getDidFromUri(r.ref.uri)
-                } : undefined,
-                embeds: r.record.embeds ?? []
-            },
-            ref: r.ref
-        }))
-        const topicIds = records.map(r => r.record.id)
-
-        const topics = getUniqueTopicUpdates(records)
+        if(records.length === 0) return Effect.succeed(0)
+        const topicIds = unique(records.map(r => r.record.id))
 
         const topicVersions = records.map(r => ({
             uri: r.ref.uri,
             topicId: r.record.id,
             message: r.record.message ? r.record.message : undefined,
-            props: r.record.props ? JSON.stringify(r.record.props) : undefined,
-            authorship: r.record.claimsAuthorship ?? false
+            props: r.record.props ? JSON.stringify(r.record.props) : undefined
         }))
 
         const insertTopics = ctx.kysely.transaction().execute(async (trx) => {
@@ -83,18 +63,9 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
 
             await trx
                 .insertInto("Topic")
-                .values(topics.map(t => ({...t, synonyms: []})))
-                .onConflict((oc) => oc.column("id").doUpdateSet({
-                    lastEdit_tz: sql`GREATEST("Topic"."lastEdit_tz", excluded."lastEdit_tz")`
-                }))
+                .values(topicIds.map(t => ({id: t})))
+                .onConflict((oc) => oc.column("id").doNothing())
                 .execute()
-
-            const jobs = await processContentsBatch(
-                ctx,
-                trx,
-                contents,
-                topicIds
-            )
 
             if (topicVersions.length > 0) {
                 const inserted = await trx
@@ -102,17 +73,16 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
                     .values(topicVersions)
                     .onConflict(oc => oc.column("uri").doUpdateSet({
                         topicId: eb => eb.ref("excluded.topicId"),
-                        message: (eb) => eb.ref("excluded.message"),
                         props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
                     }))
                     .returning(["topicId", "TopicVersion.uri"])
                     .execute()
 
-                await updateTopicsCurrentVersionBatch(ctx, trx, inserted.map(t => t.topicId))
+                // await updateTopicsCurrentVersionBatch(ctx, trx, inserted.map(t => t.topicId))
 
-                return {inserted, jobs}
+                return {inserted, jobs: []}
             } else {
-                return {inserted: [], jobs}
+                return {inserted: [], jobs: []}
             }
         })
 
@@ -122,7 +92,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
                 catch: (error) => new InsertRecordError(error)
             }),
             Effect.tap(({inserted, jobs}) => {
-                return !reprocess ? createJobs(ctx, records, inserted, topics, jobs) : Effect.void
+                return !reprocess ? createJobs(ctx, records, inserted, topicIds, jobs) : Effect.void
             }),
             Effect.map(() => records.length),
             Effect.withSpan("TopicVersionRecordProcessor.addRecordsToDB")
@@ -134,47 +104,26 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
 const createJobs = (
     ctx: AppContext,
     records: RefAndRecord<ArCabildoabiertoWikiTopic.Record>[],
-    inserted: { uri: string, topicId: string }[] | undefined, topics: { id: string }[],
+    inserted: { uri: string, topicId: string }[] | undefined,
+    topicIds: string[],
     jobs: JobToAdd[]
 ): Effect.Effect<void, AddJobError> => {
-    const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
+    return Effect.gen(function* () {
+        const data: NotificationJobData[] | null = inserted ? inserted.map((i) => ({
+            uri: i.uri,
+            topics: i.topicId,
+            type: "TopicEdit"
+        })) : null
 
-    const data: NotificationJobData[] | null = inserted ? inserted.map((i) => ({
-        uri: i.uri,
-        topics: i.topicId,
-        type: "TopicEdit"
-    })) : null
-
-    return pipe(
-        data ? ctx.worker?.addJob("batch-create-notifications", data) : Effect.void,
-        Effect.flatMap(() => {
-            return addUpdateContributionsJobForTopics(ctx, topics.map(t => t.id))
-        }),
-        Effect.flatMap(() => {
-            return ctx.worker?.addJobs([
-                ...jobs,
-                {
-                    label: "update-author-status",
-                    data: authors,
-                    priority: 11
-                },
-                {
-                    label: "update-contents-topic-mentions",
-                    data: records.map(r => r.ref.uri),
-                    priority: 11
-                },
-                {
-                    label: "update-topic-mentions",
-                    data: topics.map(t => t.id),
-                    priority: 11
-                }
-            ])
-        })
-    )
+        if (data) {
+            yield* ctx.worker?.addJob("batch-create-notifications", data)
+        }
+        yield* ctx.worker?.addJobs(jobs)
+    })
 }
 
 export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
-    const topicIds = yield* Effect.tryPromise({
+    yield* Effect.tryPromise({
         try: () => ctx.kysely.transaction().execute(async (trx) => {
 
             const topicIds = await trx
@@ -195,29 +144,8 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
                 .execute()
 
             await trx
-                .deleteFrom("VoteReject")
-                .using("Reaction")
-                .whereRef("VoteReject.uri", "=", "Reaction.uri")
-                .where("Reaction.subjectId", "in", uris)
-                .execute()
-
-            await trx
                 .deleteFrom("Reaction")
                 .where("subjectId", "in", uris)
-                .execute()
-
-            await trx
-                .deleteFrom("Reference")
-                .where("referencingContentId", "in", uris)
-                .execute()
-
-            await trx
-                .deleteFrom("AssignedPayment")
-                .where("AssignedPayment.contentId", "in", uris)
-                .execute()
-
-            await trx.deleteFrom("FollowingFeedIndex") // en realidad no debería estar
-                .where("rootId", "in", uris)
                 .execute()
 
             await trx
@@ -227,11 +155,6 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
 
             await trx
                 .deleteFrom("TopicVersion")
-                .where("uri", "in", uris)
-                .execute()
-
-            await trx
-                .deleteFrom("Content")
                 .where("uri", "in", uris)
                 .execute()
 
@@ -246,28 +169,7 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
         }),
         catch: error => new DBDeleteError(error)
     })
-
-    yield* Effect.all([
-        ctx.worker.addJob("update-contents-topic-mentions", uris),
-        ctx.worker.addJob("update-topic-mentions", topicIds.map(t => t.id))
-    ], {concurrency: "unbounded"})
 })
-
-
-function getUniqueTopicUpdates(records: { ref: ATProtoStrongRef, record: ArCabildoabiertoWikiTopic.Record }[]) {
-    const topics = new Map<string, { id: string, lastEdit_tz: Date }>()
-    records.forEach(r => {
-        const id = r.record.id
-        const cur = topics.get(id)
-        const date = new Date(r.record.createdAt)
-        if (!cur) {
-            topics.set(id, {id, lastEdit_tz: date})
-        } else {
-            topics.set(id, {id, lastEdit_tz: cur.lastEdit_tz > date ? cur.lastEdit_tz : date})
-        }
-    })
-    return Array.from(topics.values())
-}
 
 
 export function addUpdateContributionsJobForTopics(ctx: AppContext, ids: string[]) {

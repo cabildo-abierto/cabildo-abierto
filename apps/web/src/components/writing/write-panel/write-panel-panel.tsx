@@ -4,7 +4,7 @@ import {
     ArCabildoabiertoFeedDefs,
     ArCabildoabiertoEmbedRecord, CreatePostProps, ImagePayload, ArCabildoabiertoEmbedVisualization,
     CreatePostThreadElement,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api"
 import {ReplyToContent} from "./write-panel";
 import {MarkdownSelection} from "@/components/editor/selection/markdown-selection";
@@ -174,7 +174,7 @@ const WritePanelPanel = ({
                              isVoteReject = false,
                              className
                          }: WritePanelProps) => {
-    const [selected, setSelected] = useState<string | null>(replyTo || quotedPost || postView || selection ? "Publicación" : null)
+    const [selected, setSelected] = useState<string | null>(replyTo || quotedPost || postView || selection ? "Tema" : null)
     const [hidden, setHidden] = useState(false)
     const [nextEditorKey, setNextEditorKey] = useState(1)
     const initialThreadElementState = useInitialThreadElementState(0, postView)
@@ -208,7 +208,7 @@ const WritePanelPanel = ({
             const text = getPlainText(e.editorState.toJSON().root).trim()
 
             let selectionForPost: [number, number]
-            if (i == 0 && (selection instanceof LexicalSelection && (ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo)) && replyTo.format == "markdown")) {
+            if (i == 0 && (selection instanceof LexicalSelection && (ArCabildoabiertoWikiTopic.isTopicView(replyTo) || ArCabildoabiertoFeedDefs.isFullArticleView(replyTo)) && replyTo.format == "markdown")) {
                 const state = markdownToEditorState(
                     replyTo.text,
                     true,

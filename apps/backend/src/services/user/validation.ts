@@ -76,7 +76,7 @@ export const createVerificationRequest: CAHandler<ValidationRequestProps, {}> = 
         }
 
         await ctx.kysely
-            .insertInto("ValidationRequest")
+            .insertInto("VerificationRequest")
             .values([{
                 ...data,
                 id: uuidv4()
@@ -105,7 +105,7 @@ export const createVerificationRequest: CAHandler<ValidationRequestProps, {}> = 
 
 export const getValidationRequest: CAHandler<{}, { type: "org" | "persona" | null, result?: ValidationRequestResult }> = async (ctx, agent, {}) => {
     const res = await ctx.kysely
-        .selectFrom("ValidationRequest")
+        .selectFrom("VerificationRequest")
         .select(["type", "result", "dniFrente"])
         .where("userId", "=", agent.did)
         .orderBy("ValidationRequest.created_at_tz desc")
@@ -127,7 +127,7 @@ export const getValidationRequest: CAHandler<{}, { type: "org" | "persona" | nul
 
 
 export const cancelValidationRequest: CAHandler<{}, {}> = async (ctx, agent, {}) => {
-    await ctx.kysely.deleteFrom("ValidationRequest")
+    await ctx.kysely.deleteFrom("VerificationRequest")
         .where("userId", "=", agent.did)
         .execute()
 
@@ -143,7 +143,7 @@ function getFileNameFromPath(path: string) {
 
 export const getPendingValidationRequestsCount: CAHandler<{}, {count: number}> = async (ctx, agent, {}) => {
     const result = await ctx.kysely
-        .selectFrom("ValidationRequest")
+        .selectFrom("VerificationRequest")
         .select(eb => eb.fn.count<number>("id").as("count"))
         .where("result", "=", "Pendiente")
         .executeTakeFirst()
@@ -159,7 +159,7 @@ export const getPendingValidationRequests: EffHandler<{}, {
     const [requests, count] = yield* Effect.all([
         Effect.tryPromise({
             try: () => ctx.kysely
-                .selectFrom("ValidationRequest")
+                .selectFrom("VerificationRequest")
                 .select([
                     "id",
                     "dniFrente",
@@ -180,7 +180,7 @@ export const getPendingValidationRequests: EffHandler<{}, {
             catch: () => new DBSelectError("PendingValidationRequests")
         }),
         Effect.tryPromise({
-            try: () => ctx.kysely.selectFrom("ValidationRequest")
+            try: () => ctx.kysely.selectFrom("VerificationRequest")
                 .select(eb => eb.fn.count<number>("id").as("count"))
                 .where("result", "=", "Pendiente")
                 .executeTakeFirst(),
@@ -272,7 +272,7 @@ export async function getHashFromDNI(dni: number) {
 export async function setValidationRequestResult(ctx: AppContext, result: ValidationRequestResultProps) {
     return ctx.kysely.transaction().execute(async trx => {
         const req = await trx
-            .selectFrom("ValidationRequest")
+            .selectFrom("VerificationRequest")
             .innerJoin("User", "User.did", "ValidationRequest.userId")
             .select([
                 "type",
@@ -289,7 +289,7 @@ export async function setValidationRequestResult(ctx: AppContext, result: Valida
 
         const {type, ...user} = req
 
-        await trx.updateTable("ValidationRequest")
+        await trx.updateTable("VerificationRequest")
             .set("result", result.result == "accept" ? "Aceptada" : "Rechazada")
             .where("id", "=", result.id)
             .execute()

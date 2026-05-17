@@ -3,7 +3,7 @@ import {SessionAgent} from "#/utils/session-agent.js";
 import {ImagePayloadForPostCreation} from "@cabildo-abierto/api";
 import {AppContext} from "#/setup.js";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
-import {redisCacheTTL} from "#/services/wiki/topics.js";
+import {redisCacheTTL} from "#/services/wiki/topic.js";
 import {imageSize} from "image-size";
 import {Effect, pipe} from "effect";
 import {BlobRef as ATBlobRef} from "@atproto/lexicon";

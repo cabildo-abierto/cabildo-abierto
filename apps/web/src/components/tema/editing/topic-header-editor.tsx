@@ -1,7 +1,7 @@
 import {TitleInput} from "../../writing/article/title-input";
 import {produce} from "immer";
 import {ListEditor} from "@/components/utils/base/list-editor";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {useCategories} from "@/queries/getters/useTopics";
 import {getTopicTitle} from "../utils";
 import {useCallback} from "react";
@@ -13,8 +13,8 @@ export const TopicHeaderEditor = ({
     setProps
 }: {
     topicId: string
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
-    setProps: (props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) => void
+    props?: ArCabildoabiertoWikiTopic.TopicProp[]
+    setProps: (props: ArCabildoabiertoWikiTopic.TopicProp[]) => void
 }) => {
     const {data} = useCategories()
     const cats = props.find(p => p.name == "Categorías")
@@ -48,7 +48,7 @@ export const TopicHeaderEditor = ({
 
     return <div className="flex flex-col py-1 mb-2 w-full sm:space-y-2" id={"topic-header"}>
         <TitleInput title={title} onChange={setTitle}/>
-        {ArCabildoabiertoWikiTopicVersion.isStringListProp(cats.value) && <ListEditor
+        {ArCabildoabiertoWikiTopic.isStringListProp(cats.value) && <ListEditor
             items={cats.value.value}
             setItems={setProp}
             newItemText={"Agregar categoría"}

@@ -1,6 +1,6 @@
 import {
     ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopic,
     ArCabildoabiertoDataDataset, APIResult
 } from "@cabildo-abierto/api"
 import {ElectionVisualization} from "./election-visualization";
@@ -23,7 +23,7 @@ type Props = {
 
 export type TopicData = {
     id: string
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props: ArCabildoabiertoWikiTopic.TopicProp[]
     repliesCount: number
 }
 

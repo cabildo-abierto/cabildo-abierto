@@ -1,6 +1,6 @@
 import {ListView} from "@/components/utils/base/list-editor";
 import {formatIsoDate} from "@cabildo-abierto/utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import Image from "next/image"
 import {topicUrl} from "@/components/utils/react/url";
 import InfoPanel from "@/components/utils/base/info-panel";
@@ -43,7 +43,7 @@ const TopicStringPropViewValue = ({name, value}: { name: string, value: string }
 
 
 export const TopicPropView = ({p, className, showAll=false}: {
-    p: ArCabildoabiertoWikiTopicVersion.TopicProp
+    p: ArCabildoabiertoWikiTopic.TopicProp
     className?: string
     showAll?: boolean
 }) => {
@@ -62,17 +62,17 @@ export const TopicPropView = ({p, className, showAll=false}: {
             />}
         </div>
         <div className={"break-words"}>
-            {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListView
+            {ArCabildoabiertoWikiTopic.isStringListProp(p.value) && <ListView
                 items={p.value.value}
             />}
-            {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <TopicStringPropViewValue
+            {ArCabildoabiertoWikiTopic.isStringProp(p.value) && <TopicStringPropViewValue
                 name={p.name}
                 value={p.value.value}
             />}
-            {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) && <div className={"text-sm"}>
+            {ArCabildoabiertoWikiTopic.isNumberProp(p.value) && <div className={"text-sm"}>
                 {p.value.value}
             </div>}
-            {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) && <div className={"text-sm"}>
+            {ArCabildoabiertoWikiTopic.isDateProp(p.value) && <div className={"text-sm"}>
                 {formatIsoDate(p.value.value, false)}
             </div>}
         </div>

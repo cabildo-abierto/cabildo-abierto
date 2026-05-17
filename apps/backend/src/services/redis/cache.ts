@@ -1,5 +1,4 @@
 import {getCollectionFromUri, getDidFromUri, isCAProfile, isFollow, splitUri, unique} from "@cabildo-abierto/utils";
-import {FollowingFeedSkeletonElement} from "#/services/feed/inicio/following.js";
 import {CAHandler} from "#/utils/handler.js";
 import {Logger} from "#/utils/logger.js";
 import {ArCabildoabiertoActorDefs} from "@cabildo-abierto/api";

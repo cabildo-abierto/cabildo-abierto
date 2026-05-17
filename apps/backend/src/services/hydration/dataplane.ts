@@ -2,33 +2,24 @@ import {AppContext} from "#/setup.js";
 import {bskyPublicAPI, NoSessionAgent, SessionAgent} from "#/utils/session-agent.js";
 import {ProfileViewBasic, ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs.js";
 import {
-    BlobRef, ThreadSkeleton
+    BlobRef
 } from "#/services/hydration/hydrate.js";
 import {removeNullValues, unique} from "@cabildo-abierto/utils";
 import {
     getCollectionFromUri,
     getDidFromUri,
-    isDataset,
-    isPost
+    isDataset
 } from "@cabildo-abierto/utils";
-import {AppBskyFeedDefs} from "@atproto/api"
 import {$Typed, AtpBaseClient} from "@atproto/api";
-import {TopicVersionQueryResultBasic} from "#/services/wiki/topics.js";
+import {TopicVersionQueryResultBasic} from "#/services/wiki/topic.js";
 import {
     ArCabildoabiertoActorDefs,
     ArCabildoabiertoWikiTopic,
     ArCabildoabiertoEmbedVisualization
 } from "@cabildo-abierto/api"
-import {
-    FeedViewPost,
-    isPostView,
-    isThreadViewPost,
-    ThreadViewPost
-} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js";
 import {FetchBlobError, fetchTextBlobs} from "#/services/blob.js";
 import {env} from "#/lib/env.js";
 import {NotificationQueryResult, NotificationsSkeleton} from "#/services/notifications/notifications.js";
-import {equalFilterCond, inFilterCond, stringListIncludes} from "#/services/dataset/read.js";
 import {jsonArrayFrom} from 'kysely/helpers/postgres'
 import {getValidationState} from "#/services/user/users.js";
 import {AppBskyActorDefs} from "@atproto/api"
@@ -144,22 +135,16 @@ export type PollQueryResult = {
 export class DataPlane extends Context.Tag("DataPlane")<
     DataPlane,
     {
-    readonly fetchCAContentsAndBlobs: (uris: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchSignedStorageUrls: (paths: string[], bucket: string) => Effect.Effect<void, S3GetSignedURLError>
-    readonly fetchThreadHydrationData: (skeleton: ThreadSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchNotificationsHydrationData: (skeleton: NotificationsSkeleton) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchProfileViewDetailedHydrationData: (dids: string[]) => Effect.Effect<void, ViewerStateFetchError | FetchFromCAError | FetchFromBskyError>
-    readonly fetchProfileViewHydrationData: (dids: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchProfileViewBasicHydrationData: (dids: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchDatasetsHydrationData: (uris: string[]) => Effect.Effect<void, FetchFromBskyError | DBSelectError>
     readonly fetchDatasetContents: (uris: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly fetchFilesFromStorage: (filePaths: string[], bucket: string) => Effect.Effect<void, S3DownloadError>
-    readonly storeFeedViewPosts: (feed: FeedViewPost[]) => void
-    readonly saveDataFromPostThread: (thread: ThreadViewPost, includeParents: boolean, excludeChild?: string) => void
     readonly getFetchedBlob: (blob: BlobRef) => string | null
     readonly getState: () => {
         caContents: Map<string, FeedElementQueryResult>
-        bskyPosts: Map<string, AppBskyFeedDefs.PostView>
         topicsByUri: Map<string, TopicVersionQueryResultBasic>
         textBlobs: Map<string, string>
         datasets: Map<string, DatasetQueryResult>
@@ -169,8 +154,6 @@ export class DataPlane extends Context.Tag("DataPlane")<
         notifications: Map<string, NotificationQueryResult>
         topicsDatasets: Map<string, { id: string, props: ArCabildoabiertoWikiTopic.TopicProp[] }[]>
         rootCreationDates: Map<string, Date>
-        bskyBasicUsers: Map<string, $Typed<ProfileViewBasic>>
-        bskyDetailedUsers: Map<string, $Typed<ProfileViewDetailed>>
         caUsersDetailed: Map<string, CAProfileDetailed | "not-found">
         caUsers: Map<string, CAProfile | "not-found">
         profiles: Map<string, ArCabildoabiertoActorDefs.ProfileViewDetailed>
@@ -180,7 +163,6 @@ export class DataPlane extends Context.Tag("DataPlane")<
     }
     readonly fetchFilteredTopics: (manyFilters: $Typed<ArCabildoabiertoEmbedVisualization.ColumnFilter>[][]) => Effect.Effect<void, DBSelectError>
     readonly fetchTopicsBasicByUris: (uris: string[]) => Effect.Effect<void, DBSelectError>
-    readonly fetchPostAndArticleViewsHydrationData: (uris: string[], dids?: string[]) => Effect.Effect<void, DBSelectError | FetchFromBskyError>
     readonly dpFetchTextBlobs: (blobs: BlobRef[]) => Effect.Effect<void, FetchBlobError>
     readonly fetchPollsHydrationData: (ids: string[]) => Effect.Effect<void, DBSelectError>
 }>() {}
@@ -502,7 +484,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "TopicVersion.uri",
                     "Record.cid",
                     "Topic.id",
-                    "CurrentVersion.props", // TO DO (!)
+                    "CurrentVersion.props",
                     "Record.createdAt",
                     eb => eb.selectFrom("Comment")
                         .whereRef("Comment.replyToId", "=", "TopicVersion.uri")
@@ -633,7 +615,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                         "Notification.causedByRecordId",
                         "Notification.message",
                         "Notification.moreContext",
-                        "Notification.created_at_tz",
+                        "Notification.createdAt",
                         "Notification.type",
                         "Notification.reasonSubject",
                         "Record.cid",
@@ -641,7 +623,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                         "TopicVersion.topicId"
                     ])
                     .where("userNotifiedId", "=", agent.did)
-                    .orderBy("Notification.created_at_tz", "desc")
+                    .orderBy("Notification.createdAt", "desc")
                     .limit(20)
                     .execute(),
                 catch: (error) => new DBSelectError(error)
@@ -650,32 +632,9 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         ], {concurrency: "unbounded"})
 
         caNotificationsData.forEach(n => {
-            if(n.created_at_tz != null) notifications.set(n.id, {
-                ...n,
-                created_at: n.created_at_tz
-            })
+            notifications.set(n.id, n)
         })
     })
-
-    function saveDataFromPostThread(thread: ThreadViewPost, includeParents: boolean, excludeChild?: string) {
-        if (thread.post) {
-            storeBskyPost(thread.post.uri, thread.post)
-
-            if (includeParents && thread.parent && isThreadViewPost(thread.parent)) {
-                saveDataFromPostThread(thread.parent, true, thread.post.uri)
-            }
-
-            if (thread.replies) {
-                thread.replies.forEach(r => {
-                    if (isThreadViewPost(r)) {
-                        if (r.post.uri != excludeChild) {
-                            saveDataFromPostThread(r, true)
-                        }
-                    }
-                })
-            }
-        }
-    }
 
     const fetchSignedStorageUrls = (paths: string[], bucket: string): Effect.Effect<void, S3GetSignedURLError> => Effect.gen(function* () {
         paths = paths.filter(p => !av(signedStorageUrls, p))
@@ -709,11 +668,11 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "topicId",
                     "parentRecordId",
                     eb => jsonArrayFrom(eb
-                        .selectFrom("PollVote")
-                        .innerJoin("Record", "Record.uri", "PollVote.uri")
-                        .whereRef("PollVote.pollId", "=", "Poll.id")
-                        .select(["PollVote.choice", "PollVote.uri"])
-                        .orderBy("created_at_tz desc")
+                        .selectFrom("Reaction")
+                        .innerJoin("Record", "Record.uri", "Reaction.uri")
+                        .whereRef("Reaction.pollId", "=", "Poll.id")
+                        .select(["Reaction.label as choice", "Reaction.uri"])
+                        .orderBy("createdAt desc")
                     ).as("votes")
                 ])
                 .where("id", "in", ids)
@@ -724,10 +683,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
     }).pipe(Effect.withSpan("fetchPollsHydrationData", {attributes: {count: ids.length}}))
 
     return {
-        fetchCAContentsAndBlobs,
         fetchSignedStorageUrls,
-        fetchFeedHydrationData,
-        fetchThreadHydrationData,
         fetchNotificationsHydrationData,
         fetchProfileViewDetailedHydrationData,
         fetchDatasetsHydrationData,
@@ -735,9 +691,6 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         fetchFilesFromStorage,
         getState: () => ({
             caContents,
-            bskyPosts,
-            likes,
-            reposts,
             topicsByUri,
             textBlobs,
             datasets,
@@ -756,15 +709,11 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             signedStorageUrls,
             polls
         }),
-        storeFeedViewPosts,
-        saveDataFromPostThread,
         getFetchedBlob,
         fetchFilteredTopics,
         fetchTopicsBasicByUris,
         fetchProfileViewBasicHydrationData,
         fetchProfileViewHydrationData,
-        storeRepost,
-        fetchPostAndArticleViewsHydrationData,
         dpFetchTextBlobs,
         fetchPollsHydrationData
     } as const

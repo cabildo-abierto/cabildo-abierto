@@ -21,9 +21,8 @@ import {processContentsBatch} from "#/services/sync/event-processing/content.js"
 import {
     addRecordsToDBBatch,
     InsertRecordError,
-    processDirtyRecordsBatch,
-    RecordProcessor
-} from "#/services/sync/event-processing/record-processor.js";
+    Processing
+} from "#/services/record/processing.js";
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
 import {Effect, pipe} from "effect";
@@ -109,7 +108,7 @@ function createNotifications(posts: {replyToId: string | null, uri: string}[]): 
 }
 
 
-export const postRecordProcessor: RecordProcessor<AppBskyFeedPost.Record> = {
+export const commentRecordProcessor: Processing<AppBskyFeedPost.Record> = {
     validator: (ctx, record: AppBskyFeedPost.Record) => {
         return Effect.succeed(AppBskyFeedPost.validateRecord(record))
     },

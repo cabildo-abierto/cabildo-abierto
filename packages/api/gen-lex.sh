@@ -2,10 +2,10 @@
   ../../lexicons/ar/cabildoabierto/actor/* \
   ../../lexicons/ar/cabildoabierto/data/* \
   ../../lexicons/ar/cabildoabierto/embed/* \
-  ../../lexicons/ar/cabildoabierto/feed/* \
   ../../lexicons/ar/cabildoabierto/wiki/* \
   ../../lexicons/ar/cabildoabierto/label/* \
   ../../lexicons/ar/cabildoabierto/notification/* \
+  ../../lexicons/ar/cabildoabierto/defs/* \
   ../../lexicons/com/atproto/repo/* \
   ../../lexicons/com/atproto/identity/* \
   ../../lexicons/com/atproto/label/* \

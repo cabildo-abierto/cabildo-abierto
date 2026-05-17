@@ -2524,8 +2524,62 @@ export const schemaDict = {
             description:
               'Fecha de creación del comentario declarada por el autor.',
           },
+          replyCount: {
+            type: 'integer',
+          },
+          upvoteCount: {
+            type: 'integer',
+          },
+          downvoteCount: {
+            type: 'integer',
+          },
+          quoteCount: {
+            type: 'integer',
+          },
+          rootCreationDate: {
+            type: 'string',
+            format: 'datetime',
+          },
+          voteContext: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.comment#voteContext',
+            description:
+              'Si el usuario votó a favor o encontra de esta versión y si es una justificación de voto',
+          },
           isChallenge: {
             type: 'boolean',
+          },
+        },
+      },
+      voteContext: {
+        type: 'object',
+        required: ['authorVotingState'],
+        properties: {
+          authorVotingState: {
+            type: 'string',
+            knownValues: ['accept', 'reject', 'none'],
+          },
+          vote: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.comment#voteInContext',
+          },
+        },
+      },
+      voteInContext: {
+        type: 'object',
+        required: ['uri', 'subject', 'subjectCreatedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'uri',
+          },
+          subject: {
+            type: 'string',
+            format: 'uri',
+          },
+          subjectCreatedAt: {
+            type: 'string',
+            format: 'datetime',
           },
         },
       },
@@ -2632,6 +2686,39 @@ export const schemaDict = {
           subject: {
             type: 'ref',
             ref: 'lex:com.atproto.repo.strongRef',
+          },
+        },
+      },
+      threadViewContent: {
+        type: 'object',
+        required: ['content'],
+        properties: {
+          content: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.wiki.comment#view',
+              'lex:app.bsky.feed.defs#notFoundPost',
+              'lex:app.bsky.feed.defs#blockedPost',
+            ],
+          },
+          parent: {
+            type: 'union',
+            refs: [
+              'lex:ar.cabildoabierto.wiki.defs#threadViewContent',
+              'lex:app.bsky.feed.defs#notFoundPost',
+              'lex:app.bsky.feed.defs#blockedPost',
+            ],
+          },
+          replies: {
+            type: 'array',
+            items: {
+              type: 'union',
+              refs: [
+                'lex:ar.cabildoabierto.wiki.defs#threadViewContent',
+                'lex:app.bsky.feed.defs#notFoundPost',
+                'lex:app.bsky.feed.defs#blockedPost',
+              ],
+            },
           },
         },
       },
@@ -2862,37 +2949,16 @@ export const schemaDict = {
       },
       topicVersionStatus: {
         type: 'object',
-        required: ['voteCounts', 'accepted'],
+        required: ['isCurrentVersion'],
         properties: {
-          voteCounts: {
-            type: 'array',
-            items: {
-              type: 'ref',
-              ref: 'lex:ar.cabildoabierto.wiki.topic#categoryVotes',
-            },
+          acceptVotes: {
+            type: 'integer',
           },
-          accepted: {
+          rejectVotes: {
+            type: 'integer',
+          },
+          isCurrentVersion: {
             type: 'boolean',
-          },
-          protection: {
-            type: 'string',
-            description: '',
-          },
-        },
-      },
-      categoryVotes: {
-        type: 'object',
-        required: ['accepts', 'rejects', 'category'],
-        properties: {
-          accepts: {
-            type: 'integer',
-          },
-          rejects: {
-            type: 'integer',
-          },
-          category: {
-            type: 'string',
-            maxLength: 50,
           },
         },
       },
@@ -3106,6 +3172,10 @@ export const schemaDict = {
             label: {
               type: 'ref',
               ref: 'lex:ar.cabildoabierto.wiki.vote#label',
+            },
+            reason: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
             },
           },
         },

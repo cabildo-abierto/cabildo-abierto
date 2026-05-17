@@ -1,6 +1,5 @@
 import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {AppContext} from "#/setup.js";
-import {getUnsentAccessRequestsCount} from "#/services/user/access.js";
 import {getPendingValidationRequestsCount} from "#/services/user/validation.js";
 import {getUnseenJobApplicationsCount} from "#/services/admin/jobs.js";
 import {Effect} from "effect";
@@ -22,10 +21,10 @@ export const updateTimestamp = (
             .insertInto("Timestamps")
             .values([{
                 id,
-                date_tz: date,
+                date: date,
             }])
             .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
-                date_tz: eb.ref("excluded.date_tz")
+                date: eb.ref("excluded.date")
             })))
             .execute(),
         catch: error => new DBInsertError(error)
@@ -40,12 +39,12 @@ export const getTimestamp = (
     const ts = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Timestamps")
-            .select("date_tz")
+            .select("date")
             .where("id", "=", id)
             .executeTakeFirst(),
         catch: error => new DBSelectError(error)
     })
-    return ts?.date_tz ?? null
+    return ts?.date ?? null
 })
 
 
@@ -74,15 +73,13 @@ export const getServerStatus: EffHandler<{}, {status: ServerStatus}> = (
 }).pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al consultar el estado.")))
 
 
-export const getAdminNotificationCounts: CAHandler<{}, {unsentAccessRequests: number, pendingValidationRequests: number, unseenJobApplications: number}> = async (ctx, agent, {}) => {
-    const [accessResult, validationResult, jobsResult] = await Promise.all([
-        getUnsentAccessRequestsCount(ctx, agent, {}),
+export const getAdminNotificationCounts: CAHandler<{}, {pendingValidationRequests: number, unseenJobApplications: number}> = async (ctx, agent, {}) => {
+    const [validationResult, jobsResult] = await Promise.all([
         getPendingValidationRequestsCount(ctx, agent, {}),
         getUnseenJobApplicationsCount(ctx, agent, {})
     ])
     return {
         data: {
-            unsentAccessRequests: accessResult.data?.count ?? 0,
             pendingValidationRequests: validationResult.data?.count ?? 0,
             unseenJobApplications: jobsResult.data?.count ?? 0
         }
@@ -103,7 +100,7 @@ export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, a
     // Get all CA users from database
     const users = await ctx.kysely
         .selectFrom("User")
-        .select(["did", "handle", "created_at_tz"])
+        .select(["did", "handle", "createdAt"])
         .where("inCA", "=", true)
         .where("hasAccess", "=", true)
         .execute()
@@ -114,7 +111,7 @@ export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, a
             did: u.did,
             handle: u.handle,
             mirrorStatus: await Effect.runPromise(ctx.redisCache.mirrorStatus.get(u.did, true)),
-            CAProfile: u.created_at_tz ? { createdAt: u.created_at_tz } : null
+            CAProfile: u.createdAt ? { createdAt: u.createdAt } : null
         }))
     )
     

@@ -19,15 +19,15 @@ import {
 } from "#/services/blob.js";
 import {EffHandler} from "#/utils/handler.js";
 import {getParsedPostContent, ParsePostError} from "#/services/write/rich-text.js";
-import {postRecordProcessor} from "#/services/sync/event-processing/post.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
+import {commentRecordProcessor} from "#/services/sync/event-processing/comments.js";
+import {processValidatedRecords} from "#/services/record/processing.js";
 import {AppContext} from "#/setup.js";
 import {ATDeleteRecordError, deleteRecordAT, deleteRecords} from "#/services/delete.js";
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
 import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError} from "#/services/votes/votes.js";
 
 function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord.Main> {
     return {

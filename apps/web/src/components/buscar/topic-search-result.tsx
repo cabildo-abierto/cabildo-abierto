@@ -9,7 +9,7 @@ import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {DateSince} from "@/components/utils/base/date";
 import {formatIsoDate} from "@cabildo-abierto/utils";
 import {useLayoutConfig} from "../layout/main-layout/layout-config-context";
-import {ArCabildoabiertoWikiTopicVersion, Session} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic, Session} from "@cabildo-abierto/api"
 import {useSession} from "@/components/auth/use-session";
 import {CustomLink} from "@/components/utils/base/custom-link";
 import {useSearch} from "@/components/buscar/search-context";
@@ -23,7 +23,7 @@ const TopicNumWords = ({numWords}: {numWords: number}) => {
 }
 
 
-export function hasUnseenUpdate(user: Session | null, topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic){
+export function hasUnseenUpdate(user: Session | null, topic: ArCabildoabiertoWikiTopic.TopicViewBasic){
     return user && topic.currentVersionCreatedAt && (
         !topic.lastSeen || new Date(topic.lastSeen) < new Date(topic.currentVersionCreatedAt)
     )
@@ -31,7 +31,7 @@ export function hasUnseenUpdate(user: Session | null, topic: ArCabildoabiertoWik
 
 
 const TopicSearchResult = ({topic, index, time}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic
+    topic: ArCabildoabiertoWikiTopic.TopicViewBasic
     index?: number
     time?: TimePeriod
 }) => {

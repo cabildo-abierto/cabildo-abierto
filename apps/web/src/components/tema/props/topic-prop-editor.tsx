@@ -1,15 +1,15 @@
 import {isKnownProp} from "../utils";
 import 'dayjs/locale/es';
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {defaultPropValue} from "@/components/tema/props/topic-props-editing-panel";
 
 
-export function addDefaults(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], topicId: string): ArCabildoabiertoWikiTopicVersion.TopicProp[] {
+export function addDefaults(props: ArCabildoabiertoWikiTopic.TopicProp[], topicId: string): ArCabildoabiertoWikiTopic.TopicProp[] {
     if (!props) props = []
-    const newProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] = []
+    const newProps: ArCabildoabiertoWikiTopic.TopicProp[] = []
     for (let i = 0; i < props.length; i++) {
         const p = props[i]
-        const valid = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
+        const valid = ArCabildoabiertoWikiTopic.validateTopicProp(p)
         if (!valid.success) {
             if (isKnownProp(p.value)) {
                 newProps.push({

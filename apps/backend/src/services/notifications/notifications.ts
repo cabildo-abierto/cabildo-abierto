@@ -16,10 +16,10 @@ export type NotificationQueryResult = {
     userNotifiedId: string
     causedByRecordId: string
     cid: string | null
-    record: string | null
+    record: any | null
     message: string | null
     moreContext: string | null
-    created_at: Date
+    createdAt: Date
     type: NotificationType
     reasonSubject: string | null
     topicId: string | null
@@ -73,8 +73,8 @@ const hydrateCANotification = (
             $type: "ar.cabildoabierto.actor.defs#profileViewBasic"
         },
         record: data.record ? JSON.parse(data.record) : undefined,
-        isRead: data.created_at < lastReadTime,
-        indexedAt: data.created_at.toISOString(),
+        isRead: data.createdAt < lastReadTime,
+        indexedAt: data.createdAt.toISOString(),
         reasonSubject: data.reasonSubject ?? undefined,
         reasonSubjectContext: data.topicId ?? undefined
     }
@@ -105,7 +105,7 @@ const getCANotifications = (
                     "Notification.reasonSubject"
                 ])
                 .where("Notification.userNotifiedId", "=", agent.did)
-                .orderBy("Notification.created_at_tz", "desc")
+                .orderBy("Notification.createdAt", "desc")
                 .limit(20)
                 .execute(),
             catch: (error) => new DBSelectError(error)
@@ -113,7 +113,9 @@ const getCANotifications = (
         Effect.tryPromise({
             try: () => ctx.kysely
                 .selectFrom("User")
-                .select("lastSeenNotifications_tz")
+                .innerJoin("Event", "Event.userId", "User.did")
+                .where("Event.eventTypeId", "=", "seen_notifications")
+                .select(eb => eb.fn.max("Event.date").as("lastSeenNotifications"))
                 .where("did", "=", agent.did)
                 .execute(),
             catch: (error) => new DBSelectError(error)
@@ -122,7 +124,7 @@ const getCANotifications = (
 
     yield* dataplane.fetchNotificationsHydrationData(skeleton)
 
-    const lastReadTime = lastSeen[0].lastSeenNotifications_tz ?? new Date(0)
+    const lastReadTime = lastSeen[0].lastSeenNotifications ?? new Date(0)
 
     const res = yield* (Effect.all(skeleton
         .map(n => hydrateCANotification(ctx, n.id, lastReadTime))
@@ -132,11 +134,16 @@ const getCANotifications = (
 
 
 function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
+
     return Effect.tryPromise({
         try: () => ctx.kysely
-            .updateTable("User")
-            .set("lastSeenNotifications_tz", new Date())
-            .where("did", "=", agent.did)
+            .insertInto("Event")
+            .values([{
+                id: uuidv4(),
+                userId: agent.did,
+                eventTypeId: "seen_notifications",
+                date: new Date()
+            }])
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
@@ -176,7 +183,10 @@ export const getNotifications: EffHandler<{}, ArCabildoabiertoNotificationListNo
         a => a.indexedAt,
         sortDatesDescending
     )
-}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las notificaciones."))), DataPlane, makeDataPlane(ctx, agent))
+}).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las notificaciones."))),
+    DataPlane,
+    makeDataPlane(ctx, agent)
+)
 
 
 export const getUnreadNotificationsCount: EffHandler<{}, number> =  (
@@ -200,15 +210,17 @@ export const getUnreadNotificationsCount: EffHandler<{}, number> =  (
 
     const result = yield* Effect.tryPromise({
         try: () => ctx.kysely
+            .with("lastSeenNotifications", qb => qb
+                .selectFrom("Event")
+                .where("Event.userId", "=", agent.did)
+                .where("Event.eventTypeId", "=", "seen_notifications")
+                .select([eb => eb.fn.max("Event.date").as("date"), "Event.userId"])
+            )
             .selectFrom('Notification')
             .select(({fn}) => [fn.count('id').as('count')])
-            .where('userNotifiedId', '=', agent.did)
-            .where('created_at_tz', '>', (eb) =>
-                eb
-                    .selectFrom('User')
-                    .select('lastSeenNotifications_tz')
-                    .where('did', '=', agent.did)
-            )
+            .innerJoin("lastSeenNotifications", "lastSeenNotifications.userId", "Notification.userNotifiedId")
+            .where("userNotifiedId", "=", agent.did)
+            .whereRef("createdAt", ">", "lastSeenNotifications.date")
             .executeTakeFirst(),
         catch: (error) => new DBSelectError(error)
     })
@@ -259,13 +271,13 @@ async function getTopicEditsFullNotifications(ctx: AppContext, data: TopicEditNo
             qb
                 .selectFrom('TopicVersion')
                 .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                .select(['Record.uri', 'topicId', "Record.created_at_tz"])
+                .select(['Record.uri', 'topicId', "Record.createdAt"])
                 .where('Record.uri', 'in', data.map(d => d.uri))
         )
         .selectFrom("InputVersions")
         .innerJoin('TopicVersion as tv', 'InputVersions.topicId', 'tv.topicId')
         .innerJoin("Record as tvRecord", "tvRecord.uri", "InputVersions.uri")
-        .whereRef("InputVersions.created_at_tz", ">", "tvRecord.created_at_tz")
+        .whereRef("InputVersions.createdAt", ">", "tvRecord.createdAt")
         .select([
             'InputVersions.uri as causeUri',
             'tv.uri as notifiedVersionUri',

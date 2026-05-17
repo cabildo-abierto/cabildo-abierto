@@ -11,7 +11,7 @@ import {
 import {updateTopicPopularities} from "#/services/wiki/references/popularity.js";
 import {updateContentsText} from "#/services/wiki/content.js";
 import {getTimestamp, updateTimestamp} from "#/services/admin/status.js";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {getTopicCategories, getTopicTitle} from "#/services/wiki/utils.js";
 import {getCollectionFromUri, isArticle, isTopicVersion} from "@cabildo-abierto/utils";
 import {isReactionCollection} from "#/utils/type-utils.js";

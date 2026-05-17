@@ -1,5 +1,5 @@
 import Feed from "./feed";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import LoadingFeedViewContent from "./loading-feed-view-content"
 import StaticFeed from "./static-feed";
 import {GetFeedProps} from "@/lib/types";
@@ -30,7 +30,7 @@ export const getFeedElementKey = (e: ArCabildoabiertoFeedDefs.FeedViewContent) =
         ArCabildoabiertoFeedDefs.isArticleView(e.content)
     ) {
         return e.content.uri
-    } else if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(e.content)) {
+    } else if (ArCabildoabiertoWikiTopic.isTopicViewBasic(e.content)) {
         return e.content.versionRef?.uri ?? null
     } else {
         return null

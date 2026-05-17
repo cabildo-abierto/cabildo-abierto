@@ -9,7 +9,7 @@ import {SaveEditPopup} from "./save-edit-popup";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {contentQueriesFilter} from "@/queries/mutations/updates";
 import { post } from "../../utils/react/fetch";
-import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic, CreateTopicVersionProps} from "@cabildo-abierto/api";
 import {ProcessedLexicalState} from "@/components/editor/selection/processed-lexical-state";
 import {editorStateToMarkdown} from "../../editor/markdown-transforms";
 import { compress } from "@cabildo-abierto/editor-core";
@@ -27,9 +27,9 @@ export const SaveEditButton = ({
     topic,
     setGuardEnabled
 }: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
     editor: LexicalEditor
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props: ArCabildoabiertoWikiTopic.TopicProp[]
     setGuardEnabled: (v: boolean) => void
 }) => {
     const [savingChanges, setSavingChanges] = useState(false)

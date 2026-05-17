@@ -8,7 +8,7 @@ import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import {hasUnseenUpdate} from "../../../../buscar/topic-search-result";
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {formatIsoDate} from "@cabildo-abierto/utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {useSession} from "@/components/auth/use-session";
 import {cn} from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export const TrendingTopicInSlider = ({
     selected
                                       }: {
     selected: TimePeriod
-    topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic
+    topic: ArCabildoabiertoWikiTopic.TopicViewBasic
 }) => {
     const {user} = useSession()
     const title = getTopicTitle(topic)
@@ -68,7 +68,7 @@ export const TrendingTopicInSlider = ({
 
 
 const TrendingTopicsSlider = ({selected, trendingTopics}: {
-    trendingTopics: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]
+    trendingTopics: ArCabildoabiertoWikiTopic.TopicViewBasic[]
     selected: TimePeriod
 }) => {
 

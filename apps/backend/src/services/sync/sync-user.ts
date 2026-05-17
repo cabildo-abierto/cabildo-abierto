@@ -9,7 +9,7 @@ import {processEventsBatch} from "#/services/sync/event-processing/event-process
 import {
     getRecordProcessor
 } from "#/services/sync/event-processing/get-record-processor.js";
-import {processInBatches} from "#/services/sync/event-processing/record-processor.js";
+import {processInBatches} from "#/services/record/processing.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
@@ -18,23 +18,11 @@ import {handleOrDidToDid} from "#/id-resolver.js";
 import {UserNotFoundError} from "#/services/user/access.js";
 import {DBSelectError} from "#/utils/errors.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
-import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {ProcessCreateError} from "#/services/record/processing.js";
 
 import {AddJobError} from "#/utils/errors.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
-
-export async function getCAUsersAndFollows(ctx: AppContext) {
-    return await ctx.kysely
-        .selectFrom("User")
-        .innerJoin("Follow", "User.did", "Follow.userFollowedId")
-        .innerJoin("Record", "Record.uri", "Follow.uri")
-        .innerJoin("User as Follower", "Follower.did", "Record.authorId")
-        .where("Follower.inCA", "=", true)
-        .select(["User.did"])
-        .distinct()
-        .execute()
-}
 
 
 export class RepoTooLargeError {
@@ -64,18 +52,12 @@ export class ProcessEventError {
 const maxRepoMBs = env.MAX_REPO_MBS
 
 export const allCollections = [
-    "app.bsky.feed.post",
-    "app.bsky.feed.like",
-    "app.bsky.feed.repost",
-    "app.bsky.graph.follow",
-    "app.bsky.actor.profile",
-    "ar.cabildoabierto.feed.article",
-    "ar.cabildoabierto.wiki.topicVersion",
+    "ar.cabildoabierto.wiki.topic",
+    "ar.cabildoabierto.wiki.consensus",
+    "ar.cabildoabierto.wiki.comment",
     "ar.cabildoabierto.data.dataset",
-    "ar.cabildoabierto.wiki.voteAccept",
-    "ar.cabildoabierto.wiki.voteReject",
-    "ar.cabildoabierto.actor.caProfile",
-    "ar.com.cabildoabierto.profile"
+    "ar.cabildoabierto.wiki.vote",
+    "ar.cabildoabierto.actor.caProfile"
 ]
 
 export type UserRepo = Map<string, RefAndRecord[]>
@@ -579,60 +561,4 @@ export const syncHandler: EffHandler<{}, {}> = (ctx, agent) => {
             return Effect.fail("Ocurrió un error al sincronizar la cuenta.")
         })
     )
-}
-
-
-export async function updateRecordsCreatedAt(ctx: AppContext) {
-    let offset = 0
-    const bs = 10000
-    while(true){
-        ctx.logger.pino.info({offset}, "updating records created at batch")
-
-        const t1 = Date.now()
-        const res = await ctx.kysely
-            .selectFrom("Record")
-            .select([
-                "uri",
-                "record"
-            ])
-            .limit(bs)
-            .offset(offset)
-            .orderBy("uri desc")
-            .execute()
-        const t2 = Date.now()
-
-        const values: {uri: string, created_at: Date}[] = []
-        res.forEach(r => {
-            if(r.record){
-                const record = JSON.parse(r.record)
-                if(record.created_at){
-                    values.push({
-                        uri: r.uri,
-                        created_at: record.created_at
-                    })
-                }
-            }
-        })
-
-        ctx.logger.pino.info(`got ${res.length} results and ${values.length} values to update`)
-        if(values.length > 0){
-            await ctx.kysely
-                .insertInto("Record")
-                .values(values.map(v => ({
-                    ...v,
-                    collection: "",
-                    rkey: "",
-                    authorId: ""
-                })))
-                .onConflict(oc => oc.column("uri").doUpdateSet(eb => ({
-                    created_at_tz: eb.ref("excluded.created_at_tz")
-                })))
-                .execute()
-        }
-        const t3 = Date.now()
-        ctx.logger.logTimes("batch done in", [t1, t2, t3])
-
-        offset += bs
-        if(res.length < bs) break
-    }
 }

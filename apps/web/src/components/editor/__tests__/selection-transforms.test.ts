@@ -399,7 +399,7 @@ test("selection between images", () => {
 
 test("selection with visualizations", () => {
     const markdown = "abc\n\ndef\n\nghi"
-    const embeds: ArCabildoabiertoWikiEmbed.EmbedView[] = [
+    const embeds: ArCabildoabiertoWikiEmbed.View[] = [
         {
             $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,

@@ -3,7 +3,7 @@ import {
     AppBskyFeedDefs,
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion, GetFeedOutput, MainSearchOutput, TopicDiscussionOutput
+    ArCabildoabiertoWikiTopic, GetFeedOutput, MainSearchOutput, TopicDiscussionOutput
 } from "@cabildo-abierto/api"
 import {postOrArticle} from "@/utils/type-utils";
 import {produce} from "immer";
@@ -283,13 +283,13 @@ export function updateContentInQueries(qc: QueryClient, uri: string, updater: Qu
 }
 
 
-export async function updateTopicHistories(qc: QueryClient, uri: string, updater: (_: ArCabildoabiertoWikiTopicVersion.VersionInHistory) => ArCabildoabiertoWikiTopicVersion.VersionInHistory | null) {
+export async function updateTopicHistories(qc: QueryClient, uri: string, updater: (_: ArCabildoabiertoWikiTopic.VersionInHistory) => ArCabildoabiertoWikiTopic.VersionInHistory | null) {
     qc.getQueryCache().getAll()
         .filter(q => Array.isArray(q.queryKey) && q.queryKey[0] == "topic-history")
         .forEach(q => {
             qc.setQueryData(q.queryKey, old => {
                 if (!old) return old
-                const history = old as ArCabildoabiertoWikiTopicVersion.TopicHistory
+                const history = old as ArCabildoabiertoWikiTopic.TopicHistory
                 return produce(history, draft => {
                     const index = draft.versions.findIndex(v => v.uri == uri)
                     const newVersion = updater(draft.versions[index])

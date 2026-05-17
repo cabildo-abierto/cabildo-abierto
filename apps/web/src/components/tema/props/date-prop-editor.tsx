@@ -1,4 +1,4 @@
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import * as React from "react"
 import {useState} from "react"
 import {Label} from "@/components/utils/ui/label"
@@ -14,7 +14,7 @@ function isEmptyTime(d: Date) {
 export const DatePropEditor = ({date, setProp, propName}: {
     propName: string
     date?: Date
-    setProp: (p: ArCabildoabiertoWikiTopicVersion.TopicProp) => void
+    setProp: (p: ArCabildoabiertoWikiTopic.TopicProp) => void
 }) => {
     const [time, setTime] = useState<boolean>(date && !isEmptyTime(new Date(date)))
 

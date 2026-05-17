@@ -39,25 +39,13 @@ export type MaybeSession = Session | {active: false}
 export type Session = {
     active: true
     platformAdmin: boolean
-    authorStatus: AuthorStatus | null
-    seenTutorial: {
-        topics: boolean
-        home: boolean
-        topicMinimized: boolean
-        topicMaximized: boolean
-    }
-    seenVerifiedNotification: boolean
     handle: string
     displayName: string | null
     avatar: string | null
     did: string
     hasAccess: boolean
     validation: VerificationState
-    algorithmConfig: AlgorithmConfig
     mirrorStatus: MirrorStatus
-    pinnedFeeds: FeedTabView[]
-    caProfile: string | null
-    bskyProfile: string | null
 }
 
 export type Account = {

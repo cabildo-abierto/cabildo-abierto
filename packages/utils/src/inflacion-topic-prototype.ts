@@ -1,5 +1,4 @@
-import {$Typed} from "@atproto/api"
-import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
+import {$Typed, ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiEmbed} from "@cabildo-abierto/api"
 
 export type ConsensusStatus = "accepted" | "discussion" | "rejected"
 
@@ -7,7 +6,7 @@ export type Consensus = {
     title: string
     /** Texto plano en markdown (sin títulos `#`): párrafos, enlaces `[t](url)` y embeds por índice. */
     bodyMarkdown: string
-    bodyEmbeds: ArCabildoabiertoWikiEmbed.EmbedView[]
+    bodyEmbeds: ArCabildoabiertoWikiEmbed.View[]
     acceptVotes: number
     rejectVotes: number
     opinions: number
@@ -17,7 +16,7 @@ export type Consensus = {
 }
 
 /** Misma visualización por sectores que en el tema «Inflación» (dataset INDEC agregado en CA). */
-const PROTOTYPE_IPC_POR_SECTOR_VIS: ArCabildoabiertoWikiEmbed.EmbedView["value"] = {
+const PROTOTYPE_IPC_POR_SECTOR_VIS: ArCabildoabiertoWikiEmbed.View["value"] = {
     $type: "ar.cabildoabierto.embed.visualization",
     caption: "Inflación (IPC) por sectores a nivel nacional (2016 a junio 2025)",
     dataSource: {
@@ -85,7 +84,7 @@ function consensusIpcPorSector(): Consensus {
         bodyMarkdown,
         bodyEmbeds: [
             {
-                $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                $type: "ar.cabildoabierto.wiki.embed#view",
                 index: MD_IPC_SECTOR_BEFORE_CHART.length,
                 value: PROTOTYPE_IPC_POR_SECTOR_VIS,
             },

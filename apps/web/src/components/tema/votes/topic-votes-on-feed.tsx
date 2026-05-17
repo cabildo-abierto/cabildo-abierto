@@ -1,4 +1,4 @@
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {CaretDownIcon, CaretUpIcon, CheckIcon, XIcon} from "@phosphor-icons/react";
 import {VoteEditButtons} from "./vote-edit-buttons";
 import {BaseButton} from "@/components/utils/base/base-button";
@@ -8,7 +8,7 @@ import {TopicHistoryPanel} from "../view/topic-history-panel";
 import { sum } from "@cabildo-abierto/utils";
 
 
-function countVotes(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"]) {
+function countVotes(status: ArCabildoabiertoWikiTopic.TopicView["status"]) {
     const accepts = sum(status.voteCounts, c => c.accepts)
     const rejects = sum(status.voteCounts, c => c.rejects)
 
@@ -17,7 +17,7 @@ function countVotes(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"]
 
 
 export const TopicVotesOnFeed = ({topic, setWritingReply}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView,
+    topic: ArCabildoabiertoWikiTopic.TopicView,
     setWritingReply: (v: boolean) => void
 }) => {
     const [votesPanelOpen, setVotesPanelOpen] = useState(false)

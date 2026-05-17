@@ -26,9 +26,9 @@ export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopic.Top
 }
 
 
-export function getTopicTitle(topic: {id: string, props?: ArCabildoabiertoWikiTopic.TopicProp[]}): string {
+export function getTopicTitle(topic: {props?: ArCabildoabiertoWikiTopic.TopicProp[]}): string | null {
     const t = getTopicProp("Título", topic.props)
-    return t && ArCabildoabiertoWikiTopic.isStringProp(t.value) ? t.value.value : topic.id
+    return t && ArCabildoabiertoWikiTopic.isStringProp(t.value) ? t.value.value : null
 }
 
 

@@ -1,7 +1,7 @@
 import React from "react"
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {addDefaults} from "./topic-prop-editor";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {ListDashesIcon} from "@phosphor-icons/react";
 import {TopicPropView} from "./topic-prop-view";
 import {ModalOnHover} from "@/components/utils/base/modal-on-hover";
@@ -9,8 +9,8 @@ import {ModalOnHover} from "@/components/utils/base/modal-on-hover";
 
 
 export const TopicPropsInHistory = ({topicVersion, topic}: {
-    topicVersion: ArCabildoabiertoWikiTopicVersion.VersionInHistory,
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topicVersion: ArCabildoabiertoWikiTopic.VersionInHistory,
+    topic: ArCabildoabiertoWikiTopic.TopicView
 }) => {
     const props = addDefaults(topicVersion.props, topic.id)
 

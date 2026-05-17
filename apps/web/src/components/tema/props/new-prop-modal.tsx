@@ -9,7 +9,7 @@ import {BaseTextFieldWithSuggestions} from "@/components/utils/base/base-text-fi
 import {useAPI} from "@/components/utils/react/queries";
 import {BaseSelect} from "@/components/utils/base/base-select";
 import { Note } from "@/components/utils/base/note";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {FieldError} from "@/components/utils/ui/field";
 
 
@@ -45,7 +45,7 @@ export default function NewPropModal({open, onClose, onAddProp, currentProps}: {
     open: boolean,
     onClose: () => void,
     onAddProp: (name: string, type: PropValueType) => void
-    currentProps: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    currentProps: ArCabildoabiertoWikiTopic.TopicProp[]
 }) {
     const [name, setName] = useState("")
     const [dataType, setDataType] = useState<PropValueType>("ar.cabildoabierto.wiki.topicVersion#stringProp")

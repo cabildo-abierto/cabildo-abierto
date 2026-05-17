@@ -4,9 +4,9 @@ import {getEditorSettings} from "../../writing/settings";
 import {Dispatch, SetStateAction, useState} from "react";
 import {LexicalEditor} from "lexical";
 import {getTopicTitle} from "../utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 
-function emptyTopic(topic: ArCabildoabiertoWikiTopicVersion.TopicView) {
+function emptyTopic(topic: ArCabildoabiertoWikiTopic.TopicView) {
     if (!topic.text || topic.text.trim().length == 0) {
         const embeds = topic.embeds
         return !embeds || embeds.length == 0
@@ -20,7 +20,7 @@ export const TopicContent = ({
                                  pinnedReplies,
                                  setPinnedReplies,
                              }: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
 }) => {

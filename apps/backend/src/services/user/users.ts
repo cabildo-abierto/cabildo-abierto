@@ -1,36 +1,32 @@
 import {AppContext} from "#/setup.js";
 import {cookieOptions, SessionAgent} from "#/utils/session-agent.js";
-import {deleteRecords} from "#/services/delete.js";
 import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {hydrateProfileViewDetailed} from "#/services/hydration/profile.js";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {getIronSession} from "iron-session";
 import {AssignInviteCodeError, createCAUser, UserNotFoundError} from "#/services/user/access.js";
-import {AppBskyActorProfile, AppBskyGraphFollow} from "@atproto/api"
+import {AppBskyGraphFollow} from "@atproto/api"
 import {
     Account,
-    AlgorithmConfig,
+    ArCabildoabiertoActorCaProfile,
     ArCabildoabiertoActorDefs,
     ATProtoStrongRef,
-    AuthorStatus,
     MaybeSession,
     Session,
     VerificationState
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {getServiceEndpointForDid, uploadBase64Blob} from "#/services/blob.js";
-import {bskyProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
-import {followRecordProcessor} from "#/services/sync/event-processing/follow.js";
-import {InsertRecordError, processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
+import {InsertRecordError, processValidatedRecords} from "#/services/record/processing.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";
 import {createMailingListSubscription} from "#/services/emails/subscriptions.js";
-import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError, ATGetRecordError} from "#/services/votes/votes.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 import {AddJobError, DBInsertError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
-import {getUri} from "@cabildo-abierto/utils";
+import {caProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
 
 
 export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBSelectError> {
@@ -80,7 +76,7 @@ export const getCAUsersDids = (ctx: AppContext): Effect.Effect<string[], DBSelec
 type UserAccessStatus = {
     did: string
     handle: string | null
-    created_at: Date | null
+    createdAt: Date | null
     hasAccess: boolean
     inCA: boolean
     inviteCode: string | null
@@ -88,7 +84,7 @@ type UserAccessStatus = {
 }
 
 
-export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}) => {
+export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx) => {
     try {
         const users = await ctx.kysely
             .selectFrom("User")
@@ -98,16 +94,14 @@ export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}
                 "handle",
                 "displayName",
                 "hasAccess",
-                "CAProfileUri",
-                "User.created_at_tz as created_at",
+                "User.createdAt",
                 "inCA",
                 "InviteCode.code"
             ])
             .where(eb => eb.or([
                 eb("InviteCode.code", "is not", null),
                 eb("User.inCA", "=", true),
-                eb("User.hasAccess", "=", true),
-                eb("User.CAProfileUri", "is not", null)
+                eb("User.hasAccess", "=", true)
             ]))
             .execute()
 
@@ -127,13 +121,6 @@ export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}
 }
 
 
-export const followHandler: EffHandler<{ followedDid: string }, { followUri: string }> = (ctx, agent, {followedDid}) => follow(ctx, agent, followedDid).pipe(
-    Effect.catchAll(() => {
-        return Effect.fail("Ocurrió un error al seguir al usuario.")
-    })
-)
-
-
 export const follow = (ctx: AppContext, agent: SessionAgent, did: string) => {
     return Effect.gen(function* () {
         const res = yield* Effect.tryPromise({
@@ -149,20 +136,6 @@ export const follow = (ctx: AppContext, agent: SessionAgent, did: string) => {
         return {followUri: res.uri}
     }).pipe(
         Effect.withSpan("follow", {attributes: {did}})
-    )
-}
-
-
-export const unfollowHandler: EffHandler<{ followUri: string }> = (ctx, agent, {followUri}) => {
-    return unfollow(ctx, agent, followUri).pipe(
-        Effect.catchAll(() => Effect.fail("Ocurrió un error al dejar de seguir al usuario."))
-    ).pipe(Effect.map(() => Effect.succeed({})))
-}
-
-
-export const unfollow = (ctx: AppContext, agent: SessionAgent, followUri: string) => {
-    return deleteRecords({ctx, agent, uris: [followUri], atproto: true}).pipe(
-        Effect.withSpan("unfollow", {attributes: {followUri}})
     )
 }
 
@@ -215,42 +188,25 @@ export const getSessionData = (
 ): Effect.Effect<SessionData | null, RedisCacheFetchError | DBSelectError> => {
 
     return Effect.gen(function* () {
-        const [data, mirrorStatus, bskyProfile] = yield* Effect.all([
+        const [data, mirrorStatus] = yield* Effect.all([
             Effect.tryPromise({
                 try: () => ctx.kysely
                     .selectFrom("User")
                     .select([
                         "platformAdmin",
-                        "editorStatus",
-                        "seenTutorial",
-                        "seenTopicMaximizedTutorial",
-                        "seenTopicMinimizedTutorial",
-                        "seenTopicsTutorial",
-                        "seenVerifiedNotification",
                         "handle",
                         "displayName",
                         "avatar",
                         "hasAccess",
                         "userValidationHash",
                         "orgValidation",
-                        "algorithmConfig",
-                        "authorStatus",
-                        "CAProfileUri",
                         "inCA"
                     ])
                     .where("did", "=", did)
                     .executeTakeFirst(),
                 catch: (error) => new DBSelectError(error)
             }),
-            ctx.redisCache.mirrorStatus.get(did, true),
-            Effect.tryPromise({
-                try: () => ctx.kysely
-                    .selectFrom("Record")
-                    .select("uri")
-                    .where("Record.uri", "=", getUri(did, "app.bsky.actor.profile", "self"))
-                    .executeTakeFirst(),
-                catch: (error) => new DBSelectError(error)
-            })
+            ctx.redisCache.mirrorStatus.get(did, true)
         ], {concurrency: "unbounded"})
 
         if(!data) {
@@ -259,27 +215,14 @@ export const getSessionData = (
 
         const sessionData: SessionData = {
             active: true,
-            authorStatus: data.authorStatus as AuthorStatus | null,
             did: did,
             handle: data.handle,
             displayName: data.displayName,
             avatar: data.avatar,
             hasAccess: data.hasAccess,
-            caProfile: data.CAProfileUri ?? null,
-            seenTutorial: {
-                home: data.seenTutorial,
-                topics: data.seenTopicsTutorial,
-                topicMinimized: data.seenTopicMinimizedTutorial,
-                topicMaximized: data.seenTopicMaximizedTutorial
-            },
-            seenVerifiedNotification: data.seenVerifiedNotification,
-            editorStatus: data.editorStatus,
             platformAdmin: data.platformAdmin,
             validation: getValidationState(data),
-            algorithmConfig: (data.algorithmConfig ?? {}) as AlgorithmConfig,
-            mirrorStatus: data.inCA ? mirrorStatus : "Dirty",
-            pinnedFeeds: [],
-            bskyProfile: bskyProfile?.uri ?? null
+            mirrorStatus: data.inCA ? mirrorStatus : "Dirty"
         }
 
         return sessionData
@@ -344,12 +287,13 @@ export const getSession = (
 
     yield* Effect.annotateCurrentSpan({data: data != null, hasAccess: data?.hasAccess, mirrorStatus: data?.mirrorStatus})
 
-    if (isFullSessionData(data) && data.hasAccess && data.caProfile != null && data.bskyProfile != null) {
+    if (isFullSessionData(data) && data.hasAccess) {
         return data
     } else if((data && data.hasAccess) || code) {
         yield* createCAUser(ctx, agent, code ?? undefined)
 
         const newUserData = yield* getSessionData(ctx, agent.did)
+        ctx.logger.pino.info({newUserData}, "session data")
 
         if(!isFullSessionData(newUserData)) {
             return yield* Effect.fail(new UserCreationFailedError())
@@ -449,66 +393,6 @@ export const getAccount: EffHandler<{}, Account> = (ctx, agent) => {
 }
 
 
-export async function setSeenTutorial(ctx: AppContext, did: string, tutorial: Tutorial, value: boolean) {
-    ctx.logger.pino.info({did, tutorial, value}, "setting seen tutorial")
-    if (tutorial == "topic-minimized") {
-        await ctx.kysely
-            .updateTable("User")
-            .set("seenTopicMinimizedTutorial", value)
-            .where("did", "=", did)
-            .execute()
-    } else if (tutorial == "home") {
-        await ctx.kysely
-            .updateTable("User")
-            .set("seenTutorial", value)
-            .where("did", "=", did)
-            .execute()
-    } else if (tutorial == "topics") {
-        await ctx.kysely
-            .updateTable("User")
-            .set("seenTopicsTutorial", value)
-            .where("did", "=", did)
-            .execute()
-    } else if (tutorial == "topic-normal") {
-        await ctx.kysely.updateTable("User")
-            .set("seenTopicMaximizedTutorial", value)
-            .where("did", "=", did)
-            .execute()
-    } else if (tutorial == "panel-de-autor") {
-        await ctx.kysely
-            .updateTable("User")
-            .set("authorStatus", {
-                isAuthor: true,
-                seenAuthorTutorial: value
-            })
-            .where("did", "=", did)
-            .execute()
-    } else if(tutorial == "verification") {
-        await ctx.kysely
-            .updateTable("User")
-            .set("seenVerifiedNotification", value)
-            .where("did", "=", did)
-            .execute()
-    } else {
-        ctx.logger.pino.error("Unknown tutorial", tutorial)
-    }
-}
-
-
-
-type Tutorial = "topic-minimized" | "topic-normal" | "home" | "topics" | "verification" | "panel-de-autor"
-
-
-export const setSeenTutorialHandler: CAHandler<{ params: { tutorial: Tutorial } }, {}> = async (ctx, agent, {params}) => {
-    const {tutorial} = params
-    const did = agent.did
-
-    await setSeenTutorial(ctx, did, tutorial, true)
-
-    return {data: {}}
-}
-
-
 type UpdateProfileProps = {
     displayName?: string
     description?: string
@@ -535,7 +419,7 @@ export const updateProfile = (
     const res = yield* Effect.tryPromise({
         try: () => agent.bsky.com.atproto.repo.getRecord({
             repo: agent.did,
-            collection: 'app.bsky.actor.profile',
+            collection: 'ar.cabildoabierto.actor.caProfile',
             rkey: "self"
         }),
         catch: (error) => new ATGetRecordError(error)
@@ -547,28 +431,24 @@ export const updateProfile = (
 
     yield* Effect.log("Got current profile.")
 
-    const record = res.data.value as AppBskyActorProfile.Record
+    const record = res.data.value as ArCabildoabiertoActorCaProfile.Record
 
     const avatarBlob: BlobRef | undefined = profile.removeProfilePic ?
         undefined :
         (profile.profilePic ? (yield* uploadBase64Blob(agent, profile.profilePic)).ref : record.avatar)
-    const bannerBlob: BlobRef | undefined = profile.removeBanner ?
-        undefined :
-        (profile.banner ? (yield* uploadBase64Blob(agent, profile.banner)).ref : record.banner)
 
     yield* Effect.log("Avatar and banner uploaded correctly.")
 
-    const newRecord: AppBskyActorProfile.Record = {
+    const newRecord: ArCabildoabiertoActorCaProfile.Record = {
         ...record,
         displayName: profile.displayName ?? record.displayName,
         description: profile.description ?? record.description,
         avatar: avatarBlob,
-        banner: bannerBlob
     }
     yield* Effect.tryPromise({
         try: () => agent.bsky.com.atproto.repo.putRecord({
             repo: agent.did,
-            collection: "app.bsky.actor.profile",
+            collection: "ar.cabildoabierto.actor.caProfile",
             record: newRecord,
             rkey: "self"
         }),
@@ -583,89 +463,17 @@ export const updateProfile = (
             cid: res.data.cid
         }
 
-        yield* processValidatedRecords(ctx, [{ref, record}], bskyProfileRecordProcessor)
+        yield* processValidatedRecords(ctx, [{ref, record}], caProfileRecordProcessor)
     }
 }).pipe(
     Effect.withSpan("updateProfile", {
         attributes: {
             displayName: profile.displayName,
             description: profile.description,
-            banner: profile.banner != null,
             profilePic: profile.profilePic != null
         }
     })
 )
-
-
-
-
-export const updateAlgorithmConfig: CAHandler<AlgorithmConfig, {}> = async (ctx, agent, config) => {
-
-    await ctx.kysely
-        .updateTable("User")
-        .set("algorithmConfig", JSON.stringify(config))
-        .where("did", "=", agent.did)
-        .execute()
-
-    return {data: {}}
-}
-
-
-export async function updateAuthorStatus(ctx: AppContext, dids?: string[]) {
-    if(dids && dids.length == 0) return
-
-    const query = ctx.kysely
-        .selectFrom("User")
-        .select([
-            "did",
-            "authorStatus",
-            (eb) =>
-                eb
-                    .selectFrom("Record")
-                    .select(eb => eb.fn.count<number>("uri").as("articlesCount"))
-                    .whereRef("Record.authorId", "=", "User.did")
-                    .where("Record.collection", "=", "ar.cabildoabierto.feed.article")
-                    .as("articlesCount"),
-            (eb) =>
-                eb
-                    .selectFrom("Record")
-                    .select(eb => eb.fn.count<number>("uri").as("topicVersionsCount"))
-                    .whereRef("Record.authorId", "=", "User.did")
-                    .where("Record.collection", "=", "ar.cabildoabierto.wiki.topicVersion")
-                    .as("topicVersionsCount")
-        ])
-        .where("inCA", "=", true)
-
-    const users = dids ? await query.where("did", "in", dids).execute() : await query.execute()
-
-    const values: {
-        did: string,
-        authorStatus: string
-    }[] = users.map(u => {
-
-        const authorStatus  = u.authorStatus as AuthorStatus | null
-
-        const newAuthorStatus = {
-            isAuthor: authorStatus && authorStatus.isAuthor || u.articlesCount && u.articlesCount > 0 || u.topicVersionsCount && u.topicVersionsCount > 0,
-            seenAuthorTutorial: authorStatus && authorStatus.seenAuthorTutorial
-        }
-
-        return {
-            did: u.did,
-            authorStatus: JSON.stringify(newAuthorStatus)
-        }
-    })
-
-    if(values.length == 0) return
-
-    await ctx.kysely
-        .insertInto("User")
-        .values(values)
-        .onConflict(oc => oc.column("did").doUpdateSet(eb => ({
-            authorStatus: eb.ref("excluded.authorStatus")
-        })))
-        .execute()
-}
 
 
 class CheckEmailError {
@@ -719,12 +527,4 @@ export const saveNewEmail: EffHandler<{email: string}, {}> = (ctx, agent, {email
         Effect.flatMap(() => Effect.succeed({})),
         Effect.catchTag("CheckEmailError", () => Effect.fail("Error en la conexión."))
     )
-}
-
-
-export async function verifyEmails(ctx: AppContext) {
-    await ctx.kysely.updateTable("User")
-        .where("email", "is not", null)
-        .set("emailVerified", true)
-        .execute()
 }

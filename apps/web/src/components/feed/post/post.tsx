@@ -1,6 +1,6 @@
 import {MainPostFrame} from './main-post-frame';
 import {PostContent} from "./post-content";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 
 import {useEffect} from "react";
 import FeedElement from "../feed/feed-element";
@@ -45,7 +45,7 @@ const PostThreadAncestors = ({threadViewContent}: {
 
     return <div className={"mb-1 w-full"}>
         {ancestors.map((a, index) => {
-            if (ArCabildoabiertoFeedDefs.isThreadViewContent(a) && (ArCabildoabiertoFeedDefs.isPostView(a.content) || ArCabildoabiertoFeedDefs.isArticleView(a.content) || ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(a.content))) {
+            if (ArCabildoabiertoFeedDefs.isThreadViewContent(a) && (ArCabildoabiertoFeedDefs.isPostView(a.content) || ArCabildoabiertoFeedDefs.isArticleView(a.content) || ArCabildoabiertoWikiTopic.isTopicViewBasic(a.content))) {
                 return <div className="w-full"
                             key={ArCabildoabiertoFeedDefs.isPostView(a.content) || ArCabildoabiertoFeedDefs.isArticleView(a.content) ? a.content.uri : a.content.id}>
                     <FeedElement

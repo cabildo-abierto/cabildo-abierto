@@ -70,8 +70,61 @@
           "format": "datetime",
           "description": "Fecha de creación del comentario declarada por el autor."
         },
+        "replyCount": {
+          "type": "integer"
+        },
+        "upvoteCount": {
+          "type": "integer"
+        },
+        "downvoteCount": {
+          "type": "integer"
+        },
+        "quoteCount": {
+          "type": "integer"
+        },
+        "rootCreationDate": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "voteContext": {
+          "type": "ref",
+          "ref": "#voteContext",
+          "description": "Si el usuario votó a favor o encontra de esta versión y si es una justificación de voto"
+        },
         "isChallenge": {
           "type": "boolean"
+        }
+      }
+    },
+    "voteContext": {
+      "type": "object",
+      "required": ["authorVotingState"],
+      "properties": {
+        "authorVotingState": {
+          "type": "string",
+          "knownValues": ["accept", "reject", "none"]
+        },
+        "vote": {
+          "type": "ref",
+          "ref": "#voteInContext"
+        }
+      }
+    },
+    "voteInContext": {
+      "type": "object",
+      "required": ["uri", "subject", "subjectCreatedAt"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "subject": {
+          "type": "string",
+          "format": "uri"
+        },
+        "subjectCreatedAt": {
+          "type": "string",
+          "format": "datetime"
         }
       }
     }

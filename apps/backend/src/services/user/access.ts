@@ -3,9 +3,9 @@ import {AppContext} from "#/setup.js";
 import {isValidHandle} from "@atproto/syntax";
 import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
-import {bskyProfileRecordProcessor, caProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
-import {AppBskyActorProfile, AtpBaseClient} from "@atproto/api"
+import {caProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
+import {processValidatedRecords} from "#/services/record/processing.js";
+import {AtpBaseClient} from "@atproto/api"
 import {
     ArCabildoabiertoActorCaProfile,
     LoginOutput,
@@ -13,16 +13,15 @@ import {
     Session, SignupOutput,
     SignupParams
 } from "@cabildo-abierto/api"
-import {createMailingListSubscription, isValidEmail} from "#/services/emails/subscriptions.js";
+import {isValidEmail} from "#/services/emails/subscriptions.js";
 import {Effect, Exit} from "effect";
 import {DBInsertError, DBSelectError, DBUpdateError, InvalidValueError} from "#/utils/errors.js";
-import {ATCreateRecordError, ATGetRecordError} from "#/services/wiki/votes.js";
-import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {ATCreateRecordError, ATGetRecordError} from "#/services/votes/votes.js";
+import {ProcessCreateError} from "#/services/record/processing.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
 import {Request, Response} from "express";
 import {ComAtprotoServerCreateAccount} from "@atproto/api";
-import {RefAndRecord} from "#/services/sync/types.js";
 import {HandleResolutionError} from "#/services/user/users.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
 
@@ -509,14 +508,14 @@ export function createCAUser(
     ctx: AppContext,
     agent: SessionAgent,
     code?: string
-): Effect.Effect<void, DBInsertError | ATGetRecordError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
+): Effect.Effect<void, DBInsertError | ATGetRecordError | DBUpdateError | HandleResolutionError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
     const did = agent.did
 
     return Effect.gen(function* () {
         yield* Effect.tryPromise({
             try: () => ctx.kysely
                 .insertInto("User")
-                .values([{did, created_at_tz: new Date()}])
+                .values([{did, createdAt: new Date()}])
                 .onConflict(oc => oc.column("did").doNothing())
                 .execute(),
             catch: (error) => new DBInsertError(error)
@@ -531,33 +530,15 @@ export function createCAUser(
             createdAt: new Date().toISOString()
         }
 
-        const [caProfileRes, bskyProfileRes] = yield* Effect.all([
-            Effect.tryPromise({
-                try: () => agent.bsky.com.atproto.repo.putRecord({
-                    repo: did,
-                    collection: "ar.cabildoabierto.actor.caProfile",
-                    rkey: "self",
-                    record: caProfileRecord
-                }),
-                catch: (error) => new ATCreateRecordError(error)
+        const caProfileRes = yield* Effect.tryPromise({
+            try: () => agent.bsky.com.atproto.repo.putRecord({
+                repo: did,
+                collection: "ar.cabildoabierto.actor.caProfile",
+                rkey: "self",
+                record: caProfileRecord
             }),
-            Effect.tryPromise({
-                try: () => agent.bsky.com.atproto.repo.getRecord({
-                    repo: did,
-                    collection: "app.bsky.actor.profile",
-                    rkey: "self"
-                }),
-                catch: (error) => new ATGetRecordError(error)
-            }).pipe(
-                Effect.catchTag("ATGetRecordError", (error) => {
-                    if(error.message?.includes("Could not locate record")) {
-                        return Effect.succeed(null)
-                    } else {
-                        return Effect.fail(error)
-                    }
-                })
-            )
-        ], {concurrency: "unbounded"})
+            catch: (error) => new ATCreateRecordError(error)
+        })
 
         if(!caProfileRes.success) {
             return yield* Effect.fail(new ATCreateRecordError())
@@ -571,40 +552,15 @@ export function createCAUser(
             processValidatedRecords(ctx, [refAndRecordCA], caProfileRecordProcessor)
         ]
 
-        if(bskyProfileRes && bskyProfileRes.success) {
-            const bskyProfile = bskyProfileRes.data
-            const refAndRecordBsky = {
-                ref: {uri: bskyProfile.uri, cid: bskyProfile.cid!},
-                record: bskyProfile.value as AppBskyActorProfile.Record
-            }
-            effects.push(processValidatedRecords(ctx, [refAndRecordBsky], bskyProfileRecordProcessor))
-        } else {
-            const bskyProfile: AppBskyActorProfile.Record = {
-                $type: "app.bsky.actor.profile",
-                createdAt: new Date().toISOString()
-            }
-            const res = yield* Effect.tryPromise({
-                try: () => agent.bsky.com.atproto.repo.putRecord({
-                    repo: did,
-                    collection: "app.bsky.actor.profile",
-                    rkey: "self",
-                    record: bskyProfile
-                }),
-                catch: (error) => new ATCreateRecordError(error)
-            })
-            if(res.success) {
-                const refAndRecordBsky: RefAndRecord<AppBskyActorProfile.Record> = {
-                    ref: {
-                        uri: res.data.uri,
-                        cid: res.data.cid
-                    },
-                    record: bskyProfile
-                }
-                effects.push(
-                    processValidatedRecords(ctx, [refAndRecordBsky], bskyProfileRecordProcessor)
-                )
-            }
-        }
+        const handle = yield* ctx.resolver.resolveDidToHandle(did, false)
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .updateTable("User")
+                .set("handle", handle)
+                .where("did", "=", did)
+                .execute(),
+            catch: (error) => new DBUpdateError(error)
+        })
 
         yield* Effect.all(effects, {concurrency: "unbounded"})
     })
@@ -762,7 +718,7 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
                 if (!user.code) {
                     await trx
                         .updateTable("InviteCode")
-                        .set("usedAt_tz", new Date())
+                        .set("usedAt", new Date())
                         .set("usedByDid", did)
                         .where("code", "=", inviteCode)
                         .execute()
@@ -792,87 +748,6 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
 
 }
 
-
-export const createAccessRequest: EffHandlerNoAuth<{
-    email: string,
-    comment: string
-}, {}> = (ctx, agent, params) => Effect.gen(function* () {
-
-    yield* Effect.tryPromise({
-        try: () => ctx.kysely.insertInto("AccessRequest").values([{
-            email: params.email,
-            comment: params.comment,
-            id: uuidv4()
-        }]).execute(),
-        catch: (error) => new DBInsertError(error)
-    })
-
-    yield* createMailingListSubscription(ctx, params.email)
-
-    return {}
-}).pipe(
-    Effect.catchTag("InvalidEmailError", () => Effect.fail("Ingresá un correo electrónico válido.")),
-    Effect.catchTag("UsedEmailError", () => Effect.succeed({})),
-    Effect.catchTag("CreateMailingListSubscriptionError", () => Effect.fail("Ocurrió un error al crear la solicitud de acceso.")),
-    Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear la solicitud de acceso.")),
-)
-
-type AccessRequest = {
-    id: string
-    email: string
-    comment: string
-    createdAt: Date
-    sentInviteAt: Date | null
-    markedIgnored: boolean
-}
-
-export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx) => {
-    const requests: AccessRequest[] = await ctx.kysely
-        .selectFrom("AccessRequest")
-        .select([
-            "email",
-            "comment",
-            "created_at_tz as createdAt",
-            "sentInviteAt_tz as sentInviteAt",
-            "id",
-            "markedIgnored"
-        ])
-        .execute()
-
-    return {data: requests}
-}
-
-export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = async (ctx) => {
-    const result = await ctx.kysely
-        .selectFrom("AccessRequest")
-        .select(eb => eb.fn.count<number>("id").as("count"))
-        .where("sentInviteAt_tz", "is", null)
-        .where("markedIgnored", "=", false)
-        .executeTakeFirst()
-
-    return {data: {count: result?.count ?? 0}}
-}
-
-
-export const markAccessRequestSent: CAHandler<{ params: { id: string } }, {}> = async (ctx, agent, {params}) => {
-    await ctx.kysely
-        .updateTable("AccessRequest")
-        .set("sentInviteAt_tz", new Date())
-        .where("id", "=", params.id)
-        .execute()
-
-    return {data: {}}
-}
-
-export const markAccessRequestIgnored: CAHandler<{ params: { id: string } }, {}> = async (ctx, agent, {params}) => {
-    await ctx.kysely
-        .updateTable("AccessRequest")
-        .set("markedIgnored", true)
-        .where("id", "=", params.id)
-        .execute()
-
-    return {data: {}}
-}
 
 
 export const getInviteCodesToShare: CAHandler<{}, { code: string }[]> = async (ctx, agent, {}) => {

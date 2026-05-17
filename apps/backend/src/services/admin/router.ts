@@ -10,14 +10,14 @@ import {syncUserHandler} from "#/services/sync/sync-user.js";
 import {deleteCollectionHandler, deleteRecordsHandler, deleteUserHandler} from "#/services/delete.js";
 import {
     backfillInviteCodes,
-    createInviteCodesHandler, getAccessRequests, markAccessRequestIgnored, markAccessRequestSent
+    createInviteCodesHandler
 } from "#/services/user/access.js";
 import {getUsers} from "#/services/user/users.js";
 import {
     getAllTopics,
     getTopicsInCategoryForBatchEditing,
     getTopicsWhereTitleIsNotSetAsSynonym
-} from "#/services/wiki/topics.js";
+} from "#/services/wiki/topic.js";
 import {sessionAgent} from "#/utils/session-agent.js";
 import {createAccountInCabildoPDS, finishMigrationToCA, migrateToCA} from "#/services/sync/migration/migration.js";
 import {
@@ -120,12 +120,6 @@ export const adminRouter = (ctx: AppContext): Router => {
     router.post(
         "/job/:id", makeEffAdminHandler(ctx, startJob)
     )
-
-    router.get("/access-requests", makeAdminHandler(ctx, getAccessRequests))
-
-    router.post("/access-request-sent/:id", makeAdminHandler(ctx, markAccessRequestSent))
-
-    router.post("/access-request-ignored/:id", makeAdminHandler(ctx, markAccessRequestIgnored))
 
     router.get("/notification-counts", makeAdminHandler(ctx, getAdminNotificationCounts))
 

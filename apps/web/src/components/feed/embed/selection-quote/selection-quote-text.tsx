@@ -14,7 +14,7 @@ const CAEditor = dynamic(() => import("@/components/editor/ca-editor").then(mod 
 type QuoteTextProps = {
     quotedText: ArCabildoabiertoEmbedSelectionQuote.View["quotedText"]
     quotedTextFormat: ArCabildoabiertoEmbedSelectionQuote.View["quotedTextFormat"]
-    quotedTextEmbeds: ArCabildoabiertoWikiEmbed.EmbedView[]
+    quotedTextEmbeds: ArCabildoabiertoWikiEmbed.View[]
     selection: MarkdownSelection
     quotedCollection: string
 }

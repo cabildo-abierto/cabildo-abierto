@@ -1,6 +1,6 @@
 import {ArticlePreview} from "../article/article-preview";
 import {PostPreview} from "../post/post-preview";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {TopicViewBasicOnFeed} from "../topic/topic-view-basic-on-feed";
 import {useMemo} from "react";
 
@@ -39,7 +39,7 @@ const FeedElement = ({
                 showingChildren={showingChildren}
                 pageRootUri={pageRootUri}
             />
-        } else if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(elem.content)) {
+        } else if (ArCabildoabiertoWikiTopic.isTopicViewBasic(elem.content)) {
             return <TopicViewBasicOnFeed
                 topic={elem.content}
                 showingChildren={showingChildren}

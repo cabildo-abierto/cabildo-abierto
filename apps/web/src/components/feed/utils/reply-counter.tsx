@@ -1,7 +1,7 @@
 import React, {MouseEventHandler, useState} from "react"
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {splitUri} from "@cabildo-abierto/utils";
-import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoFeedDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {useRouter} from "next/navigation";
 import {useLoginModal} from "../../auth/login-modal-provider";
 import {$Typed} from "@cabildo-abierto/api";
@@ -34,7 +34,7 @@ export const ReplyCounter = ({
     content: $Typed<ArCabildoabiertoFeedDefs.PostView> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-        $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory>
+        $Typed<ArCabildoabiertoWikiTopic.VersionInHistory>
     stopPropagation?: boolean
 }) => {
     const [writingReply, setWritingReply] = useState<boolean>(false)
@@ -55,7 +55,7 @@ export const ReplyCounter = ({
         } else {
             if (content && ArCabildoabiertoFeedDefs.isArticleView(content)) {
                 router.push(contentUrl(content.uri, content.author.handle))
-            } else if(content && ArCabildoabiertoWikiTopicVersion.isVersionInHistory(content)) {
+            } else if(content && ArCabildoabiertoWikiTopic.isVersionInHistory(content)) {
                 router.push(topicUrl(undefined, splitUri(content.uri)))
             } else {
                 if (user) {
@@ -84,7 +84,7 @@ export const ReplyCounter = ({
                 />
             </BaseIconButton>
         </div>
-        {writingReply && user && !ArCabildoabiertoWikiTopicVersion.isVersionInHistory(content) && <WritePanel
+        {writingReply && user && !ArCabildoabiertoWikiTopic.isVersionInHistory(content) && <WritePanel
             open={writingReply}
             onClose={() => {
                 setWritingReply(false)

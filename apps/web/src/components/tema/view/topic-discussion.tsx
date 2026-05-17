@@ -1,7 +1,7 @@
 import React, {Dispatch, SetStateAction, useCallback, useState} from "react";
 import {useSession} from "@/components/auth/use-session";
 import {smoothScrollTo} from "../../utils/react/scroll";
-import {ArCabildoabiertoWikiTopicVersion, TopicDiscussionOutput} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic, TopicDiscussionOutput} from "@cabildo-abierto/api";
 import {TopicVotesOnFeed} from "../votes/topic-votes-on-feed";
 import {ReplyButton} from "../../feed/utils/reply-button";
 import WritePanel, {ReplyToContent} from "../../writing/write-panel/write-panel";
@@ -25,7 +25,7 @@ export const TopicDiscussion = ({
                                     pinnedReplies,
                                     setPinnedReplies
                                 }: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
     pinnedReplies: string[]
     setPinnedReplies: Dispatch<SetStateAction<string[]>>
 }) => {

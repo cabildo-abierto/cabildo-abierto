@@ -4,7 +4,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {PropValueType} from "../utils";
 import {useCategories} from "@/queries/getters/useTopics";
 import 'dayjs/locale/es';
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import dynamic from "next/dynamic";
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
@@ -28,8 +28,8 @@ export const TopicPropEditor = ({
                                     setProp,
                                     deleteProp
 }: {
-    p: ArCabildoabiertoWikiTopicVersion.TopicProp,
-    setProp: (p: ArCabildoabiertoWikiTopicVersion.TopicProp) => void,
+    p: ArCabildoabiertoWikiTopic.TopicProp,
+    setProp: (p: ArCabildoabiertoWikiTopic.TopicProp) => void,
     deleteProp: () => void
 }) => {
     const isDefault = isDefaultProp(p)
@@ -53,14 +53,14 @@ export const TopicPropEditor = ({
                 <TrashIcon/>
             </BaseIconButton>}
         </div>
-        {ArCabildoabiertoWikiTopicVersion.isStringListProp(p.value) && <ListEditor
+        {ArCabildoabiertoWikiTopic.isStringListProp(p.value) && <ListEditor
             items={p.value.value}
             setItems={(values: string[]) => {
                 setProp({...p, value: {$type: "ar.cabildoabierto.wiki.topicVersion#stringListProp", value: values}})
             }}
             options={p.name == "Categorías" && categories ? categories : []}
         />}
-        {ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) && <BaseTextArea
+        {ArCabildoabiertoWikiTopic.isStringProp(p.value) && <BaseTextArea
             inputClassName={"resize min-h-[35px]"}
             value={p.value.value}
             rows={1}
@@ -75,7 +75,7 @@ export const TopicPropEditor = ({
                 })
             }}
         />}
-        {ArCabildoabiertoWikiTopicVersion.isNumberProp(p.value) &&
+        {ArCabildoabiertoWikiTopic.isNumberProp(p.value) &&
             <BaseTextField // TO DO: Marcar rojo si no es un número.
                 value={isNaN(p.value.value) ? 0 : p.value.value}
                 onChange={(e) => {
@@ -89,7 +89,7 @@ export const TopicPropEditor = ({
                     })
                 }}
             />}
-        {ArCabildoabiertoWikiTopicVersion.isDateProp(p.value) &&
+        {ArCabildoabiertoWikiTopic.isDateProp(p.value) &&
             <DatePropEditor
                 propName={p.name}
                 date={p.value.value ? new Date(p.value.value) : new Date(0)}
@@ -99,7 +99,7 @@ export const TopicPropEditor = ({
 }
 
 
-export function propsEqual(props1: ArCabildoabiertoWikiTopicVersion.TopicProp[], props2: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
+export function propsEqual(props1: ArCabildoabiertoWikiTopic.TopicProp[], props2: ArCabildoabiertoWikiTopic.TopicProp[]) {
     if (props1.length != props2.length) {
         return false
     }
@@ -149,23 +149,23 @@ export function defaultPropValue(name: string, type: PropValueType, topicId: str
 }
 
 
-export function isDefaultProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
+export function isDefaultProp(p: ArCabildoabiertoWikiTopic.TopicProp) {
     return ["Título", "Sinónimos", "Categorías"].includes(p.name)
 }
 
 
-function validProps(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
+function validProps(props: ArCabildoabiertoWikiTopic.TopicProp[]) {
     return props.filter(p => {
-        const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(p)
+        const res = ArCabildoabiertoWikiTopic.validateTopicProp(p)
         return res.success
     })
 }
 
 
 export const TopicPropsEditingPanel = ({props, setProps, topic}: {
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[],
-    setProps: (props: ArCabildoabiertoWikiTopicVersion.TopicProp[]) => void,
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    props: ArCabildoabiertoWikiTopic.TopicProp[],
+    setProps: (props: ArCabildoabiertoWikiTopic.TopicProp[]) => void,
+    topic: ArCabildoabiertoWikiTopic.TopicView
 }) => {
     const [open, setOpen] = useState(false)
     const [creatingProp, setCreatingProp] = useState(false)
@@ -191,7 +191,7 @@ export const TopicPropsEditingPanel = ({props, setProps, topic}: {
         </BaseButton>
     }
 
-    function setProp(p: ArCabildoabiertoWikiTopicVersion.TopicProp) {
+    function setProp(p: ArCabildoabiertoWikiTopic.TopicProp) {
         if (props.some(p2 => p2.name == p.name)) {
             const newProps = [...props]
             const index = newProps.findIndex(p2 => p2.name == p.name)

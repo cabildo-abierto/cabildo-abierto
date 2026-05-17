@@ -2,12 +2,11 @@ import {
     getDidFromUri
 } from "@cabildo-abierto/utils";
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
-import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {
     addRecordsToDBBatch,
     InsertRecordError,
-    RecordProcessor
-} from "#/services/sync/event-processing/record-processor.js";
+    Processing
+} from "#/services/record/processing.js";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {DBDeleteError} from "#/utils/errors.js";
@@ -15,7 +14,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 
 
-export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset.Record> = {
+export const datasetRecordProcessor: Processing<ArCabildoabiertoDataDataset.Record> = {
     validator: (ctx, record: ArCabildoabiertoDataDataset.Record) => {
         return Effect.succeed(ArCabildoabiertoDataDataset.validateRecord(record))
     },
@@ -25,56 +24,42 @@ export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset
             uri: ref.uri,
             columns: r.columns.map(({name}: { name: string }) => (name)),
             title: r.name,
-            description: r.description ? r.description : undefined
+            description: r.description ? r.description : undefined,
+            blobCid: r.blob?.ref ? r.blob.ref.toString() : undefined,
         }))
 
-        const blobs = records.flatMap(r =>
-            r.record.data?.map(b => ({
-                cid: b.blob.ref.toString(),
+        const blobs: {cid: string, authorId: string}[] = records.map(r =>
+            r.record.blob?.ref ? ({
+                cid: r.record.blob?.ref.toString(),
                 authorId: getDidFromUri(r.ref.uri)
-            })) ?? []
-        )
-
-        const blocks = records.flatMap(r =>
-            r.record.data?.map(b => ({
-                cid: b.blob.ref.toString(),
-                datasetId: r.ref.uri,
-                format: b.format
-            })) ?? []
-        )
-
+            }) : null
+        ).filter(x => x != null)
 
         const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
             await addRecordsToDBBatch(trx, records)
 
-            await trx
-                .insertInto("Dataset")
-                .values(datasets)
-                .onConflict((oc) => (
-                    oc.column("uri").doUpdateSet({
-                        columns: (eb) => eb.ref("excluded.columns"),
-                        title: (eb) => eb.ref("excluded.title"),
-                        description: (eb) => eb.ref("excluded.description"),
-                    })
-                ))
-                .execute()
+            if(blobs.length > 0) {
+                await trx
+                    .insertInto("Blob")
+                    .values(blobs)
+                    .onConflict((oc) => oc.column("cid").doNothing())
+                    .execute()
+            }
 
-            await trx
-                .insertInto("Blob")
-                .values(blobs)
-                .onConflict((oc) => oc.column("cid").doNothing())
-                .execute()
-
-            await trx
-                .deleteFrom("DataBlock")
-                .where("datasetId", "in", records.map(r => r.ref.uri))
-                .execute()
-
-            await trx
-                .insertInto("DataBlock")
-                .values(blocks)
-                .onConflict((oc) => oc.column("cid").doNothing())
-                .execute()
+            if(datasets.length > 0) {
+                await trx
+                    .insertInto("Dataset")
+                    .values(datasets)
+                    .onConflict((oc) => (
+                        oc.column("uri").doUpdateSet({
+                            columns: (eb) => eb.ref("excluded.columns"),
+                            title: (eb) => eb.ref("excluded.title"),
+                            description: (eb) => eb.ref("excluded.description"),
+                            blobCid: (eb) => eb.ref("excluded.blobCid"),
+                        })
+                    ))
+                    .execute()
+            }
 
             return records.length
         })
@@ -90,10 +75,6 @@ export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset
 export const datasetDeleteProcessor: DeleteProcessor = (ctx, uris) => {
     return Effect.tryPromise({
         try: () => ctx.kysely.transaction().execute(async (trx) => {
-            await trx
-                .deleteFrom("DataBlock")
-                .where("DataBlock.datasetId", "in", uris)
-                .execute()
             await trx
                 .deleteFrom("Dataset")
                 .where("Dataset.uri", "in", uris)

@@ -1,39 +1,29 @@
 import {SessionAgent} from "#/utils/session-agent.js";
 import {EffHandler} from "#/utils/handler.js";
 import {
-    AppBskyEmbedImages,
     ArCabildoabiertoEmbedPoll,
-    ArCabildoabiertoEmbedVisualization,
-    ArCabildoabiertoFeedArticle,
     ArCabildoabiertoWikiTopic,
     CreateTopicVersionProps,
-    EmbedContext
 } from "@cabildo-abierto/api"
 import {
-    uploadBase64Blob,
     UploadImageFromBase64Error,
-    uploadStringBlob,
     UploadStringBlobError
 } from "#/services/blob.js";
-import {BlobRef} from "@atproto/lexicon";
-import {topicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
+import {topicRecordProcessor} from "#/services/sync/event-processing/topic.js";
+import {processValidatedRecords} from "#/services/record/processing.js";
 import {Effect} from "effect";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError} from "#/services/votes/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 import {DBSelectError, InvalidValueError} from "#/utils/errors.js";
-import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
+import {ProcessCreateError} from "#/services/record/processing.js";
 import {$Typed} from "@atproto/api";
 import {CID} from 'multiformats/cid'
 import {sha256} from 'multiformats/hashes/sha2'
 import * as dagCbor from '@ipld/dag-cbor'
-import {pollViewToMain} from "#/services/polls/polls.js";
+import {getTopicTitle} from "#/services/wiki/utils.js";
+import {getTopicIdFromTitle} from "@cabildo-abierto/utils";
 
-
-/***
-    Elimina todas las claves $type del objeto y sus hijos.
- ***/
 function untype<T>(obj: $Typed<T> | Omit<$Typed<T>, "$type">): T {
 
     return Object.fromEntries(
@@ -97,17 +87,17 @@ export class PollIdMismatchError {
 }
 
 
-export function getEmbedsFromEmbedViews(
+/*function getEmbedsFromEmbedViews(
     agent: SessionAgent,
-    embeds?: ArCabildoabiertoWikiEmbed.EmbedView[],
+    embeds?: ArCabildoabiertoWikiEmbed.View[],
     embedContexts?: EmbedContext[]
 ): Effect.Effect<
-    ArCabildoabiertoFeedArticle.ArticleEmbed[],
+    ArCabildoabiertoWikiEmbed.Main[],
     FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidValueError | CIDEncodeError | PollIdMismatchError
 > {
 
     return Effect.gen(function* () {
-        let embedMains: ArCabildoabiertoFeedArticle.ArticleEmbed[] = []
+        let embedMains: ArCabildoabiertoWikiEmbed.Main[] = []
         if(embeds){
             for(let i = 0; i < embeds.length; i++){
                 const e = embeds[i]
@@ -129,7 +119,7 @@ export function getEmbedsFromEmbedViews(
                                 })
                             }
                             embedMains.push({
-                                $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                                $type: "ar.cabildoabierto.wiki.embed",
                                 value: {
                                     $type: "app.bsky.embed.images",
                                     images
@@ -166,7 +156,7 @@ export function getEmbedsFromEmbedViews(
                             })
                         }
                         embedMains.push({
-                            $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                            $type: "ar.cabildoabierto.wiki.embed",
                             value: {
                                 $type: "app.bsky.embed.images",
                                 images
@@ -176,19 +166,19 @@ export function getEmbedsFromEmbedViews(
                     }
                 } else if(ArCabildoabiertoEmbedVisualization.isMain(e.value)){
                     embedMains.push({
-                        $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                        $type: "ar.cabildoabierto.wiki.embed",
                         value: e.value,
                         index: e.index
                     })
                 } else if(ArCabildoabiertoEmbedPoll.isView(e.value)) {
                     embedMains.push({
-                        $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                        $type: "ar.cabildoabierto.wiki.embed",
                         value: yield* pollViewToMain(e.value),
                         index: e.index
                     })
                 } else if(ArCabildoabiertoEmbedPoll.isMain(e.value)) {
                     embedMains.push({
-                        $type: "ar.cabildoabierto.feed.article#articleEmbed",
+                        $type: "ar.cabildoabierto.wiki.embed",
                         value: e.value,
                         index: e.index
                     })
@@ -199,7 +189,7 @@ export function getEmbedsFromEmbedViews(
         }
         return embedMains
     }).pipe(Effect.withSpan("getEmbedsFromEmbedViews"))
-}
+}*/
 
 
 export class InvalidTopicPropError {
@@ -208,7 +198,16 @@ export class InvalidTopicPropError {
 }
 
 
-export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopic.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error | InvalidTopicPropError | PollIdMismatchError | CIDEncodeError> {
+class TopicTitleRequiredError {
+    readonly _tag = "TopicTitleRequiredError"
+    constructor() {}
+}
+
+
+export function createTopicVersionATProto(
+    agent: SessionAgent,
+    {id, props}: CreateTopicVersionProps
+): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopic.Record>, TopicTitleRequiredError | ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error | InvalidTopicPropError | PollIdMismatchError | CIDEncodeError> {
 
     return Effect.gen(function* () {
         let validatedProps: ArCabildoabiertoWikiTopic.TopicProp[] | undefined = undefined
@@ -223,41 +222,31 @@ export function createTopicVersionATProto(agent: SessionAgent, {id, text, format
                 }
             }
         }
-
-        let blob: BlobRef | null = null
-        if(text){
-            blob = yield* uploadStringBlob(agent, text)
+        const title = getTopicTitle({props})
+        yield* Effect.annotateCurrentSpan({title})
+        if(!id && !title) {
+            return yield* Effect.fail(new TopicTitleRequiredError())
         }
-
-        const embedMains = yield* getEmbedsFromEmbedViews(
-            agent,
-            embeds,
-            embedContexts
-        )
+        const topicId = id ?? getTopicIdFromTitle(title!)
 
         const record: ArCabildoabiertoWikiTopic.Record = {
-            $type: "ar.cabildoabierto.wiki.topicVersion",
-            text: text && blob ? blob : undefined,
-            format,
-            message,
-            id,
+            $type: "ar.cabildoabierto.wiki.topic",
+            id: topicId,
             props: validatedProps,
             createdAt: new Date().toISOString(),
-            embeds: embedMains,
-            claimsAuthorship: claimsAuthorship
         }
 
         const {data} = yield* Effect.tryPromise({
             try: () => agent.bsky.com.atproto.repo.createRecord({
                 repo: agent.did,
-                collection: 'ar.cabildoabierto.wiki.topicVersion',
+                collection: 'ar.cabildoabierto.wiki.topic',
                 record: record,
             }),
             catch: () => new ATCreateRecordError()
         })
         return {ref: {uri: data.uri, cid: data.cid}, record}
     }).pipe(
-        Effect.withSpan("createTopicVersionATProto", {attributes: {id, message, claimsAuthorship}})
+        Effect.withSpan("createTopicVersionATProto", {attributes: {id}})
     )
 }
 
@@ -302,15 +291,21 @@ export const createTopicVersionHandler: EffHandler<CreateTopicVersionProps> = (c
 }
 
 
-export type CreateTopicVersionError = ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError | CIDEncodeError | PollIdMismatchError
+export type CreateTopicVersionError = TopicTitleRequiredError | ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError | CIDEncodeError | PollIdMismatchError
 
 
-export const createTopicVersion = (ctx: AppContext, agent: SessionAgent, props: CreateTopicVersionProps): Effect.Effect<void, CreateTopicVersionError> => Effect.gen(function* () {
-    if(props.text == undefined){
-        yield* checkTopicNotExists(ctx, props.id)
+export const createTopicVersion = (
+    ctx: AppContext,
+    agent: SessionAgent,
+    params: CreateTopicVersionProps
+): Effect.Effect<void, CreateTopicVersionError> => Effect.gen(function* () {
+    if(!params.id){
+        const title = getTopicTitle({props: params.props})
+        if(!title) return yield* Effect.fail(new TopicTitleRequiredError())
+        yield* checkTopicNotExists(ctx, title)
     }
 
-    const {ref, record} = yield* createTopicVersionATProto(agent, props)
+    const {ref, record} = yield* createTopicVersionATProto(agent, params)
 
-    yield* processValidatedRecords(ctx, [{ref, record}], topicVersionRecordProcessor)
+    yield* processValidatedRecords(ctx, [{ref, record}], topicRecordProcessor)
 })

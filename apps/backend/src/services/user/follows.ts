@@ -1,5 +1,4 @@
 import {AppContext} from "#/setup.js";
-import {getCAFollowersDids, getCAFollowsDids} from "#/services/feed/inicio/following.js";
 import {getDidFromUri, unique} from "@cabildo-abierto/utils";
 import {sql, Transaction} from "kysely";
 import {DB} from "prisma/generated/types.js";
@@ -14,7 +13,7 @@ import * as Effect from "effect/Effect";
 import {
     ArCabildoabiertoActorDefs
 } from "@cabildo-abierto/api"
-import {HandleResolutionError, unfollow} from "#/services/user/users.js";
+import {HandleResolutionError} from "#/services/user/users.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {EffHandlerNoAuth} from "#/utils/handler.js";
 import {handleOrDidToDid} from "#/id-resolver.js";

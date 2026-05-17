@@ -9,7 +9,7 @@ export type PropValueType = "ar.cabildoabierto.wiki.topicVersion#stringListProp"
     "ar.cabildoabierto.wiki.topicVersion#numberProp" |
     "ar.cabildoabierto.wiki.topicVersion#booleanProp"
 
-export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopic.StringListProp> | $Typed<ArCabildoabiertoWikiTopicVersion.StringProp> | $Typed<ArCabildoabiertoWikiTopicVersion.DateProp> | $Typed<ArCabildoabiertoWikiTopicVersion.NumberProp> | $Typed<ArCabildoabiertoWikiTopicVersion.BooleanProp> {
+export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopic.StringListProp> | $Typed<ArCabildoabiertoWikiTopic.StringProp> | $Typed<ArCabildoabiertoWikiTopic.DateProp> | $Typed<ArCabildoabiertoWikiTopic.NumberProp> | $Typed<ArCabildoabiertoWikiTopic.BooleanProp> {
     return p.$type == "ar.cabildoabierto.wiki.topicVersion#stringListProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#stringProp" ||
         p.$type == "ar.cabildoabierto.wiki.topicVersion#dateProp" ||
@@ -20,11 +20,11 @@ export function isKnownProp(p: PropValue): p is $Typed<ArCabildoabiertoWikiTopic
 
 export function getTopicCategories(props?: ArCabildoabiertoWikiTopic.TopicProp[]): string[] {
     const c = getTopicProp("Categorías", props)
-    return c && ArCabildoabiertoWikiTopicVersion.isStringListProp(c.value) ? c.value.value : []
+    return c && ArCabildoabiertoWikiTopic.isStringListProp(c.value) ? c.value.value : []
 }
 
 
-export function getAcceptCount(status: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus){
+export function getAcceptCount(status: ArCabildoabiertoWikiTopic.TopicVersionStatus){
     let accepts = 0
     status.voteCounts.forEach(v => {
         accepts += v.accepts
@@ -33,7 +33,7 @@ export function getAcceptCount(status: ArCabildoabiertoWikiTopicVersion.TopicVer
 }
 
 
-export function getRejectCount(status: ArCabildoabiertoWikiTopicVersion.TopicVersionStatus){
+export function getRejectCount(status: ArCabildoabiertoWikiTopic.TopicVersionStatus){
     let rejects = 0
     status.voteCounts.forEach(v => {
         rejects += v.rejects
@@ -42,7 +42,7 @@ export function getRejectCount(status: ArCabildoabiertoWikiTopicVersion.TopicVer
 }
 
 
-export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]): ArCabildoabiertoWikiTopicVersion.TopicProp | null {
+export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopic.TopicProp[]): ArCabildoabiertoWikiTopic.TopicProp | null {
     const d = getPropsDict(props)
     if(d.has(prop)){
         return gett(d, prop)
@@ -52,21 +52,21 @@ export function getTopicProp(prop: string, props?: ArCabildoabiertoWikiTopicVers
 }
 
 
-export function getTopicTitle(topic: {id: string, props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]}): string {
+export function getTopicTitle(topic: {id: string, props?: ArCabildoabiertoWikiTopic.TopicProp[]}): string {
     const t = getTopicProp("Título", topic.props)
-    return t && ArCabildoabiertoWikiTopicVersion.isStringProp(t.value) && t.value.value != null ? t.value.value : topic.id
+    return t && ArCabildoabiertoWikiTopic.isStringProp(t.value) && t.value.value != null ? t.value.value : topic.id
 }
 
 
-export function getTopicProtection(props: ArCabildoabiertoWikiTopicVersion.TopicProp[]): string {
+export function getTopicProtection(props: ArCabildoabiertoWikiTopic.TopicProp[]): string {
     const p = getTopicProp("Protección", props)
-    return p && ArCabildoabiertoWikiTopicVersion.isStringProp(p.value) ? p.value.value : "Principiante"
+    return p && ArCabildoabiertoWikiTopic.isStringProp(p.value) ? p.value.value : "Principiante"
 }
 
 
-export function getPropsDict(props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]) {
-    if(!props) return new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>()
-    return new Map<string, ArCabildoabiertoWikiTopicVersion.TopicProp>(props.map(p => [p.name, p]))
+export function getPropsDict(props?: ArCabildoabiertoWikiTopic.TopicProp[]) {
+    if(!props) return new Map<string, ArCabildoabiertoWikiTopic.TopicProp>()
+    return new Map<string, ArCabildoabiertoWikiTopic.TopicProp>(props.map(p => [p.name, p]))
 }
 
 export function validEntityName(name: string) {

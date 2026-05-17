@@ -7,7 +7,7 @@ import {ProfilePic} from "../../perfil/profile-pic";
 import {getCollectionFromUri, splitUri} from "@cabildo-abierto/utils";
 import {VoteEditButtons} from "../votes/vote-edit-buttons";
 import {Authorship} from "../../perfil/authorship";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {TopicPropsInHistory} from "../props/topic-props-in-history";
 import {ReplyCounter} from "../../feed/utils/reply-counter";
@@ -26,8 +26,8 @@ const EditMessage = ({msg}: { msg?: string }) => {
 
 
 export const HistoryElement = ({topic, topicHistory, index, onClose}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView,
-    topicHistory: ArCabildoabiertoWikiTopicVersion.TopicHistory
+    topic: ArCabildoabiertoWikiTopic.TopicView,
+    topicHistory: ArCabildoabiertoWikiTopic.TopicHistory
     index: number
     onClose?: () => void
 }) => {

@@ -1,14 +1,13 @@
 import {AppContext} from "#/setup.js";
 import {SessionAgent} from "#/utils/session-agent.js";
 import {
-    ArCabildoabiertoFeedArticle,
     ArCabildoabiertoWikiTopic, BatchEdit,
     CreateTopicVersionProps, EditPropsParams, EmbedContext, TopicForBatchEdit
 } from "@cabildo-abierto/api";
 import {Effect} from "effect";
 import {searchTopicsSkeleton} from "#/services/search/users.js";
 import {createTopicVersion, CreateTopicVersionError} from "#/services/write/topic.js";
-import {getTopic, InsufficientParamsError} from "#/services/wiki/topics.js";
+import {getTopic, InsufficientParamsError} from "#/services/wiki/topic.js";
 import {AppBskyEmbedImages} from "@atproto/api"
 import {FetchImageURLError} from "#/services/blob.js";
 import {EffHandler} from "#/utils/handler.js";
@@ -157,7 +156,7 @@ export const fetchImageAsBase64 = (imageUrl: string): Effect.Effect<string, Fetc
 const recreateEmbedContext = (
     ctx: AppContext,
     agent: SessionAgent,
-    embed: ArCabildoabiertoWikiEmbed.EmbedView
+    embed: ArCabildoabiertoWikiEmbed.View
 ): Effect.Effect<EmbedContext, MultipleImagesInEmbedError | FetchImageURLError> => Effect.gen(function* () {
     if(AppBskyEmbedImages.isView(embed.value)) {
         if(embed.value.images.length > 0) return yield* Effect.fail(new MultipleImagesInEmbedError())

@@ -3,7 +3,7 @@ import {
     APIResult,
     ArCabildoabiertoActorDefs,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopic,
     MainSearchOutput,
     SearchOption
 } from "@cabildo-abierto/api";
@@ -68,7 +68,7 @@ export function SearchResults(
                     ) {
                         return <FeedElement key={r.content.uri} elem={r} />;
                     } else if (
-                        ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(r.content)
+                        ArCabildoabiertoWikiTopic.isTopicViewBasic(r.content)
                     ) {
                         const key = r.content.versionRef ? r.content.versionRef.uri : r.content.id
                         return <FeedElement key={key} elem={r} />;

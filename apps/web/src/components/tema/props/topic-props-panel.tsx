@@ -1,4 +1,4 @@
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {addDefaults} from "./topic-prop-editor";
 import {CaretDoubleLeftIcon, CaretDoubleRightIcon} from "@phosphor-icons/react";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
@@ -9,11 +9,11 @@ import dynamic from "next/dynamic";
 
 const TopicPropView = dynamic(() => import("./topic-prop-view").then(m => m.TopicPropView), {ssr: false})
 
-function propsStartOpen(props: ArCabildoabiertoWikiTopicVersion.TopicProp[], isMobile: boolean, layoutConfig: LayoutConfigProps) {
+function propsStartOpen(props: ArCabildoabiertoWikiTopic.TopicProp[], isMobile: boolean, layoutConfig: LayoutConfigProps) {
     return !isMobile && layoutConfig.spaceForRightSide && props.some(p => !["Título", "Categorías", "Sinónimos"].includes(p.name))
 }
 
-export const TopicPropsPanel = ({topic}: { topic: ArCabildoabiertoWikiTopicVersion.TopicView }) => {
+export const TopicPropsPanel = ({topic}: { topic: ArCabildoabiertoWikiTopic.TopicView }) => {
     const props = useMemo(() => {
         return addDefaults(topic.props, topic.id)
     }, [topic])
@@ -38,7 +38,7 @@ export const TopicPropsPanel = ({topic}: { topic: ArCabildoabiertoWikiTopicVersi
         </BaseButton>
     }
 
-    function cmp(a: ArCabildoabiertoWikiTopicVersion.TopicProp, b: ArCabildoabiertoWikiTopicVersion.TopicProp) {
+    function cmp(a: ArCabildoabiertoWikiTopic.TopicProp, b: ArCabildoabiertoWikiTopic.TopicProp) {
         const priority = {
             "Sinónimos": 0,
             "Foto": 2

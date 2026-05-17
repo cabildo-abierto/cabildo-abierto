@@ -15,14 +15,14 @@ import {NotFoundError} from "#/services/dataset/read.js";
 import {AppContext} from "#/setup.js";
 import {Agent, SessionAgent} from "#/utils/session-agent.js";
 import {CIDEncodeError, getPollKey, PollIdMismatchError} from "#/services/write/topic.js";
-import {ATCreateRecordError} from "#/services/wiki/votes.js";
+import {ATCreateRecordError} from "#/services/votes/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
+import {processValidatedRecords} from "#/services/record/processing.js";
 import {$Typed} from "@atproto/api";
 import {deleteRecords} from "#/services/delete.js";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
-import {InsufficientParamsError} from "#/services/wiki/topics.js";
+import {InsufficientParamsError} from "#/services/wiki/topic.js";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 

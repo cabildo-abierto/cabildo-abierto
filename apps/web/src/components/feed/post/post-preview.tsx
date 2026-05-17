@@ -7,7 +7,7 @@ import {AppBskyFeedPost, AppBskyActorDefs} from "@atproto/api"
 import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {postOrArticle, isReplyRefContent, ReplyRefContent} from "@/utils/type-utils";
 import FeedElement from "../feed/feed-element";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useSession} from "@/components/auth/use-session";
 import {cn} from "@/lib/utils";
@@ -81,7 +81,7 @@ function getParentAndRoot(f: ArCabildoabiertoFeedDefs.FeedViewContent): {
             return {parent}
         }
     } else {
-        if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(parent)) {
+        if (ArCabildoabiertoWikiTopic.isTopicViewBasic(parent)) {
             return {parent} // en este caso tienen que ser parent == root
         }
         return {parent, root}

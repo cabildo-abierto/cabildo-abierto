@@ -29,7 +29,7 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, validateUrl} from '../../utils/url';
 import {CustomLink as Link} from "@/components/utils/base/custom-link"
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api/dist"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api/dist"
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {BaseIconButton} from "@/components/utils/base/base-icon-button";
 import {TopicMentionComp} from "../TopicMentionsPlugin/topic-mention-comp";
@@ -45,14 +45,14 @@ import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {useDebounce} from "@/components/utils/react/debounce";
 import {topicUrl} from "@/components/utils/react/url";
 
-export type TopicViewBasicWithUrl = ArCabildoabiertoWikiTopicVersion.TopicViewBasic & {url: string}
+export type TopicViewBasicWithUrl = ArCabildoabiertoWikiTopic.TopicViewBasic & {url: string}
 
 
 export type TopicsQuery = (query: string) => Promise<TopicViewBasicWithUrl[]>
 
 
 const SearchResults = ({results, setValue}: {
-    results: ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading",
+    results: ArCabildoabiertoWikiTopic.TopicViewBasic[] | "loading",
     setValue: (v: string) => void
 }) => {
     if (results == "loading") {
@@ -63,7 +63,7 @@ const SearchResults = ({results, setValue}: {
 
     if (results.length == 0) return <></>
     return <div className="space-y-1 overflow-y-auto custom-scrollbar max-h-[300px]">
-        {results.map((topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {
+        {results.map((topic: ArCabildoabiertoWikiTopic.TopicViewBasic) => {
             return <button
                 key={topic.id}
                 className={cn(dropdownMenuItemClass, "w-full text-left")}
@@ -97,7 +97,7 @@ const FloatingLinkEditorEditing = ({
     lastSelection: any
     editor: LexicalEditor
 }) => {
-    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([])
+    const [results, setResults] = useState<ArCabildoabiertoWikiTopic.TopicViewBasic[] | "loading">([])
     const debouncedValue = useDebounce(editedLinkUrl, 300)
 
     const handleLinkSubmission = (value: string) => {

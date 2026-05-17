@@ -1,11 +1,12 @@
-import {useSearchParams} from "next/navigation";
+import {useParams, useSearchParams} from "next/navigation";
 
 
 export function useTopicPageParams() {
     const searchParams = useSearchParams()
+    const params = useParams()
     const did = searchParams.get("did")
     const rkey = searchParams.get("rkey")
-    const topicId = searchParams.get("i")
+    const topicId = params["id"]
     const s = searchParams.get("s") // edit atenrior
     const edit = searchParams.get("edit")
 

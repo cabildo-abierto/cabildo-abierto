@@ -3,10 +3,10 @@ import InfoPanel from "@/components/utils/base/info-panel"
 import { PermissionLevel } from "./permission-level"
 import {useSession} from "@/components/auth/use-session";
 import {getTopicProtection} from "./utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 
 
-export const NotEnoughPermissionsWarning = ({topic}: {topic: ArCabildoabiertoWikiTopicVersion.TopicView}) => {
+export const NotEnoughPermissionsWarning = ({topic}: {topic: ArCabildoabiertoWikiTopic.TopicView}) => {
     const {user} = useSession()
 
     const status = user?.editorStatus

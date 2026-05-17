@@ -1,7 +1,6 @@
 import {$Typed} from "@atproto/api";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {dbLabelsToLabelsView, hydrateViewer} from "#/services/hydration/hydrate.js";
 import {DataPlane} from "#/services/hydration/dataplane.js";
 import {Effect} from "effect";

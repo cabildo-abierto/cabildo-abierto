@@ -9,7 +9,7 @@ import {getTopicTitle, validEntityName} from "../../tema/utils";
 import {useSession} from "@/components/auth/use-session";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic, CreateTopicVersionProps} from "@cabildo-abierto/api"
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {queryTopics} from "@/components/writing/query-topics";
 import {post} from "@/components/utils/react/fetch";
@@ -19,19 +19,27 @@ import {useDebounce} from "@/components/utils/react/debounce";
 
 export function useCreateTopic() {
 
-    const createTopic = async (id: string) => {
-        id = id.trim()
+    const createTopic = async (title: string) => {
+        title = title.trim()
         const topic: CreateTopicVersionProps = {
-            id,
+            id: null,
             props: [
                 {
-                    $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
+                    $type: "ar.cabildoabierto.wiki.topic#topicProp",
                     name: "Sinónimos",
                     value: {
-                        $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
-                        value: [id]
+                        $type: "ar.cabildoabierto.wiki.topic#stringListProp",
+                        value: [title]
                     }
-                }
+                },
+                {
+                    $type: "ar.cabildoabierto.wiki.topic#topicProp",
+                    name: "Título",
+                    value: {
+                        $type: "ar.cabildoabierto.wiki.topic#stringProp",
+                        value: title
+                    }
+                },
             ]
         }
 
@@ -42,7 +50,7 @@ export function useCreateTopic() {
 }
 
 
-export type CreateTopicSearchResults = ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading" | null
+export type CreateTopicSearchResults = ArCabildoabiertoWikiTopic.TopicViewBasic[] | "loading" | null
 
 
 const CreateTopicButtons = ({
@@ -132,15 +140,11 @@ const CreateTopicInput = ({
                               topicName,
                               setTopicName,
                               disabled,
-                              goToArticle,
-                              setGoToArticle,
                               onClose
                           }: {
     topicName: string
     setTopicName: (t: string) => void
     disabled: boolean
-    goToArticle: boolean
-    setGoToArticle: (v: boolean) => void
     onClose: () => void
 }) => {
     const debouncedName = useDebounce(topicName, 300)
@@ -154,6 +158,8 @@ const CreateTopicInput = ({
         enabled: debouncedName.length > 0
     });
 
+    const validTopicName = !topicName.includes("/")
+
     return <div className={"h-full space-y-1"}>
         <div className={"w-full"}>
             <BaseTextField
@@ -161,13 +167,13 @@ const CreateTopicInput = ({
                 onChange={(e) => {
                     setTopicName(e.target.value)
                 }}
-                placeholder="Escribí un título para el tema o buscá uno que ya exista..."
+                placeholder="Escribí un título para el tema..."
                 autoFocus={true}
                 inputClassName={"py-2"}
                 inputGroupClassName={"bg-[var(--background-dark)]"}
             />
         </div>
-        {topicName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
+        {!validTopicName && <ErrorMsg text="El título tiene un caracter inválido."/>}
 
         {results && results.length > 0 && <div className={"text-xs font-light px-0.5 py-1"}>
             Se encontraron {results.length} temas. Si alguno es lo que estás buscando, editalo en vez de crear uno nuevo.
@@ -180,10 +186,10 @@ const CreateTopicInput = ({
         />}
 
         <div className={"flex space-x-1 items-center"}>
-            {isLoading && <div>
-                <LoadingSpinner className={"w-4 h-4"}/>
+            {isLoading && <div className={"flex justify-center py-8 w-full"}>
+                <LoadingSpinner className={"w-6 h-6"}/>
             </div>}
-            {!isLoading && results && results.length == 0 && <div
+            {!isLoading && results && results.length == 0 && validTopicName && <div
                 className={"flex space-x-1 text-center text-xs font-light pl-1"}
             >
                 No se encontraron temas similares, creá el tema para empezar la discusión.
@@ -201,7 +207,7 @@ type CreateTopicProps = {
 export const CreateTopic = ({
     onClose,
     onMenu
-                            }: CreateTopicProps) => {
+}: CreateTopicProps) => {
     const user = useSession();
     const [topicName, setTopicName] = useState("");
     const [goToArticle, setGoToArticle] = useState(true)
@@ -213,8 +219,6 @@ export const CreateTopic = ({
             disabled={disabled}
             topicName={topicName}
             setTopicName={setTopicName}
-            goToArticle={goToArticle}
-            setGoToArticle={setGoToArticle}
             onClose={onClose}
         />
         <CreateTopicButtons

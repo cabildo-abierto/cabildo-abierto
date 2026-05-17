@@ -1,6 +1,6 @@
 import {getTopicTitle} from "../../tema/utils"
 import {usePathname} from "next/navigation"
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import ReplyIcon from "@/components/utils/icons/reply-icon";
 import {CustomLink} from "@/components/utils/base/custom-link";
 import {topicUrl} from "@/components/utils/react/url";
@@ -19,7 +19,7 @@ const UserSummaryOnHover = dynamic(() => import("../../perfil/user-summary"), {
 
 
 export const TopicViewBasicOnFeed = ({topic, showingChildren}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicViewBasic
+    topic: ArCabildoabiertoWikiTopic.TopicViewBasic
     showingChildren: boolean
 }) => {
     const pathname = usePathname()

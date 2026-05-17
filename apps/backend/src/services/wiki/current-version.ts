@@ -1,13 +1,11 @@
-import {max, unique} from "@cabildo-abierto/utils"
-import {ArCabildoabiertoWikiTopic, EditorStatus} from "@cabildo-abierto/api"
+import {unique} from "@cabildo-abierto/utils"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {getUri} from "@cabildo-abierto/utils"
 import {CAHandlerNoAuth} from "#/utils/handler.js"
 import {getTopicCategories, getTopicTitle} from "#/services/wiki/utils.js"
 import {AppContext} from "#/setup.js"
 import {DB} from "../../../prisma/generated/types.js"
-import {getTopicVersionStatusFromReactions} from "#/services/votes/votes.js";
 import {Transaction} from "kysely"
-import {produce} from "immer"
 import {jsonArrayFrom} from "kysely/helpers/postgres"
 import {Effect} from "effect";
 import {NotFoundError} from "#/services/dataset/read.js";
@@ -27,59 +25,6 @@ export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey
     }).pipe(Effect.flatMap(res => {
         return res ? Effect.succeed(res?.topicId) : Effect.fail(new NotFoundError())
     }))
-}
-
-
-function addAuthorVoteToVoteCounts(authorStatus: EditorStatus, voteCounts?: ArCabildoabiertoWikiTopic.TopicVersionStatus["voteCounts"]): ArCabildoabiertoWikiTopic.TopicVersionStatus["voteCounts"] {
-    if (voteCounts) {
-        return produce(voteCounts, draft => {
-            const idx = voteCounts
-                .findIndex(c => c.category == authorStatus)
-
-            if (idx != -1) {
-                draft[idx].accepts += 1
-            } else {
-                draft.push({
-                    category: authorStatus,
-                    accepts: 1,
-                    rejects: 0
-                })
-            }
-        })
-    } else {
-        return [{
-            category: authorStatus,
-            accepts: 1,
-            rejects: 0
-        }]
-    }
-}
-
-
-function catToNumber(cat: string) {
-    const res = ["Beginner", "Editor", "Administrator"].indexOf(cat)
-    const resEs = ["Editor principiante", "Editor", "Administrador"].indexOf(cat)
-    if (res == -1 && resEs == -1) throw Error(`Categoría de editor desconocida: ${cat}`)
-    return res != -1 ? res : resEs
-}
-
-
-export function isVersionAccepted(
-    ctx: AppContext,
-    authorStatus: EditorStatus,
-    protection: EditorStatus,
-    voteCounts?: ArCabildoabiertoWikiTopic.TopicVersionStatus["voteCounts"]
-) {
-    // TO DO (!) considerar la protección
-    const voteCountsWithAuthor = addAuthorVoteToVoteCounts(
-        authorStatus,
-        voteCounts
-    )
-    const relevantVotes = max(
-        voteCountsWithAuthor, x => catToNumber(x.category)
-    )
-    if(!relevantVotes) throw Error("No hubo ningún voto incluyendo al autor!")
-    return relevantVotes.rejects == 0 && relevantVotes.accepts > 0
 }
 
 
@@ -123,9 +68,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     type VersionWithVotes = {
         topicId: string
         uri: string
-        reactions?: { uri: string | null, editorStatus: EditorStatus }[]
-        protection: EditorStatus
-        editorStatus: EditorStatus
+        reactions?: { uri: string | null }[]
         currentVersionId: string | null
         accCharsAdded: number | null
         created_at_tz: Date | null
@@ -142,13 +85,10 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
             .innerJoin("User", "Record.authorId", "User.did")
             .innerJoin("Topic", "Topic.id", "TopicVersion.topicId")
             .select([
-                "Record.created_at_tz",
+                "Record.createdAt",
                 'TopicVersion.topicId',
                 "Topic.currentVersionId",
                 'Record.uri',
-                "Topic.protection",
-                "User.editorStatus",
-                "accCharsAdded",
                 "TopicVersion.props",
                 eb => jsonArrayFrom(eb
                     .selectFrom("Reaction")
@@ -156,17 +96,16 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                     .innerJoin("Record as ReactionRecord", "ReactionRecord.uri", "Reaction.uri")
                     .innerJoin("User as ReactionAuthor", "ReactionAuthor.did", "ReactionRecord.authorId")
                     .select([
-                        "Reaction.uri",
-                        "ReactionAuthor.editorStatus"
+                        "Reaction.uri"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.created_at_tz desc")
+                    .orderBy("ReactionRecord.createdAt desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])
             .where('TopicVersion.topicId', 'in', topicIds)
             .where('Record.cid', 'is not', null)
-            .orderBy('Record.created_at_tz', 'asc')
+            .orderBy('Record.createdAt', 'asc')
             .execute()
     } catch (err) {
         ctx.logger.pino.error({error: err}, "Error getting topics for update current version")
@@ -198,18 +137,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                 lastEdit
             })
         } else {
-            const versionsStatus = versions
-                .map(v => getTopicVersionStatusFromReactions(
-                        ctx,
-                        v.reactions?.map(r => r.uri != null ? {...r, uri: r.uri} : null).filter(x => x != null) ?? [],
-                        v.editorStatus,
-                        v.protection
-                    )
-                )
-
-            const currentVersion = getTopicCurrentVersion(
-                versionsStatus
-            )
+            const currentVersion = versions[0] // TO DO
 
             if (currentVersion == null) {
                 updates.push({
@@ -243,8 +171,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                 .values(updates.map(u => ({...u, synonyms: [], lastEdit_tz: u.lastEdit})))
                 .onConflict((oc) =>
                     oc.column("id").doUpdateSet({
-                        currentVersionId: (eb) => eb.ref('excluded.currentVersionId'),
-                        lastEdit_tz: (eb) => eb.ref('excluded.lastEdit_tz')
+                        currentVersionId: (eb) => eb.ref('excluded.currentVersionId')
                     })
                 )
                 .execute()

@@ -2,11 +2,11 @@ import {DescriptionOnHover} from "@/components/utils/base/description-on-hover";
 import {topicUrl} from "@/components/utils/react/url";
 import ValidationIcon from "@/components/perfil/validation-icon";
 import {TimePeriod} from "@/queries/getters/useTrendingTopics";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 
 
 export default function TopicPopularityIndicator({counts, selected}: {
-    counts: ArCabildoabiertoWikiTopicVersion.TopicPopularity, selected: TimePeriod
+    counts: ArCabildoabiertoWikiTopic.TopicPopularity, selected: TimePeriod
 }) {
 
     let count: number | undefined

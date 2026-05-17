@@ -7,7 +7,7 @@ import {TimePeriod} from "@/queries/getters/useTrendingTopics";
 import Link from "next/link";
 
 import {smoothScrollTo} from "../../utils/react/scroll";
-import {ArCabildoabiertoWikiTopicVersion, TTOption} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic, TTOption} from "@cabildo-abierto/api";
 import {useTopicsPageParams} from "@/components/feed/config/topics";
 import TopicsSortSelector from "@/components/temas/topic-sort-selector";
 
@@ -66,12 +66,12 @@ export const CategoryTopics = ({categories}: {
         </div>}
         {topics && <StaticFeed
             initialContents={topics}
-            FeedElement={({content: t, index}: {content: ArCabildoabiertoWikiTopicVersion.TopicViewBasic, index?: number}) =>
+            FeedElement={({content: t, index}: {content: ArCabildoabiertoWikiTopic.TopicViewBasic, index?: number}) =>
                 <TopicSearchResult topic={t} index={index} time={time}/>
             }
             noResultsText={"No se encontró ningún tema."}
             endText={endText}
-            getFeedElementKey={(e: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => {return `${e.id}:${time}`}}
+            getFeedElementKey={(e: ArCabildoabiertoWikiTopic.TopicViewBasic) => {return `${e.id}:${time}`}}
         />}
     </div>
 }

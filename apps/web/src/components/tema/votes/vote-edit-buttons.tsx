@@ -8,7 +8,7 @@ import {QueryClient, useMutation, useQueryClient} from "@tanstack/react-query";
 import {invalidateQueries, updateTopicHistories} from "@/queries/mutations/updates";
 import {produce} from "immer";
 import {CheckIcon, XIcon} from "@phosphor-icons/react";
-import {ArCabildoabiertoWikiTopicVersion, Session} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic, Session} from "@cabildo-abierto/api";
 import {useSession} from "@/components/auth/use-session";
 import {areArraysEqual} from "@cabildo-abierto/utils";
 import {useLoginModal} from "../../auth/login-modal-provider";
@@ -31,7 +31,7 @@ async function cancelVote({voteUri, force}: { voteUri: string, force: boolean })
 }
 
 
-export function addVoteToStatus(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"], user: Session, kind: "accept" | "reject") {
+export function addVoteToStatus(status: ArCabildoabiertoWikiTopic.TopicView["status"], user: Session, kind: "accept" | "reject") {
     return produce(status, draft => {
         const cat = draft.voteCounts.find(c => c.category == user.editorStatus)
         if (!cat) {
@@ -47,7 +47,7 @@ export function addVoteToStatus(status: ArCabildoabiertoWikiTopicVersion.TopicVi
 }
 
 
-export function removeVoteFromStatus(status: ArCabildoabiertoWikiTopicVersion.TopicView["status"], user: Session, kind: "accept" | "reject") {
+export function removeVoteFromStatus(status: ArCabildoabiertoWikiTopic.TopicView["status"], user: Session, kind: "accept" | "reject") {
     return produce(status, draft => {
         const cat = draft.voteCounts.find(c => c.category == user.editorStatus)
         if (cat) {
@@ -61,7 +61,7 @@ export function removeVoteFromStatus(status: ArCabildoabiertoWikiTopicVersion.To
 }
 
 
-function updateTopicViewAndVersion(qc: QueryClient, topicId: string, topicVersionUri: string, updater: (v: ArCabildoabiertoWikiTopicVersion.TopicView) => ArCabildoabiertoWikiTopicVersion.TopicView) {
+function updateTopicViewAndVersion(qc: QueryClient, topicId: string, topicVersionUri: string, updater: (v: ArCabildoabiertoWikiTopic.TopicView) => ArCabildoabiertoWikiTopic.TopicView) {
     const {did, rkey} = splitUri(topicVersionUri)
     const queries: string[][] = [
         ["topic", topicId],
@@ -74,7 +74,7 @@ function updateTopicViewAndVersion(qc: QueryClient, topicId: string, topicVersio
         .forEach(q => {
             qc.setQueryData(q.queryKey, old => {
                 if (!old) return old
-                const topic = old as ArCabildoabiertoWikiTopicVersion.TopicView
+                const topic = old as ArCabildoabiertoWikiTopic.TopicView
                 return updater(topic)
             })
         })
@@ -93,7 +93,7 @@ function optimisticAcceptVote(qc: QueryClient, topicId: string, uri: string, use
         })
     })
 
-    function updater(v: ArCabildoabiertoWikiTopicVersion.TopicView) {
+    function updater(v: ArCabildoabiertoWikiTopic.TopicView) {
         return produce(v, draft => {
             draft.viewer.accept = "optimistic-accept-uri"
             draft.status = addVoteToStatus(draft.status, user, "accept")
@@ -112,7 +112,7 @@ export function optimisticRejectVote(qc: QueryClient, topicId: string, uri: stri
         })
     })
 
-    function updater(v: ArCabildoabiertoWikiTopicVersion.TopicView) {
+    function updater(v: ArCabildoabiertoWikiTopic.TopicView) {
         return produce(v, draft => {
             draft.viewer.reject = "optimistic-reject-uri"
             draft.status = addVoteToStatus(draft.status, user, "reject")
@@ -130,7 +130,7 @@ export function setCreatedRejectVote(qc: QueryClient, topicId: string, uri: stri
         })
     })
 
-    function updater(v: ArCabildoabiertoWikiTopicVersion.TopicView) {
+    function updater(v: ArCabildoabiertoWikiTopic.TopicView) {
         return produce(v, draft => {
             draft.viewer.reject = voteUri
         })
@@ -147,7 +147,7 @@ function setCreatedAcceptVote(qc: QueryClient, topicId: string, uri: string, vot
         })
     })
 
-    function updater(v: ArCabildoabiertoWikiTopicVersion.TopicView) {
+    function updater(v: ArCabildoabiertoWikiTopic.TopicView) {
         return produce(v, draft => {
             draft.viewer.accept = voteUri
         })
@@ -164,7 +164,7 @@ function optimisticCancelAcceptVote(qc: QueryClient, topicId: string, uri: strin
         })
     })
 
-    function updater(v: ArCabildoabiertoWikiTopicVersion.TopicView) {
+    function updater(v: ArCabildoabiertoWikiTopic.TopicView) {
         return produce(v, draft => {
             draft.viewer.accept = undefined
             draft.status = removeVoteFromStatus(draft.status, user, "accept")
@@ -183,7 +183,7 @@ function optimisticCancelRejectVote(qc: QueryClient, topicId: string, uri: strin
         })
     })
 
-    function updater(v: ArCabildoabiertoWikiTopicVersion.TopicView) {
+    function updater(v: ArCabildoabiertoWikiTopic.TopicView) {
         return produce(v, draft => {
             return produce(v, draft => {
                 draft.viewer.reject = undefined

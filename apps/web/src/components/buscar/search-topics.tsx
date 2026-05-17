@@ -3,7 +3,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {get} from "../utils/react/fetch";
 import dynamic from "next/dynamic";
 import {BaseButton} from "@/components/utils/base/base-button";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import { useDebounce } from "../utils/react/debounce";
 import {categoriesSearchParam} from "@/components/utils/react/queries";
 
@@ -13,7 +13,7 @@ const StaticFeed = dynamic(() => import('../feed/feed/static-feed'), {ssr: false
 
 async function searchTopics(q: string, categories?: string[]) {
     const query = categories ? categoriesSearchParam(categories) : null
-    return await get<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(`/search-topics/${q}` + (query ? `?${query}` : ""))
+    return await get<ArCabildoabiertoWikiTopic.TopicViewBasic[]>(`/search-topics/${q}` + (query ? `?${query}` : ""))
 }
 
 
@@ -22,7 +22,7 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
     setCategories?: (c: string[]) => void
     searchState: {searching: boolean, value: string}
 }) => {
-    const [results, setResults] = useState<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[] | "loading">([]);
+    const [results, setResults] = useState<ArCabildoabiertoWikiTopic.TopicViewBasic[] | "loading">([]);
     const debouncedValue = useDebounce(searchState.value, 300)
 
     useEffect(() => {
@@ -73,9 +73,9 @@ export const SearchTopics = ({searchState, categories, setCategories}: {
 
     return <StaticFeed
         initialContents={results}
-        FeedElement={({content: r}: { content: ArCabildoabiertoWikiTopicVersion.TopicViewBasic }) => <TopicSearchResult topic={r}/>}
+        FeedElement={({content: r}: { content: ArCabildoabiertoWikiTopic.TopicViewBasic }) => <TopicSearchResult topic={r}/>}
         noResultsText={noResultsText}
         endText={""}
-        getFeedElementKey={(e: ArCabildoabiertoWikiTopicVersion.TopicViewBasic) => e.id}
+        getFeedElementKey={(e: ArCabildoabiertoWikiTopic.TopicViewBasic) => e.id}
     />
 };

@@ -12,13 +12,10 @@ import {
 import {
     AppBskyFeedPost,
     ArCabildoabiertoDataDataset,
-    ArCabildoabiertoFeedArticle,
-    ArCabildoabiertoFeedDefs,
     ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api"
-import {FeedSkeleton} from "#/services/feed/feed.js";
 import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
-import {hydrateEmbedViews, hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
+import {hydrateEmbedViews, hydrateTopicViewBasicFromUri} from "#/services/wiki/topic.js";
 import {getTopicTitle} from "#/services/wiki/utils.js";
 import {hydrateDatasetView} from "#/services/dataset/read.js";
 import {BlockedPost, isThreadViewPost, ThreadViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs.js"

@@ -1,4 +1,4 @@
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {TimePeriod} from "./useTrendingTopics";
 import {TopicsGraph} from "@/lib/types";
 import {categoriesSearchParam, useAPI} from "@/components/utils/react/queries";
@@ -8,7 +8,7 @@ import {categoriesSearchParam, useAPI} from "@/components/utils/react/queries";
 export function useTopics(categories: string[], sortedBy: "popular" | "recent", time: TimePeriod) {
     const query = categoriesSearchParam(categories)
     const url = `/topics/${sortedBy}/${time}${query ? `?${query}` : ""}`;
-    return useAPI<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(url, ["topic", sortedBy, ...categories, time]);
+    return useAPI<ArCabildoabiertoWikiTopic.TopicViewBasic[]>(url, ["topic", sortedBy, ...categories, time]);
 }
 
 

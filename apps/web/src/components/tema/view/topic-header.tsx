@@ -1,10 +1,10 @@
 import {getTopicCategories, getTopicTitle} from "../utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import TopicCategories from "./topic-categories";
 
 
 export const TopicHeader = ({topic}: {
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
 }) => {
 
     return <div

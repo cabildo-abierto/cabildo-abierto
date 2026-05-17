@@ -3,14 +3,8 @@ import {EmbedContext} from "./editor";
 
 
 export type CreateTopicVersionProps = {
-    id: string
-    text?: string
-    format?: string,
+    id: string | null
     props?: ArCabildoabiertoWikiTopic.TopicProp[]
-    message?: string,
-    claimsAuthorship?: boolean
-    embeds?: ArCabildoabiertoWikiEmbed.View[]
-    embedContexts?: EmbedContext[]
 }
 
 

@@ -28,6 +28,41 @@
           "ref": "com.atproto.repo.strongRef"
         }
       }
+    },
+    "threadViewContent": {
+      "type": "object",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "union",
+          "refs": [
+            "ar.cabildoabierto.wiki.comment#view",
+            "app.bsky.feed.defs#notFoundPost",
+            "app.bsky.feed.defs#blockedPost"
+          ]
+        },
+        "parent": {
+          "type": "union",
+          "refs": [
+            "#threadViewContent",
+            "app.bsky.feed.defs#notFoundPost",
+            "app.bsky.feed.defs#blockedPost"
+          ]
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "type": "union",
+            "refs": [
+              "#threadViewContent",
+              "app.bsky.feed.defs#notFoundPost",
+              "app.bsky.feed.defs#blockedPost"
+            ]
+          }
+        }
+      }
     }
   }
 }

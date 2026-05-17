@@ -34,9 +34,7 @@ export const getTrendingTopics: EffHandlerNoAuth<{params: {time: TimePeriod}, qu
 export type TopicQueryResultBasic = {
     id: string
     props: unknown
-    numWords: number | null
-    lastRead?: Date | null
-    created_at?: Date | null
+    createdAt?: Date | null
     uri: string | null
     cid: string | null
     replyCount: number | null
@@ -280,7 +278,7 @@ export const getTopic = (ctx: AppContext, agent: Agent, id?: string, did?: strin
 
     let uri: string
     if(did && rkey) {
-        uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
+        uri = getUri(did, "ar.cabildoabierto.wiki.topic", rkey)
     } else if(id) {
         uri = yield* getTopicCurrentVersionFromDB(ctx, id)
     } else {
@@ -301,13 +299,13 @@ export const getTopicHandler: EffHandlerNoAuth<{ query: { i?: string, did?: stri
 }
 
 
-export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoWikiEmbed.Embed[]): ArCabildoabiertoWikiEmbed.EmbedView[] {
-    const views: ArCabildoabiertoWikiEmbed.EmbedView[] = []
+export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoWikiEmbed.Main[]): ArCabildoabiertoWikiEmbed.View[] {
+    const views: ArCabildoabiertoWikiEmbed.View[] = []
     for(let i = 0; i < embeds.length; i++) {
         const e = embeds[i]
         if(ArCabildoabiertoEmbedVisualization.isMain(e.value)){
             views.push({
-                $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                $type: "ar.cabildoabierto.wiki.embed#view",
                 value: {
                     ...e.value,
                     $type: "ar.cabildoabierto.embed.visualization"
@@ -328,13 +326,13 @@ export function hydrateEmbedViews(authorId: string, embeds: ArCabildoabiertoWiki
                 })
             }
             views.push({
-                $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                $type: "ar.cabildoabierto.wiki.embed#view",
                 value: imagesView,
                 index: e.index
             })
         } else if(ArCabildoabiertoEmbedPoll.isMain(e.value)) {
             views.push({
-                $type: "ar.cabildoabierto.feed.article#articleEmbedView",
+                $type: "ar.cabildoabierto.wiki.embed#view",
                 value: {
                     $type: "ar.cabildoabierto.embed.poll",
                     poll: e.value.poll,
@@ -381,9 +379,8 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                 "TopicVersion.props",
                 "Topic.id",
                 "Topic.currentVersionId",
-                "User.editorStatus",
                 eb => eb
-                    .selectFrom("Post as Reply")
+                    .selectFrom("Comment as Reply")
                     .select(eb => eb.fn.count<number>("Reply.uri").as("count"))
                     .whereRef("Reply.replyToId", "=", "Record.uri").as("replyCount"),
                 eb => jsonArrayFrom(eb
@@ -392,15 +389,13 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                     .innerJoin("Record as ReactionRecord", "ReactionRecord.uri", "Reaction.uri")
                     .innerJoin("User as ReactionAuthor", "ReactionAuthor.did", "ReactionRecord.authorId")
                     .select([
-                        "Reaction.uri",
-                        "ReactionAuthor.editorStatus"
+                        "Reaction.uri"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.created_at_tz desc")
+                    .orderBy("ReactionRecord.createdAt desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])
-            .where("Record.created_at_tz", "is not", null)
             .where("TopicVersion.uri", "=", uri)
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)

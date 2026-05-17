@@ -1,4 +1,4 @@
-import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
+import {useTopic} from "@/queries/getters/useTopic";
 import {useState} from "react";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {EditTopicButton} from "./edit-topic-button";
@@ -29,7 +29,7 @@ const TopicHeader = dynamic(() => import("./topic-header").then(mod => mod.Topic
 
 export const TopicViewPage = () => {
     const {did, rkey, topicId} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
     const [pinnedReplies, setPinnedReplies] = useState<string[]>([])
     const {isMobile} = useLayoutConfig()
     const {layoutConfig} = useLayoutConfig()

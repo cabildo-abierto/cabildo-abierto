@@ -2,27 +2,24 @@ import { TopicPage } from "@/components/tema/topic-page"
 import {Metadata} from "next";
 import {createMetadata, mainMetadata} from "@/utils/metadata";
 import {get} from "@/components/utils/react/fetch";
-import {encodeParentheses} from "@cabildo-abierto/utils";
 
 type Props = {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    params: Promise<{ id: string }>
 }
 
 export async function generateMetadata(
-    { searchParams }: Props
+    { params }: Props
 ): Promise<Metadata> {
-    const p = await searchParams
-    const i = p?.i instanceof Array ? p?.i[0] : p?.i
-    const enc = encodeParentheses(encodeURIComponent(i))
-    const topicTitle = await get<{title: string}>(`/topic-title/${enc}`)
+    const { id } = await params
+    const topicTitle = await get<{title: string}>(`/topic-title/${id}`)
     if(topicTitle.success === true){
         return createMetadata({
             title: topicTitle.value.title,
             description: "Tema de discusión en Cabildo Abierto."
         })
-    } else if(i){
+    } else if(id){
         return createMetadata({
-            title: i,
+            title: id,
             description: "Tema de discusión en Cabildo Abierto."
         })
     } else {

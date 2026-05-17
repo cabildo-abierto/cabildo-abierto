@@ -2,7 +2,7 @@ import {AppContext} from "#/setup.js";
 import {TextAndFormat} from "#/services/wiki/references/references.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
 import {decompress, getPlainText} from "@cabildo-abierto/editor-core";
-import {ArCabildoabiertoFeedArticle, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {BlobRef} from "#/services/hydration/hydrate.js";
 import {getCollectionFromUri, getDidFromUri, isPost} from "@cabildo-abierto/utils";
 import {fetchTextBlobs} from "#/services/blob.js";

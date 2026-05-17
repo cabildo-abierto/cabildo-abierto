@@ -4,9 +4,7 @@ import {
     isRepost
 } from "@cabildo-abierto/utils";
 import {Transaction} from "kysely";
-import {ReactionRecord, ReactionType} from "#/services/votes/votes.js";
 import {v4 as uuidv4} from 'uuid'
-import {isTopicVote} from "#/services/wiki/votes.js";
 import {unique} from "@cabildo-abierto/utils";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {isReactionCollection} from "#/utils/type-utils.js";
@@ -17,15 +15,10 @@ import {DB} from "prisma/generated/types.js";
 import {
     addRecordsToDBBatch,
     InsertRecordError,
-    processDirtyRecordsBatch,
-    processDirtyPostsBatch,
-    RecordProcessor
-} from "#/services/sync/event-processing/record-processor.js";
+    Processing
+} from "#/services/record/processing.js";
 import {AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
-import {
-    ArCabildoabiertoWikiVoteAccept,
-    ArCabildoabiertoWikiVoteReject
-} from "@cabildo-abierto/api"
+import {ArCabildoabiertoEmbedPollVote, ArCabildoabiertoWikiVote} from "@cabildo-abierto/api"
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect, pipe} from "effect";
@@ -35,12 +28,8 @@ import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor
 import {AppContext} from "#/setup.js";
 
 
-const columnMap: Record<ReactionType, keyof DB['Record']> = {
-    'app.bsky.feed.like': 'uniqueLikesCount',
-    'app.bsky.feed.repost': 'uniqueRepostsCount',
-    'ar.cabildoabierto.wiki.voteAccept': 'uniqueAcceptsCount',
-    'ar.cabildoabierto.wiki.voteReject': 'uniqueRejectsCount',
-}
+export type ReactionRecord = ArCabildoabiertoWikiVote.Record | ArCabildoabiertoEmbedPollVote.Record
+
 
 function isLikeOrRepost(r: RefAndRecord) {
     return ["app.bsky.feed.like", "app.bsky.feed.repost"].includes(getCollectionFromUri(r.ref.uri))
@@ -227,34 +216,26 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
     )
 }
 
-export const likeRecordProcessor: RecordProcessor<AppBskyFeedLike.Record> = {
+export const likeRecordProcessor: Processing<AppBskyFeedLike.Record> = {
     validator: (ctx, record: AppBskyFeedLike.Record) => Effect.succeed(AppBskyFeedLike.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<AppBskyFeedLike.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processing<AppBskyFeedLike.Record>["addRecordsToDB"]
 }
 
-export const repostRecordProcessor: RecordProcessor<AppBskyFeedRepost.Record> = {
+export const repostRecordProcessor: Processing<AppBskyFeedRepost.Record> = {
     validator: (ctx, record: AppBskyFeedRepost.Record) => Effect.succeed(AppBskyFeedRepost.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<AppBskyFeedRepost.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processing<AppBskyFeedRepost.Record>["addRecordsToDB"]
 }
 
-export const voteAcceptRecordProcessor: RecordProcessor<ArCabildoabiertoWikiVoteAccept.Record> = {
-    validator: (ctx, record: ArCabildoabiertoWikiVoteAccept.Record) => Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<ArCabildoabiertoWikiVoteAccept.Record>["addRecordsToDB"]
-}
-
-export const voteRejectRecordProcessor: RecordProcessor<ArCabildoabiertoWikiVoteReject.Record> = {
-    validator: (ctx, record: ArCabildoabiertoWikiVoteReject.Record) => Effect.succeed(ArCabildoabiertoWikiVoteReject.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<ArCabildoabiertoWikiVoteReject.Record>["addRecordsToDB"]
+export const wikiVoteRecordProcessor: Processing<ArCabildoabiertoWikiVote.Record> = {
+    validator: (ctx, record: ArCabildoabiertoWikiVote.Record) => Effect.succeed(ArCabildoabiertoWikiVote.validateRecord(record)),
+    addRecordsToDB: addReactionRecordsToDB as Processing<ArCabildoabiertoWikiVote.Record>["addRecordsToDB"]
 }
 
 
-export const reactionRecordProcessor: RecordProcessor<ReactionRecord> = {
+export const reactionRecordProcessor: Processing<ReactionRecord> = {
     validator: (ctx, record: ReactionRecord) => {
         const $type = record.$type
-        if ($type === "app.bsky.feed.like") return Effect.succeed(AppBskyFeedLike.validateRecord(record))
-        if ($type === "app.bsky.feed.repost") return Effect.succeed(AppBskyFeedRepost.validateRecord(record))
-        if ($type === "ar.cabildoabierto.wiki.voteAccept") return Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record))
-        if ($type === "ar.cabildoabierto.wiki.voteReject") return Effect.succeed(ArCabildoabiertoWikiVoteReject.validateRecord(record))
+        if ($type === "ar.cabildoabierto.wiki.vote") return Effect.succeed(ArCabildoabiertoWikiVote.validateRecord(record))
         return Effect.succeed({success: false, error: new Error(`Unknown reaction type: ${$type}`)})
     },
     addRecordsToDB: addReactionRecordsToDB

@@ -1,17 +1,12 @@
-import {ArCabildoabiertoFeedArticle} from "@cabildo-abierto/api"
-import {ATProtoStrongRef} from "@cabildo-abierto/api";
+import {ATProtoStrongRef, ArCabildoabiertoWikiEmbed} from "@cabildo-abierto/api";
+import {AppBskyRichtextFacet} from "@atproto/api";
 
 
 export type SyncContentProps = {
-    format?: string
-    text?: string
-    textBlob?: {
-        cid: string
-        authorId: string
-    }
+    text: string
+    facets: AppBskyRichtextFacet.Main[]
     selfLabels?: string[]
-    datasetsUsed?: string[]
-    embeds: ArCabildoabiertoFeedArticle.ArticleEmbed[]
+    embeds: ArCabildoabiertoWikiEmbed.Main[]
 }
 
 

@@ -8,7 +8,7 @@ import {produce} from "immer";
 import React, {useMemo, useState} from "react";
 import {DateSince} from "@/components/utils/base/date";
 import {useAPI} from "@/components/utils/react/queries";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {BaseSelect} from "@/components/utils/base/base-select";
 import { range } from "@cabildo-abierto/utils";
 import {editorStateToMarkdown, markdownToEditorState} from "../../editor/markdown-transforms";
@@ -121,7 +121,7 @@ function useTopicVersionChanges(did: string, rkey: string, prevDid: string, prev
 
 
 const TopicChanges = ({history, prevVersionIdx, newVersionIdx}: {
-    history: ArCabildoabiertoWikiTopicVersion.TopicHistory, prevVersionIdx: number, newVersionIdx: number
+    history: ArCabildoabiertoWikiTopic.TopicHistory, prevVersionIdx: number, newVersionIdx: number
 }) => {
     const {did, rkey} = splitUri(history.versions[newVersionIdx].uri)
     const {did: prevDid, rkey: prevRkey} = splitUri(history.versions[prevVersionIdx].uri)
@@ -183,7 +183,7 @@ const VersionSelector = ({
     label: string
     selected: number
     setSelected: (v: number) => void
-    history: ArCabildoabiertoWikiTopicVersion.TopicHistory
+    history: ArCabildoabiertoWikiTopic.TopicHistory
 }) => {
 
     const options = (o: string) => {
@@ -216,7 +216,7 @@ export const TopicChangesModal = ({open, onClose, uri, prevUri, history}: {
     onClose: () => void
     uri: string
     prevUri: string
-    history: ArCabildoabiertoWikiTopicVersion.TopicHistory
+    history: ArCabildoabiertoWikiTopic.TopicHistory
 }) => {
     const [prevVersionIdx, setPrevVersionIdx] = useState<number>(history.versions.findIndex(v => v.uri == prevUri))
     const [newVersionIdx, setNewVersionIdx] = useState<number>(history.versions.findIndex(v => v.uri == uri))

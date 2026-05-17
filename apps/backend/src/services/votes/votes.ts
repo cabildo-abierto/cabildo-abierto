@@ -1,8 +1,8 @@
 import {deleteRecordAT} from "#/services/delete.js";
 import {reactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
-import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
-import {ProcessCreateError} from "#/services/sync/event-processing/record-processor.js";
-import {ArCabildoabiertoWikiTopic, ArCabildoabiertoWikiVote, ATProtoStrongRef, CreatePostProps, EditorStatus} from "@cabildo-abierto/api";
+import {processValidatedRecords} from "#/services/record/processing.js";
+import {ProcessCreateError} from "#/services/record/processing.js";
+import {ArCabildoabiertoWikiTopic, ArCabildoabiertoWikiVote, ATProtoStrongRef, CreatePostProps} from "@cabildo-abierto/api";
 import {BaseAgent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
 import {getCollectionFromUri, getDidFromUri, getUri, isTopicVersion} from "@cabildo-abierto/utils";
@@ -15,12 +15,11 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {ATDeleteRecordError} from "#/services/delete.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
-import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
+import {InsertRecordError} from "#/services/record/processing.js";
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
-import {NotImplementedError} from "#/services/thread/thread.js";
-import {isVersionAccepted} from "#/services/wiki/current-version.js";
+import {NotImplementedError} from "#/services/discussion/thread.js";
 
 
 type ATCreateReactionError = InvalidValueError | ATCreateRecordError | NotImplementedError
@@ -28,9 +27,7 @@ type ATCreateReactionError = InvalidValueError | ATCreateRecordError | NotImplem
 
 export function getTopicVersionStatusFromReactions(
     ctx: AppContext,
-    reactions: { uri: string, editorStatus: string }[],
-    authorStatus: EditorStatus,
-    protection: EditorStatus
+    reactions: { uri: string, editorStatus: string }[]
 ): ArCabildoabiertoWikiTopic.TopicVersionStatus {
     const byEditorStatus = new Map<string, string[]>()
     reactions.forEach(r => {
@@ -61,8 +58,6 @@ export function getTopicVersionStatusFromReactions(
         voteCounts,
         accepted: isVersionAccepted(
             ctx,
-            authorStatus,
-            protection,
             voteCounts
         )
     }

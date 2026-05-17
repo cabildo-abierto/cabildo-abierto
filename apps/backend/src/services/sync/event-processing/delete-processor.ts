@@ -3,10 +3,7 @@ import {Effect} from "effect";
 import {getCollectionFromUri} from "@cabildo-abierto/utils";
 import {RedisCacheSetError} from "#/services/redis/cache.js";
 import {AddJobError, DBDeleteError} from "#/utils/errors.js";
-import {NotImplementedError} from "#/services/thread/thread.js";
-import {articleDeleteProcessor} from "#/services/sync/event-processing/article.js";
-import {postDeleteProcessor} from "#/services/sync/event-processing/post.js";
-import {followDeleteProcessor} from "#/services/sync/event-processing/follow.js";
+import {NotImplementedError} from "#/services/discussion/thread.js";
 import {caProfileDeleteProcessor} from "#/services/sync/event-processing/profile.js";
 import {topicVersionDeleteProcessor} from "#/services/sync/event-processing/topic.js";
 import {reactionDeleteProcessor} from "#/services/sync/event-processing/reaction.js";
@@ -28,18 +25,12 @@ const baseDeleteProcessor: DeleteProcessor = (ctx, uris) => {
 
 
 const collectionToProcessorMap: Record<string, DeleteProcessor> = {
-    "ar.cabildoabierto.feed.article": articleDeleteProcessor,
     "ar.cabildoabierto.data.dataset": datasetDeleteProcessor,
-    "app.bsky.feed.post": postDeleteProcessor,
     "app.bsky.actor.profile": baseDeleteProcessor,
-    "app.bsky.graph.follow": followDeleteProcessor,
     "ar.cabildoabierto.actor.caProfile": caProfileDeleteProcessor,
     "ar.com.cabildoabierto.profile": caProfileDeleteProcessor,
-    "ar.cabildoabierto.wiki.topicVersion": topicVersionDeleteProcessor,
-    "app.bsky.feed.like": reactionDeleteProcessor,
-    "app.bsky.feed.repost": reactionDeleteProcessor,
-    "ar.cabildoabierto.wiki.voteAccept": reactionDeleteProcessor,
-    "ar.cabildoabierto.wiki.voteReject": reactionDeleteProcessor,
+    "ar.cabildoabierto.wiki.topic": topicVersionDeleteProcessor,
+    "ar.cabildoabierto.wiki.vote": reactionDeleteProcessor,
     "ar.cabildoabierto.embed.pollVote": pollVoteDeleteProcessor,
 }
 

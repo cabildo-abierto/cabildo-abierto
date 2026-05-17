@@ -23,17 +23,6 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    if(url.pathname.startsWith("/tema") && !url.pathname.startsWith("/temas")) {
-        const searchParams = url.searchParams
-        const did = searchParams.get("did")
-        const rkey = searchParams.get("rkey")
-        const topicId = searchParams.get("i")
-        if(!topicId && (!did || !rkey)) {
-            url.pathname = "/temas"
-            return NextResponse.redirect(url)
-        }
-    }
-
     if(url.pathname.startsWith("/login") && !url.pathname.startsWith("/login/ok")) {
         url.pathname = "/presentacion"
         return NextResponse.redirect(url)

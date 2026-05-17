@@ -3,7 +3,6 @@ import {handler} from "#/utils/session-agent.js";
 import {CAHandlerNoAuth, makeEffHandler, makeEffHandlerNoAuth, makeHandler, makeHandlerNoAuth} from "#/utils/handler.js";
 import {searchTopics} from "#/services/search/users.js";
 import {
-    createAccessRequest,
     getInviteCodesToShare,
     updateATPermissions,
     getUserConfigHandler
@@ -12,12 +11,10 @@ import {
     getAccount,
     getProfileHandler,
     getSessionHandler,
-    setSeenTutorialHandler,
-    updateAlgorithmConfig,
     updateProfileHandler
 } from "#/services/user/users.js";
-import {getThread} from "#/services/thread/thread.js";
-import {getLikes, getReposts, getQuotes} from "#/services/thread/get-details.js";
+import {getThread} from "#/services/discussion/thread.js";
+import {getLikes, getReposts, getQuotes} from "#/services/discussion/get-details.js";
 import {
     getTopicHandler,
     getTopicVersionHandler,
@@ -26,7 +23,7 @@ import {
     getCategories,
     getTopicsMentioned,
     getTopicsMentionedByContent
-} from "#/services/wiki/topics.js";
+} from "#/services/wiki/topic.js";
 import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
 import {createTopicVersionHandler} from "#/services/write/topic.js";
@@ -63,7 +60,7 @@ import {syncHandler} from "#/services/sync/sync-user.js";
 import {subscribeHandler, unsubscribeHandler, unsubscribeHandlerWithAuth} from "#/services/emails/subscriptions.js";
 import {getFollowers, getFollowsHandler} from "#/services/user/follows.js";
 import {cancelVotePollHandler, getPollHandler, getPollVotes, getTopicPolls, votePollHandler} from "#/services/polls/polls.js";
-import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/wiki/discussion.js";
+import {getTopicDiscussionHandler, getTopicQuoteReplies} from "#/services/discussion/discussion.js";
 import { getUserGuideStatus } from "#/services/user/user-guide.js";
 import {recordUserEventHandler} from "#/services/user/events.js";
 import {searchRouter} from "#/services/search/router.js";
@@ -207,10 +204,6 @@ export const createRouter = (ctx: AppContext): Router => {
         makeEffHandler(ctx, cancelEditVoteHandler)
     )
 
-    router.post('/seen-tutorial/:tutorial',
-        makeHandler(ctx, setSeenTutorialHandler)
-    )
-
     router.get('/datasets',
         makeEffHandlerNoAuth(ctx, getDatasets)
     )
@@ -273,8 +266,6 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.get("/notifications/unread-count", makeEffHandler(ctx, getUnreadNotificationsCount))
 
-    router.post("/access-request", makeEffHandlerNoAuth(ctx, createAccessRequest))
-
     router.get('/drafts', makeEffHandler(ctx, getDrafts))
 
     router.get('/draft/:id', makeEffHandler(ctx, getDraft))
@@ -286,8 +277,6 @@ export const createRouter = (ctx: AppContext): Router => {
     router.get("/invite-codes-to-share", makeHandler(ctx, getInviteCodesToShare))
 
     router.get("/content-metadata/:did/:collection/:rkey", makeHandlerNoAuth(ctx, getContentMetadata))
-
-    router.post("/algorithm-config", makeHandler(ctx, updateAlgorithmConfig))
 
     router.post("/delete-ca-profile", makeHandler(ctx, deleteCAProfile))
 

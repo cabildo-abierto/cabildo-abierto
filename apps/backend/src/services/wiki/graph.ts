@@ -1,4 +1,4 @@
-import {getCategoriesWithCounts} from "./topics.js";
+import {getCategoriesWithCounts} from "./topic.js";
 import {AppContext} from "#/setup.js";
 import {TopicsGraph} from "#/lib/types.js";
 import {CAHandlerNoAuth} from "#/utils/handler.js";

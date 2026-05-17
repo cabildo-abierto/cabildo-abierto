@@ -9,7 +9,7 @@ import {
 } from "@atproto/api";
 import {getCollectionFromUri, getDidFromUri, isArticle, isPost, isTopicVersion} from "@cabildo-abierto/utils";
 import {getTopicTitle} from "#/services/wiki/utils.js";
-import {hydrateEmbedViews} from "#/services/wiki/topics.js";
+import {hydrateEmbedViews} from "#/services/wiki/topic.js";
 import {hydrateDatasetView, hydrateTopicsDatasetView} from "#/services/dataset/read.js";
 import {hydrateArticleView} from "#/services/hydration/hydrate.js";
 import {
@@ -235,7 +235,7 @@ const hydrateSelectionQuoteEmbedView = (ctx: AppContext, embed: ArCabildoabierto
         }
 
         const embedsData = caData.embeds ?? []
-        const embeds = hydrateEmbedViews(author.did, embedsData as unknown as ArCabildoabiertoFeedArticle.ArticleEmbed[])
+        const embeds = hydrateEmbedViews(author.did, embedsData as unknown as ArCabildoabiertoWikiEmbed.Main[])
 
         return {
             $type: "ar.cabildoabierto.embed.selectionQuote#view",

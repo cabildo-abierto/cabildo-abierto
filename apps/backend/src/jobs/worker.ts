@@ -1,30 +1,16 @@
 import {updateCategoriesGraph} from "#/services/wiki/graph.js";
 import {Queue, Worker} from 'bullmq';
 import {AppContext} from "#/setup.js";
-import {syncUserJobHandler, updateRecordsCreatedAt} from "#/services/sync/sync-user.js";
-import {updateAuthorStatus} from "#/services/user/users.js";
+import {syncUserJobHandler} from "#/services/sync/sync-user.js";
 import {
-    recomputeTopicInteractionsAndPopularities,
-    recreateAllReferences,
-    updateDiscoverFeedIndex,
-    updatePopularitiesOnContentsChange,
-    updatePopularitiesOnNewReactions,
-    updatePopularitiesOnTopicsChange
+    updateDiscoverFeedIndex
 } from "#/services/wiki/references/references.js";
 import {deleteCollection} from "#/services/delete.js";
 import {updateTopicsCategories} from "#/services/wiki/categories.js";
-import {
-    updateAllTopicContributions,
-    updateTopicContributions,
-    updateTopicContributionsRequired
-} from "#/services/wiki/contributions/contributions.js";
 import {createNotificationsJob} from "#/services/notifications/notifications.js";
 import {CAHandler, EffHandler} from "#/utils/handler.js";
 import {assignInviteCodesToUsers} from "#/services/user/access.js";
-import {resetContentsFormat, updateContentsNumWords, updateContentsText} from "#/services/wiki/content.js";
-import {updatePostLangs} from "#/services/admin/posts.js";
-import {updateAllFollowCounters} from "#/services/user/follows.js";
-import {updateFollowSuggestions} from "#/services/user/follow-suggestions.js";
+import {resetContentsFormat} from "#/services/wiki/content.js";
 import {updateAllTopicsCurrentVersions} from "#/services/wiki/current-version.js";
 import {Logger} from "#/utils/logger.js";
 import {env} from "#/lib/env.js";
@@ -32,13 +18,11 @@ import {reprocessCollection} from "#/services/sync/reprocess.js";
 import {runTestJob} from "#/services/admin/status.js";
 import {clearAllRedis} from "#/services/redis/cache.js";
 import {type Redis} from "ioredis/built/index.js"
-import {updateAllTopicPopularities} from "#/services/wiki/references/popularity.js";
 import {updateAllStats, updateStat} from "#/services/admin/stats/stats.js";
 import {startContentModeration} from "#/services/moderation/start.js";
 import {Effect} from "effect";
 import {AddJobError} from "#/utils/errors.js";
 import {runtime} from "#/instrumentation.js";
-import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {runClean} from "#/services/user/clean.js";
 import {WorkerState} from "@cabildo-abierto/api";
 
@@ -119,31 +103,6 @@ export class CAWorker {
             "update-topics-categories",
             () => updateTopicsCategories(ctx)
         )
-        this.registerEffJob(
-            "update-topic-contributions",
-            (data) => Effect.provideServiceEffect(
-                updateTopicContributions(ctx, data as string[]),
-                DataPlane,
-                makeDataPlane(ctx)
-            ),
-            true
-        )
-        this.registerEffJob(
-            "update-all-topic-contributions",
-            () => Effect.provideServiceEffect(
-                updateAllTopicContributions(ctx),
-                DataPlane,
-                makeDataPlane(ctx)
-            )
-        )
-        this.registerEffJob(
-            "required-update-topic-contributions",
-            () => Effect.provideServiceEffect(
-                updateTopicContributionsRequired(ctx),
-                DataPlane,
-                makeDataPlane(ctx)
-            )
-        )
         this.registerJob(
             "batch-create-notifications",
             (data) => createNotificationsJob(ctx, data),
@@ -161,81 +120,21 @@ export class CAWorker {
             "assign-invite-codes",
             () => assignInviteCodesToUsers(ctx)
         )
-        this.registerEffJob(
-            "update-contents-text",
-            () => updateContentsText(ctx).pipe(Effect.catchAll(() => Effect.fail("Error en en trabajo update-contents-text"))),
-        )
-        this.registerJob(
-            "update-num-words",
-            () => updateContentsNumWords(ctx)
-        )
         this.registerJob(
             "reset-contents-format",
             () => resetContentsFormat(ctx)
         )
         this.registerJob(
-            "update-post-langs",
-            () => updatePostLangs(ctx)
-        )
-        this.registerJob(
-            "update-author-status-all",
-            () => updateAuthorStatus(ctx)
-        )
-        this.registerJob(
-            "update-author-status",
-            (data) => updateAuthorStatus(ctx, data),
-            true
-        )
-        this.registerJob(
             "update-topics-current-versions",
             () => updateAllTopicsCurrentVersions(ctx)
-        )
-        this.registerEffJob(
-            "update-follow-suggestions",
-            () => updateFollowSuggestions(ctx)
-        )
-        this.registerJob(
-            "update-all-follow-counters",
-            () => updateAllFollowCounters(ctx)
-        )
-        this.registerJob(
-            "update-records-created-at",
-            () => updateRecordsCreatedAt(ctx)
         )
         this.registerJob(
             "reprocess-collection",
             (data) => reprocessCollection(ctx, data.collection as string, data.onlyRecords as boolean)
         )
-        this.registerEffJob(
-            "update-topic-mentions",
-            (data) => updatePopularitiesOnTopicsChange(ctx, data),
-            true
-        )
-        this.registerEffJob(
-            "update-contents-topic-mentions",
-            (data) => updatePopularitiesOnContentsChange(ctx, data as string[]),
-            true
-        )
-        this.registerEffJob(
-            "update-topic-popularities-on-reactions",
-            data => updatePopularitiesOnNewReactions(ctx, data as string[]),
-            true
-        )
-        this.registerEffJob(
-            "recreate-all-references",
-            () => recreateAllReferences(ctx)
-        )
-        this.registerEffJob(
-            "recompute-all-topic-interactions-and-popularities",
-            () => recomputeTopicInteractionsAndPopularities(ctx)
-        )
         this.registerJob(
             "clear-all-redis",
             () => clearAllRedis(ctx)
-        )
-        this.registerEffJob(
-            "update-all-topics-popularities",
-            () => updateAllTopicPopularities(ctx)
         )
         this.registerEffJob(
             "update-all-content-categories",

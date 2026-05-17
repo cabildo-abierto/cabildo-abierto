@@ -71,6 +71,12 @@ export interface View {
   reply?: ReplyRef
   /** Fecha de creación del comentario declarada por el autor. */
   createdAt?: string
+  replyCount?: number
+  upvoteCount?: number
+  downvoteCount?: number
+  quoteCount?: number
+  rootCreationDate?: string
+  voteContext?: VoteContext
   isChallenge?: boolean
 }
 
@@ -82,4 +88,37 @@ export function isView<V>(v: V) {
 
 export function validateView<V>(v: V) {
   return validate<View & V>(v, id, hashView)
+}
+
+export interface VoteContext {
+  $type?: 'ar.cabildoabierto.wiki.comment#voteContext'
+  authorVotingState: 'accept' | 'reject' | 'none' | (string & {})
+  vote?: VoteInContext
+}
+
+const hashVoteContext = 'voteContext'
+
+export function isVoteContext<V>(v: V) {
+  return is$typed(v, id, hashVoteContext)
+}
+
+export function validateVoteContext<V>(v: V) {
+  return validate<VoteContext & V>(v, id, hashVoteContext)
+}
+
+export interface VoteInContext {
+  $type?: 'ar.cabildoabierto.wiki.comment#voteInContext'
+  uri: string
+  subject: string
+  subjectCreatedAt: string
+}
+
+const hashVoteInContext = 'voteInContext'
+
+export function isVoteInContext<V>(v: V) {
+  return is$typed(v, id, hashVoteInContext)
+}
+
+export function validateVoteInContext<V>(v: V) {
+  return validate<VoteInContext & V>(v, id, hashVoteInContext)
 }

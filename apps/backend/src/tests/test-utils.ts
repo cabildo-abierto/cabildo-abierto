@@ -17,17 +17,15 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import { encode, code } from '@ipld/dag-cbor'
 import {
     ArCabildoabiertoActorCaProfile,
-    ArCabildoabiertoWikiVoteReject,
-    ArCabildoabiertoFeedArticle,
-    ArCabildoabiertoWikiVoteAccept,
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopic,
+    ArCabildoabiertoWikiVote,
     ATProtoStrongRef
 } from "@cabildo-abierto/api";
 import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {Effect} from "effect";
-import {ProcessCreateError, processInBatches} from "#/services/sync/event-processing/record-processor.js";
+import {ProcessCreateError, processInBatches} from "#/services/record/processing.js";
 
 import {DBDeleteError, DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
@@ -127,7 +125,7 @@ export const createTestUser = (
         try: () => ctx.kysely.insertInto("User")
             .values([{
                 did,
-                created_at_tz: new Date(),
+                createdAt: new Date(),
                 handle,
                 hasAccess: true,
                 inCA: true
@@ -290,66 +288,6 @@ export function getPostRefAndRecord(
 }
 
 
-const getArticleRecord = (
-    ctx: AppContext,
-    title: string,
-    text: string,
-    created_at: Date = new Date(),
-    authorId: string
-): Effect.Effect<ArCabildoabiertoFeedArticle.Record, RedisCacheSetError | GenerateCIDError> => Effect.gen(function* () {
-    const cid = yield* generateCid(text)
-    const mimeType = "text/plain"
-    const blob = new BlobRef(
-        CID.parse(cid),
-        mimeType,
-        text.length
-    )
-    yield* Effect.tryPromise({
-        try: () => ctx.ioredis.set(getBlobKey({cid, authorId}), text),
-        catch: () => new RedisCacheSetError()
-    })
-    return {
-        $type: "ar.cabildoabierto.feed.article",
-        createdAt: created_at.toISOString(),
-        text: blob,
-        format: "markdown",
-        title
-    }
-})
-
-
-export const getArticleRefAndRecord = (
-    ctx: AppContext,
-    title: string,
-    text: string,
-    created_at: Date = new Date(),
-    testSuite: string,
-    uri?: {
-        did?: string
-        rkey?: string
-    },
-) => Effect.gen(function* () {
-    const authorId = uri?.did ?? generateUserDid(testSuite)
-    const record = yield* getArticleRecord(
-        ctx,
-        title,
-        text,
-        created_at,
-        authorId
-    )
-
-    return yield* getRefAndRecord(
-        record,
-        testSuite,
-        {
-            ...uri,
-            did: authorId,
-            collection: "ar.cabildoabierto.feed.article"
-        }
-    )
-})
-
-
 function getLikeRecord(ref: ATProtoStrongRef, created_at: Date = new Date()): AppBskyFeedLike.Record {
     return {
         $type: "app.bsky.feed.like",
@@ -389,8 +327,8 @@ const getTopicVersionRecord = (
     text: string,
     created_at: Date,
     authorId: string,
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
-): Effect.Effect<ArCabildoabiertoWikiTopicVersion.Record, GenerateCIDError | RedisCacheSetError> => Effect.gen(function* ()  {
+    props?: ArCabildoabiertoWikiTopic.TopicProp[]
+): Effect.Effect<ArCabildoabiertoWikiTopic.Record, GenerateCIDError | RedisCacheSetError> => Effect.gen(function* ()  {
     const cid = yield* generateCid(text)
     const mimeType = "text/plain"
     const blob = new BlobRef(
@@ -405,7 +343,7 @@ const getTopicVersionRecord = (
     })
 
     return {
-        $type: "ar.cabildoabierto.wiki.topicVersion",
+        $type: "ar.cabildoabierto.wiki.topic",
         id: topicId,
         text: blob,
         format: "markdown",
@@ -445,11 +383,11 @@ export function getTopicVersionRefAndRecordWithSynonyms(
     authorId: string,
     testSuite: string
 ) {
-    const props: ArCabildoabiertoWikiTopicVersion.TopicProp[] = [
+    const props: ArCabildoabiertoWikiTopic.TopicProp[] = [
         {
             name: "Sinónimos",
             value: {
-                $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
+                $type: "ar.cabildoabierto.wiki.topic#stringListProp",
                 value: synonyms,
             },
         },
@@ -468,15 +406,15 @@ export function getTopicVersionRefAndRecordWithSynonyms(
         testSuite,
         {
             did: authorId,
-            collection: "ar.cabildoabierto.wiki.topicVersion"
+            collection: "ar.cabildoabierto.wiki.topic"
         }
     )))
 }
 
 
-function getAcceptVoteRecord(ctx: AppContext, subjectRef: ATProtoStrongRef, created_at: Date): ArCabildoabiertoWikiVoteAccept.Record {
+function getAcceptVoteRecord(ctx: AppContext, subjectRef: ATProtoStrongRef, created_at: Date): ArCabildoabiertoWikiVote.Record {
     return {
-        $type: "ar.cabildoabierto.wiki.voteAccept",
+        $type: "ar.cabildoabierto.wiki.vote",
         subject: subjectRef,
         createdAt: created_at.toISOString()
     }
@@ -525,7 +463,7 @@ export const createTestAcceptVote = (
 
 
 export function createTestTopicVersion(ctx: AppContext, authorId: string, testSuite: string): Effect.Effect<
-    RefAndRecord<ArCabildoabiertoWikiTopicVersion.Main>,
+    RefAndRecord<ArCabildoabiertoWikiTopic.Main>,
     GenerateCIDError | ProcessCreateError | RunJobError | RedisCacheSetError | CIDEncodeError
 > {
     return getTopicVersionRefAndRecord(
@@ -572,9 +510,9 @@ function getRejectVoteRecord(
     subjectRef: ATProtoStrongRef,
     created_at: Date,
     reasonRef: ATProtoStrongRef
-): ArCabildoabiertoWikiVoteReject.Record {
+): ArCabildoabiertoWikiVote.Record {
     return {
-        $type: "ar.cabildoabierto.wiki.voteReject",
+        $type: "ar.cabildoabierto.wiki.vote",
         subject: subjectRef,
         createdAt: created_at.toISOString(),
         reason: reasonRef
@@ -643,10 +581,6 @@ export const deleteEmptyTopics = (
             await ctx.kysely
                 .deleteFrom("TopicToCategory")
                 .where("TopicToCategory.topicId", "in", topics)
-                .execute()
-            await ctx.kysely
-                .deleteFrom("Reference")
-                .where("Reference.referencedTopicId", "in", topics)
                 .execute()
             await ctx.kysely
                 .deleteFrom("Topic")
@@ -790,32 +724,5 @@ export function checkRecordExists(ctx: AppContext, uri: string) {
             .where("uri", "=", uri).select("uri")
             .executeTakeFirst().then(x => x != null),
         catch: () => new DBSelectError("Record")
-    })
-}
-
-
-export function checkIsFollowing(ctx: AppContext, follower: string, subject: string) {
-    return Effect.tryPromise({
-        try: () => ctx!.kysely
-            .selectFrom("Follow")
-            .innerJoin("Record", "Record.uri", "Follow.uri")
-            .where("Record.authorId", "=", follower)
-            .where("Follow.userFollowedId", "=", subject)
-            .selectAll()
-            .executeTakeFirst().then(x => x != null),
-        catch: () => new DBSelectError("Follow")
-    })
-}
-
-
-export function checkContentInFollowingFeed(ctx: AppContext, uri: string, follower: string) {
-    return Effect.tryPromise({
-        try: () => ctx.kysely
-            .selectFrom("FollowingFeedIndex")
-            .select("contentId")
-            .where("contentId", "=", uri)
-            .where("readerId", "=", follower)
-            .executeTakeFirst().then(x => x != null),
-        catch: () => new DBSelectError("FollowingFeedIndex")
     })
 }

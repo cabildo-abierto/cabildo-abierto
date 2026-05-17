@@ -6,7 +6,7 @@ import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useDebounce} from "../utils/react/debounce";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "../utils/react/fetch";
-import {ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {getTopicTitle} from "../tema/utils";
 import {$Typed} from "@atproto/api";
 import SmallUserSearchResult from "./small-user-search-result";
@@ -19,7 +19,7 @@ import {CustomLink} from "@/components/utils/base/custom-link";
 
 type UserOrTopic =
     $Typed<ArCabildoabiertoActorDefs.ProfileViewBasic>
-    | $Typed<ArCabildoabiertoWikiTopicVersion.TopicViewBasic>
+    | $Typed<ArCabildoabiertoWikiTopic.TopicViewBasic>
 
 export async function searchUsersAndTopics(query: string, limit: number) {
     if (encodeURIComponent(query).trim().length > 0) {
@@ -98,7 +98,7 @@ const SearchResultsOnRightPanel = ({showSearchButton, href}: Props) => {
                 </div>}
             {!isLoading && results != null && results.length > 0 &&
                 <div className={"border-l border-r border-b border-[var(--accent-dark)]"}>{results.map(r => {
-                    if (ArCabildoabiertoWikiTopicVersion.isTopicViewBasic(r)) {
+                    if (ArCabildoabiertoWikiTopic.isTopicViewBasic(r)) {
                         return <Link
                             href={topicUrl(r.id)}
                             onClick={() => {

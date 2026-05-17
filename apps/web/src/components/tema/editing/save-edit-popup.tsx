@@ -14,7 +14,7 @@ import {BaseButton} from "@/components/utils/base/base-button";
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
 import {post} from "../../utils/react/fetch";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {APIResult, ArCabildoabiertoWikiTopicVersion, DiffOutput, DiffParams} from "@cabildo-abierto/api"
+import {APIResult, ArCabildoabiertoWikiTopic, DiffOutput, DiffParams} from "@cabildo-abierto/api"
 import { BaseTextField } from "@/components/utils/base/base-text-field";
 import {editorStateToMarkdown} from "../../editor/markdown-transforms";
 import { decompress } from "@cabildo-abierto/editor-core";
@@ -47,7 +47,7 @@ function topicTextToMarkdown(text: string, format: string) {
 
 async function getNewVersionDiff(
     editor: LexicalEditor,
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
 ): Promise<APIResult<DiffOutput>> {
     if(!editor) return {
         value: {
@@ -78,7 +78,7 @@ export const SaveEditPopup = ({
     editor: LexicalEditor
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{ error?: string }>,
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useSession()

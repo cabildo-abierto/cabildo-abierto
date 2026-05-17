@@ -1,6 +1,6 @@
 import {CAHandler} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
-import {getCategories} from "#/services/wiki/topics.js";
+import {getCategories} from "#/services/wiki/topic.js";
 
 type UserInterest = {
     id: string

@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {TopicChangesModal} from "./history/topic-changes-modal";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {BaseButton} from "@/components/utils/base/base-button";
 
 type CharsCounterProps = {
@@ -8,7 +8,7 @@ type CharsCounterProps = {
     charsDeleted: number
     uri: string
     prevUri: string
-    history: ArCabildoabiertoWikiTopicVersion.TopicHistory
+    history: ArCabildoabiertoWikiTopic.TopicHistory
 }
 
 

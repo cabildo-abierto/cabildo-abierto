@@ -1,6 +1,6 @@
 import React from "react"
 import {$Typed, CreatePostProps} from "@cabildo-abierto/api";
-import {ArCabildoabiertoWikiTopicVersion, ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic, ArCabildoabiertoFeedDefs, ArCabildoabiertoEmbedRecord} from "@cabildo-abierto/api"
 import WritePanelPanel from "./write-panel-panel";
 import {QueryClient, useQueryClient} from "@tanstack/react-query";
 import {
@@ -88,7 +88,7 @@ function invalidateQueriesAfterPostCreationSuccess(
     })
 
     if (replyTo) {
-        if(ArCabildoabiertoWikiTopicVersion.isTopicView(replyTo)){
+        if(ArCabildoabiertoWikiTopic.isTopicView(replyTo)){
             queriesToInvalidate.push(["topic-quote-replies", getDidFromUri(replyTo.uri), getRkeyFromUri(replyTo.uri)])
             queriesToInvalidate.push(["topic-discussion", replyTo.uri])
             queriesToInvalidate.push(["topic-history", replyTo.id])
@@ -121,7 +121,7 @@ function invalidateQueriesAfterPostCreationSuccess(
 export type ReplyToContent = $Typed<ArCabildoabiertoFeedDefs.PostView> |
     $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
     $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-    $Typed<ArCabildoabiertoWikiTopicVersion.TopicView> | $Typed<ComAtprotoRepoStrongRef.Main>
+    $Typed<ArCabildoabiertoWikiTopic.TopicView> | $Typed<ComAtprotoRepoStrongRef.Main>
 
 
 type WritePanelProps = {

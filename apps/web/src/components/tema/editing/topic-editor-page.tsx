@@ -1,8 +1,8 @@
-import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
+import {useTopic} from "@/queries/getters/useTopic";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {useEffect, useState} from "react";
 import type {LexicalEditor} from "lexical";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import {useTopicPageParams} from "../use-topic-page-params";
 import {addDefaults} from "../props/topic-prop-editor";
@@ -25,9 +25,9 @@ const TopicHeaderEditor = dynamic(() => import("./topic-header-editor").then(mod
 
 export const TopicEditorPage = () => {
     const {did, rkey, topicId} = useTopicPageParams()
-    const {topic} = useTopicWithNormalizedContent(topicId, did, rkey)
+    const {topic} = useTopic(topicId, did, rkey)
     const [editor, setEditor] = useState<LexicalEditor | null>()
-    const [props, setProps] = useState<ArCabildoabiertoWikiTopicVersion.TopicProp[] | null>()
+    const [props, setProps] = useState<ArCabildoabiertoWikiTopic.TopicProp[] | null>()
     const {isMobile} = useLayoutConfig()
     const [guardEnabled, setGuardEnabled] = useState(false)
     const {user} = useSession()

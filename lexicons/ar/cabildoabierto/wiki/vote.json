@@ -21,6 +21,10 @@
             "label": {
               "type": "ref",
               "ref": "#label"
+            },
+            "reason": {
+              "type": "ref",
+              "ref": "com.atproto.repo.strongRef"
             }
           }
         }

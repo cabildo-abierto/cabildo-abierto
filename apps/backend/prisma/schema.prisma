@@ -13,17 +13,17 @@ datasource db {
 }
 
 model Record {
-  uri              String    @id @unique
-  cid              String?
-  collection       String
-  rkey             String
-  authorId         String
-  indexedAt        DateTime  @db.Timestamptz(3)
-  createdAt        DateTime  @db.Timestamptz(3)
-  trustedCreatedAt DateTime? @db.Timestamptz(3)
+  uri        String  @id @unique
+  cid        String?
+  collection String
+  rkey       String
+  authorId   String
 
-  updatedAt DateTime @updatedAt @db.Timestamptz(3)
-  deleted   Boolean  @default(false)
+  indexedAt DateTime  @default(now()) @db.Timestamptz(3) // cuando vimos este uri por primera vez
+  createdAt DateTime? @db.Timestamptz(3) // la timestamp de la creación si fuimos testigos en la firehose
+  updatedAt DateTime? @updatedAt @db.Timestamptz(3)
+
+  deleted Boolean @default(false)
 
   record Json?
 
@@ -108,7 +108,7 @@ model Comment {
   replyToRecord Record? @relation("commentReply", fields: [replyToId], references: [uri])
   rootRecord    Record? @relation("commentRoot", fields: [rootId], references: [uri])
 
-  isChallenge Boolean @default(false)
+  reasonFor Reaction[]
 
   @@index([replyToId])
   @@index([rootId])
@@ -126,7 +126,7 @@ model Embed {
 
 model Content {
   id  String  @id @default(uuid())
-  uri String?
+  uri String? @unique
 
   record           Record?           @relation(fields: [uri], references: [uri])
   consensusVersion ConsensusVersion?
@@ -135,7 +135,7 @@ model Content {
   facets  Json[]
   embeds  Embed[]
   comment Comment?
-  drafts  Draft[]
+  drafts  Draft?
 }
 
 model Document {
@@ -188,7 +188,7 @@ model Draft {
   collection    String
 
   title     String?
-  contentId String?
+  contentId String?  @unique
   content   Content? @relation(fields: [contentId], references: [id])
 
   author User @relation(fields: [authorId], references: [did])
@@ -270,6 +270,9 @@ model Reaction {
   subjectRecord Record? @relation("Reaction_subjectIdToRecord", fields: [subjectId], references: [uri])
   record        Record  @relation("Reaction_uriToRecord", fields: [uri], references: [uri])
 
+  reasonId String?
+  reason   Comment? @relation(fields: [reasonId], references: [uri])
+
   @@index([subjectId])
   @@index([uri, subjectId])
 }
@@ -318,9 +321,10 @@ model TopicProp {
 }
 
 model TopicVersion {
-  uri     String      @id
-  topicId String
-  props   TopicProp[]
+  uri        String      @id
+  topicId    String
+  props      Json // backwards compatibility
+  topicProps TopicProp[]
 
   currentVersionOf Topic? @relation("Topic_currentVersionIdToTopicVersion")
   topic            Topic  @relation("TopicVersion_topicIdToTopic", fields: [topicId], references: [id])
@@ -354,7 +358,8 @@ model User {
   emailVerified   Boolean                  @default(false)
   mailingListSubs MailingListSubscription?
 
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+  recordCreatedAt DateTime? @db.Timestamptz(3)
 
   hasAccess   Boolean   @default(false)
   dateOfBirth DateTime? @db.Date

@@ -1,13 +1,13 @@
 import {BaseFullscreenPopup} from "../../utils/dialogs/base-fullscreen-popup";
 import {CloseButton} from "@/components/utils/base/close-button";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api"
 import {EditHistory} from "../history/edit-history";
 
 
 export const TopicHistoryPanel = ({onClose, topic}: {
     onClose: () => void
-    topic: ArCabildoabiertoWikiTopicVersion.TopicView
+    topic: ArCabildoabiertoWikiTopic.TopicView
 }) => {
     const {isMobile} = useLayoutConfig()
     return <BaseFullscreenPopup

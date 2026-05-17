@@ -1,4 +1,3 @@
-import {ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api"
 import {AppContext} from "#/setup.js";
 import {Agent} from "#/utils/session-agent.js";
 import {

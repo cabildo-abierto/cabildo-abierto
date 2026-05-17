@@ -181,37 +181,16 @@
       },
       "topicVersionStatus": {
         "type": "object",
-        "required": ["voteCounts", "accepted"],
+        "required": ["isCurrentVersion"],
         "properties": {
-          "voteCounts": {
-            "type": "array",
-            "items": {
-              "type": "ref",
-              "ref": "#categoryVotes"
-            }
+          "acceptVotes": {
+            "type": "integer"
           },
-          "accepted": {
+          "rejectVotes": {
+            "type": "integer"
+          },
+          "isCurrentVersion": {
             "type": "boolean"
-          },
-          "protection": {
-            "type": "string",
-            "description": ""
-          }
-        }
-      },
-      "categoryVotes": {
-        "type": "object",
-        "required": ["accepts", "rejects", "category"],
-        "properties": {
-          "accepts": {
-            "type": "integer"
-          },
-          "rejects": {
-            "type": "integer"
-          },
-          "category": {
-            "type": "string",
-            "maxLength": 50
           }
         }
       },

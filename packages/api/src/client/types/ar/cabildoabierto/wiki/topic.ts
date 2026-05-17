@@ -133,9 +133,9 @@ export function validateTopicVersionViewerState<V>(v: V) {
 
 export interface TopicVersionStatus {
   $type?: 'ar.cabildoabierto.wiki.topic#topicVersionStatus'
-  voteCounts: CategoryVotes[]
-  accepted: boolean
-  protection?: string
+  acceptVotes?: number
+  rejectVotes?: number
+  isCurrentVersion: boolean
 }
 
 const hashTopicVersionStatus = 'topicVersionStatus'
@@ -146,23 +146,6 @@ export function isTopicVersionStatus<V>(v: V) {
 
 export function validateTopicVersionStatus<V>(v: V) {
   return validate<TopicVersionStatus & V>(v, id, hashTopicVersionStatus)
-}
-
-export interface CategoryVotes {
-  $type?: 'ar.cabildoabierto.wiki.topic#categoryVotes'
-  accepts: number
-  rejects: number
-  category: string
-}
-
-const hashCategoryVotes = 'categoryVotes'
-
-export function isCategoryVotes<V>(v: V) {
-  return is$typed(v, id, hashCategoryVotes)
-}
-
-export function validateCategoryVotes<V>(v: V) {
-  return validate<CategoryVotes & V>(v, id, hashCategoryVotes)
 }
 
 export interface TopicProp {

@@ -3,10 +3,10 @@ import {EditorState, LexicalEditor} from "lexical";
 import {useNavigationGuard} from "next-navigation-guard";
 import {getEditorSettings} from "../../writing/settings";
 import {PreventLeavePopup} from "../../utils/dialogs/prevent-leave-popup";
-import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic";
+import {useTopic} from "@/queries/getters/useTopic";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
 import {getTopicTitle} from "../utils";
-import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {ArCabildoabiertoWikiTopic} from "@cabildo-abierto/api";
 import {useLayoutConfig} from "../../layout/main-layout/layout-config-context";
 import dynamic from "next/dynamic";
 
@@ -22,13 +22,13 @@ export const TopicEditor = ({
     guardEnabled,
     setGuardEnabled
 }: {
-    props: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props: ArCabildoabiertoWikiTopic.TopicProp[]
     topicId: string
     setEditor: (e: LexicalEditor) => void
     guardEnabled: boolean
     setGuardEnabled: (v: boolean) => void
 }) => {
-    const {topic} = useTopicWithNormalizedContent(topicId)
+    const {topic} = useTopic(topicId)
     const [editorState, setEditorState] = useState<EditorState | null>()
     const {isMobile} = useLayoutConfig()
     const navGuard = useNavigationGuard({enabled: guardEnabled})

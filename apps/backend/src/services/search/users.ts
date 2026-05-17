@@ -3,7 +3,7 @@ import {AppBskyActorDefs, ArCabildoabiertoActorDefs, ArCabildoabiertoWikiTopic} 
 import {hydrateProfileView, hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {cleanText} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
-import {hydrateTopicViewBasicFromUri} from "#/services/wiki/topics.js";
+import {hydrateTopicViewBasicFromUri} from "#/services/wiki/topic.js";
 import {
     DataPlane,
     FetchFromBskyError,

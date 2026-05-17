@@ -115,7 +115,7 @@ const titanicVisualization: $Typed<ArCabildoabiertoEmbedVisualization.Main> = {
 
 test('markdown transform with visualization', () => {
     const markdown = "abc\n\ndef"
-    const embeds: ArCabildoabiertoWikiEmbed.EmbedView[] = [
+    const embeds: ArCabildoabiertoWikiEmbed.View[] = [
         {
             $type: "ar.cabildoabierto.feed.article#articleEmbedView",
             value: titanicVisualization,

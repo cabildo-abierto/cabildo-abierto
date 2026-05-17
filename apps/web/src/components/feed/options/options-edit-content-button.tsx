@@ -4,7 +4,7 @@ import {useRouter} from "next/navigation";
 import {
     ArCabildoabiertoDataDataset,
     ArCabildoabiertoFeedDefs,
-    ArCabildoabiertoWikiTopicVersion
+    ArCabildoabiertoWikiTopic
 } from "@cabildo-abierto/api"
 import {$Typed} from "@cabildo-abierto/api";
 import {useSession} from "@/components/auth/use-session";
@@ -19,7 +19,7 @@ export const OptionsEditContentButton = ({
         $Typed<ArCabildoabiertoDataDataset.DatasetViewBasic> |
         $Typed<ArCabildoabiertoFeedDefs.ArticleView> |
         $Typed<ArCabildoabiertoFeedDefs.FullArticleView> |
-        $Typed<ArCabildoabiertoWikiTopicVersion.VersionInHistory> |
+        $Typed<ArCabildoabiertoWikiTopic.VersionInHistory> |
         $Typed<ArCabildoabiertoDataDataset.DatasetView>
     setEditingPost: (v: boolean) => void
 }) => {

@@ -4,7 +4,6 @@ import {
     ArCabildoabiertoWikiTopic,
 } from "@cabildo-abierto/api"
 import {getCollectionFromUri, getDidFromUri} from "@cabildo-abierto/utils"
-import {editorStatusToEn} from "#/services/wiki/topics.js"
 import {AppContext} from "#/setup.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";

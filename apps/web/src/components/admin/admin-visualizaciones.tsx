@@ -1,6 +1,6 @@
 "use client"
 import {ArCabildoabiertoEmbedVisualization} from "@cabildo-abierto/api"
-import {useTopicWithNormalizedContent} from "@/queries/getters/useTopic"
+import {useTopic} from "@/queries/getters/useTopic"
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner"
 import {AdminSection} from "./admin-section"
 import dynamic from "next/dynamic"
@@ -18,7 +18,7 @@ const TEST_TOPIC_IDS = [
 ]
 
 function TopicVisualizations({topicId}: {topicId: string}) {
-    const {query, topic} = useTopicWithNormalizedContent(topicId)
+    const {query, topic} = useTopic(topicId)
 
     if (query.isLoading || topic === "loading") {
         return <div className="py-4">

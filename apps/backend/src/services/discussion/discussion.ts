@@ -1,9 +1,7 @@
 import {EffHandlerNoAuth} from "#/utils/handler.js";
-import {EnDiscusionMetric, EnDiscusionTime, FeedFormatOption} from "#/services/feed/inicio/discusion.js";
-import {ArCabildoabiertoEmbedSelectionQuote, ArCabildoabiertoFeedDefs} from "@cabildo-abierto/api";
+import {ArCabildoabiertoEmbedSelectionQuote, ArCabildoabiertoWikiComment, ArCabildoabiertoWikiDefs} from "@cabildo-abierto/api";
 import {
     getCollectionFromUri,
-    getDidFromUri,
     getUri,
     isTopicVersion,
     listOrderDesc,
@@ -11,16 +9,13 @@ import {
 } from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";
-import {getTopicCurrentVersionFromDB} from "#/services/wiki/topics.js";
+import {getTopicCurrentVersionFromDB} from "#/services/wiki/topic.js";
 import {DataPlane, FetchFromBskyError, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {DBSelectError} from "#/utils/errors.js";
 import {AppContext} from "#/setup.js";
-import {FeedSkeleton} from "#/services/feed/feed.js";
 import {Agent} from "#/utils/session-agent.js";
 import {hydrateThreadViewContent, ThreadSkeleton} from "#/services/hydration/hydrate.js";
-import {creationDateSortKey} from "#/services/feed/utils.js";
 import {$Typed} from "@atproto/api";
-import {ThreadViewContent} from "@cabildo-abierto/api/dist/client/types/ar/cabildoabierto/feed/defs.js";
 import {HydrationDataUnavailableError} from "#/services/polls/polls.js";
 
 
@@ -49,16 +44,16 @@ const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<Thr
 
     const subtree = yield* Effect.tryPromise({
         try: () => ctx.kysely
-            .selectFrom("Post")
-            .innerJoin("Record", "Record.uri", "Post.uri")
-            .innerJoin("Record as Parent", "Parent.uri", "Post.rootId")
+            .selectFrom("Comment")
+            .innerJoin("Record", "Record.uri", "Comment.uri")
+            .innerJoin("Record as Parent", "Parent.uri", "Comment.rootId")
             .innerJoin("TopicVersion", "TopicVersion.uri", "Parent.uri")
             .select([
-                "Post.uri",
-                "Post.replyToId"
+                "Comment.uri",
+                "Comment.replyToId"
             ])
             .where("TopicVersion.topicId", "=", id)
-            .orderBy("Record.created_at_tz desc")
+            .orderBy("Record.createdAt desc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
@@ -73,7 +68,6 @@ type VoteBasicQueryResult = {
     voteUri: string
     topicVersionUri: string
     topicVersionCreatedAt: Date
-    reasonUri: string | null
 }
 
 function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect<VoteBasicQueryResult[], DBSelectError> {
@@ -82,15 +76,12 @@ function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect
             .selectFrom("Reaction")
             .innerJoin("Record", "Record.uri", "Reaction.uri")
             .innerJoin("Record as SubjectRecord", "SubjectRecord.uri", "Reaction.subjectId")
-            .where("Record.collection", "in", ["ar.cabildoabierto.wiki.voteAccept", "ar.cabildoabierto.wiki.voteReject"])
+            .where("Record.collection", "in", ["ar.cabildoabierto.wiki.vote"])
             .where("Reaction.subjectId", "=", uri)
-            .leftJoin("VoteReject", "VoteReject.uri", "Reaction.uri")
-            .leftJoin("Post as Reason", "Reason.uri", "VoteReject.reasonId")
             .select([
                 "Reaction.uri",
                 "Reaction.subjectId",
-                "SubjectRecord.created_at_tz as subjectCreatedAt",
-                "Reason.uri as reasonUri"
+                "SubjectRecord.createdAt as subjectCreatedAt"
             ])
             .execute(),
         catch: (error) => new DBSelectError(error)
@@ -100,8 +91,7 @@ function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect
                 return {
                     voteUri: v.uri,
                     topicVersionUri: v.subjectId,
-                    topicVersionCreatedAt: v.subjectCreatedAt,
-                    reasonUri: v.reasonUri
+                    topicVersionCreatedAt: v.subjectCreatedAt
                 }
             }
             return null
@@ -109,59 +99,13 @@ function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect
     }))
 }
 
-function addVotesContextToDiscussionFeed(ctx: AppContext, uri: string, feed: $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>[], votes: VoteBasicQueryResult[]): $Typed<ArCabildoabiertoFeedDefs.ThreadViewContent>[] {
-    const authorVotingStates = new Map<string, "accept" | "reject">()
-    const reasonToVote = new Map<string, VoteBasicQueryResult>()
-    votes.forEach(v => {
-        if (v.topicVersionUri == uri) {
-            const accept = getCollectionFromUri(v.voteUri) == "ar.cabildoabierto.wiki.voteAccept"
-            authorVotingStates.set(getDidFromUri(v.voteUri), accept ? "accept" : "reject")
-        }
-        if (v.reasonUri) {
-            reasonToVote.set(v.reasonUri, v)
-        }
-    })
-
-    return feed.map(e => {
-        if (!ArCabildoabiertoFeedDefs.isPostView(e.content)) {
-            return e
-        } else {
-            const reason = reasonToVote.get(e.content.uri)
-            const authorState = authorVotingStates.get(e.content.author.did)
-            // información de qué voto está justificando este post
-            const voteContext: ArCabildoabiertoFeedDefs.PostView["voteContext"] = {
-                authorVotingState: authorState ?? "none",
-                vote: reason ? {
-                    uri: reason.voteUri,
-                    subject: reason.topicVersionUri,
-                    subjectCreatedAt: reason.topicVersionCreatedAt.toISOString()
-                } : undefined
-            }
-
-            return {
-                ...e,
-                content: {
-                    ...e.content,
-                    voteContext
-                }
-            }
-        }
-    })
-}
-
-function flattenRepliesSkeleton(skeleton: ThreadSkeleton["replies"]): FeedSkeleton {
-    return (skeleton?.flatMap(e => {
-        return [{post: e.post}, ...flattenRepliesSkeleton(e.replies ?? []), e.parent ? {post: e.parent.post} : null]
-    }) ?? []).filter(x => x != null)
-}
-
 
 const hydrateRepliesSkeleton = (
     ctx: AppContext,
     agent: Agent,
     skeleton: ThreadSkeleton["replies"]
-): Effect.Effect<$Typed<ThreadViewContent>[], HydrationDataUnavailableError, DataPlane> => Effect.gen(function* () {
-    const res: $Typed<ThreadViewContent>[] = yield* Effect.all(skeleton?.map(s => {
+): Effect.Effect<$Typed<ArCabildoabiertoWikiDefs.ThreadViewContent>[], HydrationDataUnavailableError, DataPlane> => Effect.gen(function* () {
+    const res: $Typed<ArCabildoabiertoWikiDefs.ThreadViewContent>[] = yield* Effect.all(skeleton?.map(s => {
         return hydrateThreadViewContent(ctx, agent, s, true, false)
     }) ?? [])
     return res
@@ -173,16 +117,21 @@ const getHydratedTopicRepliesSkeleton = (
     agent: Agent,
     skeleton: ThreadSkeleton["replies"],
     uri: string
-): Effect.Effect<ArCabildoabiertoFeedDefs.ThreadViewContent[], HydrationDataUnavailableError | DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoWikiDefs.ThreadViewContent[], HydrationDataUnavailableError | DBSelectError | FetchFromBskyError, DataPlane> => Effect.gen(function* () {
+    /*
     const dataplane = yield* DataPlane
     const [votes] = yield* Effect.all([
         getTopicVotesForDiscussion(ctx, uri),
         dataplane.fetchFeedHydrationData(flattenRepliesSkeleton(skeleton)),
-    ], {concurrency: "unbounded"})
+    ], {concurrency: "unbounded"})*/
 
     let feed = yield* hydrateRepliesSkeleton(ctx, agent, skeleton)
 
-    feed = addVotesContextToDiscussionFeed(ctx, uri, feed, votes)
+    //feed = addVotesContextToDiscussionFeed(ctx, uri, feed, votes)
+
+    function creationDateSortKey(c: ArCabildoabiertoWikiDefs.ThreadViewContent): number[] {
+        return [0]
+    }
 
     return sortByKey(
         feed,
@@ -190,12 +139,14 @@ const getHydratedTopicRepliesSkeleton = (
         listOrderDesc
     )
 })
+
+
 export const getTopicVersionReplies = (
     ctx: AppContext,
     agent: Agent,
     id: string,
     uri: string
-): Effect.Effect<ArCabildoabiertoFeedDefs.ThreadViewContent[], DBSelectError | FetchFromBskyError | HydrationDataUnavailableError, DataPlane> => Effect.gen(function* () {
+): Effect.Effect<ArCabildoabiertoWikiDefs.ThreadViewContent[], DBSelectError | FetchFromBskyError | HydrationDataUnavailableError, DataPlane> => Effect.gen(function* () {
     const skeleton = yield* getTopicRepliesSkeleton(ctx, id)
 
     return yield* getHydratedTopicRepliesSkeleton(
@@ -210,16 +161,18 @@ export class TopicCurrentVersionNotFoundError {
     readonly _tag = "TopicCurrentVersionNotFoundError"
 }
 
+export type TopicDiscussionMetric = ""
+export type TopicDiscussionTime = ""
+
 export const getTopicDiscussionHandler: EffHandlerNoAuth<{
     query: {
         i?: string,
         did?: string,
         rkey?: string,
-        metric?: EnDiscusionMetric,
-        time?: EnDiscusionTime,
-        format?: FeedFormatOption
+        metric?: TopicDiscussionMetric,
+        time?: TopicDiscussionTime
     }
-}, ArCabildoabiertoFeedDefs.ThreadViewContent[]> = (ctx, agent, {query}) => {
+}, ArCabildoabiertoWikiDefs.ThreadViewContent[]> = (ctx, agent, {query}) => {
     let {i: id, did, rkey} = query
 
     const uri: string | undefined = did && rkey ? getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey) : undefined
@@ -247,15 +200,15 @@ export const getTopicDiscussionHandler: EffHandlerNoAuth<{
 
 export const getTopicQuoteReplies: EffHandlerNoAuth<{
     params: { did: string, rkey: string }
-}, ArCabildoabiertoFeedDefs.PostView[]> = (ctx, agent, {params}) =>
+}, ArCabildoabiertoWikiComment.View[]> = (ctx, agent, {params}) =>
     Effect.provideServiceEffect(Effect.gen(function* () {
         const {did, rkey} = params
         const uri = getUri(did, "ar.cabildoabierto.wiki.topicVersion", rkey)
 
         const skeleton = (yield* Effect.tryPromise({
             try: () => ctx.kysely
-                .selectFrom("Post")
-                .where("Post.replyToId", "=", uri)
+                .selectFrom("Comment")
+                .where("Comment.replyToId", "=", uri)
                 .select("uri")
                 .execute(),
             catch: (error) => new DBSelectError(error)
@@ -263,9 +216,9 @@ export const getTopicQuoteReplies: EffHandlerNoAuth<{
 
         const hydrated = yield* getHydratedTopicRepliesSkeleton(ctx, agent, skeleton, uri)
 
-        const posts: ArCabildoabiertoFeedDefs.PostView[] = hydrated
+        const posts: ArCabildoabiertoWikiComment.View[] = hydrated
             .map(c => c.content)
-            .filter(c => ArCabildoabiertoFeedDefs.isPostView(c))
+            .filter(c => ArCabildoabiertoWikiComment.isView(c))
             .filter(c => ArCabildoabiertoEmbedSelectionQuote.isView(c.embed))
 
         return posts

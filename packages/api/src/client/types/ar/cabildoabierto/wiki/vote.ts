@@ -20,6 +20,7 @@ export interface Main {
   subject: ComAtprotoRepoStrongRef.Main
   createdAt: string
   label?: Label
+  reason?: ComAtprotoRepoStrongRef.Main
   [k: string]: unknown
 }
 
