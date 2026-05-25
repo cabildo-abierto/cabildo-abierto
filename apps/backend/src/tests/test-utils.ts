@@ -664,7 +664,7 @@ export const deleteUsersInTest = (ctx: AppContext, dids: string[]) => Effect.gen
     if(ctx.worker) {
         yield* Effect.tryPromise({
             try: () => ctx.worker!.runAllJobs(),
-            catch: () => "Error al correr los trabajos."
+            catch: () => "Error al correr los trabajos para borrar los usuarios."
         })
     }
 })
@@ -694,7 +694,7 @@ export const deleteRecordsInTest = (ctx: AppContext, records: string[]) => Effec
 
     yield* Effect.tryPromise({
         try: () => ctx!.worker?.runAllJobs(), // TO DO: Pasar a Effect
-        catch: () => "Error al correr los trabajos."
+        catch: () => "Error al correr los trabajos para borrar los registros."
     })
 })
 

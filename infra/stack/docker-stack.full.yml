@@ -1,0 +1,185 @@
+version: "3.9"
+
+networks:
+  cabildo:
+    driver: overlay
+
+volumes:
+  redis_data:
+  docmost_redis_data:
+
+services:
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+    volumes:
+      - redis_data:/data
+      - /opt/cabildo/infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+
+    networks:
+      - cabildo
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+
+  web:
+    image: ewr.vultrcr.com/cabildo/web:prod-latest
+
+    env_file:
+      - /etc/cabildo/web.env
+
+    environment:
+      PORT: "3000"
+      SERVICE_NAME: "ca-web"
+      SERVICE_ROLE: "frontend"
+
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: ingress
+
+    networks:
+      - cabildo
+
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/health"]
+
+
+  backend:
+    image: ewr.vultrcr.com/cabildo/backend:prod-latest
+
+    env_file:
+      - /etc/cabildo/backend.env
+
+    environment:
+      SERVICE_NAME: "api"
+
+    command:
+      ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
+
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: ingress
+
+    networks:
+      - cabildo
+
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/healthz"]
+
+
+  worker:
+    image: ewr.vultrcr.com/cabildo/backend:prod-latest
+
+    env_file:
+      - /etc/cabildo/backend.env
+
+    environment:
+      SERVICE_NAME: "worker"
+
+    command:
+      ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/worker.js"]
+
+    networks:
+      - cabildo
+
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+
+  mirror:
+    image: ewr.vultrcr.com/cabildo/backend:prod-latest
+
+    env_file:
+      - /etc/cabildo/backend.env
+
+    environment:
+      SERVICE_NAME: "mirror"
+
+    command:
+      ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/mirror.js"]
+
+    networks:
+      - cabildo
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+
+  pghero:
+    image: ankane/pghero
+
+    env_file:
+      - /etc/cabildo/pghero.env
+
+    environment:
+      SERVICE_NAME: "ca-pghero"
+
+    networks:
+      - cabildo
+
+    ports:
+      - target: 8080
+        published: 19090
+        protocol: tcp
+        mode: ingress
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  docmost:
+    image: docmost/docmost:latest
+
+    env_file:
+      - /etc/cabildo/docmost.env
+
+    networks:
+      - cabildo
+
+    ports:
+      - target: 3000
+        published: 3100
+        protocol: tcp
+        mode: ingress
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  docmost-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+
+    volumes:
+      - docmost_redis_data:/data
+
+    networks:
+      - cabildo
+
+    deploy:
+      replicas: 1

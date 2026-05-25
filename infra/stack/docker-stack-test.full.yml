@@ -1,0 +1,113 @@
+version: "3.9"
+
+networks:
+  cabildo:
+    driver: overlay
+
+volumes:
+  redis_test_data:
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server"]
+    volumes:
+      - redis_test_data:/data
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+
+  web:
+    image: ewr.vultrcr.com/cabildo/web:test-latest
+    env_file:
+      - /etc/cabildo/web.test.env
+    environment:
+      PORT: "3000"
+    ports:
+      - target: 3000
+        published: 3001
+        protocol: tcp
+        mode: ingress
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 400M
+        reservations:
+          cpus: "0.15"
+          memory: 250M
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    image: ewr.vultrcr.com/cabildo/backend:test-latest
+    env_file:
+      - /etc/cabildo/backend.test.env
+    command: ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
+    ports:
+      - target: 8080
+        published: 8081
+        protocol: tcp
+        mode: ingress
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.4"
+          memory: 600M
+        reservations:
+          cpus: "0.2"
+          memory: 400M
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    image: ewr.vultrcr.com/cabildo/backend:test-latest
+    env_file:
+      - /etc/cabildo/backend.test.env
+    command: ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/worker.js"]
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  mirror:
+    image: ewr.vultrcr.com/cabildo/backend:test-latest
+    env_file:
+      - /etc/cabildo/backend.test.env
+    command: ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/mirror.js"]
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure

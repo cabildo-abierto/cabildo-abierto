@@ -13,7 +13,7 @@ const WorkInProgressScreen = () => {
 
     const subtitle = <div>
         <div>
-            Estamos construyendo una nueva versión
+            Estamos trabajando en una nueva versión
         </div>
         <div>
             de Cabildo Abierto.
