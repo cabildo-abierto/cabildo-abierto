@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+cd "$REPO_ROOT"
+
 #############################################
 # Check main
 #############################################
-git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 
 BRANCH=$(git branch --show-current 2>/dev/null || echo "")
 DIRTY=$(git status --porcelain)
@@ -37,10 +41,11 @@ fi
 
 ENV="${1:-prod}"        # prod | test
 TARGET="${2:-all}"      # all | frontend | web | backend
+PROFILE="${3:-full}"    # full | min
 
 SERVER="deploy@64.176.19.176"
 STACK_NAME="cabildo"
-STACK_FILE="/opt/cabildo/docker-stack.yml"
+STACK_FILE="/opt/cabildo/infra/stack/docker-stack.full.yml"
 
 REGISTRY="ewr.vultrcr.com/cabildo"
 WEB_IMAGE_REPO="${REGISTRY}/web"
@@ -62,19 +67,33 @@ case "$TARGET" in
     DEPLOY_BACKEND=1
     ;;
   *)
-    echo "Usage: $0 [prod|test] [all|frontend|web|backend]"
+    echo "Usage: $0 [prod|test] [all|frontend|web|backend] [full|min]"
     exit 1
     ;;
 esac
 
+if [ "$PROFILE" != "full" ] && [ "$PROFILE" != "min" ]; then
+  echo "Usage: $0 [prod|test] [all|frontend|web|backend] [full|min]"
+  exit 1
+fi
+
 if [ "$ENV" = "prod" ]; then
   STACK_NAME="cabildo"
-  STACK_FILE="/opt/cabildo/docker-stack.yml"
+  if [ "$PROFILE" = "min" ]; then
+    STACK_FILE="/opt/cabildo/infra/stack/docker-stack.min.yml"
+  else
+    STACK_FILE="/opt/cabildo/infra/stack/docker-stack.full.yml"
+  fi
   NEXT_PUBLIC_BACKEND_URL="https://api.cabildoabierto.ar"
 else
   STACK_NAME="cabildo-test"
-  STACK_FILE="/opt/cabildo/docker-stack-test.yml"
+  STACK_FILE="/opt/cabildo/infra/stack/docker-stack-test.full.yml"
   NEXT_PUBLIC_BACKEND_URL="https://test-api.cabildoabierto.ar"
+fi
+
+if [ "$PROFILE" = "min" ] && [ "$DEPLOY_BACKEND" -eq 1 ]; then
+  echo "❌ Backend deploy is not available with profile=min."
+  exit 1
 fi
 
 if [ -z "${VULTR_API_KEY:-}" ]; then
@@ -92,10 +111,6 @@ echo "$VULTR_API_KEY" | docker login "$REGISTRY" -u 9cb96f39-c470-4144-92ba-24ea
 #############################################
 # PREP
 #############################################
-
-# Move to repo root (this script should be in repo root already,
-# but this makes it robust if called from elsewhere)
-cd "$(dirname "$0")"
 
 GIT_SHA=$(git rev-parse --short HEAD)
 
@@ -193,7 +208,7 @@ if [ "$DEPLOY_WEB" -eq 0 ] && [ "$DEPLOY_BACKEND" -eq 0 ]; then
   exit 0
 fi
 
-echo "🚀 Deploying to production (${TARGET})…"
+echo "🚀 Deploying (${ENV}/${PROFILE}) target=${TARGET}…"
 
 ssh "$SERVER" bash <<EOF
   set -euo pipefail
@@ -223,4 +238,5 @@ echo ""
 echo "🎉 Full deployment finished successfully!"
 echo "    Version: ${GIT_SHA}"
 echo "    Target:  ${TARGET}"
+echo "    Profile: ${PROFILE}"
 echo ""
