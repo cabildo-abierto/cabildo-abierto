@@ -32,7 +32,6 @@ model Record {
   dataset    Dataset?
   reaction   Reaction?    @relation("Reaction_uriToRecord")
   hasReacted HasReacted[]
-  polls      Poll[]
 
   notificationsGenerated Notification[]
 
@@ -260,8 +259,6 @@ model Reaction {
 
   subjectId  String?
   subjectCid String?
-  pollId     String?
-  poll       Poll?   @relation(fields: [pollId], references: [id])
 
   label String
 
@@ -284,7 +281,6 @@ model Topic {
   category         TopicToCategory[]
   topicVersions    TopicVersion[]    @relation("TopicVersion_topicIdToTopic")
   consensus        Consensus[]
-  polls            Poll[]
 }
 
 // categoría de temas, con sus links con otras categorías para el grafo
@@ -358,8 +354,7 @@ model User {
   emailVerified   Boolean                  @default(false)
   mailingListSubs MailingListSubscription?
 
-  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
-  recordCreatedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   hasAccess   Boolean   @default(false)
   dateOfBirth DateTime? @db.Date
@@ -599,20 +594,6 @@ model RecordModerationProcess {
 
   @@index([recordId])
   @@index([processedById])
-}
-
-// una poll existe mientras haya al menos un embed o voto en el protocolo que la referencie
-model Poll {
-  id             String   @id
-  description    String?
-  choices        String[]
-  createdAt      DateTime @db.Timestamptz(3)
-  topicId        String?
-  topic          Topic?   @relation(fields: [topicId], references: [id])
-  parentRecordId String?
-  parentRecord   Record?  @relation(fields: [parentRecordId], references: [uri])
-
-  votes Reaction[]
 }
 
 model Token {

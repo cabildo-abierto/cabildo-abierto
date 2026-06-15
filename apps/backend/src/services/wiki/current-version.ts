@@ -28,14 +28,6 @@ export function getTopicIdFromTopicVersionUri(ctx: AppContext, did: string, rkey
 }
 
 
-export function getTopicCurrentVersion(status: ArCabildoabiertoWikiTopic.TopicVersionStatus[]): number | null {
-    for (let i = status.length - 1; i >= 0; i--) {
-        if(status[i].accepted) return i
-    }
-    return null
-}
-
-
 // TO DO: Estaría bueno cachear esto...
 export const getTopicTitleHandler: CAHandlerNoAuth<{ params: { id: string } }, {
     title: string
@@ -53,9 +45,11 @@ export const getTopicTitleHandler: CAHandlerNoAuth<{ params: { id: string } }, {
     if (!topic) {
         return {error: "No se encontró el tema"}
     }
+    const title = getTopicTitle({props: topic.props as ArCabildoabiertoWikiTopic.TopicProp[] | undefined})
+    if(!title) return {error: "El tema no tiene título."}
     return {
         data: {
-            title: getTopicTitle({id: topic.id, props: topic.props as ArCabildoabiertoWikiTopic.TopicProp[] | undefined})
+            title
         }
     }
 }
@@ -70,8 +64,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
         uri: string
         reactions?: { uri: string | null }[]
         currentVersionId: string | null
-        accCharsAdded: number | null
-        created_at_tz: Date | null
+        createdAt: Date | null
         props: unknown
     }
 
@@ -80,8 +73,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     try {
         allVersions = await trx
             .selectFrom('Record')
-            .innerJoin('Content', 'Content.uri', 'Record.uri')
-            .innerJoin('TopicVersion', 'TopicVersion.uri', 'Content.uri')
+            .innerJoin('TopicVersion', 'TopicVersion.uri', 'Record.uri')
             .innerJoin("User", "Record.authorId", "User.did")
             .innerJoin("Topic", "Topic.id", "TopicVersion.topicId")
             .select([
@@ -128,6 +120,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
     for (let i = 0; i < topicIds.length; i++) {
         const id = topicIds[i]
         const versions = versionsByTopic.get(id)
+        ctx.logger.pino.info({id, versions}, "topic versions")
         if (!versions) continue
 
         if (versions.length == 0) {
@@ -146,7 +139,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                     lastEdit
                 })
             } else {
-                const newCurrentVersion = versions[currentVersion].uri
+                const newCurrentVersion = currentVersion.uri
                 const currentCurrentVersion = versions[0].currentVersionId
 
                 if (newCurrentVersion != currentCurrentVersion) {
@@ -157,7 +150,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                     })
                     categoryUpdates.push({
                         id,
-                        categories: getTopicCategories(versions[currentVersion].props as ArCabildoabiertoWikiTopic.TopicProp[])
+                        categories: getTopicCategories(currentVersion.props as ArCabildoabiertoWikiTopic.TopicProp[])
                     })
                 }
             }
@@ -218,7 +211,7 @@ export async function updateAllTopicsCurrentVersions(ctx: AppContext) {
     const batchSize = 500
 
     for (let i = 0; i < topics.length; i += batchSize) {
-        ctx.logger.pino.info({i}, "Updating all topics current version")
+        ctx.logger.pino.info({i, total: topics.length, batchSize}, "Updating all topics current version")
         await ctx.kysely.transaction().execute(async trx => {
             await updateTopicsCurrentVersionBatch(
                 ctx,

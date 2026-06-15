@@ -170,10 +170,8 @@ const CategorySelectorButton = ({selectedCategories, setSelectedCategories}: {
 
 
 const NewTopicPanel = ({open, onClose}: {open: boolean, onClose: () => void}) => {
-    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} className={"lg:min-w-[500px]"}>
-        <div className={"p-4"}>
-            <CreateTopic onClose={onClose} onMenu={false}/>
-        </div>
+    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={false} className={"lg:min-w-[500px] py-4 px-2"}>
+        <CreateTopic onClose={onClose} onMenu={false}/>
     </BaseFullscreenPopup>
 }
 

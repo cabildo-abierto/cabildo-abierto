@@ -63,10 +63,10 @@ export const getJobApplications: CAHandler<{}, JobApplicationView[]> = async (ct
             "comment",
             "cv",
             "job",
-            "created_at as createdAt",
+            "createdAt",
             "seen"
         ])
-        .orderBy("created_at", "desc")
+        .orderBy("createdAt", "desc")
         .execute()
 
     const result: JobApplicationView[] = applications.map(a => ({

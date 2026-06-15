@@ -26,6 +26,7 @@ import {
 import {useTheme, type ThemeMode} from "@/components/layout/theme/theme-context";
 import {profileUrl} from "@/components/utils/react/url";
 import NotificationsIcon from "@/components/utils/icons/notifications-icon";
+import {useLogout} from "@/components/auth/logout";
 
 function ThemeModeButtons() {
     const {mode, setMode} = useTheme()
@@ -49,6 +50,7 @@ export default function TopbarDesktop() {
     const {isMobile} = useIsMobile()
     const {setLayoutState} = useLayoutState()
     const {setLoginModalOpen} = useLoginModal()
+    const {logout} = useLogout()
 
     return <div className={"flex justify-between items-center h-12 fixed z-[1500] top-0 left-0 w-full py-3 pl-3 pr-5"}>
         <div className={"flex items-center gap-x-4"}>
@@ -87,11 +89,9 @@ export default function TopbarDesktop() {
                     <DropdownMenuSeparator className="m-0 bg-[var(--accent)]"/>
                     <ThemeModeButtons/>
                     <DropdownMenuSeparator className="m-0 bg-[var(--accent)]"/>
-                    <DropdownMenuItem asChild>
-                        <Link href="/ajustes">
-                            <PowerIcon weight="bold"/>
-                            Cerrar sesión
-                        </Link>
+                    <DropdownMenuItem onClick={logout}>
+                        <PowerIcon weight="bold"/>
+                        Cerrar sesión
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

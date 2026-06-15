@@ -15,6 +15,7 @@ import {queryTopics} from "@/components/writing/query-topics";
 import {post} from "@/components/utils/react/fetch";
 import {cn} from "@/lib/utils";
 import {useDebounce} from "@/components/utils/react/debounce";
+import {BaseButton} from "@/components/utils/base/base-button";
 
 
 export function useCreateTopic() {
@@ -88,7 +89,7 @@ const CreateTopicButtons = ({
         return {}
     }
 
-    return <div className="space-x-2 w-full flex justify-between items-center">
+    return <div className="space-y-6">
         <TickButton
             ticked={goToArticle}
             setTicked={setGoToArticle}
@@ -98,7 +99,14 @@ const CreateTopicButtons = ({
                 Ir a la página del tema después de crearlo
             </div>}
         />
-        <div className={"space-x-2"}>
+        <div className={"space-x-2 flex justify-end"}>
+            <BaseButton
+                onClick={onClose}
+                size={"small"}
+                variant={"outlined"}
+            >
+                Cancelar
+            </BaseButton>
             <StateButton
                 handleClick={onSubmit}
                 disabled={disabled}
@@ -190,7 +198,7 @@ const CreateTopicInput = ({
                 <LoadingSpinner className={"w-6 h-6"}/>
             </div>}
             {!isLoading && results && results.length == 0 && validTopicName && <div
-                className={"flex space-x-1 text-center text-xs font-light pl-1"}
+                className={"flex space-x-1 text-center text-xs font-light pl-1 pt-1"}
             >
                 No se encontraron temas similares, creá el tema para empezar la discusión.
             </div>}
@@ -214,7 +222,7 @@ export const CreateTopic = ({
 
     const disabled = !user.user || !validEntityName(topicName)
 
-    return <div className={cn("space-y-3 px-2 pb-2 flex-grow flex flex-col justify-between min-h-[250px]", onMenu && "pt-12")}>
+    return <div className={cn("space-y-6 px-2 pb-2 flex-grow flex flex-col justify-between", onMenu && "pt-12")}>
         <CreateTopicInput
             disabled={disabled}
             topicName={topicName}
