@@ -10,13 +10,13 @@ import {
     UploadStringBlobError
 } from "#/services/blob.js";
 import {topicRecordProcessor} from "#/services/sync/event-processing/topic.js";
-import {processValidatedRecords} from "#/services/record/processing.js";
+import {processValidatedRecords} from "#/services/record/processor.js";
 import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/votes/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 import {DBSelectError, InvalidValueError} from "#/utils/errors.js";
-import {ProcessCreateError} from "#/services/record/processing.js";
+import {ProcessCreateError} from "#/services/record/processor.js";
 import {$Typed} from "@atproto/api";
 import {CID} from 'multiformats/cid'
 import {sha256} from 'multiformats/hashes/sha2'

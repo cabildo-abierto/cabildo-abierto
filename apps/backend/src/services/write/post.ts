@@ -19,8 +19,7 @@ import {
 } from "#/services/blob.js";
 import {EffHandler} from "#/utils/handler.js";
 import {getParsedPostContent, ParsePostError} from "#/services/write/rich-text.js";
-import {commentRecordProcessor} from "#/services/sync/event-processing/comments.js";
-import {processValidatedRecords} from "#/services/record/processing.js";
+import {processValidatedRecords} from "#/services/record/processor.js";
 import {AppContext} from "#/setup.js";
 import {ATDeleteRecordError, deleteRecordAT, deleteRecords} from "#/services/delete.js";
 import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
@@ -28,6 +27,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
 import {ProcessDeleteError} from "#/services/sync/event-processing/delete-processor.js";
 import {ATCreateRecordError} from "#/services/votes/votes.js";
+import {commentRecordProcessor} from "#/services/sync/event-processing/comments.js";
 
 function createQuotePostEmbed(post: ATProtoStrongRef): $Typed<AppBskyEmbedRecord.Main> {
     return {
@@ -224,15 +224,10 @@ function isContentReferenced(ctx: AppContext, uri: string): Effect.Effect<boolea
                         .whereRef("Reaction.subjectId", "=", "Content.uri")
                     ).as("reactions"),
                     eb => eb.exists(eb
-                        .selectFrom("Post")
+                        .selectFrom("Comment")
                         .select(["uri"])
-                        .whereRef("Post.replyToId", "=", "Content.uri")
-                    ).as("replies"),
-                    eb => eb.exists(eb
-                        .selectFrom("Post")
-                        .select(["uri"])
-                        .whereRef("Post.quoteToId", "=", "Content.uri")
-                    ).as("quotes")
+                        .whereRef("Comment.replyToId", "=", "Content.uri")
+                    ).as("replies")
                 ])
                 .where("Content.uri", "=", uri)
                 .executeTakeFirst(),
@@ -240,7 +235,7 @@ function isContentReferenced(ctx: AppContext, uri: string): Effect.Effect<boolea
         })
 
         if (!references) return yield* Effect.fail(new PostNotFoundError())
-        return Boolean(references.reactions) || Boolean(references.replies) || Boolean(references.quotes)
+        return Boolean(references.reactions) || Boolean(references.replies)
     }).pipe(Effect.withSpan("isContentReferenced", {attributes: {uri}}))
 }
 
@@ -275,7 +270,7 @@ function preparePostEdit(ctx: AppContext, agent: SessionAgent, post: CreatePostP
 }
 
 
-export const createPost: EffHandler<CreatePostProps, ATProtoStrongRef[]> = (ctx, agent, post) => {
+export const createComment: EffHandler<CreatePostProps, ATProtoStrongRef[]> = (ctx, agent, post) => {
 
     return Effect.gen(function* () {
         if (post.threadElements.length == 0) {
@@ -307,7 +302,7 @@ export const createPost: EffHandler<CreatePostProps, ATProtoStrongRef[]> = (ctx,
             refsAndRecords.push(refAndRecord)
         }
 
-        yield* processValidatedRecords(ctx, refsAndRecords, postRecordProcessor).pipe(Effect.catchAll(() => Effect.fail("La publicación se creó, pero ocurrió un error al procesarla desde Cabildo Abierto.")))
+        yield* processValidatedRecords(ctx, refsAndRecords, commentRecordProcessor).pipe(Effect.catchAll(() => Effect.fail("La publicación se creó, pero ocurrió un error al procesarla desde Cabildo Abierto.")))
 
         return refsAndRecords.map(r => r.ref)
     }).pipe(

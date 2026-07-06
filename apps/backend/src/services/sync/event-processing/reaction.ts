@@ -15,8 +15,8 @@ import {DB} from "prisma/generated/types.js";
 import {
     addRecordsToDBBatch,
     InsertRecordError,
-    Processing
-} from "#/services/record/processing.js";
+    Processor
+} from "#/services/record/processor.js";
 import {AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
 import {ArCabildoabiertoEmbedPollVote, ArCabildoabiertoWikiVote} from "@cabildo-abierto/api"
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
@@ -216,23 +216,23 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
     )
 }
 
-export const likeRecordProcessor: Processing<AppBskyFeedLike.Record> = {
+export const likeRecordProcessor: Processor<AppBskyFeedLike.Record> = {
     validator: (ctx, record: AppBskyFeedLike.Record) => Effect.succeed(AppBskyFeedLike.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as Processing<AppBskyFeedLike.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<AppBskyFeedLike.Record>["addRecordsToDB"]
 }
 
-export const repostRecordProcessor: Processing<AppBskyFeedRepost.Record> = {
+export const repostRecordProcessor: Processor<AppBskyFeedRepost.Record> = {
     validator: (ctx, record: AppBskyFeedRepost.Record) => Effect.succeed(AppBskyFeedRepost.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as Processing<AppBskyFeedRepost.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<AppBskyFeedRepost.Record>["addRecordsToDB"]
 }
 
-export const wikiVoteRecordProcessor: Processing<ArCabildoabiertoWikiVote.Record> = {
+export const wikiVoteRecordProcessor: Processor<ArCabildoabiertoWikiVote.Record> = {
     validator: (ctx, record: ArCabildoabiertoWikiVote.Record) => Effect.succeed(ArCabildoabiertoWikiVote.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as Processing<ArCabildoabiertoWikiVote.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<ArCabildoabiertoWikiVote.Record>["addRecordsToDB"]
 }
 
 
-export const reactionRecordProcessor: Processing<ReactionRecord> = {
+export const reactionRecordProcessor: Processor<ReactionRecord> = {
     validator: (ctx, record: ReactionRecord) => {
         const $type = record.$type
         if ($type === "ar.cabildoabierto.wiki.vote") return Effect.succeed(ArCabildoabiertoWikiVote.validateRecord(record))

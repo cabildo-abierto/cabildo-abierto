@@ -5,8 +5,8 @@ import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {
     addRecordsToDBBatch,
     InsertRecordError,
-    Processing
-} from "#/services/record/processing.js";
+    Processor
+} from "#/services/record/processor.js";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {DBDeleteError} from "#/utils/errors.js";
@@ -14,7 +14,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 
 
-export const datasetRecordProcessor: Processing<ArCabildoabiertoDataDataset.Record> = {
+export const datasetRecordProcessor: Processor<ArCabildoabiertoDataDataset.Record> = {
     validator: (ctx, record: ArCabildoabiertoDataDataset.Record) => {
         return Effect.succeed(ArCabildoabiertoDataDataset.validateRecord(record))
     },

@@ -4,7 +4,7 @@ import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {compress} from "@cabildo-abierto/editor-core";
 import {datasetRecordProcessor} from "#/services/sync/event-processing/dataset.js";
-import {processValidatedRecords} from "#/services/record/processing.js";
+import {processValidatedRecords} from "#/services/record/processor.js";
 import {getRkeyFromUri} from "@cabildo-abierto/utils";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";

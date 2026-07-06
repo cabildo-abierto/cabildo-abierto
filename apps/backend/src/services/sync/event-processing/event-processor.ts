@@ -2,7 +2,7 @@ import {AppContext} from "#/setup.js";
 import {JetstreamEvent} from "#/lib/types.js";
 import {getUri, isCAProfile} from "@cabildo-abierto/utils";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
-import {processRecords} from "#/services/record/processing.js";
+import {processRecords} from "#/services/record/processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {isValidHandle} from "@atproto/syntax";
 import {Effect} from "effect";

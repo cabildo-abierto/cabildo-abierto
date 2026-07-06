@@ -4,7 +4,7 @@ import {isValidHandle} from "@atproto/syntax";
 import {CAHandler, EffHandler, EffHandlerNoAuth} from "#/utils/handler.js";
 import {v4 as uuidv4} from "uuid";
 import {caProfileRecordProcessor} from "#/services/sync/event-processing/profile.js";
-import {processValidatedRecords} from "#/services/record/processing.js";
+import {processValidatedRecords} from "#/services/record/processor.js";
 import {AtpBaseClient} from "@atproto/api"
 import {
     ArCabildoabiertoActorCaProfile,
@@ -17,7 +17,7 @@ import {isValidEmail} from "#/services/emails/subscriptions.js";
 import {Effect, Exit} from "effect";
 import {DBInsertError, DBSelectError, DBUpdateError, InvalidValueError} from "#/utils/errors.js";
 import {ATCreateRecordError, ATGetRecordError} from "#/services/votes/votes.js";
-import {ProcessCreateError} from "#/services/record/processing.js";
+import {ProcessCreateError} from "#/services/record/processor.js";
 import {getIronSession} from "iron-session";
 import {env} from "#/lib/env.js";
 import {Request, Response} from "express";

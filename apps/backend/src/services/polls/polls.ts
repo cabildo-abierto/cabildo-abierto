@@ -18,7 +18,7 @@ import {CIDEncodeError, getPollKey, PollIdMismatchError} from "#/services/write/
 import {ATCreateRecordError} from "#/services/votes/votes.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
-import {processValidatedRecords} from "#/services/record/processing.js";
+import {processValidatedRecords} from "#/services/record/processor.js";
 import {$Typed} from "@atproto/api";
 import {deleteRecords} from "#/services/delete.js";
 import {getTopicIdFromTopicVersionUri} from "#/services/wiki/current-version.js";

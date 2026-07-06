@@ -2,6 +2,8 @@ import {AppContext} from "#/setup.js";
 import {unique} from "@cabildo-abierto/utils";
 import {DB} from "../../../prisma/generated/types.js";
 import {Kysely, Transaction} from "kysely";
+import {Effect} from "effect";
+import {DBInsertError} from "#/utils/errors.js";
 
 
 export function newUser(ctx: AppContext, did: string, inCA: boolean) {
@@ -21,12 +23,18 @@ export function newUser(ctx: AppContext, did: string, inCA: boolean) {
 }
 
 
-export async function createUsersBatch(trx: Transaction<DB> | Kysely<DB>, dids: string[]) {
+export const createUsersBatch = (
+    trx: Transaction<DB> | Kysely<DB>,
+    dids: string[]
+) => Effect.gen(function* () {
     if (dids.length == 0) return
     dids = unique(dids)
-    await trx
-        .insertInto("User")
-        .values(dids.map(did => ({did})))
-        .onConflict((oc) => oc.column("did").doNothing())
-        .execute()
-}
+    yield* Effect.tryPromise({
+        try: () => trx
+            .insertInto("User")
+            .values(dids.map(did => ({did})))
+            .onConflict((oc) => oc.column("did").doNothing())
+            .execute(),
+        catch: e => new DBInsertError(e)
+    })
+})

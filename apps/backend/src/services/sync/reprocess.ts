@@ -1,6 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {getRecordProcessor} from "#/services/sync/event-processing/get-record-processor.js";
-import {addRecordsToDBBatch, processRecords} from "#/services/record/processing.js";
+import {addRecordsToDBBatch, processRecords} from "#/services/record/processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {Effect} from "effect";
 

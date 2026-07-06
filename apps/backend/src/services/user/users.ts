@@ -17,7 +17,7 @@ import {
 } from "@cabildo-abierto/api"
 import {BlobRef} from "@atproto/lexicon";
 import {getServiceEndpointForDid, uploadBase64Blob} from "#/services/blob.js";
-import {InsertRecordError, processValidatedRecords} from "#/services/record/processing.js";
+import {InsertRecordError, processValidatedRecords} from "#/services/record/processor.js";
 import * as Effect from "effect/Effect";
 import {pipe} from "effect";
 import {handleOrDidToDid} from "#/id-resolver.js";

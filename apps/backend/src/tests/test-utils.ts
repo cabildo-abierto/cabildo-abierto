@@ -25,7 +25,7 @@ import {BlobRef} from "@atproto/lexicon";
 import {CID} from "multiformats/cid";
 import {getBlobKey} from "#/services/hydration/dataplane.js";
 import {Effect} from "effect";
-import {ProcessCreateError, processInBatches} from "#/services/record/processing.js";
+import {ProcessCreateError, processInBatches} from "#/services/record/processor.js";
 
 import {DBDeleteError, DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";

@@ -2,13 +2,18 @@ import {Transaction} from "kysely";
 import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 import { createUsersBatch } from "../user/creation.js";
 import {DB} from "../../../prisma/generated/types.js";
+import {DBInsertError} from "#/utils/errors.js";
+import {Effect} from "effect";
 
 
-export async function processDirtyRecordsBatch(trx: Transaction<DB>, refs: {uri: string, cid?: string}[]) {
+export const processDirtyRecordsBatch = (
+    trx: Transaction<DB>,
+    refs: {uri: string, cid?: string}[]
+) => Effect.gen(function* () {
     if (refs.length == 0) return
 
     const users = refs.map(r => getDidFromUri(r.uri))
-    await createUsersBatch(trx, users)
+    yield* createUsersBatch(trx, users)
 
     const data = refs.map(({uri, cid}) => ({
         uri,
@@ -22,12 +27,15 @@ export async function processDirtyRecordsBatch(trx: Transaction<DB>, refs: {uri:
 
     if (data.length == 0) return
 
-    await trx
-        .insertInto("Record")
-        .values(data)
-        .onConflict((oc) => oc.column("uri").doNothing())
-        .execute()
-}
+    yield* Effect.tryPromise({
+        try: () => trx
+            .insertInto("Record")
+            .values(data)
+            .onConflict((oc) => oc.column("uri").doNothing())
+            .execute(),
+        catch: e => new DBInsertError(e)
+    })
+})
 
 
 

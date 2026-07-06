@@ -4,11 +4,11 @@ import {getCollectionFromUri, sum} from "@cabildo-abierto/utils";
 import {ValidationResult} from "@atproto/lexicon";
 import {parseRecord} from "#/services/sync/parse.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {Effect, pipe} from "effect";
-import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+import {Effect} from "effect";
+import {AddJobError, DBInsertError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {Transaction} from "kysely";
-import {getDidFromUri, splitUri, unique} from "@cabildo-abierto/utils";
+import {getDidFromUri, splitUri} from "@cabildo-abierto/utils";
 import { createUsersBatch } from "../user/creation.js";
 import {DB} from "../../../prisma/generated/types.js";
 
@@ -25,7 +25,7 @@ export class InsertRecordError {
     }
 }
 
-export type ProcessCreateError = CIDEncodeError | InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError
+export type ProcessCreateError = CIDEncodeError | InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError | DBInsertError
 
 
 export type ValidationError = CIDEncodeError
@@ -34,16 +34,17 @@ export type ValidationError = CIDEncodeError
 type RecordValidator<T> = (ctx: AppContext, record: T) => Effect.Effect<ValidationResult<T>, ValidationError>
 
 
-export type Processing<T = any> = {
+export type Processor<T = any> = {
     validator: RecordValidator<T>
-    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<T>[], reprocess?: boolean) => Effect.Effect<number, ProcessCreateError>
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<T>[], trx: Transaction<DB>, reprocess?: boolean) =>
+        Effect.Effect<number, ProcessCreateError>
 }
 
 
 export const processRecords = <T>(
     ctx: AppContext,
     records: RefAndRecord[],
-    processor: Processing<T>,
+    processor: Processor<T>,
     reprocess: boolean = false,
 ): Effect.Effect<number, ProcessCreateError | ValidationError> => Effect.gen(function* () {
     if(records.length == 0) return 0
@@ -66,7 +67,7 @@ export const processRecords = <T>(
 export const processInBatches = <T>(
     ctx: AppContext,
     records: RefAndRecord[],
-    processor: Processing<T>,
+    processor: Processor<T>,
     reprocess: boolean = false
 ): Effect.Effect<void, ProcessCreateError | UpdateRedisError | InvalidValueError | ValidationError> => {
     if(records.length == 0) return Effect.void
@@ -89,26 +90,33 @@ export const processInBatches = <T>(
 export const processValidatedRecords = <T>(
     ctx: AppContext,
     records: RefAndRecord<T>[],
-    processor: Processing<T>,
+    processor: Processor<T>,
     reprocess: boolean = false
-): Effect.Effect<number, ProcessCreateError> => {
-    if(records.length == 0) return Effect.succeed(0)
+): Effect.Effect<number, ProcessCreateError> => Effect.gen(function* () {
+        if(records.length == 0) return 0
 
-    const collection = getCollectionFromUri(records[0].ref.uri)
+        const collection = getCollectionFromUri(records[0].ref.uri)
 
-    return pipe(
-        processor.addRecordsToDB(ctx, records, reprocess).pipe(Effect.withSpan(`addRecordsToDB ${collection}`)),
-        Effect.tap(() => {
-            return !reprocess ? Effect.tryPromise({
+        const trx = yield* Effect.tryPromise({
+            try: () => ctx.kysely.startTransaction().execute(),
+            catch: (e) => new DBInsertError(e)
+        })
+
+        yield* addRecordsToDBBatch(trx, records)
+
+        const processed = yield* processor
+            .addRecordsToDB(ctx, records, trx, reprocess)
+            .pipe(Effect.withSpan(`addRecordsToDB ${collection}`))
+
+        if(!reprocess) {
+            yield* Effect.tryPromise({
                 try: () => ctx.redisCache.onUpdateRecords(records),
                 catch: () => new UpdateRedisError()
-            }) : Effect.void
-        }),
-        Effect.flatMap(processed => Effect.succeed(processed)),
-        Effect.withSpan(`processValidated ${collection}`)
-    )
-}
+            })
+        }
 
+        return processed
+    }).pipe(Effect.withSpan(`processValidated`))
 
 const parseRecords = <T>(
     ctx: AppContext,
@@ -147,7 +155,10 @@ const parseRecords = <T>(
 
 
 
-export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: ATProtoStrongRef, record: any }[]) {
+export const addRecordsToDBBatch = (
+    trx: Transaction<DB>,
+    records: { ref: ATProtoStrongRef, record: any }[]
+) => Effect.gen(function* () {
     const data: {
         uri: string,
         cid: string,
@@ -170,12 +181,12 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
         })
     })
 
-    const users = unique(records.map(r => getDidFromUri(r.ref.uri)))
-    await createUsersBatch(trx, users)
+    const users = records.map(r => getDidFromUri(r.ref.uri))
+    yield* createUsersBatch(trx, users)
 
-    try {
-        if(data.length > 0){
-            await trx
+    if(data.length > 0){
+        yield* Effect.tryPromise({
+            try: () => trx
                 .insertInto("Record")
                 .values(data)
                 .onConflict((oc) =>
@@ -187,10 +198,8 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
                         record: eb.ref('excluded.record')
                     }))
                 )
-                .execute()
-        }
-    } catch (err) {
-        console.log(err)
-        console.log("Error processing records")
+                .execute(),
+            catch: (e) => new DBInsertError(e)
+        })
     }
-}
+})

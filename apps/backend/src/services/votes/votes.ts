@@ -1,7 +1,7 @@
 import {deleteRecordAT} from "#/services/delete.js";
 import {reactionRecordProcessor} from "#/services/sync/event-processing/reaction.js";
-import {processValidatedRecords} from "#/services/record/processing.js";
-import {ProcessCreateError} from "#/services/record/processing.js";
+import {processValidatedRecords} from "#/services/record/processor.js";
+import {ProcessCreateError} from "#/services/record/processor.js";
 import {ArCabildoabiertoWikiTopic, ArCabildoabiertoWikiVote, ATProtoStrongRef, CreatePostProps} from "@cabildo-abierto/api";
 import {BaseAgent, SessionAgent} from "#/utils/session-agent.js";
 import {AppContext} from "#/setup.js";
@@ -15,7 +15,7 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {ATDeleteRecordError} from "#/services/delete.js";
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
-import {InsertRecordError} from "#/services/record/processing.js";
+import {InsertRecordError} from "#/services/record/processor.js";
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";

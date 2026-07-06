@@ -1,4 +1,4 @@
-import {Processing} from "#/services/record/processing.js";
+import {Processor} from "#/services/record/processor.js";
 import {
     caProfileRecordProcessor,
 } from "#/services/sync/event-processing/profile.js";
@@ -12,7 +12,7 @@ import {pollVoteRecordProcessor} from "#/services/sync/event-processing/poll-vot
 import {Effect} from "effect";
 
 
-const emptyProcessor: Processing = {
+const emptyProcessor: Processor = {
     validator: (ctx, record) => {
         return Effect.succeed({success: true, value: record})
     },
@@ -22,8 +22,8 @@ const emptyProcessor: Processing = {
 }
 
 
-export function getRecordProcessor(ctx: AppContext, collection: string): Processing {
-    const processors: Record<string, Processing> = {
+export function getRecordProcessor(ctx: AppContext, collection: string): Processor {
+    const processors: Record<string, Processor> = {
         "ar.cabildoabierto.actor.caProfile": caProfileRecordProcessor,
         "ar.cabildoabierto.wiki.topic": topicRecordProcessor,
         "ar.cabildoabierto.wiki.vote": wikiVoteRecordProcessor,

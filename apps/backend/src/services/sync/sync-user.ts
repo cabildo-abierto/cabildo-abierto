@@ -9,7 +9,7 @@ import {processEventsBatch} from "#/services/sync/event-processing/event-process
 import {
     getRecordProcessor
 } from "#/services/sync/event-processing/get-record-processor.js";
-import {processInBatches} from "#/services/record/processing.js";
+import {processInBatches} from "#/services/record/processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {env} from "#/lib/env.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
@@ -18,7 +18,7 @@ import {handleOrDidToDid} from "#/id-resolver.js";
 import {UserNotFoundError} from "#/services/user/access.js";
 import {DBSelectError} from "#/utils/errors.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
-import {ProcessCreateError} from "#/services/record/processing.js";
+import {ProcessCreateError} from "#/services/record/processor.js";
 
 import {AddJobError} from "#/utils/errors.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";

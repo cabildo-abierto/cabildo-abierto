@@ -7,9 +7,9 @@ import {
     addRecordsToDBBatch,
     InsertRecordError,
     ProcessCreateError,
-    Processing,
+    Processor,
     ValidationError
-} from "#/services/record/processing.js";
+} from "#/services/record/processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
@@ -39,7 +39,7 @@ import {ValidationResult} from "@atproto/lexicon";
 }*/
 
 
-export const topicRecordProcessor: Processing<ArCabildoabiertoWikiTopic.Record> = {
+export const topicRecordProcessor: Processor<ArCabildoabiertoWikiTopic.Record> = {
     validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopic.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopic.Record>, ValidationError> => {
         return Effect.succeed(ArCabildoabiertoWikiTopic.validateRecord(record))
     },
