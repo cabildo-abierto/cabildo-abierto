@@ -27,6 +27,7 @@ export const env = cleanEnv(process.env, {
     MAX_CONNECTIONS: num({devDefault: 2}),
     RUN_CRONS: bool({devDefault: false}),
     MIRROR_EXTENDED_USERS: bool({devDefault: false}),
+    REQUIRE_INVITE_CODE: bool({default: false}),
     WORKER_CONCURRENCY: num({devDefault: 1}),
     DEV_NAME: str(),
     SERVICE_NAME: str(),

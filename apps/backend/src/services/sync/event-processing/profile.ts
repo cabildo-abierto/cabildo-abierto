@@ -1,4 +1,4 @@
-import {getDidFromUri} from "@cabildo-abierto/utils";
+import {getDidFromUri, getRkeyFromUri} from "@cabildo-abierto/utils";
 import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {AppBskyActorProfile} from "@atproto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
@@ -62,7 +62,8 @@ export const oldCAProfileRecordProcessor: RecordProcessor<any> = {
 }
 
 function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effect.Effect<number, InsertRecordError> {
-    const values = records.map(r => {
+    const userProfileRecords = records.filter(r => getRkeyFromUri(r.ref.uri) == "self")
+    const values = userProfileRecords.map(r => {
         return {
             did: getDidFromUri(r.ref.uri),
             CAProfileUri: r.ref.uri,
@@ -89,8 +90,8 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
 
     return Effect.tryPromise({
         try: () => insertRecords,
-        catch: () => new InsertRecordError()
-    })
+        catch: (error) => new InsertRecordError(error)
+    }).pipe(Effect.withSpan("processCAProfilesBatch", {attributes: {records: records.map(r => r.ref.uri)}}))
 }
 
 

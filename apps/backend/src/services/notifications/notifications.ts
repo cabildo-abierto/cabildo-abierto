@@ -9,6 +9,7 @@ import {SessionAgent} from "#/utils/session-agent.js";
 import {ArCabildoabiertoNotificationListNotifications} from "@cabildo-abierto/api"
 import {Effect} from "effect";
 import {DBSelectError} from "#/utils/errors.js";
+import {createEvent} from "#/services/user/events.js";
 
 
 export type NotificationQueryResult = {
@@ -112,9 +113,10 @@ const getCANotifications = (
         }),
         Effect.tryPromise({
             try: () => ctx.kysely
-                .selectFrom("User")
-                .select("lastSeenNotifications_tz")
-                .where("did", "=", agent.did)
+                .selectFrom("Event")
+                .select("date as lastSeenNotifications")
+                .where("userId", "=", agent.did)
+                .where("eventTypeId", "=", "seen_notifications")
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })
@@ -122,7 +124,7 @@ const getCANotifications = (
 
     yield* dataplane.fetchNotificationsHydrationData(skeleton)
 
-    const lastReadTime = lastSeen[0].lastSeenNotifications_tz ?? new Date(0)
+    const lastReadTime = lastSeen[0].lastSeenNotifications ?? new Date(0)
 
     const res = yield* (Effect.all(skeleton
         .map(n => hydrateCANotification(ctx, n.id, lastReadTime))
@@ -132,14 +134,7 @@ const getCANotifications = (
 
 
 function updateSeenCANotifications(ctx: AppContext, agent: SessionAgent) {
-    return Effect.tryPromise({
-        try: () => ctx.kysely
-            .updateTable("User")
-            .set("lastSeenNotifications_tz", new Date())
-            .where("did", "=", agent.did)
-            .execute(),
-        catch: (error) => new DBSelectError(error)
-    })
+    return createEvent(ctx, agent.did, "seen_notifications")
 }
 
 
@@ -179,6 +174,19 @@ export const getNotifications: EffHandler<{}, ArCabildoabiertoNotificationListNo
 }).pipe(Effect.catchAll(() => Effect.fail("Ocurrió un error al obtener las notificaciones."))), DataPlane, makeDataPlane(ctx, agent))
 
 
+const getLastSeenNotificationsDate = (ctx: AppContext, did: string) => {
+    return Effect.tryPromise({
+        try: () => ctx.kysely
+            .selectFrom("Event")
+            .select(eb => eb.fn.max("Event.date").as("lastSeenNotifications"))
+            .where("eventTypeId", "=", "seen_notifications")
+            .where("userId", "=", did)
+            .execute().then(res => res[0]?.lastSeenNotifications ?? new Date(0)),
+        catch: (error) => new DBSelectError(error)
+    })
+}
+
+
 export const getUnreadNotificationsCount: EffHandler<{}, number> =  (
     ctx,
     agent,
@@ -198,17 +206,14 @@ export const getUnreadNotificationsCount: EffHandler<{}, number> =  (
         catch: (error) => "Ocurrió un error al obtener las notificaciones."
     })
 
+    const lastSeen = yield* getLastSeenNotificationsDate(ctx, agent.did)
+
     const result = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom('Notification')
             .select(({fn}) => [fn.count('id').as('count')])
             .where('userNotifiedId', '=', agent.did)
-            .where('created_at_tz', '>', (eb) =>
-                eb
-                    .selectFrom('User')
-                    .select('lastSeenNotifications_tz')
-                    .where('did', '=', agent.did)
-            )
+            .where('created_at_tz', '>', lastSeen)
             .executeTakeFirst(),
         catch: (error) => new DBSelectError(error)
     })

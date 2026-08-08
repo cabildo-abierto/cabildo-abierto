@@ -25,6 +25,8 @@ import {ComAtprotoServerCreateAccount} from "@atproto/api";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {HandleResolutionError} from "#/services/user/users.js";
 import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.js";
+import {NotFoundError} from "#/services/dataset/read.js";
+import {ATPROTO_OAUTH_SCOPE} from "#/auth/oauth-scope.js";
 
 
 function getCAStatus(ctx: AppContext, did: string): Effect.Effect<{
@@ -40,7 +42,7 @@ function getCAStatus(ctx: AppContext, did: string): Effect.Effect<{
                 .executeTakeFirst()
         },
         catch: (error) => new DBSelectError(error)
-    })
+    }).pipe(Effect.withSpan("get-ca-status", {attributes: {did}}))
 }
 
 
@@ -100,6 +102,11 @@ function getAltHandle(handle: string) {
 }
 
 
+export const getUserATScope = (ctx: AppContext, did: string) =>
+    getUserConfig(ctx, did, "at_scope")
+        .pipe(Effect.catchTag("NotFoundError",  () => Effect.succeed(ATPROTO_OAUTH_SCOPE)))
+
+
 const login = (
     ctx: AppContext,
     agent: Agent,
@@ -136,11 +143,13 @@ const login = (
     const status = yield* getCAStatus(ctx, did)
     yield* Effect.annotateCurrentSpan("ca-status", status)
 
-    if (!status || !status.inCA || !status.hasAccess) {
-        if (code) {
-            yield* checkValidCode(ctx, code, did)
-        } else {
-            return yield* Effect.fail(new NoInviteCodeError())
+    if (env.REQUIRE_INVITE_CODE) {
+        if (!status || !status.inCA || !status.hasAccess) {
+            if (code) {
+                yield* checkValidCode(ctx, code, did)
+            } else {
+                return yield* Effect.fail(new NoInviteCodeError())
+            }
         }
     }
 
@@ -148,7 +157,7 @@ const login = (
 
     if (!oauthCli) return yield* Effect.fail("Ocurrió un error al iniciar sesión.")
 
-    const scope = yield* getUserConfig(ctx, did, "at_scope")
+    const scope = yield* getUserATScope(ctx, did)
 
     const url = yield* Effect.tryPromise({
         try: () => oauthCli.authorize(handle, {
@@ -275,7 +284,7 @@ const checkEmailExists = (ctx: AppContext, email: string) => Effect.gen(function
 
 const registerUserInDB = (
     ctx: AppContext,
-    data: {did: string, code: string, email: string, handle: string, dateOfBirth: string}
+    data: {did: string, code?: string, email: string, handle: string, dateOfBirth: string}
 ) => Effect.gen(function* () {
     yield* Effect.tryPromise({
         try: () => ctx.kysely
@@ -284,19 +293,25 @@ const registerUserInDB = (
                 did: data.did,
                 handle: data.handle,
                 email: data.email,
-                dateOfBirth: data.dateOfBirth
+                dateOfBirth: data.dateOfBirth,
+                hasAccess: !env.REQUIRE_INVITE_CODE || !!data.code,
+                inCA: !env.REQUIRE_INVITE_CODE || !!data.code
             }])
             .onConflict(oc => oc
                 .column("did")
                 .doUpdateSet(eb => ({
                 handle: eb.ref("excluded.handle"),
-                email: eb.ref("excluded.email")
+                email: eb.ref("excluded.email"),
+                hasAccess: eb.ref("excluded.hasAccess"),
+                inCA: eb.ref("excluded.inCA")
             })))
             .execute(),
         catch: (error) => new DBInsertError(error)
     })
 
-    yield* assignInviteCode(ctx, data.did, data.code)
+    if(data.code) {
+        yield* assignInviteCode(ctx, data.did, data.code)
+    }
 })
 
 
@@ -338,32 +353,42 @@ const signup = (
             return yield* Effect.fail(new CreateAccountError())
         }
 
-        const CAPdsAgent = new AtpBaseClient("https://cabildo.ar")
+        const inviteCodeRequired = env.REQUIRE_INVITE_CODE
+        const code = data.code || undefined
 
-        if(!data.code) {
+        if(inviteCodeRequired && !code) {
             return yield* Effect.fail(new NoInviteCodeError())
         }
 
-        yield* checkValidCode(ctx, data.code)
+        if(code) {
+            yield* checkValidCode(ctx, code)
+        }
 
-        const inviteCode = yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .selectFrom("InviteCode")
-                .select(["code", "pdsInvite"])
-                .where("code", "=", data.code)
-                .executeTakeFirst(),
-            catch: (error) => new DBSelectError(error)
-        })
+        const inviteCode = code
+            ? yield* Effect.tryPromise({
+                try: () => ctx.kysely
+                    .selectFrom("InviteCode")
+                    .select(["code", "pdsInvite"])
+                    .where("code", "=", code)
+                    .executeTakeFirst(),
+                catch: (error) => new DBSelectError(error)
+            })
+            : undefined
 
-        if(!inviteCode || !inviteCode.pdsInvite) {
+        if(code && (!inviteCode || !inviteCode.pdsInvite)) {
             return yield* Effect.fail(new GetInviteCodeError())
         }
+
+        const CAPdsAgent = new AtpBaseClient("https://cabildo.ar")
 
         const params: ComAtprotoServerCreateAccount.InputSchema = {
             email: data.email,
             handle: data.handle,
-            inviteCode: inviteCode.pdsInvite,
             password: data.password
+        }
+
+        if(inviteCode?.pdsInvite) {
+            params.inviteCode = inviteCode.pdsInvite
         }
 
         const res = yield* Effect.tryPromise({
@@ -378,7 +403,7 @@ const signup = (
         yield* registerUserInDB(ctx, {
             did: res.data.did,
             email: data.email,
-            code: data.code,
+            code,
             handle: data.handle,
             dateOfBirth: data.dateOfBirth
         })
@@ -513,14 +538,29 @@ export function createCAUser(
     code?: string
 ): Effect.Effect<void, DBInsertError | ATGetRecordError | AssignInviteCodeError | ProcessCreateError | ATCreateRecordError> {
     const did = agent.did
+    const grantsAccess = !env.REQUIRE_INVITE_CODE || !!code
 
     return Effect.gen(function* () {
         yield* Effect.tryPromise({
-            try: () => ctx.kysely
-                .insertInto("User")
-                .values([{did, created_at_tz: new Date()}])
-                .onConflict(oc => oc.column("did").doNothing())
-                .execute(),
+            try: () => {
+                const insert = ctx.kysely.insertInto("User").values([{
+                    did,
+                    created_at_tz: new Date(),
+                    hasAccess: grantsAccess,
+                    inCA: grantsAccess
+                }])
+
+                return grantsAccess
+                    ? insert
+                        .onConflict(oc => oc.column("did").doUpdateSet(eb => ({
+                            hasAccess: eb.ref("excluded.hasAccess"),
+                            inCA: eb.ref("excluded.inCA")
+                        })))
+                        .execute()
+                    : insert
+                        .onConflict(oc => oc.column("did").doNothing())
+                        .execute()
+            },
             catch: (error) => new DBInsertError(error)
         })
 
@@ -984,7 +1024,7 @@ export function updateUserConfig(ctx: AppContext, did: string, configId: string,
 }
 
 
-export function getUserConfig(ctx: AppContext, did: string, configId: string): Effect.Effect<string, DBSelectError> {
+export function getUserConfig(ctx: AppContext, did: string, configId: string): Effect.Effect<string, DBSelectError | NotFoundError> {
     return Effect.gen(function* () {
         const res = yield* Effect.tryPromise({
             try: () => ctx.kysely
@@ -996,9 +1036,10 @@ export function getUserConfig(ctx: AppContext, did: string, configId: string): E
                 )
                 .where("UserConfig.id", "=", configId)
                 .select(eb => eb.fn.coalesce("UserConfigValue.value", "UserConfig.default").as("value"))
-                .executeTakeFirstOrThrow(),
+                .executeTakeFirst(),
             catch: (error) => new DBSelectError(error)
         })
+        if(!res) return yield* Effect.fail(new NotFoundError())
         yield* Effect.annotateCurrentSpan("value", res.value)
         yield* Effect.annotateCurrentSpan("did", did)
         yield* Effect.annotateCurrentSpan("configId", configId)
@@ -1039,3 +1080,4 @@ export const getUserConfigHandler: EffHandler<{params: {id: string}}, {value: st
     getUserConfig(ctx, agent.did, params.id)
         .pipe(Effect.map(value => ({value})))
         .pipe(Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener la configuración.")))
+        .pipe(Effect.catchTag("NotFoundError", () => Effect.fail("No se encontró el usuario.")))

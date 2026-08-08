@@ -7,6 +7,7 @@ import {
 import {AppContext} from "#/setup.js";
 import {ContentContextRef, getCollectionFromUri, getPollId} from "@cabildo-abierto/utils";
 import {JobToAdd} from "#/jobs/worker.js";
+import {processDirtyRecordsBatch} from "#/services/sync/event-processing/record-processor.js";
 
 
 export const processContentsBatch = async (
@@ -107,6 +108,16 @@ export const processContentsBatch = async (
             .filter(x => x != null)
 
         if(polls.length > 0) {
+            const pollTopicIds = polls
+                .map(p => p.container.type == "topic" ? p.container.id : undefined)
+                .filter(x => x != null)
+            if(pollTopicIds.length > 0) {
+                await trx.insertInto("Topic")
+                    .values(pollTopicIds.map(p => ({id: p, synonyms: []})))
+                    .onConflict(oc => oc.column("id").doNothing())
+                    .execute()
+            }
+
             await trx
                 .insertInto("Poll")
                 .values(polls.map(p => {
@@ -128,6 +139,12 @@ export const processContentsBatch = async (
     }
 
     if (contentDatasetLinks.length > 0) {
+        await processDirtyRecordsBatch(trx, contentDatasetLinks.map(c => ({uri: c.B})))
+        await trx.insertInto("Dataset").values(contentDatasetLinks.map(c => ({
+            uri: c.B,
+            title: "",
+            columns: []
+        }))).onConflict(oc => oc.doNothing()).execute()
         // TO DO: Borrar datasets que se dejaron de usar
         await trx
             .insertInto("_ContentToDataset")

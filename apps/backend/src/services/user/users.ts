@@ -31,6 +31,7 @@ import {RedisCacheFetchError, RedisCacheSetError} from "#/services/redis/cache.j
 import {AddJobError, DBInsertError, DBSelectError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
 import {getUri} from "@cabildo-abierto/utils";
+import {env} from "#/lib/env.js";
 
 
 export function dbHandleToDid(ctx: AppContext, handleOrDid: string): Effect.Effect<string | null, DBSelectError> {
@@ -328,6 +329,20 @@ type GetSessionError = UserCreationFailedError |
     ATGetRecordError
 
 
+export const getSessionForNewUser = (ctx: AppContext, agent: SessionAgent, code: string | null) => Effect.gen(function* () {
+
+    yield* createCAUser(ctx, agent, code ?? undefined)
+
+    const newUserData = yield* getSessionData(ctx, agent.did)
+
+    if(!isFullSessionData(newUserData)) {
+        return yield* Effect.fail(new UserCreationFailedError())
+    }
+
+    return newUserData
+}).pipe(Effect.withSpan("getSessionForNewUser", {attributes: {did: agent.did, code}}))
+
+
 export const getSession = (
     ctx: AppContext,
     agent: SessionAgent,
@@ -346,16 +361,8 @@ export const getSession = (
 
     if (isFullSessionData(data) && data.hasAccess && data.caProfile != null && data.bskyProfile != null) {
         return data
-    } else if((data && data.hasAccess) || code) {
-        yield* createCAUser(ctx, agent, code ?? undefined)
-
-        const newUserData = yield* getSessionData(ctx, agent.did)
-
-        if(!isFullSessionData(newUserData)) {
-            return yield* Effect.fail(new UserCreationFailedError())
-        }
-
-        return newUserData
+    } else if((data && data.hasAccess) || code || !env.REQUIRE_INVITE_CODE) {
+        return yield* getSessionForNewUser(ctx, agent, code)
     } else {
         return yield* Effect.fail(new NoInviteCodeError())
     }

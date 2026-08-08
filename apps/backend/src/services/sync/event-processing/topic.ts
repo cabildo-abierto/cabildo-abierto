@@ -51,7 +51,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
                 }
                 return yield* Effect.succeed(res)
             }
-        }).pipe(Effect.withSpan("TopicVersionRecordProcessor.validateRecord"))
+        })
     },
     addRecordsToDB: (
         ctx: AppContext,
@@ -122,7 +122,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
         return pipe(
             Effect.tryPromise({
                 try: () => insertTopics,
-                catch: () => new InsertRecordError()
+                catch: (error) => new InsertRecordError(error)
             }),
             Effect.tap(({inserted, jobs}) => {
                 return !reprocess ? createJobs(ctx, records, inserted, topics, jobs) : Effect.void

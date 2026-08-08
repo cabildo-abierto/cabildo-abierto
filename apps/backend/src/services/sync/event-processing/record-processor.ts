@@ -16,9 +16,11 @@ export class InsertRecordError {
     readonly _tag = "InsertRecordError"
     name: string | undefined
     message: string | undefined
-    constructor(error?: Error) {
-        this.name = error?.name
-        this.message = error?.message
+    constructor(error?: unknown) {
+        if(error && error instanceof Error) {
+            this.name = error?.name
+            this.message = error?.message
+        }
     }
 }
 
