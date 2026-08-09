@@ -68,7 +68,6 @@ export const storeReadSession = (
         readContentId: readSession.contentUri,
         contentAuthorId: getDidFromUri(readSession.contentUri),
         topicId: topicId ?? undefined,
-        created_at,
         createdAt: created_at
     }
 

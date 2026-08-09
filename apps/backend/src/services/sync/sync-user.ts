@@ -585,7 +585,7 @@ export async function updateRecordsCreatedAt(ctx: AppContext) {
             ])
             .limit(bs)
             .offset(offset)
-            .orderBy("uri desc")
+            .orderBy("uri", "desc")
             .execute()
         const t2 = Date.now()
 

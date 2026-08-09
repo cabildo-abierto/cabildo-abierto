@@ -212,7 +212,7 @@ export const getTopicPolls: EffHandlerNoAuth<
             .selectFrom("Poll")
             .where("topicId", "=", topicId)
             .select(["id"])
-            .orderBy("createdAt desc")
+            .orderBy("createdAt", "desc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })

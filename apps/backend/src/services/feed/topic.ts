@@ -65,7 +65,8 @@ const getTopicMentionsSkeletonQuery: (
                     'Reference.referencingContentId as uri',
                     "Reference.referencingContentCreatedAt as createdAt"
                 ])
-                .orderBy(["likesScore desc", "Reference.referencingContentCreatedAt desc"])
+                .orderBy("likesScore", "desc")
+                .orderBy("Reference.referencingContentCreatedAt", "desc")
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -96,7 +97,8 @@ const getTopicMentionsSkeletonQuery: (
                     "Reference.referencingContentId as uri",
                     "Reference.referencingContentCreatedAt as createdAt"
                 ])
-                .orderBy(["interactionsScore desc", "Reference.referencingContentCreatedAt desc"])
+                .orderBy("interactionsScore", "desc")
+                .orderBy("Reference.referencingContentCreatedAt", "desc")
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -135,7 +137,8 @@ const getTopicMentionsSkeletonQuery: (
                     'Record.uri',
                     "Record.createdAt as createdAt"
                 ])
-                .orderBy(["relativePopularityScore desc", "Content.createdAt desc"])
+                .orderBy("relativePopularityScore", "desc")
+                .orderBy("Content.createdAt", "desc")
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -335,7 +338,7 @@ export const getAllTopicEditsFeed: EffHandlerNoAuth<{
                     .selectFrom("TopicVersion")
                     .innerJoin("Record", "Record.uri", "TopicVersion.uri")
                     .select(["TopicVersion.uri", "Record.createdAt"])
-                    .orderBy("Record.createdAt desc")
+                    .orderBy("Record.createdAt", "desc")
                     .limit(25)
                     .$if(cursor != null, qb => qb.where("Record.createdAt", "<", new Date(cursor!)))
                     .execute(),

@@ -154,7 +154,7 @@ const fetchVersionsData = (
                 "r.createdAt"
             ])
             .where("t.id", "in", topicIds)
-            .orderBy("r.createdAt asc")
+            .orderBy("r.createdAt", "asc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })

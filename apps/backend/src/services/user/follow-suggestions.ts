@@ -109,7 +109,8 @@ const getRecommendationRankingForUser = (
                 `.as("score")
             ])
             .groupBy(["Candidate.did"])
-            .orderBy(["score desc", "Candidate.did asc"])
+            .orderBy("score", "desc")
+            .orderBy("Candidate.did", "asc")
             .limit(300)
             .execute(),
         catch: (error) => new DBSelectError(error)

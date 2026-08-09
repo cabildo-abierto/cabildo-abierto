@@ -39,7 +39,7 @@ export function searchUsersInCA(ctx: AppContext, query: string, limit: number): 
                 eb(sql<number>`similarity(${eb.ref('User.displayName')}::text, ${eb.val(query)}::text)`, ">=", MIN_SIMILARITY_THRESHOLD),
                 eb(sql<number>`similarity(${eb.ref('User.handle')}::text, ${eb.val(query)}::text)`, ">=", MIN_SIMILARITY_THRESHOLD)
             ]))
-            .orderBy("match_score desc")
+            .orderBy("match_score", "desc")
             .limit(limit)
             .execute(),
         catch: (error) => new DBSelectError(error)

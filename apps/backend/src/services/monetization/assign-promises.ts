@@ -217,7 +217,7 @@ class PromiseAssigner {
                 "ReadVersion.uri as readVersion",
                 "TopicVersion.monetizedContribution"
             ])
-            .orderBy("Record.createdAt asc")
+            .orderBy("Record.createdAt", "asc")
             .whereRef("Record.createdAt", "<=", "ReadVersionRecord.createdAt")
             .where("TopicVersion.accepted", "=", true)
             .execute()
@@ -278,7 +278,7 @@ export async function assignPromises(ctx: AppContext) {
                 .select([
                     "AssignedPayment.contentId"
                 ])
-                .orderBy("AssignedPayment.createdAt asc")
+                .orderBy("AssignedPayment.createdAt", "asc")
             ).as("confirmedPayments")
         ])
         .where("UserMonth.wasActive", "=", true)

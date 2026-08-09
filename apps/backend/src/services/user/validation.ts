@@ -108,7 +108,7 @@ export const getValidationRequest: CAHandler<{}, { type: "org" | "persona" | nul
         .selectFrom("ValidationRequest")
         .select(["type", "result", "dniFrente"])
         .where("userId", "=", agent.did)
-        .orderBy("ValidationRequest.createdAt desc")
+        .orderBy("ValidationRequest.createdAt", "desc")
         .executeTakeFirst()
 
     if(!res) return {data: {type: null}}

@@ -1272,7 +1272,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                         .innerJoin("Record", "Record.uri", "PollVote.uri")
                         .whereRef("PollVote.pollId", "=", "Poll.id")
                         .select(["PollVote.choice", "PollVote.uri"])
-                        .orderBy("createdAt desc")
+                        .orderBy("createdAt", "desc")
                     ).as("votes")
                 ])
                 .where("id", "in", ids)

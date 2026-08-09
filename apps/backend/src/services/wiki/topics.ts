@@ -134,17 +134,17 @@ export function getTopics(
                 .$if(
                     sortedBy == "popular" && (time == "all" || time == "month"),
                     qb => qb
-                        .orderBy("popularityScoreLastMonth desc")
-                        .orderBy("lastEdit desc")
+                        .orderBy("popularityScoreLastMonth", "desc")
+                        .orderBy("lastEdit", "desc")
                 )
                 .$if(sortedBy == "popular" && time == "week", qb => qb
-                    .orderBy("popularityScoreLastWeek desc")
-                    .orderBy("lastEdit desc"))
+                    .orderBy("popularityScoreLastWeek", "desc")
+                    .orderBy("lastEdit", "desc"))
                 .$if(sortedBy == "popular" && time == "day", qb => qb
-                    .orderBy("popularityScoreLastDay desc")
-                    .orderBy("lastEdit desc"))
+                    .orderBy("popularityScoreLastDay", "desc")
+                    .orderBy("lastEdit", "desc"))
                 .$if(sortedBy == "recent", qb => qb
-                    .orderBy("lastEdit desc"))
+                    .orderBy("lastEdit", "desc"))
                 .limit(limit)
                 .execute()
         }),
@@ -433,7 +433,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                         "ReactionAuthor.editorStatus"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.createdAt desc")
+                    .orderBy("ReactionRecord.createdAt", "desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])

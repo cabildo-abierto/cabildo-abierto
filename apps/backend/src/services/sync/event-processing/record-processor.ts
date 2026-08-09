@@ -214,7 +214,11 @@ export const addRecordsToDBBatch = (
                         collection: eb.ref('excluded.collection'),
                         createdAt: eb.ref('excluded.createdAt'),
                         authorId: eb.ref('excluded.authorId'),
-                        record: eb.ref('excluded.record')
+                        record: eb.ref('excluded.record'),
+                        lastUpdatedAt: eb.ref('excluded.lastUpdatedAt'),
+                        editedAt: eb.case()
+                            .when("Record.cid", "!=", eb.ref("excluded.cid"))
+                            .then(new Date()).else(eb.ref("Record.editedAt")).end()
                     }))
                 )
                 .execute(),
@@ -294,5 +298,4 @@ export const processDirtyRecordsBatch = (
         catch: (e) => new DBInsertError(e)
     })
 })
-
 

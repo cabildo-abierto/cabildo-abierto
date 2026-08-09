@@ -65,7 +65,7 @@ export async function createUserMonths(ctx: AppContext) {
                 .select([
                     "monthEnd"
                 ])
-                .orderBy("monthStart desc")
+                .orderBy("monthStart", "desc")
             ).as("months"),
             eb => jsonArrayFrom(eb
                 .selectFrom("ValidationRequest")
@@ -75,7 +75,7 @@ export async function createUserMonths(ctx: AppContext) {
                 .select([
                     "createdAt"
                 ])
-                .orderBy("createdAt asc")
+                .orderBy("createdAt", "asc")
             ).as("validations")
         ])
         .where("User.userValidationHash", "is not", null)

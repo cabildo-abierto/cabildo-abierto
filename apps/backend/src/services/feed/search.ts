@@ -68,7 +68,7 @@ const getSearchContentsSkeleton: (q: string, kind: "Publicaciones" | "Artículos
                         ${cleanText(q) + ":*"}
                         )`)
                         .select("SearchableContent.uri")
-                        .orderBy("SearchableContent.createdAt desc")
+                        .orderBy("SearchableContent.createdAt", "desc")
                         .limit(25)
                         .execute()
                 } else {
@@ -79,7 +79,7 @@ const getSearchContentsSkeleton: (q: string, kind: "Publicaciones" | "Artículos
                         ${cleanText(q)}
                         )`)
                         .select("SearchableContent.uri")
-                        .orderBy("SearchableContent.createdAt desc")
+                        .orderBy("SearchableContent.createdAt", "desc")
                         .limit(25)
                         .execute()
                 }

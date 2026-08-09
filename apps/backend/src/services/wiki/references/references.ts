@@ -514,7 +514,7 @@ export const updateDiscoverFeedIndex = (
                         .select(["TopicVersion.props"])
                     ).as("mentionedTopicsProps")
                 ])
-                .orderBy("Record.createdAt desc")
+                .orderBy("Record.createdAt", "desc")
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })

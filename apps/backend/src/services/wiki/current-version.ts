@@ -160,7 +160,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                         "ReactionAuthor.editorStatus"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.createdAt desc")
+                    .orderBy("ReactionRecord.createdAt", "desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])

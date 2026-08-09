@@ -81,7 +81,8 @@ const getEnDiscusionSkeletonQuery: (
                     "Content.createdAt as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
-                .orderBy(["likesScore desc", "Content.createdAt desc"])
+                .orderBy("likesScore", "desc")
+                .orderBy("Content.createdAt", "desc")
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -112,7 +113,8 @@ const getEnDiscusionSkeletonQuery: (
                 ])
                 .where("Content.caModeration", "=", "Ok")
                 .where("interactionsScore", "is not", null)
-                .orderBy(["interactionsScore desc", "Content.createdAt desc"])
+                .orderBy("interactionsScore", "desc")
+                .orderBy("Content.createdAt", "desc")
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -141,7 +143,8 @@ const getEnDiscusionSkeletonQuery: (
                     "Record.createdAt as createdAt"
                 ])
                 .where("Content.caModeration", "=", "Ok")
-                .orderBy(["relativePopularityScore desc", "Content.createdAt desc"])
+                .orderBy("relativePopularityScore", "desc")
+                .orderBy("Content.createdAt", "desc")
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -162,7 +165,7 @@ const getEnDiscusionSkeletonQuery: (
                 .innerJoin('Content', 'Record.uri', 'Content.uri')
                 .where(sql<boolean>`"Content"."selfLabels" @> ARRAY[${label}]::text[]`)
                 .orderBy("Record.authorId")
-                .orderBy("Record.createdAt desc")
+                .orderBy("Record.createdAt", "desc")
                 .distinctOn("Record.authorId")
                 .where("Content.caModeration", "=", "Ok")
                 .select([
