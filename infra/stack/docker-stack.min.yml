@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  web:
+    image: ${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is required}/web:prod-latest
+    env_file:
+      - /etc/cabildo/web.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: ingress
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 320M
+
+  docmost:
+    image: docmost/docmost:latest
+    env_file:
+      - /etc/cabildo/docmost.env
+    volumes:
+      - docmost_storage:/app/data/storage
+    ports:
+      - target: 3000
+        published: 3100
+        protocol: tcp
+        mode: ingress
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 384M
+
+  docmost-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - docmost_redis_data:/data
+    networks:
+      - cabildo
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: 128M
+
+volumes:
+  docmost_storage:
+  docmost_redis_data:
+
+networks:
+  cabildo:
+    driver: overlay
