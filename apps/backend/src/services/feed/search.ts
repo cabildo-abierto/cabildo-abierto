@@ -26,7 +26,7 @@ function searchTopicsByText(ctx: AppContext, q: string) {
                     ${cleanText(q) + ":*"}
                     )`)
                     .select(["SearchableContent.uri", "topicId"])
-                    .orderBy("SearchableContent.created_at desc")
+                    .orderBy("SearchableContent.createdAt", "desc")
                     .limit(25)
                     .execute()
             } else {
@@ -39,7 +39,7 @@ function searchTopicsByText(ctx: AppContext, q: string) {
                     ${cleanText(q)}
                     )`)
                     .select(["SearchableContent.uri", "topicId"])
-                    .orderBy("SearchableContent.created_at desc")
+                    .orderBy("SearchableContent.createdAt", "desc")
                     .limit(25)
                     .execute()
             }
@@ -68,7 +68,7 @@ const getSearchContentsSkeleton: (q: string, kind: "Publicaciones" | "Artículos
                         ${cleanText(q) + ":*"}
                         )`)
                         .select("SearchableContent.uri")
-                        .orderBy("SearchableContent.created_at desc")
+                        .orderBy("SearchableContent.createdAt desc")
                         .limit(25)
                         .execute()
                 } else {
@@ -79,7 +79,7 @@ const getSearchContentsSkeleton: (q: string, kind: "Publicaciones" | "Artículos
                         ${cleanText(q)}
                         )`)
                         .select("SearchableContent.uri")
-                        .orderBy("SearchableContent.created_at desc")
+                        .orderBy("SearchableContent.createdAt desc")
                         .limit(25)
                         .execute()
                 }
@@ -186,18 +186,18 @@ export async function backfillSearchableContents(ctx: AppContext) {
             .selectFrom("Content")
             .select([
                 "text",
-                "created_at_tz",
+                "createdAt",
                 "uri"
             ])
             .where("text", "is not", null)
-            .where("created_at_tz", "is not", null)
+            .where("createdAt", "is not", null)
             .limit(batchSize)
             .offset(offset)
             .execute()
 
-        const values = contents.map(c => (c.created_at_tz && c.text ? {
+        const values = contents.map(c => (c.createdAt && c.text ? {
             uri: c.uri,
-            created_at: c.created_at_tz,
+            createdAt: c.createdAt,
             collection: getCollectionFromUri(c.uri),
             text: c.text
         } : null)).filter(x => x != null)

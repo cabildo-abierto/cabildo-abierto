@@ -133,7 +133,7 @@ const fetchVersionsData = (
                 "c.textBlobId",
                 "r.authorId",
                 "u.editorStatus",
-                "r.created_at_tz as created_at",
+                "r.createdAt as created_at",
                 eb => eb.fn.jsonAgg(
                     sql<{ uri: string; editorStatus: string }>`json_build_object
                     ('uri', "Reaction"."uri", 'editorStatus', "ReactionAuthor"."editorStatus")`
@@ -151,10 +151,10 @@ const fetchVersionsData = (
                 "c.textBlobId",
                 "r.authorId",
                 "u.editorStatus",
-                "r.created_at_tz"
+                "r.createdAt"
             ])
             .where("t.id", "in", topicIds)
-            .orderBy("r.created_at_tz asc")
+            .orderBy("r.createdAt asc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })

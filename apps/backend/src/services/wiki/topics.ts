@@ -121,7 +121,7 @@ export function getTopics(
                     "id",
                     "TopicVersion.uri"
                 ])
-                .where("Topic.lastEdit_tz", "is not", null)
+                .where("Topic.lastEdit", "is not", null)
                 .innerJoin("Record", "TopicVersion.uri", "Record.uri")
                 .where("Record.record", "is not", null)
                 .where("Record.cid", "is not", null)
@@ -135,16 +135,16 @@ export function getTopics(
                     sortedBy == "popular" && (time == "all" || time == "month"),
                     qb => qb
                         .orderBy("popularityScoreLastMonth desc")
-                        .orderBy("lastEdit_tz desc")
+                        .orderBy("lastEdit desc")
                 )
                 .$if(sortedBy == "popular" && time == "week", qb => qb
                     .orderBy("popularityScoreLastWeek desc")
-                    .orderBy("lastEdit_tz desc"))
+                    .orderBy("lastEdit desc"))
                 .$if(sortedBy == "popular" && time == "day", qb => qb
                     .orderBy("popularityScoreLastDay desc")
-                    .orderBy("lastEdit_tz desc"))
+                    .orderBy("lastEdit desc"))
                 .$if(sortedBy == "recent", qb => qb
-                    .orderBy("lastEdit_tz desc"))
+                    .orderBy("lastEdit desc"))
                 .limit(limit)
                 .execute()
         }),
@@ -209,7 +209,7 @@ async function countTopicsNoCategories(ctx: AppContext) {
         .select(({ fn }) => [fn.count<number>("Topic.id").as("count")])
         .where("TopicToCategory.categoryId", "is", null)
         .where("Topic.currentVersionId", "is not", null)
-        .where("Topic.lastEdit_tz", "is not", null)
+        .where("Topic.lastEdit", "is not", null)
         .execute()
 }
 
@@ -223,7 +223,7 @@ async function countTopicsInEachCategory(ctx: AppContext) {
             fn.count<number>("TopicToCategory.topicId").as("count")
         ])
         .where("Topic.currentVersionId", "is not", null)
-        .where("Topic.lastEdit_tz", "is not", null)
+        .where("Topic.lastEdit", "is not", null)
         .groupBy("TopicToCategory.categoryId")
         .execute()
 }
@@ -406,7 +406,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
             .select([
                 "Record.uri",
                 "Record.cid",
-                "Record.created_at_tz",
+                "Record.createdAt",
                 "Record.record",
                 "TopicVersion.props",
                 "Content.text",
@@ -416,7 +416,7 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                 "Topic.id",
                 "Topic.protection",
                 "Topic.popularityScore",
-                "Topic.lastEdit_tz as lastEdit",
+                "Topic.lastEdit as lastEdit",
                 "Topic.currentVersionId",
                 "User.editorStatus",
                 eb => eb
@@ -433,11 +433,11 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
                         "ReactionAuthor.editorStatus"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.created_at_tz desc")
+                    .orderBy("ReactionRecord.createdAt desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])
-            .where("Record.created_at_tz", "is not", null)
+            .where("Record.createdAt", "is not", null)
             .where("TopicVersion.uri", "=", uri)
             .where("Record.record", "is not", null)
             .where("Record.cid", "is not", null)
@@ -500,8 +500,8 @@ export const getTopicVersion = (ctx: AppContext, uri: string, viewerDid?: string
         text: transformedText,
         format: transformedFormat,
         props,
-        createdAt: topic.created_at_tz!.toISOString(),
-        lastEdit: topic.lastEdit?.toISOString() ?? topic.created_at_tz!.toISOString(),
+        createdAt: topic.createdAt!.toISOString(),
+        lastEdit: topic.lastEdit?.toISOString() ?? topic.createdAt!.toISOString(),
         currentVersion: topic.currentVersionId ?? undefined,
         record: topic.record ? JSON.parse(topic.record) : undefined,
         embeds,

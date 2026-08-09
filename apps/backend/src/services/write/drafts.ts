@@ -116,8 +116,8 @@ export const getDrafts: EffHandler<{}, DraftPreview[]> = (
         .selectFrom("Draft")
         .select([
             "id",
-            "created_at_tz as created_at",
-            "lastUpdate_tz as lastUpdate",
+            "createdAt as created_at",
+            "lastUpdate",
             "text",
             "collection",
             "title",
@@ -150,8 +150,8 @@ export const getDraft: EffHandler<{ params: { id: string } }, Draft> = (
             .selectFrom("Draft")
             .select([
                 "id",
-                "created_at_tz as created_at",
-                "lastUpdate_tz as lastUpdate",
+                "createdAt as created_at",
+                "lastUpdate",
                 "text",
                 "embeds",
                 "collection",
@@ -296,15 +296,15 @@ export const saveDraft: EffHandler<CreateDraftParams, { id: string }> = (ctx, ag
                     embeds: embeds,
                     title: params.title,
                     collection: params.collection,
-                    lastUpdate_tz: new Date(),
-                    created_at_tz: new Date(),
+                    lastUpdate: new Date(),
+                    createdAt: new Date(),
                     authorId: agent.did,
                     previewImage,
                     description: params.description
                 }])
                 .onConflict((oc) => oc.column("id").doUpdateSet({
                     collection: eb => eb.ref("excluded.collection"), // no debería cambiar pero bueno
-                    lastUpdate_tz: eb => eb.ref("excluded.lastUpdate_tz"),
+                    lastUpdate: eb => eb.ref("excluded.lastUpdate"),
                     text: eb => eb.ref("excluded.text"),
                     title: eb => eb.ref("excluded.title"),
                     embeds: sql`excluded.embeds`,

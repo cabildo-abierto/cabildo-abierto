@@ -53,7 +53,7 @@ type TopicVersionQueryResult = {
     topicId: string,
     props: unknown,
     contribution: string | null,
-    created_at_tz: Date | null
+    createdAt: Date | null
     reactions: unknown
     protection: EditorStatus
     editorStatus: EditorStatus
@@ -130,7 +130,7 @@ async function getTopicsForDashboard(ctx: AppContext, did: string): Promise<Topi
             'TopicVersion.topicId',
             'TopicVersion.contribution',
             'Topic.protection',
-            'Record.created_at_tz',
+            'Record.createdAt',
             'TopicCurrentVersion.props',
             "Author.editorStatus",
             sql`
@@ -146,12 +146,12 @@ async function getTopicsForDashboard(ctx: AppContext, did: string): Promise<Topi
                 `.as('reactions'),
             eb => eb.fn.count<number>("ReadSession.userId")
                 .distinct()
-                .filterWhereRef('ReadSession.created_at_tz', '>', 'Record.created_at_tz')
+                .filterWhereRef('ReadSession.createdAt', '>', 'Record.createdAt')
                 .filterWhereRef("ReadSession.userId", "!=", "Record.authorId")
                 .as("seenBy"),
             eb => eb.fn.count<number>("ReadSession.userId")
                 .distinct()
-                .filterWhereRef('ReadSession.created_at_tz', '>', 'Record.created_at_tz')
+                .filterWhereRef('ReadSession.createdAt', '>', 'Record.createdAt')
                 .filterWhereRef("ReadSession.userId", "!=", "Record.authorId")
                 .filterWhere("Reader.userValidationHash", "is not", null)
                 .as("seenByVerified"),
@@ -168,10 +168,10 @@ async function getTopicsForDashboard(ctx: AppContext, did: string): Promise<Topi
             'TopicCurrentVersion.props',
             "Topic.protection",
             "Author.editorStatus",
-            "Record.created_at_tz"
+            "Record.createdAt"
         ])
-        .where("Record.created_at_tz", "is not", null)
-        .orderBy("Record.created_at_tz", "asc")
+        .where("Record.createdAt", "is not", null)
+        .orderBy("Record.createdAt", "asc")
         .execute()
 }
 
@@ -224,8 +224,8 @@ async function getTopicsForDashboardQuery(ctx: AppContext, did: string): Promise
         return {
             topicId: id,
             edits_count: t.length,
-            first_edit: t[0].created_at_tz!,
-            last_edit: t[t.length - 1].created_at_tz!,
+            first_edit: t[0].createdAt!,
+            last_edit: t[t.length - 1].createdAt!,
             topicTitle: title,
             income: sum(t, x => x.income ?? 0),
             acceptedCount,
@@ -280,7 +280,7 @@ async function getArticlesForDashboardQuery(ctx: AppContext, did: string): Promi
             .select([
                 "Article.uri",
                 "Article.title",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "ReadSession.readChunks",
                 "ReadSession.userId",
                 "Reader.userValidationHash",

@@ -68,7 +68,7 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
             did: getDidFromUri(r.ref.uri),
             CAProfileUri: r.ref.uri,
             inCA: true,
-            created_at_tz: r.record.created_at ?? new Date()
+            createdAt: r.record.created_at ?? new Date()
         }
     })
 
@@ -81,7 +81,7 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
             .onConflict(oc => oc.column("did").doUpdateSet(() => ({
                 CAProfileUri: eb => eb.ref("excluded.CAProfileUri"),
                 inCA: eb => eb.ref("excluded.inCA"),
-                created_at_tz: eb => eb.ref("excluded.created_at_tz")
+                createdAt: eb => eb.ref("excluded.createdAt")
             })))
             .execute()
 
@@ -107,7 +107,7 @@ export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Rec
                 avatar?: string
                 banner?: string
                 handle?: string
-                created_at_tz: Date
+                createdAt: Date
             }[] = yield* Effect.all(records.map(({ref, record: r}) => {
                 const did = getDidFromUri(ref.uri)
                 const avatarCid = r.avatar ? getCidFromBlobRef(r.avatar) : undefined
@@ -125,7 +125,7 @@ export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Rec
                         avatar,
                         banner,
                         handle,
-                        created_at_tz: r.createdAt ? new Date(r.createdAt) : new Date()
+                        createdAt: r.createdAt ? new Date(r.createdAt) : new Date()
                     }
                 })
             }))
@@ -139,7 +139,7 @@ export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Rec
                         avatar: eb => eb.ref("excluded.avatar"),
                         banner: eb => eb.ref("excluded.banner"),
                         displayName: eb => eb.ref("excluded.displayName"),
-                        created_at_tz: eb => eb.ref("excluded.created_at_tz"),
+                        createdAt: eb => eb.ref("excluded.createdAt"),
                         description: eb => eb.ref("excluded.description")
                     })))
                     .execute(),

@@ -545,7 +545,7 @@ export function createCAUser(
             try: () => {
                 const insert = ctx.kysely.insertInto("User").values([{
                     did,
-                    created_at_tz: new Date(),
+                    createdAt: new Date(),
                     hasAccess: grantsAccess,
                     inCA: grantsAccess
                 }])
@@ -807,7 +807,7 @@ export function assignInviteCode(ctx: AppContext, did: string, inviteCode: strin
                 if (!user.code) {
                     await trx
                         .updateTable("InviteCode")
-                        .set("usedAt_tz", new Date())
+                        .set("usedAt", new Date())
                         .set("usedByDid", did)
                         .where("code", "=", inviteCode)
                         .execute()
@@ -877,8 +877,8 @@ export const getAccessRequests: CAHandler<{}, AccessRequest[]> = async (ctx) => 
         .select([
             "email",
             "comment",
-            "created_at_tz as createdAt",
-            "sentInviteAt_tz as sentInviteAt",
+            "createdAt",
+            "sentInviteAt",
             "id",
             "markedIgnored"
         ])
@@ -891,7 +891,7 @@ export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = as
     const result = await ctx.kysely
         .selectFrom("AccessRequest")
         .select(eb => eb.fn.count<number>("id").as("count"))
-        .where("sentInviteAt_tz", "is", null)
+        .where("sentInviteAt", "is", null)
         .where("markedIgnored", "=", false)
         .executeTakeFirst()
 
@@ -902,7 +902,7 @@ export const getUnsentAccessRequestsCount: CAHandler<{}, { count: number }> = as
 export const markAccessRequestSent: CAHandler<{ params: { id: string } }, {}> = async (ctx, agent, {params}) => {
     await ctx.kysely
         .updateTable("AccessRequest")
-        .set("sentInviteAt_tz", new Date())
+        .set("sentInviteAt", new Date())
         .where("id", "=", params.id)
         .execute()
 
@@ -938,14 +938,14 @@ export const getInviteCodesToShare: CAHandler<{}, { code: string }[]> = async (c
             const values: {
                 code: string
                 recommenderId: string
-                created_at: Date
+                createdAt: Date
             }[] = []
             for (let i = 0; i < 3 - allCodes.length; i++) {
                 const code = uuidv4()
                 values.push({
                     code,
                     recommenderId: agent.did,
-                    created_at: new Date()
+                    createdAt: new Date()
                 })
             }
             if (values.length > 0) {
@@ -983,7 +983,7 @@ export const assignInviteCodesToUsers = async (ctx: AppContext) => {
         const values: {
             code: string
             recommenderId: string
-            created_at: Date
+            createdAt: Date
         }[] = []
         users.forEach(u => {
             for (let i = 0; i < 3 - u.codeCount; i++) {
@@ -991,7 +991,7 @@ export const assignInviteCodesToUsers = async (ctx: AppContext) => {
                 values.push({
                     code,
                     recommenderId: u.did,
-                    created_at: new Date()
+                    createdAt: new Date()
                 })
             }
         })

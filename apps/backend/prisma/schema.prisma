@@ -14,12 +14,10 @@ datasource db {
 
 model AccessRequest {
   id              String      @id
-  created_at      DateTime    @default(now())
-  created_at_tz   DateTime    @default(now()) @db.Timestamptz(3)
+  createdAt       DateTime    @default(now()) @db.Timestamptz(3)
   email           String
   comment         String
-  sentInviteAt    DateTime?
-  sentInviteAt_tz DateTime?   @db.Timestamptz(3)
+  sentInviteAt    DateTime?   @db.Timestamptz(3)
   inviteCodeId    String?     @unique
   InviteCode      InviteCode? @relation(fields: [inviteCodeId], references: [code])
   markedIgnored   Boolean     @default(false)
@@ -74,8 +72,7 @@ model Content {
   selfLabels              String[]
   embeds                  Json[]
   dbFormat                String?
-  created_at              DateTime                 @default(now())
-  created_at_tz           DateTime?                @default(now()) @db.Timestamptz(3)
+  createdAt               DateTime?                @default(now()) @db.Timestamptz(3)
   interactionsScore       Int?
   likesScore              Int?
   relativePopularityScore Float?
@@ -97,10 +94,10 @@ model Content {
   searchableContent SearchableContent?
 
   @@index([text_tsv], map: "content_text_fts_idx", type: Gin)
-  @@index([created_at_tz(sort: Desc)])
-  @@index([interactionsScore(sort: Desc), created_at_tz(sort: Desc)])
-  @@index([likesScore(sort: Desc), created_at_tz(sort: Desc)])
-  @@index([relativePopularityScore(sort: Desc), created_at_tz(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([interactionsScore(sort: Desc), createdAt(sort: Desc)])
+  @@index([likesScore(sort: Desc), createdAt(sort: Desc)])
+  @@index([relativePopularityScore(sort: Desc), createdAt(sort: Desc)])
 }
 
 model SearchableContent {
@@ -108,11 +105,11 @@ model SearchableContent {
   content    Content                  @relation(fields: [uri], references: [uri], onDelete: Cascade)
   text       String
   collection String
-  created_at DateTime                 @db.Timestamptz(3)
+  createdAt  DateTime                 @db.Timestamptz(3)
   text_tsv   Unsupported("tsvector")? @default(dbgenerated())
 
-  @@index([collection, created_at(desc)])
-  @@index([created_at(desc)])
+  @@index([collection, createdAt(desc)])
+  @@index([createdAt(desc)])
 }
 
 model DataBlock {
@@ -136,8 +133,7 @@ model Dataset {
 model Donation {
   id             String   @id
   userById       String?
-  created_at     DateTime @default(now())
-  created_at_tz  DateTime @default(now()) @db.Timestamptz(3)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
   transactionId  String?
   amount         Int
   mpPreferenceId String?  @unique
@@ -148,10 +144,8 @@ model Donation {
 
 model Draft {
   id            String   @id
-  created_at    DateTime @default(now())
-  created_at_tz DateTime @default(now()) @db.Timestamptz(3)
-  lastUpdate    DateTime @default(now())
-  lastUpdate_tz DateTime @default(now()) @db.Timestamptz(3)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  lastUpdate    DateTime @default(now()) @db.Timestamptz(3)
   authorId      String
   collection    String
   embeds        Json?
@@ -192,11 +186,9 @@ model HasReacted {
 model InviteCode {
   code                                String         @id
   usedByDid                           String?        @unique
-  usedAt                              DateTime?
-  usedAt_tz                           DateTime?      @db.Timestamptz(3)
+  usedAt                              DateTime?      @db.Timestamptz(3)
   recommenderId                       String?
-  created_at                          DateTime       @default(now())
-  created_at_tz                       DateTime       @default(now()) @db.Timestamptz(3)
+  createdAt                           DateTime       @default(now()) @db.Timestamptz(3)
   AccessRequest                       AccessRequest?
   User_InviteCode_recommenderIdToUser User?          @relation("InviteCode_recommenderIdToUser", fields: [recommenderId], references: [did])
   User_InviteCode_usedByDidToUser     User?          @relation("InviteCode_usedByDidToUser", fields: [usedByDid], references: [did])
@@ -224,8 +216,7 @@ model InviteCodeUsedBy {
 
 model Meeting {
   id          String    @id
-  date        DateTime?
-  date_tz     DateTime  @db.Timestamptz(3)
+  date        DateTime  @db.Timestamptz(3)
   title       String
   url         String
   description String
@@ -253,8 +244,7 @@ model Notification {
   causedByRecordId String
   message          String?
   moreContext      String?
-  created_at       DateTime         @default(now())
-  created_at_tz    DateTime         @default(now()) @db.Timestamptz(3)
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
   reasonSubject    String?
   Record           Record           @relation(fields: [causedByRecordId], references: [uri])
   User             User             @relation(fields: [userNotifiedId], references: [did])
@@ -265,8 +255,7 @@ model Notification {
 
 model PaymentPromise {
   id            String        @id
-  created_at    DateTime      @default(now())
-  created_at_tz DateTime      @default(now()) @db.Timestamptz(3)
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
   amount        Float
   status        PromiseStatus @default(Pending)
   contentId     String
@@ -317,8 +306,7 @@ model Reaction {
 model ReadSession {
   id                                     String   @id
   userId                                 String
-  created_at                             DateTime @default(now())
-  created_at_tz                          DateTime @default(now()) @db.Timestamptz(3)
+  createdAt                              DateTime @default(now()) @db.Timestamptz(3)
   readContentId                          String?
   readChunks                             Json
   contentAuthorId                        String
@@ -330,8 +318,8 @@ model ReadSession {
 
   @@index([readContentId])
   @@index([userId])
-  @@index([userId, created_at_tz])
-  @@index([created_at_tz])
+  @@index([userId, createdAt])
+  @@index([createdAt])
 }
 
 model Record {
@@ -339,19 +327,16 @@ model Record {
   collection         String
   rkey               String
   authorId           String
-  created_at         DateTime  @default(now())
-  created_at_tz      DateTime? @default(now()) @db.Timestamptz(3)
+  createdAt          DateTime? @default(now()) @db.Timestamptz(3)
   record             String?
   cid                String?
   uniqueLikesCount   Int       @default(0)
   uniqueRepostsCount Int       @default(0)
   uniqueAcceptsCount Int       @default(0)
   uniqueRejectsCount Int       @default(0)
-  CAIndexedAt        DateTime  @default(now())
-  CAIndexedAt_tz     DateTime? @default(now()) @db.Timestamptz(3)
+  caIndexedAt        DateTime? @default(now()) @db.Timestamptz(3)
 
-  lastUpdatedAt    DateTime  @default(now())
-  lastUpdatedAt_tz DateTime? @default(now()) @db.Timestamptz(3)
+  lastUpdatedAt    DateTime? @default(now()) @db.Timestamptz(3)
 
   editedAt DateTime? @db.Timestamptz(3)
 
@@ -382,11 +367,11 @@ model Record {
 
   bskyProfileFor User?
 
-  @@index([authorId, collection, created_at_tz(sort: Desc)])
-  @@index([authorId, created_at_tz(sort: Desc)])
-  @@index([collection, authorId, created_at_tz(sort: Desc)])
-  @@index([collection, created_at_tz(sort: Desc)])
-  @@index([created_at_tz(sort: Desc)])
+  @@index([authorId, collection, createdAt(sort: Desc)])
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([collection, authorId, createdAt(sort: Desc)])
+  @@index([collection, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
 }
 
 model Reference {
@@ -402,8 +387,7 @@ model Reference {
 
   interactions TopicInteraction[]
 
-  touched    DateTime?
-  touched_tz DateTime? @db.Timestamptz(3)
+  touched    DateTime? @db.Timestamptz(3)
 
   @@unique([referencingContentId, referencedTopicId])
   @@index([referencingContentId, referencedTopicId])
@@ -417,8 +401,7 @@ model Topic {
   protection                                        EditorStatus      @default(Beginner)
   currentVersionId                                  String?           @unique
   popularityScore                                   Int?              @default(1)
-  lastEdit                                          DateTime?
-  lastEdit_tz                                       DateTime?         @db.Timestamptz(3)
+  lastEdit                                          DateTime?         @db.Timestamptz(3)
   popularityScoreLastDay                            Int               @default(0)
   popularityScoreLastMonth                          Int               @default(0)
   popularityScoreLastWeek                           Int               @default(0)
@@ -431,10 +414,10 @@ model Topic {
 
   polls Poll[]
 
-  @@index([lastEdit_tz(sort: Desc)])
-  @@index([popularityScoreLastDay(sort: Desc), lastEdit_tz(sort: Desc)])
-  @@index([popularityScoreLastMonth(sort: Desc), lastEdit_tz(sort: Desc)])
-  @@index([popularityScoreLastWeek(sort: Desc), lastEdit_tz(sort: Desc)])
+  @@index([lastEdit(sort: Desc)])
+  @@index([popularityScoreLastDay(sort: Desc), lastEdit(sort: Desc)])
+  @@index([popularityScoreLastMonth(sort: Desc), lastEdit(sort: Desc)])
+  @@index([popularityScoreLastWeek(sort: Desc), lastEdit(sort: Desc)])
 }
 
 // categoría de temas, con sus links con otras categorías para el grafo
@@ -456,8 +439,7 @@ model TopicInteraction {
   referenceId String
   Reference   Reference @relation(fields: [referenceId], references: [id], onDelete: Cascade)
 
-  touched    DateTime?
-  touched_tz DateTime? @db.Timestamptz(3)
+  touched    DateTime? @db.Timestamptz(3)
 
   @@unique([recordId, referenceId])
   @@index([referenceId])
@@ -530,7 +512,7 @@ model FollowingFeedIndex {
   // artículo o post (en caso de ser repost es la collection del contenido)
   collection Collection
 
-  created_at DateTime @db.Timestamptz(3)
+  createdAt DateTime @db.Timestamptz(3)
 
   authorInCA Boolean
 
@@ -539,11 +521,11 @@ model FollowingFeedIndex {
   root   Record @relation("root", fields: [rootId], references: [uri])
 
   @@id([readerId, contentId])
-  @@index([readerId, collection, authorInCA, created_at(sort: Desc)])
+  @@index([readerId, collection, authorInCA, createdAt(sort: Desc)])
   @@index([rootId])
-  @@index([readerId, rootId, created_at(sort: Desc)])
+  @@index([readerId, rootId, createdAt(sort: Desc)])
   @@index([authorId])
-  @@index([readerId, created_at(sort: Desc)])
+  @@index([readerId, createdAt(sort: Desc)])
   @@index([repostedContentId]) // para borrar records más eficientemente
   @@index([contentId])
 }
@@ -553,10 +535,10 @@ model DiscoverFeedIndex {
   content    Content       @relation(fields: [contentId], references: [uri])
   categoryId String
   Category   TopicCategory @relation(fields: [categoryId], references: [id])
-  created_at DateTime      @db.Timestamptz(3)
+  createdAt  DateTime      @db.Timestamptz(3)
 
   @@id([contentId, categoryId])
-  @@index([categoryId, created_at(sort: Desc)])
+  @@index([categoryId, createdAt(sort: Desc)])
 }
 
 model User {
@@ -565,8 +547,7 @@ model User {
   email              String?
   emailVerified      Boolean                  @default(false)
   mailingListSubs    MailingListSubscription?
-  created_at         DateTime                 @default(now())
-  created_at_tz      DateTime?                @default(now()) @db.Timestamptz(3)
+  createdAt          DateTime?                @default(now()) @db.Timestamptz(3)
   editorStatus       EditorStatus             @default(Beginner)
   hasAccess          Boolean                  @default(false)
   dateOfBirth        DateTime?                @db.Date
@@ -631,7 +612,7 @@ model User {
   userConfigValues UserConfigValue[]
 
   @@index([CAProfileUri])
-  @@index([created_at_tz])
+  @@index([createdAt])
   @@index([did, inCA])
   @@index([handle])
   @@index([inCA, did])
@@ -673,7 +654,7 @@ model UserMonth {
 
 model AssignedPayment {
   id         String        @id
-  created_at DateTime      @default(now()) @db.Timestamptz(3)
+  createdAt  DateTime      @default(now()) @db.Timestamptz(3)
   amount     Float
   status     PromiseStatus @default(Pending)
 
@@ -697,8 +678,7 @@ model ValidationRequest {
   email         String?
   sitioWeb      String?
   tipoOrg       String?
-  created_at    DateTime                @default(now())
-  created_at_tz DateTime                @default(now()) @db.Timestamptz(3)
+  createdAt     DateTime                @default(now()) @db.Timestamptz(3)
   rejectReason  String?
   result        ValidationRequestResult @default(Pendiente)
   User          User                    @relation(fields: [userId], references: [did])
@@ -716,8 +696,7 @@ model VoteReject {
 
 model Timestamps {
   id      String    @id
-  date    DateTime?
-  date_tz DateTime? @db.Timestamptz(3)
+  date    DateTime? @db.Timestamptz(3)
 }
 
 model EventType {
@@ -742,7 +721,7 @@ model Event {
 
 model JobApplication {
   id         String   @id
-  created_at DateTime @default(now()) @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
   name       String
   email      String
   comment    String
@@ -772,7 +751,7 @@ model EmailSent {
   id          String                  @id @default(cuid())
   recipientId String
   recipient   MailingListSubscription @relation(fields: [recipientId], references: [id])
-  sent_at     DateTime                @default(now()) @db.Timestamptz(3)
+  sentAt      DateTime                @default(now()) @db.Timestamptz(3)
   text        String
   html        String
   subject     String
@@ -791,8 +770,8 @@ model EmailTemplate {
   subject    String
   html       String
   text       String
-  created_at DateTime    @default(now()) @db.Timestamptz(3)
-  updated_at DateTime    @updatedAt @db.Timestamptz(3)
+  createdAt  DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime    @updatedAt @db.Timestamptz(3)
   emailsSent EmailSent[]
 }
 
@@ -857,9 +836,9 @@ model ModerationAction {
   userAffectedId String
   userAffected   User                 @relation(fields: [userAffectedId], references: [did])
   type           ModerationActionType
-  created_at     DateTime             @default(now()) @db.Timestamptz(3)
-  date_start     DateTime             @default(now()) @db.Timestamptz(3)
-  date_end       DateTime?            @db.Timestamptz(3)
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  dateStart      DateTime             @default(now()) @db.Timestamptz(3)
+  dateEnd        DateTime?            @db.Timestamptz(3)
 
   @@index([userAffectedId])
 }
@@ -872,8 +851,8 @@ model RecordModerationProcess {
   id            String                   @id
   recordId      String?                  @unique
   record        Record?                  @relation(fields: [recordId], references: [uri])
-  created_at    DateTime                 @default(now()) @db.Timestamptz(3)
-  processed_at  DateTime?
+  createdAt     DateTime                 @default(now()) @db.Timestamptz(3)
+  processedAt   DateTime?
   result        ContentModerationStatus?
   processedById String?
   processedBy   User?                    @relation(fields: [processedById], references: [did])

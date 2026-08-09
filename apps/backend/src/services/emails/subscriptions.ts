@@ -69,7 +69,7 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
         .select([
             "EmailSent.id",
             "MailingListSubscription.email",
-            "EmailSent.sent_at",
+            "EmailSent.sentAt",
             "EmailSent.subject",
             "EmailSent.html",
             "EmailSent.text",
@@ -77,7 +77,7 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
             "EmailSent.from",
             "EmailTemplate.name as templateName"
         ])
-        .orderBy("EmailSent.sent_at", "desc")
+        .orderBy("EmailSent.sentAt", "desc")
         .execute()
 
     // Group by template name
@@ -91,7 +91,7 @@ export const getSentEmails: CAHandler<{}, SentEmailsResponse> = async (ctx) => {
         emailsByTemplate[templateName].push({
             id: email.id,
             recipientEmail: email.email,
-            sentAt: email.sent_at.toISOString(),
+            sentAt: email.sentAt.toISOString(),
             subject: email.subject,
             html: email.html,
             text: email.text,

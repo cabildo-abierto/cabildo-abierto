@@ -15,7 +15,7 @@ type FollowingFeedIndexUpdate = {
     readerId: string
     collection: CollectionEnum
     authorInCA: boolean
-    created_at: Date
+    createdAt: Date
     rootId: string
     authorId: string
 }
@@ -47,7 +47,7 @@ export class FeedIndexUpdater {
             .leftJoin("Record as RootRecord", "RootRecord.uri", "Post.rootId")
             .leftJoin("User as RootAuthor", "RootAuthor.did", "RootRecord.authorId")
             .where(eb => eb.or([
-                eb("Record.created_at_tz", ">", since),
+                eb("Record.createdAt", ">", since),
                 eb("Record.collection", "=", "ar.cabildoabierto.feed.article")
             ]))
             .where("User.did", "in", authorIds)
@@ -58,11 +58,11 @@ export class FeedIndexUpdater {
             .select([
                 "Record.uri",
                 "Record.collection",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "User.inCA",
                 "Post.rootId"
             ])
-            .orderBy("Record.created_at_tz", "asc")
+            .orderBy("Record.createdAt", "asc")
             .execute()
 
         const readers = Array.from(followersMap.values()).flatMap(f => Array.from(f))
@@ -93,7 +93,7 @@ export class FeedIndexUpdater {
                                 readerId,
                                 collection: getCollectionEnumFromUri(r.uri),
                                 authorInCA: r.inCA,
-                                created_at: r.created_at,
+                                createdAt: r.created_at,
                                 rootId,
                                 authorId
                             })
@@ -115,7 +115,7 @@ export class FeedIndexUpdater {
             .leftJoin("Content as RepostedRecordContent", "RepostedRecordContent.uri", "RepostedRecord.uri")
             .leftJoin("Post", "Post.uri", "RepostedRecord.uri")
             .where(eb => eb.or([
-                eb("Record.created_at_tz", ">", since),
+                eb("Record.createdAt", ">", since),
                 eb("Record.collection", "=", "ar.cabildoabierto.feed.article")
             ]))
             .where("User.did", "in", authorIds)
@@ -124,12 +124,12 @@ export class FeedIndexUpdater {
             .select([
                 "Record.uri",
                 "Record.collection",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "RepostedRecord.uri as repostedContentId",
                 "User.inCA",
                 "Post.rootId"
             ])
-            .orderBy("Record.created_at_tz", "asc")
+            .orderBy("Record.createdAt", "asc")
             .execute()
 
         const values: FollowingFeedIndexUpdate[] = []
@@ -144,7 +144,7 @@ export class FeedIndexUpdater {
                             readerId,
                             collection: getCollectionEnumFromUri(r.repostedContentId),
                             authorInCA: r.inCA,
-                            created_at: r.created_at,
+                            createdAt: r.created_at,
                             rootId: r.rootId ?? r.repostedContentId,
                             authorId: getDidFromUri(r.uri)
                         })
@@ -284,7 +284,7 @@ export class FeedIndexUpdater {
             .select([
                 "Record.uri",
                 "Record.collection",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "RepostedRecord.uri as repostedContentId",
                 "User.inCA",
                 "Post.rootId",
@@ -300,7 +300,7 @@ export class FeedIndexUpdater {
                     readerId: getDidFromUri(r.followUri),
                     collection: getCollectionEnumFromUri(r.repostedContentId),
                     authorInCA: r.inCA,
-                    created_at: r.created_at,
+                    createdAt: r.created_at,
                     rootId: r.rootId ?? r.repostedContentId,
                     authorId: getDidFromUri(r.uri)
                 }
@@ -317,7 +317,7 @@ export class FeedIndexUpdater {
                     readerId: getDidFromUri(r.uri),
                     collection: getCollectionEnumFromUri(r.repostedContentId),
                     authorInCA: r.inCA,
-                    created_at: r.created_at,
+                    createdAt: r.created_at,
                     rootId: r.rootId ?? r.repostedContentId,
                     authorId: getDidFromUri(r.uri)
                 })
@@ -356,7 +356,7 @@ export class FeedIndexUpdater {
             .select([
                 "Record.uri",
                 "Record.collection",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "User.inCA",
                 "Post.rootId",
                 "Follow.uri as followUri",
@@ -371,7 +371,7 @@ export class FeedIndexUpdater {
                     readerId: getDidFromUri(r.followUri),
                     collection: getCollectionEnumFromUri(r.uri),
                     authorInCA: r.inCA,
-                    created_at: r.created_at,
+                    createdAt: r.created_at,
                     rootId: r.rootUri ?? r.uri,
                     authorId: getDidFromUri(r.uri),
                     repostedContentId: null,
@@ -387,7 +387,7 @@ export class FeedIndexUpdater {
                     readerId: getDidFromUri(r.uri),
                     collection: getCollectionEnumFromUri(r.uri),
                     authorInCA: r.inCA,
-                    created_at: r.created_at,
+                    createdAt: r.created_at,
                     rootId: r.rootUri ?? r.uri,
                     authorId: getDidFromUri(r.uri),
                     repostedContentId: null,
@@ -416,7 +416,7 @@ export class FeedIndexUpdater {
             .select([
                 "Record.uri",
                 "Record.collection",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "User.inCA",
                 "Follow.uri as followUri"
             ])
@@ -429,7 +429,7 @@ export class FeedIndexUpdater {
                     readerId: getDidFromUri(r.followUri),
                     collection: getCollectionEnumFromUri(r.uri),
                     authorInCA: r.inCA,
-                    created_at: r.created_at,
+                    createdAt: r.created_at,
                     rootId: r.uri,
                     authorId: getDidFromUri(r.uri),
                     repostedContentId: null
@@ -445,7 +445,7 @@ export class FeedIndexUpdater {
                     readerId: getDidFromUri(r.uri),
                     collection: getCollectionEnumFromUri(r.uri),
                     authorInCA: r.inCA,
-                    created_at: r.created_at,
+                    createdAt: r.created_at,
                     rootId: r.uri,
                     authorId: getDidFromUri(r.uri),
                     repostedContentId: null
@@ -488,7 +488,7 @@ export class FeedIndexUpdater {
             .deleteFrom("FollowingFeedIndex as A")
             .where(eb => eb.exists(eb.selectFrom("FollowingFeedIndex as B")
                 .whereRef("A.rootId", "=", "B.rootId")
-                .whereRef("B.created_at", ">", "A.created_at")
+                .whereRef("B.createdAt", ">", "A.createdAt")
                 .whereRef("A.readerId", "=", "B.readerId")
                 .$if(readersId != null, qb => qb.where("B.readerId", "in", readersId!))
             ))

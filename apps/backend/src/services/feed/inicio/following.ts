@@ -77,12 +77,12 @@ export const getArticlesForFollowingFeed = (
             .where("FollowingFeedIndex.collection", "=", "ArCabildoabiertoFeedArticle")
             .where("readerId", "=", agent.did)
             .select([
-                "FollowingFeedIndex.created_at",
+                "FollowingFeedIndex.createdAt as created_at",
                 "FollowingFeedIndex.contentId",
                 "FollowingFeedIndex.repostedContentId"
             ])
-            .where("FollowingFeedIndex.created_at", "<", startDate)
-            .orderBy("FollowingFeedIndex.created_at", "desc")
+            .where("FollowingFeedIndex.createdAt", "<", startDate)
+            .orderBy("FollowingFeedIndex.createdAt", "desc")
             .limit(25)
             .execute(),
         catch: (error) => new DBSelectError(error)
@@ -273,12 +273,12 @@ async function followingFeedOnlyCABaseQueryAll(ctx: AppContext, agent: SessionAg
         .select([
             "contentId",
             "repostedContentId",
-            "created_at"
+            "createdAt as created_at"
         ])
         .where("readerId", "=", agent.did)
         .where("authorInCA", "=", true)
-        .$if(cursor != null, qb => qb.where("created_at", "<", new Date(cursor!)))
-        .orderBy("created_at desc")
+        .$if(cursor != null, qb => qb.where("createdAt", "<", new Date(cursor!)))
+        .orderBy("createdAt", "desc")
         .limit(limit)
         .execute()
 }
@@ -290,13 +290,13 @@ async function followingFeedOnlyCABaseQueryArticles(ctx: AppContext, agent: Sess
         .select([
             "contentId",
             "repostedContentId",
-            "created_at"
+            "createdAt as created_at"
         ])
         .where("readerId", "=", agent.did)
         .where("authorInCA", "=", true)
         .where("collection", "=", "ArCabildoabiertoFeedArticle")
-        .$if(cursor != null, qb => qb.where("created_at", "<", new Date(cursor!)))
-        .orderBy("created_at desc")
+        .$if(cursor != null, qb => qb.where("createdAt", "<", new Date(cursor!)))
+        .orderBy("createdAt", "desc")
         .limit(limit)
         .execute()
 }

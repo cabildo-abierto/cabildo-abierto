@@ -43,11 +43,11 @@ export const updateContentsText = (
                     "Record.record",
                     "Content.format",
                     "Content.text",
-                    "Record.created_at_tz"
+                    "Record.createdAt"
                 ])
                 .where("Record.collection", "in", longTextCollections)
                 .where("text", "is", null)
-                .orderBy("Record.created_at_tz", "desc")
+                .orderBy("Record.createdAt", "desc")
                 .$if(uris == null, qb => qb.limit(batchSize).offset(offset))
                 .$if(uris != null, qb => qb.where("Record.uri", "in", uris!.slice(offset, offset + batchSize)))
                 .execute(),
@@ -70,10 +70,10 @@ export const updateContentsText = (
 
 const setContentsText = (
     ctx: AppContext,
-    contents: {uri: string, created_at_tz: Date | null}[],
+    contents: {uri: string, createdAt: Date | null}[],
     texts: (TextAndFormat | null)[]
 ): Effect.Effect<void, DBSelectError> => Effect.gen(function* () {
-    contents = contents.filter(x => x.created_at_tz != null)
+    contents = contents.filter(x => x.createdAt != null)
     const uris = contents.map(c => c.uri)
 
     const values: {
@@ -82,10 +82,10 @@ const setContentsText = (
         embeds: any[]
         dbFormat: string
         text: string
-        created_at_tz: Date
+        createdAt: Date
     }[] = texts.map((t, idx) => {
-        const created_at_tz = contents[idx].created_at_tz
-        if(!created_at_tz) return null
+        const createdAt = contents[idx].createdAt
+        if(!createdAt) return null
         if (!t) {
             t = {
                 text: "",
@@ -102,7 +102,7 @@ const setContentsText = (
             embeds: [],
             dbFormat: res.format,
             text: res.text,
-            created_at_tz: created_at_tz
+            createdAt: createdAt
         }
     }).filter(x => x != null)
 
@@ -123,7 +123,7 @@ const setContentsText = (
                             text: v.text,
                             collection: getCollectionFromUri(v.uri),
                             uri: v.uri,
-                            created_at: v.created_at_tz
+                            createdAt: v.createdAt
                         }
                     }))
                     .onConflict((oc) => oc.column("uri").doUpdateSet({

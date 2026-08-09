@@ -51,7 +51,7 @@ export const getTopicHistory = (
             .select([
                 "Record.uri",
                 "Record.cid",
-                "Record.created_at_tz",
+                "Record.createdAt",
                 "diff",
                 "charsAdded",
                 "charsDeleted",
@@ -73,7 +73,7 @@ export const getTopicHistory = (
                         "ReactionAuthor.editorStatus"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.created_at_tz desc")
+                    .orderBy("ReactionRecord.createdAt", "desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions"),
                 eb => eb
@@ -84,7 +84,7 @@ export const getTopicHistory = (
             .where("Record.cid", "is not", null)
             .where("Record.record", "is not", null)
             .where("TopicVersion.topicId", "=", id)
-            .orderBy("created_at_tz asc")
+            .orderBy("createdAt", "asc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
@@ -124,7 +124,7 @@ export const getTopicHistory = (
             addedChars: v.charsAdded ?? undefined,
             removedChars: v.charsDeleted ?? undefined,
             props,
-            createdAt: v.created_at_tz?.toISOString() ?? new Date().toISOString(),
+            createdAt: v.createdAt?.toISOString() ?? new Date().toISOString(),
             contribution: {
                 monetized: (v.monetizedContribution ?? 0).toString(),
                 all: (v.charsContribution ?? 0).toString()

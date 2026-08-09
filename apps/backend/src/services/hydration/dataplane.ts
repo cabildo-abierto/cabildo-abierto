@@ -286,7 +286,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                 .select([
                     "Record.uri",
                     "Record.cid",
-                    "Record.created_at_tz",
+                    "Record.createdAt",
                     "Record.uniqueLikesCount",
                     "Record.uniqueRepostsCount",
                     eb => eb
@@ -325,7 +325,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             if (c.cid) {
                 caContents.set(c.uri, {
                     ...c,
-                    created_at: c.created_at_tz ?? new Date(),
+                    created_at: c.createdAt ?? new Date(),
                     repliesCount: c.repliesCount ? Number(c.repliesCount) : 0,
                     quotesCount: c.quotesCount ? Number(c.quotesCount) : 0,
                     cid: c.cid,
@@ -366,7 +366,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "handle",
                     "displayName",
                     "avatar",
-                    "created_at_tz",
+                    "createdAt",
                     "orgValidation",
                     "userValidationHash",
                     "editorStatus",
@@ -394,14 +394,14 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         })
 
         users.forEach(u => {
-            if(u.handle && u.created_at_tz) {
+            if(u.handle && u.createdAt) {
                 caProfileData.set(u.did, {
                     did: u.did,
                     caProfile: u.CAProfileUri,
                     handle: u.handle,
                     avatar: u.avatar,
                     displayName: u.displayName,
-                    createdAt: u.created_at_tz,
+                    createdAt: u.createdAt,
                     verification: getValidationState(u),
                     editorStatus: u.editorStatus,
                     description: u.description,
@@ -672,7 +672,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             .select([
                 "Dataset.uri",
                 "Record.cid",
-                "Record.created_at_tz as created_at",
+                "Record.createdAt as created_at",
                 "Dataset.title",
                 "Dataset.columns",
                 "Dataset.description",
@@ -852,10 +852,10 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     "Topic.popularityScoreLastDay",
                     "Topic.popularityScoreLastWeek",
                     "Topic.popularityScoreLastMonth",
-                    "Topic.lastEdit_tz as lastEdit",
+                    "Topic.lastEdit as lastEdit",
                     "CurrentVersion.props",
                     "Content.numWords",
-                    "Record.created_at_tz as created_at"
+                    "Record.createdAt as created_at"
                 ])
                 .where("TopicVersion.uri", "in", uris)
                 .execute(),
@@ -885,7 +885,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
             try: () => ctx.kysely
                 .selectFrom("Post")
                 .innerJoin("Record", "Record.uri", "Post.rootId")
-                .select(["Post.uri", "Record.created_at_tz as created_at"])
+                .select(["Post.uri", "Record.createdAt as created_at"])
                 .where("Post.uri", "in", uris)
                 .execute(),
             catch: (error) => new DBSelectError(error)
@@ -906,7 +906,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                     .innerJoin("Record", "Reaction.uri", "Record.uri")
                     .select([
                         "Record.uri",
-                        "Record.created_at_tz as created_at",
+                        "Record.createdAt as created_at",
                         "Reaction.subjectId"
                     ])
                     .where("Reaction.uri", "in", uris)
@@ -1192,7 +1192,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                         "Notification.causedByRecordId",
                         "Notification.message",
                         "Notification.moreContext",
-                        "Notification.created_at_tz",
+                        "Notification.createdAt",
                         "Notification.type",
                         "Notification.reasonSubject",
                         "Record.cid",
@@ -1200,7 +1200,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                         "TopicVersion.topicId"
                     ])
                     .where("userNotifiedId", "=", agent.did)
-                    .orderBy("Notification.created_at_tz", "desc")
+                    .orderBy("Notification.createdAt", "desc")
                     .limit(20)
                     .execute(),
                 catch: (error) => new DBSelectError(error)
@@ -1209,9 +1209,9 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
         ], {concurrency: "unbounded"})
 
         caNotificationsData.forEach(n => {
-            if(n.created_at_tz != null) notifications.set(n.id, {
+            if(n.createdAt != null) notifications.set(n.id, {
                 ...n,
-                created_at: n.created_at_tz
+                createdAt: n.createdAt
             })
         })
     })
@@ -1272,7 +1272,7 @@ export const makeDataPlane = (ctx: AppContext, inputAgent?: SessionAgent | NoSes
                         .innerJoin("Record", "Record.uri", "PollVote.uri")
                         .whereRef("PollVote.pollId", "=", "Poll.id")
                         .select(["PollVote.choice", "PollVote.uri"])
-                        .orderBy("created_at_tz desc")
+                        .orderBy("createdAt desc")
                     ).as("votes")
                 ])
                 .where("id", "in", ids)

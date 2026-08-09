@@ -194,11 +194,11 @@ export const updateTopicInteractionsOnNewReferences = (
             try: () => ctx.kysely
                 .insertInto("TopicInteraction")
                 .values(values
-                    .map(v => ({...v, touched_tz: date}))
+                    .map(v => ({...v, touched: date}))
                 )
                 .onConflict(oc => oc
                     .columns(["recordId", "referenceId"]).doUpdateSet(eb => ({
-                        touched_tz: eb.ref("excluded.touched_tz")
+                        touched: eb.ref("excluded.touched")
                     })))
                 .execute(),
             catch: error => new DBInsertError(error)
@@ -208,7 +208,7 @@ export const updateTopicInteractionsOnNewReferences = (
     yield* Effect.tryPromise({
         try: () => ctx.kysely
             .deleteFrom("TopicInteraction")
-            .where("TopicInteraction.touched_tz", "<", date)
+            .where("TopicInteraction.touched", "<", date)
             .where("TopicInteraction.referenceId", "in", references)
             .execute(),
         catch: error =>  new DBDeleteError(error)
@@ -227,12 +227,12 @@ export const getEditedTopics = (ctx: AppContext, since: Date) => Effect.gen(func
                     .selectFrom("TopicVersion")
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
                     .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                    .where("Record.created_at_tz", ">", since)
+                    .where("Record.createdAt", ">", since)
                 ),
                 eb.exists(eb
                     .selectFrom("Reaction")
                     .innerJoin("Record", "Reaction.subjectId", "Record.uri")
-                    .where("Record.created_at_tz", ">", since)
+                    .where("Record.createdAt", ">", since)
                     .innerJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
                     .whereRef("TopicVersion.topicId", "=", "Topic.id")
                 )

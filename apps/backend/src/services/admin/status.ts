@@ -22,10 +22,10 @@ export const updateTimestamp = (
             .insertInto("Timestamps")
             .values([{
                 id,
-                date_tz: date,
+                date: date,
             }])
             .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
-                date_tz: eb.ref("excluded.date_tz")
+                date: eb.ref("excluded.date")
             })))
             .execute(),
         catch: error => new DBInsertError(error)
@@ -40,12 +40,12 @@ export const getTimestamp = (
     const ts = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Timestamps")
-            .select("date_tz")
+            .select("date")
             .where("id", "=", id)
             .executeTakeFirst(),
         catch: error => new DBSelectError(error)
     })
-    return ts?.date_tz ?? null
+    return ts?.date ?? null
 })
 
 
@@ -103,7 +103,7 @@ export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, a
     // Get all CA users from database
     const users = await ctx.kysely
         .selectFrom("User")
-        .select(["did", "handle", "created_at_tz"])
+        .select(["did", "handle", "createdAt"])
         .where("inCA", "=", true)
         .where("hasAccess", "=", true)
         .execute()
@@ -114,7 +114,7 @@ export const getUsersSyncStatus: CAHandler<{}, UserSyncStatus[]> = async (ctx, a
             did: u.did,
             handle: u.handle,
             mirrorStatus: await Effect.runPromise(ctx.redisCache.mirrorStatus.get(u.did, true)),
-            CAProfile: u.created_at_tz ? { createdAt: u.created_at_tz } : null
+            CAProfile: u.createdAt ? { createdAt: u.createdAt } : null
         }))
     )
     

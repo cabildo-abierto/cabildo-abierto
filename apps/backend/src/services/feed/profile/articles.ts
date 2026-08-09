@@ -9,10 +9,10 @@ export const getArticlesProfileFeedSkeleton = (did: string) : GetSkeletonProps =
         return Effect.tryPromise({
             try: () => ctx.kysely
                 .selectFrom("Record")
-                .select(["uri", "created_at_tz as created_at"])
+                .select(["uri", "createdAt as created_at"])
                 .where("collection", "=", "ar.cabildoabierto.feed.article")
                 .where("authorId", "=", did)
-                .$if(cursor != null, qb => qb.where("created_at_tz", "<=", new Date(cursor!)))
+                .$if(cursor != null, qb => qb.where("createdAt", "<=", new Date(cursor!)))
                 .execute(),
             catch: (error) => new DBSelectError(error)
         }).pipe(Effect.map(skeleton => {

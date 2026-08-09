@@ -94,7 +94,7 @@ function createNotifications(posts: {replyToId: string | null, uri: string}[]): 
                         userNotifiedId: getDidFromUri(p.replyToId),
                         type: "Reply",
                         causedByRecordId: p.uri,
-                        created_at: new Date(),
+                        createdAt: new Date(),
                         reasonSubject: p.replyToId,
                     })
                 }

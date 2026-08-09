@@ -17,7 +17,7 @@ export const getPendingModeration: EffHandler<{}, PendingModeration> = (
             .selectFrom("RecordModerationProcess")
             .select(["recordId", "id"])
             .where("result", "is", null)
-            .orderBy("created_at asc")
+            .orderBy("createdAt", "asc")
             .limit(25)
             .execute(),
         catch: (error) => new DBSelectError(error)

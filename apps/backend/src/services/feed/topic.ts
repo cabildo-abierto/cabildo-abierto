@@ -71,7 +71,8 @@ const getTopicMentionsSkeletonQuery: (
                 .execute()
 
             return res.map((r, i) => ({
-                ...r,
+                uri: r.uri,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Interacciones") {
@@ -89,7 +90,7 @@ const getTopicMentionsSkeletonQuery: (
                 .leftJoin("Post", "Post.uri", "Record.uri")
                 .where("Reference.referencedTopicId", "=", id)
                 .where("Record.collection", "in", collections)
-                .where("Record.created_at_tz", ">", startDate)
+                .where("Record.createdAt", ">", startDate)
                 .where("interactionsScore", "is not", null)
                 .select([
                     "Reference.referencingContentId as uri",
@@ -101,7 +102,8 @@ const getTopicMentionsSkeletonQuery: (
                 .execute()
 
             return res.map((r, i) => ({
-                ...r,
+                uri: r.uri,
+                createdAt: r.createdAt!,
                 score: -(i + offsetFrom)
             }))
         } else if (metric == "Popularidad relativa") {
@@ -127,13 +129,13 @@ const getTopicMentionsSkeletonQuery: (
                     eb("TopicVersion.topicId", "!=", id),
                     eb("TopicVersion.uri", "is", null)
                 ]))
-                .where("Record.created_at_tz", ">", startDate)
-                .where("Record.created_at_tz", "is not", null)
+                .where("Record.createdAt", ">", startDate)
+                .where("Record.createdAt", "is not", null)
                 .select([
                     'Record.uri',
-                    "Record.created_at_tz as createdAt"
+                    "Record.createdAt as createdAt"
                 ])
-                .orderBy(["relativePopularityScore desc", "Content.created_at_tz desc"])
+                .orderBy(["relativePopularityScore desc", "Content.createdAt desc"])
                 .limit(limit)
                 .offset(offsetFrom)
                 .execute()
@@ -166,8 +168,8 @@ const getTopicMentionsSkeletonQuery: (
 
             return res.map(r => ({
                 uri: r.uri,
-                createdAt: r.createdAt,
-                score: r.createdAt.getTime()
+                createdAt: r.createdAt!,
+                score: r.createdAt!.getTime()
             }))
         } else {
             throw Error(`Métrica desconocida! ${metric}`)
@@ -220,7 +222,7 @@ export function getTopicMentionsInTopics(ctx: AppContext, id: string) {
             .where("TopicVersion.topicId", "!=", id)
             .innerJoin("Topic", "Topic.currentVersionId", "TopicVersion.uri")
             .select(["TopicVersion.topicId", "TopicVersion.props"])
-            .orderBy("created_at_tz", "desc")
+            .orderBy("createdAt", "desc")
             .limit(25)
             .execute(),
         catch: (error) => new DBSelectError(error)
@@ -332,15 +334,15 @@ export const getAllTopicEditsFeed: EffHandlerNoAuth<{
                 try: () => ctx.kysely
                     .selectFrom("TopicVersion")
                     .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                    .select(["TopicVersion.uri", "Record.created_at_tz"])
-                    .orderBy("Record.created_at_tz desc")
+                    .select(["TopicVersion.uri", "Record.createdAt"])
+                    .orderBy("Record.createdAt desc")
                     .limit(25)
-                    .$if(cursor != null, qb => qb.where("Record.created_at_tz", "<", new Date(cursor!)))
+                    .$if(cursor != null, qb => qb.where("Record.createdAt", "<", new Date(cursor!)))
                     .execute(),
                 catch: (error) => new DBSelectError(error)
             }).pipe(Effect.map(edits => {
                 const latest = edits[edits.length - 1]
-                const newCursor = latest?.created_at_tz?.toISOString()
+                const newCursor = latest?.createdAt?.toISOString()
 
                 return {
                     skeleton: edits.map(e => ({post: e.uri})),

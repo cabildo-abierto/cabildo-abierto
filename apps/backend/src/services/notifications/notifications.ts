@@ -20,7 +20,7 @@ export type NotificationQueryResult = {
     record: string | null
     message: string | null
     moreContext: string | null
-    created_at: Date
+    createdAt: Date
     type: NotificationType
     reasonSubject: string | null
     topicId: string | null
@@ -74,8 +74,8 @@ const hydrateCANotification = (
             $type: "ar.cabildoabierto.actor.defs#profileViewBasic"
         },
         record: data.record ? JSON.parse(data.record) : undefined,
-        isRead: data.created_at < lastReadTime,
-        indexedAt: data.created_at.toISOString(),
+        isRead: data.createdAt < lastReadTime,
+        indexedAt: data.createdAt.toISOString(),
         reasonSubject: data.reasonSubject ?? undefined,
         reasonSubjectContext: data.topicId ?? undefined
     }
@@ -106,7 +106,7 @@ const getCANotifications = (
                     "Notification.reasonSubject"
                 ])
                 .where("Notification.userNotifiedId", "=", agent.did)
-                .orderBy("Notification.created_at_tz", "desc")
+                .orderBy("Notification.createdAt", "desc")
                 .limit(20)
                 .execute(),
             catch: (error) => new DBSelectError(error)
@@ -213,7 +213,7 @@ export const getUnreadNotificationsCount: EffHandler<{}, number> =  (
             .selectFrom('Notification')
             .select(({fn}) => [fn.count('id').as('count')])
             .where('userNotifiedId', '=', agent.did)
-            .where('created_at_tz', '>', lastSeen)
+            .where('createdAt', '>', lastSeen)
             .executeTakeFirst(),
         catch: (error) => new DBSelectError(error)
     })
@@ -233,7 +233,7 @@ type FullNotification = {
     causedByRecordId: string
     message?: string
     moreContext?: string
-    created_at: Date
+    createdAt: Date
     reasonSubject?: string
 }
 
@@ -264,13 +264,13 @@ async function getTopicEditsFullNotifications(ctx: AppContext, data: TopicEditNo
             qb
                 .selectFrom('TopicVersion')
                 .innerJoin("Record", "Record.uri", "TopicVersion.uri")
-                .select(['Record.uri', 'topicId', "Record.created_at_tz"])
+                .select(['Record.uri', 'topicId', "Record.createdAt"])
                 .where('Record.uri', 'in', data.map(d => d.uri))
         )
         .selectFrom("InputVersions")
         .innerJoin('TopicVersion as tv', 'InputVersions.topicId', 'tv.topicId')
         .innerJoin("Record as tvRecord", "tvRecord.uri", "InputVersions.uri")
-        .whereRef("InputVersions.created_at_tz", ">", "tvRecord.created_at_tz")
+        .whereRef("InputVersions.createdAt", ">", "tvRecord.createdAt")
         .select([
             'InputVersions.uri as causeUri',
             'tv.uri as notifiedVersionUri',
@@ -286,7 +286,7 @@ async function getTopicEditsFullNotifications(ctx: AppContext, data: TopicEditNo
 
     return relatedUris.map((v, i) => {
         return {
-            created_at: new Date(),
+            createdAt: new Date(),
             type: "TopicEdit",
             causedByRecordId: v.causeUri,
             reasonSubject: v.topicId,
@@ -301,7 +301,7 @@ async function getTopicVersionVoteFullNotifications(ctx: AppContext, data: Topic
 
     let notifications: FullNotification[] = data.map((d, i) => {
         return {
-            created_at: new Date(),
+            createdAt: new Date(),
             type: "TopicVersionVote",
             causedByRecordId: d.uri,
             reasonSubject: d.topic,
@@ -355,7 +355,7 @@ async function getMentionsFullNotifications(ctx: AppContext, data: MentionNotifi
             type: "Mention",
             userNotifiedId,
             causedByRecordId: d.uri,
-            created_at: new Date()
+            createdAt: new Date()
         }
         return n
     }).filter(x => x != null)

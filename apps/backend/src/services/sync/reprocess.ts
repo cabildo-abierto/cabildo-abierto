@@ -41,7 +41,7 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
             .where("Record.cid", "is not", null)
             .limit(bs)
             .offset(offset)
-            .orderBy("created_at_tz asc")
+            .orderBy("createdAt", "asc")
             .execute()
         const t2 = Date.now()
 

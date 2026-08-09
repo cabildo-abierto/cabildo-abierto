@@ -99,12 +99,12 @@ const getRecommendationRankingForUser = (
                     WHEN EXISTS (
                         SELECT 1 FROM "Record" 
                         WHERE "Record"."authorId" = "Candidate"."did" 
-                        AND "Record"."created_at" > ${lastTwoWeeks}
+                        AND "Record"."createdAt" > ${lastTwoWeeks}
                     AND "Record"."collection" = 'ar.cabildoabierto.feed.article'
                     ) THEN 0.25 ELSE 0 END + CASE WHEN EXISTS (
                         SELECT 1 FROM "Record" 
                         WHERE "Record"."authorId" = "Candidate"."did" 
-                        AND "Record"."created_at" > ${lastTwoWeeks}
+                        AND "Record"."createdAt" > ${lastTwoWeeks}
                     ) THEN 0.25 ELSE 0 END + CASE WHEN "Candidate"."inCA" THEN 0.25 ELSE 0 END
                 `.as("score")
             ])

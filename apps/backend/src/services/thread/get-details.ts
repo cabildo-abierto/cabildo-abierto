@@ -42,11 +42,11 @@ const getLikesSkeleton = (
             try: () => ctx.kysely
                 .selectFrom("Reaction")
                 .innerJoin("Record", "Record.uri", "Reaction.uri")
-                .select(["Record.authorId", "Record.created_at_tz"])
+                .select(["Record.authorId", "Record.createdAt"])
                 .where("Record.collection", "=", "app.bsky.feed.like")
                 .where("Reaction.subjectId", "=", uri)
-                .orderBy("Record.created_at_tz asc")
-                .$if(cursor != null, qb => qb.where("Record.created_at_tz", ">", new Date(cursor!)))
+                .orderBy("Record.createdAt", "asc")
+                .$if(cursor != null, qb => qb.where("Record.createdAt", ">", new Date(cursor!)))
                 .limit(limit)
                 .execute(),
             catch: (error) => new DBSelectError(error)
@@ -55,7 +55,7 @@ const getLikesSkeleton = (
         yield* dataplane.fetchProfileViewBasicHydrationData(likes.map((v) => v.authorId))
 
         const newCursor = likes.length == limit ?
-            max(likes.map(l => l.created_at_tz))?.toString() :
+            max(likes.map(l => l.createdAt))?.toString() :
             undefined
 
         return {
@@ -111,7 +111,7 @@ const getRepostsSkeleton = (
                 .where("Reaction.subjectId", "=", uri)
                 .where("Record.collection", "=", "app.bsky.feed.repost")
                 .select(["Record.authorId as did"])
-                .orderBy("Record.created_at_tz desc")
+                .orderBy("Record.createdAt", "desc")
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })
@@ -153,9 +153,9 @@ const getQuotesSkeleton = (
             try: () => ctx.kysely
                 .selectFrom("Post")
                 .innerJoin("Record", "Record.uri", "Post.uri")
-                .select(["Post.uri", "Record.created_at_tz"])
+                .select(["Post.uri", "Record.createdAt"])
                 .where("Post.quoteToId", "=", uri)
-                .orderBy("Record.created_at_tz asc")
+                .orderBy("Record.createdAt", "asc")
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })

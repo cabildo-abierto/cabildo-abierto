@@ -15,7 +15,7 @@ export async function confirmPromises(ctx: AppContext) {
         .select("id")
         .innerJoin("Record", "Record.uri", "AssignedPayment.contentId")
         .leftJoin("TopicVersion", "TopicVersion.uri", "Record.uri")
-        .where("Record.created_at_tz", "<", lastMonth)
+        .where("Record.createdAt", "<", lastMonth)
         .where(eb => eb.or([
             eb("Record.collection", "=", "ar.cabildoabierto.feed.article"),
             eb("TopicVersion.accepted", "=", true)

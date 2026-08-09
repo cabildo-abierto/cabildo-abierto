@@ -58,8 +58,8 @@ export async function computePaymentPromiseStats(ctx: AppContext, reset: boolean
             .select(({ fn }) => [
                 fn.sum<number>('amount').as('npp'),
             ])
-            .where("AssignedPayment.created_at", ">=", new Date(d.getTime()))
-            .where("AssignedPayment.created_at", "<", new Date(d.getTime()+dayMs))
+            .where("AssignedPayment.createdAt", ">=", new Date(d.getTime()))
+            .where("AssignedPayment.createdAt", "<", new Date(d.getTime()+dayMs))
             .execute()
         toInsert.push({
             date: new Date(d),
@@ -109,8 +109,8 @@ export async function computeWAUStats(ctx: AppContext, reset: boolean) {
             .select(({ fn }) => [
                 fn.count<number>('userId').distinct().as('wau'),
             ])
-            .where("ReadSession.created_at_tz", ">=", new Date(d.getTime()-dayMs*6))
-            .where("ReadSession.created_at_tz", "<", new Date(d.getTime()+dayMs))
+            .where("ReadSession.createdAt", ">=", new Date(d.getTime()-dayMs*6))
+            .where("ReadSession.createdAt", "<", new Date(d.getTime()+dayMs))
             .execute()
         toInsert.push({
             date: new Date(d),
@@ -164,8 +164,8 @@ async function getStatsDashboardUsers(ctx: AppContext){
             "did",
             "handle",
             "authorStatus",
-            "User.created_at_tz",
-            "CAProfileRecord.created_at_tz as ca_created_at",
+            "User.createdAt",
+            "CAProfileRecord.createdAt as ca_created_at",
             "email",
             "userValidationHash",
             "orgValidation",
@@ -173,9 +173,9 @@ async function getStatsDashboardUsers(ctx: AppContext){
                 .selectFrom("ReadSession")
                 .whereRef("ReadSession.userId", "=", "User.did")
                 .select([
-                    "created_at_tz"
+                    "createdAt"
                 ])
-                .orderBy("created_at_tz desc")
+                .orderBy("createdAt", "desc")
                 .limit(1)
             ).as("lastReadSession")
         ])
@@ -226,9 +226,9 @@ export const getStatsDashboard: CAHandler<{}, StatsDashboard> = async (ctx, agen
         handle: u.handle,
         did: u.did,
         email: u.email,
-        created_at: u.created_at_tz ?? new Date(),
+        created_at: u.createdAt ?? new Date(),
         authorStatus: u.authorStatus as string,
-        lastReadSession: u.lastReadSession.length > 0 ? new Date(u.lastReadSession[0].created_at_tz ?? 0) : null,
+        lastReadSession: u.lastReadSession.length > 0 ? new Date(u.lastReadSession[0].createdAt ?? 0) : null,
         verification: getValidationState(u),
         ca_created_at: u.ca_created_at ?? null
     }))
@@ -283,11 +283,11 @@ export const getStatsDashboard: CAHandler<{}, StatsDashboard> = async (ctx, agen
 export const getReadSessionsPlot: CAHandler<{}, {date: Date, count: number}[]> = async (ctx, agent, params) => {
     const reads = await ctx.kysely
         .selectFrom("ReadSession")
-        .select(["created_at_tz"])
+        .select(["createdAt"])
         .execute()
 
     const data = dailyPlotData(reads,
-        (x, d) => x.created_at_tz != null && new Date(x.created_at_tz).toDateString() == new Date(d).toDateString())
+        (x, d) => x.createdAt != null && new Date(x.createdAt).toDateString() == new Date(d).toDateString())
 
     return {
         data

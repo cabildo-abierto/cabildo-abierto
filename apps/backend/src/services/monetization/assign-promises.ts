@@ -47,22 +47,22 @@ class PromiseAssigner {
 
         const reads = await this.ctx.kysely
             .selectFrom("ReadSession")
-            .where("ReadSession.created_at_tz", ">=", firstStart)
-            .where("ReadSession.created_at_tz", "<", lastEnd)
+            .where("ReadSession.createdAt", ">=", firstStart)
+            .where("ReadSession.createdAt", "<", lastEnd)
             .where("ReadSession.userId", "in", unique(this.months.map(m => m.userId)))
             .innerJoin("Record", "Record.uri", "ReadSession.readContentId")
             .whereRef("ReadSession.userId", "!=", "Record.authorId")
             .select([
                 "ReadSession.userId",
-                "ReadSession.created_at_tz",
+                "ReadSession.createdAt",
                 "ReadSession.readContentId",
                 "ReadSession.readChunks"
             ])
             .execute()
 
         this.reads = reads
-            .map(r => r.created_at_tz && r.readContentId ? ({
-                created_at: r.created_at_tz,
+            .map(r => r.createdAt && r.readContentId ? ({
+                created_at: r.createdAt,
                 userId: r.userId,
                 readContentId: r.readContentId,
                 readChunks: r.readChunks
@@ -217,8 +217,8 @@ class PromiseAssigner {
                 "ReadVersion.uri as readVersion",
                 "TopicVersion.monetizedContribution"
             ])
-            .orderBy("Record.created_at_tz asc")
-            .whereRef("Record.created_at_tz", "<=", "ReadVersionRecord.created_at_tz")
+            .orderBy("Record.createdAt asc")
+            .whereRef("Record.createdAt", "<=", "ReadVersionRecord.createdAt")
             .where("TopicVersion.accepted", "=", true)
             .execute()
 
@@ -278,7 +278,7 @@ export async function assignPromises(ctx: AppContext) {
                 .select([
                     "AssignedPayment.contentId"
                 ])
-                .orderBy("AssignedPayment.created_at asc")
+                .orderBy("AssignedPayment.createdAt asc")
             ).as("confirmedPayments")
         ])
         .where("UserMonth.wasActive", "=", true)

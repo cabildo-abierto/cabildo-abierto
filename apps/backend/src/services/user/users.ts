@@ -100,7 +100,7 @@ export const getUsers: CAHandler<{}, UserAccessStatus[]> = async (ctx, agent, {}
                 "displayName",
                 "hasAccess",
                 "CAProfileUri",
-                "User.created_at_tz as created_at",
+                "User.createdAt as created_at",
                 "inCA",
                 "InviteCode.code"
             ])

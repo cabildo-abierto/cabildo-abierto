@@ -69,7 +69,7 @@ export const storeReadSession = (
         contentAuthorId: getDidFromUri(readSession.contentUri),
         topicId: topicId ?? undefined,
         created_at,
-        created_at_tz: created_at
+        createdAt: created_at
     }
 
     yield* Effect.tryPromise({

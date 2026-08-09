@@ -283,7 +283,7 @@ export const getPollVotes: EffHandlerNoAuth<
             .where("PollVote.pollId", "=", pollId)
             .innerJoin("Record", "Record.uri", "PollVote.uri")
             .select(["Record.uri", "choice"])
-            .orderBy("Record.created_at_tz desc")
+            .orderBy("Record.createdAt", "desc")
             .execute(),
         catch: error => new DBSelectError(error)
     })

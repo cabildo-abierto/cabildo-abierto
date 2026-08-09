@@ -11,15 +11,15 @@ export async function getNumberOfCAPostsByDay(ctx: AppContext) {
         .where("User.inCA", "=", true)
         .select([
             "Record.uri",
-            "Record.created_at_tz"
+            "Record.createdAt"
         ])
-        .orderBy("Record.created_at_tz asc")
-        .where("Record.created_at_tz", ">", lastMonth)
+        .orderBy("Record.createdAt", "asc")
+        .where("Record.createdAt", ">", lastMonth)
         .execute()
 
     return dailyPlotData(
         records,
-        (x, d) => x.created_at_tz?.toDateString() == d.toDateString(),
+        (x, d) => x.createdAt?.toDateString() == d.toDateString(),
         lastMonth
     )
 }
@@ -64,15 +64,15 @@ export async function getNumberOfPostsByDayOfExtendedUsers(ctx: AppContext) {
         .innerJoin("ExtendedUser", "ExtendedUser.did", "Record.authorId")
         .select([
             "Record.uri",
-            "Record.created_at_tz"
+            "Record.createdAt"
         ])
-        .orderBy("Record.created_at_tz asc")
-        .where("Record.created_at_tz", ">", lastMonth)
+        .orderBy("Record.createdAt", "asc")
+        .where("Record.createdAt", ">", lastMonth)
         .execute()
 
     return dailyPlotData(
         records,
-        (x, d) => x.created_at_tz?.toDateString() == d.toDateString(),
+        (x, d) => x.createdAt?.toDateString() == d.toDateString(),
         lastMonth
     )
 }

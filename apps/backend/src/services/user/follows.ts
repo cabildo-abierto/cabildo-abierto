@@ -266,7 +266,7 @@ export async function updateAllFollowCounters(ctx: AppContext) {
                 ])
                 .offset(offset)
                 .limit(batchSize)
-                .orderBy("User.created_at_tz asc")
+                .orderBy("User.createdAt", "asc")
                 .execute()
 
             if(users.length > 0) {

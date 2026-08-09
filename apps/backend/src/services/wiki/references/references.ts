@@ -43,9 +43,9 @@ export const updateReferencesForNewContents = (
                 ])
                 .innerJoin("Content", "Content.uri", "Record.uri")
                 .where("Content.text", "is not", null)
-                .where('Record.CAIndexedAt_tz', '>=', lastUpdate)
+                .where('Record.caIndexedAt', '>=', lastUpdate)
                 .where("Record.authorId", "in", caUsers)
-                .orderBy('Record.CAIndexedAt_tz', 'asc')
+                .orderBy('Record.caIndexedAt', 'asc')
                 .limit(batchSize)
                 .offset(curOffset)
                 .execute(),
@@ -99,7 +99,7 @@ const ftsReferencesQuery = (
             .select([
                 "Synonyms.id",
                 "Content.uri",
-                "Record.created_at_tz",
+                "Record.createdAt",
                 sql<number>`ts_rank_cd("Content"."text_tsv", "Synonyms"."query")`.as("rank")
             ])
             .execute(),
@@ -126,14 +126,14 @@ export const getReferencesToInsert = (
         const key = `${m.uri}:${m.id}`
         const cur = refsMap.get(key)
         if (!cur || !cur.relevance || cur.relevance < m.rank) {
-            if (m.created_at_tz) {
+            if (m.createdAt) {
                 refsMap.set(key, {
                     id: uuidv4(),
                     referencedTopicId: m.id,
                     referencingContentId: m.uri,
                     type: "Weak",
                     relevance: m.rank,
-                    referencingContentCreatedAt: m.created_at_tz
+                    referencingContentCreatedAt: m.createdAt
                 })
             }
         }
@@ -210,16 +210,16 @@ const applyReferencesUpdate = (
                 await trx
                     .insertInto("Reference")
                     .values(referencesToInsert
-                        .map(r => ({...r, touched_tz: date})))
+                        .map(r => ({...r, touched: date})))
                     .onConflict(oc => oc.columns(["referencingContentId", "referencedTopicId"]).doUpdateSet(eb => ({
-                        touched_tz: eb.ref("excluded.touched_tz"),
+                        touched: eb.ref("excluded.touched"),
                         relevance: eb.ref("excluded.relevance")
                     })))
                     .execute()
             }
             await trx
                 .deleteFrom("Reference")
-                .where("touched_tz", "<", date)
+                .where("touched", "<", date)
                 .$if(
                     contentUris != null,
                     qb => qb.where("Reference.referencingContentId", "in", contentUris!)
@@ -423,7 +423,7 @@ export const recomputeTopicInteractionsAndPopularities = (
                 .select(["id", "referencedTopicId"])
                 .limit(bs)
                 .offset(offset)
-                .where("Record.created_at_tz", ">", since)
+                .where("Record.createdAt", ">", since)
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })
@@ -505,7 +505,7 @@ export const updateDiscoverFeedIndex = (
                 .$if(uris == null, qb => qb.offset(offset))
                 .select([
                     "Content.uri",
-                    "Record.created_at_tz",
+                    "Record.createdAt",
                     eb => jsonArrayFrom(eb
                         .selectFrom("Reference")
                         .innerJoin("Topic", "Topic.id", "Reference.referencedTopicId")
@@ -514,24 +514,24 @@ export const updateDiscoverFeedIndex = (
                         .select(["TopicVersion.props"])
                     ).as("mentionedTopicsProps")
                 ])
-                .orderBy("Record.created_at_tz desc")
+                .orderBy("Record.createdAt desc")
                 .execute(),
             catch: (error) => new DBSelectError(error)
         })
 
         if (contents.length == 0) break
 
-        const values: { categoryId: string, contentId: string, created_at: Date }[] = []
+        const values: { categoryId: string, contentId: string, createdAt: Date }[] = []
         for (const c of contents) {
             const cats = unique(c.mentionedTopicsProps.flatMap(p => {
                 return getTopicCategories(p.props as ArCabildoabiertoWikiTopicVersion.TopicProp[])
             }))
             for (const cat of cats) {
-                if (c.created_at_tz) {
+                if (c.createdAt) {
                     values.push({
                         categoryId: cat,
                         contentId: c.uri,
-                        created_at: c.created_at_tz
+                        createdAt: c.createdAt
                     })
                 } else {
                     ctx.logger.pino.warn({uri: c.uri}, "content has no created at tz")

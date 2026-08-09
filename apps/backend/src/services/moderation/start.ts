@@ -57,7 +57,7 @@ export async function startContentModeration(ctx: AppContext, contents: {uri: st
                     id: a.id,
                     recordId: a.uri,
                     method: "Automatic",
-                    processed_at: new Date(),
+                    processedAt: new Date(),
                     result: "Ok"
                 }
             }))
@@ -67,7 +67,7 @@ export async function startContentModeration(ctx: AppContext, contents: {uri: st
             })))
             .onConflict(oc => oc.column("recordId").doUpdateSet(() => ({
                 method: "Automatic",
-                processed_at: new Date(),
+                processedAt: new Date(),
                 result: "Ok"
             })))
             .execute()

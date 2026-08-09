@@ -128,7 +128,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
         editorStatus: EditorStatus
         currentVersionId: string | null
         accCharsAdded: number | null
-        created_at_tz: Date | null
+        createdAt: Date | null
         props: unknown
     }
 
@@ -142,7 +142,7 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
             .innerJoin("User", "Record.authorId", "User.did")
             .innerJoin("Topic", "Topic.id", "TopicVersion.topicId")
             .select([
-                "Record.created_at_tz",
+                "Record.createdAt",
                 'TopicVersion.topicId',
                 "Topic.currentVersionId",
                 'Record.uri',
@@ -160,13 +160,13 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
                         "ReactionAuthor.editorStatus"
                     ])
                     .orderBy("ReactionRecord.authorId")
-                    .orderBy("ReactionRecord.created_at_tz desc")
+                    .orderBy("ReactionRecord.createdAt desc")
                     .distinctOn("ReactionRecord.authorId")
                 ).as("reactions")
             ])
             .where('TopicVersion.topicId', 'in', topicIds)
             .where('Record.cid', 'is not', null)
-            .orderBy('Record.created_at_tz', 'asc')
+            .orderBy('Record.createdAt', 'asc')
             .execute()
     } catch (err) {
         ctx.logger.pino.error({error: err}, "Error getting topics for update current version")
@@ -240,11 +240,11 @@ export async function updateTopicsCurrentVersionBatch(ctx: AppContext, trx: Tran
         try {
             await trx
                 .insertInto("Topic")
-                .values(updates.map(u => ({...u, synonyms: [], lastEdit_tz: u.lastEdit})))
+                .values(updates.map(u => ({...u, synonyms: [], lastEdit: u.lastEdit})))
                 .onConflict((oc) =>
                     oc.column("id").doUpdateSet({
                         currentVersionId: (eb) => eb.ref('excluded.currentVersionId'),
-                        lastEdit_tz: (eb) => eb.ref('excluded.lastEdit_tz')
+                        lastEdit: (eb) => eb.ref('excluded.lastEdit')
                     })
                 )
                 .execute()

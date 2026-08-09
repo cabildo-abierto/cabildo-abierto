@@ -22,7 +22,7 @@ export const updateInteractionsScore = (
             try: () => ctx.kysely
                 .selectFrom("Content")
                 .innerJoin("Record", "Record.uri", "Content.uri")
-                .where("Record.created_at_tz", ">", lastMonth)
+                .where("Record.createdAt", ">", lastMonth)
                 .$if(batchUris != null, qb => qb.where("Content.uri", "in", batchUris))
                 .$if(batchUris == null, qb => qb.limit(batchSize).offset(offset))
                 .select(eb => [

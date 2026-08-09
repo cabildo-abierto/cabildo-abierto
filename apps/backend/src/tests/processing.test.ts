@@ -55,9 +55,9 @@ describe('Process follow', {timeout: testTimeout}, () => {
             expect(record!.cid).toBe(follow.ref.cid)
             expect(record!.rkey).toBe(getRkeyFromUri(follow.ref.uri))
             expect(record!.authorId).toBe(getDidFromUri(follow.ref.uri))
-            expect(record!.created_at_tz!.toISOString())
+            expect(record!.createdAt!.toISOString())
                 .toBe(new Date(follow.record.createdAt).toISOString())
-            expect(record!.CAIndexedAt_tz).not.toBeNull()
+            expect(record!.caIndexedAt).not.toBeNull()
         })
 
         return await Effect.runPromise(Effect.provideServiceEffect(
@@ -136,7 +136,7 @@ describe('Create read session', {timeout: testTimeout}, () => {
                 .executeTakeFirst())
 
             expect(db_rs).not.toBeFalsy()
-            expect(db_rs!.created_at_tz?.toISOString()).toEqual(created_at.toISOString())
+            expect(db_rs!.createdAt?.toISOString()).toEqual(created_at.toISOString())
             expect(db_rs!.readChunks).toEqual({chunks: rs.chunks, totalChunks: rs.totalChunks})
             expect(db_rs!.contentAuthorId).toEqual(getDidFromUri(post.ref.uri))
             expect(db_rs!.readContentId).toEqual(post.ref.uri)

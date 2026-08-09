@@ -27,17 +27,17 @@ const getAllCAFeedPipeline: GetSkeletonProps = (
     const skeleton = yield* Effect.tryPromise({
         try: () => ctx.kysely
             .selectFrom("Content")
-            .select(["uri", "created_at_tz"])
-            .where("Content.created_at_tz", "<", firstFetchDate)
-            .where("Content.created_at_tz", "<", dateSince)
-            .orderBy("Content.created_at_tz", "desc")
+            .select(["uri", "createdAt"])
+            .where("Content.createdAt", "<", firstFetchDate)
+            .where("Content.createdAt", "<", dateSince)
+            .orderBy("Content.createdAt", "desc")
             .distinct()
             .limit(25)
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
 
-    const newDateSince = min(skeleton, x => x.created_at_tz?.getTime() ?? 0)?.created_at_tz
+    const newDateSince = min(skeleton, x => x.createdAt?.getTime() ?? 0)?.createdAt
 
     const newCursor = newDateSince ? [
         newDateSince.toISOString(),

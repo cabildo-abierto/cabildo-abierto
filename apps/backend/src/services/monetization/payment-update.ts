@@ -12,7 +12,7 @@ export async function updatePayments(ctx: AppContext) {
         .select([
             "id",
             "Record.uri",
-            "Record.created_at_tz as recordCreatedAt"
+            "Record.createdAt as recordCreatedAt"
         ])
         .where("PaymentPromise.status", "=", "Pending")
         .execute()

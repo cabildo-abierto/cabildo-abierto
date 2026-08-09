@@ -52,10 +52,10 @@ export const updateTopicPopularities = (
                 .selectFrom("TopicInteraction")
                 .innerJoin("Record", "Record.uri", "TopicInteraction.recordId")
                 .innerJoin("Reference", "Reference.id", "TopicInteraction.referenceId")
-                .where("Record.created_at_tz", ">", lastMonth)
+                .where("Record.createdAt", ">", lastMonth)
                 .where("Reference.referencedTopicId", "in", batchIds)
-                .select(["recordId", "Reference.referencedTopicId as topicId", "Record.created_at_tz"])
-                .orderBy("Record.created_at_tz desc")
+                .select(["recordId", "Reference.referencedTopicId as topicId", "Record.createdAt"])
+                .orderBy("Record.createdAt", "desc")
                 .execute(),
             catch: (error) =>  new DBSelectError(error)
         }).pipe(Effect.withSpan("SQL/get topic interactions"))
@@ -74,16 +74,16 @@ export const updateTopicPopularities = (
         })
 
         batchInteractions.forEach((d) => {
-            if(!d.created_at_tz) return
+            if(!d.createdAt) return
             let cur = m.get(d.topicId)!
             if(cur){
                 const authorId = getDidFromUri(d.recordId)
                 if(humanUsers.has(authorId)){
                     cur.interactionsLastMonth.add(authorId)
-                    if(d.created_at_tz > lastWeek){
+                    if(d.createdAt > lastWeek){
                         cur.interactionsLastWeek.add(authorId)
                     }
-                    if(d.created_at_tz > lastDay){
+                    if(d.createdAt > lastDay){
                         cur.interactionsLastDay.add(authorId)
                     }
 

@@ -154,9 +154,9 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
         collection: string,
         authorId: string
         record: string
-        CAIndexedAt_tz: Date
-        lastUpdatedAt_tz: Date
-        created_at_tz?: Date
+        caIndexedAt: Date
+        lastUpdatedAt: Date
+        createdAt?: Date
     }[] = []
 
     records.forEach(r => {
@@ -169,9 +169,9 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
             collection,
             authorId: did,
             record: JSON.stringify(record),
-            CAIndexedAt_tz: new Date(),
-            lastUpdatedAt_tz: new Date(),
-            created_at_tz: record.createdAt ? new Date(record.createdAt) : new Date()
+            caIndexedAt: new Date(),
+            lastUpdatedAt: new Date(),
+            createdAt: record.createdAt ? new Date(record.createdAt) : new Date()
         })
     })
 
@@ -188,10 +188,10 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
                         cid: eb.ref('excluded.cid'),
                         rkey: eb.ref('excluded.rkey'),
                         collection: eb.ref('excluded.collection'),
-                        created_at_tz: eb.ref('excluded.created_at_tz'),
+                        createdAt: eb.ref('excluded.createdAt'),
                         authorId: eb.ref('excluded.authorId'),
                         record: eb.ref('excluded.record'),
-                        lastUpdatedAt_tz: eb.ref('excluded.lastUpdatedAt_tz'), // CAIndexedAt no se actualiza
+                        lastUpdatedAt: eb.ref('excluded.lastUpdatedAt'), // caIndexedAt no se actualiza
                         editedAt: eb.case()
                             .when("Record.cid", "!=", eb.ref("excluded.cid"))
                             .then(new Date()).else(eb.ref("Record.editedAt")).end()
@@ -211,7 +211,7 @@ export async function createUsersBatch(trx: Transaction<DB>, dids: string[]) {
     dids = unique(dids)
     await trx
         .insertInto("User")
-        .values(dids.map(did => ({did, created_at_tz: new Date()})))
+        .values(dids.map(did => ({did, createdAt: new Date()})))
         .onConflict((oc) => oc.column("did").doNothing())
         .execute()
 }
@@ -261,7 +261,7 @@ export async function processDirtyRecordsBatch(trx: Transaction<DB>, refs: {uri:
         authorId: getDidFromUri(uri),
         cid,
         record: null,
-        created_at_tz: new Date()
+        createdAt: new Date()
     }))
 
     if (data.length == 0) return

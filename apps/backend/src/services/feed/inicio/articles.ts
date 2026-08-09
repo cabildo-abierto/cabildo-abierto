@@ -9,7 +9,7 @@ const getArticlesFeedSkeleton: GetSkeletonProps = (ctx, agent) => {
             .selectFrom("Article")
             .innerJoin("Record", "Record.uri", "Article.uri")
             .select(["Record.uri"])
-            .orderBy("Record.created_at_tz", "desc")
+            .orderBy("Record.createdAt", "desc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     }).pipe(

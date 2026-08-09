@@ -15,11 +15,11 @@ function addOneMonth(date: Date) {
 
 function getNewUserMonths(ctx: AppContext, user: {
     did: string
-    validations: { created_at_tz: Date | string | null }[]
+    validations: { createdAt: Date | string | null }[]
     months: { monthEnd: Date | string }[]
 }) {
     const validations = user.validations
-        .map(x => x.created_at_tz)
+        .map(x => x.createdAt)
         .filter(x => x != null)
     if (validations.length > 0) {
         let newMonthStart: Date
@@ -73,9 +73,9 @@ export async function createUserMonths(ctx: AppContext) {
                 .where("ValidationRequest.result", "=", "Aceptada")
                 .where("ValidationRequest.type", "=", "Persona")
                 .select([
-                    "created_at_tz"
+                    "createdAt"
                 ])
-                .orderBy("created_at_tz asc")
+                .orderBy("createdAt asc")
             ).as("validations")
         ])
         .where("User.userValidationHash", "is not", null)
@@ -103,11 +103,11 @@ export async function createUserMonths(ctx: AppContext) {
     const reads = await ctx.kysely
         .selectFrom("ReadSession")
         .where("ReadSession.userId", "in", unique(newMonths.map(m => m.did)))
-        .where("ReadSession.created_at_tz", ">=", firstStart)
-        .where("ReadSession.created_at_tz", "<=", lastEnd)
+        .where("ReadSession.createdAt", ">=", firstStart)
+        .where("ReadSession.createdAt", "<=", lastEnd)
         .select([
             "ReadSession.userId",
-            "ReadSession.created_at_tz",
+            "ReadSession.createdAt",
             "ReadSession.readContentId"
         ])
         .execute()
@@ -116,9 +116,9 @@ export async function createUserMonths(ctx: AppContext) {
         const monthReads = reads
             .filter(r => (
                 r.userId == m.did &&
-                r.created_at_tz != null &&
-                new Date(r.created_at_tz) < new Date(m.end) &&
-                new Date(r.created_at_tz) >= new Date(m.start)
+                r.createdAt != null &&
+                new Date(r.createdAt) < new Date(m.end) &&
+                new Date(r.createdAt) >= new Date(m.start)
             ))
 
         const contentsRead = unique(monthReads, r => r.readContentId).length

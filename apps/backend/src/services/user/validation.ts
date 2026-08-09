@@ -108,7 +108,7 @@ export const getValidationRequest: CAHandler<{}, { type: "org" | "persona" | nul
         .selectFrom("ValidationRequest")
         .select(["type", "result", "dniFrente"])
         .where("userId", "=", agent.did)
-        .orderBy("ValidationRequest.created_at_tz desc")
+        .orderBy("ValidationRequest.createdAt desc")
         .executeTakeFirst()
 
     if(!res) return {data: {type: null}}
@@ -164,7 +164,7 @@ export const getPendingValidationRequests: EffHandler<{}, {
                     "id",
                     "dniFrente",
                     "dniDorso",
-                    "created_at_tz as createdAt",
+                    "createdAt as createdAt",
                     "documentacion",
                     "userId",
                     "type",

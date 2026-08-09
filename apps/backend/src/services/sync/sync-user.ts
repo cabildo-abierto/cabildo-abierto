@@ -589,14 +589,14 @@ export async function updateRecordsCreatedAt(ctx: AppContext) {
             .execute()
         const t2 = Date.now()
 
-        const values: {uri: string, created_at: Date}[] = []
+        const values: {uri: string, createdAt: Date}[] = []
         res.forEach(r => {
             if(r.record){
                 const record = JSON.parse(r.record)
                 if(record.created_at){
                     values.push({
                         uri: r.uri,
-                        created_at: record.created_at
+                        createdAt: record.created_at
                     })
                 }
             }
@@ -613,7 +613,7 @@ export async function updateRecordsCreatedAt(ctx: AppContext) {
                     authorId: ""
                 })))
                 .onConflict(oc => oc.column("uri").doUpdateSet(eb => ({
-                    created_at_tz: eb.ref("excluded.created_at_tz")
+                    createdAt: eb.ref("excluded.createdAt")
                 })))
                 .execute()
         }

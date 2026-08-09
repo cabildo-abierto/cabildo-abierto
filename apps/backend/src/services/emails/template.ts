@@ -11,10 +11,10 @@ export const getEmailTemplates: CAHandler<{}, EmailTemplatesResponse> = async (c
             "subject",
             "html",
             "text",
-            "created_at",
-            "updated_at"
+            "createdAt as created_at",
+            "updatedAt"
         ])
-        .orderBy("created_at", "desc")
+        .orderBy("createdAt", "desc")
         .execute()
 
     return {
@@ -26,7 +26,7 @@ export const getEmailTemplates: CAHandler<{}, EmailTemplatesResponse> = async (c
                 html: t.html,
                 text: t.text,
                 createdAt: t.created_at.toISOString(),
-                updatedAt: t.updated_at.toISOString()
+                updatedAt: t.updatedAt.toISOString()
             }))
         }
     }
@@ -63,7 +63,7 @@ export const createEmailTemplate: CAHandler<CreateTemplateParams, EmailTemplate>
             subject,
             html,
             text,
-            updated_at: new Date()
+            updatedAt: new Date()
         })
         .returning([
             "id",
@@ -71,8 +71,8 @@ export const createEmailTemplate: CAHandler<CreateTemplateParams, EmailTemplate>
             "subject",
             "html",
             "text",
-            "created_at",
-            "updated_at"
+            "createdAt as created_at",
+            "updatedAt"
         ])
         .executeTakeFirstOrThrow()
 
@@ -84,7 +84,7 @@ export const createEmailTemplate: CAHandler<CreateTemplateParams, EmailTemplate>
             html: template.html,
             text: template.text,
             createdAt: template.created_at.toISOString(),
-            updatedAt: template.updated_at.toISOString()
+            updatedAt: template.updatedAt.toISOString()
         }
     }
 }
@@ -139,8 +139,8 @@ export const updateEmailTemplate: CAHandler<UpdateTemplateParams, EmailTemplate>
             "subject",
             "html",
             "text",
-            "created_at",
-            "updated_at"
+            "createdAt as created_at",
+            "updatedAt"
         ])
         .executeTakeFirstOrThrow()
 
@@ -152,7 +152,7 @@ export const updateEmailTemplate: CAHandler<UpdateTemplateParams, EmailTemplate>
             html: template.html,
             text: template.text,
             createdAt: template.created_at.toISOString(),
-            updatedAt: template.updated_at.toISOString()
+            updatedAt: template.updatedAt.toISOString()
         }
     }
 }

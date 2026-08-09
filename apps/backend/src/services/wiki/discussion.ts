@@ -58,7 +58,7 @@ const getTopicRepliesSkeleton = (ctx: AppContext, id: string): Effect.Effect<Thr
                 "Post.replyToId"
             ])
             .where("TopicVersion.topicId", "=", id)
-            .orderBy("Record.created_at_tz desc")
+            .orderBy("Record.createdAt", "desc")
             .execute(),
         catch: (error) => new DBSelectError(error)
     })
@@ -89,7 +89,7 @@ function getTopicVotesForDiscussion(ctx: AppContext, uri: string): Effect.Effect
             .select([
                 "Reaction.uri",
                 "Reaction.subjectId",
-                "SubjectRecord.created_at_tz as subjectCreatedAt",
+                "SubjectRecord.createdAt as subjectCreatedAt",
                 "Reason.uri as reasonUri"
             ])
             .execute(),
